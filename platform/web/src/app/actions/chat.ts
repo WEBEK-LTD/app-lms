@@ -7,7 +7,7 @@ import { appLabel } from "@/lib/app/label";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { chatAvailable, chatSessionKind } from "@/lib/chat/access";
 import { ownerBlock, ownerClearConversation, ownerDeleteMessage, ownerKeep, ownerKeepExpiring, ownerResolveReport, ownerSend, saveChatSettings } from "@/lib/chat/owner";
-import type { ChatDeps } from "@/lib/chat/service";
+import { parseMessageId, removeMessage, type ChatDeps } from "@/lib/chat/service";
 import { dashboardChatDeps } from "@/lib/chat/dashboard";
 import { getStore } from "@/lib/data";
 import type { App, MediaKind } from "@/lib/data/types";
@@ -15,7 +15,9 @@ import { appPlan } from "@/lib/entitlements";
 import type { FormState } from "@/lib/forms";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { fileUrl, isMediaId } from "@/lib/media/files";
+import { newId } from "@/lib/crypto/tokens";
 import { formatBytes } from "@/lib/media/quota";
+import { adminMayRead, closeSchoolConversation, writeToTeachers, type TeacherAudience } from "@/lib/school/messages";
 
 /**
  * 77 Dashboard › Chat: the business answers and looks after its chat. Who
@@ -155,4 +157,57 @@ export async function listChatLibraryAction(): Promise<ChatLibraryFile[]> {
       size: formatBytes(f.sizeBytes),
       thumbUrl: f.kind === "image" && deps.storage ? fileUrl(deps.storage, f, { ttlSeconds: 3600 }).url : null,
     }));
+}
+
+// 113.6 A school: the administration and its teachers; the teachers' conversations with families
+
+const isSchoolApp = (app: App) => app.connector?.kind === "school";
+
+/** The administration writes to one teacher or member of staff (113.3), all teachers, all staff, everyone or a department: in each one's own conversation with the school. */
+export async function writeToTeachersAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app, deps, team, context } = await chatContext();
+  if (!isSchoolApp(app)) return { message: "This app isn't a school." };
+  const to = field(formData, "to");
+  const text = String(formData.get("text") ?? "").trim();
+  const values = { to, text };
+  const audience: TeacherAudience | null =
+    to === "all" || to === "staff" || to === "everyone" ? { kind: to } : to.startsWith("department:") ? { kind: "department", name: to.slice(11) } : /^teacher:\d{1,15}$/.test(to) ? { kind: "teacher", id: Number(to.slice(8)) } : null;
+  if (!audience) return { errors: { to: "Choose whom to write to." }, values };
+  if (!text) return { errors: { text: "Write a message or attach a file." }, values };
+  const sent = await writeToTeachers(deps, app, { audience, text, clientId: field(formData, "client") || newId(), team });
+  if (!sent.ok) return sent.status === 404 ? { errors: { to: "No teacher to write to." }, values } : { errors: { text: sent.message }, values };
+  await recordStaffChange(context, `Wrote to ${sent.value.sent} teacher(s) or staff in the chat`);
+  revalidatePath("/dashboard/chat", "layout");
+  if (sent.value.sent === 0) return { ok: false, message: `None of them has signed in to the app yet: ${sent.value.notInApp.join(", ")}.`, values };
+  return {
+    ok: true,
+    message: sent.value.notInApp.length ? `Sent to ${sent.value.sent} person(s). Not yet in the app: ${sent.value.notInApp.join(", ")}.` : `Sent to ${sent.value.sent} person(s).`,
+  };
+}
+
+/** The administration closes a conversation of a teacher and a family (nothing more is sent in it), or opens it again. */
+export async function closeSchoolConversationAction(formData: FormData): Promise<void> {
+  const { app, deps, by, context } = await chatContext();
+  const conversationId = field(formData, "conversation");
+  const closed = formData.get("closed") === "1";
+  if (UUID.test(conversationId) && (await closeSchoolConversation(deps.store, app, conversationId, closed, by, deps.now))) {
+    await recordStaffChange(context, `${closed ? "Closed" : "Opened again"} a conversation of a teacher and a family`);
+  }
+  revalidatePath("/dashboard/chat", "layout");
+  redirect(UUID.test(conversationId) ? `/dashboard/chat/school/${conversationId}` : "/dashboard/chat?view=school");
+}
+
+/** A message the administration may see (a reported one, or every one when it reads them) deleted for everyone. */
+export async function deleteSchoolMessageAction(formData: FormData): Promise<void> {
+  const { app, deps, by } = await chatContext();
+  const conversationId = field(formData, "conversation");
+  const id = parseMessageId(field(formData, "message"));
+  const message = id === null ? null : await deps.store.getChatMessage(app.id, id);
+  const conversation = message ? await deps.store.getChatConversation(app.id, message.conversationId) : null;
+  if (message && conversation && conversation.id === conversationId && (await adminMayRead(deps.store, app, conversation))) {
+    await removeMessage(deps, app, message);
+    await deps.store.closeChatReports(app.id, message.id, "deleted", by, deps.now);
+  }
+  revalidatePath("/dashboard/chat", "layout");
+  redirect(UUID.test(conversationId) ? `/dashboard/chat/school/${conversationId}` : "/dashboard/chat?view=school");
 }

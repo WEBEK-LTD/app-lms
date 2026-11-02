@@ -202,4 +202,38 @@ export function chatStoreSuite(store: () => DataStore) {
     expect(await s.listChatBlocks(other.id)).toEqual([]);
     expect((await s.listChatParticipants(g.id)).map((p) => p.memberId)).toEqual([other.id]);
   });
+
+  it("113.6 makes a school's teacher-and-family conversation once, finds it by either side and deletes it with a person", async () => {
+    const s = store();
+    const a = await app();
+    const person = async (role: "teacher" | "parent", phone: string) => {
+      const made = await s.createSchoolPerson({ appId: a.id, role, name: `${role} ${phone}`, phone, email: null, classId: null, code: null, photoAssetId: null, active: true, department: role === "teacher" ? "Sciences" : null }, NOW);
+      if (!made.ok) throw new Error("duplicate");
+      return made.person;
+    };
+    const teacher = await person("teacher", "+201110000000");
+    const parent = await person("parent", "+201001000009");
+    const other = await person("parent", "+201001000008");
+    expect((await s.getSchoolPerson(a.id, teacher.id))?.department).toBe("Sciences");
+    const [one, two] = await Promise.all([
+      s.ensureSchoolConversation({ appId: a.id, teacherId: teacher.id, personId: parent.id }, NOW),
+      s.ensureSchoolConversation({ appId: a.id, teacherId: teacher.id, personId: parent.id }, NOW),
+    ]);
+    expect(one.id).toBe(two.id);
+    expect(one).toMatchObject({ kind: "school", memberId: null, schoolTeacherId: teacher.id, schoolPersonId: parent.id, closedAt: null, teacherWroteAt: null });
+    const theirs = await s.ensureSchoolConversation({ appId: a.id, teacherId: teacher.id, personId: other.id }, NOW);
+    expect((await s.listSchoolConversations(a.id, { personIds: [parent.id], limit: 10 })).map((c) => c.id)).toEqual([one.id]);
+    expect((await s.listSchoolConversations(a.id, { personIds: [teacher.id], limit: 10 })).map((c) => c.id).sort()).toEqual([one.id, theirs.id].sort());
+    expect(await s.listSchoolConversations(a.id, { personIds: [], limit: 10 })).toEqual([]);
+    // The app's list has those with a message.
+    const m = await member(a.id, "s-1");
+    await s.createChatMessage(message(a.id, one.id, m.id, "Hello", NOW));
+    expect((await s.listSchoolConversations(a.id, { limit: 10 })).map((c) => c.id)).toEqual([one.id]);
+    expect((await s.listChatConversations(a.id, { kind: "school", limit: 10 })).map((c) => c.id)).toEqual([one.id]);
+    await s.updateChatConversation(one.id, { closedAt: NOW, closedBy: "office@school.test", teacherWroteAt: NOW });
+    expect(await s.getChatConversation(a.id, one.id)).toMatchObject({ closedAt: NOW, closedBy: "office@school.test", teacherWroteAt: NOW });
+    await s.deleteSchoolPerson(a.id, parent.id);
+    expect(await s.getChatConversation(a.id, one.id)).toBeNull();
+    expect(await s.getChatConversation(a.id, theirs.id)).not.toBeNull();
+  });
 }

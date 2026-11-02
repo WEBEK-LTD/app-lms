@@ -5683,6 +5683,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ask the school to link your children to your number.';
 
   @override
+  String get schoolForWorkersTitle => 'This tab is for students and parents';
+
+  @override
+  String get schoolForStaffMessage =>
+      'What you need at work is in the Staff tab: checking in and out, your leave, the staff\'s news, the calendar and the library.';
+
+  @override
+  String get schoolForTeachersMessage =>
+      'What you need at work is in the Classroom tab: your classes, checking in and out, the calendar and the exams.';
+
+  @override
+  String get schoolOpenStaff => 'Open Staff';
+
+  @override
+  String get schoolOpenClassroom => 'Open Classroom';
+
+  @override
   String get schoolToday => 'Today';
 
   @override
@@ -6406,6 +6423,742 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couponWithout => 'Continue without a coupon';
+
+  @override
+  String get schoolCalendar => 'Calendar';
+
+  @override
+  String get schoolExams => 'Exams';
+
+  @override
+  String get schoolBehaviour => 'Behaviour';
+
+  @override
+  String get calendarMonth => 'Month';
+
+  @override
+  String get calendarList => 'List';
+
+  @override
+  String get calendarNothingThisDay => 'Nothing on this day';
+
+  @override
+  String get calendarNothingAhead =>
+      'Nothing on the calendar in the coming weeks';
+
+  @override
+  String get calendarAllDay => 'All day';
+
+  @override
+  String get calendarDayOff => 'No school';
+
+  @override
+  String get calendarExamDays => 'Exam days';
+
+  @override
+  String get calendarExam => 'Exam';
+
+  @override
+  String get calendarStaffOnly => 'Staff';
+
+  @override
+  String calendarDays(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String calendarItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examsComing => 'Coming';
+
+  @override
+  String get examsDone => 'Done';
+
+  @override
+  String get examsNone => 'No exams on the timetable yet';
+
+  @override
+  String get examsNoneMessage =>
+      'The school publishes the exams\' timetable here.';
+
+  @override
+  String examTime(String starts, String ends, int minutes) {
+    return '$starts–$ends · $minutes min';
+  }
+
+  @override
+  String get behaviourPoints => 'Points';
+
+  @override
+  String get behaviourMerits => 'Merits';
+
+  @override
+  String get behaviourNotes => 'Notes';
+
+  @override
+  String get behaviourNone => 'No merits or notes yet';
+
+  @override
+  String get behaviourFromSchool => 'From the school';
+
+  @override
+  String behaviourPointsValue(String points) {
+    return '$points points';
+  }
+
+  @override
+  String get behaviourWrite => 'Write a merit or a note';
+
+  @override
+  String behaviourFor(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get behaviourCategory => 'Category';
+
+  @override
+  String get behaviourNoteHint => 'A note for the family (optional)';
+
+  @override
+  String get behaviourSaved => 'Saved. The family sees it in the app.';
+
+  @override
+  String get behaviourChooseCategory => 'Choose a category';
+
+  @override
+  String get behaviourTakeBack => 'Take back';
+
+  @override
+  String get behaviourTakenBack => 'Taken back';
+
+  @override
+  String get behaviourLatest => 'Latest';
+
+  @override
+  String get behaviourNoCategories =>
+      'The school hasn\'t set behaviour categories yet';
+
+  @override
+  String classroomDayOff(String title) {
+    return 'No school: $title. Nobody is told of an absence on this day.';
+  }
+
+  @override
+  String get schoolBus => 'School bus';
+
+  @override
+  String get busMorningTrip => 'Morning trip';
+
+  @override
+  String get busAfternoonTrip => 'Afternoon trip';
+
+  @override
+  String busRouteLine(String route, String plate) {
+    return '$route · $plate';
+  }
+
+  @override
+  String busYourStop(String stop, String time) {
+    return 'Stop: $stop at $time';
+  }
+
+  @override
+  String get busNotStarted => 'The bus hasn\'t left yet.';
+
+  @override
+  String get busOnTheWay => 'On its way';
+
+  @override
+  String busEtaMinutes(int minutes, String stop) {
+    return 'About $minutes min to $stop';
+  }
+
+  @override
+  String get busWaitingPosition => 'Waiting for the bus\'s position…';
+
+  @override
+  String get busEnded => 'This trip has ended.';
+
+  @override
+  String busOnSince(String time) {
+    return 'On the bus since $time';
+  }
+
+  @override
+  String busGotOffAt(String time) {
+    return 'Got off at $time';
+  }
+
+  @override
+  String get busAbsentToday => 'Marked absent on this trip';
+
+  @override
+  String busNoTrips(String name) {
+    return 'No bus for $name';
+  }
+
+  @override
+  String busNoTripsMessage(String name) {
+    return 'The school hasn\'t put $name on a bus route.';
+  }
+
+  @override
+  String get busStops => 'Stops';
+
+  @override
+  String get busDutyTitle => 'Bus duty';
+
+  @override
+  String get busDutySubtitle => 'Your routes and today\'s trips';
+
+  @override
+  String get busDriver => 'Driver';
+
+  @override
+  String get busSupervisor => 'Supervisor';
+
+  @override
+  String busStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get busStart => 'Start';
+
+  @override
+  String get busOpenTrip => 'Open';
+
+  @override
+  String get busDone => 'Ended';
+
+  @override
+  String get busWaitingDriver => 'The driver starts this trip.';
+
+  @override
+  String get busNoRoutes => 'No bus routes';
+
+  @override
+  String get busNoRoutesMessage =>
+      'You don\'t drive or supervise any of the school\'s buses.';
+
+  @override
+  String get busSharing =>
+      'Your phone shares the bus\'s position while this screen is open.';
+
+  @override
+  String get busLocationOff => 'Turn on location so families can see the bus.';
+
+  @override
+  String get busMarkOn => 'On';
+
+  @override
+  String get busMarkOff => 'Off';
+
+  @override
+  String get busMarkAbsent => 'Absent';
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) {
+    return '$boarded on · $off off · $absent absent · $riders in all';
+  }
+
+  @override
+  String get busEndTrip => 'End the trip';
+
+  @override
+  String get busEndTitle => 'End the trip?';
+
+  @override
+  String get busEndMessage => 'Families stop seeing the bus on the map.';
+
+  @override
+  String busTripTitle(String route, String trip) {
+    return '$route · $trip';
+  }
+
+  @override
+  String get libraryTitle => 'Library';
+
+  @override
+  String get librarySearchHint => 'Title, author or ISBN';
+
+  @override
+  String get libraryAll => 'All';
+
+  @override
+  String libraryAvailable(int count) {
+    return '$count on the shelf';
+  }
+
+  @override
+  String get libraryAllOut => 'All copies are out';
+
+  @override
+  String get libraryEbook => 'E-book';
+
+  @override
+  String get libraryNoBooks => 'No books found';
+
+  @override
+  String get libraryNoBooksMessage => 'Try another title, author or category.';
+
+  @override
+  String get libraryBorrowed => 'Borrowed books';
+
+  @override
+  String libraryShelf(String shelf) {
+    return 'Shelf $shelf';
+  }
+
+  @override
+  String libraryCopies(int available, int copies) {
+    return '$available of $copies on the shelf';
+  }
+
+  @override
+  String get libraryRead => 'Read the e-book';
+
+  @override
+  String get libraryReserve => 'Reserve';
+
+  @override
+  String get libraryReserveFor => 'Reserve it for';
+
+  @override
+  String libraryReservedReady(String date) {
+    return 'Held for you at the library until $date.';
+  }
+
+  @override
+  String get libraryReservedWaiting =>
+      'Reserved. You\'ll be told when a copy is held for you.';
+
+  @override
+  String libraryHoldReady(String name, String date) {
+    return 'Held for $name until $date';
+  }
+
+  @override
+  String libraryHoldWaiting(String name) {
+    return '$name is waiting for a copy';
+  }
+
+  @override
+  String get libraryCancelHold => 'Cancel the reservation';
+
+  @override
+  String get libraryOutNow => 'Out now';
+
+  @override
+  String libraryDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String libraryOverdue(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String get libraryReservedSection => 'Reserved';
+
+  @override
+  String get libraryReturned => 'Returned before';
+
+  @override
+  String libraryReturnedOn(String date) {
+    return 'Returned $date';
+  }
+
+  @override
+  String get libraryNoLoans => 'No books borrowed';
+
+  @override
+  String get libraryNoLoansMessage =>
+      'Books lent at the library\'s desk show here with their due dates.';
+
+  @override
+  String libraryLoanDays(int days) {
+    return 'Books are lent for $days days.';
+  }
+
+  @override
+  String get libraryAbout => 'About the book';
+
+  @override
+  String get schoolMessages => 'Messages';
+
+  @override
+  String get schoolMessagesWithTeachers => 'With your teachers';
+
+  @override
+  String get schoolMessagesWithFamilies => 'With your classes\' families';
+
+  @override
+  String get schoolMessagesOff =>
+      'Your school hasn\'t turned on messages between teachers and families.';
+
+  @override
+  String get schoolMessagesOffice => 'The school\'s administration';
+
+  @override
+  String get schoolMessagesOfficeHint => 'Write to the school at any time.';
+
+  @override
+  String get schoolMessagesTeachers => 'Teachers';
+
+  @override
+  String get schoolMessagesFamilies => 'Parents and students';
+
+  @override
+  String schoolMessagesParentOf(String names) {
+    return 'Parent of $names';
+  }
+
+  @override
+  String get schoolMessagesClassTeacher => 'Class teacher';
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      'The teacher writes first; you can answer then.';
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) {
+    return 'Messages can be sent on $days, $from to $to.';
+  }
+
+  @override
+  String schoolMessagesOpensAt(String when) {
+    return 'You can write again on $when.';
+  }
+
+  @override
+  String get schoolMessagesClosed => 'The school closed this conversation.';
+
+  @override
+  String get schoolMessagesNotAllowed =>
+      'The school doesn\'t allow messages here now.';
+
+  @override
+  String get schoolMessagesTextOnly => 'The school allows text messages only.';
+
+  @override
+  String get schoolMessagesAdminReads =>
+      'The school\'s administration can read this conversation.';
+
+  @override
+  String get schoolMessagesPrivate =>
+      'This conversation is private: the school reads it only if a message in it is reported.';
+
+  @override
+  String get schoolMessagesNone => 'No one to write to yet.';
+
+  @override
+  String get schoolMessagesWriteClass => 'Write to a whole class';
+
+  @override
+  String classMessageTitle(String name) {
+    return 'Write to $name';
+  }
+
+  @override
+  String get classMessageTo => 'Send to';
+
+  @override
+  String get classMessageParents => 'Parents';
+
+  @override
+  String get classMessageStudents => 'Students';
+
+  @override
+  String get classMessageFamilies => 'Parents and students';
+
+  @override
+  String get classMessageHint =>
+      'Each one gets it on their own, and their answers come back to you only.';
+
+  @override
+  String classMessageSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sent to $count people.',
+      one: 'Sent to 1 person.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classMessageNotInApp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people haven\'t signed in to the app yet.',
+      one: '1 person hasn\'t signed in to the app yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classMessageMissing => 'Write the message first.';
+
+  @override
+  String get checkinTitle => 'Check in and out';
+
+  @override
+  String get checkinButton => 'Check in';
+
+  @override
+  String get checkoutButton => 'Check out';
+
+  @override
+  String get checkinCardTitle => 'Today at school';
+
+  @override
+  String get checkinStateNotYet => 'Not checked in yet';
+
+  @override
+  String get checkinStateIn => 'Checked in';
+
+  @override
+  String get checkinStateLeft => 'Checked out';
+
+  @override
+  String get checkinStateAbsent => 'Absent';
+
+  @override
+  String get checkinStateExcused => 'Excused';
+
+  @override
+  String get checkinStateLeave => 'On leave';
+
+  @override
+  String get checkinStateOff => 'Not a school day';
+
+  @override
+  String checkinInAt(String time) {
+    return 'In at $time';
+  }
+
+  @override
+  String checkinOutAt(String time) {
+    return 'Out at $time';
+  }
+
+  @override
+  String get checkinLate => 'Late';
+
+  @override
+  String get checkinLeftEarly => 'Left early';
+
+  @override
+  String checkinTimes(String starts, String ends, String late) {
+    return '$starts–$ends · late from $late';
+  }
+
+  @override
+  String get checkinCodeLabel => 'The gate\'s code';
+
+  @override
+  String get checkinCodeHint =>
+      'The six digits on the school\'s screen at the gate';
+
+  @override
+  String get checkinWithLocation => 'Use my location';
+
+  @override
+  String get checkinBothNote =>
+      'Your school asks for the gate\'s code and your location.';
+
+  @override
+  String get checkinLocating => 'Finding your location…';
+
+  @override
+  String get checkinLocationOff =>
+      'Turn on your phone\'s location to check in.';
+
+  @override
+  String get checkinLocationDenied =>
+      'Allow the app to use your location to check in.';
+
+  @override
+  String get checkinLocationFailed =>
+      'Your location couldn\'t be found. Try again.';
+
+  @override
+  String checkinDoneOnTime(String time) {
+    return 'Checked in at $time, on time.';
+  }
+
+  @override
+  String checkinDoneLate(String time) {
+    return 'Checked in at $time: late.';
+  }
+
+  @override
+  String checkinDoneOut(String time) {
+    return 'Checked out at $time.';
+  }
+
+  @override
+  String checkinDoneEarly(String time) {
+    return 'Checked out at $time, before the end of the day.';
+  }
+
+  @override
+  String get checkinMonth => 'This month';
+
+  @override
+  String get checkinCountPresent => 'Present';
+
+  @override
+  String get checkinCountAbsent => 'Absent';
+
+  @override
+  String get checkinNoDays => 'No school days this month yet.';
+
+  @override
+  String checkinCorrected(String reason) {
+    return 'Corrected by the school: $reason';
+  }
+
+  @override
+  String get checkinOff => 'Your school doesn\'t take check-ins in the app.';
+
+  @override
+  String get checkinNotSchoolDay => 'Today isn\'t one of your school days.';
+
+  @override
+  String get checkinAtGate => 'At the gate';
+
+  @override
+  String get tabStaff => 'Staff';
+
+  @override
+  String get staffNotStaff => 'For the school\'s staff';
+
+  @override
+  String get staffNotStaffMessage =>
+      'The school adds its staff\'s numbers; they sign in with them and their work shows here.';
+
+  @override
+  String get staffWork => 'Your work';
+
+  @override
+  String staffDays(String days) {
+    return 'Days: $days';
+  }
+
+  @override
+  String staffHours(String starts, String ends) {
+    return 'Hours: $starts–$ends';
+  }
+
+  @override
+  String get staffDuties => 'Duties';
+
+  @override
+  String get staffLeave => 'Leave requests';
+
+  @override
+  String get staffNews => 'Staff news';
+
+  @override
+  String get staffNoNews => 'No staff news yet.';
+
+  @override
+  String get leaveAsk => 'Ask for leave';
+
+  @override
+  String get leaveKind => 'Kind of leave';
+
+  @override
+  String get leaveSick => 'Sick';
+
+  @override
+  String get leaveAnnual => 'Annual';
+
+  @override
+  String get leaveOther => 'Other';
+
+  @override
+  String get leaveFirstDay => 'First day';
+
+  @override
+  String get leaveLastDay => 'Last day';
+
+  @override
+  String get leaveNote => 'Note (optional)';
+
+  @override
+  String get leaveAddPhoto => 'Photo of a document';
+
+  @override
+  String get leaveAddFile => 'PDF';
+
+  @override
+  String get leaveSend => 'Send the request';
+
+  @override
+  String get leaveSent => 'Sent. The school answers in the app.';
+
+  @override
+  String get leaveNone => 'No leave requests yet.';
+
+  @override
+  String leaveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leavePending => 'Waiting';
+
+  @override
+  String get leaveApproved => 'Approved';
+
+  @override
+  String get leaveRefused => 'Not approved';
+
+  @override
+  String get leaveCancelled => 'Withdrawn';
+
+  @override
+  String get leaveWithdraw => 'Withdraw';
+
+  @override
+  String leaveSchoolNote(String note) {
+    return 'The school: $note';
+  }
+
+  @override
+  String leaveDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get leaveDatesOrder => 'The last day is on or after the first.';
 
   @override
   String get classroomSyllabus => 'Syllabus';

@@ -105,6 +105,9 @@ abstract final class Paths {
   // 105.4 Schools: a student's or parent's school (for one of the students
   // they see, `student`), and the teachers' Classroom.
   static const school = '/school';
+
+  /// 113.6 Messages with teachers (and, for a teacher, families).
+  static const schoolMessages = '/school/messages';
   static String schoolPart(String part, {int? student}) => Uri(
     path: '$school/$part',
     queryParameters: student == null ? null : {'student': '$student'},
@@ -118,6 +121,20 @@ abstract final class Paths {
   static String classSyllabus(int id) => '$classroom/class/$id/syllabus';
   static const classroomReports = '$classroom/reports';
   static String classroomReport(int id) => '$classroom/report/$id';
+
+  // 113.2 Checking in and out; 113.3 the Staff tab, leave and the staff's news.
+  static const checkin = '/school/checkin';
+  static const staff = '/staff';
+  static const staffLeave = '/staff/leave';
+  static const staffLeaveNew = '/staff/leave/new';
+  static const staffNews = '/staff/news';
+  // 113.8 The school's calendar in the Staff tab (the staff's own events too).
+  static const staffCalendar = '/staff/calendar';
+
+  /// 113.10 The bus's crew: their routes and a trip; 113.11 a library book.
+  static const busDuty = '$school/bus-duty';
+  static String busRun(int id) => '$busDuty/run/$id';
+  static String libraryBook(int id) => '$school/library/book/$id';
 
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
@@ -249,7 +266,8 @@ abstract final class Paths {
       location.startsWith('/teacher-course/') ||
       // 105.4 A school's screens, for the people it added.
       location.startsWith(school) ||
-      location.startsWith(classroom);
+      location.startsWith(classroom) ||
+      location.startsWith(staff);
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

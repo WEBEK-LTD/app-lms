@@ -452,8 +452,18 @@ describe("signing in to a demo app", () => {
 
   it("110.5 Nakhla School: the visitor is Lina, her mother and her class teacher, and what the teacher gives reaches Lina", async () => {
     const { app, go, token, roles } = await studio("school");
-    expect(roles).toEqual(["student", "parent", "teacher"]);
+    // 113.10 Ms. Mona also drives the school's bus.
+    expect(roles).toEqual(["student", "parent", "teacher", "bus"]);
     const me = (await go("GET", "/school/me", undefined, token)).body as { name: string; students: { id: number; name: string; class_name: string }[] };
+    // 113.10 Lina rides Route 1; 113.11 she has Charlotte's Web out.
+    const bus = (await go("GET", `/school/students/${me.students[0]!.id}/bus`, undefined, token)).body as { items: { trip: string; stop: { name: string } }[] };
+    expect(bus.items.map((t) => [t.trip, t.stop.name])).toEqual([
+      ["morning", "Road 9, Maadi"],
+      ["afternoon", "Road 9, Maadi"],
+    ]);
+    expect(((await go("GET", "/school/bus/routes", undefined, token)).body as { items: { name: string; drives: boolean }[] }).items).toEqual([expect.objectContaining({ name: "Route 1, Maadi", drives: true })]);
+    const loans = (await go("GET", "/school/library/loans", undefined, token)).body as { current: { book: { title: string }; person: { name: string } }[] };
+    expect(loans.current.map((l) => [l.book.title, l.person.name])).toEqual([["Charlotte's Web", "Lina Haddad"]]);
     expect(me.name).toBe("Rania Haddad");
     expect(me.students.map((s) => [s.name, s.class_name])).toEqual([
       ["Lina Haddad", "Grade 5 A"],

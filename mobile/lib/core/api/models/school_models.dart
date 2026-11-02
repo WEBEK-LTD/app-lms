@@ -1,3 +1,4 @@
+import 'checkin_models.dart';
 import 'json.dart';
 
 /// 105.4 Schools: `Config.school`, what a student and their parents see
@@ -12,15 +13,32 @@ class SchoolConfig {
     this.term,
     this.absenceAlerts = true,
     this.feesByCard = false,
+    this.checkin = const CheckinConfig(),
+    this.bus = false,
+    this.library = false,
+    this.tilesUrl,
+    this.attribution,
   });
 
-  factory SchoolConfig.fromJson(Json json) => SchoolConfig(
-    timezone: optString(json, 'timezone') ?? 'Africa/Cairo',
-    currency: optString(json, 'currency') ?? 'EGP',
-    term: optObject(json, 'term', SchoolTerm.fromJson),
-    absenceAlerts: boolOr(json, 'absence_alerts', true),
-    feesByCard: boolOr(json, 'fees_by_card', false),
-  );
+  factory SchoolConfig.fromJson(Json json) {
+    final map = json['map'] is Map
+        ? asJson(json['map'], 'map')
+        : const <String, dynamic>{};
+    return SchoolConfig(
+      timezone: optString(json, 'timezone') ?? 'Africa/Cairo',
+      currency: optString(json, 'currency') ?? 'EGP',
+      term: optObject(json, 'term', SchoolTerm.fromJson),
+      absenceAlerts: boolOr(json, 'absence_alerts', true),
+      feesByCard: boolOr(json, 'fees_by_card', false),
+      bus: boolOr(json, 'bus', false),
+      library: boolOr(json, 'library', false),
+      tilesUrl: optString(map, 'tiles_url'),
+      attribution: optString(map, 'attribution'),
+      checkin:
+          optObject(json, 'checkin', CheckinConfig.fromJson) ??
+          const CheckinConfig(),
+    );
+  }
 
   final String timezone;
   final String currency;
@@ -29,6 +47,19 @@ class SchoolConfig {
 
   /// Families can pay fees by card in the app.
   final bool feesByCard;
+
+  /// 113.2 Checking in and out in the app; off from older servers.
+  final CheckinConfig checkin;
+
+  /// 113.10 The school has buses: the families' bus screen.
+  final bool bus;
+
+  /// 113.11 The school has a library: its books in the app.
+  final bool library;
+
+  /// 113.10 The platform's map tiles for the bus; null: the stops as a list.
+  final String? tilesUrl;
+  final String? attribution;
 }
 
 class SchoolTerm {
@@ -77,7 +108,8 @@ class SchoolStudent {
   final String? className;
 }
 
-enum SchoolRole { student, parent, teacher }
+/// 113.3 `staff`: who works at the school and doesn't teach.
+enum SchoolRole { student, parent, teacher, staff }
 
 /// `GET /school/me`: who the signed-in person is at the school, and the
 /// students they may see (themselves, or a parent's children).
@@ -588,17 +620,23 @@ class ClassAttendance {
     required this.classId,
     required this.date,
     this.students = const [],
+    this.dayOff,
   });
 
   factory ClassAttendance.fromJson(Json json) => ClassAttendance(
     classId: reqInt(json, 'class_id'),
     date: reqString(json, 'date'),
     students: listOf(json, 'students', AttendanceMark.fromJson),
+    dayOff: (json['day_off'] as Map?)?['title'] as String?,
   );
 
   final int classId;
   final String date;
   final List<AttendanceMark> students;
+
+  /// 113.8 The holiday or break that day falls on (no school); null on a
+  /// school day.
+  final String? dayOff;
 
   bool get taken => students.any((s) => s.status != null);
 }
@@ -916,3 +954,150 @@ class ClassGradebook {
   >
   students;
 }
+
+// 113.6 Messages between teachers and families (the chat's `school` kind).
+
+/// Whom teachers write to and hear from.
+enum SchoolMessagesWith { none, parents, parentsStudents }
+
+/// When messages can be sent, in the school's time zone (`SchoolMessageHours`).
+class SchoolMessageHours {
+  const SchoolMessageHours({
+    required this.from,
+    required this.to,
+    required this.days,
+  });
+
+  factory SchoolMessageHours.fromJson(Json json) => SchoolMessageHours(
+    from: reqString(json, 'from'),
+    to: reqString(json, 'to'),
+    days: [
+      for (final d in (json['days'] as List?) ?? const [])
+        if (d is num) d.toInt(),
+    ],
+  );
+
+  /// "08:00".
+  final String from;
+  final String to;
+
+  /// 1 Monday … 7 Sunday.
+  final List<int> days;
+}
+
+/// Someone the person can write to (`SchoolContact`).
+class SchoolContact {
+  const SchoolContact({
+    required this.personId,
+    required this.role,
+    required this.name,
+    this.photoUrl,
+    this.students = const [],
+    this.classes = const [],
+    this.subjects = const [],
+    this.classTeacher = false,
+    this.conversationId,
+    this.canWrite = true,
+  });
+
+  factory SchoolContact.fromJson(Json json) => SchoolContact(
+    personId: reqInt(json, 'person_id'),
+    role: enumFrom(SchoolRole.values, json['role'], SchoolRole.teacher),
+    name: reqString(json, 'name'),
+    photoUrl: optString(json, 'photo_url'),
+    students: stringList(json, 'students'),
+    classes: stringList(json, 'classes'),
+    subjects: stringList(json, 'subjects'),
+    classTeacher: boolOr(json, 'class_teacher', false),
+    conversationId: optString(json, 'conversation_id'),
+    canWrite: boolOr(json, 'can_write', true),
+  );
+
+  final int personId;
+  final SchoolRole role;
+  final String name;
+  final String? photoUrl;
+
+  /// A parent's children the teacher teaches; to a parent, their children
+  /// this teacher teaches.
+  final List<String> students;
+  final List<String> classes;
+  final List<String> subjects;
+  final bool classTeacher;
+  final String? conversationId;
+
+  /// False while only teachers write first and this one hasn't.
+  final bool canWrite;
+}
+
+/// What the school allows and whom the person can write to (`SchoolMessages`).
+class SchoolMessages {
+  const SchoolMessages({
+    required this.enabled,
+    this.reach = SchoolMessagesWith.none,
+    this.teacherFirst = true,
+    this.hours,
+    this.openNow = true,
+    this.opensAt,
+    this.attachments = false,
+    this.adminReads = false,
+    this.classMessages = false,
+    this.classes = const [],
+    this.officeConversationId,
+    this.contacts = const [],
+  });
+
+  factory SchoolMessages.fromJson(Json json) => SchoolMessages(
+    enabled: boolOr(json, 'enabled', false),
+    reach: enumFromSnake(
+      SchoolMessagesWith.values,
+      json['with'],
+      SchoolMessagesWith.none,
+    ),
+    teacherFirst: optString(json, 'started_by') != 'both',
+    hours: optObject(json, 'hours', SchoolMessageHours.fromJson),
+    openNow: boolOr(json, 'open_now', true),
+    opensAt: optDate(json, 'opens_at'),
+    attachments: boolOr(json, 'attachments', false),
+    adminReads: boolOr(json, 'admin_reads', false),
+    classMessages: boolOr(json, 'class_messages', false),
+    classes: listOf(json, 'classes', ClassroomClassName.fromJson),
+    officeConversationId: optString(json, 'office_conversation_id'),
+    contacts: listOf(json, 'contacts', SchoolContact.fromJson),
+  );
+
+  final bool enabled;
+  final SchoolMessagesWith reach;
+
+  /// Only teachers write first; families answer.
+  final bool teacherFirst;
+  final SchoolMessageHours? hours;
+  final bool openNow;
+  final DateTime? opensAt;
+  final bool attachments;
+
+  /// The school's administration may read the conversations.
+  final bool adminReads;
+
+  /// This teacher may write to a whole class at once ([classes]).
+  final bool classMessages;
+  final List<ClassroomClassName> classes;
+
+  /// The conversation with the school's administration, at any time.
+  final String? officeConversationId;
+  final List<SchoolContact> contacts;
+}
+
+/// A class a teacher can write to.
+class ClassroomClassName {
+  const ClassroomClassName({required this.id, required this.name});
+
+  factory ClassroomClassName.fromJson(Json json) =>
+      ClassroomClassName(id: reqInt(json, 'id'), name: reqString(json, 'name'));
+
+  final int id;
+  final String name;
+}
+
+/// Whom a teacher writes to in a class: its parents, its students or both.
+enum ClassAudience { parents, students, families }

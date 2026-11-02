@@ -4449,9 +4449,9 @@ export interface ChatMember {
   updatedAt: Date;
 }
 
-export type ChatConversationKind = "direct" | "group";
+export type ChatConversationKind = "direct" | "group" | "school";
 
-/** 77 A person and the business (`direct`), or a course's group. */
+/** 77 A person and the business (`direct`), or a course's group; 113.6 a school's teacher and a parent or a student (`school`). */
 export interface ChatConversation {
   id: string;
   appId: string;
@@ -4471,11 +4471,19 @@ export interface ChatConversation {
   keepUntil: Date | null;
   /** The day of the oldest message the last "deleted soon" notice was about. */
   noticeFor: Date | null;
+  /** 113.6 A school conversation's teacher and the parent or student (school people's IDs). */
+  schoolTeacherId?: number | null;
+  schoolPersonId?: number | null;
+  /** 113.6 The teacher wrote in it (a family may answer when only teachers start). */
+  teacherWroteAt?: Date | null;
+  /** 113.6 The administration closed it: read, but nothing more is sent. */
+  closedAt?: Date | null;
+  closedBy?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type ChatConversationPatch = Partial<Pick<ChatConversation, "title" | "imageUrl" | "lastMessageId" | "lastMessageAt" | "businessReadId" | "keepUntil" | "noticeFor" | "updatedAt">>;
+export type ChatConversationPatch = Partial<Pick<ChatConversation, "title" | "imageUrl" | "lastMessageId" | "lastMessageAt" | "businessReadId" | "keepUntil" | "noticeFor" | "teacherWroteAt" | "closedAt" | "closedBy" | "updatedAt">>;
 
 /** 77 A member in a conversation, with what they read. */
 export interface ChatParticipant {
@@ -4770,9 +4778,9 @@ export interface TeacherReview {
 
 // 105.4 Schools
 
-/** Who a person is at a school. One person may be on the list twice (a teacher who is also a parent). */
-export type SchoolRole = "student" | "parent" | "teacher";
-export const SCHOOL_ROLES: readonly SchoolRole[] = ["student", "parent", "teacher"];
+/** Who a person is at a school. One person may be on the list twice (a teacher who is also a parent). 113.3 `staff`: who works at the school and doesn't teach. */
+export type SchoolRole = "student" | "parent" | "teacher" | "staff";
+export const SCHOOL_ROLES: readonly SchoolRole[] = ["student", "parent", "teacher", "staff"];
 
 /** The school's settings (school_settings). */
 export interface SchoolSettings {
@@ -4785,6 +4793,76 @@ export interface SchoolSettings {
   absenceAlerts: boolean;
   /** Fees can be paid by card on the school's payment page. */
   feesByCard: boolean;
+  /** 113.2 Checking in and out from the app; left out: off (lib/school/checkin.ts). */
+  checkin?: SchoolCheckinSettings;
+  /** 113.6 Messages between teachers and families; missing: as `DEFAULT_SCHOOL_MESSAGES` (off). */
+  messages?: SchoolMessageSettings;
+  /** 113.10 When families are told the bus is near; left out: the defaults (lib/school/bus.ts). */
+  bus?: SchoolBusSettings;
+  /** 113.11 The library's loan and hold days; left out: the defaults (lib/school/library.ts). */
+  library?: SchoolLibrarySettings;
+  /** 113.8 Which behaviour notes parents get a push for; "all" when not set. */
+  behaviourAlerts?: SchoolBehaviourAlerts;
+  /** 113.8 The school saved its behaviour categories once: the suggested ones aren't added again. */
+  behaviourCategoriesSet?: boolean;
+}
+
+/** 113.2 How people check in: the gate's QR code, inside the school's area, either one, or both at once. */
+export type SchoolCheckinMethods = "qr" | "location" | "either" | "both";
+export const SCHOOL_CHECKIN_METHODS: readonly SchoolCheckinMethods[] = ["qr", "location", "either", "both"];
+
+/** 113.2 A school day's times, in minutes from midnight: it starts, late from, it ends, leaving early before. */
+export interface SchoolDayTimes {
+  startMinute: number;
+  lateMinute: number;
+  endMinute: number;
+  earlyMinute: number;
+}
+
+/** 113.2 Checking in and out at the school. */
+export interface SchoolCheckinSettings {
+  on: boolean;
+  methods: SchoolCheckinMethods;
+  /** The school's place and how far from it counts as inside, in metres. */
+  place: { lat: number; lng: number; radiusM: number } | null;
+  /** The school's days, 1 Monday … 7 Sunday. */
+  days: number[];
+  students: SchoolDayTimes;
+  /** Teachers and staff, unless their own working hours say otherwise. */
+  staff: SchoolDayTimes;
+  /** Parents are told when their child checks in and out. */
+  parentAlerts: boolean;
+  /** Turning this up makes every gate code new (when a gate screen's link went where it shouldn't). */
+  gateKey: number;
+  /** The first day counted: days before it are never absent. */
+  since: string | null;
+}
+
+/** 113.3 When a teacher or a member of staff works. */
+export interface SchoolWorkHours {
+  /** 1 Monday … 7 Sunday. */
+  days: number[];
+  startMinute: number;
+  endMinute: number;
+}
+
+/** 113.6 Whom teachers write to and hear from in the app (the administration and its teachers always can). */
+export type SchoolMessagesWith = "none" | "parents" | "parents_students";
+export const SCHOOL_MESSAGES_WITH: readonly SchoolMessagesWith[] = ["none", "parents", "parents_students"];
+
+/** 113.6 The school's rules for messages between teachers, parents and students (lib/school/messages). */
+export interface SchoolMessageSettings {
+  with: SchoolMessagesWith;
+  /** Who may write first: the teacher only, or both sides. */
+  startedBy: "teacher" | "both";
+  /** When messages can be sent, in the school's time zone; null: at any time. Outside them a message is refused, with when it can be sent. */
+  hours: { from: number; to: number; days: number[] } | null;
+  /** A teacher may write to a whole class's parents (or students) at once; the replies come back one by one. */
+  classBroadcast: boolean;
+  /** Photos, voice messages and files, besides text. */
+  attachments: boolean;
+  /** The administration may read the conversations (the app tells everyone); else only one with a reported message. */
+  adminReads: boolean;
 }
 
 export interface SchoolClass {
@@ -4826,12 +4904,18 @@ export interface SchoolPerson {
   code: string | null;
   photoAssetId: string | null;
   active: boolean;
+  /** 113.3 A teacher's or staff member's job ("Nurse"), department ("Office"; 113.6 the administration writes to a department at once), working hours (else the school's staff times) and duties. */
+  jobTitle?: string | null;
+  department?: string | null;
+  workHours?: SchoolWorkHours | null;
+  duties?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active">;
-export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active">>;
+export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active"> &
+  Partial<Pick<SchoolPerson, "jobTitle" | "department" | "workHours" | "duties">>;
+export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active" | "jobTitle" | "department" | "workHours" | "duties">>;
 
 /** A parent's child. */
 export interface SchoolFamilyLink {
@@ -4932,11 +5016,11 @@ export interface SchoolScore {
   updatedAt: Date;
 }
 
-/** The school's news: to everyone, a class, or one student and their family. */
+/** The school's news: to everyone, a class, or one student and their family; 113.3 or to its teachers and staff only. */
 export interface SchoolAnnouncement {
   id: number;
   appId: string;
-  audience: "school" | "class" | "student";
+  audience: "school" | "class" | "student" | "staff";
   classId: number | null;
   studentId: number | null;
   title: string;
@@ -4945,6 +5029,97 @@ export interface SchoolAnnouncement {
   teacherId: number | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  createdAt: Date;
+}
+
+// 113.8 The school's calendar, the exams' timetable and behaviour
+
+export type SchoolEventKind = "event" | "holiday" | "exam";
+export const SCHOOL_EVENT_KINDS: readonly SchoolEventKind[] = ["event", "holiday", "exam"];
+/** Who an event is for: everyone, a grade's classes, one class, or the people who work at the school. */
+export type SchoolEventAudience = "school" | "grade" | "class" | "staff";
+export const SCHOOL_EVENT_AUDIENCES: readonly SchoolEventAudience[] = ["school", "grade", "class", "staff"];
+
+/** A day or days on the school's calendar: an event, a holiday or break (no school), or exam days. */
+export interface SchoolEvent {
+  id: number;
+  appId: string;
+  kind: SchoolEventKind;
+  title: string;
+  notes: string | null;
+  /** YYYY-MM-DD; `endsOn` the same day for one day. */
+  startsOn: string;
+  endsOn: string;
+  /** Minutes from midnight; null: all day. */
+  startMinute: number | null;
+  endMinute: number | null;
+  place: string | null;
+  audience: SchoolEventAudience;
+  /** The grade (`SchoolClass.grade`) of a grade's event. */
+  grade: string | null;
+  classId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolEventInput = Omit<SchoolEvent, "id" | "createdAt" | "updatedAt">;
+
+/** An exam in the exams' timetable, for a class or every class of a grade; families see it once published. */
+export interface SchoolExam {
+  id: number;
+  appId: string;
+  classId: number | null;
+  grade: string | null;
+  subjectId: number;
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  startMinute: number;
+  durationMinutes: number;
+  room: string | null;
+  /** What it covers and what to bring. */
+  notes: string | null;
+  published: boolean;
+  publishedAt: Date | null;
+  /** The day-before reminder went out. */
+  remindedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolExamInput = Pick<SchoolExam, "appId" | "classId" | "grade" | "subjectId" | "date" | "startMinute" | "durationMinutes" | "room" | "notes">;
+
+export type SchoolBehaviourKind = "positive" | "negative";
+/** Which notes parents are told of. */
+export type SchoolBehaviourAlerts = "all" | "negative" | "none";
+export const SCHOOL_BEHAVIOUR_ALERTS: readonly SchoolBehaviourAlerts[] = ["all", "negative", "none"];
+
+/** A kind of merit or note the school defines, with its points (negative for a negative note). */
+export interface SchoolBehaviourCategory {
+  id: number;
+  appId: string;
+  name: string;
+  kind: SchoolBehaviourKind;
+  points: number;
+  position: number;
+  active: boolean;
+  createdAt: Date;
+}
+
+/** A merit or a note on a student, by a teacher or the school. */
+export interface SchoolBehaviourNote {
+  id: number;
+  appId: string;
+  studentId: number;
+  /** The student's class when it was written. */
+  classId: number | null;
+  categoryId: number | null;
+  /** Kept as written, should the category change. */
+  categoryName: string;
+  kind: SchoolBehaviourKind;
+  points: number;
+  note: string | null;
+  /** The teacher who wrote it; null: the school. */
+  teacherId: number | null;
   createdAt: Date;
 }
 
@@ -5082,6 +5257,225 @@ export interface SchoolReport {
   reviewedAt: Date | null;
   /** Shared with the student's parents (an approved student report only). */
   sharedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 113.2 Checking in and out
+
+export type SchoolCheckinMethod = "qr" | "location" | "office";
+
+/** A correction by the school's office, kept on the day's record. */
+export interface SchoolCheckinCorrection {
+  /** ISO time. */
+  at: string;
+  /** Who made it (their name, else their email). */
+  by: string;
+  reason: string;
+  /** What changed, in English: "In 07:55 → 07:40". */
+  change: string;
+}
+
+/** A person's day at the gate: one per person and day. */
+export interface SchoolCheckin {
+  appId: string;
+  personId: number;
+  role: "student" | "teacher" | "staff";
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  inAt: Date | null;
+  inMethod: SchoolCheckinMethod | null;
+  outAt: Date | null;
+  outMethod: SchoolCheckinMethod | null;
+  late: boolean;
+  leftEarly: boolean;
+  /** The office's mark for the day; null: as they checked in. */
+  mark: "absent" | "excused" | null;
+  corrections: SchoolCheckinCorrection[];
+  updatedAt: Date;
+}
+
+// 113.3 Leave requests
+
+export type SchoolLeaveKind = "sick" | "annual" | "other";
+export const SCHOOL_LEAVE_KINDS: readonly SchoolLeaveKind[] = ["sick", "annual", "other"];
+export type SchoolLeaveStatus = "pending" | "approved" | "refused" | "cancelled";
+
+/** A teacher's or staff member's request for days off, answered in the dashboard. */
+export interface SchoolLeave {
+  id: number;
+  appId: string;
+  personId: number;
+  kind: SchoolLeaveKind;
+  startsOn: string;
+  endsOn: string;
+  note: string | null;
+  /** A photo or PDF of a document (a doctor's note). */
+  file: SchoolFileRef | null;
+  status: SchoolLeaveStatus;
+  /** The school's note with its answer. */
+  answer: string | null;
+  answeredBy: string | null;
+  answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 113.10 The school bus
+
+export type SchoolBusTrip = "morning" | "afternoon";
+export const SCHOOL_BUS_TRIPS: readonly SchoolBusTrip[] = ["morning", "afternoon"];
+
+/** 113.10 When a family is told the bus is near their stop: within a distance, or within minutes. */
+export interface SchoolBusSettings {
+  nearBy: "distance" | "minutes";
+  nearMeters: number;
+  nearMinutes: number;
+}
+
+/** 113.10 A bus route: its bus (plate, seats), its driver and its supervisor (people of the school who aren't students or parents). */
+export interface SchoolBusRoute {
+  id: number;
+  appId: string;
+  name: string;
+  plate: string;
+  capacity: number;
+  driverId: number | null;
+  supervisorId: number | null;
+  active: boolean;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.10 A stop of a route, in order: its place on the map and the bus's time there on each trip. */
+export interface SchoolBusStop {
+  id: number;
+  appId: string;
+  routeId: number;
+  name: string;
+  lat: number;
+  lng: number;
+  /** Minutes from midnight; null: the trip doesn't stop here. */
+  morningMinute: number | null;
+  afternoonMinute: number | null;
+  position: number;
+}
+
+/** 113.10 A student's stop on a trip: one per student and trip. */
+export interface SchoolBusRider {
+  appId: string;
+  studentId: number;
+  trip: SchoolBusTrip;
+  routeId: number;
+  stopId: number;
+}
+
+export type SchoolBusRunStatus = "running" | "done";
+
+/** 113.10 A route's trip on a school day: started by the driver in the app, with the bus's last position while it runs. One per route, day and trip. */
+export interface SchoolBusRun {
+  id: number;
+  appId: string;
+  routeId: number;
+  trip: SchoolBusTrip;
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  status: SchoolBusRunStatus;
+  startedAt: Date;
+  endedAt: Date | null;
+  /** The person who started it. */
+  startedBy: number | null;
+  lat: number | null;
+  lng: number | null;
+  locatedAt: Date | null;
+  /** The stops the bus reached. */
+  passedStopIds: number[];
+  /** The stops whose families were told the bus is near. */
+  toldStopIds: number[];
+}
+
+export type SchoolBusMarkStatus = "boarded" | "off" | "absent";
+export const SCHOOL_BUS_MARKS: readonly SchoolBusMarkStatus[] = ["boarded", "off", "absent"];
+
+/** 113.10 A student on a trip: got on, got off, or absent, as the driver or the supervisor marked it. */
+export interface SchoolBusMark {
+  appId: string;
+  runId: number;
+  studentId: number;
+  status: SchoolBusMarkStatus;
+  boardedAt: Date | null;
+  offAt: Date | null;
+  markedBy: number | null;
+  updatedAt: Date;
+}
+
+// 113.11 The library
+
+/** 113.11 How long a loan and a hold last, how many books one person borrows at once, and when the reminder goes. */
+export interface SchoolLibrarySettings {
+  loanDays: number;
+  holdDays: number;
+  maxLoans: number;
+  /** The reminder goes this many days before the due date. */
+  remindDays: number;
+}
+
+/** 113.11 A book of the school's library; its copies are on the shelf, its e-book (a PDF of the Media library) reads in the app. */
+export interface SchoolBook {
+  id: number;
+  appId: string;
+  title: string;
+  author: string;
+  isbn: string | null;
+  coverAssetId: string | null;
+  shelf: string | null;
+  category: string | null;
+  language: string | null;
+  description: string | null;
+  file: SchoolFileRef | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.11 One copy of a book, with its own code (the label on it). */
+export interface SchoolBookCopy {
+  id: number;
+  appId: string;
+  bookId: number;
+  code: string;
+  note: string | null;
+  createdAt: Date;
+}
+
+/** 113.11 A copy lent at the desk to a person of the school; open until it is returned. */
+export interface SchoolBookLoan {
+  id: number;
+  appId: string;
+  bookId: number;
+  copyId: number;
+  personId: number;
+  lentAt: Date;
+  dueOn: string;
+  returnedAt: Date | null;
+  /** The day the reminder before the due date went. */
+  dueToldOn: string | null;
+  /** The day the last overdue reminder went. */
+  overdueToldOn: string | null;
+}
+
+export type SchoolBookHoldStatus = "waiting" | "ready" | "collected" | "cancelled" | "expired";
+
+/** 113.11 A book reserved from the app: waiting for a copy, then a copy held for the school's days. */
+export interface SchoolBookHold {
+  id: number;
+  appId: string;
+  bookId: number;
+  personId: number;
+  status: SchoolBookHoldStatus;
+  copyId: number | null;
+  readyAt: Date | null;
+  expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

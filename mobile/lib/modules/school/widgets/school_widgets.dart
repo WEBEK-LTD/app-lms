@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/data/paged_controller.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
@@ -47,6 +49,24 @@ class StudentGate extends ConsumerWidget {
             Expanded(child: builder(context, me, student)),
           ],
         ),
+        // 113.3 Someone who works at the school and has no student there:
+        // their part is the Staff (or Classroom) tab, not "No student yet".
+        null when _worksHereOnly(me) => MessageView(
+          key: const ValueKey('school-for-workers'),
+          icon: AppIcons.staffBadge,
+          title: l10n.schoolForWorkersTitle,
+          message: me.roles.contains(SchoolRole.teacher)
+              ? l10n.schoolForTeachersMessage
+              : l10n.schoolForStaffMessage,
+          actionLabel: me.roles.contains(SchoolRole.teacher)
+              ? l10n.schoolOpenClassroom
+              : l10n.schoolOpenStaff,
+          onAction: () => context.go(
+            me.roles.contains(SchoolRole.teacher)
+                ? Paths.classroom
+                : Paths.staff,
+          ),
+        ),
         null => MessageView(
           icon: AppIcons.school,
           title: l10n.schoolNoStudents,
@@ -68,6 +88,13 @@ class StudentGate extends ConsumerWidget {
     };
   }
 }
+
+/// A teacher or member of staff who is neither a student nor a parent.
+bool _worksHereOnly(SchoolMe me) =>
+    !me.roles.contains(SchoolRole.student) &&
+    !me.roles.contains(SchoolRole.parent) &&
+    (me.roles.contains(SchoolRole.teacher) ||
+        me.roles.contains(SchoolRole.staff));
 
 /// A parent's children, to choose whose school to see.
 class StudentSwitcher extends ConsumerWidget {

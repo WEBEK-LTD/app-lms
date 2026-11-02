@@ -18,6 +18,9 @@ import { appPlan, effectivePlans } from "@/lib/entitlements";
 import { plansIn } from "@/lib/marketing-lang";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
 import { AutoRefresh } from "../orders/refresh";
+import { adminSchoolConversations, departmentsOf } from "@/lib/school/messages";
+import { SchoolForm } from "../school/forms";
+import { writeToTeachersAction } from "@/app/actions/chat";
 import { ChatSettingsForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 const WHEN: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
-const VIEWS = ["all", "unread", "direct", "group", "reports"] as const;
+const VIEWS = ["all", "unread", "direct", "group", "teachers", "school", "reports"] as const;
 type View = (typeof VIEWS)[number];
 const ATTACHMENT: Record<"image" | "video" | "audio" | "file", DashKey> = { image: "chat.photo", video: "chat.video", audio: "chat.voice", file: "chat.file" };
 
@@ -91,11 +94,25 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
 
   const query = await searchParams;
   const groups = chatGroupsOn(app);
-  const view: View = VIEWS.find((v) => v === query.view && (v !== "group" || groups)) ?? "all";
+  // 113.6 A school: its teachers (the administration writes to them) and their conversations with families.
+  const school = app.connector?.kind === "school";
+  const view: View = VIEWS.find((v) => v === query.view && (v !== "group" || groups) && ((v !== "teachers" && v !== "school") || school)) ?? "all";
   const q = typeof query.q === "string" ? query.q.slice(0, 100) : "";
   const deps = dashboardChatDeps(store, app, plan, now);
   const reports = view === "reports" ? await Promise.all([ownerReports(deps, app, "open"), ownerReports(deps, app, "closed")]) : null;
-  const inbox = await ownerConversations(deps, app, { kind: view === "direct" || view === "group" ? view : undefined, unread: view === "unread", q, limit: 200 });
+  const allInbox = await ownerConversations(deps, app, { kind: view === "direct" || view === "group" ? view : undefined, unread: view === "unread", q, limit: 200 });
+  // 113.3 The school's staff too: the administration writes to them as to its teachers.
+  const workers = school ? (await store.listSchoolPeople(app.id)).filter((p) => p.active && (p.role === "teacher" || p.role === "staff")) : [];
+  const teachers = workers.filter((p) => p.role === "teacher");
+  const staff = workers.filter((p) => p.role === "staff");
+  const teacherMembers = new Set<string>();
+  for (const teacher of teachers) {
+    const found = teacher.userId !== null ? await store.findChatMember(app.id, "hosted", String(teacher.userId)) : null;
+    if (found) teacherMembers.add(found.id);
+  }
+  const inbox = view === "teachers" ? { ...allInbox, items: allInbox.items.filter((c) => c.member && teacherMembers.has(c.member.id)) } : allInbox;
+  const schoolList = view === "school" ? await adminSchoolConversations(store, app, { q }) : null;
+  const schoolIds = new Set(reports && school ? (await store.listSchoolConversations(app.id, { limit: 1000 })).map((c) => c.id) : []);
   const when = (iso: string) => t("listings.utc", { time: date(new Date(iso), WHEN) });
   const day = (iso: string) => date(new Date(`${iso}T00:00:00Z`));
   const preview = (m: OwnerMessageView | null) => {
@@ -126,6 +143,11 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
         {r.message.deleted ? t("chat.deleted") : (r.message.text ?? (r.message.attachment ? t(ATTACHMENT[r.message.attachment.kind]) : ""))}
       </p>
       {r.note ? <p className="m-0 text-sm text-ink-4">“{r.note}”</p> : null}
+      {schoolIds.has(r.message.conversation_id) ? (
+        <Link href={`/dashboard/chat/school/${r.message.conversation_id}`} className="text-sm font-semibold">
+          {t("chat.openConversation")}
+        </Link>
+      ) : null}
       {actions ? (
         <div className="flex flex-wrap gap-2">
           {(["dismiss", "delete_message", "block_sender"] as const).map((action) => (
@@ -165,10 +187,76 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
         {tab("unread", t("chat.unread"))}
         {groups ? tab("direct", t("chat.people")) : null}
         {groups ? tab("group", t("chat.groups")) : null}
+        {school ? tab("teachers", t("chat.teachers")) : null}
+        {school ? tab("school", t("chat.schoolConversations")) : null}
         {tab("reports", inbox.open_reports > 0 ? t("chat.reportsCount", { count: inbox.open_reports }) : t("chat.reports"))}
       </nav>
 
-      {reports ? (
+      {view === "teachers" ? (
+        <Section title={t("chat.writeTeachers")} titleId="h-chat-teachers" description={t("chat.writeTeachersIntro")}>
+          <SchoolForm action={writeToTeachersAction} submit={t("chat.send")} reset>
+            <input type="hidden" name="client" value={`staff-${now.getTime()}`} />
+            <label className="flex flex-col gap-1.5 text-[15px] font-semibold" htmlFor="f-teachers-to">
+              {t("chat.writeTo")}
+              <select id="f-teachers-to" name="to" defaultValue="all" className="input h-10">
+                <option value="all">{t("chat.allTeachers", { count: teachers.length })}</option>
+                {staff.length ? <option value="staff">{t("chat.allStaff", { count: staff.length })}</option> : null}
+                {staff.length && teachers.length ? <option value="everyone">{t("chat.everyone", { count: workers.length })}</option> : null}
+                {departmentsOf(workers).map((d) => (
+                  <option key={d} value={`department:${d}`}>
+                    {t("chat.department", { name: d })}
+                  </option>
+                ))}
+                {workers.map((p) => (
+                  <option key={p.id} value={`teacher:${p.id}`}>
+                    {p.role === "staff" ? t("chat.staffName", { name: p.name }) : p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-[15px] font-semibold" htmlFor="f-teachers-text">
+              {t("chat.message")}
+              <textarea id="f-teachers-text" name="text" rows={4} maxLength={4000} className="input min-h-[110px] py-2" />
+            </label>
+          </SchoolForm>
+        </Section>
+      ) : null}
+
+      {schoolList ? (
+        <Section title={t("chat.schoolConversations")} titleId="h-chat-school" flush>
+          <div className="px-5 pt-4 sm:px-6">
+            <Notice icon={schoolList.reads ? "visibility" : "lock"}>{schoolList.reads ? t("chat.schoolReads") : t("chat.schoolPrivate")}</Notice>
+          </div>
+          {schoolList.items.length === 0 ? (
+            <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("chat.schoolNone")}</p>
+          ) : (
+            <ul className="m-0 flex list-none flex-col p-0 pt-2">
+              {schoolList.items.map((c) => (
+                <li key={c.conversation.id} className="border-t border-line-soft first:border-t-0">
+                  <Link href={`/dashboard/chat/school/${c.conversation.id}`} className="flex items-center gap-3 px-5 py-3 text-midnight no-underline hover:bg-sand sm:px-6">
+                    <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-ivory text-ink-3">
+                      <Icon name="school" size={22} />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="flex items-center gap-2 truncate text-[15px] font-bold">
+                        <span className="truncate">
+                          {c.teacher?.name ?? "—"} · {c.other?.name ?? "—"}
+                        </span>
+                        {c.reported ? <Badge tone="warn">{t("chat.reported")}</Badge> : null}
+                        {c.conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
+                      </span>
+                      <span className="truncate text-[13px] text-muted">
+                        {c.other?.role === "student" ? t("chat.student") : t("chat.parentOf", { names: c.students.join(", ") || "—" })}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-[13px] text-muted">{when((c.conversation.lastMessageAt ?? c.conversation.createdAt).toISOString())}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Section>
+      ) : reports ? (
       <>
         <Section title={t("chat.reportsTitle")} titleId="h-chat-reports" description={t("chat.reportsIntro")} flush>
           {reports[0].items.length === 0 ? (
@@ -225,6 +313,7 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
                         <span className={`flex items-center gap-2 truncate text-[15px] ${c.unread_count > 0 ? "font-extrabold" : "font-bold"}`}>
                           <span className="truncate">{c.title || t("chat.group")}</span>
                           {c.kind === "group" && c.member_count !== undefined ? <span className="text-[13px] font-normal text-muted">{t("chat.members", { count: c.member_count })}</span> : null}
+                          {c.member && teacherMembers.has(c.member.id) ? <Badge tone="info">{t("chat.teacherBadge")}</Badge> : null}
                           {c.member?.blocked ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
                         </span>
                         <span className="truncate text-[13px] text-muted">{preview(c.last_message)}</span>

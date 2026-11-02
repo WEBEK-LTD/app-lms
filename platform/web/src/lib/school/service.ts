@@ -18,6 +18,7 @@ import type {
 } from "../data/types";
 import { courierWho } from "../delivery/service";
 import { mediaLink } from "../media/files";
+import { ensureSchoolReview } from "./review";
 import { schoolCurrency } from "./settings";
 
 /**
@@ -31,18 +32,22 @@ export interface SchoolMember {
   student: SchoolPerson | null;
   parent: SchoolPerson | null;
   teacher: SchoolPerson | null;
+  /** 113.3 Who works at the school and doesn't teach. */
+  staff: SchoolPerson | null;
 }
 
-export const NO_MEMBER: SchoolMember = { student: null, parent: null, teacher: null };
+export const NO_MEMBER: SchoolMember = { student: null, parent: null, teacher: null, staff: null };
 
 /**
  * The school's active records for the signed-in person, matched by their
  * number (or email): the record keeps the account last used, for the
  * teacher's name on what they write.
  */
-export async function schoolMemberOf(store: DataStore, app: Pick<App, "id">, user: HostedUser, now: Date): Promise<SchoolMember> {
+export async function schoolMemberOf(store: DataStore, app: App, user: HostedUser, now: Date): Promise<SchoolMember> {
+  // 105.4.7b The store reviewers: the review class and their roles, made the first time.
+  await ensureSchoolReview(store, app, user, now);
   const found = (await store.findSchoolPeople(app.id, courierWho(user))).filter((p) => p.active);
-  const out: SchoolMember = { student: null, parent: null, teacher: null };
+  const out: SchoolMember = { student: null, parent: null, teacher: null, staff: null };
   for (const person of found) {
     if (person.userId !== user.id) {
       await store.updateSchoolPerson(app.id, person.id, { userId: user.id }, now);
@@ -53,8 +58,13 @@ export async function schoolMemberOf(store: DataStore, app: Pick<App, "id">, use
   return out;
 }
 
-export function memberRoles(member: SchoolMember): ("student" | "parent" | "teacher")[] {
-  return (["student", "parent", "teacher"] as const).filter((role) => member[role] !== null);
+export function memberRoles(member: SchoolMember): ("student" | "parent" | "teacher" | "staff")[] {
+  return (["student", "parent", "teacher", "staff"] as const).filter((role) => member[role] !== null);
+}
+
+/** 113.3 The person's record as one who works at the school: a teacher's, else a member of staff's. */
+export function workerOf(member: SchoolMember): SchoolPerson | null {
+  return member.teacher ?? member.staff;
 }
 
 /** The students the person may see: a student themselves, a parent their active children, in the order the school added them. */
@@ -208,8 +218,9 @@ export function announcementJson(announcement: SchoolAnnouncement, dir: SchoolDi
   };
 }
 
-/** Whether the announcement is for someone who sees these students (or wrote it). */
-export function announcementFor(announcement: SchoolAnnouncement, students: readonly SchoolPerson[], teacherId: number | null): boolean {
+/** Whether the announcement is for someone who sees these students (or wrote it); 113.3 the staff's only for those who work at the school. */
+export function announcementFor(announcement: SchoolAnnouncement, students: readonly SchoolPerson[], teacherId: number | null, works = false): boolean {
+  if (announcement.audience === "staff") return works;
   if (announcement.audience === "school") return true;
   if (teacherId !== null && announcement.teacherId === teacherId) return true;
   if (announcement.audience === "class") return students.some((s) => s.classId !== null && s.classId === announcement.classId);
@@ -247,6 +258,8 @@ export function schoolConfig(settings: SchoolSettings, canTakeCards: boolean) {
     term: settings.term ? { name: settings.term.name, starts_on: settings.term.startsOn, ends_on: settings.term.endsOn } : null,
     absence_alerts: settings.absenceAlerts,
     fees_by_card: settings.feesByCard && canTakeCards,
+    // 113.2 Checking in and out (lib/school/checkin.ts), off until the school turns it on.
+    checkin: { on: settings.checkin?.on ?? false, methods: settings.checkin?.methods ?? "either" },
   };
 }
 

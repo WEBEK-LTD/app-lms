@@ -416,7 +416,12 @@ tags:
       attendance, homework (and hands it in), grades, upcoming exams and
       fees; a parent sees the same for each child and pays fees by card
       through the school's own payment page. Every amount is the school's:
-      Yallapp sets none.
+      Yallapp sets none. 113.8 Everyone sees the school's calendar, the
+      exams' timetable once published and each student's behaviour record.
+      105.4.7b The store review account (App sign-in's review number or
+      email with its fixed code) is, the first time it signs in, a student
+      of a class of samples, that student's parent and the class's teacher
+      (and a member of staff where the school has staff).
   - name: Classroom
     description: |
       Roadmap 105.4. The school's teachers' screens. A teacher is a person
@@ -428,6 +433,34 @@ tags:
       are told), gives homework and marks what was handed in, enters the
       scores of exams and quizzes, and writes to a class (its students and
       their parents).
+  - name: Check-in
+    description: |
+      Roadmap 113.2. Students, teachers and staff check in and out at the
+      school from the app: with the gate's code (a QR code and its six
+      digits on the school's Gate screen, new every 30 seconds and signed
+      by the platform, so an old or made-up code fails; nothing secret is in
+      the app), inside the school's area (the phone's `lat` and `lng`
+      against the school's place and radius), either one, or both at once,
+      as the school chooses (`methods`). Checking in after the school's
+      `late_from` is late; checking out before `early_before` is leaving
+      early. A teacher checks in as a teacher, a member of staff as staff, a
+      student as a student (with the school's student times); a parent
+      doesn't check in (`not_checkin_member`) and follows each child's days
+      with `GET /school/students/{student_id}/checkins`, and is pushed
+      (`school_checkin`) when the school wants. The school's office corrects
+      a day in the dashboard with a reason, kept on the day (`corrections`).
+      The teacher's class register (`/classroom/classes/{class_id}/attendance`)
+      stays apart.
+  - name: Staff
+    description: |
+      Roadmap 113.3. Everyone who works at the school, teachers and staff
+      (`User.roles` has `teacher` or `staff`); every endpoint here answers
+      `not_staff` (403) to anyone else. Their job, department, working days
+      and hours and duties as the school set them, their leave requests
+      (sick, annual or other, with a note and a photo or PDF of a document
+      sent with `/school/uploads`), approved or refused by the school in the
+      dashboard with a note (`school_leave`), and the staff's own news, which
+      students and parents never see (`school_staff`).
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -1686,7 +1719,10 @@ paths:
         first, made on the first call; then, in an academy that turned on
         course groups, the group of each course the person is enrolled in,
         most recent message first. Students never talk to each other in
-        private: there are only these two kinds.
+        private. 113.6 In a school that allows messages, a teacher's
+        conversations with a parent or a student (`kind: school`) follow,
+        each with what the school allows in `school`: always a teacher and
+        one parent or student, never two students or two parents.
       responses:
         '200':
           description: Conversations
@@ -1777,7 +1813,13 @@ paths:
         again after a network error: the same `client_id` in the same
         conversation answers the message already made. Members the business
         blocked can read but not send (403 `chat_blocked`). 60 messages a
-        minute per person.
+        minute per person. 113.6 In a `school` conversation the school's
+        rules apply: 403 `conversation_closed` (the school closed it),
+        `messages_not_allowed` (the school doesn't allow messages between
+        them now), `teacher_first` (only teachers write first and this one
+        hasn't), `attachments_not_allowed` (text only); 409 `outside_hours`
+        outside the school's messaging hours, with when one can write again
+        in `message` (the message isn't kept to be sent later).
       parameters:
         - $ref: '#/components/parameters/ConversationId'
       requestBody:
@@ -1800,13 +1842,13 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403':
-          description: Chat isn't available (`chat_not_available`) or the business blocked this person (`chat_blocked`).
+          description: Chat isn't available (`chat_not_available`), the business blocked this person (`chat_blocked`), or 113.6 a school's rule (`conversation_closed`, `messages_not_allowed`, `teacher_first`, `attachments_not_allowed`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: The upload hasn't finished (`incomplete`); finish it with `/complete` first.
+          description: The upload hasn't finished (`incomplete`); finish it with `/complete` first. 113.6 Or it is outside the school's messaging hours (`outside_hours`).
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -6919,6 +6961,66 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /school/messages:
+    get:
+      tags: [School]
+      operationId: getSchoolMessages
+      summary: Messages with teachers, as the school allows
+      description: |
+        113.6 For every school person (student, parent, teacher): what the
+        school allows (whom teachers write to, who writes first, the hours,
+        files, a class at once, whether the administration reads them) and
+        whom they can write to: a teacher the parents (and students, when
+        allowed) of the classes they teach; a parent the teachers of their
+        children; a student their own teachers. A conversation is opened
+        with `POST /school/messages/conversations` and then works as any
+        Chat conversation (`Config.chat.base_url`). Everyone also has their
+        conversation with the school's administration
+        (`office_conversation_id`).
+      responses:
+        '200':
+          description: The school's rules and the contacts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolMessages' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/messages/conversations:
+    post:
+      tags: [School]
+      operationId: openSchoolConversation
+      summary: Open a conversation with a contact
+      description: |
+        113.6 The conversation of the person and one of their contacts
+        (`SchoolContact.person_id`), made the first time; anyone else is
+        404. Writing in it may still wait for the teacher to write first
+        (`SchoolChatInfo.note`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [person_id]
+              properties:
+                person_id: { type: integer }
+      responses:
+        '200':
+          description: The conversation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [conversation_id]
+                properties:
+                  conversation_id: { type: string, format: uuid }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /school/students/{student_id}/timetable:
     get:
       tags: [School]
@@ -6956,6 +7058,25 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/StudentAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/checkins:
+    get:
+      tags: [Check-in]
+      operationId: getStudentCheckins
+      summary: A student's month at the gate, for them and their parents
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinMonth' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -7143,6 +7264,81 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /school/calendar:
+    get:
+      tags: [School]
+      operationId: getSchoolCalendar
+      summary: The school's calendar for the person
+      description: |
+        Roadmap 113.8. The events, holidays and breaks (no school that day)
+        and exam days from `from` to `to` (this month and the next weeks by
+        default, up to 120 days), with the published exams of the
+        timetable: everyone's, the grade's and the class's of the person's
+        students (a teacher's: of their classes), and the staff's for those
+        who work at the school. With `student_id`, one of the person's
+        students only (a parent's child); `not_found` (404) for anyone else.
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+        - { name: student_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: The calendar
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolCalendar' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/exams:
+    get:
+      tags: [School]
+      operationId: listStudentExams
+      summary: The student's exams' timetable
+      description: "Roadmap 113.8. The published exams of the student's class or grade: those coming (soonest first) and the last 50 done (latest first). The student and their parents get a push when exams are published and the day before each (`school_exam`)."
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Exams
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamLists' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/behaviour:
+    get:
+      tags: [School]
+      operationId: getStudentBehaviour
+      summary: The student's behaviour record
+      description: "Roadmap 113.8. Merits and notes, newest first, with the record's points total and counts. Parents get a push (`school_behaviour`) for all of them, only negative ones or none, as the school chooses."
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: The record
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - $ref: '#/components/schemas/BehaviourTotals'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/BehaviourNote' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /school/announcements:
     get:
       tags: [School]
@@ -7166,6 +7362,75 @@ paths:
                       items:
                         type: array
                         items: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/checkin:
+    get:
+      tags: [Check-in]
+      operationId: getCheckinToday
+      summary: Today at the gate for the signed-in student, teacher or member of staff
+      description: Whether the school takes check-ins, how, its place and radius (for the location method), the person's times and today's record.
+      responses:
+        '200':
+          description: Today
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinToday' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Check-in]
+      operationId: checkInOrOut
+      summary: Check in or out
+      description: |
+        `action` `in` or `out`, with what the school's `methods` ask: the
+        gate's `code` (the six digits typed, or what its QR code holds), the
+        phone's `lat` and `lng`, or both. Errors: `checkin_off` (403, the
+        school doesn't take check-ins), `outside_area` (403, with
+        `details.distance_m`), `code_needed`, `invalid_code` (an old or
+        another school's code) and `location_needed` (400), `not_school_day`,
+        `too_early` (check-in opens two hours before the day starts),
+        `already_in`, `not_in` and `already_out` (409). A student's parents
+        get `school_checkin`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [in, out] }
+                code: { type: [string, 'null'], maxLength: 80, description: "The six digits on the gate's screen, or what its QR code holds (`YG1.…`)." }
+                lat: { type: [number, 'null'], minimum: -90, maximum: 90 }
+                lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
+      responses:
+        '200':
+          description: Checked in or out
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/checkin/history:
+    get:
+      tags: [Check-in]
+      operationId: getCheckinHistory
+      summary: The signed-in person's month at the gate
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinMonth' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
@@ -7238,6 +7503,318 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+
+  /school/students/{student_id}/bus:
+    get:
+      tags: [School]
+      operationId: getStudentBus
+      summary: The student's school bus, live while it runs
+      description: |
+        Roadmap 113.10. Each trip (morning, afternoon) the student rides:
+        the route and its bus, the stops in the order the bus reaches them
+        and the student's stop; `run` is today's trip once the driver
+        started it, with the bus's position while it runs (`bus`, recent
+        ones only, drawn on `SchoolConfig.map`) and how soon it reaches the
+        student's stop (`eta_minutes`, `distance_m`: before they get on in
+        the morning, while they're on the bus in the afternoon), and how
+        the driver or the supervisor marked the student. Ask again every
+        15 seconds or so while the screen is open. Parents are pushed
+        (`school_bus`) when the bus is near the stop and when the child
+        gets on and off.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The student's trips
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentBus' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/bus/routes:
+    get:
+      tags: [School]
+      operationId: listBusCrewRoutes
+      summary: The routes the person drives or supervises, with today's trips
+      description: |
+        Roadmap 113.10. For the school's people who drive or supervise one
+        of its buses (`User.roles` has `bus`); `not_bus_crew` (403) for
+        anyone else. `drives`: the person starts the route's trips and
+        their phone sends the bus's position (the driver; without one, the
+        supervisor).
+      responses:
+        '200':
+          description: Routes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BusCrewRoute' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/bus/routes/{route_id}/runs:
+    post:
+      tags: [School]
+      operationId: startBusRun
+      summary: Start the route's morning or afternoon trip today
+      description: |
+        Roadmap 113.10. By whoever `drives` the route. A trip started again
+        the same day goes on where it was (200; 201 when it is new);
+        `trip_running` (409) while the bus is on its other trip. While it
+        runs, the driver's phone sends its position
+        (`PUT /school/bus/runs/{run_id}/location`) as long as the trip's
+        screen is open; nothing runs in the background.
+      parameters:
+        - $ref: '#/components/parameters/BusRouteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trip]
+              properties:
+                trip: { type: string, enum: [morning, afternoon] }
+      responses:
+        '200':
+          description: The trip, started again
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusRun' }
+        '201':
+          description: The trip, started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusRun' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/bus/runs/{run_id}:
+    get:
+      tags: [School]
+      operationId: getBusRun
+      summary: A trip as its crew sees it, the stops with their students
+      parameters:
+        - $ref: '#/components/parameters/BusRunId'
+      responses:
+        '200':
+          description: The trip
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusRun' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/bus/runs/{run_id}/location:
+    put:
+      tags: [School]
+      operationId: sendBusLocation
+      summary: The bus's position, from the driver's phone while the trip runs
+      description: |
+        Roadmap 113.10. At most every 5 seconds (more often is accepted and
+        left out). The stops the bus comes within about 120 m of are
+        reached; the parents of the stops it is now near (as the school
+        chose: a distance or minutes) are pushed once each. `trip_ended`
+        (409) once it ended.
+      parameters:
+        - $ref: '#/components/parameters/BusRunId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lat, lng]
+              properties:
+                lat: { type: number, minimum: -90, maximum: 90 }
+                lng: { type: number, minimum: -180, maximum: 180 }
+                accuracy: { type: number, description: Metres. }
+      responses:
+        '204': { description: Kept }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /school/bus/runs/{run_id}/riders/{student_id}:
+    put:
+      tags: [School]
+      operationId: markBusRider
+      summary: Mark a student on the trip as on the bus, off it, or absent
+      description: |
+        Roadmap 113.10. By the route's driver or supervisor, for a student
+        of the trip. The parents are pushed (`school_bus`) when the child
+        gets on and off.
+      parameters:
+        - $ref: '#/components/parameters/BusRunId'
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [boarded, off, absent] }
+      responses:
+        '200':
+          description: The student on the trip
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusRider' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/bus/runs/{run_id}/end:
+    post:
+      tags: [School]
+      operationId: endBusRun
+      summary: End the trip
+      description: Roadmap 113.10. By whoever `drives` the route; the bus's position is kept only while a trip runs. A trip left running ends on its own the next day.
+      parameters:
+        - $ref: '#/components/parameters/BusRunId'
+      responses:
+        '200':
+          description: The trip, ended
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusRun' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/library/books:
+    get:
+      tags: [School]
+      operationId: listLibraryBooks
+      summary: The school library's books, searched and by category
+      description: |
+        Roadmap 113.11. For everyone the school added. `q` matches the
+        title, the author or the ISBN; `categories` are the library's, to
+        browse by.
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - { name: category, in: query, schema: { type: string, maxLength: 60 } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Books
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryBookPage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/library/books/{book_id}:
+    get:
+      tags: [School]
+      operationId: getLibraryBook
+      summary: A book, its copies on the shelf, its e-book and the person's holds of it
+      description: |
+        Roadmap 113.11. `file`: the e-book (a PDF) to read in the app, by a
+        link that lasts a few hours. `borrowers`: whom the person may
+        reserve it for (themselves, a parent's children).
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      responses:
+        '200':
+          description: The book
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryBookDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/library/books/{book_id}/hold:
+    post:
+      tags: [School]
+      operationId: holdLibraryBook
+      summary: Reserve the book
+      description: |
+        Roadmap 113.11. Held now when a copy is free (`ready`, until
+        `expires_at`: the school's days), else `waiting` until one comes
+        back, in the order people reserved; they're pushed
+        (`school_library`) when it is ready. `person_id`: whom it is for,
+        when the person borrows for more than one (a parent's children).
+        `already_held`, `on_loan_to_you`, `too_many_holds` and `no_copies`
+        (409).
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                person_id: { type: [integer, 'null'] }
+      responses:
+        '201':
+          description: The hold
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryHold' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/library/holds/{hold_id}:
+    delete:
+      tags: [School]
+      operationId: cancelLibraryHold
+      summary: Cancel a hold; its copy goes to the next one waiting
+      parameters:
+        - $ref: '#/components/parameters/HoldId'
+      responses:
+        '204': { description: Cancelled }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/library/loans:
+    get:
+      tags: [School]
+      operationId: listLibraryLoans
+      summary: The books out now, borrowed before and reserved
+      description: |
+        Roadmap 113.11. Of whoever the person follows: themselves (a
+        student, a teacher), a parent's children; one of them with
+        `person_id`. Books are lent and returned at the library's desk;
+        the student and their parents are pushed (`school_library`) before
+        the due date and when a book is overdue.
+      parameters:
+        - { name: person_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Loans and holds
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LibraryLoans' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /classroom/me:
     get:
@@ -7637,6 +8214,157 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /classroom/classes/{class_id}/messages:
+    post:
+      tags: [Classroom]
+      operationId: messageClass
+      summary: Write to a whole class at once
+      description: |
+        113.6 When the school allows it (`SchoolMessages.class_messages`):
+        the same text in each one-to-one conversation of the teacher with the
+        class's parents, students or both (`families`, as the school allows),
+        so each answer comes back to the teacher alone; each of them gets a
+        push. People who never signed in to the app can't be written to yet
+        (`not_in_app`). Within the school's hours (409 `outside_hours`).
+        The same `client_id` again sends nothing twice.
+      parameters:
+        - name: class_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to, client_id, text]
+              properties:
+                to: { type: string, enum: [parents, students, families] }
+                client_id: { type: string, minLength: 8, maxLength: 64 }
+                text: { type: string, minLength: 1, maxLength: 4000 }
+      responses:
+        '200':
+          description: Sent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sent, not_in_app]
+                properties:
+                  sent: { type: integer, description: Conversations it went into. }
+                  not_in_app: { type: integer, description: People who haven't signed in to the app yet. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: Outside the school's messaging hours (`outside_hours`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/exams:
+    get:
+      tags: [Classroom]
+      operationId: listClassroomExams
+      summary: The exams of the teacher's classes
+      description: Roadmap 113.8. The published exams of the teacher's classes (or of `class_id`), coming and done, as students see them.
+      parameters:
+        - { name: class_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Exams
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamLists' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/behaviour/categories:
+    get:
+      tags: [Classroom]
+      operationId: listBehaviourCategories
+      summary: The school's behaviour categories
+      description: Roadmap 113.8. The categories the school uses, positive (points of 0 or more) and negative (0 or less), in the school's order.
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BehaviourCategory' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/behaviour:
+    post:
+      tags: [Classroom]
+      operationId: writeBehaviour
+      summary: Write a merit or a note
+      description: "Roadmap 113.8. On a student of one of the teacher's classes (`not_your_class`, 403, else), of one of the school's categories with its points. The student's parents get a push (`school_behaviour`) as the school chooses."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, category_id]
+              properties:
+                student_id: { type: integer }
+                category_id: { type: integer }
+                note: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '201':
+          description: Written
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BehaviourNote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/behaviour/{note_id}:
+    delete:
+      tags: [Classroom]
+      operationId: deleteBehaviour
+      summary: Take back a merit or a note
+      description: The teacher's own, within a day of writing it (`too_late`, 409, after).
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '204': { description: Taken back }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /classroom/classes/{class_id}/behaviour:
+    get:
+      tags: [Classroom]
+      operationId: getClassBehaviour
+      summary: A class's behaviour
+      description: Roadmap 113.8. Each student's points and counts, and the class's latest 50 merits and notes (one student's with `student_id`).
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - { name: student_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: The class's behaviour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassBehaviour' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /classroom/announcements:
     post:
       tags: [Classroom]
@@ -7850,6 +8578,116 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /staff/me:
+    get:
+      tags: [Staff]
+      operationId: getStaffMe
+      summary: The signed-in teacher or member of staff at work
+      description: Their job, department, working days and hours (else the school's times for teachers and staff), duties, and a teacher's lessons in the week.
+      responses:
+        '200':
+          description: At work
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StaffMe' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /staff/leave:
+    get:
+      tags: [Staff]
+      operationId: listLeaveRequests
+      summary: The person's leave requests
+      description: Newest first.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Leave requests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/LeaveRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Staff]
+      operationId: requestLeave
+      summary: Ask for leave
+      description: From up to 30 days back to a year ahead, up to 90 days at a time; `leave_overlaps` (409) when a waiting or approved request has some of the days. A document is a photo or a PDF sent with `/school/uploads`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, starts_on, ends_on]
+              properties:
+                kind: { type: string, enum: [sick, annual, other] }
+                starts_on: { type: string, format: date }
+                ends_on: { type: string, format: date }
+                note: { type: [string, 'null'], maxLength: 1000 }
+                upload_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '201':
+          description: Asked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LeaveRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /staff/leave/{leave_id}:
+    delete:
+      tags: [Staff]
+      operationId: withdrawLeaveRequest
+      summary: Withdraw a leave request the school hasn't answered
+      parameters:
+        - $ref: '#/components/parameters/LeaveId'
+      responses:
+        '204': { description: Withdrawn }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /staff/announcements:
+    get:
+      tags: [Staff]
+      operationId: listStaffAnnouncements
+      summary: The staff's own news
+      description: Newest first; for teachers and staff only.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
 webhooks:
   accountDeleted:
     post:
@@ -8015,6 +8853,36 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    LeaveId:
+      name: leave_id
+      in: path
+      required: true
+      schema: { type: integer }
+    Month:
+      name: month
+      in: query
+      description: 113.2 A month like 2026-11; this month in the school's time zone by default.
+      schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
+    BusRouteId:
+      name: route_id
+      in: path
+      required: true
+      schema: { type: integer }
+    BusRunId:
+      name: run_id
+      in: path
+      required: true
+      schema: { type: integer }
+    BookId:
+      name: book_id
+      in: path
+      required: true
+      schema: { type: integer }
+    HoldId:
+      name: hold_id
+      in: path
+      required: true
+      schema: { type: integer }
     HomeworkId:
       name: homework_id
       in: path
@@ -8022,6 +8890,11 @@ components:
       schema: { type: integer }
     AssessmentId:
       name: assessment_id
+      in: path
+      required: true
+      schema: { type: integer }
+    NoteId:
+      name: note_id
       in: path
       required: true
       schema: { type: integer }
@@ -8080,11 +8953,6 @@ components:
       schema: { type: integer }
     PathId:
       name: path_id
-      in: path
-      required: true
-      schema: { type: integer }
-    NoteId:
-      name: note_id
       in: path
       required: true
       schema: { type: integer }
@@ -8649,7 +9517,7 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent] }
+          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent, staff, bus] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
@@ -8660,7 +9528,10 @@ components:
             the academy's teachers (the Teacher endpoints).
             105.4 In school apps, `student` and `parent` for the school's
             students and parents (the School endpoints), `teacher` for its
-            teachers (the Classroom endpoints).
+            teachers (the Classroom endpoints). 113.3 `staff` for those who
+            work at the school and don't teach (the Staff endpoints, which
+            teachers use too); 113.10 `bus` for a driver or supervisor of
+            one of its buses.
             Missing or empty: a customer only. Apps ignore roles they don't
             know.
 
@@ -9695,8 +10566,8 @@ components:
       required: [id, kind, title, image_url, last_message, unread_count, can_send, updated_at]
       properties:
         id: { type: string, format: uuid }
-        kind: { type: string, enum: [direct, group], description: '`direct`: the person and the business. `group`: a course''s group.' }
-        title: { type: string, description: "The business's name, or the course's." }
+        kind: { type: string, enum: [direct, group, school], description: '`direct`: the person and the business. `group`: a course''s group. `school` (113.6): a school''s teacher and a parent or student.' }
+        title: { type: string, description: "The business's name, or the course's; in a `school` conversation the other side's name." }
         image_url: { type: [string, 'null'], format: uri }
         course_id: { type: [string, 'null'], description: The group's course. }
         member_count: { type: integer, description: 'With `kind: group`.' }
@@ -9705,8 +10576,85 @@ components:
             - $ref: '#/components/schemas/ChatMessage'
             - type: 'null'
         unread_count: { type: integer }
-        can_send: { type: boolean, description: False while the business blocked the person. }
+        can_send: { type: boolean, description: 'False while the business blocked the person; in a `school` conversation also while `school.note` says why not.' }
+        school:
+          $ref: '#/components/schemas/SchoolChatInfo'
         updated_at: { type: string, format: date-time }
+
+    SchoolChatInfo:
+      type: object
+      description: |
+        113.6 With `kind: school`: who the other side is and what the school
+        allows. The app shows the hours and, when `admin_reads`, that the
+        school's administration can read the conversation.
+      required: [role, person_id, students, classes, note, closed, attachments, hours, opens_at, admin_reads]
+      properties:
+        role: { type: string, enum: [teacher, parent, student], description: The other side. }
+        person_id: { type: integer, description: The other side's school record. }
+        students: { type: array, items: { type: string }, description: "With a parent: the children the teacher teaches." }
+        classes: { type: array, items: { type: string } }
+        note:
+          type: [string, 'null']
+          enum: [closed, not_allowed, teacher_first, outside_hours, null]
+          description: 'Why one can''t write now: the school closed it, the school doesn''t allow it now, the teacher writes first, outside the hours (see `opens_at`); null: one can.'
+        closed: { type: boolean }
+        attachments: { type: boolean, description: 'Photos, voice messages and files allowed; false: text only.' }
+        hours: { oneOf: [{ $ref: '#/components/schemas/SchoolMessageHours' }, { type: 'null' }] }
+        opens_at: { type: [string, 'null'], format: date-time, description: 'Outside the hours: when messages can be sent again.' }
+        admin_reads: { type: boolean, description: "The school's administration may read the conversation (the app says so)." }
+
+    SchoolMessageHours:
+      type: object
+      description: 113.6 When messages can be sent, in the school's time zone (`Config.school.timezone`).
+      required: [from, to, days]
+      properties:
+        from: { type: string, example: '08:00' }
+        to: { type: string, example: '18:00' }
+        days: { type: array, items: { type: integer, minimum: 1, maximum: 7 }, description: 1 Monday … 7 Sunday. }
+
+    SchoolContact:
+      type: object
+      description: 113.6 Someone the person can write to at the school.
+      required: [person_id, role, name, photo_url, students, classes, subjects, class_teacher, conversation_id, can_write]
+      properties:
+        person_id: { type: integer }
+        role: { type: string, enum: [teacher, parent, student] }
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        students: { type: array, items: { type: string }, description: "A parent's children the teacher teaches; to a parent, their children this teacher teaches." }
+        classes: { type: array, items: { type: string } }
+        subjects: { type: array, items: { type: string }, description: What a teacher teaches them. }
+        class_teacher: { type: boolean, description: The teacher is the class's own teacher. }
+        conversation_id: { type: [string, 'null'], format: uuid, description: 'Their conversation (a Chat conversation of `kind: school`) once made.' }
+        can_write: { type: boolean, description: 'False when only teachers write first and this one hasn''t, or the school closed it.' }
+
+    SchoolMessages:
+      type: object
+      description: 113.6 What the school allows and whom the person can write to.
+      required: [enabled, with, started_by, hours, open_now, opens_at, attachments, admin_reads, class_messages, classes, office_conversation_id, contacts]
+      properties:
+        enabled: { type: boolean, description: The school allows messages between teachers and families (and the app has chat). }
+        with: { type: string, enum: [none, parents, parents_students], description: Whom teachers write to and hear from. }
+        started_by: { type: string, enum: [teacher, both] }
+        hours: { oneOf: [{ $ref: '#/components/schemas/SchoolMessageHours' }, { type: 'null' }] }
+        open_now: { type: boolean }
+        opens_at: { type: [string, 'null'], format: date-time }
+        attachments: { type: boolean }
+        admin_reads: { type: boolean }
+        class_messages: { type: boolean, description: This teacher may write to a whole class at once. }
+        classes:
+          type: array
+          description: With `class_messages`, the classes they can write to.
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+        office_conversation_id: { type: [string, 'null'], format: uuid, description: "The person's conversation with the school's administration (`kind: direct`), at any time." }
+        contacts:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolContact' }
 
     ChatMessage:
       type: object
@@ -9773,7 +10721,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_report, school_report_shared]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -9803,6 +10751,15 @@ components:
             teacher marked homework or entered a score, and opens their grades; `school_fee`, a
             fee was added or paid, and opens their fees. `school_announcement` (with
             `student_id` when it is for one student's class or family) opens the school's news.
+            113.2 `school_checkin` (with `student_id`): the parent's child checked in or out at
+            the school (late or leaving early says so), and opens the child's attendance.
+            113.3 `school_staff`: news for the school's teachers and staff, and opens the staff's
+            news; `school_leave`: the school approved or refused a leave request, and opens the
+            person's leave requests.
+            113.8 `school_exam` (with `student_id`, and `exam_id` for one exam): exams of the
+            student's were published, or one is tomorrow, and opens their exams' timetable;
+            `school_behaviour` (with `student_id` and `note_id`): a merit or a note on the
+            parent's child, and opens their behaviour record.
             112.5 `live_class_soon` (with `course_id` and `live_id`): one of the student's
             live classes starts within the hour, and opens it; `assignment_graded` (with
             `course_id` and `assignment_id`): the teacher graded or sent back one of the
@@ -9811,6 +10768,10 @@ components:
             teacher's reports, sent it back for changes or approved it, and opens it in the
             Classroom tab; `school_report_shared` (with `student_id` and `report_id`): the
             school shared a teacher's report on the parent's child, and opens the child's reports.
+            113.10 `school_bus` (with `student_id`): the child's bus is near their stop, or the
+            child got on or off it, and opens the bus. 113.11 `school_library` (with
+            `student_id` for a student's books): a reserved book is held at the library, or a
+            book is due soon or overdue, and opens the library's loans.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -9825,6 +10786,8 @@ components:
         ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
         student_id: { type: [integer, 'null'], description: "105.4 For the school's notifications, the student it is about. Missing on older servers." }
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
+        exam_id: { type: [integer, 'null'], description: "113.8 For school_exam about one exam, that exam. Missing on older servers." }
+        note_id: { type: [integer, 'null'], description: "113.8 For school_behaviour, the merit or note. Missing on older servers." }
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         report_id: { type: [integer, 'null'], description: "113.5 For school_report and school_report_shared, the teacher's report to open. Missing on older servers." }
@@ -13725,6 +14688,27 @@ components:
             - type: 'null'
         absence_alerts: { type: boolean, description: 'Parents get a push when their child is marked absent or late.' }
         fees_by_card: { type: boolean, description: "Fees can be paid by card on the school's payment page." }
+        checkin:
+          description: 113.2 Whether students, teachers and staff check in and out in the app, and how. Missing on older servers (off).
+          type: object
+          required: [on, methods]
+          properties:
+            on: { type: boolean }
+            methods: { $ref: '#/components/schemas/CheckinMethods' }
+        bus: { type: boolean, description: "113.10 The school has buses: the families' bus screen." }
+        library: { type: boolean, description: "113.11 The school has a library: its books in the app." }
+        map:
+          type: object
+          required: [tiles_url, attribution, search, routes]
+          description: |
+            113.10 The platform's map (Admin › Settings › Maps), for the bus
+            and its stops. While `tiles_url` is null the app shows the
+            stops and the bus as a list.
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'] }
+            search: { type: boolean }
+            routes: { type: boolean }
 
     SchoolMe:
       type: object
@@ -13734,7 +14718,8 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [student, parent, teacher] }
+          items: { type: string, enum: [student, parent, teacher, staff, bus] }
+          description: 113.3 `staff` for who works at the school and doesn't teach; 113.10 `bus` for someone who drives or supervises one of the school's buses.
         students:
           type: array
           description: Whom the person may see; empty for a teacher who is no parent.
@@ -13750,6 +14735,286 @@ components:
         code: { type: [string, 'null'], description: "The school's student number." }
         class_id: { type: [integer, 'null'] }
         class_name: { type: [string, 'null'], example: Grade 5 A }
+
+    BusStop:
+      type: object
+      required: [id, name, lat, lng, time, passed]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+        time: { type: [string, 'null'], description: "The bus's time here on the trip (HH:MM, the school's time zone).", example: '07:10' }
+        passed: { type: boolean, description: 'The bus reached it on today''s trip.' }
+
+    BusPosition:
+      type: object
+      required: [lat, lng, updated_at]
+      properties:
+        lat: { type: number }
+        lng: { type: number }
+        updated_at: { type: string, format: date-time }
+
+    BusMark:
+      type: object
+      required: [status, boarded_at, off_at]
+      properties:
+        status: { type: [string, 'null'], enum: [boarded, off, absent, null], description: 'Null: not marked yet.' }
+        boarded_at: { type: [string, 'null'], format: date-time }
+        off_at: { type: [string, 'null'], format: date-time }
+
+    StudentBus:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [trip, route, stop, stops, run]
+            properties:
+              trip: { type: string, enum: [morning, afternoon] }
+              route:
+                type: object
+                required: [id, name, plate]
+                properties:
+                  id: { type: integer }
+                  name: { type: string }
+                  plate: { type: string }
+              stop: { $ref: '#/components/schemas/BusStop' }
+              stops:
+                type: array
+                description: In the order the bus reaches them.
+                items: { $ref: '#/components/schemas/BusStop' }
+              run:
+                description: Today's trip once the driver started it.
+                oneOf:
+                  - type: object
+                    required: [id, status, started_at, ended_at, bus, eta_minutes, distance_m, student]
+                    properties:
+                      id: { type: integer }
+                      status: { type: string, enum: [running, done] }
+                      started_at: { type: string, format: date-time }
+                      ended_at: { type: [string, 'null'], format: date-time }
+                      bus:
+                        oneOf:
+                          - $ref: '#/components/schemas/BusPosition'
+                          - type: 'null'
+                      eta_minutes: { type: [integer, 'null'] }
+                      distance_m: { type: [integer, 'null'] }
+                      student: { $ref: '#/components/schemas/BusMark' }
+                  - type: 'null'
+
+    BusRunSummary:
+      type: object
+      required: [id, trip, date, status, started_at, ended_at, riders, boarded, off, absent]
+      properties:
+        id: { type: integer }
+        trip: { type: string, enum: [morning, afternoon] }
+        date: { type: string, format: date }
+        status: { type: string, enum: [running, done] }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: [string, 'null'], format: date-time }
+        riders: { type: integer }
+        boarded: { type: integer }
+        off: { type: integer }
+        absent: { type: integer }
+
+    BusCrewRoute:
+      type: object
+      required: [id, name, plate, capacity, role, drives, trips]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        plate: { type: string }
+        capacity: { type: integer }
+        role: { type: string, enum: [driver, supervisor] }
+        drives: { type: boolean }
+        trips:
+          type: array
+          items:
+            type: object
+            required: [trip, stops, riders, run]
+            properties:
+              trip: { type: string, enum: [morning, afternoon] }
+              stops: { type: integer }
+              riders: { type: integer }
+              run:
+                description: Today's trip, once started.
+                oneOf:
+                  - $ref: '#/components/schemas/BusRunSummary'
+                  - type: 'null'
+
+    BusRider:
+      allOf:
+        - $ref: '#/components/schemas/BusMark'
+        - type: object
+          required: [student]
+          properties:
+            student: { $ref: '#/components/schemas/SchoolStudent' }
+
+    BusRun:
+      type: object
+      required: [id, route, trip, date, status, started_at, ended_at, role, drives, bus, counts, stops]
+      properties:
+        id: { type: integer }
+        route:
+          type: object
+          required: [id, name, plate, capacity]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            plate: { type: string }
+            capacity: { type: integer }
+        trip: { type: string, enum: [morning, afternoon] }
+        date: { type: string, format: date }
+        status: { type: string, enum: [running, done] }
+        started_at: { type: string, format: date-time }
+        ended_at: { type: [string, 'null'], format: date-time }
+        role: { type: string, enum: [driver, supervisor] }
+        drives: { type: boolean, description: "The person's phone sends the bus's position while the trip runs." }
+        bus:
+          oneOf:
+            - $ref: '#/components/schemas/BusPosition'
+            - type: 'null'
+        counts:
+          type: object
+          required: [riders, boarded, off, absent]
+          properties:
+            riders: { type: integer }
+            boarded: { type: integer }
+            off: { type: integer }
+            absent: { type: integer }
+        stops:
+          type: array
+          description: In the order the bus reaches them, each with its students.
+          items:
+            allOf:
+              - $ref: '#/components/schemas/BusStop'
+              - type: object
+                required: [riders]
+                properties:
+                  riders:
+                    type: array
+                    items: { $ref: '#/components/schemas/BusRider' }
+
+    LibraryBookRef:
+      type: object
+      required: [id, title, author, cover_url]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        author: { type: string }
+        cover_url: { type: [string, 'null'], format: uri }
+
+    LibraryBook:
+      allOf:
+        - $ref: '#/components/schemas/LibraryBookRef'
+        - type: object
+          required: [isbn, shelf, category, language, copies, available, waiting, ebook]
+          properties:
+            isbn: { type: [string, 'null'] }
+            shelf: { type: [string, 'null'], example: A3 }
+            category: { type: [string, 'null'] }
+            language: { type: [string, 'null'] }
+            copies: { type: integer }
+            available: { type: integer, description: Copies on the shelf that aren't held for anyone. }
+            waiting: { type: integer, description: People waiting for a copy. }
+            ebook: { type: boolean, description: It has an e-book to read in the app. }
+
+    LibraryBookPage:
+      type: object
+      required: [page, per_page, total, total_pages, items, categories]
+      properties:
+        page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+        total_pages: { type: integer }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/LibraryBook' }
+        categories:
+          type: array
+          items: { type: string }
+
+    LibraryPerson:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+
+    LibraryHold:
+      type: object
+      required: [id, book, person, status, created_at, ready_at, expires_at]
+      properties:
+        id: { type: integer }
+        book: { $ref: '#/components/schemas/LibraryBookRef' }
+        person:
+          oneOf:
+            - $ref: '#/components/schemas/LibraryPerson'
+            - type: 'null'
+        status: { type: string, enum: [waiting, ready, collected, cancelled, expired], description: '`ready`: a copy is held at the library until `expires_at`.' }
+        created_at: { type: string, format: date-time }
+        ready_at: { type: [string, 'null'], format: date-time }
+        expires_at: { type: [string, 'null'], format: date-time }
+
+    LibraryBookDetail:
+      allOf:
+        - $ref: '#/components/schemas/LibraryBook'
+        - type: object
+          required: [description, file, holds, borrowers]
+          properties:
+            description: { type: [string, 'null'] }
+            file:
+              oneOf:
+                - $ref: '#/components/schemas/SchoolFile'
+                - type: 'null'
+            holds:
+              type: array
+              items: { $ref: '#/components/schemas/LibraryHold' }
+            borrowers:
+              type: array
+              items: { $ref: '#/components/schemas/LibraryPerson' }
+
+    LibraryLoan:
+      type: object
+      required: [id, book, person, copy_code, lent_at, due_on, returned_at, overdue]
+      properties:
+        id: { type: integer }
+        book:
+          oneOf:
+            - $ref: '#/components/schemas/LibraryBookRef'
+            - type: 'null'
+        person:
+          oneOf:
+            - $ref: '#/components/schemas/LibraryPerson'
+            - type: 'null'
+        copy_code: { type: string }
+        lent_at: { type: string, format: date-time }
+        due_on: { type: string, format: date }
+        returned_at: { type: [string, 'null'], format: date-time }
+        overdue: { type: boolean }
+
+    LibraryLoans:
+      type: object
+      required: [people, loan_days, hold_days, current, history, holds]
+      properties:
+        people:
+          type: array
+          items: { $ref: '#/components/schemas/LibraryPerson' }
+        loan_days: { type: integer }
+        hold_days: { type: integer }
+        current:
+          type: array
+          description: Out now, due first.
+          items: { $ref: '#/components/schemas/LibraryLoan' }
+        history:
+          type: array
+          items: { $ref: '#/components/schemas/LibraryLoan' }
+        holds:
+          type: array
+          items: { $ref: '#/components/schemas/LibraryHold' }
 
     SchoolFile:
       type: object
@@ -14152,6 +15417,118 @@ components:
           description: Due first (soonest due first), then paid (newest first).
           items: { $ref: '#/components/schemas/SchoolFee' }
 
+    SchoolEvent:
+      type: object
+      description: Roadmap 113.8. A day or days on the school's calendar.
+      required: [id, kind, title, notes, starts_on, ends_on, all_day, starts, ends, place, audience, for_name]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [event, holiday, exam], description: "`holiday` is a holiday or a break: no school those days. `exam` marks exam days." }
+        title: { type: string }
+        notes: { type: [string, 'null'] }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date, description: The same day for one day. }
+        all_day: { type: boolean }
+        starts: { type: [string, 'null'], example: '09:00' }
+        ends: { type: [string, 'null'], example: '13:00' }
+        place: { type: [string, 'null'] }
+        audience: { type: string, enum: [school, grade, class, staff] }
+        for_name: { type: [string, 'null'], description: "The grade's or the class's name; null for everyone and the staff." }
+
+    SchoolExam:
+      type: object
+      description: Roadmap 113.8. An exam of the exams' timetable, for a class or every class of a grade.
+      required: [id, subject, class_id, class_name, grade, date, starts, ends, duration_minutes, room, notes, published]
+      properties:
+        id: { type: integer }
+        subject: { type: string }
+        class_id: { type: [integer, 'null'] }
+        class_name: { type: [string, 'null'] }
+        grade: { type: [string, 'null'] }
+        date: { type: string, format: date }
+        starts: { type: string, example: '09:00' }
+        ends: { type: string, example: '10:00' }
+        duration_minutes: { type: integer }
+        room: { type: [string, 'null'] }
+        notes: { type: [string, 'null'], description: What it covers and what to bring. }
+        published: { type: boolean }
+
+    SchoolCalendar:
+      type: object
+      required: [from, to, events, exams]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        events:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolEvent' }
+        exams:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+
+    ExamLists:
+      type: object
+      required: [upcoming, past]
+      properties:
+        upcoming:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+        past:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+
+    BehaviourCategory:
+      type: object
+      required: [id, name, kind, points]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        kind: { type: string, enum: [positive, negative] }
+        points: { type: integer, description: Negative for a negative category. }
+
+    BehaviourNote:
+      type: object
+      description: Roadmap 113.8. A merit (positive) or a note (negative) on a student.
+      required: [id, student_id, student_name, class_name, kind, category, points, note, teacher_name, created_at]
+      properties:
+        id: { type: integer }
+        student_id: { type: integer }
+        student_name: { type: string }
+        class_name: { type: [string, 'null'] }
+        kind: { type: string, enum: [positive, negative] }
+        category: { type: string }
+        points: { type: integer }
+        note: { type: [string, 'null'] }
+        teacher_name: { type: [string, 'null'], description: 'Null: written by the school.' }
+        created_at: { type: string, format: date-time }
+
+    BehaviourTotals:
+      type: object
+      required: [points, positive_count, negative_count]
+      properties:
+        points: { type: integer, description: The record's points total. }
+        positive_count: { type: integer }
+        negative_count: { type: integer }
+
+    ClassBehaviour:
+      type: object
+      required: [class_id, class_name, students, recent]
+      properties:
+        class_id: { type: integer }
+        class_name: { type: string }
+        students:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/BehaviourTotals'
+              - type: object
+                required: [student]
+                properties:
+                  student: { $ref: '#/components/schemas/SchoolStudent' }
+        recent:
+          type: array
+          items: { $ref: '#/components/schemas/BehaviourNote' }
+
     SchoolAnnouncement:
       type: object
       required: [id, title, body, audience, class_name, author, created_at]
@@ -14159,9 +15536,149 @@ components:
         id: { type: integer }
         title: { type: string }
         body: { type: string }
-        audience: { type: string, enum: [school, class, student] }
+        audience: { type: string, enum: [school, class, student, staff], description: "113.3 `staff`: the staff's own news, only in `GET /staff/announcements`." }
         class_name: { type: [string, 'null'] }
         author: { type: string, description: 'The school, or the teacher who wrote it.' }
+        created_at: { type: string, format: date-time }
+
+    CheckinMethods:
+      type: string
+      enum: [qr, location, either, both]
+      description: 113.2 `qr` the gate's code, `location` inside the school's area, `either` one of them, `both` the code and inside the area.
+
+    CheckinTimes:
+      type: object
+      required: [starts, late_from, ends, early_before]
+      properties:
+        starts: { type: string, example: '07:30' }
+        late_from: { type: string, example: '08:00' }
+        ends: { type: string, example: '14:00' }
+        early_before: { type: string, example: '13:45' }
+
+    CheckinDay:
+      type: object
+      description: 113.2 A day at the gate. Times are the school's, `HH:MM`.
+      required: [date, state, in_at, in_time, in_method, out_at, out_time, out_method, late, left_early, corrections]
+      properties:
+        date: { type: string, format: date }
+        state:
+          type: string
+          enum: [not_yet, in, left, absent, excused, leave, off]
+          description: '`not_yet` not in yet today, `in` at school, `left` checked out, `absent`, `excused` (by the office), `leave` on approved leave, `off` not a school day.'
+        in_at: { type: [string, 'null'], format: date-time }
+        in_time: { type: [string, 'null'], example: '07:52' }
+        in_method: { type: [string, 'null'], enum: [qr, location, office, null] }
+        out_at: { type: [string, 'null'], format: date-time }
+        out_time: { type: [string, 'null'] }
+        out_method: { type: [string, 'null'], enum: [qr, location, office, null] }
+        late: { type: boolean }
+        left_early: { type: boolean }
+        corrections:
+          type: array
+          description: The office's corrections of the day, oldest first.
+          items:
+            type: object
+            required: [at, reason, change]
+            properties:
+              at: { type: string, format: date-time }
+              reason: { type: string }
+              change: { type: string, example: 'In 07:55 → 07:40' }
+
+    CheckinToday:
+      type: object
+      required: [on, methods, place, role, date, school_day, times, today]
+      properties:
+        on: { type: boolean, description: The school takes check-ins in the app. }
+        methods: { $ref: '#/components/schemas/CheckinMethods' }
+        place:
+          description: The school's place and radius, when it checks the area.
+          oneOf:
+            - type: object
+              required: [lat, lng, radius_m]
+              properties:
+                lat: { type: number }
+                lng: { type: number }
+                radius_m: { type: integer }
+            - type: 'null'
+        role: { type: string, enum: [student, teacher, staff] }
+        date: { type: string, format: date }
+        school_day: { type: boolean }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        today: { $ref: '#/components/schemas/CheckinDay' }
+
+    CheckinResult:
+      type: object
+      required: [result, time, day]
+      properties:
+        result: { type: string, enum: [on_time, late, out, left_early] }
+        time: { type: string, example: '07:52' }
+        day: { $ref: '#/components/schemas/CheckinDay' }
+
+    CheckinMonth:
+      type: object
+      required: [month, role, times, counts, days]
+      properties:
+        month: { type: string, example: '2026-11' }
+        role: { type: string, enum: [student, teacher, staff] }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        counts:
+          type: object
+          description: The school days to today, and how many were present, late, left early, absent, excused and on leave.
+          required: [days, present, late, left_early, absent, excused, leave]
+          properties:
+            days: { type: integer }
+            present: { type: integer }
+            late: { type: integer }
+            left_early: { type: integer }
+            absent: { type: integer }
+            excused: { type: integer }
+            leave: { type: integer }
+        days:
+          type: array
+          description: Newest first; school days to today, and any other day with a record.
+          items: { $ref: '#/components/schemas/CheckinDay' }
+
+    StaffMe:
+      type: object
+      required: [name, role, job_title, department, work_hours, days, times, duties, timetable]
+      properties:
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        role: { type: string, enum: [teacher, staff] }
+        job_title: { type: [string, 'null'], example: Nurse }
+        department: { type: [string, 'null'], example: Administration }
+        work_hours:
+          description: Their own working days and hours; null for the school's times.
+          oneOf:
+            - type: object
+              required: [days, starts, ends]
+              properties:
+                days: { type: array, items: { type: integer, minimum: 1, maximum: 7 } }
+                starts: { type: string }
+                ends: { type: string }
+            - type: 'null'
+        days: { type: array, description: 'The days they work, 1 Monday … 7 Sunday.', items: { type: integer, minimum: 1, maximum: 7 } }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        duties: { type: [string, 'null'] }
+        timetable: { $ref: '#/components/schemas/Timetable' }
+
+    LeaveRequest:
+      type: object
+      required: [id, kind, starts_on, ends_on, days, note, file, status, answer, answered_at, created_at]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [sick, annual, other] }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        days: { type: integer }
+        note: { type: [string, 'null'] }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        status: { type: string, enum: [pending, approved, refused, cancelled] }
+        answer: { type: [string, 'null'], description: "The school's note with its answer." }
+        answered_at: { type: [string, 'null'], format: date-time }
         created_at: { type: string, format: date-time }
 
     ClassroomMe:
@@ -14200,6 +15717,15 @@ components:
       properties:
         class_id: { type: integer }
         date: { type: string, format: date }
+        day_off:
+          description: Roadmap 113.8. The holiday or break the day falls on for the class (nobody is told of an absence that day); null on a school day. Missing on older servers.
+          oneOf:
+            - type: object
+              required: [id, title]
+              properties:
+                id: { type: integer }
+                title: { type: string }
+            - type: 'null'
         students:
           type: array
           items:

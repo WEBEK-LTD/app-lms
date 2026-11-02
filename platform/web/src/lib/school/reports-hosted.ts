@@ -6,7 +6,7 @@ import type { ConnectorRequest, ConnectorResult } from "../hosted/connectors/typ
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import type { SchoolContext } from "./hosted";
 import { reportPeriod } from "./report-cards";
-import { schoolDirectory, schoolToday, teachesSubject, visibleStudents, type SchoolDirectory, type SchoolMember } from "./service";
+import { NO_MEMBER, schoolDirectory, schoolToday, teachesSubject, visibleStudents, type SchoolDirectory, type SchoolMember } from "./service";
 import { classProgress, SYLLABUS_LIMITS, type SubjectProgress } from "./syllabus";
 import { checkAnswers, reportPeriodOf, reportTemplateJson, sendReport, sharedReportJson, teacherReportJson, REPORT_LIMITS } from "./teacher-reports";
 
@@ -255,7 +255,7 @@ async function send(ctx: SchoolContext, request: ConnectorRequest, teacher: Scho
 
 /** The reports the school shared with a student's parents, newest first: for the student's parents only. */
 export async function studentReports(ctx: SchoolContext, member: SchoolMember, student: SchoolPerson): Promise<ConnectorResult> {
-  const children = member.parent ? await visibleStudents(ctx.store, ctx.app, { student: null, parent: member.parent, teacher: null }) : [];
+  const children = member.parent ? await visibleStudents(ctx.store, ctx.app, { ...NO_MEMBER, parent: member.parent }) : [];
   if (!children.some((c) => c.id === student.id)) return error(403, "not_parent", "The school shares these with the student's parents.");
   const [dir, reports] = await Promise.all([schoolDirectory(ctx.store, ctx.app.id), ctx.store.listSchoolReports(ctx.app.id, { studentId: student.id, statuses: ["approved"] })]);
   const shared = reports.filter((r) => r.sharedAt !== null).sort((a, b) => b.sharedAt!.getTime() - a.sharedAt!.getTime() || b.id - a.id);

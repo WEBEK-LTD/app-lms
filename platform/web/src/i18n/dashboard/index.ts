@@ -56,6 +56,10 @@ import * as teachers from "./teachers";
 import * as samples from "./samples";
 import * as lms from "./lms";
 import * as reports from "./reports";
+// 113.10 The school bus; 113.11 the library.
+import * as bus from "./bus";
+import * as library from "./library";
+import * as schoolLife from "./school-life";
 import * as learning from "./learning";
 
 /**
@@ -78,7 +82,7 @@ import * as learning from "./learning";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, rides, teachers, school, taxi, samples, lms, reports, learning } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, rides, teachers, school, taxi, samples, lms, reports, bus, library, schoolLife, learning } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

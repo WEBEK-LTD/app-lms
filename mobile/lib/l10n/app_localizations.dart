@@ -9382,6 +9382,36 @@ abstract class AppLocalizations {
   /// **'Ask the school to link your children to your number.'**
   String get schoolNoStudentsMessage;
 
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student).
+  ///
+  /// In en, this message translates to:
+  /// **'This tab is for students and parents'**
+  String get schoolForWorkersTitle;
+
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For staff who don't teach.
+  ///
+  /// In en, this message translates to:
+  /// **'What you need at work is in the Staff tab: checking in and out, your leave, the staff\'s news, the calendar and the library.'**
+  String get schoolForStaffMessage;
+
+  /// 113.3 The School tab of someone who works at the school and has no student there (no child, not a student). For teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'What you need at work is in the Classroom tab: your classes, checking in and out, the calendar and the exams.'**
+  String get schoolForTeachersMessage;
+
+  /// 113.3 Opens the Staff tab from the School tab of someone who works at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Staff'**
+  String get schoolOpenStaff;
+
+  /// 113.3 Opens the Classroom tab from the School tab of a teacher who has no student there.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Classroom'**
+  String get schoolOpenClassroom;
+
   /// 105.4 Today's lessons on the School and Classroom tabs.
   ///
   /// In en, this message translates to:
@@ -10593,6 +10623,1200 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue without a coupon'**
   String get couponWithout;
+
+  /// 113.8 The school's calendar: events, holidays and exams.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get schoolCalendar;
+
+  /// 113.8 The exams' timetable of the student's class.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams'**
+  String get schoolExams;
+
+  /// 113.8 The student's merits and notes, with their points.
+  ///
+  /// In en, this message translates to:
+  /// **'Behaviour'**
+  String get schoolBehaviour;
+
+  /// 113.8 Shows the school's calendar a month at a time.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get calendarMonth;
+
+  /// 113.8 Shows the school's calendar as a list of what is coming.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get calendarList;
+
+  /// 113.8 A day of the school's calendar without events or exams.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day'**
+  String get calendarNothingThisDay;
+
+  /// 113.8 The school's calendar list with nothing coming.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on the calendar in the coming weeks'**
+  String get calendarNothingAhead;
+
+  /// 113.8 An event of the school's calendar that lasts all day.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get calendarAllDay;
+
+  /// 113.8 Label of a holiday or a break on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No school'**
+  String get calendarDayOff;
+
+  /// 113.8 Label of exam days on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam days'**
+  String get calendarExamDays;
+
+  /// 113.8 Label of an exam of the timetable on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get calendarExam;
+
+  /// 113.8 An event of the school's calendar for the staff only.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get calendarStaffOnly;
+
+  /// 113.8 The days of an event of the school's calendar that lasts several days.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String calendarDays(String from, String to);
+
+  /// 113.8 How many events and exams a day of the school's calendar has, for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String calendarItems(int count);
+
+  /// 113.8 The exams still to come on the exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming'**
+  String get examsComing;
+
+  /// 113.8 The exams already done on the exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get examsDone;
+
+  /// 113.8 The exams' timetable with no exams published.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams on the timetable yet'**
+  String get examsNone;
+
+  /// 113.8 Under the empty exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'The school publishes the exams\' timetable here.'**
+  String get examsNoneMessage;
+
+  /// 113.8 When an exam is and how long it takes.
+  ///
+  /// In en, this message translates to:
+  /// **'{starts}–{ends} · {minutes} min'**
+  String examTime(String starts, String ends, int minutes);
+
+  /// 113.8 The points total of a student's behaviour record.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get behaviourPoints;
+
+  /// 113.8 How many merits a student's behaviour record has.
+  ///
+  /// In en, this message translates to:
+  /// **'Merits'**
+  String get behaviourMerits;
+
+  /// 113.8 How many negative notes a student's behaviour record has.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get behaviourNotes;
+
+  /// 113.8 A student's behaviour record with nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'No merits or notes yet'**
+  String get behaviourNone;
+
+  /// 113.8 A merit or a note the school wrote, not a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'From the school'**
+  String get behaviourFromSchool;
+
+  /// 113.8 The points of a merit (+2) or a note (-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String behaviourPointsValue(String points);
+
+  /// 113.8 Button and sheet title in the Classroom tab's class behaviour.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a merit or a note'**
+  String get behaviourWrite;
+
+  /// 113.8 Whom the teacher writes a merit or a note for.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String behaviourFor(String name);
+
+  /// 113.8 The school's category of a merit or a note, to choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get behaviourCategory;
+
+  /// 113.8 The words a teacher adds to a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the family (optional)'**
+  String get behaviourNoteHint;
+
+  /// 113.8 After a teacher wrote a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The family sees it in the app.'**
+  String get behaviourSaved;
+
+  /// 113.8 A teacher sends a merit or a note without its category.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get behaviourChooseCategory;
+
+  /// 113.8 Removes a merit or a note the teacher wrote today.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back'**
+  String get behaviourTakeBack;
+
+  /// 113.8 After a teacher took back a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken back'**
+  String get behaviourTakenBack;
+
+  /// 113.8 The class's latest merits and notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get behaviourLatest;
+
+  /// 113.8 A teacher opens behaviour before the school set any categories.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t set behaviour categories yet'**
+  String get behaviourNoCategories;
+
+  /// 113.8 The attendance register on a holiday or a break of the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No school: {title}. Nobody is told of an absence on this day.'**
+  String classroomDayOff(String title);
+
+  /// 113.10 On the School tab: opens the child's school bus, live on the map while it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'School bus'**
+  String get schoolBus;
+
+  /// 113.10 The bus's trip to school in the morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning trip'**
+  String get busMorningTrip;
+
+  /// 113.10 The bus's trip home after school.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon trip'**
+  String get busAfternoonTrip;
+
+  /// 113.10 A bus route's name and its bus's plate.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {plate}'**
+  String busRouteLine(String route, String plate);
+
+  /// 113.10 The child's bus stop and the bus's time there.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop: {stop} at {time}'**
+  String busYourStop(String stop, String time);
+
+  /// 113.10 Today's trip hasn't been started by the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus hasn\'t left yet.'**
+  String get busNotStarted;
+
+  /// 113.10 The bus is on its trip now.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get busOnTheWay;
+
+  /// 113.10 How soon the bus reaches the child's stop.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} min to {stop}'**
+  String busEtaMinutes(int minutes, String stop);
+
+  /// 113.10 The trip runs but no recent position came from the driver's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the bus\'s position…'**
+  String get busWaitingPosition;
+
+  /// 113.10 Today's trip was ended by the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has ended.'**
+  String get busEnded;
+
+  /// 113.10 The child got on the bus at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'On the bus since {time}'**
+  String busOnSince(String time);
+
+  /// 113.10 The child got off the bus at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'Got off at {time}'**
+  String busGotOffAt(String time);
+
+  /// 113.10 The driver or the supervisor marked the child absent on the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked absent on this trip'**
+  String get busAbsentToday;
+
+  /// 113.10 The child isn't on any of the school's bus routes.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus for {name}'**
+  String busNoTrips(String name);
+
+  /// 113.10 Under 'No bus for …'.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t put {name} on a bus route.'**
+  String busNoTripsMessage(String name);
+
+  /// 113.10 The trip's stops, in order.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get busStops;
+
+  /// 113.10 The screens of the school's bus drivers and supervisors.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus duty'**
+  String get busDutyTitle;
+
+  /// 113.10 Under 'Bus duty'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routes and today\'s trips'**
+  String get busDutySubtitle;
+
+  /// 113.10 The person drives the route's bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get busDriver;
+
+  /// 113.10 The person supervises the students on the route's bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisor'**
+  String get busSupervisor;
+
+  /// 113.10 How many students ride a trip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String busStudents(int count);
+
+  /// 113.10 Button: the driver starts the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get busStart;
+
+  /// 113.10 Button: opens today's trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get busOpenTrip;
+
+  /// 113.10 Today's trip has ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get busDone;
+
+  /// 113.10 Shown to the supervisor before the driver starts the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver starts this trip.'**
+  String get busWaitingDriver;
+
+  /// 113.10 The person drives or supervises none of the school's buses.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus routes'**
+  String get busNoRoutes;
+
+  /// 113.10 Under 'No bus routes'.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t drive or supervise any of the school\'s buses.'**
+  String get busNoRoutesMessage;
+
+  /// 113.10 On the driver's trip: their phone sends the bus's position while the screen is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone shares the bus\'s position while this screen is open.'**
+  String get busSharing;
+
+  /// 113.10 The driver's phone couldn't read its position.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location so families can see the bus.'**
+  String get busLocationOff;
+
+  /// 113.10 Marks the student as on the bus.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get busMarkOn;
+
+  /// 113.10 Marks the student as off the bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get busMarkOff;
+
+  /// 113.10 Marks the student as absent on the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get busMarkAbsent;
+
+  /// 113.10 The trip's students: on the bus, off it, absent, all.
+  ///
+  /// In en, this message translates to:
+  /// **'{boarded} on · {off} off · {absent} absent · {riders} in all'**
+  String busCounts(int boarded, int off, int absent, int riders);
+
+  /// 113.10 Button: the driver ends the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'End the trip'**
+  String get busEndTrip;
+
+  /// 113.10 Asks before the trip ends.
+  ///
+  /// In en, this message translates to:
+  /// **'End the trip?'**
+  String get busEndTitle;
+
+  /// 113.10 Under 'End the trip?'.
+  ///
+  /// In en, this message translates to:
+  /// **'Families stop seeing the bus on the map.'**
+  String get busEndMessage;
+
+  /// 113.10 A trip's title: the route and the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {trip}'**
+  String busTripTitle(String route, String trip);
+
+  /// 113.11 The school's library: its books, to search and reserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get libraryTitle;
+
+  /// 113.11 The library's search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Title, author or ISBN'**
+  String get librarySearchHint;
+
+  /// 113.11 All the library's categories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get libraryAll;
+
+  /// 113.11 A book's copies free on the shelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} on the shelf'**
+  String libraryAvailable(int count);
+
+  /// 113.11 No copy of the book is free now.
+  ///
+  /// In en, this message translates to:
+  /// **'All copies are out'**
+  String get libraryAllOut;
+
+  /// 113.11 The book can be read in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'E-book'**
+  String get libraryEbook;
+
+  /// 113.11 The library's search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found'**
+  String get libraryNoBooks;
+
+  /// 113.11 Under 'No books found'.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another title, author or category.'**
+  String get libraryNoBooksMessage;
+
+  /// 113.11 The books the person (or their children) has out, reserved and returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed books'**
+  String get libraryBorrowed;
+
+  /// 113.11 Where the book is in the library.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf {shelf}'**
+  String libraryShelf(String shelf);
+
+  /// 113.11 A book's copies free on the shelf, of all its copies.
+  ///
+  /// In en, this message translates to:
+  /// **'{available} of {copies} on the shelf'**
+  String libraryCopies(int available, int copies);
+
+  /// 113.11 Button: opens the book's e-book in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the e-book'**
+  String get libraryRead;
+
+  /// 113.11 Button: reserves the book at the library.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve'**
+  String get libraryReserve;
+
+  /// 113.11 A parent chooses which child the book is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve it for'**
+  String get libraryReserveFor;
+
+  /// 113.11 The book was reserved and a copy is held now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for you at the library until {date}.'**
+  String libraryReservedReady(String date);
+
+  /// 113.11 The book was reserved and waits for a copy to come back.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved. You\'ll be told when a copy is held for you.'**
+  String get libraryReservedWaiting;
+
+  /// 113.11 A copy is held at the library for the person.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for {name} until {date}'**
+  String libraryHoldReady(String name, String date);
+
+  /// 113.11 The person reserved the book and waits for a copy.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is waiting for a copy'**
+  String libraryHoldWaiting(String name);
+
+  /// 113.11 Button: cancels a reservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the reservation'**
+  String get libraryCancelHold;
+
+  /// 113.11 The books out on loan now.
+  ///
+  /// In en, this message translates to:
+  /// **'Out now'**
+  String get libraryOutNow;
+
+  /// 113.11 When a borrowed book goes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String libraryDue(String date);
+
+  /// 113.11 A borrowed book wasn't returned by its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue since {date}'**
+  String libraryOverdue(String date);
+
+  /// 113.11 The books the person reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get libraryReservedSection;
+
+  /// 113.11 Books borrowed before and returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned before'**
+  String get libraryReturned;
+
+  /// 113.11 When a book came back.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {date}'**
+  String libraryReturnedOn(String date);
+
+  /// 113.11 Nothing borrowed or reserved yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No books borrowed'**
+  String get libraryNoLoans;
+
+  /// 113.11 Under 'No books borrowed'.
+  ///
+  /// In en, this message translates to:
+  /// **'Books lent at the library\'s desk show here with their due dates.'**
+  String get libraryNoLoansMessage;
+
+  /// 113.11 How long the library lends a book.
+  ///
+  /// In en, this message translates to:
+  /// **'Books are lent for {days} days.'**
+  String libraryLoanDays(int days);
+
+  /// 113.11 The book's description.
+  ///
+  /// In en, this message translates to:
+  /// **'About the book'**
+  String get libraryAbout;
+
+  /// 113.6 The School tab's row and the screen of messages between teachers and families.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get schoolMessages;
+
+  /// 113.6 Under Messages on the School tab, for a parent or a student.
+  ///
+  /// In en, this message translates to:
+  /// **'With your teachers'**
+  String get schoolMessagesWithTeachers;
+
+  /// 113.6 Under Messages in the Classroom tab, for a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'With your classes\' families'**
+  String get schoolMessagesWithFamilies;
+
+  /// 113.6 Messages when the school doesn't allow them.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school hasn\'t turned on messages between teachers and families.'**
+  String get schoolMessagesOff;
+
+  /// 113.6 The row for the conversation with the school's administration.
+  ///
+  /// In en, this message translates to:
+  /// **'The school\'s administration'**
+  String get schoolMessagesOffice;
+
+  /// 113.6 Under the school's administration in Messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to the school at any time.'**
+  String get schoolMessagesOfficeHint;
+
+  /// 113.6 The heading of the teachers one can write to.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get schoolMessagesTeachers;
+
+  /// 113.6 The heading of the parents and students a teacher can write to.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents and students'**
+  String get schoolMessagesFamilies;
+
+  /// 113.6 Under a parent in a teacher's contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent of {names}'**
+  String schoolMessagesParentOf(String names);
+
+  /// 113.6 Under a teacher who is the class's own teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Class teacher'**
+  String get schoolMessagesClassTeacher;
+
+  /// 113.6 When only teachers may start a conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'The teacher writes first; you can answer then.'**
+  String get schoolMessagesTeacherFirst;
+
+  /// 113.6 The school's messaging hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages can be sent on {days}, {from} to {to}.'**
+  String schoolMessagesHours(String days, String from, String to);
+
+  /// 113.6 Outside the messaging hours: when one can write again.
+  ///
+  /// In en, this message translates to:
+  /// **'You can write again on {when}.'**
+  String schoolMessagesOpensAt(String when);
+
+  /// 113.6 A conversation the school closed.
+  ///
+  /// In en, this message translates to:
+  /// **'The school closed this conversation.'**
+  String get schoolMessagesClosed;
+
+  /// 113.6 A conversation the school's rules don't allow now.
+  ///
+  /// In en, this message translates to:
+  /// **'The school doesn\'t allow messages here now.'**
+  String get schoolMessagesNotAllowed;
+
+  /// 113.6 When the school doesn't allow photos and files.
+  ///
+  /// In en, this message translates to:
+  /// **'The school allows text messages only.'**
+  String get schoolMessagesTextOnly;
+
+  /// 113.6 The privacy note in a conversation the school may read.
+  ///
+  /// In en, this message translates to:
+  /// **'The school\'s administration can read this conversation.'**
+  String get schoolMessagesAdminReads;
+
+  /// 113.6 The privacy note in a conversation the school doesn't read.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation is private: the school reads it only if a message in it is reported.'**
+  String get schoolMessagesPrivate;
+
+  /// 113.6 Messages without contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'No one to write to yet.'**
+  String get schoolMessagesNone;
+
+  /// 113.6 A teacher's button to write to a whole class at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to a whole class'**
+  String get schoolMessagesWriteClass;
+
+  /// 113.6 The title of the sheet to write to a whole class.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to {name}'**
+  String classMessageTitle(String name);
+
+  /// 113.6 Whom a class message goes to.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to'**
+  String get classMessageTo;
+
+  /// 113.6 A class message to the parents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get classMessageParents;
+
+  /// 113.6 A class message to the students.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get classMessageStudents;
+
+  /// 113.6 A class message to the parents and the students.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents and students'**
+  String get classMessageFamilies;
+
+  /// 113.6 Under the class message: how it is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Each one gets it on their own, and their answers come back to you only.'**
+  String get classMessageHint;
+
+  /// 113.6 After a class message.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Sent to 1 person.} other{Sent to {count} people.}}'**
+  String classMessageSent(int count);
+
+  /// 113.6 After a class message: who couldn't get it yet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person hasn\'t signed in to the app yet.} other{{count} people haven\'t signed in to the app yet.}}'**
+  String classMessageNotInApp(int count);
+
+  /// 113.6 A class message without text.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the message first.'**
+  String get classMessageMissing;
+
+  /// 113.2 The screen where a student, teacher or staff member checks in and out at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in and out'**
+  String get checkinTitle;
+
+  /// 113.2 Checks the person in at the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in'**
+  String get checkinButton;
+
+  /// 113.2 Checks the person out of the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out'**
+  String get checkoutButton;
+
+  /// 113.2 The card with today's check-in on the School, Classroom and Staff tabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at school'**
+  String get checkinCardTitle;
+
+  /// 113.2 Today's state: not checked in yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked in yet'**
+  String get checkinStateNotYet;
+
+  /// 113.2 Today's state: at school.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in'**
+  String get checkinStateIn;
+
+  /// 113.2 Today's state: checked out.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out'**
+  String get checkinStateLeft;
+
+  /// 113.2 A school day without a check-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get checkinStateAbsent;
+
+  /// 113.2 A day the school excused.
+  ///
+  /// In en, this message translates to:
+  /// **'Excused'**
+  String get checkinStateExcused;
+
+  /// 113.2 A day of approved leave.
+  ///
+  /// In en, this message translates to:
+  /// **'On leave'**
+  String get checkinStateLeave;
+
+  /// 113.2 A day that isn't one of the person's school days.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a school day'**
+  String get checkinStateOff;
+
+  /// 113.2 When the person checked in.
+  ///
+  /// In en, this message translates to:
+  /// **'In at {time}'**
+  String checkinInAt(String time);
+
+  /// 113.2 When the person checked out.
+  ///
+  /// In en, this message translates to:
+  /// **'Out at {time}'**
+  String checkinOutAt(String time);
+
+  /// 113.2 Checked in after the school's late time.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get checkinLate;
+
+  /// 113.2 Checked out before the end of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Left early'**
+  String get checkinLeftEarly;
+
+  /// 113.2 The person's school day and when late starts.
+  ///
+  /// In en, this message translates to:
+  /// **'{starts}–{ends} · late from {late}'**
+  String checkinTimes(String starts, String ends, String late);
+
+  /// 113.2 The field for the six digits shown at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'The gate\'s code'**
+  String get checkinCodeLabel;
+
+  /// 113.2 Under the gate's code field.
+  ///
+  /// In en, this message translates to:
+  /// **'The six digits on the school\'s screen at the gate'**
+  String get checkinCodeHint;
+
+  /// 113.2 Checks in or out with the phone's location inside the school's area.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get checkinWithLocation;
+
+  /// 113.2 When the school checks both the gate's code and the area.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school asks for the gate\'s code and your location.'**
+  String get checkinBothNote;
+
+  /// 113.2 While the phone's location is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your location…'**
+  String get checkinLocating;
+
+  /// 113.2 The phone's location is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on your phone\'s location to check in.'**
+  String get checkinLocationOff;
+
+  /// 113.2 The app may not use the phone's location.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the app to use your location to check in.'**
+  String get checkinLocationDenied;
+
+  /// 113.2 The phone's location couldn't be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location couldn\'t be found. Try again.'**
+  String get checkinLocationFailed;
+
+  /// 113.2 A check-in on time.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in at {time}, on time.'**
+  String checkinDoneOnTime(String time);
+
+  /// 113.2 A check-in after the school's late time.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in at {time}: late.'**
+  String checkinDoneLate(String time);
+
+  /// 113.2 A check-out.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out at {time}.'**
+  String checkinDoneOut(String time);
+
+  /// 113.2 A check-out before the end of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out at {time}, before the end of the day.'**
+  String checkinDoneEarly(String time);
+
+  /// 113.2 The month's days at the gate.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get checkinMonth;
+
+  /// 113.2 The month's days present.
+  ///
+  /// In en, this message translates to:
+  /// **'Present'**
+  String get checkinCountPresent;
+
+  /// 113.2 The month's days absent.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get checkinCountAbsent;
+
+  /// 113.2 A month without school days yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No school days this month yet.'**
+  String get checkinNoDays;
+
+  /// 113.2 A day the school's office corrected, with its reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrected by the school: {reason}'**
+  String checkinCorrected(String reason);
+
+  /// 113.2 The school hasn't turned on checking in.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school doesn\'t take check-ins in the app.'**
+  String get checkinOff;
+
+  /// 113.2 Today isn't one of the person's days.
+  ///
+  /// In en, this message translates to:
+  /// **'Today isn\'t one of your school days.'**
+  String get checkinNotSchoolDay;
+
+  /// 113.2 A student's days at the gate, on their attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'At the gate'**
+  String get checkinAtGate;
+
+  /// 113.3 The tab of the school's staff who don't teach.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get tabStaff;
+
+  /// 113.3 Someone who isn't on the school's staff opens the Staff tab.
+  ///
+  /// In en, this message translates to:
+  /// **'For the school\'s staff'**
+  String get staffNotStaff;
+
+  /// 113.3 Under the title for someone who isn't on the school's staff.
+  ///
+  /// In en, this message translates to:
+  /// **'The school adds its staff\'s numbers; they sign in with them and their work shows here.'**
+  String get staffNotStaffMessage;
+
+  /// 113.3 The person's job, hours and duties.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work'**
+  String get staffWork;
+
+  /// 113.3 The days the person works.
+  ///
+  /// In en, this message translates to:
+  /// **'Days: {days}'**
+  String staffDays(String days);
+
+  /// 113.3 The hours the person works.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours: {starts}–{ends}'**
+  String staffHours(String starts, String ends);
+
+  /// 113.3 What the person does, as the school wrote it.
+  ///
+  /// In en, this message translates to:
+  /// **'Duties'**
+  String get staffDuties;
+
+  /// 113.3 The person's leave requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave requests'**
+  String get staffLeave;
+
+  /// 113.3 News for the school's teachers and staff only.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff news'**
+  String get staffNews;
+
+  /// 113.3 The staff's news is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No staff news yet.'**
+  String get staffNoNews;
+
+  /// 113.3 Opens the form to ask for leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for leave'**
+  String get leaveAsk;
+
+  /// 113.3 Sick, annual or other leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind of leave'**
+  String get leaveKind;
+
+  /// 113.3 Sick leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get leaveSick;
+
+  /// 113.3 Annual leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get leaveAnnual;
+
+  /// 113.3 Another kind of leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get leaveOther;
+
+  /// 113.3 The first day of the leave.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get leaveFirstDay;
+
+  /// 113.3 The last day of the leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get leaveLastDay;
+
+  /// 113.3 A note with the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get leaveNote;
+
+  /// 113.3 Adds a photo of a document (a doctor's note) to the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of a document'**
+  String get leaveAddPhoto;
+
+  /// 113.3 Adds a PDF to the leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get leaveAddFile;
+
+  /// 113.3 Sends the leave request to the school.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the request'**
+  String get leaveSend;
+
+  /// 113.3 The leave request was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. The school answers in the app.'**
+  String get leaveSent;
+
+  /// 113.3 The person hasn't asked for leave yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave requests yet.'**
+  String get leaveNone;
+
+  /// 113.3 How many days a leave request is for.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String leaveDays(int count);
+
+  /// 113.3 A leave request the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get leavePending;
+
+  /// 113.3 A leave request the school approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get leaveApproved;
+
+  /// 113.3 A leave request the school refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get leaveRefused;
+
+  /// 113.3 A leave request the person withdrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
+  String get leaveCancelled;
+
+  /// 113.3 Withdraws a leave request the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get leaveWithdraw;
+
+  /// 113.3 The school's note with its answer to a leave request.
+  ///
+  /// In en, this message translates to:
+  /// **'The school: {note}'**
+  String leaveSchoolNote(String note);
+
+  /// 113.3 A leave request's first and last days.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String leaveDates(String from, String to);
+
+  /// 113.3 The leave form's last day is before its first.
+  ///
+  /// In en, this message translates to:
+  /// **'The last day is on or after the first.'**
+  String get leaveDatesOrder;
 
   /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
   ///

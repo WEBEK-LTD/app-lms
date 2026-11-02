@@ -209,7 +209,8 @@ test("110.5 the Studio demos' people: the visitor is a student, a parent and a t
   };
   const auth = (token: string) => ({ authorization: `Bearer ${token}` });
   const school = await signIn(appIds["Nakhla School"]!, 40);
-  expect(school.user.roles).toEqual(["student", "parent", "teacher"]);
+  // 113.10 The visitor also drives the demo's Maadi bus route.
+  expect(school.user.roles).toEqual(["student", "parent", "teacher", "bus"]);
   const me = await (await request.get(`/api/app/${appIds["Nakhla School"]}/school/me`, { headers: auth(school.access_token) })).json();
   expect(me.students.map((s: { name: string }) => s.name)).toEqual(["Lina Haddad", "Adam Haddad"]);
   const academy = await signIn(appIds["Rawaq Academy"]!, 41);

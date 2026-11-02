@@ -59,6 +59,18 @@ enum NotificationType {
   /// 113.5 The school answered a teacher's report; shared one with a parent.
   schoolReport,
   schoolReportShared,
+
+  /// 113.2 A child checked in or out; 113.3 the staff's news, a leave
+  /// request answered; 113.8 exams published or tomorrow, a merit or a note;
+  /// 113.10 the child's bus near or got on or off; 113.11 a book held, due
+  /// soon or overdue.
+  schoolCheckin,
+  schoolStaff,
+  schoolLeave,
+  schoolExam,
+  schoolBehaviour,
+  schoolBus,
+  schoolLibrary,
   unknown,
 }
 

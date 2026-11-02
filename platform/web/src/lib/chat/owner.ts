@@ -101,7 +101,8 @@ export async function ownerConversations(
   input: { kind?: "direct" | "group"; unread?: boolean; q?: string; limit?: number },
 ): Promise<{ items: ThreadView[]; unread_count: number; open_reports: number; expiring: { conversations: number; delete_on: string | null } }> {
   const groups = chatGroupsOn(app);
-  const all = (await deps.store.listChatConversations(app.id, { kind: input.kind, limit: 500 })).filter((c) => c.kind === "direct" || groups);
+  // 113.6 A school's teachers and families aren't the business's conversations (Dashboard › Chat › School shows them when the school may read them).
+  const all = (await deps.store.listChatConversations(app.id, { kind: input.kind, limit: 500 })).filter((c) => c.kind === "direct" || (c.kind === "group" && groups));
   const members = new Map((await deps.store.listChatMembersByIds(app.id, all.map((c) => c.memberId).filter((id): id is string => Boolean(id)))).map((m) => [m.id, m]));
   const oldest = new Map((await deps.store.listChatConversationsWithMessagesBefore(new Date(deps.now.getTime() + 1), 1000, { appId: app.id })).map((r) => [r.conversation.id, r.oldest]));
   const lasts: ChatMessage[] = [];
@@ -130,7 +131,7 @@ export async function ownerConversations(
     if (input.unread && unread === 0) continue;
     items.push({
       id: c.id,
-      kind: c.kind,
+      kind: c.kind as ThreadView["kind"],
       title,
       image_url: c.kind === "direct" ? (member?.imageUrl ?? null) : c.imageUrl,
       member: member ? memberView(member) : null,
@@ -152,7 +153,8 @@ export async function ownerConversations(
 
 async function conversationOf(deps: Pick<ChatDeps, "store">, app: App, id: string): Promise<ChatConversation | null> {
   const conversation = await deps.store.getChatConversation(app.id, id);
-  if (!conversation || (conversation.kind === "group" && !chatGroupsOn(app))) return null;
+  // 113.6 The business never writes in, clears or keeps a school's teacher-and-family conversation.
+  if (!conversation || conversation.kind === "school" || (conversation.kind === "group" && !chatGroupsOn(app))) return null;
   return conversation;
 }
 
@@ -257,6 +259,8 @@ export async function ownerKeepExpiring(deps: Pick<ChatDeps, "store" | "now">, a
   const keepUntil = new Date(deps.now.getTime() + CHAT_KEEP_DAYS * DAY);
   let kept = 0;
   for (const { conversation, oldest } of await deps.store.listChatConversationsWithMessagesBefore(new Date(soon - CHAT_KEEP_DAYS * DAY), 1000, { appId: app.id, notKeptAt: new Date(soon) })) {
+    // 113.6 A school's teacher-and-family messages are kept a year, never longer.
+    if (conversation.kind === "school") continue;
     const expires = expiresOn(oldest, conversation.keepUntil);
     if (!expires || expires.getTime() > soon) continue;
     await deps.store.updateChatConversation(conversation.id, { keepUntil });
@@ -277,10 +281,12 @@ export async function ownerReports(deps: ChatDeps, app: App, status: "open" | "c
     const [view] = await ownerMessageViews(deps, app, [message]);
     const owner = conversation.memberId ? (await deps.store.getChatMember(app.id, conversation.memberId))?.name : null;
     const reporter = members.get(r.reporterId);
+    // 113.6 A school conversation: its teacher and the parent or student.
+    const sides = conversation.kind === "school" ? await Promise.all([conversation.schoolTeacherId, conversation.schoolPersonId].map((id) => deps.store.getSchoolPerson(app.id, id ?? 0))) : null;
     items.push({
       id: r.id,
       message: view!,
-      conversation_title: conversation.kind === "direct" ? (owner ?? "—") : (conversation.title ?? ""),
+      conversation_title: sides ? sides.map((p) => p?.name ?? "—").join(" · ") : conversation.kind === "direct" ? (owner ?? "—") : (conversation.title ?? ""),
       reporter: reporter ? memberView(reporter) : { id: r.reporterId, name: "—", image_url: null, blocked: false },
       reason: r.reason,
       note: r.note,
