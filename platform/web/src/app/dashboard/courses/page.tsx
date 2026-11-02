@@ -3,7 +3,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteCourseCategoryAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
-import { Badge, Notice, btn } from "@/components/ui";
+import { Notice, PageHeader, Section } from "@/components/ui";
+import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList, Sheet, SheetButton } from "@/components/page-kit-client";
+import { assetUrl } from "@/lib/assets";
+import { bundlesOf } from "@/lib/courses/bundles";
 import { Icon } from "@/components/icon";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -62,12 +66,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
   if (!app || app.connector?.kind !== "courses") {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex max-w-[620px] flex-col gap-3">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("courses.title")}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-            {richText(t("courses.fromSite"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-          </p>
-        </div>
+        <PageHeader title={t("courses.title")} description={richText(t("courses.fromSite"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
         {app ? <OfflineDownloads app={app} license={license} /> : null}
       </div>
     );
@@ -77,32 +76,26 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
   const students = (id: number) => enrollments.filter((e) => e.courseId === id).length;
   const paid = setup.courses.some((c) => c.priceCents > 0);
   const teacherNames = new Map(isTeachersApp(app) ? (await (await getStore()).listTeachers(app.id)).map((teacher) => [teacher.id, teacher.name]) : []);
+  const published = setup.courses.filter((c) => courseStage(c) === "published").length;
+  const waiting = setup.courses.filter((c) => courseStage(c) === "in_review").length;
+  const lessons = setup.courses.reduce((sum, c) => sum + lessonsOf(c).length, 0);
+  const has = setup.courses.length > 0;
+  const bundles = bundlesOf(setup).length;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("courses.title")}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("courses.intro")}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {/* 113.1 */}
-          <Link href="/dashboard/courses/bundles" className={`${btn.secondary} h-11`}>
-            <Icon name="inventory_2" size={20} />
-            {t("lms.bundlesOpen")}
-          </Link>
-          {/* 113.7 Learning paths, and points and badges. */}
-          <Link href="/dashboard/courses/paths" className={`${btn.secondary} h-11`}>
-            <Icon name="route" size={20} />
-            {t("learning.pathsLink")}
-          </Link>
-          {/* 81.4 */}
-          <Link href="/dashboard/courses/import" className={`${btn.secondary} h-11`}>
-            <Icon name="upload" size={20} />
-            {t("imports.open")}
-          </Link>
-        </div>
-      </div>
+      {/* The page kit: the header and its one main action, the numbers, the sub-pages, the list, then the settings. */}
+      <PageHeader
+        title={t("courses.title")}
+        description={t("courses.intro")}
+        actions={
+          has ? (
+            <SheetButton target="new-course" icon="add">
+              {t("courses.addCourse")}
+            </SheetButton>
+          ) : null
+        }
+      />
       {/* 110.2 */}
       <SampleEntries app={app} list="courses" query={await searchParams} />
       {paid && !app.catalogSettings?.payment ? (
@@ -111,48 +104,75 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-courses" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-courses" className="m-0 text-lg font-bold">
-          {t("courses.count", { count: setup.courses.length })}
-        </h2>
-        {setup.courses.length ? (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {setup.courses.map((c) => (
-              <li key={c.id} className="border-t border-line-soft py-3 first:border-t-0">
-                <Link href={`/dashboard/courses/${c.id}`} className="flex flex-wrap items-center justify-between gap-2 no-underline">
-                  <span className="flex items-center gap-2 text-[15px] font-bold">
-                    {c.title}
-                    <SampleBadge sample={c.sample} />
-                  </span>
-                  <span className="flex items-center gap-2 text-sm text-muted">
-                    {t("courses.courseLine", {
+      {has ? (
+        <StatRow label={t("courses.title")}>
+          <Stat icon="school" label={t("courses.title")} value={setup.courses.length} />
+          <Stat icon="check_circle" tone="success" label={t("courses.statPublished")} value={published} />
+          <Stat icon="visibility_off" tone="warn" label={t("courses.statNotPublished")} value={setup.courses.length - published} hint={waiting ? t("teachers.stage_in_review") + `: ${waiting}` : undefined} />
+          <Stat icon="groups" tone="accent" label={t("courses.statStudents")} value={enrollments.length} hint={`${t("courses.statLessons")}: ${lessons}`} />
+        </StatRow>
+      ) : null}
+
+      <LinkCards
+        label={t("courses.toolsLabel")}
+        items={[
+          // 113.1
+          { href: "/dashboard/courses/bundles", icon: "inventory_2", label: t("lms.bundlesOpen"), hint: t("lms.bundlesCount", { count: bundles }) },
+          // 113.7 Learning paths, and points and badges.
+          { href: "/dashboard/courses/paths", icon: "route", label: t("learning.pathsLink") },
+          // 81.4
+          { href: "/dashboard/courses/import", icon: "upload", label: t("imports.open") },
+        ]}
+      />
+
+      {has ? (
+        <Section titleId="h-courses" title={t("courses.count", { count: setup.courses.length })} flush>
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("courses.search")}
+            noMatch={t("courses.noMatch")}
+            filters={[
+              { value: "published", label: t("courses.statPublished") },
+              { value: "in_review", label: t("teachers.stage_in_review") },
+              { value: "other", label: t("courses.statNotPublished") },
+            ]}
+            items={setup.courses.map((c, i) => {
+              const stage = courseStage(c);
+              const teacher = c.teacherId ? teacherNames.get(c.teacherId) : null;
+              return {
+                id: c.id,
+                text: [c.title, c.instructorName, teacher].filter(Boolean).join(" "),
+                group: stage === "published" || stage === "in_review" ? stage : "other",
+                node: (
+                  <ItemRow
+                    href={`/dashboard/courses/${c.id}`}
+                    media={<Thumb src={c.imageAssetId ? assetUrl(c.imageAssetId) : null} icon="school" tint={i} />}
+                    title={c.title}
+                    badges={<SampleBadge sample={c.sample} />}
+                    meta={t("courses.courseLine", {
                       price: c.priceCents ? formatCents(c.priceCents, setup.currency) : t("common.free"),
                       lessons: lessonsOf(c).length,
                       students: students(c.id),
                     })}
-                    {/* 105.3 A teacher's course shows its teacher and where it is. */}
-                    {c.teacherId ? (
-                      <>
-                        {teacherNames.get(c.teacherId) ? <span>· {teacherNames.get(c.teacherId)}</span> : null}
-                        <StageBadge stage={courseStage(c)} t={t} />
-                      </>
-                    ) : c.active ? null : (
-                      <Badge tone="warn">{t("common.hidden")}</Badge>
-                    )}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="m-0 text-[15px] text-muted">{t("courses.noCourses")}</p>
-        )}
-      </section>
+                    // 105.3 A teacher's course shows its teacher and where it is.
+                    extra={
+                      teacher || c.instructorName ? (
+                        <span className="flex items-center gap-1">
+                          <Icon name="person" size={16} className="text-muted" />
+                          {teacher ?? c.instructorName}
+                        </span>
+                      ) : null
+                    }
+                    aside={<StageBadge stage={stage} t={t} />}
+                  />
+                ),
+              };
+            })}
+          />
+        </Section>
+      ) : null}
 
-      <section aria-labelledby="h-new-course" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-new-course" className="m-0 text-lg font-bold">
-          {t("courses.addCourse")}
-        </h2>
+      <Sheet id="new-course" inline={!has} title={t("courses.addCourse")} description={has ? t("courses.addCourseHint") : t("courses.noCourses")}>
         <CourseForm
           current={{ title: "", description: "", price: "", instructor: "", level: "", categoryIds: "", active: "on", restart: "on" }}
           others={setup.courses.map((c) => ({ id: c.id, title: c.title }))}
@@ -161,44 +181,41 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
           imageUrl={null}
           submit={t("courses.addCourseButton")}
         />
-      </section>
+      </Sheet>
 
-      <div className="flex flex-wrap items-start gap-6">
-        <section aria-labelledby="h-course-categories" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-course-categories" className="m-0 text-lg font-bold">
-            {t("courses.categories")}
-          </h2>
-          {setup.categories.length ? (
-            <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-              {setup.categories.map((c) => (
-                <li key={c.id} className="flex items-center gap-2 rounded-full border border-line py-1 ps-3 pe-1 text-sm">
-                  {c.name}
-                  <form action={deleteCourseCategoryAction}>
-                    <input type="hidden" name="id" value={c.id} />
-                    <SubmitButton variant="secondary" className="h-7 px-2 text-xs">
-                      {t("common.delete")}
-                    </SubmitButton>
-                  </form>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <CourseCategoryForm />
-        </section>
-        <section aria-labelledby="h-course-currency" className="flex min-w-0 flex-[1_1_260px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-course-currency" className="m-0 text-lg font-bold">
-            {t("courses.prices")}
-          </h2>
-          <CurrencyForm currency={setup.currency} />
-        </section>
-      </div>
+      <PageGroup title={t("courses.groupSettings")}>
+        <div className="flex flex-wrap items-start gap-5">
+          <Section titleId="h-course-categories" title={t("courses.categories")} className="flex-[1_1_320px]">
+            {setup.categories.length ? (
+              <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                {setup.categories.map((c) => (
+                  <li key={c.id} className="flex items-center gap-2 rounded-full border border-line bg-sand py-1 ps-3.5 pe-1 text-sm font-semibold">
+                    {c.name}
+                    <form action={deleteCourseCategoryAction}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <SubmitButton variant="secondary" className="h-7 px-2.5 text-xs">
+                        {t("common.delete")}
+                      </SubmitButton>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <CourseCategoryForm />
+          </Section>
+          <Section titleId="h-course-currency" title={t("courses.prices")} className="flex-[1_1_260px]">
+            <CurrencyForm currency={setup.currency} />
+          </Section>
+        </div>
+      </PageGroup>
 
-      <CardPayments app={app} currency={setup.currency} />
-      {/* 112.5 Coupons for the paid courses (113.1 and bundles), taken on the payment page; one of 100% enrols at once. */}
-      <CouponsPanel coupons={await (await getStore()).listCatalogCoupons(app.id)} currency={setup.currency} intro={t("lms.couponsIntro")} />
-      <OtherPayments app={app} />
-
-      <OfflineDownloads app={app} license={license} />
+      <PageGroup title={t("courses.groupSelling")}>
+        <CardPayments app={app} currency={setup.currency} />
+        {/* 112.5 Coupons for the paid courses (113.1 and bundles), taken on the payment page; one of 100% enrols at once. */}
+        <CouponsPanel coupons={await (await getStore()).listCatalogCoupons(app.id)} currency={setup.currency} intro={t("lms.couponsIntro")} />
+        <OtherPayments app={app} />
+        <OfflineDownloads app={app} license={license} />
+      </PageGroup>
     </div>
   );
 }
