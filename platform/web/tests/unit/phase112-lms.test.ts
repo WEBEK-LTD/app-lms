@@ -21,6 +21,7 @@ import { LogSender } from "@/lib/hosted/otp-sender";
 import type { sendPush } from "@/lib/hosted/push";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { getDashT, knownTranslator } from "@/i18n/dashboard";
+import { classGradebook, gradebookCsv, reportPeriod } from "@/lib/school/report-cards";
 import { expectContract } from "./contract";
 import { days, KEY, NOW, setupClient } from "./helpers";
 
@@ -455,16 +456,65 @@ describe("112.5 live class reminders and grades in the app's notifications", () 
   });
 });
 
+describe("112.5 a school's gradebook and report cards", () => {
+  it("takes the term, else the year so far, else the days asked for", () => {
+    const term = { name: "Term 1", startsOn: "2026-09-01", endsOn: "2027-01-20" };
+    expect(reportPeriod({ term }, {}, "2026-10-12")).toEqual({ from: "2026-09-01", to: "2027-01-20", term: "Term 1" });
+    expect(reportPeriod({ term: null }, {}, "2026-10-12")).toEqual({ from: "2026-01-01", to: "2026-10-12", term: null });
+    expect(reportPeriod({ term }, { from: "2026-10-01", to: "2026-10-31" }, "2026-10-12")).toEqual({ from: "2026-10-01", to: "2026-10-31", term: null });
+    expect(reportPeriod({ term: null }, { from: "2026-10-31", to: "2026-10-01" }, "2026-10-12")).toMatchObject({ from: "2026-01-01" });
+  });
+
+  it("gives each student's percent per subject over the period, overall, attendance, and the CSV file", async () => {
+    const store = new MemoryStore();
+    const app = { id: "school-app" } as App;
+    const klass = (await store.saveSchoolClass({ appId: app.id, id: null, name: "5 A", grade: null, homeroomTeacherId: null }, NOW))!;
+    const maths = await store.saveSchoolSubject({ appId: app.id, id: null, name: "Maths" }, NOW);
+    const science = await store.saveSchoolSubject({ appId: app.id, id: null, name: "Science" }, NOW);
+    const lina = await store.createSchoolPerson({ appId: app.id, role: "student", name: "Lina", phone: "+201001110001", email: null, classId: klass.id, code: "S-1", photoAssetId: null, active: true }, NOW);
+    const adam = await store.createSchoolPerson({ appId: app.id, role: "student", name: "Adam", phone: "+201001110002", email: null, classId: klass.id, code: null, photoAssetId: null, active: true }, NOW);
+    if (!maths.ok || !science.ok || !lina.ok || !adam.ok) throw new Error("school");
+    const exam = (subjectId: number, date: string, maxScore: number) =>
+      store.createSchoolAssessment({ appId: app.id, classId: klass.id, subjectId, teacherId: null, kind: "exam", title: `Exam ${date}`, date, maxScore, createdAt: NOW });
+    const m1 = await exam(maths.subject.id, "2026-10-05", 20);
+    const m2 = await exam(maths.subject.id, "2026-10-10", 30);
+    const old = await exam(science.subject.id, "2026-05-01", 10);
+    await store.saveSchoolScores(app.id, m1.id, [{ studentId: lina.person.id, score: 18, note: null }, { studentId: adam.person.id, score: 10, note: null }], NOW);
+    await store.saveSchoolScores(app.id, m2.id, [{ studentId: lina.person.id, score: 27, note: null }], NOW);
+    await store.saveSchoolScores(app.id, old.id, [{ studentId: lina.person.id, score: 2, note: null }], NOW);
+    const day = (date: string, studentId: number, status: "present" | "absent" | "late") => ({ appId: app.id, classId: klass.id, studentId, date, status, note: null, takenBy: null, updatedAt: NOW });
+    await store.saveSchoolAttendance([day("2026-10-05", lina.person.id, "present"), day("2026-10-06", lina.person.id, "late"), day("2026-10-05", adam.person.id, "absent")]);
+
+    const book = await classGradebook(store, app, klass.id, { from: "2026-09-01", to: "2027-01-20", term: "Term 1" });
+    // Science's only exam was before the term: not a column.
+    expect(book.subjects.map((s) => s.name)).toEqual(["Maths"]);
+    expect(book.rows.map((r) => [r.student.name, r.subjects[0]!.percent, r.overall, r.attendance.present, r.attendance.absent, r.attendance.late])).toEqual([
+      ["Adam", 50, 50, 0, 1, 0],
+      ["Lina", 90, 90, 1, 0, 1],
+    ]);
+    const card = await classGradebook(store, app, klass.id, { from: "2026-01-01", to: "2026-12-31", term: null }, lina.person.id);
+    expect(card.rows).toHaveLength(1);
+    expect(card.rows[0]!.subjects.map((s) => [s.name, s.percent, s.scores.length])).toEqual([
+      ["Maths", 90, 2],
+      ["Science", 20, 1],
+    ]);
+    const file = gradebookCsv(book).split("\r\n");
+    expect(file[0]).toBe("Student,Code,Maths (%),Overall (%),Present,Absent,Late,Excused");
+    expect(file[2]).toBe("Lina,S-1,90,90,1,0,1,0");
+    expect(gradebookCsv(book, knownTranslator("ar")).split("\r\n")[0]).toContain("الطالب");
+  });
+});
+
 describe("112.5 dashboard words", () => {
   it("has every new text in English, Arabic and Turkish", () => {
     const en = getDashT("en");
     for (const lang of ["ar", "tr"] as const) {
       const t = getDashT(lang);
-      for (const key of ["lms.assignmentsTitle", "lms.sequential", "lms.addLiveTo", "lms.meetingUrlHint", "lms.insights", "lms.atRiskFilter", "lms.shuffle", "campaigns.auto_live_class_soon"] as const) {
+      for (const key of ["lms.assignmentsTitle", "lms.sequential", "lms.addLiveTo", "lms.meetingUrlHint", "lms.insights", "lms.atRiskFilter", "lms.shuffle", "campaigns.auto_live_class_soon", "lms.reportCards", "lms.attendanceLine"] as const) {
         expect(t(key, { section: "x", count: 2 })).not.toBe(en(key, { section: "x", count: 2 }));
       }
       const known = knownTranslator(lang);
-      for (const english of ["Enter a score from 0 to 20.", "Added 3, already enrolled 1.", "Write what the students should do.", "Graded. The student can see it in the app.", "Added “Essay”."]) {
+      for (const english of ["Report cards", "Enter a score from 0 to 20.", "Added 3, already enrolled 1.", "Write what the students should do.", "Graded. The student can see it in the app.", "Added “Essay”."]) {
         expect(known(english)).not.toBe(english);
       }
     }

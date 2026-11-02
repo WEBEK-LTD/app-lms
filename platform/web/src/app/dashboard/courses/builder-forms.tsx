@@ -66,7 +66,7 @@ export function AssignmentForm({ courseId, topicId, current, submit }: { courseI
         <Field label={t("lms.dueDays")} name="dueDays" id={`${key}-due-days`} inputMode="numeric" defaultValue={v.dueDays} hint={t("lms.dueDaysHint")} error={e.dueDays} small />
         <Field label={t("lms.dueOn")} name="dueOn" id={`${key}-due-on`} type="date" defaultValue={v.dueOn} hint={t("lms.dueOnHint")} error={e.dueOn} small />
       </div>
-      <TextArea id={`${key}-files`} label={t("courses.files")} name="attachments" value={v.attachments} rows={2} error={e.attachments} hint={t("courses.filesHint")} />
+      <TextArea id={`${key}-files`} label={t("lms.assignmentFiles")} name="attachments" value={v.attachments} rows={2} error={e.attachments} hint={t("courses.filesHint")} />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}
@@ -92,7 +92,7 @@ export function LiveForm({ courseId, topicId, current, submit, zone }: { courseI
       <div className="grid gap-3 sm:grid-cols-3">
         <Field label={t("lms.liveDate")} name="date" id={`${key}-date`} type="date" defaultValue={v.date} error={e.date} small />
         <Field label={t("lms.liveTime", { zone })} name="time" id={`${key}-time`} type="time" defaultValue={v.time} small />
-        <Field label={t("courses.minutes")} name="duration" id={`${key}-duration`} inputMode="numeric" defaultValue={v.duration} error={e.duration} small />
+        <Field label={t("lms.liveLength")} name="duration" id={`${key}-duration`} inputMode="numeric" defaultValue={v.duration} error={e.duration} small />
       </div>
       <Field
         label={t("lms.meetingUrl")}
@@ -119,7 +119,7 @@ export function LiveForm({ courseId, topicId, current, submit, zone }: { courseI
           error={e.recordingUrl}
           small
         />
-        <MediaPickButton kind="video" inputId={`${key}-recording`} label={t("courses.chooseMedia")} />
+        <MediaPickButton kind="video" inputId={`${key}-recording`} label={t("lms.chooseRecording")} />
       </div>
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
