@@ -13675,6 +13675,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attendance saved.'**
   String get uniAttendanceSaved;
+
+  /// 104.8.4 Yallapp Courier's sign-in: what to sign in with.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the mobile number or email address the company you deliver for added.'**
+  String get hubSignInIntro;
+
+  /// 104.8.4 Yallapp Courier: the list of the companies the person delivers for.
+  ///
+  /// In en, this message translates to:
+  /// **'Your companies'**
+  String get hubCompaniesTitle;
+
+  /// 104.8.4 Under the title of the list of companies.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the company you\'re delivering for now.'**
+  String get hubCompaniesIntro;
+
+  /// 104.8.4 No company has added the person as a courier yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No companies yet'**
+  String get hubNoCompaniesTitle;
+
+  /// 104.8.4 What to do when no company has added the person yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No company has added your number or email as a courier on Yallapp Courier yet. Ask the company you deliver for to add it, then check again.'**
+  String get hubNoCompaniesMessage;
+
+  /// 104.8.4 Loads the list of companies again.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get hubCheckAgain;
+
+  /// 104.8.4 How many jobs wait for a courier at a company.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No jobs waiting} =1{1 job waiting} other{{count} jobs waiting}}'**
+  String hubJobsWaiting(int count);
+
+  /// 104.8.4 The courier is off duty at a company.
+  ///
+  /// In en, this message translates to:
+  /// **'Off duty'**
+  String get hubOffDuty;
+
+  /// 104.8.4 The company paused this courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused by the company'**
+  String get hubPaused;
+
+  /// 104.8.4 A paused courier tried to open the company.
+  ///
+  /// In en, this message translates to:
+  /// **'{company} has paused you as a courier. Ask them to turn you back on.'**
+  String hubPausedMessage(String company);
+
+  /// 104.8.4 The company is no longer on the person's list.
+  ///
+  /// In en, this message translates to:
+  /// **'{company} isn\'t one of your companies any more.'**
+  String hubCompanyGone(String company);
+
+  /// 104.8.4 The company ended the courier's session.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session at {company} ended. Open it again from the list.'**
+  String hubSessionEnded(String company);
+
+  /// 104.8.4 Account: the company the courier's screens are on.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get hubCompanyGroup;
+
+  /// 104.8.4 Account: back to the list of companies.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch company'**
+  String get hubSwitchCompany;
+
+  /// 104.8.4 Confirms signing out of Yallapp Courier.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be signed out of Yallapp Courier and every company on this phone.'**
+  String get hubSignOutMessage;
+
+  /// 104.8.4 While a company's courier screens open.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening {company}…'**
+  String hubOpening(String company);
+
+  /// 104.8.4 Account and the list of companies: deletes the Yallapp Courier account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my Yallapp Courier account'**
+  String get hubDeleteAccount;
+
+  /// 104.8.4 Title of the question before deleting the Yallapp Courier account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your Yallapp Courier account?'**
+  String get hubDeleteAccountTitle;
+
+  /// 104.8.4 What deleting the Yallapp Courier account does.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.'**
+  String get hubDeleteAccountMessage;
 }
 
 class _AppLocalizationsDelegate

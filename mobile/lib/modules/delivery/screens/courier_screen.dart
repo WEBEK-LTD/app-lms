@@ -12,6 +12,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../courier_hub/widgets/company_widgets.dart';
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/delivery_providers.dart';
 import '../widgets/delivery_widgets.dart';
@@ -69,6 +70,8 @@ class _CourierScreenState extends ConsumerState<CourierScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // 104.8.4 In Yallapp Courier, the company's logo and name first.
+              const CompanyBar(),
               header,
               Expanded(
                 child: MessageView(
@@ -113,6 +116,8 @@ class _CourierScreenState extends ConsumerState<CourierScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // 104.8.4 In Yallapp Courier, the company's logo and name first.
+            const CompanyBar(),
             header,
             ...[
               switch (profile) {

@@ -37,10 +37,13 @@ abstract class TokenStore {
 
 /// Keeps tokens in the Keychain (iOS) or encrypted storage (Android).
 class SecureTokenStore implements TokenStore {
-  SecureTokenStore([FlutterSecureStorage? storage])
+  SecureTokenStore([FlutterSecureStorage? storage, this._key = defaultKey])
     : _storage = storage ?? const FlutterSecureStorage();
 
-  static const _key = 'yallapp.tokens';
+  /// 104.8.4 Yallapp Courier keeps its own session and each company's under
+  /// keys of their own ([courierHubTokensKey], [courierCompanyTokensKey]).
+  static const defaultKey = 'yallapp.tokens';
+  final String _key;
   final FlutterSecureStorage _storage;
   StoredTokens? _cache;
   bool _loaded = false;
@@ -76,6 +79,14 @@ class SecureTokenStore implements TokenStore {
     await _storage.delete(key: _key);
   }
 }
+
+/// 104.8.4 Where Yallapp Courier keeps its own session.
+const courierHubTokensKey = 'yallapp.courier.tokens';
+
+/// 104.8.4 Where Yallapp Courier keeps the session at one company, apart
+/// from every other company's.
+String courierCompanyTokensKey(String appId) =>
+    'yallapp.courier.company.$appId';
 
 /// Keeps tokens in the browser's storage for the app preview on the web
 /// (roadmap 17), where the phone's secure storage doesn't exist. The

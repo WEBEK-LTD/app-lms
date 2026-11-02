@@ -23,6 +23,8 @@ export interface BuildConfig {
   vertical?: AppVertical;
   /** 104.6 "courier": a delivery company's second app for its couriers; 105.2 "driver": a ride company's for its drivers; left out for the customers' app. */
   role?: "customer" | "courier" | "driver";
+  /** 104.8.4 Only in Yallapp Courier, Yallapp's own courier app for every company that picks it. */
+  courier_hub?: boolean;
   /** Only for apps whose content isn't served by the WordPress plugin. */
   api_base_url?: string;
   /** 34 Own API apps Yallapp signs people in to: the hosted API's address for the app, for sign-in and the account. */

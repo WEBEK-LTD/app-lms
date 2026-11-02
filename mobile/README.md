@@ -10,6 +10,7 @@ API ([`docs/api/openapi.yaml`](../docs/api/openapi.yaml)).
 ```
 mobile/
   config/example.json        a build config (docs/build-config.schema.json)
+  config/yallapp-courier.json  104.8.5 Yallapp Courier's own (docs/publishing/yallapp-courier.md)
   tool/apply_config.dart     applies a build config to the project
   tool/build_preview.sh      builds the app preview (web) into the platform
   web/                       the web page of the app preview
@@ -49,6 +50,9 @@ mobile/
       donations/             Charity & donations apps: campaigns with progress,
                              the amount picker and donation page (system
                              browser on iPhone), my donations with receipts
+      courier_hub/           104.8.4 Yallapp Courier (build config courier_hub):
+                             its sign-in, the companies, then a company's
+                             courier screens (delivery/) on its hosted API
       shared/pages/          dashboard pages from /pages: one renderer for
                              every block in every template
   test/                      unit and widget tests with a fake API

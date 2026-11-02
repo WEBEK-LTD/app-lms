@@ -38,3 +38,43 @@ String apiUrlOf(BuildConfigData build) {
       ? apiBaseUrl(build.siteUrl)
       : normalizeSiteUrl(custom);
 }
+
+/// 104.8.4 The build a company's courier screens run as inside Yallapp
+/// Courier: Yallapp Courier's own build pointed at the company's hosted API
+/// (`api_base_url` from the Courier API's `GET /companies`), under the
+/// company's app ID, name, logo and colour. The courier's screens only, as
+/// in a company's own courier app (104.6).
+BuildConfigData courierCompanyBuild(
+  BuildConfigData hub, {
+  required String appId,
+  required String name,
+  required String apiBaseUrl,
+  String? logoUrl,
+  int? primaryColor,
+}) {
+  final api = normalizeSiteUrl(apiBaseUrl);
+  final origin = Uri.tryParse(api);
+  return BuildConfigData(
+    appType: AppType.delivery,
+    role: AppRole.courier,
+    appName: name,
+    shortName: hub.shortName,
+    siteUrl: origin == null || !origin.hasAuthority ? api : origin.origin,
+    apiBaseUrl: api,
+    androidPackage: hub.androidPackage,
+    iosBundleId: hub.iosBundleId,
+    versionName: hub.versionName,
+    versionCode: hub.versionCode,
+    primaryColor: primaryColor ?? hub.primaryColor,
+    splashColor: hub.splashColor,
+    template: hub.template,
+    font: hub.font,
+    clientId: hub.clientId,
+    iconUrl: hub.iconUrl,
+    logoUrl: logoUrl,
+    firebaseAndroid: hub.firebaseAndroid,
+    firebaseIos: hub.firebaseIos,
+    huaweiAppId: hub.huaweiAppId,
+    appId: appId,
+  );
+}
