@@ -91,6 +91,8 @@ export function connectorFor(
     storeBilling?: boolean;
     /** 51 Lesson videos from the app's Media library (lib/media/hosted.ts). */
     media?: CoursesMedia;
+    /** 112.5 Files students hand in for assignments. */
+    uploads?: CoursesDeps["uploads"];
     /** 28 Signs ticket QR codes (each app's key is made from it); read from the environment when left out. */
     signingSecret?: string;
   },
