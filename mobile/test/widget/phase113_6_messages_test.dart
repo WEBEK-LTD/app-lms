@@ -11,6 +11,7 @@ import '../support/fake_api.dart';
 import '../support/fake_chat_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'phase105_4_test.dart' show tapParent;
 
 /// 113.6 Messages between a school's teachers and its families.
 
@@ -141,14 +142,15 @@ void main() {
   });
 
   group('113.6 a parent', () {
-    testWidgets('opens Messages from the School tab: the school, the '
+    testWidgets('opens Messages from the Parent tab: the school, the '
         'privacy note, the hours and their children\'s teachers', (
       tester,
     ) async {
       final api = messagesApi();
       final app = await pumpSchool(tester, api: api);
-      await push(app, tester, Paths.school);
-      await tapKey(tester, 'school-messages-open');
+      // 113.4 A parent's messages are in the Parent tab.
+      await push(app, tester, Paths.parent);
+      await tapParent(tester, 'school-messages-open');
       expect(find.text("The school's administration"), findsOneWidget);
       expect(
         find.text(

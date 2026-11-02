@@ -12669,6 +12669,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hand in again'**
   String get handInAgain;
+
+  /// 113.4 The bottom tab only the school's parents see: their children's days, slips, excuses and pick-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get tabParent;
+
+  /// 113.4 The Parent tab, for someone the school didn't add as a parent: its title.
+  ///
+  /// In en, this message translates to:
+  /// **'For the school\'s parents'**
+  String get parentNotParentTitle;
+
+  /// 113.4 The Parent tab, for someone the school didn't add as a parent: what to do.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t added this number as a parent. Ask the school to link it to your children.'**
+  String get parentNotParentMessage;
+
+  /// 113.4 On the School tab of a parent who isn't a student: their children's days are in the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Your children are in the Parent tab'**
+  String get parentChildrenTitle;
+
+  /// 113.4 On the School tab of a parent who isn't a student: what the Parent tab has.
+  ///
+  /// In en, this message translates to:
+  /// **'Each child\'s day, the slips to sign, absences to excuse and who picks them up.'**
+  String get parentChildrenMessage;
+
+  /// 113.4 Button on the School tab of a parent: opens the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Parent tab'**
+  String get parentOpen;
+
+  /// 113.4 On a child's day: today is a holiday or a break.
+  ///
+  /// In en, this message translates to:
+  /// **'No school today: {title}'**
+  String parentDayOff(String title);
+
+  /// 113.4 On a child's day: who picks the child up today.
+  ///
+  /// In en, this message translates to:
+  /// **'Picks up today: {name}'**
+  String parentPicksUpToday(String name);
+
+  /// 113.4 On a child's day: the child's check-in today.
+  ///
+  /// In en, this message translates to:
+  /// **'At the gate'**
+  String get parentAtTheGate;
+
+  /// 113.4 On a child's day: how much homework is due.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No homework due} =1{1 homework due} other{{count} homework due}}'**
+  String parentHomeworkDue(int count);
+
+  /// 113.4 On a child's day: the three latest scores.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest grades'**
+  String get parentLatestGrades;
+
+  /// 113.4 On a child's day: the child's behaviour points.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String parentBehaviourPoints(int points);
+
+  /// 113.4 On a child's day: the library books out now.
+  ///
+  /// In en, this message translates to:
+  /// **'Library books'**
+  String get parentLibraryBooks;
+
+  /// 113.4 On a child's day: when a library book is due back.
+  ///
+  /// In en, this message translates to:
+  /// **'Due back {date}'**
+  String parentBookDue(String date);
+
+  /// 113.4 On a child's day: a library book that is overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue since {date}'**
+  String parentBookOverdue(String date);
+
+  /// 113.4 On a child's day: the child's bus is running now.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus is on its way'**
+  String get parentBusOnTheWay;
+
+  /// 113.4 On a child's day: the next events and exams on the calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get parentComing;
+
+  /// 113.4 The list of a child's parts on the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything for {name}'**
+  String parentEverything(String name);
+
+  /// 113.4 Opens the permission slips to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission slips'**
+  String get parentSlips;
+
+  /// 113.4 How many permission slips wait for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing to sign} =1{1 to sign} other{{count} to sign}}'**
+  String parentSlipsWaiting(int count);
+
+  /// 113.4 Opens the child's absence excuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Absence excuses'**
+  String get parentExcuses;
+
+  /// 113.4 Under the absence excuses tile.
+  ///
+  /// In en, this message translates to:
+  /// **'A day or several, with the reason'**
+  String get parentExcusesSubtitle;
+
+  /// 113.4 Opens who may pick the child up.
+  ///
+  /// In en, this message translates to:
+  /// **'Who picks up'**
+  String get parentPickup;
+
+  /// 113.4 How many people may pick the child up.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No one listed yet} =1{1 person} other{{count} people}}'**
+  String parentPickupPeople(int count);
+
+  /// 113.4 How many teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None shared yet} =1{1 shared} other{{count} shared}}'**
+  String parentReportsCount(int count);
+
+  /// 113.4 A permission slip's due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer by {date}'**
+  String slipDue(String date);
+
+  /// 113.4 A permission slip past its due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get slipClosed;
+
+  /// 113.4 A permission slip's note of a fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee: {note}'**
+  String slipFee(String note);
+
+  /// 113.4 Signs a permission slip yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I agree'**
+  String get slipYes;
+
+  /// 113.4 Signs a permission slip no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get slipNo;
+
+  /// 113.4 A child's slip signed yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed yes by {name}'**
+  String slipSignedYes(String name);
+
+  /// 113.4 A child's slip signed no.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined by {name}'**
+  String slipSignedNo(String name);
+
+  /// 113.4 A child's slip not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get slipNotAnswered;
+
+  /// 113.4 What a parent signs when they answer yes.
+  ///
+  /// In en, this message translates to:
+  /// **'{child} may take part: {title}.'**
+  String slipAgree(String child, String title);
+
+  /// 113.4 What a parent signs when they answer no.
+  ///
+  /// In en, this message translates to:
+  /// **'{child} won\'t take part: {title}.'**
+  String slipDecline(String child, String title);
+
+  /// 113.4 The name a parent signs a slip with.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get slipYourName;
+
+  /// 113.4 Signs the permission slip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign'**
+  String get slipSign;
+
+  /// 113.4 After a parent signed a slip.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed. The school sees your answer.'**
+  String get slipSigned;
+
+  /// 113.4 The permission slips list when there is none.
+  ///
+  /// In en, this message translates to:
+  /// **'No permission slips.'**
+  String get slipsNone;
+
+  /// 113.4 A slip signed without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign with your name.'**
+  String get slipNameNeeded;
+
+  /// 113.4 Starts an absence excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Excuse an absence'**
+  String get excuseNew;
+
+  /// 113.4 An excuse's first day.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get excuseFirstDay;
+
+  /// 113.4 An excuse's last day.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get excuseLastDay;
+
+  /// 113.4 Why the child was or will be absent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get excuseReason;
+
+  /// 113.4 Adds a photo of a doctor's note to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of a note'**
+  String get excuseAddPhoto;
+
+  /// 113.4 Adds a PDF to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get excuseAddFile;
+
+  /// 113.4 Sends an absence excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to the school'**
+  String get excuseSend;
+
+  /// 113.4 After an excuse was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. The school will answer in the app.'**
+  String get excuseSent;
+
+  /// 113.4 An excuse sent without a reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the reason.'**
+  String get excuseReasonNeeded;
+
+  /// 113.4 An excuse the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get excusePending;
+
+  /// 113.4 An excuse the school accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Excused'**
+  String get excuseAccepted;
+
+  /// 113.4 An excuse the school declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted'**
+  String get excuseDeclined;
+
+  /// 113.4 An excuse the parent withdrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
+  String get excuseWithdrawn;
+
+  /// 113.4 Withdraws an excuse while it waits.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get excuseWithdraw;
+
+  /// 113.4 The excuses list when there is none.
+  ///
+  /// In en, this message translates to:
+  /// **'No excuses sent.'**
+  String get excusesNone;
+
+  /// 113.4 The school's note with its answer to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'The school: {note}'**
+  String excuseSchoolNote(String note);
+
+  /// 113.4 At the top of the pick-up screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may pick {name} up from school. The school sees this list at the gate.'**
+  String pickupIntro(String name);
+
+  /// 113.4 The pick-up list when empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one on the list yet.'**
+  String get pickupNone;
+
+  /// 113.4 Adds a person to the pick-up list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone'**
+  String get pickupAdd;
+
+  /// 113.4 A pick-up person's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pickupName;
+
+  /// 113.4 A pick-up person's relation to the child (grandmother, uncle…).
+  ///
+  /// In en, this message translates to:
+  /// **'Relation'**
+  String get pickupRelation;
+
+  /// 113.4 A pick-up person's phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get pickupPhone;
+
+  /// 113.4 Adds a photo of a pick-up person.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get pickupPhoto;
+
+  /// 113.4 Takes a person off the pick-up list.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get pickupRemove;
+
+  /// 113.4 After the pick-up list was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The school sees the list.'**
+  String get pickupSaved;
+
+  /// 113.4 A pick-up person without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Write their name.'**
+  String get pickupNameNeeded;
+
+  /// 113.4 The one-day pick-up note part.
+  ///
+  /// In en, this message translates to:
+  /// **'Just for one day'**
+  String get pickupOneDay;
+
+  /// 113.4 What the one-day pick-up note is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else picks up on a day? Tell the school: it sees it on that day\'s board.'**
+  String get pickupOneDayIntro;
+
+  /// 113.4 The day of a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get pickupDay;
+
+  /// 113.4 A one-day pick-up note's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the school'**
+  String get pickupNote;
+
+  /// 113.4 Sends a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the school'**
+  String get pickupTell;
+
+  /// 113.4 After a one-day pick-up note was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The school sees it on that day\'s board.'**
+  String get pickupTold;
+
+  /// 113.4 A one-day pick-up note: the day and who picks up.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {name}'**
+  String pickupNoteLine(String date, String name);
+
+  /// 113.4 Deletes a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back'**
+  String get pickupTakeBack;
 }
 
 class _AppLocalizationsDelegate

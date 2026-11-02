@@ -55,6 +55,21 @@ Future<void> tapKey(WidgetTester tester, String key) async {
   await TestApp.settle(tester);
 }
 
+/// 113.4 Taps a part of the child's day in the Parent tab, scrolled to it.
+Future<void> tapParent(WidgetTester tester, String key) async {
+  final list = find.descendant(
+    of: find.byKey(const ValueKey('parent-day')),
+    matching: find.byType(Scrollable),
+  );
+  await tester.scrollUntilVisible(
+    find.byKey(ValueKey(key)),
+    200,
+    scrollable: list.first,
+  );
+  await TestApp.settle(tester);
+  await tapKey(tester, key);
+}
+
 List<String?> tabPaths(TestApp app) =>
     app.container.read(shellTabsProvider).map((t) => t.path).toList();
 
@@ -116,11 +131,11 @@ void main() {
       final api = schoolApi();
       final app = schoolApp(api);
       await app.pump(tester);
-      expect(tabPaths(app), [Paths.school, Paths.account]);
-      await go(app, tester, Paths.school);
+      // 113.4 Their children are in the Parent tab.
+      expect(tabPaths(app), [Paths.school, Paths.parent, Paths.account]);
+      await go(app, tester, Paths.parent);
       expect(find.text('Omar Hassan'), findsWidgets);
       expect(find.text('Grade 5 A'), findsOneWidget);
-      expect(find.text('Due: E£4,500.00'), findsOneWidget);
       await tapKey(tester, 'student-12');
       expect(find.text('Grade 3 B'), findsOneWidget);
       expect(find.text('Grade 5 A'), findsNothing);
@@ -219,7 +234,12 @@ void main() {
       usePhone(tester);
       final teacher = schoolApp(schoolApi(roles: ['teacher', 'parent']));
       await teacher.pump(tester);
-      expect(tabPaths(teacher), [Paths.school, Paths.classroom, Paths.account]);
+      expect(tabPaths(teacher), [
+        Paths.school,
+        Paths.parent,
+        Paths.classroom,
+        Paths.account,
+      ]);
       await go(teacher, tester, Paths.classroom);
       expect(find.text('Grade 5 A'), findsOneWidget);
       expect(find.text('Your class'), findsOneWidget);

@@ -6,6 +6,7 @@ import 'package:yallapp/core/api/yallapp_api.dart';
 
 import 'bus_library_fixtures.dart';
 import 'fixtures.dart';
+import 'parent_fixtures.dart';
 
 /// An in-memory [YallappApi] that answers with contract-shaped fixtures and
 /// records every call.
@@ -3096,6 +3097,161 @@ class FakeApi implements YallappApi {
           },
         ], SchoolAnnouncement.fromJson),
       );
+
+  // 113.4 The parent's area.
+  Map<String, dynamic> parentMe = parentMeJson();
+  Map<String, dynamic> childDay = childDayJson();
+  List<Map<String, dynamic>> permissionSlips = [permissionSlipJson()];
+  final slipAnswers =
+      <({int slip, int student, SlipAnswer answer, String name})>[];
+  List<Map<String, dynamic>> absenceExcuses = [];
+  final excusesSent =
+      <({int student, String startsOn, String? endsOn, String reason})>[];
+  final excusesWithdrawn = <int>[];
+  Map<String, dynamic> childPickup = childPickupJson();
+  final pickupSaved = <List<PickupPersonInput>>[];
+  final pickupNotes = <({int student, String? date, String name})>[];
+
+  @override
+  Future<ParentMe> getParentMe() =>
+      _answer('getParentMe', () => ParentMe.fromJson(parentMe));
+
+  @override
+  Future<ChildDay> getChildDay(int studentId) => _answer(
+    'getChildDay',
+    () => ChildDay.fromJson(
+      studentId == 12
+          ? childDayJson(id: 12, name: 'Laila Hassan', className: 'Grade 3 B')
+          : childDay,
+    ),
+  );
+
+  @override
+  Future<Paged<PermissionSlip>> listPermissionSlips({
+    int? studentId,
+    int page = 1,
+  }) => _answer(
+    'listPermissionSlips',
+    () => _paged(permissionSlips, PermissionSlip.fromJson),
+  );
+
+  @override
+  Future<PermissionSlip> answerPermissionSlip(
+    int slipId, {
+    required int studentId,
+    required SlipAnswer answer,
+    required String signedName,
+  }) => _answer('answerPermissionSlip', () {
+    slipAnswers.add((
+      slip: slipId,
+      student: studentId,
+      answer: answer,
+      name: signedName,
+    ));
+    final made = permissionSlipJson(id: slipId, answer: answer.name);
+    permissionSlips = [
+      for (final s in permissionSlips) s['id'] == slipId ? made : s,
+    ];
+    return PermissionSlip.fromJson(made);
+  });
+
+  @override
+  Future<List<AbsenceExcuse>> listAbsenceExcuses(int studentId) => _answer(
+    'listAbsenceExcuses',
+    () => [for (final e in absenceExcuses) AbsenceExcuse.fromJson(e)],
+  );
+
+  @override
+  Future<AbsenceExcuse> sendAbsenceExcuse(
+    int studentId, {
+    required String startsOn,
+    String? endsOn,
+    required String reason,
+    String? uploadId,
+  }) => _answer('sendAbsenceExcuse', () {
+    excusesSent.add((
+      student: studentId,
+      startsOn: startsOn,
+      endsOn: endsOn,
+      reason: reason,
+    ));
+    final made = {
+      ...absenceExcuseJson(id: 82),
+      'starts_on': startsOn,
+      'ends_on': endsOn ?? startsOn,
+      'reason': reason,
+    };
+    absenceExcuses = [made, ...absenceExcuses];
+    return AbsenceExcuse.fromJson(made);
+  });
+
+  @override
+  Future<void> withdrawAbsenceExcuse(int excuseId) =>
+      _answer('withdrawAbsenceExcuse', () {
+        excusesWithdrawn.add(excuseId);
+        absenceExcuses = [
+          for (final e in absenceExcuses)
+            e['id'] == excuseId ? {...e, 'status': 'cancelled'} : e,
+        ];
+      });
+
+  @override
+  Future<ChildPickup> getChildPickup(int studentId) =>
+      _answer('getChildPickup', () => ChildPickup.fromJson(childPickup));
+
+  @override
+  Future<ChildPickup> saveChildPickup(
+    int studentId,
+    List<PickupPersonInput> people,
+  ) => _answer('saveChildPickup', () {
+    pickupSaved.add(people);
+    childPickup = childPickupJson(
+      people: [
+        for (final p in people)
+          {
+            'name': p.name,
+            'relation': p.relation,
+            'phone': p.phone,
+            'photo': null,
+            'photo_id': p.photoId,
+          },
+      ],
+    );
+    return ChildPickup.fromJson(childPickup);
+  });
+
+  @override
+  Future<ChildPickup> savePickupNote(
+    int studentId, {
+    String? date,
+    required String name,
+    String? relation,
+    String? phone,
+    String? note,
+  }) => _answer('savePickupNote', () {
+    pickupNotes.add((student: studentId, date: date, name: name));
+    childPickup = {
+      ...childPickup,
+      'today': {
+        'date': date ?? '2026-11-02',
+        'name': name,
+        'relation': relation,
+        'phone': phone,
+        'note': note,
+        'written_by': 'Hassan Ali',
+        'created_at': '2026-11-02T05:00:00Z',
+      },
+    };
+    childPickup['notes'] = [childPickup['today']];
+    return ChildPickup.fromJson(childPickup);
+  });
+
+  @override
+  Future<ChildPickup> deletePickupNote(int studentId, {String? date}) =>
+      _answer('deletePickupNote', () {
+        childPickup = {...childPickup, 'today': null, 'notes': []};
+        return ChildPickup.fromJson(childPickup);
+      });
 
   // 113.6 Messages between teachers and families.
 

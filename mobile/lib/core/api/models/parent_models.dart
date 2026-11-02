@@ -269,11 +269,7 @@ class AbsenceExcuse {
     days: intOr(json, 'days', 1),
     reason: reqString(json, 'reason'),
     file: optObject(json, 'file', SchoolFile.fromJson),
-    status: enumFrom(
-      ExcuseStatus.values,
-      json['status'],
-      ExcuseStatus.pending,
-    ),
+    status: enumFrom(ExcuseStatus.values, json['status'], ExcuseStatus.pending),
     answer: optString(json, 'answer'),
     answeredAt: optDate(json, 'answered_at'),
   );

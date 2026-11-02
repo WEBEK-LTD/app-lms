@@ -14,6 +14,7 @@ import 'screens/bus_screens.dart';
 import 'screens/calendar_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/messages_screen.dart';
+import 'screens/parent_screens.dart';
 import 'screens/library_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
@@ -26,9 +27,16 @@ import 'screens/student_screens.dart';
 /// Classroom tab (added for them only, see `withClassroomTab`) with their
 /// classes, attendance, homework and scores. 113.2 Checking in and out for
 /// students, teachers and staff; 113.3 a Staff tab for the staff who don't
-/// teach (added for them only, see `withStaffTab`).
+/// teach (added for them only, see `withStaffTab`); 113.4 a Parent tab for
+/// the school's parents (added for them only, see `withParentTab`).
 final schoolModule = AppModule(
-  tabPaths: {Paths.school, Paths.classroom, Paths.staff, Paths.account},
+  tabPaths: {
+    Paths.school,
+    Paths.parent,
+    Paths.classroom,
+    Paths.staff,
+    Paths.account,
+  },
   screens: _screens,
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
@@ -89,6 +97,13 @@ final classroomTab = ShellTab(
   location: Paths.classroom,
 );
 
+/// 113.4 The Parent tab, for the school's parents only.
+final parentTab = ShellTab(
+  icon: AppIcons.family,
+  label: (c) => c.l10n.tabParent,
+  location: Paths.parent,
+);
+
 /// 113.3 The Staff tab, for the school's staff who don't teach.
 final staffTab = ShellTab(
   icon: AppIcons.staffBadge,
@@ -98,6 +113,12 @@ final staffTab = ShellTab(
 
 List<TabScreen> _screens() => [
   TabScreen(Paths.school, (state) => const SchoolScreen()),
+  TabScreen(
+    Paths.parent,
+    (state) => ParentScreen(
+      student: int.tryParse(state.uri.queryParameters['student'] ?? ''),
+    ),
+  ),
   TabScreen(Paths.classroom, (state) => const ClassroomScreen()),
   TabScreen(Paths.staff, (state) => const StaffScreen()),
   TabScreen(
@@ -127,12 +148,29 @@ GoRoute _part(String part, Widget Function(int? student) build) => GoRoute(
   ),
 );
 
+/// 113.4 A child's part in the Parent tab, for the child in `?student=`.
+GoRoute _child(String part, Widget Function(int student) build) => GoRoute(
+  path: '${Paths.parent}/$part',
+  pageBuilder: (context, state) {
+    final id = int.tryParse(state.uri.queryParameters['student'] ?? '');
+    return appPage(
+      state,
+      id == null || id < 1 ? const NotFoundScreen() : build(id),
+    );
+  },
+);
+
 GoRoute _page(String path, Widget screen) => GoRoute(
   path: path,
   pageBuilder: (context, state) => appPage(state, screen),
 );
 
 List<RouteBase> _pushedRoutes() => [
+  // 113.4 The parent's slips, a child's excuses and who picks the child up.
+  _page(Paths.parentSlips, const PermissionSlipsScreen()),
+  _child('excuses', (student) => ExcusesScreen(student: student)),
+  _child('excuses/new', (student) => ExcuseFormScreen(student: student)),
+  _child('pickup', (student) => PickupScreen(student: student)),
   // 113.2 Checking in and out; 113.3 leave and the staff's news.
   _page(Paths.checkin, const CheckinScreen()),
   _page(Paths.staffLeaveNew, const LeaveFormScreen()),

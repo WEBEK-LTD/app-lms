@@ -7,7 +7,7 @@ import 'package:yallapp/core/services/push_service.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
 import 'phase105_4_test.dart'
-    show go, push, schoolApi, schoolApp, tapKey, usePhone;
+    show go, push, schoolApi, schoolApp, tapKey, tapParent, usePhone;
 
 /// The message above the bottom bar, gone before the next tap.
 Future<void> dismissMessage(WidgetTester tester) async {
@@ -220,8 +220,9 @@ void main() {
       final api = schoolApi();
       final app = schoolApp(api);
       await app.pump(tester);
-      await go(app, tester, Paths.school);
-      await tapKey(tester, 'school-reports');
+      // 113.4 From the child's day in the Parent tab.
+      await go(app, tester, Paths.parent);
+      await tapParent(tester, 'parent-reports');
       expect(find.text('End of term report'), findsOneWidget);
       expect(find.text('Read 20 minutes at home.'), findsOneWidget);
       expect(find.text('4 out of 5'), findsOneWidget);
