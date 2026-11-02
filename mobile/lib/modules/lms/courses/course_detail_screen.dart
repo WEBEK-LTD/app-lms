@@ -124,11 +124,23 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     // Never on iOS, whatever the server said.
     if (!canOpenCheckout(env.platform)) return;
     if (!_signedIn) return _signIn();
+    // 112.5 A coupon first, when the academy takes them.
+    String? coupon;
+    if (course.takesCoupons) {
+      final asked = await showModalBottomSheet<({String? code})>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) => CouponSheet(courseId: course.id),
+      );
+      if (asked == null || !mounted) return;
+      coupon = asked.code;
+    }
     setState(() => _busy = true);
     try {
       final link = await ref
           .read(yallappApiProvider)
-          .createCheckoutLink(course.id);
+          .createCheckoutLink(course.id, coupon: coupon);
       if (!mounted) return;
       final rules = ref.read(appConfigProvider).purchases;
       final inApp =
@@ -1399,6 +1411,118 @@ class CourseCompletedBanner extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// 112.5 Before a paid course's checkout: a coupon checked (with the price
+/// it leaves), or none. Pops `(code: …)`; null when closed.
+class CouponSheet extends ConsumerStatefulWidget {
+  const CouponSheet({super.key, required this.courseId});
+
+  final int courseId;
+
+  @override
+  ConsumerState<CouponSheet> createState() => _CouponSheetState();
+}
+
+class _CouponSheetState extends ConsumerState<CouponSheet> {
+  final _code = TextEditingController();
+  CouponCheck? _check;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  Future<void> _apply() async {
+    final code = _code.text.trim();
+    if (code.isEmpty) return;
+    setState(() => _busy = true);
+    try {
+      final check = await ref
+          .read(yallappApiProvider)
+          .checkCourseCoupon(widget.courseId, code);
+      if (mounted) setState(() => _check = check);
+    } on ApiException catch (e) {
+      if (mounted) showMessage(context, e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final check = _check;
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.couponHave,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      key: const ValueKey('coupon-code'),
+                      controller: _code,
+                      textCapitalization: TextCapitalization.characters,
+                      decoration: InputDecoration(hintText: l10n.couponCode),
+                      onChanged: (_) {
+                        if (_check != null) setState(() => _check = null);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 112,
+                    child: SecondaryButton(
+                      key: const ValueKey('coupon-apply'),
+                      label: l10n.couponApply,
+                      height: 48,
+                      onPressed: _busy ? null : _apply,
+                    ),
+                  ),
+                ],
+              ),
+              if (check != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  check.applied
+                      ? l10n.couponSaves(check.discount ?? '', check.total)
+                      : (check.message ?? ''),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: check.applied ? p.success : p.danger,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              PrimaryButton(
+                key: const ValueKey('coupon-continue'),
+                label: check?.applied == true
+                    ? l10n.couponContinue
+                    : l10n.couponWithout,
+                height: 52,
+                onPressed: () => Navigator.of(context)
+                    .pop((code: check?.applied == true ? check!.code : null)),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

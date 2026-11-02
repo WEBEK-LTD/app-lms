@@ -1721,4 +1721,7 @@
 {"key":"liveNoneThisDay","en":"No live class on this day.","ar":"لا توجد حصة مباشرة في هذا اليوم.","tr":"Bu gün canlı ders yok.","description":"112.5 A calendar day without a live class."},
 {"key":"liveClassesCount","en":"{count, plural, =1{1 live class} other{{count} live classes}}","ar":"{count, plural, =1{حصة مباشرة واحدة} =2{حصتان مباشرتان} few{{count} حصص مباشرة} other{{count} حصة مباشرة}}","tr":"{count, plural, other{{count} canlı ders}}","description":"112.5 Read out for a calendar day with live classes.","placeholders":{"count":"int"}},
 {"key":"calendarPrevious","en":"Previous month","ar":"الشهر السابق","tr":"Önceki ay","description":"112.5 The calendar's button to the month before."},
-{"key":"calendarNext","en":"Next month","ar":"الشهر التالي","tr":"Sonraki ay","description":"112.5 The calendar's button to the month after."}]}
+{"key":"calendarNext","en":"Next month","ar":"الشهر التالي","tr":"Sonraki ay","description":"112.5 The calendar's button to the month after."},
+{"key":"couponSaves","en":"{discount} off: you pay {total}.","ar":"خصم {discount}: تدفع {total}.","tr":"{discount} indirim: {total} ödersin.","description":"112.5 A coupon that applies to a paid course, and the price it leaves.","placeholders":{"discount":"String","total":"String"}},
+{"key":"couponContinue","en":"Continue with the coupon","ar":"المتابعة بالقسيمة","tr":"Kuponla devam et","description":"112.5 Goes to a paid course's checkout with the coupon."},
+{"key":"couponWithout","en":"Continue without a coupon","ar":"المتابعة دون قسيمة","tr":"Kuponsuz devam et","description":"112.5 Goes to a paid course's checkout without a coupon."}]}

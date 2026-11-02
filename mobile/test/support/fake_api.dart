@@ -131,15 +131,37 @@ class FakeApi implements YallappApi {
   @override
   Future<void> logout() => _answer('logout', () {});
 
+  /// 112.5 The coupons the course checkout was asked with, and those that apply.
+  final checkoutCoupons = <String?>[];
+  Set<String> goodCoupons = {'WELCOME10'};
+
   @override
-  Future<CheckoutLink> createCheckoutLink(int courseId) => _answer(
-    'createCheckoutLink',
-    () => CheckoutLink.fromJson({
-      'url': 'https://your-academy.com/checkout?token=once',
-      'expires_at': '2026-10-12T09:05:00Z',
-      'open_in': 'in_app',
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code) => _answer(
+    'checkCourseCoupon',
+    () => CouponCheck.fromJson({
+      'code': code.toUpperCase(),
+      'status': goodCoupons.contains(code.toUpperCase())
+          ? 'applied'
+          : 'invalid',
+      'message': goodCoupons.contains(code.toUpperCase())
+          ? null
+          : "This coupon doesn't exist.",
+      'price': '₺450.00',
+      'discount': goodCoupons.contains(code.toUpperCase()) ? '₺45.00' : null,
+      'total': goodCoupons.contains(code.toUpperCase()) ? '₺405.00' : '₺450.00',
     }),
   );
+
+  @override
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) =>
+      _answer('createCheckoutLink', () {
+        checkoutCoupons.add(coupon);
+        return CheckoutLink.fromJson({
+          'url': 'https://your-academy.com/checkout?token=once',
+          'expires_at': '2026-10-12T09:05:00Z',
+          'open_in': 'in_app',
+        });
+      });
 
   /// 48 What `GET /links/resolve` answers, by address (none: kind null).
   final resolvedLinks = <String, Map<String, dynamic>>{};

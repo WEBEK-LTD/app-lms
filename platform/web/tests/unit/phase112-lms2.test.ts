@@ -6,6 +6,9 @@ import { attemptQuestions, certificateCode, quizQuestionCount } from "@/lib/cour
 import { BANK_FIRST_ID, parseQuiz, questionsText, saveQuestionBank } from "@/lib/courses/quizzes";
 import type { App, CourseSetup } from "@/lib/data/types";
 import { PLAN_INFO, type PlanInfo } from "@/lib/plans";
+import { encryptPaymentKeys } from "@/lib/catalog/settings";
+import { DEFAULT_CATALOG_SETTINGS } from "@/lib/data/types";
+import { KEY } from "./helpers";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -297,5 +300,30 @@ describe("112.5 grading in the Teacher tab", () => {
     expect((await h.call("GET", "/assignments/{assignment_id}", { params: ["16"], token: student.access_token })).body).toMatchObject({ submission: { status: "graded", score: 18 } });
     // Students aren't teachers.
     expect((await h.call("GET", "/teacher/submissions", { token: student.access_token })).status).toBe(403);
+  });
+});
+
+describe("112.5 coupons for paid courses", () => {
+  it("checks a coupon, and the payment page's order charges the price less it", async () => {
+    const h = await hostedAcademy(
+      () => {
+        const setup = academy();
+        setup.courses[0]!.priceCents = 450_00;
+        return setup;
+      },
+      { patch: { catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, currency: "EGP", payment: encryptPaymentKeys("app", "sandbox-api", "sandbox-secret", true, KEY) } } },
+    );
+    await h.store.createCatalogCoupon({ appId: h.state.app.id, code: "WELCOME10", kind: "percent", value: 10, minOrderCents: null, endsAt: null, maxUses: 5, active: true, createdAt: NOW });
+    await h.store.createCatalogCoupon({ appId: h.state.app.id, code: "FREE", kind: "percent", value: 100, minOrderCents: null, endsAt: null, maxUses: null, active: true, createdAt: NOW });
+    const { access_token: token, user } = await h.signUp();
+    expect((await h.call("GET", "/courses/{course_id}", { params: ["10"], token, query: { platform: "android" } })).body).toMatchObject({ purchase: { action: "checkout", coupons: true } });
+    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: " welcome10 " } })).body).toMatchObject({ code: "WELCOME10", status: "applied", discount: expect.stringContaining("45"), total: expect.stringContaining("405") });
+    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "NOPE" } })).body).toMatchObject({ status: "invalid", message: "This coupon doesn't exist." });
+    expect((await h.call("POST", "/courses/{course_id}/coupon", { params: ["10"], token, body: { code: "FREE" } })).body).toMatchObject({ status: "invalid" });
+    expect((await h.call("POST", "/auth/checkout-link", { token, query: { platform: "android" }, body: { course_id: 10, coupon: "NOPE" } })).body).toMatchObject({ code: "coupon_invalid" });
+    const link = await h.call("POST", "/auth/checkout-link", { token, query: { platform: "android" }, body: { course_id: 10, coupon: "welcome10" } });
+    expect(link.status).toBe(200);
+    const { items } = await h.store.listCatalogOrders({ appId: h.state.app.id, userId: user.id, offset: 0, limit: 5 });
+    expect(items[0]).toMatchObject({ subtotalCents: 450_00, totalCents: 405_00, couponCode: "WELCOME10", discountCents: 45_00 });
   });
 });

@@ -1723,5 +1723,8 @@
   "liveNoneThisDay": "لا توجد حصة مباشرة في هذا اليوم.",
   "liveClassesCount": "{count, plural, =1{حصة مباشرة واحدة} =2{حصتان مباشرتان} few{{count} حصص مباشرة} other{{count} حصة مباشرة}}",
   "calendarPrevious": "الشهر السابق",
-  "calendarNext": "الشهر التالي"
+  "calendarNext": "الشهر التالي",
+  "couponSaves": "خصم {discount}: تدفع {total}.",
+  "couponContinue": "المتابعة بالقسيمة",
+  "couponWithout": "المتابعة دون قسيمة"
 }

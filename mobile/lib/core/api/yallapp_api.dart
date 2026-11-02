@@ -481,7 +481,11 @@ abstract class YallappApi {
   Future<void> logout();
 
   /// Android only. Callers must check the platform first.
-  Future<CheckoutLink> createCheckoutLink(int courseId);
+  /// 112.5 With a [coupon] of the academy's (courses managed in Yallapp).
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon});
+
+  /// 112.5 What a coupon takes off a paid course, or why it doesn't apply.
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code);
 
   /// 48 What an address on the site is: the app opened one of the site's
   /// own pages (its permalink). Plugin only; 404 elsewhere.
@@ -1370,7 +1374,16 @@ class HttpYallappApi implements YallappApi {
       _send('POST', '/auth/logout', _required, _ignore, account: true);
 
   @override
-  Future<CheckoutLink> createCheckoutLink(int courseId) {
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code) => _send(
+    'POST',
+    '/courses/$courseId/coupon',
+    _required,
+    (data) => CouponCheck.fromJson(asJson(data)),
+    body: {'code': code},
+  );
+
+  @override
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
       return Future.error(
@@ -1386,7 +1399,7 @@ class HttpYallappApi implements YallappApi {
       '/auth/checkout-link',
       _required,
       (data) => CheckoutLink.fromJson(asJson(data)),
-      body: {'course_id': courseId},
+      body: {'course_id': courseId, 'coupon': ?coupon},
       query: {'platform': platform.name},
     );
   }

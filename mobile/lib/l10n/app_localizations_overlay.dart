@@ -6682,4 +6682,17 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get calendarNext => overlay.text('calendarNext') ?? base.calendarNext;
+
+  @override
+  String couponSaves(String discount, String total) =>
+      overlay.format('couponSaves', {'discount': discount, 'total': total}) ??
+      base.couponSaves(discount, total);
+
+  @override
+  String get couponContinue =>
+      overlay.text('couponContinue') ?? base.couponContinue;
+
+  @override
+  String get couponWithout =>
+      overlay.text('couponWithout') ?? base.couponWithout;
 }

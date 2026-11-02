@@ -1094,6 +1094,9 @@ paths:
               required: [course_id]
               properties:
                 course_id: { type: integer }
+                coupon:
+                  type: [string, 'null']
+                  description: Roadmap 112.5. A coupon of the academy's (courses managed in Yallapp); the payment page charges the price less it. 400 `coupon_invalid` with why when it doesn't apply.
       responses:
         '200':
           description: Checkout link
@@ -1106,10 +1109,48 @@ paths:
                   url: { type: string, format: uri }
                   expires_at: { type: string, format: date-time }
                   open_in: { type: string, enum: [in_app, browser] }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
+
+  /courses/{course_id}/coupon:
+    post:
+      tags: [Commerce]
+      operationId: checkCourseCoupon
+      summary: Check a coupon for a paid course
+      description: Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). A coupon that would take the whole price doesn't apply. Up to 20 tries an hour.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, maxLength: 50 }
+      responses:
+        '200':
+          description: The coupon's result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, status, message, price, discount, total]
+                properties:
+                  code: { type: string }
+                  status: { type: string, enum: [applied, invalid] }
+                  message: { type: [string, 'null'] }
+                  price: { type: string, example: "EGP 450.00" }
+                  discount: { type: [string, 'null'] }
+                  total: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /me:
     get:
@@ -7988,6 +8029,9 @@ components:
                 store_product_id:
                   type: [string, 'null']
                   description: Roadmap 100. With `store`, the store product to buy (`GET /billing/products`). Null otherwise.
+                coupons:
+                  type: boolean
+                  description: Roadmap 112.5. With `checkout`, the academy takes coupons (`POST /courses/{course_id}/coupon`, then `coupon` in the checkout link). Missing means false.
 
     Topic:
       type: object

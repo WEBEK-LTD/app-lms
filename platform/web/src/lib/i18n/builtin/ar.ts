@@ -518,6 +518,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "You've used every attempt at this quiz.": "استخدمت كل محاولاتك في هذا الاختبار.",
   "Attempt not found.": "لم يُعثر على المحاولة.",
   // 112.5 Assignments, live classes and courses taken in order.
+  "This coupon can't be used for this course. Ask the academy to add you to it.": "لا يمكن استخدام هذه القسيمة لهذه الدورة. اطلب من الأكاديمية إضافتك إليها.",
   "This course starts on {0}.": "تبدأ هذه الدورة في {0}.",
   "Finish what comes before it in the course first.": "أكمل ما يسبقه في الدورة أولًا.",
   "A written answer's text must be text.": "يجب أن تكون الإجابة المكتوبة نصًا.",

@@ -188,6 +188,7 @@ class CourseDetail extends CourseSummary {
     this.membership,
     this.storeProductId,
     this.cohort,
+    this.takesCoupons = false,
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -224,6 +225,7 @@ class CourseDetail extends CourseSummary {
       canRestart: boolOr(json, 'can_restart', false),
       membership: optObject(json, 'membership', CourseMembership.fromJson),
       storeProductId: _nonEmpty(optString(purchase, 'store_product_id')),
+      takesCoupons: boolOr(purchase, 'coupons', false),
     );
   }
 
@@ -254,6 +256,9 @@ class CourseDetail extends CourseSummary {
 
   /// 112.5 The cohort the enrolled student learns with.
   final CourseCohort? cohort;
+
+  /// 112.5 The academy takes coupons at its checkout.
+  final bool takesCoupons;
 
   /// 62 The website asks for a password to open the course. The app never
   /// does: unless the student is in it, the course page says so and opens
@@ -393,4 +398,29 @@ class CourseCohort {
   final int id;
   final String name;
   final DateTime startsAt;
+}
+
+/// 112.5 What a coupon takes off a paid course (`POST /courses/{id}/coupon`).
+class CouponCheck {
+  const CouponCheck({
+    required this.code,
+    required this.applied,
+    required this.total,
+    this.message,
+    this.discount,
+  });
+
+  factory CouponCheck.fromJson(Json json) => CouponCheck(
+    code: reqString(json, 'code'),
+    applied: json['status'] == 'applied',
+    message: optString(json, 'message'),
+    discount: optString(json, 'discount'),
+    total: reqString(json, 'total'),
+  );
+
+  final String code;
+  final bool applied;
+  final String? message;
+  final String? discount;
+  final String total;
 }

@@ -417,6 +417,13 @@
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/courses/{course_id}/coupon",
+          "summary": "Check a coupon for a paid course",
+          "description": "Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). A coupon that would take the whole price doesn't apply. Up to 20 tries an hour.",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/me/points",
           "summary": "The customer's loyalty points",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
@@ -225,5 +226,38 @@ void main() {
     await tapKey(tester, 'calendar-next');
     expect(find.text('November 2026'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('112.5 a coupon before a paid course\'s checkout', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final api = FakeApi(
+      course: {
+        ...courseDetailJson(),
+        'purchase': {'action': 'checkout', 'coupons': true},
+      },
+    );
+    final app = TestApp(
+      platform: DevicePlatform.android,
+      signedIn: true,
+      guest: true,
+      api: api,
+    );
+    await app.pump(tester);
+    await push(app, tester, Paths.course(1));
+    await tapKey(tester, 'cta-checkout');
+    expect(find.text('Have a coupon?'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('coupon-code')), 'nope');
+    await tapKey(tester, 'coupon-apply');
+    expect(find.text("This coupon doesn't exist."), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('coupon-code')),
+      'welcome10',
+    );
+    await tapKey(tester, 'coupon-apply');
+    expect(find.text('₺45.00 off: you pay ₺405.00.'), findsOneWidget);
+    await tapKey(tester, 'coupon-continue');
+    expect(api.checkoutCoupons, ['WELCOME10']);
   });
 }

@@ -111,6 +111,7 @@ export const en = {
   netSales: "Sales after refunds",
   topLessons: "Lessons opened most",
   lessonStats: "{started} opened · {completed} completed",
+  couponsIntro: "Codes students type before buying a paid course on Android: a share or an amount off its price, until a day or a number of uses. In-app purchases on Google Play and the App Store don't take them.",
   // Cohorts
   cohorts: "Cohorts",
   cohortsIntro: "Groups of students who start together, like the October group. Each student's drip days and due dates count from their cohort's first day, and the course opens to them on it.",
@@ -281,6 +282,7 @@ export const ar: Messages = {
   netSales: "المبيعات بعد المبالغ المستردة",
   topLessons: "الدروس الأكثر فتحًا",
   lessonStats: "فُتح {started} · اكتمل {completed}",
+  couponsIntro: "رموز يكتبها الطلاب قبل شراء دورة مدفوعة على Android: نسبة أو مبلغ يُخصم من سعرها، حتى يوم معيّن أو عدد معيّن من مرات الاستخدام. أما المشتريات داخل التطبيق عبر Google Play وApp Store فلا تقبلها.",
   cohorts: "الدفعات",
   cohortsIntro: "مجموعات من الطلاب يبدؤون معًا، مثل دفعة أكتوبر. تُحسب أيام الإتاحة المتدرجة ومواعيد التسليم لكل طالب من أول يوم في دفعته، وتُفتح له الدورة فيه.",
   cohortName: "اسم الدفعة",
@@ -447,6 +449,7 @@ export const tr: Messages = {
   netSales: "İadeler sonrası satışlar",
   topLessons: "En çok açılan dersler",
   lessonStats: "{started} açıldı · {completed} tamamlandı",
+  couponsIntro: "Öğrencilerin Android'de ücretli bir kursu almadan önce yazdığı kodlar: fiyatından bir yüzde ya da bir tutar indirim, belli bir güne ya da kullanım sayısına kadar. Google Play ve App Store'daki uygulama içi satın almalarda geçmez.",
   cohorts: "Gruplar",
   cohortsIntro: "Birlikte başlayan öğrenci grupları, örneğin Ekim grubu. Her öğrencinin kademeli açılma günleri ve teslim tarihleri grubunun ilk gününden sayılır; kurs onlara o gün açılır.",
   cohortName: "Grup adı",

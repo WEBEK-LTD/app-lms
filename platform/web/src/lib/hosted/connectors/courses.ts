@@ -1,4 +1,5 @@
 import { centsToDecimal, formatCents } from "../../catalog/money";
+import { couponDiscount, normalizeCouponCode } from "../../catalog/coupons";
 import { PAY_LINK_MINUTES, paymentsSetUp } from "../../catalog/settings";
 import { DOWNLOAD_CHECK_MAX, DOWNLOAD_KEEP_DAYS, DOWNLOAD_LINK_MINUTES, isVideoFile } from "../../courses/downloads";
 import { findLesson, lessonsOf, courseSetup, videoSource } from "../../courses/setup";
@@ -95,6 +96,8 @@ const notYet = () => error(403, "previous_not_done", "Finish what comes before i
 const ASSIGNMENT_KINDS = MEDIA_KINDS.filter((k) => k.kind === "image" || k.kind === "pdf");
 const UPLOAD_LIMIT: RateLimitRule = { name: "course_upload", limit: 60, windowSeconds: 3600 };
 const SUBMIT_LIMIT: RateLimitRule = { name: "course_submit", limit: 60, windowSeconds: 3600 };
+/** 112.5 Coupons tried: a few an hour, so codes can't be guessed. */
+const COUPON_LIMIT: RateLimitRule = { name: "course_coupon", limit: 20, windowSeconds: 3600 };
 
 /**
  * Courses managed in the Yallapp dashboard, served like the plugin's LMS
@@ -193,6 +196,8 @@ export class CoursesConnector implements Connector {
       if (request.method === "GET" && request.path.length === 2) return course ? this.detail(request, course) : noCourse();
       if (request.method === "GET" && third === "curriculum" && request.path.length === 3) return course ? this.curriculum(request, course) : noCourse();
       if (request.method === "POST" && third === "enroll" && request.path.length === 3) return this.enroll(request, course);
+      // 112.5 A coupon for a paid course, checked before buying it.
+      if (request.method === "POST" && third === "coupon" && request.path.length === 3) return this.checkCoupon(request, course);
       // 73 Start a finished course again.
       if (request.method === "POST" && third === "restart" && request.path.length === 3) return this.restart(request, course);
     }
@@ -503,7 +508,8 @@ export class CoursesConnector implements Connector {
         has_certificate: c.certificate === true,
         qna: true,
         categories: this.setup.categories.filter((cat) => c.categoryIds.includes(cat.id)).map((cat) => ({ ...cat, count: 0 })),
-        purchase: { action, store_product_id: storeProduct },
+        // 112.5 Coupons are taken on the payment page's checkout.
+        purchase: { action, store_product_id: storeProduct, ...(action === "checkout" ? { coupons: (await this.deps.store.listCatalogCoupons(this.deps.app.id)).some((c) => c.active) } : {}) },
         // 73 Whether a student who finished it may start it again (the owner's choice per course, on by default).
         can_restart: canRestart(c),
         // 45 The student's progress, so a finished course says so; 90.1 the certificate once earned, and when access ends.
@@ -1351,6 +1357,11 @@ export class CoursesConnector implements Connector {
     if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
     if (!this.canSell) return error(403, "feature_disabled", "This course can't be bought right now.");
     if ((await this.enrolled(request)).has(course.id)) return error(403, "feature_disabled", "You're already enrolled in this course.");
+    // 112.5 With a coupon of the academy's: the payment page charges the price less it, and a paid order counts one use.
+    const raw = (request.body as { coupon?: unknown } | null)?.coupon;
+    const coupon = raw === undefined || raw === null || raw === "" ? null : await this.courseCoupon(raw, course, request.now);
+    if (coupon && !coupon.ok) return error(400, "coupon_invalid", coupon.message);
+    const discount = coupon?.ok ? coupon.discountCents : 0;
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
       // 96.4 The customer's language, for their receipt.
@@ -1362,7 +1373,8 @@ export class CoursesConnector implements Connector {
       lines: [{ productId: course.id, name: course.title, quantity: 1, unitCents: course.priceCents, imageAssetId: course.imageAssetId, digital: true }],
       subtotalCents: course.priceCents,
       shippingCents: 0,
-      totalCents: course.priceCents,
+      totalCents: course.priceCents - discount,
+      ...(coupon?.ok ? { couponCode: coupon.code, discountCents: discount } : {}),
       currency: this.setup.currency,
       customer: null,
       paymentId: null,
@@ -1376,6 +1388,34 @@ export class CoursesConnector implements Connector {
     return {
       status: 200,
       body: { url: payUrl(this.deps.platformUrl, token), expires_at: new Date(request.now.getTime() + PAY_LINK_MINUTES * 60_000).toISOString(), open_in: "in_app" },
+    };
+  }
+
+  /** 112.5 A coupon for a paid course: what it takes off, or why it doesn't apply (never the whole price: the payment page charges something). */
+  private async courseCoupon(raw: unknown, course: Course, now: Date): Promise<{ ok: true; code: string; discountCents: number } | { ok: false; message: string }> {
+    const code = normalizeCouponCode(raw);
+    const coupon = code ? await this.deps.store.getCatalogCouponByCode(this.deps.app.id, code) : null;
+    const check = couponDiscount(coupon, course.priceCents, this.setup.currency, now);
+    if (!check.ok) return check;
+    if (check.discountCents >= course.priceCents) return { ok: false, message: "This coupon can't be used for this course. Ask the academy to add you to it." };
+    return { ok: true, code: coupon!.code, discountCents: check.discountCents };
+  }
+
+  private async checkCoupon(request: ConnectorRequest, course: Course | null): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    if (!course) return noCourse();
+    if (course.priceCents === 0) return error(403, "feature_disabled", "This course is free: enroll in the app.");
+    const wait = await this.limited(request, COUPON_LIMIT);
+    if (wait) return wait;
+    const raw = (request.body as { code?: unknown } | null)?.code;
+    const check = await this.courseCoupon(raw, course, request.now);
+    const { currency } = this.setup;
+    const code = typeof raw === "string" ? raw.trim().toUpperCase().slice(0, 50) : "";
+    return {
+      status: 200,
+      body: check.ok
+        ? { code: check.code, status: "applied", message: null, price: formatCents(course.priceCents, currency), discount: formatCents(check.discountCents, currency), total: formatCents(course.priceCents - check.discountCents, currency) }
+        : { code, status: "invalid", message: check.message, price: formatCents(course.priceCents, currency), discount: null, total: formatCents(course.priceCents, currency) },
     };
   }
 }

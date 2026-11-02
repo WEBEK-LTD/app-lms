@@ -10443,6 +10443,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next month'**
   String get calendarNext;
+
+  /// 112.5 A coupon that applies to a paid course, and the price it leaves.
+  ///
+  /// In en, this message translates to:
+  /// **'{discount} off: you pay {total}.'**
+  String couponSaves(String discount, String total);
+
+  /// 112.5 Goes to a paid course's checkout with the coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with the coupon'**
+  String get couponContinue;
+
+  /// 112.5 Goes to a paid course's checkout without a coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without a coupon'**
+  String get couponWithout;
 }
 
 class _AppLocalizationsDelegate

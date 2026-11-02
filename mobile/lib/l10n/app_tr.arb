@@ -1723,5 +1723,8 @@
   "liveNoneThisDay": "Bu gün canlı ders yok.",
   "liveClassesCount": "{count, plural, other{{count} canlı ders}}",
   "calendarPrevious": "Önceki ay",
-  "calendarNext": "Sonraki ay"
+  "calendarNext": "Sonraki ay",
+  "couponSaves": "{discount} indirim: {total} ödersin.",
+  "couponContinue": "Kuponla devam et",
+  "couponWithout": "Kuponsuz devam et"
 }

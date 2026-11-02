@@ -6180,5 +6180,25 @@
   "calendarNext": "Next month",
   "@calendarNext": {
     "description": "112.5 The calendar's button to the month after."
+  },
+  "couponSaves": "{discount} off: you pay {total}.",
+  "@couponSaves": {
+    "description": "112.5 A coupon that applies to a paid course, and the price it leaves.",
+    "placeholders": {
+      "discount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "couponContinue": "Continue with the coupon",
+  "@couponContinue": {
+    "description": "112.5 Goes to a paid course's checkout with the coupon."
+  },
+  "couponWithout": "Continue without a coupon",
+  "@couponWithout": {
+    "description": "112.5 Goes to a paid course's checkout without a coupon."
   }
 }

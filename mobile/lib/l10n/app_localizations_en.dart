@@ -6313,4 +6313,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarNext => 'Next month';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return '$discount off: you pay $total.';
+  }
+
+  @override
+  String get couponContinue => 'Continue with the coupon';
+
+  @override
+  String get couponWithout => 'Continue without a coupon';
 }

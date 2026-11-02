@@ -6302,4 +6302,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get calendarNext => 'Sonraki ay';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return '$discount indirim: $total ödersin.';
+  }
+
+  @override
+  String get couponContinue => 'Kuponla devam et';
+
+  @override
+  String get couponWithout => 'Kuponsuz devam et';
 }

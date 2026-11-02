@@ -6509,4 +6509,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get calendarNext => 'الشهر التالي';
+
+  @override
+  String couponSaves(String discount, String total) {
+    return 'خصم $discount: تدفع $total.';
+  }
+
+  @override
+  String get couponContinue => 'المتابعة بالقسيمة';
+
+  @override
+  String get couponWithout => 'المتابعة دون قسيمة';
 }
