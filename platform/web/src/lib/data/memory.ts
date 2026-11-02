@@ -170,6 +170,7 @@ import type { ChatConversation, ChatConversationKind, ChatConversationPatch, Cha
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
@@ -3755,6 +3756,12 @@ export class MemoryStore implements DataStore {
     return found ? clone(found) : null;
   }
 
+  async listCouriersByContact(who: { phone: string | null; email: string | null }): Promise<Courier[]> {
+    const email = who.email?.toLowerCase() ?? null;
+    if (!who.phone && !email) return [];
+    return [...this.couriers.values()].filter((c) => (who.phone !== null && c.phone === who.phone) || (email !== null && c.email === email)).map(clone);
+  }
+
   private courierTaken(appId: string, id: number | null, phone: string | null, email: string | null): boolean {
     return [...this.couriers.values()].some((c) => c.appId === appId && c.id !== id && ((phone !== null && c.phone === phone) || (email !== null && c.email === email)));
   }
@@ -5357,6 +5364,109 @@ export class MemoryStore implements DataStore {
 
   async listOwnerDevicesOfClient(clientId: string): Promise<OwnerDevice[]> {
     return [...this.ownerDevices.values()].filter((d) => d.clientId === clientId).map(clone);
+  }
+
+  // 104.8.2 Yallapp Courier: its accounts, devices and sign-in codes
+  private courierAccounts = new Map<string, CourierAccount>();
+  private courierDevices = new Map<string, CourierDevice>();
+  private courierChallenges = new Map<string, CourierChallenge>();
+
+  async getCourierAccount(id: string): Promise<CourierAccount | null> {
+    const account = this.courierAccounts.get(id);
+    return account ? clone(account) : null;
+  }
+
+  async findCourierAccount(who: { phone: string | null; email: string | null }): Promise<CourierAccount | null> {
+    const found = [...this.courierAccounts.values()].find((a) => (who.phone ? a.phone === who.phone : who.email !== null && a.email === who.email.toLowerCase()));
+    return found ? clone(found) : null;
+  }
+
+  async createCourierAccount(account: CourierAccount): Promise<CourierAccount> {
+    const taken = [...this.courierAccounts.values()].find((a) => (account.phone !== null && a.phone === account.phone) || (account.email !== null && a.email === account.email));
+    if (taken) return clone(taken);
+    this.courierAccounts.set(account.id, clone(account));
+    return clone(account);
+  }
+
+  async updateCourierAccount(id: string, patch: Partial<Pick<CourierAccount, "lastSignInAt">>): Promise<void> {
+    const account = this.courierAccounts.get(id);
+    if (account) Object.assign(account, clone(patch));
+  }
+
+  async deleteCourierAccount(id: string): Promise<void> {
+    for (const device of await this.listCourierDevices(id)) await this.deleteCourierDevice(device.id);
+    this.courierAccounts.delete(id);
+  }
+
+  async createCourierDevice(device: CourierDevice): Promise<void> {
+    this.courierDevices.set(device.id, clone(device));
+  }
+
+  async getCourierDevice(id: string): Promise<CourierDevice | null> {
+    const device = this.courierDevices.get(id);
+    return device ? clone(device) : null;
+  }
+
+  async findCourierDeviceByRefresh(refreshHash: string): Promise<CourierDevice | null> {
+    for (const device of this.courierDevices.values()) if (device.refreshHash === refreshHash) return clone(device);
+    return null;
+  }
+
+  async rotateCourierRefresh(id: string, oldHash: string, next: { refreshHash: string; refreshExpiresAt: Date; lastSeenAt: Date }): Promise<boolean> {
+    const device = this.courierDevices.get(id);
+    if (!device || device.refreshHash !== oldHash) return false;
+    Object.assign(device, clone(next));
+    return true;
+  }
+
+  async updateCourierDevice(id: string, patch: CourierDevicePatch): Promise<void> {
+    const device = this.courierDevices.get(id);
+    if (device) Object.assign(device, clone(patch));
+  }
+
+  async listCourierDevices(accountId: string): Promise<CourierDevice[]> {
+    return [...this.courierDevices.values()]
+      .filter((d) => d.accountId === accountId)
+      .sort((a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime())
+      .map(clone);
+  }
+
+  async deleteCourierDevice(id: string): Promise<void> {
+    if (!this.courierDevices.delete(id)) return;
+    // As the database's cascade: the company sessions it opened end with it.
+    for (const device of [...this.hostedDevices.values()]) if (device.courierDeviceId === id) await this.deleteHostedDevice(device.appId, device.id);
+  }
+
+  async clearCourierPushToken(token: string, exceptId: string | null): Promise<void> {
+    for (const device of this.courierDevices.values()) if (device.pushToken === token && device.id !== exceptId) device.pushToken = null;
+  }
+
+  async listHostedDevicesOfCourierDevice(courierDeviceId: string): Promise<HostedDevice[]> {
+    return [...this.hostedDevices.values()].filter((d) => d.courierDeviceId === courierDeviceId).map(clone);
+  }
+
+  async createCourierChallenge(challenge: CourierChallenge): Promise<void> {
+    this.courierChallenges.set(challenge.tokenHash, clone(challenge));
+  }
+
+  async getCourierChallenge(tokenHash: string): Promise<CourierChallenge | null> {
+    const challenge = this.courierChallenges.get(tokenHash);
+    return challenge ? clone(challenge) : null;
+  }
+
+  async addCourierChallengeAttempt(tokenHash: string): Promise<number> {
+    const challenge = this.courierChallenges.get(tokenHash);
+    if (!challenge) return Number.MAX_SAFE_INTEGER;
+    challenge.attempts += 1;
+    return challenge.attempts;
+  }
+
+  async deleteCourierChallenge(tokenHash: string): Promise<void> {
+    this.courierChallenges.delete(tokenHash);
+  }
+
+  async purgeCourierChallenges(now: Date): Promise<void> {
+    for (const [hash, challenge] of this.courierChallenges) if (challenge.expiresAt <= now) this.courierChallenges.delete(hash);
   }
 
   // 60 Team members for clients

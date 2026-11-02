@@ -1,9 +1,9 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { App, Courier, PushAudience, Shipment, ShipmentStatus } from "../data/types";
+import type { App, Courier, HostedDevice, PushAudience, Shipment, ShipmentStatus } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
-import { pushTarget, sendPush, type ServiceAccount } from "../hosted/push";
+import { pushTarget, sendPush, type PushMessage, type ServiceAccount } from "../hosted/push";
 import { shipmentReference } from "./service";
 
 /**
@@ -19,6 +19,8 @@ export interface DeliveryNotifyDeps {
   store: DataStore;
   app: App;
   account: ServiceAccount | null;
+  /** 104.8.2 Yallapp Courier's own push account, for the couriers' phones on Yallapp Courier; missing: they get none. */
+  courierAccount?: ServiceAccount | null;
   now: Date;
   send?: typeof sendPush;
 }
@@ -90,13 +92,28 @@ export async function deliver(deps: DeliveryNotifyDeps, userId: number, words: W
   const title = words.title.slice(0, NOTIFICATION_TITLE_MAX);
   const body = words.body.slice(0, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId, title, body, data, createdAt: now });
-  if (!deps.account) return 0;
+  if (!deps.account && !deps.courierAccount) return 0;
   // 112.3 A courier's job or a driver's offer goes to the second app's phones, the customers' updates to the customers' app's.
   const devices = (await store.listHostedPushDevices(app.id, [userId], pushAudienceOf(data.type))).filter((d) => !onlyOrders || d.pushPreferences?.orders !== false);
-  if (devices.length === 0) return 0;
+  const message = { title, body, data: { ...data, notification_id: String(notification.id) } };
+  // 104.8.2 Phones on Yallapp Courier get it from Yallapp Courier's Firebase project, with the company it is from.
+  const own = devices.filter((d) => !d.courierDeviceId);
+  const hub = devices.filter((d) => d.courierDeviceId);
+  return (
+    (await pushTo(deps, deps.account, own, message, false)) +
+    (await pushTo(deps, deps.courierAccount ?? null, hub, { ...message, data: { ...message.data, app_id: app.id } }, true))
+  );
+}
+
+/** One push to these phones; returns those reached. Tokens the service says are gone are forgotten (on Yallapp Courier too). */
+async function pushTo(deps: DeliveryNotifyDeps, account: ServiceAccount | null, devices: HostedDevice[], message: PushMessage, hub: boolean): Promise<number> {
+  if (!account || devices.length === 0) return 0;
   try {
-    const result = await (deps.send ?? sendPush)(deps.account, devices.map(pushTarget), { title, body, data: { ...data, notification_id: String(notification.id) } }, { now });
-    for (const token of result.invalidTokens) await store.clearHostedPushToken(app.id, token);
+    const result = await (deps.send ?? sendPush)(account, devices.map(pushTarget), message, { now: deps.now });
+    for (const token of result.invalidTokens) {
+      await deps.store.clearHostedPushToken(deps.app.id, token);
+      if (hub) await deps.store.clearCourierPushToken(token, null);
+    }
     return result.sent;
   } catch {
     // The inbox has it either way.

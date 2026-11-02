@@ -456,6 +456,17 @@ export function ownerPushCredentials(): { serviceAccountJson: string | null; hms
   return { serviceAccountJson: read("OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT") ?? null, hms: appId && secret ? { app_id: appId, app_secret: secret } : null };
 }
 
+/**
+ * 104.8.2 Yallapp Courier's own Firebase project: the service account JSON
+ * (COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT, never committed) that sends the
+ * companies' pushes to their couriers' Yallapp Courier phones; unset, Yallapp
+ * Business's (OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT), for one Firebase project
+ * holding both apps. Neither set: those couriers get no pushes.
+ */
+export function courierPushServiceAccountJson(): string | null {
+  return read("COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT") ?? read("OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT") ?? null;
+}
+
 /** Local runs and tests only (never on Netlify): the owners' pushes are also written here as JSON, as YALLAPP_MAIL_DIR does for emails. */
 export function ownerPushCaptureDir(): string | undefined {
   const dir = read("YALLAPP_OWNER_PUSH_DIR");

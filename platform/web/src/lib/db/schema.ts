@@ -531,10 +531,12 @@ export const hostedDevices = mysqlTable(
     country: varchar("country", { length: 2 }),
     // 112.3 Which of the company's apps registered for push: customer, courier or driver; null before.
     appRole: varchar("app_role", { length: 8 }).$type<HostedAppRole>(),
+    // 104.8.2 The Yallapp Courier device that opened it; it ends with that device.
+    courierDeviceId: id("courier_device_id").references((): AnyMySqlColumn => courierDevices.id, { onDelete: "cascade" }),
     createdAt: time("created_at").notNull(),
     lastSeenAt: time("last_seen_at").notNull(),
   },
-  (t) => [uniqueIndex("hosted_devices_unique").on(t.userId, t.deviceId), index("hosted_devices_app_idx").on(t.appId)],
+  (t) => [uniqueIndex("hosted_devices_unique").on(t.userId, t.deviceId), index("hosted_devices_app_idx").on(t.appId), index("hosted_devices_courier_idx").on(t.courierDeviceId)],
 );
 
 // 34 The keys that sign an own API app's access tokens when Yallapp signs people in.
@@ -1402,10 +1404,18 @@ export const couriers = mysqlTable(
     locatedAt: time("located_at"),
     // 105.2 A ride app's driver: photo, car, vehicle type, share, papers, rating.
     driver: jsonText<DriverDetails | null>("driver"),
+    // 104.8.2 When they last opened the company in Yallapp Courier.
+    hubSignedInAt: time("hub_signed_in_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("couriers_app_phone_unique").on(t.appId, t.phone), uniqueIndex("couriers_app_email_unique").on(t.appId, t.email)],
+  (t) => [
+    uniqueIndex("couriers_app_phone_unique").on(t.appId, t.phone),
+    uniqueIndex("couriers_app_email_unique").on(t.appId, t.email),
+    // 104.8.2 Yallapp Courier finds a person's companies by their number or email.
+    index("couriers_phone_idx").on(t.phone),
+    index("couriers_email_idx").on(t.email),
+  ],
 );
 
 export const shipments = mysqlTable(
@@ -2423,6 +2433,59 @@ export const ownerDevices = mysqlTable(
     index("owner_devices_push_idx").on(t.pushToken),
     index("owner_devices_expires_idx").on(t.refreshExpiresAt),
   ],
+);
+
+// 104.8.2 Yallapp Courier: its accounts, their phones and sign-in codes (lib/courier-hub)
+export const courierAccounts = mysqlTable(
+  "courier_accounts",
+  {
+    id: id("id").primaryKey(),
+    phone: varchar("phone", { length: 24 }),
+    email: varchar("email", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    lastSignInAt: time("last_sign_in_at").notNull(),
+  },
+  (t) => [uniqueIndex("courier_accounts_phone_unique").on(t.phone), uniqueIndex("courier_accounts_email_unique").on(t.email)],
+);
+
+export const courierDevices = mysqlTable(
+  "courier_devices",
+  {
+    id: id("id").primaryKey(),
+    accountId: id("account_id")
+      .notNull()
+      .references(() => courierAccounts.id, { onDelete: "cascade" }),
+    deviceId: varchar("device_id", { length: 64 }).notNull(),
+    platform: varchar("platform", { length: 8 }).notNull().$type<"android" | "ios">(),
+    name: varchar("name", { length: 100 }).notNull(),
+    appVersion: varchar("app_version", { length: 20 }).notNull(),
+    refreshHash: varchar("refresh_hash", { length: 64 }).notNull(),
+    refreshExpiresAt: time("refresh_expires_at").notNull(),
+    pushToken: varchar("push_token", { length: 512 }),
+    pushProvider: varchar("push_provider", { length: 4 }).notNull().default("fcm").$type<PushProvider>(),
+    createdAt: time("created_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("courier_devices_refresh_unique").on(t.refreshHash),
+    index("courier_devices_account_idx").on(t.accountId, t.lastSeenAt),
+    index("courier_devices_push_idx").on(t.pushToken),
+  ],
+);
+
+export const courierChallenges = mysqlTable(
+  "courier_challenges",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    phone: varchar("phone", { length: 24 }),
+    email: varchar("email", { length: 191 }),
+    codeHash: varchar("code_hash", { length: 64 }),
+    attempts: int("attempts").notNull(),
+    review: boolean("review").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("courier_challenges_expires_idx").on(t.expiresAt)],
 );
 
 // 60 Team members for clients (lib/team)
