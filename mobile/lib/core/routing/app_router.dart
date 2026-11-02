@@ -101,7 +101,9 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
   // 104 Delivery apps (105.1 and food delivery apps): the Courier tab for
-  // the company's couriers only.
+  // the company's couriers only; 112.3 never in the customers' app (the
+  // courier app has its own tabs above), which leaves out an owner's
+  // Courier tab too.
   final appType = ref.watch(appEnvironmentProvider).build.appType;
   final courier = appType == AppType.delivery || appType == AppType.food
       ? ref.watch(isCourierProvider)
@@ -110,7 +112,8 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final restaurant = appType == AppType.food
       ? ref.watch(isRestaurantProvider)
       : null;
-  // 105.2 Ride apps: the Driver tab for the company's drivers.
+  // 105.2 Ride apps: the Driver tab for the company's drivers; 112.3 never
+  // in the riders' app, as above.
   final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
   // 105.3 Academies: the Teacher tab for the academy's teachers.
   final teacher = appType == AppType.lms ? ref.watch(isTeacherProvider) : null;

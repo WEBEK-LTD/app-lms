@@ -230,17 +230,13 @@ void main() {
     expect(find.text('Cancelled'), findsWidgets);
   });
 
-  testWidgets('104 a courier sees the Courier tab and moves a job on', (
+  testWidgets('104 a courier moves a job on in the courier app', (
     tester,
   ) async {
     usePhone(tester);
     final api = deliveryApi(courier: true);
-    final app = deliveryApp(api);
+    final app = deliveryApp(api, role: AppRole.courier);
     await app.pump(tester);
-    await go(app, tester, Paths.send);
-    expect(find.text('Courier'), findsWidgets);
-
-    await go(app, tester, Paths.courier);
     expect(find.text('On duty'), findsOneWidget);
     expect(find.text('S-1001'), findsWidgets);
 
@@ -255,16 +251,28 @@ void main() {
     expect(find.text('Saved. The customer was told.'), findsOneWidget);
   });
 
-  testWidgets('104 Account opens the courier mode for couriers only', (
-    tester,
-  ) async {
-    usePhone(tester);
-    final courierApp = deliveryApp(deliveryApi(courier: true));
-    await courierApp.pump(tester);
-    await go(courierApp, tester, Paths.account);
-    expect(find.byKey(const ValueKey('account-shipments')), findsOneWidget);
-    await tapKey(tester, 'account-courier');
-    expect(find.text('On duty'), findsOneWidget);
+  group('112.3 The customers\' app', () {
+    for (final where in ['same', 'bundle']) {
+      testWidgets('shows a courier no Courier tab nor courier mode, '
+          'courier_app $where', (tester) async {
+        usePhone(tester);
+        final api = deliveryApi(courier: true, courierApp: where);
+        final app = deliveryApp(api);
+        await app.pump(tester);
+        expect(app.container.read(isCourierProvider), isFalse);
+        expect(
+          app.container.read(shellTabsProvider).map((t) => t.path),
+          isNot(contains(Paths.courier)),
+        );
+        await go(app, tester, Paths.account);
+        expect(find.byKey(const ValueKey('account-courier')), findsNothing);
+        expect(find.byKey(const ValueKey('account-shipments')), findsOneWidget);
+        // Nor the courier's screen when it is opened by its address.
+        await go(app, tester, Paths.courier);
+        expect(find.text('For our couriers'), findsOneWidget);
+        expect(api.count('listCourierJobs'), 0);
+      });
+    }
   });
 
   testWidgets('104 customers have no courier mode in Account', (tester) async {
@@ -279,7 +287,7 @@ void main() {
   testWidgets('104 a courier takes a waiting job', (tester) async {
     usePhone(tester);
     final api = deliveryApi(courier: true);
-    final app = deliveryApp(api);
+    final app = deliveryApp(api, role: AppRole.courier);
     await app.pump(tester);
     await push(app, tester, Paths.courierJob(2));
     expect(
@@ -289,17 +297,6 @@ void main() {
     await tapKey(tester, 'job-take');
     expect(api.count('acceptCourierJob'), 1);
     expect(find.text("It's yours. Go to the pickup."), findsOneWidget);
-  });
-
-  testWidgets('104 couriers of a company with its own courier app see the '
-      'customer screens only', (tester) async {
-    usePhone(tester);
-    final api = deliveryApi(courier: true, courierApp: 'bundle');
-    final app = deliveryApp(api);
-    await app.pump(tester);
-    await go(app, tester, Paths.send);
-    expect(find.text('Courier'), findsNothing);
-    expect(app.container.read(isCourierProvider), isFalse);
   });
 
   testWidgets('104 someone who isn\'t a courier opening the courier screen', (
@@ -328,8 +325,24 @@ void main() {
         [Paths.courier, Paths.account],
       );
       expect(find.text('Send'), findsNothing);
-      // Nowhere to switch to the customer's screens.
-      expect(find.byKey(const ValueKey('courier-customer-view')), findsNothing);
+      // 112.3 Its account has none of the customer's lists either.
+      await go(app, tester, Paths.account);
+      expect(find.byKey(const ValueKey('account-shipments')), findsNothing);
+      expect(find.byKey(const ValueKey('account-courier')), findsNothing);
+    });
+
+    testWidgets('112.3 is the courier app whatever courier_app says', (
+      tester,
+    ) async {
+      usePhone(tester);
+      final api = deliveryApi(courier: true);
+      final app = deliveryApp(api, role: AppRole.courier);
+      await app.pump(tester);
+      expect(
+        app.container.read(shellTabsProvider).map((t) => t.path).toList(),
+        [Paths.courier, Paths.account],
+      );
+      expect(app.container.read(isCourierProvider), isTrue);
     });
 
     testWidgets('asks to sign in first', (tester) async {

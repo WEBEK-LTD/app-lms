@@ -58,19 +58,9 @@ class _CourierScreenState extends ConsumerState<CourierScreen> {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    final header = TabHeader(
-      title: l10n.courierTitle,
-      // 104.6 The courier app has no customer's screens to go back to.
-      trailing: ref.watch(courierAppProvider)
-          ? null
-          : TextButton.icon(
-              key: const ValueKey('courier-customer-view'),
-              onPressed: () => context.go(Paths.home),
-              icon: AppIcon(AppIcons.swap, size: 18, color: p.link),
-              label: Text(l10n.customerView),
-              style: TextButton.styleFrom(foregroundColor: p.link),
-            ),
-    );
+    // 112.3 The courier's screens are in the courier app only, which has no
+    // customer's screens to go back to.
+    final header = TabHeader(title: l10n.courierTitle);
     if (!ref.watch(isCourierProvider)) {
       // Nothing is asked of the server for someone who isn't a courier.
       return Scaffold(

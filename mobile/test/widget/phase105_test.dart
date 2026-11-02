@@ -307,20 +307,14 @@ void main() {
     expect(api.count('listRestaurantOrders'), 0);
   });
 
-  testWidgets('105.1 couriers of a food delivery company get the Courier tab', (
-    tester,
-  ) async {
+  testWidgets('105.1 couriers of a food delivery company get the Courier tab '
+      'in the courier app (112.3)', (tester) async {
     usePhone(tester);
     final api = foodApi(roles: ['courier']);
-    final app = foodApp(api);
+    final app = foodApp(api, role: AppRole.courier);
     await app.pump(tester);
     expect(app.container.read(isCourierProvider), isTrue);
-    expect(tabPaths(app), [
-      Paths.restaurants,
-      Paths.foodOrders,
-      Paths.courier,
-      Paths.account,
-    ]);
+    expect(tabPaths(app), [Paths.courier, Paths.account]);
   });
 
   testWidgets('105.1 Account opens My orders, and the restaurant mode for '
@@ -357,13 +351,32 @@ void main() {
       expect(app.container.read(isCourierProvider), isFalse);
     });
 
-    testWidgets('keeps the Courier tab in the app when couriers work in it', (
-      tester,
-    ) async {
+    testWidgets('112.3 leaves it out when couriers worked in the customers\' '
+        'app too (courier_app same)', (tester) async {
       usePhone(tester);
-      final app = foodApp(foodApi(roles: ['courier']));
+      final app = foodApp(foodApi(roles: ['courier', 'restaurant']));
       await app.pump(tester);
-      expect(tabPaths(app), contains(Paths.courier));
+      expect(tabPaths(app), [
+        Paths.restaurants,
+        Paths.foodOrders,
+        Paths.restaurantDesk,
+        Paths.account,
+      ]);
+      expect(app.container.read(isCourierProvider), isFalse);
+    });
+
+    testWidgets('112.3 shows a restaurant\'s staff none of their customer '
+        'or restaurant screens in the courier app', (tester) async {
+      usePhone(tester);
+      final app = foodApp(
+        foodApi(roles: ['courier', 'restaurant']),
+        role: AppRole.courier,
+      );
+      await app.pump(tester);
+      expect(tabPaths(app), [Paths.courier, Paths.account]);
+      await go(app, tester, Paths.account);
+      expect(find.byKey(const ValueKey('account-food-orders')), findsNothing);
+      expect(find.byKey(const ValueKey('account-restaurant')), findsNothing);
     });
   });
 }

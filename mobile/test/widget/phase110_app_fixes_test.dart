@@ -69,6 +69,7 @@ Future<TestApp> _open(
   bool signedIn = true,
   String? go,
   String? push,
+  AppRole role = AppRole.customer,
 }) async {
   final app = TestApp(
     api: api,
@@ -76,6 +77,8 @@ Future<TestApp> _open(
     signedIn: signedIn,
     guest: !signedIn,
     preferences: {'settings.language': language},
+    // 112.3 The driver's screens are in the drivers' app only.
+    build: (b) => b.copyWith(role: role),
   );
   await app.pump(tester);
   final router = app.container.read(appRouterProvider);
@@ -223,7 +226,13 @@ void main() {
               .toIso8601String(),
         ),
       ];
-    await _open(tester, api, appType: AppType.rides, go: '/driver');
+    await _open(
+      tester,
+      api,
+      appType: AppType.rides,
+      go: '/driver',
+      role: AppRole.driver,
+    );
     expect(tester.takeException(), isNull);
     expect(find.byKey(const ValueKey('driver-offer')), findsOneWidget);
     // The tabs and the list scroll up under the offer.
