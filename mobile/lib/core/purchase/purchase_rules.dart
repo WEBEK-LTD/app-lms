@@ -57,6 +57,31 @@ CourseCta resolveCourseCta({
   }
 }
 
+/// 113.1 What a bundle's page offers: the student has every course, the
+/// academy's payment page (Android only), the store, or nothing.
+enum BundleCta { owned, checkout, store, unavailable }
+
+/// 113.1 As [resolveCourseCta], for a bundle: iOS never opens the payment
+/// page, whatever the server sends.
+BundleCta resolveBundleCta({
+  required BundleAction serverAction,
+  required DevicePlatform platform,
+  required PurchaseRules rules,
+  bool storeBilling = false,
+  String? storeProductId,
+}) => switch (serverAction) {
+  BundleAction.owned => BundleCta.owned,
+  BundleAction.checkout =>
+    canOpenCheckout(platform) && rules.enrollButton
+        ? BundleCta.checkout
+        : BundleCta.unavailable,
+  BundleAction.store =>
+    storeBilling && storeProductId != null
+        ? BundleCta.store
+        : BundleCta.unavailable,
+  BundleAction.none => BundleCta.unavailable,
+};
+
 /// Only Android may ever request `/auth/checkout-link` or open a checkout.
 bool canOpenCheckout(DevicePlatform platform) =>
     platform == DevicePlatform.android;

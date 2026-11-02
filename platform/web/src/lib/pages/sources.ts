@@ -10,25 +10,27 @@ import { SCREENS, type Action, type BlockType, type ItemSource, type ItemsSort, 
  * for engines that only run there). 23 News & blog apps list their posts as
  * articles, opened in the app, so they don't list them twice.
  */
-export function itemSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
+export function itemSourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
   const known = isAppType(app.appType);
   const sources: ItemSource[] = known ? [ENGINES[app.appType].pages.source] : [];
   if (app.backend !== "hosted" && !(known && hostedOnly(app.appType)) && !sources.includes("articles")) sources.push("posts");
+  // 113.1 An academy's course bundles, with its courses in the dashboard.
+  if (app.backend === "hosted" && app.connector?.kind === "courses") sources.push("bundles");
   return sources;
 }
 
 /** Sources with categories the app can show (29 campaigns have none). */
-export function categorySourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news");
+export function categorySourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles");
 }
 
 /** 29 Sources the app can search: campaigns are a short list, without a search. */
-export function searchSourcesFor(app: Pick<App, "appType" | "backend">): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news");
+export function searchSourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
+  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles");
 }
 
 /** Block types the app's pages can use. */
-export function blockTypesFor(app: Pick<App, "appType" | "backend">): BlockType[] {
+export function blockTypesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): BlockType[] {
   const sources = itemSourcesFor(app);
   const types: BlockType[] = ["banner", "slider", "text", "image", "video", "button", "notice"];
   if (sources.length) types.push("items");
@@ -55,6 +57,7 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   restaurants: "Restaurants",
   vehicle_types: "Vehicle types",
   school_news: "School news",
+  bundles: "Course bundles",
 };
 
 // 31 Screens and orders per app
@@ -137,6 +140,8 @@ export const SOURCE_SORTS: Record<ItemSource, readonly ItemsSort[]> = {
   vehicle_types: ["newest"],
   // 105.4 Newest first.
   school_news: ["newest"],
+  // 113.1 In the owner's order.
+  bundles: ["newest"],
 };
 
 /** The list's order, or the first one when the source can't be sorted that way. */

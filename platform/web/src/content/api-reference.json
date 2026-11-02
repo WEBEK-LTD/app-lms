@@ -213,6 +213,20 @@
         },
         {
           "method": "GET",
+          "path": "/bundles",
+          "summary": "List course bundles",
+          "description": "Roadmap 113.1. Courses managed in Yallapp: the academy's bundles (several courses sold together at one price the academy sets), in the academy's order. Only bundles with at least two published courses are listed (`features.bundles`). 404 on other sources.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/bundles/{bundle_id}",
+          "summary": "Get a course bundle",
+          "description": "Roadmap 113.1. The bundle's page in the app, its courses, and how it's bought on this platform (as a course is).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
           "path": "/courses/{course_id}/curriculum",
           "summary": "Get a course's topics and items",
           "description": "The course's topics (Tutor LMS topics, LearnPress, LearnDash and MasterStudy sections, LifterLMS sections, Sensei modules...) in the order the LMS shows them, each with its lessons, quizzes, assignments and live classes in order. Items the student can't open are returned with `locked` set and no content. A private course's curriculum is `404 not_found` for whoever can't open the course (`GET /courses/{course_id}`, 50). A course with a password on the website (62) has no topics for a student who isn't in it.",
@@ -413,14 +427,14 @@
           "method": "POST",
           "path": "/auth/checkout-link",
           "summary": "Get a one-time signed-in checkout link",
-          "description": "Android only, and only when the \"Enroll now on Android\" setting is on. The link signs the student in on the website and opens the checkout for the course. It works once and expires after 5 minutes.",
+          "description": "Android only, and only when the \"Enroll now on Android\" setting is on. The link signs the student in on the website and opens the checkout for the course. It works once and expires after 5 minutes. Roadmap 113.1: courses managed in Yallapp also sell bundles (`bundle_id` instead of `course_id`); paying enrols the student in every course of the bundle, and a course they already have stays theirs. A coupon that takes the whole price (100%) enrols them at once, without a payment: the answer has `enrolled` true with the courses, and its `url` shows the order as received (the app doesn't open it).",
           "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/courses/{course_id}/coupon",
           "summary": "Check a coupon for a paid course",
-          "description": "Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). A coupon that would take the whole price doesn't apply. Up to 20 tries an hour.",
+          "description": "Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). Up to 20 tries an hour. Roadmap 113.1 A coupon that takes the whole price applies (`free` true) and enrols the student without a payment when they check out with it.",
           "access": "signed-in"
         },
         {
@@ -449,6 +463,13 @@
           "path": "/me/orders/{order_id}/return",
           "summary": "Ask to return an order",
           "description": "91.3 The customer asks the shop to take back an order it completed, within `StoreConfig.returns.days` (`Order.can_return`). The shop approves or declines it (with a reply) on its side; the customer is told with an `order_update` notification. Once asked, it can't be asked again (`conflict`); `forbidden` when the shop takes no returns from the app or the order can't be returned (not completed, too late, nothing physical).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/bundles/{bundle_id}/coupon",
+          "summary": "Check a coupon for a course bundle",
+          "description": "Roadmap 113.1. As `POST /courses/{course_id}/coupon`, for the bundle's price. Up to 20 tries an hour.",
           "access": "signed-in"
         },
         {
@@ -1908,6 +1929,13 @@
           "access": "signed-in"
         },
         {
+          "method": "POST",
+          "path": "/classroom/classes/{class_id}/messages",
+          "summary": "Write to a whole class at once",
+          "description": "113.6 When the school allows it (`SchoolMessages.class_messages`): the same text in each one-to-one conversation of the teacher with the class's parents, students or both (`families`, as the school allows), so each answer comes back to the teacher alone; each of them gets a push. People who never signed in to the app can't be written to yet (`not_in_app`). Within the school's hours (409 `outside_hours`). The same `client_id` again sends nothing twice.",
+          "access": "signed-in"
+        },
+        {
           "method": "GET",
           "path": "/classroom/exams",
           "summary": "The exams of the teacher's classes",
@@ -1940,13 +1968,6 @@
           "path": "/classroom/classes/{class_id}/behaviour",
           "summary": "A class's behaviour",
           "description": "Roadmap 113.8. Each student's points and counts, and the class's latest 50 merits and notes (one student's with `student_id`).",
-          "access": "signed-in"
-        },
-        {
-          "method": "POST",
-          "path": "/classroom/classes/{class_id}/messages",
-          "summary": "Write to a whole class at once",
-          "description": "113.6 When the school allows it (`SchoolMessages.class_messages`): the same text in each one-to-one conversation of the teacher with the class's parents, students or both (`families`, as the school allows), so each answer comes back to the teacher alone; each of them gets a push. People who never signed in to the app can't be written to yet (`not_in_app`). Within the school's hours (409 `outside_hours`). The same `client_id` again sends nothing twice.",
           "access": "signed-in"
         },
         {

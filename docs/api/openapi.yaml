@@ -1135,6 +1135,12 @@ paths:
         Android only, and only when the "Enroll now on Android" setting is on.
         The link signs the student in on the website and opens the checkout for
         the course. It works once and expires after 5 minutes.
+        Roadmap 113.1: courses managed in Yallapp also sell bundles
+        (`bundle_id` instead of `course_id`); paying enrols the student in
+        every course of the bundle, and a course they already have stays
+        theirs. A coupon that takes the whole price (100%) enrols them at once,
+        without a payment: the answer has `enrolled` true with the courses, and
+        its `url` shows the order as received (the app doesn't open it).
       parameters:
         - $ref: '#/components/parameters/Platform'
       requestBody:
@@ -1143,12 +1149,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [course_id]
+              description: '`course_id`, or 113.1 `bundle_id`.'
               properties:
                 course_id: { type: integer }
+                bundle_id: { type: integer, description: 'Roadmap 113.1. A bundle (`GET /bundles/{bundle_id}`).' }
                 coupon:
                   type: [string, 'null']
-                  description: Roadmap 112.5. A coupon of the academy's (courses managed in Yallapp); the payment page charges the price less it. 400 `coupon_invalid` with why when it doesn't apply.
+                  description: Roadmap 112.5. A coupon of the academy's (courses managed in Yallapp); the payment page charges the price less it. 400 `coupon_invalid` with why when it doesn't apply. 113.1 One that takes the whole price enrols at once.
       responses:
         '200':
           description: Checkout link
@@ -1161,6 +1168,13 @@ paths:
                   url: { type: string, format: uri }
                   expires_at: { type: string, format: date-time }
                   open_in: { type: string, enum: [in_app, browser] }
+                  enrolled:
+                    type: boolean
+                    description: Roadmap 113.1. True when a coupon made it free and the student is enrolled already (`course_ids`); nothing to pay. Missing means false.
+                  course_ids:
+                    type: array
+                    description: Roadmap 113.1. With `enrolled`, the courses the student is in now.
+                    items: { type: integer }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1172,7 +1186,7 @@ paths:
       tags: [Commerce]
       operationId: checkCourseCoupon
       summary: Check a coupon for a paid course
-      description: Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). A coupon that would take the whole price doesn't apply. Up to 20 tries an hour.
+      description: Roadmap 112.5. What the coupon takes off the course's price, or why it doesn't apply (`status` `invalid` with `message`). Up to 20 tries an hour. Roadmap 113.1 A coupon that takes the whole price applies (`free` true) and enrols the student without a payment when they check out with it.
       parameters:
         - $ref: '#/components/parameters/CourseId'
       requestBody:
@@ -1191,14 +1205,7 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [code, status, message, price, discount, total]
-                properties:
-                  code: { type: string }
-                  status: { type: string, enum: [applied, invalid] }
-                  message: { type: [string, 'null'] }
-                  price: { type: string, example: "EGP 450.00" }
-                  discount: { type: [string, 'null'] }
-                  total: { type: string }
+                $ref: '#/components/schemas/CouponCheck'
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -2387,6 +2394,77 @@ paths:
               schema: { $ref: '#/components/schemas/CourseDetail' }
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bundles:
+    get:
+      tags: [Catalog]
+      operationId: listBundles
+      summary: List course bundles
+      description: >-
+        Roadmap 113.1. Courses managed in Yallapp: the academy's bundles (several courses sold
+        together at one price the academy sets), in the academy's order. Only bundles with at
+        least two published courses are listed (`features.bundles`). 404 on other sources.
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Bundles
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Bundle' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bundles/{bundle_id}:
+    get:
+      tags: [Catalog]
+      operationId: getBundle
+      summary: Get a course bundle
+      description: Roadmap 113.1. The bundle's page in the app, its courses, and how it's bought on this platform (as a course is).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/BundleId'
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: Bundle detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BundleDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /bundles/{bundle_id}/coupon:
+    post:
+      tags: [Commerce]
+      operationId: checkBundleCoupon
+      summary: Check a coupon for a course bundle
+      description: Roadmap 113.1. As `POST /courses/{course_id}/coupon`, for the bundle's price. Up to 20 tries an hour.
+      parameters:
+        - $ref: '#/components/parameters/BundleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, maxLength: 50 }
+      responses:
+        '200':
+          description: The coupon's result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CouponCheck' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /courses/{course_id}/curriculum:
     get:
@@ -8537,6 +8615,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    BundleId:
+      name: bundle_id
+      in: path
+      required: true
+      schema: { type: integer }
     BoundMedia:
       name: X-Yallapp-Bound-Media
       in: header
@@ -8835,6 +8918,7 @@ components:
             quizzes: { type: boolean }
             assignments: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have assignments (`GET /assignments/{assignment_id}`). Missing on older servers means false." }
             live_classes: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have live classes (`GET /me/live-sessions`). Missing on older servers means false." }
+            bundles: { type: boolean, description: "Roadmap 113.1. Courses managed in Yallapp are also sold in bundles (`GET /bundles`): the courses list shows them. Missing on older servers means false." }
             wishlist: { type: boolean }
             reviews: { type: boolean }
             qna: { type: boolean }
@@ -9232,6 +9316,59 @@ components:
         renews_at: { type: [string, 'null'], format: date-time, description: "The next payment, for a subscription that renews." }
         course_count: { type: [integer, 'null'], description: "Courses it opens, when known (LearnDash groups)." }
 
+    Bundle:
+      type: object
+      description: Roadmap 113.1. Several courses sold together at one price the academy sets.
+      required: [id, title, image_url, course_count, price, compare_at, owned_count, owned]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        course_count: { type: integer, description: Its published courses. }
+        price: { $ref: '#/components/schemas/Price' }
+        compare_at:
+          description: What its courses cost on their own, when more than the bundle's price; null otherwise.
+          oneOf:
+            - $ref: '#/components/schemas/Price'
+            - type: 'null'
+        owned_count: { type: integer, description: Its courses the signed-in student is enrolled in. }
+        owned: { type: boolean, description: The student is in every course of it. }
+
+    BundleDetail:
+      allOf:
+        - $ref: '#/components/schemas/Bundle'
+        - type: object
+          required: [description_html, courses, purchase]
+          properties:
+            description_html: { type: string }
+            courses:
+              type: array
+              description: Its published courses, in the academy's order (`enrolled` for the ones the student has; they stay theirs).
+              items: { $ref: '#/components/schemas/CourseSummary' }
+            purchase:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  description: '`owned` (every course is the student''s), `checkout` (`POST /auth/checkout-link` with `bundle_id`, Android), `store` (`store_product_id`, as a course) or `none`.'
+                  enum: [owned, checkout, store, none]
+                store_product_id: { type: [string, 'null'] }
+                coupons: { type: boolean, description: 'With `checkout`, the academy takes coupons (`POST /bundles/{bundle_id}/coupon`).' }
+
+    CouponCheck:
+      type: object
+      description: Roadmap 112.5. What a coupon takes off a course's (113.1 or a bundle's) price.
+      required: [code, status, message, price, discount, total]
+      properties:
+        code: { type: string }
+        status: { type: string, enum: [applied, invalid] }
+        message: { type: [string, 'null'] }
+        price: { type: string, example: "EGP 450.00" }
+        discount: { type: [string, 'null'] }
+        total: { type: string }
+        free: { type: boolean, description: Roadmap 113.1. The coupon takes the whole price; checking out with it enrols at once. Missing means false. }
+
     CourseDetail:
       allOf:
         - $ref: '#/components/schemas/CourseSummary'
@@ -9327,6 +9464,10 @@ components:
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
+            bundles:
+              type: array
+              description: Roadmap 113.1. The bundles this course is in (courses managed in Yallapp), for "Also in a bundle" on its page. Missing on other sources and older servers means none.
+              items: { $ref: '#/components/schemas/Bundle' }
             purchase:
               type: object
               required: [action]
@@ -9855,14 +9996,14 @@ components:
       properties:
         product_id: { type: string, example: course_123 }
         type: { type: string, enum: [one_time, subscription] }
-        kind: { type: string, enum: [course, membership] }
+        kind: { type: string, enum: [course, membership, bundle], description: 'Roadmap 113.1 `bundle`: a course bundle (one-time), its courses in `course_ids`.' }
         course_id: { type: [integer, 'null'], description: For `course`. }
-        plan_id: { type: [string, 'null'], description: For `membership`. }
+        plan_id: { type: [string, 'null'], description: 'For `membership`; 113.1 for `bundle`, the bundle''s ID.' }
         title: { type: string }
         period: { type: [string, 'null'], enum: [month, year, null], description: For `subscription`. }
         course_ids:
           type: array
-          description: For `membership`, the courses it opens, when the source says.
+          description: For `membership`, the courses it opens, when the source says; 113.1 for `bundle`, its courses.
           items: { type: integer }
 
     StorePurchase:
@@ -9878,7 +10019,7 @@ components:
       required: [product_id, kind, status]
       properties:
         product_id: { type: string }
-        kind: { type: string, enum: [course, membership] }
+        kind: { type: string, enum: [course, membership, bundle] }
         course_id: { type: [integer, 'null'] }
         plan_id: { type: [string, 'null'] }
         status:
@@ -11608,8 +11749,8 @@ components:
 
     ItemSource:
       type: string
-      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types, school_news]
+      description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only); 113.1 `bundles` are an academy's course bundles, each opening the bundle's page (courses managed in Yallapp).
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types, school_news, bundles]
 
     Item:
       type: object

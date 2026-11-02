@@ -63,7 +63,7 @@ import type {
 } from "../data/types";
 // 11.6 and 11.8
 import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, ReviewsRow, RolloutState, ScreenshotFrame, StagedRelease } from "../data/types";
-import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
+import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
@@ -1833,7 +1833,7 @@ export const storeBillingItems = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    kind: varchar("kind", { length: 16 }).notNull().$type<StoreProductKind>(),
+    kind: varchar("kind", { length: 16 }).notNull().$type<StoreBillingItem["kind"]>(),
     itemId: varchar("item_id", { length: 64 }).notNull(),
     title: varchar("title", { length: 200 }).notNull(),
     price: varchar("price", { length: 20 }).notNull(),

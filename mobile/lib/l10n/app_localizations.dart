@@ -12129,6 +12129,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved.'**
   String get syllabusSaved;
+
+  /// 113.1 The courses list's row of course bundles.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundles'**
+  String get bundles;
+
+  /// 113.1 How many courses a bundle has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 course} other{{count} courses}}'**
+  String bundleCourseCount(int count);
+
+  /// 113.1 What a bundle's courses cost on their own, next to the bundle's price.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {price}'**
+  String bundleInsteadOf(String price);
+
+  /// 113.1 Above the price on a bundle's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle price'**
+  String get bundlePrice;
+
+  /// 113.1 Buys a bundle of courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy the bundle'**
+  String get bundleBuy;
+
+  /// 113.1 The heading of a bundle's courses on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses in this bundle'**
+  String get bundleCoursesIn;
+
+  /// 113.1 On a bundle's page, when the student has some of its courses.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} of these courses already: they stay yours, and the bundle adds the others.'**
+  String bundleOwnedSome(int count);
+
+  /// 113.1 On a bundle's page, when the student has all its courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Every course in this bundle is yours.'**
+  String get bundleOwned;
+
+  /// 113.1 After a bundle was bought or a coupon made it free.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in every course of the bundle. Happy learning!'**
+  String get bundleEnrolled;
+
+  /// 113.1 Opens My courses from a bundle the student has.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to My courses'**
+  String get bundleMyCourses;
+
+  /// 113.1 On a course's page: the bundles that have it.
+  ///
+  /// In en, this message translates to:
+  /// **'Also in a bundle'**
+  String get bundleAlsoIn;
+
+  /// 113.1 A bundle the app doesn't sell on this phone.
+  ///
+  /// In en, this message translates to:
+  /// **'This bundle can\'t be bought in the app.'**
+  String get bundleNotSold;
+
+  /// 113.1 While a bundle's page loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the bundle…'**
+  String get loadingBundle;
+
+  /// 113.1 A coupon that takes the whole price.
+  ///
+  /// In en, this message translates to:
+  /// **'The coupon makes it free: you pay nothing.'**
+  String get couponFree;
+
+  /// 113.1 Enrolls with a coupon that takes the whole price, without paying.
+  ///
+  /// In en, this message translates to:
+  /// **'Enroll for free'**
+  String get couponEnrollFree;
 }
 
 class _AppLocalizationsDelegate

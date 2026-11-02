@@ -138,32 +138,85 @@ class FakeApi implements YallappApi {
   Set<String> goodCoupons = {'WELCOME10'};
 
   @override
-  Future<CouponCheck> checkCourseCoupon(int courseId, String code) => _answer(
-    'checkCourseCoupon',
-    () => CouponCheck.fromJson({
-      'code': code.toUpperCase(),
-      'status': goodCoupons.contains(code.toUpperCase())
-          ? 'applied'
-          : 'invalid',
-      'message': goodCoupons.contains(code.toUpperCase())
-          ? null
-          : "This coupon doesn't exist.",
-      'price': '₺450.00',
-      'discount': goodCoupons.contains(code.toUpperCase()) ? '₺45.00' : null,
-      'total': goodCoupons.contains(code.toUpperCase()) ? '₺405.00' : '₺450.00',
-    }),
-  );
+  Future<CouponCheck> checkCourseCoupon(int courseId, String code) =>
+      _answer('checkCourseCoupon', () => _coupon(code));
+
+  /// 113.1 Coupons that take the whole price: checking out with one enrols.
+  Set<String> freeCoupons = {};
+
+  CouponCheck _coupon(String code) => freeCoupons.contains(code.toUpperCase())
+      ? CouponCheck.fromJson({
+          'code': code.toUpperCase(),
+          'status': 'applied',
+          'message': null,
+          'price': '₺450.00',
+          'discount': '₺450.00',
+          'total': '₺0.00',
+          'free': true,
+        })
+      : CouponCheck.fromJson({
+          'code': code.toUpperCase(),
+          'status': goodCoupons.contains(code.toUpperCase())
+              ? 'applied'
+              : 'invalid',
+          'message': goodCoupons.contains(code.toUpperCase())
+              ? null
+              : "This coupon doesn't exist.",
+          'price': '₺450.00',
+          'discount': goodCoupons.contains(code.toUpperCase())
+              ? '₺45.00'
+              : null,
+          'total': goodCoupons.contains(code.toUpperCase())
+              ? '₺405.00'
+              : '₺450.00',
+        });
 
   @override
   Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) =>
       _answer('createCheckoutLink', () {
         checkoutCoupons.add(coupon);
-        return CheckoutLink.fromJson({
-          'url': 'https://your-academy.com/checkout?token=once',
-          'expires_at': '2026-10-12T09:05:00Z',
-          'open_in': 'in_app',
-        });
+        return _link(coupon, [courseId]);
       });
+
+  CheckoutLink _link(String? coupon, List<int> courseIds) {
+    final free = coupon != null && freeCoupons.contains(coupon);
+    return CheckoutLink.fromJson({
+      'url': 'https://your-academy.com/checkout?token=once',
+      'expires_at': '2026-10-12T09:05:00Z',
+      'open_in': 'in_app',
+      if (free) 'enrolled': true,
+      if (free) 'course_ids': courseIds,
+    });
+  }
+
+  /// 113.1 What `listBundles` and `getBundle` answer, and the bundle
+  /// checkouts asked for (bundle, coupon).
+  List<Map<String, dynamic>> bundles = [];
+  Map<String, dynamic> bundle = bundleDetailJson();
+  final bundleCheckouts = <(int, String?)>[];
+
+  @override
+  Future<List<Bundle>> listBundles() => _answer(
+    'listBundles',
+    () => [for (final b in bundles) Bundle.fromJson(b)],
+  );
+
+  @override
+  Future<BundleDetail> getBundle(int bundleId) =>
+      _answer('getBundle', () => BundleDetail.fromJson(bundle));
+
+  @override
+  Future<CheckoutLink> createBundleCheckoutLink(
+    int bundleId, {
+    String? coupon,
+  }) => _answer('createBundleCheckoutLink', () {
+    bundleCheckouts.add((bundleId, coupon));
+    return _link(coupon, [1, 2, 3]);
+  });
+
+  @override
+  Future<CouponCheck> checkBundleCoupon(int bundleId, String code) =>
+      _answer('checkBundleCoupon', () => _coupon(code));
 
   /// 48 What `GET /links/resolve` answers, by address (none: kind null).
   final resolvedLinks = <String, Map<String, dynamic>>{};
