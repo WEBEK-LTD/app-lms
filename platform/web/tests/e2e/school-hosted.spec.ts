@@ -88,7 +88,8 @@ test("Classes: not on the plan yet; a class and a subject added", async () => {
   await expect(own.getByText("No classes yet.", { exact: false })).toBeVisible();
   await own.getByLabel("Class name").fill("Grade 5 A");
   await own.getByLabel("Grade (optional)").fill("Grade 5");
-  await own.getByRole("region", { name: "Classes" }).getByRole("button", { name: "Add", exact: true }).click();
+  // The first class's form is in place on the page (later ones open from the header's button).
+  await own.getByRole("region", { name: "Add a class" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(own.getByText("Grade 5 A", { exact: true })).toBeVisible();
@@ -536,7 +537,8 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
 
   // The student's page: the office adds someone to the pick-up list and today's pick-up.
   await own.goto("/dashboard/school/people");
-  await own.getByRole("link", { name: "Student's page" }).first().click();
+  // The whole entry is the link to the student's page.
+  await own.getByRole("link", { name: /^Omar Hassan/ }).first().click();
   await expect(own).toHaveURL(/\/school\/people\/\d+$/);
   await expect(own.getByRole("heading", { level: 1, name: "Omar Hassan" })).toBeVisible();
   await expect(own.getByRole("region", { name: "Parents", exact: true })).toContainText("Hassan Ali");

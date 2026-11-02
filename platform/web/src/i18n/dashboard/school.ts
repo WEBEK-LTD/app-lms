@@ -464,6 +464,17 @@ export const en = {
     csvTeacher: "Teacher",
     csvStaff: "Staff member",
   },
+  // The page kit: People and Classes.
+  edit: "Edit",
+  statUsesApp: "Using the app",
+  statGrades: "{count, plural, one {In {count} grade} other {In {count} grades}}",
+  statWithTeacher: "With a class teacher",
+  classPages: "Each class's pages",
+  classCount: "{count, plural, one {{count} class} other {{count} classes}}",
+  searchClasses: "Search classes",
+  noClassMatch: "No class matches your search.",
+  addClassHint: "A class, its grade and its class teacher.",
+  groupSubjects: "What the school teaches",
 };
 
 export const ar: Strings<typeof en> = {
@@ -920,6 +931,17 @@ export const ar: Strings<typeof en> = {
     csvTeacher: "معلّم",
     csvStaff: "موظف",
   },
+  // The page kit: People and Classes.
+  edit: "تعديل",
+  statUsesApp: "يستخدمون التطبيق",
+  statGrades: "{count, plural, one {في صف دراسي واحد} two {في صفين دراسيين} few {في {count} صفوف دراسية} many {في {count} صفًا دراسيًا} other {في {count} صف دراسي}}",
+  statWithTeacher: "لها رائد فصل",
+  classPages: "صفحات كل فصل",
+  classCount: "{count, plural, one {فصل واحد} two {فصلان} few {{count} فصول} many {{count} فصلًا} other {{count} فصل}}",
+  searchClasses: "ابحث في الفصول",
+  noClassMatch: "لا يوجد فصل يطابق بحثك.",
+  addClassHint: "الفصل وصفه الدراسي ورائد الفصل.",
+  groupSubjects: "ما تُدرّسه المدرسة",
 };
 
 export const tr: Strings<typeof en> = {
@@ -1376,4 +1398,15 @@ export const tr: Strings<typeof en> = {
     csvTeacher: "Öğretmen",
     csvStaff: "Personel",
   },
+  // The page kit: People and Classes.
+  edit: "Düzenle",
+  statUsesApp: "Uygulamayı kullanan",
+  statGrades: "{count} sınıf düzeyinde",
+  statWithTeacher: "Sınıf öğretmeni olan",
+  classPages: "Her sınıfın sayfaları",
+  classCount: "{count} sınıf",
+  searchClasses: "Sınıflarda ara",
+  noClassMatch: "Aramanıza uyan sınıf yok.",
+  addClassHint: "Sınıf, düzeyi ve sınıf öğretmeni.",
+  groupSubjects: "Okulun okuttukları",
 };
