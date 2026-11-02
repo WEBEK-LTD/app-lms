@@ -6397,6 +6397,255 @@ class AppLocalizationsTr extends AppLocalizations {
   String get couponWithout => 'Kuponsuz devam et';
 
   @override
+  String get schoolBus => 'Okul servisi';
+
+  @override
+  String get busMorningTrip => 'Sabah seferi';
+
+  @override
+  String get busAfternoonTrip => 'Öğleden sonra seferi';
+
+  @override
+  String busRouteLine(String route, String plate) {
+    return '$route · $plate';
+  }
+
+  @override
+  String busYourStop(String stop, String time) {
+    return 'Durak: $stop, saat $time';
+  }
+
+  @override
+  String get busNotStarted => 'Servis henüz yola çıkmadı.';
+
+  @override
+  String get busOnTheWay => 'Yolda';
+
+  @override
+  String busEtaMinutes(int minutes, String stop) {
+    return '$stop durağına yaklaşık $minutes dk';
+  }
+
+  @override
+  String get busWaitingPosition => 'Servisin konumu bekleniyor…';
+
+  @override
+  String get busEnded => 'Bu sefer bitti.';
+
+  @override
+  String busOnSince(String time) {
+    return '$time itibarıyla serviste';
+  }
+
+  @override
+  String busGotOffAt(String time) {
+    return '$time saatinde indi';
+  }
+
+  @override
+  String get busAbsentToday => 'Bu seferde gelmedi olarak işaretlendi';
+
+  @override
+  String busNoTrips(String name) {
+    return '$name için servis yok';
+  }
+
+  @override
+  String busNoTripsMessage(String name) {
+    return 'Okul $name adlı öğrenciyi bir servis güzergâhına eklemedi.';
+  }
+
+  @override
+  String get busStops => 'Duraklar';
+
+  @override
+  String get busDutyTitle => 'Servis görevi';
+
+  @override
+  String get busDutySubtitle => 'Güzergâhlarınız ve bugünkü seferler';
+
+  @override
+  String get busDriver => 'Şoför';
+
+  @override
+  String get busSupervisor => 'Rehber personel';
+
+  @override
+  String busStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get busStart => 'Başlat';
+
+  @override
+  String get busOpenTrip => 'Aç';
+
+  @override
+  String get busDone => 'Bitti';
+
+  @override
+  String get busWaitingDriver => 'Bu seferi şoför başlatır.';
+
+  @override
+  String get busNoRoutes => 'Servis güzergâhı yok';
+
+  @override
+  String get busNoRoutesMessage =>
+      'Okulun hiçbir servisini kullanmıyor ya da eşlik etmiyorsunuz.';
+
+  @override
+  String get busSharing =>
+      'Bu ekran açıkken telefonunuz servisin konumunu paylaşır.';
+
+  @override
+  String get busLocationOff =>
+      'Ailelerin servisi görebilmesi için konumu açın.';
+
+  @override
+  String get busMarkOn => 'Bindi';
+
+  @override
+  String get busMarkOff => 'İndi';
+
+  @override
+  String get busMarkAbsent => 'Gelmedi';
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) {
+    return '$boarded bindi · $off indi · $absent gelmedi · toplam $riders';
+  }
+
+  @override
+  String get busEndTrip => 'Seferi bitir';
+
+  @override
+  String get busEndTitle => 'Sefer bitirilsin mi?';
+
+  @override
+  String get busEndMessage => 'Aileler servisi haritada artık görmez.';
+
+  @override
+  String busTripTitle(String route, String trip) {
+    return '$route · $trip';
+  }
+
+  @override
+  String get libraryTitle => 'Kütüphane';
+
+  @override
+  String get librarySearchHint => 'Başlık, yazar ya da ISBN';
+
+  @override
+  String get libraryAll => 'Tümü';
+
+  @override
+  String libraryAvailable(int count) {
+    return 'Rafta $count';
+  }
+
+  @override
+  String get libraryAllOut => 'Tüm kopyalar ödünçte';
+
+  @override
+  String get libraryEbook => 'E-kitap';
+
+  @override
+  String get libraryNoBooks => 'Kitap bulunamadı';
+
+  @override
+  String get libraryNoBooksMessage =>
+      'Başka bir başlık, yazar ya da kategori deneyin.';
+
+  @override
+  String get libraryBorrowed => 'Ödünç alınan kitaplar';
+
+  @override
+  String libraryShelf(String shelf) {
+    return 'Raf $shelf';
+  }
+
+  @override
+  String libraryCopies(int available, int copies) {
+    return '$copies kopyadan $available rafta';
+  }
+
+  @override
+  String get libraryRead => 'E-kitabı oku';
+
+  @override
+  String get libraryReserve => 'Ayırt';
+
+  @override
+  String get libraryReserveFor => 'Kimin için ayırtılsın';
+
+  @override
+  String libraryReservedReady(String date) {
+    return '$date tarihine kadar kütüphanede sizin için ayrıldı.';
+  }
+
+  @override
+  String get libraryReservedWaiting =>
+      'Ayırtıldı. Sizin için bir kopya ayrıldığında haber verilecek.';
+
+  @override
+  String libraryHoldReady(String name, String date) {
+    return '$date tarihine kadar $name için ayrıldı';
+  }
+
+  @override
+  String libraryHoldWaiting(String name) {
+    return '$name bir kopya bekliyor';
+  }
+
+  @override
+  String get libraryCancelHold => 'Ayırtmayı iptal et';
+
+  @override
+  String get libraryOutNow => 'Şu an ödünçte';
+
+  @override
+  String libraryDue(String date) {
+    return 'Son gün $date';
+  }
+
+  @override
+  String libraryOverdue(String date) {
+    return '$date tarihinden beri gecikmiş';
+  }
+
+  @override
+  String get libraryReservedSection => 'Ayırtılanlar';
+
+  @override
+  String get libraryReturned => 'Daha önce iade edilenler';
+
+  @override
+  String libraryReturnedOn(String date) {
+    return 'İade $date';
+  }
+
+  @override
+  String get libraryNoLoans => 'Ödünç kitap yok';
+
+  @override
+  String get libraryNoLoansMessage =>
+      'Kütüphane masasında ödünç verilen kitaplar iade günleriyle burada görünür.';
+
+  @override
+  String libraryLoanDays(int days) {
+    return 'Kitaplar $days günlüğüne ödünç verilir.';
+  }
+
+  @override
+  String get libraryAbout => 'Kitap hakkında';
+
+  @override
   String get schoolMessages => 'Mesajlar';
 
   @override

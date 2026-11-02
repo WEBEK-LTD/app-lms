@@ -10594,6 +10594,402 @@ abstract class AppLocalizations {
   /// **'Continue without a coupon'**
   String get couponWithout;
 
+  /// 113.10 On the School tab: opens the child's school bus, live on the map while it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'School bus'**
+  String get schoolBus;
+
+  /// 113.10 The bus's trip to school in the morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning trip'**
+  String get busMorningTrip;
+
+  /// 113.10 The bus's trip home after school.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon trip'**
+  String get busAfternoonTrip;
+
+  /// 113.10 A bus route's name and its bus's plate.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {plate}'**
+  String busRouteLine(String route, String plate);
+
+  /// 113.10 The child's bus stop and the bus's time there.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop: {stop} at {time}'**
+  String busYourStop(String stop, String time);
+
+  /// 113.10 Today's trip hasn't been started by the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus hasn\'t left yet.'**
+  String get busNotStarted;
+
+  /// 113.10 The bus is on its trip now.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get busOnTheWay;
+
+  /// 113.10 How soon the bus reaches the child's stop.
+  ///
+  /// In en, this message translates to:
+  /// **'About {minutes} min to {stop}'**
+  String busEtaMinutes(int minutes, String stop);
+
+  /// 113.10 The trip runs but no recent position came from the driver's phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the bus\'s position…'**
+  String get busWaitingPosition;
+
+  /// 113.10 Today's trip was ended by the driver.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has ended.'**
+  String get busEnded;
+
+  /// 113.10 The child got on the bus at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'On the bus since {time}'**
+  String busOnSince(String time);
+
+  /// 113.10 The child got off the bus at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'Got off at {time}'**
+  String busGotOffAt(String time);
+
+  /// 113.10 The driver or the supervisor marked the child absent on the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked absent on this trip'**
+  String get busAbsentToday;
+
+  /// 113.10 The child isn't on any of the school's bus routes.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus for {name}'**
+  String busNoTrips(String name);
+
+  /// 113.10 Under 'No bus for …'.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t put {name} on a bus route.'**
+  String busNoTripsMessage(String name);
+
+  /// 113.10 The trip's stops, in order.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get busStops;
+
+  /// 113.10 The screens of the school's bus drivers and supervisors.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus duty'**
+  String get busDutyTitle;
+
+  /// 113.10 Under 'Bus duty'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routes and today\'s trips'**
+  String get busDutySubtitle;
+
+  /// 113.10 The person drives the route's bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get busDriver;
+
+  /// 113.10 The person supervises the students on the route's bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisor'**
+  String get busSupervisor;
+
+  /// 113.10 How many students ride a trip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String busStudents(int count);
+
+  /// 113.10 Button: the driver starts the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get busStart;
+
+  /// 113.10 Button: opens today's trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get busOpenTrip;
+
+  /// 113.10 Today's trip has ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get busDone;
+
+  /// 113.10 Shown to the supervisor before the driver starts the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver starts this trip.'**
+  String get busWaitingDriver;
+
+  /// 113.10 The person drives or supervises none of the school's buses.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus routes'**
+  String get busNoRoutes;
+
+  /// 113.10 Under 'No bus routes'.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t drive or supervise any of the school\'s buses.'**
+  String get busNoRoutesMessage;
+
+  /// 113.10 On the driver's trip: their phone sends the bus's position while the screen is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone shares the bus\'s position while this screen is open.'**
+  String get busSharing;
+
+  /// 113.10 The driver's phone couldn't read its position.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location so families can see the bus.'**
+  String get busLocationOff;
+
+  /// 113.10 Marks the student as on the bus.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get busMarkOn;
+
+  /// 113.10 Marks the student as off the bus.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get busMarkOff;
+
+  /// 113.10 Marks the student as absent on the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get busMarkAbsent;
+
+  /// 113.10 The trip's students: on the bus, off it, absent, all.
+  ///
+  /// In en, this message translates to:
+  /// **'{boarded} on · {off} off · {absent} absent · {riders} in all'**
+  String busCounts(int boarded, int off, int absent, int riders);
+
+  /// 113.10 Button: the driver ends the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'End the trip'**
+  String get busEndTrip;
+
+  /// 113.10 Asks before the trip ends.
+  ///
+  /// In en, this message translates to:
+  /// **'End the trip?'**
+  String get busEndTitle;
+
+  /// 113.10 Under 'End the trip?'.
+  ///
+  /// In en, this message translates to:
+  /// **'Families stop seeing the bus on the map.'**
+  String get busEndMessage;
+
+  /// 113.10 A trip's title: the route and the trip.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {trip}'**
+  String busTripTitle(String route, String trip);
+
+  /// 113.11 The school's library: its books, to search and reserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get libraryTitle;
+
+  /// 113.11 The library's search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Title, author or ISBN'**
+  String get librarySearchHint;
+
+  /// 113.11 All the library's categories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get libraryAll;
+
+  /// 113.11 A book's copies free on the shelf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} on the shelf'**
+  String libraryAvailable(int count);
+
+  /// 113.11 No copy of the book is free now.
+  ///
+  /// In en, this message translates to:
+  /// **'All copies are out'**
+  String get libraryAllOut;
+
+  /// 113.11 The book can be read in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'E-book'**
+  String get libraryEbook;
+
+  /// 113.11 The library's search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found'**
+  String get libraryNoBooks;
+
+  /// 113.11 Under 'No books found'.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another title, author or category.'**
+  String get libraryNoBooksMessage;
+
+  /// 113.11 The books the person (or their children) has out, reserved and returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed books'**
+  String get libraryBorrowed;
+
+  /// 113.11 Where the book is in the library.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf {shelf}'**
+  String libraryShelf(String shelf);
+
+  /// 113.11 A book's copies free on the shelf, of all its copies.
+  ///
+  /// In en, this message translates to:
+  /// **'{available} of {copies} on the shelf'**
+  String libraryCopies(int available, int copies);
+
+  /// 113.11 Button: opens the book's e-book in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the e-book'**
+  String get libraryRead;
+
+  /// 113.11 Button: reserves the book at the library.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve'**
+  String get libraryReserve;
+
+  /// 113.11 A parent chooses which child the book is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve it for'**
+  String get libraryReserveFor;
+
+  /// 113.11 The book was reserved and a copy is held now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for you at the library until {date}.'**
+  String libraryReservedReady(String date);
+
+  /// 113.11 The book was reserved and waits for a copy to come back.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved. You\'ll be told when a copy is held for you.'**
+  String get libraryReservedWaiting;
+
+  /// 113.11 A copy is held at the library for the person.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for {name} until {date}'**
+  String libraryHoldReady(String name, String date);
+
+  /// 113.11 The person reserved the book and waits for a copy.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is waiting for a copy'**
+  String libraryHoldWaiting(String name);
+
+  /// 113.11 Button: cancels a reservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the reservation'**
+  String get libraryCancelHold;
+
+  /// 113.11 The books out on loan now.
+  ///
+  /// In en, this message translates to:
+  /// **'Out now'**
+  String get libraryOutNow;
+
+  /// 113.11 When a borrowed book goes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String libraryDue(String date);
+
+  /// 113.11 A borrowed book wasn't returned by its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue since {date}'**
+  String libraryOverdue(String date);
+
+  /// 113.11 The books the person reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get libraryReservedSection;
+
+  /// 113.11 Books borrowed before and returned.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned before'**
+  String get libraryReturned;
+
+  /// 113.11 When a book came back.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned {date}'**
+  String libraryReturnedOn(String date);
+
+  /// 113.11 Nothing borrowed or reserved yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No books borrowed'**
+  String get libraryNoLoans;
+
+  /// 113.11 Under 'No books borrowed'.
+  ///
+  /// In en, this message translates to:
+  /// **'Books lent at the library\'s desk show here with their due dates.'**
+  String get libraryNoLoansMessage;
+
+  /// 113.11 How long the library lends a book.
+  ///
+  /// In en, this message translates to:
+  /// **'Books are lent for {days} days.'**
+  String libraryLoanDays(int days);
+
+  /// 113.11 The book's description.
+  ///
+  /// In en, this message translates to:
+  /// **'About the book'**
+  String get libraryAbout;
+
   /// 113.6 The School tab's row and the screen of messages between teachers and families.
   ///
   /// In en, this message translates to:

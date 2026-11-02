@@ -6408,6 +6408,254 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couponWithout => 'Continue without a coupon';
 
   @override
+  String get schoolBus => 'School bus';
+
+  @override
+  String get busMorningTrip => 'Morning trip';
+
+  @override
+  String get busAfternoonTrip => 'Afternoon trip';
+
+  @override
+  String busRouteLine(String route, String plate) {
+    return '$route · $plate';
+  }
+
+  @override
+  String busYourStop(String stop, String time) {
+    return 'Stop: $stop at $time';
+  }
+
+  @override
+  String get busNotStarted => 'The bus hasn\'t left yet.';
+
+  @override
+  String get busOnTheWay => 'On its way';
+
+  @override
+  String busEtaMinutes(int minutes, String stop) {
+    return 'About $minutes min to $stop';
+  }
+
+  @override
+  String get busWaitingPosition => 'Waiting for the bus\'s position…';
+
+  @override
+  String get busEnded => 'This trip has ended.';
+
+  @override
+  String busOnSince(String time) {
+    return 'On the bus since $time';
+  }
+
+  @override
+  String busGotOffAt(String time) {
+    return 'Got off at $time';
+  }
+
+  @override
+  String get busAbsentToday => 'Marked absent on this trip';
+
+  @override
+  String busNoTrips(String name) {
+    return 'No bus for $name';
+  }
+
+  @override
+  String busNoTripsMessage(String name) {
+    return 'The school hasn\'t put $name on a bus route.';
+  }
+
+  @override
+  String get busStops => 'Stops';
+
+  @override
+  String get busDutyTitle => 'Bus duty';
+
+  @override
+  String get busDutySubtitle => 'Your routes and today\'s trips';
+
+  @override
+  String get busDriver => 'Driver';
+
+  @override
+  String get busSupervisor => 'Supervisor';
+
+  @override
+  String busStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get busStart => 'Start';
+
+  @override
+  String get busOpenTrip => 'Open';
+
+  @override
+  String get busDone => 'Ended';
+
+  @override
+  String get busWaitingDriver => 'The driver starts this trip.';
+
+  @override
+  String get busNoRoutes => 'No bus routes';
+
+  @override
+  String get busNoRoutesMessage =>
+      'You don\'t drive or supervise any of the school\'s buses.';
+
+  @override
+  String get busSharing =>
+      'Your phone shares the bus\'s position while this screen is open.';
+
+  @override
+  String get busLocationOff => 'Turn on location so families can see the bus.';
+
+  @override
+  String get busMarkOn => 'On';
+
+  @override
+  String get busMarkOff => 'Off';
+
+  @override
+  String get busMarkAbsent => 'Absent';
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) {
+    return '$boarded on · $off off · $absent absent · $riders in all';
+  }
+
+  @override
+  String get busEndTrip => 'End the trip';
+
+  @override
+  String get busEndTitle => 'End the trip?';
+
+  @override
+  String get busEndMessage => 'Families stop seeing the bus on the map.';
+
+  @override
+  String busTripTitle(String route, String trip) {
+    return '$route · $trip';
+  }
+
+  @override
+  String get libraryTitle => 'Library';
+
+  @override
+  String get librarySearchHint => 'Title, author or ISBN';
+
+  @override
+  String get libraryAll => 'All';
+
+  @override
+  String libraryAvailable(int count) {
+    return '$count on the shelf';
+  }
+
+  @override
+  String get libraryAllOut => 'All copies are out';
+
+  @override
+  String get libraryEbook => 'E-book';
+
+  @override
+  String get libraryNoBooks => 'No books found';
+
+  @override
+  String get libraryNoBooksMessage => 'Try another title, author or category.';
+
+  @override
+  String get libraryBorrowed => 'Borrowed books';
+
+  @override
+  String libraryShelf(String shelf) {
+    return 'Shelf $shelf';
+  }
+
+  @override
+  String libraryCopies(int available, int copies) {
+    return '$available of $copies on the shelf';
+  }
+
+  @override
+  String get libraryRead => 'Read the e-book';
+
+  @override
+  String get libraryReserve => 'Reserve';
+
+  @override
+  String get libraryReserveFor => 'Reserve it for';
+
+  @override
+  String libraryReservedReady(String date) {
+    return 'Held for you at the library until $date.';
+  }
+
+  @override
+  String get libraryReservedWaiting =>
+      'Reserved. You\'ll be told when a copy is held for you.';
+
+  @override
+  String libraryHoldReady(String name, String date) {
+    return 'Held for $name until $date';
+  }
+
+  @override
+  String libraryHoldWaiting(String name) {
+    return '$name is waiting for a copy';
+  }
+
+  @override
+  String get libraryCancelHold => 'Cancel the reservation';
+
+  @override
+  String get libraryOutNow => 'Out now';
+
+  @override
+  String libraryDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String libraryOverdue(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String get libraryReservedSection => 'Reserved';
+
+  @override
+  String get libraryReturned => 'Returned before';
+
+  @override
+  String libraryReturnedOn(String date) {
+    return 'Returned $date';
+  }
+
+  @override
+  String get libraryNoLoans => 'No books borrowed';
+
+  @override
+  String get libraryNoLoansMessage =>
+      'Books lent at the library\'s desk show here with their due dates.';
+
+  @override
+  String libraryLoanDays(int days) {
+    return 'Books are lent for $days days.';
+  }
+
+  @override
+  String get libraryAbout => 'About the book';
+
+  @override
   String get schoolMessages => 'Messages';
 
   @override

@@ -16,6 +16,7 @@ import { runStoreProductSync, type StoreProductsRunReport } from "../store-billi
 import { runStorePurchases, type PurchasesRunReport } from "../store-billing/jobs";
 import { appPlan } from "../entitlements";
 import { runRideTicks } from "../rides/tick";
+import { runLibraryReminders } from "../school/library";
 
 /**
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
@@ -47,6 +48,8 @@ export interface FrequentReport {
   storePurchases: PurchasesRunReport;
   /** 105.2 Rides looked at and moved on with time (scheduled ones due, offers that ran out, nobody found). */
   rides: { looked: number; moved: number };
+  /** 113.11 Library loans looked at, and reminders sent (due soon, overdue). */
+  library: { looked: number; told: number };
 }
 
 export async function runFrequentJobs(deps: {
@@ -147,5 +150,12 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] rides", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides };
+  // 113.11 The library's reminders: a book due soon, a book overdue.
+  let library = { looked: 0, told: 0 };
+  try {
+    library = await runLibraryReminders({ store: deps.store, now: deps.now, send: deps.send });
+  } catch (error) {
+    console.error("[frequent] library", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library };
 }

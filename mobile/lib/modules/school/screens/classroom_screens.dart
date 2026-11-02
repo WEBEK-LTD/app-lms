@@ -18,11 +18,14 @@ import '../../chat/data/chat_media.dart';
 import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../../shared/shared_routes.dart' show NotFoundScreen;
+import '../data/bus_library_providers.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show CheckinCard;
 import 'staff_screens.dart' show StaffTiles;
 import 'messages_screen.dart' show SchoolMessagesTile;
+import 'bus_screens.dart' show BusDutyTile;
+import 'library_screens.dart' show LibraryTile;
 import 'student_screens.dart' show FileTile;
 
 /// 105.4 The Classroom tab, for the school's teachers only: today's lessons
@@ -76,6 +79,9 @@ class ClassroomScreen extends ConsumerWidget {
                     children: [
                       // 113.2 The teacher checks in and out like everyone.
                       const CheckinCard(),
+                      // 113.10 Bus duty and 113.11 the library, for the
+                      // school's staff (113.3's Staff tab can take them).
+                      const SchoolStaffEntries(),
                       SectionHeader(title: l10n.schoolToday, size: 16),
                       const SizedBox(height: 4),
                       if (me.today.isEmpty)
@@ -1586,6 +1592,26 @@ class ClassGradebookScreen extends ConsumerWidget {
           ),
           _ => const SkeletonList(layout: SkeletonLayout.text, count: 4),
         },
+      ),
+    );
+  }
+}
+
+/// 113.10 and 113.11 The bus's crew's screens and the library, as entries
+/// for the school's teachers and staff; nothing when neither is theirs.
+class SchoolStaffEntries extends ConsumerWidget {
+  const SchoolStaffEntries({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final crew = ref.watch(isBusCrewProvider);
+    final library = ref.watch(schoolConfigProvider)?.library ?? false;
+    if (!crew && !library) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: SettingsGroup(
+        title: context.l10n.schoolEverything,
+        children: const [BusDutyTile(), LibraryTile()],
       ),
     );
   }

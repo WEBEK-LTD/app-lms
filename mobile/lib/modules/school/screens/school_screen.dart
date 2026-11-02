@@ -12,6 +12,7 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
+import 'library_screens.dart' show LibraryTile;
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
 import 'messages_screen.dart' show SchoolMessagesTile;
@@ -184,6 +185,15 @@ class _Overview extends ConsumerWidget {
               ),
               // 113.6 Messages with the teachers (moves with 113.4's Parent tab).
               const SchoolMessagesTile(teacher: false),
+              // 113.10 The child's bus; 113.11 the library.
+              if (ref.watch(schoolConfigProvider)?.bus ?? false)
+                SettingsTile(
+                  key: const ValueKey('school-bus'),
+                  icon: AppIcons.bus,
+                  title: l10n.schoolBus,
+                  onTap: () => open('bus'),
+                ),
+              const LibraryTile(),
             ],
           ),
         ],

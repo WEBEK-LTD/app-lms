@@ -4686,6 +4686,10 @@ export interface SchoolSettings {
   checkin?: SchoolCheckinSettings;
   /** 113.6 Messages between teachers and families; missing: as `DEFAULT_SCHOOL_MESSAGES` (off). */
   messages?: SchoolMessageSettings;
+  /** 113.10 When families are told the bus is near; left out: the defaults (lib/school/bus.ts). */
+  bus?: SchoolBusSettings;
+  /** 113.11 The library's loan and hold days; left out: the defaults (lib/school/library.ts). */
+  library?: SchoolLibrarySettings;
 }
 
 /** 113.2 How people check in: the gate's QR code, inside the school's area, either one, or both at once. */
@@ -5107,6 +5111,165 @@ export interface SchoolLeave {
   answer: string | null;
   answeredBy: string | null;
   answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 113.10 The school bus
+
+export type SchoolBusTrip = "morning" | "afternoon";
+export const SCHOOL_BUS_TRIPS: readonly SchoolBusTrip[] = ["morning", "afternoon"];
+
+/** 113.10 When a family is told the bus is near their stop: within a distance, or within minutes. */
+export interface SchoolBusSettings {
+  nearBy: "distance" | "minutes";
+  nearMeters: number;
+  nearMinutes: number;
+}
+
+/** 113.10 A bus route: its bus (plate, seats), its driver and its supervisor (people of the school who aren't students or parents). */
+export interface SchoolBusRoute {
+  id: number;
+  appId: string;
+  name: string;
+  plate: string;
+  capacity: number;
+  driverId: number | null;
+  supervisorId: number | null;
+  active: boolean;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.10 A stop of a route, in order: its place on the map and the bus's time there on each trip. */
+export interface SchoolBusStop {
+  id: number;
+  appId: string;
+  routeId: number;
+  name: string;
+  lat: number;
+  lng: number;
+  /** Minutes from midnight; null: the trip doesn't stop here. */
+  morningMinute: number | null;
+  afternoonMinute: number | null;
+  position: number;
+}
+
+/** 113.10 A student's stop on a trip: one per student and trip. */
+export interface SchoolBusRider {
+  appId: string;
+  studentId: number;
+  trip: SchoolBusTrip;
+  routeId: number;
+  stopId: number;
+}
+
+export type SchoolBusRunStatus = "running" | "done";
+
+/** 113.10 A route's trip on a school day: started by the driver in the app, with the bus's last position while it runs. One per route, day and trip. */
+export interface SchoolBusRun {
+  id: number;
+  appId: string;
+  routeId: number;
+  trip: SchoolBusTrip;
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  status: SchoolBusRunStatus;
+  startedAt: Date;
+  endedAt: Date | null;
+  /** The person who started it. */
+  startedBy: number | null;
+  lat: number | null;
+  lng: number | null;
+  locatedAt: Date | null;
+  /** The stops the bus reached. */
+  passedStopIds: number[];
+  /** The stops whose families were told the bus is near. */
+  toldStopIds: number[];
+}
+
+export type SchoolBusMarkStatus = "boarded" | "off" | "absent";
+export const SCHOOL_BUS_MARKS: readonly SchoolBusMarkStatus[] = ["boarded", "off", "absent"];
+
+/** 113.10 A student on a trip: got on, got off, or absent, as the driver or the supervisor marked it. */
+export interface SchoolBusMark {
+  appId: string;
+  runId: number;
+  studentId: number;
+  status: SchoolBusMarkStatus;
+  boardedAt: Date | null;
+  offAt: Date | null;
+  markedBy: number | null;
+  updatedAt: Date;
+}
+
+// 113.11 The library
+
+/** 113.11 How long a loan and a hold last, how many books one person borrows at once, and when the reminder goes. */
+export interface SchoolLibrarySettings {
+  loanDays: number;
+  holdDays: number;
+  maxLoans: number;
+  /** The reminder goes this many days before the due date. */
+  remindDays: number;
+}
+
+/** 113.11 A book of the school's library; its copies are on the shelf, its e-book (a PDF of the Media library) reads in the app. */
+export interface SchoolBook {
+  id: number;
+  appId: string;
+  title: string;
+  author: string;
+  isbn: string | null;
+  coverAssetId: string | null;
+  shelf: string | null;
+  category: string | null;
+  language: string | null;
+  description: string | null;
+  file: SchoolFileRef | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.11 One copy of a book, with its own code (the label on it). */
+export interface SchoolBookCopy {
+  id: number;
+  appId: string;
+  bookId: number;
+  code: string;
+  note: string | null;
+  createdAt: Date;
+}
+
+/** 113.11 A copy lent at the desk to a person of the school; open until it is returned. */
+export interface SchoolBookLoan {
+  id: number;
+  appId: string;
+  bookId: number;
+  copyId: number;
+  personId: number;
+  lentAt: Date;
+  dueOn: string;
+  returnedAt: Date | null;
+  /** The day the reminder before the due date went. */
+  dueToldOn: string | null;
+  /** The day the last overdue reminder went. */
+  overdueToldOn: string | null;
+}
+
+export type SchoolBookHoldStatus = "waiting" | "ready" | "collected" | "cancelled" | "expired";
+
+/** 113.11 A book reserved from the app: waiting for a copy, then a copy held for the school's days. */
+export interface SchoolBookHold {
+  id: number;
+  appId: string;
+  bookId: number;
+  personId: number;
+  status: SchoolBookHoldStatus;
+  copyId: number | null;
+  readyAt: Date | null;
+  expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

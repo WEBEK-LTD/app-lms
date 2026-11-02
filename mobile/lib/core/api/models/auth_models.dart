@@ -127,6 +127,9 @@ class User {
   bool get isStudent => roles.contains('student');
   bool get isParent => roles.contains('parent');
 
+  /// 113.10 Drives or supervises one of the school's buses.
+  bool get isBusCrew => roles.contains('bus');
+
   Json toJson() => {
     'id': id,
     'name': name,

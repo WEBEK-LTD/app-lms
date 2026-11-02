@@ -835,6 +835,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/teacher-reports", label: "Teachers' reports", icon: "mail" },
           { href: "/dashboard/school/report-templates", label: "Report templates", icon: "content_paste" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
+          // 113.10 and 113.11
+          { href: "/dashboard/school/bus", label: "Buses & routes", icon: "directions_bus" },
+          { href: "/dashboard/school/library", label: "Library", icon: "bookmark" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },
         ],

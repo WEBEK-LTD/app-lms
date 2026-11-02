@@ -1062,6 +1062,31 @@ abstract class YallappApi {
     required String clientId,
     required String text,
   });
+
+  // 113.10 The school bus: a family's view, and the bus's crew.
+  Future<List<StudentBusTrip>> getStudentBus(int studentId);
+  Future<List<BusCrewRoute>> listBusCrewRoutes();
+  Future<BusRun> startBusRun(int routeId, BusTrip trip);
+  Future<BusRun> getBusRun(int runId);
+  Future<void> sendBusLocation(
+    int runId,
+    double lat,
+    double lng, {
+    double? accuracy,
+  });
+  Future<BusRider> markBusRider(int runId, int studentId, BusMarkStatus status);
+  Future<BusRun> endBusRun(int runId);
+
+  // 113.11 The library.
+  Future<LibraryBookPage> listLibraryBooks({
+    String? query,
+    String? category,
+    int page = 1,
+  });
+  Future<LibraryBookDetail> getLibraryBook(int bookId);
+  Future<LibraryHold> holdLibraryBook(int bookId, {int? personId});
+  Future<void> cancelLibraryHold(int holdId);
+  Future<LibraryLoans> listLibraryLoans({int? personId});
 }
 
 /// [YallappApi] over HTTP.
@@ -3541,4 +3566,114 @@ class HttpYallappApi implements YallappApi {
           notInApp: intOr(json, 'not_in_app', 0),
         );
       }, body: {'to': to.name, 'client_id': clientId, 'text': text});
+
+  // 113.10 The school bus.
+
+  @override
+  Future<List<StudentBusTrip>> getStudentBus(int studentId) => _get(
+    '/school/students/$studentId/bus',
+    _required,
+    (json) => listOf(json, 'items', StudentBusTrip.fromJson),
+  );
+
+  @override
+  Future<List<BusCrewRoute>> listBusCrewRoutes() => _get(
+    '/school/bus/routes',
+    _required,
+    (json) => listOf(json, 'items', BusCrewRoute.fromJson),
+  );
+
+  @override
+  Future<BusRun> startBusRun(int routeId, BusTrip trip) => _send(
+    'POST',
+    '/school/bus/routes/$routeId/runs',
+    _required,
+    (data) => BusRun.fromJson(asJson(data)),
+    body: {'trip': trip.name},
+  );
+
+  @override
+  Future<BusRun> getBusRun(int runId) =>
+      _get('/school/bus/runs/$runId', _required, BusRun.fromJson);
+
+  @override
+  Future<void> sendBusLocation(
+    int runId,
+    double lat,
+    double lng, {
+    double? accuracy,
+  }) => _send(
+    'PUT',
+    '/school/bus/runs/$runId/location',
+    _required,
+    _ignore,
+    body: {'lat': lat, 'lng': lng, 'accuracy': ?accuracy},
+  );
+
+  @override
+  Future<BusRider> markBusRider(
+    int runId,
+    int studentId,
+    BusMarkStatus status,
+  ) => _send(
+    'PUT',
+    '/school/bus/runs/$runId/riders/$studentId',
+    _required,
+    (data) => BusRider.fromJson(asJson(data)),
+    body: {'status': status.name},
+  );
+
+  @override
+  Future<BusRun> endBusRun(int runId) => _send(
+    'POST',
+    '/school/bus/runs/$runId/end',
+    _required,
+    (data) => BusRun.fromJson(asJson(data)),
+  );
+
+  // 113.11 The library.
+
+  @override
+  Future<LibraryBookPage> listLibraryBooks({
+    String? query,
+    String? category,
+    int page = 1,
+  }) => _get(
+    '/school/library/books',
+    _required,
+    LibraryBookPage.fromJson,
+    query: {
+      if (query != null && query.isNotEmpty) 'q': query,
+      if (category != null && category.isNotEmpty) 'category': category,
+      'page': page,
+    },
+  );
+
+  @override
+  Future<LibraryBookDetail> getLibraryBook(int bookId) => _get(
+    '/school/library/books/$bookId',
+    _required,
+    LibraryBookDetail.fromJson,
+  );
+
+  @override
+  Future<LibraryHold> holdLibraryBook(int bookId, {int? personId}) => _send(
+    'POST',
+    '/school/library/books/$bookId/hold',
+    _required,
+    (data) => LibraryHold.fromJson(asJson(data)),
+    body: {'person_id': ?personId},
+  );
+
+  @override
+  Future<void> cancelLibraryHold(int holdId) =>
+      _send('DELETE', '/school/library/holds/$holdId', _required, _ignore);
+
+  @override
+  Future<LibraryLoans> listLibraryLoans({int? personId}) => _get(
+    '/school/library/loans',
+    _required,
+    LibraryLoans.fromJson,
+    query: {'person_id': ?personId},
+  );
 }

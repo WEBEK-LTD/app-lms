@@ -10,8 +10,10 @@ import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'screens/classroom_reports_screens.dart';
 import 'screens/checkin_screens.dart';
+import 'screens/bus_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/messages_screen.dart';
+import 'screens/library_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
 import 'screens/staff_screens.dart';
@@ -149,6 +151,19 @@ List<RouteBase> _pushedRoutes() => [
   _part('news', (student) => const SchoolNewsScreen()),
   // 113.6 Messages with teachers and families.
   _part('messages', (student) => const SchoolMessagesScreen()),
+  // 113.10 The child's bus, and the bus's crew; 113.11 the library.
+  _part('bus', (student) => StudentBusScreen(student: student)),
+  _part('library', (student) => const LibraryScreen()),
+  _part('library-loans', (student) => const LibraryLoansScreen()),
+  _byId(
+    '${Paths.school}/library/book/:id',
+    (id) => LibraryBookScreen(bookId: id),
+  ),
+  GoRoute(
+    path: Paths.busDuty,
+    pageBuilder: (context, state) => appPage(state, const BusDutyScreen()),
+  ),
+  _byId('${Paths.busDuty}/run/:id', (id) => BusRunScreen(runId: id)),
   _byId(
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),

@@ -108,6 +108,21 @@ import type {
   SchoolSubject,
   SchoolSubmission,
 } from "./types";
+// 113.10 The school bus; 113.11 the library
+import type {
+  SchoolBook,
+  SchoolBookCopy,
+  SchoolBookHold,
+  SchoolBookHoldStatus,
+  SchoolBookLoan,
+  SchoolBusMark,
+  SchoolBusRider,
+  SchoolBusRoute,
+  SchoolBusRun,
+  SchoolBusRunStatus,
+  SchoolBusStop,
+  SchoolBusTrip,
+} from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -942,6 +957,64 @@ export interface DataStore {
     expect?: { statuses?: SchoolReportStatus[] },
   ): Promise<boolean>;
   deleteSchoolReport(appId: string, id: number): Promise<void>;
+
+  // 113.10 The school bus
+  /** In the school's order. */
+  listSchoolBusRoutes(appId: string): Promise<SchoolBusRoute[]>;
+  getSchoolBusRoute(appId: string, id: number): Promise<SchoolBusRoute | null>;
+  /** A new route (last in the order) or a change to one; null when it isn't the school's. */
+  saveSchoolBusRoute(input: Pick<SchoolBusRoute, "appId" | "name" | "plate" | "capacity" | "driverId" | "supervisorId" | "active"> & { id: number | null }, now: Date): Promise<SchoolBusRoute | null>;
+  /** Its stops, riders, trips and marks go with it. */
+  deleteSchoolBusRoute(appId: string, id: number): Promise<void>;
+  /** In the route's order. */
+  listSchoolBusStops(appId: string, filter?: { routeId?: number }): Promise<SchoolBusStop[]>;
+  /** A new stop (last on its route) or a change to one; null when it isn't the school's. */
+  saveSchoolBusStop(input: Omit<SchoolBusStop, "id" | "position"> & { id: number | null }): Promise<SchoolBusStop | null>;
+  /** Its riders go with it. */
+  deleteSchoolBusStop(appId: string, id: number): Promise<void>;
+  /** The route's stops in this order (stops left out keep their place after them). */
+  orderSchoolBusStops(appId: string, routeId: number, stopIds: number[]): Promise<void>;
+  listSchoolBusRiders(appId: string, filter?: { routeId?: number; stopId?: number; studentId?: number; trip?: SchoolBusTrip }): Promise<SchoolBusRider[]>;
+  /** Each student's stop for the trip; a null stop takes them off it. */
+  setSchoolBusRiders(appId: string, rows: { studentId: number; trip: SchoolBusTrip; stop: Pick<SchoolBusStop, "id" | "routeId"> | null }[]): Promise<void>;
+  /** Newest first. */
+  listSchoolBusRuns(appId: string, filter?: { routeId?: number; routeIds?: number[]; status?: SchoolBusRunStatus; date?: string; limit?: number }): Promise<SchoolBusRun[]>;
+  getSchoolBusRun(appId: string, id: number): Promise<SchoolBusRun | null>;
+  /** The route's trip of the day: a new one, else the one there already (`created` false). */
+  startSchoolBusRun(input: Omit<SchoolBusRun, "id">): Promise<{ run: SchoolBusRun; created: boolean }>;
+  /** Only while it is in `status` when given; false when it wasn't changed. */
+  updateSchoolBusRun(appId: string, id: number, patch: Partial<Pick<SchoolBusRun, "status" | "endedAt" | "startedAt" | "startedBy" | "lat" | "lng" | "locatedAt" | "passedStopIds" | "toldStopIds">>, expect?: { status?: SchoolBusRunStatus }): Promise<boolean>;
+  listSchoolBusMarks(appId: string, filter: { runId?: number; runIds?: number[]; studentId?: number }): Promise<SchoolBusMark[]>;
+  /** One per trip and student. */
+  saveSchoolBusMark(mark: SchoolBusMark): Promise<void>;
+
+  // 113.11 The library
+  /** By title; `q` matches the title, the author or the ISBN. */
+  listSchoolBooks(appId: string, filter?: { q?: string; category?: string; ids?: number[]; limit?: number }): Promise<SchoolBook[]>;
+  getSchoolBook(appId: string, id: number): Promise<SchoolBook | null>;
+  createSchoolBook(input: Omit<SchoolBook, "id">): Promise<SchoolBook>;
+  updateSchoolBook(appId: string, id: number, patch: Partial<Omit<SchoolBook, "id" | "appId" | "createdAt">>): Promise<boolean>;
+  /** Its copies, loans and holds go with it. */
+  deleteSchoolBook(appId: string, id: number): Promise<void>;
+  listSchoolBookCopies(appId: string, filter?: { bookId?: number; bookIds?: number[] }): Promise<SchoolBookCopy[]>;
+  /** Codes are matched without case. */
+  getSchoolBookCopyByCode(appId: string, code: string): Promise<SchoolBookCopy | null>;
+  createSchoolBookCopy(input: Omit<SchoolBookCopy, "id">): Promise<{ ok: true; copy: SchoolBookCopy } | { ok: false; reason: "duplicate" }>;
+  /** Its loans go with it. */
+  deleteSchoolBookCopy(appId: string, id: number): Promise<void>;
+  /** Newest first; `open`: not returned yet (true) or returned (false). */
+  listSchoolBookLoans(appId: string, filter?: { bookId?: number; copyId?: number; personId?: number; personIds?: number[]; open?: boolean; limit?: number }): Promise<SchoolBookLoan[]>;
+  /** False when the copy is out on another loan. */
+  createSchoolBookLoan(input: Omit<SchoolBookLoan, "id">): Promise<{ ok: true; loan: SchoolBookLoan } | { ok: false; reason: "on_loan" }>;
+  /** Only while it is open when `open` is given; false when it wasn't changed. */
+  updateSchoolBookLoan(appId: string, id: number, patch: Partial<Pick<SchoolBookLoan, "dueOn" | "returnedAt" | "dueToldOn" | "overdueToldOn">>, expect?: { open?: boolean }): Promise<boolean>;
+  /** Every school's loans not returned that are due by `dueBy` (YYYY-MM-DD), for the reminders; oldest due first. */
+  listDueSchoolBookLoans(dueBy: string, limit: number): Promise<SchoolBookLoan[]>;
+  /** Oldest first. */
+  listSchoolBookHolds(appId: string, filter?: { bookId?: number; personId?: number; personIds?: number[]; statuses?: SchoolBookHoldStatus[] }): Promise<SchoolBookHold[]>;
+  createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold>;
+  /** Only while it is in one of `statuses` when given; false when it wasn't changed. */
+  updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect?: { statuses?: SchoolBookHoldStatus[] }): Promise<boolean>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */

@@ -117,6 +117,11 @@ abstract final class Paths {
   static const staffLeaveNew = '/staff/leave/new';
   static const staffNews = '/staff/news';
 
+  /// 113.10 The bus's crew: their routes and a trip; 113.11 a library book.
+  static const busDuty = '$school/bus-duty';
+  static String busRun(int id) => '$busDuty/run/$id';
+  static String libraryBook(int id) => '$school/library/book/$id';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
