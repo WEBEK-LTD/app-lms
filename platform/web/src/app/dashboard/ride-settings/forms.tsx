@@ -4,6 +4,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import { saveRideSettingsAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 import { Choices, SecondAppFields } from "../delivery/forms";
 
@@ -164,11 +165,11 @@ export function RideSettingsForm({
         errors={state.errors}
       />
 
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {t("rides.saveSettings")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

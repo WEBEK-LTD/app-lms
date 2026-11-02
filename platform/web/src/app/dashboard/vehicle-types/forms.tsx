@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveVehicleTypeAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 /** 105.2 A vehicle type: its name, icon, seats, fares and picture. */
@@ -76,11 +77,11 @@ export function VehicleTypeForm({
         <input type="checkbox" name="active" defaultChecked={value("active") === "on"} className="h-4 w-4 accent-midnight" />
         {t("rides.shownInApp")}
       </label>
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {id ? t("rides.saveType") : t("rides.add")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

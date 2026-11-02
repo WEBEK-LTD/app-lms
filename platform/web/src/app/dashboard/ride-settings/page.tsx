@@ -5,7 +5,8 @@ import { PaymentKeysForm } from "@/app/dashboard/catalog/forms";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
-import { Notice } from "@/components/ui";
+import { Notice, PageHeader } from "@/components/ui";
+import { LinkCards, PageGroup } from "@/components/page-kit";
 import { richText } from "@/i18n/rich";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
@@ -21,7 +22,7 @@ import { PROVIDER_NAME } from "@/lib/payments/provider";
 import { hasFeature } from "@/lib/plans";
 import { rideSettingsFormValues } from "@/lib/rides/forms";
 import { offeredTypes } from "@/lib/rides/settings";
-import { isRides, NotRides, PageHead, RidesPlanNotice, TypesFirst } from "../rides/parts";
+import { isRides, NotRides, RidesPlanNotice, TypesFirst } from "../rides/parts";
 import { RideSettingsForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -77,10 +78,20 @@ export default async function RideSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("rides.settings")} intro={t("rides.settingsIntro")} />
+      {/* The page kit: the header, cards to what the settings work with, the settings form, then card payments. */}
+      <PageHeader title={t("rides.settings")} description={t("rides.settingsIntro")} />
       <RidesPlanNotice app={app} plan={plan} t={t} />
       {offeredTypes(types).length === 0 ? <TypesFirst t={t} /> : null}
-      <section aria-labelledby="h-settings" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <LinkCards
+        label={t("rides.settings")}
+        items={[
+          { href: "/dashboard/vehicle-types", icon: "category", label: t("rides.vehicleTypes"), hint: t("rides.typesOffered", { count: offeredTypes(types).length }) },
+          { href: "/dashboard/drivers", icon: "person", label: t("rides.drivers") },
+          { href: "/dashboard/taxi/settings", icon: "layers", label: t("taxi.settings") },
+        ]}
+      />
+      <PageGroup title={t("rides.groupHow")}>
+      <section aria-labelledby="h-settings" className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-settings" className="sr-only">
           {t("rides.settings")}
         </h2>
@@ -96,7 +107,12 @@ export default async function RideSettingsPage() {
           before={workedInCustomersApp(settings)}
         />
       </section>
-      {settings.card || isOwnPayment(catalogSettings(app).payment) ? <RidePayments app={app} /> : null}
+      </PageGroup>
+      {settings.card || isOwnPayment(catalogSettings(app).payment) ? (
+        <PageGroup title={t("rides.groupPayments")}>
+          <RidePayments app={app} />
+        </PageGroup>
+      ) : null}
     </div>
   );
 }
