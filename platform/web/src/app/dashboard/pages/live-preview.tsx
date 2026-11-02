@@ -48,6 +48,45 @@ export function LivePreview({ src, appName, framesRef }: { src: string; appName:
     return () => observer.disconnect();
   }, []);
   const fit = room ? Math.min(1, room / width) : 1;
+  // 82.1 The app moves the keyboard to itself as it starts: it gets it only when the person goes into it
+  // (a press in the app, or Tab), else the editor's field keeps it, and what's being typed in it.
+  const entering = useRef(false);
+  useEffect(() => {
+    let field: HTMLElement | null = null;
+    const onFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof HTMLElement && !(event.target instanceof HTMLIFrameElement)) field = event.target;
+      entering.current = false;
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Tab") entering.current = true;
+    };
+    const onBlur = () => {
+      const frame = document.activeElement;
+      if (entering.current || !(frame instanceof HTMLIFrameElement) || !framesRef.current?.contains(frame)) return;
+      // Once the app's focus call is done, before anything typed next.
+      queueMicrotask(() => {
+        if (document.activeElement !== frame || entering.current) return;
+        if (field?.isConnected) field.focus({ preventScroll: true });
+        else frame.blur();
+      });
+    };
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [framesRef]);
+  // A press in the app (the frame is the app preview's, on this origin).
+  const watchPresses = (frame: HTMLIFrameElement) => {
+    try {
+      frame.contentWindow?.addEventListener("pointerdown", () => (entering.current = true), true);
+    } catch {
+      // Not on this origin: its presses aren't seen.
+    }
+  };
   const frame = (theme: "light" | "dark" | null) => (
     <div key={theme ?? "app"} className="flex flex-col items-center gap-1.5">
       <div style={{ width: width * fit, height: (height + 2 * bezel) * fit }}>
@@ -67,6 +106,7 @@ export function LivePreview({ src, appName, framesRef }: { src: string; appName:
             style={{ height }}
             referrerPolicy="no-referrer"
             data-testid="editor-preview"
+            onLoad={(event) => watchPresses(event.currentTarget)}
           />
         </PhoneFrame>
       </div>
