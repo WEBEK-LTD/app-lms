@@ -1515,6 +1515,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get areaNotifications => 'Notifications to app users';
 
   @override
+  String get areaSalaries => 'Salaries (schools)';
+
+  @override
   String get everything => 'Everything';
 
   @override

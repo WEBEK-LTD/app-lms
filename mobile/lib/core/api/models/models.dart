@@ -22,12 +22,16 @@ export 'lms_more_models.dart';
 export 'listing_models.dart';
 export 'news_models.dart';
 export 'page_models.dart';
+export 'parent_models.dart';
 export 'quiz_models.dart';
 export 'restaurant_models.dart';
 export 'rides_models.dart';
+export 'salary_models.dart';
 export 'school_life_models.dart';
 export 'school_models.dart';
 export 'school_report_models.dart';
 export 'taxi_models.dart';
 export 'teachers_models.dart';
+// 113.9
+export 'university_models.dart';
 export 'store_models.dart';

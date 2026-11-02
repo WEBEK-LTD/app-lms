@@ -159,7 +159,8 @@ class StaffWorkCard extends ConsumerWidget {
   }
 }
 
-/// Leave requests and the staff's news, on the Staff and Classroom tabs.
+/// Leave requests, the staff's news and 113.12 the person's payslips, on the
+/// Staff and Classroom tabs.
 class StaffTiles extends StatelessWidget {
   const StaffTiles({super.key});
 
@@ -180,6 +181,13 @@ class StaffTiles extends StatelessWidget {
           icon: AppIcons.campaignUpdate,
           title: l10n.staffNews,
           onTap: () => context.push(Paths.staffNews),
+        ),
+        // 113.12 Their own payslips.
+        SettingsTile(
+          key: const ValueKey('staff-payslips'),
+          icon: AppIcons.payslip,
+          title: l10n.staffPayslips,
+          onTap: () => context.push(Paths.staffPayslips),
         ),
       ],
     );

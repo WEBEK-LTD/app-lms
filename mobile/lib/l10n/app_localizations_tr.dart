@@ -7681,4 +7681,651 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get handInAgain => 'Yeniden teslim et';
+
+  @override
+  String get tabParent => 'Veli';
+
+  @override
+  String get parentNotParentTitle => 'Okulun velileri için';
+
+  @override
+  String get parentNotParentMessage =>
+      'Okul bu numarayı veli olarak eklemedi. Çocuklarınıza bağlaması için okula başvurun.';
+
+  @override
+  String get parentChildrenTitle => 'Çocuklarınız Veli sekmesinde';
+
+  @override
+  String get parentChildrenMessage =>
+      'Her çocuğun günü, imzalanacak formlar, mazeretler ve onu kimin alacağı.';
+
+  @override
+  String get parentOpen => 'Veli sekmesini aç';
+
+  @override
+  String parentDayOff(String title) {
+    return 'Bugün okul yok: $title';
+  }
+
+  @override
+  String parentPicksUpToday(String name) {
+    return 'Bugün alacak kişi: $name';
+  }
+
+  @override
+  String get parentAtTheGate => 'Kapıda';
+
+  @override
+  String parentHomeworkDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ödev teslim edilecek',
+      zero: 'Teslim edilecek ödev yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentLatestGrades => 'Son notlar';
+
+  @override
+  String parentBehaviourPoints(int points) {
+    return '$points puan';
+  }
+
+  @override
+  String get parentLibraryBooks => 'Kütüphane kitapları';
+
+  @override
+  String parentBookDue(String date) {
+    return 'İade $date';
+  }
+
+  @override
+  String parentBookOverdue(String date) {
+    return '$date tarihinden beri gecikmiş';
+  }
+
+  @override
+  String get parentBusOnTheWay => 'Servis yolda';
+
+  @override
+  String get parentComing => 'Yaklaşanlar';
+
+  @override
+  String parentEverything(String name) {
+    return '$name için her şey';
+  }
+
+  @override
+  String get parentSlips => 'İzin formları';
+
+  @override
+  String parentSlipsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count imza bekliyor',
+      zero: 'İmzalanacak bir şey yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentExcuses => 'Devamsızlık mazeretleri';
+
+  @override
+  String get parentExcusesSubtitle => 'Bir ya da birkaç gün, nedeniyle';
+
+  @override
+  String get parentPickup => 'Kim alacak';
+
+  @override
+  String parentPickupPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+      zero: 'Henüz kimse yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentReportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count paylaşıldı',
+      zero: 'Henüz paylaşılan yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String slipDue(String date) {
+    return 'Son yanıt $date';
+  }
+
+  @override
+  String get slipClosed => 'Kapandı';
+
+  @override
+  String slipFee(String note) {
+    return 'Ücret: $note';
+  }
+
+  @override
+  String get slipYes => 'Evet, kabul ediyorum';
+
+  @override
+  String get slipNo => 'Hayır';
+
+  @override
+  String slipSignedYes(String name) {
+    return '$name evet diye imzaladı';
+  }
+
+  @override
+  String slipSignedNo(String name) {
+    return '$name reddetti';
+  }
+
+  @override
+  String get slipNotAnswered => 'Yanıtlanmadı';
+
+  @override
+  String slipAgree(String child, String title) {
+    return '$child katılabilir: $title.';
+  }
+
+  @override
+  String slipDecline(String child, String title) {
+    return '$child katılmayacak: $title.';
+  }
+
+  @override
+  String get slipYourName => 'Adınız';
+
+  @override
+  String get slipSign => 'İmzala';
+
+  @override
+  String get slipSigned => 'İmzalandı. Okul yanıtınızı görüyor.';
+
+  @override
+  String get slipsNone => 'İzin formu yok.';
+
+  @override
+  String get slipNameNeeded => 'Adınızla imzalayın.';
+
+  @override
+  String get excuseNew => 'Mazeret bildir';
+
+  @override
+  String get excuseFirstDay => 'İlk gün';
+
+  @override
+  String get excuseLastDay => 'Son gün';
+
+  @override
+  String get excuseReason => 'Neden';
+
+  @override
+  String get excuseAddPhoto => 'Rapor fotoğrafı';
+
+  @override
+  String get excuseAddFile => 'PDF';
+
+  @override
+  String get excuseSend => 'Okula gönder';
+
+  @override
+  String get excuseSent => 'Gönderildi. Okul uygulamada yanıtlayacak.';
+
+  @override
+  String get excuseReasonNeeded => 'Nedeni yazın.';
+
+  @override
+  String get excusePending => 'Bekliyor';
+
+  @override
+  String get excuseAccepted => 'Mazeretli';
+
+  @override
+  String get excuseDeclined => 'Kabul edilmedi';
+
+  @override
+  String get excuseWithdrawn => 'Geri çekildi';
+
+  @override
+  String get excuseWithdraw => 'Geri çek';
+
+  @override
+  String get excusesNone => 'Gönderilmiş mazeret yok.';
+
+  @override
+  String excuseSchoolNote(String note) {
+    return 'Okul: $note';
+  }
+
+  @override
+  String pickupIntro(String name) {
+    return '$name adlı çocuğu okuldan kimin alabileceği. Okul bu listeyi kapıda görür.';
+  }
+
+  @override
+  String get pickupNone => 'Listede henüz kimse yok.';
+
+  @override
+  String get pickupAdd => 'Birini ekle';
+
+  @override
+  String get pickupName => 'Ad';
+
+  @override
+  String get pickupRelation => 'Yakınlık';
+
+  @override
+  String get pickupPhone => 'Telefon';
+
+  @override
+  String get pickupPhoto => 'Fotoğraf ekle';
+
+  @override
+  String get pickupRemove => 'Kaldır';
+
+  @override
+  String get pickupSaved => 'Kaydedildi. Okul listeyi görüyor.';
+
+  @override
+  String get pickupNameNeeded => 'Adını yazın.';
+
+  @override
+  String get pickupOneDay => 'Yalnızca bir gün';
+
+  @override
+  String get pickupOneDayIntro =>
+      'Bir gün başka biri mi alacak? Okula söyleyin: o günün panosunda görür.';
+
+  @override
+  String get pickupDay => 'Gün';
+
+  @override
+  String get pickupNote => 'Okula not';
+
+  @override
+  String get pickupTell => 'Okula bildir';
+
+  @override
+  String get pickupTold => 'Okul bunu o günün panosunda görüyor.';
+
+  @override
+  String pickupNoteLine(String date, String name) {
+    return '$date: $name';
+  }
+
+  @override
+  String get pickupTakeBack => 'Geri al';
+
+  @override
+  String get staffPayslips => 'Bordrolarım';
+
+  @override
+  String get payslipsNone =>
+      'Henüz bordro yok. Okul kesinleştirdiğinde burada görünür.';
+
+  @override
+  String get payslipsByHand =>
+      'Okul maaşları elle kaydeder: nakit ya da banka havalesiyle öder ve buraya yazar.';
+
+  @override
+  String get payslipUnpaid => 'Henüz ödenmedi';
+
+  @override
+  String get payslipPartPaid => 'Kısmen ödendi';
+
+  @override
+  String get payslipPaid => 'Ödendi';
+
+  @override
+  String payslipNetLine(String amount) {
+    return 'Net $amount';
+  }
+
+  @override
+  String get payslipBase => 'Temel maaş';
+
+  @override
+  String get payslipBonus => 'Prim';
+
+  @override
+  String get payslipDeduction => 'Kesinti';
+
+  @override
+  String payslipAbsences(int count) {
+    return 'Devamsızlık ($count)';
+  }
+
+  @override
+  String payslipLateness(int count) {
+    return 'Geç kalma ($count)';
+  }
+
+  @override
+  String get payslipAdvance => 'Avans kesintisi';
+
+  @override
+  String get payslipGross => 'Brüt';
+
+  @override
+  String get payslipDeductions => 'Kesintiler';
+
+  @override
+  String get payslipNet => 'Net ödeme';
+
+  @override
+  String get payslipPaidSoFar => 'Ödenen';
+
+  @override
+  String get payslipLeft => 'Kalan';
+
+  @override
+  String get payslipPayments => 'Ödemeler';
+
+  @override
+  String payslipCash(String date) {
+    return 'Nakit, $date';
+  }
+
+  @override
+  String payslipBank(String date) {
+    return 'Banka havalesi, $date';
+  }
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) {
+    return '$working iş günü · $present geldi · $absent gelmedi · $late geç · $leave izinli';
+  }
+
+  @override
+  String get payslipViewPdf => 'PDF\'i görüntüle';
+
+  @override
+  String get payslipDownloadPdf => 'PDF\'i indir';
+
+  @override
+  String get payslipAdvances => 'Avanslar';
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) {
+    return '$date tarihinde $amount · ayda $instalment · kalan $left';
+  }
+
+  @override
+  String get uniRegister => 'Döneme kaydol';
+
+  @override
+  String get uniTimetable => 'Ders programım';
+
+  @override
+  String get uniResults => 'Sonuçlar';
+
+  @override
+  String get uniTranscript => 'Transkript';
+
+  @override
+  String get uniStudyPlan => 'Ders planı';
+
+  @override
+  String get uniGpa => 'Ortalama';
+
+  @override
+  String uniCreditsOf(String earned, String required) {
+    return '$required krediden $earned';
+  }
+
+  @override
+  String uniCredits(String credits) {
+    return '$credits kredi';
+  }
+
+  @override
+  String uniAdvisor(String name) {
+    return 'Danışman: $name';
+  }
+
+  @override
+  String get uniNoProgram => 'Henüz program yok: üniversite ekleyecek.';
+
+  @override
+  String get uniStatusDraft => 'Gönderilmedi';
+
+  @override
+  String get uniStatusSubmitted => 'Danışmanında';
+
+  @override
+  String get uniStatusApproved => 'Onaylandı';
+
+  @override
+  String get uniStatusReturned => 'Geri gönderildi';
+
+  @override
+  String uniPhaseBefore(String date) {
+    return 'Kayıt $date tarihinde açılır';
+  }
+
+  @override
+  String uniPhaseOpen(String date) {
+    return 'Kayıt $date tarihine kadar açık';
+  }
+
+  @override
+  String uniPhaseDrop(String date) {
+    return '$date tarihine kadar ders bırakabilirsin';
+  }
+
+  @override
+  String get uniPhaseClosed => 'Bu dönemin kaydı kapandı';
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) {
+    return '$taken kredi · dönemde $min–$max';
+  }
+
+  @override
+  String get uniMySections => 'Şubelerim';
+
+  @override
+  String get uniOffered => 'Açılan şubeler';
+
+  @override
+  String get uniAdd => 'Ekle';
+
+  @override
+  String get uniJoinWaitlist => 'Bekleme listesine katıl';
+
+  @override
+  String get uniDrop => 'Bırak';
+
+  @override
+  String uniDropConfirm(String course) {
+    return '$course bırakılsın mı?';
+  }
+
+  @override
+  String uniSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yer kaldı',
+      one: '1 yer kaldı',
+      zero: 'Dolu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniEnrolPending => 'Onay bekliyor';
+
+  @override
+  String get uniEnrolEnrolled => 'Kayıtlı';
+
+  @override
+  String get uniEnrolWaitlisted => 'Bekleme listesi';
+
+  @override
+  String get uniSubmit => 'Danışmanıma gönder';
+
+  @override
+  String get uniSubmitted => 'Danışmanına gönderildi.';
+
+  @override
+  String uniAdvisorNote(String note) {
+    return 'Danışmanın: $note';
+  }
+
+  @override
+  String get uniReadOnly => 'Kaydı yalnızca öğrenci değiştirir.';
+
+  @override
+  String get uniNoSections => 'Bu dönemde henüz şube yok.';
+
+  @override
+  String get uniNoLectures => 'Bu dönem ders yok.';
+
+  @override
+  String get uniNoLecturesToday => 'Bugün ders yok.';
+
+  @override
+  String uniTermGpa(String gpa) {
+    return 'Dönem ortalaması $gpa';
+  }
+
+  @override
+  String get uniCumulative => 'Genel ortalama';
+
+  @override
+  String get uniNoResults => 'Henüz sonuç yok.';
+
+  @override
+  String get uniOpenPdf => 'PDF\'i aç';
+
+  @override
+  String get uniPlanDone => 'Tamamlandı';
+
+  @override
+  String get uniPlanInProgress => 'Devam ediyor';
+
+  @override
+  String get uniPlanLeft => 'Kaldı';
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) {
+    return '$required krediden $done tamam · $inProgress devam · $left kaldı';
+  }
+
+  @override
+  String uniYear(int year) {
+    return '$year. yıl';
+  }
+
+  @override
+  String get uniElective => 'Seçmeli';
+
+  @override
+  String uniStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+      one: '1 öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniAdvisees => 'Danışmanlık öğrencilerim';
+
+  @override
+  String uniAdviseesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Seni bekleyen $count kayıt',
+      one: 'Seni bekleyen 1 kayıt',
+      zero: 'Seni bekleyen yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniNoTeaching =>
+      'Bu dönem şube yok: üniversite seni öğretim üyesi olarak ekler.';
+
+  @override
+  String get uniPublished => 'Sonuçlar yayımlandı';
+
+  @override
+  String get uniPublish => 'Sonuçları yayımla';
+
+  @override
+  String get uniPublishConfirm =>
+      'Öğrenciler ve velileri notlarını görür ve bilgilendirilir.';
+
+  @override
+  String get uniSaveGrades => 'Notları kaydet';
+
+  @override
+  String get uniGradesSaved => 'Notlar kaydedildi.';
+
+  @override
+  String get uniResultsPublished => 'Yayımlandı. Öğrenciler bilgilendirildi.';
+
+  @override
+  String get uniMark => 'Puan (%)';
+
+  @override
+  String get uniGrade => 'Harf notu';
+
+  @override
+  String get uniNoGrade => 'Not yok';
+
+  @override
+  String get uniApprove => 'Onayla';
+
+  @override
+  String get uniSendBack => 'Geri gönder';
+
+  @override
+  String get uniNoteHint => 'Öğrenciye not (isteğe bağlı)';
+
+  @override
+  String get uniApproved => 'Onaylandı. Öğrenci bilgilendirildi.';
+
+  @override
+  String get uniSentBack => 'Geri gönderildi. Öğrenci bilgilendirildi.';
+
+  @override
+  String get uniNoAdvisees => 'Bu dönem danışmanlık yapılacak öğrenci yok.';
+
+  @override
+  String get uniAttendanceSaved => 'Yoklama kaydedildi.';
 }

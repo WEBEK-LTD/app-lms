@@ -5,6 +5,7 @@ import { encryptionKey } from "../env";
 import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
+import { loadUniSettings, universityOn } from "../university/settings";
 import { schoolPartsConfig, schoolRolesOf } from "../school/bus-hosted";
 import { schoolConfig, schoolMemberOf } from "../school/service";
 import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
@@ -376,8 +377,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     return answer ?? notFound();
   }
   // 105.4 Schools: the School endpoints (students and parents) and the Classroom endpoints (teachers).
-  // 113.3 And the Staff endpoints (teachers and staff).
-  if (req.path[0] === "school" || req.path[0] === "classroom" || req.path[0] === "staff") {
+  // 113.3 And the Staff endpoints (teachers and staff); 113.4 the Parent endpoints (parents).
+  if (req.path[0] === "school" || req.path[0] === "classroom" || req.path[0] === "staff" || req.path[0] === "parent") {
     if (!schoolOn(ctx.app, ctx.plan)) return error(403, "feature_disabled", "This app has no school.");
     const answer = await handleSchoolRoute(
       {
@@ -608,8 +609,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
 /** 105.4 `Config.school`. */
 async function schoolConfigOf(ctx: HostedContext) {
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
-  // 113.10 and 113.11 The bus and the library.
-  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)) };
+  // 113.10 and 113.11 The bus and the library; 113.9 whether the school is a university: the app shows its university screens.
+  const university = universityOn(ctx.app, ctx.plan, await loadUniSettings(ctx.store, ctx.app.id));
+  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)), university };
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
@@ -1240,6 +1242,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     // 113.8 The exam and the behaviour note they are about.
     ...(n.data?.exam_id ? { exam_id: numberOf(n.data.exam_id) } : {}),
     ...(n.data?.note_id ? { note_id: numberOf(n.data.note_id) } : {}),
+    // 113.4 The permission slip it opens.
+    ...(n.data?.slip_id ? { slip_id: numberOf(n.data.slip_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

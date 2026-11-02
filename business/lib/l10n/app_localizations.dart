@@ -2818,6 +2818,12 @@ abstract class AppLocalizations {
   /// **'Notifications to app users'**
   String get areaNotifications;
 
+  /// No description provided for @areaSalaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Salaries (schools)'**
+  String get areaSalaries;
+
   /// No description provided for @everything.
   ///
   /// In en, this message translates to:

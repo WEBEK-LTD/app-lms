@@ -1512,6 +1512,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get areaNotifications => 'الإشعارات لمستخدمي التطبيق';
 
   @override
+  String get areaSalaries => 'الرواتب (المدارس)';
+
+  @override
   String get everything => 'كل شيء';
 
   @override

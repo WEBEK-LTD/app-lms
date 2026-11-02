@@ -20,7 +20,16 @@ import '../../../core/format/bidi.dart';
 /// student they look at: a parent with several children picks one above it.
 /// Someone the school didn't add is told to ask the school.
 class StudentGate extends ConsumerWidget {
-  const StudentGate({super.key, required this.builder, this.wanted});
+  const StudentGate({
+    super.key,
+    required this.builder,
+    this.wanted,
+    this.switcher = true,
+  });
+
+  /// 113.4 The children's switcher; the School tab has none (a parent's
+  /// children are in the Parent tab).
+  final bool switcher;
 
   final Widget Function(
     BuildContext context,
@@ -44,7 +53,7 @@ class StudentGate extends ConsumerWidget {
         final student? => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (me.students.length > 1)
+            if (switcher && me.students.length > 1)
               StudentSwitcher(students: me.students, selected: student.id),
             Expanded(child: builder(context, me, student)),
           ],

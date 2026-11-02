@@ -23,7 +23,7 @@ import { runSchoolReminders } from "../school/reminders";
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
  * /api/internal/frequent` every 5 minutes with INTERNAL_JOB_SECRET. It sends
  * the app notifications whose time came and pushes to the owners' phones the
- * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
+ * announcements that started, and 85.2 the notification campaigns due. 105.2 It moves rides on with time. 113.8 It reminds schools' families of tomorrow's exams, 113.4 and parents of the permission slips due tomorrow. 88.3 It reads the App Store's review state of the iPhone versions in review. 100.2 It makes or changes the in-app products waiting for the stores, 100.3 and keeps purchases' access in step. 68 It also asks the WordPress site of every
  * plan that just ended to check its license now (once per end), so the app
  * pauses there within minutes. Safe to run twice at once: each notification,
  * announcement and ended plan is taken by one run.
@@ -51,8 +51,8 @@ export interface FrequentReport {
   rides: { looked: number; moved: number };
   /** 113.11 Library loans looked at, and reminders sent (due soon, overdue). */
   library: { looked: number; told: number };
-  /** 113.8 Tomorrow's exams whose reminder went to their students and families. */
-  school: { exams: number };
+  /** 113.8 Tomorrow's exams whose reminder went to their students and families; 113.4 slips due tomorrow whose reminder went to the parents. */
+  school: { exams: number; slips: number };
 }
 
 export async function runFrequentJobs(deps: {
@@ -161,7 +161,7 @@ export async function runFrequentJobs(deps: {
     console.error("[frequent] library", error instanceof Error ? error.message : String(error));
   }
   // 113.8 Schools: the day-before reminders of exams.
-  let school = { exams: 0 };
+  let school = { exams: 0, slips: 0 };
   try {
     school = await runSchoolReminders({ store: deps.store, now: deps.now, send: deps.send });
   } catch (error) {

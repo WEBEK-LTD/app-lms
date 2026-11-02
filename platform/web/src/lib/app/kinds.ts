@@ -830,6 +830,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 113.2 Checking in and out at the gate; 113.3 teachers and staff.
           { href: "/dashboard/school/checkin", label: "Check-in", icon: "qr_code_2" },
           { href: "/dashboard/school/staff", label: "Staff", icon: "support_agent" },
+          // 113.12 Salaries, recorded by hand.
+          { href: "/dashboard/school/salaries", label: "Salaries", icon: "receipt_long" },
           { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5
@@ -842,11 +844,16 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 113.8
           { href: "/dashboard/school/behaviour", label: "Behaviour", icon: "emoji_events" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
+          // 113.4 The parent's area.
+          { href: "/dashboard/school/slips", label: "Permission slips", icon: "draw" },
+          { href: "/dashboard/school/excuses", label: "Absence excuses", icon: "event_busy" },
           // 113.10 and 113.11
           { href: "/dashboard/school/bus", label: "Buses & routes", icon: "directions_bus" },
           { href: "/dashboard/school/library", label: "Library", icon: "bookmark" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },
+          // 113.9 A school in university mode.
+          { href: "/dashboard/school/university", label: "University", icon: "apartment" },
         ],
       },
     },

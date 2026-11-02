@@ -18,6 +18,7 @@ class SchoolConfig {
     this.library = false,
     this.tilesUrl,
     this.attribution,
+    this.university = false,
   });
 
   factory SchoolConfig.fromJson(Json json) {
@@ -32,6 +33,7 @@ class SchoolConfig {
       feesByCard: boolOr(json, 'fees_by_card', false),
       bus: boolOr(json, 'bus', false),
       library: boolOr(json, 'library', false),
+      university: boolOr(json, 'university', false),
       tilesUrl: optString(map, 'tiles_url'),
       attribution: optString(map, 'attribution'),
       checkin:
@@ -60,6 +62,9 @@ class SchoolConfig {
   /// 113.10 The platform's map tiles for the bus; null: the stops as a list.
   final String? tilesUrl;
   final String? attribution;
+
+  /// 113.9 The school is a university: its screens instead of classes'.
+  final bool university;
 }
 
 class SchoolTerm {

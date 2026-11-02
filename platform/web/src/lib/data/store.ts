@@ -107,6 +107,12 @@ import type {
   SchoolTopicProgress,
   SchoolHomework,
   SchoolLeave,
+  SchoolExcuse,
+  SchoolPickup,
+  SchoolPickupNote,
+  SchoolSlip,
+  SchoolSlipAnswer,
+  SchoolSlipInput,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -132,6 +138,10 @@ import type {
   SchoolBusStop,
   SchoolBusTrip,
 } from "./types";
+// 113.12 Salaries
+import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
+// 113.9 Universities
+import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -951,6 +961,35 @@ export interface DataStore {
   /** Only while the request is in one of `statuses`; false when it wasn't changed. */
   updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean>;
 
+  // 113.4 The parent's area: permission slips, absence excuses and pick-up
+  /** By due date, the latest first; due on or after `from` when given. */
+  listSchoolSlips(appId: string, filter?: { from?: string; to?: string }): Promise<SchoolSlip[]>;
+  getSchoolSlip(appId: string, id: number): Promise<SchoolSlip | null>;
+  /** A new slip when `id` is null; a new due date sends its reminder again. Null when it isn't the school's. */
+  saveSchoolSlip(input: SchoolSlipInput & { id: number | null }, now: Date): Promise<SchoolSlip | null>;
+  /** Its answers go with it. */
+  deleteSchoolSlip(appId: string, id: number): Promise<void>;
+  /** Marks the reminder sent; false when it already was (another run took it). */
+  markSchoolSlipReminded(appId: string, id: number, now: Date): Promise<boolean>;
+  /** A slip's answers, or some students' on any slip. */
+  listSchoolSlipAnswers(appId: string, filter: { slipId?: number; slipIds?: number[]; studentIds?: number[] }): Promise<SchoolSlipAnswer[]>;
+  /** One per slip and student: answering again replaces it. */
+  saveSchoolSlipAnswer(row: SchoolSlipAnswer): Promise<void>;
+  /** Newest first; a student's, some students', of a status, or overlapping a period. */
+  listSchoolExcuses(appId: string, filter?: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string }): Promise<SchoolExcuse[]>;
+  getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null>;
+  createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse>;
+  /** Only while the excuse is in one of `statuses`; false when it wasn't changed. */
+  updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean>;
+  getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null>;
+  /** One per student: saving again replaces it. */
+  saveSchoolPickup(row: SchoolPickup): Promise<void>;
+  /** By day, then student; a student's, a day's, or from a day on. */
+  listSchoolPickupNotes(appId: string, filter: { studentId?: number; date?: string; from?: string }): Promise<SchoolPickupNote[]>;
+  /** One per student and day: saving again replaces it. */
+  saveSchoolPickupNote(row: SchoolPickupNote): Promise<void>;
+  deleteSchoolPickupNote(appId: string, studentId: number, date: string): Promise<void>;
+
   // 113.5 The syllabus, each class's progress, and the teachers' reports
   /** In the plan's order; a subject's, a grade's when given. */
   listSchoolSyllabusUnits(appId: string, filter?: { subjectId?: number; grade?: string }): Promise<SchoolSyllabusUnit[]>;
@@ -1045,6 +1084,35 @@ export interface DataStore {
   createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold>;
   /** Only while it is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect?: { statuses?: SchoolBookHoldStatus[] }): Promise<boolean>;
+  // 113.12 Salaries, recorded by hand
+  listSchoolSalaries(appId: string): Promise<SchoolSalary[]>;
+  getSchoolSalary(appId: string, personId: number): Promise<SchoolSalary | null>;
+  /** Only for a teacher or staff member of the same school; false otherwise. */
+  saveSchoolSalary(salary: SchoolSalary): Promise<boolean>;
+  deleteSchoolSalary(appId: string, personId: number): Promise<void>;
+  /** By month (newest first), then name. */
+  listSchoolPayslips(appId: string, filter?: { month?: string; personId?: number; personIds?: number[]; statuses?: SchoolPayslipStatus[] }): Promise<SchoolPayslip[]>;
+  getSchoolPayslip(appId: string, id: number): Promise<SchoolPayslip | null>;
+  /** One per person and month. */
+  createSchoolPayslip(input: Omit<SchoolPayslip, "id">): Promise<{ ok: true; payslip: SchoolPayslip } | { ok: false; reason: "duplicate" }>;
+  /** Only while its status is one of `expect.statuses` and, when given, it was last changed at `expect.updatedAt`; false when it wasn't changed. */
+  updateSchoolPayslip(
+    appId: string,
+    id: number,
+    patch: Partial<Omit<SchoolPayslip, "id" | "appId" | "personId" | "month" | "createdAt">>,
+    expect: { statuses: SchoolPayslipStatus[]; updatedAt?: Date },
+  ): Promise<boolean>;
+  /** Only a draft. */
+  deleteSchoolPayslip(appId: string, id: number): Promise<boolean>;
+  getSchoolSalaryMonth(appId: string, month: string): Promise<SchoolSalaryMonth | null>;
+  saveSchoolSalaryMonth(row: SchoolSalaryMonth): Promise<void>;
+  /** Newest first. */
+  listSchoolSalaryAdvances(appId: string, filter?: { personId?: number; personIds?: number[] }): Promise<SchoolSalaryAdvance[]>;
+  getSchoolSalaryAdvance(appId: string, id: number): Promise<SchoolSalaryAdvance | null>;
+  createSchoolSalaryAdvance(input: Omit<SchoolSalaryAdvance, "id">): Promise<SchoolSalaryAdvance>;
+  /** Only when it was last changed at `expectUpdatedAt`; false when it wasn't changed. */
+  updateSchoolSalaryAdvance(appId: string, id: number, patch: Partial<Pick<SchoolSalaryAdvance, "instalmentCents" | "startsMonth" | "repayments" | "updatedAt">>, expectUpdatedAt: Date): Promise<boolean>;
+  deleteSchoolSalaryAdvance(appId: string, id: number): Promise<void>;
   // 113.8 The school's calendar, the exams' timetable and behaviour
   /** Events on any day from `from` to `to` (both YYYY-MM-DD), first first. */
   listSchoolEvents(appId: string, filter?: { from?: string; to?: string }): Promise<SchoolEvent[]>;
@@ -1747,4 +1815,57 @@ export interface DataStore {
   listCellsToRekey(input: { currentKeyId: string; after: string | null; limit: number }): Promise<{ cells: RekeyCell[]; next: string | null }>;
   /** Writes the cell's new text, unless it changed since it was listed. */
   updateRekeyedCell(cell: RekeyCell, text: string): Promise<boolean>;
+
+  // 113.9 Universities (lib/university)
+  getUniSettings(appId: string): Promise<UniSettings | null>;
+  saveUniSettings(appId: string, settings: UniSettings, now: Date): Promise<void>;
+  /** By name. */
+  listUniFaculties(appId: string): Promise<UniFaculty[]>;
+  /** Null when the faculty to edit isn't the app's. */
+  saveUniFaculty(input: Pick<UniFaculty, "appId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniFaculty | null>;
+  /** Its departments go with it. */
+  deleteUniFaculty(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listUniDepartments(appId: string): Promise<UniDepartment[]>;
+  saveUniDepartment(input: Pick<UniDepartment, "appId" | "facultyId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniDepartment | null>;
+  /** Its programs go with it; its courses stay without a department. */
+  deleteUniDepartment(appId: string, id: number): Promise<void>;
+  /** By name. */
+  listUniPrograms(appId: string): Promise<UniProgram[]>;
+  saveUniProgram(input: Omit<UniProgram, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniProgram | null>;
+  /** Its students stay without a program. */
+  deleteUniProgram(appId: string, id: number): Promise<void>;
+  /** By code. */
+  listUniCourses(appId: string): Promise<UniCourse[]>;
+  /** Fails (`duplicate`) when another course has the code. */
+  saveUniCourse(
+    input: Omit<UniCourse, "id" | "createdAt" | "updatedAt"> & { id: number | null },
+    now: Date,
+  ): Promise<{ ok: true; course: UniCourse } | { ok: false; reason: "duplicate" | "not_found" }>;
+  /** Its sections and their students go with it. */
+  deleteUniCourse(appId: string, id: number): Promise<void>;
+  /** The latest first. */
+  listUniTerms(appId: string): Promise<UniTerm[]>;
+  saveUniTerm(input: Omit<UniTerm, "id" | "createdAt"> & { id: number | null }, now: Date): Promise<UniTerm | null>;
+  /** Its sections, registrations and their students go with it. */
+  deleteUniTerm(appId: string, id: number): Promise<void>;
+  /** By the course's id, then the section's code. */
+  listUniSections(appId: string, filter?: { termId?: number; courseId?: number; lecturerId?: number; ids?: number[] }): Promise<UniSection[]>;
+  getUniSection(appId: string, id: number): Promise<UniSection | null>;
+  saveUniSection(input: Omit<UniSection, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniSection | null>;
+  deleteUniSection(appId: string, id: number): Promise<void>;
+  listUniStudents(appId: string, filter?: { studentIds?: number[]; advisorId?: number; programId?: number }): Promise<UniStudent[]>;
+  /** Adds or replaces the student's row. */
+  saveUniStudent(row: UniStudent): Promise<void>;
+  listUniRegistrations(appId: string, filter: { termId?: number; studentId?: number; studentIds?: number[]; status?: UniRegistrationStatus }): Promise<UniRegistration[]>;
+  /** Adds or replaces the row of the term and student. */
+  saveUniRegistration(row: UniRegistration): Promise<void>;
+  /** In the order they were added. */
+  listUniEnrolments(appId: string, filter: { termId?: number; sectionId?: number; sectionIds?: number[]; studentId?: number; statuses?: UniEnrolmentStatus[] }): Promise<UniEnrolment[]>;
+  /** Null when the student has a row in the section already. */
+  createUniEnrolment(input: Omit<UniEnrolment, "id">): Promise<UniEnrolment | null>;
+  updateUniEnrolment(appId: string, id: number, patch: Partial<Pick<UniEnrolment, "status" | "addedBy" | "addedAt" | "droppedAt" | "grade" | "mark" | "gradedAt">>, now: Date): Promise<boolean>;
+  listUniAttendance(appId: string, filter: { sectionId?: number; studentId?: number; from?: string; to?: string }): Promise<UniAttendance[]>;
+  /** Adds or replaces each row (one per section, student and day). */
+  saveUniAttendance(rows: UniAttendance[]): Promise<void>;
 }

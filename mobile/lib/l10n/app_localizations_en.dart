@@ -7697,4 +7697,655 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handInAgain => 'Hand in again';
+
+  @override
+  String get tabParent => 'Parent';
+
+  @override
+  String get parentNotParentTitle => 'For the school\'s parents';
+
+  @override
+  String get parentNotParentMessage =>
+      'The school hasn\'t added this number as a parent. Ask the school to link it to your children.';
+
+  @override
+  String get parentChildrenTitle => 'Your children are in the Parent tab';
+
+  @override
+  String get parentChildrenMessage =>
+      'Each child\'s day, the slips to sign, absences to excuse and who picks them up.';
+
+  @override
+  String get parentOpen => 'Open the Parent tab';
+
+  @override
+  String parentDayOff(String title) {
+    return 'No school today: $title';
+  }
+
+  @override
+  String parentPicksUpToday(String name) {
+    return 'Picks up today: $name';
+  }
+
+  @override
+  String get parentAtTheGate => 'At the gate';
+
+  @override
+  String parentHomeworkDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count homework due',
+      one: '1 homework due',
+      zero: 'No homework due',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentLatestGrades => 'Latest grades';
+
+  @override
+  String parentBehaviourPoints(int points) {
+    return '$points points';
+  }
+
+  @override
+  String get parentLibraryBooks => 'Library books';
+
+  @override
+  String parentBookDue(String date) {
+    return 'Due back $date';
+  }
+
+  @override
+  String parentBookOverdue(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String get parentBusOnTheWay => 'The bus is on its way';
+
+  @override
+  String get parentComing => 'Coming up';
+
+  @override
+  String parentEverything(String name) {
+    return 'Everything for $name';
+  }
+
+  @override
+  String get parentSlips => 'Permission slips';
+
+  @override
+  String parentSlipsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count to sign',
+      one: '1 to sign',
+      zero: 'Nothing to sign',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentExcuses => 'Absence excuses';
+
+  @override
+  String get parentExcusesSubtitle => 'A day or several, with the reason';
+
+  @override
+  String get parentPickup => 'Who picks up';
+
+  @override
+  String parentPickupPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+      zero: 'No one listed yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentReportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shared',
+      one: '1 shared',
+      zero: 'None shared yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String slipDue(String date) {
+    return 'Answer by $date';
+  }
+
+  @override
+  String get slipClosed => 'Closed';
+
+  @override
+  String slipFee(String note) {
+    return 'Fee: $note';
+  }
+
+  @override
+  String get slipYes => 'Yes, I agree';
+
+  @override
+  String get slipNo => 'No';
+
+  @override
+  String slipSignedYes(String name) {
+    return 'Signed yes by $name';
+  }
+
+  @override
+  String slipSignedNo(String name) {
+    return 'Declined by $name';
+  }
+
+  @override
+  String get slipNotAnswered => 'Not answered';
+
+  @override
+  String slipAgree(String child, String title) {
+    return '$child may take part: $title.';
+  }
+
+  @override
+  String slipDecline(String child, String title) {
+    return '$child won\'t take part: $title.';
+  }
+
+  @override
+  String get slipYourName => 'Your name';
+
+  @override
+  String get slipSign => 'Sign';
+
+  @override
+  String get slipSigned => 'Signed. The school sees your answer.';
+
+  @override
+  String get slipsNone => 'No permission slips.';
+
+  @override
+  String get slipNameNeeded => 'Sign with your name.';
+
+  @override
+  String get excuseNew => 'Excuse an absence';
+
+  @override
+  String get excuseFirstDay => 'First day';
+
+  @override
+  String get excuseLastDay => 'Last day';
+
+  @override
+  String get excuseReason => 'Reason';
+
+  @override
+  String get excuseAddPhoto => 'Photo of a note';
+
+  @override
+  String get excuseAddFile => 'PDF';
+
+  @override
+  String get excuseSend => 'Send to the school';
+
+  @override
+  String get excuseSent => 'Sent. The school will answer in the app.';
+
+  @override
+  String get excuseReasonNeeded => 'Write the reason.';
+
+  @override
+  String get excusePending => 'Waiting';
+
+  @override
+  String get excuseAccepted => 'Excused';
+
+  @override
+  String get excuseDeclined => 'Not accepted';
+
+  @override
+  String get excuseWithdrawn => 'Withdrawn';
+
+  @override
+  String get excuseWithdraw => 'Withdraw';
+
+  @override
+  String get excusesNone => 'No excuses sent.';
+
+  @override
+  String excuseSchoolNote(String note) {
+    return 'The school: $note';
+  }
+
+  @override
+  String pickupIntro(String name) {
+    return 'Who may pick $name up from school. The school sees this list at the gate.';
+  }
+
+  @override
+  String get pickupNone => 'No one on the list yet.';
+
+  @override
+  String get pickupAdd => 'Add someone';
+
+  @override
+  String get pickupName => 'Name';
+
+  @override
+  String get pickupRelation => 'Relation';
+
+  @override
+  String get pickupPhone => 'Phone';
+
+  @override
+  String get pickupPhoto => 'Add a photo';
+
+  @override
+  String get pickupRemove => 'Remove';
+
+  @override
+  String get pickupSaved => 'Saved. The school sees the list.';
+
+  @override
+  String get pickupNameNeeded => 'Write their name.';
+
+  @override
+  String get pickupOneDay => 'Just for one day';
+
+  @override
+  String get pickupOneDayIntro =>
+      'Someone else picks up on a day? Tell the school: it sees it on that day\'s board.';
+
+  @override
+  String get pickupDay => 'Day';
+
+  @override
+  String get pickupNote => 'Note for the school';
+
+  @override
+  String get pickupTell => 'Tell the school';
+
+  @override
+  String get pickupTold => 'The school sees it on that day\'s board.';
+
+  @override
+  String pickupNoteLine(String date, String name) {
+    return '$date: $name';
+  }
+
+  @override
+  String get pickupTakeBack => 'Take back';
+
+  @override
+  String get staffPayslips => 'My payslips';
+
+  @override
+  String get payslipsNone =>
+      'No payslips yet. They show here once the school makes them final.';
+
+  @override
+  String get payslipsByHand =>
+      'The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.';
+
+  @override
+  String get payslipUnpaid => 'Not paid yet';
+
+  @override
+  String get payslipPartPaid => 'Partly paid';
+
+  @override
+  String get payslipPaid => 'Paid';
+
+  @override
+  String payslipNetLine(String amount) {
+    return 'Net $amount';
+  }
+
+  @override
+  String get payslipBase => 'Base salary';
+
+  @override
+  String get payslipBonus => 'Bonus';
+
+  @override
+  String get payslipDeduction => 'Deduction';
+
+  @override
+  String payslipAbsences(int count) {
+    return 'Absences ($count)';
+  }
+
+  @override
+  String payslipLateness(int count) {
+    return 'Late arrivals ($count)';
+  }
+
+  @override
+  String get payslipAdvance => 'Advance taken back';
+
+  @override
+  String get payslipGross => 'Gross';
+
+  @override
+  String get payslipDeductions => 'Deductions';
+
+  @override
+  String get payslipNet => 'Net pay';
+
+  @override
+  String get payslipPaidSoFar => 'Paid';
+
+  @override
+  String get payslipLeft => 'Left to pay';
+
+  @override
+  String get payslipPayments => 'Payments';
+
+  @override
+  String payslipCash(String date) {
+    return 'Cash, $date';
+  }
+
+  @override
+  String payslipBank(String date) {
+    return 'Bank transfer, $date';
+  }
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) {
+    return '$working working days · $present present · $absent absent · $late late · $leave on leave';
+  }
+
+  @override
+  String get payslipViewPdf => 'View the PDF';
+
+  @override
+  String get payslipDownloadPdf => 'Download the PDF';
+
+  @override
+  String get payslipAdvances => 'Advances';
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) {
+    return '$amount given on $date · $instalment a month · $left left';
+  }
+
+  @override
+  String get uniRegister => 'Register for the term';
+
+  @override
+  String get uniTimetable => 'My timetable';
+
+  @override
+  String get uniResults => 'Results';
+
+  @override
+  String get uniTranscript => 'Transcript';
+
+  @override
+  String get uniStudyPlan => 'Study plan';
+
+  @override
+  String get uniGpa => 'GPA';
+
+  @override
+  String uniCreditsOf(String earned, String required) {
+    return '$earned of $required credits';
+  }
+
+  @override
+  String uniCredits(String credits) {
+    return '$credits credits';
+  }
+
+  @override
+  String uniAdvisor(String name) {
+    return 'Advisor: $name';
+  }
+
+  @override
+  String get uniNoProgram => 'No program yet: the university adds it.';
+
+  @override
+  String get uniStatusDraft => 'Not sent';
+
+  @override
+  String get uniStatusSubmitted => 'With your advisor';
+
+  @override
+  String get uniStatusApproved => 'Approved';
+
+  @override
+  String get uniStatusReturned => 'Sent back';
+
+  @override
+  String uniPhaseBefore(String date) {
+    return 'Registration opens on $date';
+  }
+
+  @override
+  String uniPhaseOpen(String date) {
+    return 'Registration is open until $date';
+  }
+
+  @override
+  String uniPhaseDrop(String date) {
+    return 'You can drop a course until $date';
+  }
+
+  @override
+  String get uniPhaseClosed => 'Registration for this term is closed';
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) {
+    return '$taken credits · $min to $max a term';
+  }
+
+  @override
+  String get uniMySections => 'My sections';
+
+  @override
+  String get uniOffered => 'Sections offered';
+
+  @override
+  String get uniAdd => 'Add';
+
+  @override
+  String get uniJoinWaitlist => 'Join the waiting list';
+
+  @override
+  String get uniDrop => 'Drop';
+
+  @override
+  String uniDropConfirm(String course) {
+    return 'Drop $course?';
+  }
+
+  @override
+  String uniSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats left',
+      one: '1 seat left',
+      zero: 'Full',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniEnrolPending => 'Waiting for approval';
+
+  @override
+  String get uniEnrolEnrolled => 'Enrolled';
+
+  @override
+  String get uniEnrolWaitlisted => 'Waiting list';
+
+  @override
+  String get uniSubmit => 'Send to my advisor';
+
+  @override
+  String get uniSubmitted => 'Sent to your advisor.';
+
+  @override
+  String uniAdvisorNote(String note) {
+    return 'Your advisor: $note';
+  }
+
+  @override
+  String get uniReadOnly => 'Only the student changes the registration.';
+
+  @override
+  String get uniNoSections => 'No sections in this term yet.';
+
+  @override
+  String get uniNoLectures => 'No lectures this term.';
+
+  @override
+  String get uniNoLecturesToday => 'No lectures today.';
+
+  @override
+  String uniTermGpa(String gpa) {
+    return 'Term GPA $gpa';
+  }
+
+  @override
+  String get uniCumulative => 'Cumulative GPA';
+
+  @override
+  String get uniNoResults => 'No results yet.';
+
+  @override
+  String get uniOpenPdf => 'Open the PDF';
+
+  @override
+  String get uniPlanDone => 'Done';
+
+  @override
+  String get uniPlanInProgress => 'In progress';
+
+  @override
+  String get uniPlanLeft => 'Left';
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) {
+    return '$done done · $inProgress in progress · $left left of $required credits';
+  }
+
+  @override
+  String uniYear(int year) {
+    return 'Year $year';
+  }
+
+  @override
+  String get uniElective => 'Elective';
+
+  @override
+  String uniStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniAdvisees => 'My advisees';
+
+  @override
+  String uniAdviseesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count registrations wait for you',
+      one: '1 registration waits for you',
+      zero: 'Nothing waits for you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniNoTeaching =>
+      'No sections this term: the university adds you as their lecturer.';
+
+  @override
+  String get uniPublished => 'Results published';
+
+  @override
+  String get uniPublish => 'Publish results';
+
+  @override
+  String get uniPublishConfirm =>
+      'The students and their parents see their grades and are told.';
+
+  @override
+  String get uniSaveGrades => 'Save grades';
+
+  @override
+  String get uniGradesSaved => 'Grades saved.';
+
+  @override
+  String get uniResultsPublished => 'Published. The students were told.';
+
+  @override
+  String get uniMark => 'Mark (%)';
+
+  @override
+  String get uniGrade => 'Grade';
+
+  @override
+  String get uniNoGrade => 'No grade';
+
+  @override
+  String get uniApprove => 'Approve';
+
+  @override
+  String get uniSendBack => 'Send back';
+
+  @override
+  String get uniNoteHint => 'Note to the student (optional)';
+
+  @override
+  String get uniApproved => 'Approved. The student was told.';
+
+  @override
+  String get uniSentBack => 'Sent back. The student was told.';
+
+  @override
+  String get uniNoAdvisees => 'No students to advise this term.';
+
+  @override
+  String get uniAttendanceSaved => 'Attendance saved.';
 }

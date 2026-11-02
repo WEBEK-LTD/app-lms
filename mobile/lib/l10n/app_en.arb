@@ -8154,5 +8154,922 @@
   "handInAgain": "Hand in again",
   "@handInAgain": {
     "description": "113.7 Hands a graded assignment in again (another try)."
+  },
+  "tabParent": "Parent",
+  "@tabParent": {
+    "description": "113.4 The bottom tab only the school's parents see: their children's days, slips, excuses and pick-up."
+  },
+  "parentNotParentTitle": "For the school's parents",
+  "@parentNotParentTitle": {
+    "description": "113.4 The Parent tab, for someone the school didn't add as a parent: its title."
+  },
+  "parentNotParentMessage": "The school hasn't added this number as a parent. Ask the school to link it to your children.",
+  "@parentNotParentMessage": {
+    "description": "113.4 The Parent tab, for someone the school didn't add as a parent: what to do."
+  },
+  "parentChildrenTitle": "Your children are in the Parent tab",
+  "@parentChildrenTitle": {
+    "description": "113.4 On the School tab of a parent who isn't a student: their children's days are in the Parent tab."
+  },
+  "parentChildrenMessage": "Each child's day, the slips to sign, absences to excuse and who picks them up.",
+  "@parentChildrenMessage": {
+    "description": "113.4 On the School tab of a parent who isn't a student: what the Parent tab has."
+  },
+  "parentOpen": "Open the Parent tab",
+  "@parentOpen": {
+    "description": "113.4 Button on the School tab of a parent: opens the Parent tab."
+  },
+  "parentDayOff": "No school today: {title}",
+  "@parentDayOff": {
+    "description": "113.4 On a child's day: today is a holiday or a break.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "parentPicksUpToday": "Picks up today: {name}",
+  "@parentPicksUpToday": {
+    "description": "113.4 On a child's day: who picks the child up today.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentAtTheGate": "At the gate",
+  "@parentAtTheGate": {
+    "description": "113.4 On a child's day: the child's check-in today."
+  },
+  "parentHomeworkDue": "{count, plural, =0{No homework due} =1{1 homework due} other{{count} homework due}}",
+  "@parentHomeworkDue": {
+    "description": "113.4 On a child's day: how much homework is due.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentLatestGrades": "Latest grades",
+  "@parentLatestGrades": {
+    "description": "113.4 On a child's day: the three latest scores."
+  },
+  "parentBehaviourPoints": "{points} points",
+  "@parentBehaviourPoints": {
+    "description": "113.4 On a child's day: the child's behaviour points.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "parentLibraryBooks": "Library books",
+  "@parentLibraryBooks": {
+    "description": "113.4 On a child's day: the library books out now."
+  },
+  "parentBookDue": "Due back {date}",
+  "@parentBookDue": {
+    "description": "113.4 On a child's day: when a library book is due back.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "parentBookOverdue": "Overdue since {date}",
+  "@parentBookOverdue": {
+    "description": "113.4 On a child's day: a library book that is overdue.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "parentBusOnTheWay": "The bus is on its way",
+  "@parentBusOnTheWay": {
+    "description": "113.4 On a child's day: the child's bus is running now."
+  },
+  "parentComing": "Coming up",
+  "@parentComing": {
+    "description": "113.4 On a child's day: the next events and exams on the calendar."
+  },
+  "parentEverything": "Everything for {name}",
+  "@parentEverything": {
+    "description": "113.4 The list of a child's parts on the Parent tab.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentSlips": "Permission slips",
+  "@parentSlips": {
+    "description": "113.4 Opens the permission slips to sign."
+  },
+  "parentSlipsWaiting": "{count, plural, =0{Nothing to sign} =1{1 to sign} other{{count} to sign}}",
+  "@parentSlipsWaiting": {
+    "description": "113.4 How many permission slips wait for an answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentExcuses": "Absence excuses",
+  "@parentExcuses": {
+    "description": "113.4 Opens the child's absence excuses."
+  },
+  "parentExcusesSubtitle": "A day or several, with the reason",
+  "@parentExcusesSubtitle": {
+    "description": "113.4 Under the absence excuses tile."
+  },
+  "parentPickup": "Who picks up",
+  "@parentPickup": {
+    "description": "113.4 Opens who may pick the child up."
+  },
+  "parentPickupPeople": "{count, plural, =0{No one listed yet} =1{1 person} other{{count} people}}",
+  "@parentPickupPeople": {
+    "description": "113.4 How many people may pick the child up.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentReportsCount": "{count, plural, =0{None shared yet} =1{1 shared} other{{count} shared}}",
+  "@parentReportsCount": {
+    "description": "113.4 How many teachers' reports the school shared.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slipDue": "Answer by {date}",
+  "@slipDue": {
+    "description": "113.4 A permission slip's due date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "slipClosed": "Closed",
+  "@slipClosed": {
+    "description": "113.4 A permission slip past its due date."
+  },
+  "slipFee": "Fee: {note}",
+  "@slipFee": {
+    "description": "113.4 A permission slip's note of a fee.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "slipYes": "Yes, I agree",
+  "@slipYes": {
+    "description": "113.4 Signs a permission slip yes."
+  },
+  "slipNo": "No",
+  "@slipNo": {
+    "description": "113.4 Signs a permission slip no."
+  },
+  "slipSignedYes": "Signed yes by {name}",
+  "@slipSignedYes": {
+    "description": "113.4 A child's slip signed yes.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "slipSignedNo": "Declined by {name}",
+  "@slipSignedNo": {
+    "description": "113.4 A child's slip signed no.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "slipNotAnswered": "Not answered",
+  "@slipNotAnswered": {
+    "description": "113.4 A child's slip not answered yet."
+  },
+  "slipAgree": "{child} may take part: {title}.",
+  "@slipAgree": {
+    "description": "113.4 What a parent signs when they answer yes.",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "slipDecline": "{child} won't take part: {title}.",
+  "@slipDecline": {
+    "description": "113.4 What a parent signs when they answer no.",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "slipYourName": "Your name",
+  "@slipYourName": {
+    "description": "113.4 The name a parent signs a slip with."
+  },
+  "slipSign": "Sign",
+  "@slipSign": {
+    "description": "113.4 Signs the permission slip."
+  },
+  "slipSigned": "Signed. The school sees your answer.",
+  "@slipSigned": {
+    "description": "113.4 After a parent signed a slip."
+  },
+  "slipsNone": "No permission slips.",
+  "@slipsNone": {
+    "description": "113.4 The permission slips list when there is none."
+  },
+  "slipNameNeeded": "Sign with your name.",
+  "@slipNameNeeded": {
+    "description": "113.4 A slip signed without a name."
+  },
+  "excuseNew": "Excuse an absence",
+  "@excuseNew": {
+    "description": "113.4 Starts an absence excuse."
+  },
+  "excuseFirstDay": "First day",
+  "@excuseFirstDay": {
+    "description": "113.4 An excuse's first day."
+  },
+  "excuseLastDay": "Last day",
+  "@excuseLastDay": {
+    "description": "113.4 An excuse's last day."
+  },
+  "excuseReason": "Reason",
+  "@excuseReason": {
+    "description": "113.4 Why the child was or will be absent."
+  },
+  "excuseAddPhoto": "Photo of a note",
+  "@excuseAddPhoto": {
+    "description": "113.4 Adds a photo of a doctor's note to an excuse."
+  },
+  "excuseAddFile": "PDF",
+  "@excuseAddFile": {
+    "description": "113.4 Adds a PDF to an excuse."
+  },
+  "excuseSend": "Send to the school",
+  "@excuseSend": {
+    "description": "113.4 Sends an absence excuse."
+  },
+  "excuseSent": "Sent. The school will answer in the app.",
+  "@excuseSent": {
+    "description": "113.4 After an excuse was sent."
+  },
+  "excuseReasonNeeded": "Write the reason.",
+  "@excuseReasonNeeded": {
+    "description": "113.4 An excuse sent without a reason."
+  },
+  "excusePending": "Waiting",
+  "@excusePending": {
+    "description": "113.4 An excuse the school hasn't answered."
+  },
+  "excuseAccepted": "Excused",
+  "@excuseAccepted": {
+    "description": "113.4 An excuse the school accepted."
+  },
+  "excuseDeclined": "Not accepted",
+  "@excuseDeclined": {
+    "description": "113.4 An excuse the school declined."
+  },
+  "excuseWithdrawn": "Withdrawn",
+  "@excuseWithdrawn": {
+    "description": "113.4 An excuse the parent withdrew."
+  },
+  "excuseWithdraw": "Withdraw",
+  "@excuseWithdraw": {
+    "description": "113.4 Withdraws an excuse while it waits."
+  },
+  "excusesNone": "No excuses sent.",
+  "@excusesNone": {
+    "description": "113.4 The excuses list when there is none."
+  },
+  "excuseSchoolNote": "The school: {note}",
+  "@excuseSchoolNote": {
+    "description": "113.4 The school's note with its answer to an excuse.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupIntro": "Who may pick {name} up from school. The school sees this list at the gate.",
+  "@pickupIntro": {
+    "description": "113.4 At the top of the pick-up screen.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupNone": "No one on the list yet.",
+  "@pickupNone": {
+    "description": "113.4 The pick-up list when empty."
+  },
+  "pickupAdd": "Add someone",
+  "@pickupAdd": {
+    "description": "113.4 Adds a person to the pick-up list."
+  },
+  "pickupName": "Name",
+  "@pickupName": {
+    "description": "113.4 A pick-up person's name."
+  },
+  "pickupRelation": "Relation",
+  "@pickupRelation": {
+    "description": "113.4 A pick-up person's relation to the child (grandmother, uncle…)."
+  },
+  "pickupPhone": "Phone",
+  "@pickupPhone": {
+    "description": "113.4 A pick-up person's phone number."
+  },
+  "pickupPhoto": "Add a photo",
+  "@pickupPhoto": {
+    "description": "113.4 Adds a photo of a pick-up person."
+  },
+  "pickupRemove": "Remove",
+  "@pickupRemove": {
+    "description": "113.4 Takes a person off the pick-up list."
+  },
+  "pickupSaved": "Saved. The school sees the list.",
+  "@pickupSaved": {
+    "description": "113.4 After the pick-up list was saved."
+  },
+  "pickupNameNeeded": "Write their name.",
+  "@pickupNameNeeded": {
+    "description": "113.4 A pick-up person without a name."
+  },
+  "pickupOneDay": "Just for one day",
+  "@pickupOneDay": {
+    "description": "113.4 The one-day pick-up note part."
+  },
+  "pickupOneDayIntro": "Someone else picks up on a day? Tell the school: it sees it on that day's board.",
+  "@pickupOneDayIntro": {
+    "description": "113.4 What the one-day pick-up note is for."
+  },
+  "pickupDay": "Day",
+  "@pickupDay": {
+    "description": "113.4 The day of a one-day pick-up note."
+  },
+  "pickupNote": "Note for the school",
+  "@pickupNote": {
+    "description": "113.4 A one-day pick-up note's note."
+  },
+  "pickupTell": "Tell the school",
+  "@pickupTell": {
+    "description": "113.4 Sends a one-day pick-up note."
+  },
+  "pickupTold": "The school sees it on that day's board.",
+  "@pickupTold": {
+    "description": "113.4 After a one-day pick-up note was sent."
+  },
+  "pickupNoteLine": "{date}: {name}",
+  "@pickupNoteLine": {
+    "description": "113.4 A one-day pick-up note: the day and who picks up.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupTakeBack": "Take back",
+  "@pickupTakeBack": {
+    "description": "113.4 Deletes a one-day pick-up note."
+  },
+  "staffPayslips": "My payslips",
+  "@staffPayslips": {
+    "description": "113.12 Opens the person's own payslips (Staff and Classroom tabs)."
+  },
+  "payslipsNone": "No payslips yet. They show here once the school makes them final.",
+  "@payslipsNone": {
+    "description": "113.12 The payslips list is empty."
+  },
+  "payslipsByHand": "The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.",
+  "@payslipsByHand": {
+    "description": "113.12 Above the payslips: nothing is paid through the app."
+  },
+  "payslipUnpaid": "Not paid yet",
+  "@payslipUnpaid": {
+    "description": "113.12 A final payslip the school hasn't recorded as paid."
+  },
+  "payslipPartPaid": "Partly paid",
+  "@payslipPartPaid": {
+    "description": "113.12 A payslip paid in part."
+  },
+  "payslipPaid": "Paid",
+  "@payslipPaid": {
+    "description": "113.12 A payslip paid in full."
+  },
+  "payslipNetLine": "Net {amount}",
+  "@payslipNetLine": {
+    "description": "113.12 A payslip's net pay on the list.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipBase": "Base salary",
+  "@payslipBase": {
+    "description": "113.12 A payslip's base salary."
+  },
+  "payslipBonus": "Bonus",
+  "@payslipBonus": {
+    "description": "113.12 A bonus line without a name."
+  },
+  "payslipDeduction": "Deduction",
+  "@payslipDeduction": {
+    "description": "113.12 A deduction line without a name."
+  },
+  "payslipAbsences": "Absences ({count})",
+  "@payslipAbsences": {
+    "description": "113.12 A deduction for days absent, with how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipLateness": "Late arrivals ({count})",
+  "@payslipLateness": {
+    "description": "113.12 A deduction for coming late, with how many times.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipAdvance": "Advance taken back",
+  "@payslipAdvance": {
+    "description": "113.12 Part of an advance taken back from the pay."
+  },
+  "payslipGross": "Gross",
+  "@payslipGross": {
+    "description": "113.12 Base, allowances and bonuses together."
+  },
+  "payslipDeductions": "Deductions",
+  "@payslipDeductions": {
+    "description": "113.12 All deductions together."
+  },
+  "payslipNet": "Net pay",
+  "@payslipNet": {
+    "description": "113.12 What the person is paid."
+  },
+  "payslipPaidSoFar": "Paid",
+  "@payslipPaidSoFar": {
+    "description": "113.12 What the school recorded as paid so far."
+  },
+  "payslipLeft": "Left to pay",
+  "@payslipLeft": {
+    "description": "113.12 What is still to be paid."
+  },
+  "payslipPayments": "Payments",
+  "@payslipPayments": {
+    "description": "113.12 The payments the school recorded."
+  },
+  "payslipCash": "Cash, {date}",
+  "@payslipCash": {
+    "description": "113.12 A payment in cash, on a day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipBank": "Bank transfer, {date}",
+  "@payslipBank": {
+    "description": "113.12 A payment by bank transfer, on a day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipDays": "{working} working days · {present} present · {absent} absent · {late} late · {leave} on leave",
+  "@payslipDays": {
+    "description": "113.12 The month's days at the gate on a payslip.",
+    "placeholders": {
+      "working": {
+        "type": "int"
+      },
+      "present": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      },
+      "late": {
+        "type": "int"
+      },
+      "leave": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipViewPdf": "View the PDF",
+  "@payslipViewPdf": {
+    "description": "113.12 Opens the payslip's PDF in the app's viewer."
+  },
+  "payslipDownloadPdf": "Download the PDF",
+  "@payslipDownloadPdf": {
+    "description": "113.12 Opens the payslip's PDF outside the app, to keep it."
+  },
+  "payslipAdvances": "Advances",
+  "@payslipAdvances": {
+    "description": "113.12 The person's advances still being taken back."
+  },
+  "payslipAdvanceLine": "{amount} given on {date} · {instalment} a month · {left} left",
+  "@payslipAdvanceLine": {
+    "description": "113.12 An advance: how much, when, each month's part and what is left.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "instalment": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "uniRegister": "Register for the term",
+  "@uniRegister": {
+    "description": "113.9 Opens a university student's registration for the term."
+  },
+  "uniTimetable": "My timetable",
+  "@uniTimetable": {
+    "description": "113.9 Opens a university student's week of lectures."
+  },
+  "uniResults": "Results",
+  "@uniResults": {
+    "description": "113.9 Opens a university student's results by term."
+  },
+  "uniTranscript": "Transcript",
+  "@uniTranscript": {
+    "description": "113.9 Opens a university student's transcript."
+  },
+  "uniStudyPlan": "Study plan",
+  "@uniStudyPlan": {
+    "description": "113.9 Opens the courses of the student's program: done, in progress and left."
+  },
+  "uniGpa": "GPA",
+  "@uniGpa": {
+    "description": "113.9 The label of a university student's cumulative GPA."
+  },
+  "uniCreditsOf": "{earned} of {required} credits",
+  "@uniCreditsOf": {
+    "description": "113.9 The credits a student earned of those their program needs.",
+    "placeholders": {
+      "earned": {
+        "type": "String"
+      },
+      "required": {
+        "type": "String"
+      }
+    }
+  },
+  "uniCredits": "{credits} credits",
+  "@uniCredits": {
+    "description": "113.9 A course's or a term's credits.",
+    "placeholders": {
+      "credits": {
+        "type": "String"
+      }
+    }
+  },
+  "uniAdvisor": "Advisor: {name}",
+  "@uniAdvisor": {
+    "description": "113.9 The lecturer who approves the student's registration.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "uniNoProgram": "No program yet: the university adds it.",
+  "@uniNoProgram": {
+    "description": "113.9 A student the university hasn't given a program yet."
+  },
+  "uniStatusDraft": "Not sent",
+  "@uniStatusDraft": {
+    "description": "113.9 A registration not sent to the advisor yet."
+  },
+  "uniStatusSubmitted": "With your advisor",
+  "@uniStatusSubmitted": {
+    "description": "113.9 A registration waiting for the advisor's answer."
+  },
+  "uniStatusApproved": "Approved",
+  "@uniStatusApproved": {
+    "description": "113.9 A registration the advisor approved."
+  },
+  "uniStatusReturned": "Sent back",
+  "@uniStatusReturned": {
+    "description": "113.9 A registration the advisor sent back to change."
+  },
+  "uniPhaseBefore": "Registration opens on {date}",
+  "@uniPhaseBefore": {
+    "description": "113.9 The term's registration isn't open yet.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uniPhaseOpen": "Registration is open until {date}",
+  "@uniPhaseOpen": {
+    "description": "113.9 The term's registration is open.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uniPhaseDrop": "You can drop a course until {date}",
+  "@uniPhaseDrop": {
+    "description": "113.9 Registration is over; courses can still be dropped.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "uniPhaseClosed": "Registration for this term is closed",
+  "@uniPhaseClosed": {
+    "description": "113.9 The term's registration and drop days are over."
+  },
+  "uniCreditsRange": "{taken} credits · {min} to {max} a term",
+  "@uniCreditsRange": {
+    "description": "113.9 The credits a student holds this term and the program's least and most.",
+    "placeholders": {
+      "taken": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "uniMySections": "My sections",
+  "@uniMySections": {
+    "description": "113.9 The sections a student holds this term, or a lecturer teaches."
+  },
+  "uniOffered": "Sections offered",
+  "@uniOffered": {
+    "description": "113.9 The term's other sections a student can add."
+  },
+  "uniAdd": "Add",
+  "@uniAdd": {
+    "description": "113.9 Adds a section to the student's registration."
+  },
+  "uniJoinWaitlist": "Join the waiting list",
+  "@uniJoinWaitlist": {
+    "description": "113.9 Adds a full section's waiting list."
+  },
+  "uniDrop": "Drop",
+  "@uniDrop": {
+    "description": "113.9 Drops a section from the student's registration."
+  },
+  "uniDropConfirm": "Drop {course}?",
+  "@uniDropConfirm": {
+    "description": "113.9 Asks before a section is dropped.",
+    "placeholders": {
+      "course": {
+        "type": "String"
+      }
+    }
+  },
+  "uniSeatsLeft": "{count, plural, =0{Full} =1{1 seat left} other{{count} seats left}}",
+  "@uniSeatsLeft": {
+    "description": "113.9 The seats a section has left.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniEnrolPending": "Waiting for approval",
+  "@uniEnrolPending": {
+    "description": "113.9 A section asked for, waiting for the advisor."
+  },
+  "uniEnrolEnrolled": "Enrolled",
+  "@uniEnrolEnrolled": {
+    "description": "113.9 A section the student is enrolled in."
+  },
+  "uniEnrolWaitlisted": "Waiting list",
+  "@uniEnrolWaitlisted": {
+    "description": "113.9 A full section the student waits for."
+  },
+  "uniSubmit": "Send to my advisor",
+  "@uniSubmit": {
+    "description": "113.9 Sends the student's registration to their advisor."
+  },
+  "uniSubmitted": "Sent to your advisor.",
+  "@uniSubmitted": {
+    "description": "113.9 Shown once the registration is sent to the advisor."
+  },
+  "uniAdvisorNote": "Your advisor: {note}",
+  "@uniAdvisorNote": {
+    "description": "113.9 The advisor's note on a registration sent back.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "uniReadOnly": "Only the student changes the registration.",
+  "@uniReadOnly": {
+    "description": "113.9 Shown to a parent looking at their child's registration."
+  },
+  "uniNoSections": "No sections in this term yet.",
+  "@uniNoSections": {
+    "description": "113.9 A term without sections yet."
+  },
+  "uniNoLectures": "No lectures this term.",
+  "@uniNoLectures": {
+    "description": "113.9 A student's empty week of lectures."
+  },
+  "uniNoLecturesToday": "No lectures today.",
+  "@uniNoLecturesToday": {
+    "description": "113.9 A day without lectures on the student's home."
+  },
+  "uniTermGpa": "Term GPA {gpa}",
+  "@uniTermGpa": {
+    "description": "113.9 A term's GPA in the results.",
+    "placeholders": {
+      "gpa": {
+        "type": "String"
+      }
+    }
+  },
+  "uniCumulative": "Cumulative GPA",
+  "@uniCumulative": {
+    "description": "113.9 The label of the GPA over every term."
+  },
+  "uniNoResults": "No results yet.",
+  "@uniNoResults": {
+    "description": "113.9 A student without published results."
+  },
+  "uniOpenPdf": "Open the PDF",
+  "@uniOpenPdf": {
+    "description": "113.9 Opens the transcript as a PDF."
+  },
+  "uniPlanDone": "Done",
+  "@uniPlanDone": {
+    "description": "113.9 A course of the study plan passed."
+  },
+  "uniPlanInProgress": "In progress",
+  "@uniPlanInProgress": {
+    "description": "113.9 A course of the study plan taken this term."
+  },
+  "uniPlanLeft": "Left",
+  "@uniPlanLeft": {
+    "description": "113.9 A course of the study plan still to take."
+  },
+  "uniPlanCredits": "{done} done · {inProgress} in progress · {left} left of {required} credits",
+  "@uniPlanCredits": {
+    "description": "113.9 The study plan's credits, done, in progress and left.",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "inProgress": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      },
+      "required": {
+        "type": "String"
+      }
+    }
+  },
+  "uniYear": "Year {year}",
+  "@uniYear": {
+    "description": "113.9 A year of the study plan.",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "uniElective": "Elective",
+  "@uniElective": {
+    "description": "113.9 A study plan's elective course."
+  },
+  "uniStudents": "{count, plural, =1{1 student} other{{count} students}}",
+  "@uniStudents": {
+    "description": "113.9 How many students a lecturer's section has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniAdvisees": "My advisees",
+  "@uniAdvisees": {
+    "description": "113.9 Opens the students a lecturer advises."
+  },
+  "uniAdviseesWaiting": "{count, plural, =0{Nothing waits for you} =1{1 registration waits for you} other{{count} registrations wait for you}}",
+  "@uniAdviseesWaiting": {
+    "description": "113.9 Registrations waiting for the advisor's answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniNoTeaching": "No sections this term: the university adds you as their lecturer.",
+  "@uniNoTeaching": {
+    "description": "113.9 A lecturer without sections this term."
+  },
+  "uniPublished": "Results published",
+  "@uniPublished": {
+    "description": "113.9 A section whose results the students see."
+  },
+  "uniPublish": "Publish results",
+  "@uniPublish": {
+    "description": "113.9 Publishes a section's results to its students."
+  },
+  "uniPublishConfirm": "The students and their parents see their grades and are told.",
+  "@uniPublishConfirm": {
+    "description": "113.9 Asks before a section's results are published."
+  },
+  "uniSaveGrades": "Save grades",
+  "@uniSaveGrades": {
+    "description": "113.9 Saves a section's grades."
+  },
+  "uniGradesSaved": "Grades saved.",
+  "@uniGradesSaved": {
+    "description": "113.9 Shown once a section's grades are saved."
+  },
+  "uniResultsPublished": "Published. The students were told.",
+  "@uniResultsPublished": {
+    "description": "113.9 Shown once a section's results are published."
+  },
+  "uniMark": "Mark (%)",
+  "@uniMark": {
+    "description": "113.9 The percent a lecturer gives; the scale's letter comes from it."
+  },
+  "uniGrade": "Grade",
+  "@uniGrade": {
+    "description": "113.9 A letter of the university's grading scale."
+  },
+  "uniNoGrade": "No grade",
+  "@uniNoGrade": {
+    "description": "113.9 A student not graded yet."
+  },
+  "uniApprove": "Approve",
+  "@uniApprove": {
+    "description": "113.9 The advisor approves an advisee's registration."
+  },
+  "uniSendBack": "Send back",
+  "@uniSendBack": {
+    "description": "113.9 The advisor sends a registration back to change."
+  },
+  "uniNoteHint": "Note to the student (optional)",
+  "@uniNoteHint": {
+    "description": "113.9 The advisor's note when sending a registration back."
+  },
+  "uniApproved": "Approved. The student was told.",
+  "@uniApproved": {
+    "description": "113.9 Shown once the advisor approved."
+  },
+  "uniSentBack": "Sent back. The student was told.",
+  "@uniSentBack": {
+    "description": "113.9 Shown once the advisor sent it back."
+  },
+  "uniNoAdvisees": "No students to advise this term.",
+  "@uniNoAdvisees": {
+    "description": "113.9 A lecturer without advisees."
+  },
+  "uniAttendanceSaved": "Attendance saved.",
+  "@uniAttendanceSaved": {
+    "description": "113.9 Shown once a lecture's attendance is saved."
   }
 }

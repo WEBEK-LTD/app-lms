@@ -33,7 +33,9 @@ export type AssetKind =
   // 108.2 The pictures of a design brought into Studio (a design file, SVG, Figma, Sketch, Penpot).
   | "design_image"
   // 105.2 A driver's papers (licence, car registration): only the company sees them, never at the public address.
-  | "driver_document";
+  | "driver_document"
+  // 113.12 A photo of a salary's or an advance's receipt: only the school's dashboard sees it.
+  | "salary_receipt";
 export type AppTemplate = "classic" | "bold" | "minimal";
 
 export interface User {
@@ -4801,6 +4803,8 @@ export interface SchoolSettings {
   bus?: SchoolBusSettings;
   /** 113.11 The library's loan and hold days; left out: the defaults (lib/school/library.ts). */
   library?: SchoolLibrarySettings;
+  /** 113.12 The deductions suggested from check-in; left out: off (lib/school/salaries.ts). */
+  salaries?: SchoolSalarySettings;
   /** 113.8 Which behaviour notes parents get a push for; "all" when not set. */
   behaviourAlerts?: SchoolBehaviourAlerts;
   /** 113.8 The school saved its behaviour categories once: the suggested ones aren't added again. */
@@ -5477,5 +5481,442 @@ export interface SchoolBookHold {
   readyAt: Date | null;
   expiresAt: Date | null;
   createdAt: Date;
+  updatedAt: Date;
+}
+
+// 113.4 The parent's area: permission slips, absence excuses and pick-up
+
+/** Who a permission slip is for: everyone, a grade's classes, or one class. */
+export type SchoolSlipAudience = "school" | "grade" | "class";
+
+/** A permission slip the school sends the parents to sign, yes or no, by its due date. */
+export interface SchoolSlip {
+  id: number;
+  appId: string;
+  title: string;
+  details: string | null;
+  /** YYYY-MM-DD: answers are taken to the end of this day. */
+  dueOn: string;
+  /** "E£150, paid at the office"; the slip takes no payment. */
+  feeNote: string | null;
+  audience: SchoolSlipAudience;
+  grade: string | null;
+  classId: number | null;
+  /** The day-before reminder went to the parents who hadn't answered. */
+  remindedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolSlipInput = Pick<SchoolSlip, "appId" | "title" | "details" | "dueOn" | "feeNote" | "audience" | "grade" | "classId">;
+
+/** A parent's answer for one child; one per slip and student (answered again, it is replaced). */
+export interface SchoolSlipAnswer {
+  appId: string;
+  slipId: number;
+  studentId: number;
+  answer: "yes" | "no";
+  /** The name the parent signed with. */
+  signedName: string;
+  /** The parent who answered. */
+  parentId: number | null;
+  answeredAt: Date;
+}
+
+export type SchoolExcuseStatus = "pending" | "accepted" | "declined" | "cancelled";
+
+/** A parent's excuse for a child's absence (a day or several), accepted or declined by the school. */
+export interface SchoolExcuse {
+  id: number;
+  appId: string;
+  studentId: number;
+  /** The parent who sent it. */
+  parentId: number | null;
+  startsOn: string;
+  endsOn: string;
+  reason: string;
+  /** A photo or PDF (a doctor's note). */
+  file: SchoolFileRef | null;
+  status: SchoolExcuseStatus;
+  answer: string | null;
+  answeredBy: string | null;
+  answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Someone a child's parents allow to pick the child up. */
+export interface SchoolPickupPerson {
+  name: string;
+  /** "Grandmother". */
+  relation: string | null;
+  /** As typed. */
+  phone: string | null;
+  photo: SchoolFileRef | null;
+}
+
+/** A child's pick-up list; one per student. */
+export interface SchoolPickup {
+  appId: string;
+  studentId: number;
+  people: SchoolPickupPerson[];
+  /** Who changed it last (a parent's name, or the school's). */
+  updatedBy: string | null;
+  updatedAt: Date;
+}
+
+/** "Today X picks up": one day's pick-up, one per student and day. */
+export interface SchoolPickupNote {
+  appId: string;
+  studentId: number;
+  date: string;
+  name: string;
+  relation: string | null;
+  phone: string | null;
+  note: string | null;
+  /** Who wrote it (a parent's name, or the school's). */
+  writtenBy: string | null;
+  createdAt: Date;
+}
+
+// 113.12 Salaries, recorded by hand: written down as paid out and paid in, never through a payment gateway; nothing moves money.
+
+/** 113.12 An allowance on a salary ("Transport"), as the school set it. */
+export interface SchoolSalaryAllowance {
+  name: string;
+  cents: number;
+}
+
+/** 113.12 A teacher's or staff member's salary: the monthly amount, its currency and the allowances. */
+export interface SchoolSalary {
+  appId: string;
+  personId: number;
+  monthlyCents: number;
+  currency: CatalogCurrency;
+  allowances: SchoolSalaryAllowance[];
+  note: string | null;
+  updatedBy: string | null;
+  updatedAt: Date;
+}
+
+/** 113.12 How a payment or an advance was handed over (or paid back): cash, or a bank transfer the school made itself. */
+export type SchoolPayMethod = "cash" | "bank";
+export const SCHOOL_PAY_METHODS: readonly SchoolPayMethod[] = ["cash", "bank"];
+
+/** 113.12 Money written down as handed over or paid back: the amount, how, the day, who recorded it, a note and a photo of the receipt. */
+export interface SchoolPayRecord {
+  /** A short random ID within its list. */
+  id: string;
+  cents: number;
+  method: SchoolPayMethod;
+  /** YYYY-MM-DD, the day it was handed over. */
+  paidOn: string;
+  note: string | null;
+  /** A `salary_receipt` asset: only the school's dashboard sees it. */
+  receiptAssetId: string | null;
+  /** Who recorded it (the dashboard's user). */
+  by: string;
+  /** ISO, when it was recorded. */
+  at: string;
+}
+
+export type SchoolPayslipLineKind = "bonus" | "deduction" | "advance";
+/** Written by the office, or suggested from 113.2's absences and lateness, or an advance's instalment. */
+export type SchoolPayslipLineSource = "office" | "absence" | "lateness" | "advance";
+/** A suggestion waits for the office (not counted); accepted counts; dismissed is kept so it isn't suggested again. */
+export type SchoolPayslipLineStatus = "suggested" | "accepted" | "dismissed";
+
+/** 113.12 A line of the month's sheet beyond the base and allowances. */
+export interface SchoolPayslipLine {
+  id: string;
+  kind: SchoolPayslipLineKind;
+  source: SchoolPayslipLineSource;
+  status: SchoolPayslipLineStatus;
+  label: string;
+  cents: number;
+  /** What was suggested, kept when the office changed the amount. */
+  suggestedCents: number | null;
+  /** The absences or late days a suggestion counted. */
+  count: number | null;
+  /** The advance an instalment takes back. */
+  advanceId: number | null;
+}
+
+/** 113.12 The month's days at work, from check-in (113.2), when the sheet was made. */
+export interface SchoolPayslipAttendance {
+  /** The person's working days in the whole month. */
+  workingDays: number;
+  /** Their school days counted so far (to the day the sheet was made). */
+  days: number;
+  present: number;
+  late: number;
+  leftEarly: number;
+  absent: number;
+  excused: number;
+  leave: number;
+}
+
+/** draft: the office still changes it; final: locked, the person sees it in the app; paid: final and paid in full. */
+export type SchoolPayslipStatus = "draft" | "final" | "paid";
+
+/** 113.12 A person's sheet for a month: base, allowances, bonuses, deductions, advances taken back and the net; payments recorded on it. */
+export interface SchoolPayslip {
+  id: number;
+  appId: string;
+  /** No foreign key: a payslip stays when the person is removed, with their name. */
+  personId: number;
+  /** YYYY-MM. */
+  month: string;
+  personName: string;
+  role: "teacher" | "staff";
+  jobTitle: string | null;
+  department: string | null;
+  currency: CatalogCurrency;
+  baseCents: number;
+  allowances: SchoolSalaryAllowance[];
+  lines: SchoolPayslipLine[];
+  attendance: SchoolPayslipAttendance | null;
+  netCents: number;
+  status: SchoolPayslipStatus;
+  payments: SchoolPayRecord[];
+  paidCents: number;
+  note: string | null;
+  finalAt: Date | null;
+  finalBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.12 A month locked: its sheets are final, none is made or changed until it's opened again. */
+export interface SchoolSalaryMonth {
+  appId: string;
+  month: string;
+  lockedAt: Date | null;
+  lockedBy: string | null;
+  updatedAt: Date;
+}
+
+/** 113.12 An advance handed over to a person, taken back from their payslips in instalments (or paid back at the office). */
+export interface SchoolSalaryAdvance {
+  id: number;
+  appId: string;
+  /** No foreign key, like a payslip's. */
+  personId: number;
+  personName: string;
+  currency: CatalogCurrency;
+  amountCents: number;
+  /** Taken back each month from `startsMonth`. */
+  instalmentCents: number;
+  startsMonth: string;
+  /** How it was handed over. */
+  given: SchoolPayRecord;
+  /** Paid back outside the payslips. */
+  repayments: SchoolPayRecord[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.12 The deductions suggested from check-in; off until the school turns them on. A person in the office accepts or changes each one. */
+export interface SchoolSalarySettings {
+  /** Each absence without an excuse (approved leave and excused days aren't absences) suggests `days` of a day's pay. */
+  absence: { on: boolean; days: number };
+  /** Every `every` late arrivals (and leaving early, when `countEarly`) suggest `days` of a day's pay. */
+  lateness: { on: boolean; every: number; days: number; countEarly: boolean };
+  /** A day's pay: the base (and the allowances, when on) over the person's working days in the month. */
+  dayPayWithAllowances: boolean;
+}
+
+// 113.9 Universities (a school in university mode, the uni_* tables)
+
+/** A letter of the university's grading scale. */
+export interface UniGrade {
+  /** "A", "B+", "F", "W". */
+  letter: string;
+  /** 4.0 … 0. */
+  points: number;
+  /** The least percent that gives it; null: given by hand only (W, I). */
+  minPercent: number | null;
+  /** It counts in the GPA (a withdrawal doesn't). */
+  gpa: boolean;
+  /** It passes the course: its credits are earned and it meets a prerequisite. */
+  passes: boolean;
+}
+
+/** The university's settings (uni_settings). */
+export interface UniSettings {
+  /** The school is a university: faculties, programs, registration each term, results by term. */
+  enabled: boolean;
+  scale: UniGrade[];
+  /** The term the app and the dashboard open on; null: today's term, else the next one. */
+  currentTermId: number | null;
+  /** A full section takes a waiting list. */
+  waitlist: boolean;
+}
+
+export interface UniFaculty {
+  id: number;
+  appId: string;
+  name: string;
+  code: string | null;
+  createdAt: Date;
+}
+
+export interface UniDepartment {
+  id: number;
+  appId: string;
+  facultyId: number;
+  name: string;
+  code: string | null;
+  createdAt: Date;
+}
+
+/** A course of a program's study plan, in the year it is planned for. */
+export interface UniPlanCourse {
+  courseId: number;
+  /** 1 … the program's years. */
+  year: number;
+  /** Elective when false. */
+  required: boolean;
+}
+
+export interface UniProgram {
+  id: number;
+  appId: string;
+  departmentId: number;
+  name: string;
+  code: string | null;
+  /** "BSc", "BA", "MSc". */
+  degree: string;
+  creditsRequired: number;
+  years: number;
+  /** The least and the most credits a student takes in a term. */
+  minTermCredits: number;
+  maxTermCredits: number;
+  plan: UniPlanCourse[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UniCourse {
+  id: number;
+  appId: string;
+  departmentId: number | null;
+  /** "CS101", unique at the university. */
+  code: string;
+  title: string;
+  credits: number;
+  /** The codes of the courses passed first. */
+  prerequisites: string[];
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A term of an academic year, with its registration window and its add/drop deadline. */
+export interface UniTerm {
+  id: number;
+  appId: string;
+  name: string;
+  /** "2026/2027". */
+  academicYear: string;
+  startsOn: string;
+  endsOn: string;
+  /** Students register (add sections) from this day to `registrationCloses`. */
+  registrationOpens: string;
+  registrationCloses: string;
+  /** The last day a section is dropped (and added after the advisor sends it back). */
+  dropUntil: string;
+  createdAt: Date;
+}
+
+/** A section's weekly lecture. */
+export interface UniMeeting {
+  /** 1 Monday … 7 Sunday. */
+  weekday: number;
+  startMinute: number;
+  endMinute: number;
+  room: string | null;
+}
+
+/** A course taught in a term: its lecturer, seats and weekly lectures. */
+export interface UniSection {
+  id: number;
+  appId: string;
+  termId: number;
+  courseId: number;
+  /** "01". */
+  code: string;
+  /** A school teacher (school_people). */
+  lecturerId: number | null;
+  seats: number;
+  meetings: UniMeeting[];
+  /** Its grades are out to its students. */
+  resultsPublishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A student's place at the university: their program and their advisor (a lecturer). */
+export interface UniStudent {
+  appId: string;
+  studentId: number;
+  programId: number | null;
+  advisorId: number | null;
+  /** The academic year they started, "2025/2026". */
+  startYear: string | null;
+  updatedAt: Date;
+}
+
+export type UniRegistrationStatus = "draft" | "submitted" | "approved" | "returned";
+export const UNI_REGISTRATION_STATUSES: readonly UniRegistrationStatus[] = ["draft", "submitted", "approved", "returned"];
+
+/** A student's registration for a term, approved or sent back by their advisor. */
+export interface UniRegistration {
+  appId: string;
+  termId: number;
+  studentId: number;
+  status: UniRegistrationStatus;
+  /** The advisor's note when they send it back. */
+  note: string | null;
+  submittedAt: Date | null;
+  decidedAt: Date | null;
+  /** The advisor; null: the office. */
+  decidedBy: number | null;
+  updatedAt: Date;
+}
+
+/** pending: asked for, waiting for the advisor (its seat held); enrolled: approved or added by the office. */
+export type UniEnrolmentStatus = "pending" | "enrolled" | "waitlisted" | "dropped";
+export const UNI_ENROLMENT_STATUSES: readonly UniEnrolmentStatus[] = ["pending", "enrolled", "waitlisted", "dropped"];
+
+/** A student in a section; one per section and student, with its grade. */
+export interface UniEnrolment {
+  id: number;
+  appId: string;
+  termId: number;
+  sectionId: number;
+  courseId: number;
+  studentId: number;
+  status: UniEnrolmentStatus;
+  addedBy: "student" | "office";
+  addedAt: Date;
+  droppedAt: Date | null;
+  /** A letter of the scale. */
+  grade: string | null;
+  /** The percent it came from, when the lecturer gave one. */
+  mark: number | null;
+  gradedAt: Date | null;
+  updatedAt: Date;
+}
+
+/** A student's mark at a section's lecture on a day. */
+export interface UniAttendance {
+  appId: string;
+  sectionId: number;
+  studentId: number;
+  date: string;
+  status: SchoolAttendanceStatus;
+  note: string | null;
+  takenBy: number | null;
   updatedAt: Date;
 }

@@ -130,11 +130,28 @@ abstract final class Paths {
   static const staffNews = '/staff/news';
   // 113.8 The school's calendar in the Staff tab (the staff's own events too).
   static const staffCalendar = '/staff/calendar';
+  // 113.12 The person's own payslips.
+  static const staffPayslips = '/staff/payslips';
+  static String staffPayslip(int id) => '/staff/payslip/$id';
 
   /// 113.10 The bus's crew: their routes and a trip; 113.11 a library book.
   static const busDuty = '$school/bus-duty';
+  // 113.4 The Parent tab, only parents see: the children's days, permission
+  // slips, absence excuses and who picks a child up.
+  static const parent = '/parent';
+  static const parentSlips = '/parent/slips';
+  static String parentPart(String part, {required int student}) => Uri(
+    path: '$parent/$part',
+    queryParameters: {'student': '$student'},
+  ).toString();
   static String busRun(int id) => '$busDuty/run/$id';
   static String libraryBook(int id) => '$school/library/book/$id';
+  // 113.9 A university's lecturers: their sections and advisees.
+  static String classroomSection(int id) => '$classroom/section/$id';
+  static String sectionAttendance(int id) =>
+      '$classroom/section/$id/attendance';
+  static const classroomAdvisees = '$classroom/advisees';
+  static String classroomAdvisee(int id) => '$classroom/advisee/$id';
 
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
@@ -267,7 +284,8 @@ abstract final class Paths {
       // 105.4 A school's screens, for the people it added.
       location.startsWith(school) ||
       location.startsWith(classroom) ||
-      location.startsWith(staff);
+      location.startsWith(staff) ||
+      location.startsWith(parent);
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

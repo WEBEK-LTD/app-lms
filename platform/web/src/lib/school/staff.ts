@@ -6,7 +6,8 @@ import { fileJson } from "./service";
 /**
  * 113.3 Everyone who works at the school, teachers and staff: their job,
  * department, working hours and duties, their leave requests from the app
- * (answered in the dashboard) and the staff's own news. No pay or salaries.
+ * (answered in the dashboard) and the staff's own news. Their salaries,
+ * recorded by hand, are 113.12's (lib/school/salaries.ts).
  */
 
 export const STAFF_LIMITS = { jobTitle: 80, department: 80, duties: 1000, leaveNote: 1000, answer: 1000, leaveDays: 90 } as const;
