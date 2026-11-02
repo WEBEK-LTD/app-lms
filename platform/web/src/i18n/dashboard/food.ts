@@ -261,6 +261,20 @@ export const en = {
     chooseJob: "Choose when a courier gets the order.",
     chooseZone: "Choose the time zone of your restaurants' hours.",
   },
+  // The page kit on Restaurants and Food orders.
+  formAbout: "About the restaurant",
+  formAboutHint: "What customers see on its page in the app.",
+  formWhere: "Where it is",
+  formWhereHint: "Couriers pick orders up here; the fee counts from here.",
+  formOrders: "Orders and your share",
+  formOrdersHint: "How long it takes, the smallest order, how far it delivers and what you keep.",
+  formPictures: "Pictures",
+  statDishes: "Dishes",
+  addRestaurantHint: "Its name, address and place on the map; set its hours, menu and staff on its page next.",
+  searchRestaurants: "Search restaurants",
+  noRestaurantMatch: "No restaurants match.",
+  inAppTitle: "In the app",
+  statDelivered: "Delivered this month",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -513,6 +527,19 @@ export const ar: Strings<typeof en> = {
     chooseJob: "اختر متى يحصل المندوب على الطلب.",
     chooseZone: "اختر المنطقة الزمنية لمواعيد عمل مطاعمك.",
   },
+  formAbout: "عن المطعم",
+  formAboutHint: "ما يراه العملاء في صفحته داخل التطبيق.",
+  formWhere: "مكانه",
+  formWhereHint: "يستلم المندوبون الطلبات من هنا، وتُحسب رسوم التوصيل من هنا.",
+  formOrders: "الطلبات وحصتك",
+  formOrdersHint: "مدة التحضير وأقل طلب ومدى التوصيل وما تحتفظ به.",
+  formPictures: "الصور",
+  statDishes: "الأطباق",
+  addRestaurantHint: "اسمه وعنوانه ومكانه على الخريطة، ثم اضبط مواعيده وقائمته وفريقه في صفحته.",
+  searchRestaurants: "ابحث في المطاعم",
+  noRestaurantMatch: "لا توجد مطاعم مطابقة.",
+  inAppTitle: "في التطبيق",
+  statDelivered: "المُسلَّمة هذا الشهر",
 };
 
 export const tr: Strings<typeof en> = {
@@ -765,4 +792,17 @@ export const tr: Strings<typeof en> = {
     chooseJob: "Kuryenin siparişi ne zaman alacağını seçin.",
     chooseZone: "Restoranlarınızın saatlerinin saat dilimini seçin.",
   },
+  formAbout: "Restoran hakkında",
+  formAboutHint: "Müşterilerin uygulamada sayfasında gördükleri.",
+  formWhere: "Nerede",
+  formWhereHint: "Kuryeler siparişleri buradan alır; ücret buradan hesaplanır.",
+  formOrders: "Siparişler ve payınız",
+  formOrdersHint: "Hazırlık süresi, en küçük sipariş, teslimat mesafesi ve sizin payınız.",
+  formPictures: "Görseller",
+  statDishes: "Yemekler",
+  addRestaurantHint: "Adı, adresi ve haritadaki yeri; saatlerini, menüsünü ve çalışanlarını sonra sayfasında ayarlayın.",
+  searchRestaurants: "Restoranlarda ara",
+  noRestaurantMatch: "Eşleşen restoran yok.",
+  inAppTitle: "Uygulamada",
+  statDelivered: "Bu ay teslim edilen",
 };
