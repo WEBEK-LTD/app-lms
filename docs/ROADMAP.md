@@ -2754,3 +2754,21 @@ on a desktop and a phone.
 | [x] | 111.1 A save that doesn't go through keeps every choice on screen: React resets a form after each answer of its action, which put the design radios, the template list and the font back to how they were first drawn ("Keep my pages" for a new project) while the step kept the choice; the same for the Listing step's framed screenshots and language and the Publishing choice. The upload's own message ("Upload your app icon.") now shows, so a new project's first Branding save no longer fails without a word | e2e (`tests/e2e/studio-setup.spec.ts`) |
 | [x] | 111.2 Inside Studio every link and save of the setup stays in Studio: the steps, Preview, Plan, Back, More Android stores, Fingerprint and Team ID, the Builds page after the last step; the App type step and the Website step's Back no longer open the regular dashboard's App type (a Studio project's kind is chosen when it's made); deleting a Studio project goes back to Studio's projects | e2e |
 | [x] | 111.3 A Studio project's Publishing step offers Studio's plans, not the regular ones; "Not set" (no plan yet) in the dashboard's language; the Studio kinds' 18 designs (delivery, food, rides, taxi, many teachers, school) named and described in Arabic and Turkish in the Branding step | unit tests, e2e |
+
+## Phase 112: Studio apps that feel finished
+
+The owner's request (2 November): the ride app should really work like
+Uber, with the destination and the map, not just a request; the delivery
+apps should show the courier on the map, where they come from and where
+they go; the drivers' and couriers' app should be its own app, two apps for
+one company; the store needs more sections and new sliders; and the
+academies' and schools' dashboards should be a real LMS. All of it in
+Yallapp Studio.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 112.1 Rides like Uber (`rides` and `taxi`): the map is the rider's home with "Where to?", the pickup moved on the map, the route with each vehicle type's fare on a sheet over the map, the driver coming and the trip followed on it, the receipt and rating; the driver's side on the map too, with navigation; ride companies get the map the way taxis do (their own, else the platform's Admin › Settings › Maps) | unit tests, flutter widget tests, e2e |
+| [x] | 112.2 Delivery and food on the map: the courier live on the customer's screen with the pickup, the drop-off, the route and the time left; the courier's job with the route and navigation; the dashboard's live map of couriers and jobs | unit tests, flutter widget tests, e2e |
+| [ ] | 112.3 Two apps for one company: for delivery, food, rides and taxi projects the drivers' and couriers' app (104.6) is its own app, and the customers' app has no drivers' or couriers' screens | unit tests, flutter widget tests |
+| [x] | 112.4 The store in Studio: thirteen ready sections (an offers slider, a flash sale with its countdown and the products on sale, categories in pictures and in circles, new arrivals, best sellers, on sale, the deal of the day, shop the look with spots on the picture, brands, why buy here, a coupon whose code is copied with a tap, recently viewed), three new sliders for every kind (a full-width hero with lines that fill, peeking cards, a picture beside its words with "1 / 3"), and three store templates (Shop, Shop offers, Shop looks) used by the store's whole designs; contract: the `coupon` element, the slider's `indicator`, `place` for spots, the categories' `style` and `columns`, `Category.image_url`, `ItemsQuery.on_sale`, the products list's `recent`; plugin 0.4.31 | unit tests, flutter widget tests, plugin unit tests, e2e |
+| [ ] | 112.5 A real LMS for academies, academies with many teachers and schools: the course builder, quizzes, assignments, the gradebook, certificates, students and cohorts, live classes and analytics | unit tests, flutter widget tests, e2e |

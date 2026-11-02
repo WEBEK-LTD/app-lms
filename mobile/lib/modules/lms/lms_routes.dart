@@ -12,6 +12,8 @@ import '../shared/account/lists_screens.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'courses/course_detail_screen.dart';
+import 'coursework/assignment_screen.dart';
+import 'coursework/live_screens.dart';
 import 'data/lms_providers.dart';
 import 'courses/course_questions.dart';
 import 'courses/courses_screen.dart';
@@ -160,6 +162,13 @@ List<TabScreen> _screens() => [
           pageBuilder: (context, state) =>
               appPage(state, const QuizResultsScreen()),
         ),
+        // 112.5 The student's live classes.
+        GoRoute(
+          path: 'live-classes',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const LiveClassesScreen()),
+        ),
         // 45 Lessons saved for offline viewing.
         GoRoute(
           path: 'downloads',
@@ -247,6 +256,29 @@ List<RouteBase> _pushedRoutes() => [
             ? const NotFoundScreen()
             : ProtectedContent(child: QuizScreen(quizId: id)),
         fullscreen: true,
+      );
+    },
+  ),
+  // 112.5 An assignment and a live class of a course managed in Yallapp.
+  GoRoute(
+    path: '/assignment/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null
+            ? const NotFoundScreen()
+            : ProtectedContent(child: AssignmentScreen(assignmentId: id)),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/live/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : LiveSessionScreen(liveId: id),
       );
     },
   ),

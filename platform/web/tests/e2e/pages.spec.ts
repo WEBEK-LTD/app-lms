@@ -856,6 +856,98 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await expect(admin.getByText("Studio Start saved. It isn't offered: clients don't see it.")).toBeVisible();
 });
 
+test("112.4 a store project starts from a full shop, with a store's sections and new sliders", async () => {
+  // A store's three templates; the full shop chosen.
+  await own.goto("/studio/new");
+  await own.getByRole("radio", { name: "Store", exact: true }).check();
+  await own.getByRole("radio", { name: "No website: everything from here" }).click();
+  await expect(own.getByRole("radio", { name: "Shop offers" })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "Shop looks" })).toBeVisible();
+  await own.getByRole("radio", { name: "Shop", exact: true }).click();
+  await own.getByLabel("Project name").fill("Lale Shop");
+  await own.getByRole("button", { name: "Next" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  await own.getByRole("link", { name: "Open the editor" }).first().click();
+  await expect(own).toHaveURL(/\/studio\/editor$/);
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+  const inspector = own.getByRole("complementary", { name: "Design" });
+
+  // Its home: a big slider with lines that fill, round categories, a flash sale counting down, a coupon, why buy here.
+  await expect(phone.locator('[data-studio-indicator="progress"]')).toBeVisible();
+  await expect(phone.locator("[data-studio-categories=circles]")).toBeVisible();
+  await expect(phone.getByText("Up to 50% off, for a short time")).toBeVisible();
+  await expect(phone.locator("[data-studio-countdown]").first()).toBeVisible();
+  await expect(phone.locator("[data-studio-coupon]")).toContainText("WELCOME15");
+  await expect(phone.getByText("Easy returns")).toBeVisible();
+  await expect(phone.getByText("Recently viewed")).toBeVisible();
+  // Yallapp's own pictures on the slides, no "Write ..." left.
+  await expect(phone.locator('[data-studio-node][style*="design-pictures/sunset-waves.jpg"]')).toHaveCount(1);
+  await expect(phone.getByText(/^Write /)).toHaveCount(0);
+
+  // A new page from the store's own ready sections.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByLabel("Page name").fill("Deals");
+  await own.getByRole("button", { name: "Add the page" }).click();
+  await expect(own.getByRole("button", { name: "Page: Deals" })).toBeVisible();
+  await own.getByRole("tab", { name: "Ready sections" }).click();
+  const sections = own.locator("[data-studio-section]");
+  await expect(sections.first()).toHaveAttribute("data-studio-section", "banner_slider");
+  const unselect = () => phone.click({ position: { x: 4, y: 4 } });
+
+  // A coupon whose code is changed in its panel.
+  await own.locator('[data-studio-section="coupon"]').click();
+  await phone.locator("[data-studio-coupon]").click();
+  await inspector.getByLabel("The code").fill("ramadan10");
+  await expect(phone.locator("[data-studio-coupon]")).toContainText("RAMADAN10");
+  await unselect();
+
+  // A picture beside its words, "1 / 3" over it, turned to dots; its slides' words in the middle.
+  await own.locator('[data-studio-section="split_slider"]').click();
+  await expect(phone.locator('[data-studio-indicator="count"]')).toHaveText("1 / 3");
+  await phone.locator('[data-studio-indicator="count"]').click();
+  await inspector.getByRole("radiogroup", { name: "Shows where it is" }).getByRole("radio", { name: "Dots" }).click();
+  await expect(phone.locator('[data-studio-indicator="dots"]')).toBeVisible();
+  await expect(phone.locator('[data-studio-indicator="count"]')).toHaveCount(0);
+  await inspector.getByRole("radiogroup", { name: "Slides' words" }).getByRole("radio", { name: "In the middle" }).click();
+  await expect(inspector.getByRole("radiogroup", { name: "Slides' words" }).getByRole("radio", { name: "In the middle" })).toHaveAttribute("aria-checked", "true");
+  await unselect();
+
+  // Shop the look: spots on the picture, each placed in percent.
+  await own.locator('[data-studio-section="shop_look"]').click();
+  // Its title and its layer's name both read so.
+  await expect(phone.getByText("Shop the look").first()).toBeVisible();
+  const spot = phone.locator('[data-studio-node][style*="position: absolute"]').first();
+  await spot.click();
+  await expect(inspector.getByLabel("Place on the picture")).toBeChecked();
+  await expect(inspector.getByLabel("Across (%)")).toHaveValue("50");
+  await unselect();
+
+  // Categories in pictures, then as round pictures from the list's panel.
+  await own.locator('[data-studio-section="category_pictures"]').click();
+  await expect(phone.locator("[data-studio-categories=pictures]")).toBeVisible();
+  await phone.locator("[data-studio-categories=pictures]").click();
+  await inspector.getByRole("tab", { name: "Data" }).click();
+  await inspector.getByRole("radiogroup", { name: "How they look" }).getByRole("radio", { name: "Round pictures" }).click();
+  await expect(phone.locator("[data-studio-categories=circles]")).toBeVisible();
+  await inspector.getByRole("tab", { name: "Design" }).click();
+  await unselect();
+
+  // A list of products on sale only.
+  await own.locator('[data-studio-section="on_sale"]').click();
+  await expect(phone.getByText("On sale now").first()).toBeVisible();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+
+  // The page checker takes it all: published.
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText(/^Published\./)).toBeVisible();
+
+  // Back to the regular app, for the specs after this one.
+  await own.goto("/studio");
+  await own.getByRole("button", { name: "Regular apps" }).click();
+  await expect(own).toHaveURL(/\/dashboard$/);
+  await own.goto("/dashboard/pages");
+});
+
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
   await own.getByRole("tab", { name: "Look" }).click();
   // No Figma file yet: the standard look only.

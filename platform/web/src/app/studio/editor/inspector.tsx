@@ -11,6 +11,7 @@ import type { ScreenOption } from "@/lib/pages/sources";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import {
   ITEMS_SORTS,
+  STUDIO_INDICATORS,
   STUDIO_ENTERS,
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
@@ -583,14 +584,16 @@ function DesignTab(props: Props & { node: StudioNode }) {
   // 107.3 A child of an accordion or tabs has a question or a tab name.
   const holder = node.id === props.page.body.id ? null : placeOf(props.page.body, node.id)?.parent;
   const titled = holder?.type === "accordion" || holder?.type === "tabs";
+  // 112.4 A list of what was seen lately has its own title, hidden with it.
+  const listTitled = node.type === "items" && (node.recent || !!node.title);
   return (
     <>
-      {titled ? (
+      {titled || listTitled ? (
         <label className="flex flex-col gap-1 font-bold">
-          {t("studio.itemTitle")}
+          {t(listTitled && !titled ? "studio.listTitleLabel" : "studio.itemTitle")}
           <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} placeholder={props.lang === props.defaultLang ? undefined : (node.title ?? "")} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
           <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
-            {t("studio.itemTitleHint")}
+            {t(listTitled && !titled ? "studio.recentHint" : "studio.itemTitleHint")}
           </span>
         </label>
       ) : null}
@@ -675,9 +678,41 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <Check label={t("studio.autoplay")} checked={Boolean(node.autoplay)} onChange={(autoplay) => onChange({ autoplay: autoplay || undefined })} />
           {node.autoplay ? <Slider label={t("studio.interval")} value={Math.round((node.interval_ms ?? 4000) / 1000)} min={2} max={20} onChange={(s) => onChange({ interval_ms: s * 1000 })} /> : null}
           <Check label={t("studio.dots")} checked={node.dots !== false} onChange={(dots) => onChange({ dots: dots ? undefined : false })} />
+          {node.dots !== false ? (
+            <Segments
+              label={t("studio.indicator")}
+              value={node.indicator ?? "dots"}
+              onChange={(indicator) => onChange({ indicator: indicator === "dots" ? undefined : indicator })}
+              options={STUDIO_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
+            />
+          ) : null}
+          {node.children?.length ? <SlidesControl node={node} onChange={onChange} /> : null}
         </div>
       ) : null}
-      {textual || node.type === "image" || node.type === "icon" || node.type === "video" || node.type === "map" || node.type === "form" || node.type === "slider" || node.type === "ratings" ? <Rule /> : null}
+      {node.type === "coupon" ? (
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.couponCode")}
+          <input dir="ltr" value={node.code ?? ""} maxLength={40} onChange={(e) => onChange({ code: e.target.value.replace(/\s+/g, "").toUpperCase() })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.couponHint")}
+          </span>
+        </label>
+      ) : null}
+      {holder?.type === "stack" ? (
+        <div className="flex flex-col gap-2">
+          <Check label={t("studio.place")} checked={!!node.place} onChange={(on) => onChange({ place: on ? { x: 50, y: 50 } : undefined })} />
+          {node.place ? (
+            <>
+              <Slider label={t("studio.placeX")} value={node.place.x} min={0} max={100} onChange={(x) => onChange({ place: { ...node.place!, x } })} />
+              <Slider label={t("studio.placeY")} value={node.place.y} min={0} max={100} onChange={(y) => onChange({ place: { ...node.place!, y } })} />
+              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                {t("studio.placeHint")}
+              </span>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+      {textual || node.type === "image" || node.type === "icon" || node.type === "video" || node.type === "map" || node.type === "form" || node.type === "slider" || node.type === "ratings" || node.type === "coupon" || holder?.type === "stack" ? <Rule /> : null}
 
       <Heading>{t("studio.sizePlace")}</Heading>
       <div className="grid grid-cols-2 gap-2">
@@ -1050,13 +1085,54 @@ function MotionTab(props: Props & { node: StudioNode }) {
   );
 }
 
+/** 112.4 Every slide's words lined up, and the pictures under them darkened, at once. */
+function SlidesControl({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  const slides = node.children ?? [];
+  const texts = (n: StudioNode): StudioNode[] => (n.type === "text" ? [n] : (n.children ?? []).flatMap(texts));
+  const align = texts(slides[0]!)[0]?.text_align ?? "start";
+  const pictured = slides.filter((s) => s.image_background_url || s.overlay);
+  const dark = pictured[0]?.overlay?.opacity ?? 0;
+  const aligned = (n: StudioNode, to: "start" | "center" | "end"): StudioNode => {
+    if (n.type === "text") return { ...n, text_align: to === "start" ? undefined : to };
+    if (n.type !== "column" && n.type !== "row") return n;
+    return { ...n, ...(n.type === "column" ? { cross: to === "start" ? undefined : to } : {}), children: (n.children ?? []).map((c) => aligned(c, to)) };
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      <Segments
+        label={t("studio.slidesText")}
+        value={align}
+        onChange={(to) => onChange({ children: slides.map((c) => aligned(c, to)) })}
+        options={[
+          { value: "start" as const, label: t("studio.alignStart") },
+          { value: "center" as const, label: t("studio.alignCenter") },
+          { value: "end" as const, label: t("studio.alignEnd") },
+        ]}
+      />
+      {pictured.length ? (
+        <Slider
+          label={t("studio.slidesOverlay")}
+          value={Math.round(dark * 100)}
+          min={0}
+          max={80}
+          onChange={(v) => onChange({ children: slides.map((c) => (c.image_background_url || c.overlay ? { ...c, overlay: v ? { color: c.overlay?.color ?? "#000000", opacity: v / 100 } : undefined } : c)) })}
+        />
+      ) : null}
+      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.slidesHint")}
+      </span>
+    </div>
+  );
+}
+
 function DataTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
   if (node.type === "items") {
     const q = node.query ?? { limit: 4, category_id: null, featured: false, sort: "newest" as const, ids: [] };
     const cats = (node.source ? props.pickable.categories[node.source] : undefined) ?? [];
-    const sortKey: Record<string, string> = { newest: "sortNewest", popular: "sortPopular", price_low: "sortPriceLow", price_high: "sortPriceHigh", title: "sortTitle" };
+    const sortKey: Record<string, string> = { newest: "sortNewest", popular: "sortPopular", price_asc: "sortPriceLow", price_desc: "sortPriceHigh", title: "sortTitle" };
     return (
       <>
         <label className="flex flex-col gap-1 font-bold">
@@ -1095,6 +1171,17 @@ function DataTab(props: Props & { node: StudioNode }) {
           </label>
         ) : null}
         <Check label={t("studio.onlyFeatured")} checked={q.featured} onChange={(featured) => onChange({ query: { ...q, featured } })} />
+        {node.source === "products" ? (
+          <>
+            <Check label={t("studio.onlyOnSale")} checked={q.on_sale === true} onChange={(on) => onChange({ query: { ...q, on_sale: on || undefined } })} />
+            <Check label={t("studio.recentOnly")} checked={node.recent === true} onChange={(recent) => onChange({ recent: recent || undefined })} />
+            {node.recent ? (
+              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                {t("studio.recentHint")}
+              </span>
+            ) : null}
+          </>
+        ) : null}
         <Rule />
         <Heading>{t("studio.card")}</Heading>
         <Segments
@@ -1131,17 +1218,33 @@ function DataTab(props: Props & { node: StudioNode }) {
     );
   }
   if (node.type === "categories") {
+    const look = node.style ?? "chips";
     return (
-      <label className="flex flex-col gap-1 font-bold">
-        {t("studio.dataFrom")}
-        <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
-          {props.categorySources.map((s) => (
-            <option key={s} value={s}>
-              {t(`studio.el_items_${s}` as DashKey)}
-            </option>
-          ))}
-        </select>
-      </label>
+      <>
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.dataFrom")}
+          <select value={node.source ?? ""} onChange={(e) => onChange({ source: e.target.value as ItemSource })} className="h-9 rounded-lg px-1.5 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+            {props.categorySources.map((s) => (
+              <option key={s} value={s}>
+                {t(`studio.el_items_${s}` as DashKey)}
+              </option>
+            ))}
+          </select>
+        </label>
+        {/* 112.4 Chips, tiles, pictures in a grid or round pictures in a row. */}
+        <Segments
+          label={t("studio.categoriesLook")}
+          value={look}
+          onChange={(style) => onChange({ style: style === "chips" ? undefined : style, ...(style === "pictures" ? { columns: node.columns ?? 2 } : { columns: undefined }) })}
+          options={[
+            { value: "chips" as const, label: t("studio.catChips") },
+            { value: "tiles" as const, label: t("studio.catTiles") },
+            { value: "pictures" as const, label: t("studio.catPictures") },
+            { value: "circles" as const, label: t("studio.catCircles") },
+          ]}
+        />
+        {look === "pictures" ? <Slider label={t("studio.columns")} value={node.columns ?? 2} min={1} max={4} onChange={(columns) => onChange({ columns })} /> : null}
+      </>
     );
   }
   if (node.bind !== undefined) {

@@ -54,7 +54,7 @@ interface ViewProps {
   pickable: Pickable;
   editing?: StudioEditing;
   /** Labels for the placeholders, in the dashboard's language. */
-  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string };
+  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
 }
 
 const SHADOWS: Record<string, string> = {
@@ -328,7 +328,18 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
     overflow: node.radius || node.corners ? "hidden" : undefined,
   };
   if (parentDir === "stack") Object.assign(style, { gridArea: "1 / 1", justifySelf: node.self_align ? ITEMS[node.self_align] : "stretch", alignSelf: node.self_align ? ITEMS[node.self_align] : "stretch" });
+  // 112.4 A spot on a picture: the point at the same share of it sits there, as the app's alignment does.
+  if (parentDir === "stack" && node.place) {
+    const { x, y } = node.place;
+    Object.assign(style, { position: "absolute", insetInlineStart: `${x}%`, top: `${y}%`, transform: `translate(${lang === "ar" ? x : -x}%, ${-y}%)${node.rotation ? ` rotate(${node.rotation}deg)` : ""}`, zIndex: 1 });
+  }
   if (parentDir === "slider") Object.assign(style, { scrollSnapAlign: "start", flex: "0 0 auto" });
+  // 112.4 A slider's height (or shape) is its slides'; the dots go under them.
+  const slides: CSSProperties | null = node.type === "slider" ? { height: style.height, aspectRatio: style.aspectRatio } : null;
+  if (slides) {
+    delete style.height;
+    delete style.aspectRatio;
+  }
 
   const selected = editing?.selectedId === node.id;
   const hovered = editing?.hoveredId === node.id && !selected;
@@ -381,8 +392,22 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       case "column":
       case "stack":
       case "grid":
-      case "slider":
         return Children(p);
+      case "slider":
+        return Slider(p);
+      case "coupon":
+        // 112.4 The code in a dashed frame, with a button that copies it in the app.
+        return (
+          <span dir="ltr" data-studio-coupon="" style={{ display: "flex", alignItems: "center", gap: 8, border: `1.5px dashed ${color ?? look.brand}`, borderRadius: "inherit", padding: "6px 6px 6px 14px", background: dark ? "rgba(255,255,255,0.06)" : "#FFFFFF" }}>
+            <span style={{ flex: "1 1 auto", fontWeight: 800, fontSize: 16, letterSpacing: 2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: color ?? look.brand }}>{n.code}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: 8, background: color ?? look.brand, color: "#FFFFFF", fontSize: 12, fontWeight: 700 }}>
+              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+                content_copy
+              </span>
+              {p.words.copy}
+            </span>
+          </span>
+        );
       case "spacer":
         return null;
       case "text":
@@ -474,6 +499,29 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       case "categories": {
         const cats = (n.source ? p.pickable.categories[n.source] : undefined) ?? [];
         const names = cats.length ? cats.slice(0, 6).map((c) => c.name) : ["[1]", "[2]", "[3]"];
+        // 112.4 Tiles, pictures in a grid, or round pictures in a row; a category without a picture shows a colour.
+        const shades = dark ? ["#2A2742", "#33304F", "#3B3858"] : ["#F3E3C3", "#E8EEF6", "#F6E3E7"];
+        if (n.style === "pictures" || n.style === "tiles")
+          return (
+            <span data-studio-categories={n.style} style={{ display: "grid", gridTemplateColumns: `repeat(${n.style === "pictures" ? (n.columns ?? 2) : 2}, minmax(0, 1fr))`, gap: 10 }}>
+              {names.map((name, i) => (
+                <span key={i} style={{ position: "relative", borderRadius: 14, background: shades[i % 3], aspectRatio: n.style === "pictures" ? "1 / 1" : undefined, padding: n.style === "tiles" ? 14 : 0, overflow: "hidden", display: "flex", alignItems: "flex-end" }}>
+                  <span style={n.style === "pictures" ? { width: "100%", padding: "18px 10px 8px", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", color: "#FFFFFF", fontWeight: 700, fontSize: 13 } : { fontWeight: 700, fontSize: 14 }}>{name}</span>
+                </span>
+              ))}
+            </span>
+          );
+        if (n.style === "circles")
+          return (
+            <span data-studio-categories="circles" style={{ display: "flex", gap: 12, overflow: "hidden" }}>
+              {names.map((name, i) => (
+                <span key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto", width: 68 }}>
+                  <span style={{ width: 64, height: 64, borderRadius: "50%", background: shades[i % 3], border: `2px solid ${i === 0 ? look.brand : "transparent"}` }} />
+                  <span style={{ fontSize: 11, fontWeight: 600, textAlign: "center", maxWidth: 68, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+                </span>
+              ))}
+            </span>
+          );
         return (
           <span style={{ display: "flex", gap: 6, fontSize: 12, overflow: "hidden" }}>
             {names.map((name, i) => (
@@ -542,7 +590,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
             {view}
           </div>
         ) : (
-          <div key={child.id} style={n.type === "slider" ? { ...width, flex: "0 0 auto", scrollSnapAlign: "start" } : { display: "contents" }}>
+          <div key={child.id} style={n.type === "slider" ? { ...width, flex: "0 0 auto", scrollSnapAlign: "start", display: "grid" } : { display: "contents" }}>
             {view}
           </div>
         ),
@@ -551,6 +599,39 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
     if (drop !== null && drop >= kids.length) out.push(<DropLine key="dropEnd" dir={dir} label={editing!.dropLabel} />);
     if (!kids.length && editing) out.push(<EmptyLayout key="empty" />);
     return <>{out}</>;
+  }
+
+  /** 112.4 The slides side by side, and where it is: dots under them, lines over their bottom or "1 / 3" over their corner. */
+  function Slider(p: ViewProps & { node: StudioNode }) {
+    const n = p.node;
+    const count = (n.children ?? []).length;
+    const indicator = n.dots === false || count < 2 ? null : (n.indicator ?? "dots");
+    return (
+      <>
+        <span style={{ position: "relative", display: "block", height: slides?.height ?? (slides?.aspectRatio ? undefined : 180), aspectRatio: slides?.aspectRatio }}>
+          <span style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>{Children(p)}</span>
+          {indicator === "progress" ? (
+            <span data-studio-indicator="progress" aria-hidden="true" style={{ position: "absolute", insetInline: 16, bottom: 12, display: "flex", gap: 4 }}>
+              {Array.from({ length: count }, (_, i) => (
+                <span key={i} style={{ flex: "1 1 0", height: 3, borderRadius: 2, background: i === 0 ? "linear-gradient(90deg, #FFFFFF 55%, rgba(255,255,255,0.45) 55%)" : "rgba(255,255,255,0.45)" }} />
+              ))}
+            </span>
+          ) : null}
+          {indicator === "count" ? (
+            <span data-studio-indicator="count" style={{ position: "absolute", insetInlineEnd: 10, top: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(14,13,36,0.55)", color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>
+              <bdi>1 / {count}</bdi>
+            </span>
+          ) : null}
+        </span>
+        {indicator === "dots" ? (
+          <span data-studio-indicator="dots" aria-hidden="true" style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 8 }}>
+            {Array.from({ length: count }, (_, i) => (
+              <span key={i} style={{ width: i === 0 ? 16 : 6, height: 6, borderRadius: 3, background: i === 0 ? look.brand : dark ? "#3B3858" : "#D9D3C7" }} />
+            ))}
+          </span>
+        ) : null}
+      </>
+    );
   }
 
   function Items(p: ViewProps & { node: StudioNode }) {
@@ -565,7 +646,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
         : layout === "carousel"
           ? { display: "flex", gap: n.gap ?? 10, overflow: "hidden" }
           : { display: "flex", flexDirection: "column", gap: n.gap ?? 10 };
-    return (
+    const list = (
       <span style={wrap}>
         {shown.map((entry) =>
           n.card ? (
@@ -583,6 +664,16 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
           ),
         )}
       </span>
+    );
+    // 112.4 A list's own title (what was seen lately), over it.
+    const title = titleIn(n, lang, defaultLang);
+    return title ? (
+      <span style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <span style={{ fontSize: 18, fontWeight: 800 }}>{title}</span>
+        {list}
+      </span>
+    ) : (
+      list
     );
   }
 }
@@ -710,7 +801,7 @@ function layoutStyle(node: StudioNode): CSSProperties {
     case "grid":
       return { display: "grid", gridTemplateColumns: `repeat(${node.columns ?? 2}, minmax(0, 1fr))`, gap: node.gap };
     case "slider":
-      return { display: "flex", gap: node.gap, overflowX: "auto", scrollSnapType: "x mandatory" };
+      return { display: "flex", flexDirection: "column" };
     case "spacer":
       return { flex: node.height === undefined ? "1 1 auto" : undefined };
     case "divider":

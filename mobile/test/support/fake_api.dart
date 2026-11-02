@@ -382,26 +382,36 @@ class FakeApi implements YallappApi {
   Future<Quiz> getQuiz(int quizId) =>
       _answer('getQuiz', () => Quiz.fromJson(quizJson()));
 
+  /// 112.5 The attempt started and the result sent back, when a test sets them.
+  Map<String, dynamic>? attempt;
+  Map<String, dynamic>? attemptResult;
+
+  /// 112.5 The answers of each submitted attempt.
+  final submittedAnswers = <List<AnswerInput>>[];
+
   @override
   Future<Attempt> startAttempt(int quizId) =>
-      _answer('startAttempt', () => Attempt.fromJson(attemptJson()));
+      _answer('startAttempt', () => Attempt.fromJson(attempt ?? attemptJson()));
 
   @override
   Future<AttemptResult> submitAttempt(
     int quizId,
     int attemptId,
     List<AnswerInput> answers,
-  ) => _answer(
-    'submitAttempt',
-    () => AttemptResult.fromJson({
-      'attempt_id': attemptId,
-      'quiz_id': quizId,
-      'quiz_title': 'Module 2 quiz',
-      'status': 'passed',
-      'score_percent': 100,
-      'finished_at': '2026-10-12T09:05:00Z',
-    }),
-  );
+  ) => _answer('submitAttempt', () {
+    submittedAnswers.add(answers);
+    return AttemptResult.fromJson(
+      attemptResult ??
+          {
+            'attempt_id': attemptId,
+            'quiz_id': quizId,
+            'quiz_title': 'Module 2 quiz',
+            'status': 'passed',
+            'score_percent': 100,
+            'finished_at': '2026-10-12T09:05:00Z',
+          },
+    );
+  });
 
   @override
   Future<Paged<AttemptResult>> listMyAttempts({int page = 1}) => _answer(
@@ -2321,6 +2331,82 @@ class FakeApi implements YallappApi {
         'listSchoolAnnouncements',
         () => _paged([schoolAnnouncementJson()], SchoolAnnouncement.fromJson),
       );
+
+  // 112.5 Assignments and live classes.
+
+  Map<String, dynamic> assignment = assignmentJson();
+  Map<String, dynamic> liveSession = liveSessionJson();
+  List<Map<String, dynamic>> liveSessions = [liveSessionJson()];
+  final assignmentsHandedIn =
+      <({int assignment, String text, String? upload})>[];
+  final courseUploads = <String>[];
+
+  @override
+  Future<Assignment> getAssignment(int assignmentId) =>
+      _answer('getAssignment', () => Assignment.fromJson(assignment));
+
+  @override
+  Future<Assignment> submitAssignment(
+    int assignmentId, {
+    String text = '',
+    String? uploadId,
+  }) => _answer('submitAssignment', () {
+    assignmentsHandedIn.add((
+      assignment: assignmentId,
+      text: text,
+      upload: uploadId,
+    ));
+    assignment = {
+      ...assignment,
+      'submission': assignmentSubmissionJson(text: text),
+    };
+    return Assignment.fromJson(assignment);
+  });
+
+  @override
+  Future<ChatUpload> startCourseUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _answer('startCourseUpload', () {
+    courseUploads.add(name);
+    return ChatUpload.fromJson({
+      'id': '00000000-0000-4000-8000-00000000020${courseUploads.length}',
+      'kind': type == 'application/pdf' ? 'pdf' : 'image',
+      'upload_url': 'https://media.test/u/x',
+      'chunk_bytes': 1024,
+      'size': size,
+    });
+  });
+
+  @override
+  Future<ChatUpload> resumeCourseUpload(String uploadId) => _answer(
+    'resumeCourseUpload',
+    () => ChatUpload.fromJson({
+      'id': uploadId,
+      'kind': 'pdf',
+      'upload_url': 'https://media.test/u/x',
+      'chunk_bytes': 1024,
+      'size': 1,
+    }),
+  );
+
+  @override
+  Future<void> completeCourseUpload(String uploadId) =>
+      _answer('completeCourseUpload', () {});
+
+  @override
+  Future<LiveSession> getLiveSession(int liveId) =>
+      _answer('getLiveSession', () => LiveSession.fromJson(liveSession));
+
+  @override
+  Future<Paged<LiveSession>> listMyLiveSessions({
+    bool past = false,
+    int page = 1,
+  }) => _answer(
+    'listMyLiveSessions',
+    () => _paged(past ? const [] : liveSessions, LiveSession.fromJson),
+  );
 
   @override
   Future<ChatUpload> startSchoolUpload({

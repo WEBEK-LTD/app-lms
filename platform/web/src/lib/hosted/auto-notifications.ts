@@ -17,7 +17,8 @@ import { pushTarget, sendPush } from "./push";
  * 85.3 Notifications the app sends on its own, on the hosted API: a new
  * lesson to a course's students, an appointment confirmed and a reminder the
  * day before, a class or an event soon, a membership ending, a cart left,
- * and the daily study reminder the student turned on. Each goes once to each
+ * and the daily study reminder the student turned on; 112.5 a live class in
+ * the hour before it and an assignment graded. Each goes once to each
  * person and what it is about (`auto_notices`), in their phone's language
  * when we write it (else the app's), to their inbox and to their phones that
  * allow it. The owner turns each kind off on App notifications
@@ -27,7 +28,19 @@ import { pushTarget, sendPush } from "./push";
  * in the hourly limit of the notifications the owner sends.
  */
 
-export const AUTO_KINDS = ["new_lesson", "appointment_confirmed", "appointment_reminder", "class_soon", "event_soon", "membership_ending", "cart_left", "study_reminder", "order_update"] as const;
+export const AUTO_KINDS = [
+  "new_lesson",
+  "appointment_confirmed",
+  "appointment_reminder",
+  "class_soon",
+  "event_soon",
+  "membership_ending",
+  "cart_left",
+  "study_reminder",
+  "order_update",
+  "live_class_soon",
+  "assignment_graded",
+] as const;
 export type AutoKind = (typeof AUTO_KINDS)[number];
 
 /** When each one goes. */
@@ -35,6 +48,8 @@ export const AUTO_TIMING = {
   /** The reminder of an appointment: in the 24 hours before it, not in the last hour. */
   appointmentHours: 24,
   classHours: 2,
+  /** 112.5 A live class: in the hour before it starts. */
+  liveMinutes: 60,
   eventHours: 24,
   membershipDays: 3,
   /** A cart unchanged for 3 hours, up to a week. */
@@ -50,7 +65,7 @@ export function autoKindsFor(app: Pick<App, "connector" | "backend" | "vertical"
   if (app.backend !== "hosted") return [];
   const areas = appAreas(app);
   const kinds: AutoKind[] = [];
-  if (areas.courses) kinds.push("new_lesson", "study_reminder");
+  if (areas.courses) kinds.push("new_lesson", "study_reminder", "live_class_soon", "assignment_graded");
   if (areas.appointments) kinds.push("appointment_confirmed", "appointment_reminder");
   if (areas.memberCheckIn) kinds.push("class_soon", "membership_ending");
   if (areas.events) kinds.push("event_soon");
@@ -115,6 +130,26 @@ export const AUTO_TEXT: Record<AutoKind, Record<Lang, Text>> = {
     en: (v) => ({ title: "Time to study", body: `A few minutes today keeps you going in ${v.course}.` }),
     ar: (v) => ({ title: "حان وقت الدراسة", body: `دقائق قليلة اليوم تُبقيك مستمرًا في ${v.course}.` }),
     tr: (v) => ({ title: "Ders zamanı", body: `Bugün birkaç dakika, ${v.course} kursunda ilerlemenizi sürdürür.` }),
+  },
+  // 112.5
+  live_class_soon: {
+    en: (v) => ({ title: `Live class at ${v.time}`, body: `${v.live} in ${v.course}. Open it in the app to join.` }),
+    ar: (v) => ({ title: `حصة مباشرة الساعة ${v.time}`, body: `${v.live} في ${v.course}. افتحها في التطبيق للانضمام.` }),
+    tr: (v) => ({ title: `Canlı ders saat ${v.time}`, body: `${v.course}: ${v.live}. Katılmak için uygulamada açın.` }),
+  },
+  assignment_graded: {
+    en: (v) => ({
+      title: v.returned === "1" ? `${v.assignment}: try again` : `${v.assignment} is graded`,
+      body: v.returned === "1" ? `Your teacher sent it back with a note. Open ${v.course} to see it.` : `You got ${v.score}. Open ${v.course} to see your teacher's note.`,
+    }),
+    ar: (v) => ({
+      title: v.returned === "1" ? `${v.assignment}: أعد المحاولة` : `تم تقييم ${v.assignment}`,
+      body: v.returned === "1" ? `أعاده معلمك مع ملاحظة. افتح ${v.course} لتراها.` : `حصلت على ${v.score}. افتح ${v.course} لترى ملاحظة معلمك.`,
+    }),
+    tr: (v) => ({
+      title: v.returned === "1" ? `${v.assignment}: tekrar deneyin` : `${v.assignment} notlandırıldı`,
+      body: v.returned === "1" ? `Öğretmeniniz bir notla geri gönderdi. Görmek için ${v.course} kursunu açın.` : `Puanınız: ${v.score}. Öğretmeninizin notu için ${v.course} kursunu açın.`,
+    }),
   },
   // 91.2 An order shipped (connected platforms; the shops' own are told by lib/catalog/shipping.ts), completed, cancelled or refunded.
   order_update: {
@@ -250,6 +285,26 @@ export async function notifyNewLesson(deps: AutoDeps, app: App, course: { id: nu
   );
 }
 
+/** 112.5 A student's assignment graded or sent back: the student, once per grading. */
+export async function notifyGraded(
+  deps: AutoDeps,
+  app: App,
+  course: { id: number; title: string },
+  assignment: { id: number; title: string; maxPoints: number },
+  submission: { userId: number; status: string; score: number | null; gradedAt: Date },
+) {
+  if (!(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
+  const returned = submission.status === "returned";
+  return notifyAuto(deps, app, "assignment_graded", [
+    {
+      userId: submission.userId,
+      ref: `assignment:${assignment.id}:${submission.gradedAt.toISOString()}`,
+      values: { course: course.title, assignment: assignment.title, score: `${submission.score ?? 0}/${assignment.maxPoints}`, returned: returned ? "1" : "" },
+      data: { course_id: String(course.id), assignment_id: String(assignment.id) },
+    },
+  ]);
+}
+
 /** 85.3 An appointment the business confirmed (from waiting): its customer. */
 export async function notifyAppointmentConfirmed(deps: AutoDeps, app: App, appointment: BookingAppointment, zone: string) {
   if (appointment.userId === null || !(await appMayNotify(deps.store, app, deps.now))) return { people: 0, phones: 0 };
@@ -382,6 +437,29 @@ export async function runAutoNotifications(deps: AutoDeps): Promise<AutoRunRepor
             [...holders].map((userId) => ({ userId, ref: `event:${event.id}`, values: { event: event.title, when: when(lang, event.startAt, zone) }, data: { event_id: String(event.id) } })),
           );
           add("event_soon", sent.people);
+        }
+      }
+      // 112.5 Live classes starting in the next hour: their courses' students.
+      if (kinds.includes("live_class_soon")) {
+        const until = now.getTime() + AUTO_TIMING.liveMinutes * 60_000;
+        const soon = (app.courseSetup?.courses ?? [])
+          .filter((c) => c.active && !c.teacherStage)
+          .flatMap((c) => c.topics.flatMap((t) => (t.live ?? []).map((live) => ({ course: c, live }))))
+          .filter(({ live }) => Date.parse(live.startsAt) > now.getTime() && Date.parse(live.startsAt) <= until);
+        for (const { course, live } of soon) {
+          const students = await store.listCourseEnrollments({ appId: app.id, courseId: course.id });
+          const sent = await notifyAuto(
+            deps,
+            app,
+            "live_class_soon",
+            students.map((s) => ({
+              userId: s.userId,
+              ref: `live:${live.id}:${live.startsAt}`,
+              values: { live: live.title, course: course.title, time: utcToLocal(new Date(live.startsAt), zone).time },
+              data: { course_id: String(course.id), live_id: String(live.id) },
+            })),
+          );
+          add("live_class_soon", sent.people);
         }
       }
       if (kinds.includes("study_reminder")) {

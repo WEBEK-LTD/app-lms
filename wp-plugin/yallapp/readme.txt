@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.30
+Stable tag: 0.4.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.31 =
+* Yallapp Studio pages for shops: products on sale, a coupon code people copy, spots on a picture that open a product, categories with their pictures, sliders that show "2 / 5" or lines that fill, and a list of the products each person opened lately (kept on their phone).
 
 = 0.4.30 =
 * WooCommerce orders in the app show each line's price.

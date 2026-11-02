@@ -191,6 +191,14 @@ class ProfileScreen extends ConsumerWidget {
                       title: context.l10n.quizResults,
                       onTap: () => context.push(Paths.quizResults),
                     ),
+                  // 112.5 Live classes of courses managed in Yallapp.
+                  if (config.features.liveClasses)
+                    SettingsTile(
+                      key: const ValueKey('account-live-classes'),
+                      icon: AppIcons.live,
+                      title: context.l10n.liveClasses,
+                      onTap: () => context.push(Paths.liveClasses),
+                    ),
                   if (config.features.wishlist)
                     SettingsTile(
                       icon: AppIcons.favorite,
@@ -213,6 +221,7 @@ class ProfileScreen extends ConsumerWidget {
                       onTap: () => context.push(Paths.downloads),
                     ),
                   if (!config.features.certificates &&
+                      !config.features.liveClasses &&
                       !config.features.memberships &&
                       !config.features.quizzes &&
                       !config.features.wishlist &&

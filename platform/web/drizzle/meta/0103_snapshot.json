@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "7dfd2947-8403-486c-be00-3c275e5696f3",
+  "id": "cf92a789-92b0-4806-9938-81a4fafeeeb5",
   "prevId": "4304dcf0-ced5-461c-b0b2-7a6ea530c84a",
   "tables": {
     "account_deletion_requests": {
@@ -2598,6 +2598,169 @@
       "compositePrimaryKeys": {
         "assets_id": {
           "name": "assets_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "assignment_submissions": {
+      "name": "assignment_submissions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "assignment_id": {
+          "name": "assignment_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "file": {
+          "name": "file",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "score": {
+          "name": "score",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "graded_at": {
+          "name": "graded_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "graded_by": {
+          "name": "graded_by",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "assignment_submissions_unique": {
+          "name": "assignment_submissions_unique",
+          "columns": [
+            "app_id",
+            "assignment_id",
+            "user_id"
+          ],
+          "isUnique": true
+        },
+        "assignment_submissions_course_idx": {
+          "name": "assignment_submissions_course_idx",
+          "columns": [
+            "app_id",
+            "course_id",
+            "status"
+          ],
+          "isUnique": false
+        },
+        "assignment_submissions_user_idx": {
+          "name": "assignment_submissions_user_idx",
+          "columns": [
+            "app_id",
+            "user_id",
+            "course_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "assignment_submissions_app_id_apps_id_fk": {
+          "name": "assignment_submissions_app_id_apps_id_fk",
+          "tableFrom": "assignment_submissions",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "assignment_submissions_user_id_hosted_users_id_fk": {
+          "name": "assignment_submissions_user_id_hosted_users_id_fk",
+          "tableFrom": "assignment_submissions",
+          "tableTo": "hosted_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "assignment_submissions_id": {
+          "name": "assignment_submissions_id",
           "columns": [
             "id"
           ]
@@ -8506,13 +8669,6 @@
         "country": {
           "name": "country",
           "type": "varchar(2)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "app_role": {
-          "name": "app_role",
-          "type": "varchar(8)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

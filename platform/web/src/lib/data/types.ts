@@ -1847,6 +1847,8 @@ export interface CourseLesson {
   attachments?: CourseAttachment[];
   /** 90.1 Opens this many days after the student enrolled (drip); missing or 0: at once. */
   dripDays?: number | null;
+  /** 112.5 Opens at this time for everyone (midnight of the chosen day in the app's time zone); with `dripDays`, the later of the two. */
+  opensAt?: string | null;
 }
 
 /** 90.1 A file with a lesson: a file of the app's Media library (a PDF, a picture) or an https address, with the name the student sees. */
@@ -1855,12 +1857,15 @@ export interface CourseAttachment {
   url: string;
 }
 
-/** 90.1 A quiz's question: one right answer, several, or true or false. */
+/** 90.1 A quiz's question: one right answer, several, or true or false; 112.5 or a short written answer. */
 export interface CourseQuizQuestion {
   id: number;
   text: string;
-  type: "single_choice" | "multiple_choice" | "true_false";
+  type: "single_choice" | "multiple_choice" | "true_false" | "short_answer";
+  /** Empty for a short answer. */
   options: { id: string; text: string; correct: boolean }[];
+  /** 112.5 A short answer's accepted answers, matched without case, accents' marks or extra spaces. */
+  accepted?: string[];
 }
 
 /** 90.1 A quiz at the end of a topic. */
@@ -1873,6 +1878,39 @@ export interface CourseQuiz {
   attemptsAllowed: number | null;
   timeLimitMinutes: number | null;
   questions: CourseQuizQuestion[];
+  /** 112.5 Each attempt has the questions and their answers in its own order. */
+  shuffle?: boolean;
+  /** 112.5 After submitting, the student sees each question with their answer and the right one. */
+  showAnswers?: boolean;
+}
+
+/** 112.5 An assignment in a section: the student hands in a text, a file or both, and the teacher grades it. */
+export interface CourseAssignment {
+  id: number;
+  title: string;
+  instructions: string;
+  /** Due this many days after the student enrolled; null: no due date (or `dueAt`). */
+  dueDays: number | null;
+  /** Due at this time for everyone; with `dueDays`, the earlier of the two. */
+  dueAt?: string | null;
+  /** The highest score, 1 to 1000. */
+  maxPoints: number;
+  /** The score that counts it as done; null: any grade does. */
+  passPoints: number | null;
+  attachments?: CourseAttachment[];
+}
+
+/** 112.5 A live class in a section: a meeting at a time, on Zoom, Google Meet or any meeting link. */
+export interface CourseLiveSession {
+  id: number;
+  title: string;
+  startsAt: string;
+  durationMinutes: number;
+  /** The https meeting link, given to the course's students from 15 minutes before it starts. */
+  meetingUrl: string;
+  notes: string;
+  /** The recording, once there is one. */
+  recordingUrl?: string | null;
 }
 
 export interface CourseTopic {
@@ -1881,6 +1919,11 @@ export interface CourseTopic {
   lessons: CourseLesson[];
   /** 90.1 Quizzes after the topic's lessons. */
   quizzes?: CourseQuiz[];
+  /** 112.5 Assignments and live classes. */
+  assignments?: CourseAssignment[];
+  live?: CourseLiveSession[];
+  /** 112.5 The items' IDs in the owner's order; items left out follow: lessons, quizzes, assignments, live classes. */
+  order?: number[];
 }
 
 /** 90.1 A student's attempt at a quiz: started, then submitted with its score. */
@@ -1916,6 +1959,10 @@ export interface Course {
   certificate?: boolean;
   /** 90.1 Days a student keeps access after enrolling; missing or null: always. */
   accessDays?: number | null;
+  /** 112.5 Each lesson, quiz and assignment opens once the one before it is done (missing: false). */
+  sequential?: boolean;
+  /** 112.5 The certificate's signature line: the name (and title) of who signs it. */
+  certificateSigner?: string | null;
   /** 105.3 The academy's teacher whose course it is; missing or null: the academy's own. */
   teacherId?: number | null;
   /**
@@ -1942,6 +1989,28 @@ export interface CourseSetup {
 }
 
 export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };
+
+/** 112.5 What a student handed in for an assignment, and its grade: one per student and assignment. */
+export type AssignmentStatus = "submitted" | "graded" | "returned";
+
+export interface AssignmentSubmission {
+  id: number;
+  appId: string;
+  userId: number;
+  courseId: number;
+  assignmentId: number;
+  text: string;
+  /** A file of the app's Media library the student sent (a photo or a PDF). */
+  file: { fileId: string; name: string; kind: "image" | "pdf" } | null;
+  /** `returned`: the teacher asks for it again (with feedback); the student can hand it in again then. */
+  status: AssignmentStatus;
+  score: number | null;
+  feedback: string | null;
+  submittedAt: Date;
+  gradedAt: Date | null;
+  /** Who graded it (the dashboard's person). */
+  gradedBy: string | null;
+}
 
 export interface CourseEnrollment {
   appId: string;

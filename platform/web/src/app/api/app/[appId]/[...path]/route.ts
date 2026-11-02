@@ -42,6 +42,7 @@ import { pushOwnerSafely } from "@/lib/owner/push-env";
 import { chatPushes } from "@/lib/chat/push-env";
 import { chatBusiness } from "@/lib/chat/hosted";
 import { getMediaStorage } from "@/lib/media/storage";
+import { storageLimitBytes } from "@/lib/media/quota";
 import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
 import { noteAppError } from "@/lib/watch/app-errors";
 import { isTaxiApp, taxiOn } from "@/lib/taxi/settings";
@@ -193,6 +194,11 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         // 62 Bound to the student when the app says it can play such links (never for the preview in a browser).
         media: mediaForApp(store, app.id, { bindTo: bearer && !previewToken && request.headers.get(BOUND_MEDIA_HEADER) === "1" ? bearer[1]!.trim() : null }),
         signingSecret: signingSecret(),
+        // 112.5 Photos and PDFs students hand in for assignments, into the app's Media library.
+        uploads: (() => {
+          const storage = getMediaStorage();
+          return storage ? { storage, chunkBytes: MEDIA_CHUNK_BYTES, limitBytes: async () => storageLimitBytes(plan ?? null, await store.listStoragePacks(app.id), new Date()) } : undefined;
+        })(),
         // 91.3 A customer asked to return an order: the owner's phones.
         onReturnRequested: async (order) => {
           await pushOwnerSafely((d) => pushReturnRequested(d, app, order));
