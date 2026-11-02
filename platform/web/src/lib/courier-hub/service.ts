@@ -107,7 +107,7 @@ async function route(deps: CourierHubDeps, req: CourierHubRequest): Promise<Cour
   }
   const signedIn = await authenticate(deps, req.token);
   const company = req.path.length === 3 && req.path[0] === "companies" && req.path[2] === "session" && req.method === "POST";
-  if (!company && !["POST /auth/sign-out", "PUT /me/push-token", "GET /companies"].includes(route)) return notFound();
+  if (!company && !["POST /auth/sign-out", "PUT /me/push-token", "GET /companies", "DELETE /me"].includes(route)) return notFound();
   if (!signedIn) return unauthorized();
   if (company) return openCompany(deps, signedIn, req.path[1]!, record(req.body));
   switch (route) {
@@ -117,6 +117,12 @@ async function route(deps: CourierHubDeps, req: CourierHubRequest): Promise<Cour
       return noContent;
     case "PUT /me/push-token":
       return setPushToken(deps, signedIn.device, record(req.body));
+    case "DELETE /me":
+      // The stores' rule: the account can be deleted in the app. Every phone is signed out and every company session ends;
+      // the companies keep their own courier lists and shipments, and remove a courier there.
+      for (const device of await deps.store.listCourierDevices(signedIn.account.id)) await deps.store.deleteCourierDevice(device.id);
+      await deps.store.deleteCourierAccount(signedIn.account.id);
+      return noContent;
     default: {
       const companies = await hubCompaniesOf(deps.store, signedIn.account, deps.now);
       return ok({ items: await Promise.all(companies.map((c) => companyJson(deps.store, c, deps))) });

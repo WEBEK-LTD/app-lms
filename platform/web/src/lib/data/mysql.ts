@@ -6566,6 +6566,11 @@ export class MysqlStore implements DataStore {
     await this.run((db) => db.update(schema.courierAccounts).set(patch).where(eq(schema.courierAccounts.id, id)));
   }
 
+  async deleteCourierAccount(id: string): Promise<void> {
+    // Its devices and their company sessions go by the foreign keys' cascade.
+    await this.run((db) => db.delete(schema.courierAccounts).where(eq(schema.courierAccounts.id, id)));
+  }
+
   async createCourierDevice(device: CourierDevice): Promise<void> {
     await this.run((db) => db.insert(schema.courierDevices).values(device));
   }

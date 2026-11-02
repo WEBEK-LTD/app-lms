@@ -5393,6 +5393,11 @@ export class MemoryStore implements DataStore {
     if (account) Object.assign(account, clone(patch));
   }
 
+  async deleteCourierAccount(id: string): Promise<void> {
+    for (const device of await this.listCourierDevices(id)) await this.deleteCourierDevice(device.id);
+    this.courierAccounts.delete(id);
+  }
+
   async createCourierDevice(device: CourierDevice): Promise<void> {
     this.courierDevices.set(device.id, clone(device));
   }

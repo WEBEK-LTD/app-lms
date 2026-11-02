@@ -339,6 +339,17 @@ describe("104.8.2 Yallapp Courier", () => {
     expect(await store.listHostedDevices(nile.id, atNile.user.id)).toEqual([]);
   });
 
+  it("deletes the account in the app: every phone signed out, every company session ended, the companies' couriers kept", async () => {
+    const first = await signIn();
+    const atNile = (await open(first.access_token, nile)).body as { access_token: string; user: { id: number } };
+    const couriers = (await store.listCouriers(nile.id)).length;
+    expect((await call("DELETE", "/me", { token: first.access_token })).status).toBe(204);
+    expect((await call("GET", "/companies", { token: first.access_token })).status).toBe(401);
+    expect((await hosted(nile, "GET", "/courier/me", atNile.access_token)).status).toBe(401);
+    expect((await call("POST", "/auth/refresh", { body: { refresh_token: first.refresh_token } })).status).toBe(401);
+    expect((await store.listCouriers(nile.id)).length).toBe(couriers);
+  });
+
   it("gives the stores' reviewers Studio's demo delivery company, as its test courier with a sample job, with no message sent", async () => {
     const demo: App = {
       ...newApp(clientId, null, NOW, "delivery"),

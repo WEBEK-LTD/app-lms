@@ -1499,6 +1499,8 @@ export interface DataStore {
   /** Makes the account, or returns the one made with the same number or email a moment before. */
   createCourierAccount(account: CourierAccount): Promise<CourierAccount>;
   updateCourierAccount(id: string, patch: Partial<Pick<CourierAccount, "lastSignInAt">>): Promise<void>;
+  /** Deletes the account (its devices go with it; call deleteCourierDevice on each first so their company sessions end). */
+  deleteCourierAccount(id: string): Promise<void>;
   createCourierDevice(device: CourierDevice): Promise<void>;
   getCourierDevice(id: string): Promise<CourierDevice | null>;
   /** The device whose current refresh token has this hash. */
