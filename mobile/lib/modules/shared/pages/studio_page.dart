@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
@@ -21,6 +22,7 @@ import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
 import 'page_blocks.dart';
+import 'recently_viewed.dart';
 import 'side_menu.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
@@ -464,6 +466,11 @@ class StudioNodeView extends ConsumerWidget {
       }
     }
     return switch (node.type) {
+      // 112.4 What this person opened lately, once there is something.
+      StudioNodeType.items when node.recent =>
+        node.source == ItemSource.products &&
+            ref.watch(recentlyViewedProvider).isNotEmpty,
+      StudioNodeType.coupon => (node.code ?? '').isNotEmpty,
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -504,7 +511,10 @@ class StudioNodeView extends ConsumerWidget {
         node.shadow != StudioShadow.none ||
         (border != null && node.borderWidth > 0);
     if (node.imageBackgroundUrl case final url?) {
+      // 112.4 What lies on the picture fills it when the element's size is
+      // set (a slide), so its own alignment holds.
       child = Stack(
+        fit: StackFit.passthrough,
         children: [
           Positioned.fill(
             child: AppNetworkImage(url: url, seed: node.id.hashCode),
@@ -598,8 +608,10 @@ class StudioNodeView extends ConsumerWidget {
 
   /// A fixed width or height, a minimum height and a shape's ratio.
   Widget _sized(Widget child) {
+    // 112.4 A slider's height or shape is its slides'; its dots go under them.
+    final slider = node.type == StudioNodeType.slider;
     final w = node.width?.fixed;
-    final h = node.height?.fixed;
+    final h = slider ? null : node.height?.fixed;
     if (node.minHeight case final min? when min > 0) {
       child = ConstrainedBox(
         constraints: BoxConstraints(minHeight: min),
@@ -608,7 +620,7 @@ class StudioNodeView extends ConsumerWidget {
     }
     if (w != null || h != null) {
       child = SizedBox(width: w, height: h, child: child);
-    } else if (node.aspectRatio case final ratio? when ratio > 0) {
+    } else if (node.aspectRatio case final ratio? when ratio > 0 && !slider) {
       child = AspectRatio(aspectRatio: ratio, child: child);
     }
     return child;
@@ -841,13 +853,23 @@ class StudioNodeView extends ConsumerWidget {
           color: color ?? p.text,
         );
       case StudioNodeType.items:
+        // 112.4 What this person opened lately comes from this phone.
+        final entries = node.recent
+            ? ref.watch(recentlyViewedProvider).take(30).toList()
+            : node.items;
         if (node.card == null) {
           return PageBlockView(
-            block: _itemsBlock(node),
+            block: _itemsBlock(node, entries),
             pageSlug: scope.pageSlug,
           );
         }
-        return _CustomCards(node: node, scope: scope);
+        return _CustomCards(node: node, scope: scope, entries: entries);
+      case StudioNodeType.coupon:
+        return _StudioCoupon(
+          code: node.code ?? '',
+          color: color ?? p.primary,
+          radius: node.radius > 0 ? node.radius : 12,
+        );
       case StudioNodeType.categories:
         return PageBlockView(
           block: _categoriesBlock(node),
@@ -906,7 +928,20 @@ class StudioNodeView extends ConsumerWidget {
           alignment: _stackAlign(node.cross),
           children: [
             for (final (i, child) in kids.indexed)
-              if (i > 0 &&
+              // 112.4 A spot on a picture: its own point at the same share
+              // of it sits at its place.
+              if (child.place case final place?)
+                Positioned.fill(
+                  child: Align(
+                    key: ValueKey('studio-place-${child.id}'),
+                    alignment: AlignmentDirectional(
+                      place.x / 50 - 1,
+                      place.y / 50 - 1,
+                    ),
+                    child: view(child),
+                  ),
+                )
+              else if (i > 0 &&
                   child.width?.fill != false &&
                   child.height?.fill == true)
                 Positioned.fill(child: view(child))
@@ -1057,17 +1092,22 @@ class StudioNodeView extends ConsumerWidget {
   }
 }
 
-ItemsBlock _itemsBlock(StudioNode node) => ItemsBlock(
-  id: node.id,
-  source: node.source,
-  layout: node.layout,
-  items: node.items,
-);
+ItemsBlock _itemsBlock(StudioNode node, [List<PageItem>? entries]) =>
+    ItemsBlock(
+      id: node.id,
+      // 112.4 A list's own title (what was seen lately), hidden with it.
+      title: node.title,
+      source: node.source,
+      layout: node.layout,
+      items: entries ?? node.items,
+    );
 
 CategoriesBlock _categoriesBlock(StudioNode node) => CategoriesBlock(
   id: node.id,
   source: node.source,
   categories: node.categories,
+  style: node.categoriesStyle,
+  columns: node.columns,
 );
 
 SearchBlock _searchBlock(StudioNode node, String placeholder) =>
@@ -1172,10 +1212,17 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
 /// A list whose card the owner designed: the card for each entry, its
 /// bound elements filled from the entry; a tap opens the entry.
 class _CustomCards extends ConsumerWidget {
-  const _CustomCards({required this.node, required this.scope});
+  const _CustomCards({
+    required this.node,
+    required this.scope,
+    required this.entries,
+  });
 
   final StudioNode node;
   final StudioScope scope;
+
+  /// The list's entries (112.4 or what this person opened lately).
+  final List<PageItem> entries;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1192,7 +1239,7 @@ class _CustomCards extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final (i, entry) in node.items.indexed) ...[
+            for (final (i, entry) in entries.indexed) ...[
               if (i > 0) SizedBox(height: gap),
               cardOf(entry),
             ],
@@ -1205,7 +1252,7 @@ class _CustomCards extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final (i, entry) in node.items.indexed) ...[
+              for (final (i, entry) in entries.indexed) ...[
                 if (i > 0) SizedBox(width: gap),
                 SizedBox(width: width, child: cardOf(entry)),
               ],
@@ -1217,7 +1264,7 @@ class _CustomCards extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (var i = 0; i < node.items.length; i += columns) ...[
+            for (var i = 0; i < entries.length; i += columns) ...[
               if (i > 0) SizedBox(height: gap),
               IntrinsicHeight(
                 child: Row(
@@ -1226,8 +1273,8 @@ class _CustomCards extends ConsumerWidget {
                     for (var c = 0; c < columns; c++) ...[
                       if (c > 0) SizedBox(width: gap),
                       Expanded(
-                        child: i + c < node.items.length
-                            ? cardOf(node.items[i + c])
+                        child: i + c < entries.length
+                            ? cardOf(entries[i + c])
                             : const SizedBox.shrink(),
                       ),
                     ],
@@ -1298,7 +1345,10 @@ class _Ratings extends StatelessWidget {
 // ------------------------------------------------------------------ Slider
 
 /// Its elements side by side, swiped; one or more at a time, going on by
-/// itself when the owner chose so, with dots under it.
+/// itself when the owner chose so, and where it is shown (112.4): dots
+/// under it, a line per slide over its bottom (the open one filling while
+/// it waits) or "2 / 5" over its corner. Its height is its own, or (112.4)
+/// from its width and shape.
 class _StudioSlider extends ConsumerStatefulWidget {
   const _StudioSlider({required this.node, required this.scope});
 
@@ -1316,16 +1366,27 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
   Timer? _timer;
   int _page = 0;
 
+  /// Counts the slides' turns, so the open slide's line starts again.
+  int _turn = 0;
+
   @override
   void initState() {
     super.initState();
-    if (widget.node.autoplay) {
-      _timer = Timer.periodic(
-        Duration(milliseconds: widget.node.intervalMs),
-        (_) => _next(),
-      );
-    }
+    _wait();
   }
+
+  /// The next slide after the owner's seconds; a swipe starts them again.
+  void _wait() {
+    _timer?.cancel();
+    if (!widget.node.autoplay) return;
+    _timer = Timer.periodic(
+      Duration(milliseconds: widget.node.intervalMs),
+      (_) => _next(),
+    );
+  }
+
+  bool get _moving =>
+      widget.node.autoplay && !MediaQuery.disableAnimationsOf(context);
 
   void _next() {
     if (!mounted || !_controller.hasClients) return;
@@ -1354,55 +1415,328 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
     final kids = _kids;
     if (kids.isEmpty) return const SizedBox.shrink();
-    final height = widget.node.height?.fixed ?? 180;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: height,
-          child: PageView.builder(
-            controller: _controller,
-            padEnds: false,
-            itemCount: kids.length,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (context, i) => Padding(
-              padding: EdgeInsetsDirectional.only(
-                end: i < kids.length - 1 ? widget.node.gap : 0,
+    final node = widget.node;
+    final shown = node.dots && kids.length > 1 ? node.indicator : null;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final ratio = node.aspectRatio;
+        final height =
+            node.height?.fixed ??
+            (ratio != null && ratio > 0 && constraints.maxWidth.isFinite
+                ? constraints.maxWidth / ratio
+                : 180.0);
+        final pages = PageView.builder(
+          controller: _controller,
+          padEnds: false,
+          itemCount: kids.length,
+          onPageChanged: (i) => setState(() {
+            _page = i;
+            _turn++;
+            _wait();
+          }),
+          itemBuilder: (context, i) => Padding(
+            padding: EdgeInsetsDirectional.only(
+              end: i < kids.length - 1 ? node.gap : 0,
+            ),
+            child: StudioNodeView(
+              node: kids[i],
+              scope: widget.scope,
+              parent: node,
+            ),
+          ),
+        );
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: height,
+              child: switch (shown) {
+                StudioIndicator.progress => Stack(
+                  children: [
+                    Positioned.fill(child: pages),
+                    PositionedDirectional(
+                      start: 16,
+                      end: 16 + node.gap,
+                      bottom: 12,
+                      child: _SliderLines(
+                        key: ValueKey('studio-lines-${node.id}'),
+                        count: kids.length,
+                        page: _page,
+                        turn: _turn,
+                        wait: _moving
+                            ? Duration(milliseconds: node.intervalMs)
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                StudioIndicator.count => Stack(
+                  children: [
+                    Positioned.fill(child: pages),
+                    PositionedDirectional(
+                      top: 10,
+                      end: 10 + node.gap,
+                      child: _SliderCount(
+                        key: ValueKey('studio-count-${node.id}'),
+                        page: _page,
+                        count: kids.length,
+                      ),
+                    ),
+                  ],
+                ),
+                _ => pages,
+              },
+            ),
+            if (shown == StudioIndicator.dots) ...[
+              const SizedBox(height: 8),
+              _SliderDots(count: kids.length, page: _page),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SliderDots extends StatelessWidget {
+  const _SliderDots({required this.count, required this.page});
+
+  final int count;
+  final int page;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var i = 0; i < count; i++)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: i == page ? 16 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: i == page ? p.primary : p.border,
+                borderRadius: BorderRadius.circular(3),
               ),
-              child: StudioNodeView(
-                node: kids[i],
-                scope: widget.scope,
-                parent: widget.node,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 112.4 A line per slide over the slides: the ones seen full, the open one
+/// filling while it waits (full when the slider doesn't move by itself).
+class _SliderLines extends StatelessWidget {
+  const _SliderLines({
+    super.key,
+    required this.count,
+    required this.page,
+    required this.turn,
+    required this.wait,
+  });
+
+  final int count;
+  final int page;
+  final int turn;
+  final Duration? wait;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget line(double filled) => ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: SizedBox(
+        height: 3,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ColoredBox(color: Color(0x73FFFFFF)),
+            FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: filled,
+              child: const ColoredBox(color: Color(0xFFFFFFFF)),
+            ),
+          ],
+        ),
+      ),
+    );
+    return ExcludeSemantics(
+      child: Row(
+        children: [
+          for (var i = 0; i < count; i++) ...[
+            if (i > 0) const SizedBox(width: 4),
+            Expanded(
+              child: i == page && wait != null
+                  ? TweenAnimationBuilder<double>(
+                      key: ValueKey('turn-$turn'),
+                      tween: Tween(begin: 0, end: 1),
+                      duration: wait!,
+                      builder: (context, value, _) => line(value),
+                    )
+                  : line(i <= page ? 1 : 0),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 112.4 "2 / 5" over the slides' corner.
+class _SliderCount extends StatelessWidget {
+  const _SliderCount({super.key, required this.page, required this.count});
+
+  final int page;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: const Color(0x8C0E0D24),
+      borderRadius: BorderRadius.circular(999),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      child: Text(
+        '${page + 1} / $count',
+        textDirection: TextDirection.ltr,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
+      ),
+    ),
+  );
+}
+
+// ------------------------------------------------------------------ Coupon
+
+/// 112.4 A code in a dashed frame; a tap copies it.
+class _StudioCoupon extends StatelessWidget {
+  const _StudioCoupon({
+    required this.code,
+    required this.color,
+    required this.radius,
+  });
+
+  final String code;
+  final Color color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final p = context.palette;
+    return Semantics(
+      button: true,
+      label: '${l10n.copyCode}, $code',
+      excludeSemantics: true,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          key: const ValueKey('studio-coupon'),
+          borderRadius: BorderRadius.circular(radius),
+          onTap: () async {
+            await Clipboard.setData(ClipboardData(text: code));
+            if (context.mounted) showMessage(context, l10n.codeCopied);
+          },
+          child: CustomPaint(
+            painter: _DashedFrame(color: color, radius: radius),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 6, 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      code,
+                      textDirection: TextDirection.ltr,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(
+                        math.max(4, radius - 4),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcon(AppIcons.copy, size: 16, color: p.onPrimary),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.copy,
+                            style: TextStyle(
+                              color: p.onPrimary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-        if (widget.node.dots && kids.length > 1) ...[
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (var i = 0; i < kids.length; i++)
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: i == _page ? 16 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: i == _page ? p.primary : p.border,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ],
+      ),
     );
   }
+}
+
+class _DashedFrame extends CustomPainter {
+  const _DashedFrame({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final frame = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          (Offset.zero & size).deflate(0.75),
+          Radius.circular(radius),
+        ),
+      );
+    for (final metric in frame.computeMetrics()) {
+      for (var at = 0.0; at < metric.length; at += 9) {
+        canvas.drawPath(metric.extractPath(at, at + 5), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedFrame old) =>
+      old.color != color || old.radius != radius;
 }
 
 // ------------------------------------------------------------------ Motion

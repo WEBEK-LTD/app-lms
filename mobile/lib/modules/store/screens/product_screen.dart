@@ -14,6 +14,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../lms/courses/community_widgets.dart' show StarRow;
 import '../../lms/lesson/content/html_content.dart';
+import '../../shared/pages/recently_viewed.dart';
 import '../data/cart_controller.dart';
 import '../data/store_providers.dart';
 import '../widgets/option_sheet.dart';
@@ -64,6 +65,17 @@ class _ProductViewState extends ConsumerState<_ProductView> {
   int _image = 0;
 
   ProductDetail get _product => widget.product;
+
+  @override
+  void initState() {
+    super.initState();
+    // 112.4 Kept on the phone for the home page's "seen lately".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(recentlyViewedProvider.notifier).opened(_product.summary);
+      }
+    });
+  }
 
   bool get _choicesComplete =>
       _product.choices.every((a) => (_chosen[a.slug] ?? '').isNotEmpty);
