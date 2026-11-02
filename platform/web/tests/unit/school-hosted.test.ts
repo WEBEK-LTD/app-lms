@@ -268,6 +268,10 @@ describe("105.4 schools on the hosted API", () => {
     const fee = await store.createSchoolFee({ appId: app.id, studentId: omar, title: "First term tuition", amountCents: 450000, dueOn: "2026-10-31", status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
     const list = (await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: dad.access_token })).body;
     expect(list).toMatchObject({ currency: "EGP", due_formatted: "E£4,500.00", can_pay: false, items: [{ id: fee.id, title: "First term tuition", amount: "4500.00", status: "due", receipt_url: null }] });
+    // The fees are the parents': the student themselves is refused, and isn't pushed of them.
+    const student = await signUp("1001000001", "Omar");
+    expect((await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: student.access_token })).body).toMatchObject({ code: "not_parent" });
+    expect((await call("POST", "/school/students/{student_id}/fees/{fee_id}/pay", { params: [String(omar), String(fee.id)], token: student.access_token })).status).toBe(403);
     expect((await call("POST", "/school/students/{student_id}/fees/{fee_id}/pay", { params: [String(omar), String(fee.id)], token: dad.access_token })).body).toMatchObject({ code: "payments_unavailable" });
     // The school takes fees by card.
     await store.saveSchoolSettings(app.id, { ...schoolSettingsOf(await store.getSchoolSettings(app.id), app), feesByCard: true });
@@ -282,6 +286,9 @@ describe("105.4 schools on the hosted API", () => {
     const paid = (await call("GET", "/school/students/{student_id}/fees", { params: [String(omar)], token: dad.access_token })).body as { due_formatted: string; items: { status: string; paid_by: string; receipt_url: string }[] };
     expect(paid.due_formatted).toBe("E£0.00");
     expect(paid.items[0]).toMatchObject({ status: "paid", paid_by: "card" });
+    const told = async (token: string) => ((await call("GET", "/me/notifications", { token })).body as { items: { type: string }[] }).items.filter((n) => n.type === "school_fee").length;
+    expect(await told(dad.access_token)).toBe(1);
+    expect(await told(student.access_token)).toBe(0);
     const code = paid.items[0]!.receipt_url.split("/fee-receipts/")[1]!;
     expect((await feeReceipt(store, code))!.rows).toEqual([
       ["Reference", `F-${String(fee.id).padStart(6, "0")}`],

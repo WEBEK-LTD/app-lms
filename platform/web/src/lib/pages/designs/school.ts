@@ -37,7 +37,7 @@ import { aboutPage, contactPage, otherPage, questionsPage, who } from "./pages";
 const schoolTabs = [homeTab, screenTab("school", "School", "school", "school"), accountTab];
 
 const SIGN_IN = question("How do I sign in?", "With the mobile number you gave the school. A parent sees each of their children.");
-const FEES = question("How do I pay the fees?", "Open My school, then Fees: pay by card in the app, or at the school.");
+const FEES = question("How do I pay the fees?", "Parents open the Parent tab, then Fees: pay by card in the app, or at the school.");
 const APPLY = question("When can we apply?", "All year round. Places for the new school year are offered from January.");
 const VISIT = question("Can we visit the school?", "Yes. Ask for a visit with the form on our Admissions page and we'll show you around.");
 const TEST = question("Is there an entry test?", "Not for young children. Older students meet a teacher for a friendly talk.");
