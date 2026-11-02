@@ -614,7 +614,7 @@ test("113.12 Salaries: a salary and an advance, the month's payslips with a bonu
   await expect(sheet).toContainText("Base salary");
   await expect(sheet).toContainText("+E£500.00");
   await expect(sheet.locator('[data-line="advance"]')).toContainText("−E£500.00");
-  await own.getByText("Add a bonus or a deduction").click();
+  await own.getByRole("button", { name: "Add a bonus or a deduction" }).click();
   await own.locator("#f-line-label").fill("Exam supervision");
   await own.locator("#f-line-amount").fill("400");
   await own.getByRole("button", { name: "Add", exact: true }).click();
