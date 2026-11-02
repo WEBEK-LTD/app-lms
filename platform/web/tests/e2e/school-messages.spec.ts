@@ -78,8 +78,8 @@ test("People: a teacher in a department", async () => {
 test("School settings › Messages: whom teachers write to, who starts, the hours, a class at once", async () => {
   await own.goto("/dashboard/school/settings");
   const messages = own.getByRole("region", { name: "Messages" });
-  await expect(messages.getByLabel("Teachers may write to")).toHaveValue("none");
-  await messages.getByLabel("Teachers may write to").selectOption({ label: "Parents" });
+  await expect(messages.getByLabel("Teachers may write to", { exact: true })).toHaveValue("none");
+  await messages.getByLabel("Teachers may write to", { exact: true }).selectOption({ label: "Parents" });
   await messages.getByLabel("Who may write first").selectOption({ label: "The teacher or the family" });
   await messages.getByLabel("Only at these hours, on these days").check();
   await messages.getByLabel("From", { exact: true }).fill("08:00");
@@ -92,7 +92,7 @@ test("School settings › Messages: whom teachers write to, who starts, the hour
   await messages.getByRole("button", { name: "Save messages" }).click();
   await expect(messages.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
   await own.reload();
-  await expect(own.getByRole("region", { name: "Messages" }).getByLabel("Teachers may write to")).toHaveValue("parents");
+  await expect(own.getByRole("region", { name: "Messages" }).getByLabel("Teachers may write to", { exact: true })).toHaveValue("parents");
   await expect(own.getByRole("region", { name: "Messages" }).getByLabel("To", { exact: true })).toHaveValue("17:00");
   await expect(own.getByRole("region", { name: "Messages" }).getByLabel("Sunday")).toBeChecked();
   await expect(own.getByRole("region", { name: "Messages" }).getByLabel("The administration may read these conversations")).not.toBeChecked();
