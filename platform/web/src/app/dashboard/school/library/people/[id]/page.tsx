@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { returnLoanAction } from "@/app/actions/school-library";
-import { Icon } from "@/components/icon";
 import { Badge, btn } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
@@ -44,11 +43,7 @@ export default async function LibraryPersonPage({ params }: PageProps<"/dashboar
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/library/desk" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("library.desk")}
-      </Link>
-      <PageHead title={person.name} intro={t("library.personIntro", { out: current.length, total: loans.length })} />
+      <PageHead title={person.name} intro={t("library.personIntro", { out: current.length, total: loans.length })} back={{ href: "/dashboard/school/library/desk", label: t("library.desk") }} />
 
       <Panel id="h-person-out" title={t("library.outNow")}>
         {current.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noneOut")}</p> : null}

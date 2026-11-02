@@ -60,11 +60,7 @@ export default async function BusRoutePage({ params, searchParams }: PageProps<"
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/bus" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("bus.title")}
-      </Link>
-      <PageHead title={`${route.name} · ${route.plate}`} intro={t("bus.routeIntro")} />
+      <PageHead title={`${route.name} · ${route.plate}`} intro={t("bus.routeIntro")} back={{ href: "/dashboard/school/bus", label: t("bus.title") }} />
 
       <Panel id="h-route" title={t("bus.theBus")}>
         <SchoolForm action={saveBusRouteAction} submit={t("bus.save")}>

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { addCopiesAction, deleteBookAction, deleteCopyAction, returnLoanAction, saveBookAction } from "@/app/actions/school-library";
 import { Field } from "@/components/form";
-import { Icon } from "@/components/icon";
 import { Badge, btn } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { assetUrl } from "@/lib/assets";
@@ -51,11 +50,7 @@ export default async function LibraryBookPage({ params }: PageProps<"/dashboard/
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/library" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("library.title")}
-      </Link>
-      <PageHead title={book.title} intro={`${book.author} · ${t("library.copiesLine", { copies: shelf.copies.length, out: shelf.onLoan.size })}`} />
+      <PageHead title={book.title} intro={`${book.author} · ${t("library.copiesLine", { copies: shelf.copies.length, out: shelf.onLoan.size })}`} back={{ href: "/dashboard/school/library", label: t("library.title") }} />
 
       <Panel id="h-copies" title={t("library.copies")} intro={t("library.copiesIntro")}>
         {shelf.copies.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("library.noCopies")}</p> : null}

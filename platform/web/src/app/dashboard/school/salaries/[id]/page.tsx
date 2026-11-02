@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { addLineAction, answerLineAction, deleteDraftAction, finalisePayslipAction, recordPaymentAction, removePaymentAction, savePayslipNoteAction } from "@/app/actions/school-salaries";
 import { Field } from "@/components/form";
@@ -103,20 +102,17 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href={`/dashboard/school/salaries?month=${payslip.month}`} className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("salaries.monthSheets", { month: monthLabel(lang, payslip.month) })}
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead
-          title={t("salaries.payslipOf", { name: payslip.personName, month: monthLabel(lang, payslip.month) })}
-          intro={[payslipNumber(payslip), payslip.jobTitle, payslip.department, t(payslip.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")}
-        />
-        <a href={`/api/dashboard/school/salaries/${payslip.id}/pdf`} className={`${btn.secondary} h-10 gap-1.5 px-4 text-sm`}>
-          <Icon name="download" size={18} />
-          {t("salaries.downloadPdf")}
-        </a>
-      </div>
+      <PageHead
+        title={t("salaries.payslipOf", { name: payslip.personName, month: monthLabel(lang, payslip.month) })}
+        intro={[payslipNumber(payslip), payslip.jobTitle, payslip.department, t(payslip.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")}
+        back={{ href: `/dashboard/school/salaries?month=${payslip.month}`, label: t("salaries.monthSheets", { month: monthLabel(lang, payslip.month) }) }}
+        actions={
+          <a href={`/api/dashboard/school/salaries/${payslip.id}/pdf`} className={`${btn.secondary} h-11 gap-1.5 px-4 text-sm`}>
+            <Icon name="download" size={18} />
+            {t("salaries.downloadPdf")}
+          </a>
+        }
+      />
       <div className="flex flex-wrap items-center gap-2">
         <SheetBadge payslip={payslip} t={t} />
         {payslip.finalAt ? <span className="text-[14px] text-muted">{t("salaries.finalBy", { by: payslip.finalBy ?? "—", date: payslip.finalAt.toISOString().slice(0, 10) })}</span> : null}

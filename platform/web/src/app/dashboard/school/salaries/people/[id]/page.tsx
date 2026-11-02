@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { advancePlanAction, deleteAdvanceAction, giveAdvanceAction, removeSalaryAction, repayAdvanceAction, saveSalaryAction } from "@/app/actions/school-salaries";
 import { Field } from "@/components/form";
-import { Icon } from "@/components/icon";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, formatCents } from "@/lib/catalog/money";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -44,11 +43,7 @@ export default async function SalaryPersonPage({ params }: { params: Promise<{ i
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/salaries" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("salaries.title")}
-      </Link>
-      <PageHead title={person.name} intro={[person.jobTitle, person.department, t(person.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")} />
+      <PageHead title={person.name} intro={[person.jobTitle, person.department, t(person.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")} back={{ href: "/dashboard/school/salaries", label: t("salaries.title") }} />
 
       <Panel id="h-salary" title={t("salaries.salary")} intro={t("salaries.salaryIntro")}>
         <SchoolForm action={saveSalaryAction} submit={t("salaries.save")}>

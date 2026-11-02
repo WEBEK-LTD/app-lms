@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Icon } from "@/components/icon";
 import { Badge } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
@@ -45,11 +44,8 @@ export default async function BusTripPage({ params }: PageProps<"/dashboard/scho
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href={`/dashboard/school/bus/${route.id}`} className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {route.name}
-      </Link>
       <PageHead
+        back={{ href: `/dashboard/school/bus/${route.id}`, label: route.name }}
         title={`${route.name} · ${t(run.trip === "morning" ? "bus.morning" : "bus.afternoon")}`}
         intro={[
           formatDate(lang, new Date(`${run.date}T00:00:00Z`)),

@@ -46,18 +46,14 @@ export default async function BusLivePage() {
   return (
     <div className="flex flex-col gap-6">
       <Refresher seconds={BUS_BOARD_EVERY_SECONDS} />
-      <Link href="/dashboard/school/bus" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("bus.title")}
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead title={t("bus.liveMap")} intro={t("bus.liveIntro")} />
+      <PageHead title={t("bus.liveMap")} intro={t("bus.liveIntro")} back={{ href: "/dashboard/school/bus", label: t("bus.title") }} actions={
         <p className="m-0 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-bold text-success" title={t("taxi.liveUpdatingHint", { seconds: BUS_BOARD_EVERY_SECONDS })}>
           <span aria-hidden="true" className="size-2.5 rounded-full bg-success" />
           {t("taxi.liveUpdating")}
           <span className="sr-only">{t("taxi.liveUpdatingHint", { seconds: BUS_BOARD_EVERY_SECONDS })}</span>
         </p>
-      </div>
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">

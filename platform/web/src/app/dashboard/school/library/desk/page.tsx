@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { lendBookAction, returnBookAction, returnLoanAction } from "@/app/actions/school-library";
 import { Field } from "@/components/form";
-import { Icon } from "@/components/icon";
 import { Badge, btn } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
@@ -73,11 +72,7 @@ export default async function LibraryDeskPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/dashboard/school/library" className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("library.title")}
-      </Link>
-      <PageHead title={t("library.desk")} intro={t("library.deskIntro", { days: library.loanDays, max: library.maxLoans })} />
+      <PageHead title={t("library.desk")} intro={t("library.deskIntro", { days: library.loanDays, max: library.maxLoans })} back={{ href: "/dashboard/school/library", label: t("library.title") }} />
 
       <div className="grid max-w-[860px] gap-5 md:grid-cols-2">
         <Panel id="h-lend" title={t("library.lend")}>

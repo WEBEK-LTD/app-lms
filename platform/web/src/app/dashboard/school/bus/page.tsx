@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { saveBusRouteAction, saveBusSettingsAction } from "@/app/actions/school-bus";
 import { Field } from "@/components/form";
-import { Icon } from "@/components/icon";
-import { Badge, btn } from "@/components/ui";
+import { Badge, EmptyState } from "@/components/ui";
+import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -12,7 +12,6 @@ import { BUS_LIMITS, busSettingsOf, isCrewPerson, tripStops } from "@/lib/school
 import { routeFormValues } from "@/lib/school/bus-forms";
 import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 import { RouteFields } from "./parts";
@@ -44,67 +43,85 @@ export default async function SchoolBusPage() {
   const name = new Map(people.map((p) => [p.id, p.name]));
   const crewOptions = crew.map((p) => ({ value: String(p.id), label: p.name }));
 
+  const has = routes.length > 0;
+  const canAdd = routes.length < BUS_LIMITS.routes;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead title={t("bus.title")} intro={t("bus.intro")} />
-        <Link href="/dashboard/school/bus/live" className={`${btn.secondary} h-10 gap-1.5 px-4 text-sm`}>
-          <Icon name="map" size={18} />
-          {t("bus.liveMap")}
-        </Link>
-      </div>
+      {/* The page kit: the header and its main action, the numbers, the live map, the routes, then the settings. */}
+      <PageHead
+        title={t("bus.title")}
+        intro={t("bus.intro")}
+        actions={
+          has && canAdd ? (
+            <SheetButton target="new-route" icon="add">
+              {t("bus.addRoute")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {crew.length === 0 ? <FirstNote text={t("bus.crewFirst")} href="/dashboard/school/people" /> : null}
 
-      <Panel id="h-routes" title={t("bus.routes")}>
-        {routes.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("bus.noRoutes")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0" data-bus-routes>
-          {routes.map((route) => {
-            const mine = stops.filter((s) => s.routeId === route.id);
-            const onIt = (trip: "morning" | "afternoon") => riders.filter((r) => r.routeId === route.id && r.trip === trip).length;
-            const running = runs.filter((r) => r.routeId === route.id && r.status === "running");
-            return (
-              <li key={route.id} className="border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <Link href={`/dashboard/school/bus/${route.id}`} className="flex flex-wrap items-center gap-3 text-inherit no-underline hover:[&_.name]:underline">
-                  <span aria-hidden="true" className="grid size-9 shrink-0 place-items-center rounded-full bg-sand text-midnight">
-                    <Icon name="directions_bus" size={20} />
-                  </span>
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="name text-[15px] font-bold">
-                      {route.name} · <bdi dir="ltr">{route.plate}</bdi>
-                    </span>
-                    <span className="text-[13px] text-muted">
-                      {[
-                        t("bus.stopCount", { count: mine.length }),
-                        t("bus.ridersLine", { morning: onIt("morning"), afternoon: onIt("afternoon"), seats: route.capacity }),
-                        route.driverId ? t("bus.driverIs", { name: name.get(route.driverId) ?? "—" }) : t("bus.noDriver"),
-                        route.supervisorId ? t("bus.supervisorIs", { name: name.get(route.supervisorId) ?? "—" }) : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </span>
-                  {running.map((r) => (
-                    <Badge key={r.id} tone="success">
-                      {t(r.trip === "morning" ? "bus.morningRunning" : "bus.afternoonRunning")}
-                    </Badge>
-                  ))}
-                  {route.active ? null : <Badge tone="neutral">{t("bus.off")}</Badge>}
-                  {tripStops(mine, "morning").length === 0 && tripStops(mine, "afternoon").length === 0 ? <Badge tone="warn">{t("bus.noStopsYet")}</Badge> : null}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-        {routes.length < BUS_LIMITS.routes ? (
-          <AddServiceBox title={t("bus.addRoute")} open={routes.length === 0}>
-            <SchoolForm action={saveBusRouteAction} submit={t("bus.add")}>
-              <RouteFields suffix="-new" values={routeFormValues(null)} crew={crewOptions} t={t} />
-            </SchoolForm>
-          </AddServiceBox>
-        ) : null}
-      </Panel>
+      {has ? (
+        <StatRow label={t("bus.routes")}>
+          <Stat icon="route" tone="accent" label={t("bus.routes")} value={routes.length} />
+          <Stat icon="pin_drop" label={t("bus.statStops")} value={stops.length} />
+          <Stat icon="groups" label={t("bus.statRiders")} value={new Set(riders.map((r) => r.studentId)).size} />
+          <Stat icon="directions_bus" tone="success" label={t("bus.statRunning")} value={runs.filter((r) => r.status === "running").length} href="/dashboard/school/bus/live" />
+        </StatRow>
+      ) : null}
+      <LinkCards label={t("bus.title")} items={[{ href: "/dashboard/school/bus/live", icon: "map", label: t("bus.liveMap") }]} />
 
+      {has ? (
+        <Panel id="h-routes" title={t("bus.routes")} flush>
+          <ul className="m-0 flex list-none flex-col p-0" data-bus-routes>
+            {routes.map((route, i) => {
+              const mine = stops.filter((s) => s.routeId === route.id);
+              const onIt = (trip: "morning" | "afternoon") => riders.filter((r) => r.routeId === route.id && r.trip === trip).length;
+              const running = runs.filter((r) => r.routeId === route.id && r.status === "running");
+              return (
+                <ItemRow
+                  key={route.id}
+                  href={`/dashboard/school/bus/${route.id}`}
+                  media={<Thumb icon="directions_bus" shape="square" tint={i} />}
+                  title={
+                    <>
+                      {route.name} · <bdi dir="ltr">{route.plate}</bdi>
+                    </>
+                  }
+                  meta={[t("bus.stopCount", { count: mine.length }), t("bus.ridersLine", { morning: onIt("morning"), afternoon: onIt("afternoon"), seats: route.capacity })].join(" · ")}
+                  extra={[route.driverId ? t("bus.driverIs", { name: name.get(route.driverId) ?? "—" }) : t("bus.noDriver"), route.supervisorId ? t("bus.supervisorIs", { name: name.get(route.supervisorId) ?? "—" }) : null].filter(Boolean).join(" · ")}
+                  aside={
+                    <>
+                      {running.map((r) => (
+                        <Badge key={r.id} tone="success">
+                          {t(r.trip === "morning" ? "bus.morningRunning" : "bus.afternoonRunning")}
+                        </Badge>
+                      ))}
+                      {route.active ? null : <Badge tone="neutral">{t("bus.off")}</Badge>}
+                      {tripStops(mine, "morning").length === 0 && tripStops(mine, "afternoon").length === 0 ? <Badge tone="warn">{t("bus.noStopsYet")}</Badge> : null}
+                    </>
+                  }
+                />
+              );
+            })}
+          </ul>
+        </Panel>
+      ) : (
+        <EmptyState icon="directions_bus" title={t("bus.noRoutes")} />
+      )}
+
+      {canAdd ? (
+        // One place in the page either way, so the form that adds the first route keeps its message.
+        <Sheet id="new-route" inline={!has} title={t("bus.addRoute")}>
+          <SchoolForm action={saveBusRouteAction} submit={t("bus.add")} sheet>
+            <RouteFields suffix="-new" values={routeFormValues(null)} crew={crewOptions} t={t} />
+          </SchoolForm>
+        </Sheet>
+      ) : null}
+
+      <PageGroup title={t("bus.groupSettings")}>
       <Panel id="h-near" title={t("bus.nearTitle")} intro={t("bus.nearIntro")}>
         <SchoolForm action={saveBusSettingsAction} submit={t("bus.save")}>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -123,6 +140,7 @@ export default async function SchoolBusPage() {
           </div>
         </SchoolForm>
       </Panel>
+      </PageGroup>
     </div>
   );
 }
