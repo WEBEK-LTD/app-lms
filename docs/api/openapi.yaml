@@ -461,6 +461,13 @@ tags:
       sent with `/school/uploads`), approved or refused by the school in the
       dashboard with a note (`school_leave`), and the staff's own news, which
       students and parents never see (`school_staff`).
+
+      Roadmap 113.12. Their own payslips once the school made them final
+      (the base, allowances, bonuses, deductions, advances taken back, the
+      net and the payments the school wrote down) with each one's PDF from
+      a signed link that lasts 15 minutes, and their advances still being
+      taken back. Salaries are recorded by hand: nothing here moves money,
+      and no one sees another person's payslips.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -8688,6 +8695,57 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /staff/payslips:
+    get:
+      tags: [Staff]
+      operationId: listPayslips
+      summary: The person's own payslips
+      description: |
+        Roadmap 113.12. Final payslips only (a draft the school is still
+        writing is never shown), the newest month first; `advances` are the
+        person's advances still being taken back. `pdf_url` is a signed link
+        to the payslip's PDF in the app's language, good for 15 minutes:
+        ask again for a new one.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Payslips
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, advances]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Payslip' }
+                      advances:
+                        type: array
+                        items: { $ref: '#/components/schemas/SalaryAdvance' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /staff/payslips/{payslip_id}:
+    get:
+      tags: [Staff]
+      operationId: getPayslip
+      summary: One of the person's payslips, with a new PDF link
+      parameters:
+        - $ref: '#/components/parameters/PayslipId'
+      responses:
+        '200':
+          description: The payslip
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payslip' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
 webhooks:
   accountDeleted:
     post:
@@ -8855,6 +8913,11 @@ components:
       schema: { type: integer }
     LeaveId:
       name: leave_id
+      in: path
+      required: true
+      schema: { type: integer }
+    PayslipId:
+      name: payslip_id
       in: path
       required: true
       schema: { type: integer }
@@ -15680,6 +15743,112 @@ components:
         answer: { type: [string, 'null'], description: "The school's note with its answer." }
         answered_at: { type: [string, 'null'], format: date-time }
         created_at: { type: string, format: date-time }
+
+    PayslipAmount:
+      type: object
+      description: Roadmap 113.12. An amount in the payslip's currency.
+      required: [amount, amount_formatted]
+      properties:
+        amount: { type: string, example: '8000.00' }
+        amount_formatted: { type: string, example: 'E£8,000.00' }
+
+    PayslipLine:
+      type: object
+      description: |
+        A bonus, a deduction or an advance's instalment taken back. `source`
+        says where it came from: `office` (written by the school, its own
+        `label`), `absence` and `lateness` (suggested from check-in and
+        accepted by the school; `count` is the absences or late days), or
+        `advance`.
+      required: [kind, source, label, count, amount, amount_formatted]
+      properties:
+        kind: { type: string, enum: [bonus, deduction, advance] }
+        source: { type: string, enum: [office, absence, lateness, advance] }
+        label: { type: string }
+        count: { type: [integer, 'null'] }
+        amount: { type: string }
+        amount_formatted: { type: string }
+
+    PayslipPayment:
+      type: object
+      description: A payment the school wrote down as paid out, by hand.
+      required: [method, paid_on, note, amount, amount_formatted]
+      properties:
+        method: { type: string, enum: [cash, bank] }
+        paid_on: { type: string, format: date }
+        note: { type: [string, 'null'] }
+        amount: { type: string }
+        amount_formatted: { type: string }
+
+    Payslip:
+      type: object
+      description: Roadmap 113.12. A month's payslip of the signed-in teacher or staff member.
+      required: [id, number, month, currency, name, job_title, department, base, allowances, bonuses, deductions, gross, total_deductions, net, paid, left, status, payments, attendance, note, issued_at, pdf_url]
+      properties:
+        id: { type: integer }
+        number: { type: string, example: PS-2026-11-42 }
+        month: { type: string, pattern: '^[0-9]{4}-[0-9]{2}$', example: '2026-11' }
+        currency: { type: string, example: EGP }
+        name: { type: string }
+        job_title: { type: [string, 'null'] }
+        department: { type: [string, 'null'] }
+        base: { $ref: '#/components/schemas/PayslipAmount' }
+        allowances:
+          type: array
+          items:
+            type: object
+            required: [name, amount, amount_formatted]
+            properties:
+              name: { type: string, example: Transport }
+              amount: { type: string }
+              amount_formatted: { type: string }
+        bonuses:
+          type: array
+          items: { $ref: '#/components/schemas/PayslipLine' }
+        deductions:
+          type: array
+          description: Deductions and advances' instalments taken back.
+          items: { $ref: '#/components/schemas/PayslipLine' }
+        gross: { $ref: '#/components/schemas/PayslipAmount' }
+        total_deductions: { $ref: '#/components/schemas/PayslipAmount' }
+        net: { $ref: '#/components/schemas/PayslipAmount' }
+        paid: { $ref: '#/components/schemas/PayslipAmount' }
+        left: { $ref: '#/components/schemas/PayslipAmount' }
+        status: { type: string, enum: [unpaid, part_paid, paid] }
+        payments:
+          type: array
+          items: { $ref: '#/components/schemas/PayslipPayment' }
+        attendance:
+          description: The month's days at the gate when the payslip was made; null without check-in.
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [working_days, present, late, left_early, absent, excused, leave]
+              properties:
+                working_days: { type: integer }
+                present: { type: integer }
+                late: { type: integer }
+                left_early: { type: integer }
+                absent: { type: integer }
+                excused: { type: integer }
+                leave: { type: integer }
+        note: { type: [string, 'null'], description: "The school's note on the payslip." }
+        issued_at: { type: string, format: date-time }
+        pdf_url: { type: string, format: uri, description: 'The PDF, from a signed link good for 15 minutes.' }
+
+    SalaryAdvance:
+      type: object
+      description: Roadmap 113.12. An advance the school handed over, taken back from the payslips each month.
+      required: [id, given_on, currency, amount, instalment, starts_month, taken_back, left]
+      properties:
+        id: { type: integer }
+        given_on: { type: string, format: date }
+        currency: { type: string }
+        amount: { $ref: '#/components/schemas/PayslipAmount' }
+        instalment: { $ref: '#/components/schemas/PayslipAmount' }
+        starts_month: { type: string, example: '2026-12' }
+        taken_back: { $ref: '#/components/schemas/PayslipAmount' }
+        left: { $ref: '#/components/schemas/PayslipAmount' }
 
     ClassroomMe:
       type: object

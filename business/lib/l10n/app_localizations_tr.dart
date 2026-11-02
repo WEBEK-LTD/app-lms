@@ -1516,6 +1516,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get areaNotifications => 'Uygulama kullanıcılarına bildirimler';
 
   @override
+  String get areaSalaries => 'Maaşlar (okullar)';
+
+  @override
   String get everything => 'Her şey';
 
   @override

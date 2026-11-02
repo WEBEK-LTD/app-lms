@@ -100,6 +100,8 @@ import type {
   SchoolBusStop,
   SchoolBusTrip,
 } from "./types";
+// 113.12 Salaries
+import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
@@ -4081,6 +4083,144 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
     );
     return result.affectedRows === 1;
+  }
+
+  // 113.12 Salaries, recorded by hand
+
+  async listSchoolSalaries(appId: string): Promise<SchoolSalary[]> {
+    const t = schema.schoolSalaries;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)));
+  }
+
+  async getSchoolSalary(appId: string, personId: number): Promise<SchoolSalary | null> {
+    const t = schema.schoolSalaries;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.personId, personId))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolSalary(salary: SchoolSalary): Promise<boolean> {
+    const p = schema.schoolPeople;
+    // Only for a teacher or staff member of the same school.
+    const [person] = await this.run((db) =>
+      db
+        .select({ id: p.id })
+        .from(p)
+        .where(and(eq(p.appId, salary.appId), eq(p.id, salary.personId), inArray(p.role, ["teacher", "staff"])))
+        .limit(1),
+    );
+    if (!person) return false;
+    const { appId: _app, personId: _person, ...set } = salary;
+    await this.run((db) => db.insert(schema.schoolSalaries).values(salary).onDuplicateKeyUpdate({ set }));
+    return true;
+  }
+
+  async deleteSchoolSalary(appId: string, personId: number): Promise<void> {
+    const t = schema.schoolSalaries;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.personId, personId))));
+  }
+
+  async listSchoolPayslips(appId: string, filter: { month?: string; personId?: number; personIds?: number[]; statuses?: SchoolPayslipStatus[] } = {}): Promise<SchoolPayslip[]> {
+    const t = schema.schoolPayslips;
+    if ((filter.personIds && filter.personIds.length === 0) || (filter.statuses && filter.statuses.length === 0)) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.month !== undefined ? eq(t.month, filter.month) : undefined,
+            filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined,
+            filter.personIds ? inArray(t.personId, filter.personIds) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+          ),
+        )
+        .orderBy(desc(t.month), asc(t.personName), asc(t.id)),
+    );
+  }
+
+  async getSchoolPayslip(appId: string, id: number): Promise<SchoolPayslip | null> {
+    const t = schema.schoolPayslips;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolPayslip(input: Omit<SchoolPayslip, "id">): Promise<{ ok: true; payslip: SchoolPayslip } | { ok: false; reason: "duplicate" }> {
+    try {
+      const [result] = await this.run((db) => db.insert(schema.schoolPayslips).values(input));
+      return { ok: true, payslip: { id: Number(result.insertId), ...input } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async updateSchoolPayslip(
+    appId: string,
+    id: number,
+    patch: Partial<Omit<SchoolPayslip, "id" | "appId" | "personId" | "month" | "createdAt">>,
+    expect: { statuses: SchoolPayslipStatus[]; updatedAt?: Date },
+  ): Promise<boolean> {
+    const t = schema.schoolPayslips;
+    if (expect.statuses.length === 0) return false;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), inArray(t.status, expect.statuses), expect.updatedAt ? eq(t.updatedAt, expect.updatedAt) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async deleteSchoolPayslip(appId: string, id: number): Promise<boolean> {
+    const t = schema.schoolPayslips;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.status, "draft"))));
+    return result.affectedRows === 1;
+  }
+
+  async getSchoolSalaryMonth(appId: string, month: string): Promise<SchoolSalaryMonth | null> {
+    const t = schema.schoolSalaryMonths;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.month, month))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolSalaryMonth(row: SchoolSalaryMonth): Promise<void> {
+    const { appId: _app, month: _month, ...set } = row;
+    await this.run((db) => db.insert(schema.schoolSalaryMonths).values(row).onDuplicateKeyUpdate({ set }));
+  }
+
+  async listSchoolSalaryAdvances(appId: string, filter: { personId?: number; personIds?: number[] } = {}): Promise<SchoolSalaryAdvance[]> {
+    const t = schema.schoolSalaryAdvances;
+    if (filter.personIds && filter.personIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined, filter.personIds ? inArray(t.personId, filter.personIds) : undefined))
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+  }
+
+  async getSchoolSalaryAdvance(appId: string, id: number): Promise<SchoolSalaryAdvance | null> {
+    const t = schema.schoolSalaryAdvances;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolSalaryAdvance(input: Omit<SchoolSalaryAdvance, "id">): Promise<SchoolSalaryAdvance> {
+    const [result] = await this.run((db) => db.insert(schema.schoolSalaryAdvances).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateSchoolSalaryAdvance(appId: string, id: number, patch: Partial<Pick<SchoolSalaryAdvance, "instalmentCents" | "startsMonth" | "repayments" | "updatedAt">>, expectUpdatedAt: Date): Promise<boolean> {
+    const t = schema.schoolSalaryAdvances;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), eq(t.updatedAt, expectUpdatedAt))));
+    return result.affectedRows === 1;
+  }
+
+  async deleteSchoolSalaryAdvance(appId: string, id: number): Promise<void> {
+    const t = schema.schoolSalaryAdvances;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 
   // 113.8 The school's calendar, the exams' timetable and behaviour

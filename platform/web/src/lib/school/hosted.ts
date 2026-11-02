@@ -63,6 +63,8 @@ import { classroomReportsRoute, studentReports } from "./reports-hosted";
 // 113.10 The bus; 113.11 the library.
 import { handleBusRoute, schoolRolesOf, studentBus } from "./bus-hosted";
 import { handleLibraryRoute } from "./library-hosted";
+// 113.12 Payslips.
+import { handlePayslipRoute } from "./salaries-hosted";
 import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, studentExams } from "./hosted-calendar";
 
 /**
@@ -137,7 +139,7 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
   if (path[0] === "staff") {
     const worker = workerOf(member);
     if (!worker) return notStaff();
-    return staffRoute(ctx, request, worker, settings);
+    return staffRoute(ctx, request, worker, settings, member);
   }
   if (memberRoles(member).length === 0) return notMember();
   const route = `${request.method} /${path.join("/")}`;
@@ -815,8 +817,10 @@ async function checkinHistory(ctx: SchoolContext, request: ConnectorRequest, per
 
 const LEAVE_LIMIT: RateLimitRule = { name: "school_leave", limit: 20, windowSeconds: 3600 };
 
-async function staffRoute(ctx: SchoolContext, request: ConnectorRequest, worker: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
+async function staffRoute(ctx: SchoolContext, request: ConnectorRequest, worker: SchoolPerson, settings: SchoolSettings, member: SchoolMember): Promise<ConnectorResult> {
   const path = request.path;
+  // 113.12 Their own payslips once the school made them final.
+  if (path[1] === "payslips") return (await handlePayslipRoute(ctx, request, member))!;
   const route = `${request.method} /${path.join("/")}`;
   switch (route) {
     case "GET /staff/me": {

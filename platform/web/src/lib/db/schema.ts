@@ -144,6 +144,8 @@ import type {
 } from "../data/types";
 // 113.10 The school bus; 113.11 the library
 import type { SchoolBookHoldStatus, SchoolBusMarkStatus, SchoolBusRunStatus, SchoolBusTrip } from "../data/types";
+// 113.12 Salaries
+import type { SchoolPayRecord, SchoolPayslipAttendance, SchoolPayslipLine, SchoolPayslipStatus, SchoolSalaryAllowance } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3941,3 +3943,91 @@ export const schoolBehaviour = mysqlTable(
   (t) => [index("school_behaviour_student_idx").on(t.appId, t.studentId, t.createdAt), index("school_behaviour_class_idx").on(t.appId, t.classId)],
 );
 
+
+// 113.12 Salaries, recorded by hand (nothing moves money)
+
+export const schoolSalaries = mysqlTable(
+  "school_salaries",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    personId: bigint("person_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    monthlyCents: bigint("monthly_cents", { mode: "number" }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    allowances: jsonText<SchoolSalaryAllowance[]>("allowances").notNull(),
+    note: varchar("note", { length: 500 }),
+    updatedBy: varchar("updated_by", { length: 191 }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.personId] })],
+);
+
+export const schoolPayslips = mysqlTable(
+  "school_payslips",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    // No foreign key: the sheet stays when the person is removed, with their name.
+    personId: bigint("person_id", { mode: "number", unsigned: true }).notNull(),
+    month: varchar("month", { length: 7 }).notNull(),
+    personName: varchar("person_name", { length: 120 }).notNull(),
+    role: varchar("role", { length: 8 }).notNull().$type<"teacher" | "staff">(),
+    jobTitle: varchar("job_title", { length: 80 }),
+    department: varchar("department", { length: 80 }),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    baseCents: bigint("base_cents", { mode: "number" }).notNull(),
+    allowances: jsonText<SchoolSalaryAllowance[]>("allowances").notNull(),
+    lines: jsonText<SchoolPayslipLine[]>("sheet_lines").notNull(),
+    attendance: jsonText<SchoolPayslipAttendance>("attendance"),
+    netCents: bigint("net_cents", { mode: "number" }).notNull(),
+    status: varchar("status", { length: 8 }).notNull().$type<SchoolPayslipStatus>(),
+    payments: jsonText<SchoolPayRecord[]>("payments").notNull(),
+    paidCents: bigint("paid_cents", { mode: "number" }).notNull(),
+    note: varchar("note", { length: 500 }),
+    finalAt: time("final_at"),
+    finalBy: varchar("final_by", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("school_payslips_person_month_unique").on(t.appId, t.personId, t.month), index("school_payslips_month_idx").on(t.appId, t.month)],
+);
+
+export const schoolSalaryMonths = mysqlTable(
+  "school_salary_months",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    month: varchar("month", { length: 7 }).notNull(),
+    lockedAt: time("locked_at"),
+    lockedBy: varchar("locked_by", { length: 191 }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.month] })],
+);
+
+export const schoolSalaryAdvances = mysqlTable(
+  "school_salary_advances",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    personId: bigint("person_id", { mode: "number", unsigned: true }).notNull(),
+    personName: varchar("person_name", { length: 120 }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull().$type<CatalogCurrency>(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    instalmentCents: bigint("instalment_cents", { mode: "number" }).notNull(),
+    startsMonth: varchar("starts_month", { length: 7 }).notNull(),
+    given: jsonText<SchoolPayRecord>("given").notNull(),
+    repayments: jsonText<SchoolPayRecord[]>("repayments").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_salary_advances_person_idx").on(t.appId, t.personId)],
+);

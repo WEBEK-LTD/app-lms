@@ -3865,7 +3865,7 @@ components:
     TeamArea:
       type: string
       description: What a Staff member can be given (roadmap 60).
-      enum: [orders, bookings, events, donations, catalog, media, messages, chat, app_users, analytics, notifications]
+      enum: [orders, bookings, events, donations, catalog, media, messages, chat, app_users, analytics, notifications, salaries]
 
     AppAccess:
       type: object

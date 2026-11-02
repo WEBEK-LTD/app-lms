@@ -830,6 +830,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 113.2 Checking in and out at the gate; 113.3 teachers and staff.
           { href: "/dashboard/school/checkin", label: "Check-in", icon: "qr_code_2" },
           { href: "/dashboard/school/staff", label: "Staff", icon: "support_agent" },
+          // 113.12 Salaries, recorded by hand.
+          { href: "/dashboard/school/salaries", label: "Salaries", icon: "receipt_long" },
           { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5

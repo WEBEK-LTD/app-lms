@@ -35,6 +35,7 @@ String areaName(BuildContext context, String area) {
     'app_users' => l10n.areaAppUsers,
     'analytics' => l10n.areaAnalytics,
     'notifications' => l10n.areaNotifications,
+    'salaries' => l10n.areaSalaries,
     _ => area,
   };
 }
