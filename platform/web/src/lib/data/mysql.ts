@@ -30,6 +30,7 @@ import type { ChatConversation, ChatConversationKind, ChatConversationPatch, Cha
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import { assetIdsIn } from "./asset-ids";
+import type { PushAudience } from "./types";
 import type { CourseAnswer, CourseAnswerInput, CourseQuestion, CourseQuestionInput, CourseQuestionStatus, CourseReview, CourseReviewPatch, MemberCheckIn } from "./types";
 import type { MoreStore, MoreStoresRow, PublishingEvent, PublishingRequest, PublishingTrack, ReviewsRow } from "./types";
 import type {
@@ -849,8 +850,9 @@ export class MysqlStore implements DataStore {
     );
   }
 
-  async listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]> {
+  async listHostedPushDevices(appId: string, userIds: number[] | null, audience: PushAudience = "customers"): Promise<HostedDevice[]> {
     if (userIds !== null && userIds.length === 0) return [];
+    const role = schema.hostedDevices.appRole;
     return this.run((db) =>
       db
         .select()
@@ -860,6 +862,8 @@ export class MysqlStore implements DataStore {
             eq(schema.hostedDevices.appId, appId),
             isNotNull(schema.hostedDevices.pushToken),
             userIds === null ? undefined : inArray(schema.hostedDevices.userId, userIds),
+            // 112.3 Each app's own pushes; devices of apps built before (no role) get both.
+            audience === "second" ? or(isNull(role), ne(role, "customer")) : or(isNull(role), eq(role, "customer")),
           ),
         ),
     );

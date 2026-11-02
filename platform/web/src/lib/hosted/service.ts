@@ -24,8 +24,10 @@ import { yallappLinkBase } from "../links/table";
 import type { DataStore } from "../data/store";
 import {
   DEFAULT_HOSTED_SETTINGS,
+  HOSTED_APP_ROLES,
   type App,
   type ChatMember,
+  type HostedAppRole,
   type HostedDevice,
   type HostedNotification,
   type HostedSettings,
@@ -1172,6 +1174,9 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   if (provider !== "fcm" && provider !== "hms") return badRequest("The push provider must be fcm or hms.");
   // 85.1 The app's language on the phone (its first part: "ar" of "ar-EG"), for campaigns' audiences.
   const language = typeof body.language === "string" && LANGUAGE_TAG.test(body.language) ? body.language.split("-")[0]!.toLowerCase() : undefined;
+  // 112.3 Which of the company's apps this is (the build's role): each gets its own pushes. Apps built before send none.
+  if (body.role !== undefined && !(HOSTED_APP_ROLES as readonly unknown[]).includes(body.role)) return badRequest("The app's role must be customer, courier or driver.");
+  const appRole = body.role as HostedAppRole | undefined;
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
   await ctx.store.updateHostedDevice(ctx.app.id, s.device.id, {
@@ -1180,6 +1185,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
     pushPreferences: preferences,
     ...(language ? { language } : {}),
     ...(ctx.country ? { country: ctx.country } : {}),
+    ...(appRole ? { appRole } : {}),
   });
   return noContent;
 }

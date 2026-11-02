@@ -722,6 +722,13 @@
       "when": 1793307648349,
       "tag": "0102_sample_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "5",
+      "when": 1793592764085,
+      "tag": "0103_device_app_role",
+      "breakpoints": true
     }
   ]
 }

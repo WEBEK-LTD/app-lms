@@ -98,7 +98,7 @@ export async function driverUser(store: DataStore, driver: Courier) {
 export async function tellDriver(deps: DeliveryNotifyDeps, ride: Ride, driver: Courier, kind: "offer" | "given" | "cancelled"): Promise<number> {
   const user = await driverUser(deps.store, driver);
   if (!user) return 0;
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], "second");
   const lang = asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
   const words = DRIVER[kind][lang](rideReference(ride), ride.pickup.address);
   return deliver(deps, user.id, words, { type: "ride_offer", ride_id: String(ride.id) }, false);
