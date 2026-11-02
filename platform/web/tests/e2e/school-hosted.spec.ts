@@ -546,7 +546,7 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
   await expect(own.getByRole("heading", { level: 1, name: "Omar Hassan" })).toBeVisible();
   await expect(own.getByRole("region", { name: "Parents", exact: true })).toContainText("Hassan Ali");
   const list = own.getByRole("region", { name: "Pick-up", exact: true });
-  await list.getByText("Add to the list").click();
+  await list.getByRole("button", { name: "Add to the list" }).click();
   await list.getByLabel("Name", { exact: true }).fill("Mona Ali");
   await list.getByLabel("Relation (optional)").fill("Grandmother");
   await list.getByRole("button", { name: "Add", exact: true }).click();
@@ -555,7 +555,7 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
   await expect(own.locator("[data-pickup]")).toContainText("Mona Ali");
   await expect(own.locator("[data-pickup]")).toContainText("Grandmother");
   const notes = own.getByRole("region", { name: "One-day pick-up", exact: true });
-  await notes.getByText("Add a note for a day").click();
+  await notes.getByRole("button", { name: "Add a note for a day" }).click();
   await notes.getByLabel("Name", { exact: true }).fill("Karim Ali");
   await notes.getByLabel("Relation (optional)").fill("Uncle");
   await notes.getByRole("button", { name: "Save", exact: true }).click();

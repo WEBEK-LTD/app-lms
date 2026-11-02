@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { deleteBehaviourAction, deleteBehaviourCategoryAction, saveBehaviourAlertsAction, saveBehaviourCategoryAction, writeBehaviourAction } from "@/app/actions/school-calendar";
 import { Field } from "@/components/form";
-import { btn } from "@/components/ui";
+import { EmptyState, btn } from "@/components/ui";
+import { ItemRow, PageGroup, Stat, StatRow } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { requireClient } from "@/lib/auth/session";
 import { addDays, isDate, localToUtc } from "@/lib/bookings/time";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -12,7 +14,6 @@ import { BEHAVIOUR_LIMITS, behaviourAlertsOf, behaviourCategories, behaviourTota
 import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 
@@ -62,6 +63,22 @@ export default async function SchoolBehaviourPage({ searchParams }: { searchPara
     .sort((a, b) => b.times - a.times);
   const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
   const active = categories.filter((c) => c.active);
+  const totals = behaviourTotals(notes);
+  const period = (
+      <form method="get" className="flex flex-wrap items-end gap-2">
+        <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
+          {t("schoolLife.reportFrom")}
+          <input type="date" name="from" defaultValue={from} className="input input-sm" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
+          {t("schoolLife.reportTo")}
+          <input type="date" name="to" defaultValue={to} className="input input-sm" />
+        </label>
+        <button type="submit" className={`${btn.secondary} h-10 px-3.5 text-sm`}>
+          {t("schoolLife.show")}
+        </button>
+      </form>
+  );
 
   const categoryFields = (suffix: string, c: SchoolBehaviourCategory | null) => (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -82,63 +99,19 @@ export default async function SchoolBehaviourPage({ searchParams }: { searchPara
 
   return (
     <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the period's numbers, writing a merit or a note, the report, then the settings. */}
       <PageHead title={t("schoolLife.behaviour")} intro={t("schoolLife.behaviourIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {students.length === 0 ? <FirstNote text={t("school.studentsFirst")} href="/dashboard/school/people" /> : null}
 
-      <Panel id="h-alerts" title={t("schoolLife.alerts")}>
-        <SchoolForm action={saveBehaviourAlertsAction} submit={t("schoolLife.save")}>
-          <Choice
-            id="f-alerts"
-            name="behaviourAlerts"
-            label={t("schoolLife.alerts")}
-            options={[
-              { value: "all", label: t("schoolLife.alertsAll") },
-              { value: "negative", label: t("schoolLife.alertsNegative") },
-              { value: "none", label: t("schoolLife.alertsNone") },
-            ]}
-            defaultValue={behaviourAlertsOf(settings)}
-          />
-        </SchoolForm>
-      </Panel>
-
-      <Panel id="h-categories" title={t("schoolLife.categories")} intro={t("schoolLife.categoriesIntro")}>
-        {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("schoolLife.noCategories")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0" data-categories="">
-          {categories.map((c) => (
-            <li key={c.id} data-category={c.id} className="flex flex-col gap-2 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{c.name}</span>
-                  <span className="text-[13px] text-muted">
-                    {c.kind === "positive" ? t("schoolLife.positive") : t("schoolLife.negative")} · {t("schoolLife.pointsSigned", { points: signed(c.points) })}
-                  </span>
-                </span>
-                <form action={deleteBehaviourCategoryAction}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <ConfirmButton confirm={t("schoolLife.deleteCategory", { name: c.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                    {t("schoolLife.delete")}
-                  </ConfirmButton>
-                </form>
-              </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("schoolLife.edit")}</summary>
-                <div className="pt-3">
-                  <SchoolForm action={saveBehaviourCategoryAction} submit={t("school.save")}>
-                    <input type="hidden" name="id" value={c.id} />
-                    {categoryFields(`-${c.id}`, c)}
-                  </SchoolForm>
-                </div>
-              </details>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("schoolLife.addCategory")} open={categories.length === 0}>
-          <SchoolForm action={saveBehaviourCategoryAction} submit={t("school.add")} reset>
-            {categoryFields("-new", null)}
-          </SchoolForm>
-        </AddServiceBox>
-      </Panel>
+      {notes.length ? (
+        <StatRow label={t("schoolLife.report")}>
+          <Stat icon="star" tone="success" label={t("schoolLife.merits")} value={totals.positive} hint={t("schoolLife.dayRange", { from, to })} />
+          <Stat icon="flag" tone="warn" label={t("schoolLife.notesCount")} value={totals.negative} />
+          <Stat icon="emoji_events" tone="accent" label={t("schoolLife.points")} value={signed(totals.points)} />
+          <Stat icon="groups" label={t("schoolLife.statStudents")} value={new Set(notes.map((n) => n.studentId)).size} />
+        </StatRow>
+      ) : null}
 
       {students.length > 0 && active.length > 0 ? (
         <Panel id="h-write" title={t("schoolLife.write")}>
@@ -169,22 +142,9 @@ export default async function SchoolBehaviourPage({ searchParams }: { searchPara
         </Panel>
       ) : null}
 
-      <form method="get" className="flex max-w-[860px] flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1.5 text-sm font-semibold">
-          {t("schoolLife.reportFrom")}
-          <input type="date" name="from" defaultValue={from} className="input input-sm" />
-        </label>
-        <label className="flex flex-col gap-1.5 text-sm font-semibold">
-          {t("schoolLife.reportTo")}
-          <input type="date" name="to" defaultValue={to} className="input input-sm" />
-        </label>
-        <button type="submit" className={`${btn.secondary} h-11 px-4 text-sm`}>
-          {t("schoolLife.show")}
-        </button>
-      </form>
-
-      <Panel id="h-report" title={t("schoolLife.report")} intro={t("schoolLife.dayRange", { from, to })}>
-        {notes.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("schoolLife.noBehaviour")}</p> : null}
+      <PageGroup title={t("schoolLife.report")}>
+      <Panel id="h-report" title={t("schoolLife.report")} intro={t("schoolLife.dayRange", { from, to })} actions={period}>
+        {notes.length === 0 ? <EmptyState icon="star" title={t("schoolLife.noBehaviour")} /> : null}
         {byClass.length > 0 ? (
           <>
             <h3 className="m-0 text-base font-bold">{t("schoolLife.byClass")}</h3>
@@ -287,6 +247,84 @@ export default async function SchoolBehaviourPage({ searchParams }: { searchPara
           </>
         ) : null}
       </Panel>
+      </PageGroup>
+
+      <PageGroup title={t("schoolLife.groupSettings")}>
+      <Panel id="h-alerts" title={t("schoolLife.alerts")}>
+        <SchoolForm action={saveBehaviourAlertsAction} submit={t("schoolLife.save")}>
+          <Choice
+            id="f-alerts"
+            name="behaviourAlerts"
+            label={t("schoolLife.alerts")}
+            options={[
+              { value: "all", label: t("schoolLife.alertsAll") },
+              { value: "negative", label: t("schoolLife.alertsNegative") },
+              { value: "none", label: t("schoolLife.alertsNone") },
+            ]}
+            defaultValue={behaviourAlertsOf(settings)}
+          />
+        </SchoolForm>
+      </Panel>
+
+        <Panel
+          id="h-categories"
+          title={t("schoolLife.categories")}
+          intro={t("schoolLife.categoriesIntro")}
+          flush
+          actions={
+            categories.length ? (
+              <SheetButton target="new-category" icon="add" variant="secondary" className="h-10 px-3.5 text-sm">
+                {t("schoolLife.addCategory")}
+              </SheetButton>
+            ) : null
+          }
+        >
+          {categories.length === 0 ? (
+            <div className="p-5 sm:p-6">
+              <EmptyState icon="category" title={t("schoolLife.noCategories")} />
+            </div>
+          ) : null}
+          <ul className="m-0 flex list-none flex-col p-0" data-categories="">
+            {categories.map((c) => (
+              <ItemRow
+                key={c.id}
+                data-category={c.id}
+                media={
+                  <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[14px] font-extrabold tabular-nums ${c.kind === "positive" ? "bg-success-bg text-success" : "bg-warn-bg text-warn"}`}>
+                    {signed(c.points)}
+                  </span>
+                }
+                title={c.name}
+                meta={`${c.kind === "positive" ? t("schoolLife.positive") : t("schoolLife.negative")} · ${t("schoolLife.pointsSigned", { points: signed(c.points) })}`}
+                actions={
+                  <>
+                    <SheetButton target={`category-${c.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                      {t("schoolLife.edit")}
+                    </SheetButton>
+                    <form action={deleteBehaviourCategoryAction}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <ConfirmButton confirm={t("schoolLife.deleteCategory", { name: c.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                        {t("schoolLife.delete")}
+                      </ConfirmButton>
+                    </form>
+                    <Sheet id={`category-${c.id}`} title={c.name}>
+                      <SchoolForm action={saveBehaviourCategoryAction} submit={t("school.save")} sheet>
+                        <input type="hidden" name="id" value={c.id} />
+                        {categoryFields(`-${c.id}`, c)}
+                      </SchoolForm>
+                    </Sheet>
+                  </>
+                }
+              />
+            ))}
+          </ul>
+          <Sheet id="new-category" inline={categories.length === 0} title={t("schoolLife.addCategory")}>
+            <SchoolForm action={saveBehaviourCategoryAction} submit={t("school.add")} reset sheet>
+              {categoryFields("-new", null)}
+            </SchoolForm>
+          </Sheet>
+        </Panel>
+      </PageGroup>
     </div>
   );
 }

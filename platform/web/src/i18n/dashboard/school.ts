@@ -493,6 +493,12 @@ export const en = {
   noNewsMatch: "No news matches your search.",
   statLessons: "Lessons a week",
   statHours: "Hours a week",
+  // The page kit: Settings.
+  groupSchool: "The school",
+  formPlace: "Time and money",
+  formFamilies: "Families",
+  groupMessages: "Teachers and families",
+  groupPayments: "Payments",
 };
 
 export const ar: Strings<typeof en> = {
@@ -978,6 +984,12 @@ export const ar: Strings<typeof en> = {
   noNewsMatch: "لا توجد أخبار تطابق بحثك.",
   statLessons: "الحصص في الأسبوع",
   statHours: "الساعات في الأسبوع",
+  // The page kit: Settings.
+  groupSchool: "المدرسة",
+  formPlace: "التوقيت والعملة",
+  formFamilies: "الأسر",
+  groupMessages: "المعلمون والأسر",
+  groupPayments: "المدفوعات",
 };
 
 export const tr: Strings<typeof en> = {
@@ -1463,4 +1475,10 @@ export const tr: Strings<typeof en> = {
   noNewsMatch: "Aramanıza uyan haber yok.",
   statLessons: "Haftalık ders",
   statHours: "Haftalık saat",
+  // The page kit: Settings.
+  groupSchool: "Okul",
+  formPlace: "Saat ve para birimi",
+  formFamilies: "Aileler",
+  groupMessages: "Öğretmenler ve aileler",
+  groupPayments: "Ödemeler",
 };
