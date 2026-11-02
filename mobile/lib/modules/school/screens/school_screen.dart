@@ -13,9 +13,11 @@ import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
 import 'library_screens.dart' show LibraryTile;
+import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
 import 'messages_screen.dart' show SchoolMessagesTile;
+import 'university_screens.dart';
 
 /// 105.4 The School tab: a student's today's lessons and each part of their
 /// school. 113.4 Only what a student needs: a parent's children, their fees,
@@ -39,10 +41,13 @@ class SchoolScreen extends ConsumerWidget {
                   ? StudentGate(
                       switcher: false,
                       // 113.4 A student sees their own school; a parent's
-                      // children are in the Parent tab.
-                      builder: (context, me, student) => me.isStudent
-                          ? _Overview(student: me.students.first, me: me)
-                          : const _ForParents(),
+                      // children are in the Parent tab. 113.9 A university's
+                      // student sees its university screens.
+                      builder: (context, me, student) => !me.isStudent
+                          ? const _ForParents()
+                          : ref.watch(isUniversityProvider)
+                          ? UniversityOverview(student: me.students.first)
+                          : _Overview(student: me.students.first, me: me),
                     )
                   : SignInPrompt(
                       icon: AppIcons.school,

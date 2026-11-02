@@ -20,6 +20,7 @@ import { handleOwner, ROUTES } from "@/lib/owner/service";
 import { inviteMember } from "@/lib/team/service";
 import { PLAN_INFO } from "@/lib/plans";
 import { teamInviteSchema } from "@/lib/validation";
+import { uniSettingsOf } from "@/lib/university/settings";
 import { KEY, NOW, days } from "./helpers";
 
 /**
@@ -663,6 +664,13 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     await store.saveSchoolPickup({ appId: k12, studentId: theirStudent.person.id, people: [{ name: MARK, relation: MARK, phone: null, photo: null }], updatedBy: MARK, updatedAt: NOW });
     await store.saveSchoolPickupNote({ appId: k12, studentId: theirStudent.person.id, date: "2026-10-12", name: MARK, relation: null, phone: null, note: MARK, writtenBy: MARK, createdAt: NOW });
     const theirNote = await store.createSchoolBehaviour({ appId: k12, studentId: theirStudent.person.id, classId: theirClass.id, categoryId: null, categoryName: `${MARK} category`, kind: "positive", points: 2, note: MARK, teacherId: null, createdAt: NOW });
+    // 113.9 Both schools are universities: the other's term, course and section, its student enrolled and graded.
+    for (const appId of [mine.k12.id, k12]) await store.saveUniSettings(appId, { ...uniSettingsOf(null), enabled: true });
+    const theirTerm = (await store.saveUniTerm({ appId: k12, id: null, name: `${MARK} term`, academicYear: "2026/2027", startsOn: "2026-09-01", endsOn: "2027-01-15", registrationOpens: "2026-08-01", registrationCloses: "2026-12-01", dropUntil: "2026-12-01" }, NOW))!;
+    const theirCourse = await store.saveUniCourse({ appId: k12, id: null, departmentId: null, code: "THEIRS1", title: `${MARK} course`, credits: 3, prerequisites: [], description: MARK }, NOW);
+    if (!theirCourse.ok) throw new Error("course");
+    const theirSection = (await store.saveUniSection({ appId: k12, id: null, termId: theirTerm.id, courseId: theirCourse.course.id, code: MARK, lecturerId: null, seats: 10, meetings: [], resultsPublishedAt: NOW }, NOW))!;
+    await store.createUniEnrolment({ appId: k12, termId: theirTerm.id, sectionId: theirSection.id, courseId: theirCourse.course.id, studentId: theirStudent.person.id, status: "enrolled", addedBy: "office", addedAt: NOW, droppedAt: null, grade: "A", mark: 95, gradedAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
@@ -720,6 +728,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       ticket_code: "ABCDEFGHJKLM",
       campaign_id: String(campaign.id),
       shipment_id: String(shipment.id),
+      // 113.9
+      section_id: String(theirSection.id),
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });
@@ -800,7 +810,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
         app,
         active: true,
         // 105.3 With academies with many teachers, so their paths answer.
-        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors", "school"] },
+        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors", "school", "university"] },
         now: NOW,
         ip: "203.0.113.9",
         secret: HOSTED_SECRET,

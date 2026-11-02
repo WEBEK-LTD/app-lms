@@ -16,11 +16,13 @@ import 'screens/classroom_screens.dart';
 import 'screens/messages_screen.dart';
 import 'screens/parent_screens.dart';
 import 'screens/library_screens.dart';
+import 'screens/lecturer_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
 import 'screens/payslip_screens.dart';
 import 'screens/staff_screens.dart';
 import 'screens/student_screens.dart';
+import 'screens/university_screens.dart';
 
 /// 105.4 The School module (hosted API): the school and the account as
 /// tabs, for students and parents (a parent switches between their
@@ -256,4 +258,29 @@ List<RouteBase> _pushedRoutes() => [
     '${Paths.classroom}/assessment/:id',
     (id) => ScoresScreen(assessmentId: id),
   ),
+  // 113.9 A university's student (and parents) and lecturers.
+  _part(
+    'uni-registration',
+    (student) => UniRegistrationScreen(student: student),
+  ),
+  _part('uni-timetable', (student) => UniTimetableScreen(student: student)),
+  _part('uni-results', (student) => UniResultsScreen(student: student)),
+  _part(
+    'uni-transcript',
+    (student) => UniResultsScreen(student: student, transcript: true),
+  ),
+  _part('uni-plan', (student) => UniStudyPlanScreen(student: student)),
+  _byId(
+    '${Paths.classroom}/section/:id/attendance',
+    (id) => SectionAttendanceScreen(sectionId: id),
+  ),
+  _byId(
+    '${Paths.classroom}/section/:id',
+    (id) => LecturerSectionScreen(sectionId: id),
+  ),
+  GoRoute(
+    path: Paths.classroomAdvisees,
+    pageBuilder: (context, state) => appPage(state, const AdviseesScreen()),
+  ),
+  _byId('${Paths.classroom}/advisee/:id', (id) => AdviseeScreen(studentId: id)),
 ];

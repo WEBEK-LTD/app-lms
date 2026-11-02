@@ -8570,4 +8570,267 @@ class OverlayLocalizations extends AppLocalizations {
         'left': left,
       }) ??
       base.payslipAdvanceLine(amount, date, instalment, left);
+
+  @override
+  String get uniRegister => overlay.text('uniRegister') ?? base.uniRegister;
+
+  @override
+  String get uniTimetable => overlay.text('uniTimetable') ?? base.uniTimetable;
+
+  @override
+  String get uniResults => overlay.text('uniResults') ?? base.uniResults;
+
+  @override
+  String get uniTranscript =>
+      overlay.text('uniTranscript') ?? base.uniTranscript;
+
+  @override
+  String get uniStudyPlan => overlay.text('uniStudyPlan') ?? base.uniStudyPlan;
+
+  @override
+  String get uniGpa => overlay.text('uniGpa') ?? base.uniGpa;
+
+  @override
+  String uniCreditsOf(String earned, String required) =>
+      overlay.format('uniCreditsOf', {
+        'earned': earned,
+        'required': required,
+      }) ??
+      base.uniCreditsOf(earned, required);
+
+  @override
+  String uniCredits(String credits) =>
+      overlay.format('uniCredits', {'credits': credits}) ??
+      base.uniCredits(credits);
+
+  @override
+  String uniAdvisor(String name) =>
+      overlay.format('uniAdvisor', {'name': name}) ?? base.uniAdvisor(name);
+
+  @override
+  String get uniNoProgram => overlay.text('uniNoProgram') ?? base.uniNoProgram;
+
+  @override
+  String get uniStatusDraft =>
+      overlay.text('uniStatusDraft') ?? base.uniStatusDraft;
+
+  @override
+  String get uniStatusSubmitted =>
+      overlay.text('uniStatusSubmitted') ?? base.uniStatusSubmitted;
+
+  @override
+  String get uniStatusApproved =>
+      overlay.text('uniStatusApproved') ?? base.uniStatusApproved;
+
+  @override
+  String get uniStatusReturned =>
+      overlay.text('uniStatusReturned') ?? base.uniStatusReturned;
+
+  @override
+  String uniPhaseBefore(String date) =>
+      overlay.format('uniPhaseBefore', {'date': date}) ??
+      base.uniPhaseBefore(date);
+
+  @override
+  String uniPhaseOpen(String date) =>
+      overlay.format('uniPhaseOpen', {'date': date}) ?? base.uniPhaseOpen(date);
+
+  @override
+  String uniPhaseDrop(String date) =>
+      overlay.format('uniPhaseDrop', {'date': date}) ?? base.uniPhaseDrop(date);
+
+  @override
+  String get uniPhaseClosed =>
+      overlay.text('uniPhaseClosed') ?? base.uniPhaseClosed;
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) =>
+      overlay.format('uniCreditsRange', {
+        'taken': taken,
+        'min': min,
+        'max': max,
+      }) ??
+      base.uniCreditsRange(taken, min, max);
+
+  @override
+  String get uniMySections =>
+      overlay.text('uniMySections') ?? base.uniMySections;
+
+  @override
+  String get uniOffered => overlay.text('uniOffered') ?? base.uniOffered;
+
+  @override
+  String get uniAdd => overlay.text('uniAdd') ?? base.uniAdd;
+
+  @override
+  String get uniJoinWaitlist =>
+      overlay.text('uniJoinWaitlist') ?? base.uniJoinWaitlist;
+
+  @override
+  String get uniDrop => overlay.text('uniDrop') ?? base.uniDrop;
+
+  @override
+  String uniDropConfirm(String course) =>
+      overlay.format('uniDropConfirm', {'course': course}) ??
+      base.uniDropConfirm(course);
+
+  @override
+  String uniSeatsLeft(int count) =>
+      overlay.format('uniSeatsLeft', {'count': count}) ??
+      base.uniSeatsLeft(count);
+
+  @override
+  String get uniEnrolPending =>
+      overlay.text('uniEnrolPending') ?? base.uniEnrolPending;
+
+  @override
+  String get uniEnrolEnrolled =>
+      overlay.text('uniEnrolEnrolled') ?? base.uniEnrolEnrolled;
+
+  @override
+  String get uniEnrolWaitlisted =>
+      overlay.text('uniEnrolWaitlisted') ?? base.uniEnrolWaitlisted;
+
+  @override
+  String get uniSubmit => overlay.text('uniSubmit') ?? base.uniSubmit;
+
+  @override
+  String get uniSubmitted => overlay.text('uniSubmitted') ?? base.uniSubmitted;
+
+  @override
+  String uniAdvisorNote(String note) =>
+      overlay.format('uniAdvisorNote', {'note': note}) ??
+      base.uniAdvisorNote(note);
+
+  @override
+  String get uniReadOnly => overlay.text('uniReadOnly') ?? base.uniReadOnly;
+
+  @override
+  String get uniNoSections =>
+      overlay.text('uniNoSections') ?? base.uniNoSections;
+
+  @override
+  String get uniNoLectures =>
+      overlay.text('uniNoLectures') ?? base.uniNoLectures;
+
+  @override
+  String get uniNoLecturesToday =>
+      overlay.text('uniNoLecturesToday') ?? base.uniNoLecturesToday;
+
+  @override
+  String uniTermGpa(String gpa) =>
+      overlay.format('uniTermGpa', {'gpa': gpa}) ?? base.uniTermGpa(gpa);
+
+  @override
+  String get uniCumulative =>
+      overlay.text('uniCumulative') ?? base.uniCumulative;
+
+  @override
+  String get uniNoResults => overlay.text('uniNoResults') ?? base.uniNoResults;
+
+  @override
+  String get uniOpenPdf => overlay.text('uniOpenPdf') ?? base.uniOpenPdf;
+
+  @override
+  String get uniPlanDone => overlay.text('uniPlanDone') ?? base.uniPlanDone;
+
+  @override
+  String get uniPlanInProgress =>
+      overlay.text('uniPlanInProgress') ?? base.uniPlanInProgress;
+
+  @override
+  String get uniPlanLeft => overlay.text('uniPlanLeft') ?? base.uniPlanLeft;
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) =>
+      overlay.format('uniPlanCredits', {
+        'done': done,
+        'inProgress': inProgress,
+        'left': left,
+        'required': required,
+      }) ??
+      base.uniPlanCredits(done, inProgress, left, required);
+
+  @override
+  String uniYear(int year) =>
+      overlay.format('uniYear', {'year': year}) ?? base.uniYear(year);
+
+  @override
+  String get uniElective => overlay.text('uniElective') ?? base.uniElective;
+
+  @override
+  String uniStudents(int count) =>
+      overlay.format('uniStudents', {'count': count}) ??
+      base.uniStudents(count);
+
+  @override
+  String get uniAdvisees => overlay.text('uniAdvisees') ?? base.uniAdvisees;
+
+  @override
+  String uniAdviseesWaiting(int count) =>
+      overlay.format('uniAdviseesWaiting', {'count': count}) ??
+      base.uniAdviseesWaiting(count);
+
+  @override
+  String get uniNoTeaching =>
+      overlay.text('uniNoTeaching') ?? base.uniNoTeaching;
+
+  @override
+  String get uniPublished => overlay.text('uniPublished') ?? base.uniPublished;
+
+  @override
+  String get uniPublish => overlay.text('uniPublish') ?? base.uniPublish;
+
+  @override
+  String get uniPublishConfirm =>
+      overlay.text('uniPublishConfirm') ?? base.uniPublishConfirm;
+
+  @override
+  String get uniSaveGrades =>
+      overlay.text('uniSaveGrades') ?? base.uniSaveGrades;
+
+  @override
+  String get uniGradesSaved =>
+      overlay.text('uniGradesSaved') ?? base.uniGradesSaved;
+
+  @override
+  String get uniResultsPublished =>
+      overlay.text('uniResultsPublished') ?? base.uniResultsPublished;
+
+  @override
+  String get uniMark => overlay.text('uniMark') ?? base.uniMark;
+
+  @override
+  String get uniGrade => overlay.text('uniGrade') ?? base.uniGrade;
+
+  @override
+  String get uniNoGrade => overlay.text('uniNoGrade') ?? base.uniNoGrade;
+
+  @override
+  String get uniApprove => overlay.text('uniApprove') ?? base.uniApprove;
+
+  @override
+  String get uniSendBack => overlay.text('uniSendBack') ?? base.uniSendBack;
+
+  @override
+  String get uniNoteHint => overlay.text('uniNoteHint') ?? base.uniNoteHint;
+
+  @override
+  String get uniApproved => overlay.text('uniApproved') ?? base.uniApproved;
+
+  @override
+  String get uniSentBack => overlay.text('uniSentBack') ?? base.uniSentBack;
+
+  @override
+  String get uniNoAdvisees =>
+      overlay.text('uniNoAdvisees') ?? base.uniNoAdvisees;
+
+  @override
+  String get uniAttendanceSaved =>
+      overlay.text('uniAttendanceSaved') ?? base.uniAttendanceSaved;
 }

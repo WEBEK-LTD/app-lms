@@ -5725,3 +5725,198 @@ export interface SchoolSalarySettings {
   /** A day's pay: the base (and the allowances, when on) over the person's working days in the month. */
   dayPayWithAllowances: boolean;
 }
+
+// 113.9 Universities (a school in university mode, the uni_* tables)
+
+/** A letter of the university's grading scale. */
+export interface UniGrade {
+  /** "A", "B+", "F", "W". */
+  letter: string;
+  /** 4.0 … 0. */
+  points: number;
+  /** The least percent that gives it; null: given by hand only (W, I). */
+  minPercent: number | null;
+  /** It counts in the GPA (a withdrawal doesn't). */
+  gpa: boolean;
+  /** It passes the course: its credits are earned and it meets a prerequisite. */
+  passes: boolean;
+}
+
+/** The university's settings (uni_settings). */
+export interface UniSettings {
+  /** The school is a university: faculties, programs, registration each term, results by term. */
+  enabled: boolean;
+  scale: UniGrade[];
+  /** The term the app and the dashboard open on; null: today's term, else the next one. */
+  currentTermId: number | null;
+  /** A full section takes a waiting list. */
+  waitlist: boolean;
+}
+
+export interface UniFaculty {
+  id: number;
+  appId: string;
+  name: string;
+  code: string | null;
+  createdAt: Date;
+}
+
+export interface UniDepartment {
+  id: number;
+  appId: string;
+  facultyId: number;
+  name: string;
+  code: string | null;
+  createdAt: Date;
+}
+
+/** A course of a program's study plan, in the year it is planned for. */
+export interface UniPlanCourse {
+  courseId: number;
+  /** 1 … the program's years. */
+  year: number;
+  /** Elective when false. */
+  required: boolean;
+}
+
+export interface UniProgram {
+  id: number;
+  appId: string;
+  departmentId: number;
+  name: string;
+  code: string | null;
+  /** "BSc", "BA", "MSc". */
+  degree: string;
+  creditsRequired: number;
+  years: number;
+  /** The least and the most credits a student takes in a term. */
+  minTermCredits: number;
+  maxTermCredits: number;
+  plan: UniPlanCourse[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UniCourse {
+  id: number;
+  appId: string;
+  departmentId: number | null;
+  /** "CS101", unique at the university. */
+  code: string;
+  title: string;
+  credits: number;
+  /** The codes of the courses passed first. */
+  prerequisites: string[];
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A term of an academic year, with its registration window and its add/drop deadline. */
+export interface UniTerm {
+  id: number;
+  appId: string;
+  name: string;
+  /** "2026/2027". */
+  academicYear: string;
+  startsOn: string;
+  endsOn: string;
+  /** Students register (add sections) from this day to `registrationCloses`. */
+  registrationOpens: string;
+  registrationCloses: string;
+  /** The last day a section is dropped (and added after the advisor sends it back). */
+  dropUntil: string;
+  createdAt: Date;
+}
+
+/** A section's weekly lecture. */
+export interface UniMeeting {
+  /** 1 Monday … 7 Sunday. */
+  weekday: number;
+  startMinute: number;
+  endMinute: number;
+  room: string | null;
+}
+
+/** A course taught in a term: its lecturer, seats and weekly lectures. */
+export interface UniSection {
+  id: number;
+  appId: string;
+  termId: number;
+  courseId: number;
+  /** "01". */
+  code: string;
+  /** A school teacher (school_people). */
+  lecturerId: number | null;
+  seats: number;
+  meetings: UniMeeting[];
+  /** Its grades are out to its students. */
+  resultsPublishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** A student's place at the university: their program and their advisor (a lecturer). */
+export interface UniStudent {
+  appId: string;
+  studentId: number;
+  programId: number | null;
+  advisorId: number | null;
+  /** The academic year they started, "2025/2026". */
+  startYear: string | null;
+  updatedAt: Date;
+}
+
+export type UniRegistrationStatus = "draft" | "submitted" | "approved" | "returned";
+export const UNI_REGISTRATION_STATUSES: readonly UniRegistrationStatus[] = ["draft", "submitted", "approved", "returned"];
+
+/** A student's registration for a term, approved or sent back by their advisor. */
+export interface UniRegistration {
+  appId: string;
+  termId: number;
+  studentId: number;
+  status: UniRegistrationStatus;
+  /** The advisor's note when they send it back. */
+  note: string | null;
+  submittedAt: Date | null;
+  decidedAt: Date | null;
+  /** The advisor; null: the office. */
+  decidedBy: number | null;
+  updatedAt: Date;
+}
+
+/** pending: asked for, waiting for the advisor (its seat held); enrolled: approved or added by the office. */
+export type UniEnrolmentStatus = "pending" | "enrolled" | "waitlisted" | "dropped";
+export const UNI_ENROLMENT_STATUSES: readonly UniEnrolmentStatus[] = ["pending", "enrolled", "waitlisted", "dropped"];
+
+/** A student in a section; one per section and student, with its grade. */
+export interface UniEnrolment {
+  id: number;
+  appId: string;
+  termId: number;
+  sectionId: number;
+  courseId: number;
+  studentId: number;
+  status: UniEnrolmentStatus;
+  addedBy: "student" | "office";
+  addedAt: Date;
+  droppedAt: Date | null;
+  /** A letter of the scale. */
+  grade: string | null;
+  /** The percent it came from, when the lecturer gave one. */
+  mark: number | null;
+  gradedAt: Date | null;
+  updatedAt: Date;
+}
+
+/** A student's mark at a section's lecture on a day. */
+export interface UniAttendance {
+  appId: string;
+  sectionId: number;
+  studentId: number;
+  date: string;
+  status: SchoolAttendanceStatus;
+  note: string | null;
+  takenBy: number | null;
+  updatedAt: Date;
+}

@@ -146,6 +146,12 @@ abstract final class Paths {
   ).toString();
   static String busRun(int id) => '$busDuty/run/$id';
   static String libraryBook(int id) => '$school/library/book/$id';
+  // 113.9 A university's lecturers: their sections and advisees.
+  static String classroomSection(int id) => '$classroom/section/$id';
+  static String sectionAttendance(int id) =>
+      '$classroom/section/$id/attendance';
+  static const classroomAdvisees = '$classroom/advisees';
+  static String classroomAdvisee(int id) => '$classroom/advisee/$id';
 
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';

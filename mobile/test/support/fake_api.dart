@@ -3493,4 +3493,164 @@ class FakeApi implements YallappApi {
   @override
   Future<void> deleteBehaviour(int noteId) =>
       _answer('deleteBehaviour', () => behaviourDeleted.add(noteId));
+
+  // 113.9 Universities
+
+  Map<String, dynamic> universityStudent = universityStudentJson();
+  Map<String, dynamic> uniRegistration = uniRegistrationJson();
+  Map<String, dynamic> uniResults = uniResultsJson();
+  Map<String, dynamic> uniPlan = uniPlanJson();
+  Map<String, dynamic> lecturerHome = lecturerHomeJson();
+  Map<String, dynamic> uniSection = uniSectionDetailJson();
+  Map<String, dynamic> adviseeList = adviseeListJson();
+  Map<String, dynamic> advisee = adviseeDetailJson();
+
+  /// What was sent: the sections added and dropped, grades and attendance.
+  final uniSent = <String, Object?>{};
+
+  @override
+  Future<UniversityStudent> getUniversityStudent(int studentId) => _answer(
+    'getUniversityStudent',
+    () => UniversityStudent.fromJson(universityStudent),
+  );
+
+  @override
+  Future<UniRegistration> getUniRegistration(int studentId, {int? termId}) =>
+      _answer(
+        'getUniRegistration',
+        () => UniRegistration.fromJson(uniRegistration),
+      );
+
+  @override
+  Future<UniRegistration> addUniSection(
+    int studentId,
+    int sectionId, {
+    int? termId,
+  }) => _answer('addUniSection', () {
+    uniSent['added'] = sectionId;
+    return UniRegistration.fromJson(uniRegistration);
+  });
+
+  @override
+  Future<UniRegistration> dropUniSection(
+    int studentId,
+    int sectionId, {
+    int? termId,
+  }) => _answer('dropUniSection', () {
+    uniSent['dropped'] = sectionId;
+    return UniRegistration.fromJson(uniRegistration);
+  });
+
+  @override
+  Future<UniRegistration> submitUniRegistration(int studentId, {int? termId}) =>
+      _answer(
+        'submitUniRegistration',
+        () =>
+            UniRegistration.fromJson(uniRegistrationJson(status: 'submitted')),
+      );
+
+  @override
+  Future<UniTimetable> getUniTimetable(int studentId, {int? termId}) => _answer(
+    'getUniTimetable',
+    () => UniTimetable.fromJson({
+      'term': uniTermJson(),
+      'days': [
+        {
+          'weekday': 1,
+          'lectures': [
+            {
+              'section_id': 21,
+              'course_code': 'CS201',
+              'course_title': 'Data structures',
+              'section_code': '01',
+              'starts': '09:00',
+              'ends': '10:30',
+              'room': 'B2',
+              'lecturer_name': 'Mona Adel',
+              'status': 'enrolled',
+            },
+          ],
+        },
+      ],
+    }),
+  );
+
+  @override
+  Future<UniResults> getUniResults(int studentId) =>
+      _answer('getUniResults', () => UniResults.fromJson(uniResults));
+
+  @override
+  Future<UniResults> getUniTranscript(int studentId) =>
+      _answer('getUniTranscript', () => UniResults.fromJson(uniResults));
+
+  @override
+  Future<UniStudyPlan> getUniStudyPlan(int studentId) =>
+      _answer('getUniStudyPlan', () => UniStudyPlan.fromJson(uniPlan));
+
+  @override
+  Future<LecturerHome> getLecturerHome({int? termId}) =>
+      _answer('getLecturerHome', () => LecturerHome.fromJson(lecturerHome));
+
+  @override
+  Future<UniSectionDetail> getLecturerSection(int sectionId) => _answer(
+    'getLecturerSection',
+    () => UniSectionDetail.fromJson(uniSection),
+  );
+
+  @override
+  Future<UniSectionAttendance> getSectionAttendance(
+    int sectionId, {
+    String? date,
+  }) => _answer(
+    'getSectionAttendance',
+    () => UniSectionAttendance.fromJson(uniSectionAttendanceJson()),
+  );
+
+  @override
+  Future<UniSectionAttendance> saveSectionAttendance(
+    int sectionId,
+    String date,
+    List<({int studentId, AttendanceStatus status})> items,
+  ) => _answer('saveSectionAttendance', () {
+    uniSent['attendance'] = {for (final i in items) i.studentId: i.status.name};
+    return UniSectionAttendance.fromJson(uniSectionAttendanceJson());
+  });
+
+  @override
+  Future<UniSectionDetail> saveSectionGrades(
+    int sectionId,
+    List<({int studentId, String? grade, double? mark})> items,
+  ) => _answer('saveSectionGrades', () {
+    uniSent['grades'] = {for (final i in items) i.studentId: (i.grade, i.mark)};
+    return UniSectionDetail.fromJson(uniSection);
+  });
+
+  @override
+  Future<UniSectionDetail> publishSectionResults(int sectionId) => _answer(
+    'publishSectionResults',
+    () => UniSectionDetail.fromJson(
+      uniSectionDetailJson(published: '2026-10-12T10:00:00Z'),
+    ),
+  );
+
+  @override
+  Future<AdviseeList> listAdvisees({int? termId}) =>
+      _answer('listAdvisees', () => AdviseeList.fromJson(adviseeList));
+
+  @override
+  Future<AdviseeDetail> getAdvisee(int studentId, {int? termId}) =>
+      _answer('getAdvisee', () => AdviseeDetail.fromJson(advisee));
+
+  @override
+  Future<AdviseeDetail> decideAdvisee(
+    int studentId, {
+    required bool approve,
+    String? note,
+    int? termId,
+  }) => _answer('decideAdvisee', () {
+    uniSent['decision'] = (approve, note);
+    return AdviseeDetail.fromJson(
+      adviseeDetailJson(status: approve ? 'approved' : 'returned'),
+    );
+  });
 }

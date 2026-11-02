@@ -147,6 +147,8 @@ import type { SchoolBookHoldStatus, SchoolBusMarkStatus, SchoolBusRunStatus, Sch
 import type { SchoolExcuseStatus, SchoolPickupPerson, SchoolSlipAudience } from "../data/types";
 // 113.12 Salaries
 import type { SchoolPayRecord, SchoolPayslipAttendance, SchoolPayslipLine, SchoolPayslipStatus, SchoolSalaryAllowance } from "../data/types";
+// 113.9 Universities
+import type { UniEnrolmentStatus, UniMeeting, UniPlanCourse, UniRegistrationStatus, UniSettings } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -4130,4 +4132,221 @@ export const schoolSalaryAdvances = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("school_salary_advances_person_idx").on(t.appId, t.personId)],
+);
+// 113.9 Universities: a school in university mode
+
+export const uniSettings = mysqlTable("uni_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<UniSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const uniFaculties = mysqlTable(
+  "uni_faculties",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 120 }).notNull(),
+    code: varchar("code", { length: 20 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("uni_faculties_app_idx").on(t.appId, t.name)],
+);
+
+export const uniDepartments = mysqlTable(
+  "uni_departments",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    facultyId: bigint("faculty_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniFaculties.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 120 }).notNull(),
+    code: varchar("code", { length: 20 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("uni_departments_app_idx").on(t.appId, t.name), index("uni_departments_faculty_idx").on(t.facultyId)],
+);
+
+export const uniPrograms = mysqlTable(
+  "uni_programs",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    departmentId: bigint("department_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniDepartments.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 120 }).notNull(),
+    code: varchar("code", { length: 20 }),
+    degree: varchar("degree", { length: 40 }).notNull(),
+    creditsRequired: int("credits_required").notNull(),
+    years: int("years").notNull(),
+    minTermCredits: int("min_term_credits").notNull(),
+    maxTermCredits: int("max_term_credits").notNull(),
+    plan: jsonText<UniPlanCourse[]>("plan").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("uni_programs_app_idx").on(t.appId, t.name), index("uni_programs_department_idx").on(t.departmentId)],
+);
+
+export const uniCourses = mysqlTable(
+  "uni_courses",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    departmentId: bigint("department_id", { mode: "number", unsigned: true }).references(() => uniDepartments.id, { onDelete: "set null" }),
+    code: varchar("code", { length: 20 }).notNull(),
+    title: varchar("title", { length: 160 }).notNull(),
+    credits: double("credits").notNull(),
+    prerequisites: jsonText<string[]>("prerequisites").notNull(),
+    description: text("description").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("uni_courses_app_code_unique").on(t.appId, t.code)],
+);
+
+export const uniTerms = mysqlTable(
+  "uni_terms",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    academicYear: varchar("academic_year", { length: 20 }).notNull(),
+    startsOn: varchar("starts_on", { length: 10 }).notNull(),
+    endsOn: varchar("ends_on", { length: 10 }).notNull(),
+    registrationOpens: varchar("registration_opens", { length: 10 }).notNull(),
+    registrationCloses: varchar("registration_closes", { length: 10 }).notNull(),
+    dropUntil: varchar("drop_until", { length: 10 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("uni_terms_app_idx").on(t.appId, t.startsOn)],
+);
+
+export const uniSections = mysqlTable(
+  "uni_sections",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    termId: bigint("term_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniTerms.id, { onDelete: "cascade" }),
+    courseId: bigint("course_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniCourses.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 20 }).notNull(),
+    lecturerId: bigint("lecturer_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    seats: int("seats").notNull(),
+    meetings: jsonText<UniMeeting[]>("meetings").notNull(),
+    resultsPublishedAt: time("results_published_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("uni_sections_term_idx").on(t.appId, t.termId), index("uni_sections_course_idx").on(t.courseId), index("uni_sections_lecturer_idx").on(t.lecturerId)],
+);
+
+export const uniStudents = mysqlTable(
+  "uni_students",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .primaryKey()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    programId: bigint("program_id", { mode: "number", unsigned: true }).references(() => uniPrograms.id, { onDelete: "set null" }),
+    advisorId: bigint("advisor_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    startYear: varchar("start_year", { length: 20 }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("uni_students_app_idx").on(t.appId), index("uni_students_advisor_idx").on(t.advisorId)],
+);
+
+export const uniRegistrations = mysqlTable(
+  "uni_registrations",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    termId: bigint("term_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniTerms.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 10 }).notNull().$type<UniRegistrationStatus>(),
+    note: varchar("note", { length: 500 }),
+    submittedAt: time("submitted_at"),
+    decidedAt: time("decided_at"),
+    decidedBy: bigint("decided_by", { mode: "number", unsigned: true }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.termId, t.studentId] }), index("uni_registrations_app_idx").on(t.appId, t.termId, t.status), index("uni_registrations_student_idx").on(t.studentId)],
+);
+
+export const uniEnrolments = mysqlTable(
+  "uni_enrolments",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    termId: bigint("term_id", { mode: "number", unsigned: true }).notNull(),
+    sectionId: bigint("section_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniSections.id, { onDelete: "cascade" }),
+    courseId: bigint("course_id", { mode: "number", unsigned: true }).notNull(),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 10 }).notNull().$type<UniEnrolmentStatus>(),
+    addedBy: varchar("added_by", { length: 8 }).notNull().$type<"student" | "office">(),
+    addedAt: time("added_at").notNull(),
+    droppedAt: time("dropped_at"),
+    grade: varchar("grade", { length: 4 }),
+    mark: double("mark"),
+    gradedAt: time("graded_at"),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("uni_enrolments_section_student_unique").on(t.sectionId, t.studentId),
+    index("uni_enrolments_student_idx").on(t.appId, t.studentId),
+    index("uni_enrolments_term_idx").on(t.appId, t.termId),
+  ],
+);
+
+export const uniAttendance = mysqlTable(
+  "uni_attendance",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    sectionId: bigint("section_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => uniSections.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    date: varchar("date", { length: 10 }).notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolAttendanceStatus>(),
+    note: varchar("note", { length: 300 }),
+    takenBy: bigint("taken_by", { mode: "number", unsigned: true }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.sectionId, t.studentId, t.date] }), index("uni_attendance_student_idx").on(t.studentId)],
 );

@@ -330,6 +330,8 @@ export const tr: Messages = {
     choiceRides: "Araç çağırma",
     choiceInstructors: "Çok eğitmenli akademiler",
     choiceSchool: "Öğrenciler, veliler ve öğretmenler için okullar",
+    // 113.9
+    choiceUniversity: "Üniversiteler: ders kaydı, sonuçlar ve not ortalaması",
     choiceMotion: "Düzenleyicide hareket",
     choiceTemplates: "Şablonlar",
     choicePages: "Bir projenin kaç Studio sayfası olduğu",

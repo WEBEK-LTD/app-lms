@@ -67,6 +67,7 @@ import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, s
 // 113.4 The parent's area.
 import { handleParentRoute } from "./parent-hosted";
 import { excusedNote } from "./parent";
+import { universityClassroomRoute, universityStudentRoute } from "../university/hosted";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -85,7 +86,7 @@ export interface SchoolContext {
   /** The media server, for homework files; null: files can't be sent. */
   storage: MediaStorage | null;
   chunkBytes: number;
-  /** 113.2 The hosted API's secret, which the gate's codes are signed with. */
+  /** 113.2 The hosted API's secret, which the gate's codes are signed with; 113.9 the transcript's signed address. */
   secret: string;
   /** 113.6 Pushes for a message to a class (the chat's); null: no chat here. */
   chat?: { onMessage?: ChatDeps["onMessage"] } | null;
@@ -134,6 +135,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (!member.teacher) return notTeacher();
     // 113.6 A teacher writes to a whole class at once.
     if (request.method === "POST" && path[1] === "classes" && path[3] === "messages" && path.length === 4) return classMessage(ctx, request, member.teacher, idOf(path[2]));
+    // 113.9 A university's lecturers and advisors.
+    if (path[1] === "university") return universityClassroomRoute(ctx, request, member.teacher);
     return classroomRoute(ctx, request, member.teacher, settings);
   }
   // 113.3 The Staff endpoints: the school's teachers and staff.
@@ -167,6 +170,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     const students = await visibleStudents(ctx.store, ctx.app, member);
     const student = students.find((s) => s.id === studentId);
     if (!student) return error(404, "not_found", "Student not found.");
+    // 113.9 The student's university: program, registration, results and transcript.
+    if (path[3] === "university") return universityStudentRoute(ctx, request, member, student);
     const tail = path.slice(3).join("/");
     if (request.method === "GET" && tail === "timetable") return timetable(ctx, student);
     if (request.method === "GET" && tail === "attendance") return attendance(ctx, request, student, settings);

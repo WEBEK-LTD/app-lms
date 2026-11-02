@@ -5,6 +5,7 @@ import { encryptionKey } from "../env";
 import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
+import { loadUniSettings, universityOn } from "../university/settings";
 import { schoolPartsConfig, schoolRolesOf } from "../school/bus-hosted";
 import { schoolConfig, schoolMemberOf } from "../school/service";
 import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
@@ -608,8 +609,9 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
 /** 105.4 `Config.school`. */
 async function schoolConfigOf(ctx: HostedContext) {
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
-  // 113.10 and 113.11 The bus and the library.
-  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)) };
+  // 113.10 and 113.11 The bus and the library; 113.9 whether the school is a university: the app shows its university screens.
+  const university = universityOn(ctx.app, ctx.plan, await loadUniSettings(ctx.store, ctx.app.id));
+  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)), university };
 }
 
 /** `Config.auth`: the owner's sign-in choices. */

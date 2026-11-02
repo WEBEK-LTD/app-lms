@@ -20,12 +20,14 @@ import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../../shared/shared_routes.dart' show NotFoundScreen;
 import '../data/bus_library_providers.dart';
 import '../data/school_providers.dart';
+import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show CheckinCard;
 import 'staff_screens.dart' show StaffTiles;
 import 'messages_screen.dart' show SchoolMessagesTile;
 import 'bus_screens.dart' show BusDutyTile;
 import 'library_screens.dart' show LibraryTile;
+import 'lecturer_screens.dart' show LecturerHomeView;
 import 'student_screens.dart' show FileTile;
 
 /// 105.4 The Classroom tab, for the school's teachers only: today's lessons
@@ -55,6 +57,21 @@ class ClassroomScreen extends ConsumerWidget {
                   message: l10n.classroomNotTeacherMessage,
                 ),
               ),
+            ],
+          ),
+        ),
+      );
+    }
+    // 113.9 A university's lecturers: their sections and advisees.
+    if (ref.watch(isUniversityProvider)) {
+      return Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header,
+              const Expanded(child: LecturerHomeView()),
             ],
           ),
         ),

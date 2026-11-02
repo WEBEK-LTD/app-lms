@@ -109,6 +109,8 @@ import type {
 // 113.12 Salaries
 import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
+// 113.9 Universities
+import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
 import type { OwnerNotice, OwnerNoticeKind, OwnerNoticePatch } from "./types";
@@ -7954,6 +7956,356 @@ export class MysqlStore implements DataStore {
     const columns = cols.filter((c) => pks.has(c.t)).map((c) => ({ table: c.t, column: c.c, pk: pks.get(c.t)! }));
     this.rekeyColumnsCache = { at: Date.now(), columns };
     return columns;
+  }
+
+  // 113.9 Universities
+
+  async getUniSettings(appId: string): Promise<UniSettings | null> {
+    const t = schema.uniSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveUniSettings(appId: string, settings: UniSettings, now: Date): Promise<void> {
+    await this.run((db) =>
+      db
+        .insert(schema.uniSettings)
+        .values({ appId, settings, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }),
+    );
+  }
+
+  async listUniFaculties(appId: string): Promise<UniFaculty[]> {
+    const t = schema.uniFaculties;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.name), asc(t.id)));
+  }
+
+  async saveUniFaculty(input: Pick<UniFaculty, "appId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniFaculty | null> {
+    const t = schema.uniFaculties;
+    if (input.id === null) {
+      const values = { appId: input.appId, name: input.name, code: input.code, createdAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    await this.run((db) => db.update(t).set({ name: input.name, code: input.code }).where(eq(t.id, id)));
+    return { ...found, name: input.name, code: input.code };
+  }
+
+  async deleteUniFaculty(appId: string, id: number): Promise<void> {
+    // Its departments and their programs go by the foreign keys.
+    const t = schema.uniFaculties;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniDepartments(appId: string): Promise<UniDepartment[]> {
+    const t = schema.uniDepartments;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.name), asc(t.id)));
+  }
+
+  async saveUniDepartment(input: Pick<UniDepartment, "appId" | "facultyId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniDepartment | null> {
+    const t = schema.uniDepartments;
+    const f = schema.uniFaculties;
+    const [faculty] = await this.run((db) => db.select({ id: f.id }).from(f).where(and(eq(f.appId, input.appId), eq(f.id, input.facultyId))).limit(1));
+    if (!faculty) return null;
+    const fields = { facultyId: input.facultyId, name: input.name, code: input.code };
+    if (input.id === null) {
+      const values = { appId: input.appId, ...fields, createdAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    await this.run((db) => db.update(t).set(fields).where(eq(t.id, id)));
+    return { ...found, ...fields };
+  }
+
+  async deleteUniDepartment(appId: string, id: number): Promise<void> {
+    // Its programs go and its courses stay without a department, by the foreign keys.
+    const t = schema.uniDepartments;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniPrograms(appId: string): Promise<UniProgram[]> {
+    const t = schema.uniPrograms;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.name), asc(t.id)));
+  }
+
+  async saveUniProgram(input: Omit<UniProgram, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniProgram | null> {
+    const t = schema.uniPrograms;
+    const d = schema.uniDepartments;
+    const [department] = await this.run((db) => db.select({ id: d.id }).from(d).where(and(eq(d.appId, input.appId), eq(d.id, input.departmentId))).limit(1));
+    if (!department) return null;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const values = { ...fields, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(eq(t.id, id)));
+    return { ...found, ...fields, updatedAt: now };
+  }
+
+  async deleteUniProgram(appId: string, id: number): Promise<void> {
+    const t = schema.uniPrograms;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniCourses(appId: string): Promise<UniCourse[]> {
+    const t = schema.uniCourses;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.code), asc(t.id)));
+  }
+
+  async saveUniCourse(
+    input: Omit<UniCourse, "id" | "createdAt" | "updatedAt"> & { id: number | null },
+    now: Date,
+  ): Promise<{ ok: true; course: UniCourse } | { ok: false; reason: "duplicate" | "not_found" }> {
+    const t = schema.uniCourses;
+    const { id, ...fields } = input;
+    try {
+      if (id === null) {
+        const values = { ...fields, createdAt: now, updatedAt: now };
+        const [result] = await this.run((db) => db.insert(t).values(values));
+        return { ok: true, course: { id: Number(result.insertId), ...values } };
+      }
+      const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+      if (!found) return { ok: false, reason: "not_found" };
+      await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(eq(t.id, id)));
+      return { ok: true, course: { ...found, ...fields, updatedAt: now } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async deleteUniCourse(appId: string, id: number): Promise<void> {
+    // Its sections and their students go by the foreign keys.
+    const t = schema.uniCourses;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniTerms(appId: string): Promise<UniTerm[]> {
+    const t = schema.uniTerms;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(desc(t.startsOn), desc(t.id)));
+  }
+
+  async saveUniTerm(input: Omit<UniTerm, "id" | "createdAt"> & { id: number | null }, now: Date): Promise<UniTerm | null> {
+    const t = schema.uniTerms;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const values = { ...fields, createdAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    await this.run((db) => db.update(t).set(fields).where(eq(t.id, id)));
+    return { ...found, ...fields };
+  }
+
+  async deleteUniTerm(appId: string, id: number): Promise<void> {
+    // Its sections, registrations and their students go by the foreign keys.
+    const t = schema.uniTerms;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniSections(appId: string, filter: { termId?: number; courseId?: number; lecturerId?: number; ids?: number[] } = {}): Promise<UniSection[]> {
+    const t = schema.uniSections;
+    if (filter.ids && filter.ids.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.termId !== undefined ? eq(t.termId, filter.termId) : undefined,
+            filter.courseId !== undefined ? eq(t.courseId, filter.courseId) : undefined,
+            filter.lecturerId !== undefined ? eq(t.lecturerId, filter.lecturerId) : undefined,
+            filter.ids ? inArray(t.id, filter.ids) : undefined,
+          ),
+        )
+        .orderBy(asc(t.courseId), asc(t.code), asc(t.id)),
+    );
+  }
+
+  async getUniSection(appId: string, id: number): Promise<UniSection | null> {
+    const t = schema.uniSections;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async saveUniSection(input: Omit<UniSection, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniSection | null> {
+    const t = schema.uniSections;
+    const [term] = await this.run((db) => db.select({ id: schema.uniTerms.id }).from(schema.uniTerms).where(and(eq(schema.uniTerms.appId, input.appId), eq(schema.uniTerms.id, input.termId))).limit(1));
+    const [course] = await this.run((db) =>
+      db.select({ id: schema.uniCourses.id }).from(schema.uniCourses).where(and(eq(schema.uniCourses.appId, input.appId), eq(schema.uniCourses.id, input.courseId))).limit(1),
+    );
+    if (!term || !course) return null;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const values = { ...fields, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [found] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!found) return null;
+    await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(eq(t.id, id)));
+    return { ...found, ...fields, updatedAt: now };
+  }
+
+  async deleteUniSection(appId: string, id: number): Promise<void> {
+    const t = schema.uniSections;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listUniStudents(appId: string, filter: { studentIds?: number[]; advisorId?: number; programId?: number } = {}): Promise<UniStudent[]> {
+    const t = schema.uniStudents;
+    if (filter.studentIds && filter.studentIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.studentIds ? inArray(t.studentId, filter.studentIds) : undefined,
+            filter.advisorId !== undefined ? eq(t.advisorId, filter.advisorId) : undefined,
+            filter.programId !== undefined ? eq(t.programId, filter.programId) : undefined,
+          ),
+        )
+        .orderBy(asc(t.studentId)),
+    );
+  }
+
+  async saveUniStudent(row: UniStudent): Promise<void> {
+    const p = schema.schoolPeople;
+    const [person] = await this.run((db) => db.select({ id: p.id }).from(p).where(and(eq(p.appId, row.appId), eq(p.id, row.studentId), eq(p.role, "student"))).limit(1));
+    if (!person) return;
+    const t = schema.uniStudents;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(row)
+        .onDuplicateKeyUpdate({ set: { programId: row.programId, advisorId: row.advisorId, startYear: row.startYear, updatedAt: row.updatedAt } }),
+    );
+  }
+
+  async listUniRegistrations(appId: string, filter: { termId?: number; studentId?: number; studentIds?: number[]; status?: UniRegistrationStatus }): Promise<UniRegistration[]> {
+    const t = schema.uniRegistrations;
+    if (filter.studentIds && filter.studentIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.termId !== undefined ? eq(t.termId, filter.termId) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.studentIds ? inArray(t.studentId, filter.studentIds) : undefined,
+            filter.status !== undefined ? eq(t.status, filter.status) : undefined,
+          ),
+        )
+        .orderBy(asc(t.submittedAt), asc(t.studentId)),
+    );
+  }
+
+  async saveUniRegistration(row: UniRegistration): Promise<void> {
+    const [term] = await this.run((db) => db.select({ id: schema.uniTerms.id }).from(schema.uniTerms).where(and(eq(schema.uniTerms.appId, row.appId), eq(schema.uniTerms.id, row.termId))).limit(1));
+    const [person] = await this.run((db) =>
+      db.select({ id: schema.schoolPeople.id }).from(schema.schoolPeople).where(and(eq(schema.schoolPeople.appId, row.appId), eq(schema.schoolPeople.id, row.studentId))).limit(1),
+    );
+    if (!term || !person) return;
+    const t = schema.uniRegistrations;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(row)
+        .onDuplicateKeyUpdate({ set: { status: row.status, note: row.note, submittedAt: row.submittedAt, decidedAt: row.decidedAt, decidedBy: row.decidedBy, updatedAt: row.updatedAt } }),
+    );
+  }
+
+  async listUniEnrolments(appId: string, filter: { termId?: number; sectionId?: number; sectionIds?: number[]; studentId?: number; statuses?: UniEnrolmentStatus[] }): Promise<UniEnrolment[]> {
+    const t = schema.uniEnrolments;
+    if ((filter.sectionIds && filter.sectionIds.length === 0) || (filter.statuses && filter.statuses.length === 0)) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.termId !== undefined ? eq(t.termId, filter.termId) : undefined,
+            filter.sectionId !== undefined ? eq(t.sectionId, filter.sectionId) : undefined,
+            filter.sectionIds ? inArray(t.sectionId, filter.sectionIds) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+          ),
+        )
+        .orderBy(asc(t.addedAt), asc(t.id)),
+    );
+  }
+
+  async createUniEnrolment(input: Omit<UniEnrolment, "id">): Promise<UniEnrolment | null> {
+    const section = await this.getUniSection(input.appId, input.sectionId);
+    const [person] = await this.run((db) =>
+      db.select({ id: schema.schoolPeople.id }).from(schema.schoolPeople).where(and(eq(schema.schoolPeople.appId, input.appId), eq(schema.schoolPeople.id, input.studentId))).limit(1),
+    );
+    if (!section || !person) return null;
+    try {
+      const [result] = await this.run((db) => db.insert(schema.uniEnrolments).values(input));
+      return { id: Number(result.insertId), ...input };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async updateUniEnrolment(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<UniEnrolment, "status" | "addedBy" | "addedAt" | "droppedAt" | "grade" | "mark" | "gradedAt">>,
+    now: Date,
+  ): Promise<boolean> {
+    const t = schema.uniEnrolments;
+    const [result] = await this.run((db) => db.update(t).set({ ...patch, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async listUniAttendance(appId: string, filter: { sectionId?: number; studentId?: number; from?: string; to?: string }): Promise<UniAttendance[]> {
+    const t = schema.uniAttendance;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.sectionId !== undefined ? eq(t.sectionId, filter.sectionId) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.from !== undefined ? gte(t.date, filter.from) : undefined,
+            filter.to !== undefined ? lte(t.date, filter.to) : undefined,
+          ),
+        )
+        .orderBy(asc(t.date), asc(t.studentId)),
+    );
+  }
+
+  async saveUniAttendance(rows: UniAttendance[]): Promise<void> {
+    if (rows.length === 0) return;
+    const t = schema.uniAttendance;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(rows)
+        .onDuplicateKeyUpdate({ set: { status: sql`values(${t.status})`, note: sql`values(${t.note})`, takenBy: sql`values(${t.takenBy})`, updatedAt: sql`values(${t.updatedAt})` } }),
+    );
   }
 
 

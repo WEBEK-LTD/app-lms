@@ -32,4 +32,6 @@ export 'school_models.dart';
 export 'school_report_models.dart';
 export 'taxi_models.dart';
 export 'teachers_models.dart';
+// 113.9
+export 'university_models.dart';
 export 'store_models.dart';

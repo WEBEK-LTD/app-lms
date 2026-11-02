@@ -852,6 +852,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/library", label: "Library", icon: "bookmark" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },
+          // 113.9 A school in university mode.
+          { href: "/dashboard/school/university", label: "University", icon: "apartment" },
         ],
       },
     },

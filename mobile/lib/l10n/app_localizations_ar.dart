@@ -8328,4 +8328,269 @@ class AppLocalizationsAr extends AppLocalizations {
   ) {
     return '$amount في $date · $instalment شهريًا · المتبقي $left';
   }
+
+  @override
+  String get uniRegister => 'التسجيل للفصل';
+
+  @override
+  String get uniTimetable => 'جدولي';
+
+  @override
+  String get uniResults => 'النتائج';
+
+  @override
+  String get uniTranscript => 'السجل الأكاديمي';
+
+  @override
+  String get uniStudyPlan => 'الخطة الدراسية';
+
+  @override
+  String get uniGpa => 'المعدل';
+
+  @override
+  String uniCreditsOf(String earned, String required) {
+    return '$earned من $required ساعة';
+  }
+
+  @override
+  String uniCredits(String credits) {
+    return '$credits ساعة';
+  }
+
+  @override
+  String uniAdvisor(String name) {
+    return 'المرشد: $name';
+  }
+
+  @override
+  String get uniNoProgram => 'لا يوجد برنامج بعد: تضيفه الجامعة.';
+
+  @override
+  String get uniStatusDraft => 'لم يُرسل';
+
+  @override
+  String get uniStatusSubmitted => 'لدى مرشدك';
+
+  @override
+  String get uniStatusApproved => 'تمت الموافقة';
+
+  @override
+  String get uniStatusReturned => 'أُعيد إليك';
+
+  @override
+  String uniPhaseBefore(String date) {
+    return 'يبدأ التسجيل في $date';
+  }
+
+  @override
+  String uniPhaseOpen(String date) {
+    return 'التسجيل مفتوح حتى $date';
+  }
+
+  @override
+  String uniPhaseDrop(String date) {
+    return 'يمكنك حذف مقرر حتى $date';
+  }
+
+  @override
+  String get uniPhaseClosed => 'انتهى التسجيل لهذا الفصل';
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) {
+    return '$taken ساعة · من $min إلى $max في الفصل';
+  }
+
+  @override
+  String get uniMySections => 'شُعبي';
+
+  @override
+  String get uniOffered => 'الشُّعب المتاحة';
+
+  @override
+  String get uniAdd => 'إضافة';
+
+  @override
+  String get uniJoinWaitlist => 'الانضمام إلى قائمة الانتظار';
+
+  @override
+  String get uniDrop => 'حذف';
+
+  @override
+  String uniDropConfirm(String course) {
+    return 'حذف $course؟';
+  }
+
+  @override
+  String uniSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مقعد متبقٍّ',
+      many: '$count مقعدًا متبقيًا',
+      few: '$count مقاعد متبقية',
+      two: 'مقعدان متبقيان',
+      one: 'مقعد واحد متبقٍّ',
+      zero: 'ممتلئة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniEnrolPending => 'بانتظار الموافقة';
+
+  @override
+  String get uniEnrolEnrolled => 'مسجّل';
+
+  @override
+  String get uniEnrolWaitlisted => 'قائمة الانتظار';
+
+  @override
+  String get uniSubmit => 'إرسال إلى مرشدي';
+
+  @override
+  String get uniSubmitted => 'أُرسل إلى مرشدك.';
+
+  @override
+  String uniAdvisorNote(String note) {
+    return 'مرشدك: $note';
+  }
+
+  @override
+  String get uniReadOnly => 'الطالب وحده يعدّل التسجيل.';
+
+  @override
+  String get uniNoSections => 'لا توجد شُعب في هذا الفصل بعد.';
+
+  @override
+  String get uniNoLectures => 'لا توجد محاضرات في هذا الفصل.';
+
+  @override
+  String get uniNoLecturesToday => 'لا توجد محاضرات اليوم.';
+
+  @override
+  String uniTermGpa(String gpa) {
+    return 'المعدل الفصلي $gpa';
+  }
+
+  @override
+  String get uniCumulative => 'المعدل التراكمي';
+
+  @override
+  String get uniNoResults => 'لا توجد نتائج بعد.';
+
+  @override
+  String get uniOpenPdf => 'فتح ملف PDF';
+
+  @override
+  String get uniPlanDone => 'منجز';
+
+  @override
+  String get uniPlanInProgress => 'جارٍ';
+
+  @override
+  String get uniPlanLeft => 'متبقٍّ';
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) {
+    return '$done منجزة · $inProgress جارية · $left متبقية من $required ساعة';
+  }
+
+  @override
+  String uniYear(int year) {
+    return 'السنة $year';
+  }
+
+  @override
+  String get uniElective => 'اختياري';
+
+  @override
+  String uniStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniAdvisees => 'طلابي في الإرشاد';
+
+  @override
+  String uniAdviseesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تسجيل بانتظارك',
+      many: '$count تسجيلًا بانتظارك',
+      few: '$count تسجيلات بانتظارك',
+      two: 'تسجيلان بانتظارك',
+      one: 'تسجيل واحد بانتظارك',
+      zero: 'لا شيء بانتظارك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniNoTeaching =>
+      'لا شُعب في هذا الفصل: تضيفك الجامعة محاضرًا لها.';
+
+  @override
+  String get uniPublished => 'نُشرت النتائج';
+
+  @override
+  String get uniPublish => 'نشر النتائج';
+
+  @override
+  String get uniPublishConfirm =>
+      'يرى الطلاب وأولياء أمورهم تقديراتهم ويُبلَّغون.';
+
+  @override
+  String get uniSaveGrades => 'حفظ الدرجات';
+
+  @override
+  String get uniGradesSaved => 'تم حفظ الدرجات.';
+
+  @override
+  String get uniResultsPublished => 'تم النشر. أُبلغ الطلاب.';
+
+  @override
+  String get uniMark => 'الدرجة (%)';
+
+  @override
+  String get uniGrade => 'التقدير';
+
+  @override
+  String get uniNoGrade => 'بلا تقدير';
+
+  @override
+  String get uniApprove => 'موافقة';
+
+  @override
+  String get uniSendBack => 'إعادة إلى الطالب';
+
+  @override
+  String get uniNoteHint => 'ملاحظة للطالب (اختياري)';
+
+  @override
+  String get uniApproved => 'تمت الموافقة. أُبلغ الطالب.';
+
+  @override
+  String get uniSentBack => 'أُعيد. أُبلغ الطالب.';
+
+  @override
+  String get uniNoAdvisees => 'لا يوجد طلاب لإرشادهم في هذا الفصل.';
+
+  @override
+  String get uniAttendanceSaved => 'تم حفظ الحضور.';
 }
