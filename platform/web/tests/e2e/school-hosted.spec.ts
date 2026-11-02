@@ -196,6 +196,8 @@ test("113.3 Staff: a member of staff with their job and hours, and news for the 
   await expect(own.getByText("Added. They sign in to the app with this number.")).toBeVisible();
 
   await own.goto("/dashboard/school/news");
+  // With news on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Post news" }).click();
   await own.getByLabel("For").selectOption({ label: "Teachers and staff only" });
   await own.getByLabel("Title").fill("Staff meeting");
   await own.getByLabel("Message").fill("Thursday at 2, in the library.");
@@ -361,7 +363,8 @@ test("113.8 Calendar: an event and a break, in the month and the list", async ()
   await expect(own.getByText("Saved. It is on the calendar in the app.")).toBeVisible();
 
   await own.goto("/dashboard/school/calendar?view=list");
-  await own.getByText("Add to the calendar").click();
+  // With an event on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Add to the calendar" }).click();
   await own.getByLabel("What it is").selectOption({ label: "Holiday or break (no school)" });
   await own.getByLabel("Title").fill("Mid-term break");
   await own.getByLabel("From", { exact: true }).fill(dayFromToday(10));

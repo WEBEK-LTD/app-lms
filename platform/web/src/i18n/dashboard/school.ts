@@ -486,6 +486,13 @@ export const en = {
   statMarked: "Marked",
   searchHomework: "Search homework",
   noHomeworkMatch: "No homework matches your search.",
+  // The page kit: Timetable and News.
+  statLastMonth: "{count} in the last 30 days",
+  statForClasses: "For classes and families",
+  searchNews: "Search the news",
+  noNewsMatch: "No news matches your search.",
+  statLessons: "Lessons a week",
+  statHours: "Hours a week",
 };
 
 export const ar: Strings<typeof en> = {
@@ -964,6 +971,13 @@ export const ar: Strings<typeof en> = {
   statMarked: "تم تصحيحها",
   searchHomework: "ابحث في الواجبات",
   noHomeworkMatch: "لا يوجد واجب يطابق بحثك.",
+  // The page kit: Timetable and News.
+  statLastMonth: "{count} خلال آخر 30 يومًا",
+  statForClasses: "للفصول والأسر",
+  searchNews: "ابحث في الأخبار",
+  noNewsMatch: "لا توجد أخبار تطابق بحثك.",
+  statLessons: "الحصص في الأسبوع",
+  statHours: "الساعات في الأسبوع",
 };
 
 export const tr: Strings<typeof en> = {
@@ -1442,4 +1456,11 @@ export const tr: Strings<typeof en> = {
   statMarked: "Değerlendirilen",
   searchHomework: "Ödevlerde ara",
   noHomeworkMatch: "Aramanıza uyan ödev yok.",
+  // The page kit: Timetable and News.
+  statLastMonth: "Son 30 günde {count}",
+  statForClasses: "Sınıflara ve ailelere",
+  searchNews: "Haberlerde ara",
+  noNewsMatch: "Aramanıza uyan haber yok.",
+  statLessons: "Haftalık ders",
+  statHours: "Haftalık saat",
 };
