@@ -121,7 +121,18 @@ import type { AppErrorSource, MilestoneKind, ProductDay, SignupSource, TeamAlert
 import type { NotificationAudience, NotificationCampaignStatus } from "../data/types";
 import type { TeacherStatus } from "../data/types";
 // 105.4 Schools
-import type { SchoolAssessmentKind, SchoolAttendanceStatus, SchoolFeeStatus, SchoolFileRef, SchoolRole, SchoolSettings } from "../data/types";
+import type {
+  SchoolAssessmentKind,
+  SchoolAttendanceStatus,
+  SchoolFeeStatus,
+  SchoolFileRef,
+  SchoolReportComment,
+  SchoolReportField,
+  SchoolReportKind,
+  SchoolReportStatus,
+  SchoolRole,
+  SchoolSettings,
+} from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3399,5 +3410,117 @@ export const schoolFees = mysqlTable(
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [index("school_fees_student_idx").on(t.appId, t.studentId), uniqueIndex("school_fees_receipt_unique").on(t.receiptCode)],
+);
+
+// 113.5 The syllabus of each subject per grade, each class's progress, and the teachers' reports
+
+export const schoolSyllabusUnits = mysqlTable(
+  "school_syllabus_units",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSubjects.id, { onDelete: "cascade" }),
+    grade: varchar("grade", { length: 80 }).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_syllabus_units_subject_idx").on(t.appId, t.subjectId, t.grade, t.position)],
+);
+
+export const schoolSyllabusTopics = mysqlTable(
+  "school_syllabus_topics",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    unitId: bigint("unit_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSyllabusUnits.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    startsOn: varchar("starts_on", { length: 10 }).notNull(),
+    endsOn: varchar("ends_on", { length: 10 }).notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_syllabus_topics_unit_idx").on(t.unitId, t.position)],
+);
+
+export const schoolTopicProgress = mysqlTable(
+  "school_topic_progress",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "cascade" }),
+    topicId: bigint("topic_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSyllabusTopics.id, { onDelete: "cascade" }),
+    coveredOn: varchar("covered_on", { length: 10 }).notNull(),
+    note: varchar("note", { length: 500 }),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.classId, t.topicId] }), index("school_topic_progress_topic_idx").on(t.topicId)],
+);
+
+export const schoolReportTemplates = mysqlTable(
+  "school_report_templates",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolReportKind>(),
+    name: varchar("name", { length: 120 }).notNull(),
+    fields: jsonText<SchoolReportField[]>("fields").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_report_templates_app_idx").on(t.appId, t.kind)],
+);
+
+export const schoolReports = mysqlTable(
+  "school_reports",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolReportKind>(),
+    templateId: bigint("template_id", { mode: "number", unsigned: true }).references(() => schoolReportTemplates.id, { onDelete: "set null" }),
+    templateName: varchar("template_name", { length: 120 }).notNull(),
+    fields: jsonText<SchoolReportField[]>("fields").notNull(),
+    answers: jsonText<Record<string, string | number>>("answers").notNull(),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    teacherName: varchar("teacher_name", { length: 120 }).notNull(),
+    studentId: bigint("student_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "set null" }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true }).references(() => schoolSubjects.id, { onDelete: "set null" }),
+    periodFrom: varchar("period_from", { length: 10 }),
+    periodTo: varchar("period_to", { length: 10 }),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolReportStatus>(),
+    comments: jsonText<SchoolReportComment[]>("comments").notNull(),
+    sentAt: time("sent_at"),
+    readAt: time("read_at"),
+    reviewedAt: time("reviewed_at"),
+    sharedAt: time("shared_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("school_reports_app_idx").on(t.appId, t.status, t.updatedAt),
+    index("school_reports_teacher_idx").on(t.appId, t.teacherId),
+    index("school_reports_student_idx").on(t.studentId),
+  ],
 );
 

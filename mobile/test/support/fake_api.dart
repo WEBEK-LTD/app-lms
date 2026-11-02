@@ -2686,4 +2686,106 @@ class FakeApi implements YallappApi {
       'audience': 'class',
     });
   });
+
+  // 113.5 The syllabus and the teachers' reports.
+
+  Map<String, dynamic> syllabus = classSyllabusJson();
+  List<Map<String, dynamic>> reportTemplates = [reportTemplateJson()];
+  Map<String, dynamic> teacherReport = teacherReportJson();
+  List<Map<String, dynamic>> sharedReports = [sharedReportJson()];
+  final topicsMarked =
+      <({int classId, int topicId, String? day, String? note})>[];
+  final reportsMade = <ReportInput>[];
+  final reportsSaved = <({int id, ReportAnswers answers})>[];
+  final reportsSent = <({int id, String? note})>[];
+
+  @override
+  Future<List<SchoolStudent>> listClassStudents(int classId) => _answer(
+    'listClassStudents',
+    () => [SchoolStudent.fromJson(schoolStudentJson())],
+  );
+
+  @override
+  Future<ClassSyllabus> getClassSyllabus(int classId) =>
+      _answer('getClassSyllabus', () => ClassSyllabus.fromJson(syllabus));
+
+  @override
+  Future<ClassSyllabus> markTopicCovered(
+    int classId,
+    int topicId, {
+    String? coveredOn,
+    String? note,
+  }) => _answer('markTopicCovered', () {
+    topicsMarked.add((
+      classId: classId,
+      topicId: topicId,
+      day: coveredOn,
+      note: note,
+    ));
+    syllabus = classSyllabusJson(coveredTopic: topicId, coveredOn: coveredOn);
+    return ClassSyllabus.fromJson(syllabus);
+  });
+
+  @override
+  Future<ClassSyllabus> unmarkTopicCovered(int classId, int topicId) =>
+      _answer('unmarkTopicCovered', () {
+        syllabus = classSyllabusJson();
+        return ClassSyllabus.fromJson(syllabus);
+      });
+
+  @override
+  Future<List<ReportTemplate>> listReportTemplates() => _answer(
+    'listReportTemplates',
+    () => [for (final t in reportTemplates) ReportTemplate.fromJson(t)],
+  );
+
+  @override
+  Future<Paged<TeacherReport>> listTeacherReports({
+    ReportStatus? status,
+    int? studentId,
+    int page = 1,
+  }) => _answer(
+    'listTeacherReports',
+    () => _paged([
+      if (status == null || teacherReport['status'] == status.name)
+        teacherReport,
+    ], TeacherReport.fromJson),
+  );
+
+  @override
+  Future<TeacherReport> getTeacherReport(int id) =>
+      _answer('getTeacherReport', () => TeacherReport.fromJson(teacherReport));
+
+  @override
+  Future<TeacherReport> createTeacherReport(ReportInput input) =>
+      _answer('createTeacherReport', () {
+        reportsMade.add(input);
+        return TeacherReport.fromJson(teacherReport);
+      });
+
+  @override
+  Future<TeacherReport> updateTeacherReport(int id, ReportInput input) =>
+      _answer('updateTeacherReport', () {
+        reportsSaved.add((id: id, answers: input.answers));
+        teacherReport = {...teacherReport, 'answers': input.answers};
+        return TeacherReport.fromJson(teacherReport);
+      });
+
+  @override
+  Future<void> deleteTeacherReport(int id) =>
+      _answer('deleteTeacherReport', () {});
+
+  @override
+  Future<TeacherReport> sendTeacherReport(int id, {String? note}) =>
+      _answer('sendTeacherReport', () {
+        reportsSent.add((id: id, note: note));
+        teacherReport = {...teacherReport, 'status': 'sent'};
+        return TeacherReport.fromJson(teacherReport);
+      });
+
+  @override
+  Future<List<SharedReport>> listSharedReports(int studentId) => _answer(
+    'listSharedReports',
+    () => [for (final r in sharedReports) SharedReport.fromJson(r)],
+  );
 }

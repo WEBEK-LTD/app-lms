@@ -89,6 +89,12 @@ import type {
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
+  SchoolReport,
+  SchoolReportStatus,
+  SchoolReportTemplate,
+  SchoolSyllabusTopic,
+  SchoolSyllabusUnit,
+  SchoolTopicProgress,
   SchoolHomework,
   SchoolPeriod,
   SchoolPerson,
@@ -884,6 +890,43 @@ export interface DataStore {
   /** Only while the fee is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolFee(appId: string, id: number, patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>, expect?: { statuses?: SchoolFee["status"][] }): Promise<boolean>;
   deleteSchoolFee(appId: string, id: number): Promise<void>;
+
+  // 113.5 The syllabus, each class's progress, and the teachers' reports
+  /** In the plan's order; a subject's, a grade's when given. */
+  listSchoolSyllabusUnits(appId: string, filter?: { subjectId?: number; grade?: string }): Promise<SchoolSyllabusUnit[]>;
+  /** A new unit (last) when `id` is null; null when it isn't the app's. */
+  saveSchoolSyllabusUnit(input: Pick<SchoolSyllabusUnit, "appId" | "subjectId" | "grade" | "title"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusUnit | null>;
+  /** Its topics and their progress go with it. */
+  deleteSchoolSyllabusUnit(appId: string, id: number): Promise<void>;
+  /** In each unit's order; only those of `unitIds` when given. */
+  listSchoolSyllabusTopics(appId: string, filter?: { unitIds?: number[]; ids?: number[] }): Promise<SchoolSyllabusTopic[]>;
+  /** A new topic (last in its unit) when `id` is null; null when it, or its unit, isn't the app's. */
+  saveSchoolSyllabusTopic(input: Pick<SchoolSyllabusTopic, "appId" | "unitId" | "title" | "startsOn" | "endsOn"> & { id: number | null; position?: number }, now: Date): Promise<SchoolSyllabusTopic | null>;
+  deleteSchoolSyllabusTopic(appId: string, id: number): Promise<void>;
+  /** A class's covered topics, or some topics' in every class. */
+  listSchoolTopicProgress(appId: string, filter?: { classId?: number; topicIds?: number[] }): Promise<SchoolTopicProgress[]>;
+  /** One per class and topic: saving again replaces it. */
+  saveSchoolTopicProgress(row: SchoolTopicProgress): Promise<void>;
+  deleteSchoolTopicProgress(appId: string, classId: number, topicId: number): Promise<void>;
+  /** By kind, then name. */
+  listSchoolReportTemplates(appId: string): Promise<SchoolReportTemplate[]>;
+  getSchoolReportTemplate(appId: string, id: number): Promise<SchoolReportTemplate | null>;
+  /** A new template when `id` is null; null when it isn't the app's. */
+  saveSchoolReportTemplate(input: Pick<SchoolReportTemplate, "appId" | "kind" | "name" | "fields"> & { id: number | null }, now: Date): Promise<SchoolReportTemplate | null>;
+  /** Reports written on it keep its name and fields. */
+  deleteSchoolReportTemplate(appId: string, id: number): Promise<void>;
+  /** Newest change first; a teacher's, a student's, a class's, or in some statuses. */
+  listSchoolReports(appId: string, filter?: { teacherId?: number; studentId?: number; classId?: number; statuses?: SchoolReportStatus[] }): Promise<SchoolReport[]>;
+  getSchoolReport(appId: string, id: number): Promise<SchoolReport | null>;
+  createSchoolReport(input: Omit<SchoolReport, "id">): Promise<SchoolReport>;
+  /** Only while the report is in one of `statuses` when given; false when it wasn't changed. */
+  updateSchoolReport(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolReport, "answers" | "subjectId" | "periodFrom" | "periodTo" | "status" | "comments" | "sentAt" | "readAt" | "reviewedAt" | "sharedAt" | "updatedAt">>,
+    expect?: { statuses?: SchoolReportStatus[] },
+  ): Promise<boolean>;
+  deleteSchoolReport(appId: string, id: number): Promise<void>;
 
   // 105.1 Food delivery from many restaurants
   /** In the company's order; `q` matches the restaurant's name or a dish's. Menus aren't read. */

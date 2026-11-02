@@ -10593,6 +10593,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue without a coupon'**
   String get couponWithout;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus'**
+  String get classroomSyllabus;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'No syllabus for this class yet'**
+  String get syllabusNone;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'The school writes each subject\'s syllabus. It shows here once it does.'**
+  String get syllabusNoneMessage;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'{covered} of {total} covered ({percent}%)'**
+  String syllabusCovered(int covered, int total, int percent);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan: {percent}% by today'**
+  String syllabusPlanned(int percent);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Behind the plan by 1 lesson} other{Behind the plan by {count} lessons}}'**
+  String syllabusBehind(int count);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'On plan'**
+  String get syllabusOnPlan;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Ahead of the plan'**
+  String get syllabusAhead;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'The plan now: {topic}'**
+  String syllabusPlanNow(String topic);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String syllabusDays(String from, String to);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered on {date}'**
+  String syllabusCoveredOn(String date);
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered yet'**
+  String get syllabusNotCovered;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark covered'**
+  String get syllabusMarkCovered;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Not covered'**
+  String get syllabusUnmark;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered on'**
+  String get syllabusCoveredDay;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get syllabusNote;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports to the school'**
+  String get classroomReports;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'On your students and classes: drafts, sent, sent back and approved'**
+  String get classroomReportsHint;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get reportsDrafts;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get reportsSent;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get reportsReturned;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get reportsApproved;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports here'**
+  String get reportsNone;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a report'**
+  String get reportsWrite;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get reportsTemplate;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t made its report templates yet.'**
+  String get reportsNoTemplates;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get reportsClass;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get reportsStudent;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject (optional)'**
+  String get reportsSubject;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'No subject'**
+  String get reportsNoSubject;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the report'**
+  String get reportsStart;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a template, a class and, for a report on a student, the student.'**
+  String get reportsChooseMissing;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get reportsSaveDraft;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to the school'**
+  String get reportsSend;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the school (optional)'**
+  String get reportsNoteForSchool;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved.'**
+  String get reportsDraftSaved;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the school.'**
+  String get reportsSentDone;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get reportsDelete;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this draft?'**
+  String get reportsDeleteConfirm;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft deleted.'**
+  String get reportsDeleted;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by the school'**
+  String get reportsRead;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Not read yet'**
+  String get reportsNotRead;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared with the parents'**
+  String get reportsShared;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'The school'**
+  String get reportsFromSchool;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get reportsFromYou;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get reportsComments;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is with the school. You can change it if they send it back.'**
+  String get reportsLocked;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'The school sent this back for changes: read its comment, change the report and send it again.'**
+  String get reportsReturnedBanner;
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} out of 5'**
+  String reportsRatingOf(int value);
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String reportsPeriod(String from, String to);
+
+  /// 113.5 On the teacher's reports to the school, in the Classroom tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in “{label}” before sending.'**
+  String reportsRequiredMissing(String label);
+
+  /// 113.5 In a child's school for their parents: the teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers\' reports'**
+  String get schoolReports;
+
+  /// 113.5 In a child's school for their parents: the teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports shared yet'**
+  String get schoolReportsNone;
+
+  /// 113.5 In a child's school for their parents: the teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'When the school shares a teacher\'s report on your child, it shows here.'**
+  String get schoolReportsNoneMessage;
+
+  /// 113.5 In a child's school for their parents: the teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'By {name}'**
+  String schoolReportsBy(String name);
+
+  /// 113.5 In a child's school for their parents: the teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'The school shares these with the student\'s parents.'**
+  String get schoolReportsParentsOnly;
+
+  /// 113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get syllabusSaved;
 }
 
 class _AppLocalizationsDelegate

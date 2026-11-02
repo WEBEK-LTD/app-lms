@@ -8,8 +8,10 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
+import 'screens/classroom_reports_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/school_screen.dart';
+import 'screens/shared_reports_screen.dart';
 import 'screens/student_screens.dart';
 
 /// 105.4 The School module (hosted API): the school and the account as
@@ -126,6 +128,22 @@ List<RouteBase> _pushedRoutes() => [
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),
   ),
+  // 113.5 A class's syllabus, the teacher's reports to the school, and the
+  // reports the school shared with a student's parents.
+  _byId(
+    '${Paths.classroom}/class/:id/syllabus',
+    (id) => SyllabusScreen(classId: id),
+  ),
+  GoRoute(
+    path: Paths.classroomReports,
+    pageBuilder: (context, state) =>
+        appPage(state, const TeacherReportsScreen()),
+  ),
+  _byId(
+    '${Paths.classroom}/report/:id',
+    (id) => TeacherReportScreen(reportId: id),
+  ),
+  _part('reports', (student) => SharedReportsScreen(student: student)),
   _byId('${Paths.classroom}/class/:id', (id) => ClassScreen(classId: id)),
   _byId(
     '${Paths.classroom}/homework/:id',

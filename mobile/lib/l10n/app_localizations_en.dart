@@ -6406,4 +6406,209 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couponWithout => 'Continue without a coupon';
+
+  @override
+  String get classroomSyllabus => 'Syllabus';
+
+  @override
+  String get syllabusNone => 'No syllabus for this class yet';
+
+  @override
+  String get syllabusNoneMessage =>
+      'The school writes each subject\'s syllabus. It shows here once it does.';
+
+  @override
+  String syllabusCovered(int covered, int total, int percent) {
+    return '$covered of $total covered ($percent%)';
+  }
+
+  @override
+  String syllabusPlanned(int percent) {
+    return 'The plan: $percent% by today';
+  }
+
+  @override
+  String syllabusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Behind the plan by $count lessons',
+      one: 'Behind the plan by 1 lesson',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syllabusOnPlan => 'On plan';
+
+  @override
+  String get syllabusAhead => 'Ahead of the plan';
+
+  @override
+  String syllabusPlanNow(String topic) {
+    return 'The plan now: $topic';
+  }
+
+  @override
+  String syllabusDays(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String syllabusCoveredOn(String date) {
+    return 'Covered on $date';
+  }
+
+  @override
+  String get syllabusNotCovered => 'Not covered yet';
+
+  @override
+  String get syllabusMarkCovered => 'Mark covered';
+
+  @override
+  String get syllabusUnmark => 'Not covered';
+
+  @override
+  String get syllabusCoveredDay => 'Covered on';
+
+  @override
+  String get syllabusNote => 'Note (optional)';
+
+  @override
+  String get classroomReports => 'Reports to the school';
+
+  @override
+  String get classroomReportsHint =>
+      'On your students and classes: drafts, sent, sent back and approved';
+
+  @override
+  String get reportsDrafts => 'Drafts';
+
+  @override
+  String get reportsSent => 'Sent';
+
+  @override
+  String get reportsReturned => 'Sent back';
+
+  @override
+  String get reportsApproved => 'Approved';
+
+  @override
+  String get reportsNone => 'No reports here';
+
+  @override
+  String get reportsWrite => 'Write a report';
+
+  @override
+  String get reportsTemplate => 'Template';
+
+  @override
+  String get reportsNoTemplates =>
+      'The school hasn\'t made its report templates yet.';
+
+  @override
+  String get reportsClass => 'Class';
+
+  @override
+  String get reportsStudent => 'Student';
+
+  @override
+  String get reportsSubject => 'Subject (optional)';
+
+  @override
+  String get reportsNoSubject => 'No subject';
+
+  @override
+  String get reportsStart => 'Start the report';
+
+  @override
+  String get reportsChooseMissing =>
+      'Choose a template, a class and, for a report on a student, the student.';
+
+  @override
+  String get reportsSaveDraft => 'Save draft';
+
+  @override
+  String get reportsSend => 'Send to the school';
+
+  @override
+  String get reportsNoteForSchool => 'A note for the school (optional)';
+
+  @override
+  String get reportsDraftSaved => 'Draft saved.';
+
+  @override
+  String get reportsSentDone => 'Sent to the school.';
+
+  @override
+  String get reportsDelete => 'Delete draft';
+
+  @override
+  String get reportsDeleteConfirm => 'Delete this draft?';
+
+  @override
+  String get reportsDeleted => 'Draft deleted.';
+
+  @override
+  String get reportsRead => 'Read by the school';
+
+  @override
+  String get reportsNotRead => 'Not read yet';
+
+  @override
+  String get reportsShared => 'Shared with the parents';
+
+  @override
+  String get reportsFromSchool => 'The school';
+
+  @override
+  String get reportsFromYou => 'You';
+
+  @override
+  String get reportsComments => 'Comments';
+
+  @override
+  String get reportsLocked =>
+      'This report is with the school. You can change it if they send it back.';
+
+  @override
+  String get reportsReturnedBanner =>
+      'The school sent this back for changes: read its comment, change the report and send it again.';
+
+  @override
+  String reportsRatingOf(int value) {
+    return '$value out of 5';
+  }
+
+  @override
+  String reportsPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String reportsRequiredMissing(String label) {
+    return 'Fill in “$label” before sending.';
+  }
+
+  @override
+  String get schoolReports => 'Teachers\' reports';
+
+  @override
+  String get schoolReportsNone => 'No reports shared yet';
+
+  @override
+  String get schoolReportsNoneMessage =>
+      'When the school shares a teacher\'s report on your child, it shows here.';
+
+  @override
+  String schoolReportsBy(String name) {
+    return 'By $name';
+  }
+
+  @override
+  String get schoolReportsParentsOnly =>
+      'The school shares these with the student\'s parents.';
+
+  @override
+  String get syllabusSaved => 'Saved.';
 }

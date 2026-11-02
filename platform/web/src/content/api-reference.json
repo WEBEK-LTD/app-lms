@@ -1616,6 +1616,13 @@
         },
         {
           "method": "GET",
+          "path": "/school/students/{student_id}/reports",
+          "summary": "The teachers' reports the school shared with the student's parents",
+          "description": "Roadmap 113.5. For the student's parents only (`not_parent`, 403, for anyone else, the student too): the reports teachers wrote on the student (their level, behaviour, attendance, what to do next) that the school approved and chose to share, newest first. The parents get a push (`school_report_shared`) when one is shared.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/school/students/{student_id}/fees",
           "summary": "The student's fees, due and paid",
           "description": null,
@@ -1688,6 +1695,27 @@
           "path": "/classroom/classes/{class_id}/gradebook",
           "summary": "A class's gradebook",
           "description": "Roadmap 112.5. For the class's teachers, over the current term (else the year so far) or `from` to `to`: each student's percent in each subject taught, overall and attendance.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/classes/{class_id}/syllabus",
+          "summary": "The class's progress through the syllabus",
+          "description": "Roadmap 113.5. The syllabus of each subject the teacher teaches in the class, for the class's grade (as the school wrote it: units, and their lessons or topics with the days the plan gives each), with the topics the class covered and where the plan says it should be today (a topic is due once its last day has passed; `behind` when fewer are covered than are due).",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/classroom/classes/{class_id}/syllabus/{topic_id}",
+          "summary": "Mark a topic covered",
+          "description": "Roadmap 113.5. On a day (today by default, up to a year back) with an optional note; marking it again changes the day and the note. Of a subject the teacher teaches in the class.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/classroom/classes/{class_id}/syllabus/{topic_id}",
+          "summary": "Mark a topic not covered",
+          "description": null,
           "access": "signed-in"
         },
         {
@@ -1765,6 +1793,55 @@
           "path": "/classroom/announcements",
           "summary": "Write to a class",
           "description": "To a class the teacher teaches; its students and their parents see it with the school's news and get a push (`school_announcement`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/report-templates",
+          "summary": "The school's report templates",
+          "description": "Roadmap 113.5. The templates the school wrote for teachers' reports on a student or on a class, by kind and name.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/reports",
+          "summary": "The teacher's reports",
+          "description": "Roadmap 113.5. The teacher's own reports to the school, the last changed first: drafts, sent, sent back for changes and approved; a student's (their history) or a class's.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/reports",
+          "summary": "Start a report (a draft)",
+          "description": "Roadmap 113.5. On one of the school's templates: a student template needs `student_id` (a student of a class the teacher teaches), a class template `class_id` (a class they teach; the period is the school's term, else the year so far, when not given). Answers are checked against the template's fields (text up to 2000 characters, one of a choice's choices, a rating from 1 to 5); required ones are needed only to send it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/reports/{report_id}",
+          "summary": "One of the teacher's reports, with the school's comments",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/classroom/reports/{report_id}",
+          "summary": "Change a draft, or a report sent back",
+          "description": "Roadmap 113.5. A report with the school (sent or approved) can't be changed (`report_sent`, 409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/classroom/reports/{report_id}",
+          "summary": "Delete a draft",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/reports/{report_id}/send",
+          "summary": "Send a report to the school",
+          "description": "Roadmap 113.5. A draft, or a report the school sent back, with every required field filled in (`incomplete_report`, 400, else) and an optional note; the school's administration hears of it on Yallapp Business. The teacher gets a push (`school_report`) when the school comments on it, sends it back for changes or approves it.",
           "access": "signed-in"
         }
       ]

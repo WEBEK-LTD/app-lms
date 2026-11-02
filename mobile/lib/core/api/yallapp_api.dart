@@ -1002,6 +1002,31 @@ abstract class YallappApi {
     required String title,
     required String body,
   });
+
+  // 113.5 The syllabus and the teachers' reports to the school.
+  Future<List<SchoolStudent>> listClassStudents(int classId);
+  Future<ClassSyllabus> getClassSyllabus(int classId);
+  Future<ClassSyllabus> markTopicCovered(
+    int classId,
+    int topicId, {
+    String? coveredOn,
+    String? note,
+  });
+  Future<ClassSyllabus> unmarkTopicCovered(int classId, int topicId);
+  Future<List<ReportTemplate>> listReportTemplates();
+  Future<Paged<TeacherReport>> listTeacherReports({
+    ReportStatus? status,
+    int? studentId,
+    int page = 1,
+  });
+  Future<TeacherReport> getTeacherReport(int id);
+  Future<TeacherReport> createTeacherReport(ReportInput input);
+  Future<TeacherReport> updateTeacherReport(int id, ReportInput input);
+  Future<void> deleteTeacherReport(int id);
+  Future<TeacherReport> sendTeacherReport(int id, {String? note});
+
+  /// The teachers' reports the school shared with a student's parents.
+  Future<List<SharedReport>> listSharedReports(int studentId);
 }
 
 /// [YallappApi] over HTTP.
@@ -3273,5 +3298,109 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => SchoolAnnouncement.fromJson(asJson(data)),
     body: {'class_id': classId, 'title': title, 'body': body},
+  );
+
+  // 113.5 The syllabus and the teachers' reports to the school.
+
+  @override
+  Future<List<SchoolStudent>> listClassStudents(int classId) => _get(
+    '/classroom/classes/$classId/students',
+    _required,
+    (json) => reqListOf(json, 'items', SchoolStudent.fromJson),
+  );
+
+  @override
+  Future<ClassSyllabus> getClassSyllabus(int classId) => _get(
+    '/classroom/classes/$classId/syllabus',
+    _required,
+    ClassSyllabus.fromJson,
+  );
+
+  @override
+  Future<ClassSyllabus> markTopicCovered(
+    int classId,
+    int topicId, {
+    String? coveredOn,
+    String? note,
+  }) => _send(
+    'PUT',
+    '/classroom/classes/$classId/syllabus/$topicId',
+    _required,
+    (data) => ClassSyllabus.fromJson(asJson(data)),
+    body: {'covered_on': ?coveredOn, 'note': ?note},
+  );
+
+  @override
+  Future<ClassSyllabus> unmarkTopicCovered(int classId, int topicId) => _send(
+    'DELETE',
+    '/classroom/classes/$classId/syllabus/$topicId',
+    _required,
+    (data) => ClassSyllabus.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<List<ReportTemplate>> listReportTemplates() => _get(
+    '/classroom/report-templates',
+    _required,
+    (json) => reqListOf(json, 'items', ReportTemplate.fromJson),
+  );
+
+  @override
+  Future<Paged<TeacherReport>> listTeacherReports({
+    ReportStatus? status,
+    int? studentId,
+    int page = 1,
+  }) => _get(
+    '/classroom/reports',
+    _required,
+    (json) => Paged.fromJson(json, TeacherReport.fromJson),
+    query: {
+      'status': ?status?.name,
+      'student_id': ?studentId,
+      'page': page,
+      'per_page': 20,
+    },
+  );
+
+  @override
+  Future<TeacherReport> getTeacherReport(int id) =>
+      _get('/classroom/reports/$id', _required, TeacherReport.fromJson);
+
+  @override
+  Future<TeacherReport> createTeacherReport(ReportInput input) => _send(
+    'POST',
+    '/classroom/reports',
+    _required,
+    (data) => TeacherReport.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<TeacherReport> updateTeacherReport(int id, ReportInput input) => _send(
+    'PUT',
+    '/classroom/reports/$id',
+    _required,
+    (data) => TeacherReport.fromJson(asJson(data)),
+    body: {'subject_id': input.subjectId, 'answers': input.answers},
+  );
+
+  @override
+  Future<void> deleteTeacherReport(int id) =>
+      _send('DELETE', '/classroom/reports/$id', _required, _ignore);
+
+  @override
+  Future<TeacherReport> sendTeacherReport(int id, {String? note}) => _send(
+    'POST',
+    '/classroom/reports/$id/send',
+    _required,
+    (data) => TeacherReport.fromJson(asJson(data)),
+    body: {'note': ?note},
+  );
+
+  @override
+  Future<List<SharedReport>> listSharedReports(int studentId) => _get(
+    '/school/students/$studentId/reports',
+    _required,
+    (json) => reqListOf(json, 'items', SharedReport.fromJson),
   );
 }

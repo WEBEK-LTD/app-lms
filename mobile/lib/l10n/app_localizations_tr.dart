@@ -6395,4 +6395,207 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get couponWithout => 'Kuponsuz devam et';
+
+  @override
+  String get classroomSyllabus => 'Müfredat';
+
+  @override
+  String get syllabusNone => 'Bu şube için henüz müfredat yok';
+
+  @override
+  String get syllabusNoneMessage =>
+      'Okul her dersin müfredatını yazar; yazınca burada görünür.';
+
+  @override
+  String syllabusCovered(int covered, int total, int percent) {
+    return '$total konudan $covered tanesi işlendi (%$percent)';
+  }
+
+  @override
+  String syllabusPlanned(int percent) {
+    return 'Plan: bugüne kadar %$percent';
+  }
+
+  @override
+  String syllabusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Plandan $count ders geride',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syllabusOnPlan => 'Plana uygun';
+
+  @override
+  String get syllabusAhead => 'Plandan ileride';
+
+  @override
+  String syllabusPlanNow(String topic) {
+    return 'Planda şimdi: $topic';
+  }
+
+  @override
+  String syllabusDays(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String syllabusCoveredOn(String date) {
+    return '$date tarihinde işlendi';
+  }
+
+  @override
+  String get syllabusNotCovered => 'Henüz işlenmedi';
+
+  @override
+  String get syllabusMarkCovered => 'İşlendi olarak işaretle';
+
+  @override
+  String get syllabusUnmark => 'İşlenmedi';
+
+  @override
+  String get syllabusCoveredDay => 'İşlendiği gün';
+
+  @override
+  String get syllabusNote => 'Not (isteğe bağlı)';
+
+  @override
+  String get classroomReports => 'Okula raporlar';
+
+  @override
+  String get classroomReportsHint =>
+      'Öğrencileriniz ve şubeleriniz hakkında: taslaklar, gönderilenler, geri gönderilenler ve onaylananlar';
+
+  @override
+  String get reportsDrafts => 'Taslaklar';
+
+  @override
+  String get reportsSent => 'Gönderilenler';
+
+  @override
+  String get reportsReturned => 'Geri gönderilenler';
+
+  @override
+  String get reportsApproved => 'Onaylananlar';
+
+  @override
+  String get reportsNone => 'Burada rapor yok';
+
+  @override
+  String get reportsWrite => 'Rapor yaz';
+
+  @override
+  String get reportsTemplate => 'Şablon';
+
+  @override
+  String get reportsNoTemplates => 'Okul henüz rapor şablonlarını hazırlamadı.';
+
+  @override
+  String get reportsClass => 'Şube';
+
+  @override
+  String get reportsStudent => 'Öğrenci';
+
+  @override
+  String get reportsSubject => 'Ders (isteğe bağlı)';
+
+  @override
+  String get reportsNoSubject => 'Ders yok';
+
+  @override
+  String get reportsStart => 'Raporu başlat';
+
+  @override
+  String get reportsChooseMissing =>
+      'Bir şablon, bir şube ve öğrenci raporu için öğrenciyi seçin.';
+
+  @override
+  String get reportsSaveDraft => 'Taslağı kaydet';
+
+  @override
+  String get reportsSend => 'Okula gönder';
+
+  @override
+  String get reportsNoteForSchool => 'Okula not (isteğe bağlı)';
+
+  @override
+  String get reportsDraftSaved => 'Taslak kaydedildi.';
+
+  @override
+  String get reportsSentDone => 'Okula gönderildi.';
+
+  @override
+  String get reportsDelete => 'Taslağı sil';
+
+  @override
+  String get reportsDeleteConfirm => 'Bu taslak silinsin mi?';
+
+  @override
+  String get reportsDeleted => 'Taslak silindi.';
+
+  @override
+  String get reportsRead => 'Okul okudu';
+
+  @override
+  String get reportsNotRead => 'Henüz okunmadı';
+
+  @override
+  String get reportsShared => 'Velilerle paylaşıldı';
+
+  @override
+  String get reportsFromSchool => 'Okul';
+
+  @override
+  String get reportsFromYou => 'Siz';
+
+  @override
+  String get reportsComments => 'Yorumlar';
+
+  @override
+  String get reportsLocked =>
+      'Bu rapor okulda. Geri gönderirlerse değiştirebilirsiniz.';
+
+  @override
+  String get reportsReturnedBanner =>
+      'Okul bunu değişiklik için geri gönderdi: yorumunu okuyun, raporu değiştirip yeniden gönderin.';
+
+  @override
+  String reportsRatingOf(int value) {
+    return '5 üzerinden $value';
+  }
+
+  @override
+  String reportsPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String reportsRequiredMissing(String label) {
+    return 'Göndermeden önce “$label” alanını doldurun.';
+  }
+
+  @override
+  String get schoolReports => 'Öğretmen raporları';
+
+  @override
+  String get schoolReportsNone => 'Henüz paylaşılan rapor yok';
+
+  @override
+  String get schoolReportsNoneMessage =>
+      'Okul çocuğunuz hakkında bir öğretmen raporu paylaştığında burada görünür.';
+
+  @override
+  String schoolReportsBy(String name) {
+    return 'Yazan: $name';
+  }
+
+  @override
+  String get schoolReportsParentsOnly =>
+      'Okul bunları öğrencinin velileriyle paylaşır.';
+
+  @override
+  String get syllabusSaved => 'Kaydedildi.';
 }

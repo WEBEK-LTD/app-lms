@@ -6308,5 +6308,295 @@
   "couponWithout": "Continue without a coupon",
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
+  },
+  "classroomSyllabus": "Syllabus",
+  "@classroomSyllabus": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNone": "No syllabus for this class yet",
+  "@syllabusNone": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNoneMessage": "The school writes each subject's syllabus. It shows here once it does.",
+  "@syllabusNoneMessage": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusCovered": "{covered} of {total} covered ({percent}%)",
+  "@syllabusCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "covered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusPlanned": "The plan: {percent}% by today",
+  "@syllabusPlanned": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusBehind": "{count, plural, =1{Behind the plan by 1 lesson} other{Behind the plan by {count} lessons}}",
+  "@syllabusBehind": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusOnPlan": "On plan",
+  "@syllabusOnPlan": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusAhead": "Ahead of the plan",
+  "@syllabusAhead": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusPlanNow": "The plan now: {topic}",
+  "@syllabusPlanNow": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusDays": "{from} – {to}",
+  "@syllabusDays": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusCoveredOn": "Covered on {date}",
+  "@syllabusCoveredOn": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusNotCovered": "Not covered yet",
+  "@syllabusNotCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusMarkCovered": "Mark covered",
+  "@syllabusMarkCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusUnmark": "Not covered",
+  "@syllabusUnmark": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusCoveredDay": "Covered on",
+  "@syllabusCoveredDay": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNote": "Note (optional)",
+  "@syllabusNote": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "classroomReports": "Reports to the school",
+  "@classroomReports": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "classroomReportsHint": "On your students and classes: drafts, sent, sent back and approved",
+  "@classroomReportsHint": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDrafts": "Drafts",
+  "@reportsDrafts": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSent": "Sent",
+  "@reportsSent": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsReturned": "Sent back",
+  "@reportsReturned": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsApproved": "Approved",
+  "@reportsApproved": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNone": "No reports here",
+  "@reportsNone": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsWrite": "Write a report",
+  "@reportsWrite": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsTemplate": "Template",
+  "@reportsTemplate": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoTemplates": "The school hasn't made its report templates yet.",
+  "@reportsNoTemplates": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsClass": "Class",
+  "@reportsClass": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsStudent": "Student",
+  "@reportsStudent": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSubject": "Subject (optional)",
+  "@reportsSubject": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoSubject": "No subject",
+  "@reportsNoSubject": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsStart": "Start the report",
+  "@reportsStart": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsChooseMissing": "Choose a template, a class and, for a report on a student, the student.",
+  "@reportsChooseMissing": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSaveDraft": "Save draft",
+  "@reportsSaveDraft": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSend": "Send to the school",
+  "@reportsSend": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoteForSchool": "A note for the school (optional)",
+  "@reportsNoteForSchool": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDraftSaved": "Draft saved.",
+  "@reportsDraftSaved": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSentDone": "Sent to the school.",
+  "@reportsSentDone": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDelete": "Delete draft",
+  "@reportsDelete": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDeleteConfirm": "Delete this draft?",
+  "@reportsDeleteConfirm": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDeleted": "Draft deleted.",
+  "@reportsDeleted": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsRead": "Read by the school",
+  "@reportsRead": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNotRead": "Not read yet",
+  "@reportsNotRead": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsShared": "Shared with the parents",
+  "@reportsShared": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsFromSchool": "The school",
+  "@reportsFromSchool": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsFromYou": "You",
+  "@reportsFromYou": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsComments": "Comments",
+  "@reportsComments": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsLocked": "This report is with the school. You can change it if they send it back.",
+  "@reportsLocked": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsReturnedBanner": "The school sent this back for changes: read its comment, change the report and send it again.",
+  "@reportsReturnedBanner": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsRatingOf": "{value} out of 5",
+  "@reportsRatingOf": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsPeriod": "{from} – {to}",
+  "@reportsPeriod": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsRequiredMissing": "Fill in “{label}” before sending.",
+  "@reportsRequiredMissing": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolReports": "Teachers' reports",
+  "@schoolReports": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsNone": "No reports shared yet",
+  "@schoolReportsNone": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsNoneMessage": "When the school shares a teacher's report on your child, it shows here.",
+  "@schoolReportsNoneMessage": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsBy": "By {name}",
+  "@schoolReportsBy": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolReportsParentsOnly": "The school shares these with the student's parents.",
+  "@schoolReportsParentsOnly": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "syllabusSaved": "Saved.",
+  "@syllabusSaved": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
   }
 }
