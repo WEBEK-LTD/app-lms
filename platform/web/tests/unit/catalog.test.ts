@@ -181,7 +181,8 @@ describe("catalog shop on the hosted API", () => {
 
   it("lists categories with products and the home screen", async () => {
     expect((await call("GET", "/store/categories")).body).toEqual({
-      items: [{ id: ids.bouquets, name: "Bouquets", count: 2, parent_id: null, image_url: null }],
+      // 112.4 Its picture: its first product's that has one.
+      items: [{ id: ids.bouquets, name: "Bouquets", count: 2, parent_id: null, image_url: "https://yallapp.test/api/v1/assets/img-1" }],
     });
     const home = (await call("GET", "/store/home")).body as { sections: { type: string }[] };
     expect(home.sections.map((s) => s.type)).toEqual(["categories", "featured_products", "sale_products", "new_products"]);

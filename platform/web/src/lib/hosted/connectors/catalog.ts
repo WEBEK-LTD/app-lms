@@ -217,8 +217,10 @@ export class CatalogConnector implements Connector {
     };
   }
 
-  private category(c: CatalogCategory, count: number) {
-    return { id: c.id, name: c.name, count, parent_id: null, image_url: null };
+  /** 112.4 A category's picture: its first product's that has one. */
+  private category(c: CatalogCategory, count: number, products: CatalogProduct[] = []) {
+    const pictured = products.find((p) => p.categoryIds.includes(c.id) && p.imageAssetIds[0]);
+    return { id: c.id, name: c.name, count, parent_id: null, image_url: pictured ? this.deps.assetUrl(pictured.imageAssetIds[0]!) : null };
   }
 
   // Catalog
@@ -230,7 +232,7 @@ export class CatalogConnector implements Connector {
   private async categories() {
     const [categories, products] = await Promise.all([this.deps.store.listCatalogCategories(this.deps.app.id), this.active()]);
     return categories
-      .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length))
+      .map((c) => this.category(c, products.filter((p) => p.categoryIds.includes(c.id)).length, products))
       .filter((c) => c.count > 0);
   }
 

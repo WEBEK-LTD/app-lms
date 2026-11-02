@@ -84,6 +84,8 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     if (node.hidden) return null;
     const { query, translations: _t, ...shown } = translated(node, pc.lang, def);
     void _t;
+    // 112.4 What this person opened lately is kept on the phone: sent without entries.
+    if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {
       const list = (await resolveBlock(pc, { id: node.id, type: "items", visibility: "everyone", title: null, source: node.source, layout: node.layout, query })) as { items?: unknown[] } | null;
       return list?.items ? ({ ...shown, items: list.items } as StudioNode) : null;
@@ -307,6 +309,8 @@ async function listProducts(pc: PageContext, query: ItemsQuery): Promise<Item[]>
         per_page: query.limit,
         category: query.category_id && /^\d+$/.test(query.category_id) ? query.category_id : null,
         featured: query.featured ? "true" : null,
+        // 112.4 Products on sale only.
+        on_sale: query.on_sale ? "true" : null,
         orderby: query.sort,
       };
   if (query.ids.length && !ids.length) return [];
@@ -384,7 +388,7 @@ async function listArticles(pc: PageContext, query: ItemsQuery): Promise<Item[]>
     .filter((i): i is Item => i !== null);
 }
 
-async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id: number; name: string; count: number }[] | null> {
+async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id: number; name: string; count: number; image_url?: string }[] | null> {
   const path =
     source === "courses"
       ? ["categories"]
@@ -398,7 +402,8 @@ async function listCategories(pc: PageContext, source: ItemSource): Promise<{ id
   if (!path) return null;
   return list(await get(pc, path))
     .filter((c) => c.parent_id === null || c.parent_id === undefined)
-    .map((c) => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0) }))
+    // 112.4 With its picture when it has one (a store's categories).
+    .map((c) => ({ id: Number(c.id), name: String(c.name ?? ""), count: Number(c.count ?? 0), ...(typeof c.image_url === "string" && c.image_url ? { image_url: c.image_url } : {}) }))
     .filter((c) => Number.isSafeInteger(c.id) && c.name && Number.isInteger(c.count));
 }
 

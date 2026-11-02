@@ -18,7 +18,7 @@ export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
@@ -35,6 +35,10 @@ export const STUDIO_PRESSES = ["none", "shrink", "bounce"] as const;
 export const STUDIO_LOOPS = ["none", "pulse", "float", "shake"] as const;
 export const STUDIO_PLATFORMS = ["android", "ios"] as const;
 export const STUDIO_VISIBILITY = ["everyone", "signed_in", "signed_out"] as const;
+/** 112.4 How a slider shows where it is: dots under it, lines filling over it (stories), or "2 / 5" over it. */
+export const STUDIO_INDICATORS = ["dots", "progress", "count"] as const;
+/** 112.4 How a categories element draws them: chips, tiles, pictures in a grid, or round pictures in a row. */
+export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles"] as const;
 export const STUDIO_LIMITS = {
   maxNodes: 600,
   maxDepth: 12,
@@ -50,6 +54,8 @@ export const STUDIO_LIMITS = {
   nameChars: 80,
   maxColumns: 6,
   maxFormFields: 10,
+  /** 112.4 A coupon's code. */
+  codeChars: 40,
   /** 107.3 A question's or a tab's name. */
   titleChars: 120,
   /** The whole page as JSON. */
@@ -323,6 +329,8 @@ export interface ItemsQuery {
   limit: number;
   /** Hand-picked entries, in this order; overrides the other filters when not empty. */
   ids: string[];
+  /** 112.4 Products on sale only; left out otherwise. */
+  on_sale?: boolean;
 }
 
 // 33 Entries of a block's list, each with its own translations.
@@ -549,6 +557,12 @@ export interface StudioOverlay {
   opacity: number;
 }
 
+/** 112.4 Where a child of a stack sits, in percent (`StudioPlace`). */
+export interface StudioPlace {
+  x: number;
+  y: number;
+}
+
 export interface StudioMotion {
   enter?: (typeof STUDIO_ENTERS)[number];
   duration_ms?: number;
@@ -628,6 +642,16 @@ export interface StudioNode {
   dots?: boolean;
   /** 107.2 A row that scrolls sideways. */
   scroll?: boolean;
+  /** 112.4 For `slider`: how it shows where it is; missing, dots. */
+  indicator?: (typeof STUDIO_INDICATORS)[number];
+  /** 112.4 For a child of `stack`: its place in percent from the start and the top (a shop-the-look spot). */
+  place?: StudioPlace | null;
+  /** 112.4 For `categories`: how they're drawn; missing, chips. */
+  style?: (typeof STUDIO_CATEGORY_STYLES)[number];
+  /** 112.4 For `coupon`: the code people copy. */
+  code?: string | null;
+  /** 112.4 For `items` of products: the ones this person opened lately, kept on the phone (the servers send none). */
+  recent?: boolean;
   source?: ItemSource;
   layout?: (typeof ITEMS_LAYOUTS)[number];
   query?: ItemsQuery;
