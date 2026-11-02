@@ -188,6 +188,13 @@ export async function answerLineAction(_: FormState, formData: FormData): Promis
     const amount = parseLineAmount(values);
     if (!amount.ok) return { errors: amount.errors, values };
     cents = amount.value;
+    // An advance's part is never more than is left of it.
+    const line = payslip.lines.find((l) => l.id === values.line);
+    const advance = line?.advanceId ? await (await getStore()).getSchoolSalaryAdvance(context.app.id, line.advanceId) : null;
+    if (advance) {
+      const { left } = advanceBalance(advance, await (await getStore()).listSchoolPayslips(context.app.id, { personId: advance.personId }), payslip.id);
+      if (cents > left) return { errors: { amount: `That is more than is left: ${formatCents(left, advance.currency)}.` }, values };
+    }
   }
   const result = await changeDraft(await depsOf(context), payslip, (lines) => answerLine(lines, values.line ?? "", keep ? { accept: true, cents } : { accept: false }));
   if (!result.ok) return { message: SHEET_MESSAGES[result.code], values };
