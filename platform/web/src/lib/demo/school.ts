@@ -5,6 +5,7 @@ import { SAMPLE_SCHOOL_NEWS } from "../samples/content";
 import { markFeePaid } from "../school/fees";
 import { isoWeekday } from "../school/service";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN } from "./constants";
+import { syncSchoolBusAndLibrary } from "./school-bus-library";
 
 /**
  * 110.5 Nakhla School, Studio's school demo (105.4): three classes, their
@@ -252,6 +253,8 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
       await store.saveSchoolPeriod({ id: null, appId: app.id, classId: classes.get(klass.name)!, subjectId: subjects.get(subject)!, teacherId: byName.get(key("teacher", teacher))!.id, weekday, startMinute, endMinute, room });
     }
   }
+  // 113.10 The bus; 113.11 the library.
+  await syncSchoolBusAndLibrary(store, app, { byName, classes, subjects }, now);
   return { byName, classes, subjects };
 }
 

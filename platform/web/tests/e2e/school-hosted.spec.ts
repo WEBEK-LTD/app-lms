@@ -199,7 +199,7 @@ test("113.10 Buses & routes: a route with its driver, a stop on the map and a st
   await expect(own).toHaveURL(/\/school\/bus\/\d+$/);
   await expect(own.getByRole("heading", { level: 1, name: "Route 1 · ABC 123" })).toBeVisible();
 
-  const stops = own.getByRole("region", { name: "Stops" });
+  const stops = own.getByRole("region", { name: "Stops", exact: true });
   await expect(stops.locator("[data-no-map]")).toBeVisible();
   await stops.getByLabel("Stop name").fill("Nile Street");
   await stops.getByLabel("Place on the map").fill("https://www.google.com/maps/@30.0444,31.2357,15z");
@@ -211,7 +211,7 @@ test("113.10 Buses & routes: a route with its driver, a stop on the map and a st
   await expect(own.locator("[data-bus-stops]")).toContainText("Nile Street");
   await expect(own.locator("[data-bus-stops]")).toContainText("Morning 07:10 · afternoon 14:40");
 
-  const riders = own.getByRole("region", { name: "Students on the stops" });
+  const riders = own.getByRole("region", { name: "Students on the stops", exact: true });
   await riders.getByRole("checkbox", { name: /Omar Hassan/ }).check();
   await riders.getByLabel("Stop", { exact: true }).selectOption({ label: "1. Nile Street" });
   await riders.getByRole("button", { name: "Put them on the stop" }).click();
@@ -245,7 +245,7 @@ test("113.11 Library: a book with its copies, lent at the desk by the student's 
   await expect(own.locator("[data-copies]").getByText("On the shelf")).toHaveCount(2);
 
   await own.goto("/dashboard/school/library/desk");
-  const lend = own.getByRole("region", { name: "Lend" });
+  const lend = own.getByRole("region", { name: "Lend", exact: true });
   await lend.getByLabel("Student's code or name").fill("1023");
   await lend.getByLabel("Copy's code").fill("lp-1");
   await lend.getByRole("button", { name: "Lend", exact: true }).click();
@@ -254,7 +254,7 @@ test("113.11 Library: a book with its copies, lent at the desk by the student's 
   await expect(own.locator("[data-out]")).toContainText("The Little Prince");
   await expect(own.locator("[data-out]")).toContainText("Omar Hassan (1023)");
 
-  const back = own.getByRole("region", { name: "Return" });
+  const back = own.getByRole("region", { name: "Return", exact: true });
   await back.getByLabel("Copy's code").fill("LP-1");
   await back.getByRole("button", { name: "Take back" }).click();
   await expect(back.getByText("The Little Prince is back from Omar Hassan.")).toBeVisible();
