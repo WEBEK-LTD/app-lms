@@ -7,6 +7,7 @@ import type { PlanInfo } from "@/lib/plans";
 import { universityInPlan } from "@/lib/university/settings";
 import { Icon } from "@/components/icon";
 import { ChipLinks } from "@/components/page-kit-c";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { PageHead, SchoolPlanNotice } from "../parts";
 
 export { FirstNote, isSchool, NotSchool, Panel } from "../parts";
@@ -67,6 +68,45 @@ export function TermTabs({ terms, current, base, label, extra = "" }: { terms: r
       label={label}
       items={[...terms].sort((a, b) => a.startsOn.localeCompare(b.startsOn)).map((term) => ({ href: `${base}?term=${term.id}${extra}`, label: term.name, current: term.id === current }))}
     />
+  );
+}
+
+/** A Sheet's id from its title (each entry's title names it, so each is its own). */
+function sheetId(title: string): string {
+  let h = 5381;
+  for (const ch of title) h = (h * 33 + ch.charCodeAt(0)) >>> 0;
+  return `sheet-${h.toString(36)}`;
+}
+
+/** The page kit: an entry's edit form in a Sheet, opened by a button named as the Sheet. */
+export function EditSheet({ title, children }: { title: string; children: ReactNode }) {
+  const id = sheetId(title);
+  return (
+    <>
+      <SheetButton target={id} icon="edit" variant="secondary" className="h-9 w-fit px-3.5 text-sm">
+        {title}
+      </SheetButton>
+      <Sheet id={id} title={title}>
+        {children}
+      </Sheet>
+    </>
+  );
+}
+
+/** The page kit: an add form in a Sheet, in place (`inline`) while there is nothing yet. */
+export function AddSheet({ title, inline, children }: { title: string; inline: boolean; children: ReactNode }) {
+  const id = sheetId(title);
+  return (
+    <>
+      {inline ? null : (
+        <SheetButton target={id} icon="add" variant="secondary" className="h-10 w-fit px-4 text-sm">
+          {title}
+        </SheetButton>
+      )}
+      <Sheet id={id} inline={inline} title={title}>
+        {children}
+      </Sheet>
+    </>
   );
 }
 

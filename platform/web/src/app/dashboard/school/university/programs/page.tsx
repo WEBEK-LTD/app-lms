@@ -10,9 +10,8 @@ import { appPlan } from "@/lib/entitlements";
 import { planText, UNI_LIMITS } from "@/lib/university/forms";
 import { loadUniSettings } from "@/lib/university/settings";
 import { ConfirmButton } from "../../../chat/forms";
-import { AddServiceBox } from "../../../delivery/forms";
 import { Choice, SchoolForm } from "../../forms";
-import { credits, FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
+import { AddSheet, credits, EditSheet, FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.tabPrograms") };
@@ -93,25 +92,22 @@ export default async function UniversityProgramsPage() {
                     </ConfirmButton>
                   </form>
                 </div>
-                <details className="rounded-xl border border-line p-4">
-                  <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: program.name })}</summary>
-                  <div className="pt-3">
-                    <SchoolForm action={saveProgramAction} submit={t("university.save")}>
+                <EditSheet title={t("university.edit", { name: program.name })}>
+                    <SchoolForm action={saveProgramAction} submit={t("university.save")} sheet>
                       <input type="hidden" name="id" value={program.id} />
                       {fields(`-${program.id}`, program)}
                     </SchoolForm>
-                  </div>
-                </details>
+                  </EditSheet>
               </li>
             );
           })}
         </ul>
         {departments.length ? (
-          <AddServiceBox title={t("university.addProgram")} open={programs.length === 0}>
-            <SchoolForm action={saveProgramAction} submit={t("university.add")} reset>
+          <AddSheet title={t("university.addProgram")} inline={programs.length === 0}>
+            <SchoolForm action={saveProgramAction} submit={t("university.add")} reset sheet>
               {fields("-new", null)}
             </SchoolForm>
-          </AddServiceBox>
+          </AddSheet>
         ) : null}
       </Panel>
     </div>
