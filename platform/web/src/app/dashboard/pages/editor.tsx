@@ -12,7 +12,8 @@ import { devicesWithout, type AppVersionCount } from "@/lib/pages/reach";
 import type { Palette } from "@/lib/pages/designs/build";
 import { blockTexts } from "@/lib/pages/designs/texts";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
-import { duplicatePage, moveItem, newBlock, pageLinks, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
+import { duplicatePage, moveById, moveItem, newBlock, pageLinks, rebased, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
+import { DraftSaves } from "@/lib/pages/draft-saves";
 import { actionProblem, blockProblem, type ScreenOption } from "@/lib/pages/sources";
 import { translated } from "@/lib/pages/translate";
 import {
@@ -121,6 +122,8 @@ function layoutProblem(text: string, t: DashT, known: (english: string) => strin
 }
 
 const AUTOSAVE_MS = 1200;
+/** 82.4 A save that didn't reach the server is sent again this much later. */
+const RETRY_MS = 4000;
 
 function summary(block: LayoutBlock): string {
   const text = block.heading || block.text || block.label || block.title || block.placeholder || (block.html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -212,7 +215,9 @@ export function PagesEditor({
   const dashLang = useDashLang();
   const { num } = useDashFormat();
   const languageName = (code: string) => appLanguageName(code, dashLang);
-  const [layout, setLayout] = useState<LayoutContent>(initial.draft);
+  // 82.4 The draft, with the drafts before (and after) each change for undo and redo, here only.
+  const [doc, setDoc] = useState<{ layout: LayoutContent; past: LayoutContent[]; future: LayoutContent[] }>({ layout: initial.draft, past: [], future: [] });
+  const layout = doc.layout;
   const [published, setPublished] = useState(initial.published);
   const [changes, setChanges] = useState(initial.changes);
   const [savedAt, setSavedAt] = useState(initial.savedAt);
@@ -230,13 +235,12 @@ export function PagesEditor({
   const [currentDesign, setCurrentDesign] = useState(initial.design);
   // Open for an app that hasn't started from a design yet.
   const [designsOpen, setDesignsOpen] = useState(initial.design === null && !initial.published);
-  /** Edits not saved yet; each save only clears the edits it sent. */
-  const edits = useRef(0);
-  const dirty = useRef(false);
+  /** 82.4 The changes and the saves that carry them: an answer behind a later one, or a draft older than the editor's, is left out. */
+  const saves = useRef(new DraftSaves());
+  const [retry, setRetry] = useState(0);
   // 82.1 The real app beside the editor, told about each save; or the quick view.
   const frames = useRef<HTMLDivElement | null>(null);
-  // 82.4 Undo and redo: the drafts before (and after) each change, here only; and the publish history.
-  const [steps, setSteps] = useState<{ past: LayoutContent[]; future: LayoutContent[] }>({ past: [], future: [] });
+  // 82.4 Changes this close together are one undo step; and the publish history.
   const lastChange = useRef(0);
   const [history, setHistory] = useState(initial.history);
   const [view, setView] = useState<"app" | "sketch">(live ? "app" : "sketch");
@@ -252,9 +256,12 @@ export function PagesEditor({
   // 99.3 The pages blocks can be copied to.
   const otherPages = (slug: string) => layout.pages.filter((p) => p.slug !== slug).map((p) => ({ slug: p.slug, title: translated(p, lang.edit, def).title || p.slug }));
 
+  /** The answer to a call sent at `sent`; `replace`: the server's draft becomes the editor's. */
   const applied = useCallback((r: LayoutSaveResult, sent: number, replace: boolean) => {
+    const answer = saves.current.answer(sent, r.ok);
+    if (answer === "behind") return;
     if (!r.ok) {
-      if (edits.current === sent) setStatus("invalid");
+      if (answer === "last") setStatus("invalid");
       setErrors(r.errors);
       return;
     }
@@ -263,69 +270,71 @@ export function PagesEditor({
     setErrors([]);
     notifyDraftSaved(frames.current);
     if (replace) {
-      dirty.current = false;
-      setLayout(r.draft);
+      saves.current.replaced();
       // 82.4 A draft replaced from the server starts its own undo history.
-      setSteps({ past: [], future: [] });
+      setDoc({ layout: r.draft, past: [], future: [] });
     }
     if (r.history) setHistory(r.history);
-    if (edits.current === sent) {
-      dirty.current = false;
+    if (replace || answer === "last") {
       setStatus("saved");
       setChanges(r.changes);
     }
   }, []);
 
+  /** 82.4 A call that didn't get an answer: the draft is saved again a little later. */
+  const unanswered = useCallback(() => {
+    setStatus("unsaved");
+    setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
+  }, []);
+
   const save = useCallback(
     async (draft: LayoutContent) => {
-      const sent = edits.current;
+      const sent = saves.current.send();
       setStatus("saving");
       try {
         applied(await saveLayoutDraftAction(JSON.stringify(draft)), sent, false);
       } catch {
-        setStatus("unsaved");
+        unanswered();
         setErrors([t("pages.cantSave")]);
       }
     },
-    [applied, t],
+    [applied, unanswered, t],
   );
 
-  // Saves the draft a moment after the last change.
+  // Saves the draft a moment after the last change (or after a save that didn't get through).
   useEffect(() => {
-    if (!dirty.current) return;
+    if (!saves.current.dirty) return;
     const timer = setTimeout(() => void save(layout), AUTOSAVE_MS);
     return () => clearTimeout(timer);
-  }, [layout, save]);
+  }, [layout, retry, save]);
 
   function update(change: (current: LayoutContent) => LayoutContent) {
     // 82.4 Typing in a field is one step: changes less than a second apart join the one before.
     const now = clockMs();
     const join = now - lastChange.current <= UNDO_JOIN_MS;
     lastChange.current = now;
-    const before = layout;
-    setSteps((st) => ({ past: join ? st.past : [...st.past, before].slice(-UNDO_STEPS), future: [] }));
-    edits.current += 1;
-    dirty.current = true;
+    saves.current.change();
     setStatus("unsaved");
     setMessage(null);
     setBeforeDesign(null);
-    setLayout(change);
+    // On the draft as it is now, which goes back one undo step.
+    setDoc((d) => ({ layout: change(d.layout), past: join ? d.past : [...d.past, d.layout].slice(-UNDO_STEPS), future: [] }));
   }
 
   /** 82.4 Back (or forward again) one step; the draft is saved as after any change. */
   function step(back: boolean) {
-    const from = back ? steps.past : steps.future;
-    const target = from.at(-1);
-    if (!target) return;
-    const rest = from.slice(0, -1);
-    const now = layout;
-    setSteps(back ? { past: rest, future: [...steps.future, now] } : { past: [...steps.past, now], future: rest });
+    if (!(back ? doc.past : doc.future).length) return;
     lastChange.current = 0;
-    edits.current += 1;
-    dirty.current = true;
+    saves.current.change();
     setStatus("unsaved");
     setMessage(null);
-    setLayout(target);
+    setDoc((d) => {
+      const from = back ? d.past : d.future;
+      const target = from.at(-1);
+      if (!target) return d;
+      const rest = from.slice(0, -1);
+      return back ? { layout: target, past: rest, future: [...d.future, d.layout] } : { layout: target, past: [...d.past, d.layout], future: rest };
+    });
   }
 
   // 82.4 Ctrl+Z (⌘Z), and Ctrl+Shift+Z or Ctrl+Y, outside the fields (which undo their own typing).
@@ -347,8 +356,7 @@ export function PagesEditor({
   async function restore(entry: LayoutHistoryEntry) {
     if (!window.confirm(t("pages.restoreConfirm", { date: formatDateTime(new Date(entry.at), dashLang) }))) return;
     setBusy(true);
-    edits.current += 1;
-    const sent = edits.current;
+    const sent = saves.current.sendReplace();
     try {
       const r = await restoreLayoutVersionAction(entry.number);
       applied(r, sent, true);
@@ -357,6 +365,9 @@ export function PagesEditor({
         setPageSlug(r.draft.pages[0]?.slug ?? null);
         setOpenBlock(null);
       }
+    } catch {
+      unanswered();
+      setMessage({ text: t("pages.cantSave"), ok: false });
     } finally {
       setBusy(false);
     }
@@ -372,10 +383,11 @@ export function PagesEditor({
 
   async function publish() {
     setBusy(true);
-    const sent = edits.current;
+    const sent = saves.current.send();
     try {
       const r = await publishLayoutAction(JSON.stringify(layout));
-      applied(r, sent, edits.current === sent);
+      // The published draft becomes the editor's unless it changed since.
+      applied(r, sent, saves.current.isLast(sent));
       setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.published"), ok: true } : { text: t("pages.notPublished"), ok: false });
     } catch {
       setMessage({ text: t("pages.cantPublish"), ok: false });
@@ -387,8 +399,7 @@ export function PagesEditor({
   async function discard() {
     if (!window.confirm(published ? t("pages.discardPublished") : t("pages.discardStarting"))) return;
     setBusy(true);
-    edits.current += 1;
-    const sent = edits.current;
+    const sent = saves.current.sendReplace();
     try {
       const r = await discardLayoutDraftAction();
       applied(r, sent, true);
@@ -396,6 +407,9 @@ export function PagesEditor({
         setMessage({ text: r.message ? known(r.message) : t("pages.discarded"), ok: true });
         setEditLang(r.draft.languages.default);
       }
+    } catch {
+      unanswered();
+      setMessage({ text: t("pages.cantSave"), ok: false });
     } finally {
       setBusy(false);
     }
@@ -416,8 +430,7 @@ export function PagesEditor({
     const design = choice ? designs.find((d) => d.id === choice.id) : undefined;
     if (!choice || !design) return;
     setBusy(true);
-    edits.current += 1;
-    const sent = edits.current;
+    const sent = saves.current.sendReplace();
     const before = { layout, primaryColor: app.primaryColor, design: currentDesign };
     try {
       // 84.2 With the colours chosen on its card.
@@ -438,6 +451,7 @@ export function PagesEditor({
         setMessage({ text: r.errors[0] ? known(r.errors[0]) : t("pages.designFailed"), ok: false });
       }
     } catch {
+      unanswered();
       setMessage({ text: t("pages.cantApply"), ok: false });
     } finally {
       setBusy(false);
@@ -512,8 +526,7 @@ export function PagesEditor({
     const before = beforeDesign;
     if (!before) return;
     setBusy(true);
-    edits.current += 1;
-    const sent = edits.current;
+    const sent = saves.current.sendReplace();
     try {
       const r = await undoDesignAction(JSON.stringify(before.layout), before.primaryColor, before.design);
       applied(r, sent, true);
@@ -525,6 +538,7 @@ export function PagesEditor({
       }
       setMessage(r.ok ? { text: r.message ? known(r.message) : t("pages.undo"), ok: true } : { text: r.errors.map((e) => known(e)).join(" "), ok: false });
     } catch {
+      unanswered();
       setMessage({ text: t("pages.cantApply"), ok: false });
     } finally {
       setBusy(false);
@@ -739,10 +753,10 @@ export function PagesEditor({
             </div>
             <div className="flex flex-wrap gap-2">
               {/* 82.4 */}
-              <button type="button" className={smallBtn} disabled={busy || steps.past.length === 0} aria-keyshortcuts="Control+Z" onClick={() => step(true)}>
+              <button type="button" className={smallBtn} disabled={busy || doc.past.length === 0} aria-keyshortcuts="Control+Z" onClick={() => step(true)}>
                 {t("pages.undo")}
               </button>
-              <button type="button" className={smallBtn} disabled={busy || steps.future.length === 0} aria-keyshortcuts="Control+Shift+Z" onClick={() => step(false)}>
+              <button type="button" className={smallBtn} disabled={busy || doc.future.length === 0} aria-keyshortcuts="Control+Shift+Z" onClick={() => step(false)}>
                 {t("pages.redo")}
               </button>
               <button type="button" className={smallBtn} disabled={busy || status === "saving"} onClick={() => void save(layout)}>
@@ -952,7 +966,7 @@ export function PagesEditor({
                   {t("pages.pageHeading", { name: translated(page, lang.edit, def).title || page.slug })}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <LangText id={`page-${page.slug}-title`} label={t("pages.pageTitle")} value={page} field="title" lang={lang} onChange={(next) => updatePage(page.slug, () => next)} />
+                  <LangText id={`page-${page.slug}-title`} label={t("pages.pageTitle")} value={page} field="title" lang={lang} onChange={(next) => updatePage(page.slug, (p) => rebased(page, next, p))} />
                   <TextInput id={`page-${page.slug}-slug`} label={t("pages.pageAddress")} dir="ltr" value={page.slug} hint={t("pages.pageAddressHint")} onChange={(v) => changeSlug(page, v)} />
                 </div>
                 <Check label={t("pages.showTitle")} checked={page.show_title} onChange={(show_title) => updatePage(page.slug, (p) => ({ ...p, show_title }))} />
@@ -1046,7 +1060,7 @@ export function PagesEditor({
                                 </span>
                               ) : null}
                             </button>
-                            <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i - 1))}>
+                            <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
                               <IconGlyph name="arrow_upward" size={20} />
                             </button>
                             <button
@@ -1054,7 +1068,7 @@ export function PagesEditor({
                               className={iconBtn}
                               aria-label={t("pages.blockDown", { n: i + 1 })}
                               disabled={i === page.blocks.length - 1}
-                              onClick={() => updateBlocks(page.slug, (b) => moveItem(b, i, i + 1))}
+                              onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
                             >
                               <IconGlyph name="arrow_downward" size={20} />
                             </button>
@@ -1064,7 +1078,7 @@ export function PagesEditor({
                           </div>
                           {open ? (
                             <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
-                              <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? next : x)))} />
+                              <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? rebased(block, next, x) : x)))} />
                               {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
                             </div>
                           ) : null}
@@ -1199,7 +1213,7 @@ export function PagesEditor({
                       value={tab}
                       field="label"
                       lang={lang}
-                      onChange={(next) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? next : x)) }))}
+                      onChange={(next) => update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? rebased(tab, next, x) : x)) }))}
                     />
                     <IconPicker
                       id={`tab-${tab.id}-icon`}
@@ -1220,7 +1234,7 @@ export function PagesEditor({
                       onChange={(target) => target && update((l) => ({ ...l, tabs: l.tabs.map((x) => (x.id === tab.id ? { ...x, target } : x)) }))}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <button type="button" className={smallBtn} aria-label={t("pages.tabLeft", { n: i + 1 })} disabled={i === 0} onClick={() => update((l) => ({ ...l, tabs: moveItem(l.tabs, i, i - 1) }))}>
+                      <button type="button" className={smallBtn} aria-label={t("pages.tabLeft", { n: i + 1 })} disabled={i === 0} onClick={() => update((l) => ({ ...l, tabs: moveById(l.tabs, tab.id, -1) }))}>
                         {t("pages.moveLeft")}
                       </button>
                       <button
@@ -1228,7 +1242,7 @@ export function PagesEditor({
                         className={smallBtn}
                         aria-label={t("pages.tabRight", { n: i + 1 })}
                         disabled={i === layout.tabs.length - 1}
-                        onClick={() => update((l) => ({ ...l, tabs: moveItem(l.tabs, i, i + 1) }))}
+                        onClick={() => update((l) => ({ ...l, tabs: moveById(l.tabs, tab.id, 1) }))}
                       >
                         {t("pages.moveRight")}
                       </button>
@@ -1274,7 +1288,7 @@ export function PagesEditor({
                           {t("pages.menuN", { n: num(i + 1) })}
                           {actionProblem(entry.target, screens, sources) ? <Badge tone="warn">{t("pages.needsFix")}</Badge> : null}
                         </legend>
-                        <LangText id={`menu-${entry.id}-label`} label={t("pages.label")} value={entry} field="label" lang={lang} onChange={(next) => setEntry(() => next)} />
+                        <LangText id={`menu-${entry.id}-label`} label={t("pages.label")} value={entry} field="label" lang={lang} onChange={(next) => setEntry((x) => rebased(entry, next, x))} />
                         <IconPicker id={`menu-${entry.id}-icon`} label={t("pages.icon")} value={entry.icon} onChange={(icon) => setEntry((x) => ({ ...x, icon: icon ?? x.icon }))} />
                         <OwnIcon id={`menu-${entry.id}-own-icon`} value={entry.icon_url} onChange={(icon_url) => setEntry((x) => withIconUrl(x, icon_url))} />
                         <ActionEditor
@@ -1289,7 +1303,7 @@ export function PagesEditor({
                           onChange={(target) => target && setEntry((x) => ({ ...x, target }))}
                         />
                         <div className="flex flex-wrap gap-2">
-                          <button type="button" className={smallBtn} aria-label={t("pages.moveUp", { item: t("pages.menuN", { n: num(i + 1) }) })} disabled={i === 0} onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i - 1) }))}>
+                          <button type="button" className={smallBtn} aria-label={t("pages.moveUp", { item: t("pages.menuN", { n: num(i + 1) }) })} disabled={i === 0} onClick={() => update((l) => ({ ...l, menu: moveById(l.menu ?? [], entry.id, -1) }))}>
                             {t("pages.up")}
                           </button>
                           <button
@@ -1297,7 +1311,7 @@ export function PagesEditor({
                             className={smallBtn}
                             aria-label={t("pages.moveDown", { item: t("pages.menuN", { n: num(i + 1) }) })}
                             disabled={i === menu.length - 1}
-                            onClick={() => update((l) => ({ ...l, menu: moveItem(l.menu ?? [], i, i + 1) }))}
+                            onClick={() => update((l) => ({ ...l, menu: moveById(l.menu ?? [], entry.id, 1) }))}
                           >
                             {t("pages.down")}
                           </button>

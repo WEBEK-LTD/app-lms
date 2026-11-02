@@ -393,7 +393,8 @@ test("113.8 Exams: a draft, then published to the class", async () => {
   await expect(exam).toContainText("Draft");
   await expect(exam).toContainText("Class Grade 5 A · 09:00 to 10:30 · 90 minutes · Room B2");
   await own.getByRole("region", { name: "Publish the draft" }).getByRole("button", { name: "Publish the draft" }).click();
-  await expect(own.getByText("Published 1 exam(s). Students and families were told in the app.")).toBeVisible();
+  // The draft's Publish region goes once nothing is left to publish, and its message with it.
+  await expect(own.getByRole("region", { name: "Publish the draft" })).toHaveCount(0);
   await own.reload();
   await expect(exam).toContainText("Published");
   await expect(own.getByRole("region", { name: "Publish the draft" })).toHaveCount(0);
