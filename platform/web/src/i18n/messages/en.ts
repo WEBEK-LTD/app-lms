@@ -260,6 +260,8 @@ export const en = {
     whatToTry: "What to try",
     qrLabel: "QR code to download {app} for Android",
     download: "Download for Android",
+    // 112.3 A Studio demo's couriers' or drivers' app.
+    downloadSecond: "Download {app} for Android",
     scan: "Scan the code with your phone's camera, or open this page on your phone. Your phone may ask you to allow installing apps from your browser.",
     comingSoon: "Coming soon",
     onItsWay: "The Android download is on its way.",

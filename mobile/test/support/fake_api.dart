@@ -1,6 +1,7 @@
 import 'package:yallapp/core/api/api_exception.dart';
 import 'package:yallapp/core/api/models/json.dart' show snake;
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/config/build_config_data.dart' show AppRole;
 import 'package:yallapp/core/api/yallapp_api.dart';
 
 import 'fixtures.dart';
@@ -214,9 +215,11 @@ class FakeApi implements YallappApi {
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
     String? language,
+    AppRole? role,
   }) => _answer('setPushToken', () {
     pushTokens.add((token: token, provider: provider));
     pushLanguages.add(language);
+    pushRoles.add(role);
   });
 
   /// 36 The push tokens the app registered, with their provider.
@@ -224,6 +227,9 @@ class FakeApi implements YallappApi {
 
   /// 85.1 The language sent with each of them.
   final pushLanguages = <String?>[];
+
+  /// 112.3 The build's role sent with each push token.
+  final pushRoles = <AppRole?>[];
 
   @override
   Future<List<Category>> listCategories() => _answer(

@@ -501,6 +501,7 @@ abstract class YallappApi {
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
     String? language,
+    AppRole? role,
   });
 
   /// 85.3 How many items the cart holds, for "You left something in your
@@ -1462,6 +1463,7 @@ class HttpYallappApi implements YallappApi {
     NotificationPreferences preferences, {
     PushProvider provider = PushProvider.fcm,
     String? language,
+    AppRole? role,
   }) => _send(
     'PUT',
     '/me/push-token',
@@ -1474,6 +1476,8 @@ class HttpYallappApi implements YallappApi {
       'preferences': preferences.toJson(),
       // 85.1 The language the app shows, for campaigns to the people who read it.
       'language': ?language,
+      // 112.3 Which of the company's apps this is: each gets its own pushes.
+      'role': ?role?.name,
     },
   );
 

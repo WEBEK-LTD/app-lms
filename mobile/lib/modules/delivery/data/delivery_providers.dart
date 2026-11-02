@@ -23,19 +23,6 @@ final deliveryConfigProvider = Provider<DeliveryConfig>((ref) {
       : const DeliveryConfig();
 });
 
-/// Whether this build shows the couriers' screens: the company's app when
-/// its couriers work in it, and (104.6) its courier app always. 105.1 A
-/// food delivery company's couriers too (105.1.6 or in its courier app).
-final courierScreensHereProvider = Provider<bool>((ref) {
-  final env = ref.watch(appEnvironmentProvider);
-  if (env.build.appType != AppType.delivery &&
-      env.build.appType != AppType.food) {
-    return false;
-  }
-  if (env.build.role == AppRole.courier) return true;
-  return ref.watch(deliveryConfigProvider).courierApp == CourierApp.same;
-});
-
 /// 104.6 This build is the delivery (105.1.6 or food delivery) company's
 /// courier app: the courier's screens and the account only.
 final courierAppProvider = Provider<bool>((ref) {
@@ -43,6 +30,14 @@ final courierAppProvider = Provider<bool>((ref) {
   return (build.appType == AppType.delivery || build.appType == AppType.food) &&
       build.role == AppRole.courier;
 });
+
+/// Whether this build shows the couriers' screens. 112.3 Only the company's
+/// courier app does: the customers' app never shows them, whatever
+/// `Config.delivery.courier_app` says (`same` is for the customers' apps
+/// built before, which kept the Courier tab).
+final courierScreensHereProvider = Provider<bool>(
+  (ref) => ref.watch(courierAppProvider),
+);
 
 /// The signed-in person is one of the company's couriers, and this build
 /// shows the couriers' screens: the Courier tab is theirs only.

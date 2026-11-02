@@ -249,7 +249,7 @@ Check the page on a small phone, a large phone and a tablet, in light and dark. 
 
 ## Delivery companies
 
-A delivery company's project is made in Studio only. Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers get a **Courier** tab in the same app, with their jobs, or a second app of their own on plans that include it.
+A delivery company's project is made in Studio only. Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers work in their own app in your name, with their jobs; your customers' app never shows the courier's screens. The same goes for ride and taxi companies' drivers. **Builds & downloads** and the setup show both apps, each with its own builds, store listing and notes for the reviewers.
 
 In the project's dashboard, set your prices and how customers pay on **Delivery settings**, add your couriers on **Couriers**, and follow every shipment on **Shipments**.
 

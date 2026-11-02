@@ -899,7 +899,7 @@ async function startBuild(
       build_running: "A build is already in progress. You can start a new one when it finishes.",
       version_too_low: "Use the same or a higher app version than your last build.",
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
-      courier_app_off: "The courier app isn't on. Choose \"In a second app in your name\" in Delivery settings, on a plan with it.",
+      courier_app_off: "The second app for your couriers or drivers isn't in this app's plan.",
     } as const;
     // 110.2 Sample entries left: nothing goes to the stores.
     if (result.reason === "samples") return { ok: false, message: samplesBlockedMessage(result.samples), versionTooLow: false };

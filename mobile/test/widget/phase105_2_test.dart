@@ -289,20 +289,15 @@ void main() {
     expect(find.text('Where to?'), findsOneWidget);
   });
 
-  testWidgets('105.2 drivers get the Driver tab; going online shares their '
-      'position', (tester) async {
+  testWidgets('105.2 drivers get the Driver tab in the drivers\' app (112.3); '
+      'going online shares their position', (tester) async {
     usePhone(tester);
     final locator = FakeLocator();
     final api = ridesApi(roles: ['driver']);
-    final app = ridesApp(api, locator: locator);
+    final app = ridesApp(api, locator: locator, role: AppRole.driver);
     await app.pump(tester);
     expect(app.container.read(isDriverProvider), isTrue);
-    expect(tabPaths(app), [
-      Paths.ride,
-      Paths.myRides,
-      Paths.driver,
-      Paths.account,
-    ]);
+    expect(tabPaths(app), [Paths.driver, Paths.account]);
 
     await go(app, tester, Paths.driver);
     expect(find.text('Go online to get rides.'), findsOneWidget);
@@ -351,7 +346,7 @@ void main() {
     final api = ridesApi(roles: ['driver'])
       ..driver = driverJson(online: true)
       ..driverOffers = [driverRideJson(id: 6, status: 'searching')];
-    final app = ridesApp(api);
+    final app = ridesApp(api, role: AppRole.driver);
     await app.pump(tester);
     await go(app, tester, Paths.driver);
     await tapKey(tester, 'driver-decline');
@@ -362,7 +357,7 @@ void main() {
   testWidgets('105.2 a driver sees what they made', (tester) async {
     usePhone(tester);
     final api = ridesApi(roles: ['driver']);
-    final app = ridesApp(api);
+    final app = ridesApp(api, role: AppRole.driver);
     await app.pump(tester);
     await go(app, tester, Paths.driver);
     await tester.tap(find.text('Earnings'));
@@ -384,15 +379,14 @@ void main() {
     expect(api.count('listDriverOffers'), 0);
   });
 
-  testWidgets('105.2 Account opens My rides, and the driver mode for '
-      'drivers', (tester) async {
+  testWidgets('105.2 Account opens My rides; 112.3 no driver mode in the '
+      'riders\' app, even for drivers', (tester) async {
     usePhone(tester);
     final app = ridesApp(ridesApi(roles: ['driver']));
     await app.pump(tester);
     await go(app, tester, Paths.account);
     expect(find.byKey(const ValueKey('account-rides')), findsOneWidget);
-    await tapKey(tester, 'account-driver');
-    expect(find.text('Online'), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-driver')), findsNothing);
   });
 
   group('105.2 A ride company\'s drivers\' app', () {
@@ -405,6 +399,11 @@ void main() {
       expect(find.text('Online'), findsOneWidget);
       expect(tabPaths(app), [Paths.driver, Paths.account]);
       expect(api.count('listMyRides'), 0);
+      // 112.3 No way to the riders' screens, nor their rides in Account.
+      expect(find.byKey(const ValueKey('driver-rider-view')), findsNothing);
+      await go(app, tester, Paths.account);
+      expect(find.byKey(const ValueKey('account-rides')), findsNothing);
+      expect(find.byKey(const ValueKey('account-driver')), findsNothing);
     });
 
     testWidgets('leaves the Driver tab out of the riders\' app', (
@@ -416,6 +415,20 @@ void main() {
       await app.pump(tester);
       expect(tabPaths(app), isNot(contains(Paths.driver)));
       expect(app.container.read(isDriverProvider), isFalse);
+    });
+
+    testWidgets('112.3 leaves it out when drivers worked in the riders\' app '
+        'too (driver_app same)', (tester) async {
+      usePhone(tester);
+      final api = ridesApi(roles: ['driver']);
+      final app = ridesApp(api);
+      await app.pump(tester);
+      expect(tabPaths(app), [Paths.ride, Paths.myRides, Paths.account]);
+      expect(app.container.read(isDriverProvider), isFalse);
+      // Opened by its address, the driver's screen asks nothing of the server.
+      await go(app, tester, Paths.driver);
+      expect(find.text('For our drivers'), findsOneWidget);
+      expect(api.count('getDriver'), 0);
     });
   });
 }

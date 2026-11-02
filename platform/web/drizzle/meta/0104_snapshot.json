@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "99c324e4-cd4e-4d81-ad2b-07ba00b0cc80",
+  "id": "c0394045-86c1-4ea1-8a7c-279fa4ad6d1b",
   "prevId": "cf92a789-92b0-4806-9938-81a4fafeeeb5",
   "tables": {
     "account_deletion_requests": {
@@ -6379,13 +6379,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "cohort_id": {
-          "name": "cohort_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -8676,6 +8669,13 @@
         "country": {
           "name": "country",
           "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "app_role": {
+          "name": "app_role",
+          "type": "varchar(8)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

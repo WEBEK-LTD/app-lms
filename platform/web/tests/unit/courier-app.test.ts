@@ -45,7 +45,7 @@ const googleServices = (...packages: string[]) =>
 async function setup(features: ("delivery" | "courier_app" | "food" | "rides")[] = ["delivery", "courier_app"], food = false, rides = false) {
   const s = await setupClient({ plan: "studio_3", activeUntil: days(60) });
   const store = s.store;
-  await store.setPlatformSetting("plans", { studio_3: { ...planSettingOf(PLAN_INFO.studio_3), offered: true, features: [...PLAN_INFO.studio_3.features, ...features] } }, "test", NOW);
+  await store.setPlatformSetting("plans", { studio_3: { ...planSettingOf(PLAN_INFO.studio_3), offered: true, features: [...PLAN_INFO.studio_3.features.filter((f) => f !== "courier_app"), ...features] } }, "test", NOW);
   clearPlatformSettingsCache();
   const client = (await store.getClientById(s.client.id))!;
   // 105.1.6 A food delivery company's app has couriers too.
@@ -99,10 +99,15 @@ describe("104.6 building the courier app", () => {
   afterEach(() => vi.unstubAllEnvs());
 
   it("builds the courier's screens under their own package, next to the customers' app", async () => {
+    // 112.3 Not on a plan without it.
+    const off = await setup(["delivery"]);
+    expect(await queueBuild(off.store, { client: off.client, app: off.app, license: off.license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
     const { store, client, app, license } = await setup();
-    // Not before the company chooses a second app in its name.
+    // 112.3 Nor for the shared Yallapp Courier app's companies.
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, courierApp: "yallapp_courier" }, NOW);
     expect(await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
-    await store.saveDeliverySettings(app.id, { ...SETTINGS, courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1" }, NOW);
+    // 112.3 Every other company has it, its couriers in the customers' app until now (`same`) too, with its own icon if it has one.
+    await store.saveDeliverySettings(app.id, { ...SETTINGS, courierApp: "same", courierAppName: "Speedy Riders", courierFirebaseIosAssetId: "plist-1", courierIconAssetId: "icon-1" }, NOW);
     const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl);
     if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
     expect(queued.build.variant).toBe("courier");
@@ -112,6 +117,7 @@ describe("104.6 building the courier app", () => {
       android_package: "com.speedy.app.courier",
       ios_bundle_id: "com.speedy.app.courier",
       firebase: { ios_config_url: assetUrl("plist-1") },
+      branding: { icon_url: assetUrl("icon-1") },
     });
     expect(queued.build.config.links).toBeUndefined();
     expect(validateBuildConfig(queued.build.config).ok).toBe(true);
@@ -125,6 +131,7 @@ describe("104.6 building the courier app", () => {
     expect(customers.build.variant ?? "app").toBe("app");
     expect(customers.build.config).toMatchObject({ android_package: "com.speedy.app" });
     expect(customers.build.config.role ?? "customer").toBe("customer");
+    expect(customers.build.config.branding.icon_url).not.toBe(assetUrl("icon-1"));
     await store.updateBuild(customers.build.id, { status: "ready", finishedAt: NOW }, NOW);
     expect(await queueBuild(store, { client, app, license, versionName: "0.9.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "version_too_low" });
 
@@ -136,8 +143,7 @@ describe("104.6 building the courier app", () => {
 
   it("105.1.6 builds a food delivery company's courier app the same way", async () => {
     const { store, client, app, license } = await setup(["food", "courier_app"], true);
-    expect(await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
-    await store.saveDeliverySettings(app.id, SETTINGS, NOW);
+    // 112.3 Without any settings saved yet too.
     const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl);
     if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
     expect(queued.build.config).toMatchObject({ app_type: "food", role: "courier", app_name: "Speedy Parcels Courier", android_package: "com.speedy.app.courier" });
@@ -146,8 +152,6 @@ describe("104.6 building the courier app", () => {
 
   it("105.2 builds a ride company's drivers' app the same way, as the drivers'", async () => {
     const { store, client, app, license } = await setup(["rides", "courier_app"], false, true);
-    expect(await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl)).toMatchObject({ ok: false, reason: "courier_app_off" });
-    await store.saveDeliverySettings(app.id, SETTINGS, NOW);
     const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "courier" }, NOW, assetUrl);
     if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
     expect(queued.build.config).toMatchObject({ app_type: "rides", role: "driver", app_name: "Cairo Rides Driver", android_package: "com.speedy.app.driver", ios_bundle_id: "com.speedy.app.driver" });

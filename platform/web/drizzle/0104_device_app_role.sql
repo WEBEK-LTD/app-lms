@@ -1,0 +1,1 @@
+ALTER TABLE `hosted_devices` ADD `app_role` varchar(8);

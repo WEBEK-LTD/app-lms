@@ -116,6 +116,10 @@ tags:
       The app preview: the client's app running in a browser, in the Yallapp
       dashboard ("Preview your app") or on a phone through its QR code. The
       dashboard makes a preview token for one app; it expires after an hour.
+      112.3 A delivery, food, ride or taxi project's preview shows either of
+      its two apps: a token made for the couriers' or drivers' app gives the
+      build config of that app (`role` courier or driver, its own name and
+      icon).
   - name: Analytics
     description: |
       Usage statistics for the app's owner (roadmap 44): first-party, no

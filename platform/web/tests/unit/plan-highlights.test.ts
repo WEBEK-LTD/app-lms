@@ -15,6 +15,8 @@ describe("planHighlights", () => {
       "2 app languages",
       "Projects: delivery, food delivery and rides",
       "An Android app",
+      // 112.3 Every Studio plan has the couriers' and drivers' app until the team unticks it.
+      "A second app for couriers",
       "Email support",
     ]);
   });

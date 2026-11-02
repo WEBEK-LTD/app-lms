@@ -23,7 +23,7 @@ import type {
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
-import { ACTIVE_BOOKING_STATUSES } from "./types";
+import { ACTIVE_BOOKING_STATUSES, pushAudienceHas, type PushAudience } from "./types";
 import type {
   Activation,
   App,
@@ -757,9 +757,9 @@ export class MemoryStore implements DataStore {
     }
   }
 
-  async listHostedPushDevices(appId: string, userIds: number[] | null): Promise<HostedDevice[]> {
+  async listHostedPushDevices(appId: string, userIds: number[] | null, audience: PushAudience = "customers"): Promise<HostedDevice[]> {
     return [...this.hostedDevices.values()]
-      .filter((d) => d.appId === appId && d.pushToken && (userIds === null || userIds.includes(d.userId)))
+      .filter((d) => d.appId === appId && d.pushToken && (userIds === null || userIds.includes(d.userId)) && pushAudienceHas(audience, d.appRole ?? null))
       .map(clone);
   }
 

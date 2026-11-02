@@ -574,6 +574,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "The demo account can't be changed. In your own app, people edit their details here.": "لا يمكن تغيير الحساب التجريبي. في تطبيقك، يعدّل الناس بياناتهم من هنا.",
   "The minimum order for delivery is {0}.": "الحد الأدنى لطلب التوصيل هو {0}.",
   "The push provider must be fcm or hms.": "يجب أن يكون مزوّد الإشعارات fcm أو hms.",
+  "The app's role must be customer, courier or driver.": "يجب أن يكون دور التطبيق customer أو courier أو driver.",
   "The push token is missing.": "رمز الإشعارات غير موجود.",
   "The request body must be JSON.": "يجب أن يكون محتوى الطلب بتنسيق JSON.",
   "The request is too large.": "الطلب كبير جدًا.",

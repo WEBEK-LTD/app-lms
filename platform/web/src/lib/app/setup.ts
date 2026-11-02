@@ -3,7 +3,8 @@ import { newId } from "../crypto/tokens";
 import { BuildRunningError, type DataStore } from "../data/store";
 import { isInProgress, STALLED_MESSAGE } from "../builds/view";
 import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, BuildVariant, Client, License, StoreListing } from "../data/types";
-import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasCourierJobs, secondAppRoleOf } from "../delivery/courier-app";
+import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasSecondApp, secondAppRoleOf } from "../delivery/courier-app";
+import { isDemoApp } from "../demo/apps";
 import { deliverySettingsOf } from "../delivery/settings";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
@@ -301,9 +302,10 @@ export async function queueBuild(
   const samples = await sampleTotal(store, app);
   if (samples > 0) return { ok: false, reason: "samples", samples };
   const variant = input.variant ?? "app";
-  // 104.6 The courier app: a delivery company (105.1.6 or a food one, 105.2 a ride company's drivers' app) that chose it, on a plan with it.
+  // 104.6 The courier app: a delivery company (105.1.6 or a food one, 105.2 a ride company's drivers' app), 112.3 always, on a plan with it.
   const delivery = variant === "courier" ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
-  if (delivery && (!hasCourierJobs(app) || delivery.courierApp !== "bundle" || !hasFeature(plan, "courier_app"))) {
+  // 112.3 Studio's demos (on the Business plan, as every demo) have theirs too, for /demo/studio.
+  if (delivery && (!hasSecondApp(app, delivery) || !(hasFeature(plan, "courier_app") || (await isDemoApp(store, app))))) {
     return { ok: false, reason: "courier_app_off" };
   }
   // One build at a time per app, whichever of its apps; versions go up within each.
@@ -322,7 +324,7 @@ export async function queueBuild(
       ? courierBuildConfig(base, app, delivery, {
           android: await firebaseListsCourierApp(app, preflight),
           iosConfigUrl: delivery.courierFirebaseIosAssetId ? assetUrl(delivery.courierFirebaseIosAssetId) : null,
-        })
+        }, delivery.courierIconAssetId ? assetUrl(delivery.courierIconAssetId) : null)
       : base;
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };

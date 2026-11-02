@@ -3,6 +3,7 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { saveDeliveryServiceAction, saveDeliverySettingsAction } from "@/app/actions/delivery";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
+import { Notice } from "@/components/ui";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
 
@@ -19,12 +20,93 @@ export interface SettingsFormValues {
   card: boolean;
   tracking: string;
   assignment: string;
-  courierApp: string;
   /** 104.6 The courier app's own name, and its name when none is given. */
   courierAppName: string;
   courierAppNameDefault: string;
   /** 104.6 Whether the courier iPhone app's Firebase file is in. */
   courierFirebaseIos: boolean;
+  /** 112.3 The courier app's own icon, if it has one. */
+  courierIconUrl: string | null;
+}
+
+/**
+ * 112.3 The couriers' or drivers' own app, which every delivery, food, ride
+ * and taxi company has: what it is, the plan's note when the plan hasn't
+ * got it, the change for companies whose couriers worked in the customers'
+ * app, then its name, icon and iPhone Firebase file.
+ */
+export function SecondAppFields({
+  title,
+  text,
+  off,
+  before,
+  name,
+  icon,
+  plist,
+  errors,
+}: {
+  title: string;
+  text: string;
+  /** Shown when the plan doesn't have the second app. */
+  off: ReactNode | null;
+  /** Shown to companies whose couriers or drivers worked in the customers' app. */
+  before: string | null;
+  name: { field: string; label: string; hint: string; value: string; placeholder?: string };
+  icon: { field: string; label: string; hint: string; saved: string; remove: string; url: string | null };
+  plist: { field: string; label: string; hint: string };
+  errors?: Record<string, string>;
+}) {
+  return (
+    <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-second-app>
+      <div className="flex flex-col gap-1">
+        <h3 className="m-0 text-[17px] font-bold">{title}</h3>
+        <p className="m-0 text-sm leading-relaxed text-ink-4">{text}</p>
+      </div>
+      {off ? (
+        <Notice tone="warn" icon="info">
+          {off}
+        </Notice>
+      ) : null}
+      {before ? (
+        <Notice icon="devices" role="status">
+          {before}
+        </Notice>
+      ) : null}
+      <div className="flex max-w-[420px] flex-col gap-4">
+        <Field label={name.label} name={name.field} maxLength={30} defaultValue={name.value} placeholder={name.placeholder} hint={name.hint} error={errors?.[name.field]} />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`f-${icon.field}`} className="text-sm font-semibold">
+            {icon.label}
+          </label>
+          <div className="flex items-center gap-3">
+            {icon.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={icon.url} alt="" width={48} height={48} className="h-12 w-12 rounded-xl border border-line object-cover" />
+            ) : null}
+            <input id={`f-${icon.field}`} type="file" name={icon.field} accept="image/png" className="min-w-0 text-sm" aria-describedby={`f-${icon.field}-hint f-${icon.field}-error`} />
+          </div>
+          <span id={`f-${icon.field}-hint`} className="text-[13px] text-muted">
+            {icon.url ? icon.saved : icon.hint}
+          </span>
+          {icon.url ? (
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" name={`remove${icon.field[0]!.toUpperCase()}${icon.field.slice(1)}`} className="h-4 w-4 accent-midnight" />
+              {icon.remove}
+            </label>
+          ) : null}
+          <FieldError id={`f-${icon.field}-error`} error={errors?.[icon.field]} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`f-${plist.field}`} className="text-sm font-semibold">
+            {plist.label}
+          </label>
+          <input id={`f-${plist.field}`} type="file" name={plist.field} accept=".plist,application/xml,text/xml" className="text-sm" />
+          <span className="text-[13px] text-muted">{plist.hint}</span>
+          <FieldError id={`f-${plist.field}-error`} error={errors?.[plist.field]} />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function Choices({
@@ -76,12 +158,13 @@ export interface FoodSettingsValues {
   timezones: readonly string[];
 }
 
-/** 104 How the company prices, takes payment, follows parcels, gives out jobs and where its couriers work. 105.1 A food company's too, with its cuisines, when a courier gets an order and its time zone. */
+/** 104 How the company prices, takes payment, follows parcels, gives out jobs and (112.3) its couriers' app. 105.1 A food company's too, with its cuisines, when a courier gets an order and its time zone. */
 export function DeliverySettingsForm({
   settings,
   currencies,
   bundleAllowed,
   bundleOff,
+  before,
   food,
 }: {
   settings: SettingsFormValues;
@@ -89,15 +172,16 @@ export function DeliverySettingsForm({
   bundleAllowed: boolean;
   /** Shown under the second app when the plan doesn't have it. */
   bundleOff: ReactNode;
+  /** 112.3 The couriers worked in the customers' app until now. */
+  before: boolean;
   food?: FoodSettingsValues;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveDeliverySettingsAction, initialFormState);
-  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos">) => state.values?.[key] ?? settings[key];
+  const value = (key: Exclude<keyof SettingsFormValues, "cash" | "card" | "courierFirebaseIos" | "courierIconUrl">) => state.values?.[key] ?? settings[key];
   const checked = (key: "cash" | "card") => (state.values ? state.values[key] === "on" : settings[key]);
   const [pricing, setPricing] = useState(value("pricing"));
   const [currency, setCurrency] = useState(value("currency"));
-  const [courierApp, setCourierApp] = useState(value("courierApp"));
   const money = (key: "delivery.fixed" | "delivery.base" | "delivery.perKm" | "delivery.min") => t(key, { currency });
   return (
     <form action={action} noValidate className="flex flex-col gap-6">
@@ -190,47 +274,18 @@ export function DeliverySettingsForm({
             { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
           ]}
         />
-        <Choices
-          legend={t("delivery.courierApp")}
-          name="courierApp"
-          value={value("courierApp")}
-          onChange={setCourierApp}
-          error={state.errors?.courierApp}
-          options={[
-            { value: "same", label: t("delivery.courierSame"), hint: t("delivery.courierSameHint") },
-            {
-              value: "bundle",
-              label: t("delivery.courierBundle"),
-              hint: t("delivery.courierBundleHint"),
-              disabled: !bundleAllowed && settings.courierApp !== "bundle",
-              extra: bundleAllowed ? null : <span className="text-[13px]">{bundleOff}</span>,
-            },
-            { value: "yallapp_courier", label: t("delivery.courierYallapp"), hint: t("delivery.courierYallappHint"), disabled: settings.courierApp !== "yallapp_courier" },
-          ]}
-        />
-        {/* 104.6 The courier app's name in the stores, and the Firebase file of its iPhone app. */}
-        {courierApp === "bundle" && bundleAllowed ? (
-          <div className="ms-7 flex max-w-[420px] flex-col gap-3">
-            <Field
-              label={t("delivery.courierAppName")}
-              name="courierAppName"
-              maxLength={30}
-              defaultValue={value("courierAppName")}
-              placeholder={settings.courierAppNameDefault}
-              hint={t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault })}
-              error={state.errors?.courierAppName}
-            />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="f-courierFirebaseIos" className="text-sm font-semibold">
-                {t("delivery.courierFirebaseIos")}
-              </label>
-              <input id="f-courierFirebaseIos" type="file" name="courierFirebaseIos" accept=".plist,application/xml,text/xml" className="text-sm" />
-              <span className="text-[13px] text-muted">{t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint")}</span>
-              <FieldError id="f-courierFirebaseIos-error" error={state.errors?.courierFirebaseIos} />
-            </div>
-          </div>
-        ) : null}
       </div>
+
+      <SecondAppFields
+        title={t("delivery.courierApp")}
+        text={t("delivery.courierAppText", { name: value("courierAppName") || settings.courierAppNameDefault })}
+        off={bundleAllowed ? null : bundleOff}
+        before={before ? t("delivery.courierAppBefore", { name: value("courierAppName") || settings.courierAppNameDefault }) : null}
+        name={{ field: "courierAppName", label: t("delivery.courierAppName"), hint: t("delivery.courierAppNameHint", { name: settings.courierAppNameDefault }), value: value("courierAppName"), placeholder: settings.courierAppNameDefault }}
+        icon={{ field: "courierIcon", label: t("delivery.courierIcon"), hint: t("delivery.courierIconHint"), saved: t("delivery.courierIconSaved"), remove: t("delivery.courierIconRemove"), url: settings.courierIconUrl }}
+        plist={{ field: "courierFirebaseIos", label: t("delivery.courierFirebaseIos"), hint: t(settings.courierFirebaseIos ? "delivery.courierFirebaseIosSaved" : "delivery.courierFirebaseIosHint") }}
+        errors={state.errors}
+      />
 
       {food ? (
         <section className="flex flex-col gap-5 border-t border-line-soft pt-5">

@@ -733,8 +733,15 @@
     {
       "idx": 104,
       "version": "5",
-      "when": 1793590541341,
-      "tag": "0104_course_cohorts",
+      "when": 1793594592934,
+      "tag": "0104_device_app_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "5",
+      "when": 1793598520083,
+      "tag": "0105_course_cohorts",
       "breakpoints": true
     }
   ]

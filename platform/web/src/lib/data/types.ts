@@ -782,8 +782,30 @@ export interface HostedDevice {
   language?: string | null;
   /** 85.1 The country the phone last signed in or registered from (ISO 3166 alpha-2; the IP itself is never kept). */
   country?: string | null;
+  /**
+   * 112.3 Which of the company's apps registered for push here: its
+   * customers' app, or its couriers' or drivers' app (the build's `role`).
+   * Null for apps built before, which get every push as they did.
+   */
+  appRole?: HostedAppRole | null;
   createdAt: Date;
   lastSeenAt: Date;
+}
+
+/** 112.3 The build's role (build config `role`) a device registered from. */
+export const HOSTED_APP_ROLES = ["customer", "courier", "driver"] as const;
+export type HostedAppRole = (typeof HOSTED_APP_ROLES)[number];
+
+/**
+ * 112.3 Whose pushes: the customers' (every push but the couriers' and
+ * drivers'), or the second app's (`courier_job`, `ride_offer`). A device
+ * with no role (an app built before) gets both.
+ */
+export type PushAudience = "customers" | "second";
+
+/** 112.3 Whether a device of this role gets the audience's pushes. */
+export function pushAudienceHas(audience: PushAudience, role: HostedAppRole | null): boolean {
+  return role === null || (audience === "second" ? role !== "customer" : role === "customer");
 }
 
 /** 36 The push service a device token belongs to. */
@@ -3172,6 +3194,8 @@ export interface DeliverySettings {
   courierAppName?: string | null;
   /** 104.6 The courier iPhone app's GoogleService-Info.plist (an asset); null: no pushes on the courier iPhone app. */
   courierFirebaseIosAssetId?: string | null;
+  /** 112.3 The second app's own icon (an `icon` asset: PNG, 1024 × 1024); null: the customers' app's icon. */
+  courierIconAssetId?: string | null;
   /** 105.1 Food apps: the cuisines restaurants are filed under, in the company's order. */
   cuisines?: Cuisine[];
   /** 105.1 Food apps: when an order's courier job is made (default `accepted`). */
