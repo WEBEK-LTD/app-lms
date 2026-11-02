@@ -937,6 +937,12 @@ test("112.4 a store project starts from a full shop, with a store's sections and
   // The page checker takes it all: published.
   await own.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(own.getByText(/^Published\./)).toBeVisible();
+
+  // Back to the regular app, for the specs after this one.
+  await own.goto("/studio");
+  await own.getByRole("button", { name: "Regular apps" }).click();
+  await expect(own).toHaveURL(/\/dashboard$/);
+  await own.goto("/dashboard/pages");
 });
 
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
