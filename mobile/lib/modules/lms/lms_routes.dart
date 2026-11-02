@@ -11,6 +11,7 @@ import '../../core/theme/app_icons.dart';
 import '../shared/account/lists_screens.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
+import 'courses/bundle_screen.dart';
 import 'courses/course_detail_screen.dart';
 import 'coursework/assignment_screen.dart';
 import 'coursework/live_screens.dart';
@@ -270,6 +271,17 @@ List<RouteBase> _pushedRoutes() => [
         id == null
             ? const NotFoundScreen()
             : LessonDiscussionScreen(lessonId: id),
+      );
+    },
+  ),
+  // 113.1
+  GoRoute(
+    path: '/bundle/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : BundleScreen(bundleId: id),
       );
     },
   ),

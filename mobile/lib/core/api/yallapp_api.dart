@@ -487,6 +487,13 @@ abstract class YallappApi {
   /// 112.5 What a coupon takes off a paid course, or why it doesn't apply.
   Future<CouponCheck> checkCourseCoupon(int courseId, String code);
 
+  /// 113.1 Course bundles: the academy's, one, its checkout (Android only,
+  /// as a course's) and a coupon for it.
+  Future<List<Bundle>> listBundles();
+  Future<BundleDetail> getBundle(int bundleId);
+  Future<CheckoutLink> createBundleCheckoutLink(int bundleId, {String? coupon});
+  Future<CouponCheck> checkBundleCoupon(int bundleId, String code);
+
   /// 48 What an address on the site is: the app opened one of the site's
   /// own pages (its permalink). Plugin only; 404 elsewhere.
   Future<LinkResolution> resolveLink(String url);
@@ -1419,7 +1426,41 @@ class HttpYallappApi implements YallappApi {
   );
 
   @override
-  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) {
+  Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon}) =>
+      _checkoutLink({'course_id': courseId, 'coupon': ?coupon});
+
+  @override
+  Future<List<Bundle>> listBundles() => _get(
+    '/bundles',
+    _optional,
+    (json) => reqListOf(json, 'items', Bundle.fromJson),
+  );
+
+  @override
+  Future<BundleDetail> getBundle(int bundleId) => _get(
+    '/bundles/$bundleId',
+    _optional,
+    BundleDetail.fromJson,
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<CheckoutLink> createBundleCheckoutLink(
+    int bundleId, {
+    String? coupon,
+  }) => _checkoutLink({'bundle_id': bundleId, 'coupon': ?coupon});
+
+  @override
+  Future<CouponCheck> checkBundleCoupon(int bundleId, String code) => _send(
+    'POST',
+    '/bundles/$bundleId/coupon',
+    _required,
+    (data) => CouponCheck.fromJson(asJson(data)),
+    body: {'code': code},
+  );
+
+  /// `POST /auth/checkout-link` for a course or 113.1 a bundle.
+  Future<CheckoutLink> _checkoutLink(Map<String, Object> body) {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
       return Future.error(
@@ -1435,7 +1476,7 @@ class HttpYallappApi implements YallappApi {
       '/auth/checkout-link',
       _required,
       (data) => CheckoutLink.fromJson(asJson(data)),
-      body: {'course_id': courseId, 'coupon': ?coupon},
+      body: body,
       query: {'platform': platform.name},
     );
   }

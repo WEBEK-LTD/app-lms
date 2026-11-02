@@ -6681,4 +6681,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handInAgain => 'Hand in again';
+
+  @override
+  String get bundles => 'Bundles';
+
+  @override
+  String bundleCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count courses',
+      one: '1 course',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bundleInsteadOf(String price) {
+    return 'Instead of $price';
+  }
+
+  @override
+  String get bundlePrice => 'Bundle price';
+
+  @override
+  String get bundleBuy => 'Buy the bundle';
+
+  @override
+  String get bundleCoursesIn => 'Courses in this bundle';
+
+  @override
+  String bundleOwnedSome(int count) {
+    return 'You have $count of these courses already: they stay yours, and the bundle adds the others.';
+  }
+
+  @override
+  String get bundleOwned => 'Every course in this bundle is yours.';
+
+  @override
+  String get bundleEnrolled =>
+      'You\'re in every course of the bundle. Happy learning!';
+
+  @override
+  String get bundleMyCourses => 'Go to My courses';
+
+  @override
+  String get bundleAlsoIn => 'Also in a bundle';
+
+  @override
+  String get bundleNotSold => 'This bundle can\'t be bought in the app.';
+
+  @override
+  String get loadingBundle => 'Loading the bundle…';
+
+  @override
+  String get couponFree => 'The coupon makes it free: you pay nothing.';
+
+  @override
+  String get couponEnrollFree => 'Enroll for free';
 }

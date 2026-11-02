@@ -86,6 +86,11 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("courses.intro")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* 113.1 */}
+          <Link href="/dashboard/courses/bundles" className={`${btn.secondary} h-11`}>
+            <Icon name="inventory_2" size={20} />
+            {t("lms.bundlesOpen")}
+          </Link>
           {/* 113.7 Learning paths, and points and badges. */}
           <Link href="/dashboard/courses/paths" className={`${btn.secondary} h-11`}>
             <Icon name="route" size={20} />
@@ -189,7 +194,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
       </div>
 
       <CardPayments app={app} currency={setup.currency} />
-      {/* 112.5 Coupons for the paid courses, taken on the payment page. */}
+      {/* 112.5 Coupons for the paid courses (113.1 and bundles), taken on the payment page; one of 100% enrols at once. */}
       <CouponsPanel coupons={await (await getStore()).listCatalogCoupons(app.id)} currency={setup.currency} intro={t("lms.couponsIntro")} />
       <OtherPayments app={app} />
 

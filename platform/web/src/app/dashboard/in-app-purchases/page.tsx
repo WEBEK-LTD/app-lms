@@ -116,7 +116,7 @@ export default async function InAppPurchasesPage() {
       </div>
     );
   };
-  const kindText = (product: StoreProduct) => (product.kind === "course" ? t("inapp.course") : product.period === "year" ? t("inapp.yearly") : t("inapp.monthly"));
+  const kindText = (product: StoreProduct) => (product.kind === "course" ? t("inapp.course") : product.kind === "bundle" ? t("inapp.bundle") : product.period === "year" ? t("inapp.yearly") : t("inapp.monthly"));
   const storeCard = (which: "google" | "apple") => {
     const hasKey = which === "google" ? keys.google : keys.apple;
     const check = which === "google" ? settings.googleCheck : settings.appleCheck;

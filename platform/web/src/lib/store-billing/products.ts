@@ -1,3 +1,4 @@
+import { bundleCourses, shownBundles } from "../courses/bundles";
 import type { App, CourseSetup, StoreProduct, StoreProductKind, StoreProductSync } from "../data/types";
 
 /**
@@ -32,6 +33,8 @@ export interface BillingCatalog {
 /** The ID in both stores: lower-case letters, digits and underscores, at most 40 characters (Google's limit for subscriptions). */
 export function productIdFor(kind: StoreProductKind, id: number | string): string {
   if (kind === "course") return `course_${id}`;
+  // 113.1 A course bundle.
+  if (kind === "bundle") return `bundle_${id}`;
   const slug = String(id)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
@@ -46,10 +49,27 @@ export function priceText(value: string | number): string | null {
   return amount.toFixed(2);
 }
 
-/** The paid, active courses of an app on the hosted API. */
+/** The paid, active courses of an app on the hosted API; 113.1 and its bundles shown in the app, one-time products like a course. */
 export function wantedFromCourses(setup: CourseSetup | null | undefined): WantedProduct[] {
   if (!setup) return [];
-  return setup.courses.flatMap((course) => {
+  const bundles = shownBundles(setup).flatMap((bundle): WantedProduct[] => {
+    const price = priceText(bundle.priceCents / 100);
+    if (!price) return [];
+    return [
+      {
+        productId: productIdFor("bundle", bundle.id),
+        kind: "bundle",
+        courseId: null,
+        planId: String(bundle.id),
+        title: bundle.title.trim().slice(0, 200),
+        period: null,
+        courseIds: bundleCourses(setup, bundle).map((c) => c.id),
+        currency: setup.currency,
+        sitePrice: price,
+      },
+    ];
+  });
+  const courses = setup.courses.flatMap((course) => {
     const price = course.active && course.priceCents > 0 ? priceText(course.priceCents / 100) : null;
     if (!price) return [];
     return [
@@ -66,6 +86,7 @@ export function wantedFromCourses(setup: CourseSetup | null | undefined): Wanted
       },
     ];
   });
+  return [...courses, ...bundles];
 }
 
 /** What the plugin's catalog sells: its paid courses and plans (free ones and bad prices left out). */

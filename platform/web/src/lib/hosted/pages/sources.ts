@@ -1,3 +1,4 @@
+import { bundlePageItems } from "../../courses/bundle-items";
 import { campaignPageItems } from "../../donations/page-items";
 import { deliveryServicePageItems } from "../../delivery/page-items";
 import { eventPageItems } from "../../events/page-items";
@@ -11,7 +12,7 @@ import { registerItemSource } from "./items";
  * Lists filled from the platform's own data: listings of Real estate apps
  * (10.7), events of Events & tickets apps (28), campaigns of Charity &
  * donations apps (29), 104 delivery services, 105 restaurants, vehicle types
- * and a school's news.
+ * and a school's news; 113.1 an academy's course bundles.
  */
 export function registerPlatformItemSources(): void {
   // 38 In the language the app asked for.
@@ -25,6 +26,8 @@ export function registerPlatformItemSources(): void {
   registerItemSource("vehicle_types", (ctx, query) => vehicleTypePageItems(ctx.appId, query, { store: ctx.store }));
   // 105.4 A school's news to the whole school.
   registerItemSource("school_news", (ctx, query) => schoolNewsPageItems(ctx.appId, query, { store: ctx.store }));
+  // 113.1 An academy's bundles, in the language the app asked for.
+  registerItemSource("bundles", (ctx, query) => bundlePageItems(ctx.appId, query, { store: ctx.store, lang: ctx.lang }));
 }
 
 registerPlatformItemSources();

@@ -6671,4 +6671,61 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get handInAgain => 'Yeniden teslim et';
+
+  @override
+  String get bundles => 'Paketler';
+
+  @override
+  String bundleCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kurs',
+      one: '1 kurs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bundleInsteadOf(String price) {
+    return '$price yerine';
+  }
+
+  @override
+  String get bundlePrice => 'Paket fiyatı';
+
+  @override
+  String get bundleBuy => 'Paketi satın al';
+
+  @override
+  String get bundleCoursesIn => 'Bu paketteki kurslar';
+
+  @override
+  String bundleOwnedSome(int count) {
+    return 'Bu kurslardan $count tanesi zaten sende: senin kalır, paket diğerlerini ekler.';
+  }
+
+  @override
+  String get bundleOwned => 'Bu paketteki her kurs senin.';
+
+  @override
+  String get bundleEnrolled => 'Paketin her kursuna kaydoldun. İyi öğrenmeler!';
+
+  @override
+  String get bundleMyCourses => 'Kurslarıma git';
+
+  @override
+  String get bundleAlsoIn => 'Bir pakette de var';
+
+  @override
+  String get bundleNotSold => 'Bu paket uygulamada satın alınamaz.';
+
+  @override
+  String get loadingBundle => 'Paket yükleniyor…';
+
+  @override
+  String get couponFree => 'Kupon onu ücretsiz yapıyor: hiçbir şey ödemezsin.';
+
+  @override
+  String get couponEnrollFree => 'Ücretsiz kaydol';
 }

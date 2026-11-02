@@ -1,11 +1,13 @@
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
+import { splitBundle } from "../courses/bundles";
 import type { App, CatalogOrder, CourseSetup, Teacher } from "../data/types";
 
 /**
  * 105.3 What a teacher's courses sold over a period and the teacher's share:
  * orders paid on the academy's payment page (`paidAt` in the period), each
- * course's part of the order after any coupon, less what was refunded of it.
+ * course's part of the order after any coupon, less what was refunded of it
+ * (113.1 a bundle's part split over its courses by their own prices).
  * The share is the teacher's share as set now; the academy pays its teachers
  * itself.
  */
@@ -73,13 +75,21 @@ export function salesByCourse(orders: readonly CatalogOrder[], setup: CourseSetu
     const subtotal = order.lines.reduce((sum, l) => sum + l.unitCents * l.quantity, 0);
     if (subtotal <= 0) continue;
     for (const line of order.lines) {
-      if (!titles.has(line.productId)) continue;
       const value = line.unitCents * line.quantity;
-      const row = out.get(line.productId) ?? { courseId: line.productId, title: titles.get(line.productId)!, sales: 0, salesCents: 0, refundsCents: 0 };
-      row.sales += line.quantity;
-      row.salesCents += Math.round((value * order.totalCents) / subtotal);
-      row.refundsCents += Math.round((value * (order.refundedCents ?? 0)) / subtotal);
-      out.set(line.productId, row);
+      const paid = Math.round((value * order.totalCents) / subtotal);
+      const refunded = Math.round((value * (order.refundedCents ?? 0)) / subtotal);
+      // 113.1 A bundle's line: its paid part (and its refunds) split over its courses in proportion to each course's own price then.
+      const parts = line.bundle
+        ? [...splitBundle(paid, line.bundle.courses)].map(([courseId, cents]) => ({ courseId, cents, refunds: splitBundle(refunded, line.bundle!.courses).get(courseId) ?? 0 }))
+        : [{ courseId: line.productId, cents: paid, refunds: refunded }];
+      for (const part of parts) {
+        if (!titles.has(part.courseId)) continue;
+        const row = out.get(part.courseId) ?? { courseId: part.courseId, title: titles.get(part.courseId)!, sales: 0, salesCents: 0, refundsCents: 0 };
+        row.sales += line.quantity;
+        row.salesCents += part.cents;
+        row.refundsCents += part.refunds;
+        out.set(part.courseId, row);
+      }
     }
   }
   return out;

@@ -436,6 +436,7 @@ class SiteFeatures {
     this.gamification = false,
     this.notes = false,
     this.lessonDiscussion = false,
+    this.bundles = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -460,6 +461,7 @@ class SiteFeatures {
     gamification: boolOr(json, 'gamification', false),
     notes: boolOr(json, 'notes', false),
     lessonDiscussion: boolOr(json, 'lesson_discussion', false),
+    bundles: boolOr(json, 'bundles', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -501,6 +503,9 @@ class SiteFeatures {
   final bool gamification;
   final bool notes;
   final bool lessonDiscussion;
+
+  /// 113.1 Courses are also sold in bundles: the courses list shows them.
+  final bool bundles;
 }
 
 enum SignupField { name, email, city }

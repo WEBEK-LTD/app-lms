@@ -6694,5 +6694,80 @@
   "handInAgain": "Hand in again",
   "@handInAgain": {
     "description": "113.7 Hands a graded assignment in again (another try)."
+  },
+  "bundles": "Bundles",
+  "@bundles": {
+    "description": "113.1 The courses list's row of course bundles."
+  },
+  "bundleCourseCount": "{count, plural, =1{1 course} other{{count} courses}}",
+  "@bundleCourseCount": {
+    "description": "113.1 How many courses a bundle has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bundleInsteadOf": "Instead of {price}",
+  "@bundleInsteadOf": {
+    "description": "113.1 What a bundle's courses cost on their own, next to the bundle's price.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "bundlePrice": "Bundle price",
+  "@bundlePrice": {
+    "description": "113.1 Above the price on a bundle's page."
+  },
+  "bundleBuy": "Buy the bundle",
+  "@bundleBuy": {
+    "description": "113.1 Buys a bundle of courses."
+  },
+  "bundleCoursesIn": "Courses in this bundle",
+  "@bundleCoursesIn": {
+    "description": "113.1 The heading of a bundle's courses on its page."
+  },
+  "bundleOwnedSome": "You have {count} of these courses already: they stay yours, and the bundle adds the others.",
+  "@bundleOwnedSome": {
+    "description": "113.1 On a bundle's page, when the student has some of its courses.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bundleOwned": "Every course in this bundle is yours.",
+  "@bundleOwned": {
+    "description": "113.1 On a bundle's page, when the student has all its courses."
+  },
+  "bundleEnrolled": "You're in every course of the bundle. Happy learning!",
+  "@bundleEnrolled": {
+    "description": "113.1 After a bundle was bought or a coupon made it free."
+  },
+  "bundleMyCourses": "Go to My courses",
+  "@bundleMyCourses": {
+    "description": "113.1 Opens My courses from a bundle the student has."
+  },
+  "bundleAlsoIn": "Also in a bundle",
+  "@bundleAlsoIn": {
+    "description": "113.1 On a course's page: the bundles that have it."
+  },
+  "bundleNotSold": "This bundle can't be bought in the app.",
+  "@bundleNotSold": {
+    "description": "113.1 A bundle the app doesn't sell on this phone."
+  },
+  "loadingBundle": "Loading the bundle…",
+  "@loadingBundle": {
+    "description": "113.1 While a bundle's page loads."
+  },
+  "couponFree": "The coupon makes it free: you pay nothing.",
+  "@couponFree": {
+    "description": "113.1 A coupon that takes the whole price."
+  },
+  "couponEnrollFree": "Enroll for free",
+  "@couponEnrollFree": {
+    "description": "113.1 Enrolls with a coupon that takes the whole price, without paying."
   }
 }

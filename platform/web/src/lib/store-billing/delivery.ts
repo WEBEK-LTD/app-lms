@@ -62,6 +62,7 @@ export function grantId(purchase: Pick<StorePurchaseRecord, "id" | "status" | "e
 export async function deliverPurchase(deps: DeliveryDeps, app: App, purchase: StorePurchaseRecord): Promise<Delivery> {
   const source = storeBillingSource(app);
   if (source === "courses") {
+    if (purchase.accountSource === "hosted" && purchase.kind === "bundle") return bundleAccess(deps, app, purchase);
     if (purchase.accountSource !== "hosted" || purchase.courseId === null) return { ok: true };
     const userId = Number(purchase.accountId);
     if (purchase.status === "active") await deps.store.enrollInCourse({ appId: app.id, userId, courseId: purchase.courseId, source: "paid", enrolledAt: deps.now });
@@ -73,6 +74,30 @@ export async function deliverPurchase(deps: DeliveryDeps, app: App, purchase: St
   if (source === "own_api") return { ok: await noticeToOwnApi(deps, app, purchase) };
   if (source === "teachable" || source === "thinkific") return accessOnSchool(deps, app, purchase);
   // The app no longer sells this way (its source changed): nothing left to give.
+  return { ok: true };
+}
+
+/**
+ * 113.1 A bundle bought in the store, on the hosted API: the student is
+ * enrolled in each of its courses, and the ones they weren't in already are
+ * this purchase's (`grantedCourseIds`). A refund or revocation takes back
+ * only those, never a course the student had before.
+ */
+async function bundleAccess(deps: DeliveryDeps, app: App, purchase: StorePurchaseRecord): Promise<Delivery> {
+  const userId = Number(purchase.accountId);
+  const ours = purchase.grantedCourseIds ?? [];
+  if (purchase.status === "active") {
+    const product = await deps.store.getStoreProduct(app.id, purchase.productId);
+    const granted: number[] = [];
+    for (const courseId of product?.courseIds ?? []) {
+      if (await deps.store.enrollInCourse({ appId: app.id, userId, courseId, source: "paid", enrolledAt: deps.now })) granted.push(courseId);
+    }
+    return { ok: true, grantedCourseIds: unique([...ours, ...granted]) };
+  }
+  if (purchase.status === "revoked" || purchase.status === "expired") {
+    for (const courseId of ours) await deps.store.leaveCourse(app.id, userId, courseId);
+    return { ok: true, grantedCourseIds: [] };
+  }
   return { ok: true };
 }
 

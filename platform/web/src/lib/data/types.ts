@@ -1134,6 +1134,18 @@ export interface CatalogOrderLine {
   /** 91.5 The variation bought (its stock goes down when paid), and its values ("Red, Large"). */
   variantId?: number;
   variant?: string;
+  /** 113.1 A course bundle bought (`productId` is the bundle's ID): its courses as they were then. */
+  bundle?: OrderBundle;
+}
+
+/**
+ * 113.1 A bundle's courses on its order line: each course's own price then
+ * (the teachers' shares split the bundle's price in proportion to them), and
+ * whether the student already had it when ordering (it stays theirs on a
+ * refund; the order enrols the others).
+ */
+export interface OrderBundle {
+  courses: { courseId: number; title: string; priceCents: number; owned: boolean }[];
 }
 
 export interface CatalogCustomer {
@@ -2039,6 +2051,27 @@ export interface CourseSetup {
   paths?: LearningPath[];
   /** 113.7 Points, badges and the courses' leaderboards in the app (missing: off). */
   gamification?: boolean;
+  /** 113.1 Courses sold together at one price; missing: none. */
+  bundles?: CourseBundle[];
+}
+
+/**
+ * 113.1 A bundle: several of the academy's courses sold together at one
+ * price the owner sets. Its ID comes from `CourseSetup.nextId`, so it is
+ * never a course's. Buying it enrols the student in each of its courses.
+ */
+export interface CourseBundle {
+  id: number;
+  title: string;
+  description: string;
+  imageAssetId: string | null;
+  /** In the owner's order; only published courses are shown and enrolled in. */
+  courseIds: number[];
+  /** The owner's price, more than 0. */
+  priceCents: number;
+  /** Shown in the app. */
+  active: boolean;
+  createdAt: string;
 }
 
 export const DEFAULT_COURSE_SETUP: CourseSetup = { currency: "TRY", categories: [], courses: [], nextId: 1 };
@@ -2322,7 +2355,8 @@ export interface OwnFontFile {
 
 // 100.2 Store billing: courses and memberships sold through Google Play and the App Store
 
-export type StoreProductKind = "course" | "membership";
+/** 113.1 `bundle`: a course bundle, one-time like a course (`planId` is the bundle's ID). */
+export type StoreProductKind = "course" | "membership" | "bundle";
 export type StorePlatform = "android" | "ios";
 
 /** How a product stands in one store, after Yallapp last made or changed it there. */
@@ -2352,7 +2386,7 @@ export interface StoreProduct {
   kind: StoreProductKind;
   /** The course's ID on the app's source (a course). */
   courseId: number | null;
-  /** The plan's ID on the site, as the plugin sent it (a membership). */
+  /** The plan's ID on the site, as the plugin sent it (a membership); 113.1 the bundle's ID (a bundle). */
   planId: string | null;
   title: string;
   /** Monthly or yearly (a membership). */
@@ -2430,7 +2464,8 @@ export interface StorePurchaseRecord {
 export interface StoreBillingItem {
   id: string;
   appId: string;
-  kind: StoreProductKind;
+  /** 113.1 Never a bundle: bundles are the dashboard's courses' (hosted API). */
+  kind: Exclude<StoreProductKind, "bundle">;
   /** The course's ID (a whole number, as text) or the plan's ID, as the owner's system has it. */
   itemId: string;
   title: string;

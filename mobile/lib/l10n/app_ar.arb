@@ -1818,5 +1818,20 @@
   "rubricTotal": "الدرجة: {score} من {max}",
   "tryOf": "المحاولة {attempt} من {total}",
   "triesLeft": "{count, plural, =1{يمكنك تسليمه مرة أخرى.} =2{يمكنك تسليمه مرتين أخريين.} few{يمكنك تسليمه {count} مرات أخرى.} many{يمكنك تسليمه {count} مرة أخرى.} other{يمكنك تسليمه {count} مرة أخرى.}}",
-  "handInAgain": "التسليم مرة أخرى"
+  "handInAgain": "التسليم مرة أخرى",
+  "bundles": "الحزم",
+  "bundleCourseCount": "{count, plural, =0{لا دورات} =1{دورة واحدة} =2{دورتان} few{{count} دورات} many{{count} دورة} other{{count} دورة}}",
+  "bundleInsteadOf": "بدلًا من {price}",
+  "bundlePrice": "سعر الحزمة",
+  "bundleBuy": "شراء الحزمة",
+  "bundleCoursesIn": "الدورات في هذه الحزمة",
+  "bundleOwnedSome": "لديك {count} من هذه الدورات بالفعل: تبقى لك، وتضيف الحزمة الباقي.",
+  "bundleOwned": "كل دورات هذه الحزمة لك.",
+  "bundleEnrolled": "أنت مسجّل في كل دورات الحزمة. تعلّمًا ممتعًا!",
+  "bundleMyCourses": "الذهاب إلى دوراتي",
+  "bundleAlsoIn": "موجودة أيضًا في حزمة",
+  "bundleNotSold": "لا يمكن شراء هذه الحزمة في التطبيق.",
+  "loadingBundle": "جارٍ تحميل الحزمة…",
+  "couponFree": "القسيمة تجعلها مجانية: لن تدفع شيئًا.",
+  "couponEnrollFree": "التسجيل مجانًا"
 }

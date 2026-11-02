@@ -136,11 +136,13 @@ export async function orderRevocable(store: DataStore, app: App, order: CatalogO
       appId: app.id,
       userId: order.userId,
     });
-    const courses = order.lines.filter((l) => enrolled.some((e) => e.courseId === l.productId));
+    // 113.1 A bundle's courses the order enrolled in (one the student had before stays theirs).
+    const lines = order.lines.flatMap((l) => (l.bundle ? l.bundle.courses.filter((c) => !c.owned).map((c) => ({ id: c.courseId, name: c.title })) : [{ id: l.productId, name: l.name }]));
+    const courses = lines.filter((l, i) => enrolled.some((e) => e.courseId === l.id) && lines.findIndex((x) => x.id === l.id) === i);
     return {
       ...NONE,
       courses: courses.map((l) => ({
-        id: l.productId,
+        id: l.id,
         label: `Access to ${l.name}`,
       })),
     };
