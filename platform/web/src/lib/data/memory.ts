@@ -158,6 +158,8 @@ import type {
   SchoolBusStop,
   SchoolBusTrip,
 } from "./types";
+// 113.12 Salaries
+import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -2454,6 +2456,8 @@ export class MemoryStore implements DataStore {
     for (const x of this.schoolExcuses.values()) if (x.parentId === id) x.parentId = null;
     this.schoolPickups.delete(id);
     for (const [key, x] of this.schoolPickupNotes) if (x.studentId === id) this.schoolPickupNotes.delete(key);
+    // 113.12 Their salary goes with them; their payslips and advances stay, with their name.
+    this.schoolSalaries.delete(`${appId}:${id}`);
     for (const [key, n] of this.schoolBehaviour) if (n.studentId === id) this.schoolBehaviour.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
     // 113.5 A student's reports go with them; a teacher's stay, with their name.
@@ -3341,6 +3345,120 @@ export class MemoryStore implements DataStore {
     if (!found || found.appId !== appId || (expect.statuses && !expect.statuses.includes(found.status))) return false;
     this.schoolBookHolds.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // 113.12 Salaries, recorded by hand
+
+  /** Keyed `appId:personId`. */
+  private schoolSalaries = new Map<string, SchoolSalary>();
+  private schoolPayslips = new Map<number, SchoolPayslip>();
+  /** Keyed `appId:month`. */
+  private schoolSalaryMonths = new Map<string, SchoolSalaryMonth>();
+  private schoolSalaryAdvances = new Map<number, SchoolSalaryAdvance>();
+
+  async listSchoolSalaries(appId: string): Promise<SchoolSalary[]> {
+    return [...this.schoolSalaries.values()].filter((s) => s.appId === appId).map(clone);
+  }
+
+  async getSchoolSalary(appId: string, personId: number): Promise<SchoolSalary | null> {
+    const found = this.schoolSalaries.get(`${appId}:${personId}`);
+    return found ? clone(found) : null;
+  }
+
+  async saveSchoolSalary(salary: SchoolSalary): Promise<boolean> {
+    const person = this.schoolPeople.get(salary.personId);
+    if (!person || person.appId !== salary.appId || (person.role !== "teacher" && person.role !== "staff")) return false;
+    this.schoolSalaries.set(`${salary.appId}:${salary.personId}`, clone(salary));
+    return true;
+  }
+
+  async deleteSchoolSalary(appId: string, personId: number): Promise<void> {
+    this.schoolSalaries.delete(`${appId}:${personId}`);
+  }
+
+  async listSchoolPayslips(appId: string, filter: { month?: string; personId?: number; personIds?: number[]; statuses?: SchoolPayslipStatus[] } = {}): Promise<SchoolPayslip[]> {
+    return [...this.schoolPayslips.values()]
+      .filter(
+        (p) =>
+          p.appId === appId &&
+          (filter.month === undefined || p.month === filter.month) &&
+          (filter.personId === undefined || p.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(p.personId)) &&
+          (!filter.statuses || filter.statuses.includes(p.status)),
+      )
+      .sort((a, b) => b.month.localeCompare(a.month) || a.personName.localeCompare(b.personName) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolPayslip(appId: string, id: number): Promise<SchoolPayslip | null> {
+    const found = this.schoolPayslips.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolPayslip(input: Omit<SchoolPayslip, "id">): Promise<{ ok: true; payslip: SchoolPayslip } | { ok: false; reason: "duplicate" }> {
+    if ([...this.schoolPayslips.values()].some((p) => p.appId === input.appId && p.personId === input.personId && p.month === input.month)) return { ok: false, reason: "duplicate" };
+    const made: SchoolPayslip = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolPayslips.set(made.id, clone(made));
+    return { ok: true, payslip: made };
+  }
+
+  async updateSchoolPayslip(
+    appId: string,
+    id: number,
+    patch: Partial<Omit<SchoolPayslip, "id" | "appId" | "personId" | "month" | "createdAt">>,
+    expect: { statuses: SchoolPayslipStatus[]; updatedAt?: Date },
+  ): Promise<boolean> {
+    const found = this.schoolPayslips.get(id);
+    if (!found || found.appId !== appId || !expect.statuses.includes(found.status)) return false;
+    if (expect.updatedAt && found.updatedAt.getTime() !== expect.updatedAt.getTime()) return false;
+    this.schoolPayslips.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolPayslip(appId: string, id: number): Promise<boolean> {
+    const found = this.schoolPayslips.get(id);
+    if (!found || found.appId !== appId || found.status !== "draft") return false;
+    this.schoolPayslips.delete(id);
+    return true;
+  }
+
+  async getSchoolSalaryMonth(appId: string, month: string): Promise<SchoolSalaryMonth | null> {
+    const found = this.schoolSalaryMonths.get(`${appId}:${month}`);
+    return found ? clone(found) : null;
+  }
+
+  async saveSchoolSalaryMonth(row: SchoolSalaryMonth): Promise<void> {
+    this.schoolSalaryMonths.set(`${row.appId}:${row.month}`, clone(row));
+  }
+
+  async listSchoolSalaryAdvances(appId: string, filter: { personId?: number; personIds?: number[] } = {}): Promise<SchoolSalaryAdvance[]> {
+    return [...this.schoolSalaryAdvances.values()]
+      .filter((a) => a.appId === appId && (filter.personId === undefined || a.personId === filter.personId) && (!filter.personIds || filter.personIds.includes(a.personId)))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolSalaryAdvance(appId: string, id: number): Promise<SchoolSalaryAdvance | null> {
+    const found = this.schoolSalaryAdvances.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolSalaryAdvance(input: Omit<SchoolSalaryAdvance, "id">): Promise<SchoolSalaryAdvance> {
+    const made: SchoolSalaryAdvance = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolSalaryAdvances.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolSalaryAdvance(appId: string, id: number, patch: Partial<Pick<SchoolSalaryAdvance, "instalmentCents" | "startsMonth" | "repayments" | "updatedAt">>, expectUpdatedAt: Date): Promise<boolean> {
+    const found = this.schoolSalaryAdvances.get(id);
+    if (!found || found.appId !== appId || found.updatedAt.getTime() !== expectUpdatedAt.getTime()) return false;
+    this.schoolSalaryAdvances.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolSalaryAdvance(appId: string, id: number): Promise<void> {
+    const found = this.schoolSalaryAdvances.get(id);
+    if (found && found.appId === appId) this.schoolSalaryAdvances.delete(id);
   }
 
   // 113.8 The school's calendar, the exams' timetable and behaviour

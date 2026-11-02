@@ -5,6 +5,7 @@ import 'package:yallapp/core/config/build_config_data.dart' show AppRole;
 import 'package:yallapp/core/api/yallapp_api.dart';
 
 import 'bus_library_fixtures.dart';
+import 'salary_fixtures.dart';
 import 'fixtures.dart';
 import 'parent_fixtures.dart';
 
@@ -3014,6 +3015,12 @@ class FakeApi implements YallappApi {
   Map<String, dynamic> checkinMonth = checkinMonthJson();
   Map<String, dynamic> staffMe = staffMeJson();
   List<Map<String, dynamic>> leaveRequests = [leaveRequestJson()];
+  // 113.12 The person's own payslips and advances.
+  List<Map<String, dynamic>> payslips = [
+    payslipJson(),
+    payslipJson(id: 41, month: '2026-09', status: 'paid'),
+  ];
+  List<Map<String, dynamic>> salaryAdvances = [salaryAdvanceJson()];
   final checkins =
       <({String action, String? code, double? lat, double? lng})>[];
   final leaveAsked = <LeaveInput>[];
@@ -3084,6 +3091,32 @@ class FakeApi implements YallappApi {
             l['id'] == id ? {...l, 'status': 'cancelled'} : l,
         ];
       });
+
+  @override
+  Future<PayslipPage> listPayslips({int page = 1}) => _answer(
+    'listPayslips',
+    () => PayslipPage.fromJson({
+      'items': payslips,
+      'page': 1,
+      'per_page': 24,
+      'total': payslips.length,
+      'total_pages': 1,
+      'advances': salaryAdvances,
+    }),
+  );
+
+  @override
+  Future<Payslip> getPayslip(int id) => _answer('getPayslip', () {
+    final found = payslips.where((p) => p['id'] == id).firstOrNull;
+    if (found == null) {
+      throw const ApiException(
+        statusCode: 404,
+        code: 'not_found',
+        message: 'Payslip not found.',
+      );
+    }
+    return Payslip.fromJson(found);
+  });
 
   @override
   Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1}) =>

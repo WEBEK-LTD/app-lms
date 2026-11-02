@@ -138,6 +138,8 @@ import type {
   SchoolBusStop,
   SchoolBusTrip,
 } from "./types";
+// 113.12 Salaries
+import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
 // 104 Delivery and courier companies
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 import type {
@@ -1080,6 +1082,35 @@ export interface DataStore {
   createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold>;
   /** Only while it is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect?: { statuses?: SchoolBookHoldStatus[] }): Promise<boolean>;
+  // 113.12 Salaries, recorded by hand
+  listSchoolSalaries(appId: string): Promise<SchoolSalary[]>;
+  getSchoolSalary(appId: string, personId: number): Promise<SchoolSalary | null>;
+  /** Only for a teacher or staff member of the same school; false otherwise. */
+  saveSchoolSalary(salary: SchoolSalary): Promise<boolean>;
+  deleteSchoolSalary(appId: string, personId: number): Promise<void>;
+  /** By month (newest first), then name. */
+  listSchoolPayslips(appId: string, filter?: { month?: string; personId?: number; personIds?: number[]; statuses?: SchoolPayslipStatus[] }): Promise<SchoolPayslip[]>;
+  getSchoolPayslip(appId: string, id: number): Promise<SchoolPayslip | null>;
+  /** One per person and month. */
+  createSchoolPayslip(input: Omit<SchoolPayslip, "id">): Promise<{ ok: true; payslip: SchoolPayslip } | { ok: false; reason: "duplicate" }>;
+  /** Only while its status is one of `expect.statuses` and, when given, it was last changed at `expect.updatedAt`; false when it wasn't changed. */
+  updateSchoolPayslip(
+    appId: string,
+    id: number,
+    patch: Partial<Omit<SchoolPayslip, "id" | "appId" | "personId" | "month" | "createdAt">>,
+    expect: { statuses: SchoolPayslipStatus[]; updatedAt?: Date },
+  ): Promise<boolean>;
+  /** Only a draft. */
+  deleteSchoolPayslip(appId: string, id: number): Promise<boolean>;
+  getSchoolSalaryMonth(appId: string, month: string): Promise<SchoolSalaryMonth | null>;
+  saveSchoolSalaryMonth(row: SchoolSalaryMonth): Promise<void>;
+  /** Newest first. */
+  listSchoolSalaryAdvances(appId: string, filter?: { personId?: number; personIds?: number[] }): Promise<SchoolSalaryAdvance[]>;
+  getSchoolSalaryAdvance(appId: string, id: number): Promise<SchoolSalaryAdvance | null>;
+  createSchoolSalaryAdvance(input: Omit<SchoolSalaryAdvance, "id">): Promise<SchoolSalaryAdvance>;
+  /** Only when it was last changed at `expectUpdatedAt`; false when it wasn't changed. */
+  updateSchoolSalaryAdvance(appId: string, id: number, patch: Partial<Pick<SchoolSalaryAdvance, "instalmentCents" | "startsMonth" | "repayments" | "updatedAt">>, expectUpdatedAt: Date): Promise<boolean>;
+  deleteSchoolSalaryAdvance(appId: string, id: number): Promise<void>;
   // 113.8 The school's calendar, the exams' timetable and behaviour
   /** Events on any day from `from` to `to` (both YYYY-MM-DD), first first. */
   listSchoolEvents(appId: string, filter?: { from?: string; to?: string }): Promise<SchoolEvent[]>;

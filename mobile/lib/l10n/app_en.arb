@@ -8554,5 +8554,165 @@
   "pickupTakeBack": "Take back",
   "@pickupTakeBack": {
     "description": "113.4 Deletes a one-day pick-up note."
+  },
+  "staffPayslips": "My payslips",
+  "@staffPayslips": {
+    "description": "113.12 Opens the person's own payslips (Staff and Classroom tabs)."
+  },
+  "payslipsNone": "No payslips yet. They show here once the school makes them final.",
+  "@payslipsNone": {
+    "description": "113.12 The payslips list is empty."
+  },
+  "payslipsByHand": "The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.",
+  "@payslipsByHand": {
+    "description": "113.12 Above the payslips: nothing is paid through the app."
+  },
+  "payslipUnpaid": "Not paid yet",
+  "@payslipUnpaid": {
+    "description": "113.12 A final payslip the school hasn't recorded as paid."
+  },
+  "payslipPartPaid": "Partly paid",
+  "@payslipPartPaid": {
+    "description": "113.12 A payslip paid in part."
+  },
+  "payslipPaid": "Paid",
+  "@payslipPaid": {
+    "description": "113.12 A payslip paid in full."
+  },
+  "payslipNetLine": "Net {amount}",
+  "@payslipNetLine": {
+    "description": "113.12 A payslip's net pay on the list.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipBase": "Base salary",
+  "@payslipBase": {
+    "description": "113.12 A payslip's base salary."
+  },
+  "payslipBonus": "Bonus",
+  "@payslipBonus": {
+    "description": "113.12 A bonus line without a name."
+  },
+  "payslipDeduction": "Deduction",
+  "@payslipDeduction": {
+    "description": "113.12 A deduction line without a name."
+  },
+  "payslipAbsences": "Absences ({count})",
+  "@payslipAbsences": {
+    "description": "113.12 A deduction for days absent, with how many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipLateness": "Late arrivals ({count})",
+  "@payslipLateness": {
+    "description": "113.12 A deduction for coming late, with how many times.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipAdvance": "Advance taken back",
+  "@payslipAdvance": {
+    "description": "113.12 Part of an advance taken back from the pay."
+  },
+  "payslipGross": "Gross",
+  "@payslipGross": {
+    "description": "113.12 Base, allowances and bonuses together."
+  },
+  "payslipDeductions": "Deductions",
+  "@payslipDeductions": {
+    "description": "113.12 All deductions together."
+  },
+  "payslipNet": "Net pay",
+  "@payslipNet": {
+    "description": "113.12 What the person is paid."
+  },
+  "payslipPaidSoFar": "Paid",
+  "@payslipPaidSoFar": {
+    "description": "113.12 What the school recorded as paid so far."
+  },
+  "payslipLeft": "Left to pay",
+  "@payslipLeft": {
+    "description": "113.12 What is still to be paid."
+  },
+  "payslipPayments": "Payments",
+  "@payslipPayments": {
+    "description": "113.12 The payments the school recorded."
+  },
+  "payslipCash": "Cash, {date}",
+  "@payslipCash": {
+    "description": "113.12 A payment in cash, on a day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipBank": "Bank transfer, {date}",
+  "@payslipBank": {
+    "description": "113.12 A payment by bank transfer, on a day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payslipDays": "{working} working days · {present} present · {absent} absent · {late} late · {leave} on leave",
+  "@payslipDays": {
+    "description": "113.12 The month's days at the gate on a payslip.",
+    "placeholders": {
+      "working": {
+        "type": "int"
+      },
+      "present": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      },
+      "late": {
+        "type": "int"
+      },
+      "leave": {
+        "type": "int"
+      }
+    }
+  },
+  "payslipViewPdf": "View the PDF",
+  "@payslipViewPdf": {
+    "description": "113.12 Opens the payslip's PDF in the app's viewer."
+  },
+  "payslipDownloadPdf": "Download the PDF",
+  "@payslipDownloadPdf": {
+    "description": "113.12 Opens the payslip's PDF outside the app, to keep it."
+  },
+  "payslipAdvances": "Advances",
+  "@payslipAdvances": {
+    "description": "113.12 The person's advances still being taken back."
+  },
+  "payslipAdvanceLine": "{amount} given on {date} · {instalment} a month · {left} left",
+  "@payslipAdvanceLine": {
+    "description": "113.12 An advance: how much, when, each month's part and what is left.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "instalment": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
   }
 }

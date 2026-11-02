@@ -249,6 +249,8 @@ const teamAreas = [
   'app_users',
   'analytics',
   'notifications',
+  // 113.12 A school's salaries.
+  'salaries',
 ];
 
 /// 60 A business the person works on.

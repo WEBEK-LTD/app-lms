@@ -1007,4 +1007,6 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "They have {0} books out already, the most the library lends at once.": "لديه {0} كتب معارة بالفعل، وهو أقصى ما تعيره المكتبة في وقت واحد.",
   "Only students and the school's staff borrow books.": "يستعير الكتبَ الطلابُ وموظفو المدرسة فقط.",
   "Choose whom the book is for (person_id).": "اختر لمن الكتاب (person_id).",
+  // 113.12 Payslips.
+  "Payslip not found.": "لم نجد قسيمة الراتب.",
 };

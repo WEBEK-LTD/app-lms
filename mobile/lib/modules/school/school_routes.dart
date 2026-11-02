@@ -18,6 +18,7 @@ import 'screens/parent_screens.dart';
 import 'screens/library_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
+import 'screens/payslip_screens.dart';
 import 'screens/staff_screens.dart';
 import 'screens/student_screens.dart';
 
@@ -177,6 +178,9 @@ List<RouteBase> _pushedRoutes() => [
   _page(Paths.staffLeave, const LeaveScreen()),
   _page(Paths.staffNews, const StaffNewsScreen()),
   _page(Paths.staffCalendar, const SchoolCalendarScreen(classroom: true)),
+  // 113.12 Payslips.
+  _page(Paths.staffPayslips, const PayslipsScreen()),
+  _byId('/staff/payslip/:id', (id) => PayslipScreen(id: id)),
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),

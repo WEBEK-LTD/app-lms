@@ -2085,7 +2085,7 @@
     },
     {
       "name": "Staff",
-      "description": "Roadmap 113.3. Everyone who works at the school, teachers and staff (`User.roles` has `teacher` or `staff`); every endpoint here answers `not_staff` (403) to anyone else. Their job, department, working days and hours and duties as the school set them, their leave requests (sick, annual or other, with a note and a photo or PDF of a document sent with `/school/uploads`), approved or refused by the school in the dashboard with a note (`school_leave`), and the staff's own news, which students and parents never see (`school_staff`).",
+      "description": "Roadmap 113.3. Everyone who works at the school, teachers and staff (`User.roles` has `teacher` or `staff`); every endpoint here answers `not_staff` (403) to anyone else. Their job, department, working days and hours and duties as the school set them, their leave requests (sick, annual or other, with a note and a photo or PDF of a document sent with `/school/uploads`), approved or refused by the school in the dashboard with a note (`school_leave`), and the staff's own news, which students and parents never see (`school_staff`).\n\nRoadmap 113.12. Their own payslips once the school made them final (the base, allowances, bonuses, deductions, advances taken back, the net and the payments the school wrote down) with each one's PDF from a signed link that lasts 15 minutes, and their advances still being taken back. Salaries are recorded by hand: nothing here moves money, and no one sees another person's payslips.",
       "endpoints": [
         {
           "method": "GET",
@@ -2120,6 +2120,20 @@
           "path": "/staff/announcements",
           "summary": "The staff's own news",
           "description": "Newest first; for teachers and staff only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/staff/payslips",
+          "summary": "The person's own payslips",
+          "description": "Roadmap 113.12. Final payslips only (a draft the school is still writing is never shown), the newest month first; `advances` are the person's advances still being taken back. `pdf_url` is a signed link to the payslip's PDF in the app's language, good for 15 minutes: ask again for a new one.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/staff/payslips/{payslip_id}",
+          "summary": "One of the person's payslips, with a new PDF link",
+          "description": null,
           "access": "signed-in"
         }
       ]

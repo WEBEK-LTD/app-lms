@@ -7988,4 +7988,109 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickupTakeBack => 'Take back';
+
+  @override
+  String get staffPayslips => 'My payslips';
+
+  @override
+  String get payslipsNone =>
+      'No payslips yet. They show here once the school makes them final.';
+
+  @override
+  String get payslipsByHand =>
+      'The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.';
+
+  @override
+  String get payslipUnpaid => 'Not paid yet';
+
+  @override
+  String get payslipPartPaid => 'Partly paid';
+
+  @override
+  String get payslipPaid => 'Paid';
+
+  @override
+  String payslipNetLine(String amount) {
+    return 'Net $amount';
+  }
+
+  @override
+  String get payslipBase => 'Base salary';
+
+  @override
+  String get payslipBonus => 'Bonus';
+
+  @override
+  String get payslipDeduction => 'Deduction';
+
+  @override
+  String payslipAbsences(int count) {
+    return 'Absences ($count)';
+  }
+
+  @override
+  String payslipLateness(int count) {
+    return 'Late arrivals ($count)';
+  }
+
+  @override
+  String get payslipAdvance => 'Advance taken back';
+
+  @override
+  String get payslipGross => 'Gross';
+
+  @override
+  String get payslipDeductions => 'Deductions';
+
+  @override
+  String get payslipNet => 'Net pay';
+
+  @override
+  String get payslipPaidSoFar => 'Paid';
+
+  @override
+  String get payslipLeft => 'Left to pay';
+
+  @override
+  String get payslipPayments => 'Payments';
+
+  @override
+  String payslipCash(String date) {
+    return 'Cash, $date';
+  }
+
+  @override
+  String payslipBank(String date) {
+    return 'Bank transfer, $date';
+  }
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) {
+    return '$working working days · $present present · $absent absent · $late late · $leave on leave';
+  }
+
+  @override
+  String get payslipViewPdf => 'View the PDF';
+
+  @override
+  String get payslipDownloadPdf => 'Download the PDF';
+
+  @override
+  String get payslipAdvances => 'Advances';
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) {
+    return '$amount given on $date · $instalment a month · $left left';
+  }
 }

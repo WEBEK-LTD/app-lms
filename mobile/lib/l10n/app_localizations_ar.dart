@@ -8223,4 +8223,109 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pickupTakeBack => 'تراجع';
+
+  @override
+  String get staffPayslips => 'قسائم راتبي';
+
+  @override
+  String get payslipsNone =>
+      'لا قسائم بعد. تظهر هنا حين تعتمدها المدرسة نهائيًا.';
+
+  @override
+  String get payslipsByHand =>
+      'تسجّل المدرسة الرواتب يدويًا: تدفع نقدًا أو بتحويل بنكي وتسجّل ذلك هنا.';
+
+  @override
+  String get payslipUnpaid => 'لم تُدفع بعد';
+
+  @override
+  String get payslipPartPaid => 'مدفوعة جزئيًا';
+
+  @override
+  String get payslipPaid => 'مدفوعة';
+
+  @override
+  String payslipNetLine(String amount) {
+    return 'الصافي $amount';
+  }
+
+  @override
+  String get payslipBase => 'الراتب الأساسي';
+
+  @override
+  String get payslipBonus => 'مكافأة';
+
+  @override
+  String get payslipDeduction => 'خصم';
+
+  @override
+  String payslipAbsences(int count) {
+    return 'الغياب ($count)';
+  }
+
+  @override
+  String payslipLateness(int count) {
+    return 'التأخير ($count)';
+  }
+
+  @override
+  String get payslipAdvance => 'قسط سلفة';
+
+  @override
+  String get payslipGross => 'الإجمالي';
+
+  @override
+  String get payslipDeductions => 'الخصومات';
+
+  @override
+  String get payslipNet => 'صافي الراتب';
+
+  @override
+  String get payslipPaidSoFar => 'المدفوع';
+
+  @override
+  String get payslipLeft => 'المتبقي';
+
+  @override
+  String get payslipPayments => 'الدفعات';
+
+  @override
+  String payslipCash(String date) {
+    return 'نقدًا، $date';
+  }
+
+  @override
+  String payslipBank(String date) {
+    return 'تحويل بنكي، $date';
+  }
+
+  @override
+  String payslipDays(
+    int working,
+    int present,
+    int absent,
+    int late,
+    int leave,
+  ) {
+    return '$working يوم عمل · $present حضور · $absent غياب · $late تأخير · $leave إجازة';
+  }
+
+  @override
+  String get payslipViewPdf => 'عرض ملف PDF';
+
+  @override
+  String get payslipDownloadPdf => 'تنزيل ملف PDF';
+
+  @override
+  String get payslipAdvances => 'السُّلف';
+
+  @override
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  ) {
+    return '$amount في $date · $instalment شهريًا · المتبقي $left';
+  }
 }

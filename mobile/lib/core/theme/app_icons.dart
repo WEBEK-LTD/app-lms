@@ -219,6 +219,10 @@ abstract final class AppIcons {
   static const slip = Symbols.draw_rounded;
   static const pickupPerson = Symbols.hail_rounded;
 
+  // 113.12 Payslips, recorded by hand.
+  static const payslip = Symbols.request_quote_rounded;
+  static const bank = Symbols.account_balance_rounded;
+
   // 112 Rides and deliveries on the map.
   static const recent = Symbols.history_rounded;
   static const navigate = Symbols.navigation_rounded;

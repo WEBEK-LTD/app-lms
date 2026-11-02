@@ -339,6 +339,17 @@ void main() {
       final app = schoolApp(schoolApi(roles: ['teacher']));
       await app.pump(tester);
       await go(app, tester, Paths.classroom);
+      // 113.12 Below My payslips: scrolled to.
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('school-library')),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const ValueKey('classroom')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       expect(find.byKey(const ValueKey('school-library')), findsOneWidget);
       expect(find.byKey(const ValueKey('bus-duty')), findsNothing);
     });

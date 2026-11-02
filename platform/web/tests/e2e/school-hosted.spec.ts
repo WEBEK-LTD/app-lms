@@ -565,3 +565,81 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
   expect(parent.status()).toBe(403);
   expect((await parent.json()).code).toBe("feature_disabled");
 });
+
+test("113.12 Salaries: a salary and an advance, the month's payslips with a bonus, locked, paid by hand, its PDF and CSV", async ({ request }) => {
+  await own.goto("/dashboard/school/salaries");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/salaries$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Salaries" })).toBeVisible();
+  await expect(own.getByText("Nothing is paid through Yallapp or any payment gateway.", { exact: false })).toBeVisible();
+  const people = own.getByRole("region", { name: "Teachers and staff" });
+  await expect(people.locator("li", { hasText: "Samir Fawzy" })).toContainText("No salary yet");
+
+  // Samir's salary with an allowance, and an advance taken back from it.
+  await people.getByRole("link", { name: "Samir Fawzy" }).click();
+  await expect(own).toHaveURL(/\/school\/salaries\/people\/\d+$/);
+  await own.getByLabel("Monthly salary").fill("6000");
+  await own.getByLabel("Currency").selectOption("EGP");
+  await own.getByLabel("Allowance 1").fill("Transport");
+  await own.getByLabel("Amount 1").fill("500");
+  await own.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(own.getByText("Saved. Drafts take it the next time the month's payslips are made.")).toBeVisible();
+  const advances = own.getByRole("region", { name: "Advances" });
+  await advances.getByLabel("Amount", { exact: true }).fill("1000");
+  await advances.getByLabel("Taken back each month").fill("500");
+  await advances.getByRole("button", { name: "Record the advance" }).click();
+  await expect(advances.getByText(/^Recorded\. E£500\.00 is taken back each month from \d{4}-\d{2}\.$/)).toBeVisible();
+  await own.reload();
+  await expect(own.locator("[data-advances]")).toContainText("E£1,000.00 · Cash");
+  await expect(own.locator("[data-advances]")).toContainText("left E£1,000.00");
+
+  // The month's payslips: Samir's made from his salary and the advance.
+  await own.goto("/dashboard/school/salaries");
+  await own.getByRole("button", { name: "Make the month's payslips" }).click();
+  await expect(own.getByText(/^Made 1, brought 0 up to date\./)).toBeVisible();
+  await own.reload();
+  const row = own.locator("tr[data-payslip]", { hasText: "Samir Fawzy" });
+  await expect(row).toContainText("E£6,000.00");
+  await expect(row).toContainText("Draft");
+  await row.getByRole("link", { name: "Samir Fawzy" }).click();
+  await expect(own).toHaveURL(/\/school\/salaries\/\d+$/);
+  const payslipUrl = own.url();
+  const sheet = own.locator("[data-sheet]");
+  await expect(sheet).toContainText("Base salary");
+  await expect(sheet).toContainText("+E£500.00");
+  await expect(sheet.locator('[data-line="advance"]')).toContainText("−E£500.00");
+  await own.getByText("Add a bonus or a deduction").click();
+  await own.locator("#f-line-label").fill("Exam supervision");
+  await own.locator("#f-line-amount").fill("400");
+  await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Added.")).toBeVisible();
+  await own.reload();
+  await expect(own.locator("[data-net]")).toContainText("E£6,400.00");
+
+  // Locked: final, then paid in cash and written down here.
+  await own.goto("/dashboard/school/salaries");
+  await own.getByRole("button", { name: "Lock the month" }).click();
+  await expect(own.getByText("Locked. 1 payslips are final; each person sees theirs in the app.")).toBeVisible();
+  await own.goto(payslipUrl);
+  await expect(own.locator("#f-pay-amount-payslip")).toHaveValue("6400.00");
+  await own.getByRole("button", { name: "Record as paid" }).click();
+  await expect(own.getByText("Recorded. The payslip is paid.")).toBeVisible();
+  await own.reload();
+  await expect(own.locator("[data-payments]")).toContainText("E£6,400.00 · Cash");
+  await expect(own.locator("[data-payments]")).toContainText("Recorded by");
+
+  const id = payslipUrl.match(/\/salaries\/(\d+)$/)![1];
+  const pdf = await own.request.get(`/api/dashboard/school/salaries/${id}/pdf`);
+  expect(pdf.status()).toBe(200);
+  expect(pdf.headers()["content-type"]).toBe("application/pdf");
+  expect((await pdf.body()).subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  const csv = await own.request.get("/api/dashboard/school/salaries");
+  expect(csv.status()).toBe(200);
+  const text = await csv.text();
+  expect(text).toContain("Payslip,Name,Role,Job,Department,Currency,Base,Allowances,Bonuses,Deductions,Advances taken back,Net,Paid,Left to pay,Status,Paid by,Paid on");
+  expect(text).toMatch(/Samir Fawzy,Staff member,Nurse,Clinic,EGP,6000\.00,500\.00,400\.00,0\.00,500\.00,6400\.00,6400\.00,0\.00,Paid,Cash,\d{4}-\d{2}-\d{2}/);
+
+  // Schools aren't on this plan: the app's payslips wait for it.
+  const payslips = await request.get(`${api}/staff/payslips`);
+  expect(payslips.status()).toBe(403);
+  expect((await payslips.json()).code).toBe("feature_disabled");
+});

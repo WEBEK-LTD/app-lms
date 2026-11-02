@@ -639,6 +639,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const theirStaff = await store.createSchoolPerson({ appId: k12, role: "staff", name: `${MARK} nurse`, phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, jobTitle: MARK }, NOW);
     if (!theirStaff.ok) throw new Error("staff");
     const leave = await store.createSchoolLeave({ appId: k12, personId: theirStaff.person.id, kind: "sick", startsOn: "2026-10-20", endsOn: "2026-10-21", note: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    // 113.12 Their staff member's salary, a final payslip and an advance.
+    await store.saveSchoolSalary({ appId: k12, personId: theirStaff.person.id, monthlyCents: 5000_00, currency: "EGP", allowances: [{ name: MARK, cents: 100_00 }], note: MARK, updatedBy: MARK, updatedAt: NOW });
+    const payslip = await store.createSchoolPayslip({ appId: k12, personId: theirStaff.person.id, month: "2026-10", personName: `${MARK} nurse`, role: "staff", jobTitle: MARK, department: null, currency: "EGP", baseCents: 5000_00, allowances: [], lines: [], attendance: null, netCents: 5000_00, status: "final", payments: [], paidCents: 0, note: MARK, finalAt: NOW, finalBy: MARK, createdAt: NOW, updatedAt: NOW });
+    if (!payslip.ok) throw new Error("payslip");
+    await store.createSchoolSalaryAdvance({ appId: k12, personId: theirStaff.person.id, personName: `${MARK} nurse`, currency: "EGP", amountCents: 1000_00, instalmentCents: 500_00, startsMonth: "2026-10", given: { id: "a", cents: 1000_00, method: "cash", paidOn: "2026-10-01", note: MARK, receiptAssetId: null, by: MARK, at: NOW.toISOString() }, repayments: [], createdAt: NOW, updatedAt: NOW });
     // 113.10 Their bus route, its stop, a trip running; 113.11 their book and a hold of it.
     const busRoute = (await store.saveSchoolBusRoute({ id: null, appId: k12, name: `${MARK} route`, plate: MARK, capacity: 20, driverId: null, supervisorId: null, active: true }, NOW))!;
     const busStop = (await store.saveSchoolBusStop({ id: null, appId: k12, routeId: busRoute.id, name: `${MARK} stop`, lat: 30.05, lng: 31.24, morningMinute: 420, afternoonMinute: null }))!;
@@ -666,6 +671,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       topic_id: String(theirTopic.id),
       report_id: String(theirReport.id),
       leave_id: String(leave.id),
+      payslip_id: String(payslip.payslip.id),
       route_id: String(busRoute.id),
       run_id: String(busRun.id),
       book_id: String(book.id),
