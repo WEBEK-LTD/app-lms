@@ -14,13 +14,14 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /**
  * 90.1 /a/<app_id>/certificate/<code>: the certificate of a student who
  * finished a course managed in Yallapp (every lesson completed, every quiz
- * passed), in the app's branding, ready to print or keep as a PDF. The code
- * is signed, so the page also proves the certificate is real.
+ * passed, 112.5 every assignment graded), in the app's branding, with 112.5
+ * the course's signature line, ready to print or keep as a PDF. The code is
+ * signed, so the page also proves the certificate is real.
  */
 const TEXT = {
-  en: { heading: "Certificate of completion", given: "This certifies that", finished: "has completed the course", on: "Completed on {date}", code: "Certificate {code}" },
-  ar: { heading: "شهادة إتمام", given: "تشهد هذه الوثيقة بأن", finished: "قد أتمّ الدورة", on: "تاريخ الإتمام: {date}", code: "الشهادة {code}" },
-  tr: { heading: "Tamamlama sertifikası", given: "Bu belge,", finished: "adlı kişinin şu kursu tamamladığını onaylar", on: "Tamamlanma tarihi: {date}", code: "Sertifika {code}" },
+  en: { heading: "Certificate of completion", given: "This certifies that", finished: "has completed the course", on: "Completed on {date}", code: "Certificate {code}", signed: "Signed", verified: "This page is the certificate's proof: {app} issued it." },
+  ar: { heading: "شهادة إتمام", given: "تشهد هذه الوثيقة بأن", finished: "قد أتمّ الدورة", on: "تاريخ الإتمام: {date}", code: "الشهادة {code}", signed: "التوقيع", verified: "هذه الصفحة دليل صحة الشهادة: أصدرتها {app}." },
+  tr: { heading: "Tamamlama sertifikası", given: "Bu belge,", finished: "adlı kişinin şu kursu tamamladığını onaylar", on: "Tamamlanma tarihi: {date}", code: "Sertifika {code}", signed: "İmza", verified: "Bu sayfa sertifikanın kanıtıdır: {app} tarafından verildi." },
 } as const;
 
 type Lang = keyof typeof TEXT;
@@ -46,7 +47,12 @@ async function load(appId: string, code: string) {
   if (!app || !course || !user) return null;
   const enrolled = (await store.listCourseEnrollments({ appId: app.id, userId: user.id, courseId: course.id })).length > 0;
   const progress = new Map((await store.listLessonProgress({ appId: app.id, userId: user.id, courseId: course.id })).map((p) => [p.lessonId, p]));
-  const result = courseProgress(course, progress, await store.listQuizAttempts({ appId: app.id, userId: user.id, courseId: course.id }));
+  const result = courseProgress(
+    course,
+    progress,
+    await store.listQuizAttempts({ appId: app.id, userId: user.id, courseId: course.id }),
+    await store.listAssignmentSubmissions({ appId: app.id, userId: user.id, courseId: course.id }),
+  );
   if (!enrolled || !result.course_completed || !result.completed_at) return null;
   // The name only: a page anyone with the link opens never shows a phone number or email address.
   return { app, course, name: user.name, completedAt: new Date(result.completed_at) };
@@ -91,9 +97,17 @@ export default async function CertificatePage({ params }: Params) {
           {course.title}
         </p>
         <p className="m-0 text-[15px] text-ink-4">{t.on.replace("{date}", date)}</p>
+        {/* 112.5 Who signs it. */}
+        {course.certificateSigner ? (
+          <div className="mt-4 flex flex-col items-center gap-1" data-certificate-signer="">
+            <span className="min-w-[220px] border-b border-ink-4 pb-1 text-[18px] italic">{course.certificateSigner}</span>
+            <span className="text-xs text-muted">{t.signed}</span>
+          </div>
+        ) : null}
         <p className="m-0 text-xs text-muted" dir="ltr">
           {t.code.replace("{code}", code)}
         </p>
+        <p className="m-0 text-xs text-muted">{t.verified.replace("{app}", app.appName ?? app.storeTitle ?? "")}</p>
       </section>
     </main>
   );

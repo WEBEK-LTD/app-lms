@@ -137,6 +137,10 @@ tags:
     description: Enrolled courses, lessons and progress.
   - name: Quizzes
     description: Quiz questions, attempts and results.
+  - name: Assignments
+    description: Roadmap 112.5. Assignments of courses managed in Yallapp, the student's work handed in and its grade, and the files sent with it.
+  - name: Live classes
+    description: Roadmap 112.5. Live classes of courses managed in Yallapp, with their meeting links and recordings.
   - name: Commerce
     description: Free enrollment, checkout hand-off and the student's orders.
   - name: Notifications
@@ -2659,6 +2663,186 @@ paths:
                       items:
                         type: array
                         items: { $ref: '#/components/schemas/AttemptResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /assignments/{assignment_id}:
+    get:
+      tags: [Assignments]
+      operationId: getAssignment
+      summary: An assignment, with what the student handed in and its grade
+      description: |
+        Roadmap 112.5. For the course's students: `not_enrolled` (403) otherwise,
+        `access_ended` (403) once their access ended, and `previous_not_done`
+        (403) in a course taken in order until the item before it is done.
+      parameters:
+        - $ref: '#/components/parameters/AssignmentId'
+      responses:
+        '200':
+          description: The assignment
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Assignment' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /assignments/{assignment_id}/submission:
+    put:
+      tags: [Assignments]
+      operationId: submitAssignment
+      summary: Hand in an assignment
+      description: |
+        Roadmap 112.5. Some text, a photo or a PDF (sent with `/course-uploads`),
+        or both. It can be handed in again until it's graded (also when the
+        teacher sent it back, `returned`); then `already_graded` (409). After
+        its due date it's marked `late`. The student is told in the app when
+        it's graded or sent back (`assignment_graded`).
+      parameters:
+        - $ref: '#/components/parameters/AssignmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text: { type: string, maxLength: 10000 }
+                upload_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '200':
+          description: The assignment with what was handed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Assignment' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /course-uploads:
+    post:
+      tags: [Assignments]
+      operationId: startCourseUpload
+      summary: Start sending a file for an assignment
+      description: |
+        Roadmap 112.5. A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to
+        200 MB, by a student of one of the app's courses, into the academy's
+        Media library (413 `storage_full` when its storage is full). Sent in
+        chunks to `upload_url` as chat files are, then `/complete`; its `id` is
+        the `upload_id` handed in.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: application/pdf }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413':
+          description: Too big for its kind (`too_big`), or the academy's storage is full (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /course-uploads/{upload_id}/resume:
+    post:
+      tags: [Assignments]
+      operationId: resumeCourseUpload
+      summary: A fresh link to carry on with an upload
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: A new link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /course-uploads/{upload_id}/complete:
+    post:
+      tags: [Assignments]
+      operationId: completeCourseUpload
+      summary: Finish an upload
+      description: 409 `incomplete` with the offset reached when part of the file is missing.
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '204': { description: Ready to use }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /live-sessions/{live_id}:
+    get:
+      tags: [Live classes]
+      operationId: getLiveSession
+      summary: A live class of one of the student's courses
+      description: |
+        Roadmap 112.5. `join_url` from 15 minutes before it starts until it
+        ends; `recording_url` once it's over and the academy added one. For the
+        course's students only (`not_enrolled`, 403).
+      parameters:
+        - name: live_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: The live class
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LiveSession' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/live-sessions:
+    get:
+      tags: [Live classes]
+      operationId: listMyLiveSessions
+      summary: The live classes of the student's courses
+      description: Roadmap 112.5. `upcoming` (the default) gives those coming and on now, soonest first; `past` those over, latest first. Courses whose access ended are left out.
+      parameters:
+        - name: when
+          in: query
+          schema: { type: string, enum: [upcoming, past], default: upcoming }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Live classes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/LiveSession' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /me/subscriptions:
@@ -6930,6 +7114,11 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    AssignmentId:
+      name: assignment_id
+      in: path
+      required: true
+      schema: { type: integer }
     QuestionId:
       name: question_id
       in: path
@@ -7191,6 +7380,8 @@ components:
             pro: { type: boolean }
             certificates: { type: boolean }
             quizzes: { type: boolean }
+            assignments: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have assignments (`GET /assignments/{assignment_id}`). Missing on older servers means false." }
+            live_classes: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have live classes (`GET /me/live-sessions`). Missing on older servers means false." }
             wishlist: { type: boolean }
             reviews: { type: boolean }
             qna: { type: boolean }
@@ -7707,7 +7898,30 @@ components:
           description: >-
             Roadmap 90.1. When a lesson that opens some days after enrolling (drip) opens
             for this student; it's `locked` until then, and `GET /lessons/{id}` answers 403
-            `not_available_yet`. Null or missing: no wait.
+            `not_available_yet`. Null or missing: no wait. Roadmap 112.5: also a lesson
+            that opens on a day for everyone.
+        locked_reason:
+          type: [string, 'null']
+          enum: [not_enrolled, access_ended, not_available_yet, previous_not_done, null]
+          description: >-
+            Roadmap 112.5. Why it's `locked`: the student isn't enrolled, their access ended,
+            it opens later (`available_at`), or, in a course taken in order, the item before
+            it isn't done yet (its endpoints answer 403 `previous_not_done`). Null when it
+            isn't locked; missing on older servers.
+        due_at:
+          type: [string, 'null']
+          format: date-time
+          description: Roadmap 112.5. An `assignment`'s due date for this student; null when it has none.
+        starts_at:
+          type: [string, 'null']
+          format: date-time
+          description: Roadmap 112.5. When a `live` class starts (`GET /live-sessions/{id}`).
+        in_app:
+          type: boolean
+          description: >-
+            Roadmap 112.5. The app opens this assignment (`GET /assignments/{id}`) or live class
+            (`GET /live-sessions/{id}`) itself: courses managed in Yallapp. Missing or false:
+            assignments and live classes are on the website.
 
     Lesson:
       type: object
@@ -7973,6 +8187,32 @@ components:
         status: { type: string, enum: [passed, failed, pending_review] }
         score_percent: { type: [number, 'null'] }
         finished_at: { type: [string, 'null'], format: date-time }
+        review:
+          type: array
+          description: >-
+            Roadmap 112.5. When the quiz shows its answers: each question with what the
+            student chose or wrote and what was right (after submitting, and in
+            `Quiz.last_result`). Missing otherwise.
+          items:
+            type: object
+            required: [question_id, title, type, correct, options, chosen_option_ids, right_option_ids]
+            properties:
+              question_id: { type: integer }
+              title: { type: string }
+              type: { type: string, enum: [single_choice, multiple_choice, true_false, short_answer] }
+              correct: { type: boolean }
+              options:
+                type: array
+                items:
+                  type: object
+                  required: [id, label]
+                  properties:
+                    id: { type: string }
+                    label: { type: string }
+              chosen_option_ids: { type: array, items: { type: string } }
+              right_option_ids: { type: array, items: { type: string } }
+              text: { type: [string, 'null'], description: A short answer as written. }
+              accepted_answers: { type: array, items: { type: string }, description: A short answer's accepted answers. }
 
     Certificate:
       type: object
@@ -7982,6 +8222,68 @@ components:
         course_title: { type: string }
         url: { type: string, format: uri }
         issued_at: { type: [string, 'null'], format: date-time }
+
+    Assignment:
+      type: object
+      description: Roadmap 112.5. An assignment of a course managed in Yallapp, as its student sees it.
+      required: [id, course_id, course_title, title, instructions_html, due_at, max_points, pass_points, attachments, accepts_files, can_submit, submission]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        title: { type: string }
+        instructions_html: { type: string }
+        due_at: { type: [string, 'null'], format: date-time, description: For this student; null when it has no due date. }
+        max_points: { type: integer }
+        pass_points: { type: [integer, 'null'], description: The score that counts it as done in the course's progress; null when any grade does. }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/Attachment' }
+        accepts_files: { type: boolean, description: "A photo or a PDF can be handed in (`/course-uploads`); false: text only." }
+        can_submit: { type: boolean, description: False once it's graded. }
+        submission:
+          oneOf:
+            - $ref: '#/components/schemas/AssignmentSubmission'
+            - type: 'null'
+
+    AssignmentSubmission:
+      type: object
+      required: [id, text, file, status, score, max_points, passed, feedback, submitted_at, graded_at, late]
+      properties:
+        id: { type: integer }
+        text: { type: string }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        status:
+          type: string
+          enum: [submitted, graded, returned]
+          description: "`submitted`: waiting for the teacher; `graded`: with its score; `returned`: the teacher asks for it again (see `feedback`)."
+        score: { type: [integer, 'null'] }
+        max_points: { type: integer }
+        passed: { type: [boolean, 'null'], description: Graded at or over the pass score; null until graded. }
+        feedback: { type: [string, 'null'], description: The teacher's note. }
+        submitted_at: { type: string, format: date-time }
+        graded_at: { type: [string, 'null'], format: date-time }
+        late: { type: boolean }
+
+    LiveSession:
+      type: object
+      description: Roadmap 112.5. A live class of a course managed in Yallapp.
+      required: [id, course_id, course_title, title, starts_at, ends_at, duration_minutes, notes, status, join_url, recording_url]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        course_title: { type: string }
+        title: { type: string }
+        starts_at: { type: string, format: date-time }
+        ends_at: { type: string, format: date-time }
+        duration_minutes: { type: integer }
+        notes: { type: string }
+        status: { type: string, enum: [upcoming, live, ended] }
+        join_url: { type: [string, 'null'], format: uri, description: "The meeting link (Zoom, Google Meet or another), from 15 minutes before it starts until it ends; the app opens it outside the app." }
+        recording_url: { type: [string, 'null'], format: uri, description: "The recording once it's over, when there is one." }
 
     LinkResolution:
       type: object
@@ -8218,7 +8520,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -8248,6 +8550,10 @@ components:
             teacher marked homework or entered a score, and opens their grades; `school_fee`, a
             fee was added or paid, and opens their fees. `school_announcement` (with
             `student_id` when it is for one student's class or family) opens the school's news.
+            112.5 `live_class_soon` (with `course_id` and `live_id`): one of the student's
+            live classes starts within the hour, and opens it; `assignment_graded` (with
+            `course_id` and `assignment_id`): the teacher graded or sent back one of the
+            student's assignments, and opens it.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -8262,6 +8568,8 @@ components:
         ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
         student_id: { type: [integer, 'null'], description: "105.4 For the school's notifications, the student it is about. Missing on older servers." }
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
+        live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
+        assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']

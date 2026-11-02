@@ -83,7 +83,7 @@ describe("85.3 automatic notifications", () => {
 
   it("each app has its own kinds", () => {
     const app = (appType: AppType, vertical: AppVertical | null, kind: NonNullable<App["connector"]>["kind"]) => ({ ...newApp("c", null, NOW, appType, vertical), backend: "hosted" as const, connector: { kind } as App["connector"] });
-    expect(autoKindsFor(app("lms", null, "courses"))).toEqual(["new_lesson", "study_reminder"]);
+    expect(autoKindsFor(app("lms", null, "courses"))).toEqual(["new_lesson", "study_reminder", "live_class_soon", "assignment_graded"]);
     expect(autoKindsFor(app("booking", "fitness", "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder", "class_soon", "membership_ending"]);
     expect(autoKindsFor(app("booking", null, "bookings"))).toEqual(["appointment_confirmed", "appointment_reminder"]);
     expect(autoKindsFor(app("events", null, "events"))).toEqual(["event_soon"]);

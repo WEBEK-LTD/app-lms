@@ -143,6 +143,18 @@ String pushTargetLocation(Map<String, dynamic> data) {
       return Paths.cart;
     case 'study_reminder':
       return Paths.myCourses;
+    // 112.5 A live class soon, an assignment graded or sent back.
+    case 'live_class_soon':
+      final live = id('live_id');
+      return live != null ? Paths.liveSession(live) : Paths.liveClasses;
+    case 'assignment_graded':
+      final assignment = id('assignment_id');
+      final course = id('course_id');
+      return assignment != null
+          ? Paths.assignment(assignment)
+          : course != null
+          ? Paths.course(course)
+          : Paths.myCourses;
   }
   // 46 A link (`<base>/<kind>/<id>`): its path, which the router maps with
   // the same table as a link opened from outside the app.

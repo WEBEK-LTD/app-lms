@@ -36,6 +36,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  AssignmentSubmission,
   CatalogCoupon,
   CatalogProduct,
   CatalogProductInput,
@@ -522,6 +523,15 @@ export interface DataStore {
   submitQuizAttempt(appId: string, id: number, result: Pick<QuizAttempt, "answers" | "scorePercent" | "passed" | "submittedAt">): Promise<boolean>;
   listQuizAttempts(input: { appId: string; userId?: number; courseId?: number; quizId?: number }): Promise<QuizAttempt[]>;
   deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number>;
+  // 112.5 Assignments' submissions: one per student and assignment.
+  /** Hands in (or again): the text and file, `submitted`, the grade cleared; the row's ID kept. */
+  saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission>;
+  getAssignmentSubmission(appId: string, id: number): Promise<AssignmentSubmission | null>;
+  /** Newest first. */
+  listAssignmentSubmissions(input: { appId: string; userId?: number; courseId?: number; assignmentId?: number; status?: AssignmentSubmission["status"] }): Promise<AssignmentSubmission[]>;
+  /** Grades a submission, or returns it for another try; false when there's no such submission. */
+  gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean>;
+  deleteAssignmentSubmissions(input: { appId: string; userId: number; courseId: number }): Promise<number>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;

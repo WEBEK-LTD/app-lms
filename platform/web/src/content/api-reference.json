@@ -345,6 +345,67 @@
       ]
     },
     {
+      "name": "Assignments",
+      "description": "Roadmap 112.5. Assignments of courses managed in Yallapp, the student's work handed in and its grade, and the files sent with it.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/assignments/{assignment_id}",
+          "summary": "An assignment, with what the student handed in and its grade",
+          "description": "Roadmap 112.5. For the course's students: `not_enrolled` (403) otherwise, `access_ended` (403) once their access ended, and `previous_not_done` (403) in a course taken in order until the item before it is done.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/assignments/{assignment_id}/submission",
+          "summary": "Hand in an assignment",
+          "description": "Roadmap 112.5. Some text, a photo or a PDF (sent with `/course-uploads`), or both. It can be handed in again until it's graded (also when the teacher sent it back, `returned`); then `already_graded` (409). After its due date it's marked `late`. The student is told in the app when it's graded or sent back (`assignment_graded`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/course-uploads",
+          "summary": "Start sending a file for an assignment",
+          "description": "Roadmap 112.5. A photo (JPEG, PNG, WebP) up to 20 MB or a PDF up to 200 MB, by a student of one of the app's courses, into the academy's Media library (413 `storage_full` when its storage is full). Sent in chunks to `upload_url` as chat files are, then `/complete`; its `id` is the `upload_id` handed in.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/course-uploads/{upload_id}/resume",
+          "summary": "A fresh link to carry on with an upload",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/course-uploads/{upload_id}/complete",
+          "summary": "Finish an upload",
+          "description": "409 `incomplete` with the offset reached when part of the file is missing.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Live classes",
+      "description": "Roadmap 112.5. Live classes of courses managed in Yallapp, with their meeting links and recordings.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/live-sessions/{live_id}",
+          "summary": "A live class of one of the student's courses",
+          "description": "Roadmap 112.5. `join_url` from 15 minutes before it starts until it ends; `recording_url` once it's over and the academy added one. For the course's students only (`not_enrolled`, 403).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/live-sessions",
+          "summary": "The live classes of the student's courses",
+          "description": "Roadmap 112.5. `upcoming` (the default) gives those coming and on now, soonest first; `past` those over, latest first. Courses whose access ended are left out.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Commerce",
       "description": "Free enrollment, checkout hand-off and the student's orders.",
       "endpoints": [

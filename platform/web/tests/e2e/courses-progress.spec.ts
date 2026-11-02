@@ -6,7 +6,9 @@ import { E2E } from "../../playwright.config";
 /**
  * 90 An academy without a website, complete: a quiz after the lessons, a
  * certificate for students who finish (90.1), and each student's progress
- * and quiz results for the teacher, with the CSV file (90.2).
+ * and quiz results for the teacher, with the CSV file (90.2). 112.5 An
+ * assignment and a live class added and moved, the assignment handed in
+ * from the app and graded, and the grade in the gradebook.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address, so the sign-up and sign-in limits per IP don't reach the other specs.
@@ -105,16 +107,16 @@ test("90.1 the academy adds a lesson with a file, a quiz, a certificate and acce
   await expect(curriculum.getByRole("heading", { name: "Hello" })).toBeVisible();
   await curriculum.getByLabel("Lesson title").fill("Greetings");
   await curriculum.getByLabel("Text", { exact: true }).fill("Merhaba means hello.");
-  await curriculum.getByLabel("Files").fill("Word list | https://cdn.example.com/words.pdf");
+  await curriculum.getByLabel("Files", { exact: true }).fill("Word list | https://cdn.example.com/words.pdf");
   await curriculum.getByRole("button", { name: "Add lesson" }).click();
   await expect(curriculum.getByText("Text · 1 file")).toBeVisible();
 
   await curriculum.getByText("Add a quiz to Hello").click();
   await curriculum.getByLabel("Quiz title").fill("Check yourself");
-  await curriculum.getByLabel("Questions").fill("Q: Merhaba means\n* Hello");
+  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello");
   await curriculum.getByRole("button", { name: "Add quiz" }).click();
   await expect(curriculum.getByText("“Merhaba means” needs at least two answers.")).toBeVisible();
-  await curriculum.getByLabel("Questions").fill("Q: Merhaba means\n* Hello\n- Goodbye");
+  await curriculum.getByLabel("Questions", { exact: true }).fill("Q: Merhaba means\n* Hello\n- Goodbye");
   await curriculum.getByRole("button", { name: "Add quiz" }).click();
   await expect(curriculum.getByText("1 question · pass mark 70%")).toBeVisible();
 });
@@ -158,7 +160,7 @@ test("90.1 a student learns, passes the quiz and gets the certificate", async ({
 
 test("90.2 the teacher sees each student's progress and quiz results, and downloads them", async () => {
   await own.goto(`/dashboard/courses/${courseId}`);
-  await own.getByRole("link", { name: "Progress and quiz results" }).click();
+  await own.getByRole("link", { name: "Progress and grades" }).click();
   await expect(own.getByRole("heading", { level: 1, name: "Students' progress" })).toBeVisible();
   await expect(own.getByText("2 students · 1 started · 1 finished")).toBeVisible();
   const deniz = own.locator("tr", { hasText: "Deniz" });
@@ -181,4 +183,66 @@ test("90.2 the teacher sees each student's progress and quiz results, and downlo
 
   // Another account can't read it.
   expect((await own.request.get(`/api/dashboard/courses/999999/progress`)).status()).toBe(404);
+});
+
+test("112.5 the academy adds an assignment and a live class, and moves the live class up", async () => {
+  await own.goto(`/dashboard/courses/${courseId}`);
+  const curriculum = own.getByRole("region", { name: "Sections and lessons" });
+  await curriculum.getByText("Add an assignment to Hello").click();
+  await curriculum.getByLabel("Assignment title").fill("Introduce yourself");
+  await curriculum.getByLabel("Instructions").fill("Write three sentences about you.");
+  await curriculum.getByLabel("Highest score").fill("20");
+  await curriculum.getByRole("button", { name: "Add assignment" }).click();
+  await expect(curriculum.getByText("assignment · 20 points")).toBeVisible();
+
+  await curriculum.getByText("Add a live class to Hello").click();
+  await curriculum.getByLabel("Live class title").fill("Speaking club");
+  await curriculum.getByLabel("Day", { exact: true }).fill("2030-01-15");
+  await curriculum.getByLabel(/^Starts at/).fill("18:00");
+  await curriculum.getByLabel("Meeting link").fill("http://meet.example.com/abc");
+  await curriculum.getByRole("button", { name: "Add live class" }).click();
+  await expect(curriculum.getByText("Enter the meeting's https link (Zoom, Google Meet, Microsoft Teams or another).")).toBeVisible();
+  await curriculum.getByLabel("Meeting link").fill("https://meet.example.com/abc");
+  await curriculum.getByRole("button", { name: "Add live class" }).click();
+  await expect(curriculum.getByText("live · 2030-01-15 18:00 · 60 min")).toBeVisible();
+
+  await expect(curriculum.locator("[data-kind]")).toHaveCount(4);
+  await curriculum.locator('[data-kind="live"]').getByRole("button", { name: "Move up" }).click();
+  await expect.poll(async () => curriculum.locator("[data-kind]").evaluateAll((rows) => rows.map((r) => r.getAttribute("data-kind")))).toEqual(["lesson", "quiz", "live", "assignment"]);
+});
+
+test("112.5 a student hands the assignment in from the app, the academy grades it", async ({ request }) => {
+  const student = await signUp(request, "Fatma", 2);
+  const config = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { features: Record<string, unknown> };
+  expect(config.features).toMatchObject({ assignments: true, live_classes: true });
+  await request.post(`${api}/courses/${courseId}/enroll`, { headers: student });
+  const items = (await (await request.get(`${api}/courses/${courseId}/curriculum`, { headers: student })).json()).topics[0].items as { id: number; type: string; in_app?: boolean }[];
+  expect(items.map((it) => it.type)).toEqual(["lesson", "quiz", "live", "assignment"]);
+  const assignment = items.find((it) => it.type === "assignment")!;
+  expect(assignment.in_app).toBe(true);
+  const live = await (await request.get(`${api}/live-sessions/${items[2]!.id}`, { headers: student })).json();
+  expect(live).toMatchObject({ title: "Speaking club", status: "upcoming", join_url: null });
+  const handed = await request.put(`${api}/assignments/${assignment.id}/submission`, { headers: student, data: { text: "Merhaba, ben Fatma." } });
+  expect(handed.status()).toBe(200);
+
+  await own.goto(`/dashboard/courses/${courseId}`);
+  await own.getByRole("link", { name: "1 assignment to grade" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Assignments" })).toBeVisible();
+  const work = own.locator("[data-submission]", { hasText: "Fatma" });
+  await expect(work).toContainText("Merhaba, ben Fatma.");
+  await work.getByLabel("Score (out of 20)").fill("21");
+  await work.getByRole("button", { name: "Save the grade" }).click();
+  await expect(work.getByText("Enter a score from 0 to 20.")).toBeVisible();
+  await work.getByLabel("Score (out of 20)").fill("18");
+  await work.getByLabel("Note to the student").fill("Great.");
+  await work.getByRole("button", { name: "Save the grade" }).click();
+  await own.goto(`/dashboard/courses/${courseId}/assignments?status=graded`);
+  await expect(own.locator("[data-submission]", { hasText: "Fatma" })).toContainText("18/20");
+
+  expect(await (await request.get(`${api}/assignments/${assignment.id}`, { headers: student })).json()).toMatchObject({
+    can_submit: false,
+    submission: { status: "graded", score: 18, feedback: "Great.", passed: true },
+  });
+  await own.goto(`/dashboard/courses/${courseId}/students`);
+  await expect(own.locator("tr", { hasText: "Fatma" })).toContainText("Introduce yourself 18/20");
 });
