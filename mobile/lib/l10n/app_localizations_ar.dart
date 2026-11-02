@@ -6365,4 +6365,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get navigateToDropoff => 'التنقل إلى الوجهة';
+
+  @override
+  String trackingOnTheWayFrom(String place) {
+    return 'في الطريق من $place إليك';
+  }
+
+  @override
+  String trackingArrivesIn(int minutes) {
+    return 'يصل خلال $minutes د تقريبًا';
+  }
 }

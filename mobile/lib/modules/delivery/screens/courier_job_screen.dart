@@ -10,12 +10,15 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../taxi/widgets/navigate_button.dart';
+import '../../taxi/widgets/trip_map.dart';
 import '../data/delivery_providers.dart';
 import '../widgets/delivery_widgets.dart';
 import '../../../core/format/bidi.dart';
 
 /// 104 One job as the courier works it: where to pick it up and drop it
-/// off (with directions), who to call, the cash to collect, and the next
+/// off (with directions; 112.2 its road on the map and "Navigate" in
+/// Google Maps, Apple Maps or Waze), who to call, the cash to collect, and the next
 /// stage. While the parcel is on the way and this screen is open, the
 /// courier's position goes to the customer (live tracking).
 class CourierJobScreen extends ConsumerStatefulWidget {
@@ -149,6 +152,10 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
     final other = steps
         .where((s) => s == JobStep.failed || s == JobStep.released)
         .toList();
+    // 112.2 Where the courier drives now: the pickup, then the drop-off.
+    final target = job == null
+        ? null
+        : (job.status.live ? job.dropoff : job.pickup);
     return Scaffold(
       appBar: AppBar(
         leading: appBarBack(context),
@@ -209,6 +216,34 @@ class _CourierJobScreenState extends ConsumerState<CourierJobScreen> {
                 Text(
                   l10n.sharingLocation,
                   style: TextStyle(fontSize: 13, color: p.textSecondary),
+                ),
+              ],
+              // 112.2 The job's road on the map, the courier on it, and the
+              // way there in the phone's navigation app.
+              if (j.pickup.located || j.dropoff.located) ...[
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                  valueListenable: sharer.position,
+                  builder: (context, at, _) => TripMap(
+                    key: const ValueKey('job-map'),
+                    map: TripMap.mapOf(ref.watch(deliveryConfigProvider)),
+                    from: j.pickup,
+                    to: j.dropoff,
+                    courier: live ? at : null,
+                    toward: j.status.live ? j.dropoff : j.pickup,
+                    height: 240,
+                  ),
+                ),
+              ],
+              if (j.status.active && target != null && target.located) ...[
+                const SizedBox(height: 12),
+                NavigateButton(
+                  key: const ValueKey('job-navigate'),
+                  lat: target.lat!,
+                  lng: target.lng!,
+                  label: j.status.live
+                      ? l10n.navigateToDropoff
+                      : l10n.navigateToPickup,
                 ),
               ],
               const SizedBox(height: 12),

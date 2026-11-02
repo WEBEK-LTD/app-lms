@@ -6510,4 +6510,14 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get navigateToDropoff =>
       overlay.text('navigateToDropoff') ?? base.navigateToDropoff;
+
+  @override
+  String trackingOnTheWayFrom(String place) =>
+      overlay.format('trackingOnTheWayFrom', {'place': place}) ??
+      base.trackingOnTheWayFrom(place);
+
+  @override
+  String trackingArrivesIn(int minutes) =>
+      overlay.format('trackingArrivesIn', {'minutes': minutes}) ??
+      base.trackingArrivesIn(minutes);
 }

@@ -5941,5 +5941,23 @@
   "navigateToDropoff": "Navigate to the drop-off",
   "@navigateToDropoff": {
     "description": "112.1 The driver's button during the ride: the way to the drop-off in the phone's navigation app."
+  },
+  "trackingOnTheWayFrom": "On the way from {place} to you",
+  "@trackingOnTheWayFrom": {
+    "description": "112.2 Under a shipment's or a food order's map while the courier has it.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingArrivesIn": "Arrives in about {minutes} min",
+  "@trackingArrivesIn": {
+    "description": "112.2 How soon the courier reaches the drop-off, from where they are.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }

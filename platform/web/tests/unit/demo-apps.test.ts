@@ -388,7 +388,7 @@ describe("signing in to a demo app", () => {
   it("110.5 Lamha Taxi: taxis drive around wherever the rider is, the platform's map, and the visitor drives their own ride", async () => {
     const { app, go, token, roles } = await studio("taxi");
     expect(roles).toEqual(["driver"]);
-    // No map of its own: the plain ride screens until the team sets Admin › Settings › Maps.
+    // No map of its own: the map-first screens on a plain background until the team sets Admin › Settings › Maps.
     const plain = (await go("GET", "/config")).body as { taxi: { map: { tiles_url: string | null; search: boolean }; live: unknown } };
     expect(plain.taxi).toMatchObject({ map: { tiles_url: null, search: false }, live: null });
     await store.setPlatformSetting("maps", { tilesUrl: "https://tiles.yallapp.test/{z}/{x}/{y}.png", attribution: "© OpenStreetMap contributors" }, "admin@yallapp.test", NOW);

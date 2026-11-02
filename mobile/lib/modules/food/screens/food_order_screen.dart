@@ -16,7 +16,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
-import '../../delivery/widgets/delivery_map.dart';
+import '../../taxi/widgets/trip_map.dart';
 import '../../delivery/widgets/delivery_widgets.dart'
     show CallButton, PlaceRow, pointUrl;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
@@ -191,12 +191,9 @@ class _OrderView extends ConsumerWidget {
     final o = order;
     final position = o.courierPosition;
     final live = config.tracking == DeliveryTracking.live && o.status.live;
-    final pins = [
-      if (o.dropoff.located)
-        MapPin(MapPinKind.dropoff, o.dropoff.lat!, o.dropoff.lng!),
-      if (position != null)
-        MapPin(MapPinKind.courier, position.lat, position.lng),
-    ];
+    final courier = live && position != null
+        ? (lat: position.lat, lng: position.lng)
+        : null;
     TextStyle label() => TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w700,
@@ -233,6 +230,24 @@ class _OrderView extends ConsumerWidget {
             ].join('. '),
             style: TextStyle(fontSize: 15, color: p.danger),
           ),
+        ],
+        // 112.2 The map: from the restaurant to the door, and the courier.
+        if (o.status.active && o.dropoff.located) ...[
+          const SizedBox(height: 12),
+          TripMap(
+            key: const ValueKey('food-order-map'),
+            map: TripMap.mapOf(config.mapConfig),
+            from: o.pickup,
+            to: o.dropoff,
+            courier: courier,
+            toward: o.dropoff,
+          ),
+          if (courier != null)
+            OnTheWayLine(
+              from: o.pickup ?? Place(address: o.restaurantName),
+              to: o.dropoff,
+              courier: courier,
+            ),
         ],
         const SizedBox(height: 16),
         // The courier, and where they are.
@@ -271,12 +286,6 @@ class _OrderView extends ConsumerWidget {
                 ),
                 if (live) ...[
                   const SizedBox(height: 12),
-                  if (position != null && config.tilesUrl != null)
-                    DeliveryMap(
-                      key: const ValueKey('food-order-map'),
-                      config: config.mapConfig,
-                      pins: pins,
-                    ),
                   if (position != null) ...[
                     const SizedBox(height: 8),
                     Row(

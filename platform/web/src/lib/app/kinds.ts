@@ -623,6 +623,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       nav: {
         label: "Your deliveries",
         items: [
+          // 112.2 The couriers and jobs on the map.
+          { href: "/dashboard/delivery/live", label: "Live map", icon: "map" },
           { href: "/dashboard/shipments", label: "Shipments", icon: "package_2" },
           { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
           // Shipments paid by card are orders: their receipts and refunds.
@@ -685,6 +687,8 @@ export const ENGINES: Record<AppType, EngineInfo> = {
       nav: {
         label: "Your food delivery",
         items: [
+          // 112.2 The couriers and their jobs on the map.
+          { href: "/dashboard/delivery/live", label: "Live map", icon: "map" },
           { href: "/dashboard/food-orders", label: "Food orders", icon: "receipt_long" },
           { href: "/dashboard/restaurants", label: "Restaurants", icon: "storefront" },
           { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },

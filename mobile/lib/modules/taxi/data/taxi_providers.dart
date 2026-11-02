@@ -91,11 +91,15 @@ final taxiLiveProvider = FutureProvider.autoDispose<TaxiLiveSession?>((
 });
 
 /// 112 The app's map has routes (`POST /maps/route`): a ride app's
-/// (`Config.taxi`).
+/// (`Config.taxi`), else (112.2) a delivery or food app's.
 final mapRoutesProvider = Provider<bool>((ref) {
   final gate = ref.watch(appGateProvider);
   if (gate is! GateReady) return false;
-  return gate.config.taxi?.map.routes ?? false;
+  final config = gate.config;
+  return config.taxi?.map.routes ??
+      config.delivery?.routes ??
+      config.food?.routes ??
+      false;
 });
 
 /// To about 10 m: the same road is asked once while a car moves a little.

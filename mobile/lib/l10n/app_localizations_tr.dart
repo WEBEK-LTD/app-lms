@@ -6156,4 +6156,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get navigateToDropoff => 'Varış noktasına yol tarifi';
+
+  @override
+  String trackingOnTheWayFrom(String place) {
+    return '$place konumundan sana geliyor';
+  }
+
+  @override
+  String trackingArrivesIn(int minutes) {
+    return 'Yaklaşık $minutes dk içinde gelir';
+  }
 }

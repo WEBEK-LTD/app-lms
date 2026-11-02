@@ -11058,15 +11058,19 @@ components:
           description: Where the couriers' screens are (see the Courier tag). This build shows them only when it is `same`, or when the build is the courier app (`delivery_role` courier).
         map:
           type: object
-          required: [tiles_url, attribution]
+          required: [tiles_url, attribution, search, routes]
           description: |
-            The map for live tracking: a tile address with `{z}`, `{x}` and
-            `{y}` (and `{s}` when it has subdomains), set by Yallapp. While
-            `tiles_url` is null the app shows where the courier is without a
-            map, with a button that opens it in the phone's maps.
+            The map: a tile address with `{z}`, `{x}` and `{y}` (and `{s}`
+            when it has subdomains), set by Yallapp. Roadmap 112.2: the
+            shipment's screen shows the pickup, the drop-off, the route and,
+            with live tracking, the courier on it; the courier's job shows its
+            route. While `tiles_url` is null the app draws them on a plain
+            background, with a button that opens the phone's maps.
           properties:
             tiles_url: { type: [string, 'null'] }
             attribution: { type: [string, 'null'], example: '© OpenStreetMap contributors' }
+            search: { type: boolean, description: 'Roadmap 112.2. `GET /maps/places` works.' }
+            routes: { type: boolean, description: 'Roadmap 112.2. `POST /maps/route` works.' }
 
     DeliveryService:
       type: object
@@ -11310,11 +11314,13 @@ components:
           description: As `DeliveryConfig.courier_app` (roadmap 105.1.6). This build shows the couriers' screens only when it is `same`, or when the build is the courier app.
         map:
           type: object
-          required: [tiles_url, attribution]
+          required: [tiles_url, attribution, search, routes]
           description: As `DeliveryConfig.map`.
           properties:
             tiles_url: { type: [string, 'null'] }
             attribution: { type: [string, 'null'] }
+            search: { type: boolean }
+            routes: { type: boolean }
 
     RestaurantSummary:
       type: object
@@ -11487,7 +11493,7 @@ components:
 
     FoodOrder:
       type: object
-      required: [id, reference, status, restaurant, lines, subtotal_formatted, delivery_fee_formatted, total, total_formatted, currency, payment, dropoff, notes, ready_at, rejection, courier, courier_location, rating, timeline, created_at]
+      required: [id, reference, status, restaurant, lines, subtotal_formatted, delivery_fee_formatted, total, total_formatted, currency, payment, pickup, dropoff, notes, ready_at, rejection, courier, courier_location, rating, timeline, created_at]
       properties:
         id: { type: integer }
         reference: { type: string, example: 'F-1042' }
@@ -11514,6 +11520,11 @@ components:
           properties:
             method: { type: string, enum: [cash, card] }
             status: { type: string, enum: [unpaid, paid, refunded], description: 'A cash order is paid once delivered.' }
+        pickup:
+          description: Roadmap 112.2. Where the food comes from, for the map (the courier's pickup, else the restaurant's address); null once the restaurant is deleted.
+          oneOf:
+            - $ref: '#/components/schemas/Place'
+            - type: 'null'
         dropoff: { $ref: '#/components/schemas/Place' }
         notes: { type: [string, 'null'] }
         ready_at: { type: [string, 'null'], format: date-time, description: 'Once accepted: when the restaurant expects it ready.' }

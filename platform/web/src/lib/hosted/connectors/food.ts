@@ -30,6 +30,7 @@ import { parseAnyPhone } from "../phone";
 import { platformSetting } from "../../settings/platform";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
+import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import { DeliveryConnector, type DeliveryDeps } from "./delivery";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
@@ -87,8 +88,10 @@ export class FoodConnector implements Connector {
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
     const path = request.path;
     const mine = path[0] === "me" && path[1] === "food-orders";
-    if (path[0] !== "food" && path[0] !== "restaurant" && path[0] !== "courier" && !mine) return null;
+    if (path[0] !== "food" && path[0] !== "restaurant" && path[0] !== "courier" && path[0] !== "maps" && !mine) return null;
     if (this.deps.food === false) return error(403, "feature_disabled", "Food orders aren't available in this app right now.");
+    // 112.2 Places and routes on the platform's map.
+    if (isMapRequest(path)) return handleMapRequest(platformMapEndpoints(this.deps), request);
     if (path[0] === "courier") return this.couriers.handle(request);
     const route = `${request.method} /${path.join("/")}`;
     switch (route) {
@@ -290,7 +293,7 @@ export class FoodConnector implements Connector {
       order.shipmentId !== null ? store.getShipment(app.id, order.shipmentId) : null,
     ]);
     const courier = job?.courierId != null ? await store.getCourier(app.id, job.courierId) : null;
-    return foodOrderJson(order, { restaurant, job, courier, settings, now, assetUrl: this.deps.assetUrl });
+    return foodOrderJson(order, { restaurant, job, courier, settings, now, assetUrl: this.deps.assetUrl, demo: app.demo === true });
   }
 
   private async myOrders(request: ConnectorRequest): Promise<ConnectorResult> {

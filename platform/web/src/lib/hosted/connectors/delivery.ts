@@ -29,6 +29,8 @@ import { hitRateLimit, RATE_LIMITS } from "../../rate-limit";
 import { platformSetting } from "../../settings/platform";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
+import type { MapDeps } from "../../taxi/maps";
+import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
 
 export interface DeliveryDeps {
@@ -43,6 +45,8 @@ export interface DeliveryDeps {
   delivery?: boolean;
   /** For reading short maps links. */
   fetcher?: typeof fetch;
+  /** 112.2 The platform's map servers (tests replace them). */
+  maps?: MapDeps;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -85,8 +89,10 @@ export class DeliveryConnector implements Connector {
     const path = request.path;
     const route = `${request.method} /${path.join("/")}`;
     const mine = path[0] === "me" && path[1] === "shipments";
-    if (path[0] !== "delivery" && path[0] !== "courier" && !mine) return null;
+    if (path[0] !== "delivery" && path[0] !== "courier" && path[0] !== "maps" && !mine) return null;
     if (this.deps.delivery === false) return error(403, "feature_disabled", "Deliveries aren't available in this app right now.");
+    // 112.2 Places and routes on the platform's map.
+    if (isMapRequest(path)) return handleMapRequest(platformMapEndpoints(this.deps), request);
     switch (route) {
       case "GET /delivery/services":
         return this.services();
@@ -247,7 +253,7 @@ export class DeliveryConnector implements Connector {
     const shipment = await this.ownShipment(request, id);
     if (!shipment) return notFound();
     const [settings, courier] = await Promise.all([this.settings(), shipment.courierId !== null ? this.deps.store.getCourier(this.deps.app.id, shipment.courierId) : null]);
-    return { status: 200, body: shipmentJson(shipment, { courier, settings, now: request.now }) };
+    return { status: 200, body: shipmentJson(shipment, { courier, settings, now: request.now, demo: this.deps.app.demo === true }) };
   }
 
   private async cancel(request: ConnectorRequest, id: number): Promise<ConnectorResult> {

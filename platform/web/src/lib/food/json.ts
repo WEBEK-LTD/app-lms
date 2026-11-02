@@ -1,6 +1,6 @@
 import { centsToDecimal, formatCents } from "../catalog/money";
-import type { Courier, DeliverySettings, Dish, FoodOrder, Restaurant, RestaurantMenu, Shipment, ShipmentPlace } from "../data/types";
-import { COURIER_ACTIVE, readPlace, visibleLocation } from "../delivery/service";
+import type { Courier, DeliverySettings, Dish, FoodOrder, MapTilesSetting, Restaurant, RestaurantMenu, Shipment, ShipmentPlace } from "../data/types";
+import { COURIER_ACTIVE, mapConfigJson, readPlace, visibleLocation } from "../delivery/service";
 import { DEFAULT_FOOD_TIMEZONE, foodLineJson, foodOrderReference, restaurantRating, type CartLineInput, type RestaurantState } from "./service";
 
 /**
@@ -20,7 +20,7 @@ function text(value: unknown, max: number): string | null {
 }
 
 /** `FoodConfig`. */
-export function foodConfig(settings: DeliverySettings, map: { tilesUrl: string; attribution: string | null } | null) {
+export function foodConfig(settings: DeliverySettings, map: MapTilesSetting | null) {
   return {
     currency: settings.currency,
     timezone: settings.timezone ?? DEFAULT_FOOD_TIMEZONE,
@@ -30,7 +30,7 @@ export function foodConfig(settings: DeliverySettings, map: { tilesUrl: string; 
     courier_job: settings.foodCourierJob ?? "accepted",
     // 105.1.6 Where the couriers work: in this app, or in the company's courier app.
     courier_app: settings.courierApp,
-    map: { tiles_url: map?.tilesUrl ?? null, attribution: map?.tilesUrl ? map.attribution : null },
+    map: mapConfigJson(map),
   };
 }
 
@@ -117,7 +117,7 @@ function courierOf(job: Shipment | null, courier: Courier | null) {
 /** `FoodOrder`, as its customer sees it. */
 export function foodOrderJson(
   order: FoodOrder,
-  extra: { restaurant?: Restaurant | null; job?: Shipment | null; courier?: Courier | null; settings?: DeliverySettings; now?: Date; assetUrl?: AssetUrl } = {},
+  extra: { restaurant?: Restaurant | null; job?: Shipment | null; courier?: Courier | null; settings?: DeliverySettings; now?: Date; assetUrl?: AssetUrl; demo?: boolean } = {},
 ) {
   const job = extra.job ?? null;
   return {
@@ -137,12 +137,14 @@ export function foodOrderJson(
     total_formatted: formatCents(order.totalCents, order.currency),
     currency: order.currency,
     payment: { method: order.paymentMethod, status: order.paymentStatus },
+    // 112.2 Where the food comes from, for the map: the courier's pickup, else the restaurant's address.
+    pickup: extra.job ? placeJson(extra.job.pickup) : extra.restaurant ? placeJson(extra.restaurant.address) : null,
     dropoff: placeJson(order.dropoff),
     notes: order.notes,
     ready_at: order.readyAt?.toISOString() ?? null,
     rejection: order.rejection ? { reason: order.rejection.reason, note: order.rejection.note } : null,
     courier: courierOf(job, extra.courier ?? null),
-    courier_location: job && extra.settings && extra.now ? visibleLocation(job, extra.courier ?? null, extra.settings, extra.now) : null,
+    courier_location: job && extra.settings && extra.now ? visibleLocation(job, extra.courier ?? null, extra.settings, extra.now, { demo: extra.demo }) : null,
     rating: order.rating ? { restaurant: order.rating.restaurant, courier: order.rating.courier, comment: order.rating.comment } : null,
     timeline: stagesJson(order),
     created_at: order.createdAt.toISOString(),

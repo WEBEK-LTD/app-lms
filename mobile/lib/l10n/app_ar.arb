@@ -1681,5 +1681,7 @@
   "navigateWith": "التنقل باستخدام",
   "navigateButton": "ابدأ التنقل",
   "navigateToPickup": "التنقل إلى مكان الالتقاء",
-  "navigateToDropoff": "التنقل إلى الوجهة"
+  "navigateToDropoff": "التنقل إلى الوجهة",
+  "trackingOnTheWayFrom": "في الطريق من {place} إليك",
+  "trackingArrivesIn": "يصل خلال {minutes} د تقريبًا"
 }

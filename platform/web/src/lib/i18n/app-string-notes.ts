@@ -2962,6 +2962,8 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112 Button: opens the phone's navigation app with the way to the place.": { ar: "زر: يفتح تطبيق التنقل في الهاتف بالطريق إلى المكان.", tr: "Düğme: telefonun navigasyon uygulamasını yere giden yolla açar." },
   "112.1 The driver's button: the way to the rider's pickup in the phone's navigation app.": { ar: "زر السائق: الطريق إلى مكان الالتقاء بالراكب في تطبيق التنقل.", tr: "Sürücü düğmesi: navigasyon uygulamasında yolcunun alış noktasına giden yol." },
   "112.1 The driver's button during the ride: the way to the drop-off in the phone's navigation app.": { ar: "زر السائق أثناء الرحلة: الطريق إلى الوجهة في تطبيق التنقل.", tr: "Yolculuk sırasında sürücü düğmesi: navigasyon uygulamasında varış noktasına giden yol." },
+  "112.2 Under a shipment's or a food order's map while the courier has it.": { ar: "تحت خريطة الشحنة أو طلب الطعام أثناء وجوده مع المندوب.", tr: "Kurye teslim aldıktan sonra gönderinin veya yemek siparişinin haritasının altında." },
+  "112.2 How soon the courier reaches the drop-off, from where they are.": { ar: "متى يصل المندوب إلى مكان التسليم من موقعه الحالي.", tr: "Kuryenin bulunduğu yerden teslim noktasına ne zaman varacağı." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -6166,4 +6166,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navigateToDropoff => 'Navigate to the drop-off';
+
+  @override
+  String trackingOnTheWayFrom(String place) {
+    return 'On the way from $place to you';
+  }
+
+  @override
+  String trackingArrivesIn(int minutes) {
+    return 'Arrives in about $minutes min';
+  }
 }

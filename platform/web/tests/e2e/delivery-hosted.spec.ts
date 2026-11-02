@@ -68,7 +68,7 @@ test("the company makes a Delivery & couriers project in Yallapp Studio, not amo
   await expect(own.getByRole("heading", { level: 1, name: client.name })).toBeVisible();
   // The approved design's delivery group, checklist and numbers.
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Shipments", "Couriers", "Paid orders", "Delivery settings"]) {
+  for (const link of ["Live map", "Shipments", "Couriers", "Paid orders", "Delivery settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
   await expect(own.getByText("Prices and how customers pay, in Delivery settings")).toBeVisible();
@@ -141,4 +141,21 @@ test("Shipments: none yet; the app's delivery routes wait for the plan", async (
   const services = await request.get(`${api}/delivery/services`);
   expect(services.status()).toBe(403);
   expect((await services.json()).code).toBe("feature_disabled");
+});
+
+test("112.2 Live map: the couriers and the jobs, on a plain background until Yallapp's map is set", async () => {
+  await own.goto("/dashboard/delivery/live");
+  await expect(own).toHaveURL(/\/studio\/project\/delivery\/live$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Live map" })).toBeVisible();
+  for (const [key, label] of [
+    ["onDuty", "Couriers on duty"],
+    ["onTheWay", "Parcels on the way"],
+    ["waiting", "Waiting for a courier"],
+    ["today", "Delivered today"],
+  ] as const) {
+    await expect(own.locator(`[data-count="${key}"]`)).toContainText(label);
+  }
+  await expect(own.locator("[data-no-map]")).toContainText("Yallapp's map isn't switched on yet");
+  await expect(own.getByRole("region", { name: "Live map" })).toBeVisible();
+  await expect(own.getByText("No jobs now.")).toBeVisible();
 });

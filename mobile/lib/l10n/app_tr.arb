@@ -1681,5 +1681,7 @@
   "navigateWith": "Şununla yol tarifi al",
   "navigateButton": "Yol tarifi",
   "navigateToPickup": "Alış noktasına yol tarifi",
-  "navigateToDropoff": "Varış noktasına yol tarifi"
+  "navigateToDropoff": "Varış noktasına yol tarifi",
+  "trackingOnTheWayFrom": "{place} konumundan sana geliyor",
+  "trackingArrivesIn": "Yaklaşık {minutes} dk içinde gelir"
 }

@@ -10191,6 +10191,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Navigate to the drop-off'**
   String get navigateToDropoff;
+
+  /// 112.2 Under a shipment's or a food order's map while the courier has it.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way from {place} to you'**
+  String trackingOnTheWayFrom(String place);
+
+  /// 112.2 How soon the courier reaches the drop-off, from where they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives in about {minutes} min'**
+  String trackingArrivesIn(int minutes);
 }
 
 class _AppLocalizationsDelegate
