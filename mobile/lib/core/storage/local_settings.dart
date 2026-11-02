@@ -30,6 +30,10 @@ const ticketWalletKey = 'events.tickets';
 /// phone so the code shows offline; forgotten on sign-out.
 const membershipWalletKey = 'bookings.memberships';
 
+/// 112.1 The rider's Home, Work and recent places (ride apps), kept on this
+/// phone; forgotten on sign-out.
+const savedPlacesKey = 'rides.places';
+
 String speedLabel(double speed) {
   final text = speed == speed.roundToDouble()
       ? speed.toStringAsFixed(0)

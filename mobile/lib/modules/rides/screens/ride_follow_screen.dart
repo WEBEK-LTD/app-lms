@@ -243,6 +243,23 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
               pickup != null
         ? driveMinutes(distanceKm(carAt, pickup))
         : ride.pickupMinutes;
+    // 112.1 On the way: how soon at the drop-off, from where the car is.
+    final dropoffMinutes =
+        ride.status == RideStatus.inProgress && carAt != null && dropoff != null
+        ? driveMinutes(distanceKm(carAt, dropoff))
+        : null;
+    // 112.1 The road between the pickup and the drop-off (the map's route).
+    final trip = pickup != null && dropoff != null
+        ? ref
+                  .watch(
+                    routeLineProvider((
+                      from: roundSpot(pickup),
+                      to: roundSpot(dropoff),
+                    )),
+                  )
+                  .value ??
+              [pickup, dropoff]
+        : const <TaxiSpot>[];
     final fresh =
         live != null ||
         (moving &&
@@ -284,11 +301,10 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
               ],
               route:
                   ride.status == RideStatus.accepted ||
-                      ride.status == RideStatus.arrived ||
-                      pickup == null ||
-                      dropoff == null
+                      ride.status == RideStatus.arrived
                   ? const []
-                  : [pickup, dropoff],
+                  : trip,
+              pulse: ride.status == RideStatus.searching ? pickup : null,
               approach: carAt != null && target != null
                   ? [carAt, target]
                   : const [],
@@ -320,6 +336,14 @@ class _RideFollowScreenState extends ConsumerState<RideFollowScreen> {
                       key: const ValueKey('taxi-arriving'),
                       label: l10n.taxiArrivingIn(minutes),
                       icon: AppIcons.car,
+                    ),
+                  ],
+                  if (dropoffMinutes != null) ...[
+                    const SizedBox(height: 10),
+                    TaxiChip(
+                      key: const ValueKey('taxi-dropoff-in'),
+                      label: l10n.taxiDropoffIn(dropoffMinutes),
+                      icon: AppIcons.flag,
                     ),
                   ],
                 ],
@@ -416,7 +440,7 @@ class _RideView extends ConsumerWidget {
         Text(subtitle, style: TextStyle(fontSize: 14, color: p.textSecondary)),
         if (r.status == RideStatus.searching) ...[
           const SizedBox(height: 12),
-          const LinearProgressIndicator(),
+          const LinearProgressIndicator(key: ValueKey('ride-searching')),
         ],
         // The code the rider tells the driver once in the car.
         if (r.pin != null && r.status.withDriver) ...[
@@ -655,6 +679,20 @@ class _RideView extends ConsumerWidget {
               : _RateCard(ride: r, onRated: onRated),
         ],
         const SizedBox(height: 16),
+        // 112.1 A completed ride's receipt.
+        if (r.status == RideStatus.completed)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              l10n.rideReceipt,
+              key: const ValueKey('ride-receipt'),
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: p.text,
+              ),
+            ),
+          ),
         AppCard(
           padding: const EdgeInsets.all(16),
           child: Column(

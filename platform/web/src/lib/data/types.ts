@@ -2737,6 +2737,10 @@ export interface MapTilesSetting {
   /** With {z}, {x} and {y} (and {s} for subdomains). */
   tilesUrl: string;
   attribution: string | null;
+  /** 112 A Nominatim search server: places found by name in the apps on this map. */
+  searchUrl?: string | null;
+  /** 112 An OSRM routing server: the routes drawn and their distance and time. */
+  routingUrl?: string | null;
 }
 
 export interface PlatformSettingValues {

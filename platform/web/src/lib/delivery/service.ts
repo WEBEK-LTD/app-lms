@@ -1,5 +1,6 @@
+import { demoCourierPosition } from "../demo/courier";
 import { centsToDecimal, formatCents } from "../catalog/money";
-import type { Courier, DeliveryService, DeliverySettings, PackageSize, Shipment, ShipmentPlace, ShipmentStage, ShipmentStatus } from "../data/types";
+import type { Courier, DeliveryService, DeliverySettings, MapTilesSetting, PackageSize, Shipment, ShipmentPlace, ShipmentStage, ShipmentStatus } from "../data/types";
 import { PACKAGE_SIZES } from "../data/types";
 import { parseAnyPhone } from "../hosted/phone";
 
@@ -144,8 +145,19 @@ export function readShipmentRequest(value: unknown, defaultCountryCode: string):
 const placeJson = (p: ShipmentPlace) => ({ address: p.address, details: p.details, lat: p.lat, lng: p.lng });
 const stagesJson = (timeline: ShipmentStage[]) => timeline.map((s) => ({ status: s.status, at: s.at, note: s.note ?? null }));
 
+/** 112.2 `DeliveryConfig.map` and `FoodConfig.map`: the platform's map, and whether its search and routes work (`/maps`). */
+export function mapConfigJson(map: MapTilesSetting | null) {
+  const tiles = map?.tilesUrl ?? null;
+  return {
+    tiles_url: tiles,
+    attribution: tiles ? (map?.attribution ?? null) : null,
+    search: tiles !== null && !!map?.searchUrl,
+    routes: tiles !== null && !!map?.routingUrl,
+  };
+}
+
 /** `Config.delivery`. */
-export function deliveryConfig(settings: DeliverySettings, map: { tilesUrl: string; attribution: string | null } | null) {
+export function deliveryConfig(settings: DeliverySettings, map: MapTilesSetting | null) {
   return {
     currency: settings.currency,
     pricing: settings.pricing,
@@ -155,7 +167,7 @@ export function deliveryConfig(settings: DeliverySettings, map: { tilesUrl: stri
     tracking: settings.tracking,
     assignment: settings.assignment,
     courier_app: settings.courierApp,
-    map: { tiles_url: map?.tilesUrl ?? null, attribution: map?.tilesUrl ? map.attribution : null },
+    map: mapConfigJson(map),
   };
 }
 
@@ -171,16 +183,23 @@ export function deliveryServiceJson(service: DeliveryService, currency: Delivery
   };
 }
 
-/** The courier's position the customer may see: live tracking, while the courier has the parcel, and recent. */
-export function visibleLocation(shipment: Shipment, courier: Courier | null, settings: DeliverySettings, now: Date) {
+/**
+ * The courier's position the customer may see: live tracking, while the
+ * courier has the parcel, and recent. 112.2 In Studio's demo apps
+ * ([options.demo]), without one, the demo courier on the way (lib/demo/courier.ts).
+ */
+export function visibleLocation(shipment: Shipment, courier: Courier | null, settings: DeliverySettings, now: Date, options: { demo?: boolean } = {}) {
   if (settings.tracking !== "live" || !LIVE_STATUSES.includes(shipment.status)) return null;
-  if (!courier || courier.lat === null || courier.lng === null || !courier.locatedAt) return null;
-  if (now.getTime() - courier.locatedAt.getTime() > LOCATION_FRESH_MINUTES * 60_000) return null;
-  return { lat: courier.lat, lng: courier.lng, updated_at: courier.locatedAt.toISOString() };
+  const fresh = courier && courier.lat !== null && courier.lng !== null && courier.locatedAt && now.getTime() - courier.locatedAt.getTime() <= LOCATION_FRESH_MINUTES * 60_000;
+  if (!fresh) {
+    const demo = options.demo ? demoCourierPosition(shipment, now) : null;
+    return demo ? { ...demo, updated_at: now.toISOString() } : null;
+  }
+  return { lat: courier.lat!, lng: courier.lng!, updated_at: courier.locatedAt!.toISOString() };
 }
 
 /** `Shipment`, as its customer sees it. */
-export function shipmentJson(shipment: Shipment, extra: { courier?: Courier | null; settings?: DeliverySettings; now?: Date } = {}) {
+export function shipmentJson(shipment: Shipment, extra: { courier?: Courier | null; settings?: DeliverySettings; now?: Date; demo?: boolean } = {}) {
   const active = COURIER_ACTIVE.includes(shipment.status);
   return {
     id: shipment.id,
@@ -199,7 +218,7 @@ export function shipmentJson(shipment: Shipment, extra: { courier?: Courier | nu
     currency: shipment.currency,
     payment: { method: shipment.paymentMethod, status: shipment.paymentStatus },
     courier: shipment.courierName ? { name: shipment.courierName, phone: active ? (extra.courier?.phone ?? null) : null } : null,
-    courier_location: extra.settings && extra.now ? visibleLocation(shipment, extra.courier ?? null, extra.settings, extra.now) : null,
+    courier_location: extra.settings && extra.now ? visibleLocation(shipment, extra.courier ?? null, extra.settings, extra.now, { demo: extra.demo }) : null,
     timeline: stagesJson(shipment.timeline),
     created_at: shipment.createdAt.toISOString(),
   };

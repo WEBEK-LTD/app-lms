@@ -134,6 +134,27 @@ test("Ride settings are saved; Rides is empty; the app's ride routes wait for th
   expect((await estimate.json()).code).toBe("feature_disabled");
 });
 
+test("112.1 Maps & live and the Live map: Yallapp's map until the company sets its own", async () => {
+  await own.goto("/dashboard/rides");
+  const nav = own.getByRole("navigation", { name: "Project dashboard" });
+  await expect(nav.getByRole("link", { name: "Live map" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Maps & live" })).toBeVisible();
+
+  await own.goto("/dashboard/taxi/settings");
+  await expect(own).toHaveURL(/\/studio\/project\/taxi\/settings$/);
+  // No map in Admin › Settings › Maps in the tests: the app draws the places on a plain background.
+  await expect(own.locator("[data-platform-map]")).toContainText("Yallapp's map isn't switched on yet.");
+  await own.getByRole("radio", { name: "OpenStreetMap" }).check();
+  await own.getByLabel("Tile server", { exact: true }).fill("");
+  await own.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
+
+  await own.goto("/dashboard/taxi/live");
+  await expect(own).toHaveURL(/\/studio\/project\/taxi\/live$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Live map" })).toBeVisible();
+  await expect(own.locator('[data-count="searching"] [data-value]')).toHaveText("0");
+});
+
 test("Studio's editor opens for the ride company, its vehicle types among the elements", async () => {
   const failed: string[] = [];
   own.on("pageerror", (e) => failed.push(e.message));

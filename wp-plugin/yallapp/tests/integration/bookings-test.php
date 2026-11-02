@@ -164,7 +164,7 @@ check( 'course and product blocks dropped without an LMS or shop', array( 'picke
 check( 'hand-picked services in order, hidden left out', array( (string) $seed['colouring'], (string) $seed['haircut'] ) === block_item_ids( page_block( $page, 'picked' ) ), page_block( $page, 'picked' ) );
 check( 'services category filter', array( 'Haircut', 'Hair colouring' ) === array_column( page_block( $page, 'hair' )['items'] ?? array(), 'title' ), page_block( $page, 'hair' ) );
 check( 'services sorted by price', array( 'Hair colouring' ) === array_column( page_block( $page, 'dearest' )['items'] ?? array(), 'title' ), page_block( $page, 'dearest' ) );
-check( 'service categories', ( $one ? array( 'Hair' ) : array( 'Hair', 'Spa' ) ) === array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) && array( 'id', 'name', 'count' ) === array_keys( page_block( $page, 'cats' )['categories'][0] ?? array() ), page_block( $page, 'cats' ) );
+check( 'service categories', ( $one ? array( 'Hair' ) : array( 'Hair', 'Spa' ) ) === array_column( page_block( $page, 'cats' )['categories'] ?? array(), 'name' ) && array( 'id', 'name', 'count' ) === array_values( array_diff( array_keys( page_block( $page, 'cats' )['categories'][0] ?? array() ), array( 'image_url' ) ) ), page_block( $page, 'cats' ) );
 forget_layout();
 
 echo "Services\n";

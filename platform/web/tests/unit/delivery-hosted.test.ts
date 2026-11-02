@@ -217,7 +217,7 @@ describe("104 delivery apps on the hosted API", () => {
       tracking: "stages",
       assignment: "dispatch",
       courier_app: "same",
-      map: { tiles_url: null, attribution: null },
+      map: { tiles_url: null, attribution: null, search: false, routes: false },
     });
     await store.saveDeliverySettings(app.id, { ...SETTINGS, pricing: "zone" }, NOW);
     const zoned = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).body as { delivery: { zones: unknown[] } };

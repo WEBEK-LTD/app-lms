@@ -579,7 +579,7 @@ check( 'featured without featured courses is dropped', null === page_block( $pag
 $news = page_block( $page, 'news' );
 check( 'posts open on the website', 'posts' === ( $news['items'][0]['source'] ?? '' ) && 'url' === ( $news['items'][0]['action']['type'] ?? '' ) && 0 === strpos( (string) ( $news['items'][0]['action']['url'] ?? '' ), 'http' ), $news );
 $cats = page_block( $page, 'cats' );
-check( 'categories block', 'tiles' === ( $cats['style'] ?? '' ) && 2 === count( $cats['categories'] ?? array() ) && array( 'id', 'name', 'count' ) === array_keys( $cats['categories'][0] ), $cats );
+check( 'categories block', 'tiles' === ( $cats['style'] ?? '' ) && 2 === count( $cats['categories'] ?? array() ) && array( 'id', 'name', 'count' ) === array_values( array_diff( array_keys( $cats['categories'][0] ), array( 'image_url' ) ) ), $cats );
 check( 'spacer and embed', 'large' === ( page_block( $page, 'gap' )['size'] ?? '' ) && 300 === ( page_block( $page, 'tour' )['height'] ?? 0 ), $page );
 
 set_settings( array( 'featured_course_ids' => array( $seed['python'] ) ) );

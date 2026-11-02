@@ -33,6 +33,9 @@ class TaxiPin {
 /// followed or driven, the person's own dot, where from and to, the route
 /// and the driver's way to the pickup (dotted). The camera fits [focus]
 /// whenever it changes, inside [padding] (the bars and the sheet over it).
+/// 112 Without tiles, the same on a plain background; [pulse] rings a place
+/// (finding a driver); [onCenter] hears where the map's middle is (a pin
+/// moved on the map); [carIcon] draws a courier instead of a car.
 class TaxiMapView extends ConsumerStatefulWidget {
   const TaxiMapView({
     super.key,
@@ -45,6 +48,9 @@ class TaxiMapView extends ConsumerStatefulWidget {
     this.route = const [],
     this.approach = const [],
     this.padding = EdgeInsets.zero,
+    this.pulse,
+    this.onCenter,
+    this.carIcon,
   });
 
   final TaxiMap map;
@@ -56,6 +62,9 @@ class TaxiMapView extends ConsumerStatefulWidget {
   final List<TaxiSpot> route;
   final List<TaxiSpot> approach;
   final EdgeInsets padding;
+  final TaxiSpot? pulse;
+  final ValueChanged<TaxiSpot>? onCenter;
+  final IconData? carIcon;
 
   @override
   ConsumerState<TaxiMapView> createState() => _TaxiMapViewState();
@@ -68,7 +77,7 @@ LatLng _at(TaxiSpot s) => LatLng(s.lat, s.lng);
 
 class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   final _controller = MapController();
-  late final TileLayer _tiles;
+  TileLayer? _tiles;
   bool _ready = false;
   double _height = 0;
   double _width = 0;
@@ -77,14 +86,17 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
   void initState() {
     super.initState();
     // One tile layer for the map's life: the taxis move many times a minute.
-    _tiles = TileLayer(
-      urlTemplate: widget.map.tilesUrl,
-      userAgentPackageName: ref
-          .read(appEnvironmentProvider)
-          .build
-          .androidPackage,
-      tileProvider: NetworkTileProvider(silenceExceptions: true),
-    );
+    final tiles = widget.map.tilesUrl;
+    _tiles = tiles == null
+        ? null
+        : TileLayer(
+            urlTemplate: tiles,
+            userAgentPackageName: ref
+                .read(appEnvironmentProvider)
+                .build
+                .androidPackage,
+            tileProvider: NetworkTileProvider(silenceExceptions: true),
+          );
   }
 
   @override
@@ -160,12 +172,20 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
                   )
                 : null,
             onMapReady: () => _ready = true,
+            backgroundColor: p.surfaceMuted,
+            onPositionChanged: widget.onCenter == null
+                ? null
+                : (camera, _) => widget.onCenter!((
+                    lat: camera.center.latitude,
+                    lng: camera.center.longitude,
+                  )),
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
             ),
           ),
           children: [
-            _tiles,
+            // 112 No tiles: the places on the plain background.
+            _tiles ?? const SizedBox.shrink(key: ValueKey('taxi-plain')),
             if (widget.route.length > 1 || widget.approach.length > 1)
               PolylineLayer(
                 key: const ValueKey('taxi-lines'),
@@ -187,6 +207,13 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
               ),
             MarkerLayer(
               markers: [
+                if (widget.pulse case final pulse?)
+                  Marker(
+                    point: _at(pulse),
+                    width: 180,
+                    height: 180,
+                    child: const _Pulse(key: ValueKey('taxi-pulse')),
+                  ),
                 for (final taxi in widget.taxis)
                   if (taxi.driverKey != car?.driverKey)
                     Marker(
@@ -223,15 +250,37 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
                     height: 46,
                     child: _CarMarker(
                       key: const ValueKey('taxi-car'),
-                      heading: car.heading,
+                      heading: widget.carIcon == null ? car.heading : null,
                       followed: true,
+                      icon: widget.carIcon,
                     ),
                   ),
               ],
             ),
           ],
         ),
-        if (widget.map.attribution != null)
+        if (widget.map.tilesUrl == null)
+          PositionedDirectional(
+            end: 8,
+            bottom: widget.padding.bottom + 4,
+            child: DecoratedBox(
+              key: const ValueKey('taxi-no-map'),
+              decoration: BoxDecoration(
+                color: p.surface.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                child: Text(
+                  context.l10n.mapNotShown,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: p.textSecondary),
+                ),
+              ),
+            ),
+          )
+        else if (widget.map.attribution != null)
           PositionedDirectional(
             end: 8,
             bottom: widget.padding.bottom + 4,
@@ -259,10 +308,11 @@ class _TaxiMapViewState extends ConsumerState<TaxiMapView> {
 /// A taxi, turned the way it drives; the followed or driven one larger, on
 /// the brand colour.
 class _CarMarker extends StatelessWidget {
-  const _CarMarker({super.key, this.heading, this.followed = false});
+  const _CarMarker({super.key, this.heading, this.followed = false, this.icon});
 
   final double? heading;
   final bool followed;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -284,11 +334,61 @@ class _CarMarker extends StatelessWidget {
         ),
         child: Center(
           child: AppIcon(
-            followed ? AppIcons.car : AppIcons.ride,
+            icon ?? (followed ? AppIcons.car : AppIcons.ride),
             size: followed ? 26 : 20,
             color: followed ? p.onPrimary : p.text,
             filled: true,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 112.1 Rings growing around the pickup while a driver is found.
+class _Pulse extends StatefulWidget {
+  const _Pulse({super.key});
+
+  @override
+  State<_Pulse> createState() => _PulseState();
+}
+
+class _PulseState extends State<_Pulse> with SingleTickerProviderStateMixin {
+  late final _ring = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1800),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _ring.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.palette.primary;
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: _ring,
+        builder: (context, _) => Stack(
+          alignment: Alignment.center,
+          children: [
+            for (final shift in const [0.0, 0.5])
+              Builder(
+                builder: (context) {
+                  final t = (_ring.value + shift) % 1;
+                  return Container(
+                    width: 24 + 156 * t,
+                    height: 24 + 156 * t,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color.withValues(alpha: 0.28 * (1 - t)),
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );

@@ -63,7 +63,7 @@ test("the company makes a Food delivery project in Yallapp Studio, not among the
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Food orders", "Restaurants", "Courier jobs", "Couriers", "Paid orders", "Delivery settings"]) {
+  for (const link of ["Live map", "Food orders", "Restaurants", "Courier jobs", "Couriers", "Paid orders", "Delivery settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 

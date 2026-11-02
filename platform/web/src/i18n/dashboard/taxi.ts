@@ -2,7 +2,9 @@ import type { Strings } from "../types";
 
 /** 105.9 Live taxi apps: the live map and the Maps & live settings. */
 export const en = {
-  notHere: "The live map and its settings are for Live taxi projects in Yallapp Studio.",
+  notHere: "The live map and its settings are for ride hailing and Live taxi projects in Yallapp Studio.",
+  yallappMap: "Leave the tile server empty to use Yallapp's map: your riders see it with no account of yours.",
+  yallappMapOff: "Yallapp's map isn't switched on yet. Until it is, or until you set your own map here, riders choose places by their position or a maps link, on a plain background.",
   notOnPlan: "Live taxis aren't included in this app's plan yet: you can set everything up here, and the app takes rides once they are. <link>See the plans</link>.",
   settings: "Maps & live",
   settingsIntro: "The map your app draws and where the taxis' positions move, both on your company's own accounts: their limits and bills are yours.",
@@ -89,7 +91,9 @@ export const en = {
 };
 
 export const ar: Strings<typeof en> = {
-  notHere: "الخريطة المباشرة وإعداداتها لمشاريع «تاكسي مباشر على الخريطة» في Yallapp Studio.",
+  notHere: "الخريطة المباشرة وإعداداتها لمشاريع «طلب الرحلات» و«تاكسي مباشر على الخريطة» في Yallapp Studio.",
+  yallappMap: "اترك خادم المربعات فارغًا لاستخدام خريطة Yallapp: يراها ركابك دون أي حساب خاص بك.",
+  yallappMapOff: "خريطة Yallapp غير مفعّلة بعد. إلى أن تُفعَّل، أو تضبط خريطتك الخاصة هنا، يختار الركاب الأماكن بموقعهم أو برابط خرائط، على خلفية بسيطة.",
   notOnPlan: "سيارات الأجرة المباشرة غير مشمولة في باقة هذا التطبيق بعد: يمكنك إعداد كل شيء هنا، ويبدأ التطبيق في استقبال الرحلات عند تفعيلها. <link>عرض الباقات</link>.",
   settings: "الخرائط والتحديث المباشر",
   settingsIntro: "الخريطة التي يعرضها تطبيقك والمكان الذي تتحرك فيه مواقع السيارات، وكلاهما على حسابات شركتك: حدودهما وفواتيرهما عليك.",
@@ -176,7 +180,9 @@ export const ar: Strings<typeof en> = {
 };
 
 export const tr: Strings<typeof en> = {
-  notHere: "Canlı harita ve ayarları, Yallapp Studio'daki Canlı taksi projeleri içindir.",
+  notHere: "Canlı harita ve ayarları, Yallapp Studio'daki yolculuk ve Canlı taksi projeleri içindir.",
+  yallappMap: "Yallapp'in haritasını kullanmak için harita sunucusunu boş bırakın: yolcularınız onu sizin bir hesabınız olmadan görür.",
+  yallappMapOff: "Yallapp'in haritası henüz açık değil. Açılana ya da burada kendi haritanızı ayarlayana kadar yolcular yerleri konumlarıyla veya bir harita bağlantısıyla, düz bir zemin üzerinde seçer.",
   notOnPlan: "Canlı taksiler bu uygulamanın paketinde henüz yok: her şeyi burada ayarlayabilirsiniz, paket eklendiğinde uygulama yolculuk almaya başlar. <link>Paketleri görün</link>.",
   settings: "Haritalar ve canlı konum",
   settingsIntro: "Uygulamanızın çizdiği harita ve taksilerin konumlarının aktığı yer, ikisi de şirketinizin kendi hesaplarında: sınırları ve faturaları sizindir.",

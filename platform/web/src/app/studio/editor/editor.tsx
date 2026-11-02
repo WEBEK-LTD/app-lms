@@ -69,6 +69,8 @@ export interface StudioEditorProps {
   /** 108.7 The account's own whole designs, and the project type's name for the designs window. */
   ownDesigns: OwnDesignView[];
   kindName: string;
+  /** 112.4 The platform's address, for Yallapp's pictures in ready sections. */
+  pictureBase: string;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -138,13 +140,16 @@ export function StudioEditor(props: StudioEditorProps) {
     moreLabel: moreLabel(editLang),
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
+    // 112.4 Yallapp's pictures, and the products a look's spots open.
+    picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
+    entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,
   };
   const newText = (key: NewText) =>
     t(

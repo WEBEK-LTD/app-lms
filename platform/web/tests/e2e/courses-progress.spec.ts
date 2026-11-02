@@ -236,6 +236,10 @@ test("112.5 a student hands the assignment in from the app, the academy grades i
   await work.getByLabel("Score (out of 20)").fill("18");
   await work.getByLabel("Note to the student").fill("Great.");
   await work.getByRole("button", { name: "Save the grade" }).click();
+  // The grade is saved before the page is left (on a database it takes a moment).
+  await expect
+    .poll(async () => ((await (await request.get(`${api}/assignments/${assignment.id}`, { headers: student })).json()) as { submission?: { status?: string } }).submission?.status)
+    .toBe("graded");
   await own.goto(`/dashboard/courses/${courseId}/assignments?status=graded`);
   await expect(own.locator("[data-submission]", { hasText: "Fatma" })).toContainText("18/20");
 

@@ -55,6 +55,7 @@ import {
   DELIVERY_DEMO_SETTINGS,
   FOOD_CUISINES,
   FOOD_DEMO_SETTINGS,
+  RIDES_DEMO_DRIVERS,
   RIDES_DEMO_TYPES,
   TAXI_DEMO_DRIVERS,
   TAXI_DEMO_TYPES,
@@ -718,11 +719,34 @@ async function syncRides(deps: DemoSetupDeps, app: App): Promise<void> {
   const rides: RidesSettings = { ...DEFAULT_RIDES_SETTINGS, ...(saved.rides ?? {}), fareMode: "upfront", scheduling: true, pin: true, cancelFreeMinutes: 2, cancelFeeCents: 0, areas: [], promos: [] };
   await store.saveDeliverySettings(app.id, { ...saved, currency: "EGP", cash: true, card: false, courierApp: "same", timezone: "Africa/Cairo", rides }, now);
   const types = await store.listVehicleTypes(app.id);
+  const typeIds = new Map<string, number>();
   for (const [position, type] of RIDES_DEMO_TYPES.entries()) {
     const input = { appId: app.id, ...type, imageAssetId: null, position: position + 1, active: true };
     const found = types.find((t) => t.name === type.name);
     if (found) await store.updateVehicleType(app.id, found.id, input, now);
-    else await store.createVehicleType(input, now);
+    typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);
+  }
+  // 112.1 Its cars on the rider's map, as Lamha Taxi's.
+  await syncDemoDrivers(deps, app, RIDES_DEMO_DRIVERS, typeIds);
+}
+
+/** The demo's drivers with their cars: never online, only drawn on the riders' map (lib/demo/taxi.ts), never offered a ride. */
+async function syncDemoDrivers(deps: DemoSetupDeps, app: App, seeds: readonly (typeof TAXI_DEMO_DRIVERS)[number][], typeIds: Map<string, number>): Promise<void> {
+  const { store, now } = deps;
+  for (const seed of seeds) {
+    const found = await store.findCourier(app.id, { phone: seed.phone, email: null });
+    const driver = {
+      ...EMPTY_DRIVER,
+      ...(found?.driver ?? {}),
+      vehicleTypeId: typeIds.get(seed.type) ?? null,
+      carModel: seed.carModel,
+      carColor: seed.carColor,
+      plate: seed.plate,
+      ratingCount: seed.rides,
+      ratingSum: Math.round(seed.rating * seed.rides),
+    };
+    if (found) await store.updateCourier(app.id, found.id, { name: seed.name, active: true, onDuty: false, lat: null, lng: null, locatedAt: null, driver }, now);
+    else await store.createCourier({ appId: app.id, name: seed.name, phone: seed.phone, email: null, vehicle: null, active: true, driver }, now);
   }
 }
 
@@ -745,22 +769,7 @@ async function syncTaxi(deps: DemoSetupDeps, app: App): Promise<void> {
     if (found) await store.updateVehicleType(app.id, found.id, input, now);
     typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);
   }
-  for (const seed of TAXI_DEMO_DRIVERS) {
-    const found = await store.findCourier(app.id, { phone: seed.phone, email: null });
-    const driver = {
-      ...EMPTY_DRIVER,
-      ...(found?.driver ?? {}),
-      vehicleTypeId: typeIds.get(seed.type) ?? null,
-      carModel: seed.carModel,
-      carColor: seed.carColor,
-      plate: seed.plate,
-      ratingCount: seed.rides,
-      ratingSum: Math.round(seed.rating * seed.rides),
-    };
-    // Never online: they are only drawn on the riders' map, never offered a ride.
-    if (found) await store.updateCourier(app.id, found.id, { name: seed.name, active: true, onDuty: false, lat: null, lng: null, locatedAt: null, driver }, now);
-    else await store.createCourier({ appId: app.id, name: seed.name, phone: seed.phone, email: null, vehicle: null, active: true, driver }, now);
-  }
+  await syncDemoDrivers(deps, app, TAXI_DEMO_DRIVERS, typeIds);
 }
 
 function escapeHtml(text: string): string {

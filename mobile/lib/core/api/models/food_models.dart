@@ -33,6 +33,8 @@ class FoodConfig {
     this.courierApp = CourierApp.same,
     this.tilesUrl,
     this.attribution,
+    this.search = false,
+    this.routes = false,
   });
 
   factory FoodConfig.fromJson(Json json) {
@@ -61,6 +63,8 @@ class FoodConfig {
       ),
       tilesUrl: optString(map, 'tiles_url'),
       attribution: optString(map, 'attribution'),
+      search: boolOr(map, 'search', false),
+      routes: boolOr(map, 'routes', false),
     );
   }
 
@@ -77,6 +81,10 @@ class FoodConfig {
   final String? tilesUrl;
   final String? attribution;
 
+  /// 112.2 As `DeliveryConfig`'s.
+  final bool search;
+  final bool routes;
+
   /// What the delivery screens' map and place picker read.
   DeliveryConfig get mapConfig => DeliveryConfig(
     currency: currency,
@@ -86,6 +94,8 @@ class FoodConfig {
     courierApp: courierApp,
     tilesUrl: tilesUrl,
     attribution: attribution,
+    search: search,
+    routes: routes,
   );
 }
 
@@ -518,6 +528,7 @@ class FoodOrder {
     this.deliveryFeeFormatted = '',
     this.payment = PaymentMethod.cash,
     this.paid = false,
+    this.pickup,
     this.dropoff = const Place(address: ''),
     this.notes,
     this.readyAt,
@@ -555,6 +566,7 @@ class FoodOrder {
         PaymentMethod.cash,
       ),
       paid: payment['status'] == 'paid',
+      pickup: optObject(json, 'pickup', Place.fromJson),
       dropoff:
           optObject(json, 'dropoff', Place.fromJson) ??
           const Place(address: ''),
@@ -595,6 +607,9 @@ class FoodOrder {
   final String totalFormatted;
   final PaymentMethod payment;
   final bool paid;
+
+  /// 112.2 Where the food comes from (the restaurant), for the map.
+  final Place? pickup;
   final Place dropoff;
   final String? notes;
 

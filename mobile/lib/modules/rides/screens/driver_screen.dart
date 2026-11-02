@@ -400,6 +400,18 @@ extension on _DriverScreenState {
     final dropoff = offer != null && offer.dropoff.located
         ? (lat: offer.dropoff.lat!, lng: offer.dropoff.lng!)
         : null;
+    // 112.1 The offer's road from the pickup to the drop-off.
+    final trip = pickup != null && dropoff != null
+        ? ref
+                  .watch(
+                    routeLineProvider((
+                      from: roundSpot(pickup),
+                      to: roundSpot(dropoff),
+                    )),
+                  )
+                  .value ??
+              [pickup, dropoff]
+        : const <TaxiSpot>[];
     final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       body: Stack(
@@ -444,9 +456,7 @@ extension on _DriverScreenState {
                         label: l10n.taxiTo(offer!.dropoff.address),
                       ),
                   ],
-                  route: pickup != null && dropoff != null
-                      ? [pickup, dropoff]
-                      : const [],
+                  route: trip,
                   approach: at != null && pickup != null
                       ? [at, pickup]
                       : const [],

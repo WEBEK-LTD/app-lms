@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "@/components/icon";
+import type { IconName } from "@/components/icon-names";
 
 /**
  * 105.9 The live map: the company's tiles with its taxis and the rides
- * waiting on them. Drawn here (Web Mercator, 256-pixel tiles) so the
+ * waiting on them (112.2 a delivery or food company's couriers and jobs). Drawn here (Web Mercator, 256-pixel tiles) so the
  * dashboard needs no map library and works with Google's tiles and any
  * OpenStreetMap tile server alike.
  */
@@ -22,6 +23,8 @@ export interface MapMarker {
   lng: number;
   label: string;
   href: string | null;
+  /** 112.2 Its own icon (a courier, a parcel); else a taxi, or a person waiting. */
+  icon?: IconName;
 }
 
 export interface MapLabels {
@@ -29,7 +32,8 @@ export interface MapLabels {
   zoomIn: string;
   zoomOut: string;
   fitAll: string;
-  legend: Record<MarkerKind, string>;
+  /** 112.2 The kinds this map shows, in the legend. */
+  legend: Partial<Record<MarkerKind, string>>;
 }
 
 const TILE = 256;
@@ -181,7 +185,7 @@ export function LiveMap({ tilesUrl, attribution, markers, labels }: { tilesUrl: 
               const p = project(m.lat, m.lng, view.zoom);
               const style = { left: p.x - origin.x, top: p.y - origin.y, backgroundColor: MARKER_COLORS[m.kind] };
               const className = "absolute grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[3px] border-white text-white no-underline shadow-[0_2px_6px_rgba(14,13,36,0.3)]";
-              const icon = <Icon name={m.kind === "waiting" ? "person" : "local_taxi"} size={18} />;
+              const icon = <Icon name={m.icon ?? (m.kind === "waiting" ? "person" : "local_taxi")} size={18} />;
               return m.href ? (
                 <Link key={m.id} href={m.href} title={m.label} aria-label={m.label} className={className} style={style} data-marker={m.kind}>
                   {icon}
@@ -208,7 +212,7 @@ export function LiveMap({ tilesUrl, attribution, markers, labels }: { tilesUrl: 
       </div>
 
       <ul className="absolute right-3 bottom-3 m-0 flex list-none flex-wrap gap-x-4 gap-y-1 rounded-xl bg-white px-3.5 py-2 text-sm font-semibold text-ink-2 shadow-[0_1px_4px_rgba(14,13,36,0.18)]" dir="auto">
-        {(Object.keys(MARKER_COLORS) as MarkerKind[]).map((kind) => (
+        {(Object.keys(MARKER_COLORS) as MarkerKind[]).filter((kind) => labels.legend[kind]).map((kind) => (
           <li key={kind} className="flex items-center gap-1.5">
             <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: MARKER_COLORS[kind] }} />
             {labels.legend[kind]}

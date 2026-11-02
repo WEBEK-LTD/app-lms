@@ -18,7 +18,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/delivery_providers.dart';
-import '../widgets/delivery_map.dart';
+import '../../taxi/widgets/trip_map.dart';
 import '../widgets/delivery_widgets.dart';
 import '../../../core/format/bidi.dart';
 
@@ -27,7 +27,8 @@ const followEvery = Duration(seconds: 15);
 
 /// 104 Following a shipment: its stage and stages, its courier, where the
 /// courier is (live tracking), the places, the parcel and the payment;
-/// paying or cancelling while it waits.
+/// paying or cancelling while it waits. 112.2 On the map: the pickup, the
+/// drop-off, the road, the courier coming and how soon.
 class ShipmentScreen extends ConsumerStatefulWidget {
   const ShipmentScreen({super.key, required this.shipmentId});
 
@@ -189,14 +190,9 @@ class _ShipmentView extends ConsumerWidget {
     final s = shipment;
     final position = s.courierPosition;
     final live = config.tracking == DeliveryTracking.live && s.status.live;
-    final pins = [
-      if (s.pickup.located)
-        MapPin(MapPinKind.pickup, s.pickup.lat!, s.pickup.lng!),
-      if (s.dropoff.located)
-        MapPin(MapPinKind.dropoff, s.dropoff.lat!, s.dropoff.lng!),
-      if (position != null)
-        MapPin(MapPinKind.courier, position.lat, position.lng),
-    ];
+    final courier = live && position != null
+        ? (lat: position.lat, lng: position.lng)
+        : null;
     TextStyle label() => TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w700,
@@ -219,6 +215,20 @@ class _ShipmentView extends ConsumerWidget {
           dayAndTime(s.createdAt),
           style: TextStyle(fontSize: 13, color: p.textSecondary),
         ),
+        // 112.2 The map: from where to where, the road, and the courier.
+        if (s.status.active && (s.pickup.located || s.dropoff.located)) ...[
+          const SizedBox(height: 12),
+          TripMap(
+            key: const ValueKey('shipment-map'),
+            map: TripMap.mapOf(config),
+            from: s.pickup,
+            to: s.dropoff,
+            courier: courier,
+            toward: s.status.live ? s.dropoff : s.pickup,
+          ),
+          if (courier != null)
+            OnTheWayLine(from: s.pickup, to: s.dropoff, courier: courier),
+        ],
         const SizedBox(height: 16),
         // The courier, and where they are.
         if (s.courierName != null)
@@ -256,12 +266,6 @@ class _ShipmentView extends ConsumerWidget {
                 ),
                 if (live) ...[
                   const SizedBox(height: 12),
-                  if (position != null && config.tilesUrl != null)
-                    DeliveryMap(
-                      key: const ValueKey('shipment-map'),
-                      config: config,
-                      pins: pins,
-                    ),
                   if (position != null) ...[
                     const SizedBox(height: 8),
                     Row(

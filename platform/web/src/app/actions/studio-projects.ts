@@ -10,6 +10,7 @@ import { newApp } from "@/lib/app/setup";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
+import { appUrl } from "@/lib/env";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { defaultLayout } from "@/lib/pages/defaults";
@@ -90,6 +91,8 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
     brand: app.primaryColor,
     source: itemSourcesFor(app)[0] ?? null,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }),
+    // 112.4 Yallapp's pictures in the template's sliders and sections.
+    picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
   });
   const pages = layout.pages.some((p) => p.slug === "home")
     ? layout.pages.map((p) => (p.slug === "home" ? { ...p, blocks: [], studio: home } : p))

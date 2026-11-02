@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_icons.dart';
@@ -14,16 +15,21 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
+import '../../delivery/data/locate.dart';
+import '../../delivery/screens/send_parcel_screen.dart' show PasteLinkDialog;
 import '../../delivery/widgets/delivery_map.dart' show MapPickerScreen;
+import '../data/saved_places.dart';
 import '../data/taxi_providers.dart';
 import '../widgets/taxi_map.dart';
 
 /// 105.9 A place the rider chose: its name and where it is.
 typedef TaxiChoice = ({String name, String? address, double lat, double lng});
 
-/// 105.9 "Where to?": the company's place search (`GET /taxi/places`, near
+/// 105.9 "Where to?": the company's place search (`GET /maps/places`, near
 /// the rider), a Google place asked for its position once chosen, all in
 /// one search session; the phone's position (where from) and the map too.
+/// 112.1 Like Uber's: Home and Work (set once, kept on the phone), the
+/// recent places, a pasted maps link; without search, those and the map.
 class TaxiPlaceSearchScreen extends ConsumerStatefulWidget {
   const TaxiPlaceSearchScreen({
     super.key,
@@ -31,6 +37,7 @@ class TaxiPlaceSearchScreen extends ConsumerStatefulWidget {
     required this.map,
     this.near,
     this.myLocation = false,
+    this.saving,
   });
 
   final String title;
@@ -39,6 +46,10 @@ class TaxiPlaceSearchScreen extends ConsumerStatefulWidget {
 
   /// Offers the phone's position first.
   final bool myLocation;
+
+  /// 112.1 Choosing Home or Work: kept as it once chosen, and no saved
+  /// places offered.
+  final SavedPlaceKind? saving;
 
   @override
   ConsumerState<TaxiPlaceSearchScreen> createState() =>
@@ -112,9 +123,87 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
     }
   }
 
+  /// The place chosen; Home or Work kept when this chooses one.
+  void _done(TaxiChoice choice) {
+    if (widget.saving case final kind?) {
+      ref
+          .read(savedPlacesProvider.notifier)
+          .save(
+            kind,
+            SavedPlace(
+              name: choice.name,
+              address: choice.address,
+              lat: choice.lat,
+              lng: choice.lng,
+            ),
+          );
+    }
+    Navigator.of(context).pop<TaxiChoice>(choice);
+  }
+
+  void _saved(SavedPlace place) => _done((
+    name: place.name,
+    address: place.address,
+    lat: place.lat,
+    lng: place.lng,
+  ));
+
+  /// 112.1 Home or Work: the saved one, or chosen now and kept.
+  Future<void> _savedKind(SavedPlaceKind kind) async {
+    final l10n = context.l10n;
+    final saved = ref.read(savedPlacesProvider).of(kind);
+    if (saved != null) {
+      _saved(saved);
+      return;
+    }
+    final choice = await Navigator.of(context).push<TaxiChoice>(
+      MaterialPageRoute(
+        builder: (_) => TaxiPlaceSearchScreen(
+          title: kind == SavedPlaceKind.home
+              ? l10n.placesSetHome
+              : l10n.placesSetWork,
+          map: widget.map,
+          near: widget.near,
+          myLocation: true,
+          saving: kind,
+        ),
+      ),
+    );
+    if (choice != null && mounted) _done(choice);
+  }
+
+  /// 112.1 A maps link pasted: its coordinates, read here or by Yallapp.
+  Future<void> _paste() async {
+    final l10n = context.l10n;
+    final text = await showDialog<String>(
+      context: context,
+      builder: (_) => const PasteLinkDialog(),
+    );
+    if (text == null || text.trim().isEmpty || !mounted) return;
+    var at = coordinatesIn(text);
+    if (at == null &&
+        isMapsLink(text) &&
+        ref.read(authControllerProvider).isSignedIn) {
+      setState(() => _choosing = true);
+      try {
+        at = await ref.read(yallappApiProvider).locateMapLink(text);
+      } on ApiException {
+        at = null;
+      } finally {
+        if (mounted) setState(() => _choosing = false);
+      }
+    }
+    if (!mounted) return;
+    if (at == null) {
+      showMessage(context, l10n.pasteLinkFailed);
+      return;
+    }
+    _done((name: l10n.placeFromLink, address: null, lat: at.lat, lng: at.lng));
+  }
+
   Future<void> _choose(TaxiPlace place) async {
     if (place.located) {
-      Navigator.of(context).pop<TaxiChoice>((
+      _done((
         name: place.name,
         address: place.address,
         lat: place.lat!,
@@ -132,7 +221,7 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
         showMessage(context, context.l10n.taxiPlaceFailed);
         return;
       }
-      Navigator.of(context).pop<TaxiChoice>((
+      _done((
         name: found.name,
         address: found.address ?? place.address,
         lat: found.lat!,
@@ -158,12 +247,7 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
       });
       return;
     }
-    Navigator.of(context).pop<TaxiChoice>((
-      name: l10n.rideMyLocation,
-      address: null,
-      lat: p.lat,
-      lng: p.lng,
-    ));
+    _done((name: l10n.rideMyLocation, address: null, lat: p.lat, lng: p.lng));
   }
 
   Future<void> _onMap() async {
@@ -179,12 +263,7 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
       ),
     );
     if (at == null || !mounted) return;
-    Navigator.of(context).pop<TaxiChoice>((
-      name: l10n.taxiOnMap,
-      address: null,
-      lat: at.lat,
-      lng: at.lng,
-    ));
+    _done((name: l10n.taxiOnMap, address: null, lat: at.lat, lng: at.lng));
   }
 
   @override
@@ -219,29 +298,56 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
       onTap: _choosing ? null : onTap,
     );
     final text = _query.text.trim();
+    final search = widget.map.search;
+    final places = ref.watch(savedPlacesProvider);
+    final choosingSaved = widget.saving != null;
+    Widget savedRow(SavedPlaceKind kind) {
+      final saved = places.of(kind);
+      final home = kind == SavedPlaceKind.home;
+      return row(
+        key: 'taxi-search-${kind.name}',
+        icon: home ? AppIcons.home : AppIcons.work,
+        title: saved == null
+            ? (home ? l10n.placesAddHome : l10n.placesAddWork)
+            : (home ? l10n.placesHome : l10n.placesWork),
+        subtitle: saved == null ? null : (saved.address ?? saved.name),
+        onTap: () => _savedKind(kind),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(leading: appBarBack(context), title: Text(widget.title)),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-            child: TextField(
-              key: const ValueKey('taxi-search-field'),
-              controller: _query,
-              autofocus: true,
-              textInputAction: TextInputAction.search,
-              onChanged: _changed,
-              onSubmitted: (_) {
-                _debounce?.cancel();
-                _search();
-              },
-              decoration: InputDecoration(
-                hintText: l10n.taxiSearchHint,
-                prefixIcon: AppIcon(AppIcons.search, size: 22),
+          if (search)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: TextField(
+                key: const ValueKey('taxi-search-field'),
+                controller: _query,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                onChanged: _changed,
+                onSubmitted: (_) {
+                  _debounce?.cancel();
+                  _search();
+                },
+                decoration: InputDecoration(
+                  hintText: l10n.taxiSearchHint,
+                  prefixIcon: AppIcon(AppIcons.search, size: 22),
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: Text(
+                l10n.placesNoSearch,
+                key: const ValueKey('taxi-search-off'),
+                style: TextStyle(fontSize: 14, color: p.textSecondary),
               ),
             ),
-          ),
           if (_searching || _choosing) const LinearProgressIndicator(),
           Expanded(
             child: ListView(
@@ -254,11 +360,22 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
                     title: l10n.rideMyLocation,
                     onTap: _here,
                   ),
+                if (!choosingSaved && text.length < 2) ...[
+                  savedRow(SavedPlaceKind.home),
+                  savedRow(SavedPlaceKind.work),
+                ],
+                if (widget.map.tilesUrl != null)
+                  row(
+                    key: 'taxi-search-map',
+                    icon: AppIcons.map,
+                    title: l10n.taxiChooseOnMap,
+                    onTap: _onMap,
+                  ),
                 row(
-                  key: 'taxi-search-map',
-                  icon: AppIcons.map,
-                  title: l10n.taxiChooseOnMap,
-                  onTap: _onMap,
+                  key: 'taxi-search-link',
+                  icon: AppIcons.paste,
+                  title: l10n.placePasteLink,
+                  onTap: _paste,
                 ),
                 const Divider(height: 1),
                 if (_error != null)
@@ -286,6 +403,30 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
                     subtitle: place.address,
                     onTap: () => _choose(place),
                   ),
+                // 112.1 Where the rider went last, while nothing is typed.
+                if (!choosingSaved &&
+                    text.length < 2 &&
+                    places.recent.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+                    child: Text(
+                      l10n.placesRecent,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: p.textSecondary,
+                      ),
+                    ),
+                  ),
+                  for (final (i, place) in places.recent.indexed)
+                    row(
+                      key: 'taxi-recent-$i',
+                      icon: AppIcons.recent,
+                      title: place.name,
+                      subtitle: place.address,
+                      onTap: () => _saved(place),
+                    ),
+                ],
               ],
             ),
           ),

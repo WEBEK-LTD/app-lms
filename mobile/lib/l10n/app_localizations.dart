@@ -10252,6 +10252,138 @@ abstract class AppLocalizations {
   /// **'Wrong'**
   String get quizReviewWrong;
 
+  /// 112 On a ride, delivery or food app's map without tiles: the places are drawn on a plain background.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not available'**
+  String get mapNotShown;
+
+  /// 112.1 The rider's saved Home place on Where to?.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get placesHome;
+
+  /// 112.1 The rider's saved Work place on Where to?.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get placesWork;
+
+  /// 112.1 Where to?: Home isn't set yet; opens the search to set it.
+  ///
+  /// In en, this message translates to:
+  /// **'Add home'**
+  String get placesAddHome;
+
+  /// 112.1 Where to?: Work isn't set yet; opens the search to set it.
+  ///
+  /// In en, this message translates to:
+  /// **'Add work'**
+  String get placesAddWork;
+
+  /// 112.1 The title of the search that sets the rider's Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your home'**
+  String get placesSetHome;
+
+  /// 112.1 The title of the search that sets the rider's Work.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your work'**
+  String get placesSetWork;
+
+  /// 112.1 Above the places the rider went to last, on Where to?.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get placesRecent;
+
+  /// 112.1 Where to? in an app whose map has no place search.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a saved place, your position or a maps link.'**
+  String get placesNoSearch;
+
+  /// 112.1 The name of a place chosen with a pasted maps link.
+  ///
+  /// In en, this message translates to:
+  /// **'From a maps link'**
+  String get placeFromLink;
+
+  /// 112.1 Button under where from and to: moves the pickup's pin on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the pickup on the map'**
+  String get rideAdjustPickup;
+
+  /// 112.1 Button: the pickup is where the pin is on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm pickup'**
+  String get rideConfirmPickup;
+
+  /// 112.1 Over the map while the rider moves the pickup's pin.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to your pickup'**
+  String get rideMovePin;
+
+  /// 112.1 How many free cars are on the map around the rider (ride hailing apps).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No free cars near you} =1{1 car near you} other{{count} cars near you}}'**
+  String rideCarsNearby(int count);
+
+  /// 112.1 Over the map during the ride: how soon the car reaches the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'At the drop-off in {minutes} min'**
+  String taxiDropoffIn(int minutes);
+
+  /// 112.1 Above a completed ride's fare, places and payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get rideReceipt;
+
+  /// 112 Above the navigation apps a driver or courier may choose (Google Maps, Apple Maps, Waze).
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate with'**
+  String get navigateWith;
+
+  /// 112 Button: opens the phone's navigation app with the way to the place.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get navigateButton;
+
+  /// 112.1 The driver's button: the way to the rider's pickup in the phone's navigation app.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate to the pickup'**
+  String get navigateToPickup;
+
+  /// 112.1 The driver's button during the ride: the way to the drop-off in the phone's navigation app.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate to the drop-off'**
+  String get navigateToDropoff;
+
+  /// 112.2 Under a shipment's or a food order's map while the courier has it.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way from {place} to you'**
+  String trackingOnTheWayFrom(String place);
+
+  /// 112.2 How soon the courier reaches the drop-off, from where they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives in about {minutes} min'**
+  String trackingArrivesIn(int minutes);
+
   /// 112.5 Opens a certificate's PDF file.
   ///
   /// In en, this message translates to:
