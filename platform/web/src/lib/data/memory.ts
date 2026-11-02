@@ -127,6 +127,12 @@ import type {
   SchoolTopicProgress,
   SchoolHomework,
   SchoolLeave,
+  SchoolExcuse,
+  SchoolPickup,
+  SchoolPickupNote,
+  SchoolSlip,
+  SchoolSlipAnswer,
+  SchoolSlipInput,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -152,6 +158,10 @@ import type {
   SchoolBusStop,
   SchoolBusTrip,
 } from "./types";
+// 113.12 Salaries
+import type { SchoolPayslip, SchoolPayslipStatus, SchoolSalary, SchoolSalaryAdvance, SchoolSalaryMonth } from "./types";
+// 113.9 Universities
+import type { UniAttendance, UniCourse, UniDepartment, UniEnrolment, UniEnrolmentStatus, UniFaculty, UniProgram, UniRegistration, UniRegistrationStatus, UniSection, UniSettings, UniStudent, UniTerm } from "./types";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 // 10.7 Listings
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
@@ -2357,6 +2367,8 @@ export class MemoryStore implements DataStore {
     for (const [key, e] of this.schoolEvents) if (e.classId === id) this.schoolEvents.delete(key);
     for (const [key, e] of this.schoolExams) if (e.classId === id) this.schoolExams.delete(key);
     for (const n of this.schoolBehaviour.values()) if (n.classId === id) n.classId = null;
+    // 113.4 A class's permission slips go with it, and their answers.
+    for (const slip of [...this.schoolSlips.values()]) if (slip.classId === id) await this.deleteSchoolSlip(appId, slip.id);
   }
 
   async listSchoolSubjects(appId: string): Promise<SchoolSubject[]> {
@@ -2439,6 +2451,15 @@ export class MemoryStore implements DataStore {
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
     for (const [key, c] of this.schoolCheckins) if (c.personId === id) this.schoolCheckins.delete(key);
     for (const [key, l] of this.schoolLeave) if (l.personId === id) this.schoolLeave.delete(key);
+    // 113.4 A student's answers, excuses and pick-up go with them; a parent's stay, without them.
+    for (const [key, x] of this.schoolSlipAnswers) if (x.studentId === id) this.schoolSlipAnswers.delete(key);
+    for (const x of this.schoolSlipAnswers.values()) if (x.parentId === id) x.parentId = null;
+    for (const [key, x] of this.schoolExcuses) if (x.studentId === id) this.schoolExcuses.delete(key);
+    for (const x of this.schoolExcuses.values()) if (x.parentId === id) x.parentId = null;
+    this.schoolPickups.delete(id);
+    for (const [key, x] of this.schoolPickupNotes) if (x.studentId === id) this.schoolPickupNotes.delete(key);
+    // 113.12 Their salary goes with them; their payslips and advances stay, with their name.
+    this.schoolSalaries.delete(`${appId}:${id}`);
     for (const [key, n] of this.schoolBehaviour) if (n.studentId === id) this.schoolBehaviour.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
     // 113.5 A student's reports go with them; a teacher's stay, with their name.
@@ -2460,6 +2481,8 @@ export class MemoryStore implements DataStore {
     for (const [key, m] of this.schoolBusMarks) if (m.studentId === id) this.schoolBusMarks.delete(key);
     for (const [key, l] of this.schoolBookLoans) if (l.personId === id) this.schoolBookLoans.delete(key);
     for (const [key, h] of this.schoolBookHolds) if (h.personId === id) this.schoolBookHolds.delete(key);
+    // 113.9 Their place at the university, and a lecturer's sections and advisees.
+    this.dropUniPerson(appId, id);
   }
 
   async listSchoolFamily(appId: string, filter: { parentId?: number; studentId?: number }): Promise<SchoolFamilyLink[]> {
@@ -2893,6 +2916,134 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
+  // 113.4 The parent's area: permission slips, absence excuses and pick-up
+
+  private schoolSlips = new Map<number, SchoolSlip>();
+  /** Keyed `slipId:studentId`. */
+  private schoolSlipAnswers = new Map<string, SchoolSlipAnswer>();
+  private schoolExcuses = new Map<number, SchoolExcuse>();
+  /** Keyed by student. */
+  private schoolPickups = new Map<number, SchoolPickup>();
+  /** Keyed `studentId:date`. */
+  private schoolPickupNotes = new Map<string, SchoolPickupNote>();
+
+  async listSchoolSlips(appId: string, filter: { from?: string; to?: string } = {}): Promise<SchoolSlip[]> {
+    return [...this.schoolSlips.values()]
+      .filter((x) => x.appId === appId && (!filter.from || x.dueOn >= filter.from) && (!filter.to || x.dueOn <= filter.to))
+      .sort((a, b) => b.dueOn.localeCompare(a.dueOn) || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolSlip(appId: string, id: number): Promise<SchoolSlip | null> {
+    const found = this.schoolSlips.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolSlip(input: SchoolSlipInput & { id: number | null }, now: Date): Promise<SchoolSlip | null> {
+    const { id, ...fields } = input;
+    if (id === null) {
+      const made: SchoolSlip = { ...clone(fields), id: this.nextSchoolId++, remindedAt: null, createdAt: now, updatedAt: now };
+      this.schoolSlips.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next: SchoolSlip = { ...found, ...clone(fields), remindedAt: found.dueOn !== fields.dueOn ? null : found.remindedAt, updatedAt: now };
+    this.schoolSlips.set(id, clone(next));
+    return clone(next);
+  }
+
+  async deleteSchoolSlip(appId: string, id: number): Promise<void> {
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== appId) return;
+    this.schoolSlips.delete(id);
+    for (const [key, x] of this.schoolSlipAnswers) if (x.slipId === id) this.schoolSlipAnswers.delete(key);
+  }
+
+  async markSchoolSlipReminded(appId: string, id: number, now: Date): Promise<boolean> {
+    const found = this.schoolSlips.get(id);
+    if (!found || found.appId !== appId || found.remindedAt !== null) return false;
+    found.remindedAt = now;
+    return true;
+  }
+
+  async listSchoolSlipAnswers(appId: string, filter: { slipId?: number; slipIds?: number[]; studentIds?: number[] }): Promise<SchoolSlipAnswer[]> {
+    return [...this.schoolSlipAnswers.values()]
+      .filter((x) => x.appId === appId && (filter.slipId === undefined || x.slipId === filter.slipId) && (!filter.slipIds || filter.slipIds.includes(x.slipId)) && (!filter.studentIds || filter.studentIds.includes(x.studentId)))
+      .sort((a, b) => a.slipId - b.slipId || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolSlipAnswer(row: SchoolSlipAnswer): Promise<void> {
+    const slip = this.schoolSlips.get(row.slipId);
+    const student = this.schoolPeople.get(row.studentId);
+    // Only for a slip and a student of the same school.
+    if (!slip || slip.appId !== row.appId || !student || student.appId !== row.appId) return;
+    this.schoolSlipAnswers.set(`${row.slipId}:${row.studentId}`, clone(row));
+  }
+
+  async listSchoolExcuses(appId: string, filter: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string } = {}): Promise<SchoolExcuse[]> {
+    return [...this.schoolExcuses.values()]
+      .filter(
+        (x) =>
+          x.appId === appId &&
+          (filter.studentId === undefined || x.studentId === filter.studentId) &&
+          (!filter.studentIds || filter.studentIds.includes(x.studentId)) &&
+          (!filter.statuses || filter.statuses.includes(x.status)) &&
+          (!filter.from || x.endsOn >= filter.from) &&
+          (!filter.to || x.startsOn <= filter.to),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null> {
+    const found = this.schoolExcuses.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse> {
+    const made: SchoolExcuse = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolExcuses.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean> {
+    const found = this.schoolExcuses.get(id);
+    if (!found || found.appId !== appId || !statuses.includes(found.status)) return false;
+    this.schoolExcuses.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null> {
+    const found = this.schoolPickups.get(studentId);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolPickup(row: SchoolPickup): Promise<void> {
+    const student = this.schoolPeople.get(row.studentId);
+    if (!student || student.appId !== row.appId) return;
+    this.schoolPickups.set(row.studentId, clone(row));
+  }
+
+  async listSchoolPickupNotes(appId: string, filter: { studentId?: number; date?: string; from?: string }): Promise<SchoolPickupNote[]> {
+    return [...this.schoolPickupNotes.values()]
+      .filter((x) => x.appId === appId && (filter.studentId === undefined || x.studentId === filter.studentId) && (!filter.date || x.date === filter.date) && (!filter.from || x.date >= filter.from))
+      .sort((a, b) => a.date.localeCompare(b.date) || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveSchoolPickupNote(row: SchoolPickupNote): Promise<void> {
+    const student = this.schoolPeople.get(row.studentId);
+    if (!student || student.appId !== row.appId) return;
+    this.schoolPickupNotes.set(`${row.studentId}:${row.date}`, clone(row));
+  }
+
+  async deleteSchoolPickupNote(appId: string, studentId: number, date: string): Promise<void> {
+    const key = `${studentId}:${date}`;
+    if (this.schoolPickupNotes.get(key)?.appId === appId) this.schoolPickupNotes.delete(key);
+  }
+
   // 113.10 The school bus
 
   private schoolBusRoutes = new Map<number, SchoolBusRoute>();
@@ -3198,6 +3349,120 @@ export class MemoryStore implements DataStore {
     if (!found || found.appId !== appId || (expect.statuses && !expect.statuses.includes(found.status))) return false;
     this.schoolBookHolds.set(id, { ...found, ...clone(patch) });
     return true;
+  }
+
+  // 113.12 Salaries, recorded by hand
+
+  /** Keyed `appId:personId`. */
+  private schoolSalaries = new Map<string, SchoolSalary>();
+  private schoolPayslips = new Map<number, SchoolPayslip>();
+  /** Keyed `appId:month`. */
+  private schoolSalaryMonths = new Map<string, SchoolSalaryMonth>();
+  private schoolSalaryAdvances = new Map<number, SchoolSalaryAdvance>();
+
+  async listSchoolSalaries(appId: string): Promise<SchoolSalary[]> {
+    return [...this.schoolSalaries.values()].filter((s) => s.appId === appId).map(clone);
+  }
+
+  async getSchoolSalary(appId: string, personId: number): Promise<SchoolSalary | null> {
+    const found = this.schoolSalaries.get(`${appId}:${personId}`);
+    return found ? clone(found) : null;
+  }
+
+  async saveSchoolSalary(salary: SchoolSalary): Promise<boolean> {
+    const person = this.schoolPeople.get(salary.personId);
+    if (!person || person.appId !== salary.appId || (person.role !== "teacher" && person.role !== "staff")) return false;
+    this.schoolSalaries.set(`${salary.appId}:${salary.personId}`, clone(salary));
+    return true;
+  }
+
+  async deleteSchoolSalary(appId: string, personId: number): Promise<void> {
+    this.schoolSalaries.delete(`${appId}:${personId}`);
+  }
+
+  async listSchoolPayslips(appId: string, filter: { month?: string; personId?: number; personIds?: number[]; statuses?: SchoolPayslipStatus[] } = {}): Promise<SchoolPayslip[]> {
+    return [...this.schoolPayslips.values()]
+      .filter(
+        (p) =>
+          p.appId === appId &&
+          (filter.month === undefined || p.month === filter.month) &&
+          (filter.personId === undefined || p.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(p.personId)) &&
+          (!filter.statuses || filter.statuses.includes(p.status)),
+      )
+      .sort((a, b) => b.month.localeCompare(a.month) || a.personName.localeCompare(b.personName) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getSchoolPayslip(appId: string, id: number): Promise<SchoolPayslip | null> {
+    const found = this.schoolPayslips.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolPayslip(input: Omit<SchoolPayslip, "id">): Promise<{ ok: true; payslip: SchoolPayslip } | { ok: false; reason: "duplicate" }> {
+    if ([...this.schoolPayslips.values()].some((p) => p.appId === input.appId && p.personId === input.personId && p.month === input.month)) return { ok: false, reason: "duplicate" };
+    const made: SchoolPayslip = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolPayslips.set(made.id, clone(made));
+    return { ok: true, payslip: made };
+  }
+
+  async updateSchoolPayslip(
+    appId: string,
+    id: number,
+    patch: Partial<Omit<SchoolPayslip, "id" | "appId" | "personId" | "month" | "createdAt">>,
+    expect: { statuses: SchoolPayslipStatus[]; updatedAt?: Date },
+  ): Promise<boolean> {
+    const found = this.schoolPayslips.get(id);
+    if (!found || found.appId !== appId || !expect.statuses.includes(found.status)) return false;
+    if (expect.updatedAt && found.updatedAt.getTime() !== expect.updatedAt.getTime()) return false;
+    this.schoolPayslips.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolPayslip(appId: string, id: number): Promise<boolean> {
+    const found = this.schoolPayslips.get(id);
+    if (!found || found.appId !== appId || found.status !== "draft") return false;
+    this.schoolPayslips.delete(id);
+    return true;
+  }
+
+  async getSchoolSalaryMonth(appId: string, month: string): Promise<SchoolSalaryMonth | null> {
+    const found = this.schoolSalaryMonths.get(`${appId}:${month}`);
+    return found ? clone(found) : null;
+  }
+
+  async saveSchoolSalaryMonth(row: SchoolSalaryMonth): Promise<void> {
+    this.schoolSalaryMonths.set(`${row.appId}:${row.month}`, clone(row));
+  }
+
+  async listSchoolSalaryAdvances(appId: string, filter: { personId?: number; personIds?: number[] } = {}): Promise<SchoolSalaryAdvance[]> {
+    return [...this.schoolSalaryAdvances.values()]
+      .filter((a) => a.appId === appId && (filter.personId === undefined || a.personId === filter.personId) && (!filter.personIds || filter.personIds.includes(a.personId)))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolSalaryAdvance(appId: string, id: number): Promise<SchoolSalaryAdvance | null> {
+    const found = this.schoolSalaryAdvances.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolSalaryAdvance(input: Omit<SchoolSalaryAdvance, "id">): Promise<SchoolSalaryAdvance> {
+    const made: SchoolSalaryAdvance = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolSalaryAdvances.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolSalaryAdvance(appId: string, id: number, patch: Partial<Pick<SchoolSalaryAdvance, "instalmentCents" | "startsMonth" | "repayments" | "updatedAt">>, expectUpdatedAt: Date): Promise<boolean> {
+    const found = this.schoolSalaryAdvances.get(id);
+    if (!found || found.appId !== appId || found.updatedAt.getTime() !== expectUpdatedAt.getTime()) return false;
+    this.schoolSalaryAdvances.set(id, { ...found, ...clone(patch) });
+    return true;
+  }
+
+  async deleteSchoolSalaryAdvance(appId: string, id: number): Promise<void> {
+    const found = this.schoolSalaryAdvances.get(id);
+    if (found && found.appId === appId) this.schoolSalaryAdvances.delete(id);
   }
 
   // 113.8 The school's calendar, the exams' timetable and behaviour
@@ -6321,6 +6586,318 @@ export class MemoryStore implements DataStore {
     for (const table of this.tables()) table.remove((row) => row.appId === appId);
     this.apps.delete(appId);
     this.deletedApps.delete(appId);
+  }
+
+  // 113.9 Universities
+
+  /** Keyed by app; each row carries its appId. */
+  private uniSettings = new Map<string, UniSettings & { appId: string }>();
+  private uniFaculties = new Map<number, UniFaculty>();
+  private uniDepartments = new Map<number, UniDepartment>();
+  private uniPrograms = new Map<number, UniProgram>();
+  private uniCourses = new Map<number, UniCourse>();
+  private uniTerms = new Map<number, UniTerm>();
+  private uniSections = new Map<number, UniSection>();
+  /** Keyed by the student's id. */
+  private uniStudents = new Map<number, UniStudent>();
+  /** Keyed `termId:studentId`. */
+  private uniRegistrations = new Map<string, UniRegistration>();
+  private uniEnrolments = new Map<number, UniEnrolment>();
+  /** Keyed `sectionId:studentId:date`. */
+  private uniAttendance = new Map<string, UniAttendance>();
+  private nextUniId = 1;
+
+  private dropUniPerson(appId: string, id: number): void {
+    this.uniStudents.delete(id);
+    for (const s of this.uniStudents.values()) if (s.appId === appId && s.advisorId === id) s.advisorId = null;
+    for (const s of this.uniSections.values()) if (s.appId === appId && s.lecturerId === id) s.lecturerId = null;
+    for (const [key, r] of this.uniRegistrations) if (r.studentId === id) this.uniRegistrations.delete(key);
+    for (const [key, e] of this.uniEnrolments) if (e.studentId === id) this.uniEnrolments.delete(key);
+    for (const [key, a] of this.uniAttendance) if (a.studentId === id) this.uniAttendance.delete(key);
+  }
+
+  async getUniSettings(appId: string): Promise<UniSettings | null> {
+    const found = this.uniSettings.get(appId);
+    if (!found) return null;
+    const { appId: _appId, ...settings } = clone(found);
+    void _appId;
+    return settings;
+  }
+
+  async saveUniSettings(appId: string, settings: UniSettings): Promise<void> {
+    this.uniSettings.set(appId, { ...clone(settings), appId });
+  }
+
+  private byName<T extends { name: string; id: number }>(rows: Iterable<T>, appId: string): T[] {
+    return [...rows].filter((r) => (r as T & { appId: string }).appId === appId).sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id).map(clone);
+  }
+
+  async listUniFaculties(appId: string): Promise<UniFaculty[]> {
+    return this.byName(this.uniFaculties.values(), appId);
+  }
+
+  async saveUniFaculty(input: Pick<UniFaculty, "appId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniFaculty | null> {
+    if (input.id === null) {
+      const made: UniFaculty = { id: this.nextUniId++, appId: input.appId, name: input.name, code: input.code, createdAt: now };
+      this.uniFaculties.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.uniFaculties.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, name: input.name, code: input.code };
+    this.uniFaculties.set(found.id, clone(next));
+    return next;
+  }
+
+  async deleteUniFaculty(appId: string, id: number): Promise<void> {
+    const found = this.uniFaculties.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniFaculties.delete(id);
+    for (const d of [...this.uniDepartments.values()]) if (d.facultyId === id) await this.deleteUniDepartment(appId, d.id);
+  }
+
+  async listUniDepartments(appId: string): Promise<UniDepartment[]> {
+    return this.byName(this.uniDepartments.values(), appId);
+  }
+
+  async saveUniDepartment(input: Pick<UniDepartment, "appId" | "facultyId" | "name" | "code"> & { id: number | null }, now: Date): Promise<UniDepartment | null> {
+    if (this.uniFaculties.get(input.facultyId)?.appId !== input.appId) return null;
+    if (input.id === null) {
+      const made: UniDepartment = { id: this.nextUniId++, appId: input.appId, facultyId: input.facultyId, name: input.name, code: input.code, createdAt: now };
+      this.uniDepartments.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.uniDepartments.get(input.id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, facultyId: input.facultyId, name: input.name, code: input.code };
+    this.uniDepartments.set(found.id, clone(next));
+    return next;
+  }
+
+  async deleteUniDepartment(appId: string, id: number): Promise<void> {
+    const found = this.uniDepartments.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniDepartments.delete(id);
+    for (const p of [...this.uniPrograms.values()]) if (p.departmentId === id) await this.deleteUniProgram(appId, p.id);
+    for (const c of this.uniCourses.values()) if (c.departmentId === id) c.departmentId = null;
+  }
+
+  async listUniPrograms(appId: string): Promise<UniProgram[]> {
+    return this.byName(this.uniPrograms.values(), appId);
+  }
+
+  async saveUniProgram(input: Omit<UniProgram, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniProgram | null> {
+    if (this.uniDepartments.get(input.departmentId)?.appId !== input.appId) return null;
+    const { id, ...fields } = clone(input);
+    if (id === null) {
+      const made: UniProgram = { ...fields, id: this.nextUniId++, createdAt: now, updatedAt: now };
+      this.uniPrograms.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.uniPrograms.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, ...fields, updatedAt: now };
+    this.uniPrograms.set(id, clone(next));
+    return next;
+  }
+
+  async deleteUniProgram(appId: string, id: number): Promise<void> {
+    const found = this.uniPrograms.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniPrograms.delete(id);
+    for (const s of this.uniStudents.values()) if (s.programId === id) s.programId = null;
+  }
+
+  async listUniCourses(appId: string): Promise<UniCourse[]> {
+    return [...this.uniCourses.values()].filter((c) => c.appId === appId).sort((a, b) => a.code.localeCompare(b.code) || a.id - b.id).map(clone);
+  }
+
+  async saveUniCourse(
+    input: Omit<UniCourse, "id" | "createdAt" | "updatedAt"> & { id: number | null },
+    now: Date,
+  ): Promise<{ ok: true; course: UniCourse } | { ok: false; reason: "duplicate" | "not_found" }> {
+    const { id, ...fields } = clone(input);
+    if ([...this.uniCourses.values()].some((c) => c.appId === input.appId && c.id !== id && c.code.toLowerCase() === input.code.toLowerCase())) return { ok: false, reason: "duplicate" };
+    if (id === null) {
+      const made: UniCourse = { ...fields, id: this.nextUniId++, createdAt: now, updatedAt: now };
+      this.uniCourses.set(made.id, clone(made));
+      return { ok: true, course: made };
+    }
+    const found = this.uniCourses.get(id);
+    if (!found || found.appId !== input.appId) return { ok: false, reason: "not_found" };
+    const next = { ...found, ...fields, updatedAt: now };
+    this.uniCourses.set(id, clone(next));
+    return { ok: true, course: next };
+  }
+
+  async deleteUniCourse(appId: string, id: number): Promise<void> {
+    const found = this.uniCourses.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniCourses.delete(id);
+    for (const s of [...this.uniSections.values()]) if (s.courseId === id) await this.deleteUniSection(appId, s.id);
+  }
+
+  async listUniTerms(appId: string): Promise<UniTerm[]> {
+    return [...this.uniTerms.values()].filter((t) => t.appId === appId).sort((a, b) => b.startsOn.localeCompare(a.startsOn) || b.id - a.id).map(clone);
+  }
+
+  async saveUniTerm(input: Omit<UniTerm, "id" | "createdAt"> & { id: number | null }, now: Date): Promise<UniTerm | null> {
+    const { id, ...fields } = clone(input);
+    if (id === null) {
+      const made: UniTerm = { ...fields, id: this.nextUniId++, createdAt: now };
+      this.uniTerms.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.uniTerms.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, ...fields };
+    this.uniTerms.set(id, clone(next));
+    return next;
+  }
+
+  async deleteUniTerm(appId: string, id: number): Promise<void> {
+    const found = this.uniTerms.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniTerms.delete(id);
+    for (const s of [...this.uniSections.values()]) if (s.termId === id) await this.deleteUniSection(appId, s.id);
+    for (const [key, r] of this.uniRegistrations) if (r.termId === id) this.uniRegistrations.delete(key);
+  }
+
+  async listUniSections(appId: string, filter: { termId?: number; courseId?: number; lecturerId?: number; ids?: number[] } = {}): Promise<UniSection[]> {
+    return [...this.uniSections.values()]
+      .filter(
+        (s) =>
+          s.appId === appId &&
+          (filter.termId === undefined || s.termId === filter.termId) &&
+          (filter.courseId === undefined || s.courseId === filter.courseId) &&
+          (filter.lecturerId === undefined || s.lecturerId === filter.lecturerId) &&
+          (!filter.ids || filter.ids.includes(s.id)),
+      )
+      .sort((a, b) => a.courseId - b.courseId || a.code.localeCompare(b.code) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getUniSection(appId: string, id: number): Promise<UniSection | null> {
+    const found = this.uniSections.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveUniSection(input: Omit<UniSection, "id" | "createdAt" | "updatedAt"> & { id: number | null }, now: Date): Promise<UniSection | null> {
+    if (this.uniTerms.get(input.termId)?.appId !== input.appId || this.uniCourses.get(input.courseId)?.appId !== input.appId) return null;
+    const { id, ...fields } = clone(input);
+    if (id === null) {
+      const made: UniSection = { ...fields, id: this.nextUniId++, createdAt: now, updatedAt: now };
+      this.uniSections.set(made.id, clone(made));
+      return made;
+    }
+    const found = this.uniSections.get(id);
+    if (!found || found.appId !== input.appId) return null;
+    const next = { ...found, ...fields, updatedAt: now };
+    this.uniSections.set(id, clone(next));
+    return next;
+  }
+
+  async deleteUniSection(appId: string, id: number): Promise<void> {
+    const found = this.uniSections.get(id);
+    if (!found || found.appId !== appId) return;
+    this.uniSections.delete(id);
+    for (const [key, e] of this.uniEnrolments) if (e.sectionId === id) this.uniEnrolments.delete(key);
+    for (const [key, a] of this.uniAttendance) if (a.sectionId === id) this.uniAttendance.delete(key);
+  }
+
+  async listUniStudents(appId: string, filter: { studentIds?: number[]; advisorId?: number; programId?: number } = {}): Promise<UniStudent[]> {
+    return [...this.uniStudents.values()]
+      .filter(
+        (s) =>
+          s.appId === appId &&
+          (!filter.studentIds || filter.studentIds.includes(s.studentId)) &&
+          (filter.advisorId === undefined || s.advisorId === filter.advisorId) &&
+          (filter.programId === undefined || s.programId === filter.programId),
+      )
+      .sort((a, b) => a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveUniStudent(row: UniStudent): Promise<void> {
+    const person = this.schoolPeople.get(row.studentId);
+    if (!person || person.appId !== row.appId || person.role !== "student") return;
+    this.uniStudents.set(row.studentId, clone(row));
+  }
+
+  async listUniRegistrations(appId: string, filter: { termId?: number; studentId?: number; studentIds?: number[]; status?: UniRegistrationStatus }): Promise<UniRegistration[]> {
+    return [...this.uniRegistrations.values()]
+      .filter(
+        (r) =>
+          r.appId === appId &&
+          (filter.termId === undefined || r.termId === filter.termId) &&
+          (filter.studentId === undefined || r.studentId === filter.studentId) &&
+          (!filter.studentIds || filter.studentIds.includes(r.studentId)) &&
+          (filter.status === undefined || r.status === filter.status),
+      )
+      .sort((a, b) => (a.submittedAt?.getTime() ?? 0) - (b.submittedAt?.getTime() ?? 0) || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveUniRegistration(row: UniRegistration): Promise<void> {
+    if (this.uniTerms.get(row.termId)?.appId !== row.appId || this.schoolPeople.get(row.studentId)?.appId !== row.appId) return;
+    this.uniRegistrations.set(`${row.termId}:${row.studentId}`, clone(row));
+  }
+
+  async listUniEnrolments(appId: string, filter: { termId?: number; sectionId?: number; sectionIds?: number[]; studentId?: number; statuses?: UniEnrolmentStatus[] }): Promise<UniEnrolment[]> {
+    return [...this.uniEnrolments.values()]
+      .filter(
+        (e) =>
+          e.appId === appId &&
+          (filter.termId === undefined || e.termId === filter.termId) &&
+          (filter.sectionId === undefined || e.sectionId === filter.sectionId) &&
+          (!filter.sectionIds || filter.sectionIds.includes(e.sectionId)) &&
+          (filter.studentId === undefined || e.studentId === filter.studentId) &&
+          (!filter.statuses || filter.statuses.includes(e.status)),
+      )
+      .sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async createUniEnrolment(input: Omit<UniEnrolment, "id">): Promise<UniEnrolment | null> {
+    const section = this.uniSections.get(input.sectionId);
+    if (!section || section.appId !== input.appId || this.schoolPeople.get(input.studentId)?.appId !== input.appId) return null;
+    if ([...this.uniEnrolments.values()].some((e) => e.sectionId === input.sectionId && e.studentId === input.studentId)) return null;
+    const made: UniEnrolment = { ...clone(input), id: this.nextUniId++ };
+    this.uniEnrolments.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateUniEnrolment(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<UniEnrolment, "status" | "addedBy" | "addedAt" | "droppedAt" | "grade" | "mark" | "gradedAt">>,
+    now: Date,
+  ): Promise<boolean> {
+    const found = this.uniEnrolments.get(id);
+    if (!found || found.appId !== appId) return false;
+    this.uniEnrolments.set(id, { ...found, ...clone(patch), updatedAt: now });
+    return true;
+  }
+
+  async listUniAttendance(appId: string, filter: { sectionId?: number; studentId?: number; from?: string; to?: string }): Promise<UniAttendance[]> {
+    return [...this.uniAttendance.values()]
+      .filter(
+        (a) =>
+          a.appId === appId &&
+          (filter.sectionId === undefined || a.sectionId === filter.sectionId) &&
+          (filter.studentId === undefined || a.studentId === filter.studentId) &&
+          (filter.from === undefined || a.date >= filter.from) &&
+          (filter.to === undefined || a.date <= filter.to),
+      )
+      .sort((a, b) => a.date.localeCompare(b.date) || a.studentId - b.studentId)
+      .map(clone);
+  }
+
+  async saveUniAttendance(rows: UniAttendance[]): Promise<void> {
+    for (const row of rows) {
+      if (this.uniSections.get(row.sectionId)?.appId !== row.appId) continue;
+      this.uniAttendance.set(`${row.sectionId}:${row.studentId}:${row.date}`, clone(row));
+    }
   }
 }
 

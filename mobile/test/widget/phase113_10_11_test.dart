@@ -14,6 +14,7 @@ import '../support/bus_library_fixtures.dart';
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'phase105_4_test.dart' show tapParent;
 
 class FakeLocator implements Locator {
   int reads = 0;
@@ -149,8 +150,9 @@ void main() {
       final api = schoolApi();
       final app = schoolApp(api);
       await app.pump(tester);
-      await go(app, tester, Paths.school);
-      await tapKey(tester, 'school-bus');
+      // 113.4 From the child's day in the Parent tab.
+      await go(app, tester, Paths.parent);
+      await tapParent(tester, 'parent-bus');
       expect(api.calls, contains('getStudentBus'));
       expect(find.text('Morning trip'), findsOneWidget);
       expect(find.text('Route 1 · ABC 123'), findsOneWidget);
@@ -337,6 +339,17 @@ void main() {
       final app = schoolApp(schoolApi(roles: ['teacher']));
       await app.pump(tester);
       await go(app, tester, Paths.classroom);
+      // 113.12 Below My payslips: scrolled to.
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('school-library')),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const ValueKey('classroom')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       expect(find.byKey(const ValueKey('school-library')), findsOneWidget);
       expect(find.byKey(const ValueKey('bus-duty')), findsNothing);
     });

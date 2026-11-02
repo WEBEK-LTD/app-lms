@@ -26,7 +26,7 @@ export const MEMBER_ROLES = ["manager", "staff"] as const;
 export type MemberRole = (typeof MEMBER_ROLES)[number];
 
 /** What a Staff member can be given, in the order the Team page lists them. */
-export const TEAM_AREAS = ["orders", "bookings", "events", "donations", "catalog", "media", "messages", "chat", "app_users", "analytics", "notifications"] as const;
+export const TEAM_AREAS = ["orders", "bookings", "events", "donations", "catalog", "media", "messages", "chat", "app_users", "analytics", "notifications", "salaries"] as const;
 export type TeamArea = (typeof TEAM_AREAS)[number];
 
 /**
@@ -148,6 +148,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/delivery/live", "orders"],
   ["/dashboard/delivery", "settings"],
   ["/dashboard/notifications", "notifications"],
+  // 113.12 A school's salaries: only those given them (the owner and managers have every area).
+  ["/dashboard/school/salaries", "salaries"],
   ["/dashboard/preview", "dashboard"],
   ["/dashboard/announcements", "dashboard"],
   ["/dashboard/phones", "dashboard"],
@@ -264,4 +266,5 @@ export const AREA_NAMES: Record<TeamArea, string> = {
   app_users: "App users",
   analytics: "Analytics",
   notifications: "Notifications to app users",
+  salaries: "Salaries (schools)",
 };

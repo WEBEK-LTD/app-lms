@@ -6,6 +6,7 @@ import { markFeePaid } from "../school/fees";
 import { isoWeekday } from "../school/service";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN } from "./constants";
 import { syncSchoolBusAndLibrary } from "./school-bus-library";
+import { syncSchoolParentArea } from "./school-parent";
 
 /**
  * 110.5 Nakhla School, Studio's school demo (105.4): three classes, their
@@ -255,6 +256,8 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
   }
   // 113.10 The bus; 113.11 the library.
   await syncSchoolBusAndLibrary(store, app, { byName, classes, subjects }, now);
+  // 113.4 A slip to sign, a pick-up list and an excused day.
+  await syncSchoolParentArea(store, app, { byName, classes, subjects }, now);
   return { byName, classes, subjects };
 }
 

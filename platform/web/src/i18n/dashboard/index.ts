@@ -59,8 +59,14 @@ import * as reports from "./reports";
 // 113.10 The school bus; 113.11 the library.
 import * as bus from "./bus";
 import * as library from "./library";
+// 113.12 Salaries.
+import * as salaries from "./salaries";
 import * as schoolLife from "./school-life";
 import * as learning from "./learning";
+// 113.4 The parent's area.
+import * as parents from "./parents";
+// 113.9
+import * as university from "./university";
 
 /**
  * 56 The client dashboard's texts in English (the source), Arabic and
@@ -82,7 +88,7 @@ import * as learning from "./learning";
  */
 
 /** Every area. A new area is one import and one entry here. */
-const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, rides, teachers, school, taxi, samples, lms, reports, bus, library, schoolLife, learning } as const;
+const AREAS = { common, nav, lib, forms, kinds, overview, license, setup, pages, media, languages, health, preview, analytics, notify, signin, builds, publishing, stores, courses, shop, orders, articles, events, bookings, donations, listings, checks, emails, owner, team, providers, community, door, freeze, account, security, apps, chat, integrations, imports, campaigns, inapp, studio, delivery, food, rides, teachers, school, taxi, samples, lms, reports, bus, library, salaries, schoolLife, learning, parents, university } as const;
 
 type Areas = typeof AREAS;
 type English = { [K in keyof Areas]: Areas[K]["en"] };

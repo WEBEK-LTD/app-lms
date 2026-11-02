@@ -20,6 +20,7 @@ import { handleOwner, ROUTES } from "@/lib/owner/service";
 import { inviteMember } from "@/lib/team/service";
 import { PLAN_INFO } from "@/lib/plans";
 import { teamInviteSchema } from "@/lib/validation";
+import { uniSettingsOf } from "@/lib/university/settings";
 import { KEY, NOW, days } from "./helpers";
 
 /**
@@ -639,6 +640,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const theirStaff = await store.createSchoolPerson({ appId: k12, role: "staff", name: `${MARK} nurse`, phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, jobTitle: MARK }, NOW);
     if (!theirStaff.ok) throw new Error("staff");
     const leave = await store.createSchoolLeave({ appId: k12, personId: theirStaff.person.id, kind: "sick", startsOn: "2026-10-20", endsOn: "2026-10-21", note: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    // 113.12 Their staff member's salary, a final payslip and an advance.
+    await store.saveSchoolSalary({ appId: k12, personId: theirStaff.person.id, monthlyCents: 5000_00, currency: "EGP", allowances: [{ name: MARK, cents: 100_00 }], note: MARK, updatedBy: MARK, updatedAt: NOW });
+    const payslip = await store.createSchoolPayslip({ appId: k12, personId: theirStaff.person.id, month: "2026-10", personName: `${MARK} nurse`, role: "staff", jobTitle: MARK, department: null, currency: "EGP", baseCents: 5000_00, allowances: [], lines: [], attendance: null, netCents: 5000_00, status: "final", payments: [], paidCents: 0, note: MARK, finalAt: NOW, finalBy: MARK, createdAt: NOW, updatedAt: NOW });
+    if (!payslip.ok) throw new Error("payslip");
+    await store.createSchoolSalaryAdvance({ appId: k12, personId: theirStaff.person.id, personName: `${MARK} nurse`, currency: "EGP", amountCents: 1000_00, instalmentCents: 500_00, startsMonth: "2026-10", given: { id: "a", cents: 1000_00, method: "cash", paidOn: "2026-10-01", note: MARK, receiptAssetId: null, by: MARK, at: NOW.toISOString() }, repayments: [], createdAt: NOW, updatedAt: NOW });
     // 113.10 Their bus route, its stop, a trip running; 113.11 their book and a hold of it.
     const busRoute = (await store.saveSchoolBusRoute({ id: null, appId: k12, name: `${MARK} route`, plate: MARK, capacity: 20, driverId: null, supervisorId: null, active: true }, NOW))!;
     const busStop = (await store.saveSchoolBusStop({ id: null, appId: k12, routeId: busRoute.id, name: `${MARK} stop`, lat: 30.05, lng: 31.24, morningMinute: 420, afternoonMinute: null }))!;
@@ -651,7 +657,20 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     await store.saveSchoolEvent({ id: null, appId: k12, kind: "event", title: `${MARK} event`, notes: MARK, startsOn: "2026-10-12", endsOn: "2026-10-12", startMinute: null, endMinute: null, place: MARK, audience: "school", grade: null, classId: null }, NOW);
     const theirExam = (await store.saveSchoolExam({ id: null, appId: k12, classId: theirClass.id, grade: null, subjectId: theirSubject.subject.id, date: "2026-10-14", startMinute: 540, durationMinutes: 60, room: MARK, notes: MARK }, NOW))!;
     await store.publishSchoolExams(k12, [theirExam.id], NOW);
+    // 113.4 A permission slip of theirs, answered; an excuse and a pick-up list of their student.
+    const theirSlip = (await store.saveSchoolSlip({ id: null, appId: k12, title: `${MARK} slip`, details: MARK, dueOn: "2026-12-30", feeNote: MARK, audience: "school", grade: null, classId: null }, NOW))!;
+    await store.saveSchoolSlipAnswer({ appId: k12, slipId: theirSlip.id, studentId: theirStudent.person.id, answer: "yes", signedName: MARK, parentId: null, answeredAt: NOW });
+    const theirExcuse = await store.createSchoolExcuse({ appId: k12, studentId: theirStudent.person.id, parentId: null, startsOn: "2026-10-20", endsOn: "2026-10-20", reason: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    await store.saveSchoolPickup({ appId: k12, studentId: theirStudent.person.id, people: [{ name: MARK, relation: MARK, phone: null, photo: null }], updatedBy: MARK, updatedAt: NOW });
+    await store.saveSchoolPickupNote({ appId: k12, studentId: theirStudent.person.id, date: "2026-10-12", name: MARK, relation: null, phone: null, note: MARK, writtenBy: MARK, createdAt: NOW });
     const theirNote = await store.createSchoolBehaviour({ appId: k12, studentId: theirStudent.person.id, classId: theirClass.id, categoryId: null, categoryName: `${MARK} category`, kind: "positive", points: 2, note: MARK, teacherId: null, createdAt: NOW });
+    // 113.9 Both schools are universities: the other's term, course and section, its student enrolled and graded.
+    for (const appId of [mine.k12.id, k12]) await store.saveUniSettings(appId, { ...uniSettingsOf(null), enabled: true });
+    const theirTerm = (await store.saveUniTerm({ appId: k12, id: null, name: `${MARK} term`, academicYear: "2026/2027", startsOn: "2026-09-01", endsOn: "2027-01-15", registrationOpens: "2026-08-01", registrationCloses: "2026-12-01", dropUntil: "2026-12-01" }, NOW))!;
+    const theirCourse = await store.saveUniCourse({ appId: k12, id: null, departmentId: null, code: "THEIRS1", title: `${MARK} course`, credits: 3, prerequisites: [], description: MARK }, NOW);
+    if (!theirCourse.ok) throw new Error("course");
+    const theirSection = (await store.saveUniSection({ appId: k12, id: null, termId: theirTerm.id, courseId: theirCourse.course.id, code: MARK, lecturerId: null, seats: 10, meetings: [], resultsPublishedAt: NOW }, NOW))!;
+    await store.createUniEnrolment({ appId: k12, termId: theirTerm.id, sectionId: theirSection.id, courseId: theirCourse.course.id, studentId: theirStudent.person.id, status: "enrolled", addedBy: "office", addedAt: NOW, droppedAt: null, grade: "A", mark: 95, gradedAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
@@ -660,10 +679,13 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       topic_id: String(theirTopic.id),
       report_id: String(theirReport.id),
       leave_id: String(leave.id),
+      payslip_id: String(payslip.payslip.id),
       route_id: String(busRoute.id),
       run_id: String(busRun.id),
       book_id: String(book.id),
       hold_id: String(bookHold.id),
+      slip_id: String(theirSlip.id),
+      excuse_id: String(theirExcuse.id),
       // 113.8 A behaviour note shares `note_id` with 113.7's lesson notes: its paths get this one (see hosted()).
       behaviour_note_id: String(theirNote.id),
       teacher_id: String(teacher.teacher.id),
@@ -706,6 +728,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       ticket_code: "ABCDEFGHJKLM",
       campaign_id: String(campaign.id),
       shipment_id: String(shipment.id),
+      // 113.9
+      section_id: String(theirSection.id),
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });
@@ -754,7 +778,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
-    if (/^\/(school|classroom|staff)\//.test(route)) return "k12";
+    if (/^\/(school|classroom|staff|parent)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
     return "shop";
   }
@@ -786,7 +810,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
         app,
         active: true,
         // 105.3 With academies with many teachers, so their paths answer.
-        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors", "school"] },
+        plan: { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "instructors", "school", "university"] },
         now: NOW,
         ip: "203.0.113.9",
         secret: HOSTED_SECRET,

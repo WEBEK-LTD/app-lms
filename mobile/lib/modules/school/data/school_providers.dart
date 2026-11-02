@@ -304,6 +304,16 @@ final leaveRequestsProvider =
       PagedState<LeaveRequest>
     >(LeaveRequestsController.new);
 
+/// 113.12 The person's own payslips (two years of them) and their advances.
+final payslipsProvider = FutureProvider.autoDispose<PayslipPage>(
+  (ref) => ref.read(yallappApiProvider).listPayslips(),
+);
+
+/// 113.12 One payslip, read again for a new PDF link.
+final payslipProvider = FutureProvider.autoDispose.family<Payslip, int>(
+  (ref, id) => ref.read(yallappApiProvider).getPayslip(id),
+);
+
 /// The staff's own news, newest first.
 class StaffNewsController extends PagedController<SchoolAnnouncement> {
   @override

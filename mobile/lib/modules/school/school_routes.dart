@@ -14,11 +14,15 @@ import 'screens/bus_screens.dart';
 import 'screens/calendar_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/messages_screen.dart';
+import 'screens/parent_screens.dart';
 import 'screens/library_screens.dart';
+import 'screens/lecturer_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
+import 'screens/payslip_screens.dart';
 import 'screens/staff_screens.dart';
 import 'screens/student_screens.dart';
+import 'screens/university_screens.dart';
 
 /// 105.4 The School module (hosted API): the school and the account as
 /// tabs, for students and parents (a parent switches between their
@@ -26,9 +30,16 @@ import 'screens/student_screens.dart';
 /// Classroom tab (added for them only, see `withClassroomTab`) with their
 /// classes, attendance, homework and scores. 113.2 Checking in and out for
 /// students, teachers and staff; 113.3 a Staff tab for the staff who don't
-/// teach (added for them only, see `withStaffTab`).
+/// teach (added for them only, see `withStaffTab`); 113.4 a Parent tab for
+/// the school's parents (added for them only, see `withParentTab`).
 final schoolModule = AppModule(
-  tabPaths: {Paths.school, Paths.classroom, Paths.staff, Paths.account},
+  tabPaths: {
+    Paths.school,
+    Paths.parent,
+    Paths.classroom,
+    Paths.staff,
+    Paths.account,
+  },
   screens: _screens,
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
@@ -89,6 +100,13 @@ final classroomTab = ShellTab(
   location: Paths.classroom,
 );
 
+/// 113.4 The Parent tab, for the school's parents only.
+final parentTab = ShellTab(
+  icon: AppIcons.family,
+  label: (c) => c.l10n.tabParent,
+  location: Paths.parent,
+);
+
 /// 113.3 The Staff tab, for the school's staff who don't teach.
 final staffTab = ShellTab(
   icon: AppIcons.staffBadge,
@@ -98,6 +116,12 @@ final staffTab = ShellTab(
 
 List<TabScreen> _screens() => [
   TabScreen(Paths.school, (state) => const SchoolScreen()),
+  TabScreen(
+    Paths.parent,
+    (state) => ParentScreen(
+      student: int.tryParse(state.uri.queryParameters['student'] ?? ''),
+    ),
+  ),
   TabScreen(Paths.classroom, (state) => const ClassroomScreen()),
   TabScreen(Paths.staff, (state) => const StaffScreen()),
   TabScreen(
@@ -127,18 +151,38 @@ GoRoute _part(String part, Widget Function(int? student) build) => GoRoute(
   ),
 );
 
+/// 113.4 A child's part in the Parent tab, for the child in `?student=`.
+GoRoute _child(String part, Widget Function(int student) build) => GoRoute(
+  path: '${Paths.parent}/$part',
+  pageBuilder: (context, state) {
+    final id = int.tryParse(state.uri.queryParameters['student'] ?? '');
+    return appPage(
+      state,
+      id == null || id < 1 ? const NotFoundScreen() : build(id),
+    );
+  },
+);
+
 GoRoute _page(String path, Widget screen) => GoRoute(
   path: path,
   pageBuilder: (context, state) => appPage(state, screen),
 );
 
 List<RouteBase> _pushedRoutes() => [
+  // 113.4 The parent's slips, a child's excuses and who picks the child up.
+  _page(Paths.parentSlips, const PermissionSlipsScreen()),
+  _child('excuses', (student) => ExcusesScreen(student: student)),
+  _child('excuses/new', (student) => ExcuseFormScreen(student: student)),
+  _child('pickup', (student) => PickupScreen(student: student)),
   // 113.2 Checking in and out; 113.3 leave and the staff's news.
   _page(Paths.checkin, const CheckinScreen()),
   _page(Paths.staffLeaveNew, const LeaveFormScreen()),
   _page(Paths.staffLeave, const LeaveScreen()),
   _page(Paths.staffNews, const StaffNewsScreen()),
   _page(Paths.staffCalendar, const SchoolCalendarScreen(classroom: true)),
+  // 113.12 Payslips.
+  _page(Paths.staffPayslips, const PayslipsScreen()),
+  _byId('/staff/payslip/:id', (id) => PayslipScreen(id: id)),
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),
@@ -214,4 +258,29 @@ List<RouteBase> _pushedRoutes() => [
     '${Paths.classroom}/assessment/:id',
     (id) => ScoresScreen(assessmentId: id),
   ),
+  // 113.9 A university's student (and parents) and lecturers.
+  _part(
+    'uni-registration',
+    (student) => UniRegistrationScreen(student: student),
+  ),
+  _part('uni-timetable', (student) => UniTimetableScreen(student: student)),
+  _part('uni-results', (student) => UniResultsScreen(student: student)),
+  _part(
+    'uni-transcript',
+    (student) => UniResultsScreen(student: student, transcript: true),
+  ),
+  _part('uni-plan', (student) => UniStudyPlanScreen(student: student)),
+  _byId(
+    '${Paths.classroom}/section/:id/attendance',
+    (id) => SectionAttendanceScreen(sectionId: id),
+  ),
+  _byId(
+    '${Paths.classroom}/section/:id',
+    (id) => LecturerSectionScreen(sectionId: id),
+  ),
+  GoRoute(
+    path: Paths.classroomAdvisees,
+    pageBuilder: (context, state) => appPage(state, const AdviseesScreen()),
+  ),
+  _byId('${Paths.classroom}/advisee/:id', (id) => AdviseeScreen(studentId: id)),
 ];

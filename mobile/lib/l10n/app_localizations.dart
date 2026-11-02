@@ -12669,6 +12669,1012 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hand in again'**
   String get handInAgain;
+
+  /// 113.4 The bottom tab only the school's parents see: their children's days, slips, excuses and pick-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get tabParent;
+
+  /// 113.4 The Parent tab, for someone the school didn't add as a parent: its title.
+  ///
+  /// In en, this message translates to:
+  /// **'For the school\'s parents'**
+  String get parentNotParentTitle;
+
+  /// 113.4 The Parent tab, for someone the school didn't add as a parent: what to do.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t added this number as a parent. Ask the school to link it to your children.'**
+  String get parentNotParentMessage;
+
+  /// 113.4 On the School tab of a parent who isn't a student: their children's days are in the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Your children are in the Parent tab'**
+  String get parentChildrenTitle;
+
+  /// 113.4 On the School tab of a parent who isn't a student: what the Parent tab has.
+  ///
+  /// In en, this message translates to:
+  /// **'Each child\'s day, the slips to sign, absences to excuse and who picks them up.'**
+  String get parentChildrenMessage;
+
+  /// 113.4 Button on the School tab of a parent: opens the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Parent tab'**
+  String get parentOpen;
+
+  /// 113.4 On a child's day: today is a holiday or a break.
+  ///
+  /// In en, this message translates to:
+  /// **'No school today: {title}'**
+  String parentDayOff(String title);
+
+  /// 113.4 On a child's day: who picks the child up today.
+  ///
+  /// In en, this message translates to:
+  /// **'Picks up today: {name}'**
+  String parentPicksUpToday(String name);
+
+  /// 113.4 On a child's day: the child's check-in today.
+  ///
+  /// In en, this message translates to:
+  /// **'At the gate'**
+  String get parentAtTheGate;
+
+  /// 113.4 On a child's day: how much homework is due.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No homework due} =1{1 homework due} other{{count} homework due}}'**
+  String parentHomeworkDue(int count);
+
+  /// 113.4 On a child's day: the three latest scores.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest grades'**
+  String get parentLatestGrades;
+
+  /// 113.4 On a child's day: the child's behaviour points.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String parentBehaviourPoints(int points);
+
+  /// 113.4 On a child's day: the library books out now.
+  ///
+  /// In en, this message translates to:
+  /// **'Library books'**
+  String get parentLibraryBooks;
+
+  /// 113.4 On a child's day: when a library book is due back.
+  ///
+  /// In en, this message translates to:
+  /// **'Due back {date}'**
+  String parentBookDue(String date);
+
+  /// 113.4 On a child's day: a library book that is overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue since {date}'**
+  String parentBookOverdue(String date);
+
+  /// 113.4 On a child's day: the child's bus is running now.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus is on its way'**
+  String get parentBusOnTheWay;
+
+  /// 113.4 On a child's day: the next events and exams on the calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get parentComing;
+
+  /// 113.4 The list of a child's parts on the Parent tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything for {name}'**
+  String parentEverything(String name);
+
+  /// 113.4 Opens the permission slips to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission slips'**
+  String get parentSlips;
+
+  /// 113.4 How many permission slips wait for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing to sign} =1{1 to sign} other{{count} to sign}}'**
+  String parentSlipsWaiting(int count);
+
+  /// 113.4 Opens the child's absence excuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Absence excuses'**
+  String get parentExcuses;
+
+  /// 113.4 Under the absence excuses tile.
+  ///
+  /// In en, this message translates to:
+  /// **'A day or several, with the reason'**
+  String get parentExcusesSubtitle;
+
+  /// 113.4 Opens who may pick the child up.
+  ///
+  /// In en, this message translates to:
+  /// **'Who picks up'**
+  String get parentPickup;
+
+  /// 113.4 How many people may pick the child up.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No one listed yet} =1{1 person} other{{count} people}}'**
+  String parentPickupPeople(int count);
+
+  /// 113.4 How many teachers' reports the school shared.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None shared yet} =1{1 shared} other{{count} shared}}'**
+  String parentReportsCount(int count);
+
+  /// 113.4 A permission slip's due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer by {date}'**
+  String slipDue(String date);
+
+  /// 113.4 A permission slip past its due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get slipClosed;
+
+  /// 113.4 A permission slip's note of a fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee: {note}'**
+  String slipFee(String note);
+
+  /// 113.4 Signs a permission slip yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I agree'**
+  String get slipYes;
+
+  /// 113.4 Signs a permission slip no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get slipNo;
+
+  /// 113.4 A child's slip signed yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed yes by {name}'**
+  String slipSignedYes(String name);
+
+  /// 113.4 A child's slip signed no.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined by {name}'**
+  String slipSignedNo(String name);
+
+  /// 113.4 A child's slip not answered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered'**
+  String get slipNotAnswered;
+
+  /// 113.4 What a parent signs when they answer yes.
+  ///
+  /// In en, this message translates to:
+  /// **'{child} may take part: {title}.'**
+  String slipAgree(String child, String title);
+
+  /// 113.4 What a parent signs when they answer no.
+  ///
+  /// In en, this message translates to:
+  /// **'{child} won\'t take part: {title}.'**
+  String slipDecline(String child, String title);
+
+  /// 113.4 The name a parent signs a slip with.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get slipYourName;
+
+  /// 113.4 Signs the permission slip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign'**
+  String get slipSign;
+
+  /// 113.4 After a parent signed a slip.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed. The school sees your answer.'**
+  String get slipSigned;
+
+  /// 113.4 The permission slips list when there is none.
+  ///
+  /// In en, this message translates to:
+  /// **'No permission slips.'**
+  String get slipsNone;
+
+  /// 113.4 A slip signed without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign with your name.'**
+  String get slipNameNeeded;
+
+  /// 113.4 Starts an absence excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Excuse an absence'**
+  String get excuseNew;
+
+  /// 113.4 An excuse's first day.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get excuseFirstDay;
+
+  /// 113.4 An excuse's last day.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get excuseLastDay;
+
+  /// 113.4 Why the child was or will be absent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get excuseReason;
+
+  /// 113.4 Adds a photo of a doctor's note to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of a note'**
+  String get excuseAddPhoto;
+
+  /// 113.4 Adds a PDF to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get excuseAddFile;
+
+  /// 113.4 Sends an absence excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to the school'**
+  String get excuseSend;
+
+  /// 113.4 After an excuse was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. The school will answer in the app.'**
+  String get excuseSent;
+
+  /// 113.4 An excuse sent without a reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the reason.'**
+  String get excuseReasonNeeded;
+
+  /// 113.4 An excuse the school hasn't answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get excusePending;
+
+  /// 113.4 An excuse the school accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Excused'**
+  String get excuseAccepted;
+
+  /// 113.4 An excuse the school declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepted'**
+  String get excuseDeclined;
+
+  /// 113.4 An excuse the parent withdrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
+  String get excuseWithdrawn;
+
+  /// 113.4 Withdraws an excuse while it waits.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get excuseWithdraw;
+
+  /// 113.4 The excuses list when there is none.
+  ///
+  /// In en, this message translates to:
+  /// **'No excuses sent.'**
+  String get excusesNone;
+
+  /// 113.4 The school's note with its answer to an excuse.
+  ///
+  /// In en, this message translates to:
+  /// **'The school: {note}'**
+  String excuseSchoolNote(String note);
+
+  /// 113.4 At the top of the pick-up screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Who may pick {name} up from school. The school sees this list at the gate.'**
+  String pickupIntro(String name);
+
+  /// 113.4 The pick-up list when empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one on the list yet.'**
+  String get pickupNone;
+
+  /// 113.4 Adds a person to the pick-up list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone'**
+  String get pickupAdd;
+
+  /// 113.4 A pick-up person's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pickupName;
+
+  /// 113.4 A pick-up person's relation to the child (grandmother, uncle…).
+  ///
+  /// In en, this message translates to:
+  /// **'Relation'**
+  String get pickupRelation;
+
+  /// 113.4 A pick-up person's phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get pickupPhone;
+
+  /// 113.4 Adds a photo of a pick-up person.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get pickupPhoto;
+
+  /// 113.4 Takes a person off the pick-up list.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get pickupRemove;
+
+  /// 113.4 After the pick-up list was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The school sees the list.'**
+  String get pickupSaved;
+
+  /// 113.4 A pick-up person without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Write their name.'**
+  String get pickupNameNeeded;
+
+  /// 113.4 The one-day pick-up note part.
+  ///
+  /// In en, this message translates to:
+  /// **'Just for one day'**
+  String get pickupOneDay;
+
+  /// 113.4 What the one-day pick-up note is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else picks up on a day? Tell the school: it sees it on that day\'s board.'**
+  String get pickupOneDayIntro;
+
+  /// 113.4 The day of a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get pickupDay;
+
+  /// 113.4 A one-day pick-up note's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for the school'**
+  String get pickupNote;
+
+  /// 113.4 Sends a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell the school'**
+  String get pickupTell;
+
+  /// 113.4 After a one-day pick-up note was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The school sees it on that day\'s board.'**
+  String get pickupTold;
+
+  /// 113.4 A one-day pick-up note: the day and who picks up.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {name}'**
+  String pickupNoteLine(String date, String name);
+
+  /// 113.4 Deletes a one-day pick-up note.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back'**
+  String get pickupTakeBack;
+
+  /// 113.12 Opens the person's own payslips (Staff and Classroom tabs).
+  ///
+  /// In en, this message translates to:
+  /// **'My payslips'**
+  String get staffPayslips;
+
+  /// 113.12 The payslips list is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No payslips yet. They show here once the school makes them final.'**
+  String get payslipsNone;
+
+  /// 113.12 Above the payslips: nothing is paid through the app.
+  ///
+  /// In en, this message translates to:
+  /// **'The school records salaries by hand: it pays in cash or by bank transfer and writes it down here.'**
+  String get payslipsByHand;
+
+  /// 113.12 A final payslip the school hasn't recorded as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get payslipUnpaid;
+
+  /// 113.12 A payslip paid in part.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly paid'**
+  String get payslipPartPaid;
+
+  /// 113.12 A payslip paid in full.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payslipPaid;
+
+  /// 113.12 A payslip's net pay on the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Net {amount}'**
+  String payslipNetLine(String amount);
+
+  /// 113.12 A payslip's base salary.
+  ///
+  /// In en, this message translates to:
+  /// **'Base salary'**
+  String get payslipBase;
+
+  /// 113.12 A bonus line without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get payslipBonus;
+
+  /// 113.12 A deduction line without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction'**
+  String get payslipDeduction;
+
+  /// 113.12 A deduction for days absent, with how many.
+  ///
+  /// In en, this message translates to:
+  /// **'Absences ({count})'**
+  String payslipAbsences(int count);
+
+  /// 113.12 A deduction for coming late, with how many times.
+  ///
+  /// In en, this message translates to:
+  /// **'Late arrivals ({count})'**
+  String payslipLateness(int count);
+
+  /// 113.12 Part of an advance taken back from the pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance taken back'**
+  String get payslipAdvance;
+
+  /// 113.12 Base, allowances and bonuses together.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross'**
+  String get payslipGross;
+
+  /// 113.12 All deductions together.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions'**
+  String get payslipDeductions;
+
+  /// 113.12 What the person is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Net pay'**
+  String get payslipNet;
+
+  /// 113.12 What the school recorded as paid so far.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payslipPaidSoFar;
+
+  /// 113.12 What is still to be paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get payslipLeft;
+
+  /// 113.12 The payments the school recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get payslipPayments;
+
+  /// 113.12 A payment in cash, on a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash, {date}'**
+  String payslipCash(String date);
+
+  /// 113.12 A payment by bank transfer, on a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer, {date}'**
+  String payslipBank(String date);
+
+  /// 113.12 The month's days at the gate on a payslip.
+  ///
+  /// In en, this message translates to:
+  /// **'{working} working days · {present} present · {absent} absent · {late} late · {leave} on leave'**
+  String payslipDays(int working, int present, int absent, int late, int leave);
+
+  /// 113.12 Opens the payslip's PDF in the app's viewer.
+  ///
+  /// In en, this message translates to:
+  /// **'View the PDF'**
+  String get payslipViewPdf;
+
+  /// 113.12 Opens the payslip's PDF outside the app, to keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the PDF'**
+  String get payslipDownloadPdf;
+
+  /// 113.12 The person's advances still being taken back.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get payslipAdvances;
+
+  /// 113.12 An advance: how much, when, each month's part and what is left.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} given on {date} · {instalment} a month · {left} left'**
+  String payslipAdvanceLine(
+    String amount,
+    String date,
+    String instalment,
+    String left,
+  );
+
+  /// 113.9 Opens a university student's registration for the term.
+  ///
+  /// In en, this message translates to:
+  /// **'Register for the term'**
+  String get uniRegister;
+
+  /// 113.9 Opens a university student's week of lectures.
+  ///
+  /// In en, this message translates to:
+  /// **'My timetable'**
+  String get uniTimetable;
+
+  /// 113.9 Opens a university student's results by term.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get uniResults;
+
+  /// 113.9 Opens a university student's transcript.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript'**
+  String get uniTranscript;
+
+  /// 113.9 Opens the courses of the student's program: done, in progress and left.
+  ///
+  /// In en, this message translates to:
+  /// **'Study plan'**
+  String get uniStudyPlan;
+
+  /// 113.9 The label of a university student's cumulative GPA.
+  ///
+  /// In en, this message translates to:
+  /// **'GPA'**
+  String get uniGpa;
+
+  /// 113.9 The credits a student earned of those their program needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{earned} of {required} credits'**
+  String uniCreditsOf(String earned, String required);
+
+  /// 113.9 A course's or a term's credits.
+  ///
+  /// In en, this message translates to:
+  /// **'{credits} credits'**
+  String uniCredits(String credits);
+
+  /// 113.9 The lecturer who approves the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Advisor: {name}'**
+  String uniAdvisor(String name);
+
+  /// 113.9 A student the university hasn't given a program yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No program yet: the university adds it.'**
+  String get uniNoProgram;
+
+  /// 113.9 A registration not sent to the advisor yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get uniStatusDraft;
+
+  /// 113.9 A registration waiting for the advisor's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'With your advisor'**
+  String get uniStatusSubmitted;
+
+  /// 113.9 A registration the advisor approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get uniStatusApproved;
+
+  /// 113.9 A registration the advisor sent back to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get uniStatusReturned;
+
+  /// 113.9 The term's registration isn't open yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration opens on {date}'**
+  String uniPhaseBefore(String date);
+
+  /// 113.9 The term's registration is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration is open until {date}'**
+  String uniPhaseOpen(String date);
+
+  /// 113.9 Registration is over; courses can still be dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'You can drop a course until {date}'**
+  String uniPhaseDrop(String date);
+
+  /// 113.9 The term's registration and drop days are over.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration for this term is closed'**
+  String get uniPhaseClosed;
+
+  /// 113.9 The credits a student holds this term and the program's least and most.
+  ///
+  /// In en, this message translates to:
+  /// **'{taken} credits · {min} to {max} a term'**
+  String uniCreditsRange(String taken, String min, String max);
+
+  /// 113.9 The sections a student holds this term, or a lecturer teaches.
+  ///
+  /// In en, this message translates to:
+  /// **'My sections'**
+  String get uniMySections;
+
+  /// 113.9 The term's other sections a student can add.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections offered'**
+  String get uniOffered;
+
+  /// 113.9 Adds a section to the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get uniAdd;
+
+  /// 113.9 Adds a full section's waiting list.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waiting list'**
+  String get uniJoinWaitlist;
+
+  /// 113.9 Drops a section from the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get uniDrop;
+
+  /// 113.9 Asks before a section is dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop {course}?'**
+  String uniDropConfirm(String course);
+
+  /// 113.9 The seats a section has left.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Full} =1{1 seat left} other{{count} seats left}}'**
+  String uniSeatsLeft(int count);
+
+  /// 113.9 A section asked for, waiting for the advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get uniEnrolPending;
+
+  /// 113.9 A section the student is enrolled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrolled'**
+  String get uniEnrolEnrolled;
+
+  /// 113.9 A full section the student waits for.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting list'**
+  String get uniEnrolWaitlisted;
+
+  /// 113.9 Sends the student's registration to their advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to my advisor'**
+  String get uniSubmit;
+
+  /// 113.9 Shown once the registration is sent to the advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your advisor.'**
+  String get uniSubmitted;
+
+  /// 113.9 The advisor's note on a registration sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Your advisor: {note}'**
+  String uniAdvisorNote(String note);
+
+  /// 113.9 Shown to a parent looking at their child's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the student changes the registration.'**
+  String get uniReadOnly;
+
+  /// 113.9 A term without sections yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sections in this term yet.'**
+  String get uniNoSections;
+
+  /// 113.9 A student's empty week of lectures.
+  ///
+  /// In en, this message translates to:
+  /// **'No lectures this term.'**
+  String get uniNoLectures;
+
+  /// 113.9 A day without lectures on the student's home.
+  ///
+  /// In en, this message translates to:
+  /// **'No lectures today.'**
+  String get uniNoLecturesToday;
+
+  /// 113.9 A term's GPA in the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Term GPA {gpa}'**
+  String uniTermGpa(String gpa);
+
+  /// 113.9 The label of the GPA over every term.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative GPA'**
+  String get uniCumulative;
+
+  /// 113.9 A student without published results.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.'**
+  String get uniNoResults;
+
+  /// 113.9 Opens the transcript as a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the PDF'**
+  String get uniOpenPdf;
+
+  /// 113.9 A course of the study plan passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get uniPlanDone;
+
+  /// 113.9 A course of the study plan taken this term.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get uniPlanInProgress;
+
+  /// 113.9 A course of the study plan still to take.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get uniPlanLeft;
+
+  /// 113.9 The study plan's credits, done, in progress and left.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} done · {inProgress} in progress · {left} left of {required} credits'**
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  );
+
+  /// 113.9 A year of the study plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Year {year}'**
+  String uniYear(int year);
+
+  /// 113.9 A study plan's elective course.
+  ///
+  /// In en, this message translates to:
+  /// **'Elective'**
+  String get uniElective;
+
+  /// 113.9 How many students a lecturer's section has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String uniStudents(int count);
+
+  /// 113.9 Opens the students a lecturer advises.
+  ///
+  /// In en, this message translates to:
+  /// **'My advisees'**
+  String get uniAdvisees;
+
+  /// 113.9 Registrations waiting for the advisor's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing waits for you} =1{1 registration waits for you} other{{count} registrations wait for you}}'**
+  String uniAdviseesWaiting(int count);
+
+  /// 113.9 A lecturer without sections this term.
+  ///
+  /// In en, this message translates to:
+  /// **'No sections this term: the university adds you as their lecturer.'**
+  String get uniNoTeaching;
+
+  /// 113.9 A section whose results the students see.
+  ///
+  /// In en, this message translates to:
+  /// **'Results published'**
+  String get uniPublished;
+
+  /// 113.9 Publishes a section's results to its students.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish results'**
+  String get uniPublish;
+
+  /// 113.9 Asks before a section's results are published.
+  ///
+  /// In en, this message translates to:
+  /// **'The students and their parents see their grades and are told.'**
+  String get uniPublishConfirm;
+
+  /// 113.9 Saves a section's grades.
+  ///
+  /// In en, this message translates to:
+  /// **'Save grades'**
+  String get uniSaveGrades;
+
+  /// 113.9 Shown once a section's grades are saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades saved.'**
+  String get uniGradesSaved;
+
+  /// 113.9 Shown once a section's results are published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published. The students were told.'**
+  String get uniResultsPublished;
+
+  /// 113.9 The percent a lecturer gives; the scale's letter comes from it.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark (%)'**
+  String get uniMark;
+
+  /// 113.9 A letter of the university's grading scale.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get uniGrade;
+
+  /// 113.9 A student not graded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade'**
+  String get uniNoGrade;
+
+  /// 113.9 The advisor approves an advisee's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get uniApprove;
+
+  /// 113.9 The advisor sends a registration back to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Send back'**
+  String get uniSendBack;
+
+  /// 113.9 The advisor's note when sending a registration back.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to the student (optional)'**
+  String get uniNoteHint;
+
+  /// 113.9 Shown once the advisor approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved. The student was told.'**
+  String get uniApproved;
+
+  /// 113.9 Shown once the advisor sent it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back. The student was told.'**
+  String get uniSentBack;
+
+  /// 113.9 A lecturer without advisees.
+  ///
+  /// In en, this message translates to:
+  /// **'No students to advise this term.'**
+  String get uniNoAdvisees;
+
+  /// 113.9 Shown once a lecture's attendance is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance saved.'**
+  String get uniAttendanceSaved;
 }
 
 class _AppLocalizationsDelegate

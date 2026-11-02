@@ -461,6 +461,52 @@ tags:
       sent with `/school/uploads`), approved or refused by the school in the
       dashboard with a note (`school_leave`), and the staff's own news, which
       students and parents never see (`school_staff`).
+
+      Roadmap 113.12. Their own payslips once the school made them final
+      (the base, allowances, bonuses, deductions, advances taken back, the
+      net and the payments the school wrote down) with each one's PDF from
+      a signed link that lasts 15 minutes, and their advances still being
+      taken back. Salaries are recorded by hand: nothing here moves money,
+      and no one sees another person's payslips.
+  - name: Parent
+    description: |
+      Roadmap 113.4. The parent's area: an app's Parent tab, for the school's
+      parents only (`User.roles` and `SchoolMe.roles` have `parent`); every
+      endpoint here answers `not_parent` (403) to anyone else, a student, a
+      teacher or a member of staff without children at the school, and
+      `not_found` (404) for a child who isn't theirs. One account for all
+      their children (`GET /parent/me`), each child's day at a glance
+      (checked in and out, today's lessons, homework due, the latest
+      grades, behaviour, the bus, library books, the reports the school
+      shared, fees, slips to answer, an excuse, who picks the child up and
+      the next days on the calendar), the permission slips the school sends
+      a class, a grade or the whole school (signed yes or no with the
+      parent's name by the due date; `school_slip` when one comes and the
+      day before it is due), excuses for an absence (a day or several, a
+      reason and a photo or PDF sent with `/school/uploads`; accepted or
+      declined by the school, `school_excuse`; an accepted one makes those
+      days `excused` in the attendance and at the gate), and who may pick
+      the child up (name, relation, phone and a photo sent with
+      `/school/uploads`) with a one-day note ("today X picks up") the school
+      sees on the day's board. Fees, the reports, the calendar and messages
+      stay on their School endpoints.
+  - name: University
+    description: |
+      Roadmap 113.9. Schools in university mode (`SchoolConfig.university`):
+      faculties, departments and programs; each term's sections of the
+      courses with their lecturer, seats and weekly lectures. A student
+      registers for the term in the app while its registration is open
+      (seats left, lectures that don't clash, prerequisites passed, the
+      program's credits per term; a full section takes a waiting list when
+      the university has one), sends the registration to their advisor (a
+      lecturer), who approves it or sends it back; a section is dropped
+      until the term's drop date. Lecturers take each lecture's attendance,
+      give the grades of the university's scale and publish a section's
+      results; the student sees each term's GPA, the cumulative GPA
+      (credit-weighted, the latest attempt of a course counting), the
+      transcript (also as a PDF) and their program's study plan. A parent
+      sees their child's part, read only. Endpoints answer
+      `not_university` (404) when the school isn't a university.
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -8688,6 +8734,767 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /parent/me:
+    get:
+      tags: [Parent]
+      operationId: getParentMe
+      summary: The signed-in parent and their children
+      description: Their children in the order the school added them (never the parent themselves), the slips each has to answer, and whether the school lets parents write to their children's teachers (113.6).
+      responses:
+        '200':
+          description: The parent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ParentMe' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /parent/children/{student_id}/day:
+    get:
+      tags: [Parent]
+      operationId: getChildDay
+      summary: A child's day at a glance
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The day
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildDay' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /parent/slips:
+    get:
+      tags: [Parent]
+      operationId: listPermissionSlips
+      summary: The permission slips for the parent's children
+      description: Open ones first (the soonest due first), then those closed in the last 60 days; each with the parent's children it is for and their answers. `student_id` for one child's.
+      parameters:
+        - name: student_id
+          in: query
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Slips
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/PermissionSlip' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /parent/slips/{slip_id}/answers:
+    post:
+      tags: [Parent]
+      operationId: answerPermissionSlip
+      summary: Sign a slip for a child, yes or no
+      description: With the parent's name. Answering again replaces the answer, until the end of the due date (`slip_closed`, 409, after it).
+      parameters:
+        - $ref: '#/components/parameters/SlipId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, answer, signed_name]
+              properties:
+                student_id: { type: integer }
+                answer: { type: string, enum: ['yes', 'no'] }
+                signed_name: { type: string, maxLength: 120 }
+      responses:
+        '200':
+          description: Signed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PermissionSlip' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /parent/children/{student_id}/excuses:
+    get:
+      tags: [Parent]
+      operationId: listAbsenceExcuses
+      summary: The excuses sent for a child
+      description: Newest first, up to 50.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Excuses
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/AbsenceExcuse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Parent]
+      operationId: sendAbsenceExcuse
+      summary: Excuse a child's absence
+      description: For a day or several, from 30 days back to 60 days ahead, up to 60 days at a time; `excuse_overlaps` (409) when a waiting or accepted excuse has some of the days. A photo or PDF is sent with `/school/uploads`. The school's administration is told on Yallapp Business.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [starts_on, reason]
+              properties:
+                starts_on: { type: string, format: date }
+                ends_on: { type: [string, 'null'], format: date, description: 'The last day; the first when left out.' }
+                reason: { type: string, maxLength: 1000 }
+                upload_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '201':
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AbsenceExcuse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /parent/excuses/{excuse_id}:
+    delete:
+      tags: [Parent]
+      operationId: withdrawAbsenceExcuse
+      summary: Withdraw an excuse the school hasn't answered
+      description: '`already_answered` (409) once the school accepted or declined it.'
+      parameters:
+        - $ref: '#/components/parameters/ExcuseId'
+      responses:
+        '204': { description: Withdrawn }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /parent/children/{student_id}/pickup:
+    get:
+      tags: [Parent]
+      operationId: getChildPickup
+      summary: Who may pick a child up
+      description: The list the parents keep (any of the child's parents changes it; the school adds to it in the dashboard), today's one-day note and the next days'.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Pick-up
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildPickup' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Parent]
+      operationId: saveChildPickup
+      summary: Change who may pick a child up
+      description: The whole list, up to 10 people; it replaces the one before. A photo is an image sent with `/school/uploads` (`photo_id` is its id); a photo already on the list stays when its `photo_id` is sent again.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [people]
+              properties:
+                people:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name: { type: string, maxLength: 120 }
+                      relation: { type: [string, 'null'], maxLength: 60, example: Grandmother }
+                      phone: { type: [string, 'null'], maxLength: 30 }
+                      photo_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildPickup' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /parent/children/{student_id}/pickup/note:
+    put:
+      tags: [Parent]
+      operationId: savePickupNote
+      summary: Say who picks the child up on a day
+      description: '"Today X picks up": for today (when `date` is left out) or one of the next 30 days, one per day (sending again replaces it); the school sees it on that day''s board.'
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                date: { type: [string, 'null'], format: date }
+                name: { type: string, maxLength: 120 }
+                relation: { type: [string, 'null'], maxLength: 60 }
+                phone: { type: [string, 'null'], maxLength: 30 }
+                note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildPickup' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Parent]
+      operationId: deletePickupNote
+      summary: Take back a day's pick-up note
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: date
+          in: query
+          description: The day; today when left out.
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Taken back
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChildPickup' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /staff/payslips:
+    get:
+      tags: [Staff]
+      operationId: listPayslips
+      summary: The person's own payslips
+      description: |
+        Roadmap 113.12. Final payslips only (a draft the school is still
+        writing is never shown), the newest month first; `advances` are the
+        person's advances still being taken back. `pdf_url` is a signed link
+        to the payslip's PDF in the app's language, good for 15 minutes:
+        ask again for a new one.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Payslips
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items, advances]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Payslip' }
+                      advances:
+                        type: array
+                        items: { $ref: '#/components/schemas/SalaryAdvance' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /staff/payslips/{payslip_id}:
+    get:
+      tags: [Staff]
+      operationId: getPayslip
+      summary: One of the person's payslips, with a new PDF link
+      parameters:
+        - $ref: '#/components/parameters/PayslipId'
+      responses:
+        '200':
+          description: The payslip
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Payslip' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # 113.9 Universities
+
+  /school/students/{student_id}/university:
+    get:
+      tags: [University]
+      operationId: getUniversityStudent
+      summary: The student's program, advisor, GPA and this term's registration
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The student at the university
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniversityStudent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/university/registration:
+    get:
+      tags: [University]
+      operationId: getUniRegistration
+      summary: The student's registration for a term, and the sections offered
+      description: |
+        The sections the student holds (asked for, enrolled or on a waiting
+        list) and the term's other sections, each with its seats left and
+        whether it can be added (`problems` says why not).
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/TermIdQuery'
+      responses:
+        '200':
+          description: The registration
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniRegistration' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/university/registration/sections:
+    post:
+      tags: [University]
+      operationId: addUniSection
+      summary: Add a section (the student only)
+      description: |
+        While the term's registration is open and the registration isn't
+        with the advisor. The section waits for the advisor (`pending`,
+        its seat held), or joins the waiting list when it is full and the
+        university has one (`waitlisted`). `not_allowed_clash`,
+        `not_allowed_prerequisites`, `not_allowed_credits`,
+        `not_allowed_full`, `not_allowed_taken`, `registration_closed`,
+        `waiting_for_advisor` and `already_added` answer 409.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [section_id]
+              properties:
+                section_id: { type: integer }
+                term_id: { type: integer }
+      responses:
+        '200':
+          description: The registration with the section
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniRegistration' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/students/{student_id}/university/registration/sections/{section_id}:
+    delete:
+      tags: [University]
+      operationId: dropUniSection
+      summary: Drop a section (the student only)
+      description: Until the term's drop date (`drop_closed`, 409, after it). The first on its waiting list who fits takes the seat and is told (`uni_seat`).
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/SectionId'
+        - $ref: '#/components/parameters/TermIdQuery'
+      responses:
+        '200':
+          description: The registration without the section
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniRegistration' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/students/{student_id}/university/registration/submit:
+    post:
+      tags: [University]
+      operationId: submitUniRegistration
+      summary: Send the registration to the advisor (the student only)
+      description: With a section waiting for approval and at least the program's credits for a term (`credits_low`, 409). The advisor is told (`uni_advisee`).
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term_id: { type: integer }
+      responses:
+        '200':
+          description: The registration, with the advisor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniRegistration' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/students/{student_id}/university/timetable:
+    get:
+      tags: [University]
+      operationId: getUniTimetable
+      summary: The student's week of lectures in a term
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - { name: term_id, in: query, description: The term; else the current one., schema: { type: integer } }
+      responses:
+        '200':
+          description: The week
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniTimetable' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/university/results:
+    get:
+      tags: [University]
+      operationId: getUniResults
+      summary: Results by term, each term's GPA and the cumulative GPA
+      description: Only the grades of sections whose results are published.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The results
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniResults' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/university/transcript:
+    get:
+      tags: [University]
+      operationId: getUniTranscript
+      summary: The student's transcript, with its PDF
+      description: The results with the student and their program; `pdf_url` is the PDF's address, working for an hour.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The transcript
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniTranscript' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/university/plan:
+    get:
+      tags: [University]
+      operationId: getUniStudyPlan
+      summary: The program's study plan, done, in progress and left
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: The study plan
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniStudyPlan' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/university:
+    get:
+      tags: [University]
+      operationId: getLecturerHome
+      summary: A lecturer's sections in a term, and their advisees waiting
+      parameters:
+        - { name: term_id, in: query, description: The term; else the current one., schema: { type: integer } }
+      responses:
+        '200':
+          description: The lecturer's term
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LecturerHome' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/university/sections/{section_id}:
+    get:
+      tags: [University]
+      operationId: getLecturerSection
+      summary: One of the lecturer's sections, its students and their grades
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+      responses:
+        '200':
+          description: The section
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniSectionDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/university/sections/{section_id}/attendance:
+    get:
+      tags: [University]
+      operationId: getSectionAttendance
+      summary: A lecture's attendance (today by default)
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+        - { name: date, in: query, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: The section's students and their marks that day
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniSectionAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [University]
+      operationId: saveSectionAttendance
+      summary: Save a lecture's attendance
+      description: For today and the 14 days before (`date_out_of_range`, 400).
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, items]
+              properties:
+                date: { type: string, format: date }
+                items:
+                  type: array
+                  maxItems: 500
+                  items:
+                    type: object
+                    required: [student_id, status]
+                    properties:
+                      student_id: { type: integer }
+                      status: { type: string, enum: [present, absent, late, excused] }
+                      note: { type: [string, 'null'], maxLength: 300 }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniSectionAttendance' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/university/sections/{section_id}/grades:
+    put:
+      tags: [University]
+      operationId: saveSectionGrades
+      summary: Give the section's grades
+      description: A letter of the university's scale, or a percent (`mark`) the scale's letter comes from; null clears it. For the section's enrolled students.
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  maxItems: 500
+                  items:
+                    type: object
+                    required: [student_id]
+                    properties:
+                      student_id: { type: integer }
+                      grade: { type: [string, 'null'] }
+                      mark: { type: [number, 'null'], minimum: 0, maximum: 100 }
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniSectionDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/university/sections/{section_id}/publish:
+    post:
+      tags: [University]
+      operationId: publishSectionResults
+      summary: Publish the section's results
+      description: Its graded students (and their parents) see their grade and are told (`uni_results`). `nothing_graded` (409) without any grade.
+      parameters:
+        - $ref: '#/components/parameters/SectionId'
+      responses:
+        '200':
+          description: Published
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UniSectionDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/university/advisees:
+    get:
+      tags: [University]
+      operationId: listAdvisees
+      summary: The students the lecturer advises, and their registration for a term
+      description: Those waiting for an answer first.
+      parameters:
+        - $ref: '#/components/parameters/TermIdQuery'
+      responses:
+        '200':
+          description: The advisees
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdviseeList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/university/advisees/{student_id}:
+    get:
+      tags: [University]
+      operationId: getAdvisee
+      summary: An advisee's registration for a term
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/TermIdQuery'
+      responses:
+        '200':
+          description: The registration
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdviseeDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/university/advisees/{student_id}/approve:
+    post:
+      tags: [University]
+      operationId: approveAdvisee
+      summary: Approve an advisee's registration
+      description: Its sections waiting are enrolled; the student (and their parents) are told (`uni_registration`). `not_submitted` (409) when nothing waits.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term_id: { type: integer }
+      responses:
+        '200':
+          description: Approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdviseeDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/university/advisees/{student_id}/return:
+    post:
+      tags: [University]
+      operationId: returnAdvisee
+      summary: Send an advisee's registration back, with a note
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term_id: { type: integer }
+                note: { type: string, maxLength: 500 }
+      responses:
+        '200':
+          description: Sent back
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdviseeDetail' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 webhooks:
   accountDeleted:
     post:
@@ -8858,6 +9665,21 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    SlipId:
+      name: slip_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ExcuseId:
+      name: excuse_id
+      in: path
+      required: true
+      schema: { type: integer }
+    PayslipId:
+      name: payslip_id
+      in: path
+      required: true
+      schema: { type: integer }
     Month:
       name: month
       in: query
@@ -8882,6 +9704,16 @@ components:
       name: hold_id
       in: path
       required: true
+      schema: { type: integer }
+    SectionId:
+      name: section_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TermIdQuery:
+      name: term_id
+      in: query
+      description: The term; else the one registration is open for (the current term otherwise).
       schema: { type: integer }
     HomeworkId:
       name: homework_id
@@ -10721,7 +11553,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -10772,6 +11604,17 @@ components:
             child got on or off it, and opens the bus. 113.11 `school_library` (with
             `student_id` for a student's books): a reserved book is held at the library, or a
             book is due soon or overdue, and opens the library's loans.
+            113.4 `school_slip` (with `slip_id`): a permission slip came for the parent's
+            children, or one they haven't answered is due tomorrow, and opens the slips;
+            `school_excuse` (with `student_id`): the school accepted or declined an excuse
+            for the child's absence, and opens the child's excuses.
+            113.9 In a university (each with `student_id`): `uni_registration` (with
+            `term_id`), the advisor approved the student's registration or sent it back, and
+            opens it; `uni_seat` (with `term_id`), a seat came free from the waiting list, and
+            opens the registration; `uni_results`, a section's results were published, and
+            opens the student's results (the student's and their parents' pushes alike);
+            `uni_advisee` (with `term_id`), an advisee's registration waits for the advisor,
+            and opens that advisee in the Classroom tab.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -10788,6 +11631,7 @@ components:
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
         exam_id: { type: [integer, 'null'], description: "113.8 For school_exam about one exam, that exam. Missing on older servers." }
         note_id: { type: [integer, 'null'], description: "113.8 For school_behaviour, the merit or note. Missing on older servers." }
+        slip_id: { type: [integer, 'null'], description: "113.4 For school_slip, the permission slip. Missing on older servers." }
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         report_id: { type: [integer, 'null'], description: "113.5 For school_report and school_report_shared, the teacher's report to open. Missing on older servers." }
@@ -14709,6 +15553,7 @@ components:
             attribution: { type: [string, 'null'] }
             search: { type: boolean }
             routes: { type: boolean }
+        university: { type: boolean, description: "Roadmap 113.9. The school is a university: the app shows the University endpoints' screens (program, registration, results, transcript) instead of the class timetable, homework and grades." }
 
     SchoolMe:
       type: object
@@ -14719,7 +15564,7 @@ components:
           type: array
           uniqueItems: true
           items: { type: string, enum: [student, parent, teacher, staff, bus] }
-          description: 113.3 `staff` for who works at the school and doesn't teach; 113.10 `bus` for someone who drives or supervises one of the school's buses.
+          description: 113.3 `staff` for who works at the school and doesn't teach; 113.10 `bus` for someone who drives or supervises one of the school's buses. 113.4 `parent` shows the Parent tab (a teacher or member of staff who is also a parent has both).
         students:
           type: array
           description: Whom the person may see; empty for a teacher who is no parent.
@@ -15681,6 +16526,327 @@ components:
         answered_at: { type: [string, 'null'], format: date-time }
         created_at: { type: string, format: date-time }
 
+    ParentMe:
+      type: object
+      required: [name, children, messages, slips_waiting]
+      properties:
+        name: { type: string }
+        children:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/SchoolStudent'
+              - type: object
+                required: [slips_waiting]
+                properties:
+                  slips_waiting: { type: integer, description: Open slips for the child not answered yet. }
+        messages: { type: boolean, description: 'The school lets parents write to their children''s teachers (113.6, `GET /school/messages`).' }
+        slips_waiting: { type: integer, description: Open slips with a child not answered yet. }
+
+    ChildDay:
+      type: object
+      required: [date, student, day_off, checkin, lessons, homework, grades, behaviour, bus, loans, reports, fees, slips_waiting, excuse, pickup, events, exams]
+      properties:
+        date: { type: string, format: date, description: "Today in the school's time zone." }
+        student: { $ref: '#/components/schemas/SchoolStudent' }
+        day_off:
+          description: 113.8 A holiday or a break today.
+          oneOf:
+            - type: object
+              required: [id, title]
+              properties:
+                id: { type: integer }
+                title: { type: string }
+            - type: 'null'
+        checkin:
+          description: 113.2 Today at the gate; null when the school doesn't take check-ins in the app.
+          oneOf:
+            - $ref: '#/components/schemas/CheckinDay'
+            - type: 'null'
+        lessons:
+          type: array
+          description: Today's lessons, first first.
+          items: { $ref: '#/components/schemas/TimetableLesson' }
+        homework:
+          type: object
+          required: [due_count, items]
+          properties:
+            due_count: { type: integer }
+            items:
+              type: array
+              description: The three due soonest.
+              items: { $ref: '#/components/schemas/Homework' }
+        grades:
+          type: array
+          description: The three latest scores.
+          items:
+            type: object
+            required: [assessment_id, subject, title, kind, date, score, max_score]
+            properties:
+              assessment_id: { type: integer }
+              subject: { type: string }
+              title: { type: string }
+              kind: { type: string, enum: [exam, quiz, assignment] }
+              date: { type: string, format: date }
+              score: { type: number }
+              max_score: { type: number }
+        behaviour:
+          type: object
+          required: [points, positive_count, negative_count, latest]
+          properties:
+            points: { type: integer }
+            positive_count: { type: integer }
+            negative_count: { type: integer }
+            latest:
+              oneOf:
+                - $ref: '#/components/schemas/BehaviourNote'
+                - type: 'null'
+        bus:
+          type: array
+          description: 113.10 The child's trips, with the bus live while it runs (`StudentBus.items`).
+          items: { type: object }
+        loans:
+          type: array
+          description: 113.11 Library books out now, the soonest due first.
+          items:
+            type: object
+            required: [id, title, due_on, overdue]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              due_on: { type: string, format: date }
+              overdue: { type: boolean }
+        reports:
+          type: object
+          description: 113.5 The teachers' reports the school shared.
+          required: [count, latest_at]
+          properties:
+            count: { type: integer }
+            latest_at: { type: [string, 'null'], format: date-time }
+        fees:
+          type: object
+          required: [currency, due_count, due_formatted]
+          properties:
+            currency: { type: string }
+            due_count: { type: integer }
+            due_formatted: { type: string }
+        slips_waiting: { type: integer }
+        excuse:
+          description: An excuse waiting for the school, or one accepted for today or the next days.
+          oneOf:
+            - $ref: '#/components/schemas/AbsenceExcuse'
+            - type: 'null'
+        pickup:
+          type: object
+          required: [people, today]
+          properties:
+            people: { type: integer, description: People on the pick-up list. }
+            today:
+              oneOf:
+                - $ref: '#/components/schemas/PickupNote'
+                - type: 'null'
+        events:
+          type: array
+          description: The calendar's next events in the next 14 days, up to three.
+          items: { $ref: '#/components/schemas/SchoolEvent' }
+        exams:
+          type: array
+          description: The published exams in the next 14 days, up to three.
+          items: { $ref: '#/components/schemas/SchoolExam' }
+
+    PermissionSlip:
+      type: object
+      required: [id, title, details, due_on, fee_note, for_name, open, created_at, children]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        details: { type: [string, 'null'] }
+        due_on: { type: string, format: date, description: Answers are taken to the end of this day. }
+        fee_note: { type: [string, 'null'], description: 'A note of a fee, like "E£150, paid at the office"; the slip takes no payment.' }
+        for_name: { type: [string, 'null'], description: "The grade's or the class's name; null for the whole school." }
+        open: { type: boolean }
+        created_at: { type: string, format: date-time }
+        children:
+          type: array
+          description: The parent's children it is for.
+          items:
+            type: object
+            required: [student_id, student_name, answer, signed_name, answered_at]
+            properties:
+              student_id: { type: integer }
+              student_name: { type: string }
+              answer: { type: [string, 'null'], enum: ['yes', 'no', null] }
+              signed_name: { type: [string, 'null'] }
+              answered_at: { type: [string, 'null'], format: date-time }
+
+    AbsenceExcuse:
+      type: object
+      required: [id, student_id, starts_on, ends_on, days, reason, file, status, answer, answered_at, created_at]
+      properties:
+        id: { type: integer }
+        student_id: { type: integer }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        days: { type: integer }
+        reason: { type: string }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        status: { type: string, enum: [pending, accepted, declined, cancelled] }
+        answer: { type: [string, 'null'], description: "The school's note with its answer." }
+        answered_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+
+    PickupPerson:
+      type: object
+      required: [name, relation, phone, photo, photo_id]
+      properties:
+        name: { type: string }
+        relation: { type: [string, 'null'] }
+        phone: { type: [string, 'null'] }
+        photo:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        photo_id: { type: [string, 'null'], format: uuid, description: 'The photo''s id, sent again to keep it on the list.' }
+
+    PickupNote:
+      type: object
+      required: [date, name, relation, phone, note, written_by, created_at]
+      properties:
+        date: { type: string, format: date }
+        name: { type: string }
+        relation: { type: [string, 'null'] }
+        phone: { type: [string, 'null'] }
+        note: { type: [string, 'null'] }
+        written_by: { type: [string, 'null'], description: "The parent's name, or the school's." }
+        created_at: { type: string, format: date-time }
+
+    ChildPickup:
+      type: object
+      required: [student, people, updated_at, today, notes]
+      properties:
+        student: { $ref: '#/components/schemas/SchoolStudent' }
+        people:
+          type: array
+          items: { $ref: '#/components/schemas/PickupPerson' }
+        updated_at: { type: [string, 'null'], format: date-time }
+        today:
+          oneOf:
+            - $ref: '#/components/schemas/PickupNote'
+            - type: 'null'
+        notes:
+          type: array
+          description: Today's note and the next days', first first.
+          items: { $ref: '#/components/schemas/PickupNote' }
+
+    PayslipAmount:
+      type: object
+      description: Roadmap 113.12. An amount in the payslip's currency.
+      required: [amount, amount_formatted]
+      properties:
+        amount: { type: string, example: '8000.00' }
+        amount_formatted: { type: string, example: 'E£8,000.00' }
+
+    PayslipLine:
+      type: object
+      description: |
+        A bonus, a deduction or an advance's instalment taken back. `source`
+        says where it came from: `office` (written by the school, its own
+        `label`), `absence` and `lateness` (suggested from check-in and
+        accepted by the school; `count` is the absences or late days), or
+        `advance`.
+      required: [kind, source, label, count, amount, amount_formatted]
+      properties:
+        kind: { type: string, enum: [bonus, deduction, advance] }
+        source: { type: string, enum: [office, absence, lateness, advance] }
+        label: { type: string }
+        count: { type: [integer, 'null'] }
+        amount: { type: string }
+        amount_formatted: { type: string }
+
+    PayslipPayment:
+      type: object
+      description: A payment the school wrote down as paid out, by hand.
+      required: [method, paid_on, note, amount, amount_formatted]
+      properties:
+        method: { type: string, enum: [cash, bank] }
+        paid_on: { type: string, format: date }
+        note: { type: [string, 'null'] }
+        amount: { type: string }
+        amount_formatted: { type: string }
+
+    Payslip:
+      type: object
+      description: Roadmap 113.12. A month's payslip of the signed-in teacher or staff member.
+      required: [id, number, month, currency, name, job_title, department, base, allowances, bonuses, deductions, gross, total_deductions, net, paid, left, status, payments, attendance, note, issued_at, pdf_url]
+      properties:
+        id: { type: integer }
+        number: { type: string, example: PS-2026-11-42 }
+        month: { type: string, pattern: '^[0-9]{4}-[0-9]{2}$', example: '2026-11' }
+        currency: { type: string, example: EGP }
+        name: { type: string }
+        job_title: { type: [string, 'null'] }
+        department: { type: [string, 'null'] }
+        base: { $ref: '#/components/schemas/PayslipAmount' }
+        allowances:
+          type: array
+          items:
+            type: object
+            required: [name, amount, amount_formatted]
+            properties:
+              name: { type: string, example: Transport }
+              amount: { type: string }
+              amount_formatted: { type: string }
+        bonuses:
+          type: array
+          items: { $ref: '#/components/schemas/PayslipLine' }
+        deductions:
+          type: array
+          description: Deductions and advances' instalments taken back.
+          items: { $ref: '#/components/schemas/PayslipLine' }
+        gross: { $ref: '#/components/schemas/PayslipAmount' }
+        total_deductions: { $ref: '#/components/schemas/PayslipAmount' }
+        net: { $ref: '#/components/schemas/PayslipAmount' }
+        paid: { $ref: '#/components/schemas/PayslipAmount' }
+        left: { $ref: '#/components/schemas/PayslipAmount' }
+        status: { type: string, enum: [unpaid, part_paid, paid] }
+        payments:
+          type: array
+          items: { $ref: '#/components/schemas/PayslipPayment' }
+        attendance:
+          description: The month's days at the gate when the payslip was made; null without check-in.
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [working_days, present, late, left_early, absent, excused, leave]
+              properties:
+                working_days: { type: integer }
+                present: { type: integer }
+                late: { type: integer }
+                left_early: { type: integer }
+                absent: { type: integer }
+                excused: { type: integer }
+                leave: { type: integer }
+        note: { type: [string, 'null'], description: "The school's note on the payslip." }
+        issued_at: { type: string, format: date-time }
+        pdf_url: { type: string, format: uri, description: 'The PDF, from a signed link good for 15 minutes.' }
+
+    SalaryAdvance:
+      type: object
+      description: Roadmap 113.12. An advance the school handed over, taken back from the payslips each month.
+      required: [id, given_on, currency, amount, instalment, starts_month, taken_back, left]
+      properties:
+        id: { type: integer }
+        given_on: { type: string, format: date }
+        currency: { type: string }
+        amount: { $ref: '#/components/schemas/PayslipAmount' }
+        instalment: { $ref: '#/components/schemas/PayslipAmount' }
+        starts_month: { type: string, example: '2026-12' }
+        taken_back: { $ref: '#/components/schemas/PayslipAmount' }
+        left: { $ref: '#/components/schemas/PayslipAmount' }
+
     ClassroomMe:
       type: object
       required: [name, classes, today]
@@ -15830,3 +16996,397 @@ components:
               student: { $ref: '#/components/schemas/SchoolStudent' }
               score: { type: [number, 'null'] }
               note: { type: [string, 'null'] }
+
+    # 113.9 Universities
+
+    UniTerm:
+      type: object
+      required: [id, name, academic_year, starts_on, ends_on, registration_opens, registration_closes, drop_until]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Fall 2026 }
+        academic_year: { type: string, example: 2026/2027 }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        registration_opens: { type: string, format: date, description: Sections are added from this day… }
+        registration_closes: { type: string, format: date, description: …to this one. }
+        drop_until: { type: string, format: date, description: The last day to drop a section. }
+
+    UniProgram:
+      type: object
+      required: [id, name, code, degree, department, faculty, credits_required, years, min_term_credits, max_term_credits]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Computer Science }
+        code: { type: [string, 'null'] }
+        degree: { type: string, example: BSc }
+        department: { type: [string, 'null'] }
+        faculty: { type: [string, 'null'] }
+        credits_required: { type: number }
+        years: { type: integer }
+        min_term_credits: { type: number }
+        max_term_credits: { type: number }
+
+    UniCourse:
+      type: object
+      required: [id, code, title, credits, prerequisites]
+      properties:
+        id: { type: integer }
+        code: { type: string, example: CS201 }
+        title: { type: string }
+        credits: { type: number }
+        prerequisites: { type: array, items: { type: string }, description: The codes of the courses passed first. }
+
+    UniSection:
+      type: object
+      required: [id, code, course, lecturer_name, seats, seats_left, meetings]
+      properties:
+        id: { type: integer }
+        code: { type: string, example: '01' }
+        course: { $ref: '#/components/schemas/UniCourse' }
+        lecturer_name: { type: [string, 'null'] }
+        seats: { type: integer }
+        seats_left: { type: [integer, 'null'] }
+        meetings:
+          type: array
+          items:
+            type: object
+            required: [weekday, starts, ends, room]
+            properties:
+              weekday: { type: integer, minimum: 1, maximum: 7, description: 1 Monday … 7 Sunday. }
+              starts: { type: string, example: '09:00' }
+              ends: { type: string, example: '10:30' }
+              room: { type: [string, 'null'] }
+
+    UniGradeStep:
+      type: object
+      required: [letter, points, min_percent, counts_in_gpa, passes]
+      properties:
+        letter: { type: string, example: B+ }
+        points: { type: number, example: 3.3 }
+        min_percent: { type: [number, 'null'], description: The least percent that gives it; null when it is given by hand only. }
+        counts_in_gpa: { type: boolean }
+        passes: { type: boolean }
+
+    UniversityStudent:
+      type: object
+      required: [student, program, advisor, start_year, gpa, credits_earned, current_term, registration, scale]
+      properties:
+        student: { $ref: '#/components/schemas/SchoolStudent' }
+        program:
+          oneOf:
+            - $ref: '#/components/schemas/UniProgram'
+            - type: 'null'
+        advisor:
+          oneOf:
+            - type: object
+              required: [id, name]
+              properties:
+                id: { type: integer }
+                name: { type: string }
+            - type: 'null'
+        start_year: { type: [string, 'null'] }
+        gpa: { type: [number, 'null'], description: The cumulative GPA. }
+        credits_earned: { type: number }
+        current_term:
+          oneOf:
+            - $ref: '#/components/schemas/UniTerm'
+            - type: 'null'
+        registration:
+          description: The term registration is open for (else the current one).
+          oneOf:
+            - type: object
+              required: [term, status, phase, credits]
+              properties:
+                term: { $ref: '#/components/schemas/UniTerm' }
+                status: { type: string, enum: [draft, submitted, approved, returned] }
+                phase: { type: string, enum: [before, open, drop, closed] }
+                credits: { type: number }
+            - type: 'null'
+        scale:
+          type: array
+          items: { $ref: '#/components/schemas/UniGradeStep' }
+
+    UniRegistration:
+      type: object
+      required: [term, terms, status, note, submitted_at, phase, can_add, can_drop, can_submit, credits, mine, offered]
+      properties:
+        term: { $ref: '#/components/schemas/UniTerm' }
+        terms:
+          type: array
+          description: The terms not over yet, the soonest first, to choose from.
+          items: { $ref: '#/components/schemas/UniTerm' }
+        status: { type: string, enum: [draft, submitted, approved, returned], description: 'draft: being made; submitted: with the advisor; returned: sent back (see `note`).' }
+        note: { type: [string, 'null'], description: The advisor's note when they sent it back. }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        phase: { type: string, enum: [before, open, drop, closed], description: 'open: sections are added and dropped; drop: only dropped.' }
+        can_add: { type: boolean }
+        can_drop: { type: boolean }
+        can_submit: { type: boolean }
+        credits:
+          type: object
+          required: [taken, min, max]
+          properties:
+            taken: { type: number, description: The credits of the sections held (asked for or enrolled). }
+            min: { type: number }
+            max: { type: number }
+        mine:
+          type: array
+          items: { $ref: '#/components/schemas/UniHeldSection' }
+        offered:
+          type: array
+          description: The term's other sections.
+          items:
+            allOf:
+              - $ref: '#/components/schemas/UniSection'
+              - type: object
+                required: [can_add, waitlist, problems]
+                properties:
+                  can_add: { type: boolean }
+                  waitlist: { type: boolean, description: It is full; adding it joins its waiting list. }
+                  problems:
+                    type: array
+                    items:
+                      type: object
+                      required: [code, message]
+                      properties:
+                        code: { type: string, enum: [taken, clash, prerequisites, credits, full] }
+                        message: { type: string }
+
+    UniHeldSection:
+      type: object
+      required: [id, status, added_by, section, can_drop]
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [pending, enrolled, waitlisted], description: 'pending: waiting for the advisor (its seat held).' }
+        added_by: { type: string, enum: [student, office] }
+        section: { $ref: '#/components/schemas/UniSection' }
+        can_drop: { type: boolean }
+
+    UniTimetable:
+      type: object
+      required: [term, days]
+      properties:
+        term:
+          oneOf:
+            - $ref: '#/components/schemas/UniTerm'
+            - type: 'null'
+        days:
+          type: array
+          description: The days with lectures, Monday first.
+          items:
+            type: object
+            required: [weekday, lectures]
+            properties:
+              weekday: { type: integer, minimum: 1, maximum: 7 }
+              lectures:
+                type: array
+                items:
+                  type: object
+                  required: [section_id, course_code, course_title, section_code, starts, ends, room, lecturer_name, status]
+                  properties:
+                    section_id: { type: integer }
+                    course_code: { type: string }
+                    course_title: { type: string }
+                    section_code: { type: string }
+                    starts: { type: string }
+                    ends: { type: string }
+                    room: { type: [string, 'null'] }
+                    lecturer_name: { type: [string, 'null'] }
+                    status: { type: string, enum: [pending, enrolled, waitlisted] }
+
+    UniResults:
+      type: object
+      required: [gpa, credits_earned, credits_attempted, credits_required, terms]
+      properties:
+        gpa: { type: [number, 'null'], description: 'The cumulative GPA: credit-weighted, the latest attempt of a course counting.' }
+        credits_earned: { type: number }
+        credits_attempted: { type: number }
+        credits_required: { type: [number, 'null'] }
+        terms:
+          type: array
+          description: The latest first.
+          items:
+            type: object
+            required: [term, gpa, credits, courses]
+            properties:
+              term: { $ref: '#/components/schemas/UniTerm' }
+              gpa: { type: [number, 'null'] }
+              credits: { type: number }
+              courses:
+                type: array
+                items:
+                  type: object
+                  required: [course_code, title, credits, grade, points, passed]
+                  properties:
+                    course_code: { type: string }
+                    title: { type: string }
+                    credits: { type: number }
+                    grade: { type: string, example: A- }
+                    points: { type: [number, 'null'] }
+                    passed: { type: boolean }
+
+    UniTranscript:
+      allOf:
+        - $ref: '#/components/schemas/UniResults'
+        - type: object
+          required: [student, program, pdf_url]
+          properties:
+            student: { $ref: '#/components/schemas/SchoolStudent' }
+            program:
+              oneOf:
+                - $ref: '#/components/schemas/UniProgram'
+                - type: 'null'
+            pdf_url: { type: [string, 'null'], format: uri, description: "The transcript as a PDF, for an hour." }
+
+    UniStudyPlan:
+      type: object
+      required: [program, credits, years]
+      properties:
+        program:
+          oneOf:
+            - $ref: '#/components/schemas/UniProgram'
+            - type: 'null'
+        credits:
+          oneOf:
+            - type: object
+              required: [required, done, in_progress, left]
+              properties:
+                required: { type: number }
+                done: { type: number }
+                in_progress: { type: number }
+                left: { type: number }
+            - type: 'null'
+        years:
+          type: array
+          items:
+            type: object
+            required: [year, courses]
+            properties:
+              year: { type: integer }
+              courses:
+                type: array
+                items:
+                  type: object
+                  required: [course_code, title, credits, required, status, grade]
+                  properties:
+                    course_code: { type: string }
+                    title: { type: string }
+                    credits: { type: number }
+                    required: { type: boolean, description: Else an elective. }
+                    status: { type: string, enum: [done, in_progress, left] }
+                    grade: { type: [string, 'null'] }
+
+    LecturerHome:
+      type: object
+      required: [name, term, terms, sections, advisees]
+      properties:
+        name: { type: string }
+        term:
+          oneOf:
+            - $ref: '#/components/schemas/UniTerm'
+            - type: 'null'
+        terms:
+          type: array
+          items: { $ref: '#/components/schemas/UniTerm' }
+        sections:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/UniSection'
+              - type: object
+                required: [students, results_published]
+                properties:
+                  students: { type: integer }
+                  results_published: { type: boolean }
+        advisees:
+          type: object
+          required: [count, waiting]
+          properties:
+            count: { type: integer }
+            waiting: { type: integer, description: Registrations waiting for the lecturer's answer. }
+
+    UniSectionDetail:
+      type: object
+      required: [section, term, results_published_at, scale, students]
+      properties:
+        section: { $ref: '#/components/schemas/UniSection' }
+        term: { $ref: '#/components/schemas/UniTerm' }
+        results_published_at: { type: [string, 'null'], format: date-time }
+        scale:
+          type: array
+          items: { $ref: '#/components/schemas/UniGradeStep' }
+        students:
+          type: array
+          description: The students holding a seat, by name.
+          items:
+            type: object
+            required: [student, status, grade, mark]
+            properties:
+              student: { $ref: '#/components/schemas/SchoolStudent' }
+              status: { type: string, enum: [pending, enrolled] }
+              grade: { type: [string, 'null'] }
+              mark: { type: [number, 'null'] }
+
+    UniSectionAttendance:
+      type: object
+      required: [section_id, date, students]
+      properties:
+        section_id: { type: integer }
+        date: { type: string, format: date }
+        students:
+          type: array
+          items:
+            type: object
+            required: [student, status, note]
+            properties:
+              student: { $ref: '#/components/schemas/SchoolStudent' }
+              status: { type: [string, 'null'], enum: [present, absent, late, excused, null] }
+              note: { type: [string, 'null'] }
+
+    AdviseeList:
+      type: object
+      required: [term, items]
+      properties:
+        term:
+          oneOf:
+            - $ref: '#/components/schemas/UniTerm'
+            - type: 'null'
+        items:
+          type: array
+          items:
+            type: object
+            required: [student, program_name, status, credits, submitted_at]
+            properties:
+              student: { $ref: '#/components/schemas/SchoolStudent' }
+              program_name: { type: [string, 'null'] }
+              status: { type: string, enum: [draft, submitted, approved, returned] }
+              credits: { type: number }
+              submitted_at: { type: [string, 'null'], format: date-time }
+
+    AdviseeDetail:
+      type: object
+      required: [student, program, gpa, credits_earned, term, status, note, submitted_at, credits, sections, can_decide]
+      properties:
+        student: { $ref: '#/components/schemas/SchoolStudent' }
+        program:
+          oneOf:
+            - $ref: '#/components/schemas/UniProgram'
+            - type: 'null'
+        gpa: { type: [number, 'null'] }
+        credits_earned: { type: number }
+        term: { $ref: '#/components/schemas/UniTerm' }
+        status: { type: string, enum: [draft, submitted, approved, returned] }
+        note: { type: [string, 'null'] }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        credits:
+          type: object
+          required: [taken, min, max]
+          properties:
+            taken: { type: number }
+            min: { type: number }
+            max: { type: number }
+        sections:
+          type: array
+          items: { $ref: '#/components/schemas/UniHeldSection' }
+        can_decide: { type: boolean }
