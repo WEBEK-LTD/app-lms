@@ -7697,4 +7697,295 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handInAgain => 'Hand in again';
+
+  @override
+  String get tabParent => 'Parent';
+
+  @override
+  String get parentNotParentTitle => 'For the school\'s parents';
+
+  @override
+  String get parentNotParentMessage =>
+      'The school hasn\'t added this number as a parent. Ask the school to link it to your children.';
+
+  @override
+  String get parentChildrenTitle => 'Your children are in the Parent tab';
+
+  @override
+  String get parentChildrenMessage =>
+      'Each child\'s day, the slips to sign, absences to excuse and who picks them up.';
+
+  @override
+  String get parentOpen => 'Open the Parent tab';
+
+  @override
+  String parentDayOff(String title) {
+    return 'No school today: $title';
+  }
+
+  @override
+  String parentPicksUpToday(String name) {
+    return 'Picks up today: $name';
+  }
+
+  @override
+  String get parentAtTheGate => 'At the gate';
+
+  @override
+  String parentHomeworkDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count homework due',
+      one: '1 homework due',
+      zero: 'No homework due',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentLatestGrades => 'Latest grades';
+
+  @override
+  String parentBehaviourPoints(int points) {
+    return '$points points';
+  }
+
+  @override
+  String get parentLibraryBooks => 'Library books';
+
+  @override
+  String parentBookDue(String date) {
+    return 'Due back $date';
+  }
+
+  @override
+  String parentBookOverdue(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String get parentBusOnTheWay => 'The bus is on its way';
+
+  @override
+  String get parentComing => 'Coming up';
+
+  @override
+  String parentEverything(String name) {
+    return 'Everything for $name';
+  }
+
+  @override
+  String get parentSlips => 'Permission slips';
+
+  @override
+  String parentSlipsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count to sign',
+      one: '1 to sign',
+      zero: 'Nothing to sign',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentExcuses => 'Absence excuses';
+
+  @override
+  String get parentExcusesSubtitle => 'A day or several, with the reason';
+
+  @override
+  String get parentPickup => 'Who picks up';
+
+  @override
+  String parentPickupPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+      zero: 'No one listed yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentReportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shared',
+      one: '1 shared',
+      zero: 'None shared yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String slipDue(String date) {
+    return 'Answer by $date';
+  }
+
+  @override
+  String get slipClosed => 'Closed';
+
+  @override
+  String slipFee(String note) {
+    return 'Fee: $note';
+  }
+
+  @override
+  String get slipYes => 'Yes, I agree';
+
+  @override
+  String get slipNo => 'No';
+
+  @override
+  String slipSignedYes(String name) {
+    return 'Signed yes by $name';
+  }
+
+  @override
+  String slipSignedNo(String name) {
+    return 'Declined by $name';
+  }
+
+  @override
+  String get slipNotAnswered => 'Not answered';
+
+  @override
+  String slipAgree(String child, String title) {
+    return '$child may take part: $title.';
+  }
+
+  @override
+  String slipDecline(String child, String title) {
+    return '$child won\'t take part: $title.';
+  }
+
+  @override
+  String get slipYourName => 'Your name';
+
+  @override
+  String get slipSign => 'Sign';
+
+  @override
+  String get slipSigned => 'Signed. The school sees your answer.';
+
+  @override
+  String get slipsNone => 'No permission slips.';
+
+  @override
+  String get slipNameNeeded => 'Sign with your name.';
+
+  @override
+  String get excuseNew => 'Excuse an absence';
+
+  @override
+  String get excuseFirstDay => 'First day';
+
+  @override
+  String get excuseLastDay => 'Last day';
+
+  @override
+  String get excuseReason => 'Reason';
+
+  @override
+  String get excuseAddPhoto => 'Photo of a note';
+
+  @override
+  String get excuseAddFile => 'PDF';
+
+  @override
+  String get excuseSend => 'Send to the school';
+
+  @override
+  String get excuseSent => 'Sent. The school will answer in the app.';
+
+  @override
+  String get excuseReasonNeeded => 'Write the reason.';
+
+  @override
+  String get excusePending => 'Waiting';
+
+  @override
+  String get excuseAccepted => 'Excused';
+
+  @override
+  String get excuseDeclined => 'Not accepted';
+
+  @override
+  String get excuseWithdrawn => 'Withdrawn';
+
+  @override
+  String get excuseWithdraw => 'Withdraw';
+
+  @override
+  String get excusesNone => 'No excuses sent.';
+
+  @override
+  String excuseSchoolNote(String note) {
+    return 'The school: $note';
+  }
+
+  @override
+  String pickupIntro(String name) {
+    return 'Who may pick $name up from school. The school sees this list at the gate.';
+  }
+
+  @override
+  String get pickupNone => 'No one on the list yet.';
+
+  @override
+  String get pickupAdd => 'Add someone';
+
+  @override
+  String get pickupName => 'Name';
+
+  @override
+  String get pickupRelation => 'Relation';
+
+  @override
+  String get pickupPhone => 'Phone';
+
+  @override
+  String get pickupPhoto => 'Add a photo';
+
+  @override
+  String get pickupRemove => 'Remove';
+
+  @override
+  String get pickupSaved => 'Saved. The school sees the list.';
+
+  @override
+  String get pickupNameNeeded => 'Write their name.';
+
+  @override
+  String get pickupOneDay => 'Just for one day';
+
+  @override
+  String get pickupOneDayIntro =>
+      'Someone else picks up on a day? Tell the school: it sees it on that day\'s board.';
+
+  @override
+  String get pickupDay => 'Day';
+
+  @override
+  String get pickupNote => 'Note for the school';
+
+  @override
+  String get pickupTell => 'Tell the school';
+
+  @override
+  String get pickupTold => 'The school sees it on that day\'s board.';
+
+  @override
+  String pickupNoteLine(String date, String name) {
+    return '$date: $name';
+  }
+
+  @override
+  String get pickupTakeBack => 'Take back';
 }

@@ -12,6 +12,7 @@ import '../../modules/food/data/food_providers.dart';
 import '../../modules/food/food_routes.dart';
 import '../../modules/lms/lms_routes.dart';
 import '../../modules/lms/teachers/teachers_providers.dart';
+import '../../modules/school/data/parent_providers.dart';
 import '../../modules/school/data/school_providers.dart';
 import '../../modules/school/school_routes.dart';
 import '../../modules/news/news_routes.dart';
@@ -121,11 +122,16 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   // Staff tab for its staff who don't teach.
   final classroom = ref.watch(isSchoolTeacherProvider);
   final staff = ref.watch(isSchoolStaffProvider);
+  // 113.4 The Parent tab for the school's parents only.
+  final parent = ref.watch(isSchoolParentProvider);
   List<ShellTab> withRoles(List<ShellTab> tabs) => withStaffTab(
     withClassroomTab(
       withTeacherTab(
         withDriverTab(
-          withRestaurantTab(withCourierTab(tabs, courier), restaurant),
+          withRestaurantTab(
+            withCourierTab(withParentTab(tabs, parent), courier),
+            restaurant,
+          ),
           driver,
         ),
         teacher,
@@ -182,6 +188,12 @@ List<ShellTab> withTeacherTab(List<ShellTab> tabs, bool? teacher) =>
 /// the Courier tab is for couriers. Null: not a school.
 List<ShellTab> withClassroomTab(List<ShellTab> tabs, bool? teacher) =>
     _withRoleTab(tabs, classroomTab, teacher);
+
+/// 113.4 The tabs of a school: the Parent tab added for its parents (never
+/// a student's, a teacher's or staff's without children there), after
+/// School. Null: not a school.
+List<ShellTab> withParentTab(List<ShellTab> tabs, bool? parent) =>
+    _withRoleTab(tabs, parentTab, parent);
 
 /// 113.3 The tabs of a school: the Staff tab added for its staff who don't
 /// teach, as the Classroom tab is for teachers. Null: not a school.

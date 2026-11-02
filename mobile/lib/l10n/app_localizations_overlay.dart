@@ -8164,4 +8164,286 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get handInAgain => overlay.text('handInAgain') ?? base.handInAgain;
+
+  @override
+  String get tabParent => overlay.text('tabParent') ?? base.tabParent;
+
+  @override
+  String get parentNotParentTitle =>
+      overlay.text('parentNotParentTitle') ?? base.parentNotParentTitle;
+
+  @override
+  String get parentNotParentMessage =>
+      overlay.text('parentNotParentMessage') ?? base.parentNotParentMessage;
+
+  @override
+  String get parentChildrenTitle =>
+      overlay.text('parentChildrenTitle') ?? base.parentChildrenTitle;
+
+  @override
+  String get parentChildrenMessage =>
+      overlay.text('parentChildrenMessage') ?? base.parentChildrenMessage;
+
+  @override
+  String get parentOpen => overlay.text('parentOpen') ?? base.parentOpen;
+
+  @override
+  String parentDayOff(String title) =>
+      overlay.format('parentDayOff', {'title': title}) ??
+      base.parentDayOff(title);
+
+  @override
+  String parentPicksUpToday(String name) =>
+      overlay.format('parentPicksUpToday', {'name': name}) ??
+      base.parentPicksUpToday(name);
+
+  @override
+  String get parentAtTheGate =>
+      overlay.text('parentAtTheGate') ?? base.parentAtTheGate;
+
+  @override
+  String parentHomeworkDue(int count) =>
+      overlay.format('parentHomeworkDue', {'count': count}) ??
+      base.parentHomeworkDue(count);
+
+  @override
+  String get parentLatestGrades =>
+      overlay.text('parentLatestGrades') ?? base.parentLatestGrades;
+
+  @override
+  String parentBehaviourPoints(int points) =>
+      overlay.format('parentBehaviourPoints', {'points': points}) ??
+      base.parentBehaviourPoints(points);
+
+  @override
+  String get parentLibraryBooks =>
+      overlay.text('parentLibraryBooks') ?? base.parentLibraryBooks;
+
+  @override
+  String parentBookDue(String date) =>
+      overlay.format('parentBookDue', {'date': date}) ??
+      base.parentBookDue(date);
+
+  @override
+  String parentBookOverdue(String date) =>
+      overlay.format('parentBookOverdue', {'date': date}) ??
+      base.parentBookOverdue(date);
+
+  @override
+  String get parentBusOnTheWay =>
+      overlay.text('parentBusOnTheWay') ?? base.parentBusOnTheWay;
+
+  @override
+  String get parentComing => overlay.text('parentComing') ?? base.parentComing;
+
+  @override
+  String parentEverything(String name) =>
+      overlay.format('parentEverything', {'name': name}) ??
+      base.parentEverything(name);
+
+  @override
+  String get parentSlips => overlay.text('parentSlips') ?? base.parentSlips;
+
+  @override
+  String parentSlipsWaiting(int count) =>
+      overlay.format('parentSlipsWaiting', {'count': count}) ??
+      base.parentSlipsWaiting(count);
+
+  @override
+  String get parentExcuses =>
+      overlay.text('parentExcuses') ?? base.parentExcuses;
+
+  @override
+  String get parentExcusesSubtitle =>
+      overlay.text('parentExcusesSubtitle') ?? base.parentExcusesSubtitle;
+
+  @override
+  String get parentPickup => overlay.text('parentPickup') ?? base.parentPickup;
+
+  @override
+  String parentPickupPeople(int count) =>
+      overlay.format('parentPickupPeople', {'count': count}) ??
+      base.parentPickupPeople(count);
+
+  @override
+  String parentReportsCount(int count) =>
+      overlay.format('parentReportsCount', {'count': count}) ??
+      base.parentReportsCount(count);
+
+  @override
+  String slipDue(String date) =>
+      overlay.format('slipDue', {'date': date}) ?? base.slipDue(date);
+
+  @override
+  String get slipClosed => overlay.text('slipClosed') ?? base.slipClosed;
+
+  @override
+  String slipFee(String note) =>
+      overlay.format('slipFee', {'note': note}) ?? base.slipFee(note);
+
+  @override
+  String get slipYes => overlay.text('slipYes') ?? base.slipYes;
+
+  @override
+  String get slipNo => overlay.text('slipNo') ?? base.slipNo;
+
+  @override
+  String slipSignedYes(String name) =>
+      overlay.format('slipSignedYes', {'name': name}) ??
+      base.slipSignedYes(name);
+
+  @override
+  String slipSignedNo(String name) =>
+      overlay.format('slipSignedNo', {'name': name}) ?? base.slipSignedNo(name);
+
+  @override
+  String get slipNotAnswered =>
+      overlay.text('slipNotAnswered') ?? base.slipNotAnswered;
+
+  @override
+  String slipAgree(String child, String title) =>
+      overlay.format('slipAgree', {'child': child, 'title': title}) ??
+      base.slipAgree(child, title);
+
+  @override
+  String slipDecline(String child, String title) =>
+      overlay.format('slipDecline', {'child': child, 'title': title}) ??
+      base.slipDecline(child, title);
+
+  @override
+  String get slipYourName => overlay.text('slipYourName') ?? base.slipYourName;
+
+  @override
+  String get slipSign => overlay.text('slipSign') ?? base.slipSign;
+
+  @override
+  String get slipSigned => overlay.text('slipSigned') ?? base.slipSigned;
+
+  @override
+  String get slipsNone => overlay.text('slipsNone') ?? base.slipsNone;
+
+  @override
+  String get slipNameNeeded =>
+      overlay.text('slipNameNeeded') ?? base.slipNameNeeded;
+
+  @override
+  String get excuseNew => overlay.text('excuseNew') ?? base.excuseNew;
+
+  @override
+  String get excuseFirstDay =>
+      overlay.text('excuseFirstDay') ?? base.excuseFirstDay;
+
+  @override
+  String get excuseLastDay =>
+      overlay.text('excuseLastDay') ?? base.excuseLastDay;
+
+  @override
+  String get excuseReason => overlay.text('excuseReason') ?? base.excuseReason;
+
+  @override
+  String get excuseAddPhoto =>
+      overlay.text('excuseAddPhoto') ?? base.excuseAddPhoto;
+
+  @override
+  String get excuseAddFile =>
+      overlay.text('excuseAddFile') ?? base.excuseAddFile;
+
+  @override
+  String get excuseSend => overlay.text('excuseSend') ?? base.excuseSend;
+
+  @override
+  String get excuseSent => overlay.text('excuseSent') ?? base.excuseSent;
+
+  @override
+  String get excuseReasonNeeded =>
+      overlay.text('excuseReasonNeeded') ?? base.excuseReasonNeeded;
+
+  @override
+  String get excusePending =>
+      overlay.text('excusePending') ?? base.excusePending;
+
+  @override
+  String get excuseAccepted =>
+      overlay.text('excuseAccepted') ?? base.excuseAccepted;
+
+  @override
+  String get excuseDeclined =>
+      overlay.text('excuseDeclined') ?? base.excuseDeclined;
+
+  @override
+  String get excuseWithdrawn =>
+      overlay.text('excuseWithdrawn') ?? base.excuseWithdrawn;
+
+  @override
+  String get excuseWithdraw =>
+      overlay.text('excuseWithdraw') ?? base.excuseWithdraw;
+
+  @override
+  String get excusesNone => overlay.text('excusesNone') ?? base.excusesNone;
+
+  @override
+  String excuseSchoolNote(String note) =>
+      overlay.format('excuseSchoolNote', {'note': note}) ??
+      base.excuseSchoolNote(note);
+
+  @override
+  String pickupIntro(String name) =>
+      overlay.format('pickupIntro', {'name': name}) ?? base.pickupIntro(name);
+
+  @override
+  String get pickupNone => overlay.text('pickupNone') ?? base.pickupNone;
+
+  @override
+  String get pickupAdd => overlay.text('pickupAdd') ?? base.pickupAdd;
+
+  @override
+  String get pickupName => overlay.text('pickupName') ?? base.pickupName;
+
+  @override
+  String get pickupRelation =>
+      overlay.text('pickupRelation') ?? base.pickupRelation;
+
+  @override
+  String get pickupPhone => overlay.text('pickupPhone') ?? base.pickupPhone;
+
+  @override
+  String get pickupPhoto => overlay.text('pickupPhoto') ?? base.pickupPhoto;
+
+  @override
+  String get pickupRemove => overlay.text('pickupRemove') ?? base.pickupRemove;
+
+  @override
+  String get pickupSaved => overlay.text('pickupSaved') ?? base.pickupSaved;
+
+  @override
+  String get pickupNameNeeded =>
+      overlay.text('pickupNameNeeded') ?? base.pickupNameNeeded;
+
+  @override
+  String get pickupOneDay => overlay.text('pickupOneDay') ?? base.pickupOneDay;
+
+  @override
+  String get pickupOneDayIntro =>
+      overlay.text('pickupOneDayIntro') ?? base.pickupOneDayIntro;
+
+  @override
+  String get pickupDay => overlay.text('pickupDay') ?? base.pickupDay;
+
+  @override
+  String get pickupNote => overlay.text('pickupNote') ?? base.pickupNote;
+
+  @override
+  String get pickupTell => overlay.text('pickupTell') ?? base.pickupTell;
+
+  @override
+  String get pickupTold => overlay.text('pickupTold') ?? base.pickupTold;
+
+  @override
+  String pickupNoteLine(String date, String name) =>
+      overlay.format('pickupNoteLine', {'date': date, 'name': name}) ??
+      base.pickupNoteLine(date, name);
+
+  @override
+  String get pickupTakeBack =>
+      overlay.text('pickupTakeBack') ?? base.pickupTakeBack;
 }

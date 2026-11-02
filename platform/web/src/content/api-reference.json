@@ -2125,6 +2125,89 @@
       ]
     },
     {
+      "name": "Parent",
+      "description": "Roadmap 113.4. The parent's area: an app's Parent tab, for the school's parents only (`User.roles` and `SchoolMe.roles` have `parent`); every endpoint here answers `not_parent` (403) to anyone else, a student, a teacher or a member of staff without children at the school, and `not_found` (404) for a child who isn't theirs. One account for all their children (`GET /parent/me`), each child's day at a glance (checked in and out, today's lessons, homework due, the latest grades, behaviour, the bus, library books, the reports the school shared, fees, slips to answer, an excuse, who picks the child up and the next days on the calendar), the permission slips the school sends a class, a grade or the whole school (signed yes or no with the parent's name by the due date; `school_slip` when one comes and the day before it is due), excuses for an absence (a day or several, a reason and a photo or PDF sent with `/school/uploads`; accepted or declined by the school, `school_excuse`; an accepted one makes those days `excused` in the attendance and at the gate), and who may pick the child up (name, relation, phone and a photo sent with `/school/uploads`) with a one-day note (\"today X picks up\") the school sees on the day's board. Fees, the reports, the calendar and messages stay on their School endpoints.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/parent/me",
+          "summary": "The signed-in parent and their children",
+          "description": "Their children in the order the school added them (never the parent themselves), the slips each has to answer, and whether the school lets parents write to their children's teachers (113.6).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/parent/children/{student_id}/day",
+          "summary": "A child's day at a glance",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/parent/slips",
+          "summary": "The permission slips for the parent's children",
+          "description": "Open ones first (the soonest due first), then those closed in the last 60 days; each with the parent's children it is for and their answers. `student_id` for one child's.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/parent/slips/{slip_id}/answers",
+          "summary": "Sign a slip for a child, yes or no",
+          "description": "With the parent's name. Answering again replaces the answer, until the end of the due date (`slip_closed`, 409, after it).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/parent/children/{student_id}/excuses",
+          "summary": "The excuses sent for a child",
+          "description": "Newest first, up to 50.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/parent/children/{student_id}/excuses",
+          "summary": "Excuse a child's absence",
+          "description": "For a day or several, from 30 days back to 60 days ahead, up to 60 days at a time; `excuse_overlaps` (409) when a waiting or accepted excuse has some of the days. A photo or PDF is sent with `/school/uploads`. The school's administration is told on Yallapp Business.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/parent/excuses/{excuse_id}",
+          "summary": "Withdraw an excuse the school hasn't answered",
+          "description": "`already_answered` (409) once the school accepted or declined it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/parent/children/{student_id}/pickup",
+          "summary": "Who may pick a child up",
+          "description": "The list the parents keep (any of the child's parents changes it; the school adds to it in the dashboard), today's one-day note and the next days'.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/parent/children/{student_id}/pickup",
+          "summary": "Change who may pick a child up",
+          "description": "The whole list, up to 10 people; it replaces the one before. A photo is an image sent with `/school/uploads` (`photo_id` is its id); a photo already on the list stays when its `photo_id` is sent again.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/parent/children/{student_id}/pickup/note",
+          "summary": "Say who picks the child up on a day",
+          "description": "\"Today X picks up\": for today (when `date` is left out) or one of the next 30 days, one per day (sending again replaces it); the school sees it on that day's board.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/parent/children/{student_id}/pickup/note",
+          "summary": "Take back a day's pick-up note",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

@@ -842,6 +842,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 113.8
           { href: "/dashboard/school/behaviour", label: "Behaviour", icon: "emoji_events" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
+          // 113.4 The parent's area.
+          { href: "/dashboard/school/slips", label: "Permission slips", icon: "draw" },
+          { href: "/dashboard/school/excuses", label: "Absence excuses", icon: "event_busy" },
           // 113.10 and 113.11
           { href: "/dashboard/school/bus", label: "Buses & routes", icon: "directions_bus" },
           { href: "/dashboard/school/library", label: "Library", icon: "bookmark" },

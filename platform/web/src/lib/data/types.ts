@@ -5479,3 +5479,98 @@ export interface SchoolBookHold {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// 113.4 The parent's area: permission slips, absence excuses and pick-up
+
+/** Who a permission slip is for: everyone, a grade's classes, or one class. */
+export type SchoolSlipAudience = "school" | "grade" | "class";
+
+/** A permission slip the school sends the parents to sign, yes or no, by its due date. */
+export interface SchoolSlip {
+  id: number;
+  appId: string;
+  title: string;
+  details: string | null;
+  /** YYYY-MM-DD: answers are taken to the end of this day. */
+  dueOn: string;
+  /** "E£150, paid at the office"; the slip takes no payment. */
+  feeNote: string | null;
+  audience: SchoolSlipAudience;
+  grade: string | null;
+  classId: number | null;
+  /** The day-before reminder went to the parents who hadn't answered. */
+  remindedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolSlipInput = Pick<SchoolSlip, "appId" | "title" | "details" | "dueOn" | "feeNote" | "audience" | "grade" | "classId">;
+
+/** A parent's answer for one child; one per slip and student (answered again, it is replaced). */
+export interface SchoolSlipAnswer {
+  appId: string;
+  slipId: number;
+  studentId: number;
+  answer: "yes" | "no";
+  /** The name the parent signed with. */
+  signedName: string;
+  /** The parent who answered. */
+  parentId: number | null;
+  answeredAt: Date;
+}
+
+export type SchoolExcuseStatus = "pending" | "accepted" | "declined" | "cancelled";
+
+/** A parent's excuse for a child's absence (a day or several), accepted or declined by the school. */
+export interface SchoolExcuse {
+  id: number;
+  appId: string;
+  studentId: number;
+  /** The parent who sent it. */
+  parentId: number | null;
+  startsOn: string;
+  endsOn: string;
+  reason: string;
+  /** A photo or PDF (a doctor's note). */
+  file: SchoolFileRef | null;
+  status: SchoolExcuseStatus;
+  answer: string | null;
+  answeredBy: string | null;
+  answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Someone a child's parents allow to pick the child up. */
+export interface SchoolPickupPerson {
+  name: string;
+  /** "Grandmother". */
+  relation: string | null;
+  /** As typed. */
+  phone: string | null;
+  photo: SchoolFileRef | null;
+}
+
+/** A child's pick-up list; one per student. */
+export interface SchoolPickup {
+  appId: string;
+  studentId: number;
+  people: SchoolPickupPerson[];
+  /** Who changed it last (a parent's name, or the school's). */
+  updatedBy: string | null;
+  updatedAt: Date;
+}
+
+/** "Today X picks up": one day's pick-up, one per student and day. */
+export interface SchoolPickupNote {
+  appId: string;
+  studentId: number;
+  date: string;
+  name: string;
+  relation: string | null;
+  phone: string | null;
+  note: string | null;
+  /** Who wrote it (a parent's name, or the school's). */
+  writtenBy: string | null;
+  createdAt: Date;
+}

@@ -107,6 +107,12 @@ import type {
   SchoolTopicProgress,
   SchoolHomework,
   SchoolLeave,
+  SchoolExcuse,
+  SchoolPickup,
+  SchoolPickupNote,
+  SchoolSlip,
+  SchoolSlipAnswer,
+  SchoolSlipInput,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -950,6 +956,35 @@ export interface DataStore {
   createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave>;
   /** Only while the request is in one of `statuses`; false when it wasn't changed. */
   updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean>;
+
+  // 113.4 The parent's area: permission slips, absence excuses and pick-up
+  /** By due date, the latest first; due on or after `from` when given. */
+  listSchoolSlips(appId: string, filter?: { from?: string; to?: string }): Promise<SchoolSlip[]>;
+  getSchoolSlip(appId: string, id: number): Promise<SchoolSlip | null>;
+  /** A new slip when `id` is null; a new due date sends its reminder again. Null when it isn't the school's. */
+  saveSchoolSlip(input: SchoolSlipInput & { id: number | null }, now: Date): Promise<SchoolSlip | null>;
+  /** Its answers go with it. */
+  deleteSchoolSlip(appId: string, id: number): Promise<void>;
+  /** Marks the reminder sent; false when it already was (another run took it). */
+  markSchoolSlipReminded(appId: string, id: number, now: Date): Promise<boolean>;
+  /** A slip's answers, or some students' on any slip. */
+  listSchoolSlipAnswers(appId: string, filter: { slipId?: number; slipIds?: number[]; studentIds?: number[] }): Promise<SchoolSlipAnswer[]>;
+  /** One per slip and student: answering again replaces it. */
+  saveSchoolSlipAnswer(row: SchoolSlipAnswer): Promise<void>;
+  /** Newest first; a student's, some students', of a status, or overlapping a period. */
+  listSchoolExcuses(appId: string, filter?: { studentId?: number; studentIds?: number[]; statuses?: SchoolExcuse["status"][]; from?: string; to?: string }): Promise<SchoolExcuse[]>;
+  getSchoolExcuse(appId: string, id: number): Promise<SchoolExcuse | null>;
+  createSchoolExcuse(input: Omit<SchoolExcuse, "id">): Promise<SchoolExcuse>;
+  /** Only while the excuse is in one of `statuses`; false when it wasn't changed. */
+  updateSchoolExcuse(appId: string, id: number, patch: Partial<Pick<SchoolExcuse, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolExcuse["status"][]): Promise<boolean>;
+  getSchoolPickup(appId: string, studentId: number): Promise<SchoolPickup | null>;
+  /** One per student: saving again replaces it. */
+  saveSchoolPickup(row: SchoolPickup): Promise<void>;
+  /** By day, then student; a student's, a day's, or from a day on. */
+  listSchoolPickupNotes(appId: string, filter: { studentId?: number; date?: string; from?: string }): Promise<SchoolPickupNote[]>;
+  /** One per student and day: saving again replaces it. */
+  saveSchoolPickupNote(row: SchoolPickupNote): Promise<void>;
+  deleteSchoolPickupNote(appId: string, studentId: number, date: string): Promise<void>;
 
   // 113.5 The syllabus, each class's progress, and the teachers' reports
   /** In the plan's order; a subject's, a grade's when given. */

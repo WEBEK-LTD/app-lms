@@ -9,8 +9,10 @@ import type {
   SchoolCheckinMethod,
   SchoolCheckinSettings,
   SchoolDayTimes,
+  SchoolExcuse,
   SchoolLeave,
   SchoolPerson,
+  SchoolPickupNote,
   SchoolSettings,
 } from "../data/types";
 import { notifyDeps, type FlowDeps } from "../delivery/flow";
@@ -168,9 +170,11 @@ export function localMinute(at: Date, timezone: string): number {
 export type CheckinState = "not_yet" | "in" | "left" | "absent" | "excused" | "leave" | "off";
 
 /** Where a person's day stands. */
-export function dayState(input: { row: SchoolCheckin | null; date: string; today: string; nowMinute: number; times: SchoolDayTimes; workDay: boolean; onLeave: boolean; since: string | null }): CheckinState {
+export function dayState(input: { row: SchoolCheckin | null; date: string; today: string; nowMinute: number; times: SchoolDayTimes; workDay: boolean; onLeave: boolean; since: string | null; excused?: boolean }): CheckinState {
   const { row } = input;
   if (row?.mark === "excused") return "excused";
+  // 113.4 A parent's excuse the school accepted, unless the child came in after all.
+  if (input.excused && !row?.inAt) return "excused";
   if (row?.mark === "absent") return "absent";
   if (row?.outAt) return "left";
   if (row?.inAt) return "in";
@@ -179,6 +183,11 @@ export function dayState(input: { row: SchoolCheckin | null; date: string; today
   if (input.date > input.today) return "not_yet";
   if (input.date < input.today) return "absent";
   return input.nowMinute >= input.times.endMinute ? "absent" : "not_yet";
+}
+
+/** 113.4 The accepted excuse that covers a student's day, if any. */
+export function excusedOn(excuses: readonly SchoolExcuse[], studentId: number, date: string): SchoolExcuse | null {
+  return excuses.find((e) => e.studentId === studentId && e.status === "accepted" && e.startsOn <= date && e.endsOn >= date) ?? null;
 }
 
 /** Whether an approved leave request covers the day. */
@@ -355,6 +364,22 @@ export async function correctCheckin(deps: { store: DataStore; app: App; now: Da
   return row;
 }
 
+/** Where a person's day stands today: their record, the times and whether it is a school day for them. */
+export async function personToday(store: DataStore, appId: string, settings: SchoolSettings, person: SchoolPerson, role: CheckinRole, now: Date) {
+  const c = checkinSettingsOf(settings);
+  const today = schoolToday(settings, now);
+  const [row, leave, excuses] = await Promise.all([
+    store.getSchoolCheckin(appId, person.id, today),
+    store.listSchoolLeave(appId, { personId: person.id, statuses: ["approved"], from: today, to: today }),
+    role === "student" ? store.listSchoolExcuses(appId, { studentId: person.id, statuses: ["accepted"], from: today, to: today }) : Promise.resolve([]),
+  ]);
+  const times = timesFor(c, person, role);
+  const workDay = daysFor(c, person, role).includes(isoWeekday(today));
+  const excused = excusedOn(excuses, person.id, today) !== null;
+  const state = dayState({ row, date: today, today, nowMinute: localMinute(now, settings.timezone), times, workDay, onLeave: onLeaveOn(leave, person.id, today), since: c.since, excused });
+  return { date: today, row, times, workDay, state };
+}
+
 // The board of the day and the month's report
 
 export interface BoardRow {
@@ -365,17 +390,22 @@ export interface BoardRow {
   times: SchoolDayTimes;
   /** A student's mark in the teacher's class register that day. */
   register: SchoolAttendanceStatus | null;
+  /** 113.4 A student's accepted excuse for the day, and the day's pick-up note. */
+  excuse: SchoolExcuse | null;
+  pickup: SchoolPickupNote | null;
 }
 
 /** Everyone who checks in (active students, teachers and staff), and where their day stands. */
 export async function checkinBoard(store: DataStore, app: Pick<App, "id" | "timeZone" | "catalogSettings">, date: string, now: Date): Promise<BoardRow[]> {
   const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
   const c = checkinSettingsOf(settings);
-  const [people, rows, leave, register] = await Promise.all([
+  const [people, rows, leave, register, excuses, pickups] = await Promise.all([
     store.listSchoolPeople(app.id),
     store.listSchoolCheckins(app.id, { date }),
     store.listSchoolLeave(app.id, { statuses: ["approved"], from: date, to: date }),
     store.listSchoolAttendance(app.id, { from: date, to: date }),
+    store.listSchoolExcuses(app.id, { statuses: ["accepted"], from: date, to: date }),
+    store.listSchoolPickupNotes(app.id, { date }),
   ]);
   const today = schoolToday(settings, now);
   const nowMinute = localMinute(now, settings.timezone);
@@ -388,8 +418,18 @@ export async function checkinBoard(store: DataStore, app: Pick<App, "id" | "time
       const role = person.role as CheckinRole;
       const row = byPerson.get(person.id) ?? null;
       const times = timesFor(c, person, role);
-      const state = dayState({ row, date, today, nowMinute, times, workDay: daysFor(c, person, role).includes(weekday), onLeave: onLeaveOn(leave, person.id, date), since: c.since });
-      return { person, role, row, state, times, register: role === "student" ? (marks.get(person.id) ?? null) : null };
+      const excuse = role === "student" ? excusedOn(excuses, person.id, date) : null;
+      const state = dayState({ row, date, today, nowMinute, times, workDay: daysFor(c, person, role).includes(weekday), onLeave: onLeaveOn(leave, person.id, date), since: c.since, excused: excuse !== null });
+      return {
+        person,
+        role,
+        row,
+        state,
+        times,
+        register: role === "student" ? (marks.get(person.id) ?? null) : null,
+        excuse,
+        pickup: role === "student" ? (pickups.find((n) => n.studentId === person.id) ?? null) : null,
+      };
     });
 }
 
@@ -430,7 +470,11 @@ export async function monthReport(
     (p) => isCheckinRole(p.role) && (only?.personId !== undefined || p.active) && (!only?.roles || only.roles.includes(p.role as CheckinRole)),
   );
   const ids = people.map((p) => p.id);
-  const [rows, leave] = await Promise.all([store.listSchoolCheckins(app.id, { personIds: ids, from, to }), store.listSchoolLeave(app.id, { statuses: ["approved"], from, to })]);
+  const [rows, leave, excuses] = await Promise.all([
+    store.listSchoolCheckins(app.id, { personIds: ids, from, to }),
+    store.listSchoolLeave(app.id, { statuses: ["approved"], from, to }),
+    store.listSchoolExcuses(app.id, { statuses: ["accepted"], from, to }),
+  ]);
   const byKey = new Map(rows.map((r) => [`${r.personId}:${r.date}`, r]));
   const out: MonthRow[] = [];
   const days = new Map<number, { date: string; row: SchoolCheckin | null; state: CheckinState }[]>();
@@ -444,7 +488,8 @@ export async function monthReport(
     const list: { date: string; row: SchoolCheckin | null; state: CheckinState }[] = [];
     for (let date = from; date <= last; date = addDays(date, 1)) {
       const row = byKey.get(`${person.id}:${date}`) ?? null;
-      const state = dayState({ row, date, today, nowMinute, times, workDay: weekdays.includes(isoWeekday(date)) && date >= added, onLeave: onLeaveOn(leave, person.id, date), since: c.since });
+      const excused = role === "student" && excusedOn(excuses, person.id, date) !== null;
+      const state = dayState({ row, date, today, nowMinute, times, workDay: weekdays.includes(isoWeekday(date)) && date >= added, onLeave: onLeaveOn(leave, person.id, date), since: c.since, excused });
       if (state === "off" || state === "not_yet") {
         if (row) list.push({ date, row, state });
         continue;

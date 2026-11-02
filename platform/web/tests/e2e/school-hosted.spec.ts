@@ -64,7 +64,7 @@ test("the school makes a School project in Yallapp Studio, not among the regular
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Classes", "People", "Timetable", "Calendar", "Exams", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Behaviour", "Fees", "News", "School settings"]) {
+  for (const link of ["Classes", "People", "Timetable", "Calendar", "Exams", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Behaviour", "Fees", "Permission slips", "Absence excuses", "News", "School settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 
@@ -509,4 +509,59 @@ test("113.11 Library: a book with its copies, lent at the desk by the student's 
   const books = await request.get(`${api}/school/library/books`);
   expect(books.status()).toBe(403);
   expect((await books.json()).code).toBe("feature_disabled");
+});
+
+test("113.4 Permission slips for a class, absence excuses, and pick-up on the student's page and the day's board", async ({ request }) => {
+  await own.goto("/dashboard/school/slips");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/slips$/);
+  await expect(own.getByText("No slips yet.", { exact: false })).toBeVisible();
+  const due = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
+  await own.getByLabel("Title", { exact: true }).fill("Science museum trip");
+  await own.getByLabel("Answers due by").fill(due);
+  await own.getByLabel("For", { exact: true }).selectOption({ label: "Class Grade 5 A" });
+  await own.getByLabel("Fee note (optional)").fill("E£150, paid at the office");
+  await own.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(own.getByText("Sent. The parents were told in the app.")).toBeVisible();
+  await own.reload();
+  await expect(own.locator("[data-slips]")).toContainText("Yes 0 · No 0 · Not yet 1");
+  await own.locator("[data-slips]").getByRole("link", { name: "Science museum trip" }).click();
+  await expect(own).toHaveURL(/\/school\/slips\/\d+$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Science museum trip" })).toBeVisible();
+  await expect(own.locator("[data-slip-answers]")).toContainText("Omar Hassan");
+  await expect(own.locator("[data-slip-answers]")).toContainText("Not answered");
+
+  await own.goto("/dashboard/school/excuses");
+  await expect(own.getByRole("heading", { level: 1, name: "Absence excuses" })).toBeVisible();
+  await expect(own.getByText("No excuses yet. They come from the parents in the app.")).toBeVisible();
+
+  // The student's page: the office adds someone to the pick-up list and today's pick-up.
+  await own.goto("/dashboard/school/people");
+  await own.getByRole("link", { name: "Student's page" }).first().click();
+  await expect(own).toHaveURL(/\/school\/people\/\d+$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Omar Hassan" })).toBeVisible();
+  await expect(own.getByRole("region", { name: "Parents", exact: true })).toContainText("Hassan Ali");
+  const list = own.getByRole("region", { name: "Pick-up", exact: true });
+  await list.getByText("Add to the list").click();
+  await list.getByLabel("Name", { exact: true }).fill("Mona Ali");
+  await list.getByLabel("Relation (optional)").fill("Grandmother");
+  await list.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(list.getByText("Added to the pick-up list.")).toBeVisible();
+  await own.reload();
+  await expect(own.locator("[data-pickup]")).toContainText("Mona Ali");
+  await expect(own.locator("[data-pickup]")).toContainText("Grandmother");
+  const notes = own.getByRole("region", { name: "One-day pick-up", exact: true });
+  await notes.getByText("Add a note for a day").click();
+  await notes.getByLabel("Name", { exact: true }).fill("Karim Ali");
+  await notes.getByLabel("Relation (optional)").fill("Uncle");
+  await notes.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(notes.getByText("Saved. It shows on the day's board.")).toBeVisible();
+
+  await own.goto("/dashboard/school/checkin");
+  await expect(own.locator("[data-pickup-board]")).toContainText("Omar Hassan");
+  await expect(own.locator("[data-pickup-board]")).toContainText("Picks up: Karim Ali · Uncle");
+
+  // Schools aren't on the plan: the app's Parent routes wait for it.
+  const parent = await request.get(`${api}/parent/me`);
+  expect(parent.status()).toBe(403);
+  expect((await parent.json()).code).toBe("feature_disabled");
 });

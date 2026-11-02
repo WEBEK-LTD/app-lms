@@ -17,9 +17,9 @@ import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
 import 'messages_screen.dart' show SchoolMessagesTile;
 
-/// 105.4 The School tab, for a student and their parents: today's lessons
-/// and each part of the school (a parent with several children picks one
-/// first).
+/// 105.4 The School tab: a student's today's lessons and each part of their
+/// school. 113.4 Only what a student needs: a parent's children, their fees,
+/// slips, excuses, pick-up and messages are in the Parent tab.
 class SchoolScreen extends ConsumerWidget {
   const SchoolScreen({super.key});
 
@@ -37,11 +37,12 @@ class SchoolScreen extends ConsumerWidget {
             Expanded(
               child: signedIn
                   ? StudentGate(
-                      builder: (context, me, student) => _Overview(
-                        student: student,
-                        me: me,
-                        parent: me.roles.contains(SchoolRole.parent),
-                      ),
+                      switcher: false,
+                      // 113.4 A student sees their own school; a parent's
+                      // children are in the Parent tab.
+                      builder: (context, me, student) => me.isStudent
+                          ? _Overview(student: me.students.first, me: me)
+                          : const _ForParents(),
                     )
                   : SignInPrompt(
                       icon: AppIcons.school,
@@ -57,31 +58,63 @@ class SchoolScreen extends ConsumerWidget {
   }
 }
 
+/// 113.4 The School tab of a parent who isn't a student: their children
+/// are in the Parent tab; the school's news and library are here.
+class _ForParents extends StatelessWidget {
+  const _ForParents();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return ListView(
+      key: const ValueKey('school-for-parents'),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      children: [
+        MessageView(
+          icon: AppIcons.family,
+          title: l10n.parentChildrenTitle,
+          message: l10n.parentChildrenMessage,
+          actionLabel: l10n.parentOpen,
+          onAction: () => context.go(Paths.parent),
+          compact: true,
+        ),
+        const SizedBox(height: 20),
+        SettingsGroup(
+          title: l10n.schoolEverything,
+          children: [
+            SettingsTile(
+              key: const ValueKey('school-news'),
+              icon: AppIcons.campaignUpdate,
+              title: l10n.schoolNews,
+              onTap: () => context.push(Paths.schoolPart('news')),
+            ),
+            const LibraryTile(),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// A student's own School tab: what a student needs (113.4 the parents'
+/// parts, fees, the reports shared with them and their messages, are in
+/// the Parent tab).
 class _Overview extends ConsumerWidget {
-  const _Overview({
-    required this.student,
-    required this.me,
-    this.parent = false,
-  });
+  const _Overview({required this.student, required this.me});
 
   final SchoolStudent student;
   final SchoolMe me;
-
-  /// 113.5 Seen by a parent: the teachers' reports the school shared.
-  final bool parent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final id = student.id;
-    final fees = ref.watch(studentFeesProvider(id)).value;
     void open(String part) => context.push(Paths.schoolPart(part, student: id));
     return RefreshIndicator(
       onRefresh: () async {
         ref
           ..invalidate(studentTimetableProvider(id))
-          ..invalidate(studentFeesProvider(id))
           ..invalidate(checkinTodayProvider);
       },
       child: ListView(
@@ -126,9 +159,8 @@ class _Overview extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // 113.2 A student checks in and out; a parent follows it on the attendance.
-          if (me.isStudent && student.id == me.students.first.id)
-            const CheckinCard(),
+          // 113.2 A student checks in and out.
+          const CheckinCard(),
           SectionHeader(
             title: l10n.schoolToday,
             onSeeAll: () => open('timetable'),
@@ -163,20 +195,6 @@ class _Overview extends ConsumerWidget {
                 title: l10n.schoolTimetable,
                 onTap: () => open('timetable'),
               ),
-              SettingsTile(
-                key: const ValueKey('school-fees'),
-                icon: AppIcons.cash,
-                title: l10n.schoolFees,
-                subtitle: fees == null ? null : l10n.feesDue(fees.dueFormatted),
-                onTap: () => open('fees'),
-              ),
-              if (parent)
-                SettingsTile(
-                  key: const ValueKey('school-reports'),
-                  icon: AppIcons.assignment,
-                  title: l10n.schoolReports,
-                  onTap: () => open('reports'),
-                ),
               // 113.8
               SettingsTile(
                 key: const ValueKey('school-calendar'),
@@ -202,7 +220,8 @@ class _Overview extends ConsumerWidget {
                 title: l10n.schoolNews,
                 onTap: () => open('news'),
               ),
-              // 113.6 Messages with the teachers (moves with 113.4's Parent tab).
+              // 113.6 Messages with their teachers (a parent's are in the
+              // Parent tab).
               const SchoolMessagesTile(teacher: false),
               // 113.10 The child's bus; 113.11 the library.
               if (ref.watch(schoolConfigProvider)?.bus ?? false)

@@ -11,6 +11,7 @@ import 'package:yallapp/modules/school/screens/calendar_screens.dart';
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'phase105_4_test.dart' show tapParent;
 
 /// 113.8 The school's calendar, the exams' timetable and behaviour in the
 /// app: a student's and each child's of a parent, and a teacher's.
@@ -139,22 +140,16 @@ void main() {
   });
 
   group('113.8 a student and a parent', () {
-    testWidgets('the School tab opens the calendar, exams and behaviour', (
+    testWidgets('the Parent tab opens the calendar, exams and behaviour', (
       tester,
     ) async {
       usePhone(tester);
       final api = schoolApi();
       final app = schoolApp(api);
       await app.pump(tester);
-      await go(app, tester, Paths.school);
-      for (final key in [
-        'school-calendar',
-        'school-exams',
-        'school-behaviour',
-      ]) {
-        expect(find.byKey(ValueKey(key)), findsOneWidget);
-      }
-      await tapKey(tester, 'school-calendar');
+      // 113.4 A parent's are in the Parent tab, for each child.
+      await go(app, tester, Paths.parent);
+      await tapParent(tester, 'parent-calendar');
       expect(find.byKey(const ValueKey('calendar-grid')), findsOneWidget);
       expect(api.calendarQueries.last.studentId, 11);
     });

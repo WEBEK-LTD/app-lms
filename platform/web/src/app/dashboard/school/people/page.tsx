@@ -143,6 +143,12 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
                   </span>
                   {person.userId !== null ? <Badge tone="success">{t("school.usesApp")}</Badge> : null}
                   {person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
+                  {/* 113.4 The student's page: pick-up, excuses, slips. */}
+                  {person.role === "student" ? (
+                    <Link href={`/dashboard/school/people/${person.id}`} className="text-sm">
+                      {t("parents.studentPage")}
+                    </Link>
+                  ) : null}
                   {/* 113.5 The teachers' reports on the student. */}
                   {person.role === "student" ? (
                     <Link href={`/dashboard/school/teacher-reports?student=${person.id}`} className="text-sm">

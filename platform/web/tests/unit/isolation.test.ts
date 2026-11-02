@@ -651,6 +651,12 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     await store.saveSchoolEvent({ id: null, appId: k12, kind: "event", title: `${MARK} event`, notes: MARK, startsOn: "2026-10-12", endsOn: "2026-10-12", startMinute: null, endMinute: null, place: MARK, audience: "school", grade: null, classId: null }, NOW);
     const theirExam = (await store.saveSchoolExam({ id: null, appId: k12, classId: theirClass.id, grade: null, subjectId: theirSubject.subject.id, date: "2026-10-14", startMinute: 540, durationMinutes: 60, room: MARK, notes: MARK }, NOW))!;
     await store.publishSchoolExams(k12, [theirExam.id], NOW);
+    // 113.4 A permission slip of theirs, answered; an excuse and a pick-up list of their student.
+    const theirSlip = (await store.saveSchoolSlip({ id: null, appId: k12, title: `${MARK} slip`, details: MARK, dueOn: "2026-12-30", feeNote: MARK, audience: "school", grade: null, classId: null }, NOW))!;
+    await store.saveSchoolSlipAnswer({ appId: k12, slipId: theirSlip.id, studentId: theirStudent.person.id, answer: "yes", signedName: MARK, parentId: null, answeredAt: NOW });
+    const theirExcuse = await store.createSchoolExcuse({ appId: k12, studentId: theirStudent.person.id, parentId: null, startsOn: "2026-10-20", endsOn: "2026-10-20", reason: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    await store.saveSchoolPickup({ appId: k12, studentId: theirStudent.person.id, people: [{ name: MARK, relation: MARK, phone: null, photo: null }], updatedBy: MARK, updatedAt: NOW });
+    await store.saveSchoolPickupNote({ appId: k12, studentId: theirStudent.person.id, date: "2026-10-12", name: MARK, relation: null, phone: null, note: MARK, writtenBy: MARK, createdAt: NOW });
     const theirNote = await store.createSchoolBehaviour({ appId: k12, studentId: theirStudent.person.id, classId: theirClass.id, categoryId: null, categoryName: `${MARK} category`, kind: "positive", points: 2, note: MARK, teacherId: null, createdAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
@@ -664,6 +670,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       run_id: String(busRun.id),
       book_id: String(book.id),
       hold_id: String(bookHold.id),
+      slip_id: String(theirSlip.id),
+      excuse_id: String(theirExcuse.id),
       // 113.8 A behaviour note shares `note_id` with 113.7's lesson notes: its paths get this one (see hosted()).
       behaviour_note_id: String(theirNote.id),
       teacher_id: String(teacher.teacher.id),
@@ -754,7 +762,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
-    if (/^\/(school|classroom|staff)\//.test(route)) return "k12";
+    if (/^\/(school|classroom|staff|parent)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
     return "shop";
   }

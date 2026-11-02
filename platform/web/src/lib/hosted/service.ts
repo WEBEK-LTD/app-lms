@@ -376,8 +376,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
     return answer ?? notFound();
   }
   // 105.4 Schools: the School endpoints (students and parents) and the Classroom endpoints (teachers).
-  // 113.3 And the Staff endpoints (teachers and staff).
-  if (req.path[0] === "school" || req.path[0] === "classroom" || req.path[0] === "staff") {
+  // 113.3 And the Staff endpoints (teachers and staff); 113.4 the Parent endpoints (parents).
+  if (req.path[0] === "school" || req.path[0] === "classroom" || req.path[0] === "staff" || req.path[0] === "parent") {
     if (!schoolOn(ctx.app, ctx.plan)) return error(403, "feature_disabled", "This app has no school.");
     const answer = await handleSchoolRoute(
       {
@@ -1240,6 +1240,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     // 113.8 The exam and the behaviour note they are about.
     ...(n.data?.exam_id ? { exam_id: numberOf(n.data.exam_id) } : {}),
     ...(n.data?.note_id ? { note_id: numberOf(n.data.note_id) } : {}),
+    // 113.4 The permission slip it opens.
+    ...(n.data?.slip_id ? { slip_id: numberOf(n.data.slip_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

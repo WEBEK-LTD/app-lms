@@ -7681,4 +7681,291 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get handInAgain => 'Yeniden teslim et';
+
+  @override
+  String get tabParent => 'Veli';
+
+  @override
+  String get parentNotParentTitle => 'Okulun velileri için';
+
+  @override
+  String get parentNotParentMessage =>
+      'Okul bu numarayı veli olarak eklemedi. Çocuklarınıza bağlaması için okula başvurun.';
+
+  @override
+  String get parentChildrenTitle => 'Çocuklarınız Veli sekmesinde';
+
+  @override
+  String get parentChildrenMessage =>
+      'Her çocuğun günü, imzalanacak formlar, mazeretler ve onu kimin alacağı.';
+
+  @override
+  String get parentOpen => 'Veli sekmesini aç';
+
+  @override
+  String parentDayOff(String title) {
+    return 'Bugün okul yok: $title';
+  }
+
+  @override
+  String parentPicksUpToday(String name) {
+    return 'Bugün alacak kişi: $name';
+  }
+
+  @override
+  String get parentAtTheGate => 'Kapıda';
+
+  @override
+  String parentHomeworkDue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ödev teslim edilecek',
+      zero: 'Teslim edilecek ödev yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentLatestGrades => 'Son notlar';
+
+  @override
+  String parentBehaviourPoints(int points) {
+    return '$points puan';
+  }
+
+  @override
+  String get parentLibraryBooks => 'Kütüphane kitapları';
+
+  @override
+  String parentBookDue(String date) {
+    return 'İade $date';
+  }
+
+  @override
+  String parentBookOverdue(String date) {
+    return '$date tarihinden beri gecikmiş';
+  }
+
+  @override
+  String get parentBusOnTheWay => 'Servis yolda';
+
+  @override
+  String get parentComing => 'Yaklaşanlar';
+
+  @override
+  String parentEverything(String name) {
+    return '$name için her şey';
+  }
+
+  @override
+  String get parentSlips => 'İzin formları';
+
+  @override
+  String parentSlipsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count imza bekliyor',
+      zero: 'İmzalanacak bir şey yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentExcuses => 'Devamsızlık mazeretleri';
+
+  @override
+  String get parentExcusesSubtitle => 'Bir ya da birkaç gün, nedeniyle';
+
+  @override
+  String get parentPickup => 'Kim alacak';
+
+  @override
+  String parentPickupPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+      zero: 'Henüz kimse yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentReportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count paylaşıldı',
+      zero: 'Henüz paylaşılan yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String slipDue(String date) {
+    return 'Son yanıt $date';
+  }
+
+  @override
+  String get slipClosed => 'Kapandı';
+
+  @override
+  String slipFee(String note) {
+    return 'Ücret: $note';
+  }
+
+  @override
+  String get slipYes => 'Evet, kabul ediyorum';
+
+  @override
+  String get slipNo => 'Hayır';
+
+  @override
+  String slipSignedYes(String name) {
+    return '$name evet diye imzaladı';
+  }
+
+  @override
+  String slipSignedNo(String name) {
+    return '$name reddetti';
+  }
+
+  @override
+  String get slipNotAnswered => 'Yanıtlanmadı';
+
+  @override
+  String slipAgree(String child, String title) {
+    return '$child katılabilir: $title.';
+  }
+
+  @override
+  String slipDecline(String child, String title) {
+    return '$child katılmayacak: $title.';
+  }
+
+  @override
+  String get slipYourName => 'Adınız';
+
+  @override
+  String get slipSign => 'İmzala';
+
+  @override
+  String get slipSigned => 'İmzalandı. Okul yanıtınızı görüyor.';
+
+  @override
+  String get slipsNone => 'İzin formu yok.';
+
+  @override
+  String get slipNameNeeded => 'Adınızla imzalayın.';
+
+  @override
+  String get excuseNew => 'Mazeret bildir';
+
+  @override
+  String get excuseFirstDay => 'İlk gün';
+
+  @override
+  String get excuseLastDay => 'Son gün';
+
+  @override
+  String get excuseReason => 'Neden';
+
+  @override
+  String get excuseAddPhoto => 'Rapor fotoğrafı';
+
+  @override
+  String get excuseAddFile => 'PDF';
+
+  @override
+  String get excuseSend => 'Okula gönder';
+
+  @override
+  String get excuseSent => 'Gönderildi. Okul uygulamada yanıtlayacak.';
+
+  @override
+  String get excuseReasonNeeded => 'Nedeni yazın.';
+
+  @override
+  String get excusePending => 'Bekliyor';
+
+  @override
+  String get excuseAccepted => 'Mazeretli';
+
+  @override
+  String get excuseDeclined => 'Kabul edilmedi';
+
+  @override
+  String get excuseWithdrawn => 'Geri çekildi';
+
+  @override
+  String get excuseWithdraw => 'Geri çek';
+
+  @override
+  String get excusesNone => 'Gönderilmiş mazeret yok.';
+
+  @override
+  String excuseSchoolNote(String note) {
+    return 'Okul: $note';
+  }
+
+  @override
+  String pickupIntro(String name) {
+    return '$name adlı çocuğu okuldan kimin alabileceği. Okul bu listeyi kapıda görür.';
+  }
+
+  @override
+  String get pickupNone => 'Listede henüz kimse yok.';
+
+  @override
+  String get pickupAdd => 'Birini ekle';
+
+  @override
+  String get pickupName => 'Ad';
+
+  @override
+  String get pickupRelation => 'Yakınlık';
+
+  @override
+  String get pickupPhone => 'Telefon';
+
+  @override
+  String get pickupPhoto => 'Fotoğraf ekle';
+
+  @override
+  String get pickupRemove => 'Kaldır';
+
+  @override
+  String get pickupSaved => 'Kaydedildi. Okul listeyi görüyor.';
+
+  @override
+  String get pickupNameNeeded => 'Adını yazın.';
+
+  @override
+  String get pickupOneDay => 'Yalnızca bir gün';
+
+  @override
+  String get pickupOneDayIntro =>
+      'Bir gün başka biri mi alacak? Okula söyleyin: o günün panosunda görür.';
+
+  @override
+  String get pickupDay => 'Gün';
+
+  @override
+  String get pickupNote => 'Okula not';
+
+  @override
+  String get pickupTell => 'Okula bildir';
+
+  @override
+  String get pickupTold => 'Okul bunu o günün panosunda görüyor.';
+
+  @override
+  String pickupNoteLine(String date, String name) {
+    return '$date: $name';
+  }
+
+  @override
+  String get pickupTakeBack => 'Geri al';
 }

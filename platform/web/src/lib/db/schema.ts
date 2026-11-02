@@ -144,6 +144,7 @@ import type {
 } from "../data/types";
 // 113.10 The school bus; 113.11 the library
 import type { SchoolBookHoldStatus, SchoolBusMarkStatus, SchoolBusRunStatus, SchoolBusTrip } from "../data/types";
+import type { SchoolExcuseStatus, SchoolPickupPerson, SchoolSlipAudience } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3941,3 +3942,102 @@ export const schoolBehaviour = mysqlTable(
   (t) => [index("school_behaviour_student_idx").on(t.appId, t.studentId, t.createdAt), index("school_behaviour_class_idx").on(t.appId, t.classId)],
 );
 
+// 113.4 The parent's area: permission slips, absence excuses and pick-up.
+
+export const schoolSlips = mysqlTable(
+  "school_slips",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    details: varchar("details", { length: 2000 }),
+    dueOn: varchar("due_on", { length: 10 }).notNull(),
+    feeNote: varchar("fee_note", { length: 200 }),
+    audience: varchar("audience", { length: 8 }).notNull().$type<SchoolSlipAudience>(),
+    grade: varchar("grade", { length: 80 }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "cascade" }),
+    remindedAt: time("reminded_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_slips_app_idx").on(t.appId, t.dueOn)],
+);
+
+export const schoolSlipAnswers = mysqlTable(
+  "school_slip_answers",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    slipId: bigint("slip_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSlips.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    answer: varchar("answer", { length: 3 }).notNull().$type<"yes" | "no">(),
+    signedName: varchar("signed_name", { length: 120 }).notNull(),
+    parentId: bigint("parent_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    answeredAt: time("answered_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.slipId, t.studentId] }), index("school_slip_answers_student_idx").on(t.appId, t.studentId)],
+);
+
+export const schoolExcuses = mysqlTable(
+  "school_excuses",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    parentId: bigint("parent_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    startsOn: varchar("starts_on", { length: 10 }).notNull(),
+    endsOn: varchar("ends_on", { length: 10 }).notNull(),
+    reason: varchar("reason", { length: 1000 }).notNull(),
+    file: jsonText<SchoolFileRef>("file"),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolExcuseStatus>(),
+    answer: varchar("answer", { length: 1000 }),
+    answeredBy: varchar("answered_by", { length: 191 }),
+    answeredAt: time("answered_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_excuses_app_idx").on(t.appId, t.status, t.startsOn), index("school_excuses_student_idx").on(t.studentId)],
+);
+
+export const schoolPickups = mysqlTable("school_pickups", {
+  appId: id("app_id")
+    .notNull()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  studentId: bigint("student_id", { mode: "number", unsigned: true })
+    .primaryKey()
+    .references(() => schoolPeople.id, { onDelete: "cascade" }),
+  people: jsonText<SchoolPickupPerson[]>("people").notNull(),
+  updatedBy: varchar("updated_by", { length: 191 }),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const schoolPickupNotes = mysqlTable(
+  "school_pickup_notes",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    date: varchar("date", { length: 10 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    relation: varchar("relation", { length: 60 }),
+    phone: varchar("phone", { length: 30 }),
+    note: varchar("note", { length: 300 }),
+    writtenBy: varchar("written_by", { length: 191 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.studentId, t.date] }), index("school_pickup_notes_app_date_idx").on(t.appId, t.date)],
+);

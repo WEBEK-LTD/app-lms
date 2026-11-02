@@ -64,6 +64,8 @@ abstract class PushService {
 ///   113.10 `school_bus` the child's bus, 113.11 `school_library` the
 ///   library's loans;
 ///   113.8 `school_exam` their exams, `school_behaviour` their behaviour;
+///   113.4 `school_slip` the parent's permission slips, `school_excuse` the
+///   child's absence excuses;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -148,6 +150,14 @@ String pushTargetLocation(Map<String, dynamic> data) {
       return Paths.schoolPart('bus', student: id('student_id'));
     case 'school_library':
       return Paths.schoolPart('library-loans');
+    // 113.4 A permission slip to sign; the school's answer to an excuse.
+    case 'school_slip':
+      return Paths.parentSlips;
+    case 'school_excuse':
+      final student = id('student_id');
+      return student != null
+          ? Paths.parentPart('excuses', student: student)
+          : Paths.parent;
     // 113.8
     case 'school_exam':
       return Paths.schoolPart('exams', student: id('student_id'));

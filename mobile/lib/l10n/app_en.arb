@@ -8154,5 +8154,405 @@
   "handInAgain": "Hand in again",
   "@handInAgain": {
     "description": "113.7 Hands a graded assignment in again (another try)."
+  },
+  "tabParent": "Parent",
+  "@tabParent": {
+    "description": "113.4 The bottom tab only the school's parents see: their children's days, slips, excuses and pick-up."
+  },
+  "parentNotParentTitle": "For the school's parents",
+  "@parentNotParentTitle": {
+    "description": "113.4 The Parent tab, for someone the school didn't add as a parent: its title."
+  },
+  "parentNotParentMessage": "The school hasn't added this number as a parent. Ask the school to link it to your children.",
+  "@parentNotParentMessage": {
+    "description": "113.4 The Parent tab, for someone the school didn't add as a parent: what to do."
+  },
+  "parentChildrenTitle": "Your children are in the Parent tab",
+  "@parentChildrenTitle": {
+    "description": "113.4 On the School tab of a parent who isn't a student: their children's days are in the Parent tab."
+  },
+  "parentChildrenMessage": "Each child's day, the slips to sign, absences to excuse and who picks them up.",
+  "@parentChildrenMessage": {
+    "description": "113.4 On the School tab of a parent who isn't a student: what the Parent tab has."
+  },
+  "parentOpen": "Open the Parent tab",
+  "@parentOpen": {
+    "description": "113.4 Button on the School tab of a parent: opens the Parent tab."
+  },
+  "parentDayOff": "No school today: {title}",
+  "@parentDayOff": {
+    "description": "113.4 On a child's day: today is a holiday or a break.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "parentPicksUpToday": "Picks up today: {name}",
+  "@parentPicksUpToday": {
+    "description": "113.4 On a child's day: who picks the child up today.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentAtTheGate": "At the gate",
+  "@parentAtTheGate": {
+    "description": "113.4 On a child's day: the child's check-in today."
+  },
+  "parentHomeworkDue": "{count, plural, =0{No homework due} =1{1 homework due} other{{count} homework due}}",
+  "@parentHomeworkDue": {
+    "description": "113.4 On a child's day: how much homework is due.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentLatestGrades": "Latest grades",
+  "@parentLatestGrades": {
+    "description": "113.4 On a child's day: the three latest scores."
+  },
+  "parentBehaviourPoints": "{points} points",
+  "@parentBehaviourPoints": {
+    "description": "113.4 On a child's day: the child's behaviour points.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "parentLibraryBooks": "Library books",
+  "@parentLibraryBooks": {
+    "description": "113.4 On a child's day: the library books out now."
+  },
+  "parentBookDue": "Due back {date}",
+  "@parentBookDue": {
+    "description": "113.4 On a child's day: when a library book is due back.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "parentBookOverdue": "Overdue since {date}",
+  "@parentBookOverdue": {
+    "description": "113.4 On a child's day: a library book that is overdue.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "parentBusOnTheWay": "The bus is on its way",
+  "@parentBusOnTheWay": {
+    "description": "113.4 On a child's day: the child's bus is running now."
+  },
+  "parentComing": "Coming up",
+  "@parentComing": {
+    "description": "113.4 On a child's day: the next events and exams on the calendar."
+  },
+  "parentEverything": "Everything for {name}",
+  "@parentEverything": {
+    "description": "113.4 The list of a child's parts on the Parent tab.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentSlips": "Permission slips",
+  "@parentSlips": {
+    "description": "113.4 Opens the permission slips to sign."
+  },
+  "parentSlipsWaiting": "{count, plural, =0{Nothing to sign} =1{1 to sign} other{{count} to sign}}",
+  "@parentSlipsWaiting": {
+    "description": "113.4 How many permission slips wait for an answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentExcuses": "Absence excuses",
+  "@parentExcuses": {
+    "description": "113.4 Opens the child's absence excuses."
+  },
+  "parentExcusesSubtitle": "A day or several, with the reason",
+  "@parentExcusesSubtitle": {
+    "description": "113.4 Under the absence excuses tile."
+  },
+  "parentPickup": "Who picks up",
+  "@parentPickup": {
+    "description": "113.4 Opens who may pick the child up."
+  },
+  "parentPickupPeople": "{count, plural, =0{No one listed yet} =1{1 person} other{{count} people}}",
+  "@parentPickupPeople": {
+    "description": "113.4 How many people may pick the child up.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentReportsCount": "{count, plural, =0{None shared yet} =1{1 shared} other{{count} shared}}",
+  "@parentReportsCount": {
+    "description": "113.4 How many teachers' reports the school shared.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slipDue": "Answer by {date}",
+  "@slipDue": {
+    "description": "113.4 A permission slip's due date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "slipClosed": "Closed",
+  "@slipClosed": {
+    "description": "113.4 A permission slip past its due date."
+  },
+  "slipFee": "Fee: {note}",
+  "@slipFee": {
+    "description": "113.4 A permission slip's note of a fee.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "slipYes": "Yes, I agree",
+  "@slipYes": {
+    "description": "113.4 Signs a permission slip yes."
+  },
+  "slipNo": "No",
+  "@slipNo": {
+    "description": "113.4 Signs a permission slip no."
+  },
+  "slipSignedYes": "Signed yes by {name}",
+  "@slipSignedYes": {
+    "description": "113.4 A child's slip signed yes.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "slipSignedNo": "Declined by {name}",
+  "@slipSignedNo": {
+    "description": "113.4 A child's slip signed no.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "slipNotAnswered": "Not answered",
+  "@slipNotAnswered": {
+    "description": "113.4 A child's slip not answered yet."
+  },
+  "slipAgree": "{child} may take part: {title}.",
+  "@slipAgree": {
+    "description": "113.4 What a parent signs when they answer yes.",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "slipDecline": "{child} won't take part: {title}.",
+  "@slipDecline": {
+    "description": "113.4 What a parent signs when they answer no.",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "slipYourName": "Your name",
+  "@slipYourName": {
+    "description": "113.4 The name a parent signs a slip with."
+  },
+  "slipSign": "Sign",
+  "@slipSign": {
+    "description": "113.4 Signs the permission slip."
+  },
+  "slipSigned": "Signed. The school sees your answer.",
+  "@slipSigned": {
+    "description": "113.4 After a parent signed a slip."
+  },
+  "slipsNone": "No permission slips.",
+  "@slipsNone": {
+    "description": "113.4 The permission slips list when there is none."
+  },
+  "slipNameNeeded": "Sign with your name.",
+  "@slipNameNeeded": {
+    "description": "113.4 A slip signed without a name."
+  },
+  "excuseNew": "Excuse an absence",
+  "@excuseNew": {
+    "description": "113.4 Starts an absence excuse."
+  },
+  "excuseFirstDay": "First day",
+  "@excuseFirstDay": {
+    "description": "113.4 An excuse's first day."
+  },
+  "excuseLastDay": "Last day",
+  "@excuseLastDay": {
+    "description": "113.4 An excuse's last day."
+  },
+  "excuseReason": "Reason",
+  "@excuseReason": {
+    "description": "113.4 Why the child was or will be absent."
+  },
+  "excuseAddPhoto": "Photo of a note",
+  "@excuseAddPhoto": {
+    "description": "113.4 Adds a photo of a doctor's note to an excuse."
+  },
+  "excuseAddFile": "PDF",
+  "@excuseAddFile": {
+    "description": "113.4 Adds a PDF to an excuse."
+  },
+  "excuseSend": "Send to the school",
+  "@excuseSend": {
+    "description": "113.4 Sends an absence excuse."
+  },
+  "excuseSent": "Sent. The school will answer in the app.",
+  "@excuseSent": {
+    "description": "113.4 After an excuse was sent."
+  },
+  "excuseReasonNeeded": "Write the reason.",
+  "@excuseReasonNeeded": {
+    "description": "113.4 An excuse sent without a reason."
+  },
+  "excusePending": "Waiting",
+  "@excusePending": {
+    "description": "113.4 An excuse the school hasn't answered."
+  },
+  "excuseAccepted": "Excused",
+  "@excuseAccepted": {
+    "description": "113.4 An excuse the school accepted."
+  },
+  "excuseDeclined": "Not accepted",
+  "@excuseDeclined": {
+    "description": "113.4 An excuse the school declined."
+  },
+  "excuseWithdrawn": "Withdrawn",
+  "@excuseWithdrawn": {
+    "description": "113.4 An excuse the parent withdrew."
+  },
+  "excuseWithdraw": "Withdraw",
+  "@excuseWithdraw": {
+    "description": "113.4 Withdraws an excuse while it waits."
+  },
+  "excusesNone": "No excuses sent.",
+  "@excusesNone": {
+    "description": "113.4 The excuses list when there is none."
+  },
+  "excuseSchoolNote": "The school: {note}",
+  "@excuseSchoolNote": {
+    "description": "113.4 The school's note with its answer to an excuse.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupIntro": "Who may pick {name} up from school. The school sees this list at the gate.",
+  "@pickupIntro": {
+    "description": "113.4 At the top of the pick-up screen.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupNone": "No one on the list yet.",
+  "@pickupNone": {
+    "description": "113.4 The pick-up list when empty."
+  },
+  "pickupAdd": "Add someone",
+  "@pickupAdd": {
+    "description": "113.4 Adds a person to the pick-up list."
+  },
+  "pickupName": "Name",
+  "@pickupName": {
+    "description": "113.4 A pick-up person's name."
+  },
+  "pickupRelation": "Relation",
+  "@pickupRelation": {
+    "description": "113.4 A pick-up person's relation to the child (grandmother, uncle…)."
+  },
+  "pickupPhone": "Phone",
+  "@pickupPhone": {
+    "description": "113.4 A pick-up person's phone number."
+  },
+  "pickupPhoto": "Add a photo",
+  "@pickupPhoto": {
+    "description": "113.4 Adds a photo of a pick-up person."
+  },
+  "pickupRemove": "Remove",
+  "@pickupRemove": {
+    "description": "113.4 Takes a person off the pick-up list."
+  },
+  "pickupSaved": "Saved. The school sees the list.",
+  "@pickupSaved": {
+    "description": "113.4 After the pick-up list was saved."
+  },
+  "pickupNameNeeded": "Write their name.",
+  "@pickupNameNeeded": {
+    "description": "113.4 A pick-up person without a name."
+  },
+  "pickupOneDay": "Just for one day",
+  "@pickupOneDay": {
+    "description": "113.4 The one-day pick-up note part."
+  },
+  "pickupOneDayIntro": "Someone else picks up on a day? Tell the school: it sees it on that day's board.",
+  "@pickupOneDayIntro": {
+    "description": "113.4 What the one-day pick-up note is for."
+  },
+  "pickupDay": "Day",
+  "@pickupDay": {
+    "description": "113.4 The day of a one-day pick-up note."
+  },
+  "pickupNote": "Note for the school",
+  "@pickupNote": {
+    "description": "113.4 A one-day pick-up note's note."
+  },
+  "pickupTell": "Tell the school",
+  "@pickupTell": {
+    "description": "113.4 Sends a one-day pick-up note."
+  },
+  "pickupTold": "The school sees it on that day's board.",
+  "@pickupTold": {
+    "description": "113.4 After a one-day pick-up note was sent."
+  },
+  "pickupNoteLine": "{date}: {name}",
+  "@pickupNoteLine": {
+    "description": "113.4 A one-day pick-up note: the day and who picks up.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupTakeBack": "Take back",
+  "@pickupTakeBack": {
+    "description": "113.4 Deletes a one-day pick-up note."
   }
 }
