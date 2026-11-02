@@ -22,7 +22,9 @@ test("the jobs' runs and the health check in Admin › Watching", async ({ brows
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname.startsWith("/admin"));
   await page.getByRole("link", { name: /^Watching/ }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Watching" })).toBeVisible();
+  // The health check reaches the real files host (FILES_BASE_URL) and waits up to 5 s for it:
+  // the page can take that long on a runner where the host is slow.
+  await expect(page.getByRole("heading", { level: 1, name: "Watching" })).toBeVisible({ timeout: 15_000 });
 
   const health = page.getByRole("table", { name: "Health checks" });
   await expect(health.getByRole("row", { name: /Database/ })).toContainText("Fine");
