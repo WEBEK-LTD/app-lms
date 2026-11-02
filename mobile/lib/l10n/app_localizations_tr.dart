@@ -6395,4 +6395,259 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get couponWithout => 'Kuponsuz devam et';
+
+  @override
+  String get uniRegister => 'Döneme kaydol';
+
+  @override
+  String get uniTimetable => 'Ders programım';
+
+  @override
+  String get uniResults => 'Sonuçlar';
+
+  @override
+  String get uniTranscript => 'Transkript';
+
+  @override
+  String get uniStudyPlan => 'Ders planı';
+
+  @override
+  String get uniGpa => 'Ortalama';
+
+  @override
+  String uniCreditsOf(String earned, String required) {
+    return '$required krediden $earned';
+  }
+
+  @override
+  String uniCredits(String credits) {
+    return '$credits kredi';
+  }
+
+  @override
+  String uniAdvisor(String name) {
+    return 'Danışman: $name';
+  }
+
+  @override
+  String get uniNoProgram => 'Henüz program yok: üniversite ekleyecek.';
+
+  @override
+  String get uniStatusDraft => 'Gönderilmedi';
+
+  @override
+  String get uniStatusSubmitted => 'Danışmanında';
+
+  @override
+  String get uniStatusApproved => 'Onaylandı';
+
+  @override
+  String get uniStatusReturned => 'Geri gönderildi';
+
+  @override
+  String uniPhaseBefore(String date) {
+    return 'Kayıt $date tarihinde açılır';
+  }
+
+  @override
+  String uniPhaseOpen(String date) {
+    return 'Kayıt $date tarihine kadar açık';
+  }
+
+  @override
+  String uniPhaseDrop(String date) {
+    return '$date tarihine kadar ders bırakabilirsin';
+  }
+
+  @override
+  String get uniPhaseClosed => 'Bu dönemin kaydı kapandı';
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) {
+    return '$taken kredi · dönemde $min–$max';
+  }
+
+  @override
+  String get uniMySections => 'Şubelerim';
+
+  @override
+  String get uniOffered => 'Açılan şubeler';
+
+  @override
+  String get uniAdd => 'Ekle';
+
+  @override
+  String get uniJoinWaitlist => 'Bekleme listesine katıl';
+
+  @override
+  String get uniDrop => 'Bırak';
+
+  @override
+  String uniDropConfirm(String course) {
+    return '$course bırakılsın mı?';
+  }
+
+  @override
+  String uniSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yer kaldı',
+      one: '1 yer kaldı',
+      zero: 'Dolu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniEnrolPending => 'Onay bekliyor';
+
+  @override
+  String get uniEnrolEnrolled => 'Kayıtlı';
+
+  @override
+  String get uniEnrolWaitlisted => 'Bekleme listesi';
+
+  @override
+  String get uniSubmit => 'Danışmanıma gönder';
+
+  @override
+  String get uniSubmitted => 'Danışmanına gönderildi.';
+
+  @override
+  String uniAdvisorNote(String note) {
+    return 'Danışmanın: $note';
+  }
+
+  @override
+  String get uniReadOnly => 'Kaydı yalnızca öğrenci değiştirir.';
+
+  @override
+  String get uniNoSections => 'Bu dönemde henüz şube yok.';
+
+  @override
+  String get uniNoLectures => 'Bu dönem ders yok.';
+
+  @override
+  String get uniNoLecturesToday => 'Bugün ders yok.';
+
+  @override
+  String uniTermGpa(String gpa) {
+    return 'Dönem ortalaması $gpa';
+  }
+
+  @override
+  String get uniCumulative => 'Genel ortalama';
+
+  @override
+  String get uniNoResults => 'Henüz sonuç yok.';
+
+  @override
+  String get uniOpenPdf => 'PDF\'i aç';
+
+  @override
+  String get uniPlanDone => 'Tamamlandı';
+
+  @override
+  String get uniPlanInProgress => 'Devam ediyor';
+
+  @override
+  String get uniPlanLeft => 'Kaldı';
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) {
+    return '$required krediden $done tamam · $inProgress devam · $left kaldı';
+  }
+
+  @override
+  String uniYear(int year) {
+    return '$year. yıl';
+  }
+
+  @override
+  String get uniElective => 'Seçmeli';
+
+  @override
+  String uniStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğrenci',
+      one: '1 öğrenci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniAdvisees => 'Danışmanlık öğrencilerim';
+
+  @override
+  String uniAdviseesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Seni bekleyen $count kayıt',
+      one: 'Seni bekleyen 1 kayıt',
+      zero: 'Seni bekleyen yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniNoTeaching =>
+      'Bu dönem şube yok: üniversite seni öğretim üyesi olarak ekler.';
+
+  @override
+  String get uniPublished => 'Sonuçlar yayımlandı';
+
+  @override
+  String get uniPublish => 'Sonuçları yayımla';
+
+  @override
+  String get uniPublishConfirm =>
+      'Öğrenciler ve velileri notlarını görür ve bilgilendirilir.';
+
+  @override
+  String get uniSaveGrades => 'Notları kaydet';
+
+  @override
+  String get uniGradesSaved => 'Notlar kaydedildi.';
+
+  @override
+  String get uniResultsPublished => 'Yayımlandı. Öğrenciler bilgilendirildi.';
+
+  @override
+  String get uniMark => 'Puan (%)';
+
+  @override
+  String get uniGrade => 'Harf notu';
+
+  @override
+  String get uniNoGrade => 'Not yok';
+
+  @override
+  String get uniApprove => 'Onayla';
+
+  @override
+  String get uniSendBack => 'Geri gönder';
+
+  @override
+  String get uniNoteHint => 'Öğrenciye not (isteğe bağlı)';
+
+  @override
+  String get uniApproved => 'Onaylandı. Öğrenci bilgilendirildi.';
+
+  @override
+  String get uniSentBack => 'Geri gönderildi. Öğrenci bilgilendirildi.';
+
+  @override
+  String get uniNoAdvisees => 'Bu dönem danışmanlık yapılacak öğrenci yok.';
+
+  @override
+  String get uniAttendanceSaved => 'Yoklama kaydedildi.';
 }

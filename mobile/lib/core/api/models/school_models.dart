@@ -12,6 +12,7 @@ class SchoolConfig {
     this.term,
     this.absenceAlerts = true,
     this.feesByCard = false,
+    this.university = false,
   });
 
   factory SchoolConfig.fromJson(Json json) => SchoolConfig(
@@ -20,6 +21,7 @@ class SchoolConfig {
     term: optObject(json, 'term', SchoolTerm.fromJson),
     absenceAlerts: boolOr(json, 'absence_alerts', true),
     feesByCard: boolOr(json, 'fees_by_card', false),
+    university: boolOr(json, 'university', false),
   );
 
   final String timezone;
@@ -29,6 +31,9 @@ class SchoolConfig {
 
   /// Families can pay fees by card in the app.
   final bool feesByCard;
+
+  /// 113.9 The school is a university: its screens instead of classes'.
+  final bool university;
 }
 
 class SchoolTerm {

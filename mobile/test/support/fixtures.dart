@@ -2956,3 +2956,285 @@ Map<String, dynamic> liveSessionJson({
   'join_url': joinUrl,
   'recording_url': recordingUrl,
 };
+
+// 113.9 Universities
+
+Map<String, dynamic> uniTermJson({int id = 7, String name = 'Spring 2027'}) => {
+  'id': id,
+  'name': name,
+  'academic_year': '2026/2027',
+  'starts_on': '2027-02-01',
+  'ends_on': '2027-06-01',
+  'registration_opens': '2026-10-01',
+  'registration_closes': '2026-10-20',
+  'drop_until': '2026-11-01',
+};
+
+Map<String, dynamic> uniProgramJson() => {
+  'id': 3,
+  'name': 'Computer Science',
+  'code': 'BCS',
+  'degree': 'BSc',
+  'department': 'Computer Science',
+  'faculty': 'Engineering',
+  'credits_required': 132,
+  'years': 4,
+  'min_term_credits': 6,
+  'max_term_credits': 18,
+};
+
+Map<String, dynamic> uniSectionJson({
+  int id = 21,
+  String code = 'CS201',
+  String title = 'Data structures',
+  int left = 12,
+  Map<String, dynamic> extra = const {},
+}) => {
+  'id': id,
+  'code': '01',
+  'course': {
+    'id': id + 100,
+    'code': code,
+    'title': title,
+    'credits': 3,
+    'prerequisites': <String>[],
+  },
+  'lecturer_name': 'Mona Adel',
+  'seats': 30,
+  'seats_left': left,
+  'meetings': [
+    {'weekday': 1, 'starts': '09:00', 'ends': '10:30', 'room': 'B2'},
+  ],
+  ...extra,
+};
+
+Map<String, dynamic> universityStudentJson() => {
+  'student': schoolStudentJson(),
+  'program': uniProgramJson(),
+  'advisor': {'id': 5, 'name': 'Mona Adel'},
+  'start_year': '2025/2026',
+  'gpa': 3.5,
+  'credits_earned': 6,
+  'current_term': uniTermJson(),
+  'registration': {
+    'term': uniTermJson(),
+    'status': 'draft',
+    'phase': 'open',
+    'credits': 3,
+  },
+  'scale': <dynamic>[],
+};
+
+Map<String, dynamic> uniRegistrationJson({String status = 'draft'}) => {
+  'term': uniTermJson(),
+  'terms': [uniTermJson()],
+  'status': status,
+  'note': status == 'returned' ? 'Add a mathematics course.' : null,
+  'submitted_at': null,
+  'phase': 'open',
+  'can_add': status != 'submitted',
+  'can_drop': status != 'submitted',
+  'can_submit': status != 'submitted',
+  'credits': {'taken': 3, 'min': 6, 'max': 18},
+  'mine': [
+    {
+      'id': 90,
+      'status': 'pending',
+      'added_by': 'student',
+      'section': uniSectionJson(),
+      'can_drop': true,
+    },
+  ],
+  'offered': [
+    uniSectionJson(
+      id: 22,
+      code: 'MA101',
+      title: 'Calculus',
+      extra: {'can_add': true, 'waitlist': false, 'problems': <dynamic>[]},
+    ),
+    uniSectionJson(
+      id: 23,
+      code: 'PH101',
+      title: 'Physics',
+      extra: {
+        'can_add': false,
+        'waitlist': false,
+        'problems': [
+          {
+            'code': 'clash',
+            'message': 'Its lectures are at the same time as CS201-01.',
+          },
+        ],
+      },
+    ),
+    uniSectionJson(
+      id: 24,
+      code: 'EN101',
+      title: 'English',
+      left: 0,
+      extra: {'can_add': true, 'waitlist': true, 'problems': <dynamic>[]},
+    ),
+  ],
+};
+
+Map<String, dynamic> uniResultsJson() => {
+  'gpa': 3.5,
+  'credits_earned': 6,
+  'credits_attempted': 6,
+  'credits_required': 132,
+  'program': uniProgramJson(),
+  'student': schoolStudentJson(),
+  'pdf_url': 'https://yallapp.test/a/app/transcript/11-1999999999-abc/pdf',
+  'terms': [
+    {
+      'term': uniTermJson(),
+      'gpa': 3.7,
+      'credits': 3,
+      'courses': [
+        {
+          'course_code': 'CS201',
+          'title': 'Data structures',
+          'credits': 3,
+          'grade': 'A-',
+          'points': 3.7,
+          'passed': true,
+        },
+      ],
+    },
+    {
+      'term': uniTermJson(id: 6, name: 'Fall 2025'),
+      'gpa': 3.3,
+      'credits': 3,
+      'courses': [
+        {
+          'course_code': 'CS101',
+          'title': 'Programming',
+          'credits': 3,
+          'grade': 'B+',
+          'points': 3.3,
+          'passed': true,
+        },
+      ],
+    },
+  ],
+};
+
+Map<String, dynamic> uniPlanJson() => {
+  'program': uniProgramJson(),
+  'credits': {'required': 132, 'done': 6, 'in_progress': 3, 'left': 4},
+  'years': [
+    {
+      'year': 1,
+      'courses': [
+        {
+          'course_code': 'CS101',
+          'title': 'Programming',
+          'credits': 3,
+          'required': true,
+          'status': 'done',
+          'grade': 'B+',
+        },
+        {
+          'course_code': 'MA101',
+          'title': 'Calculus',
+          'credits': 4,
+          'required': true,
+          'status': 'in_progress',
+          'grade': null,
+        },
+        {
+          'course_code': 'CS350',
+          'title': 'Graphics',
+          'credits': 3,
+          'required': false,
+          'status': 'left',
+          'grade': null,
+        },
+      ],
+    },
+  ],
+};
+
+Map<String, dynamic> lecturerHomeJson() => {
+  'name': 'Mona Adel',
+  'term': uniTermJson(),
+  'terms': [uniTermJson()],
+  'sections': [
+    uniSectionJson(extra: {'students': 2, 'results_published': false}),
+  ],
+  'advisees': {'count': 4, 'waiting': 1},
+};
+
+Map<String, dynamic> uniSectionDetailJson({String? published}) => {
+  'section': uniSectionJson(),
+  'term': uniTermJson(),
+  'results_published_at': published,
+  'scale': [
+    {'letter': 'A', 'points': 4, 'min_percent': 90},
+    {'letter': 'A-', 'points': 3.7, 'min_percent': 85},
+    {'letter': 'B', 'points': 3, 'min_percent': 75},
+    {'letter': 'F', 'points': 0, 'min_percent': 0},
+  ],
+  'students': [
+    {
+      'student': schoolStudentJson(),
+      'status': 'enrolled',
+      'grade': 'A-',
+      'mark': 87,
+    },
+    {
+      'student': schoolStudentJson(id: 12, name: 'Laila Hassan'),
+      'status': 'enrolled',
+      'grade': null,
+      'mark': null,
+    },
+  ],
+};
+
+Map<String, dynamic> uniSectionAttendanceJson() => {
+  'section_id': 21,
+  'date': '2026-10-12',
+  'students': [
+    {'student': schoolStudentJson(), 'status': null, 'note': null},
+    {
+      'student': schoolStudentJson(id: 12, name: 'Laila Hassan'),
+      'status': 'late',
+      'note': null,
+    },
+  ],
+};
+
+Map<String, dynamic> adviseeListJson() => {
+  'term': uniTermJson(),
+  'items': [
+    {
+      'student': schoolStudentJson(),
+      'program_name': 'Computer Science',
+      'status': 'submitted',
+      'credits': 9,
+      'submitted_at': '2026-10-10T10:00:00Z',
+    },
+  ],
+};
+
+Map<String, dynamic> adviseeDetailJson({String status = 'submitted'}) => {
+  'student': schoolStudentJson(),
+  'program': uniProgramJson(),
+  'gpa': 3.3,
+  'credits_earned': 3,
+  'term': uniTermJson(),
+  'status': status,
+  'note': null,
+  'submitted_at': '2026-10-10T10:00:00Z',
+  'credits': {'taken': 9, 'min': 6, 'max': 18},
+  'sections': [
+    {
+      'id': 90,
+      'status': status == 'approved' ? 'enrolled' : 'pending',
+      'added_by': 'student',
+      'section': uniSectionJson(),
+      'can_drop': false,
+    },
+  ],
+  'can_decide': status == 'submitted',
+};

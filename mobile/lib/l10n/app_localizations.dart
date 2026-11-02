@@ -10593,6 +10593,407 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue without a coupon'**
   String get couponWithout;
+
+  /// 113.9 Opens a university student's registration for the term.
+  ///
+  /// In en, this message translates to:
+  /// **'Register for the term'**
+  String get uniRegister;
+
+  /// 113.9 Opens a university student's week of lectures.
+  ///
+  /// In en, this message translates to:
+  /// **'My timetable'**
+  String get uniTimetable;
+
+  /// 113.9 Opens a university student's results by term.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get uniResults;
+
+  /// 113.9 Opens a university student's transcript.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcript'**
+  String get uniTranscript;
+
+  /// 113.9 Opens the courses of the student's program: done, in progress and left.
+  ///
+  /// In en, this message translates to:
+  /// **'Study plan'**
+  String get uniStudyPlan;
+
+  /// 113.9 The label of a university student's cumulative GPA.
+  ///
+  /// In en, this message translates to:
+  /// **'GPA'**
+  String get uniGpa;
+
+  /// 113.9 The credits a student earned of those their program needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{earned} of {required} credits'**
+  String uniCreditsOf(String earned, String required);
+
+  /// 113.9 A course's or a term's credits.
+  ///
+  /// In en, this message translates to:
+  /// **'{credits} credits'**
+  String uniCredits(String credits);
+
+  /// 113.9 The lecturer who approves the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Advisor: {name}'**
+  String uniAdvisor(String name);
+
+  /// 113.9 A student the university hasn't given a program yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No program yet: the university adds it.'**
+  String get uniNoProgram;
+
+  /// 113.9 A registration not sent to the advisor yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent'**
+  String get uniStatusDraft;
+
+  /// 113.9 A registration waiting for the advisor's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'With your advisor'**
+  String get uniStatusSubmitted;
+
+  /// 113.9 A registration the advisor approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get uniStatusApproved;
+
+  /// 113.9 A registration the advisor sent back to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get uniStatusReturned;
+
+  /// 113.9 The term's registration isn't open yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration opens on {date}'**
+  String uniPhaseBefore(String date);
+
+  /// 113.9 The term's registration is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration is open until {date}'**
+  String uniPhaseOpen(String date);
+
+  /// 113.9 Registration is over; courses can still be dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'You can drop a course until {date}'**
+  String uniPhaseDrop(String date);
+
+  /// 113.9 The term's registration and drop days are over.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration for this term is closed'**
+  String get uniPhaseClosed;
+
+  /// 113.9 The credits a student holds this term and the program's least and most.
+  ///
+  /// In en, this message translates to:
+  /// **'{taken} credits · {min} to {max} a term'**
+  String uniCreditsRange(String taken, String min, String max);
+
+  /// 113.9 The sections a student holds this term, or a lecturer teaches.
+  ///
+  /// In en, this message translates to:
+  /// **'My sections'**
+  String get uniMySections;
+
+  /// 113.9 The term's other sections a student can add.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections offered'**
+  String get uniOffered;
+
+  /// 113.9 Adds a section to the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get uniAdd;
+
+  /// 113.9 Adds a full section's waiting list.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waiting list'**
+  String get uniJoinWaitlist;
+
+  /// 113.9 Drops a section from the student's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get uniDrop;
+
+  /// 113.9 Asks before a section is dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop {course}?'**
+  String uniDropConfirm(String course);
+
+  /// 113.9 The seats a section has left.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Full} =1{1 seat left} other{{count} seats left}}'**
+  String uniSeatsLeft(int count);
+
+  /// 113.9 A section asked for, waiting for the advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get uniEnrolPending;
+
+  /// 113.9 A section the student is enrolled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrolled'**
+  String get uniEnrolEnrolled;
+
+  /// 113.9 A full section the student waits for.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting list'**
+  String get uniEnrolWaitlisted;
+
+  /// 113.9 Sends the student's registration to their advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to my advisor'**
+  String get uniSubmit;
+
+  /// 113.9 Shown once the registration is sent to the advisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to your advisor.'**
+  String get uniSubmitted;
+
+  /// 113.9 The advisor's note on a registration sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Your advisor: {note}'**
+  String uniAdvisorNote(String note);
+
+  /// 113.9 Shown to a parent looking at their child's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the student changes the registration.'**
+  String get uniReadOnly;
+
+  /// 113.9 A term without sections yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sections in this term yet.'**
+  String get uniNoSections;
+
+  /// 113.9 A student's empty week of lectures.
+  ///
+  /// In en, this message translates to:
+  /// **'No lectures this term.'**
+  String get uniNoLectures;
+
+  /// 113.9 A day without lectures on the student's home.
+  ///
+  /// In en, this message translates to:
+  /// **'No lectures today.'**
+  String get uniNoLecturesToday;
+
+  /// 113.9 A term's GPA in the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Term GPA {gpa}'**
+  String uniTermGpa(String gpa);
+
+  /// 113.9 The label of the GPA over every term.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative GPA'**
+  String get uniCumulative;
+
+  /// 113.9 A student without published results.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.'**
+  String get uniNoResults;
+
+  /// 113.9 Opens the transcript as a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the PDF'**
+  String get uniOpenPdf;
+
+  /// 113.9 A course of the study plan passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get uniPlanDone;
+
+  /// 113.9 A course of the study plan taken this term.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get uniPlanInProgress;
+
+  /// 113.9 A course of the study plan still to take.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get uniPlanLeft;
+
+  /// 113.9 The study plan's credits, done, in progress and left.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} done · {inProgress} in progress · {left} left of {required} credits'**
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  );
+
+  /// 113.9 A year of the study plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Year {year}'**
+  String uniYear(int year);
+
+  /// 113.9 A study plan's elective course.
+  ///
+  /// In en, this message translates to:
+  /// **'Elective'**
+  String get uniElective;
+
+  /// 113.9 How many students a lecturer's section has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String uniStudents(int count);
+
+  /// 113.9 Opens the students a lecturer advises.
+  ///
+  /// In en, this message translates to:
+  /// **'My advisees'**
+  String get uniAdvisees;
+
+  /// 113.9 Registrations waiting for the advisor's answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing waits for you} =1{1 registration waits for you} other{{count} registrations wait for you}}'**
+  String uniAdviseesWaiting(int count);
+
+  /// 113.9 A lecturer without sections this term.
+  ///
+  /// In en, this message translates to:
+  /// **'No sections this term: the university adds you as their lecturer.'**
+  String get uniNoTeaching;
+
+  /// 113.9 A section whose results the students see.
+  ///
+  /// In en, this message translates to:
+  /// **'Results published'**
+  String get uniPublished;
+
+  /// 113.9 Publishes a section's results to its students.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish results'**
+  String get uniPublish;
+
+  /// 113.9 Asks before a section's results are published.
+  ///
+  /// In en, this message translates to:
+  /// **'The students and their parents see their grades and are told.'**
+  String get uniPublishConfirm;
+
+  /// 113.9 Saves a section's grades.
+  ///
+  /// In en, this message translates to:
+  /// **'Save grades'**
+  String get uniSaveGrades;
+
+  /// 113.9 Shown once a section's grades are saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades saved.'**
+  String get uniGradesSaved;
+
+  /// 113.9 Shown once a section's results are published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published. The students were told.'**
+  String get uniResultsPublished;
+
+  /// 113.9 The percent a lecturer gives; the scale's letter comes from it.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark (%)'**
+  String get uniMark;
+
+  /// 113.9 A letter of the university's grading scale.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get uniGrade;
+
+  /// 113.9 A student not graded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade'**
+  String get uniNoGrade;
+
+  /// 113.9 The advisor approves an advisee's registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get uniApprove;
+
+  /// 113.9 The advisor sends a registration back to change.
+  ///
+  /// In en, this message translates to:
+  /// **'Send back'**
+  String get uniSendBack;
+
+  /// 113.9 The advisor's note when sending a registration back.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to the student (optional)'**
+  String get uniNoteHint;
+
+  /// 113.9 Shown once the advisor approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved. The student was told.'**
+  String get uniApproved;
+
+  /// 113.9 Shown once the advisor sent it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back. The student was told.'**
+  String get uniSentBack;
+
+  /// 113.9 A lecturer without advisees.
+  ///
+  /// In en, this message translates to:
+  /// **'No students to advise this term.'**
+  String get uniNoAdvisees;
+
+  /// 113.9 Shown once a lecture's attendance is saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance saved.'**
+  String get uniAttendanceSaved;
 }
 
 class _AppLocalizationsDelegate

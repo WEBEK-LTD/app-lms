@@ -12,7 +12,9 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
+import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'university_screens.dart';
 
 /// 105.4 The School tab, for a student and their parents: today's lessons
 /// and each part of the school (a parent with several children picks one
@@ -34,8 +36,11 @@ class SchoolScreen extends ConsumerWidget {
             Expanded(
               child: signedIn
                   ? StudentGate(
+                      // 113.9 A university's student and their parents.
                       builder: (context, me, student) =>
-                          _Overview(student: student),
+                          ref.watch(isUniversityProvider)
+                          ? UniversityOverview(student: student)
+                          : _Overview(student: student),
                     )
                   : SignInPrompt(
                       icon: AppIcons.school,

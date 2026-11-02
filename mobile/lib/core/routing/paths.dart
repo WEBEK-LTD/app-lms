@@ -102,6 +102,12 @@ abstract final class Paths {
   static String classAttendance(int id) => '$classroom/class/$id/attendance';
   static String classroomHomework(int id) => '$classroom/homework/$id';
   static String classroomAssessment(int id) => '$classroom/assessment/$id';
+  // 113.9 A university's lecturers: their sections and advisees.
+  static String classroomSection(int id) => '$classroom/section/$id';
+  static String sectionAttendance(int id) =>
+      '$classroom/section/$id/attendance';
+  static const classroomAdvisees = '$classroom/advisees';
+  static String classroomAdvisee(int id) => '$classroom/advisee/$id';
 
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';

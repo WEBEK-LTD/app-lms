@@ -6406,4 +6406,259 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couponWithout => 'Continue without a coupon';
+
+  @override
+  String get uniRegister => 'Register for the term';
+
+  @override
+  String get uniTimetable => 'My timetable';
+
+  @override
+  String get uniResults => 'Results';
+
+  @override
+  String get uniTranscript => 'Transcript';
+
+  @override
+  String get uniStudyPlan => 'Study plan';
+
+  @override
+  String get uniGpa => 'GPA';
+
+  @override
+  String uniCreditsOf(String earned, String required) {
+    return '$earned of $required credits';
+  }
+
+  @override
+  String uniCredits(String credits) {
+    return '$credits credits';
+  }
+
+  @override
+  String uniAdvisor(String name) {
+    return 'Advisor: $name';
+  }
+
+  @override
+  String get uniNoProgram => 'No program yet: the university adds it.';
+
+  @override
+  String get uniStatusDraft => 'Not sent';
+
+  @override
+  String get uniStatusSubmitted => 'With your advisor';
+
+  @override
+  String get uniStatusApproved => 'Approved';
+
+  @override
+  String get uniStatusReturned => 'Sent back';
+
+  @override
+  String uniPhaseBefore(String date) {
+    return 'Registration opens on $date';
+  }
+
+  @override
+  String uniPhaseOpen(String date) {
+    return 'Registration is open until $date';
+  }
+
+  @override
+  String uniPhaseDrop(String date) {
+    return 'You can drop a course until $date';
+  }
+
+  @override
+  String get uniPhaseClosed => 'Registration for this term is closed';
+
+  @override
+  String uniCreditsRange(String taken, String min, String max) {
+    return '$taken credits · $min to $max a term';
+  }
+
+  @override
+  String get uniMySections => 'My sections';
+
+  @override
+  String get uniOffered => 'Sections offered';
+
+  @override
+  String get uniAdd => 'Add';
+
+  @override
+  String get uniJoinWaitlist => 'Join the waiting list';
+
+  @override
+  String get uniDrop => 'Drop';
+
+  @override
+  String uniDropConfirm(String course) {
+    return 'Drop $course?';
+  }
+
+  @override
+  String uniSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seats left',
+      one: '1 seat left',
+      zero: 'Full',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniEnrolPending => 'Waiting for approval';
+
+  @override
+  String get uniEnrolEnrolled => 'Enrolled';
+
+  @override
+  String get uniEnrolWaitlisted => 'Waiting list';
+
+  @override
+  String get uniSubmit => 'Send to my advisor';
+
+  @override
+  String get uniSubmitted => 'Sent to your advisor.';
+
+  @override
+  String uniAdvisorNote(String note) {
+    return 'Your advisor: $note';
+  }
+
+  @override
+  String get uniReadOnly => 'Only the student changes the registration.';
+
+  @override
+  String get uniNoSections => 'No sections in this term yet.';
+
+  @override
+  String get uniNoLectures => 'No lectures this term.';
+
+  @override
+  String get uniNoLecturesToday => 'No lectures today.';
+
+  @override
+  String uniTermGpa(String gpa) {
+    return 'Term GPA $gpa';
+  }
+
+  @override
+  String get uniCumulative => 'Cumulative GPA';
+
+  @override
+  String get uniNoResults => 'No results yet.';
+
+  @override
+  String get uniOpenPdf => 'Open the PDF';
+
+  @override
+  String get uniPlanDone => 'Done';
+
+  @override
+  String get uniPlanInProgress => 'In progress';
+
+  @override
+  String get uniPlanLeft => 'Left';
+
+  @override
+  String uniPlanCredits(
+    String done,
+    String inProgress,
+    String left,
+    String required,
+  ) {
+    return '$done done · $inProgress in progress · $left left of $required credits';
+  }
+
+  @override
+  String uniYear(int year) {
+    return 'Year $year';
+  }
+
+  @override
+  String get uniElective => 'Elective';
+
+  @override
+  String uniStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniAdvisees => 'My advisees';
+
+  @override
+  String uniAdviseesWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count registrations wait for you',
+      one: '1 registration waits for you',
+      zero: 'Nothing waits for you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get uniNoTeaching =>
+      'No sections this term: the university adds you as their lecturer.';
+
+  @override
+  String get uniPublished => 'Results published';
+
+  @override
+  String get uniPublish => 'Publish results';
+
+  @override
+  String get uniPublishConfirm =>
+      'The students and their parents see their grades and are told.';
+
+  @override
+  String get uniSaveGrades => 'Save grades';
+
+  @override
+  String get uniGradesSaved => 'Grades saved.';
+
+  @override
+  String get uniResultsPublished => 'Published. The students were told.';
+
+  @override
+  String get uniMark => 'Mark (%)';
+
+  @override
+  String get uniGrade => 'Grade';
+
+  @override
+  String get uniNoGrade => 'No grade';
+
+  @override
+  String get uniApprove => 'Approve';
+
+  @override
+  String get uniSendBack => 'Send back';
+
+  @override
+  String get uniNoteHint => 'Note to the student (optional)';
+
+  @override
+  String get uniApproved => 'Approved. The student was told.';
+
+  @override
+  String get uniSentBack => 'Sent back. The student was told.';
+
+  @override
+  String get uniNoAdvisees => 'No students to advise this term.';
+
+  @override
+  String get uniAttendanceSaved => 'Attendance saved.';
 }
