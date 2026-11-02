@@ -226,6 +226,34 @@ class _RideScreenState extends ConsumerState<RideScreen> {
     }
   }
 
+  /// 112.1 Home or Work set now: kept, and where to.
+  Future<void> _setSaved(SavedPlaceKind kind, TaxiConfig taxi) async {
+    final l10n = context.l10n;
+    final choice = await Navigator.of(context).push<TaxiChoice>(
+      MaterialPageRoute(
+        builder: (_) => TaxiPlaceSearchScreen(
+          title: kind == SavedPlaceKind.home
+              ? l10n.placesSetHome
+              : l10n.placesSetWork,
+          map: taxi.map,
+          near: _pickup.at ?? _here,
+          myLocation: true,
+          saving: kind,
+        ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+    _use(
+      _dropoff,
+      SavedPlace(
+        name: choice.name,
+        address: choice.address,
+        lat: choice.lat,
+        lng: choice.lng,
+      ),
+    );
+  }
+
   /// 112.1 Moving the map under the pickup's pin, then confirming it.
   void _adjustPickup() => setState(() {
     _adjusting = true;
@@ -691,7 +719,7 @@ extension on _RideScreenState {
         _SavedPlaces(
           places: saved,
           onPlace: (place) => _use(_dropoff, place),
-          onAdd: () => _search(_dropoff, taxi),
+          onAdd: (kind) => _setSaved(kind, taxi),
         ),
       ] else ...[
         _TaxiPlaces(
@@ -889,7 +917,7 @@ class _SavedPlaces extends StatelessWidget {
 
   final SavedPlaces places;
   final ValueChanged<SavedPlace> onPlace;
-  final VoidCallback onAdd;
+  final ValueChanged<SavedPlaceKind> onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -957,7 +985,7 @@ class _SavedPlaces extends StatelessWidget {
         place == null
             ? (home ? l10n.placesAddHome : l10n.placesAddWork)
             : (place.address ?? place.name),
-        place == null ? onAdd : () => onPlace(place),
+        place == null ? () => onAdd(kind) : () => onPlace(place),
       );
     }
 

@@ -178,10 +178,10 @@ void main() {
     await app.pump(tester);
     await go(app, tester, Paths.ride);
 
-    // Add home: the search, the place kept as Home and used as where to.
+    // Add home: the search for it, the place kept as Home and used as where to.
     await tapKey(tester, 'ride-saved-home');
-    await tapKey(tester, 'taxi-search-home');
     expect(find.text('Set your home'), findsOneWidget);
+    expect(find.byKey(const ValueKey('taxi-search-home')), findsNothing);
     await searchTahrir(app, tester);
     final saved = app.container.read(savedPlacesProvider);
     expect(saved.home?.name, 'Tahrir Square');
