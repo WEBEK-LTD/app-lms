@@ -159,7 +159,7 @@ describe("113.9 a university on the hosted API", () => {
   let sender: LogSender;
   let now: Date;
   let plan = PLAN_INFO.pro;
-  const ids: Record<string, number> = {};
+  const ids = {} as Record<"cs101" | "cs201" | "cs201s" | "cs301" | "cs301s" | "fall" | "karim" | "laila" | "ma101" | "ma101s" | "mona" | "oldCs101" | "omar" | "parent" | "ph101" | "ph101s" | "spring", number>;
 
   beforeEach(async () => {
     ({ store } = await setupClient());
@@ -188,7 +188,7 @@ describe("113.9 a university on the hosted API", () => {
     ids.parent = await person("parent", "Hassan Ali", "+201001000009");
     await store.setSchoolChildren(app.id, ids.parent, [ids.omar]);
     await store.saveSchoolSettings(app.id, schoolSettingsOf(null, app));
-    await store.saveUniSettings(app.id, { ...uniSettingsOf(null), enabled: true }, NOW);
+    await store.saveUniSettings(app.id, { ...uniSettingsOf(null), enabled: true });
     const faculty = (await store.saveUniFaculty({ appId: app.id, id: null, name: "Engineering", code: "ENG" }, NOW))!;
     const dept = (await store.saveUniDepartment({ appId: app.id, id: null, facultyId: faculty.id, name: "Computer Science", code: "CS" }, NOW))!;
     const course = async (code: string, credits: number, prerequisites: string[] = []) => {

@@ -1224,9 +1224,10 @@ components:
             is `courier_app`'s; (105.3) `instructors`: academies with many
             teachers; (105.4) `school`: school apps for students, parents
             and teachers (both on the hosted API only); (105.9) `taxi`: live
-            taxi apps on the map (the hosted API only). Unknown values are
+            taxi apps on the map (the hosted API only); (113.9) `university`:
+            schools in university mode (the hosted API only). Unknown values are
             ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors, school, taxi] }
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors, school, taxi, university] }
         chat:
           type: [object, 'null']
           description: |

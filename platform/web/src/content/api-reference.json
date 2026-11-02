@@ -1770,6 +1770,145 @@
       ]
     },
     {
+      "name": "University",
+      "description": "Roadmap 113.9. Schools in university mode (`SchoolConfig.university`): faculties, departments and programs; each term's sections of the courses with their lecturer, seats and weekly lectures. A student registers for the term in the app while its registration is open (seats left, lectures that don't clash, prerequisites passed, the program's credits per term; a full section takes a waiting list when the university has one), sends the registration to their advisor (a lecturer), who approves it or sends it back; a section is dropped until the term's drop date. Lecturers take each lecture's attendance, give the grades of the university's scale and publish a section's results; the student sees each term's GPA, the cumulative GPA (credit-weighted, the latest attempt of a course counting), the transcript (also as a PDF) and their program's study plan. A parent sees their child's part, read only. Endpoints answer `not_university` (404) when the school isn't a university.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university",
+          "summary": "The student's program, advisor, GPA and this term's registration",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university/registration",
+          "summary": "The student's registration for a term, and the sections offered",
+          "description": "The sections the student holds (asked for, enrolled or on a waiting list) and the term's other sections, each with its seats left and whether it can be added (`problems` says why not).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/students/{student_id}/university/registration/sections",
+          "summary": "Add a section (the student only)",
+          "description": "While the term's registration is open and the registration isn't with the advisor. The section waits for the advisor (`pending`, its seat held), or joins the waiting list when it is full and the university has one (`waitlisted`). `not_allowed_clash`, `not_allowed_prerequisites`, `not_allowed_credits`, `not_allowed_full`, `not_allowed_taken`, `registration_closed`, `waiting_for_advisor` and `already_added` answer 409.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/school/students/{student_id}/university/registration/sections/{section_id}",
+          "summary": "Drop a section (the student only)",
+          "description": "Until the term's drop date (`drop_closed`, 409, after it). The first on its waiting list who fits takes the seat and is told (`uni_seat`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/students/{student_id}/university/registration/submit",
+          "summary": "Send the registration to the advisor (the student only)",
+          "description": "With a section waiting for approval and at least the program's credits for a term (`credits_low`, 409). The advisor is told (`uni_advisee`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university/timetable",
+          "summary": "The student's week of lectures in a term",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university/results",
+          "summary": "Results by term, each term's GPA and the cumulative GPA",
+          "description": "Only the grades of sections whose results are published.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university/transcript",
+          "summary": "The student's transcript, with its PDF",
+          "description": "The results with the student and their program; `pdf_url` is the PDF's address, working for an hour.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/university/plan",
+          "summary": "The program's study plan, done, in progress and left",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/university",
+          "summary": "A lecturer's sections in a term, and their advisees waiting",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/university/sections/{section_id}",
+          "summary": "One of the lecturer's sections, its students and their grades",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/university/sections/{section_id}/attendance",
+          "summary": "A lecture's attendance (today by default)",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/classroom/university/sections/{section_id}/attendance",
+          "summary": "Save a lecture's attendance",
+          "description": "For today and the 14 days before (`date_out_of_range`, 400).",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/classroom/university/sections/{section_id}/grades",
+          "summary": "Give the section's grades",
+          "description": "A letter of the university's scale, or a percent (`mark`) the scale's letter comes from; null clears it. For the section's enrolled students.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/university/sections/{section_id}/publish",
+          "summary": "Publish the section's results",
+          "description": "Its graded students (and their parents) see their grade and are told (`uni_results`). `nothing_graded` (409) without any grade.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/university/advisees",
+          "summary": "The students the lecturer advises, and their registration for a term",
+          "description": "Those waiting for an answer first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/university/advisees/{student_id}",
+          "summary": "An advisee's registration for a term",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/university/advisees/{student_id}/approve",
+          "summary": "Approve an advisee's registration",
+          "description": "Its sections waiting are enrolled; the student (and their parents) are told (`uni_registration`). `not_submitted` (409) when nothing waits.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/university/advisees/{student_id}/return",
+          "summary": "Send an advisee's registration back, with a note",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [
