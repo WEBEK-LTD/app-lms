@@ -6811,4 +6811,65 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get syllabusSaved => 'تم الحفظ.';
+
+  @override
+  String get bundles => 'الحزم';
+
+  @override
+  String bundleCourseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دورة',
+      many: '$count دورة',
+      few: '$count دورات',
+      two: 'دورتان',
+      one: 'دورة واحدة',
+      zero: 'لا دورات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bundleInsteadOf(String price) {
+    return 'بدلًا من $price';
+  }
+
+  @override
+  String get bundlePrice => 'سعر الحزمة';
+
+  @override
+  String get bundleBuy => 'شراء الحزمة';
+
+  @override
+  String get bundleCoursesIn => 'الدورات في هذه الحزمة';
+
+  @override
+  String bundleOwnedSome(int count) {
+    return 'لديك $count من هذه الدورات بالفعل: تبقى لك، وتضيف الحزمة الباقي.';
+  }
+
+  @override
+  String get bundleOwned => 'كل دورات هذه الحزمة لك.';
+
+  @override
+  String get bundleEnrolled => 'أنت مسجّل في كل دورات الحزمة. تعلّمًا ممتعًا!';
+
+  @override
+  String get bundleMyCourses => 'الذهاب إلى دوراتي';
+
+  @override
+  String get bundleAlsoIn => 'موجودة أيضًا في حزمة';
+
+  @override
+  String get bundleNotSold => 'لا يمكن شراء هذه الحزمة في التطبيق.';
+
+  @override
+  String get loadingBundle => 'جارٍ تحميل الحزمة…';
+
+  @override
+  String get couponFree => 'القسيمة تجعلها مجانية: لن تدفع شيئًا.';
+
+  @override
+  String get couponEnrollFree => 'التسجيل مجانًا';
 }

@@ -7,6 +7,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { parseCourse } from "@/lib/courses/forms";
 import { saveLesson, withCourse } from "@/lib/courses/edit";
+import { bundlesOf, deleteBundle, parseBundle, saveBundle } from "@/lib/courses/bundles";
 import { deleteQuiz, saveQuestionBank, saveQuiz } from "@/lib/courses/quizzes";
 import { courseSetup } from "@/lib/courses/setup";
 import { newId } from "@/lib/crypto/tokens";
@@ -46,6 +47,32 @@ async function saveSetup(app: App, setup: CourseSetup): Promise<void> {
   revalidatePath("/dashboard/courses", "layout");
 }
 
+/** The picture of a course's (113.1 or a bundle's) form: a new PNG or JPEG kept as an asset, removed, or the one it had. */
+async function formImage(context: ClientContext, formData: FormData, current: string | null): Promise<{ ok: true; assetId: string | null } | { ok: false; error: string }> {
+  let imageAssetId = formData.get("removeImage") === "on" ? null : current;
+  const file = formData.get("image");
+  if (file && typeof file !== "string" && file.size > 0) {
+    if (file.size > COURSE_IMAGE_MAX_BYTES) return { ok: false, error: "The image can be up to 2 MB." };
+    const data = Buffer.from(await file.arrayBuffer());
+    const type = imageType(data);
+    if (!type) return { ok: false, error: "The image must be a PNG or JPEG file." };
+    const assetId = newId();
+    const blobKey = `assets/${context.client.id}/${assetId}.${type.extension}`;
+    await getBlobStore().put(blobKey, data, type.contentType);
+    await (await getStore()).createAsset({
+      id: assetId,
+      clientId: context.client.id,
+      kind: "product_image",
+      blobKey,
+      contentType: type.contentType,
+      size: data.length,
+      createdAt: new Date(),
+    });
+    imageAssetId = assetId;
+  }
+  return { ok: true, assetId: imageAssetId };
+}
+
 const values = (formData: FormData, names: string[]) => Object.fromEntries(names.map((n) => [n, String(formData.get(n) ?? "").trim()]));
 
 
@@ -71,28 +98,9 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   const parsed = parseCourse(v, setup, categoryIds);
   if (!parsed.ok) return { errors: parsed.errors, values: v };
 
-  let imageAssetId = existing?.imageAssetId ?? null;
-  if (formData.get("removeImage") === "on") imageAssetId = null;
-  const file = formData.get("image");
-  if (file && typeof file !== "string" && file.size > 0) {
-    if (file.size > COURSE_IMAGE_MAX_BYTES) return { errors: { image: "The image can be up to 2 MB." }, values: v };
-    const data = Buffer.from(await file.arrayBuffer());
-    const type = imageType(data);
-    if (!type) return { errors: { image: "The image must be a PNG or JPEG file." }, values: v };
-    const assetId = newId();
-    const blobKey = `assets/${context.client.id}/${assetId}.${type.extension}`;
-    await getBlobStore().put(blobKey, data, type.contentType);
-    await (await getStore()).createAsset({
-      id: assetId,
-      clientId: context.client.id,
-      kind: "product_image",
-      blobKey,
-      contentType: type.contentType,
-      size: data.length,
-      createdAt: new Date(),
-    });
-    imageAssetId = assetId;
-  }
+  const image = await formImage(context, formData, existing?.imageAssetId ?? null);
+  if (!image.ok) return { errors: { image: image.error }, values: v };
+  const imageAssetId = image.assetId;
 
   if (existing) {
     await saveSetup(app, withCourse(setup, existing.id, (c) => ({ ...c, ...parsed.value, imageAssetId })));
@@ -392,4 +400,35 @@ export async function setStudentCohortAction(formData: FormData): Promise<void> 
   const chosen = cohortChoice(app, courseId, formData);
   await (await getStore()).setEnrollmentCohort({ appId: app.id, userId: Number(formData.get("userId")), courseId, cohortId: chosen.cohortId ?? null });
   revalidatePath(`/dashboard/courses/${courseId}`, "layout");
+}
+
+// 113.1 Course bundles
+
+/** Adds a bundle (several courses at the owner's price) or saves one. */
+export async function saveBundleAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCoursesApp();
+  const { app } = context;
+  const v = values(formData, ["id", "title", "description", "price"]);
+  v.active = formData.get("active") === "on" ? "on" : "";
+  const courseIds = formData.getAll("courseIds").map(Number);
+  v.courseIds = courseIds.join(",");
+  const setup = courseSetup(app);
+  const id = v.id ? Number(v.id) : null;
+  const existing = id === null ? null : bundlesOf(setup).find((b) => b.id === id);
+  if (id !== null && !existing) return { message: "This bundle no longer exists." };
+  const parsed = parseBundle(v, courseIds, setup);
+  if (!parsed.ok) return { errors: parsed.errors, values: v };
+  const image = await formImage(context, formData, existing?.imageAssetId ?? null);
+  if (!image.ok) return { errors: { image: image.error }, values: v };
+  const saved = saveBundle(setup, id, { ...parsed.value, imageAssetId: image.assetId }, new Date());
+  if (!saved) return { message: "This bundle no longer exists." };
+  await saveSetup(app, saved.setup);
+  if (existing) return { ok: true, message: `Saved “${saved.bundle.title}”.`, values: v };
+  redirect(`/dashboard/courses/bundles/${saved.bundle.id}`);
+}
+
+export async function deleteBundleAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  await saveSetup(app, deleteBundle(courseSetup(app), Number(formData.get("id"))));
+  redirect("/dashboard/courses/bundles");
 }

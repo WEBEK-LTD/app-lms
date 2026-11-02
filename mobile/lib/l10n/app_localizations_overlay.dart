@@ -7013,4 +7013,61 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get syllabusSaved =>
       overlay.text('syllabusSaved') ?? base.syllabusSaved;
+
+  @override
+  String get bundles => overlay.text('bundles') ?? base.bundles;
+
+  @override
+  String bundleCourseCount(int count) =>
+      overlay.format('bundleCourseCount', {'count': count}) ??
+      base.bundleCourseCount(count);
+
+  @override
+  String bundleInsteadOf(String price) =>
+      overlay.format('bundleInsteadOf', {'price': price}) ??
+      base.bundleInsteadOf(price);
+
+  @override
+  String get bundlePrice => overlay.text('bundlePrice') ?? base.bundlePrice;
+
+  @override
+  String get bundleBuy => overlay.text('bundleBuy') ?? base.bundleBuy;
+
+  @override
+  String get bundleCoursesIn =>
+      overlay.text('bundleCoursesIn') ?? base.bundleCoursesIn;
+
+  @override
+  String bundleOwnedSome(int count) =>
+      overlay.format('bundleOwnedSome', {'count': count}) ??
+      base.bundleOwnedSome(count);
+
+  @override
+  String get bundleOwned => overlay.text('bundleOwned') ?? base.bundleOwned;
+
+  @override
+  String get bundleEnrolled =>
+      overlay.text('bundleEnrolled') ?? base.bundleEnrolled;
+
+  @override
+  String get bundleMyCourses =>
+      overlay.text('bundleMyCourses') ?? base.bundleMyCourses;
+
+  @override
+  String get bundleAlsoIn => overlay.text('bundleAlsoIn') ?? base.bundleAlsoIn;
+
+  @override
+  String get bundleNotSold =>
+      overlay.text('bundleNotSold') ?? base.bundleNotSold;
+
+  @override
+  String get loadingBundle =>
+      overlay.text('loadingBundle') ?? base.loadingBundle;
+
+  @override
+  String get couponFree => overlay.text('couponFree') ?? base.couponFree;
+
+  @override
+  String get couponEnrollFree =>
+      overlay.text('couponEnrollFree') ?? base.couponEnrollFree;
 }

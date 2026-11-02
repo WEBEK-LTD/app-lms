@@ -3042,6 +3042,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "في مدرسة الطفل لأولياء الأمور: تقارير المعلمين التي شاركتها المدرسة.",
     tr: "Velilere çocuğun okulunda: okulun paylaştığı öğretmen raporları.",
   },
+  "113.1 The courses list's row of course bundles.": { ar: "صف حزم الدورات في قائمة الدورات.", tr: "Kurs listesindeki kurs paketleri satırı." },
+  "113.1 How many courses a bundle has.": { ar: "عدد الدورات في الحزمة.", tr: "Bir paketteki kurs sayısı." },
+  "113.1 What a bundle's courses cost on their own, next to the bundle's price.": { ar: "سعر دورات الحزمة منفردة، بجانب سعر الحزمة.", tr: "Paketin kurslarının tek tek fiyatı, paket fiyatının yanında." },
+  "113.1 Above the price on a bundle's page.": { ar: "فوق السعر في صفحة الحزمة.", tr: "Paket sayfasında fiyatın üstünde." },
+  "113.1 Buys a bundle of courses.": { ar: "يشتري حزمة الدورات.", tr: "Kurs paketini satın alır." },
+  "113.1 The heading of a bundle's courses on its page.": { ar: "عنوان دورات الحزمة في صفحتها.", tr: "Paket sayfasında kurslarının başlığı." },
+  "113.1 On a bundle's page, when the student has some of its courses.": { ar: "في صفحة الحزمة، عندما يملك الطالب بعض دوراتها.", tr: "Paket sayfasında, öğrencinin bazı kursları zaten varsa." },
+  "113.1 On a bundle's page, when the student has all its courses.": { ar: "في صفحة الحزمة، عندما يملك الطالب كل دوراتها.", tr: "Paket sayfasında, öğrencinin tüm kursları varsa." },
+  "113.1 After a bundle was bought or a coupon made it free.": { ar: "بعد شراء الحزمة أو جعل القسيمة لها مجانية.", tr: "Paket satın alındıktan ya da bir kupon onu ücretsiz yaptıktan sonra." },
+  "113.1 Opens My courses from a bundle the student has.": { ar: "يفتح «دوراتي» من حزمة يملكها الطالب.", tr: "Öğrencinin sahip olduğu bir paketten Kurslarım'ı açar." },
+  "113.1 On a course's page: the bundles that have it.": { ar: "في صفحة الدورة: الحزم التي تضمّها.", tr: "Kurs sayfasında: onu içeren paketler." },
+  "113.1 A bundle the app doesn't sell on this phone.": { ar: "حزمة لا يبيعها التطبيق على هذا الهاتف.", tr: "Uygulamanın bu telefonda satmadığı bir paket." },
+  "113.1 While a bundle's page loads.": { ar: "أثناء تحميل صفحة الحزمة.", tr: "Paket sayfası yüklenirken." },
+  "113.1 A coupon that takes the whole price.": { ar: "قسيمة تخصم السعر كاملًا.", tr: "Fiyatın tamamını düşen kupon." },
+  "113.1 Enrolls with a coupon that takes the whole price, without paying.": { ar: "يسجّل بقسيمة تخصم السعر كاملًا، دون دفع.", tr: "Fiyatın tamamını düşen bir kuponla ödeme yapmadan kaydeder." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

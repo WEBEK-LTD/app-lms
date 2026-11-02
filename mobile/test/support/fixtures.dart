@@ -3085,3 +3085,64 @@ Map<String, dynamic> sharedReportJson() => {
   'answers': {'f1': 4, 'f2': 'Good', 'f3': 'Read 20 minutes at home.'},
   'shared_at': '2026-10-13T09:00:00Z',
 };
+
+/// 113.1 A course bundle (`Bundle`): three courses at ₺900 instead of ₺1,350.
+Map<String, dynamic> bundleJson({
+  int id = 50,
+  String title = 'Design, start to finish',
+  int ownedCount = 0,
+}) => {
+  'id': id,
+  'title': title,
+  'image_url': null,
+  'course_count': 3,
+  'price': {
+    'is_free': false,
+    'amount': '900.00',
+    'sale_amount': null,
+    'currency': 'TRY',
+    'formatted': '₺900',
+  },
+  'compare_at': {
+    'is_free': false,
+    'amount': '1350.00',
+    'sale_amount': null,
+    'currency': 'TRY',
+    'formatted': '₺1,350',
+  },
+  'owned_count': ownedCount,
+  'owned': ownedCount == 3,
+};
+
+/// 113.1 A bundle's page (`BundleDetail`), sold on the payment page.
+Map<String, dynamic> bundleDetailJson({
+  String action = 'checkout',
+  bool coupons = false,
+  int ownedCount = 0,
+  String? storeProductId,
+}) => {
+  ...bundleJson(ownedCount: ownedCount),
+  'description_html': '<p>Every design course, together.</p>',
+  'courses': [
+    courseSummaryJson(
+      id: 1,
+      title: 'UI Design Fundamentals',
+      enrolled: ownedCount > 0,
+    ),
+    courseSummaryJson(
+      id: 2,
+      title: 'Colour and type',
+      enrolled: ownedCount == 3,
+    ),
+    courseSummaryJson(
+      id: 3,
+      title: 'Design systems',
+      enrolled: ownedCount == 3,
+    ),
+  ],
+  'purchase': {
+    'action': action,
+    'store_product_id': storeProductId,
+    if (action == 'checkout') 'coupons': coupons,
+  },
+};

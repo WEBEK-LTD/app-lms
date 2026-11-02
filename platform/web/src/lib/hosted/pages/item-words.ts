@@ -29,6 +29,9 @@ export interface ItemWords {
   raised: (raised: string) => string;
   ended: string;
   goalReached: string;
+  /** 113.1 A bundle's card: how many courses, and the courses' own total it replaces. */
+  courses: (count: number) => string;
+  instead: (price: string) => string;
 }
 
 const EN: ItemWords = {
@@ -53,6 +56,8 @@ const EN: ItemWords = {
   raised: (r) => `${r} raised`,
   ended: "Ended",
   goalReached: "Goal reached",
+  courses: (n) => (n === 1 ? "1 course" : `${n} courses`),
+  instead: (p) => `Instead of ${p}`,
 };
 
 /** A left-to-right isolate (U+2066 … U+2069). */
@@ -83,6 +88,8 @@ const WORDS: Record<string, ItemWords> = {
     raised: (r) => `تم جمع ${ltr(r)}`,
     ended: "انتهت",
     goalReached: "تم بلوغ الهدف",
+    courses: (n) => (n === 1 ? "دورة واحدة" : n === 2 ? "دورتان" : n <= 10 ? `${n} دورات` : `${n} دورة`),
+    instead: (p) => `بدلًا من ${ltr(p)}`,
   },
   tr: {
     locale: "tr",
@@ -106,6 +113,8 @@ const WORDS: Record<string, ItemWords> = {
     raised: (r) => `${r} toplandı`,
     ended: "Sona erdi",
     goalReached: "Hedefe ulaşıldı",
+    courses: (n) => `${n} kurs`,
+    instead: (p) => `${p} yerine`,
   },
 };
 

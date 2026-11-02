@@ -445,6 +445,9 @@ enum ItemSource {
 
   /// 105.4 A school's news to the whole school.
   schoolNews,
+
+  /// 113.1 An academy's course bundles.
+  bundles,
 }
 
 /// An entry from a list source, for `item` actions.

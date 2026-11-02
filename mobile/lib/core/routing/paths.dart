@@ -126,6 +126,9 @@ abstract final class Paths {
   static const pagePrefix = '/page/';
 
   static String course(int id) => '/course/$id';
+
+  /// 113.1 A course bundle's page.
+  static String bundle(int id) => '/bundle/$id';
   static String lesson(int id) => '/lesson/$id';
   static String quiz(int id) => '/quiz/$id';
 

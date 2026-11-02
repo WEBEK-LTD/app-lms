@@ -119,6 +119,8 @@ String? itemLocation(ItemRef item, AppType appType) {
   if (id == null) return null;
   return switch ((item.source, appType)) {
     (ItemSource.courses, AppType.lms) => Paths.course(id),
+    // 113.1
+    (ItemSource.bundles, AppType.lms) => Paths.bundle(id),
     (ItemSource.products, AppType.store) => Paths.product(id),
     (ItemSource.services, AppType.booking) => Paths.service(id),
     (ItemSource.listings, AppType.realEstate) => Paths.listing(id),
