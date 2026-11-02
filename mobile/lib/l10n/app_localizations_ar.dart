@@ -6604,4 +6604,255 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get couponWithout => 'المتابعة دون قسيمة';
+
+  @override
+  String get schoolBus => 'حافلة المدرسة';
+
+  @override
+  String get busMorningTrip => 'رحلة الصباح';
+
+  @override
+  String get busAfternoonTrip => 'رحلة بعد الظهر';
+
+  @override
+  String busRouteLine(String route, String plate) {
+    return '$route · $plate';
+  }
+
+  @override
+  String busYourStop(String stop, String time) {
+    return 'المحطة: $stop الساعة $time';
+  }
+
+  @override
+  String get busNotStarted => 'لم تنطلق الحافلة بعد.';
+
+  @override
+  String get busOnTheWay => 'في الطريق';
+
+  @override
+  String busEtaMinutes(int minutes, String stop) {
+    return 'نحو $minutes دقيقة إلى $stop';
+  }
+
+  @override
+  String get busWaitingPosition => 'بانتظار موقع الحافلة…';
+
+  @override
+  String get busEnded => 'انتهت هذه الرحلة.';
+
+  @override
+  String busOnSince(String time) {
+    return 'في الحافلة منذ $time';
+  }
+
+  @override
+  String busGotOffAt(String time) {
+    return 'نزل الساعة $time';
+  }
+
+  @override
+  String get busAbsentToday => 'سُجّل غائبًا في هذه الرحلة';
+
+  @override
+  String busNoTrips(String name) {
+    return 'لا حافلة لـ $name';
+  }
+
+  @override
+  String busNoTripsMessage(String name) {
+    return 'لم تضع المدرسة $name على خط حافلة.';
+  }
+
+  @override
+  String get busStops => 'المحطات';
+
+  @override
+  String get busDutyTitle => 'مهام الحافلة';
+
+  @override
+  String get busDutySubtitle => 'خطوطك ورحلات اليوم';
+
+  @override
+  String get busDriver => 'السائق';
+
+  @override
+  String get busSupervisor => 'المشرف';
+
+  @override
+  String busStudents(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get busStart => 'ابدأ';
+
+  @override
+  String get busOpenTrip => 'فتح';
+
+  @override
+  String get busDone => 'انتهت';
+
+  @override
+  String get busWaitingDriver => 'يبدأ السائق هذه الرحلة.';
+
+  @override
+  String get busNoRoutes => 'لا خطوط حافلات';
+
+  @override
+  String get busNoRoutesMessage =>
+      'لا تقود أي حافلة من حافلات المدرسة ولا تشرف عليها.';
+
+  @override
+  String get busSharing =>
+      'يشارك هاتفك موقع الحافلة ما دامت هذه الشاشة مفتوحة.';
+
+  @override
+  String get busLocationOff => 'فعّل الموقع لترى الأسر الحافلة.';
+
+  @override
+  String get busMarkOn => 'صعد';
+
+  @override
+  String get busMarkOff => 'نزل';
+
+  @override
+  String get busMarkAbsent => 'غائب';
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) {
+    return '$boarded صعدوا · $off نزلوا · $absent غائبون · $riders إجمالًا';
+  }
+
+  @override
+  String get busEndTrip => 'إنهاء الرحلة';
+
+  @override
+  String get busEndTitle => 'إنهاء الرحلة؟';
+
+  @override
+  String get busEndMessage => 'تتوقف الأسر عن رؤية الحافلة على الخريطة.';
+
+  @override
+  String busTripTitle(String route, String trip) {
+    return '$route · $trip';
+  }
+
+  @override
+  String get libraryTitle => 'المكتبة';
+
+  @override
+  String get librarySearchHint => 'العنوان أو المؤلف أو ISBN';
+
+  @override
+  String get libraryAll => 'الكل';
+
+  @override
+  String libraryAvailable(int count) {
+    return '$count على الرف';
+  }
+
+  @override
+  String get libraryAllOut => 'كل النسخ معارة';
+
+  @override
+  String get libraryEbook => 'كتاب إلكتروني';
+
+  @override
+  String get libraryNoBooks => 'لم نجد كتبًا';
+
+  @override
+  String get libraryNoBooksMessage => 'جرّب عنوانًا أو مؤلفًا أو تصنيفًا آخر.';
+
+  @override
+  String get libraryBorrowed => 'الكتب المستعارة';
+
+  @override
+  String libraryShelf(String shelf) {
+    return 'الرف $shelf';
+  }
+
+  @override
+  String libraryCopies(int available, int copies) {
+    return '$available من $copies على الرف';
+  }
+
+  @override
+  String get libraryRead => 'اقرأ الكتاب الإلكتروني';
+
+  @override
+  String get libraryReserve => 'احجز';
+
+  @override
+  String get libraryReserveFor => 'احجزه لـ';
+
+  @override
+  String libraryReservedReady(String date) {
+    return 'محجوز لك في المكتبة حتى $date.';
+  }
+
+  @override
+  String get libraryReservedWaiting => 'تم الحجز. سنخبرك حين تُحجز لك نسخة.';
+
+  @override
+  String libraryHoldReady(String name, String date) {
+    return 'محجوز لـ $name حتى $date';
+  }
+
+  @override
+  String libraryHoldWaiting(String name) {
+    return '$name ينتظر نسخة';
+  }
+
+  @override
+  String get libraryCancelHold => 'إلغاء الحجز';
+
+  @override
+  String get libraryOutNow => 'معارة الآن';
+
+  @override
+  String libraryDue(String date) {
+    return 'تُعاد $date';
+  }
+
+  @override
+  String libraryOverdue(String date) {
+    return 'متأخر منذ $date';
+  }
+
+  @override
+  String get libraryReservedSection => 'المحجوزة';
+
+  @override
+  String get libraryReturned => 'أُعيدت سابقًا';
+
+  @override
+  String libraryReturnedOn(String date) {
+    return 'أُعيد $date';
+  }
+
+  @override
+  String get libraryNoLoans => 'لا كتب مستعارة';
+
+  @override
+  String get libraryNoLoansMessage =>
+      'تظهر هنا الكتب المعارة من مكتب المكتبة مع مواعيد إعادتها.';
+
+  @override
+  String libraryLoanDays(int days) {
+    return 'تُعار الكتب $days يومًا.';
+  }
+
+  @override
+  String get libraryAbout => 'عن الكتاب';
 }

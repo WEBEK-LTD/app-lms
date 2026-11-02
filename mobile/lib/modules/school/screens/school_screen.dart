@@ -12,6 +12,7 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
+import 'library_screens.dart' show LibraryTile;
 import '../widgets/school_widgets.dart';
 
 /// 105.4 The School tab, for a student and their parents: today's lessons
@@ -158,6 +159,15 @@ class _Overview extends ConsumerWidget {
                 title: l10n.schoolNews,
                 onTap: () => open('news'),
               ),
+              // 113.10 The child's bus; 113.11 the library.
+              if (ref.watch(schoolConfigProvider)?.bus ?? false)
+                SettingsTile(
+                  key: const ValueKey('school-bus'),
+                  icon: AppIcons.bus,
+                  title: l10n.schoolBus,
+                  onTap: () => open('bus'),
+                ),
+              const LibraryTile(),
             ],
           ),
         ],

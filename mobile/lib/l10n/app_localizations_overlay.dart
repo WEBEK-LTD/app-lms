@@ -6780,4 +6780,272 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get couponWithout =>
       overlay.text('couponWithout') ?? base.couponWithout;
+
+  @override
+  String get schoolBus => overlay.text('schoolBus') ?? base.schoolBus;
+
+  @override
+  String get busMorningTrip =>
+      overlay.text('busMorningTrip') ?? base.busMorningTrip;
+
+  @override
+  String get busAfternoonTrip =>
+      overlay.text('busAfternoonTrip') ?? base.busAfternoonTrip;
+
+  @override
+  String busRouteLine(String route, String plate) =>
+      overlay.format('busRouteLine', {'route': route, 'plate': plate}) ??
+      base.busRouteLine(route, plate);
+
+  @override
+  String busYourStop(String stop, String time) =>
+      overlay.format('busYourStop', {'stop': stop, 'time': time}) ??
+      base.busYourStop(stop, time);
+
+  @override
+  String get busNotStarted =>
+      overlay.text('busNotStarted') ?? base.busNotStarted;
+
+  @override
+  String get busOnTheWay => overlay.text('busOnTheWay') ?? base.busOnTheWay;
+
+  @override
+  String busEtaMinutes(int minutes, String stop) =>
+      overlay.format('busEtaMinutes', {'minutes': minutes, 'stop': stop}) ??
+      base.busEtaMinutes(minutes, stop);
+
+  @override
+  String get busWaitingPosition =>
+      overlay.text('busWaitingPosition') ?? base.busWaitingPosition;
+
+  @override
+  String get busEnded => overlay.text('busEnded') ?? base.busEnded;
+
+  @override
+  String busOnSince(String time) =>
+      overlay.format('busOnSince', {'time': time}) ?? base.busOnSince(time);
+
+  @override
+  String busGotOffAt(String time) =>
+      overlay.format('busGotOffAt', {'time': time}) ?? base.busGotOffAt(time);
+
+  @override
+  String get busAbsentToday =>
+      overlay.text('busAbsentToday') ?? base.busAbsentToday;
+
+  @override
+  String busNoTrips(String name) =>
+      overlay.format('busNoTrips', {'name': name}) ?? base.busNoTrips(name);
+
+  @override
+  String busNoTripsMessage(String name) =>
+      overlay.format('busNoTripsMessage', {'name': name}) ??
+      base.busNoTripsMessage(name);
+
+  @override
+  String get busStops => overlay.text('busStops') ?? base.busStops;
+
+  @override
+  String get busDutyTitle => overlay.text('busDutyTitle') ?? base.busDutyTitle;
+
+  @override
+  String get busDutySubtitle =>
+      overlay.text('busDutySubtitle') ?? base.busDutySubtitle;
+
+  @override
+  String get busDriver => overlay.text('busDriver') ?? base.busDriver;
+
+  @override
+  String get busSupervisor =>
+      overlay.text('busSupervisor') ?? base.busSupervisor;
+
+  @override
+  String busStudents(int count) =>
+      overlay.format('busStudents', {'count': count}) ??
+      base.busStudents(count);
+
+  @override
+  String get busStart => overlay.text('busStart') ?? base.busStart;
+
+  @override
+  String get busOpenTrip => overlay.text('busOpenTrip') ?? base.busOpenTrip;
+
+  @override
+  String get busDone => overlay.text('busDone') ?? base.busDone;
+
+  @override
+  String get busWaitingDriver =>
+      overlay.text('busWaitingDriver') ?? base.busWaitingDriver;
+
+  @override
+  String get busNoRoutes => overlay.text('busNoRoutes') ?? base.busNoRoutes;
+
+  @override
+  String get busNoRoutesMessage =>
+      overlay.text('busNoRoutesMessage') ?? base.busNoRoutesMessage;
+
+  @override
+  String get busSharing => overlay.text('busSharing') ?? base.busSharing;
+
+  @override
+  String get busLocationOff =>
+      overlay.text('busLocationOff') ?? base.busLocationOff;
+
+  @override
+  String get busMarkOn => overlay.text('busMarkOn') ?? base.busMarkOn;
+
+  @override
+  String get busMarkOff => overlay.text('busMarkOff') ?? base.busMarkOff;
+
+  @override
+  String get busMarkAbsent =>
+      overlay.text('busMarkAbsent') ?? base.busMarkAbsent;
+
+  @override
+  String busCounts(int boarded, int off, int absent, int riders) =>
+      overlay.format('busCounts', {
+        'boarded': boarded,
+        'off': off,
+        'absent': absent,
+        'riders': riders,
+      }) ??
+      base.busCounts(boarded, off, absent, riders);
+
+  @override
+  String get busEndTrip => overlay.text('busEndTrip') ?? base.busEndTrip;
+
+  @override
+  String get busEndTitle => overlay.text('busEndTitle') ?? base.busEndTitle;
+
+  @override
+  String get busEndMessage =>
+      overlay.text('busEndMessage') ?? base.busEndMessage;
+
+  @override
+  String busTripTitle(String route, String trip) =>
+      overlay.format('busTripTitle', {'route': route, 'trip': trip}) ??
+      base.busTripTitle(route, trip);
+
+  @override
+  String get libraryTitle => overlay.text('libraryTitle') ?? base.libraryTitle;
+
+  @override
+  String get librarySearchHint =>
+      overlay.text('librarySearchHint') ?? base.librarySearchHint;
+
+  @override
+  String get libraryAll => overlay.text('libraryAll') ?? base.libraryAll;
+
+  @override
+  String libraryAvailable(int count) =>
+      overlay.format('libraryAvailable', {'count': count}) ??
+      base.libraryAvailable(count);
+
+  @override
+  String get libraryAllOut =>
+      overlay.text('libraryAllOut') ?? base.libraryAllOut;
+
+  @override
+  String get libraryEbook => overlay.text('libraryEbook') ?? base.libraryEbook;
+
+  @override
+  String get libraryNoBooks =>
+      overlay.text('libraryNoBooks') ?? base.libraryNoBooks;
+
+  @override
+  String get libraryNoBooksMessage =>
+      overlay.text('libraryNoBooksMessage') ?? base.libraryNoBooksMessage;
+
+  @override
+  String get libraryBorrowed =>
+      overlay.text('libraryBorrowed') ?? base.libraryBorrowed;
+
+  @override
+  String libraryShelf(String shelf) =>
+      overlay.format('libraryShelf', {'shelf': shelf}) ??
+      base.libraryShelf(shelf);
+
+  @override
+  String libraryCopies(int available, int copies) =>
+      overlay.format('libraryCopies', {
+        'available': available,
+        'copies': copies,
+      }) ??
+      base.libraryCopies(available, copies);
+
+  @override
+  String get libraryRead => overlay.text('libraryRead') ?? base.libraryRead;
+
+  @override
+  String get libraryReserve =>
+      overlay.text('libraryReserve') ?? base.libraryReserve;
+
+  @override
+  String get libraryReserveFor =>
+      overlay.text('libraryReserveFor') ?? base.libraryReserveFor;
+
+  @override
+  String libraryReservedReady(String date) =>
+      overlay.format('libraryReservedReady', {'date': date}) ??
+      base.libraryReservedReady(date);
+
+  @override
+  String get libraryReservedWaiting =>
+      overlay.text('libraryReservedWaiting') ?? base.libraryReservedWaiting;
+
+  @override
+  String libraryHoldReady(String name, String date) =>
+      overlay.format('libraryHoldReady', {'name': name, 'date': date}) ??
+      base.libraryHoldReady(name, date);
+
+  @override
+  String libraryHoldWaiting(String name) =>
+      overlay.format('libraryHoldWaiting', {'name': name}) ??
+      base.libraryHoldWaiting(name);
+
+  @override
+  String get libraryCancelHold =>
+      overlay.text('libraryCancelHold') ?? base.libraryCancelHold;
+
+  @override
+  String get libraryOutNow =>
+      overlay.text('libraryOutNow') ?? base.libraryOutNow;
+
+  @override
+  String libraryDue(String date) =>
+      overlay.format('libraryDue', {'date': date}) ?? base.libraryDue(date);
+
+  @override
+  String libraryOverdue(String date) =>
+      overlay.format('libraryOverdue', {'date': date}) ??
+      base.libraryOverdue(date);
+
+  @override
+  String get libraryReservedSection =>
+      overlay.text('libraryReservedSection') ?? base.libraryReservedSection;
+
+  @override
+  String get libraryReturned =>
+      overlay.text('libraryReturned') ?? base.libraryReturned;
+
+  @override
+  String libraryReturnedOn(String date) =>
+      overlay.format('libraryReturnedOn', {'date': date}) ??
+      base.libraryReturnedOn(date);
+
+  @override
+  String get libraryNoLoans =>
+      overlay.text('libraryNoLoans') ?? base.libraryNoLoans;
+
+  @override
+  String get libraryNoLoansMessage =>
+      overlay.text('libraryNoLoansMessage') ?? base.libraryNoLoansMessage;
+
+  @override
+  String libraryLoanDays(int days) =>
+      overlay.format('libraryLoanDays', {'days': days}) ??
+      base.libraryLoanDays(days);
+
+  @override
+  String get libraryAbout => overlay.text('libraryAbout') ?? base.libraryAbout;
 }

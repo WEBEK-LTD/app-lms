@@ -12,15 +12,28 @@ class SchoolConfig {
     this.term,
     this.absenceAlerts = true,
     this.feesByCard = false,
+    this.bus = false,
+    this.library = false,
+    this.tilesUrl,
+    this.attribution,
   });
 
-  factory SchoolConfig.fromJson(Json json) => SchoolConfig(
-    timezone: optString(json, 'timezone') ?? 'Africa/Cairo',
-    currency: optString(json, 'currency') ?? 'EGP',
-    term: optObject(json, 'term', SchoolTerm.fromJson),
-    absenceAlerts: boolOr(json, 'absence_alerts', true),
-    feesByCard: boolOr(json, 'fees_by_card', false),
-  );
+  factory SchoolConfig.fromJson(Json json) {
+    final map = json['map'] is Map
+        ? asJson(json['map'], 'map')
+        : const <String, dynamic>{};
+    return SchoolConfig(
+      timezone: optString(json, 'timezone') ?? 'Africa/Cairo',
+      currency: optString(json, 'currency') ?? 'EGP',
+      term: optObject(json, 'term', SchoolTerm.fromJson),
+      absenceAlerts: boolOr(json, 'absence_alerts', true),
+      feesByCard: boolOr(json, 'fees_by_card', false),
+      bus: boolOr(json, 'bus', false),
+      library: boolOr(json, 'library', false),
+      tilesUrl: optString(map, 'tiles_url'),
+      attribution: optString(map, 'attribution'),
+    );
+  }
 
   final String timezone;
   final String currency;
@@ -29,6 +42,16 @@ class SchoolConfig {
 
   /// Families can pay fees by card in the app.
   final bool feesByCard;
+
+  /// 113.10 The school has buses: the families' bus screen.
+  final bool bus;
+
+  /// 113.11 The school has a library: its books in the app.
+  final bool library;
+
+  /// 113.10 The platform's map tiles for the bus; null: the stops as a list.
+  final String? tilesUrl;
+  final String? attribution;
 }
 
 class SchoolTerm {

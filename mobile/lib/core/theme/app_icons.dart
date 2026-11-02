@@ -201,6 +201,11 @@ abstract final class AppIcons {
   static const school = Symbols.school_rounded;
   static const attendance = Symbols.task_alt_rounded;
 
+  // 113.10 The school bus; 113.11 the library.
+  static const bus = Symbols.directions_bus_rounded;
+  static const library = Symbols.local_library_rounded;
+  static const ebook = Symbols.menu_book_rounded;
+
   // 112 Rides and deliveries on the map.
   static const recent = Symbols.history_rounded;
   static const navigate = Symbols.navigation_rounded;

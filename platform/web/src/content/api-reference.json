@@ -1702,7 +1702,7 @@
           "method": "POST",
           "path": "/school/bus/runs/{run_id}/end",
           "summary": "End the trip",
-          "description": "Roadmap 113.10. By whoever `drives` the route. A trip left running ends on its own the next day.",
+          "description": "Roadmap 113.10. By whoever `drives` the route; the bus's position is kept only while a trip runs. A trip left running ends on its own the next day.",
           "access": "signed-in"
         },
         {

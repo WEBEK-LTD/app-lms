@@ -242,8 +242,9 @@ async function location(ctx: SchoolContext, request: ConnectorRequest, run: Scho
 
 async function endRun(ctx: SchoolContext, run: SchoolBusRun, crew: Crew): Promise<ConnectorResult> {
   if (!mayDrive(crew.route, crew.person.id)) return error(403, "not_driver", "The route's driver ends its trips.");
-  if (run.status === "running") await ctx.store.updateSchoolBusRun(ctx.app.id, run.id, { status: "done", endedAt: ctx.now }, { status: "running" });
-  return runJson(ctx, { ...run, status: "done", endedAt: run.endedAt ?? ctx.now }, crew);
+  // The bus's position is kept only while the trip runs.
+  if (run.status === "running") await ctx.store.updateSchoolBusRun(ctx.app.id, run.id, { status: "done", endedAt: ctx.now, lat: null, lng: null, locatedAt: null }, { status: "running" });
+  return runJson(ctx, { ...run, status: "done", endedAt: run.endedAt ?? ctx.now, lat: null, lng: null, locatedAt: null }, crew);
 }
 
 async function mark(ctx: SchoolContext, request: ConnectorRequest, run: SchoolBusRun, crew: Crew, studentId: number): Promise<ConnectorResult> {

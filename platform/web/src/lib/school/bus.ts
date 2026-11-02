@@ -116,8 +116,9 @@ export function freshPosition(run: SchoolBusRun, now: Date): { lat: number; lng:
 export async function settleRun(store: DataStore, app: Pick<App, "id">, run: SchoolBusRun, today: string): Promise<SchoolBusRun> {
   if (run.status !== "running" || run.date >= today) return run;
   const endedAt = run.locatedAt ?? run.startedAt;
-  await store.updateSchoolBusRun(app.id, run.id, { status: "done", endedAt }, { status: "running" });
-  return { ...run, status: "done", endedAt };
+  // The bus's position is kept only while the trip runs.
+  await store.updateSchoolBusRun(app.id, run.id, { status: "done", endedAt, lat: null, lng: null, locatedAt: null }, { status: "running" });
+  return { ...run, status: "done", endedAt, lat: null, lng: null, locatedAt: null };
 }
 
 /** The crew's part on a route: its driver, its supervisor, or none. */

@@ -1,9 +1,10 @@
 import 'package:yallapp/core/api/api_exception.dart';
-import 'package:yallapp/core/api/models/json.dart' show snake;
+import 'package:yallapp/core/api/models/json.dart' show listOf, snake;
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart' show AppRole;
 import 'package:yallapp/core/api/yallapp_api.dart';
 
+import 'bus_library_fixtures.dart';
 import 'fixtures.dart';
 
 /// An in-memory [YallappApi] that answers with contract-shaped fixtures and
@@ -2686,4 +2687,104 @@ class FakeApi implements YallappApi {
       'audience': 'class',
     });
   });
+
+  // 113.10 The school bus.
+
+  Map<String, dynamic> studentBus = studentBusJson();
+  List<Map<String, dynamic>> busCrewRoutes = [busCrewRouteJson()];
+  Map<String, dynamic> busRun = busRunJson();
+  final busStarted = <({int route, BusTrip trip})>[];
+  final busPositions = <({int run, double lat, double lng})>[];
+  final busMarks = <({int run, int student, BusMarkStatus status})>[];
+
+  @override
+  Future<List<StudentBusTrip>> getStudentBus(int studentId) => _answer(
+    'getStudentBus',
+    () => listOf(studentBus, 'items', StudentBusTrip.fromJson),
+  );
+
+  @override
+  Future<List<BusCrewRoute>> listBusCrewRoutes() => _answer(
+    'listBusCrewRoutes',
+    () => [for (final r in busCrewRoutes) BusCrewRoute.fromJson(r)],
+  );
+
+  @override
+  Future<BusRun> startBusRun(int routeId, BusTrip trip) =>
+      _answer('startBusRun', () {
+        busStarted.add((route: routeId, trip: trip));
+        return BusRun.fromJson(busRun);
+      });
+
+  @override
+  Future<BusRun> getBusRun(int runId) =>
+      _answer('getBusRun', () => BusRun.fromJson(busRun));
+
+  @override
+  Future<void> sendBusLocation(
+    int runId,
+    double lat,
+    double lng, {
+    double? accuracy,
+  }) => _answer('sendBusLocation', () {
+    busPositions.add((run: runId, lat: lat, lng: lng));
+  });
+
+  @override
+  Future<BusRider> markBusRider(
+    int runId,
+    int studentId,
+    BusMarkStatus status,
+  ) => _answer('markBusRider', () {
+    busMarks.add((run: runId, student: studentId, status: status));
+    busRun = busRunJson(omar: status.name);
+    return BusRider.fromJson(busRiderJson(status: status.name));
+  });
+
+  @override
+  Future<BusRun> endBusRun(int runId) => _answer('endBusRun', () {
+    busRun = busRunJson(status: 'done');
+    return BusRun.fromJson(busRun);
+  });
+
+  // 113.11 The library.
+
+  Map<String, dynamic> libraryBooks = libraryBookPageJson();
+  Map<String, dynamic> libraryBook = libraryBookDetailJson();
+  Map<String, dynamic> libraryLoans = libraryLoansJson();
+  final libraryQueries = <({String? query, String? category})>[];
+  final holdsPlaced = <({int book, int? person})>[];
+  final holdsCancelled = <int>[];
+
+  @override
+  Future<LibraryBookPage> listLibraryBooks({
+    String? query,
+    String? category,
+    int page = 1,
+  }) => _answer('listLibraryBooks', () {
+    libraryQueries.add((query: query, category: category));
+    return LibraryBookPage.fromJson(libraryBooks);
+  });
+
+  @override
+  Future<LibraryBookDetail> getLibraryBook(int bookId) =>
+      _answer('getLibraryBook', () => LibraryBookDetail.fromJson(libraryBook));
+
+  @override
+  Future<LibraryHold> holdLibraryBook(int bookId, {int? personId}) =>
+      _answer('holdLibraryBook', () {
+        holdsPlaced.add((book: bookId, person: personId));
+        libraryBook = libraryBookDetailJson(holds: [libraryHoldJson()]);
+        return LibraryHold.fromJson(libraryHoldJson());
+      });
+
+  @override
+  Future<void> cancelLibraryHold(int holdId) =>
+      _answer('cancelLibraryHold', () {
+        holdsCancelled.add(holdId);
+      });
+
+  @override
+  Future<LibraryLoans> listLibraryLoans({int? personId}) =>
+      _answer('listLibraryLoans', () => LibraryLoans.fromJson(libraryLoans));
 }
