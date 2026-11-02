@@ -6249,4 +6249,35 @@ class AppLocalizationsTr extends AppLocalizations {
   String gradingScoreRange(int max) {
     return '0 ile $max arasında bir puan gir.';
   }
+
+  @override
+  String get reportCard => 'Karne';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get reportOverall => 'Genel';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'Devam: $present geldi, $absent gelmedi, $late geç, $excused izinli.';
+  }
+
+  @override
+  String get reportCardNone => 'Bu dönemde henüz not yok.';
+
+  @override
+  String get classGradebook => 'Not defteri';
+
+  @override
+  String get gradebookNone => 'Bu sınıfta henüz öğrenci yok.';
+
+  @override
+  String get gradebookStudent => 'Öğrenci';
+
+  @override
+  String get gradebookAbsent => 'Gelmedi';
 }

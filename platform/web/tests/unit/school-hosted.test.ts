@@ -310,4 +310,33 @@ describe("105.4 schools on the hosted API", () => {
     const items = await itemResolver("school_news")!({ appId: app.id, userId: null, lang: "en", store }, { ids: [], limit: 10, sort: "newest", filters: {} } as never);
     expect(items.map((i) => [i.title, i.action])).toEqual([["Sports day", { type: "screen", screen: "school" }]]);
   });
+
+  it("112.5 gives the student and their parents the report card, and the class's teacher the gradebook", async () => {
+    const exam = await store.createSchoolAssessment({ appId: app.id, classId: classA, subjectId: math, teacherId: mona, kind: "exam", title: "Midterm", date: "2026-10-10", maxScore: 20, createdAt: NOW });
+    await store.saveSchoolScores(app.id, exam.id, [{ studentId: omar, score: 17, note: null }], NOW);
+    await store.saveSchoolAttendance([{ appId: app.id, classId: classA, studentId: omar, date: "2026-10-11", status: "absent", note: null, takenBy: null, updatedAt: NOW }]);
+    const dad = await signUp("1001000009", "Hassan");
+    const card = (await call("GET", "/school/students/{student_id}/report-card", { params: [String(omar)], token: dad.access_token })).body;
+    expect(card).toMatchObject({
+      period: { from: "2026-09-27", to: "2027-01-20", term: "First term" },
+      class_name: "Grade 5 A",
+      subjects: [{ name: "Mathematics", percent: 85, scores: [{ title: "Midterm", score: 17, max_score: 20 }] }],
+      overall: 85,
+      attendance: { absent: 1, present: 0 },
+    });
+    // Another period: nothing in it.
+    expect((await call("GET", "/school/students/{student_id}/report-card", { params: [String(omar)], token: dad.access_token, query: { from: "2026-01-01", to: "2026-06-30" } })).body).toMatchObject({ subjects: [], overall: null });
+    expect((await call("GET", "/school/students/{student_id}/report-card", { params: [String(laila)], token: dad.access_token })).body).toMatchObject({ class_name: "Grade 5 B", subjects: [] });
+    const omarSelf = await signUp("1001000001", "Omar");
+    expect((await call("GET", "/school/students/{student_id}/report-card", { params: [String(laila)], token: omarSelf.access_token })).status).toBe(404);
+
+    const teacher = await signUp("1110000000", "Mona");
+    expect((await call("GET", "/classroom/classes/{class_id}/gradebook", { params: [String(classA)], token: teacher.access_token })).body).toMatchObject({
+      class_name: "Grade 5 A",
+      subjects: [{ id: math, name: "Mathematics" }],
+      students: [{ id: omar, name: "Omar Hassan", percents: [85], overall: 85, attendance: { absent: 1 } }],
+    });
+    // Not her class.
+    expect((await call("GET", "/classroom/classes/{class_id}/gradebook", { params: [String(classB)], token: teacher.access_token })).status).toBe(404);
+  });
 });

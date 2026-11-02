@@ -6487,6 +6487,30 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /school/students/{student_id}/report-card:
+    get:
+      tags: [School]
+      operationId: getStudentReportCard
+      summary: The student's report card
+      description: |
+        Roadmap 112.5. Over the school's current term (else the year so far),
+        or `from` to `to`: the student's percent in each subject (the share
+        of the marks of the subject's scored exams, quizzes and assignments
+        in the period) with each score, overall, and their attendance.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: The report card
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReportCard' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /school/students/{student_id}/fees:
     get:
       tags: [School]
@@ -6676,6 +6700,26 @@ paths:
                   items:
                     type: array
                     items: { $ref: '#/components/schemas/SchoolStudent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/classes/{class_id}/gradebook:
+    get:
+      tags: [Classroom]
+      operationId: getClassGradebook
+      summary: A class's gradebook
+      description: "Roadmap 112.5. For the class's teachers, over the current term (else the year so far) or `from` to `to`: each student's percent in each subject taught, overall and attendance."
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: The gradebook
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassGradebook' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -12668,6 +12712,86 @@ components:
           type: array
           description: Exams, quizzes and assignments from today, soonest first.
           items: { $ref: '#/components/schemas/Assessment' }
+
+    ReportPeriod:
+      type: object
+      required: [from, to, term]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        term: { type: [string, 'null'], description: "The term's name when the period is the school's current term." }
+
+    AttendanceCounts:
+      type: object
+      required: [present, absent, late, excused]
+      properties:
+        present: { type: integer }
+        absent: { type: integer }
+        late: { type: integer }
+        excused: { type: integer }
+
+    ReportCard:
+      type: object
+      description: Roadmap 112.5. A student's report card over a period.
+      required: [period, class_name, subjects, overall, attendance]
+      properties:
+        period: { $ref: '#/components/schemas/ReportPeriod' }
+        class_name: { type: [string, 'null'] }
+        subjects:
+          type: array
+          description: The subjects with a scored assessment in the period, by name.
+          items:
+            type: object
+            required: [subject_id, name, percent, scores]
+            properties:
+              subject_id: { type: integer }
+              name: { type: string }
+              percent: { type: [number, 'null'], description: 0 to 100. }
+              scores:
+                type: array
+                description: Oldest first.
+                items:
+                  type: object
+                  required: [title, kind, date, score, max_score]
+                  properties:
+                    title: { type: string }
+                    kind: { type: string, enum: [exam, quiz, assignment] }
+                    date: { type: string, format: date }
+                    score: { type: number }
+                    max_score: { type: number }
+        overall: { type: [number, 'null'] }
+        attendance: { $ref: '#/components/schemas/AttendanceCounts' }
+
+    ClassGradebook:
+      type: object
+      description: Roadmap 112.5. A class's gradebook over a period.
+      required: [period, class_name, subjects, students]
+      properties:
+        period: { $ref: '#/components/schemas/ReportPeriod' }
+        class_name: { type: string }
+        subjects:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+        students:
+          type: array
+          description: Active students by name.
+          items:
+            type: object
+            required: [id, name, percents, overall, attendance]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              percents:
+                type: array
+                description: One per subject, in the order of `subjects`; null without a score.
+                items: { type: [number, 'null'] }
+              overall: { type: [number, 'null'] }
+              attendance: { $ref: '#/components/schemas/AttendanceCounts' }
 
     SchoolFee:
       type: object

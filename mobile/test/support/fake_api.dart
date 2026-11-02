@@ -2344,6 +2344,57 @@ class FakeApi implements YallappApi {
     return Homework.fromJson(done);
   });
 
+  /// 112.5 The report card and the gradebook answered.
+  Map<String, dynamic> reportCard = {
+    'period': {'from': '2026-09-27', 'to': '2027-01-20', 'term': 'First term'},
+    'class_name': 'Grade 5 A',
+    'subjects': [
+      {
+        'subject_id': 1,
+        'name': 'Mathematics',
+        'percent': 85,
+        'scores': [
+          {
+            'title': 'Midterm',
+            'kind': 'exam',
+            'date': '2026-10-10',
+            'score': 17,
+            'max_score': 20,
+          },
+        ],
+      },
+    ],
+    'overall': 85,
+    'attendance': {'present': 40, 'absent': 1, 'late': 2, 'excused': 0},
+  };
+  Map<String, dynamic> classGradebook = {
+    'period': {'from': '2026-09-27', 'to': '2027-01-20', 'term': 'First term'},
+    'class_name': 'Grade 5 A',
+    'subjects': [
+      {'id': 1, 'name': 'Mathematics'},
+      {'id': 2, 'name': 'Arabic'},
+    ],
+    'students': [
+      {
+        'id': 11,
+        'name': 'Omar Hassan',
+        'percents': [85, null],
+        'overall': 85,
+        'attendance': {'present': 40, 'absent': 1, 'late': 2, 'excused': 0},
+      },
+    ],
+  };
+
+  @override
+  Future<ReportCard> getStudentReportCard(int studentId) =>
+      _answer('getStudentReportCard', () => ReportCard.fromJson(reportCard));
+
+  @override
+  Future<ClassGradebook> getClassGradebook(int classId) => _answer(
+    'getClassGradebook',
+    () => ClassGradebook.fromJson(classGradebook),
+  );
+
   @override
   Future<StudentGrades> getStudentGrades(int studentId) => _answer(
     'getStudentGrades',

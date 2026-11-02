@@ -6097,5 +6097,63 @@
         "type": "int"
       }
     }
+  },
+  "reportCard": "Report card",
+  "@reportCard": {
+    "description": "112.5 A student's report card over the term."
+  },
+  "reportPeriod": "{from} to {to}",
+  "@reportPeriod": {
+    "description": "112.5 A report card's period.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportOverall": "Overall",
+  "@reportOverall": {
+    "description": "112.5 The overall percent on a report card or gradebook."
+  },
+  "reportAttendance": "Attendance: {present} present, {absent} absent, {late} late, {excused} excused.",
+  "@reportAttendance": {
+    "description": "112.5 A report card's attendance line.",
+    "placeholders": {
+      "present": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      },
+      "late": {
+        "type": "int"
+      },
+      "excused": {
+        "type": "int"
+      }
+    }
+  },
+  "reportCardNone": "No scores in this term yet.",
+  "@reportCardNone": {
+    "description": "112.5 A report card without scores yet."
+  },
+  "classGradebook": "Gradebook",
+  "@classGradebook": {
+    "description": "112.5 A class's gradebook for its teachers."
+  },
+  "gradebookNone": "No students in this class yet.",
+  "@gradebookNone": {
+    "description": "112.5 A gradebook of a class without students."
+  },
+  "gradebookStudent": "Student",
+  "@gradebookStudent": {
+    "description": "112.5 The gradebook's student column."
+  },
+  "gradebookAbsent": "Absent",
+  "@gradebookAbsent": {
+    "description": "112.5 The gradebook's days-absent column."
   }
 }

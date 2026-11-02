@@ -942,6 +942,12 @@ abstract class YallappApi {
     String? uploadId,
   });
   Future<StudentGrades> getStudentGrades(int studentId);
+
+  /// 112.5 The student's report card over the school's term.
+  Future<ReportCard> getStudentReportCard(int studentId);
+
+  /// 112.5 A class's gradebook over the term, for its teachers.
+  Future<ClassGradebook> getClassGradebook(int classId);
   Future<StudentFees> getStudentFees(int studentId);
 
   /// The school's payment page for the fee.
@@ -3038,6 +3044,20 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => Homework.fromJson(asJson(data)),
     body: {'text': text, 'upload_id': ?uploadId},
+  );
+
+  @override
+  Future<ReportCard> getStudentReportCard(int studentId) => _get(
+    '/school/students/$studentId/report-card',
+    _required,
+    ReportCard.fromJson,
+  );
+
+  @override
+  Future<ClassGradebook> getClassGradebook(int classId) => _get(
+    '/classroom/classes/$classId/gradebook',
+    _required,
+    ClassGradebook.fromJson,
   );
 
   @override

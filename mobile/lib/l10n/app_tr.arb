@@ -1709,5 +1709,14 @@
   "gradingSaved": "Notlandırıldı. Öğrencin uygulamada görüyor.",
   "gradingSentBack": "Öğrencine geri gönderildi.",
   "gradingNeedsNote": "Geri göndermeden önce neyin değişmesi gerektiğini yaz.",
-  "gradingScoreRange": "0 ile {max} arasında bir puan gir."
+  "gradingScoreRange": "0 ile {max} arasında bir puan gir.",
+  "reportCard": "Karne",
+  "reportPeriod": "{from} – {to}",
+  "reportOverall": "Genel",
+  "reportAttendance": "Devam: {present} geldi, {absent} gelmedi, {late} geç, {excused} izinli.",
+  "reportCardNone": "Bu dönemde henüz not yok.",
+  "classGradebook": "Not defteri",
+  "gradebookNone": "Bu sınıfta henüz öğrenci yok.",
+  "gradebookStudent": "Öğrenci",
+  "gradebookAbsent": "Gelmedi"
 }

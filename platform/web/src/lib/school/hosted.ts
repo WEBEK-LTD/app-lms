@@ -36,6 +36,7 @@ import {
   type SchoolMember,
 } from "./service";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
+import { classGradebook, reportPeriod, type Period } from "./report-cards";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -115,6 +116,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
       return submit(ctx, request, student, idOf(path[4]), settings);
     }
     if (request.method === "GET" && tail === "grades") return grades(ctx, student, settings);
+    // 112.5 The student's report card over the term.
+    if (request.method === "GET" && tail === "report-card") return reportCard(ctx, request, student, settings);
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
     if (request.method === "POST" && path[3] === "fees" && path[5] === "pay" && path.length === 6) return pay(ctx, request, student, idOf(path[4]), settings);
   }
@@ -353,6 +356,8 @@ async function classroomRoute(ctx: SchoolContext, request: ConnectorRequest, tea
     if (route === `GET /classroom/classes/${id}/students`) return classStudents(ctx, teaching, id);
     if (route === `GET /classroom/classes/${id}/attendance`) return classAttendance(ctx, request, teaching, id, settings, request.query.get("date"));
     if (route === `PUT /classroom/classes/${id}/attendance`) return saveAttendance(ctx, request, teacher, teaching, id, settings);
+    // 112.5 The class's gradebook over the term.
+    if (route === `GET /classroom/classes/${id}/gradebook`) return classGradebookJson(ctx, request, id, settings);
   }
   if (path[1] === "homework" && id !== null) {
     const homework = await ctx.store.getSchoolHomework(ctx.app.id, id);
@@ -614,4 +619,43 @@ async function classAnnouncement(ctx: SchoolContext, request: ConnectorRequest, 
   if (wait) return wait;
   const announcement = await postAnnouncement({ store: ctx.store, app: ctx.app, now: request.now }, { audience: "class", classId, studentId: null, title, body: text, teacherId: teacher.id });
   return ok(announcementJson(announcement, teaching.dir, ctx.app.appName ?? "The school"), 201);
+}
+
+// 112.5 Report cards and the class gradebook
+
+function periodOf(request: ConnectorRequest, settings: SchoolSettings, now: Date): Period {
+  return reportPeriod(settings, { from: request.query.get("from") ?? undefined, to: request.query.get("to") ?? undefined }, schoolToday(settings, now));
+}
+
+const periodJson = (p: Period) => ({ from: p.from, to: p.to, term: p.term });
+
+async function reportCard(ctx: SchoolContext, request: ConnectorRequest, student: SchoolPerson, settings: SchoolSettings): Promise<ConnectorResult> {
+  const period = periodOf(request, settings, request.now);
+  const empty = { present: 0, absent: 0, late: 0, excused: 0 };
+  if (student.classId === null) return ok({ period: periodJson(period), class_name: null, subjects: [], overall: null, attendance: empty });
+  const [classes, book] = await Promise.all([ctx.store.listSchoolClasses(ctx.app.id), classGradebook(ctx.store, ctx.app, student.classId, period, student.id)]);
+  const row = book.rows[0];
+  return ok({
+    period: periodJson(period),
+    class_name: classes.find((c) => c.id === student.classId)?.name ?? null,
+    subjects: (row?.subjects ?? []).map((s) => ({
+      subject_id: s.subjectId,
+      name: s.name,
+      percent: s.percent,
+      scores: s.scores.map((x) => ({ title: x.assessment.title, kind: x.assessment.kind, date: x.assessment.date, score: x.score, max_score: x.assessment.maxScore })),
+    })),
+    overall: row?.overall ?? null,
+    attendance: row?.attendance ?? empty,
+  });
+}
+
+async function classGradebookJson(ctx: SchoolContext, request: ConnectorRequest, classId: number, settings: SchoolSettings): Promise<ConnectorResult> {
+  const period = periodOf(request, settings, request.now);
+  const [classes, book] = await Promise.all([ctx.store.listSchoolClasses(ctx.app.id), classGradebook(ctx.store, ctx.app, classId, period)]);
+  return ok({
+    period: periodJson(period),
+    class_name: classes.find((c) => c.id === classId)?.name ?? "",
+    subjects: book.subjects,
+    students: book.rows.map((r) => ({ id: r.student.id, name: r.student.name, percents: r.subjects.map((s) => s.percent), overall: r.overall, attendance: r.attendance })),
+  });
 }

@@ -1575,6 +1575,13 @@
         },
         {
           "method": "GET",
+          "path": "/school/students/{student_id}/report-card",
+          "summary": "The student's report card",
+          "description": "Roadmap 112.5. Over the school's current term (else the year so far), or `from` to `to`: the student's percent in each subject (the share of the marks of the subject's scored exams, quizzes and assignments in the period) with each score, overall, and their attendance.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/school/students/{student_id}/fees",
           "summary": "The student's fees, due and paid",
           "description": null,
@@ -1640,6 +1647,13 @@
           "path": "/classroom/classes/{class_id}/students",
           "summary": "The students of a class the teacher teaches",
           "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/classes/{class_id}/gradebook",
+          "summary": "A class's gradebook",
+          "description": "Roadmap 112.5. For the class's teachers, over the current term (else the year so far) or `from` to `to`: each student's percent in each subject taught, overall and attendance.",
           "access": "signed-in"
         },
         {

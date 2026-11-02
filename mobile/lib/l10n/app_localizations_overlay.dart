@@ -6621,4 +6621,46 @@ class OverlayLocalizations extends AppLocalizations {
   String gradingScoreRange(int max) =>
       overlay.format('gradingScoreRange', {'max': max}) ??
       base.gradingScoreRange(max);
+
+  @override
+  String get reportCard => overlay.text('reportCard') ?? base.reportCard;
+
+  @override
+  String reportPeriod(String from, String to) =>
+      overlay.format('reportPeriod', {'from': from, 'to': to}) ??
+      base.reportPeriod(from, to);
+
+  @override
+  String get reportOverall =>
+      overlay.text('reportOverall') ?? base.reportOverall;
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) =>
+      overlay.format('reportAttendance', {
+        'present': present,
+        'absent': absent,
+        'late': late,
+        'excused': excused,
+      }) ??
+      base.reportAttendance(present, absent, late, excused);
+
+  @override
+  String get reportCardNone =>
+      overlay.text('reportCardNone') ?? base.reportCardNone;
+
+  @override
+  String get classGradebook =>
+      overlay.text('classGradebook') ?? base.classGradebook;
+
+  @override
+  String get gradebookNone =>
+      overlay.text('gradebookNone') ?? base.gradebookNone;
+
+  @override
+  String get gradebookStudent =>
+      overlay.text('gradebookStudent') ?? base.gradebookStudent;
+
+  @override
+  String get gradebookAbsent =>
+      overlay.text('gradebookAbsent') ?? base.gradebookAbsent;
 }

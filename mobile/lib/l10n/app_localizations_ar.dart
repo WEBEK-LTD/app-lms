@@ -6453,4 +6453,35 @@ class AppLocalizationsAr extends AppLocalizations {
   String gradingScoreRange(int max) {
     return 'أدخل درجة من 0 إلى $max.';
   }
+
+  @override
+  String get reportCard => 'الشهادة المدرسية';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return 'من $from إلى $to';
+  }
+
+  @override
+  String get reportOverall => 'الإجمالي';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'الحضور: حاضر $present، غائب $absent، متأخر $late، بعذر $excused.';
+  }
+
+  @override
+  String get reportCardNone => 'لا توجد درجات في هذا الفصل الدراسي بعد.';
+
+  @override
+  String get classGradebook => 'سجل الدرجات';
+
+  @override
+  String get gradebookNone => 'لا يوجد طلاب في هذا الفصل بعد.';
+
+  @override
+  String get gradebookStudent => 'الطالب';
+
+  @override
+  String get gradebookAbsent => 'غائب';
 }

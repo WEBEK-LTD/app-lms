@@ -1707,4 +1707,13 @@
 {"key":"gradingSaved","en":"Graded. Your student sees it in the app.","ar":"تم التقييم. يراه طالبك في التطبيق.","tr":"Notlandırıldı. Öğrencin uygulamada görüyor.","description":"112.5 After grading an assignment."},
 {"key":"gradingSentBack","en":"Sent back to your student.","ar":"أُعيد إلى طالبك.","tr":"Öğrencine geri gönderildi.","description":"112.5 After sending an assignment back."},
 {"key":"gradingNeedsNote","en":"Write what to change before sending it back.","ar":"اكتب ما يجب تغييره قبل إعادته.","tr":"Geri göndermeden önce neyin değişmesi gerektiğini yaz.","description":"112.5 Sending back without a note."},
-{"key":"gradingScoreRange","en":"Enter a score from 0 to {max}.","ar":"أدخل درجة من 0 إلى {max}.","tr":"0 ile {max} arasında bir puan gir.","description":"112.5 A score outside the assignment's range.","placeholders":{"max":"int"}}]}
+{"key":"gradingScoreRange","en":"Enter a score from 0 to {max}.","ar":"أدخل درجة من 0 إلى {max}.","tr":"0 ile {max} arasında bir puan gir.","description":"112.5 A score outside the assignment's range.","placeholders":{"max":"int"}},
+{"key":"reportCard","en":"Report card","ar":"الشهادة المدرسية","tr":"Karne","description":"112.5 A student's report card over the term."},
+{"key":"reportPeriod","en":"{from} to {to}","ar":"من {from} إلى {to}","tr":"{from} – {to}","description":"112.5 A report card's period.","placeholders":{"from":"String","to":"String"}},
+{"key":"reportOverall","en":"Overall","ar":"الإجمالي","tr":"Genel","description":"112.5 The overall percent on a report card or gradebook."},
+{"key":"reportAttendance","en":"Attendance: {present} present, {absent} absent, {late} late, {excused} excused.","ar":"الحضور: حاضر {present}، غائب {absent}، متأخر {late}، بعذر {excused}.","tr":"Devam: {present} geldi, {absent} gelmedi, {late} geç, {excused} izinli.","description":"112.5 A report card's attendance line.","placeholders":{"present":"int","absent":"int","late":"int","excused":"int"}},
+{"key":"reportCardNone","en":"No scores in this term yet.","ar":"لا توجد درجات في هذا الفصل الدراسي بعد.","tr":"Bu dönemde henüz not yok.","description":"112.5 A report card without scores yet."},
+{"key":"classGradebook","en":"Gradebook","ar":"سجل الدرجات","tr":"Not defteri","description":"112.5 A class's gradebook for its teachers."},
+{"key":"gradebookNone","en":"No students in this class yet.","ar":"لا يوجد طلاب في هذا الفصل بعد.","tr":"Bu sınıfta henüz öğrenci yok.","description":"112.5 A gradebook of a class without students."},
+{"key":"gradebookStudent","en":"Student","ar":"الطالب","tr":"Öğrenci","description":"112.5 The gradebook's student column."},
+{"key":"gradebookAbsent","en":"Absent","ar":"غائب","tr":"Gelmedi","description":"112.5 The gradebook's days-absent column."}]}

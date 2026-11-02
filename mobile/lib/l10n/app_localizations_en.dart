@@ -6259,4 +6259,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String gradingScoreRange(int max) {
     return 'Enter a score from 0 to $max.';
   }
+
+  @override
+  String get reportCard => 'Report card';
+
+  @override
+  String reportPeriod(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get reportOverall => 'Overall';
+
+  @override
+  String reportAttendance(int present, int absent, int late, int excused) {
+    return 'Attendance: $present present, $absent absent, $late late, $excused excused.';
+  }
+
+  @override
+  String get reportCardNone => 'No scores in this term yet.';
+
+  @override
+  String get classGradebook => 'Gradebook';
+
+  @override
+  String get gradebookNone => 'No students in this class yet.';
+
+  @override
+  String get gradebookStudent => 'Student';
+
+  @override
+  String get gradebookAbsent => 'Absent';
 }

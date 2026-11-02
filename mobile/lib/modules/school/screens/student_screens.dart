@@ -565,6 +565,17 @@ class _Grades extends ConsumerWidget {
           key: const ValueKey('school-grades'),
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
+            // 112.5 The term's report card.
+            SecondaryButton(
+              key: const ValueKey('open-report-card'),
+              label: l10n.reportCard,
+              icon: AppIcons.certificate,
+              height: 46,
+              onPressed: () => context.push(
+                Paths.schoolPart('report-card', student: studentId),
+              ),
+            ),
+            const SizedBox(height: 16),
             if (grades.upcoming.isNotEmpty) ...[
               SectionHeader(title: l10n.gradesComing, size: 16),
               const SizedBox(height: 4),
@@ -1048,3 +1059,153 @@ class NewsCard extends StatelessWidget {
     );
   }
 }
+
+// 112.5 Report card
+
+String _pct(double? value) =>
+    value == null ? '—' : '${value.toStringAsFixed(value % 1 == 0 ? 0 : 1)}%';
+
+/// The student's report card over the school's term: each subject's scores
+/// and percent, overall, and attendance.
+class ReportCardScreen extends ConsumerWidget {
+  const ReportCardScreen({super.key, this.student});
+
+  final int? student;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _SchoolPage(
+    title: context.l10n.reportCard,
+    student: student,
+    builder: (context, me, s) => _ReportCard(studentId: s.id),
+  );
+}
+
+class _ReportCard extends ConsumerWidget {
+  const _ReportCard({required this.studentId});
+
+  final int studentId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    return switch (ref.watch(reportCardProvider(studentId))) {
+      AsyncValue(value: final card?) => ListView(
+        key: const ValueKey('report-card'),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        children: [
+          Text(
+            [
+              ?card.className,
+              card.period.term ?? '',
+              l10n.reportPeriod(
+                isoDayLabel(card.period.from),
+                isoDayLabel(card.period.to),
+              ),
+            ].where((x) => x.isNotEmpty).join(' · '),
+            style: TextStyle(fontSize: 13, color: p.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          if (card.subjects.isEmpty)
+            MessageView(
+              icon: AppIcons.certificate,
+              title: l10n.reportCardNone,
+              compact: true,
+            )
+          else ...[
+            for (final subject in card.subjects) ...[
+              AppCard(
+                key: ValueKey('report-${subject.name}'),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            subject.name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: p.text,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _pct(subject.percent),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: p.text,
+                          ),
+                        ),
+                      ],
+                    ),
+                    for (final x in subject.scores)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${x.title} · ${trimNumber(x.score)}/${trimNumber(x.maxScore)}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            AppCard(
+              key: const ValueKey('report-overall'),
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.reportOverall,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: p.text,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    _pct(card.overall),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: p.text,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
+          Text(
+            l10n.reportAttendance(
+              card.attendance.present,
+              card.attendance.absent,
+              card.attendance.late,
+              card.attendance.excused,
+            ),
+            style: TextStyle(fontSize: 14, color: p.textBody),
+          ),
+        ],
+      ),
+      AsyncError(:final error) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(reportCardProvider(studentId)),
+      ),
+      _ => const SkeletonList(layout: SkeletonLayout.text, count: 3),
+    };
+  }
+}
+
+/// A number without ".0".
+String trimNumber(double value) =>
+    value % 1 == 0 ? value.toStringAsFixed(0) : value.toString();

@@ -169,4 +169,43 @@ void main() {
     expect(find.text('Nothing to grade. Well done!'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  FakeApi schoolApi(List<String> roles) {
+    final api = FakeApi(
+      config: {...configJson(lms: null), 'school': schoolConfigJson()},
+    );
+    api.me = {...userJson(), 'roles': roles};
+    api.schoolMe = schoolMeJson(roles: roles);
+    return api;
+  }
+
+  testWidgets('112.5 a parent opens the term\'s report card', (tester) async {
+    usePhone(tester);
+    final api = schoolApi(['parent']);
+    final app = TestApp(api: api, appType: AppType.school, signedIn: true);
+    await app.pump(tester);
+    await push(app, tester, Paths.schoolPart('grades', student: 11));
+    await tapKey(tester, 'open-report-card');
+    expect(find.text('Mathematics'), findsOneWidget);
+    expect(find.text('85%'), findsNWidgets(2));
+    expect(find.text('Midterm · 17/20'), findsOneWidget);
+    expect(
+      find.text('Attendance: 40 present, 1 absent, 2 late, 0 excused.'),
+      findsOneWidget,
+    );
+    expect(api.count('getStudentReportCard'), 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('112.5 a teacher opens the class\'s gradebook', (tester) async {
+    usePhone(tester);
+    final api = schoolApi(['teacher']);
+    final app = TestApp(api: api, appType: AppType.school, signedIn: true);
+    await app.pump(tester);
+    await push(app, tester, '${Paths.classroomClass(1)}/gradebook');
+    expect(find.text('Omar Hassan'), findsOneWidget);
+    expect(find.text('85%'), findsNWidgets(2));
+    expect(find.text('—'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

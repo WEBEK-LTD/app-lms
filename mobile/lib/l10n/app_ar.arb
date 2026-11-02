@@ -1709,5 +1709,14 @@
   "gradingSaved": "تم التقييم. يراه طالبك في التطبيق.",
   "gradingSentBack": "أُعيد إلى طالبك.",
   "gradingNeedsNote": "اكتب ما يجب تغييره قبل إعادته.",
-  "gradingScoreRange": "أدخل درجة من 0 إلى {max}."
+  "gradingScoreRange": "أدخل درجة من 0 إلى {max}.",
+  "reportCard": "الشهادة المدرسية",
+  "reportPeriod": "من {from} إلى {to}",
+  "reportOverall": "الإجمالي",
+  "reportAttendance": "الحضور: حاضر {present}، غائب {absent}، متأخر {late}، بعذر {excused}.",
+  "reportCardNone": "لا توجد درجات في هذا الفصل الدراسي بعد.",
+  "classGradebook": "سجل الدرجات",
+  "gradebookNone": "لا يوجد طلاب في هذا الفصل بعد.",
+  "gradebookStudent": "الطالب",
+  "gradebookAbsent": "غائب"
 }

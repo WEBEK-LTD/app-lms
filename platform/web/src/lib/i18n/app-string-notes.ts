@@ -2990,6 +2990,15 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112.5 After sending an assignment back.": { ar: "بعد إعادة واجب.", tr: "Bir ödevi geri gönderdikten sonra." },
   "112.5 Sending back without a note.": { ar: "الإعادة دون ملاحظة.", tr: "Not yazmadan geri gönderme." },
   "112.5 A score outside the assignment's range.": { ar: "درجة خارج نطاق الواجب.", tr: "Ödevin aralığı dışında bir puan." },
+  "112.5 A student's report card over the term.": { ar: "الشهادة المدرسية للطالب خلال الفصل الدراسي.", tr: "Öğrencinin dönem karnesi." },
+  "112.5 A report card's period.": { ar: "فترة الشهادة المدرسية.", tr: "Karnenin dönemi." },
+  "112.5 The overall percent on a report card or gradebook.": { ar: "النسبة الإجمالية في الشهادة المدرسية أو سجل الدرجات.", tr: "Karnede ya da not defterinde genel yüzde." },
+  "112.5 A report card's attendance line.": { ar: "سطر الحضور في الشهادة المدرسية.", tr: "Karnenin devam satırı." },
+  "112.5 A report card without scores yet.": { ar: "شهادة مدرسية بلا درجات بعد.", tr: "Henüz notu olmayan karne." },
+  "112.5 A class's gradebook for its teachers.": { ar: "سجل درجات الفصل لمعلميه.", tr: "Sınıfın öğretmenleri için not defteri." },
+  "112.5 A gradebook of a class without students.": { ar: "سجل درجات لفصل بلا طلاب.", tr: "Öğrencisi olmayan bir sınıfın not defteri." },
+  "112.5 The gradebook's student column.": { ar: "عمود الطالب في سجل الدرجات.", tr: "Not defterinin öğrenci sütunu." },
+  "112.5 The gradebook's days-absent column.": { ar: "عمود أيام الغياب في سجل الدرجات.", tr: "Not defterinin gelmediği günler sütunu." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -10359,6 +10359,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a score from 0 to {max}.'**
   String gradingScoreRange(int max);
+
+  /// 112.5 A student's report card over the term.
+  ///
+  /// In en, this message translates to:
+  /// **'Report card'**
+  String get reportCard;
+
+  /// 112.5 A report card's period.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String reportPeriod(String from, String to);
+
+  /// 112.5 The overall percent on a report card or gradebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get reportOverall;
+
+  /// 112.5 A report card's attendance line.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance: {present} present, {absent} absent, {late} late, {excused} excused.'**
+  String reportAttendance(int present, int absent, int late, int excused);
+
+  /// 112.5 A report card without scores yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No scores in this term yet.'**
+  String get reportCardNone;
+
+  /// 112.5 A class's gradebook for its teachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradebook'**
+  String get classGradebook;
+
+  /// 112.5 A gradebook of a class without students.
+  ///
+  /// In en, this message translates to:
+  /// **'No students in this class yet.'**
+  String get gradebookNone;
+
+  /// 112.5 The gradebook's student column.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get gradebookStudent;
+
+  /// 112.5 The gradebook's days-absent column.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get gradebookAbsent;
 }
 
 class _AppLocalizationsDelegate
