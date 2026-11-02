@@ -275,6 +275,7 @@ export const en = {
   noRestaurantMatch: "No restaurants match.",
   inAppTitle: "In the app",
   statDelivered: "Delivered this month",
+  courierJobs: "Courier jobs",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -540,6 +541,7 @@ export const ar: Strings<typeof en> = {
   noRestaurantMatch: "لا توجد مطاعم مطابقة.",
   inAppTitle: "في التطبيق",
   statDelivered: "المُسلَّمة هذا الشهر",
+  courierJobs: "مهام المندوبين",
 };
 
 export const tr: Strings<typeof en> = {
@@ -805,4 +807,5 @@ export const tr: Strings<typeof en> = {
   noRestaurantMatch: "Eşleşen restoran yok.",
   inAppTitle: "Uygulamada",
   statDelivered: "Bu ay teslim edilen",
+  courierJobs: "Kurye işleri",
 };

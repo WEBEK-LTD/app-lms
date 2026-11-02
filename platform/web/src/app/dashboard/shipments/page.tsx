@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { btn, EmptyState, formatDateTime } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, btn, EmptyState, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
+import { FilterLinks, ListBar, ListSearch, Pager } from "@/components/page-kit-b";
 import { richText } from "@/i18n/rich";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -62,111 +65,87 @@ export default async function ShipmentsPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.shipments")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.shipmentsIntro")}</p>
-      </div>
+      {/* The page kit: the header, then the shipments in a flush Section with their filters, search and pages. */}
+      <PageHeader
+        title={t("delivery.shipments")}
+        description={t("delivery.shipmentsIntro")}
+        actions={
+          <Link href="/dashboard/delivery/live" className={`${btn.main} h-11`}>
+            <Icon name="map" size={20} />
+            {t("delivery.liveMap")}
+          </Link>
+        }
+      />
       <PlanNotice plan={plan} t={t} app={app} />
       {!pricesSet(settings) ? (
-        <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+        <Notice tone="warn" icon="warning">
           {richText(t("delivery.pricesFirst"), { link: (chunk) => <Link href="/dashboard/delivery">{chunk}</Link> })}
-        </p>
+        </Notice>
       ) : null}
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("delivery.shipments")} className="flex flex-wrap gap-1.5">
-          {(Object.keys(FILTERS) as Filter[]).map((f) => (
-            <Link
-              key={f}
-              href={link(1, f)}
-              aria-current={f === filter ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                f === filter ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(FILTER_KEYS[f])}
-            </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          <input type="hidden" name="show" value={filter} />
-          <label htmlFor="f-q" className="sr-only">
-            {t("delivery.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={q} placeholder={t("delivery.searchPlaceholder")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("delivery.search")}
-          </button>
-        </form>
-      </div>
-
-      {items.length === 0 ? (
-        <EmptyState icon="package_2" title={t("delivery.noShipments")}>
-          {t("delivery.noShipmentsText")}
-        </EmptyState>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[760px] border-collapse text-start text-[15px]">
-            <thead>
-              <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("delivery.reference")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("delivery.route")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-end font-semibold">
-                  {t("delivery.price")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("delivery.courier")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("common.status")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((s) => (
-                <tr key={s.id} className="border-b border-line-soft align-top last:border-b-0">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Link href={`/dashboard/shipments/${s.id}`} className="font-semibold">
-                      {shipmentReference(s)}
-                    </Link>
-                    <span className="block text-[13px] text-muted">{formatDateTime(s.createdAt, lang)}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="flex flex-col gap-0.5">
-                      <span className="line-clamp-1">{s.pickup.address}</span>
-                      <span className="line-clamp-1 text-ink-4">→ {s.dropoff.address}</span>
+      <Section titleId="h-shipments" title={t(FILTER_KEYS[filter])} actions={<Badge tone="neutral">{total}</Badge>} flush>
+        <ListBar>
+          <FilterLinks label={t("delivery.shipments")} items={(Object.keys(FILTERS) as Filter[]).map((f) => ({ href: link(1, f), label: t(FILTER_KEYS[f]), current: f === filter }))} />
+          <ListSearch id="f-q" value={q} label={t("delivery.search")} placeholder={t("delivery.searchPlaceholder")} button={t("delivery.search")} keep={{ show: filter }} />
+        </ListBar>
+        {items.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="package_2" title={t("delivery.noShipments")}>
+              {t("delivery.noShipmentsText")}
+            </EmptyState>
+          </div>
+        ) : (
+          <ItemList>
+            {items.map((s, i) => (
+              <ItemRow
+                key={s.id}
+                href={`/dashboard/shipments/${s.id}`}
+                media={<Thumb icon="package_2" shape="square" tint={i} />}
+                title={shipmentReference(s)}
+                meta={
+                  <>
+                    <span className="line-clamp-1">{s.pickup.address}</span>
+                    <span className="line-clamp-1 text-ink-4">→ {s.dropoff.address}</span>
+                  </>
+                }
+                extra={
+                  <>
+                    <span>{formatDateTime(s.createdAt, lang)}</span>
+                    <span>
+                      {s.senderName} → {s.recipientName}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Icon name="two_wheeler" size={16} className="text-muted" />
+                      {s.courierName ?? t("delivery.noCourier")}
+                    </span>
+                  </>
+                }
+                aside={
+                  <>
+                    <span className="flex flex-col items-end text-end">
+                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(s.priceCents, s.currency)}</span>
                       <span className="text-[13px] text-muted">
-                        {s.senderName} → {s.recipientName}
+                        {t(s.paymentMethod === "cash" ? "delivery.cash" : "delivery.card")} · {t(s.paymentStatus === "paid" ? "delivery.paid" : s.paymentStatus === "refunded" ? "delivery.refunded" : "delivery.unpaid")}
                       </span>
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">
-                    {formatCents(s.priceCents, s.currency)}
-                    <span className="block text-[13px] text-muted">
-                      {t(s.paymentMethod === "cash" ? "delivery.cash" : "delivery.card")} · {t(s.paymentStatus === "paid" ? "delivery.paid" : s.paymentStatus === "refunded" ? "delivery.refunded" : "delivery.unpaid")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">{s.courierName ?? <span className="text-muted">{t("delivery.noCourier")}</span>}</td>
-                  <td className="px-4 py-3">
                     <ShipmentStatusBadge status={s.status} t={t} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {pages > 1 ? (
-        <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3">
-          {page > 1 ? <Link href={link(page - 1)}>{t("delivery.newer")}</Link> : <span />}
-          <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
-          {page < pages ? <Link href={link(page + 1)}>{t("delivery.older")}</Link> : <span />}
-        </nav>
-      ) : null}
+                  </>
+                }
+              />
+            ))}
+          </ItemList>
+        )}
+        <Pager
+          label={t("orders.pages")}
+          page={page}
+          pages={pages}
+          newer={link(page - 1)}
+          older={link(page + 1)}
+          newerLabel={t("delivery.newer")}
+          olderLabel={t("delivery.older")}
+          pageLabel={t("common.page", { page, pages })}
+        />
+      </Section>
     </div>
   );
 }
