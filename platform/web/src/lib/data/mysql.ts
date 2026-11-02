@@ -119,6 +119,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  AssignmentSubmission,
   CatalogCoupon,
   PlatformSettingKey,
   PlatformSettingValues,
@@ -2072,6 +2073,58 @@ export class MysqlStore implements DataStore {
 
   async deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number> {
     const t = schema.quizAttempts;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
+    return result.affectedRows;
+  }
+
+  async saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission> {
+    const t = schema.assignmentSubmissions;
+    // One row per student and assignment: handing in again keeps its ID.
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values(input)
+        .onDuplicateKeyUpdate({
+          set: { text: input.text, file: input.file, status: input.status, score: input.score, feedback: input.feedback, submittedAt: input.submittedAt, gradedAt: input.gradedAt, gradedBy: input.gradedBy },
+        }),
+    );
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.assignmentId, input.assignmentId), eq(t.userId, input.userId))).limit(1));
+    return row!;
+  }
+
+  async getAssignmentSubmission(appId: string, id: number): Promise<AssignmentSubmission | null> {
+    const t = schema.assignmentSubmissions;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listAssignmentSubmissions(input: { appId: string; userId?: number; courseId?: number; assignmentId?: number; status?: AssignmentSubmission["status"] }): Promise<AssignmentSubmission[]> {
+    const t = schema.assignmentSubmissions;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, input.appId),
+            input.userId !== undefined ? eq(t.userId, input.userId) : undefined,
+            input.courseId !== undefined ? eq(t.courseId, input.courseId) : undefined,
+            input.assignmentId !== undefined ? eq(t.assignmentId, input.assignmentId) : undefined,
+            input.status !== undefined ? eq(t.status, input.status) : undefined,
+          ),
+        )
+        .orderBy(desc(t.submittedAt), desc(t.id)),
+    );
+  }
+
+  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean> {
+    const t = schema.assignmentSubmissions;
+    const [result] = await this.run((db) => db.update(t).set(grade).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows > 0;
+  }
+
+  async deleteAssignmentSubmissions(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    const t = schema.assignmentSubmissions;
     const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, input.appId), eq(t.userId, input.userId), eq(t.courseId, input.courseId))));
     return result.affectedRows;
   }

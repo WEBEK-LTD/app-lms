@@ -5852,6 +5852,154 @@
   "@taxiPlaceFailed": {
     "description": "105.9 A place from the search has no position."
   },
+  "assignmentTitle": "Assignment",
+  "@assignmentTitle": {
+    "description": "112.5 An assignment's page title before it loads."
+  },
+  "assignmentOutOf": "Out of {points} points",
+  "@assignmentOutOf": {
+    "description": "112.5 An assignment's highest score.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "assignmentPassScore": "Pass score: {points}",
+  "@assignmentPassScore": {
+    "description": "112.5 The score that counts an assignment as done.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "assignmentWaiting": "Handed in. Waiting for your teacher's grade.",
+  "@assignmentWaiting": {
+    "description": "112.5 An assignment handed in, not graded yet."
+  },
+  "assignmentReturned": "Your teacher sent it back. Change it and hand it in again.",
+  "@assignmentReturned": {
+    "description": "112.5 The teacher asks for the assignment again."
+  },
+  "assignmentGraded": "Graded: {score} of {max}",
+  "@assignmentGraded": {
+    "description": "112.5 An assignment's grade.",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "assignmentBelowPass": "Below the pass score.",
+  "@assignmentBelowPass": {
+    "description": "112.5 A grade under the assignment's pass score."
+  },
+  "assignmentFeedback": "Your teacher's note",
+  "@assignmentFeedback": {
+    "description": "112.5 Over the teacher's note on an assignment."
+  },
+  "liveClass": "Live class",
+  "@liveClass": {
+    "description": "112.5 A live class's page title before it loads."
+  },
+  "liveClasses": "Live classes",
+  "@liveClasses": {
+    "description": "112.5 Account: the student's live classes."
+  },
+  "liveUpcoming": "Coming up",
+  "@liveUpcoming": {
+    "description": "112.5 Live classes still to come."
+  },
+  "livePast": "Past",
+  "@livePast": {
+    "description": "112.5 Live classes that are over."
+  },
+  "liveNow": "On now",
+  "@liveNow": {
+    "description": "112.5 A live class that has started."
+  },
+  "liveEnded": "This live class is over.",
+  "@liveEnded": {
+    "description": "112.5 A live class that ended."
+  },
+  "liveJoin": "Join the live class",
+  "@liveJoin": {
+    "description": "112.5 Opens the live class's meeting link."
+  },
+  "liveJoinSoon": "You can join from 15 minutes before it starts.",
+  "@liveJoinSoon": {
+    "description": "112.5 A live class not open to join yet."
+  },
+  "liveStartsSoon": "Starts soon. You can join now.",
+  "@liveStartsSoon": {
+    "description": "112.5 A live class open to join before it starts."
+  },
+  "liveRecording": "Watch the recording",
+  "@liveRecording": {
+    "description": "112.5 Opens a past live class's recording."
+  },
+  "liveNone": "No live classes coming up.",
+  "@liveNone": {
+    "description": "112.5 The student has no coming live classes."
+  },
+  "liveNonePast": "No past live classes yet.",
+  "@liveNonePast": {
+    "description": "112.5 The student has no past live classes."
+  },
+  "lockedPreviousNotDone": "Finish what comes before it in the course first.",
+  "@lockedPreviousNotDone": {
+    "description": "112.5 A course taken in order: this item opens after the one before."
+  },
+  "lockedAccessEnded": "Your access to this course has ended.",
+  "@lockedAccessEnded": {
+    "description": "112.5 A locked item of a course whose access ended."
+  },
+  "afterPrevious": "After the one before",
+  "@afterPrevious": {
+    "description": "112.5 Beside an item that opens once the one before is done."
+  },
+  "shortAnswerHint": "Write your answer",
+  "@shortAnswerHint": {
+    "description": "112.5 The field of a quiz question answered in writing."
+  },
+  "quizReviewTitle": "Your answers",
+  "@quizReviewTitle": {
+    "description": "112.5 Over the quiz's questions reviewed after an attempt."
+  },
+  "quizReviewYours": "Your answer: {answer}",
+  "@quizReviewYours": {
+    "description": "112.5 What the student answered.",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "quizReviewRight": "Right answer: {answer}",
+  "@quizReviewRight": {
+    "description": "112.5 The right answer of a question answered wrong.",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "quizReviewNone": "No answer",
+  "@quizReviewNone": {
+    "description": "112.5 A question left unanswered."
+  },
+  "quizReviewCorrect": "Right",
+  "@quizReviewCorrect": {
+    "description": "112.5 Read out for a question answered right."
+  },
+  "quizReviewWrong": "Wrong",
+  "@quizReviewWrong": {
+    "description": "112.5 Read out for a question answered wrong."
+  },
   "mapNotShown": "Map not available",
   "@mapNotShown": {
     "description": "112 On a ride, delivery or food app's map without tiles: the places are drawn on a plain background."

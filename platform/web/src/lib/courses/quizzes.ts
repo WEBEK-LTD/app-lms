@@ -6,20 +6,32 @@ import { QUIZ_LIMITS } from "./learning";
  * 90.1 A quiz as the owner writes it: one question per block, `Q:` first,
  * then its answers, `*` before each right one and `-` before the others.
  * One right answer is a single choice, several a multiple choice; True and
- * False alone are a true or false question.
+ * False alone are a true or false question. 112.5 `=` before each answer
+ * accepted makes a question answered in writing (short answer).
  *
  *   Q: Which planet is the largest?
  *   - Mars
  *   * Jupiter
+ *
+ *   Q: The capital of France?
+ *   = Paris
  */
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
 export function parseQuestions(text: string): { questions: Omit<CourseQuizQuestion, "id">[] } | { error: string } {
   const questions: Omit<CourseQuizQuestion, "id">[] = [];
-  let current: { text: string; options: { text: string; correct: boolean }[] } | null = null;
+  let current: { text: string; options: { text: string; correct: boolean }[]; accepted: string[] } | null = null;
   const close = (): string | null => {
     if (!current) return null;
+    // 112.5 A short answer: its accepted answers only.
+    if (current.accepted.length) {
+      if (current.options.length) return `Use either answers to choose (* and -) or accepted answers (=) in “${current.text.slice(0, 60)}”.`;
+      if (current.accepted.length > QUIZ_LIMITS.options) return `Give “${current.text.slice(0, 60)}” at most ${QUIZ_LIMITS.options} answers.`;
+      questions.push({ text: current.text, type: "short_answer", options: [], accepted: current.accepted });
+      current = null;
+      return null;
+    }
     if (current.options.length < 2) return `“${current.text.slice(0, 60)}” needs at least two answers.`;
     if (!current.options.some((o) => o.correct)) return `Mark the right answer of “${current.text.slice(0, 60)}” with *.`;
     if (current.options.length > QUIZ_LIMITS.options) return `Give “${current.text.slice(0, 60)}” at most ${QUIZ_LIMITS.options} answers.`;
@@ -34,15 +46,16 @@ export function parseQuestions(text: string): { questions: Omit<CourseQuizQuesti
     const line = raw.trim();
     if (!line) continue;
     const question = /^q\s*[:.)-]\s*(.+)$/i.exec(line);
-    const answer = /^([*-])\s*(.+)$/.exec(line);
+    const answer = /^([*=-])\s*(.+)$/.exec(line);
     if (question) {
       const problem = close();
       if (problem) return { error: problem };
-      current = { text: question[1]!.slice(0, QUIZ_LIMITS.text), options: [] };
+      current = { text: question[1]!.slice(0, QUIZ_LIMITS.text), options: [], accepted: [] };
     } else if (answer && current) {
-      current.options.push({ text: answer[2]!.slice(0, QUIZ_LIMITS.text), correct: answer[1] === "*" });
+      if (answer[1] === "=") current.accepted.push(answer[2]!.slice(0, QUIZ_LIMITS.text));
+      else current.options.push({ text: answer[2]!.slice(0, QUIZ_LIMITS.text), correct: answer[1] === "*" });
     } else {
-      return { error: `Start each question with Q: and each answer with * (right) or - (wrong): “${line.slice(0, 60)}”.` };
+      return { error: `Start each question with Q: and each answer with * (right), - (wrong) or = (a written answer accepted): “${line.slice(0, 60)}”.` };
     }
   }
   const problem = close();
@@ -54,7 +67,9 @@ export function parseQuestions(text: string): { questions: Omit<CourseQuizQuesti
 
 /** The quiz written back in the same format, to edit it. */
 export function questionsText(quiz: Pick<CourseQuiz, "questions">): string {
-  return quiz.questions.map((q) => [`Q: ${q.text}`, ...q.options.map((o) => `${o.correct ? "*" : "-"} ${o.text}`)].join("\n")).join("\n\n");
+  return quiz.questions
+    .map((q) => [`Q: ${q.text}`, ...(q.type === "short_answer" ? (q.accepted ?? []).map((a) => `= ${a}`) : q.options.map((o) => `${o.correct ? "*" : "-"} ${o.text}`))].join("\n"))
+    .join("\n\n");
 }
 
 export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "id">> {
@@ -78,6 +93,9 @@ export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "i
       attemptsAllowed: attempts,
       timeLimitMinutes: minutes,
       questions: (parsed as { questions: Omit<CourseQuizQuestion, "id">[] }).questions.map((q, i) => ({ ...q, id: i + 1 })),
+      // 112.5
+      shuffle: v.shuffle === "on",
+      showAnswers: v.showAnswers === "on",
     },
   };
 }

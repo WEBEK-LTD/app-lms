@@ -27,14 +27,17 @@ export type LessonSave =
  * form's rules (lib/courses/forms.ts). `isMediaLink` says whether a video
  * address is a file of the app's Media library.
  */
-export function saveLesson(setup: CourseSetup, courseId: number, topicId: number, v: Record<string, string>, isMediaLink: (url: string) => boolean): LessonSave {
+export function saveLesson(setup: CourseSetup, courseId: number, topicId: number, v: Record<string, string>, isMediaLink: (url: string) => boolean, zone = "UTC"): LessonSave {
   const topic = setup.courses.find((c) => c.id === courseId)?.topics.find((t) => t.id === topicId);
   if (!topic) return { ok: false, message: "This section no longer exists." };
-  const parsed = parseLesson(v, isMediaLink);
+  const parsed = parseLesson(v, isMediaLink, zone);
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
   const id = v.id ? Number(v.id) : null;
   if (id !== null && !topic.lessons.some((l) => l.id === id)) return { ok: false, message: "This lesson no longer exists." };
-  const lesson: CourseLesson = { id: id ?? setup.nextId, ...parsed.value };
+  // 112.5 A form without the opening day (the Owner API's) keeps the lesson's.
+  const before = id !== null ? topic.lessons.find((l) => l.id === id) : undefined;
+  const kept = before?.opensAt && v.opensOn === undefined ? { opensAt: before.opensAt } : {};
+  const lesson: CourseLesson = { id: id ?? setup.nextId, ...kept, ...parsed.value };
   const lessons = id === null ? [...topic.lessons, lesson] : topic.lessons.map((l) => (l.id === id ? lesson : l));
   const next = withCourse(setup, courseId, (c) => ({ ...c, topics: c.topics.map((t) => (t.id === topicId ? { ...t, lessons } : t)) }));
   return { ok: true, setup: id === null ? { ...next, nextId: setup.nextId + 1 } : next, lesson, added: id === null };

@@ -16,18 +16,31 @@ import '../lesson/content/html_content.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// Answers for the questions the app shows natively. Questions answered in
-/// a web view are saved by the site itself and are not sent here.
+/// a web view are saved by the site itself and are not sent here. 112.5 A
+/// short answer sends what was written ([texts]).
 List<AnswerInput> buildAnswers(
   List<Question> questions,
-  Map<int, Set<String>> selections,
-) => [
+  Map<int, Set<String>> selections, [
+  Map<int, String> texts = const {},
+]) => [
   for (final q in questions)
-    if (q.isNative)
+    if (q.isNative && q.type == QuestionType.shortAnswer)
+      AnswerInput(questionId: q.id, text: (texts[q.id] ?? '').trim())
+    else if (q.isNative)
       AnswerInput(
         questionId: q.id,
         optionIds: (selections[q.id] ?? const <String>{}).toList(),
       ),
 ];
+
+/// Whether a native question has no answer yet.
+bool isUnanswered(
+  Question q,
+  Map<int, Set<String>> selections,
+  Map<int, String> texts,
+) => q.type == QuestionType.shortAnswer
+    ? (texts[q.id] ?? '').trim().isEmpty
+    : selections[q.id]?.isEmpty ?? true;
 
 /// Options for a true/false question, when the site sends none.
 List<QuestionOption> optionsFor(Question q) {
@@ -41,7 +54,8 @@ List<QuestionOption> optionsFor(Question q) {
 }
 
 /// Quiz details, a timed attempt with native single, multiple choice and
-/// true/false questions (others in a web view) and the result (design: Quiz).
+/// true/false questions, 112.5 short written answers (others in a web
+/// view), and the result with 112.5 its answers reviewed (design: Quiz).
 class QuizScreen extends ConsumerStatefulWidget {
   const QuizScreen({super.key, required this.quizId});
 
@@ -56,6 +70,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   AttemptResult? _result;
   int _index = 0;
   final Map<int, Set<String>> _selections = {};
+  final Map<int, String> _texts = {};
   bool _starting = false;
   bool _submitting = false;
   Timer? _ticker;
@@ -78,6 +93,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         _result = null;
         _index = 0;
         _selections.clear();
+        _texts.clear();
       });
       _ticker?.cancel();
       if (attempt.endsAt != null) {
@@ -110,7 +126,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     if (attempt == null || _submitting) return;
     if (!timeUp) {
       final unanswered = attempt.questions
-          .where((q) => q.isNative && (_selections[q.id]?.isEmpty ?? true))
+          .where((q) => q.isNative && isUnanswered(q, _selections, _texts))
           .length;
       if (unanswered > 0) {
         final ok = await confirmAction(
@@ -129,7 +145,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           .submitAttempt(
             widget.quizId,
             attempt.id,
-            buildAnswers(attempt.questions, _selections),
+            buildAnswers(attempt.questions, _selections, _texts),
           );
       _ticker?.cancel();
       if (!mounted) return;
@@ -333,6 +349,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         question: q,
                         selected: _selections[q.id] ?? const {},
                         onChanged: (s) => setState(() => _selections[q.id] = s),
+                        text: _texts[q.id] ?? '',
+                        onText: (t) => _texts[q.id] = t,
                       ),
                     ],
                   ),
@@ -473,25 +491,42 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       ),
     };
     final score = result.scorePercent;
+    final message = MessageView(
+      icon: icon,
+      title: title,
+      compact: result.review.isNotEmpty,
+      message: [
+        if (score != null)
+          context.l10n.yourScore(score.toStringAsFixed(score % 1 == 0 ? 0 : 1)),
+        if (quiz.passPercent != null)
+          context.l10n.passMarkColon(quiz.passPercent!),
+        if (result.status == AttemptStatus.pendingReview)
+          context.l10n.instructorWillReview,
+      ].join('\n'),
+    );
     return SafeArea(
       child: Column(
         children: [
           _header(context, quiz.title),
           Expanded(
-            child: MessageView(
-              icon: icon,
-              title: title,
-              message: [
-                if (score != null)
-                  context.l10n.yourScore(
-                    score.toStringAsFixed(score % 1 == 0 ? 0 : 1),
+            // 112.5 The answers reviewed under the result, when the quiz shows them.
+            child: result.review.isEmpty
+                ? message
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    children: [
+                      message,
+                      SectionHeader(
+                        title: context.l10n.quizReviewTitle,
+                        size: 16,
+                      ),
+                      const SizedBox(height: 8),
+                      for (final r in result.review) ...[
+                        ReviewTile(review: r),
+                        const SizedBox(height: 10),
+                      ],
+                    ],
                   ),
-                if (quiz.passPercent != null)
-                  context.l10n.passMarkColon(quiz.passPercent!),
-                if (result.status == AttemptStatus.pendingReview)
-                  context.l10n.instructorWillReview,
-              ].join('\n'),
-            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -526,11 +561,17 @@ class _QuestionView extends ConsumerWidget {
     required this.question,
     required this.selected,
     required this.onChanged,
+    this.text = '',
+    this.onText,
   });
 
   final Question question;
   final Set<String> selected;
   final ValueChanged<Set<String>> onChanged;
+
+  /// 112.5 A short answer as written so far.
+  final String text;
+  final ValueChanged<String>? onText;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -586,6 +627,26 @@ class _QuestionView extends ConsumerWidget {
               ),
             ),
           ],
+        ],
+      );
+    }
+
+    // 112.5 A short written answer.
+    if (q.type == QuestionType.shortAnswer) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          title,
+          ?description,
+          const SizedBox(height: 14),
+          TextFormField(
+            key: ValueKey('short-answer-${q.id}'),
+            initialValue: text,
+            onChanged: onText,
+            maxLength: 500,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(hintText: context.l10n.shortAnswerHint),
+          ),
         ],
       );
     }
@@ -758,6 +819,72 @@ class AttemptResultTile extends StatelessWidget {
                 color: p.text,
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 112.5 One question of a quiz's review: right or wrong, the student's
+/// answer and the right one.
+class ReviewTile extends StatelessWidget {
+  const ReviewTile({super.key, required this.review});
+
+  final QuestionReview review;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final r = review;
+    final given = r.given;
+    return AppCard(
+      key: ValueKey('review-${r.questionId}'),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            label: r.correct ? l10n.quizReviewCorrect : l10n.quizReviewWrong,
+            child: AppIcon(
+              r.correct ? AppIcons.checkCircle : AppIcons.close,
+              size: 22,
+              color: r.correct ? p.success : p.danger,
+              filled: r.correct,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  r.title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.quizReviewYours(
+                    given.isEmpty ? l10n.quizReviewNone : given,
+                  ),
+                  style: TextStyle(fontSize: 14, color: p.textBody),
+                ),
+                if (!r.correct && r.rightAnswer.isNotEmpty)
+                  Text(
+                    l10n.quizReviewRight(r.rightAnswer),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: p.success,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

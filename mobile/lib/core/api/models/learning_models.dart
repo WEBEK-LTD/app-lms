@@ -29,6 +29,10 @@ class CurriculumItem {
     this.questionCount,
     this.preview = false,
     this.availableAt,
+    this.lockedReason,
+    this.dueAt,
+    this.startsAt,
+    this.inApp = false,
   });
 
   factory CurriculumItem.fromJson(Json json) => CurriculumItem(
@@ -45,6 +49,16 @@ class CurriculumItem {
     locked: reqBool(json, 'locked'),
     completed: reqBool(json, 'completed'),
     availableAt: optDate(json, 'available_at'),
+    lockedReason: json['locked_reason'] == null
+        ? null
+        : enumFromSnake(
+            LockedReason.values,
+            json['locked_reason'],
+            LockedReason.notEnrolled,
+          ),
+    dueAt: optDate(json, 'due_at'),
+    startsAt: optDate(json, 'starts_at'),
+    inApp: boolOr(json, 'in_app', false),
   );
 
   final int id;
@@ -59,11 +73,31 @@ class CurriculumItem {
   /// 90.1 When a locked lesson opens for the student (drip); null otherwise.
   final DateTime? availableAt;
 
+  /// 112.5 Why it's locked (null on older servers).
+  final LockedReason? lockedReason;
+
+  /// 112.5 An assignment's due date; a live class's start.
+  final DateTime? dueAt;
+  final DateTime? startsAt;
+
+  /// 112.5 An assignment or live class the app opens itself (courses managed
+  /// in Yallapp).
+  final bool inApp;
+
   /// 39 Lessons and quizzes open in the app; assignments and live classes open
-  /// on the website (and never complete from the app).
+  /// on the website (and never complete from the app), 112.5 except those
+  /// of courses managed in Yallapp ([inApp]).
   bool get opensInApp =>
-      type == CurriculumItemType.lesson || type == CurriculumItemType.quiz;
+      type == CurriculumItemType.lesson ||
+      type == CurriculumItemType.quiz ||
+      inApp;
+
+  /// 112.5 Counts in the course's progress: live classes don't.
+  bool get counts => type != CurriculumItemType.live;
 }
+
+/// 112.5 Why a curriculum item is locked.
+enum LockedReason { notEnrolled, accessEnded, notAvailableYet, previousNotDone }
 
 /// 39 Where "Continue learning" goes on a course page: the first lesson or
 /// quiz not completed yet, else the first one open, else null. Assignments
@@ -72,7 +106,9 @@ class CurriculumItem {
 CurriculumItem? nextItemToOpen(List<Topic> topics) {
   final open = [
     for (final topic in topics)
-      ...topic.items.where((item) => item.opensInApp && !item.locked),
+      ...topic.items.where(
+        (item) => item.opensInApp && item.counts && !item.locked,
+      ),
   ];
   return open.where((item) => !item.completed).firstOrNull ?? open.firstOrNull;
 }
@@ -96,7 +132,8 @@ bool courseFinished(CourseDetail course, List<Topic>? topics) {
   if (progress != null) return progress.courseCompleted;
   if (topics == null) return false;
   final items = [
-    for (final topic in topics) ...topic.items.where((item) => item.opensInApp),
+    for (final topic in topics)
+      ...topic.items.where((item) => item.opensInApp && item.counts),
   ];
   return items.isNotEmpty && items.every((item) => item.completed);
 }

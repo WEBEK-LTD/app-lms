@@ -10072,6 +10072,186 @@ abstract class AppLocalizations {
   /// **'This place can\'t be used. Choose another.'**
   String get taxiPlaceFailed;
 
+  /// 112.5 An assignment's page title before it loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get assignmentTitle;
+
+  /// 112.5 An assignment's highest score.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of {points} points'**
+  String assignmentOutOf(int points);
+
+  /// 112.5 The score that counts an assignment as done.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass score: {points}'**
+  String assignmentPassScore(int points);
+
+  /// 112.5 An assignment handed in, not graded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Handed in. Waiting for your teacher\'s grade.'**
+  String get assignmentWaiting;
+
+  /// 112.5 The teacher asks for the assignment again.
+  ///
+  /// In en, this message translates to:
+  /// **'Your teacher sent it back. Change it and hand it in again.'**
+  String get assignmentReturned;
+
+  /// 112.5 An assignment's grade.
+  ///
+  /// In en, this message translates to:
+  /// **'Graded: {score} of {max}'**
+  String assignmentGraded(int score, int max);
+
+  /// 112.5 A grade under the assignment's pass score.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the pass score.'**
+  String get assignmentBelowPass;
+
+  /// 112.5 Over the teacher's note on an assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your teacher\'s note'**
+  String get assignmentFeedback;
+
+  /// 112.5 A live class's page title before it loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Live class'**
+  String get liveClass;
+
+  /// 112.5 Account: the student's live classes.
+  ///
+  /// In en, this message translates to:
+  /// **'Live classes'**
+  String get liveClasses;
+
+  /// 112.5 Live classes still to come.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get liveUpcoming;
+
+  /// 112.5 Live classes that are over.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get livePast;
+
+  /// 112.5 A live class that has started.
+  ///
+  /// In en, this message translates to:
+  /// **'On now'**
+  String get liveNow;
+
+  /// 112.5 A live class that ended.
+  ///
+  /// In en, this message translates to:
+  /// **'This live class is over.'**
+  String get liveEnded;
+
+  /// 112.5 Opens the live class's meeting link.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the live class'**
+  String get liveJoin;
+
+  /// 112.5 A live class not open to join yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You can join from 15 minutes before it starts.'**
+  String get liveJoinSoon;
+
+  /// 112.5 A live class open to join before it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts soon. You can join now.'**
+  String get liveStartsSoon;
+
+  /// 112.5 Opens a past live class's recording.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the recording'**
+  String get liveRecording;
+
+  /// 112.5 The student has no coming live classes.
+  ///
+  /// In en, this message translates to:
+  /// **'No live classes coming up.'**
+  String get liveNone;
+
+  /// 112.5 The student has no past live classes.
+  ///
+  /// In en, this message translates to:
+  /// **'No past live classes yet.'**
+  String get liveNonePast;
+
+  /// 112.5 A course taken in order: this item opens after the one before.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish what comes before it in the course first.'**
+  String get lockedPreviousNotDone;
+
+  /// 112.5 A locked item of a course whose access ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Your access to this course has ended.'**
+  String get lockedAccessEnded;
+
+  /// 112.5 Beside an item that opens once the one before is done.
+  ///
+  /// In en, this message translates to:
+  /// **'After the one before'**
+  String get afterPrevious;
+
+  /// 112.5 The field of a quiz question answered in writing.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your answer'**
+  String get shortAnswerHint;
+
+  /// 112.5 Over the quiz's questions reviewed after an attempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers'**
+  String get quizReviewTitle;
+
+  /// 112.5 What the student answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: {answer}'**
+  String quizReviewYours(String answer);
+
+  /// 112.5 The right answer of a question answered wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Right answer: {answer}'**
+  String quizReviewRight(String answer);
+
+  /// 112.5 A question left unanswered.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer'**
+  String get quizReviewNone;
+
+  /// 112.5 Read out for a question answered right.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get quizReviewCorrect;
+
+  /// 112.5 Read out for a question answered wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong'**
+  String get quizReviewWrong;
+
   /// 112 On a ride, delivery or food app's map without tiles: the places are drawn on a plain background.
   ///
   /// In en, this message translates to:

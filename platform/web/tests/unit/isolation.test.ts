@@ -626,6 +626,9 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       // Quizzes, services and classes: none on these apps (each path still answers nothing).
       quiz_id: "1",
       attempt_id: "1",
+      // 112.5 Assignments and live classes: none on these apps either.
+      assignment_id: "1",
+      live_id: "1",
       service_id: "1",
       class_id: "1",
       product_id: ids.product_id,
@@ -677,7 +680,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
   function hostedKind(route: string): keyof Kinds {
     if (/^\/(me\/appointments|bookings\/services)/.test(route)) return "clinic";
     if (/^\/bookings\/classes/.test(route)) return "gym";
-    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist|teachers|teacher)\b/.test(route)) return "school";
+    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist|teachers|teacher|assignments|live-sessions|course-uploads|me\/live-sessions)\b/.test(route)) return "school";
     if (/^\/news/.test(route)) return "news";
     if (/^\/(listings|me\/favorites|me\/inquiries)/.test(route)) return "estate";
     if (/^\/(events|me\/tickets)/.test(route)) return "events";

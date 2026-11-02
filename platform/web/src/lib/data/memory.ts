@@ -70,6 +70,7 @@ import type {
   CourseEnrollment,
   LessonProgress,
   QuizAttempt,
+  AssignmentSubmission,
   CatalogCoupon,
   AdminMember,
   AdminMemberRow,
@@ -195,6 +196,7 @@ export class MemoryStore implements DataStore {
   private lessonProgress = new Map<string, LessonProgress>();
   // 90.1
   private quizAttempts: QuizAttempt[] = [];
+  private assignmentSubmissions: AssignmentSubmission[] = [];
   private catalogCoupons: CatalogCoupon[] = [];
   // 44 Analytics: raw events, and daily totals keyed by app, day, metric and key.
   private analyticsEvents: AnalyticsEventRow[] = [];
@@ -671,6 +673,8 @@ export class MemoryStore implements DataStore {
     // 91.4 Their points go with the account.
     this.loyaltyBalances.delete(`${appId}:${id}`);
     this.loyaltyEntries = this.loyaltyEntries.filter((e) => !(e.appId === appId && e.userId === id));
+    // 112.5 Their assignments go with them (MySQL: the foreign key).
+    this.assignmentSubmissions = this.assignmentSubmissions.filter((s) => !(s.appId === appId && s.userId === id));
     // 28 Tickets stay with the organiser, with their holder's name.
     for (const ticket of this.tickets.values()) {
       if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
@@ -1609,6 +1613,49 @@ export class MemoryStore implements DataStore {
     const before = this.quizAttempts.length;
     this.quizAttempts = this.quizAttempts.filter((a) => !(a.appId === input.appId && a.userId === input.userId && a.courseId === input.courseId));
     return before - this.quizAttempts.length;
+  }
+
+  async saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission> {
+    const found = this.assignmentSubmissions.find((s) => s.appId === input.appId && s.assignmentId === input.assignmentId && s.userId === input.userId);
+    if (found) {
+      Object.assign(found, clone(input));
+      return clone(found);
+    }
+    const row = { ...clone(input), id: this.assignmentSubmissions.reduce((max, s) => Math.max(max, s.id), 0) + 1 };
+    this.assignmentSubmissions.push(row);
+    return clone(row);
+  }
+
+  async getAssignmentSubmission(appId: string, id: number): Promise<AssignmentSubmission | null> {
+    const found = this.assignmentSubmissions.find((s) => s.appId === appId && s.id === id);
+    return found ? clone(found) : null;
+  }
+
+  async listAssignmentSubmissions(input: { appId: string; userId?: number; courseId?: number; assignmentId?: number; status?: AssignmentSubmission["status"] }): Promise<AssignmentSubmission[]> {
+    return this.assignmentSubmissions
+      .filter(
+        (s) =>
+          s.appId === input.appId &&
+          (input.userId === undefined || s.userId === input.userId) &&
+          (input.courseId === undefined || s.courseId === input.courseId) &&
+          (input.assignmentId === undefined || s.assignmentId === input.assignmentId) &&
+          (input.status === undefined || s.status === input.status),
+      )
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean> {
+    const found = this.assignmentSubmissions.find((s) => s.appId === appId && s.id === id);
+    if (!found) return false;
+    Object.assign(found, clone(grade));
+    return true;
+  }
+
+  async deleteAssignmentSubmissions(input: { appId: string; userId: number; courseId: number }): Promise<number> {
+    const before = this.assignmentSubmissions.length;
+    this.assignmentSubmissions = this.assignmentSubmissions.filter((s) => !(s.appId === input.appId && s.userId === input.userId && s.courseId === input.courseId));
+    return before - this.assignmentSubmissions.length;
   }
 
   async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {

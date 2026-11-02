@@ -6086,6 +6086,108 @@ class AppLocalizationsTr extends AppLocalizations {
   String get taxiPlaceFailed => 'Bu yer kullanılamıyor. Başka bir yer seç.';
 
   @override
+  String get assignmentTitle => 'Ödev';
+
+  @override
+  String assignmentOutOf(int points) {
+    return '$points puan üzerinden';
+  }
+
+  @override
+  String assignmentPassScore(int points) {
+    return 'Geçme puanı: $points';
+  }
+
+  @override
+  String get assignmentWaiting =>
+      'Teslim edildi. Öğretmeninin notu bekleniyor.';
+
+  @override
+  String get assignmentReturned =>
+      'Öğretmenin geri gönderdi. Düzenleyip yeniden teslim et.';
+
+  @override
+  String assignmentGraded(int score, int max) {
+    return 'Not: $max üzerinden $score';
+  }
+
+  @override
+  String get assignmentBelowPass => 'Geçme puanının altında.';
+
+  @override
+  String get assignmentFeedback => 'Öğretmeninin notu';
+
+  @override
+  String get liveClass => 'Canlı ders';
+
+  @override
+  String get liveClasses => 'Canlı dersler';
+
+  @override
+  String get liveUpcoming => 'Yaklaşan';
+
+  @override
+  String get livePast => 'Geçmiş';
+
+  @override
+  String get liveNow => 'Şu an';
+
+  @override
+  String get liveEnded => 'Bu canlı ders sona erdi.';
+
+  @override
+  String get liveJoin => 'Canlı derse katıl';
+
+  @override
+  String get liveJoinSoon => 'Başlamadan 15 dakika önce katılabilirsin.';
+
+  @override
+  String get liveStartsSoon => 'Birazdan başlıyor. Şimdi katılabilirsin.';
+
+  @override
+  String get liveRecording => 'Kaydı izle';
+
+  @override
+  String get liveNone => 'Yaklaşan canlı ders yok.';
+
+  @override
+  String get liveNonePast => 'Henüz geçmiş canlı ders yok.';
+
+  @override
+  String get lockedPreviousNotDone => 'Önce kursta bundan önce geleni bitir.';
+
+  @override
+  String get lockedAccessEnded => 'Bu kursa erişimin sona erdi.';
+
+  @override
+  String get afterPrevious => 'Öncekinden sonra';
+
+  @override
+  String get shortAnswerHint => 'Cevabını yaz';
+
+  @override
+  String get quizReviewTitle => 'Cevapların';
+
+  @override
+  String quizReviewYours(String answer) {
+    return 'Cevabın: $answer';
+  }
+
+  @override
+  String quizReviewRight(String answer) {
+    return 'Doğru cevap: $answer';
+  }
+
+  @override
+  String get quizReviewNone => 'Cevap yok';
+
+  @override
+  String get quizReviewCorrect => 'Doğru';
+
+  @override
+  String get quizReviewWrong => 'Yanlış';
+
+  @override
   String get mapNotShown => 'Harita kullanılamıyor';
 
   @override

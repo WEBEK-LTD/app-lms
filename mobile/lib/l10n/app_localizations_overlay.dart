@@ -6437,6 +6437,121 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('taxiPlaceFailed') ?? base.taxiPlaceFailed;
 
   @override
+  String get assignmentTitle =>
+      overlay.text('assignmentTitle') ?? base.assignmentTitle;
+
+  @override
+  String assignmentOutOf(int points) =>
+      overlay.format('assignmentOutOf', {'points': points}) ??
+      base.assignmentOutOf(points);
+
+  @override
+  String assignmentPassScore(int points) =>
+      overlay.format('assignmentPassScore', {'points': points}) ??
+      base.assignmentPassScore(points);
+
+  @override
+  String get assignmentWaiting =>
+      overlay.text('assignmentWaiting') ?? base.assignmentWaiting;
+
+  @override
+  String get assignmentReturned =>
+      overlay.text('assignmentReturned') ?? base.assignmentReturned;
+
+  @override
+  String assignmentGraded(int score, int max) =>
+      overlay.format('assignmentGraded', {'score': score, 'max': max}) ??
+      base.assignmentGraded(score, max);
+
+  @override
+  String get assignmentBelowPass =>
+      overlay.text('assignmentBelowPass') ?? base.assignmentBelowPass;
+
+  @override
+  String get assignmentFeedback =>
+      overlay.text('assignmentFeedback') ?? base.assignmentFeedback;
+
+  @override
+  String get liveClass => overlay.text('liveClass') ?? base.liveClass;
+
+  @override
+  String get liveClasses => overlay.text('liveClasses') ?? base.liveClasses;
+
+  @override
+  String get liveUpcoming => overlay.text('liveUpcoming') ?? base.liveUpcoming;
+
+  @override
+  String get livePast => overlay.text('livePast') ?? base.livePast;
+
+  @override
+  String get liveNow => overlay.text('liveNow') ?? base.liveNow;
+
+  @override
+  String get liveEnded => overlay.text('liveEnded') ?? base.liveEnded;
+
+  @override
+  String get liveJoin => overlay.text('liveJoin') ?? base.liveJoin;
+
+  @override
+  String get liveJoinSoon => overlay.text('liveJoinSoon') ?? base.liveJoinSoon;
+
+  @override
+  String get liveStartsSoon =>
+      overlay.text('liveStartsSoon') ?? base.liveStartsSoon;
+
+  @override
+  String get liveRecording =>
+      overlay.text('liveRecording') ?? base.liveRecording;
+
+  @override
+  String get liveNone => overlay.text('liveNone') ?? base.liveNone;
+
+  @override
+  String get liveNonePast => overlay.text('liveNonePast') ?? base.liveNonePast;
+
+  @override
+  String get lockedPreviousNotDone =>
+      overlay.text('lockedPreviousNotDone') ?? base.lockedPreviousNotDone;
+
+  @override
+  String get lockedAccessEnded =>
+      overlay.text('lockedAccessEnded') ?? base.lockedAccessEnded;
+
+  @override
+  String get afterPrevious =>
+      overlay.text('afterPrevious') ?? base.afterPrevious;
+
+  @override
+  String get shortAnswerHint =>
+      overlay.text('shortAnswerHint') ?? base.shortAnswerHint;
+
+  @override
+  String get quizReviewTitle =>
+      overlay.text('quizReviewTitle') ?? base.quizReviewTitle;
+
+  @override
+  String quizReviewYours(String answer) =>
+      overlay.format('quizReviewYours', {'answer': answer}) ??
+      base.quizReviewYours(answer);
+
+  @override
+  String quizReviewRight(String answer) =>
+      overlay.format('quizReviewRight', {'answer': answer}) ??
+      base.quizReviewRight(answer);
+
+  @override
+  String get quizReviewNone =>
+      overlay.text('quizReviewNone') ?? base.quizReviewNone;
+
+  @override
+  String get quizReviewCorrect =>
+      overlay.text('quizReviewCorrect') ?? base.quizReviewCorrect;
+
+  @override
+  String get quizReviewWrong =>
+      overlay.text('quizReviewWrong') ?? base.quizReviewWrong;
+
+  @override
   String get mapNotShown => overlay.text('mapNotShown') ?? base.mapNotShown;
 
   @override

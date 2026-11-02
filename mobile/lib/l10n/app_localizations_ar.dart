@@ -6293,6 +6293,106 @@ class AppLocalizationsAr extends AppLocalizations {
   String get taxiPlaceFailed => 'لا يمكن استخدام هذا المكان. اختر مكانًا آخر.';
 
   @override
+  String get assignmentTitle => 'واجب';
+
+  @override
+  String assignmentOutOf(int points) {
+    return 'من $points درجة';
+  }
+
+  @override
+  String assignmentPassScore(int points) {
+    return 'درجة النجاح: $points';
+  }
+
+  @override
+  String get assignmentWaiting => 'تم التسليم. بانتظار تقييم معلّمك.';
+
+  @override
+  String get assignmentReturned => 'أعاده معلّمك. عدّله وسلّمه مرة أخرى.';
+
+  @override
+  String assignmentGraded(int score, int max) {
+    return 'التقييم: $score من $max';
+  }
+
+  @override
+  String get assignmentBelowPass => 'أقل من درجة النجاح.';
+
+  @override
+  String get assignmentFeedback => 'ملاحظة معلّمك';
+
+  @override
+  String get liveClass => 'حصة مباشرة';
+
+  @override
+  String get liveClasses => 'الحصص المباشرة';
+
+  @override
+  String get liveUpcoming => 'القادمة';
+
+  @override
+  String get livePast => 'السابقة';
+
+  @override
+  String get liveNow => 'الآن';
+
+  @override
+  String get liveEnded => 'انتهت هذه الحصة المباشرة.';
+
+  @override
+  String get liveJoin => 'انضم إلى الحصة المباشرة';
+
+  @override
+  String get liveJoinSoon => 'يمكنك الانضمام قبل بدئها بـ 15 دقيقة.';
+
+  @override
+  String get liveStartsSoon => 'تبدأ قريبًا. يمكنك الانضمام الآن.';
+
+  @override
+  String get liveRecording => 'شاهد التسجيل';
+
+  @override
+  String get liveNone => 'لا توجد حصص مباشرة قادمة.';
+
+  @override
+  String get liveNonePast => 'لا توجد حصص مباشرة سابقة بعد.';
+
+  @override
+  String get lockedPreviousNotDone => 'أكمل ما يسبقه في الدورة أولًا.';
+
+  @override
+  String get lockedAccessEnded => 'انتهى وصولك إلى هذه الدورة.';
+
+  @override
+  String get afterPrevious => 'بعد ما يسبقه';
+
+  @override
+  String get shortAnswerHint => 'اكتب إجابتك';
+
+  @override
+  String get quizReviewTitle => 'إجاباتك';
+
+  @override
+  String quizReviewYours(String answer) {
+    return 'إجابتك: $answer';
+  }
+
+  @override
+  String quizReviewRight(String answer) {
+    return 'الإجابة الصحيحة: $answer';
+  }
+
+  @override
+  String get quizReviewNone => 'لا إجابة';
+
+  @override
+  String get quizReviewCorrect => 'صحيحة';
+
+  @override
+  String get quizReviewWrong => 'خاطئة';
+
+  @override
   String get mapNotShown => 'الخريطة غير متاحة';
 
   @override
