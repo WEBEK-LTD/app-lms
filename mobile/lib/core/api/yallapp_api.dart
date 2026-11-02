@@ -544,6 +544,36 @@ abstract class YallappApi {
   Future<Paged<AttemptResult>> listMyAttempts({int page = 1});
   Future<List<Certificate>> listCertificates();
 
+  /// 112.5 An assignment, with what the student handed in and its grade.
+  Future<Assignment> getAssignment(int assignmentId);
+
+  /// 112.5 Hands an assignment in: text, a file sent with
+  /// [startCourseUpload], or both.
+  Future<Assignment> submitAssignment(
+    int assignmentId, {
+    String text = '',
+    String? uploadId,
+  });
+
+  /// 112.5 A photo or PDF for an assignment, sent in chunks as chat files.
+  Future<ChatUpload> startCourseUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeCourseUpload(String uploadId);
+  Future<void> completeCourseUpload(String uploadId);
+
+  /// 112.5 A live class, with its meeting link when it's time to join.
+  Future<LiveSession> getLiveSession(int liveId);
+
+  /// 112.5 The live classes of the student's courses: coming (or on now),
+  /// or [past].
+  Future<Paged<LiveSession>> listMyLiveSessions({
+    bool past = false,
+    int page = 1,
+  });
+
   /// 90.3 The student's memberships, subscriptions and groups on the website.
   Future<List<SiteSubscription>> listSubscriptions();
 
@@ -1577,6 +1607,67 @@ class HttpYallappApi implements YallappApi {
     '/me/certificates',
     _required,
     (json) => reqListOf(json, 'items', Certificate.fromJson),
+  );
+
+  @override
+  Future<Assignment> getAssignment(int assignmentId) =>
+      _get('/assignments/$assignmentId', _required, Assignment.fromJson);
+
+  @override
+  Future<Assignment> submitAssignment(
+    int assignmentId, {
+    String text = '',
+    String? uploadId,
+  }) => _send(
+    'PUT',
+    '/assignments/$assignmentId/submission',
+    _required,
+    (data) => Assignment.fromJson(asJson(data)),
+    body: {'text': text, 'upload_id': ?uploadId},
+  );
+
+  @override
+  Future<ChatUpload> startCourseUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/course-uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeCourseUpload(String uploadId) => _send(
+    'POST',
+    '/course-uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeCourseUpload(String uploadId) => _send(
+    'POST',
+    '/course-uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<LiveSession> getLiveSession(int liveId) =>
+      _get('/live-sessions/$liveId', _required, LiveSession.fromJson);
+
+  @override
+  Future<Paged<LiveSession>> listMyLiveSessions({
+    bool past = false,
+    int page = 1,
+  }) => _get(
+    '/me/live-sessions',
+    _required,
+    (json) => Paged.fromJson(json, LiveSession.fromJson),
+    query: {'when': past ? 'past' : 'upcoming', 'page': page, 'per_page': 20},
   );
 
   @override

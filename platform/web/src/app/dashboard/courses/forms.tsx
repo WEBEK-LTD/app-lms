@@ -111,6 +111,21 @@ export function CourseForm({
         <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
         <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
       </div>
+      {/* 112.5 Who signs the certificate, and a course taken in order. */}
+      <Field
+        label={t("lms.certificateSigner")}
+        name="certificateSigner"
+        defaultValue={v.certificateSigner}
+        placeholder={t("lms.certificateSignerPlaceholder")}
+        hint={t("lms.certificateSignerHint")}
+        error={e.certificateSigner}
+        className="sm:max-w-[420px]"
+        small
+      />
+      <div className="flex flex-col gap-1">
+        <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
+        <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
+      </div>
       <Field
         label={t("courses.accessDays")}
         name="accessDays"
@@ -216,17 +231,11 @@ export function LessonForm({ courseId, topicId, current, submit }: { courseId: n
       <TextArea id={`${key}-text`} label={t("courses.text")} name="text" value={v.text} rows={3} error={e.text} hint={t("courses.lessonTextHint")} />
       {/* 90.1 Files with the lesson, and lessons that open some days after enrolling. */}
       <TextArea id={`${key}-files`} label={t("courses.files")} name="attachments" value={v.attachments} rows={2} error={e.attachments} hint={t("courses.filesHint")} />
-      <Field
-        label={t("courses.dripDays")}
-        name="dripDays"
-        id={`${key}-drip`}
-        inputMode="numeric"
-        defaultValue={v.dripDays}
-        hint={t("courses.dripDaysHint")}
-        error={e.dripDays}
-        className="sm:max-w-[320px]"
-        small
-      />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label={t("courses.dripDays")} name="dripDays" id={`${key}-drip`} inputMode="numeric" defaultValue={v.dripDays} hint={t("courses.dripDaysHint")} error={e.dripDays} small />
+        {/* 112.5 Or on a day, for everyone. */}
+        <Field label={t("lms.opensOn")} name="opensOn" id={`${key}-opens`} type="date" defaultValue={v.opensOn} hint={t("lms.opensOnHint")} error={e.opensOn} small />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Check name="preview" label={t("courses.freePreview")} checked={v.preview === "on"} />
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
@@ -274,7 +283,15 @@ export function QuizForm({ courseId, topicId, current, submit }: { courseId: num
           small
         />
       </div>
-      <TextArea id={`${key}-questions`} label={t("courses.questions")} name="questions" value={v.questions} rows={8} error={e.questions} hint={t("courses.questionsHint")} />
+      <TextArea id={`${key}-questions`} label={t("courses.questions")} name="questions" value={v.questions} rows={8} error={e.questions} hint={`${t("courses.questionsHint")} ${t("lms.shortAnswerHint")}`} />
+      {/* 112.5 */}
+      <div className="flex flex-col gap-2">
+        <Check name="shuffle" label={t("lms.shuffle")} checked={v.shuffle === "on"} />
+        <div className="flex flex-col gap-1">
+          <Check name="showAnswers" label={t("lms.showAnswers")} checked={v.showAnswers === "on"} />
+          <span className="ps-6 text-[13px] text-muted">{t("lms.showAnswersHint")}</span>
+        </div>
+      </div>
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}

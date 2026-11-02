@@ -64,7 +64,7 @@ test("the school makes a School project in Yallapp Studio, not among the regular
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Classes", "People", "Timetable", "Attendance", "Homework", "Grades", "Fees", "News", "School settings"]) {
+  for (const link of ["Classes", "People", "Timetable", "Attendance", "Homework", "Grades", "Report cards", "Fees", "News", "School settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 
@@ -163,4 +163,19 @@ test("School settings are saved; the app's school routes wait for the plan", asy
   const me = await request.get(`${api}/school/me`);
   expect(me.status()).toBe(403);
   expect((await me.json()).code).toBe("feature_disabled");
+});
+
+test("112.5 Report cards: the class over the term, and a student's report card", async () => {
+  await own.goto("/dashboard/school/reports");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/reports$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Report cards" })).toBeVisible();
+  await expect(own.getByText("First term 2026: 2026-09-27 to 2027-01-20")).toBeVisible();
+  const omar = own.locator("tr", { hasText: "Omar Hassan" });
+  await expect(omar).toContainText("1 absent");
+  await omar.getByRole("link", { name: "Report card" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Report card" })).toBeVisible();
+  await expect(own.locator("[data-report-student]")).toHaveText("Omar Hassan");
+  await expect(own.getByText("No scores in this period yet.")).toBeVisible();
+  await expect(own.getByText(/Attendance: 0 present, 1 absent/)).toBeVisible();
+  await expect(own.getByRole("button", { name: "Print or save as PDF" })).toBeVisible();
 });

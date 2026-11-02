@@ -24,6 +24,11 @@ import { appUrl, encryptionKey } from "@/lib/env";
 import { notifyNewLesson } from "@/lib/hosted/auto-notifications";
 import { parseMediaLink } from "@/lib/media/files";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
+import { appZone } from "@/lib/analytics/zone";
+import { deleteItem, moveItem, moveTopic, renameTopic, saveAssignment, saveLive } from "@/lib/courses/builder";
+import { findAssignment } from "@/lib/courses/learning";
+import { parseGrade, parsePhones } from "@/lib/courses/grading";
+import { notifyGraded } from "@/lib/hosted/auto-notifications";
 
 const COURSE_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -54,6 +59,9 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   // 90.1
   v.certificate = formData.get("certificate") === "on" ? "on" : "";
   v.accessDays = String(formData.get("accessDays") ?? "").trim();
+  // 112.5 Taken in order, and who signs the certificate.
+  v.sequential = formData.get("sequential") === "on" ? "on" : "";
+  v.certificateSigner = String(formData.get("certificateSigner") ?? "").trim();
   const categoryIds = formData.getAll("categoryIds").map(Number);
   v.categoryIds = categoryIds.join(",");
   const setup = courseSetup(app);
@@ -159,9 +167,9 @@ export async function saveLessonAction(_: FormState, formData: FormData): Promis
   const { app } = await requireCoursesApp();
   const courseId = Number(formData.get("courseId"));
   const topicId = Number(formData.get("topicId"));
-  const v = values(formData, ["id", "title", "videoUrl", "text", "duration", "dripDays", "attachments"]);
+  const v = values(formData, ["id", "title", "videoUrl", "text", "duration", "dripDays", "opensOn", "attachments"]);
   v.preview = formData.get("preview") === "on" ? "on" : "";
-  const saved = saveLesson(courseSetup(app), courseId, topicId, v, (url) => parseMediaLink(url, appUrl()) !== null);
+  const saved = saveLesson(courseSetup(app), courseId, topicId, v, (url) => parseMediaLink(url, appUrl()) !== null, await appZone(await getStore(), app));
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
   await saveSetup(app, saved.setup);
   // 85.3 A new lesson: its course's students hear of it.
@@ -190,6 +198,9 @@ export async function saveQuizAction(_: FormState, formData: FormData): Promise<
   const courseId = Number(formData.get("courseId"));
   const topicId = Number(formData.get("topicId"));
   const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions"]);
+  // 112.5
+  v.shuffle = formData.get("shuffle") === "on" ? "on" : "";
+  v.showAnswers = formData.get("showAnswers") === "on" ? "on" : "";
   const saved = saveQuiz(courseSetup(app), courseId, topicId, v);
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
   await saveSetup(app, saved.setup);
@@ -244,4 +255,99 @@ export async function saveOfflineDownloadsAction(_: FormState, formData: FormDat
           ? "Saved. Students can save lessons from the next time the app opens."
           : "Saved. The app deletes saved lessons the next time it opens with a connection.";
   return { ok: true, message, values: { downloads: choice } };
+}
+
+// 112.5 The course builder: sections renamed and moved, items in order, assignments and live classes.
+
+export async function renameTopicAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const title = String(formData.get("title") ?? "");
+  const renamed = renameTopic(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), title);
+  if (!renamed.ok) return { errors: renamed.errors, values: { title } };
+  await saveSetup(app, renamed.setup);
+  return { ok: true, message: "Saved." };
+}
+
+export async function moveTopicAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const moved = moveTopic(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), formData.get("step") === "up" ? -1 : 1);
+  if (moved) await saveSetup(app, moved);
+}
+
+export async function moveItemAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  const moved = moveItem(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), Number(formData.get("itemId")), formData.get("step") === "up" ? -1 : 1);
+  if (moved) await saveSetup(app, moved);
+}
+
+/** An assignment or a live class. */
+export async function deleteItemAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  await saveSetup(app, deleteItem(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("itemId"))));
+}
+
+const isMedia = (url: string) => parseMediaLink(url, appUrl()) !== null;
+
+export async function saveAssignmentAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const v = values(formData, ["id", "title", "instructions", "maxPoints", "passPoints", "dueDays", "dueOn", "attachments"]);
+  const saved = saveAssignment(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), v, await appZone(await getStore(), app), isMedia);
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.item.title}”.` : `Saved “${saved.item.title}”.`, values: saved.added ? undefined : v };
+}
+
+export async function saveLiveAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const v = values(formData, ["id", "title", "date", "time", "duration", "meetingUrl", "notes", "recordingUrl"]);
+  const saved = saveLive(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), v, await appZone(await getStore(), app), isMedia);
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.item.title}”.` : `Saved “${saved.item.title}”.`, values: saved.added ? undefined : v };
+}
+
+/** 112.5 Grades a student's assignment, or sends it back for another try; the student hears of it. */
+export async function gradeSubmissionAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireCoursesApp();
+  const { app } = context;
+  const store = await getStore();
+  const submission = await store.getAssignmentSubmission(app.id, Number(formData.get("submissionId")));
+  const found = submission ? findAssignment(courseSetup(app), submission.assignmentId) : null;
+  if (!submission || !found) return { message: "This assignment no longer exists." };
+  const v = values(formData, ["score", "feedback", "outcome"]);
+  const grade = parseGrade(v, found.assignment);
+  if (!grade.ok) return { errors: grade.errors, values: v };
+  const now = new Date();
+  const by = (context.member ?? context.staff ?? context.user).name;
+  await store.gradeAssignmentSubmission(app.id, submission.id, { ...grade.value, gradedAt: now, gradedBy: by });
+  await notifyGraded({ store, key: encryptionKey(), now }, app, found.course, found.assignment, { ...submission, ...grade.value, gradedAt: now }).catch((error: unknown) => {
+    console.error("[assignment graded]", error instanceof Error ? error.message : String(error));
+  });
+  revalidatePath(`/dashboard/courses/${found.course.id}/assignments`);
+  return { ok: true, message: grade.value.status === "returned" ? "Sent back to the student." : "Graded. The student can see it in the app." };
+}
+
+/** 112.5 Several students at once, by the phone numbers they sign in with (pasted from a sheet). */
+export async function addStudentsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const courseId = Number(formData.get("courseId"));
+  const text = String(formData.get("phones") ?? "");
+  if (!courseSetup(app).courses.some((c) => c.id === courseId)) return { message: "This course no longer exists." };
+  const phones = parsePhones(text, hostedSettings(app).defaultCountryCode);
+  if (!phones.ok) return { errors: { phones: phones.error }, values: { phones: text } };
+  const store = await getStore();
+  let added = 0;
+  let already = 0;
+  const unknown: string[] = [];
+  for (const phone of phones.value) {
+    const user = await store.getHostedUserByPhone(app.id, phone.e164);
+    if (!user) unknown.push(phone.text);
+    else if (await store.enrollInCourse({ appId: app.id, userId: user.id, courseId, source: "manual", enrolledAt: new Date() })) added++;
+    else already++;
+  }
+  revalidatePath(`/dashboard/courses/${courseId}`);
+  const counted = `Added ${added}, already enrolled ${already}.`;
+  if (!unknown.length) return { ok: true, message: counted };
+  // The numbers that haven't signed in yet stay in the box, to try again later.
+  return { message: `Added ${added}, already enrolled ${already}. Not signed in to your app yet: ${unknown.slice(0, 20).join(", ")}.`, values: { phones: unknown.join("\n") } };
 }

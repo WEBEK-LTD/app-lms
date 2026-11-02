@@ -881,10 +881,20 @@ class _CurriculumRow extends StatelessWidget {
     final color = item.locked
         ? p.textSecondary
         : (item.completed ? p.success : p.text);
-    // 90.1 A lesson that opens later shows the day it opens.
+    // 90.1 A lesson that opens later shows the day it opens; 112.5 an item
+    // after one not done yet says so, an assignment its due date, a live
+    // class when it starts.
     final opens = item.locked ? item.availableAt : null;
     final trailing = opens != null
         ? context.l10n.opensOn(shortDate(opens))
+        : item.lockedReason == LockedReason.previousNotDone
+        ? context.l10n.afterPrevious
+        : item.type == CurriculumItemType.live && item.startsAt != null
+        ? dayAndTime(item.startsAt!)
+        : item.type == CurriculumItemType.assignment &&
+              item.dueAt != null &&
+              !item.completed
+        ? context.l10n.homeworkDueOn(shortDate(item.dueAt!))
         : item.type == CurriculumItemType.quiz && item.questionCount != null
         ? context.l10n.questionCount(item.questionCount!)
         : (item.durationMinutes != null
@@ -902,7 +912,8 @@ class _CurriculumRow extends StatelessWidget {
       ].join(', '),
       excludeSemantics: true,
       child: InkWell(
-        onTap: item.locked
+        // 112.5 An item after one not done yet says why it's closed.
+        onTap: item.locked && item.lockedReason != LockedReason.previousNotDone
             ? null
             : () => openCurriculumItem(context, item, courseId: courseId),
         child: ConstrainedBox(

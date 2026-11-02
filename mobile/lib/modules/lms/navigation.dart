@@ -17,7 +17,12 @@ void openCurriculumItem(
   bool replace = false,
 }) {
   if (item.locked) {
-    showMessage(context, context.l10n.enrollToOpen);
+    // 112.5 Why it's locked, when the server says.
+    showMessage(context, switch (item.lockedReason) {
+      LockedReason.previousNotDone => context.l10n.lockedPreviousNotDone,
+      LockedReason.accessEnded => context.l10n.lockedAccessEnded,
+      _ => context.l10n.enrollToOpen,
+    });
     return;
   }
   final String location;
@@ -26,6 +31,11 @@ void openCurriculumItem(
       location = Paths.lesson(item.id);
     case CurriculumItemType.quiz:
       location = Paths.quiz(item.id);
+    // 112.5 Courses managed in Yallapp open them in the app; others are on the website.
+    case CurriculumItemType.assignment when item.inApp:
+      location = Paths.assignment(item.id);
+    case CurriculumItemType.live when item.inApp:
+      location = Paths.liveSession(item.id);
     case CurriculumItemType.assignment:
     case CurriculumItemType.live:
       showMessage(context, context.l10n.assignmentsOnWebsite);

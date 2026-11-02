@@ -1,11 +1,13 @@
 import { DEFAULT_COURSE_SETUP, type App, type Course, type CourseLesson, type CourseSetup } from "../data/types";
+import { courseItems } from "./learning";
 
 export function courseSetup(app: App): CourseSetup {
   return { ...DEFAULT_COURSE_SETUP, ...(app.courseSetup ?? {}) };
 }
 
+/** The course's lessons, 112.5 in the owner's order. */
 export function lessonsOf(course: Course): CourseLesson[] {
-  return course.topics.flatMap((t) => t.lessons);
+  return courseItems(course).flatMap((it) => (it.kind === "lesson" ? [it.lesson] : []));
 }
 
 /** The course and lesson for a lesson ID. */

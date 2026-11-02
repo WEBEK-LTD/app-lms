@@ -1,4 +1,5 @@
 import { parsePrice } from "../catalog/money";
+import { localInstant } from "./builder";
 import type { Course, CourseLesson, CourseSetup } from "../data/types";
 
 /** Checks of the Courses pages' forms, kept apart from the actions so they can be tested. */
@@ -10,7 +11,7 @@ export function parseCourse(
   v: Values,
   setup: CourseSetup,
   categoryIds: number[],
-): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active" | "canRestart" | "certificate" | "accessDays">> {
+): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active" | "canRestart" | "certificate" | "accessDays" | "sequential" | "certificateSigner">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > 120) errors.title = "Enter a title of up to 120 characters.";
@@ -25,6 +26,9 @@ export function parseCourse(
   // 90.1 Access for some days after enrolling; empty: always.
   const accessDays = (v.accessDays ?? "").trim() === "" ? null : Number(v.accessDays);
   if (accessDays !== null && (!Number.isInteger(accessDays) || accessDays < 1 || accessDays > 3650)) errors.accessDays = "Enter 1 to 3650 days, or leave it empty for access that doesn't end.";
+  // 112.5 Who signs the certificate.
+  const signer = (v.certificateSigner ?? "").trim();
+  if (signer.length > 80) errors.certificateSigner = "Use at most 80 characters.";
   if (Object.keys(errors).length) return { ok: false, errors };
   const known = new Set(setup.categories.map((c) => c.id));
   return {
@@ -42,12 +46,15 @@ export function parseCourse(
       // 90.1
       certificate: v.certificate === "on",
       accessDays,
+      // 112.5
+      sequential: v.sequential === "on",
+      certificateSigner: signer || null,
     },
   };
 }
 
-/** `isMediaLink`: 51 a Yallapp Media library link (on the platform's own address, http in local runs). */
-export function parseLesson(v: Values, isMediaLink: (url: string) => boolean = () => false): Parsed<Omit<CourseLesson, "id">> {
+/** `isMediaLink`: 51 a Yallapp Media library link (on the platform's own address, http in local runs). `zone`: 112.5 the app's time zone, for the day a lesson opens. */
+export function parseLesson(v: Values, isMediaLink: (url: string) => boolean = () => false, zone = "UTC"): Parsed<Omit<CourseLesson, "id">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > 120) errors.title = "Enter a title of up to 120 characters.";
@@ -67,6 +74,9 @@ export function parseLesson(v: Values, isMediaLink: (url: string) => boolean = (
   // 90.1 Opens some days after enrolling (drip).
   const dripDays = (v.dripDays ?? "").trim() === "" ? null : Number(v.dripDays);
   if (dripDays !== null && (!Number.isInteger(dripDays) || dripDays < 0 || dripDays > 365)) errors.dripDays = "Enter 0 to 365 days, or leave it empty to open it at once.";
+  // 112.5 Opens on a day for everyone.
+  const opensAt = localInstant((v.opensOn ?? "").trim(), "", zone);
+  if (opensAt === undefined) errors.opensOn = "Choose a date, or leave it empty.";
   // 90.1 Files, one per line: "Name | address" (a Media library link or an https address).
   const attachments: { name: string; url: string }[] = [];
   for (const line of (v.attachments ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
@@ -97,6 +107,7 @@ export function parseLesson(v: Values, isMediaLink: (url: string) => boolean = (
       preview: v.preview === "on",
       ...(attachments.length ? { attachments } : {}),
       ...(dripDays ? { dripDays } : {}),
+      ...(opensAt ? { opensAt } : {}),
     },
   };
 }

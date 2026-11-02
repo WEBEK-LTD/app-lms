@@ -1,3 +1,4 @@
+import 'course_work_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
 import '../../l10n/l10n.dart';
@@ -135,7 +136,9 @@ class Question {
       renderMode == RenderMode.native &&
       (type == QuestionType.singleChoice ||
           type == QuestionType.multipleChoice ||
-          type == QuestionType.trueFalse);
+          type == QuestionType.trueFalse ||
+          // 112.5 A short written answer.
+          type == QuestionType.shortAnswer);
 
   String get typeLabel => switch (type) {
     QuestionType.singleChoice => currentL10n.questionSingleChoice,
@@ -185,6 +188,7 @@ class AttemptResult {
     this.quizTitle,
     this.scorePercent,
     this.finishedAt,
+    this.review = const [],
   });
 
   factory AttemptResult.fromJson(Json json) => AttemptResult(
@@ -198,6 +202,7 @@ class AttemptResult {
     ),
     scorePercent: optDouble(json, 'score_percent'),
     finishedAt: optDate(json, 'finished_at'),
+    review: listOf(json, 'review', QuestionReview.fromJson),
   );
 
   final int attemptId;
@@ -206,6 +211,10 @@ class AttemptResult {
   final AttemptStatus status;
   final double? scorePercent;
   final DateTime? finishedAt;
+
+  /// 112.5 Each question with the student's answer and the right one, when
+  /// the quiz shows them.
+  final List<QuestionReview> review;
 
   String get statusLabel => switch (status) {
     AttemptStatus.passed => currentL10n.attemptPassed,

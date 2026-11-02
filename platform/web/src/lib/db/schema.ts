@@ -964,6 +964,35 @@ export const quizAttempts = mysqlTable(
   (t) => [index("quiz_attempts_user_idx").on(t.appId, t.userId, t.courseId), index("quiz_attempts_quiz_idx").on(t.appId, t.quizId)],
 );
 
+/** 112.5 What a student handed in for an assignment of a course managed in Yallapp, and its grade. */
+export const assignmentSubmissions = mysqlTable(
+  "assignment_submissions",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    assignmentId: int("assignment_id").notNull(),
+    text: text("text").notNull(),
+    file: jsonText<{ fileId: string; name: string; kind: "image" | "pdf" }>("file"),
+    status: varchar("status", { length: 16 }).$type<"submitted" | "graded" | "returned">().notNull(),
+    score: int("score"),
+    feedback: text("feedback"),
+    submittedAt: time("submitted_at").notNull(),
+    gradedAt: time("graded_at"),
+    gradedBy: varchar("graded_by", { length: 120 }),
+  },
+  (t) => [
+    uniqueIndex("assignment_submissions_unique").on(t.appId, t.assignmentId, t.userId),
+    index("assignment_submissions_course_idx").on(t.appId, t.courseId, t.status),
+    index("assignment_submissions_user_idx").on(t.appId, t.userId, t.courseId),
+  ],
+);
+
 // 10.7 Listings: property listings of Real estate apps, managed in the dashboard.
 
 export const listings = mysqlTable(

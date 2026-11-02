@@ -2897,3 +2897,62 @@ Map<String, dynamic> assessmentScoresJson() => {
     },
   ],
 };
+
+// 112.5 Assignments and live classes of courses managed in Yallapp.
+
+Map<String, dynamic> assignmentSubmissionJson({
+  String text = 'My answer',
+  String status = 'submitted',
+  int? score,
+  bool? passed,
+  String? feedback,
+}) => {
+  'id': 7,
+  'text': text,
+  'file': null,
+  'status': status,
+  'score': score,
+  'max_points': 20,
+  'passed': passed,
+  'feedback': feedback,
+  'submitted_at': '2026-10-12T15:00:00Z',
+  'graded_at': status == 'submitted' ? null : '2026-10-13T09:00:00Z',
+  'late': false,
+};
+
+Map<String, dynamic> assignmentJson({
+  Map<String, dynamic>? submission,
+  bool canSubmit = true,
+  bool acceptsFiles = true,
+}) => {
+  'id': 16,
+  'course_id': 1,
+  'course_title': 'Python for Beginners',
+  'title': 'Introduce yourself',
+  'instructions_html': '<p>Write three sentences about you.</p>',
+  'due_at': '2026-10-20T20:59:00Z',
+  'max_points': 20,
+  'pass_points': 10,
+  'attachments': <Object>[],
+  'accepts_files': acceptsFiles,
+  'can_submit': canSubmit,
+  'submission': submission,
+};
+
+Map<String, dynamic> liveSessionJson({
+  String status = 'upcoming',
+  String? joinUrl,
+  String? recordingUrl,
+}) => {
+  'id': 17,
+  'course_id': 1,
+  'course_title': 'Python for Beginners',
+  'title': 'Speaking club',
+  'starts_at': '2026-10-20T16:30:00Z',
+  'ends_at': '2026-10-20T17:30:00Z',
+  'duration_minutes': 60,
+  'notes': 'Bring your questions.',
+  'status': status,
+  'join_url': joinUrl,
+  'recording_url': recordingUrl,
+};
