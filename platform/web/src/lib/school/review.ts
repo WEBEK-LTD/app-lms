@@ -5,7 +5,7 @@ import { isReviewUser } from "../delivery/review";
 import { behaviourCategories, signedPoints } from "./behaviour";
 import { markFeePaid } from "./fees";
 import { schoolToday } from "./service";
-import { schoolSettingsOf } from "./settings";
+import { schoolCurrency, schoolSettingsOf } from "./settings";
 
 /**
  * 105.4.7b The store reviewers sign in to a school app with the app's review
@@ -46,6 +46,9 @@ export async function ensureSchoolReview(store: DataStore, app: App, user: Hoste
   if (found.some((p) => p.role === "student")) {
     // 113.3 Staff came after the rest was made: the review account becomes staff too.
     await addMissingRoles(store, app, who, found, now);
+    // 113.12 And the sample payslip came after both.
+    const teacher = found.find((p) => p.role === "teacher");
+    if (teacher) await samplePayslip(store, app, teacher, now);
     return;
   }
   const classes = await store.listSchoolClasses(app.id);
@@ -70,6 +73,43 @@ export async function ensureSchoolReview(store: DataStore, app: App, user: Hoste
     if (made.ok) classmates.push(made.person);
   }
   await sampleSchoolDay(store, app, { classId: klass.id, student, teacher, classmates }, now);
+  await samplePayslip(store, app, teacher, now);
+}
+
+/**
+ * 113.12 Last month's payslip for the review teacher, for nothing (the
+ * owner's decision, 2 November): final, so My payslips and its PDF have
+ * something to show. Made once; the school's Salaries lists it under that
+ * month as the sample it is.
+ */
+async function samplePayslip(store: DataStore, app: App, teacher: SchoolPerson, now: Date): Promise<void> {
+  if ((await store.listSchoolPayslips(app.id, { personId: teacher.id })).length > 0) return;
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  const [y, m] = schoolToday(settings, now).split("-").map(Number) as [number, number];
+  const month = m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
+  await store.createSchoolPayslip({
+    appId: app.id,
+    personId: teacher.id,
+    month,
+    personName: teacher.name,
+    role: "teacher",
+    jobTitle: null,
+    department: null,
+    currency: schoolCurrency(settings),
+    baseCents: 0,
+    allowances: [],
+    lines: [],
+    attendance: null,
+    netCents: 0,
+    status: "final",
+    payments: [],
+    paidCents: 0,
+    note: "Sample payslip (store review): no money is paid.",
+    finalAt: now,
+    finalBy: "App review",
+    createdAt: now,
+    updatedAt: now,
+  });
 }
 
 async function addMissingRoles(store: DataStore, app: App, who: { phone: string | null; email: string | null }, found: readonly SchoolPerson[], now: Date): Promise<void> {
@@ -155,7 +195,7 @@ export function schoolReviewNotes(app: Pick<App, "appName" | "hostedSettings">, 
     `${school} is a school's app for its students, their parents${staff ? ", its teachers and its staff" : " and its teachers"}. Sign in with ${login} and the code ${settings.reviewCode} (no message is sent to it). The school has put this one account on its list as each role at once, in a class of samples ("${REVIEW_CLASS_NAME}"), so every role can be tried without signing out:`,
     `As a student: the School tab shows today's lessons, homework (open "Sample homework: exercises 1 to 5" and hand in a text or a photo), grades and the report card, attendance, the calendar (month or list, with Add to calendar), the exams' timetable, behaviour (merits, notes and points), and the news.`,
     `As a parent: the same account is the parent of that student, so the app has a Parent tab, which only parents see: the child's day (lessons, homework due, the latest grades, behaviour), fees with a receipt, a permission slip to sign ("Class trip (sample slip)", yes or no with a name), an absence to excuse, and who picks the child up; the parent is told of new homework, scores, exams and behaviour notes.`,
-    `As a teacher: the Classroom tab shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar; My payslips lists the teacher's payslips once the school makes one final (none for this account).`,
+    `As a teacher: the Classroom tab shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar; My payslips lists the teacher's final payslips (this account has a sample one for last month, for nothing) with its PDF.`,
     staff ? `As a member of staff: the same account is on the school's staff list too, so the app has a Staff tab, as the school's staff who don't teach have: checking in and out, their job and hours, leave requests (ask for a day off and withdraw it), the staff's news, My payslips, the school's calendar with the staff's own events, and the library when the school has books.` : null,
     // 113.9 A school in university mode shows its university screens instead of the class's.
     options.university ? `The school is a university: as a student, the School tab shows the program and GPA, the term's course registration, the week's lectures, results by term, the transcript and the study plan (empty for this account until the university puts it in a program); as a parent, the Parent tab has the same pages, read only; as a teacher, the Classroom tab shows the lecturer's sections and the students they advise.` : null,

@@ -7269,6 +7269,11 @@ paths:
       tags: [School]
       operationId: listStudentFees
       summary: The student's fees, due and paid
+      description: |
+        For the student's parents (`not_parent`, 403, for anyone else, the
+        student too); at a school in university mode (113.9) the student
+        sees and pays their own as well. `school_fee` pushes go to the same
+        people.
       parameters:
         - $ref: '#/components/parameters/StudentId'
       responses:
@@ -7290,7 +7295,8 @@ paths:
         When the school takes fees by card (`SchoolConfig.fees_by_card`) and
         has set up its payment gateway; `payments_unavailable` (503)
         otherwise, and `already_paid` (409) for a fee paid. The app opens
-        `payment_url`; once paid the fee is `paid` with its receipt.
+        `payment_url`; once paid the fee is `paid` with its receipt. For
+        the same people as the fees (`not_parent`, 403, otherwise).
       parameters:
         - $ref: '#/components/parameters/StudentId'
         - $ref: '#/components/parameters/FeeId'
@@ -11581,7 +11587,7 @@ components:
             marked absent or late, and opens their attendance; `school_homework` (with
             `homework_id`), homework was given to their class, and opens it; `school_grade`, a
             teacher marked homework or entered a score, and opens their grades; `school_fee`, a
-            fee was added or paid, and opens their fees. `school_announcement` (with
+            fee was added or paid, and opens their fees (to the parents; at a university to the student too). `school_announcement` (with
             `student_id` when it is for one student's class or family) opens the school's news.
             113.2 `school_checkin` (with `student_id`): the parent's child checked in or out at
             the school (late or leaving early says so), and opens the child's attendance.

@@ -291,6 +291,17 @@ describe("113.9 a university on the hosted API", () => {
     expect((await call("GET", "/school/students/{student_id}/university", { params: [ids.omar], token: omar })).body).toMatchObject({ code: "not_university" });
   });
 
+  it("a university's students see their own fees; a school's are their parents' only", async () => {
+    await store.createSchoolFee({ appId: app.id, studentId: ids.omar, title: "Term fee", amountCents: 100000, dueOn: null, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
+    const omar = await signUp("1001000001", "Omar");
+    const fees = (await call("GET", "/school/students/{student_id}/fees", { params: [ids.omar], token: omar })).body as { items: unknown[] };
+    expect(fees.items).toHaveLength(1);
+    plan = { ...PLAN_INFO.pro, features: [...PLAN_INFO.pro.features, "school"] };
+    expect((await call("GET", "/school/students/{student_id}/fees", { params: [ids.omar], token: omar })).body).toMatchObject({ code: "not_parent" });
+    const dad = await signUp("1001000009", "Hassan");
+    expect(((await call("GET", "/school/students/{student_id}/fees", { params: [ids.omar], token: dad })).body as { items: unknown[] }).items).toHaveLength(1);
+  });
+
   it("a student registers, the advisor sends it back and approves it, a seat opens from the waiting list", async () => {
     const omar = await signUp("1001000001", "Omar");
     const overview = (await call("GET", "/school/students/{student_id}/university", { params: [ids.omar], token: omar })).body;

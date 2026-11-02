@@ -3,6 +3,7 @@ import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
 import type { HostedUser, SchoolAttendanceStatus, SchoolPerson } from "../data/types";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
+import { loadUniSettings } from "../university/settings";
 
 /**
  * 105.4 What a school's families are told, in their inbox and on their
@@ -111,9 +112,23 @@ const FEE: Record<"due" | "paid", Record<Lang, (name: string, title: string, amo
   },
 };
 
-/** A student's family, of a fee added or paid. */
+/** A student's parents, of a fee added or paid; a university's student too (fees are the parents' at a school, the owner's decision of 2 November). */
 export async function tellFee(deps: DeliveryNotifyDeps, student: SchoolPerson, kind: "due" | "paid", title: string, amount: string): Promise<number> {
-  return tellFamily(deps, student, (lang) => FEE[kind][lang](student.name, title, amount), { type: "school_fee", student_id: String(student.id) });
+  const words = (lang: Lang) => FEE[kind][lang](student.name, title, amount);
+  const data = { type: "school_fee", student_id: String(student.id) };
+  if ((await loadUniSettings(deps.store, deps.app.id)).enabled) return tellFamily(deps, student, words, data);
+  const own = await personUser(deps.store, student);
+  let reached = 0;
+  for (const user of await familyUsers(deps.store, student)) if (user.id !== own?.id || (await isParentOf(deps.store, user, student))) reached += await deliver(deps, user.id, words(await langOf(deps, user)), data, false);
+  return reached;
+}
+
+/** Whether this account is also one of the student's parents (the store reviewers' one account is both). */
+async function isParentOf(store: DataStore, user: HostedUser, student: SchoolPerson): Promise<boolean> {
+  const links = await store.listSchoolFamily(student.appId, { studentId: student.id });
+  const parents = await store.listSchoolPeople(student.appId, { role: "parent", ids: links.map((l) => l.parentId) });
+  for (const parent of parents) if (parent.active && (await personUser(store, parent))?.id === user.id) return true;
+  return false;
 }
 
 /** Everyone the news is for: the school's whole list, a class's students and families, or one student's. */
