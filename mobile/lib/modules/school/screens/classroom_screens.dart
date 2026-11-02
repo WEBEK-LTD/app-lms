@@ -144,6 +144,27 @@ class ClassroomScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                       ],
+                      // 113.8 The school's calendar and the classes' exams.
+                      const SizedBox(height: 10),
+                      SettingsGroup(
+                        title: l10n.schoolEverything,
+                        children: [
+                          SettingsTile(
+                            key: const ValueKey('classroom-calendar'),
+                            icon: AppIcons.event,
+                            title: l10n.schoolCalendar,
+                            onTap: () =>
+                                context.push('${Paths.classroom}/calendar'),
+                          ),
+                          SettingsTile(
+                            key: const ValueKey('classroom-exams'),
+                            icon: AppIcons.quiz,
+                            title: l10n.schoolExams,
+                            onTap: () =>
+                                context.push('${Paths.classroom}/exams'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -255,17 +276,35 @@ class _ClassScreenState extends ConsumerState<ClassScreen> {
                   ],
                 ),
               ),
-              // 112.5 The class's gradebook.
+              // 112.5 The class's gradebook; 113.8 its behaviour.
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
-                child: SecondaryButton(
-                  key: const ValueKey('class-gradebook-open'),
-                  label: l10n.classGradebook,
-                  icon: AppIcons.certificate,
-                  height: 42,
-                  onPressed: () => context.push(
-                    '${Paths.classroomClass(klass.id)}/gradebook',
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SecondaryButton(
+                        key: const ValueKey('class-gradebook-open'),
+                        label: l10n.classGradebook,
+                        icon: AppIcons.certificate,
+                        height: 42,
+                        onPressed: () => context.push(
+                          '${Paths.classroomClass(klass.id)}/gradebook',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SecondaryButton(
+                        key: const ValueKey('class-behaviour-open'),
+                        label: l10n.schoolBehaviour,
+                        icon: AppIcons.star,
+                        height: 42,
+                        onPressed: () => context.push(
+                          '${Paths.classroomClass(klass.id)}/behaviour',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
@@ -972,6 +1011,16 @@ class _TakeAttendanceScreenState extends ConsumerState<TakeAttendanceScreen> {
                       onTap: () => _chooseDay(sheet.date),
                     ),
                   ),
+                  // 113.8 A holiday or a break on the school's calendar.
+                  if (sheet.dayOff case final title?)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                      child: Text(
+                        l10n.classroomDayOff(title),
+                        key: const ValueKey('attendance-day-off'),
+                        style: TextStyle(fontSize: 13, color: p.danger),
+                      ),
+                    ),
                   if (!sheet.taken)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),

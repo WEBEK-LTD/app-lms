@@ -821,11 +821,15 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/classes", label: "Classes", icon: "menu_book" },
           { href: "/dashboard/school/people", label: "People", icon: "groups" },
           { href: "/dashboard/school/timetable", label: "Timetable", icon: "calendar_month" },
+          // 113.8
+          { href: "/dashboard/school/calendar", label: "Calendar", icon: "event" },
+          { href: "/dashboard/school/exams", label: "Exams", icon: "quiz" },
           { href: "/dashboard/school/attendance", label: "Attendance", icon: "task_alt" },
           { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5
           { href: "/dashboard/school/reports", label: "Report cards", icon: "description" },
+          { href: "/dashboard/school/behaviour", label: "Behaviour", icon: "emoji_events" },
           { href: "/dashboard/school/fees", label: "Fees", icon: "payments" },
           { href: "/dashboard/school/news", label: "News", icon: "campaign" },
           { href: "/dashboard/school/settings", label: "School settings", icon: "tune" },

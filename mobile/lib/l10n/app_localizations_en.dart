@@ -6406,4 +6406,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couponWithout => 'Continue without a coupon';
+
+  @override
+  String get schoolCalendar => 'Calendar';
+
+  @override
+  String get schoolExams => 'Exams';
+
+  @override
+  String get schoolBehaviour => 'Behaviour';
+
+  @override
+  String get calendarMonth => 'Month';
+
+  @override
+  String get calendarList => 'List';
+
+  @override
+  String get calendarNothingThisDay => 'Nothing on this day';
+
+  @override
+  String get calendarNothingAhead =>
+      'Nothing on the calendar in the coming weeks';
+
+  @override
+  String get calendarAllDay => 'All day';
+
+  @override
+  String get calendarDayOff => 'No school';
+
+  @override
+  String get calendarExamDays => 'Exam days';
+
+  @override
+  String get calendarExam => 'Exam';
+
+  @override
+  String get calendarStaffOnly => 'Staff';
+
+  @override
+  String calendarDays(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String calendarItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examsComing => 'Coming';
+
+  @override
+  String get examsDone => 'Done';
+
+  @override
+  String get examsNone => 'No exams on the timetable yet';
+
+  @override
+  String get examsNoneMessage =>
+      'The school publishes the exams\' timetable here.';
+
+  @override
+  String examTime(String starts, String ends, int minutes) {
+    return '$starts–$ends · $minutes min';
+  }
+
+  @override
+  String get behaviourPoints => 'Points';
+
+  @override
+  String get behaviourMerits => 'Merits';
+
+  @override
+  String get behaviourNotes => 'Notes';
+
+  @override
+  String get behaviourNone => 'No merits or notes yet';
+
+  @override
+  String get behaviourFromSchool => 'From the school';
+
+  @override
+  String behaviourPointsValue(String points) {
+    return '$points points';
+  }
+
+  @override
+  String get behaviourWrite => 'Write a merit or a note';
+
+  @override
+  String behaviourFor(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get behaviourCategory => 'Category';
+
+  @override
+  String get behaviourNoteHint => 'A note for the family (optional)';
+
+  @override
+  String get behaviourSaved => 'Saved. The family sees it in the app.';
+
+  @override
+  String get behaviourChooseCategory => 'Choose a category';
+
+  @override
+  String get behaviourTakeBack => 'Take back';
+
+  @override
+  String get behaviourTakenBack => 'Taken back';
+
+  @override
+  String get behaviourLatest => 'Latest';
+
+  @override
+  String get behaviourNoCategories =>
+      'The school hasn\'t set behaviour categories yet';
+
+  @override
+  String classroomDayOff(String title) {
+    return 'No school: $title. Nobody is told of an absence on this day.';
+  }
 }

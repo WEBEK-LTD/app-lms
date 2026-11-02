@@ -6604,4 +6604,133 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get couponWithout => 'المتابعة دون قسيمة';
+
+  @override
+  String get schoolCalendar => 'التقويم';
+
+  @override
+  String get schoolExams => 'الامتحانات';
+
+  @override
+  String get schoolBehaviour => 'السلوك';
+
+  @override
+  String get calendarMonth => 'الشهر';
+
+  @override
+  String get calendarList => 'القائمة';
+
+  @override
+  String get calendarNothingThisDay => 'لا شيء في هذا اليوم';
+
+  @override
+  String get calendarNothingAhead => 'لا شيء في التقويم خلال الأسابيع القادمة';
+
+  @override
+  String get calendarAllDay => 'طوال اليوم';
+
+  @override
+  String get calendarDayOff => 'لا دراسة';
+
+  @override
+  String get calendarExamDays => 'أيام امتحانات';
+
+  @override
+  String get calendarExam => 'امتحان';
+
+  @override
+  String get calendarStaffOnly => 'العاملون';
+
+  @override
+  String calendarDays(String from, String to) {
+    return 'من $from إلى $to';
+  }
+
+  @override
+  String calendarItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عنصر',
+      many: '$count عنصرًا',
+      few: '$count عناصر',
+      two: 'عنصران',
+      one: 'عنصر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examsComing => 'القادمة';
+
+  @override
+  String get examsDone => 'المنتهية';
+
+  @override
+  String get examsNone => 'لا امتحانات في الجدول بعد';
+
+  @override
+  String get examsNoneMessage => 'تنشر المدرسة جدول الامتحانات هنا.';
+
+  @override
+  String examTime(String starts, String ends, int minutes) {
+    return '$starts–$ends · $minutes دقيقة';
+  }
+
+  @override
+  String get behaviourPoints => 'النقاط';
+
+  @override
+  String get behaviourMerits => 'نقاط التميز';
+
+  @override
+  String get behaviourNotes => 'الملاحظات';
+
+  @override
+  String get behaviourNone => 'لا نقاط تميز أو ملاحظات بعد';
+
+  @override
+  String get behaviourFromSchool => 'من المدرسة';
+
+  @override
+  String behaviourPointsValue(String points) {
+    return '$points نقاط';
+  }
+
+  @override
+  String get behaviourWrite => 'كتابة نقطة تميز أو ملاحظة';
+
+  @override
+  String behaviourFor(String name) {
+    return 'لـ $name';
+  }
+
+  @override
+  String get behaviourCategory => 'الفئة';
+
+  @override
+  String get behaviourNoteHint => 'ملاحظة للأسرة (اختياري)';
+
+  @override
+  String get behaviourSaved => 'تم الحفظ. تراه الأسرة في التطبيق.';
+
+  @override
+  String get behaviourChooseCategory => 'اختر فئة';
+
+  @override
+  String get behaviourTakeBack => 'تراجع';
+
+  @override
+  String get behaviourTakenBack => 'تم التراجع';
+
+  @override
+  String get behaviourLatest => 'الأحدث';
+
+  @override
+  String get behaviourNoCategories => 'لم تحدد المدرسة فئات السلوك بعد';
+
+  @override
+  String classroomDayOff(String title) {
+    return 'لا دراسة: $title. لا يُبلَّغ أحد بالغياب في هذا اليوم.';
+  }
 }

@@ -1,14 +1,18 @@
 import { formatCents } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { App, SchoolAnnouncement, SchoolAttendanceStatus, SchoolFee, SchoolHomework, SchoolPerson, SchoolSubmission } from "../data/types";
+import { addDays, timeOf, utcToLocal } from "../bookings/time";
+import type { App, SchoolAnnouncement, SchoolAttendanceStatus, SchoolBehaviourCategory, SchoolBehaviourNote, SchoolExam, SchoolFee, SchoolHomework, SchoolPerson, SchoolSubmission } from "../data/types";
 import { notifyDeps, type FlowDeps } from "../delivery/flow";
-import { tellAbsence, tellAnnouncement, tellFee, tellGrade, tellHomework } from "./notify";
+import { behaviourAlertsOf, signedPoints, tellsParents } from "./behaviour";
+import { dayOff, examClassIds } from "./calendar";
+import { tellAbsence, tellAnnouncement, tellBehaviour, tellExamReminder, tellExams, tellFee, tellGrade, tellHomework, type ExamWords } from "./notify";
 import { schoolCurrency, schoolSettingsOf } from "./settings";
 
 /**
  * 105.4 What changes at a school and who is told, the same from the app
  * (a teacher's Classroom tab) and from the dashboard: attendance, homework
- * and its marks, scores, news and fees. Pushes never stop a change.
+ * and its marks, scores, news and fees; 113.8 exams published and their
+ * reminders, merits and notes. Pushes never stop a change.
  */
 
 export type SchoolFlowDeps = FlowDeps;
@@ -33,6 +37,9 @@ export async function takeAttendance(
   );
   const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
   if (!settings.absenceAlerts) return;
+  // 113.8 A holiday or a break: nobody is told of an absence that day.
+  const klass = (await store.listSchoolClasses(app.id)).find((c) => c.id === input.classId) ?? null;
+  if (await dayOff(store, app.id, input.date, klass)) return;
   const told = notifyDeps(deps);
   for (const item of input.items) {
     if ((item.status === "absent" || item.status === "late") && before.get(item.student.id) !== item.status) {
@@ -130,4 +137,79 @@ export async function tellFeePaid(deps: { store: DataStore; app: App; now: Date 
   if (!student) return;
   const settings = schoolSettingsOf(await deps.store.getSchoolSettings(deps.app.id), deps.app);
   await safely(() => tellFee(notifyDeps(deps), student, "paid", fee.title, formatCents(fee.amountCents, schoolCurrency(settings))));
+}
+
+// 113.8 Exams and behaviour
+
+function examWords(exam: SchoolExam, subjects: Map<number, string>): ExamWords {
+  return { id: exam.id, subject: subjects.get(exam.subjectId) ?? "", date: exam.date, time: timeOf(exam.startMinute), room: exam.room };
+}
+
+/** The active students an exam is for (its class, or every class of its grade). */
+async function examStudents(store: DataStore, app: Pick<App, "id">, exam: SchoolExam): Promise<SchoolPerson[]> {
+  const ids = examClassIds(exam, await store.listSchoolClasses(app.id));
+  const all = await store.listSchoolPeople(app.id, { role: "student" });
+  return all.filter((s) => s.active && s.classId !== null && ids.includes(s.classId));
+}
+
+/** Publishes drafts of the exams' timetable; each student hears once of all theirs. Returns those published. */
+export async function publishExams(deps: SchoolFlowDeps, ids: number[]): Promise<SchoolExam[]> {
+  const { store, app, now } = deps;
+  const published = await store.publishSchoolExams(app.id, ids, now);
+  if (published.length === 0) return [];
+  const subjects = new Map((await store.listSchoolSubjects(app.id)).map((s) => [s.id, s.name]));
+  const byStudent = new Map<number, { student: SchoolPerson; exams: ExamWords[] }>();
+  for (const exam of published) {
+    for (const student of await examStudents(store, app, exam)) {
+      const entry = byStudent.get(student.id) ?? { student, exams: [] };
+      entry.exams.push(examWords(exam, subjects));
+      byStudent.set(student.id, entry);
+    }
+  }
+  const told = notifyDeps(deps);
+  for (const { student, exams } of byStudent.values()) await safely(() => tellExams(told, student, exams));
+  return published;
+}
+
+/** The reminder of tomorrow's exams goes from this hour, in the school's time zone. */
+export const EXAM_REMINDER_HOUR = 17;
+
+/** The day before each published exam, from 17:00: its students and their families; once per exam. */
+export async function remindExams(deps: SchoolFlowDeps): Promise<number> {
+  const { store, app, now } = deps;
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  const local = utcToLocal(now, settings.timezone);
+  if (Number(local.time.slice(0, 2)) < EXAM_REMINDER_HOUR) return 0;
+  const tomorrow = addDays(local.date, 1);
+  const exams = (await store.listSchoolExams(app.id, { from: tomorrow, to: tomorrow, published: true })).filter((e) => e.remindedAt === null);
+  if (exams.length === 0) return 0;
+  const subjects = new Map((await store.listSchoolSubjects(app.id)).map((s) => [s.id, s.name]));
+  const told = notifyDeps(deps);
+  let reminded = 0;
+  for (const exam of exams) {
+    if (!(await store.markSchoolExamReminded(app.id, exam.id, now))) continue;
+    reminded += 1;
+    for (const student of await examStudents(store, app, exam)) await safely(() => tellExamReminder(told, student, examWords(exam, subjects)));
+  }
+  return reminded;
+}
+
+/** A merit or a note on a student, by a teacher (or the school: null); their parents hear of it as the school chose. */
+export async function writeBehaviour(deps: SchoolFlowDeps, input: { student: SchoolPerson; category: SchoolBehaviourCategory; note: string | null; teacherId: number | null }): Promise<SchoolBehaviourNote> {
+  const { store, app, now } = deps;
+  const made = await store.createSchoolBehaviour({
+    appId: app.id,
+    studentId: input.student.id,
+    classId: input.student.classId,
+    categoryId: input.category.id,
+    categoryName: input.category.name,
+    kind: input.category.kind,
+    points: signedPoints(input.category.kind, input.category.points),
+    note: input.note,
+    teacherId: input.teacherId,
+    createdAt: now,
+  });
+  const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
+  if (tellsParents(behaviourAlertsOf(settings), made.kind)) await safely(() => tellBehaviour(notifyDeps(deps), input.student, made));
+  return made;
 }

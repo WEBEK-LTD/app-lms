@@ -831,6 +831,12 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Page not found.": "Sayfa bulunamadı.",
   "Give the period as two dates, the first not after the second.": "Dönemi, ilki ikincisinden sonra olmayan iki tarihle verin.",
   "Ask for up to {0} days at a time.": "Bir seferde en fazla {0} gün isteyin.",
+  // 113.8 Behaviour.
+  "This student isn't in one of your classes.": "Bu öğrenci sınıflarınızdan birinde değil.",
+  "Choose one of the school's categories.": "Okulun kategorilerinden birini seçin.",
+  "The note can be up to {0} characters.": "Not en fazla {0} karakter olabilir.",
+  "Note not found.": "Not bulunamadı.",
+  "A note can be taken back on the day it was written. Ask the school.": "Not yalnızca yazıldığı gün geri alınabilir. Okula başvurun.",
   "Homework not found.": "Ödev bulunamadı.",
   "The text can be up to 5000 characters.": "Metin en fazla 5000 karakter olabilir.",
   "This file isn't ready. Send it again.": "Bu dosya hazır değil. Tekrar gönderin.",

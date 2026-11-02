@@ -602,11 +602,17 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const assessment = await store.createSchoolAssessment({ appId: k12, classId: theirClass.id, subjectId: theirSubject.subject.id, teacherId: null, kind: "exam", title: `${MARK} exam`, date: "2026-10-20", maxScore: 100, createdAt: NOW });
     await store.saveSchoolScores(k12, assessment.id, [{ studentId: theirStudent.person.id, score: 90, note: MARK }], NOW);
     const fee = await store.createSchoolFee({ appId: k12, studentId: theirStudent.person.id, title: `${MARK} fee`, amountCents: 100_00, dueOn: null, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
+    // 113.8 Their calendar, exams' timetable and a merit on their student.
+    await store.saveSchoolEvent({ id: null, appId: k12, kind: "event", title: `${MARK} event`, notes: MARK, startsOn: "2026-10-12", endsOn: "2026-10-12", startMinute: null, endMinute: null, place: MARK, audience: "school", grade: null, classId: null }, NOW);
+    const theirExam = (await store.saveSchoolExam({ id: null, appId: k12, classId: theirClass.id, grade: null, subjectId: theirSubject.subject.id, date: "2026-10-14", startMinute: 540, durationMinutes: 60, room: MARK, notes: MARK }, NOW))!;
+    await store.publishSchoolExams(k12, [theirExam.id], NOW);
+    const theirNote = await store.createSchoolBehaviour({ appId: k12, studentId: theirStudent.person.id, classId: theirClass.id, categoryId: null, categoryName: `${MARK} category`, kind: "positive", points: 2, note: MARK, teacherId: null, createdAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
       assessment_id: String(assessment.id),
       fee_id: String(fee.id),
+      note_id: String(theirNote.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.

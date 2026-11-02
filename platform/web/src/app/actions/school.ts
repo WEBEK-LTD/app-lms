@@ -467,7 +467,9 @@ export async function saveSchoolSettingsAction(_: FormState, formData: FormData)
   const values = formValues(formData);
   const parsed = parseSchoolSettings(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  await (await getStore()).saveSchoolSettings(context.app.id, parsed.value, new Date());
+  const store = await getStore();
+  // 113.8 What other pages keep in the settings (behaviour) stays.
+  await store.saveSchoolSettings(context.app.id, { ...((await store.getSchoolSettings(context.app.id)) ?? {}), ...parsed.value }, new Date());
   await recordStaffChange(context, "Saved the school settings");
   refresh();
   return { ok: true, message: "Saved. The app shows it the next time it opens.", values };

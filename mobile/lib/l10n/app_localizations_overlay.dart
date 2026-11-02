@@ -6780,4 +6780,151 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get couponWithout =>
       overlay.text('couponWithout') ?? base.couponWithout;
+
+  @override
+  String get schoolCalendar =>
+      overlay.text('schoolCalendar') ?? base.schoolCalendar;
+
+  @override
+  String get schoolExams => overlay.text('schoolExams') ?? base.schoolExams;
+
+  @override
+  String get schoolBehaviour =>
+      overlay.text('schoolBehaviour') ?? base.schoolBehaviour;
+
+  @override
+  String get calendarMonth =>
+      overlay.text('calendarMonth') ?? base.calendarMonth;
+
+  @override
+  String get calendarList => overlay.text('calendarList') ?? base.calendarList;
+
+  @override
+  String get calendarNothingThisDay =>
+      overlay.text('calendarNothingThisDay') ?? base.calendarNothingThisDay;
+
+  @override
+  String get calendarNothingAhead =>
+      overlay.text('calendarNothingAhead') ?? base.calendarNothingAhead;
+
+  @override
+  String get calendarAllDay =>
+      overlay.text('calendarAllDay') ?? base.calendarAllDay;
+
+  @override
+  String get calendarDayOff =>
+      overlay.text('calendarDayOff') ?? base.calendarDayOff;
+
+  @override
+  String get calendarExamDays =>
+      overlay.text('calendarExamDays') ?? base.calendarExamDays;
+
+  @override
+  String get calendarExam => overlay.text('calendarExam') ?? base.calendarExam;
+
+  @override
+  String get calendarStaffOnly =>
+      overlay.text('calendarStaffOnly') ?? base.calendarStaffOnly;
+
+  @override
+  String calendarDays(String from, String to) =>
+      overlay.format('calendarDays', {'from': from, 'to': to}) ??
+      base.calendarDays(from, to);
+
+  @override
+  String calendarItems(int count) =>
+      overlay.format('calendarItems', {'count': count}) ??
+      base.calendarItems(count);
+
+  @override
+  String get examsComing => overlay.text('examsComing') ?? base.examsComing;
+
+  @override
+  String get examsDone => overlay.text('examsDone') ?? base.examsDone;
+
+  @override
+  String get examsNone => overlay.text('examsNone') ?? base.examsNone;
+
+  @override
+  String get examsNoneMessage =>
+      overlay.text('examsNoneMessage') ?? base.examsNoneMessage;
+
+  @override
+  String examTime(String starts, String ends, int minutes) =>
+      overlay.format('examTime', {
+        'starts': starts,
+        'ends': ends,
+        'minutes': minutes,
+      }) ??
+      base.examTime(starts, ends, minutes);
+
+  @override
+  String get behaviourPoints =>
+      overlay.text('behaviourPoints') ?? base.behaviourPoints;
+
+  @override
+  String get behaviourMerits =>
+      overlay.text('behaviourMerits') ?? base.behaviourMerits;
+
+  @override
+  String get behaviourNotes =>
+      overlay.text('behaviourNotes') ?? base.behaviourNotes;
+
+  @override
+  String get behaviourNone =>
+      overlay.text('behaviourNone') ?? base.behaviourNone;
+
+  @override
+  String get behaviourFromSchool =>
+      overlay.text('behaviourFromSchool') ?? base.behaviourFromSchool;
+
+  @override
+  String behaviourPointsValue(String points) =>
+      overlay.format('behaviourPointsValue', {'points': points}) ??
+      base.behaviourPointsValue(points);
+
+  @override
+  String get behaviourWrite =>
+      overlay.text('behaviourWrite') ?? base.behaviourWrite;
+
+  @override
+  String behaviourFor(String name) =>
+      overlay.format('behaviourFor', {'name': name}) ?? base.behaviourFor(name);
+
+  @override
+  String get behaviourCategory =>
+      overlay.text('behaviourCategory') ?? base.behaviourCategory;
+
+  @override
+  String get behaviourNoteHint =>
+      overlay.text('behaviourNoteHint') ?? base.behaviourNoteHint;
+
+  @override
+  String get behaviourSaved =>
+      overlay.text('behaviourSaved') ?? base.behaviourSaved;
+
+  @override
+  String get behaviourChooseCategory =>
+      overlay.text('behaviourChooseCategory') ?? base.behaviourChooseCategory;
+
+  @override
+  String get behaviourTakeBack =>
+      overlay.text('behaviourTakeBack') ?? base.behaviourTakeBack;
+
+  @override
+  String get behaviourTakenBack =>
+      overlay.text('behaviourTakenBack') ?? base.behaviourTakenBack;
+
+  @override
+  String get behaviourLatest =>
+      overlay.text('behaviourLatest') ?? base.behaviourLatest;
+
+  @override
+  String get behaviourNoCategories =>
+      overlay.text('behaviourNoCategories') ?? base.behaviourNoCategories;
+
+  @override
+  String classroomDayOff(String title) =>
+      overlay.format('classroomDayOff', {'title': title}) ??
+      base.classroomDayOff(title);
 }

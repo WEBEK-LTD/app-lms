@@ -1563,7 +1563,7 @@
     },
     {
       "name": "School",
-      "description": "Roadmap 105.4. A school's app for its students and their parents, on Yallapp's hosted API. The school adds its students, parents and teachers on the dashboard (by mobile number, or by email for apps that sign in by email only), links each parent to their children, and puts the students in classes. Whoever signs in with a student's number is that student; with a parent's number, that parent (`User.roles` has `student` or `parent`). `GET /school/me` lists whom the person may see: a student themselves, a parent each of their children. Every `/school/students/{student_id}` endpoint answers `not_found` (404) for a student the person may not see, and `not_school_member` (403) to anyone the school didn't add. A student sees their timetable, attendance, homework (and hands it in), grades, upcoming exams and fees; a parent sees the same for each child and pays fees by card through the school's own payment page. Every amount is the school's: Yallapp sets none.",
+      "description": "Roadmap 105.4. A school's app for its students and their parents, on Yallapp's hosted API. The school adds its students, parents and teachers on the dashboard (by mobile number, or by email for apps that sign in by email only), links each parent to their children, and puts the students in classes. Whoever signs in with a student's number is that student; with a parent's number, that parent (`User.roles` has `student` or `parent`). `GET /school/me` lists whom the person may see: a student themselves, a parent each of their children. Every `/school/students/{student_id}` endpoint answers `not_found` (404) for a student the person may not see, and `not_school_member` (403) to anyone the school didn't add. A student sees their timetable, attendance, homework (and hands it in), grades, upcoming exams and fees; a parent sees the same for each child and pays fees by card through the school's own payment page. Every amount is the school's: Yallapp sets none. 113.8 Everyone sees the school's calendar, the exams' timetable once published and each student's behaviour record. 105.4.7b The store review account (App sign-in's review number or email with its fixed code) is, the first time it signs in, a student of a class of samples, that student's parent and the class's teacher (and a member of staff where the school has staff).",
       "endpoints": [
         {
           "method": "GET",
@@ -1626,6 +1626,27 @@
           "path": "/school/students/{student_id}/fees/{fee_id}/pay",
           "summary": "Pay a fee by card on the school's payment page",
           "description": "When the school takes fees by card (`SchoolConfig.fees_by_card`) and has set up its payment gateway; `payments_unavailable` (503) otherwise, and `already_paid` (409) for a fee paid. The app opens `payment_url`; once paid the fee is `paid` with its receipt.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/calendar",
+          "summary": "The school's calendar for the person",
+          "description": "Roadmap 113.8. The events, holidays and breaks (no school that day) and exam days from `from` to `to` (this month and the next weeks by default, up to 120 days), with the published exams of the timetable: everyone's, the grade's and the class's of the person's students (a teacher's: of their classes), and the staff's for those who work at the school. With `student_id`, one of the person's students only (a parent's child); `not_found` (404) for anyone else.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/exams",
+          "summary": "The student's exams' timetable",
+          "description": "Roadmap 113.8. The published exams of the student's class or grade: those coming (soonest first) and the last 50 done (latest first). The student and their parents get a push when exams are published and the day before each (`school_exam`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/behaviour",
+          "summary": "The student's behaviour record",
+          "description": "Roadmap 113.8. Merits and notes, newest first, with the record's points total and counts. Parents get a push (`school_behaviour`) for all of them, only negative ones or none, as the school chooses.",
           "access": "signed-in"
         },
         {
@@ -1758,6 +1779,41 @@
           "path": "/classroom/assessments/{assessment_id}/scores",
           "summary": "Enter scores",
           "description": "From 0 to the assessment's `max_score`; null clears one. Students left out keep theirs. A student given a score for the first time, and their parents, get a push (`school_grade`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/exams",
+          "summary": "The exams of the teacher's classes",
+          "description": "Roadmap 113.8. The published exams of the teacher's classes (or of `class_id`), coming and done, as students see them.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/behaviour/categories",
+          "summary": "The school's behaviour categories",
+          "description": "Roadmap 113.8. The categories the school uses, positive (points of 0 or more) and negative (0 or less), in the school's order.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/classroom/behaviour",
+          "summary": "Write a merit or a note",
+          "description": "Roadmap 113.8. On a student of one of the teacher's classes (`not_your_class`, 403, else), of one of the school's categories with its points. The student's parents get a push (`school_behaviour`) as the school chooses.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/classroom/behaviour/{note_id}",
+          "summary": "Take back a merit or a note",
+          "description": "The teacher's own, within a day of writing it (`too_late`, 409, after).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/classroom/classes/{class_id}/behaviour",
+          "summary": "A class's behaviour",
+          "description": "Roadmap 113.8. Each student's points and counts, and the class's latest 50 merits and notes (one student's with `student_id`).",
           "access": "signed-in"
         },
         {

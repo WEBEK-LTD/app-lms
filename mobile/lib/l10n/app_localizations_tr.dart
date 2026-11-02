@@ -6395,4 +6395,131 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get couponWithout => 'Kuponsuz devam et';
+
+  @override
+  String get schoolCalendar => 'Takvim';
+
+  @override
+  String get schoolExams => 'Sınavlar';
+
+  @override
+  String get schoolBehaviour => 'Davranış';
+
+  @override
+  String get calendarMonth => 'Ay';
+
+  @override
+  String get calendarList => 'Liste';
+
+  @override
+  String get calendarNothingThisDay => 'Bu günde bir şey yok';
+
+  @override
+  String get calendarNothingAhead =>
+      'Önümüzdeki haftalarda takvimde bir şey yok';
+
+  @override
+  String get calendarAllDay => 'Tüm gün';
+
+  @override
+  String get calendarDayOff => 'Okul yok';
+
+  @override
+  String get calendarExamDays => 'Sınav günleri';
+
+  @override
+  String get calendarExam => 'Sınav';
+
+  @override
+  String get calendarStaffOnly => 'Çalışanlar';
+
+  @override
+  String calendarDays(String from, String to) {
+    return '$from - $to';
+  }
+
+  @override
+  String calendarItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get examsComing => 'Yaklaşan';
+
+  @override
+  String get examsDone => 'Yapılan';
+
+  @override
+  String get examsNone => 'Programda henüz sınav yok';
+
+  @override
+  String get examsNoneMessage => 'Okul sınav programını burada yayınlar.';
+
+  @override
+  String examTime(String starts, String ends, int minutes) {
+    return '$starts–$ends · $minutes dk';
+  }
+
+  @override
+  String get behaviourPoints => 'Puan';
+
+  @override
+  String get behaviourMerits => 'Takdirler';
+
+  @override
+  String get behaviourNotes => 'Notlar';
+
+  @override
+  String get behaviourNone => 'Henüz takdir veya not yok';
+
+  @override
+  String get behaviourFromSchool => 'Okuldan';
+
+  @override
+  String behaviourPointsValue(String points) {
+    return '$points puan';
+  }
+
+  @override
+  String get behaviourWrite => 'Takdir veya not yaz';
+
+  @override
+  String behaviourFor(String name) {
+    return '$name için';
+  }
+
+  @override
+  String get behaviourCategory => 'Kategori';
+
+  @override
+  String get behaviourNoteHint => 'Aile için bir not (isteğe bağlı)';
+
+  @override
+  String get behaviourSaved => 'Kaydedildi. Aile uygulamada görür.';
+
+  @override
+  String get behaviourChooseCategory => 'Bir kategori seçin';
+
+  @override
+  String get behaviourTakeBack => 'Geri al';
+
+  @override
+  String get behaviourTakenBack => 'Geri alındı';
+
+  @override
+  String get behaviourLatest => 'En yeniler';
+
+  @override
+  String get behaviourNoCategories =>
+      'Okul henüz davranış kategorisi belirlemedi';
+
+  @override
+  String classroomDayOff(String title) {
+    return 'Okul yok: $title. Bu gün kimseye devamsızlık bildirilmez.';
+  }
 }

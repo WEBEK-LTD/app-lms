@@ -416,7 +416,12 @@ tags:
       attendance, homework (and hands it in), grades, upcoming exams and
       fees; a parent sees the same for each child and pays fees by card
       through the school's own payment page. Every amount is the school's:
-      Yallapp sets none.
+      Yallapp sets none. 113.8 Everyone sees the school's calendar, the
+      exams' timetable once published and each student's behaviour record.
+      105.4.7b The store review account (App sign-in's review number or
+      email with its fixed code) is, the first time it signs in, a student
+      of a class of samples, that student's parent and the class's teacher
+      (and a member of staff where the school has staff).
   - name: Classroom
     description: |
       Roadmap 105.4. The school's teachers' screens. A teacher is a person
@@ -6735,6 +6740,81 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /school/calendar:
+    get:
+      tags: [School]
+      operationId: getSchoolCalendar
+      summary: The school's calendar for the person
+      description: |
+        Roadmap 113.8. The events, holidays and breaks (no school that day)
+        and exam days from `from` to `to` (this month and the next weeks by
+        default, up to 120 days), with the published exams of the
+        timetable: everyone's, the grade's and the class's of the person's
+        students (a teacher's: of their classes), and the staff's for those
+        who work at the school. With `student_id`, one of the person's
+        students only (a parent's child); `not_found` (404) for anyone else.
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+        - { name: student_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: The calendar
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolCalendar' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/exams:
+    get:
+      tags: [School]
+      operationId: listStudentExams
+      summary: The student's exams' timetable
+      description: "Roadmap 113.8. The published exams of the student's class or grade: those coming (soonest first) and the last 50 done (latest first). The student and their parents get a push when exams are published and the day before each (`school_exam`)."
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Exams
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamLists' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /school/students/{student_id}/behaviour:
+    get:
+      tags: [School]
+      operationId: getStudentBehaviour
+      summary: The student's behaviour record
+      description: "Roadmap 113.8. Merits and notes, newest first, with the record's points total and counts. Parents get a push (`school_behaviour`) for all of them, only negative ones or none, as the school chooses."
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: The record
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - $ref: '#/components/schemas/BehaviourTotals'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/BehaviourNote' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /school/announcements:
     get:
       tags: [School]
@@ -7159,6 +7239,107 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /classroom/exams:
+    get:
+      tags: [Classroom]
+      operationId: listClassroomExams
+      summary: The exams of the teacher's classes
+      description: Roadmap 113.8. The published exams of the teacher's classes (or of `class_id`), coming and done, as students see them.
+      parameters:
+        - { name: class_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Exams
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExamLists' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/behaviour/categories:
+    get:
+      tags: [Classroom]
+      operationId: listBehaviourCategories
+      summary: The school's behaviour categories
+      description: Roadmap 113.8. The categories the school uses, positive (points of 0 or more) and negative (0 or less), in the school's order.
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BehaviourCategory' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/behaviour:
+    post:
+      tags: [Classroom]
+      operationId: writeBehaviour
+      summary: Write a merit or a note
+      description: "Roadmap 113.8. On a student of one of the teacher's classes (`not_your_class`, 403, else), of one of the school's categories with its points. The student's parents get a push (`school_behaviour`) as the school chooses."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, category_id]
+              properties:
+                student_id: { type: integer }
+                category_id: { type: integer }
+                note: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '201':
+          description: Written
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BehaviourNote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/behaviour/{note_id}:
+    delete:
+      tags: [Classroom]
+      operationId: deleteBehaviour
+      summary: Take back a merit or a note
+      description: The teacher's own, within a day of writing it (`too_late`, 409, after).
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '204': { description: Taken back }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /classroom/classes/{class_id}/behaviour:
+    get:
+      tags: [Classroom]
+      operationId: getClassBehaviour
+      summary: A class's behaviour
+      description: Roadmap 113.8. Each student's points and counts, and the class's latest 50 merits and notes (one student's with `student_id`).
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - { name: student_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: The class's behaviour
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassBehaviour' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /classroom/announcements:
     post:
       tags: [Classroom]
@@ -7358,6 +7539,11 @@ components:
       schema: { type: integer }
     AssessmentId:
       name: assessment_id
+      in: path
+      required: true
+      schema: { type: integer }
+    NoteId:
+      name: note_id
       in: path
       required: true
       schema: { type: integer }
@@ -8825,7 +9011,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -8855,6 +9041,10 @@ components:
             teacher marked homework or entered a score, and opens their grades; `school_fee`, a
             fee was added or paid, and opens their fees. `school_announcement` (with
             `student_id` when it is for one student's class or family) opens the school's news.
+            113.8 `school_exam` (with `student_id`, and `exam_id` for one exam): exams of the
+            student's were published, or one is tomorrow, and opens their exams' timetable;
+            `school_behaviour` (with `student_id` and `note_id`): a merit or a note on the
+            parent's child, and opens their behaviour record.
             112.5 `live_class_soon` (with `course_id` and `live_id`): one of the student's
             live classes starts within the hour, and opens it; `assignment_graded` (with
             `course_id` and `assignment_id`): the teacher graded or sent back one of the
@@ -8873,6 +9063,8 @@ components:
         ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
         student_id: { type: [integer, 'null'], description: "105.4 For the school's notifications, the student it is about. Missing on older servers." }
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
+        exam_id: { type: [integer, 'null'], description: "113.8 For school_exam about one exam, that exam. Missing on older servers." }
+        note_id: { type: [integer, 'null'], description: "113.8 For school_behaviour, the merit or note. Missing on older servers." }
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
@@ -13025,6 +13217,118 @@ components:
           description: Due first (soonest due first), then paid (newest first).
           items: { $ref: '#/components/schemas/SchoolFee' }
 
+    SchoolEvent:
+      type: object
+      description: Roadmap 113.8. A day or days on the school's calendar.
+      required: [id, kind, title, notes, starts_on, ends_on, all_day, starts, ends, place, audience, for_name]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [event, holiday, exam], description: "`holiday` is a holiday or a break: no school those days. `exam` marks exam days." }
+        title: { type: string }
+        notes: { type: [string, 'null'] }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date, description: The same day for one day. }
+        all_day: { type: boolean }
+        starts: { type: [string, 'null'], example: '09:00' }
+        ends: { type: [string, 'null'], example: '13:00' }
+        place: { type: [string, 'null'] }
+        audience: { type: string, enum: [school, grade, class, staff] }
+        for_name: { type: [string, 'null'], description: "The grade's or the class's name; null for everyone and the staff." }
+
+    SchoolExam:
+      type: object
+      description: Roadmap 113.8. An exam of the exams' timetable, for a class or every class of a grade.
+      required: [id, subject, class_id, class_name, grade, date, starts, ends, duration_minutes, room, notes, published]
+      properties:
+        id: { type: integer }
+        subject: { type: string }
+        class_id: { type: [integer, 'null'] }
+        class_name: { type: [string, 'null'] }
+        grade: { type: [string, 'null'] }
+        date: { type: string, format: date }
+        starts: { type: string, example: '09:00' }
+        ends: { type: string, example: '10:00' }
+        duration_minutes: { type: integer }
+        room: { type: [string, 'null'] }
+        notes: { type: [string, 'null'], description: What it covers and what to bring. }
+        published: { type: boolean }
+
+    SchoolCalendar:
+      type: object
+      required: [from, to, events, exams]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        events:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolEvent' }
+        exams:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+
+    ExamLists:
+      type: object
+      required: [upcoming, past]
+      properties:
+        upcoming:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+        past:
+          type: array
+          items: { $ref: '#/components/schemas/SchoolExam' }
+
+    BehaviourCategory:
+      type: object
+      required: [id, name, kind, points]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        kind: { type: string, enum: [positive, negative] }
+        points: { type: integer, description: Negative for a negative category. }
+
+    BehaviourNote:
+      type: object
+      description: Roadmap 113.8. A merit (positive) or a note (negative) on a student.
+      required: [id, student_id, student_name, class_name, kind, category, points, note, teacher_name, created_at]
+      properties:
+        id: { type: integer }
+        student_id: { type: integer }
+        student_name: { type: string }
+        class_name: { type: [string, 'null'] }
+        kind: { type: string, enum: [positive, negative] }
+        category: { type: string }
+        points: { type: integer }
+        note: { type: [string, 'null'] }
+        teacher_name: { type: [string, 'null'], description: 'Null: written by the school.' }
+        created_at: { type: string, format: date-time }
+
+    BehaviourTotals:
+      type: object
+      required: [points, positive_count, negative_count]
+      properties:
+        points: { type: integer, description: The record's points total. }
+        positive_count: { type: integer }
+        negative_count: { type: integer }
+
+    ClassBehaviour:
+      type: object
+      required: [class_id, class_name, students, recent]
+      properties:
+        class_id: { type: integer }
+        class_name: { type: string }
+        students:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/BehaviourTotals'
+              - type: object
+                required: [student]
+                properties:
+                  student: { $ref: '#/components/schemas/SchoolStudent' }
+        recent:
+          type: array
+          items: { $ref: '#/components/schemas/BehaviourNote' }
+
     SchoolAnnouncement:
       type: object
       required: [id, title, body, audience, class_name, author, created_at]
@@ -13073,6 +13377,15 @@ components:
       properties:
         class_id: { type: integer }
         date: { type: string, format: date }
+        day_off:
+          description: Roadmap 113.8. The holiday or break the day falls on for the class (nobody is told of an absence that day); null on a school day. Missing on older servers.
+          oneOf:
+            - type: object
+              required: [id, title]
+              properties:
+                id: { type: integer }
+                title: { type: string }
+            - type: 'null'
         students:
           type: array
           items:

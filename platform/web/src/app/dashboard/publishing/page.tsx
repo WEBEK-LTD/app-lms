@@ -38,6 +38,7 @@ import { ReadySection } from "./ready";
 import { ReviewSection } from "./review-section";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { reviewNotes } from "@/lib/delivery/review";
+import { schoolReviewNotes } from "@/lib/school/review";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { readiness } from "@/lib/publishing/readiness";
 import { REJECTION_LINK } from "@/lib/publishing/review";
@@ -119,7 +120,9 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   // 104.7 A delivery app's notes for the reviewers of both its apps.
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   const notes = delivery ? reviewNotes(app, delivery) : null;
-  const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery), driver: secondAppRoleOf(app) === "driver" } : null;
+  // 105.4.7b A school's notes: the one review sign-in and where each role is.
+  const schoolNotes = app.connector?.kind === "school" ? schoolReviewNotes(app) : null;
+  const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery), driver: secondAppRoleOf(app) === "driver" } : schoolNotes ? { customer: schoolNotes, courier: null, courierName: "" } : null;
 
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.

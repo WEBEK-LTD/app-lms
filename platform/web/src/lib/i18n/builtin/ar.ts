@@ -830,6 +830,12 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Page not found.": "الصفحة غير موجودة.",
   "Give the period as two dates, the first not after the second.": "حدّد الفترة بتاريخين، على ألّا يكون الأول بعد الثاني.",
   "Ask for up to {0} days at a time.": "اطلب حتى {0} يومًا في المرة الواحدة.",
+  // 113.8 Behaviour.
+  "This student isn't in one of your classes.": "هذا الطالب ليس في أحد فصولك.",
+  "Choose one of the school's categories.": "اختر إحدى فئات المدرسة.",
+  "The note can be up to {0} characters.": "يمكن أن تصل الملاحظة إلى {0} حرف.",
+  "Note not found.": "الملاحظة غير موجودة.",
+  "A note can be taken back on the day it was written. Ask the school.": "يمكن التراجع عن الملاحظة في يوم كتابتها فقط. تواصل مع المدرسة.",
   "Homework not found.": "الواجب غير موجود.",
   "The text can be up to 5000 characters.": "يمكن أن يصل النص إلى 5000 حرف.",
   "This file isn't ready. Send it again.": "هذا الملف غير جاهز. أرسله مرة أخرى.",

@@ -18,6 +18,7 @@ import type {
 } from "../data/types";
 import { courierWho } from "../delivery/service";
 import { mediaLink } from "../media/files";
+import { ensureSchoolReview } from "./review";
 import { schoolCurrency } from "./settings";
 
 /**
@@ -40,7 +41,9 @@ export const NO_MEMBER: SchoolMember = { student: null, parent: null, teacher: n
  * number (or email): the record keeps the account last used, for the
  * teacher's name on what they write.
  */
-export async function schoolMemberOf(store: DataStore, app: Pick<App, "id">, user: HostedUser, now: Date): Promise<SchoolMember> {
+export async function schoolMemberOf(store: DataStore, app: App, user: HostedUser, now: Date): Promise<SchoolMember> {
+  // 105.4.7b The store reviewers: the review class and their roles, made the first time.
+  await ensureSchoolReview(store, app, user, now);
   const found = (await store.findSchoolPeople(app.id, courierWho(user))).filter((p) => p.active);
   const out: SchoolMember = { student: null, parent: null, teacher: null };
   for (const person of found) {

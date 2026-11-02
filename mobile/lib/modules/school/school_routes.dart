@@ -8,6 +8,7 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
+import 'screens/calendar_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/student_screens.dart';
@@ -122,6 +123,25 @@ List<RouteBase> _pushedRoutes() => [
   _part('attendance', (student) => AttendanceScreen(student: student)),
   _part('fees', (student) => FeesScreen(student: student)),
   _part('news', (student) => const SchoolNewsScreen()),
+  // 113.8 The calendar, the exams' timetable and behaviour; the teacher's
+  // calendar and exams, and a class's behaviour.
+  _part('calendar', (student) => SchoolCalendarScreen(student: student)),
+  _part('exams', (student) => SchoolExamsScreen(student: student)),
+  _part('behaviour', (student) => BehaviourScreen(student: student)),
+  GoRoute(
+    path: '${Paths.classroom}/calendar',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolCalendarScreen(classroom: true)),
+  ),
+  GoRoute(
+    path: '${Paths.classroom}/exams',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolExamsScreen(classroom: true)),
+  ),
+  _byId(
+    '${Paths.classroom}/class/:id/behaviour',
+    (id) => ClassBehaviourScreen(classId: id),
+  ),
   _byId(
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),

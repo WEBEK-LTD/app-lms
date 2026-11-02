@@ -2956,3 +2956,144 @@ Map<String, dynamic> liveSessionJson({
   'join_url': joinUrl,
   'recording_url': recordingUrl,
 };
+
+// 113.8 The school's calendar, the exams' timetable and behaviour.
+
+String _isoDay(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+/// Today (the phone's) and [days] after it, as YYYY-MM-DD.
+String isoDayFromToday([int days = 0]) {
+  final now = DateTime.now();
+  return _isoDay(DateTime(now.year, now.month, now.day + days));
+}
+
+Map<String, dynamic> schoolEventJson({
+  int id = 41,
+  String kind = 'event',
+  String title = 'Science fair',
+  String? startsOn,
+  String? endsOn,
+  bool allDay = false,
+}) => {
+  'id': id,
+  'kind': kind,
+  'title': title,
+  'notes': 'Parents are welcome.',
+  'starts_on': startsOn ?? isoDayFromToday(),
+  'ends_on': endsOn ?? startsOn ?? isoDayFromToday(),
+  'all_day': allDay,
+  'starts': allDay ? null : '09:00',
+  'ends': allDay ? null : '12:00',
+  'place': 'The school hall',
+  'audience': 'school',
+  'for_name': null,
+};
+
+Map<String, dynamic> schoolExamJson({
+  int id = 51,
+  String subject = 'Mathematics',
+  String? date,
+}) => {
+  'id': id,
+  'subject': subject,
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'grade': 'Grade 5',
+  'date': date ?? isoDayFromToday(),
+  'starts': '09:00',
+  'ends': '10:00',
+  'duration_minutes': 60,
+  'room': 'B2',
+  'notes': 'Units 1 to 3. Bring a ruler.',
+  'published': true,
+};
+
+Map<String, dynamic> schoolCalendarJson() => {
+  'from': isoDayFromToday(-31),
+  'to': isoDayFromToday(31),
+  'events': [
+    schoolEventJson(),
+    schoolEventJson(
+      id: 42,
+      kind: 'holiday',
+      title: 'Mid-term break',
+      startsOn: isoDayFromToday(),
+      endsOn: isoDayFromToday(),
+      allDay: true,
+    ),
+  ],
+  'exams': [schoolExamJson()],
+};
+
+Map<String, dynamic> examListsJson() => {
+  'upcoming': [schoolExamJson()],
+  'past': [
+    schoolExamJson(id: 52, subject: 'English', date: isoDayFromToday(-7)),
+  ],
+};
+
+Map<String, dynamic> behaviourNoteJson({
+  int id = 61,
+  String kind = 'positive',
+  String category = 'Helping others',
+  int points = 2,
+  int studentId = 11,
+  String? teacherName = 'Mona Adel',
+}) => {
+  'id': id,
+  'student_id': studentId,
+  'student_name': 'Omar Hassan',
+  'class_name': 'Grade 5 A',
+  'kind': kind,
+  'category': category,
+  'points': points,
+  'note': 'Helped a classmate.',
+  'teacher_name': teacherName,
+  'created_at': DateTime.now().toUtc().toIso8601String(),
+};
+
+Map<String, dynamic> studentBehaviourJson() => {
+  'page': 1,
+  'per_page': 50,
+  'total': 2,
+  'total_pages': 1,
+  'points': 1,
+  'positive_count': 1,
+  'negative_count': 1,
+  'items': [
+    behaviourNoteJson(),
+    behaviourNoteJson(
+      id: 62,
+      kind: 'negative',
+      category: 'Late to class',
+      points: -1,
+      teacherName: null,
+    ),
+  ],
+};
+
+List<Map<String, dynamic>> behaviourCategoriesJson() => [
+  {'id': 71, 'name': 'Helping others', 'kind': 'positive', 'points': 2},
+  {'id': 72, 'name': 'Late to class', 'kind': 'negative', 'points': -1},
+];
+
+Map<String, dynamic> classBehaviourJson() => {
+  'class_id': 3,
+  'class_name': 'Grade 5 A',
+  'students': [
+    {
+      'student': schoolStudentJson(),
+      'points': 2,
+      'positive_count': 1,
+      'negative_count': 0,
+    },
+    {
+      'student': schoolStudentJson(id: 13, name: 'Youssef Samir'),
+      'points': -1,
+      'positive_count': 0,
+      'negative_count': 1,
+    },
+  ],
+  'recent': [behaviourNoteJson()],
+};
