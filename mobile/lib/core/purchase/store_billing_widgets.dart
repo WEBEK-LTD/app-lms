@@ -31,7 +31,10 @@ class StoreBillingMessages extends ConsumerWidget {
             ..invalidate(myCoursesProvider)
             ..invalidate(completedCourseIdsProvider)
             ..invalidate(homeSectionsProvider)
-            ..invalidate(subscriptionsProvider);
+            ..invalidate(subscriptionsProvider)
+            // 113.1 A bundle bought in the store.
+            ..invalidate(bundlesProvider)
+            ..invalidate(bundleDetailProvider);
         }
         final message = storeOutcomeMessage(context.l10n, outcome);
         if (message != null) showMessage(context, message);

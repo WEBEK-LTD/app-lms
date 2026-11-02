@@ -32,7 +32,8 @@ class StoreBillingConfig {
 
 enum StoreProductType { oneTime, subscription }
 
-enum StoreProductKind { course, membership }
+/// 113.1 `bundle`: a course bundle, bought once like a course.
+enum StoreProductKind { course, membership, bundle }
 
 enum StorePeriod { month, year }
 

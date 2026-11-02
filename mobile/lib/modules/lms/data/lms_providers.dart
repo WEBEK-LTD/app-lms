@@ -8,6 +8,7 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/providers.dart';
 import '../../../core/data/paged_controller.dart';
+import '../../../core/gate/app_gate.dart';
 import '../downloads/download_manager.dart';
 import '../downloads/progress_queue.dart';
 
@@ -173,8 +174,39 @@ void invalidateCourse(WidgetRef ref, int courseId) {
     ..invalidate(curriculumProvider(courseId))
     ..invalidate(myCoursesProvider)
     ..invalidate(completedCourseIdsProvider)
+    ..invalidate(homeSectionsProvider)
+    // 113.1 A bundle says which of its courses are the student's.
+    ..invalidate(bundlesProvider)
+    ..invalidate(bundleDetailProvider);
+}
+
+/// 113.1 After a bundle was bought: every course of it opens as the
+/// student's, and My courses lists them.
+void invalidateBundle(WidgetRef ref) {
+  ref
+    ..invalidate(bundlesProvider)
+    ..invalidate(bundleDetailProvider)
+    ..invalidate(courseDetailProvider)
+    ..invalidate(curriculumProvider)
+    ..invalidate(myCoursesProvider)
+    ..invalidate(completedCourseIdsProvider)
     ..invalidate(homeSectionsProvider);
 }
+
+/// 113.1 The academy's course bundles; none where the app has none.
+final bundlesProvider = FutureProvider.autoDispose<List<Bundle>>((ref) {
+  ref.watch(_signedInProvider);
+  if (!ref.watch(appConfigProvider).features.bundles) {
+    return Future.value(const <Bundle>[]);
+  }
+  return ref.contentApi.listBundles();
+});
+
+final bundleDetailProvider = FutureProvider.autoDispose
+    .family<BundleDetail, int>((ref, id) {
+      ref.watch(_signedInProvider);
+      return ref.contentApi.getBundle(id);
+    });
 
 /// The student's notifications, newest first.
 class NotificationsController extends PagedController<InboxNotification> {

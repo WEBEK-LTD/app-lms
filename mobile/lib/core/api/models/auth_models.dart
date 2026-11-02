@@ -272,6 +272,8 @@ class CheckoutLink {
     required this.url,
     required this.expiresAt,
     required this.openIn,
+    this.enrolled = false,
+    this.courseIds = const [],
   });
 
   factory CheckoutLink.fromJson(Json json) => CheckoutLink(
@@ -282,9 +284,19 @@ class CheckoutLink {
       json['open_in'],
       CheckoutTarget.inApp,
     ),
+    enrolled: boolOr(json, 'enrolled', false),
+    courseIds: [
+      for (final id in (json['course_ids'] as List? ?? const []))
+        if (id is int) id,
+    ],
   );
 
   final String url;
   final DateTime expiresAt;
   final CheckoutTarget openIn;
+
+  /// 113.1 A coupon made it free: the student is enrolled already in
+  /// [courseIds], and there's nothing to pay ([url] isn't opened).
+  final bool enrolled;
+  final List<int> courseIds;
 }

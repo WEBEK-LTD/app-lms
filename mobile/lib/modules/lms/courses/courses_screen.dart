@@ -12,6 +12,7 @@ import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
+import '../widgets/bundle_cards.dart';
 import '../widgets/course_cards.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -230,6 +231,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // 113.1 The academy's bundles, above the unfiltered list.
+                    if ((_query.search?.isEmpty ?? true) &&
+                        _query.category == null &&
+                        _query.price != PriceFilter.free)
+                      const BundlesRow(),
                   ],
                 ),
               ),

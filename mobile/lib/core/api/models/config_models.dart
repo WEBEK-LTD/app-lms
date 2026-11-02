@@ -432,6 +432,7 @@ class SiteFeatures {
     this.memberships = false,
     this.assignments = false,
     this.liveClasses = false,
+    this.bundles = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -452,6 +453,7 @@ class SiteFeatures {
     memberships: boolOr(json, 'memberships', false),
     assignments: boolOr(json, 'assignments', false),
     liveClasses: boolOr(json, 'live_classes', false),
+    bundles: boolOr(json, 'bundles', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -485,6 +487,9 @@ class SiteFeatures {
   /// (the account lists the student's live classes).
   final bool assignments;
   final bool liveClasses;
+
+  /// 113.1 Courses are also sold in bundles: the courses list shows them.
+  final bool bundles;
 }
 
 enum SignupField { name, email, city }

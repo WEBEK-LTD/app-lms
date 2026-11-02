@@ -198,6 +198,7 @@ class CourseDetail extends CourseSummary {
     this.storeProductId,
     this.cohort,
     this.takesCoupons = false,
+    this.bundles = const [],
   });
 
   factory CourseDetail.fromJson(Json json) {
@@ -235,6 +236,7 @@ class CourseDetail extends CourseSummary {
       membership: optObject(json, 'membership', CourseMembership.fromJson),
       storeProductId: _nonEmpty(optString(purchase, 'store_product_id')),
       takesCoupons: boolOr(purchase, 'coupons', false),
+      bundles: listOf(json, 'bundles', Bundle.fromJson),
     );
   }
 
@@ -268,6 +270,9 @@ class CourseDetail extends CourseSummary {
 
   /// 112.5 The academy takes coupons at its checkout.
   final bool takesCoupons;
+
+  /// 113.1 The bundles this course is in.
+  final List<Bundle> bundles;
 
   /// 62 The website asks for a password to open the course. The app never
   /// does: unless the student is in it, the course page says so and opens
@@ -417,6 +422,7 @@ class CouponCheck {
     required this.total,
     this.message,
     this.discount,
+    this.free = false,
   });
 
   factory CouponCheck.fromJson(Json json) => CouponCheck(
@@ -425,6 +431,7 @@ class CouponCheck {
     message: optString(json, 'message'),
     discount: optString(json, 'discount'),
     total: reqString(json, 'total'),
+    free: boolOr(json, 'free', false),
   );
 
   final String code;
@@ -432,4 +439,104 @@ class CouponCheck {
   final String? message;
   final String? discount;
   final String total;
+
+  /// 113.1 The coupon takes the whole price: checking out with it enrols at
+  /// once, with no payment.
+  final bool free;
+}
+
+/// 113.1 What a bundle's page's main button does on this platform.
+enum BundleAction { owned, checkout, store, none }
+
+/// 113.1 Several courses sold together at one price the academy sets
+/// (`GET /bundles`).
+class Bundle {
+  const Bundle({
+    required this.id,
+    required this.title,
+    required this.courseCount,
+    required this.price,
+    this.imageUrl,
+    this.compareAt,
+    this.ownedCount = 0,
+    this.owned = false,
+  });
+
+  factory Bundle.fromJson(Json json) => Bundle(
+    id: reqInt(json, 'id'),
+    title: reqString(json, 'title'),
+    imageUrl: optString(json, 'image_url'),
+    courseCount: reqInt(json, 'course_count'),
+    price: Price.fromJson(asJson(json['price'], 'price')),
+    compareAt: optObject(json, 'compare_at', Price.fromJson),
+    ownedCount: intOr(json, 'owned_count', 0),
+    owned: boolOr(json, 'owned', false),
+  );
+
+  final int id;
+  final String title;
+  final String? imageUrl;
+  final int courseCount;
+  final Price price;
+
+  /// What its courses cost on their own, when more than [price].
+  final Price? compareAt;
+
+  /// Its courses the student is in already; [owned]: all of them.
+  final int ownedCount;
+  final bool owned;
+}
+
+/// 113.1 A bundle's page (`GET /bundles/{id}`).
+class BundleDetail extends Bundle {
+  const BundleDetail({
+    required super.id,
+    required super.title,
+    required super.courseCount,
+    required super.price,
+    required this.descriptionHtml,
+    required this.courses,
+    required this.action,
+    super.imageUrl,
+    super.compareAt,
+    super.ownedCount,
+    super.owned,
+    this.storeProductId,
+    this.takesCoupons = false,
+  });
+
+  factory BundleDetail.fromJson(Json json) {
+    final bundle = Bundle.fromJson(json);
+    final purchase = asJson(json['purchase'], 'purchase');
+    final productId = optString(purchase, 'store_product_id');
+    return BundleDetail(
+      id: bundle.id,
+      title: bundle.title,
+      imageUrl: bundle.imageUrl,
+      courseCount: bundle.courseCount,
+      price: bundle.price,
+      compareAt: bundle.compareAt,
+      ownedCount: bundle.ownedCount,
+      owned: bundle.owned,
+      descriptionHtml: reqString(json, 'description_html'),
+      courses: listOf(json, 'courses', CourseSummary.fromJson),
+      action: enumFrom(
+        BundleAction.values,
+        purchase['action'],
+        BundleAction.none,
+      ),
+      storeProductId: productId == null || productId.isEmpty ? null : productId,
+      takesCoupons: boolOr(purchase, 'coupons', false),
+    );
+  }
+
+  final String descriptionHtml;
+  final List<CourseSummary> courses;
+  final BundleAction action;
+
+  /// With [BundleAction.store], the store product the button buys.
+  final String? storeProductId;
+
+  /// The academy takes coupons at its checkout.
+  final bool takesCoupons;
 }
