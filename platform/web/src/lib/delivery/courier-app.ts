@@ -16,6 +16,22 @@ export function hasCourierJobs(app: Pick<App, "appType">): boolean {
   return app.appType === "delivery" || app.appType === "food" || app.appType === "rides";
 }
 
+/**
+ * 112.3 Delivery, food, ride and taxi projects always have the second app:
+ * their couriers and drivers work in it, and the customers' app never shows
+ * their screens. Only the shared Yallapp Courier app (104.8) would take its
+ * place. `same` (couriers in the customers' app, the choice before 112.3)
+ * counts as the second app: the customers' app built before keeps their tab
+ * for the people who haven't updated it (`Config.delivery.courier_app` stays
+ * `same` for those builds), its builds from now on have none.
+ */
+export function hasSecondApp(app: Pick<App, "appType">, settings: Pick<DeliverySettings, "courierApp">): boolean {
+  return hasCourierJobs(app) && settings.courierApp !== "yallapp_courier";
+}
+
+/** 112.3 The company's couriers or drivers worked in its customers' app before 112.3: its next build drops their tab, so the second app goes out first. */
+export const workedInCustomersApp = (settings: Pick<DeliverySettings, "courierApp">): boolean => settings.courierApp === "same";
+
 /** Who the second app is for: 105.2 a ride company's drivers, else couriers. */
 export type SecondAppRole = "courier" | "driver";
 export const secondAppRoleOf = (app: Partial<Pick<App, "appType">>): SecondAppRole => (app.appType === "rides" ? "driver" : "courier");
@@ -52,13 +68,16 @@ export function courierPlistProblem(plist: string, iosBundleId: string, role: Se
  * The courier app's build config from the customers' app's: the courier
  * (105.2 driver) role, its own package, bundle ID and name; Firebase only for the apps the
  * company added to its Firebase project (else couriers get no pushes on
- * that platform); no links, which open the customers' app.
+ * that platform); no links, which open the customers' app; 112.3 its own
+ * icon when the company gave one.
  */
 export function courierBuildConfig(
   base: BuildConfig,
   app: SecondApp,
   settings: Pick<DeliverySettings, "courierAppName" | "courierFirebaseIosAssetId">,
   firebase: { android: boolean; iosConfigUrl: string | null },
+  /** 112.3 The second app's own icon (`DeliverySettings.courierIconAssetId`), else the customers' app's. */
+  iconUrl: string | null = null,
 ): BuildConfig {
   const name = courierAppNameOf(app, settings);
   const role = secondAppRoleOf(app);
@@ -75,6 +94,7 @@ export function courierBuildConfig(
     short_name: name.slice(0, SHORT_MAX).trim(),
     android_package: courierPackageOf(base.android_package, role),
     ios_bundle_id: courierBundleIdOf(base.ios_bundle_id, role),
+    ...(iconUrl ? { branding: { ...rest.branding, icon_url: iconUrl } } : {}),
     ...(Object.keys(nextFirebase).length ? { firebase: nextFirebase } : {}),
   };
 }

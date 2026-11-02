@@ -238,7 +238,7 @@ export function parsePromos(text: string): { promos: RidePromo[]; error: string 
 // Ride settings
 
 /** The settings form: currency and payment with the delivery settings, the rest the company's ride settings. */
-export function parseRideSettings(form: Record<string, string>, saved: DeliverySettings, driverAppAllowed: boolean, defaultCountryCode: string): Parsed<DeliverySettings> {
+export function parseRideSettings(form: Record<string, string>, saved: DeliverySettings, defaultCountryCode: string): Parsed<DeliverySettings> {
   const errors: Record<string, string> = {};
   const before = ridesSettingsOf(saved);
   const currency = CATALOG_CURRENCIES.find((c) => c === str(form, "currency")) as CatalogCurrency | undefined;
@@ -270,12 +270,9 @@ export function parseRideSettings(form: Record<string, string>, saved: DeliveryS
   if (areasError) errors.areas = areasError;
   const { promos, error: promosError } = parsePromos(str(form, "promos"));
   if (promosError) errors.promos = promosError;
-  const driverApp = str(form, "driverApp") === "bundle" ? "bundle" : str(form, "driverApp") === "same" ? "same" : null;
-  if (!driverApp) errors.driverApp = "Choose where your drivers work.";
-  else if (driverApp === "bundle" && !driverAppAllowed && saved.courierApp !== "bundle") errors.driverApp = "A second app for drivers isn't in your plan.";
   const driverAppName = str(form, "driverAppName") || null;
   if (driverAppName && driverAppName.length > DELIVERY_LIMITS.courierAppName) errors.driverAppName = `Give the drivers' app a name of up to ${DELIVERY_LIMITS.courierAppName} characters.`;
-  if (Object.keys(errors).length || !currency || !fareMode || !matching || !timezone || commissionBp === null || !driverApp) return { ok: false, errors };
+  if (Object.keys(errors).length || !currency || !fareMode || !matching || !timezone || commissionBp === null) return { ok: false, errors };
   const rides: RidesSettings = {
     fareMode,
     scheduling: form.scheduling === "on",
@@ -294,7 +291,8 @@ export function parseRideSettings(form: Record<string, string>, saved: DeliveryS
     // Codes no longer listed stay, switched off, so rides that used them keep their name.
     promos: [...promos, ...before.promos.filter((p) => !promos.some((n) => n.code === p.code)).map((p) => ({ ...p, active: false }))],
   };
-  return { ok: true, value: { ...saved, currency, cash, card, timezone, courierApp: driverApp, courierAppName: driverAppName, rides } };
+  // 112.3 Drivers always work in the drivers' app; `courierApp` is kept as it was (see lib/delivery/courier-app.ts `hasSecondApp`).
+  return { ok: true, value: { ...saved, currency, cash, card, timezone, courierAppName: driverAppName, rides } };
 }
 
 export function rideSettingsFormValues(saved: DeliverySettings): Record<string, string> {
@@ -319,7 +317,6 @@ export function rideSettingsFormValues(saved: DeliverySettings): Record<string, 
     speedKmh: String(rides.speedKmh),
     areas: areasText(rides.areas),
     promos: promosText(rides.promos),
-    driverApp: saved.courierApp === "bundle" ? "bundle" : "same",
     driverAppName: saved.courierAppName ?? "",
   };
 }

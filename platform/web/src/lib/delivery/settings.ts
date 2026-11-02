@@ -22,6 +22,7 @@ export const DEFAULT_DELIVERY_SETTINGS: DeliverySettings = {
   courierApp: "same",
   courierAppName: null,
   courierFirebaseIosAssetId: null,
+  courierIconAssetId: null,
 };
 
 export const DELIVERY_LIMITS = {

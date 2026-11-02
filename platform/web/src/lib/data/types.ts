@@ -3088,6 +3088,8 @@ export interface DeliverySettings {
   courierAppName?: string | null;
   /** 104.6 The courier iPhone app's GoogleService-Info.plist (an asset); null: no pushes on the courier iPhone app. */
   courierFirebaseIosAssetId?: string | null;
+  /** 112.3 The second app's own icon (an `icon` asset: PNG, 1024 × 1024); null: the customers' app's icon. */
+  courierIconAssetId?: string | null;
   /** 105.1 Food apps: the cuisines restaurants are filed under, in the company's order. */
   cuisines?: Cuisine[];
   /** 105.1 Food apps: when an order's courier job is made (default `accepted`). */

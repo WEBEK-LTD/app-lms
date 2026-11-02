@@ -166,6 +166,7 @@ export function deliveryConfig(settings: DeliverySettings, map: MapTilesSetting 
     payment: { cash: settings.cash, card: settings.card },
     tracking: settings.tracking,
     assignment: settings.assignment,
+    // 112.3 `same` now only keeps the Courier tab in the customers' app built before 112.3; apps built since show it in the courier app only.
     courier_app: settings.courierApp,
     map: mapConfigJson(map),
   };

@@ -501,14 +501,18 @@ describe("105.2 ride apps on the hosted API", () => {
     expect(notes.customer).not.toContain("Driver mode");
     expect(notes.courier).toContain("Nile Rides Driver is for Nile Rides's drivers only");
     expect(notes.courier).toContain("a sample ride is offered");
-    expect(reviewNotes(app, SETTINGS)!.customer).toContain("Account › Driver mode");
+    // 112.3 Drivers always have their own app: the riders' app's notes never send the reviewer to Driver mode.
+    expect(reviewNotes(app, SETTINGS)!.customer).not.toContain("Driver mode");
+    expect(reviewNotes(app, SETTINGS)!.courier).toContain("Nile Rides Driver is for Nile Rides's drivers only");
     // 105.9.6 A live taxi app's notes walk through the map and both roles.
     const taxi = reviewNotes({ ...app, vertical: "taxi" }, SETTINGS)!.customer;
     expect(taxi).toContain("Nile Rides is a taxi service on a live map.");
     expect(taxi).toContain("a map with the company's free taxis around you");
     expect(taxi).toContain("Set the pickup (use your location or a maps link)");
-    expect(taxi).toContain("a test driver that riders never see on the map: Account › Driver mode");
-    expect(taxi).toContain("accept the offer before its countdown ends");
+    expect(taxi).not.toContain("Driver mode");
+    const taxiDriver = reviewNotes({ ...app, vertical: "taxi" }, SETTINGS)!.courier!;
+    expect(taxiDriver).toContain("a test driver that riders never see on the map");
+    expect(taxiDriver).toContain("accept the offer before its countdown ends");
     const searching = reviewNotes({ ...app, vertical: "taxi" }, { ...SETTINGS, taxi: { ...DEFAULT_TAXI_SETTINGS, searchUrl: "https://search.example.com" } })!.customer;
     expect(searching).toContain("Tap Where to? and search for a place");
     expect(reviewNotes(app, SETTINGS)!.customer).not.toContain("taxi");

@@ -28,6 +28,7 @@ import {
 } from "../../rides/service";
 import { DEFAULT_RIDES_TIMEZONE, driverOf, offeredTypes, ridesSettingsOf } from "../../rides/settings";
 import { platformSetting } from "../../settings/platform";
+import { hasSecondApp } from "../../delivery/courier-app";
 import { error, intParam } from "./common";
 import type { DeliveryDeps } from "./delivery";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
@@ -496,7 +497,7 @@ export class RidesConnector implements Connector {
       // 105.2.6 In the drivers' app the reviewers have no riders' app: an online review driver with no ride gets a sample one.
       if (live.length === 0 && request.user && isReviewCourier(this.deps.app, driver) && !(await this.activeRide(driver))) {
         const { settings } = await this.settings();
-        if (settings.courierApp === "bundle") live.push(await createSampleRide(this.deps.store, this.deps.app, settings, driver, request.user, request.now));
+        if (hasSecondApp(this.deps.app, settings)) live.push(await createSampleRide(this.deps.store, this.deps.app, settings, driver, request.user, request.now));
       }
       const json = await Promise.all(live.map(async (r) => driverRideJson(r, { mine: false, pickupKm: await this.pickupKm(driver, r) })));
       return { status: 200, body: { items: json } };

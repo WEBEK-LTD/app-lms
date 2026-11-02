@@ -5,9 +5,9 @@ import { saveRideSettingsAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
-import { Choices } from "../delivery/forms";
+import { Choices, SecondAppFields } from "../delivery/forms";
 
-/** 105.2 How fares are worked out, how rides reach drivers, cancelling, safety, payment, areas, promo codes and where drivers work. */
+/** 105.2 How fares are worked out, how rides reach drivers, cancelling, safety, payment, areas, promo codes and (112.3) the drivers' app. */
 export function RideSettingsForm({
   values,
   currencies,
@@ -16,6 +16,8 @@ export function RideSettingsForm({
   bundleOff,
   driverAppNameDefault,
   driverFirebaseIos,
+  driverIconUrl,
+  before,
 }: {
   values: Record<string, string>;
   currencies: readonly string[];
@@ -26,13 +28,16 @@ export function RideSettingsForm({
   driverAppNameDefault: string;
   /** The drivers' iPhone app's Firebase file is in. */
   driverFirebaseIos: boolean;
+  /** 112.3 The drivers' app's own icon, if it has one. */
+  driverIconUrl: string | null;
+  /** 112.3 The drivers worked in the riders' app until now. */
+  before: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveRideSettingsAction, initialFormState);
   const value = (key: string) => state.values?.[key] ?? values[key] ?? "";
   const checked = (key: string) => value(key) === "on";
   const [currency, setCurrency] = useState(value("currency"));
-  const [driverApp, setDriverApp] = useState(value("driverApp"));
   const textArea = (name: "areas" | "promos", label: string, hint: string) => (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={`f-${name}`} className="text-sm font-semibold">
@@ -148,36 +153,16 @@ export function RideSettingsForm({
         {textArea("promos", t("rides.promos"), t("rides.promosHint"))}
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-line-soft pt-5">
-        <Choices
-          legend={t("rides.driverApp")}
-          name="driverApp"
-          value={driverApp}
-          onChange={setDriverApp}
-          error={state.errors?.driverApp}
-          options={[
-            { value: "same", label: t("rides.driverAppSame"), hint: t("rides.driverAppSameHint") },
-            {
-              value: "bundle",
-              label: t("rides.driverAppBundle"),
-              hint: t("rides.driverAppBundleHint"),
-              disabled: !bundleAllowed && value("driverApp") !== "bundle",
-              extra: bundleAllowed ? null : <span className="text-[13px]">{bundleOff}</span>,
-            },
-          ]}
-        />
-        <div className={driverApp === "bundle" ? "grid gap-4 sm:grid-cols-2" : "hidden"}>
-          <Field label={t("rides.driverAppName")} name="driverAppName" defaultValue={value("driverAppName")} maxLength={30} error={state.errors?.driverAppName} hint={t("rides.driverAppNameHint", { name: driverAppNameDefault })} />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="f-driverFirebaseIos" className="text-sm font-semibold">
-              {t("rides.driverFirebaseIos")}
-            </label>
-            <input id="f-driverFirebaseIos" type="file" name="driverFirebaseIos" accept=".plist,application/xml,text/xml" className="text-sm" />
-            <span className="text-[13px] text-muted">{t(driverFirebaseIos ? "rides.driverFirebaseIosSaved" : "rides.driverFirebaseIosHint")}</span>
-            <FieldError id="f-driverFirebaseIos-error" error={state.errors?.driverFirebaseIos} />
-          </div>
-        </div>
-      </section>
+      <SecondAppFields
+        title={t("rides.driverApp")}
+        text={t("rides.driverAppText", { name: value("driverAppName") || driverAppNameDefault })}
+        off={bundleAllowed ? null : bundleOff}
+        before={before ? t("rides.driverAppBefore", { name: value("driverAppName") || driverAppNameDefault }) : null}
+        name={{ field: "driverAppName", label: t("rides.driverAppName"), hint: t("rides.driverAppNameHint", { name: driverAppNameDefault }), value: value("driverAppName"), placeholder: driverAppNameDefault }}
+        icon={{ field: "driverIcon", label: t("rides.driverIcon"), hint: t("rides.driverIconHint"), saved: t("rides.driverIconSaved"), remove: t("rides.driverIconRemove"), url: driverIconUrl }}
+        plist={{ field: "driverFirebaseIos", label: t("rides.driverFirebaseIos"), hint: t(driverFirebaseIos ? "rides.driverFirebaseIosSaved" : "rides.driverFirebaseIosHint") }}
+        errors={state.errors}
+      />
 
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
