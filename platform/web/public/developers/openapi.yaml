@@ -8221,6 +8221,10 @@ components:
         course_id: { type: integer }
         course_title: { type: string }
         url: { type: string, format: uri }
+        pdf_url:
+          type: string
+          format: uri
+          description: Roadmap 112.5. The certificate as a PDF file, in the app's language, to save or share (courses managed in Yallapp). Missing on other servers.
         issued_at: { type: [string, 'null'], format: date-time }
 
     Assignment:

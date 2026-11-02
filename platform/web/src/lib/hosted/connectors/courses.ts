@@ -1075,7 +1075,8 @@ export class CoursesConnector implements Connector {
       if (!enrolled.has(c.id) || c.certificate !== true) continue;
       const json = this.progressJson(c, learner);
       const url = this.certificateFor(request, c, json.course_completed);
-      if (url) items.push({ course_id: c.id, course_title: c.title, url, issued_at: json.completed_at });
+      // 112.5 With its PDF file, in the app's language.
+      if (url) items.push({ course_id: c.id, course_title: c.title, url, pdf_url: `${url}/pdf?lang=${request.lang ?? "en"}`, issued_at: json.completed_at });
     }
     return { status: 200, body: { items } };
   }

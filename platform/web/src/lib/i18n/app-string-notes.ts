@@ -2972,6 +2972,9 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112.5 A question left unanswered.": { ar: "سؤال بلا إجابة.", tr: "Cevapsız bırakılan soru." },
   "112.5 Read out for a question answered right.": { ar: "يُقرأ بصوت عالٍ لسؤال أُجيب عنه صوابًا.", tr: "Doğru cevaplanan soru için sesli okunur." },
   "112.5 Read out for a question answered wrong.": { ar: "يُقرأ بصوت عالٍ لسؤال أُجيب عنه خطأً.", tr: "Yanlış cevaplanan soru için sesli okunur." },
+  "112.5 Opens a certificate's PDF file.": { ar: "يفتح ملف PDF للشهادة.", tr: "Sertifikanın PDF dosyasını açar." },
+  "112.5 Shares a certificate's link.": { ar: "يشارك رابط الشهادة.", tr: "Sertifikanın bağlantısını paylaşır." },
+  "112.5 The text shared with a certificate.": { ar: "النص الذي يُشارك مع الشهادة.", tr: "Sertifikayla paylaşılan metin." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -6186,4 +6186,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get quizReviewWrong => 'Yanlış';
+
+  @override
+  String get certificatePdf => 'PDF\'i indir';
+
+  @override
+  String get certificateShare => 'Sertifikayı paylaş';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return '$course sertifikam: $url';
+  }
 }

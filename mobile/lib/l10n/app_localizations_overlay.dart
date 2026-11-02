@@ -6550,4 +6550,17 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get quizReviewWrong =>
       overlay.text('quizReviewWrong') ?? base.quizReviewWrong;
+
+  @override
+  String get certificatePdf =>
+      overlay.text('certificatePdf') ?? base.certificatePdf;
+
+  @override
+  String get certificateShare =>
+      overlay.text('certificateShare') ?? base.certificateShare;
+
+  @override
+  String certificateShareText(String course, String url) =>
+      overlay.format('certificateShareText', {'course': course, 'url': url}) ??
+      base.certificateShareText(course, url);
 }

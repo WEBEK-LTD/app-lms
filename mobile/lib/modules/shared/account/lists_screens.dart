@@ -5,6 +5,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/providers.dart';
 import '../../../core/services/external_links.dart';
+import '../../../core/services/share_links.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
@@ -124,14 +125,41 @@ class CertificatesScreen extends ConsumerWidget {
             for (final (i, c) in value.indexed) ...[
               if (i > 0) Divider(height: 1, color: context.palette.divider),
               SettingsTile(
+                key: ValueKey('certificate-${c.courseId}'),
                 icon: AppIcons.certificate,
                 title: c.courseTitle,
-                value: c.issuedAt == null ? null : _date(c.issuedAt!),
-                trailing: AppIcon(
-                  AppIcons.openInNew,
-                  size: 18,
-                  color: context.palette.textSecondary,
+                subtitle: c.issuedAt == null ? null : _date(c.issuedAt!),
+                // 112.5 Its PDF file and sharing it.
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (c.pdfUrl != null)
+                      IconButton(
+                        key: ValueKey('certificate-pdf-${c.courseId}'),
+                        tooltip: context.l10n.certificatePdf,
+                        onPressed: () =>
+                            ref.read(openExternalProvider)(c.pdfUrl!),
+                        icon: AppIcon(
+                          AppIcons.download,
+                          size: 20,
+                          color: context.palette.text,
+                        ),
+                      ),
+                    IconButton(
+                      key: ValueKey('certificate-share-${c.courseId}'),
+                      tooltip: context.l10n.certificateShare,
+                      onPressed: () => ref.read(shareTextProvider)(
+                        context.l10n.certificateShareText(c.courseTitle, c.url),
+                      ),
+                      icon: AppIcon(
+                        AppIcons.share,
+                        size: 20,
+                        color: context.palette.text,
+                      ),
+                    ),
+                  ],
                 ),
+                chevron: false,
                 onTap: () => openExternal(c.url),
               ),
             ],

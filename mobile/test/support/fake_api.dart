@@ -414,8 +414,13 @@ class FakeApi implements YallappApi {
   );
 
   @override
-  Future<List<Certificate>> listCertificates() =>
-      _answer('listCertificates', () => <Certificate>[]);
+  Future<List<Certificate>> listCertificates() => _answer(
+    'listCertificates',
+    () => [for (final c in certificates) Certificate.fromJson(c)],
+  );
+
+  /// `GET /me/certificates` items (112.5 with their PDF).
+  List<Map<String, dynamic>> certificates = [];
 
   @override
   Future<List<SiteSubscription>> listSubscriptions() => _answer(

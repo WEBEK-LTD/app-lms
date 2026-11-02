@@ -10251,6 +10251,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wrong'**
   String get quizReviewWrong;
+
+  /// 112.5 Opens a certificate's PDF file.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the PDF'**
+  String get certificatePdf;
+
+  /// 112.5 Shares a certificate's link.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the certificate'**
+  String get certificateShare;
+
+  /// 112.5 The text shared with a certificate.
+  ///
+  /// In en, this message translates to:
+  /// **'My certificate for {course}: {url}'**
+  String certificateShareText(String course, String url);
 }
 
 class _AppLocalizationsDelegate

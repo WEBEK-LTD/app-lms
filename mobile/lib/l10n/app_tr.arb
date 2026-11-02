@@ -1691,5 +1691,8 @@
   "quizReviewRight": "Doğru cevap: {answer}",
   "quizReviewNone": "Cevap yok",
   "quizReviewCorrect": "Doğru",
-  "quizReviewWrong": "Yanlış"
+  "quizReviewWrong": "Yanlış",
+  "certificatePdf": "PDF'i indir",
+  "certificateShare": "Sertifikayı paylaş",
+  "certificateShareText": "{course} sertifikam: {url}"
 }

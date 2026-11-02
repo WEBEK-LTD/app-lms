@@ -6391,4 +6391,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quizReviewWrong => 'خاطئة';
+
+  @override
+  String get certificatePdf => 'تنزيل ملف PDF';
+
+  @override
+  String get certificateShare => 'مشاركة الشهادة';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return 'شهادتي في $course: $url';
+  }
 }

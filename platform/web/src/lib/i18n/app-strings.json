@@ -1689,4 +1689,7 @@
 {"key":"quizReviewRight","en":"Right answer: {answer}","ar":"الإجابة الصحيحة: {answer}","tr":"Doğru cevap: {answer}","description":"112.5 The right answer of a question answered wrong.","placeholders":{"answer":"String"}},
 {"key":"quizReviewNone","en":"No answer","ar":"لا إجابة","tr":"Cevap yok","description":"112.5 A question left unanswered."},
 {"key":"quizReviewCorrect","en":"Right","ar":"صحيحة","tr":"Doğru","description":"112.5 Read out for a question answered right."},
-{"key":"quizReviewWrong","en":"Wrong","ar":"خاطئة","tr":"Yanlış","description":"112.5 Read out for a question answered wrong."}]}
+{"key":"quizReviewWrong","en":"Wrong","ar":"خاطئة","tr":"Yanlış","description":"112.5 Read out for a question answered wrong."},
+{"key":"certificatePdf","en":"Download the PDF","ar":"تنزيل ملف PDF","tr":"PDF'i indir","description":"112.5 Opens a certificate's PDF file."},
+{"key":"certificateShare","en":"Share the certificate","ar":"مشاركة الشهادة","tr":"Sertifikayı paylaş","description":"112.5 Shares a certificate's link."},
+{"key":"certificateShareText","en":"My certificate for {course}: {url}","ar":"شهادتي في {course}: {url}","tr":"{course} sertifikam: {url}","description":"112.5 The text shared with a certificate.","placeholders":{"course":"String","url":"String"}}]}

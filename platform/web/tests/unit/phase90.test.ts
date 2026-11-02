@@ -306,7 +306,7 @@ describe("90.1 on the hosted API", () => {
 
     const code = certificateCode(SECRET, app.id, user.id, 10);
     const url = `https://yallapp.test/a/${app.id}/certificate/${code}`;
-    expect((await call("GET", "/me/certificates", { token })).body).toEqual({ items: [{ course_id: 10, course_title: "Turkish for Beginners", url, issued_at: days(8).toISOString() }] });
+    expect((await call("GET", "/me/certificates", { token })).body).toEqual({ items: [{ course_id: 10, course_title: "Turkish for Beginners", url, pdf_url: `${url}/pdf?lang=en`, issued_at: days(8).toISOString() }] });
     expect((await call("GET", "/me/courses", { token, query: { status: "completed" } })).body).toMatchObject({ items: [{ progress: { course_completed: true }, certificate_url: url, access_ends_at: ends }] });
 
     // After 30 days the course closes.

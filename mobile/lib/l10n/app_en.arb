@@ -5999,5 +5999,25 @@
   "quizReviewWrong": "Wrong",
   "@quizReviewWrong": {
     "description": "112.5 Read out for a question answered wrong."
+  },
+  "certificatePdf": "Download the PDF",
+  "@certificatePdf": {
+    "description": "112.5 Opens a certificate's PDF file."
+  },
+  "certificateShare": "Share the certificate",
+  "@certificateShare": {
+    "description": "112.5 Shares a certificate's link."
+  },
+  "certificateShareText": "My certificate for {course}: {url}",
+  "@certificateShareText": {
+    "description": "112.5 The text shared with a certificate.",
+    "placeholders": {
+      "course": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
   }
 }

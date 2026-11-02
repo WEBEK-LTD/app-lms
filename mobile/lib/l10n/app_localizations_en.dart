@@ -6197,4 +6197,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizReviewWrong => 'Wrong';
+
+  @override
+  String get certificatePdf => 'Download the PDF';
+
+  @override
+  String get certificateShare => 'Share the certificate';
+
+  @override
+  String certificateShareText(String course, String url) {
+    return 'My certificate for $course: $url';
+  }
 }

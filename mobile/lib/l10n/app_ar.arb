@@ -1691,5 +1691,8 @@
   "quizReviewRight": "الإجابة الصحيحة: {answer}",
   "quizReviewNone": "لا إجابة",
   "quizReviewCorrect": "صحيحة",
-  "quizReviewWrong": "خاطئة"
+  "quizReviewWrong": "خاطئة",
+  "certificatePdf": "تنزيل ملف PDF",
+  "certificateShare": "مشاركة الشهادة",
+  "certificateShareText": "شهادتي في {course}: {url}"
 }
