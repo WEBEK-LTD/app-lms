@@ -67,7 +67,9 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * 100.2 `store_billing`: courses and memberships bought in the app through Google Play and the App Store.
  * 103 `studio`: Yallapp Studio, off on every plan until the team turns it on (Admin › Plans).
  * 104 `delivery`: delivery and courier apps; `courier_app`: the company's second app for its couriers. Both off on
- * every plan until the team turns them on and prices them (Admin › Plans).
+ * every plan until the team turns them on and prices them (Admin › Plans). 112.3 `courier_app` is the only app
+ * delivery, food, ride and taxi companies' couriers and drivers have, so every Studio plan has it unless the team
+ * unticks it.
  */
 export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
@@ -80,6 +82,16 @@ export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_m
  * Admin › Plans › Yallapp Studio (`STUDIO_PLAN_CHOICES`).
  */
 export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "page_editor", "offline_downloads", "card_payments", "auto_rebuild", "chat", "loyalty", "store_billing"];
+
+/**
+ * 112.3 What a Studio plan has until the team saves it: the base, and the
+ * couriers' and drivers' own app, so a delivery, food, ride or taxi company
+ * is never left with couriers or drivers who have no app.
+ */
+export const STUDIO_DEFAULT_FEATURES: readonly PlanFeature[] = [...STUDIO_BASE_FEATURES, "courier_app"];
+
+/** 112.3 The project kinds whose couriers or drivers work in the second app (`courier_app`). */
+export const SECOND_APP_KINDS: readonly PlanFeature[] = ["delivery", "food", "rides", "taxi"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
 export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "studio_motion", "studio_templates"];
@@ -181,6 +193,12 @@ export type PlanSetting = Pick<PlanInfo, "name" | "tagline" | "features" | "high
   version?: 2;
   /** 91.4 The features the admin listed when this edit was saved; a later one is the plan's default until the team saves it again. */
   knownFeatures?: string[];
+  /**
+   * 112.3 Saved knowing that `courier_app` is the couriers' and drivers'
+   * only app. An edit from before with a delivery, food, ride or taxi kind
+   * has it until the team saves the plan again.
+   */
+  courierAppKnown?: true;
 };
 
 const BASE_LIMITS: PlanLimits = { appUsers: null, languages: null, sources: null, storageGb: 2, analyticsMonths: 3, teamMembers: 1, support: "email", accountManager: false, customFeatures: false };
@@ -286,7 +304,7 @@ function studioPlan(id: StudioPlan, name: string): PlanInfo {
     id,
     name,
     tagline: "",
-    features: [...STUDIO_BASE_FEATURES],
+    features: [...STUDIO_DEFAULT_FEATURES],
     limits: { ...BASE_LIMITS, appUsers: null, languages: null, sources: null, storageGb: 20, analyticsMonths: 12, studioPages: null },
     highlights: [],
     price: "On request",
@@ -386,8 +404,8 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   {
     id: "courier_app",
     label: "A second app for couriers",
-    description: "A second app in your name, made only for your couriers.",
-    enforced: "Delivery settings › Where couriers work (a second app), and its builds.",
+    description: "A second app in your name, made only for your couriers and drivers. It is the only app delivery, food, ride and taxi projects' couriers and drivers work in: without it they have none. On every Studio plan unless unticked.",
+    enforced: "Builds › the couriers' or drivers' app, and its builds.",
   },
   {
     id: "food",
@@ -539,7 +557,10 @@ function featuresOf(edit: PlanSetting, base: PlanInfo): PlanFeature[] {
   const known = Array.isArray(edit.knownFeatures) ? edit.knownFeatures : FEATURES_BEFORE_LOYALTY;
   const saved = (edit.features ?? []).filter((f): f is PlanFeature => (PLAN_FEATURE_IDS as readonly string[]).includes(f));
   const later = base.features.filter((f) => !known.includes(f) && !saved.includes(f));
-  return [...saved, ...later];
+  // 112.3 A Studio plan saved before, with couriers or drivers, keeps their app (its default) until the team saves it again.
+  const secondApp =
+    edit.courierAppKnown !== true && base.features.includes("courier_app") && !saved.includes("courier_app") && !later.includes("courier_app") && saved.some((f) => SECOND_APP_KINDS.includes(f));
+  return [...saved, ...later, ...(secondApp ? (["courier_app"] as const) : [])];
 }
 
 export function plansWith(settings: Partial<Record<Plan, PlanSetting>> | null | undefined): Record<Plan, PlanInfo> {
@@ -587,6 +608,7 @@ export function planSettingOf(plan: PlanInfo): PlanSetting {
     tagline: plan.tagline,
     features: [...plan.features],
     knownFeatures: [...PLAN_FEATURE_IDS],
+    courierAppKnown: true,
     limits: { ...plan.limits },
     highlights: [...plan.highlights],
     price: plan.price,
