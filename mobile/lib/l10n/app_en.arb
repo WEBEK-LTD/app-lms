@@ -6309,6 +6309,158 @@
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
   },
+  "schoolMessages": "Messages",
+  "@schoolMessages": {
+    "description": "113.6 The School tab's row and the screen of messages between teachers and families."
+  },
+  "schoolMessagesWithTeachers": "With your teachers",
+  "@schoolMessagesWithTeachers": {
+    "description": "113.6 Under Messages on the School tab, for a parent or a student."
+  },
+  "schoolMessagesWithFamilies": "With your classes' families",
+  "@schoolMessagesWithFamilies": {
+    "description": "113.6 Under Messages in the Classroom tab, for a teacher."
+  },
+  "schoolMessagesOff": "Your school hasn't turned on messages between teachers and families.",
+  "@schoolMessagesOff": {
+    "description": "113.6 Messages when the school doesn't allow them."
+  },
+  "schoolMessagesOffice": "The school's administration",
+  "@schoolMessagesOffice": {
+    "description": "113.6 The row for the conversation with the school's administration."
+  },
+  "schoolMessagesOfficeHint": "Write to the school at any time.",
+  "@schoolMessagesOfficeHint": {
+    "description": "113.6 Under the school's administration in Messages."
+  },
+  "schoolMessagesTeachers": "Teachers",
+  "@schoolMessagesTeachers": {
+    "description": "113.6 The heading of the teachers one can write to."
+  },
+  "schoolMessagesFamilies": "Parents and students",
+  "@schoolMessagesFamilies": {
+    "description": "113.6 The heading of the parents and students a teacher can write to."
+  },
+  "schoolMessagesParentOf": "Parent of {names}",
+  "@schoolMessagesParentOf": {
+    "description": "113.6 Under a parent in a teacher's contacts.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesClassTeacher": "Class teacher",
+  "@schoolMessagesClassTeacher": {
+    "description": "113.6 Under a teacher who is the class's own teacher."
+  },
+  "schoolMessagesTeacherFirst": "The teacher writes first; you can answer then.",
+  "@schoolMessagesTeacherFirst": {
+    "description": "113.6 When only teachers may start a conversation."
+  },
+  "schoolMessagesHours": "Messages can be sent on {days}, {from} to {to}.",
+  "@schoolMessagesHours": {
+    "description": "113.6 The school's messaging hours.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesOpensAt": "You can write again on {when}.",
+  "@schoolMessagesOpensAt": {
+    "description": "113.6 Outside the messaging hours: when one can write again.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolMessagesClosed": "The school closed this conversation.",
+  "@schoolMessagesClosed": {
+    "description": "113.6 A conversation the school closed."
+  },
+  "schoolMessagesNotAllowed": "The school doesn't allow messages here now.",
+  "@schoolMessagesNotAllowed": {
+    "description": "113.6 A conversation the school's rules don't allow now."
+  },
+  "schoolMessagesTextOnly": "The school allows text messages only.",
+  "@schoolMessagesTextOnly": {
+    "description": "113.6 When the school doesn't allow photos and files."
+  },
+  "schoolMessagesAdminReads": "The school's administration can read this conversation.",
+  "@schoolMessagesAdminReads": {
+    "description": "113.6 The privacy note in a conversation the school may read."
+  },
+  "schoolMessagesPrivate": "This conversation is private: the school reads it only if a message in it is reported.",
+  "@schoolMessagesPrivate": {
+    "description": "113.6 The privacy note in a conversation the school doesn't read."
+  },
+  "schoolMessagesNone": "No one to write to yet.",
+  "@schoolMessagesNone": {
+    "description": "113.6 Messages without contacts."
+  },
+  "schoolMessagesWriteClass": "Write to a whole class",
+  "@schoolMessagesWriteClass": {
+    "description": "113.6 A teacher's button to write to a whole class at once."
+  },
+  "classMessageTitle": "Write to {name}",
+  "@classMessageTitle": {
+    "description": "113.6 The title of the sheet to write to a whole class.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classMessageTo": "Send to",
+  "@classMessageTo": {
+    "description": "113.6 Whom a class message goes to."
+  },
+  "classMessageParents": "Parents",
+  "@classMessageParents": {
+    "description": "113.6 A class message to the parents."
+  },
+  "classMessageStudents": "Students",
+  "@classMessageStudents": {
+    "description": "113.6 A class message to the students."
+  },
+  "classMessageFamilies": "Parents and students",
+  "@classMessageFamilies": {
+    "description": "113.6 A class message to the parents and the students."
+  },
+  "classMessageHint": "Each one gets it on their own, and their answers come back to you only.",
+  "@classMessageHint": {
+    "description": "113.6 Under the class message: how it is sent."
+  },
+  "classMessageSent": "{count, plural, =1{Sent to 1 person.} other{Sent to {count} people.}}",
+  "@classMessageSent": {
+    "description": "113.6 After a class message.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classMessageNotInApp": "{count, plural, =1{1 person hasn't signed in to the app yet.} other{{count} people haven't signed in to the app yet.}}",
+  "@classMessageNotInApp": {
+    "description": "113.6 After a class message: who couldn't get it yet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classMessageMissing": "Write the message first.",
+  "@classMessageMissing": {
+    "description": "113.6 A class message without text."
+  },
   "checkinTitle": "Check in and out",
   "@checkinTitle": {
     "description": "113.2 The screen where a student, teacher or staff member checks in and out at the school."

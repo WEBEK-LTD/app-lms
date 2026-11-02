@@ -6408,6 +6408,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couponWithout => 'Continue without a coupon';
 
   @override
+  String get schoolMessages => 'Messages';
+
+  @override
+  String get schoolMessagesWithTeachers => 'With your teachers';
+
+  @override
+  String get schoolMessagesWithFamilies => 'With your classes\' families';
+
+  @override
+  String get schoolMessagesOff =>
+      'Your school hasn\'t turned on messages between teachers and families.';
+
+  @override
+  String get schoolMessagesOffice => 'The school\'s administration';
+
+  @override
+  String get schoolMessagesOfficeHint => 'Write to the school at any time.';
+
+  @override
+  String get schoolMessagesTeachers => 'Teachers';
+
+  @override
+  String get schoolMessagesFamilies => 'Parents and students';
+
+  @override
+  String schoolMessagesParentOf(String names) {
+    return 'Parent of $names';
+  }
+
+  @override
+  String get schoolMessagesClassTeacher => 'Class teacher';
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      'The teacher writes first; you can answer then.';
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) {
+    return 'Messages can be sent on $days, $from to $to.';
+  }
+
+  @override
+  String schoolMessagesOpensAt(String when) {
+    return 'You can write again on $when.';
+  }
+
+  @override
+  String get schoolMessagesClosed => 'The school closed this conversation.';
+
+  @override
+  String get schoolMessagesNotAllowed =>
+      'The school doesn\'t allow messages here now.';
+
+  @override
+  String get schoolMessagesTextOnly => 'The school allows text messages only.';
+
+  @override
+  String get schoolMessagesAdminReads =>
+      'The school\'s administration can read this conversation.';
+
+  @override
+  String get schoolMessagesPrivate =>
+      'This conversation is private: the school reads it only if a message in it is reported.';
+
+  @override
+  String get schoolMessagesNone => 'No one to write to yet.';
+
+  @override
+  String get schoolMessagesWriteClass => 'Write to a whole class';
+
+  @override
+  String classMessageTitle(String name) {
+    return 'Write to $name';
+  }
+
+  @override
+  String get classMessageTo => 'Send to';
+
+  @override
+  String get classMessageParents => 'Parents';
+
+  @override
+  String get classMessageStudents => 'Students';
+
+  @override
+  String get classMessageFamilies => 'Parents and students';
+
+  @override
+  String get classMessageHint =>
+      'Each one gets it on their own, and their answers come back to you only.';
+
+  @override
+  String classMessageSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sent to $count people.',
+      one: 'Sent to 1 person.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classMessageNotInApp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people haven\'t signed in to the app yet.',
+      one: '1 person hasn\'t signed in to the app yet.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classMessageMissing => 'Write the message first.';
+
+  @override
   String get checkinTitle => 'Check in and out';
 
   @override

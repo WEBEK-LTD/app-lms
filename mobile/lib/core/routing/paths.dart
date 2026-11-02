@@ -93,6 +93,9 @@ abstract final class Paths {
   // 105.4 Schools: a student's or parent's school (for one of the students
   // they see, `student`), and the teachers' Classroom.
   static const school = '/school';
+
+  /// 113.6 Messages with teachers (and, for a teacher, families).
+  static const schoolMessages = '/school/messages';
   static String schoolPart(String part, {int? student}) => Uri(
     path: '$school/$part',
     queryParameters: student == null ? null : {'student': '$student'},

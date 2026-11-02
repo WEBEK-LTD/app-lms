@@ -22,6 +22,7 @@ import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show CheckinCard;
 import 'staff_screens.dart' show StaffTiles;
+import 'messages_screen.dart' show SchoolMessagesTile;
 import 'student_screens.dart' show FileTile;
 
 /// 105.4 The Classroom tab, for the school's teachers only: today's lessons
@@ -142,6 +143,9 @@ class ClassroomScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      // 113.6 Messages with the families of their classes.
+                      const AppCard(child: SchoolMessagesTile(teacher: true)),
                       const SizedBox(height: 20),
                       SectionHeader(title: l10n.classroomClasses, size: 16),
                       const SizedBox(height: 4),

@@ -3,12 +3,14 @@ import { CATALOG_CURRENCIES, centsToDecimal, parsePrice } from "../catalog/money
 import {
   SCHOOL_ASSESSMENT_KINDS,
   SCHOOL_CHECKIN_METHODS,
+  SCHOOL_MESSAGES_WITH,
   SCHOOL_ROLES,
   type SchoolAssessmentKind,
   type SchoolCheckinMethods,
   type SchoolCheckinSettings,
   type SchoolClass,
   type SchoolDayTimes,
+  type SchoolMessageSettings,
   type SchoolPerson,
   type SchoolRole,
   type SchoolSettings,
@@ -40,6 +42,7 @@ export const SCHOOL_LIMITS = {
   subjectName: 60,
   personName: 80,
   code: 30,
+  department: 80,
   room: 30,
   title: 120,
   homeworkTitle: 200,
@@ -111,6 +114,8 @@ export interface PersonForm {
   email: string | null;
   classId: number | null;
   code: string | null;
+  /** 113.3 A teacher's or staff member's department (113.6 the school writes to it at once). */
+  department?: string | null;
   active: boolean;
 }
 
@@ -130,8 +135,12 @@ export function parsePersonForm(form: Record<string, string>, defaultCountryCode
   if (!phoneText && !email) errors.phone = "Enter the mobile number they sign in with (or an email).";
   const classId = role === "student" ? optionalId(form, "classId", classIds, errors, "Choose one of your classes.") : null;
   const code = role === "student" ? limited(form, "code", SCHOOL_LIMITS.code, errors, null) : "";
+  const department = role === "teacher" || role === "staff" ? limited(form, "department", SCHOOL_LIMITS.department, errors, null) : "";
   if (Object.keys(errors).length || !role) return { ok: false, errors };
-  return { ok: true, value: { role, name, phone: phone?.e164 ?? null, email: email || null, classId, code: code || null, active: form.active === undefined ? true : form.active === "on" } };
+  return {
+    ok: true,
+    value: { role, name, phone: phone?.e164 ?? null, email: email || null, classId, code: code || null, ...(role === "teacher" || role === "staff" ? { department: department || null } : {}), active: form.active === undefined ? true : form.active === "on" },
+  };
 }
 
 export function personFormValues(person: SchoolPerson | null, role: SchoolRole = "student"): Record<string, string> {
@@ -142,6 +151,7 @@ export function personFormValues(person: SchoolPerson | null, role: SchoolRole =
     email: person?.email ?? "",
     classId: person?.classId ? String(person.classId) : "",
     code: person?.code ?? "",
+    department: person?.department ?? "",
     active: person === null || person.active ? "on" : "",
   };
 }
@@ -162,6 +172,7 @@ const COLUMN_NAMES: Record<string, string[]> = {
   class: ["class", "class name", "class_name"],
   code: ["code", "student code", "student number", "student_code"],
   children: ["children", "child", "students", "child codes"],
+  department: ["department", "dept"],
 };
 
 /** A people file to start from, as the People page shows it. */
@@ -204,7 +215,7 @@ export function parsePeopleCsv(text: string, defaultCountryCode: string): { ok: 
       problems.push(`Line ${line}: the role is student, parent, teacher or staff.`);
       return;
     }
-    const parsed = parsePersonForm({ name: cell("name"), phone: cell("phone"), email: cell("email"), code: cell("code") }, defaultCountryCode, [], role);
+    const parsed = parsePersonForm({ name: cell("name"), phone: cell("phone"), email: cell("email"), code: cell("code"), department: cell("department") }, defaultCountryCode, [], role);
     if (!parsed.ok) {
       problems.push(`Line ${line}: ${Object.values(parsed.errors)[0]}`);
       return;
@@ -404,6 +415,56 @@ export function schoolSettingsFormValues(settings: SchoolSettings): Record<strin
     absenceAlerts: settings.absenceAlerts ? "on" : "",
     feesByCard: settings.feesByCard ? "on" : "",
   };
+}
+
+/** 113.6 The school's rules for messages between teachers and families (Settings › Messages). */
+export function parseSchoolMessageSettings(form: Record<string, string>): Parsed<SchoolMessageSettings> {
+  const errors: Record<string, string> = {};
+  const withText = str(form, "with");
+  if (!(SCHOOL_MESSAGES_WITH as readonly string[]).includes(withText)) errors.with = "Choose whom teachers may write to.";
+  const startedBy = str(form, "startedBy");
+  if (startedBy !== "teacher" && startedBy !== "both") errors.startedBy = "Choose who may write first.";
+  let hours: SchoolMessageSettings["hours"] = null;
+  if (form.hoursOn === "on") {
+    const from = minutesOf(str(form, "hoursFrom"));
+    const to = minutesOf(str(form, "hoursTo"));
+    if (from === null) errors.hoursFrom = "Enter the start, like 08:30.";
+    if (to === null) errors.hoursTo = "Enter the end, like 09:15.";
+    else if (from !== null && to <= from) errors.hoursTo = "The hours end after they start.";
+    const days = [1, 2, 3, 4, 5, 6, 7].filter((d) => form[`day${d}`] === "on");
+    if (days.length === 0) errors.days = "Choose at least one day.";
+    hours = { from: from ?? 0, to: to ?? 0, days };
+  }
+  if (Object.keys(errors).length) return { ok: false, errors };
+  return {
+    ok: true,
+    value: {
+      with: withText as SchoolMessageSettings["with"],
+      startedBy: startedBy as SchoolMessageSettings["startedBy"],
+      hours,
+      classBroadcast: form.classBroadcast === "on",
+      attachments: form.attachments === "on",
+      adminReads: form.adminReads === "on",
+    },
+  };
+}
+
+/** The messages form's fields; the days default to the timetable's (Monday to Friday without one) until the school saves its own. */
+export function schoolMessageFormValues(m: SchoolMessageSettings, saved: boolean, timetableDays: readonly number[]): Record<string, string> {
+  const hours = m.hours ?? { from: 8 * 60, to: 18 * 60, days: [] };
+  const days = saved && m.hours ? hours.days : timetableDays.length ? timetableDays : [1, 2, 3, 4, 5];
+  const out: Record<string, string> = {
+    with: m.with,
+    startedBy: m.startedBy,
+    hoursOn: m.hours ? "on" : "",
+    hoursFrom: timeOf(hours.from),
+    hoursTo: timeOf(hours.to),
+    classBroadcast: m.classBroadcast ? "on" : "",
+    attachments: m.attachments ? "on" : "",
+    adminReads: m.adminReads ? "on" : "",
+  };
+  for (const d of [1, 2, 3, 4, 5, 6, 7]) out[`day${d}`] = days.includes(d) ? "on" : "";
+  return out;
 }
 
 /** 4500 → "4500.00" for a fee's amount field. */

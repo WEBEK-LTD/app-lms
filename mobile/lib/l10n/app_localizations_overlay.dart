@@ -6782,6 +6782,136 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('couponWithout') ?? base.couponWithout;
 
   @override
+  String get schoolMessages =>
+      overlay.text('schoolMessages') ?? base.schoolMessages;
+
+  @override
+  String get schoolMessagesWithTeachers =>
+      overlay.text('schoolMessagesWithTeachers') ??
+      base.schoolMessagesWithTeachers;
+
+  @override
+  String get schoolMessagesWithFamilies =>
+      overlay.text('schoolMessagesWithFamilies') ??
+      base.schoolMessagesWithFamilies;
+
+  @override
+  String get schoolMessagesOff =>
+      overlay.text('schoolMessagesOff') ?? base.schoolMessagesOff;
+
+  @override
+  String get schoolMessagesOffice =>
+      overlay.text('schoolMessagesOffice') ?? base.schoolMessagesOffice;
+
+  @override
+  String get schoolMessagesOfficeHint =>
+      overlay.text('schoolMessagesOfficeHint') ?? base.schoolMessagesOfficeHint;
+
+  @override
+  String get schoolMessagesTeachers =>
+      overlay.text('schoolMessagesTeachers') ?? base.schoolMessagesTeachers;
+
+  @override
+  String get schoolMessagesFamilies =>
+      overlay.text('schoolMessagesFamilies') ?? base.schoolMessagesFamilies;
+
+  @override
+  String schoolMessagesParentOf(String names) =>
+      overlay.format('schoolMessagesParentOf', {'names': names}) ??
+      base.schoolMessagesParentOf(names);
+
+  @override
+  String get schoolMessagesClassTeacher =>
+      overlay.text('schoolMessagesClassTeacher') ??
+      base.schoolMessagesClassTeacher;
+
+  @override
+  String get schoolMessagesTeacherFirst =>
+      overlay.text('schoolMessagesTeacherFirst') ??
+      base.schoolMessagesTeacherFirst;
+
+  @override
+  String schoolMessagesHours(String days, String from, String to) =>
+      overlay.format('schoolMessagesHours', {
+        'days': days,
+        'from': from,
+        'to': to,
+      }) ??
+      base.schoolMessagesHours(days, from, to);
+
+  @override
+  String schoolMessagesOpensAt(String when) =>
+      overlay.format('schoolMessagesOpensAt', {'when': when}) ??
+      base.schoolMessagesOpensAt(when);
+
+  @override
+  String get schoolMessagesClosed =>
+      overlay.text('schoolMessagesClosed') ?? base.schoolMessagesClosed;
+
+  @override
+  String get schoolMessagesNotAllowed =>
+      overlay.text('schoolMessagesNotAllowed') ?? base.schoolMessagesNotAllowed;
+
+  @override
+  String get schoolMessagesTextOnly =>
+      overlay.text('schoolMessagesTextOnly') ?? base.schoolMessagesTextOnly;
+
+  @override
+  String get schoolMessagesAdminReads =>
+      overlay.text('schoolMessagesAdminReads') ?? base.schoolMessagesAdminReads;
+
+  @override
+  String get schoolMessagesPrivate =>
+      overlay.text('schoolMessagesPrivate') ?? base.schoolMessagesPrivate;
+
+  @override
+  String get schoolMessagesNone =>
+      overlay.text('schoolMessagesNone') ?? base.schoolMessagesNone;
+
+  @override
+  String get schoolMessagesWriteClass =>
+      overlay.text('schoolMessagesWriteClass') ?? base.schoolMessagesWriteClass;
+
+  @override
+  String classMessageTitle(String name) =>
+      overlay.format('classMessageTitle', {'name': name}) ??
+      base.classMessageTitle(name);
+
+  @override
+  String get classMessageTo =>
+      overlay.text('classMessageTo') ?? base.classMessageTo;
+
+  @override
+  String get classMessageParents =>
+      overlay.text('classMessageParents') ?? base.classMessageParents;
+
+  @override
+  String get classMessageStudents =>
+      overlay.text('classMessageStudents') ?? base.classMessageStudents;
+
+  @override
+  String get classMessageFamilies =>
+      overlay.text('classMessageFamilies') ?? base.classMessageFamilies;
+
+  @override
+  String get classMessageHint =>
+      overlay.text('classMessageHint') ?? base.classMessageHint;
+
+  @override
+  String classMessageSent(int count) =>
+      overlay.format('classMessageSent', {'count': count}) ??
+      base.classMessageSent(count);
+
+  @override
+  String classMessageNotInApp(int count) =>
+      overlay.format('classMessageNotInApp', {'count': count}) ??
+      base.classMessageNotInApp(count);
+
+  @override
+  String get classMessageMissing =>
+      overlay.text('classMessageMissing') ?? base.classMessageMissing;
+
+  @override
   String get checkinTitle => overlay.text('checkinTitle') ?? base.checkinTitle;
 
   @override

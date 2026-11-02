@@ -9,8 +9,10 @@ import type { App, SchoolAttendanceStatus, SchoolCheckin, SchoolPerson } from "@
 import { SCHOOL_ATTENDANCE_STATUSES } from "@/lib/data/types";
 import { formValues, type FormState } from "@/lib/forms";
 import { hostedSettings } from "@/lib/hosted/service";
+import { getMediaStorage } from "@/lib/media/storage";
 import { markFeePaid } from "@/lib/school/fees";
 import { checkinSettingsOf, correctCheckin, isCheckinRole } from "@/lib/school/checkin";
+import { removeSchoolConversations } from "@/lib/school/messages";
 import { addFee, answerLeave, enterScores, giveHomework, postAnnouncement, takeAttendance, tellFeePaid } from "@/lib/school/flow";
 import {
   parseAssessmentForm,
@@ -23,6 +25,7 @@ import {
   parsePeopleCsv,
   parsePeriodForm,
   parsePersonForm,
+  parseSchoolMessageSettings,
   parseSchoolSettings,
   parseScore,
   parseSubjectForm,
@@ -177,6 +180,8 @@ export async function deleteSchoolPersonAction(formData: FormData): Promise<void
   const store = await getStore();
   const person = id !== null ? await store.getSchoolPerson(context.app.id, id) : null;
   if (!person) return;
+  // 113.6 Files sent in their conversations with teachers or families go first; the conversations go with them.
+  await removeSchoolConversations({ store, storage: getMediaStorage() }, context.app, person.id);
   await store.deleteSchoolPerson(context.app.id, person.id);
   await recordStaffChange(context, `Removed the ${person.role} "${person.name}"`);
   refresh();
@@ -210,7 +215,7 @@ export async function importSchoolPeopleAction(_: FormState, formData: FormData)
     const same = people.find((p) => p.role === row.person.role && ((row.person.phone && p.phone === row.person.phone) || (row.person.email && p.email === row.person.email)));
     let person: SchoolPerson;
     // A file without a class (or a code) keeps a student's own.
-    const fields = { name: row.person.name, phone: row.person.phone, email: row.person.email, classId: row.className ? classId : (same?.classId ?? null), code: row.person.code ?? same?.code ?? null, active: true };
+    const fields = { name: row.person.name, phone: row.person.phone, email: row.person.email, classId: row.className ? classId : (same?.classId ?? null), code: row.person.code ?? same?.code ?? null, ...(row.person.department ? { department: row.person.department } : {}), active: true };
     if (same) {
       const changed = await store.updateSchoolPerson(app.id, same.id, fields, now);
       if (!changed.ok) {
@@ -476,9 +481,9 @@ export async function saveSchoolSettingsAction(_: FormState, formData: FormData)
   const parsed = parseSchoolSettings(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
   const store = await getStore();
-  // 113.2 The check-in settings are saved on their own page.
+  // 113.2 The check-in settings, 113.6 the messages' rules are saved on their own forms.
   const saved = await store.getSchoolSettings(context.app.id);
-  await store.saveSchoolSettings(context.app.id, { ...parsed.value, ...(saved?.checkin ? { checkin: saved.checkin } : {}) }, new Date());
+  await store.saveSchoolSettings(context.app.id, { ...parsed.value, ...(saved?.checkin ? { checkin: saved.checkin } : {}), ...(saved?.messages ? { messages: saved.messages } : {}) }, new Date());
   await recordStaffChange(context, "Saved the school settings");
   refresh();
   return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
@@ -562,4 +567,19 @@ export async function answerLeaveAction(_: FormState, formData: FormData): Promi
   await recordStaffChange(context, `${status === "approved" ? "Approved" : "Refused"} the leave of "${person?.name ?? "someone"}" from ${leave.startsOn} to ${leave.endsOn}`);
   refresh();
   return { ok: true, message: status === "approved" ? "Approved. They were told in the app." : "Refused. They were told in the app, with your note." };
+}
+
+/** 113.6 Whom teachers may write to, who writes first, the hours, a class at once, files and whether the school reads the conversations. */
+export async function saveSchoolMessagesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireSchoolApp();
+  const values = formValues(formData);
+  const parsed = parseSchoolMessageSettings(values);
+  if (!parsed.ok) return { errors: parsed.errors, values };
+  const store = await getStore();
+  const settings = schoolSettingsOf(await store.getSchoolSettings(context.app.id), context.app);
+  await store.saveSchoolSettings(context.app.id, { ...settings, messages: parsed.value }, new Date());
+  await recordStaffChange(context, "Saved the school's message settings");
+  refresh();
+  revalidatePath("/dashboard/chat", "layout");
+  return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
 }

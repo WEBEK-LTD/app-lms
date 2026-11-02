@@ -26,7 +26,7 @@ export function WorkFields({ suffix, values, t, limits }: { suffix: string; valu
     <div className="flex flex-col gap-4 rounded-xl border border-line-soft p-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id={`f-job${suffix}`} label={t("school.jobTitle")} name="jobTitle" defaultValue={values.jobTitle} maxLength={limits.jobTitle} placeholder={t("school.jobExample")} />
-        <Field id={`f-department${suffix}`} label={t("school.department")} name="department" defaultValue={values.department} maxLength={limits.department} placeholder={t("school.departmentExample")} />
+        <Field id={`f-department${suffix}`} label={t("school.department")} name="department" defaultValue={values.department} maxLength={limits.department} placeholder={t("school.departmentExample")} hint={t("school.departmentHint")} />
       </div>
       <DayBoxes id={`f-workdays${suffix}`} prefix="workDay" values={values} legend={t("school.workDays")} t={t} />
       <div className="grid gap-4 sm:grid-cols-2">

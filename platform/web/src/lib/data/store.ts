@@ -1507,6 +1507,10 @@ export interface DataStore {
   ensureDirectConversation(appId: string, memberId: string, now: Date): Promise<ChatConversation>;
   /** A course's group, made the first time; its title and picture follow the course's. */
   ensureGroupConversation(input: { appId: string; courseKey: string; title: string; imageUrl: string | null }, now: Date): Promise<ChatConversation>;
+  /** 113.6 A school's teacher and a parent or student, made the first time (of two at once, one is made). */
+  ensureSchoolConversation(input: { appId: string; teacherId: number; personId: number }, now: Date): Promise<ChatConversation>;
+  /** 113.6 The school conversations of these people (on either side); without `personIds`, the app's with a message, most recent first. */
+  listSchoolConversations(appId: string, input: { personIds?: number[]; limit: number }): Promise<ChatConversation[]>;
   getChatConversation(appId: string, id: string): Promise<ChatConversation | null>;
   updateChatConversation(id: string, patch: ChatConversationPatch): Promise<void>;
   /** The app's conversations with a message, most recent first. */

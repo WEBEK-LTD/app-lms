@@ -10594,6 +10594,180 @@ abstract class AppLocalizations {
   /// **'Continue without a coupon'**
   String get couponWithout;
 
+  /// 113.6 The School tab's row and the screen of messages between teachers and families.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get schoolMessages;
+
+  /// 113.6 Under Messages on the School tab, for a parent or a student.
+  ///
+  /// In en, this message translates to:
+  /// **'With your teachers'**
+  String get schoolMessagesWithTeachers;
+
+  /// 113.6 Under Messages in the Classroom tab, for a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'With your classes\' families'**
+  String get schoolMessagesWithFamilies;
+
+  /// 113.6 Messages when the school doesn't allow them.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school hasn\'t turned on messages between teachers and families.'**
+  String get schoolMessagesOff;
+
+  /// 113.6 The row for the conversation with the school's administration.
+  ///
+  /// In en, this message translates to:
+  /// **'The school\'s administration'**
+  String get schoolMessagesOffice;
+
+  /// 113.6 Under the school's administration in Messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to the school at any time.'**
+  String get schoolMessagesOfficeHint;
+
+  /// 113.6 The heading of the teachers one can write to.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get schoolMessagesTeachers;
+
+  /// 113.6 The heading of the parents and students a teacher can write to.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents and students'**
+  String get schoolMessagesFamilies;
+
+  /// 113.6 Under a parent in a teacher's contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent of {names}'**
+  String schoolMessagesParentOf(String names);
+
+  /// 113.6 Under a teacher who is the class's own teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Class teacher'**
+  String get schoolMessagesClassTeacher;
+
+  /// 113.6 When only teachers may start a conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'The teacher writes first; you can answer then.'**
+  String get schoolMessagesTeacherFirst;
+
+  /// 113.6 The school's messaging hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages can be sent on {days}, {from} to {to}.'**
+  String schoolMessagesHours(String days, String from, String to);
+
+  /// 113.6 Outside the messaging hours: when one can write again.
+  ///
+  /// In en, this message translates to:
+  /// **'You can write again on {when}.'**
+  String schoolMessagesOpensAt(String when);
+
+  /// 113.6 A conversation the school closed.
+  ///
+  /// In en, this message translates to:
+  /// **'The school closed this conversation.'**
+  String get schoolMessagesClosed;
+
+  /// 113.6 A conversation the school's rules don't allow now.
+  ///
+  /// In en, this message translates to:
+  /// **'The school doesn\'t allow messages here now.'**
+  String get schoolMessagesNotAllowed;
+
+  /// 113.6 When the school doesn't allow photos and files.
+  ///
+  /// In en, this message translates to:
+  /// **'The school allows text messages only.'**
+  String get schoolMessagesTextOnly;
+
+  /// 113.6 The privacy note in a conversation the school may read.
+  ///
+  /// In en, this message translates to:
+  /// **'The school\'s administration can read this conversation.'**
+  String get schoolMessagesAdminReads;
+
+  /// 113.6 The privacy note in a conversation the school doesn't read.
+  ///
+  /// In en, this message translates to:
+  /// **'This conversation is private: the school reads it only if a message in it is reported.'**
+  String get schoolMessagesPrivate;
+
+  /// 113.6 Messages without contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'No one to write to yet.'**
+  String get schoolMessagesNone;
+
+  /// 113.6 A teacher's button to write to a whole class at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to a whole class'**
+  String get schoolMessagesWriteClass;
+
+  /// 113.6 The title of the sheet to write to a whole class.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to {name}'**
+  String classMessageTitle(String name);
+
+  /// 113.6 Whom a class message goes to.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to'**
+  String get classMessageTo;
+
+  /// 113.6 A class message to the parents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get classMessageParents;
+
+  /// 113.6 A class message to the students.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get classMessageStudents;
+
+  /// 113.6 A class message to the parents and the students.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents and students'**
+  String get classMessageFamilies;
+
+  /// 113.6 Under the class message: how it is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Each one gets it on their own, and their answers come back to you only.'**
+  String get classMessageHint;
+
+  /// 113.6 After a class message.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Sent to 1 person.} other{Sent to {count} people.}}'**
+  String classMessageSent(int count);
+
+  /// 113.6 After a class message: who couldn't get it yet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person hasn\'t signed in to the app yet.} other{{count} people haven\'t signed in to the app yet.}}'**
+  String classMessageNotInApp(int count);
+
+  /// 113.6 A class message without text.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the message first.'**
+  String get classMessageMissing;
+
   /// 113.2 The screen where a student, teacher or staff member checks in and out at the school.
   ///
   /// In en, this message translates to:
