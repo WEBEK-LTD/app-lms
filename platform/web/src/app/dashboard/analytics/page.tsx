@@ -4,6 +4,7 @@ import { ColumnChart, SERIES_COLORS, TrendChart } from "@/components/analytics-c
 import { BarList, DataTable, KpiTiles, percent, RetentionTiles } from "@/components/analytics-report";
 import { Icon } from "@/components/icon";
 import { EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
+import { PageGroup } from "@/components/page-kit";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { compactIn } from "@/lib/analytics/format";
@@ -134,16 +135,17 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
         title={t("analytics.title")}
         description={richText(t("analytics.intro", { from, to }), { zone: () => <bdi dir="ltr">{zoneText}</bdi> })}
         actions={
-          <a href={exportHref(report)} className={`${btn.secondary} h-11`} download>
+          <a href={exportHref(report)} className={`${btn.main} h-11`} download>
             <Icon name="download" size={20} />
             {t("analytics.exportCsv")}
           </a>
         }
       />
-      <RangeFilter report={report} text={text} />
-      <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
-      {/* 86.4 The weekly summary email. */}
-      <WeeklyForm on={app.weeklySummary !== false} />
+      {/* The page kit: the days and the time zone first, the key numbers, then the reports in labelled groups. */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-4 sm:px-5">
+        <RangeFilter report={report} text={text} />
+        <ZoneForm zone={zone} label={zoneText} zones={timeZones()} chosen={Boolean(app.timeZone)} />
+      </div>
       <Notice>
         {kept.from === null
           ? t("analytics.keptNoteForever", { plan: planName, days: analyticsEventsKeepText(lang) })
@@ -163,6 +165,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
 
       {!report.hasData ? <NoData app={app} text={text} /> : null}
 
+      <PageGroup title={t("analytics.groupUse")}>
       <Section id="active" titleId="h-active" title={t("analytics.dau")} description={t("analytics.dauText")}>
         <TrendChart
           label={t("analytics.dauChart", { from, to })}
@@ -192,6 +195,9 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
           <RetentionTiles report={report} lang={lang} />
         </Section>
       </div>
+      </PageGroup>
+
+      <PageGroup title={t("analytics.groupAudience")}>
 
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
         <Section id="platforms" titleId="h-platforms" title={t("analytics.platforms")} description={t("analytics.platformsText")}>
@@ -213,6 +219,9 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
           <BarList items={relabel(report.screens, text, "other")} label={t("analytics.screens")} valueText={(s) => short(s.value)} lang={lang} />
         </Section>
       </div>
+      </PageGroup>
+
+      <PageGroup title={t("analytics.groupGrowth")}>
 
       {/* 86.2 Where people come from, and the app's link and QR code to share. */}
       <Section id="sources" titleId="h-sources" title={t("analytics.sources")} description={t("analytics.sourcesText")}>
@@ -221,6 +230,9 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
       <Section id="share" titleId="h-share" title={t("analytics.shareTitle")} description={t("analytics.shareText")}>
         <ShareCard links={share} campaign={campaign} invalid={asked !== "" && !campaign} text={text} />
       </Section>
+      </PageGroup>
+
+      <PageGroup title={t("analytics.groupContent")}>
 
       <Section id="items" titleId="h-items" title={t("analytics.topItems", { items })} description={t("analytics.topItemsText", { items })}>
         {report.items.length === 0 ? (
@@ -269,7 +281,9 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
           )}
         </Section>
       ) : null}
+      </PageGroup>
 
+      <PageGroup title={t("analytics.groupMessages")}>
       <div className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr))]">
         <Section id="push" titleId="h-push" title={t("analytics.notifications")} description={t("analytics.notificationsText")}>
           {report.push.length === 0 && report.pushFromSite.length === 0 && report.auto.length === 0 ? (
@@ -311,6 +325,12 @@ export default async function AnalyticsPage({ searchParams }: PageProps<"/dashbo
           )}
         </Section>
       </div>
+      </PageGroup>
+
+      {/* 86.4 The weekly summary email. */}
+      <PageGroup title={t("analytics.groupEmail")}>
+        <WeeklyForm on={app.weeklySummary !== false} />
+      </PageGroup>
 
       <p className="m-0 text-sm text-muted">
         {richText(t("analytics.guide"), { link: (chunk) => <Link href={localePath(lang, "/docs/analytics")}>{chunk}</Link> })}

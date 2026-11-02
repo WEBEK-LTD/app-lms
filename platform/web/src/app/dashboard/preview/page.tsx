@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { QrCode } from "@/components/qr-code";
 import { Notice, PageHeader, Section, btn } from "@/components/ui";
+import { ItemList, ItemRow } from "@/components/page-kit";
 import { appLabel } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
 import { requireClient } from "@/lib/auth/session";
@@ -133,22 +134,38 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
           : richText(t("preview.apiSignIn"), linkTo(localePath(lang, "/docs/my-own-api") + "#let-the-app-preview-reach-your-api"));
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header and its one action, which pages, the phone, and what to know beside it. */}
       <PageHeader
         title={t("preview.title")}
         eyebrow={name}
         description={t("preview.intro")}
+        actions={
+          <a href={path} target="_blank" rel="noopener noreferrer" className={`${btn.main} h-11`}>
+            <Icon name="open_in_new" size={20} />
+            {t("preview.newTab")}
+          </a>
+        }
       />
 
       {draftSupported ? (
-        <nav aria-label={t("preview.pagesToShow")} className="flex flex-wrap items-center gap-2">
+        <nav aria-label={t("preview.pagesToShow")} className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-semibold text-muted">{t("preview.pages")}</span>
-          <Link href="/dashboard/preview" aria-current={draft ? undefined : "page"} className={`${draft ? btn.secondary : btn.primary} h-9 px-3.5 text-sm`}>
-            {t("preview.published")}
-          </Link>
-          <Link href="/dashboard/preview?pages=draft" aria-current={draft ? "page" : undefined} className={`${draft ? btn.primary : btn.secondary} h-9 px-3.5 text-sm`}>
-            {t("preview.draft")}
-          </Link>
+          <span className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
+            {[
+              { href: "/dashboard/preview", on: !draft, label: t("preview.published") },
+              { href: "/dashboard/preview?pages=draft", on: draft, label: t("preview.draft") },
+            ].map((choice) => (
+              <Link
+                key={choice.href}
+                href={choice.href}
+                aria-current={choice.on ? "page" : undefined}
+                className={`inline-flex h-9 items-center rounded-[9px] px-3.5 text-sm font-semibold no-underline ${choice.on ? "bg-midnight text-ivory hover:text-ivory" : "text-ink-3 hover:bg-ivory hover:text-midnight"}`}
+              >
+                {choice.label}
+              </Link>
+            ))}
+          </span>
         </nav>
       ) : (
         <Notice icon="info">
@@ -161,17 +178,21 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
 
         <div className="flex min-w-0 flex-col gap-4">
           {missing.length ? (
-            <Section id="missing" titleId="h-missing" title={t("preview.missing")} description={t("preview.missingText")}>
-              <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            <Section id="missing" titleId="h-missing" title={t("preview.missing")} description={t("preview.missingText")} flush>
+              <ItemList>
                 {missing.map((m) => (
-                  <li key={m.step}>
-                    <Link href={STEP_HREF[m.step] ?? "/dashboard/setup"} className="flex items-center gap-2 text-[15px] font-semibold">
-                      <Icon name="radio_button_unchecked" size={18} className="text-faint" />
-                      {k(m.label)}
-                    </Link>
-                  </li>
+                  <ItemRow
+                    key={m.step}
+                    href={STEP_HREF[m.step] ?? "/dashboard/setup"}
+                    media={
+                      <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-sand text-faint">
+                        <Icon name="radio_button_unchecked" size={20} />
+                      </span>
+                    }
+                    title={k(m.label)}
+                  />
                 ))}
-              </ul>
+              </ItemList>
             </Section>
           ) : (
             <Notice tone="success" icon="check_circle">
@@ -187,10 +208,6 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
                   {t("preview.fillsScreen")}{" "}
                   {wordsOf(app).iphone ? t("preview.iphoneRules", { rule: k(wordsOf(app).iphone!) }) : t("preview.iphoneSame")}
                 </span>
-                <a href={path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold">
-                  {t("preview.newTab")}
-                  <Icon name="open_in_new" size={16} />
-                </a>
               </div>
             </div>
           </Section>
@@ -219,6 +236,6 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
           </Section>
         </div>
       </div>
-    </>
+    </div>
   );
 }

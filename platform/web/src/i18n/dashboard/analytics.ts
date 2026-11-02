@@ -3,6 +3,12 @@ import type { Strings } from "../types";
 /** 56 Analytics: the page, its charts and the report pieces the admin shows too (in English there). */
 export const en = {
   title: "Analytics",
+  groupUse: "Use",
+  groupAudience: "Who uses the app",
+  groupGrowth: "Where people come from",
+  groupContent: "What people look at",
+  groupMessages: "Notifications and searches",
+  groupEmail: "Reports by email",
   noApp: "Choose your app type first; your app's numbers show here once people use it.",
   intro: "How people use your app, {from} to {to} (<zone></zone>). Totals only: no one is identified.",
   exportCsv: "Export CSV",
@@ -284,6 +290,12 @@ type Messages = Strings<typeof en>;
 
 export const ar: Messages = {
   title: "التحليلات",
+  groupUse: "الاستخدام",
+  groupAudience: "من يستخدم التطبيق",
+  groupGrowth: "من أين يأتي الناس",
+  groupContent: "ما يتصفحه الناس",
+  groupMessages: "الإشعارات وعمليات البحث",
+  groupEmail: "التقارير بالبريد الإلكتروني",
   noApp: "اختر نوع تطبيقك أولًا؛ تظهر أرقام تطبيقك هنا بعد أن يبدأ الناس في استخدامه.",
   intro: "كيف يستخدم الناس تطبيقك، من {from} إلى {to} (<zone></zone>). أرقام إجمالية فقط: لا يُعرَّف أي شخص.",
   exportCsv: "تصدير CSV",
@@ -553,6 +565,12 @@ export const ar: Messages = {
 
 export const tr: Messages = {
   title: "Analiz",
+  groupUse: "Kullanım",
+  groupAudience: "Uygulamayı kimler kullanıyor",
+  groupGrowth: "İnsanlar nereden geliyor",
+  groupContent: "İnsanların baktıkları",
+  groupMessages: "Bildirimler ve aramalar",
+  groupEmail: "E-postayla raporlar",
   noApp: "Önce uygulama türünüzü seçin; insanlar uygulamanızı kullanmaya başlayınca rakamlar burada görünür.",
   intro: "İnsanların uygulamanızı kullanımı, {from} - {to} (<zone></zone>). Yalnızca toplamlar: kimse tanımlanmaz.",
   exportCsv: "CSV olarak dışa aktar",
