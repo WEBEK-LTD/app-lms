@@ -212,6 +212,8 @@ export const en = {
     csvCash: "Cash",
     csvBank: "Bank transfer",
   },
+  // The page kit: Salaries.
+  statLeft: "Left to pay",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -425,6 +427,8 @@ export const ar: Strings<typeof en> = {
     csvCash: "نقدًا",
     csvBank: "تحويل بنكي",
   },
+  // The page kit: Salaries.
+  statLeft: "المتبقي للدفع",
 };
 
 export const tr: Strings<typeof en> = {
@@ -638,4 +642,6 @@ export const tr: Strings<typeof en> = {
     csvCash: "Nakit",
     csvBank: "Banka havalesi",
   },
+  // The page kit: Salaries.
+  statLeft: "Ödenecek kalan",
 };
