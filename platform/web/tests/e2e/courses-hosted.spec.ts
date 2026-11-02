@@ -66,7 +66,7 @@ test("the academy adds a course with a lesson", async () => {
   await curriculum.getByRole("button", { name: "Add lesson" }).click();
   await expect(curriculum.getByText("Add a video address or some text.")).toBeVisible();
   await curriculum.getByLabel("Video address").fill("https://www.youtube.com/watch?v=abc123");
-  await curriculum.getByLabel("Minutes").fill("8");
+  await curriculum.getByLabel("Minutes", { exact: true }).fill("8");
   await curriculum.getByLabel("Free preview for everyone").check();
   await curriculum.getByRole("button", { name: "Add lesson" }).click();
   await expect(curriculum.getByText("Video · 8 min · free preview")).toBeVisible();
