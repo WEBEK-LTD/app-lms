@@ -110,6 +110,47 @@ export interface DemoGuide {
   screens: AppScreen[];
 }
 
+/**
+ * 112.3 In a Studio demo whose couriers or drivers have their own app, the
+ * "what to try" step that opened Account › Courier or Driver mode, once
+ * that app can be downloaded on /demo/studio: which step, in each language
+ * ({app} is the second app's name).
+ */
+export const DEMO_SECOND_APP_STEP: Partial<Record<DemoId, { index: number; text: Record<"en" | "ar" | "tr", string> }>> = {
+  delivery: {
+    index: 2,
+    text: {
+      en: "Download {app} below, sign in with the same number, go on duty and deliver your own parcel: picked up, on the way, delivered",
+      ar: "نزّل {app} من الأسفل، وسجّل الدخول بالرقم نفسه، وابدأ العمل ووصّل طردك: استُلم، في الطريق، تم التسليم",
+      tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla giriş yapın, mesaiye başlayın ve kendi paketinizi teslim edin: alındı, yolda, teslim edildi",
+    },
+  },
+  food: {
+    index: 2,
+    text: {
+      en: "In {app}, downloaded below and signed in with the same number, take the job and deliver it, and see each stage in My orders",
+      ar: "في {app}، بعد تنزيله من الأسفل والدخول بالرقم نفسه، خذ المهمة ووصّلها، وشاهد كل مرحلة في «طلباتي»",
+      tr: "Aşağıdan indirip aynı numarayla girdiğiniz {app} uygulamasında işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
+    },
+  },
+  rides: {
+    index: 1,
+    text: {
+      en: "Download {app} below, sign in with the same number, go online and accept your ride before the time runs out",
+      ar: "نزّل {app} من الأسفل، وسجّل الدخول بالرقم نفسه، واتصل واقبل رحلتك قبل انتهاء الوقت",
+      tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla giriş yapın, çevrimiçi olun ve süre bitmeden yolculuğunuzu kabul edin",
+    },
+  },
+  taxi: {
+    index: 2,
+    text: {
+      en: "Download {app} below, sign in with the same number, go online and accept your ride before the countdown ends",
+      ar: "نزّل {app} من الأسفل، وسجّل الدخول بالرقم نفسه، واتصل واقبل رحلتك قبل انتهاء العد التنازلي",
+      tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla giriş yapın, çevrimiçi olun ve geri sayım bitmeden yolculuğunuzu kabul edin",
+    },
+  },
+};
+
 export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
   lms: {
     summary: "An online academy with courses in design, business, languages and programming.",

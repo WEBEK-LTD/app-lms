@@ -251,6 +251,7 @@ export const tr: Messages = {
     whatToTry: "Neler denenebilir",
     qrLabel: "{app} uygulamasını Android için indirme QR kodu",
     download: "Android için indirin",
+    downloadSecond: "{app} uygulamasını Android için indirin",
     scan: "Kodu telefonunuzun kamerasıyla tarayın ya da bu sayfayı telefonunuzda açın. Telefonunuz, tarayıcınızdan uygulama yüklenmesine izin vermenizi isteyebilir.",
     comingSoon: "Çok yakında",
     onItsWay: "Android sürümü yolda.",

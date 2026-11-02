@@ -1,5 +1,6 @@
 import type { DataStore } from "../data/store";
 import type { App, Build, Client } from "../data/types";
+import { hasCourierJobs } from "../delivery/courier-app";
 import { platformSetting } from "../settings/platform";
 import { ALL_DEMO_TYPES, demoIdOf, type DemoId } from "./constants";
 
@@ -50,6 +51,17 @@ export async function demoClientId(store: DataStore, options: { fresh?: boolean 
 /** Whether a build can be the public download: ready, with an APK, of this demo app. */
 export function isDownloadableBuild(app: Pick<App, "id">, build: Pick<Build, "appId" | "status" | "artifacts"> | null): boolean {
   return Boolean(build && build.appId === app.id && build.status === "ready" && build.artifacts.some((a) => a.kind === "apk"));
+}
+
+/**
+ * 112.3 The second app /demo/studio offers for a Studio demo whose couriers
+ * or drivers have their own app (Sahm Express, Sofra Eats, Masar Rides,
+ * Lamha Taxi): its newest build that can be downloaded, made from Admin ›
+ * Demo apps.
+ */
+export async function demoSecondAppBuild(store: DataStore, app: App): Promise<Build | null> {
+  if (!app.demo || !hasCourierJobs(app)) return null;
+  return (await store.listBuildsByApp(app.id, 10, "courier")).find((b) => isDownloadableBuild(app, b)) ?? null;
 }
 
 /** The build /demo offers for an app, when it still can be downloaded. */

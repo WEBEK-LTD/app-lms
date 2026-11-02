@@ -19,7 +19,7 @@ import { siteMetadata } from "@/lib/seo";
 import { messagesFor, type Lang } from "@/i18n";
 import { Notice } from "@/components/ui";
 import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
-import { DemoAppSection, DemoSignIn, demoDownloads } from "@/site/demo";
+import { DemoAppSection, DemoSignIn, demoDownloads, demoSecondDownloads } from "@/site/demo";
 import { localePath } from "@/i18n/paths";
 
 export function studioMetadata(lang: Lang): Metadata {
@@ -173,7 +173,7 @@ export async function StudioPage({ lang }: { lang: Lang }) {
  * editor.
  */
 export async function StudioDemoPage({ lang, download }: { lang: Lang; download?: string | string[] }) {
-  const [contact, ready] = await Promise.all([getVisitorContact(), demoDownloads()]);
+  const [contact, ready, second] = await Promise.all([getVisitorContact(), demoDownloads(), demoSecondDownloads()]);
   const demo = messagesFor(lang).demo;
   const m = messagesFor(lang).studio;
   const alt = screenAltFor(lang);
@@ -197,7 +197,7 @@ export async function StudioDemoPage({ lang, download }: { lang: Lang; download?
         <DemoSignIn lang={lang} />
       </Section>
       {STUDIO_DEMO_TYPES.map((type, index) => (
-        <DemoAppSection key={type} type={type} lang={lang} ready={ready[type] ?? false} tinted={index % 2 === 0} />
+        <DemoAppSection key={type} type={type} lang={lang} ready={ready[type] ?? false} secondReady={second[type] ?? false} tinted={index % 2 === 0} />
       ))}
 
       <Section id="cafe">

@@ -8,9 +8,9 @@ import { Notice } from "@/components/ui";
 import { getContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getStore } from "@/lib/data";
-import { demoDownloadBuild, listDemoApps } from "@/lib/demo/apps";
+import { demoDownloadBuild, demoSecondAppBuild, listDemoApps } from "@/lib/demo/apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
-import { DEMO_BRANDS } from "@/lib/demo/content";
+import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 import { solution as solutionPage } from "@/lib/marketing";
 import { demoGuideFor, kindNameFor, screenAltFor, solutionFor } from "@/lib/marketing-lang";
@@ -37,6 +37,18 @@ async function downloads(): Promise<Partial<Record<DemoId, boolean>>> {
 
 /** Which demo apps can be downloaded now (also for /demo/studio). */
 export const demoDownloads = downloads;
+
+/** 112.3 Which Studio demos' couriers' or drivers' apps can be downloaded now. */
+export async function demoSecondDownloads(): Promise<Partial<Record<DemoId, boolean>>> {
+  try {
+    const store = await getStore();
+    const out: Partial<Record<DemoId, boolean>> = {};
+    for (const app of await listDemoApps(store)) out[demoIdOf(app)] = (await demoSecondAppBuild(store, app)) !== null;
+    return out;
+  } catch {
+    return {};
+  }
+}
 
 /** /demo (roadmap 16): the demo apps people can install and try before they pay (21 the clinic, 23 the news app, 26 the café, 27 the gym, 28 the events app, 29 the charity too), 55 in any language. */
 export async function DemoPage({ lang, download }: { lang: Lang; download?: string | string[] }) {
@@ -108,11 +120,16 @@ export function DemoSignIn({ lang }: { lang: Lang }) {
 }
 
 /** One demo app: what it is, what to try, its download (or "coming soon") and its screens (also on /demo/studio). */
-export function DemoAppSection({ type, lang, ready, tinted }: { type: DemoId; lang: Lang; ready: boolean; tinted: boolean }) {
+export function DemoAppSection({ type, lang, ready, tinted, secondReady = false }: { type: DemoId; lang: Lang; ready: boolean; tinted: boolean; secondReady?: boolean }) {
   const base = appUrl().replace(/\/+$/, "");
   const m = messagesFor(lang).demo;
   const alt = screenAltFor(lang);
-  const guide = demoGuideFor(lang, type);
+  const own = demoGuideFor(lang, type);
+  // 112.3 A Studio demo's couriers' or drivers' own app, once it can be downloaded: its step and its download.
+  const step = DEMO_SECOND_APP_STEP[type];
+  const secondName = step ? `${DEMO_BRANDS[type].appName} ${type === "rides" || type === "taxi" ? "Driver" : "Courier"}` : null;
+  const second = step && secondName && secondReady && ready ? secondName : null;
+  const guide = second && step ? { ...own, tryThis: own.tryThis.map((line, i) => (i === step.index ? formatMessage(lang, step.text[lang], { app: second }) : line)) } : own;
   const brand = DEMO_BRANDS[type];
   const slug = DEMO_SLUGS[type];
   const kind = demoKind(type);
@@ -148,6 +165,12 @@ export function DemoAppSection({ type, lang, ready, tinted }: { type: DemoId; la
                   {m.download}
                 </a>
                 <span className="max-w-[300px] text-sm text-muted">{m.scan}</span>
+                {second ? (
+                  <a href={`/demo/download/${slug}?app=second`} className="flex items-center gap-2 self-start font-bold text-midnight" data-second-download="">
+                    <Icon name={type === "rides" || type === "taxi" ? "local_taxi" : "two_wheeler"} size={20} />
+                    {formatMessage(lang, m.downloadSecond, { app: second })}
+                  </a>
+                ) : null}
               </div>
             </div>
           ) : (

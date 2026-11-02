@@ -78,15 +78,16 @@ export async function setupDemosAction(formData: FormData): Promise<void> {
   redirect(back(`done=${which}`, formData));
 }
 
-/** Starts a build of a demo app through the normal pipeline. */
+/** Starts a build of a demo app through the normal pipeline; 112.3 `variant` courier: a Studio demo's couriers' or drivers' app. */
 export async function buildDemoAction(formData: FormData): Promise<void> {
   const admin = await requireAdmin("demos.manage");
   const store = await getStore();
   const app = await store.getAppById(String(formData.get("appId") ?? ""));
   if (!app || !(await isDemoApp(store, app))) redirect(back("error=not_demo", formData));
-  const [client, license, builds] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id), store.listBuildsByApp(app.id, 1)]);
+  const variant = formData.get("variant") === "courier" ? "courier" : "app";
+  const [client, license, builds] = await Promise.all([store.getClientById(app.clientId), store.getLicenseForApp(app.clientId, app.id), store.listBuildsByApp(app.id, 1, variant)]);
   if (!client) redirect(back("error=not_demo", formData));
-  const result = await queueBuild(store, { client, app, license, versionName: suggestedVersion(builds[0]) }, new Date(), assetUrl);
+  const result = await queueBuild(store, { client, app, license, versionName: suggestedVersion(builds[0]), variant }, new Date(), assetUrl);
   if (!result.ok) redirect(back(`error=${result.reason}`, formData));
   await startPipeline();
   await recordAudit({
@@ -94,7 +95,7 @@ export async function buildDemoAction(formData: FormData): Promise<void> {
     action: "demo.build",
     target: { type: "build", id: result.build.id },
     clientId: app.clientId,
-    summary: `Started build #${result.build.number} (${result.build.versionName}) of the demo app ${appLabel(app)}`,
+    summary: `Started build #${result.build.number} (${result.build.versionName}) of the demo app ${appLabel(app)}${variant === "courier" ? "'s second app" : ""}`,
   });
   refresh();
   redirect(back("done=build", formData));
