@@ -70,6 +70,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       ownFonts={ownFonts}
       ownDesigns={(await store.listStudioDesigns(app.clientId)).map(ownDesignView)}
       kindName={k(kindOf(app).name)}
+      pictureBase={appUrl()}
     />
   );
 }

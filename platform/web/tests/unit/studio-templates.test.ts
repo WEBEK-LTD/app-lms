@@ -14,7 +14,8 @@ const kindOf = (id: string) => {
 
 describe("103R.7 Studio's templates and sections for each project type", () => {
   it("offers each type its own templates first, then the ones for every project", () => {
-    expect(templatesFor(kindOf("store")).map((t) => t.id)).toEqual(["shop", "brand", "contact", "blank"]);
+    // 112.4 A store's three.
+    expect(templatesFor(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);
     // A restaurant gets its menu, not the shop.
     expect(templatesFor(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
     expect(templatesFor(kindOf("academy"))[0]!.id).toBe("courses");
