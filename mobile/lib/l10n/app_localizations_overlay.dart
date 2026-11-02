@@ -6782,6 +6782,296 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('couponWithout') ?? base.couponWithout;
 
   @override
+  String get classroomSyllabus =>
+      overlay.text('classroomSyllabus') ?? base.classroomSyllabus;
+
+  @override
+  String get syllabusNone => overlay.text('syllabusNone') ?? base.syllabusNone;
+
+  @override
+  String get syllabusNoneMessage =>
+      overlay.text('syllabusNoneMessage') ?? base.syllabusNoneMessage;
+
+  @override
+  String syllabusCovered(int covered, int total, int percent) =>
+      overlay.format('syllabusCovered', {
+        'covered': covered,
+        'total': total,
+        'percent': percent,
+      }) ??
+      base.syllabusCovered(covered, total, percent);
+
+  @override
+  String syllabusPlanned(int percent) =>
+      overlay.format('syllabusPlanned', {'percent': percent}) ??
+      base.syllabusPlanned(percent);
+
+  @override
+  String syllabusBehind(int count) =>
+      overlay.format('syllabusBehind', {'count': count}) ??
+      base.syllabusBehind(count);
+
+  @override
+  String get syllabusOnPlan =>
+      overlay.text('syllabusOnPlan') ?? base.syllabusOnPlan;
+
+  @override
+  String get syllabusAhead =>
+      overlay.text('syllabusAhead') ?? base.syllabusAhead;
+
+  @override
+  String syllabusPlanNow(String topic) =>
+      overlay.format('syllabusPlanNow', {'topic': topic}) ??
+      base.syllabusPlanNow(topic);
+
+  @override
+  String syllabusDays(String from, String to) =>
+      overlay.format('syllabusDays', {'from': from, 'to': to}) ??
+      base.syllabusDays(from, to);
+
+  @override
+  String syllabusCoveredOn(String date) =>
+      overlay.format('syllabusCoveredOn', {'date': date}) ??
+      base.syllabusCoveredOn(date);
+
+  @override
+  String get syllabusNotCovered =>
+      overlay.text('syllabusNotCovered') ?? base.syllabusNotCovered;
+
+  @override
+  String get syllabusMarkCovered =>
+      overlay.text('syllabusMarkCovered') ?? base.syllabusMarkCovered;
+
+  @override
+  String get syllabusUnmark =>
+      overlay.text('syllabusUnmark') ?? base.syllabusUnmark;
+
+  @override
+  String get syllabusCoveredDay =>
+      overlay.text('syllabusCoveredDay') ?? base.syllabusCoveredDay;
+
+  @override
+  String get syllabusNote => overlay.text('syllabusNote') ?? base.syllabusNote;
+
+  @override
+  String get classroomReports =>
+      overlay.text('classroomReports') ?? base.classroomReports;
+
+  @override
+  String get classroomReportsHint =>
+      overlay.text('classroomReportsHint') ?? base.classroomReportsHint;
+
+  @override
+  String get reportsDrafts =>
+      overlay.text('reportsDrafts') ?? base.reportsDrafts;
+
+  @override
+  String get reportsSent => overlay.text('reportsSent') ?? base.reportsSent;
+
+  @override
+  String get reportsReturned =>
+      overlay.text('reportsReturned') ?? base.reportsReturned;
+
+  @override
+  String get reportsApproved =>
+      overlay.text('reportsApproved') ?? base.reportsApproved;
+
+  @override
+  String get reportsNone => overlay.text('reportsNone') ?? base.reportsNone;
+
+  @override
+  String get reportsWrite => overlay.text('reportsWrite') ?? base.reportsWrite;
+
+  @override
+  String get reportsTemplate =>
+      overlay.text('reportsTemplate') ?? base.reportsTemplate;
+
+  @override
+  String get reportsNoTemplates =>
+      overlay.text('reportsNoTemplates') ?? base.reportsNoTemplates;
+
+  @override
+  String get reportsClass => overlay.text('reportsClass') ?? base.reportsClass;
+
+  @override
+  String get reportsStudent =>
+      overlay.text('reportsStudent') ?? base.reportsStudent;
+
+  @override
+  String get reportsSubject =>
+      overlay.text('reportsSubject') ?? base.reportsSubject;
+
+  @override
+  String get reportsNoSubject =>
+      overlay.text('reportsNoSubject') ?? base.reportsNoSubject;
+
+  @override
+  String get reportsStart => overlay.text('reportsStart') ?? base.reportsStart;
+
+  @override
+  String get reportsChooseMissing =>
+      overlay.text('reportsChooseMissing') ?? base.reportsChooseMissing;
+
+  @override
+  String get reportsSaveDraft =>
+      overlay.text('reportsSaveDraft') ?? base.reportsSaveDraft;
+
+  @override
+  String get reportsSend => overlay.text('reportsSend') ?? base.reportsSend;
+
+  @override
+  String get reportsNoteForSchool =>
+      overlay.text('reportsNoteForSchool') ?? base.reportsNoteForSchool;
+
+  @override
+  String get reportsDraftSaved =>
+      overlay.text('reportsDraftSaved') ?? base.reportsDraftSaved;
+
+  @override
+  String get reportsSentDone =>
+      overlay.text('reportsSentDone') ?? base.reportsSentDone;
+
+  @override
+  String get reportsDelete =>
+      overlay.text('reportsDelete') ?? base.reportsDelete;
+
+  @override
+  String get reportsDeleteConfirm =>
+      overlay.text('reportsDeleteConfirm') ?? base.reportsDeleteConfirm;
+
+  @override
+  String get reportsDeleted =>
+      overlay.text('reportsDeleted') ?? base.reportsDeleted;
+
+  @override
+  String get reportsRead => overlay.text('reportsRead') ?? base.reportsRead;
+
+  @override
+  String get reportsNotRead =>
+      overlay.text('reportsNotRead') ?? base.reportsNotRead;
+
+  @override
+  String get reportsShared =>
+      overlay.text('reportsShared') ?? base.reportsShared;
+
+  @override
+  String get reportsFromSchool =>
+      overlay.text('reportsFromSchool') ?? base.reportsFromSchool;
+
+  @override
+  String get reportsFromYou =>
+      overlay.text('reportsFromYou') ?? base.reportsFromYou;
+
+  @override
+  String get reportsComments =>
+      overlay.text('reportsComments') ?? base.reportsComments;
+
+  @override
+  String get reportsLocked =>
+      overlay.text('reportsLocked') ?? base.reportsLocked;
+
+  @override
+  String get reportsReturnedBanner =>
+      overlay.text('reportsReturnedBanner') ?? base.reportsReturnedBanner;
+
+  @override
+  String reportsRatingOf(int value) =>
+      overlay.format('reportsRatingOf', {'value': value}) ??
+      base.reportsRatingOf(value);
+
+  @override
+  String reportsPeriod(String from, String to) =>
+      overlay.format('reportsPeriod', {'from': from, 'to': to}) ??
+      base.reportsPeriod(from, to);
+
+  @override
+  String reportsRequiredMissing(String label) =>
+      overlay.format('reportsRequiredMissing', {'label': label}) ??
+      base.reportsRequiredMissing(label);
+
+  @override
+  String get schoolReports =>
+      overlay.text('schoolReports') ?? base.schoolReports;
+
+  @override
+  String get schoolReportsNone =>
+      overlay.text('schoolReportsNone') ?? base.schoolReportsNone;
+
+  @override
+  String get schoolReportsNoneMessage =>
+      overlay.text('schoolReportsNoneMessage') ?? base.schoolReportsNoneMessage;
+
+  @override
+  String schoolReportsBy(String name) =>
+      overlay.format('schoolReportsBy', {'name': name}) ??
+      base.schoolReportsBy(name);
+
+  @override
+  String get schoolReportsParentsOnly =>
+      overlay.text('schoolReportsParentsOnly') ?? base.schoolReportsParentsOnly;
+
+  @override
+  String get syllabusSaved =>
+      overlay.text('syllabusSaved') ?? base.syllabusSaved;
+
+  @override
+  String get bundles => overlay.text('bundles') ?? base.bundles;
+
+  @override
+  String bundleCourseCount(int count) =>
+      overlay.format('bundleCourseCount', {'count': count}) ??
+      base.bundleCourseCount(count);
+
+  @override
+  String bundleInsteadOf(String price) =>
+      overlay.format('bundleInsteadOf', {'price': price}) ??
+      base.bundleInsteadOf(price);
+
+  @override
+  String get bundlePrice => overlay.text('bundlePrice') ?? base.bundlePrice;
+
+  @override
+  String get bundleBuy => overlay.text('bundleBuy') ?? base.bundleBuy;
+
+  @override
+  String get bundleCoursesIn =>
+      overlay.text('bundleCoursesIn') ?? base.bundleCoursesIn;
+
+  @override
+  String bundleOwnedSome(int count) =>
+      overlay.format('bundleOwnedSome', {'count': count}) ??
+      base.bundleOwnedSome(count);
+
+  @override
+  String get bundleOwned => overlay.text('bundleOwned') ?? base.bundleOwned;
+
+  @override
+  String get bundleEnrolled =>
+      overlay.text('bundleEnrolled') ?? base.bundleEnrolled;
+
+  @override
+  String get bundleMyCourses =>
+      overlay.text('bundleMyCourses') ?? base.bundleMyCourses;
+
+  @override
+  String get bundleAlsoIn => overlay.text('bundleAlsoIn') ?? base.bundleAlsoIn;
+
+  @override
+  String get bundleNotSold =>
+      overlay.text('bundleNotSold') ?? base.bundleNotSold;
+
+  @override
+  String get loadingBundle =>
+      overlay.text('loadingBundle') ?? base.loadingBundle;
+
+  @override
+  String get couponFree => overlay.text('couponFree') ?? base.couponFree;
+
+  @override
+  String get couponEnrollFree =>
+      overlay.text('couponEnrollFree') ?? base.couponEnrollFree;
+
+  @override
   String get attemptAwaitingResults =>
       overlay.text('attemptAwaitingResults') ?? base.attemptAwaitingResults;
 
@@ -7047,61 +7337,4 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get handInAgain => overlay.text('handInAgain') ?? base.handInAgain;
-
-  @override
-  String get bundles => overlay.text('bundles') ?? base.bundles;
-
-  @override
-  String bundleCourseCount(int count) =>
-      overlay.format('bundleCourseCount', {'count': count}) ??
-      base.bundleCourseCount(count);
-
-  @override
-  String bundleInsteadOf(String price) =>
-      overlay.format('bundleInsteadOf', {'price': price}) ??
-      base.bundleInsteadOf(price);
-
-  @override
-  String get bundlePrice => overlay.text('bundlePrice') ?? base.bundlePrice;
-
-  @override
-  String get bundleBuy => overlay.text('bundleBuy') ?? base.bundleBuy;
-
-  @override
-  String get bundleCoursesIn =>
-      overlay.text('bundleCoursesIn') ?? base.bundleCoursesIn;
-
-  @override
-  String bundleOwnedSome(int count) =>
-      overlay.format('bundleOwnedSome', {'count': count}) ??
-      base.bundleOwnedSome(count);
-
-  @override
-  String get bundleOwned => overlay.text('bundleOwned') ?? base.bundleOwned;
-
-  @override
-  String get bundleEnrolled =>
-      overlay.text('bundleEnrolled') ?? base.bundleEnrolled;
-
-  @override
-  String get bundleMyCourses =>
-      overlay.text('bundleMyCourses') ?? base.bundleMyCourses;
-
-  @override
-  String get bundleAlsoIn => overlay.text('bundleAlsoIn') ?? base.bundleAlsoIn;
-
-  @override
-  String get bundleNotSold =>
-      overlay.text('bundleNotSold') ?? base.bundleNotSold;
-
-  @override
-  String get loadingBundle =>
-      overlay.text('loadingBundle') ?? base.loadingBundle;
-
-  @override
-  String get couponFree => overlay.text('couponFree') ?? base.couponFree;
-
-  @override
-  String get couponEnrollFree =>
-      overlay.text('couponEnrollFree') ?? base.couponEnrollFree;
 }

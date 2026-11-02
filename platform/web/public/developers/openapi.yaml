@@ -7068,6 +7068,35 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /school/students/{student_id}/reports:
+    get:
+      tags: [School]
+      operationId: listStudentSharedReports
+      summary: The teachers' reports the school shared with the student's parents
+      description: |
+        Roadmap 113.5. For the student's parents only (`not_parent`, 403, for
+        anyone else, the student too): the reports teachers wrote on the
+        student (their level, behaviour, attendance, what to do next) that the
+        school approved and chose to share, newest first. The parents get a
+        push (`school_report_shared`) when one is shared.
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Shared reports
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SharedReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /school/students/{student_id}/fees:
     get:
       tags: [School]
@@ -7280,6 +7309,76 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/classes/{class_id}/syllabus:
+    get:
+      tags: [Classroom]
+      operationId: getClassSyllabus
+      summary: The class's progress through the syllabus
+      description: |
+        Roadmap 113.5. The syllabus of each subject the teacher teaches in the
+        class, for the class's grade (as the school wrote it: units, and their
+        lessons or topics with the days the plan gives each), with the topics
+        the class covered and where the plan says it should be today (a topic
+        is due once its last day has passed; `behind` when fewer are covered
+        than are due).
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+      responses:
+        '200':
+          description: The class's syllabus
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassSyllabus' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /classroom/classes/{class_id}/syllabus/{topic_id}:
+    put:
+      tags: [Classroom]
+      operationId: markTopicCovered
+      summary: Mark a topic covered
+      description: "Roadmap 113.5. On a day (today by default, up to a year back) with an optional note; marking it again changes the day and the note. Of a subject the teacher teaches in the class."
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - $ref: '#/components/parameters/TopicId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                covered_on: { type: string, format: date }
+                note: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: The class's syllabus
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassSyllabus' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Classroom]
+      operationId: unmarkTopicCovered
+      summary: Mark a topic not covered
+      parameters:
+        - $ref: '#/components/parameters/ClassId'
+        - $ref: '#/components/parameters/TopicId'
+      responses:
+        '200':
+          description: The class's syllabus
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClassSyllabus' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /classroom/classes/{class_id}/attendance:
     get:
@@ -7565,6 +7664,192 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
+  /classroom/report-templates:
+    get:
+      tags: [Classroom]
+      operationId: listReportTemplates
+      summary: The school's report templates
+      description: "Roadmap 113.5. The templates the school wrote for teachers' reports on a student or on a class, by kind and name."
+      responses:
+        '200':
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ReportTemplate' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /classroom/reports:
+    get:
+      tags: [Classroom]
+      operationId: listTeacherReports
+      summary: The teacher's reports
+      description: "Roadmap 113.5. The teacher's own reports to the school, the last changed first: drafts, sent, sent back for changes and approved; a student's (their history) or a class's."
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, sent, returned, approved] }
+        - name: student_id
+          in: query
+          schema: { type: integer }
+        - name: class_id
+          in: query
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Reports
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TeacherReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Classroom]
+      operationId: createTeacherReport
+      summary: Start a report (a draft)
+      description: |
+        Roadmap 113.5. On one of the school's templates: a student template
+        needs `student_id` (a student of a class the teacher teaches), a
+        class template `class_id` (a class they teach; the period is the
+        school's term, else the year so far, when not given). Answers are
+        checked against the template's fields (text up to 2000 characters, one
+        of a choice's choices, a rating from 1 to 5); required ones are needed
+        only to send it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [template_id]
+              properties:
+                template_id: { type: integer }
+                student_id: { type: integer }
+                class_id: { type: integer }
+                subject_id: { type: [integer, 'null'] }
+                period_from: { type: [string, 'null'], format: date }
+                period_to: { type: [string, 'null'], format: date }
+                answers: { $ref: '#/components/schemas/ReportAnswers' }
+      responses:
+        '201':
+          description: The draft
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /classroom/reports/{report_id}:
+    get:
+      tags: [Classroom]
+      operationId: getTeacherReport
+      summary: One of the teacher's reports, with the school's comments
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: The report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Classroom]
+      operationId: updateTeacherReport
+      summary: Change a draft, or a report sent back
+      description: "Roadmap 113.5. A report with the school (sent or approved) can't be changed (`report_sent`, 409)."
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject_id: { type: [integer, 'null'] }
+                period_from: { type: [string, 'null'], format: date }
+                period_to: { type: [string, 'null'], format: date }
+                answers: { $ref: '#/components/schemas/ReportAnswers' }
+      responses:
+        '200':
+          description: The report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Classroom]
+      operationId: deleteTeacherReport
+      summary: Delete a draft
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /classroom/reports/{report_id}/send:
+    post:
+      tags: [Classroom]
+      operationId: sendTeacherReport
+      summary: Send a report to the school
+      description: |
+        Roadmap 113.5. A draft, or a report the school sent back, with every
+        required field filled in (`incomplete_report`, 400, else) and an
+        optional note; the school's administration hears of it on Yallapp
+        Business. The teacher gets a push (`school_report`) when the school
+        comments on it, sends it back for changes or approves it.
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: [string, 'null'], maxLength: 1000 }
+      responses:
+        '200':
+          description: The report, sent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TeacherReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
 webhooks:
   accountDeleted:
     post:
@@ -7820,6 +8105,16 @@ components:
       schema: { type: integer }
     ClassId:
       name: class_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TopicId:
+      name: topic_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ReportId:
+      name: report_id
       in: path
       required: true
       schema: { type: integer }
@@ -9478,7 +9773,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_report, school_report_shared]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -9512,6 +9807,10 @@ components:
             live classes starts within the hour, and opens it; `assignment_graded` (with
             `course_id` and `assignment_id`): the teacher graded or sent back one of the
             student's assignments, and opens it.
+            113.5 `school_report` (with `report_id`): the school commented on one of the
+            teacher's reports, sent it back for changes or approved it, and opens it in the
+            Classroom tab; `school_report_shared` (with `student_id` and `report_id`): the
+            school shared a teacher's report on the parent's child, and opens the child's reports.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -9528,6 +9827,7 @@ components:
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
+        report_id: { type: [integer, 'null'], description: "113.5 For school_report and school_report_shared, the teacher's report to open. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -13672,6 +13972,159 @@ components:
                 items: { type: [number, 'null'] }
               overall: { type: [number, 'null'] }
               attendance: { $ref: '#/components/schemas/AttendanceCounts' }
+
+    ClassSyllabus:
+      type: object
+      description: Roadmap 113.5. A class's progress through the syllabus of each subject the teacher teaches in it.
+      required: [class_id, class_name, grade, today, subjects]
+      properties:
+        class_id: { type: integer }
+        class_name: { type: string }
+        grade: { type: string, description: "The grade whose syllabus the class follows (the class's grade, else its name)." }
+        today: { type: string, format: date, description: In the school's time zone. }
+        subjects:
+          type: array
+          description: By name; only subjects with a syllabus for the grade.
+          items: { $ref: '#/components/schemas/SyllabusSubject' }
+
+    SyllabusSubject:
+      type: object
+      required: [subject_id, subject, total, covered, due, percent, planned_percent, behind_by, status, planned_topic, units]
+      properties:
+        subject_id: { type: integer }
+        subject: { type: string }
+        total: { type: integer, description: The syllabus's topics. }
+        covered: { type: integer }
+        due: { type: integer, description: The topics the plan says are done by today. }
+        percent: { type: integer, description: 'Covered, 0 to 100.' }
+        planned_percent: { type: integer, description: 'Where the plan says the class should be, 0 to 100.' }
+        behind_by: { type: integer, description: Due topics not covered yet. }
+        status: { type: string, enum: [behind, on_plan, ahead] }
+        planned_topic:
+          type: [object, 'null']
+          description: The topic the plan has for today, else the next one.
+          required: [id, title]
+          properties:
+            id: { type: integer }
+            title: { type: string }
+        units:
+          type: array
+          description: In the plan's order.
+          items:
+            type: object
+            required: [id, title, topics]
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              topics:
+                type: array
+                items:
+                  type: object
+                  required: [id, title, starts_on, ends_on, due, now, covered_on, note]
+                  properties:
+                    id: { type: integer }
+                    title: { type: string }
+                    starts_on: { type: string, format: date }
+                    ends_on: { type: string, format: date }
+                    due: { type: boolean, description: Its last planned day has passed. }
+                    now: { type: boolean, description: Today is one of its planned days. }
+                    covered_on: { type: [string, 'null'], format: date }
+                    note: { type: [string, 'null'] }
+
+    ReportField:
+      type: object
+      description: "Roadmap 113.5. A field of a report template: written text, one of `options`, or a rating from 1 to 5."
+      required: [id, label, type, options, required]
+      properties:
+        id: { type: string, example: f1 }
+        label: { type: string, example: Behaviour }
+        type: { type: string, enum: [text, choice, rating] }
+        options: { type: array, items: { type: string } }
+        required: { type: boolean }
+
+    ReportAnswers:
+      type: object
+      description: The answers by field id; a rating is an integer, the others text.
+      additionalProperties: { type: [string, integer] }
+
+    ReportTemplate:
+      type: object
+      required: [id, kind, name, fields]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [student, class] }
+        name: { type: string, example: End of term report }
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/ReportField' }
+
+    ReportPeriodRange:
+      type: [object, 'null']
+      required: [from, to]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+
+    TeacherReport:
+      type: object
+      description: |
+        Roadmap 113.5. A teacher's report to the school's administration, on a
+        student or on a class, written on one of the school's templates (its
+        name and fields are kept with the report): a draft, sent, sent back
+        for changes (`returned`, with the school's comment) or approved.
+      required: [id, kind, status, template_id, template_name, student, class_id, class_name, subject_id, subject, period, fields, answers, comments, read, shared, created_at, updated_at, sent_at, reviewed_at]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [student, class] }
+        status: { type: string, enum: [draft, sent, returned, approved] }
+        template_id: { type: [integer, 'null'] }
+        template_name: { type: string }
+        student:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolStudent'
+            - type: 'null'
+        class_id: { type: [integer, 'null'] }
+        class_name: { type: [string, 'null'] }
+        subject_id: { type: [integer, 'null'] }
+        subject: { type: [string, 'null'] }
+        period: { $ref: '#/components/schemas/ReportPeriodRange' }
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/ReportField' }
+        answers: { $ref: '#/components/schemas/ReportAnswers' }
+        comments:
+          type: array
+          description: Oldest first; the school's, and the teacher's notes when they sent it.
+          items:
+            type: object
+            required: [by, name, text, at]
+            properties:
+              by: { type: string, enum: [school, teacher] }
+              name: { type: string }
+              text: { type: string }
+              at: { type: string, format: date-time }
+        read: { type: boolean, description: The school opened it after it was sent. }
+        shared: { type: boolean, description: The school shared it with the student's parents. }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        sent_at: { type: [string, 'null'], format: date-time }
+        reviewed_at: { type: [string, 'null'], format: date-time }
+
+    SharedReport:
+      type: object
+      description: Roadmap 113.5. A teacher's report on a student that the school shared with the student's parents (without the school's comments).
+      required: [id, title, teacher_name, subject, period, fields, answers, shared_at]
+      properties:
+        id: { type: integer }
+        title: { type: string, description: The template's name. }
+        teacher_name: { type: string }
+        subject: { type: [string, 'null'] }
+        period: { $ref: '#/components/schemas/ReportPeriodRange' }
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/ReportField' }
+        answers: { $ref: '#/components/schemas/ReportAnswers' }
+        shared_at: { type: string, format: date-time }
 
     SchoolFee:
       type: object

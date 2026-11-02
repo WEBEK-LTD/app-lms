@@ -1230,6 +1230,8 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     // 112.5 The live class and the assignment they open.
     ...(n.data?.live_id ? { live_id: numberOf(n.data.live_id) } : {}),
     ...(n.data?.assignment_id ? { assignment_id: numberOf(n.data.assignment_id) } : {}),
+    // 113.5 The teacher's report it opens.
+    ...(n.data?.report_id ? { report_id: numberOf(n.data.report_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

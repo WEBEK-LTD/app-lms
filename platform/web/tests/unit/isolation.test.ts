@@ -606,11 +606,41 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const assessment = await store.createSchoolAssessment({ appId: k12, classId: theirClass.id, subjectId: theirSubject.subject.id, teacherId: null, kind: "exam", title: `${MARK} exam`, date: "2026-10-20", maxScore: 100, createdAt: NOW });
     await store.saveSchoolScores(k12, assessment.id, [{ studentId: theirStudent.person.id, score: 90, note: MARK }], NOW);
     const fee = await store.createSchoolFee({ appId: k12, studentId: theirStudent.person.id, title: `${MARK} fee`, amountCents: 100_00, dueOn: null, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
+    // 113.5 Their syllabus topic, its progress, a template and a teacher's report (shared with the parents).
+    const theirUnit = (await store.saveSchoolSyllabusUnit({ id: null, appId: k12, subjectId: theirSubject.subject.id, grade: `${MARK} 5 A`, title: `${MARK} unit` }, NOW))!;
+    const theirTopic = (await store.saveSchoolSyllabusTopic({ id: null, appId: k12, unitId: theirUnit.id, title: `${MARK} topic`, startsOn: "2026-10-01", endsOn: "2026-10-05" }, NOW))!;
+    await store.saveSchoolTopicProgress({ appId: k12, classId: theirClass.id, topicId: theirTopic.id, coveredOn: "2026-10-02", note: MARK, teacherId: null, updatedAt: NOW });
+    const theirTemplate = (await store.saveSchoolReportTemplate({ id: null, appId: k12, kind: "student", name: `${MARK} template`, fields: [{ id: "f1", label: MARK, type: "text", options: [], required: false }] }, NOW))!;
+    const theirReport = await store.createSchoolReport({
+      appId: k12,
+      kind: "student",
+      templateId: theirTemplate.id,
+      templateName: `${MARK} report`,
+      fields: theirTemplate.fields,
+      answers: { f1: MARK },
+      teacherId: null,
+      teacherName: MARK,
+      studentId: theirStudent.person.id,
+      classId: theirClass.id,
+      subjectId: null,
+      periodFrom: null,
+      periodTo: null,
+      status: "draft",
+      comments: [],
+      sentAt: null,
+      readAt: null,
+      reviewedAt: null,
+      sharedAt: NOW,
+      createdAt: NOW,
+      updatedAt: NOW,
+    });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
       assessment_id: String(assessment.id),
       fee_id: String(fee.id),
+      topic_id: String(theirTopic.id),
+      report_id: String(theirReport.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.

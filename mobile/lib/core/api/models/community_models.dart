@@ -55,6 +55,10 @@ enum NotificationType {
   schoolGrade,
   schoolAnnouncement,
   schoolFee,
+
+  /// 113.5 The school answered a teacher's report; shared one with a parent.
+  schoolReport,
+  schoolReportShared,
   unknown,
 }
 
@@ -82,6 +86,7 @@ class InboxNotification {
     this.rideId,
     this.studentId,
     this.homeworkId,
+    this.reportId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -108,6 +113,7 @@ class InboxNotification {
     rideId: optInt(json, 'ride_id'),
     studentId: optInt(json, 'student_id'),
     homeworkId: optInt(json, 'homework_id'),
+    reportId: optInt(json, 'report_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -158,6 +164,9 @@ class InboxNotification {
   final int? studentId;
   final int? homeworkId;
 
+  /// 113.5 For a teacher's report: the report.
+  final int? reportId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -173,6 +182,7 @@ class InboxNotification {
     'food_order_id': ?foodOrderId,
     'ride_id': ?rideId,
     'student_id': ?studentId,
+    'report_id': ?reportId,
     'homework_id': ?homeworkId,
   };
 }

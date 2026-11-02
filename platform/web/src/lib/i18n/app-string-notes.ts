@@ -3098,7 +3098,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "112.5 The calendar's button to the month after.": { ar: "زر التقويم للشهر التالي.", tr: "Takvimin sonraki ay düğmesi." },
   "112.5 A coupon that applies to a paid course, and the price it leaves.": { ar: "قسيمة صالحة لدورة مدفوعة والسعر بعدها.", tr: "Ücretli bir kurs için geçerli kupon ve kalan fiyat." },
   "112.5 Goes to a paid course's checkout with the coupon.": { ar: "ينتقل إلى الدفع للدورة بالقسيمة.", tr: "Kuponla kurs ödemesine geçer." },
-  "112.5 Goes to a paid course's checkout without a coupon.": { ar: "ينتقل إلى الدفع للدورة دون قسيمة.", tr: "Kuponsuz kurs ödemesine geçer." },  "113.1 The courses list's row of course bundles.": { ar: "صف حزم الدورات في قائمة الدورات.", tr: "Kurs listesindeki kurs paketleri satırı." },
+  "112.5 Goes to a paid course's checkout without a coupon.": { ar: "ينتقل إلى الدفع للدورة دون قسيمة.", tr: "Kuponsuz kurs ödemesine geçer." },
+  // 113.5 The syllabus and the teachers' reports
+  "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.": {
+    ar: "في شاشة منهج الفصل في تبويب المعلّم: تقدّم الفصل في منهج كل مادة.",
+    tr: "Öğretmenin sınıf sekmesindeki şube müfredatı ekranında: şubenin her dersin müfredatındaki ilerlemesi.",
+  },
+  "113.5 On the teacher's reports to the school, in the Classroom tab.": {
+    ar: "في تقارير المعلّم إلى المدرسة، في تبويب المعلّم.",
+    tr: "Öğretmenin sınıf sekmesinde, okula gönderdiği raporlarda.",
+  },
+  "113.5 In a child's school for their parents: the teachers' reports the school shared.": {
+    ar: "في مدرسة الطفل لأولياء الأمور: تقارير المعلمين التي شاركتها المدرسة.",
+    tr: "Velilere çocuğun okulunda: okulun paylaştığı öğretmen raporları.",
+  },
+  "113.1 The courses list's row of course bundles.": { ar: "صف حزم الدورات في قائمة الدورات.", tr: "Kurs listesindeki kurs paketleri satırı." },
   "113.1 How many courses a bundle has.": { ar: "عدد الدورات في الحزمة.", tr: "Bir paketteki kurs sayısı." },
   "113.1 What a bundle's courses cost on their own, next to the bundle's price.": { ar: "سعر دورات الحزمة منفردة، بجانب سعر الحزمة.", tr: "Paketin kurslarının tek tek fiyatı, paket fiyatının yanında." },
   "113.1 Above the price on a bundle's page.": { ar: "فوق السعر في صفحة الحزمة.", tr: "Paket sayfasında fiyatın üstünde." },

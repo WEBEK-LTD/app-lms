@@ -137,6 +137,12 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
                   </span>
                   {person.userId !== null ? <Badge tone="success">{t("school.usesApp")}</Badge> : null}
                   {person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
+                  {/* 113.5 The teachers' reports on the student. */}
+                  {person.role === "student" ? (
+                    <Link href={`/dashboard/school/teacher-reports?student=${person.id}`} className="text-sm">
+                      {t("reports.inbox")}
+                    </Link>
+                  ) : null}
                   <form action={deleteSchoolPersonAction}>
                     <input type="hidden" name="id" value={person.id} />
                     <ConfirmButton confirm={t("school.deletePerson", { name: person.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>

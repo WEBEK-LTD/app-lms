@@ -6309,6 +6309,371 @@
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
   },
+  "classroomSyllabus": "Syllabus",
+  "@classroomSyllabus": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNone": "No syllabus for this class yet",
+  "@syllabusNone": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNoneMessage": "The school writes each subject's syllabus. It shows here once it does.",
+  "@syllabusNoneMessage": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusCovered": "{covered} of {total} covered ({percent}%)",
+  "@syllabusCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "covered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusPlanned": "The plan: {percent}% by today",
+  "@syllabusPlanned": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusBehind": "{count, plural, =1{Behind the plan by 1 lesson} other{Behind the plan by {count} lessons}}",
+  "@syllabusBehind": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syllabusOnPlan": "On plan",
+  "@syllabusOnPlan": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusAhead": "Ahead of the plan",
+  "@syllabusAhead": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusPlanNow": "The plan now: {topic}",
+  "@syllabusPlanNow": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusDays": "{from} – {to}",
+  "@syllabusDays": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusCoveredOn": "Covered on {date}",
+  "@syllabusCoveredOn": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "syllabusNotCovered": "Not covered yet",
+  "@syllabusNotCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusMarkCovered": "Mark covered",
+  "@syllabusMarkCovered": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusUnmark": "Not covered",
+  "@syllabusUnmark": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusCoveredDay": "Covered on",
+  "@syllabusCoveredDay": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "syllabusNote": "Note (optional)",
+  "@syllabusNote": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "classroomReports": "Reports to the school",
+  "@classroomReports": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "classroomReportsHint": "On your students and classes: drafts, sent, sent back and approved",
+  "@classroomReportsHint": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDrafts": "Drafts",
+  "@reportsDrafts": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSent": "Sent",
+  "@reportsSent": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsReturned": "Sent back",
+  "@reportsReturned": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsApproved": "Approved",
+  "@reportsApproved": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNone": "No reports here",
+  "@reportsNone": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsWrite": "Write a report",
+  "@reportsWrite": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsTemplate": "Template",
+  "@reportsTemplate": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoTemplates": "The school hasn't made its report templates yet.",
+  "@reportsNoTemplates": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsClass": "Class",
+  "@reportsClass": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsStudent": "Student",
+  "@reportsStudent": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSubject": "Subject (optional)",
+  "@reportsSubject": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoSubject": "No subject",
+  "@reportsNoSubject": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsStart": "Start the report",
+  "@reportsStart": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsChooseMissing": "Choose a template, a class and, for a report on a student, the student.",
+  "@reportsChooseMissing": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSaveDraft": "Save draft",
+  "@reportsSaveDraft": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSend": "Send to the school",
+  "@reportsSend": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNoteForSchool": "A note for the school (optional)",
+  "@reportsNoteForSchool": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDraftSaved": "Draft saved.",
+  "@reportsDraftSaved": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsSentDone": "Sent to the school.",
+  "@reportsSentDone": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDelete": "Delete draft",
+  "@reportsDelete": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDeleteConfirm": "Delete this draft?",
+  "@reportsDeleteConfirm": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsDeleted": "Draft deleted.",
+  "@reportsDeleted": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsRead": "Read by the school",
+  "@reportsRead": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsNotRead": "Not read yet",
+  "@reportsNotRead": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsShared": "Shared with the parents",
+  "@reportsShared": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsFromSchool": "The school",
+  "@reportsFromSchool": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsFromYou": "You",
+  "@reportsFromYou": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsComments": "Comments",
+  "@reportsComments": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsLocked": "This report is with the school. You can change it if they send it back.",
+  "@reportsLocked": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsReturnedBanner": "The school sent this back for changes: read its comment, change the report and send it again.",
+  "@reportsReturnedBanner": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab."
+  },
+  "reportsRatingOf": "{value} out of 5",
+  "@reportsRatingOf": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "reportsPeriod": "{from} – {to}",
+  "@reportsPeriod": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "reportsRequiredMissing": "Fill in “{label}” before sending.",
+  "@reportsRequiredMissing": {
+    "description": "113.5 On the teacher's reports to the school, in the Classroom tab.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolReports": "Teachers' reports",
+  "@schoolReports": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsNone": "No reports shared yet",
+  "@schoolReportsNone": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsNoneMessage": "When the school shares a teacher's report on your child, it shows here.",
+  "@schoolReportsNoneMessage": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "schoolReportsBy": "By {name}",
+  "@schoolReportsBy": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolReportsParentsOnly": "The school shares these with the student's parents.",
+  "@schoolReportsParentsOnly": {
+    "description": "113.5 In a child's school for their parents: the teachers' reports the school shared."
+  },
+  "syllabusSaved": "Saved.",
+  "@syllabusSaved": {
+    "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."
+  },
+  "bundles": "Bundles",
+  "@bundles": {
+    "description": "113.1 The courses list's row of course bundles."
+  },
+  "bundleCourseCount": "{count, plural, =1{1 course} other{{count} courses}}",
+  "@bundleCourseCount": {
+    "description": "113.1 How many courses a bundle has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bundleInsteadOf": "Instead of {price}",
+  "@bundleInsteadOf": {
+    "description": "113.1 What a bundle's courses cost on their own, next to the bundle's price.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "bundlePrice": "Bundle price",
+  "@bundlePrice": {
+    "description": "113.1 Above the price on a bundle's page."
+  },
+  "bundleBuy": "Buy the bundle",
+  "@bundleBuy": {
+    "description": "113.1 Buys a bundle of courses."
+  },
+  "bundleCoursesIn": "Courses in this bundle",
+  "@bundleCoursesIn": {
+    "description": "113.1 The heading of a bundle's courses on its page."
+  },
+  "bundleOwnedSome": "You have {count} of these courses already: they stay yours, and the bundle adds the others.",
+  "@bundleOwnedSome": {
+    "description": "113.1 On a bundle's page, when the student has some of its courses.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bundleOwned": "Every course in this bundle is yours.",
+  "@bundleOwned": {
+    "description": "113.1 On a bundle's page, when the student has all its courses."
+  },
+  "bundleEnrolled": "You're in every course of the bundle. Happy learning!",
+  "@bundleEnrolled": {
+    "description": "113.1 After a bundle was bought or a coupon made it free."
+  },
+  "bundleMyCourses": "Go to My courses",
+  "@bundleMyCourses": {
+    "description": "113.1 Opens My courses from a bundle the student has."
+  },
+  "bundleAlsoIn": "Also in a bundle",
+  "@bundleAlsoIn": {
+    "description": "113.1 On a course's page: the bundles that have it."
+  },
+  "bundleNotSold": "This bundle can't be bought in the app.",
+  "@bundleNotSold": {
+    "description": "113.1 A bundle the app doesn't sell on this phone."
+  },
+  "loadingBundle": "Loading the bundle…",
+  "@loadingBundle": {
+    "description": "113.1 While a bundle's page loads."
+  },
+  "couponFree": "The coupon makes it free: you pay nothing.",
+  "@couponFree": {
+    "description": "113.1 A coupon that takes the whole price."
+  },
+  "couponEnrollFree": "Enroll for free",
+  "@couponEnrollFree": {
+    "description": "113.1 Enrolls with a coupon that takes the whole price, without paying."
+  },
   "attemptAwaitingResults": "Results after the exam closes",
   "@attemptAwaitingResults": {
     "description": "113.7 An exam's attempt whose results show once it closes."
@@ -6694,80 +7059,5 @@
   "handInAgain": "Hand in again",
   "@handInAgain": {
     "description": "113.7 Hands a graded assignment in again (another try)."
-  },
-  "bundles": "Bundles",
-  "@bundles": {
-    "description": "113.1 The courses list's row of course bundles."
-  },
-  "bundleCourseCount": "{count, plural, =1{1 course} other{{count} courses}}",
-  "@bundleCourseCount": {
-    "description": "113.1 How many courses a bundle has.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bundleInsteadOf": "Instead of {price}",
-  "@bundleInsteadOf": {
-    "description": "113.1 What a bundle's courses cost on their own, next to the bundle's price.",
-    "placeholders": {
-      "price": {
-        "type": "String"
-      }
-    }
-  },
-  "bundlePrice": "Bundle price",
-  "@bundlePrice": {
-    "description": "113.1 Above the price on a bundle's page."
-  },
-  "bundleBuy": "Buy the bundle",
-  "@bundleBuy": {
-    "description": "113.1 Buys a bundle of courses."
-  },
-  "bundleCoursesIn": "Courses in this bundle",
-  "@bundleCoursesIn": {
-    "description": "113.1 The heading of a bundle's courses on its page."
-  },
-  "bundleOwnedSome": "You have {count} of these courses already: they stay yours, and the bundle adds the others.",
-  "@bundleOwnedSome": {
-    "description": "113.1 On a bundle's page, when the student has some of its courses.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "bundleOwned": "Every course in this bundle is yours.",
-  "@bundleOwned": {
-    "description": "113.1 On a bundle's page, when the student has all its courses."
-  },
-  "bundleEnrolled": "You're in every course of the bundle. Happy learning!",
-  "@bundleEnrolled": {
-    "description": "113.1 After a bundle was bought or a coupon made it free."
-  },
-  "bundleMyCourses": "Go to My courses",
-  "@bundleMyCourses": {
-    "description": "113.1 Opens My courses from a bundle the student has."
-  },
-  "bundleAlsoIn": "Also in a bundle",
-  "@bundleAlsoIn": {
-    "description": "113.1 On a course's page: the bundles that have it."
-  },
-  "bundleNotSold": "This bundle can't be bought in the app.",
-  "@bundleNotSold": {
-    "description": "113.1 A bundle the app doesn't sell on this phone."
-  },
-  "loadingBundle": "Loading the bundle…",
-  "@loadingBundle": {
-    "description": "113.1 While a bundle's page loads."
-  },
-  "couponFree": "The coupon makes it free: you pay nothing.",
-  "@couponFree": {
-    "description": "113.1 A coupon that takes the whole price."
-  },
-  "couponEnrollFree": "Enroll for free",
-  "@couponEnrollFree": {
-    "description": "113.1 Enrolls with a coupon that takes the whole price, without paying."
   }
 }

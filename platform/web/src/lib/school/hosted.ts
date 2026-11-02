@@ -37,6 +37,7 @@ import {
 } from "./service";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
 import { classGradebook, reportPeriod, type Period } from "./report-cards";
+import { classroomReportsRoute, studentReports } from "./reports-hosted";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -118,6 +119,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (request.method === "GET" && tail === "grades") return grades(ctx, student, settings);
     // 112.5 The student's report card over the term.
     if (request.method === "GET" && tail === "report-card") return reportCard(ctx, request, student, settings);
+    // 113.5 The teachers' reports the school shared with the student's parents.
+    if (request.method === "GET" && tail === "reports") return studentReports(ctx, member, student);
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
     if (request.method === "POST" && path[3] === "fees" && path[5] === "pay" && path.length === 6) return pay(ctx, request, student, idOf(path[4]), settings);
   }
@@ -351,6 +354,9 @@ async function classroomRoute(ctx: SchoolContext, request: ConnectorRequest, tea
     case "POST /classroom/announcements":
       return classAnnouncement(ctx, request, teacher, teaching);
   }
+  // 113.5 The syllabus of the teacher's classes, and their reports to the administration.
+  const reports = await classroomReportsRoute(ctx, request, teacher, teaching, settings);
+  if (reports) return reports;
   const id = idOf(path[2]);
   if (path[1] === "classes" && id !== null && teaching.classIds.includes(id)) {
     if (route === `GET /classroom/classes/${id}/students`) return classStudents(ctx, teaching, id);
