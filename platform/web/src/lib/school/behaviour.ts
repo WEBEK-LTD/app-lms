@@ -53,15 +53,26 @@ export function signedPoints(kind: SchoolBehaviourKind, points: number): number 
   return kind === "negative" ? -size : size;
 }
 
+/** The suggested categories being saved, per app: a read at the same time waits for them all. */
+const seeding = new Map<string, Promise<SchoolBehaviourCategory[]>>();
+
 /** The school's categories; a school that never saved any starts with the suggested ones. */
 export async function behaviourCategories(store: DataStore, app: App, now: Date): Promise<SchoolBehaviourCategory[]> {
+  const pending = seeding.get(app.id);
+  if (pending) return pending;
   const saved = await store.listSchoolBehaviourCategories(app.id);
   if (saved.length > 0) return saved;
   const settings = schoolSettingsOf(await store.getSchoolSettings(app.id), app);
   if (settings.behaviourCategoriesSet) return [];
-  for (const c of suggestedCategories(await appLang(store, app.id))) await store.saveSchoolBehaviourCategory({ appId: app.id, id: null, ...c, active: true }, now);
-  await store.saveSchoolSettings(app.id, { ...settings, behaviourCategoriesSet: true }, now);
-  return store.listSchoolBehaviourCategories(app.id);
+  const again = seeding.get(app.id);
+  if (again) return again;
+  const seed = (async () => {
+    for (const c of suggestedCategories(await appLang(store, app.id))) await store.saveSchoolBehaviourCategory({ appId: app.id, id: null, ...c, active: true }, now);
+    await store.saveSchoolSettings(app.id, { ...settings, behaviourCategoriesSet: true }, now);
+    return store.listSchoolBehaviourCategories(app.id);
+  })().finally(() => seeding.delete(app.id));
+  seeding.set(app.id, seed);
+  return seed;
 }
 
 export function behaviourAlertsOf(settings: { behaviourAlerts?: SchoolBehaviourAlerts }): SchoolBehaviourAlerts {
