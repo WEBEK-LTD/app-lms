@@ -124,6 +124,18 @@ test("Ride settings are saved; Rides is empty; the app's ride routes wait for th
   await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
   await own.reload();
   await expect(own.getByRole("radio", { name: "By the meter" })).toBeChecked();
+  // 112.3 Drivers always work in their own app: no choice of where, only its name, icon and iPhone Firebase file.
+  await expect(own.getByRole("heading", { name: "Your drivers' app" })).toBeVisible();
+  await expect(own.getByRole("radio", { name: "In this app" })).toHaveCount(0);
+  await expect(own.getByLabel("The drivers' app's icon (optional)")).toBeVisible();
+
+  // 112.3 Builds shows the riders' app and the drivers' app, each with its own builds.
+  await own.goto("/dashboard/builds");
+  const two = own.getByRole("region", { name: "Your two apps" });
+  await expect(two.locator('[data-app="customers"]')).toContainText("Riders' app");
+  await expect(two.locator('[data-app="driver"]')).toContainText("Drivers' app");
+  await expect(two.locator('[data-app="driver"]')).toContainText(`${client.name} Driver`);
+  await expect(own.getByRole("region", { name: "The drivers' app" })).toBeVisible();
 
   await own.goto("/dashboard/rides");
   await expect(own.getByRole("heading", { name: "Rides", level: 1 })).toBeVisible();

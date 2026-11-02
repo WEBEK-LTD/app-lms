@@ -395,6 +395,8 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await studioPlan.getByLabel("Price in EGP").fill("500");
   // Its features and limits, Pages per project with them: Studio's own and every regular one, storage included.
   await expect(studioPlan.getByLabel("Storage (GB)")).toHaveValue("20");
+  // 112.3 Every Studio plan has the couriers' and drivers' own app until the team unticks it.
+  await expect(studioPlan.getByLabel("A second app for couriers")).toBeChecked();
   await studioPlan.getByLabel("Motion in the editor").check();
   await studioPlan.getByLabel("Storage (GB)").fill("30");
   await studioPlan.getByLabel("Pages per project").fill("5");
