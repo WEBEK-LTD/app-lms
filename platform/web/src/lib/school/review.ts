@@ -13,8 +13,8 @@ import { schoolSettingsOf } from "./settings";
  * The first time they do, the school gets a class of their own ("App
  * Review class", grade "App Review") with sample classmates, and the review
  * account is on its list as each role at once: the class's student, that
- * student's parent, the class's teacher and, once the school has staff
- * (113.3), a member of staff. The class has a week of lessons, homework,
+ * student's parent, the class's teacher and a member of the school's
+ * staff (113.3: the app's Staff tab). The class has a week of lessons, homework,
  * scores, attendance, an event and a day off on the calendar, a published
  * exam, merits and notes, news and a paid fee, so every screen has
  * something. The school's own teachers never see the review class (they
@@ -32,7 +32,7 @@ const LESSONS: [number, number][] = [
   [10 * 60, 10 * 60 + 45],
 ];
 
-/** The roles the review account takes at the school: all of them, staff once the school has it. */
+/** The roles the review account takes at the school: all of them, 113.3's `staff` too. */
 export function reviewRoles(): SchoolRole[] {
   return [...SCHOOL_ROLES];
 }
@@ -154,7 +154,7 @@ export function schoolReviewNotes(app: Pick<App, "appName" | "hostedSettings">):
     `As a student: the School tab shows today's lessons, homework (open "Sample homework: exercises 1 to 5" and hand in a text or a photo), grades and the report card, attendance, the calendar (month or list, with Add to calendar), the exams' timetable, behaviour (merits, notes and points), fees with a receipt, and the news.`,
     `As a parent: the same account is the parent of that student; each part of the School tab shows the child's, and the parent is told of new homework, scores, exams and behaviour notes.`,
     `As a teacher: the Classroom tab shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar.`,
-    staff ? `As a member of staff: the Staff tab, for those who work at the school, shows the staff's part (their attendance, leave requests and the staff's news).` : null,
+    staff ? `As a member of staff: the same account is on the school's staff list too, so the app has a Staff tab, as the school's staff who don't teach have: checking in and out, their job and hours, leave requests (ask for a day off and withdraw it), the staff's news, the school's calendar with the staff's own events, and the library when the school has books.` : null,
     `Real students, parents and teachers of the school never see this class or what is written in it.`,
   ]
     .filter(Boolean)

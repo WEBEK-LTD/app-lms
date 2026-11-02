@@ -854,7 +854,6 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "This student isn't in one of your classes.": "هذا الطالب ليس في أحد فصولك.",
   "Choose one of the school's categories.": "اختر إحدى فئات المدرسة.",
   "The note can be up to {0} characters.": "يمكن أن تصل الملاحظة إلى {0} حرف.",
-  "Note not found.": "الملاحظة غير موجودة.",
   "A note can be taken back on the day it was written. Ask the school.": "يمكن التراجع عن الملاحظة في يوم كتابتها فقط. تواصل مع المدرسة.",
   "Homework not found.": "الواجب غير موجود.",
   "The text can be up to 5000 characters.": "يمكن أن يصل النص إلى 5000 حرف.",

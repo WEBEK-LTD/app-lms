@@ -287,12 +287,14 @@ describe("113.8 the school's calendar, exams and behaviour on the hosted API", (
     expect(await store.getSchoolBehaviour(app.id, late.id)).toBeNull();
   });
 
-  it("105.4.7b the store review account is a student, their parent and a teacher of a sample class", async () => {
+  it("105.4.7b the store review account is a student, their parent, a teacher of a sample class and (113.3) staff", async () => {
     app = { ...app, hostedSettings: { ...app.hostedSettings!, reviewPhone: "+201009990000", reviewCode: "424242" } };
     await store.updateApp(app.id, { hostedSettings: app.hostedSettings }, NOW);
     const reviewer = await signUp("1009990000", "Reviewer", "424242");
     expect(sender.sent.has("+201009990000")).toBe(false);
-    expect(((await call("GET", "/me", { token: reviewer.access_token })).body as { roles: string[] }).roles).toEqual(["student", "parent", "teacher"]);
+    expect(((await call("GET", "/me", { token: reviewer.access_token })).body as { roles: string[] }).roles).toEqual(["student", "parent", "teacher", "staff"]);
+    // 113.3 On the staff list too: the Staff tab's endpoints answer.
+    expect((await call("GET", "/staff/me", { token: reviewer.access_token })).status).toBe(200);
     const me = (await call("GET", "/school/me", { token: reviewer.access_token })).body as { students: { id: number; class_name: string }[] };
     expect(me.students.map((s) => s.class_name)).toEqual([REVIEW_CLASS_NAME]);
     const id = String(me.students[0]!.id);
@@ -327,6 +329,8 @@ describe("113.8 the school's calendar, exams and behaviour on the hosted API", (
     expect(notes).toContain("As a student:");
     expect(notes).toContain("As a parent:");
     expect(notes).toContain("As a teacher:");
+    expect(notes).toContain("As a member of staff:");
+    expect(notes).toContain("Staff tab");
     expect(schoolReviewNotes({ ...app, hostedSettings: { ...app.hostedSettings!, reviewCode: null } })).toBeNull();
   });
 });

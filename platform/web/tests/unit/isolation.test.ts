@@ -664,7 +664,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       run_id: String(busRun.id),
       book_id: String(book.id),
       hold_id: String(bookHold.id),
-      note_id: String(theirNote.id),
+      // 113.8 A behaviour note shares `note_id` with 113.7's lesson notes: its paths get this one (see hosted()).
+      behaviour_note_id: String(theirNote.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.
@@ -777,7 +778,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
 
   async function hosted(app: App, method: string, route: string, token: string | null, body: unknown = {}) {
     const food = hostedKind(route) === "food";
-    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name]!);
+    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name === "note_id" && route.startsWith("/classroom/behaviour") ? "behaviour_note_id" : name]!);
     const assetUrl = (id: string) => `https://yallapp.test/a/${id}`;
     return handleHosted(
       {

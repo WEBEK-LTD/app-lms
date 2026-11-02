@@ -855,7 +855,6 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "This student isn't in one of your classes.": "Bu öğrenci sınıflarınızdan birinde değil.",
   "Choose one of the school's categories.": "Okulun kategorilerinden birini seçin.",
   "The note can be up to {0} characters.": "Not en fazla {0} karakter olabilir.",
-  "Note not found.": "Not bulunamadı.",
   "A note can be taken back on the day it was written. Ask the school.": "Not yalnızca yazıldığı gün geri alınabilir. Okula başvurun.",
   "Homework not found.": "Ödev bulunamadı.",
   "The text can be up to 5000 characters.": "Metin en fazla 5000 karakter olabilir.",

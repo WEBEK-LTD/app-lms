@@ -48,6 +48,8 @@ describe("113.6 the school's messaging rules", () => {
     // Until the school saves its own days, they are the timetable's.
     expect(schoolMessageFormValues(DEFAULT_SCHOOL_MESSAGES, false, [7, 1, 2])).toMatchObject({ with: "none", hoursOn: "on", hoursFrom: "08:00", day7: "on", day1: "on", day3: "" });
     expect(departmentsOf([{ role: "teacher", active: true, department: "Sciences" }, { role: "teacher", active: true, department: " sciences " }, { role: "parent", active: true, department: "X" }] as never)).toEqual(["Sciences"]);
+    // 113.3 Staff are in departments too: one `department` field for teachers and staff.
+    expect(departmentsOf([{ role: "staff", active: true, department: "Administration" }, { role: "teacher", active: true, department: "Sciences" }, { role: "staff", active: false, department: "Kitchen" }] as never)).toEqual(["Administration", "Sciences"]);
   });
 });
 
@@ -345,6 +347,29 @@ describe("113.6 messages between teachers and families on the hosted API", () =>
     // The teacher answers there, at any time (no hours for the administration).
     await allow({ with: "none", hours: { from: 1200, to: 1260, days: [3] } });
     expect((await send(teacher, office, "On my way")).status).toBe(201);
+  });
+
+  it("113.3 the administration writes to its staff too: all of them, everyone, a department of teachers and staff, or one", async () => {
+    const made = await store.createSchoolPerson({ appId: app.id, role: "staff", name: "Samir Fawzy", phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, department: "Sciences", jobTitle: "Lab technician" }, NOW);
+    if (!made.ok) throw new Error("staff");
+    const samir = await signUp("1007775555", "Samir");
+    const teacher = await signUp("1110000000", "Mona");
+    const deps: ChatDeps = { store, now, storage: null, chunkBytes: 1024, business: { name: "Nile School", imageUrl: null }, plan, onMessage: async () => undefined };
+    const fresh = (await store.getAppById(app.id))!;
+    const team = { userId: "u1", name: "Office" };
+    expect(await writeToTeachers(deps, fresh, { audience: { kind: "staff" }, text: "Staff only", clientId: "staff-10", team })).toEqual({ ok: true, value: { sent: 1, notInApp: [] } });
+    // The department has Mona (a teacher) and Samir (staff).
+    expect(await writeToTeachers(deps, fresh, { audience: { kind: "department", name: "Sciences" }, text: "Sciences meeting", clientId: "staff-11", team })).toEqual({ ok: true, value: { sent: 2, notInApp: [] } });
+    expect(await writeToTeachers(deps, fresh, { audience: { kind: "everyone" }, text: "Everyone", clientId: "staff-12", team })).toEqual({ ok: true, value: { sent: 2, notInApp: ["Karim Said"] } });
+    expect(await writeToTeachers(deps, fresh, { audience: { kind: "teacher", id: made.person.id }, text: "Just you", clientId: "staff-13", team })).toEqual({ ok: true, value: { sent: 1, notInApp: [] } });
+    // "All teachers" is still the teachers only.
+    expect(await writeToTeachers(deps, fresh, { audience: { kind: "all" }, text: "Teachers", clientId: "staff-14", team })).toEqual({ ok: true, value: { sent: 1, notInApp: ["Karim Said"] } });
+    // Samir reads them in his own conversation with the school.
+    const office = (await call("GET", "/chat/conversations", { token: samir })).body as { items: { id: string; kind: string }[] };
+    const own = office.items.find((c) => c.kind === "direct")!;
+    const page = (await call("GET", "/chat/conversations/{conversation_id}/messages", { token: samir, params: [own.id] })).body as { items: { text: string }[] };
+    expect(page.items.map((m) => m.text)).toEqual(["Just you", "Everyone", "Sciences meeting", "Staff only"]);
+    expect((await call("GET", "/chat/conversations", { token: teacher })).status).toBe(200);
   });
 
   it("pushes a school message with the sender's name and never to the business's phones", async () => {
