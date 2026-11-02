@@ -14,7 +14,7 @@ export { Glyph, C };
 /** The dark bar on top of every Studio screen: the mark, then the screen's own parts. */
 export function StudioBar({ children, home = "/studio" }: { children?: ReactNode; home?: string }) {
   return (
-    <header className="flex flex-wrap items-center gap-4 px-5 py-2.5" style={{ background: C.ink, color: C.ivory }}>
+    <header className="flex flex-wrap items-center gap-4 px-5 py-2.5 max-sm:gap-2.5 max-sm:px-4" style={{ background: C.ink, color: C.ivory }}>
       <Link href={home} className="flex items-center gap-2.5 no-underline" style={{ color: C.ivory }}>
         <StudioMark />
       </Link>

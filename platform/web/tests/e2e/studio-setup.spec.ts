@@ -332,6 +332,19 @@ test("in Arabic: the designs' names, the messages in place, and every step on a 
     await expect(own.getByRole("heading", { level: 1, name: "إعداد التطبيق" })).toBeVisible();
     expect(await own.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), step).toBeLessThanOrEqual(0);
   }
+  // The project menu on a phone: a bar with the page open and a Menu button; the sheet opens from the right.
+  const toggle = own.locator("[aria-controls=studio-project-menu]");
+  await expect(own.getByRole("navigation", { name: "لوحة المشروع" })).toBeHidden();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await own.getByRole("button", { name: "القايمة" }).click();
+  const sheet = own.getByRole("dialog", { name: "لوحة المشروع" });
+  await expect(sheet.getByRole("link", { name: "اللغات" })).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  const box = await sheet.boundingBox();
+  expect(Math.round(box!.x + box!.width)).toBe(390);
+  await own.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await own.setViewportSize({ width: 1280, height: 720 });
   await own.context().clearCookies({ name: "yallapp_lang" });
 });
@@ -343,6 +356,21 @@ test("every step on a phone in English, and no console errors or hydration warni
     await expect(own.getByRole("heading", { level: 1, name: "App setup" })).toBeVisible();
     expect(await own.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), step).toBeLessThanOrEqual(0);
   }
+  // The project menu on a phone: a tap beside the sheet closes it, and so does picking a page.
+  const toggle = own.getByRole("button", { name: "Menu", exact: true });
+  const sheet = own.getByRole("dialog", { name: "Project dashboard" });
+  await toggle.click();
+  await expect(sheet).toBeVisible();
+  await own.mouse.click(370, 400);
+  await expect(sheet).toBeHidden();
+  await toggle.click();
+  await sheet.getByRole("link", { name: "Languages" }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/languages$/);
+  await expect(sheet).toBeHidden();
+  // The bar names the page now open.
+  await expect(toggle.locator("..")).toContainText("Languages");
   await own.setViewportSize({ width: 1280, height: 720 });
+  await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "Languages" })).toHaveAttribute("aria-current", "page");
+  await expect(toggle).toBeHidden();
   expect(problems).toEqual([]);
 });
