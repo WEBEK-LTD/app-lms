@@ -97,22 +97,17 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
         intro={locked ? t("salaries.lockedIntro", { by: monthRow?.lockedBy ?? "—", date: locked.toISOString().slice(0, 10) }) : t("salaries.sheetsIntro")}
       >
         <div className="flex flex-wrap items-start gap-3">
-          {locked ? (
-            <SchoolForm action={reopenMonthAction} submit={t("salaries.reopen")}>
+          {locked ? null : (
+            <SchoolForm action={makeSheetsAction} submit={sheets.length ? t("salaries.makeAgain") : t("salaries.make")}>
               <input type="hidden" name="month" value={month} />
             </SchoolForm>
-          ) : (
-            <>
-              <SchoolForm action={makeSheetsAction} submit={sheets.length ? t("salaries.makeAgain") : t("salaries.make")}>
-                <input type="hidden" name="month" value={month} />
-              </SchoolForm>
-              {sheets.length ? (
-                <SchoolForm action={lockMonthAction} submit={t("salaries.lock")}>
-                  <input type="hidden" name="month" value={month} />
-                </SchoolForm>
-              ) : null}
-            </>
           )}
+          {/* One form that locks and opens again, kept in its place so what it answered stays shown after the month changes. */}
+          {locked || sheets.length ? (
+            <SchoolForm action={locked ? reopenMonthAction : lockMonthAction} submit={t(locked ? "salaries.reopen" : "salaries.lock")}>
+              <input type="hidden" name="month" value={month} />
+            </SchoolForm>
+          ) : null}
           {sheets.length ? (
             <a href={`/api/dashboard/school/salaries?month=${month}`} className={`${btn.secondary} h-10 px-4 text-sm`}>
               <Icon name="download" size={18} />
