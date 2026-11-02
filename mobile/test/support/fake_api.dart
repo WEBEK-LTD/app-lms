@@ -3016,4 +3016,75 @@ class FakeApi implements YallappApi {
   @override
   Future<LibraryLoans> listLibraryLoans({int? personId}) =>
       _answer('listLibraryLoans', () => LibraryLoans.fromJson(libraryLoans));
+
+  // 113.8 The calendar, the exams' timetable and behaviour.
+
+  Map<String, dynamic> schoolCalendar = schoolCalendarJson();
+  Map<String, dynamic> examLists = examListsJson();
+  Map<String, dynamic> studentBehaviour = studentBehaviourJson();
+  Map<String, dynamic> classBehaviour = classBehaviourJson();
+  List<Map<String, dynamic>> behaviourCategories = behaviourCategoriesJson();
+
+  /// The calendars asked for: from, to and the student.
+  final calendarQueries = <({String from, String to, int? studentId})>[];
+
+  /// Merits and notes written: the student, the category and the note.
+  final behaviourWritten = <({int studentId, int categoryId, String? note})>[];
+  final behaviourDeleted = <int>[];
+
+  @override
+  Future<SchoolCalendar> getSchoolCalendar({
+    required String from,
+    required String to,
+    int? studentId,
+  }) => _answer('getSchoolCalendar', () {
+    calendarQueries.add((from: from, to: to, studentId: studentId));
+    return SchoolCalendar.fromJson(schoolCalendar);
+  });
+
+  @override
+  Future<ExamLists> getStudentExams(int studentId) =>
+      _answer('getStudentExams', () => ExamLists.fromJson(examLists));
+
+  @override
+  Future<StudentBehaviour> getStudentBehaviour(int studentId, {int page = 1}) =>
+      _answer(
+        'getStudentBehaviour',
+        () => StudentBehaviour.fromJson(studentBehaviour),
+      );
+
+  @override
+  Future<ExamLists> listClassroomExams({int? classId}) =>
+      _answer('listClassroomExams', () => ExamLists.fromJson(examLists));
+
+  @override
+  Future<List<BehaviourCategory>> listBehaviourCategories() => _answer(
+    'listBehaviourCategories',
+    () => [for (final c in behaviourCategories) BehaviourCategory.fromJson(c)],
+  );
+
+  @override
+  Future<ClassBehaviour> getClassBehaviour(int classId, {int? studentId}) =>
+      _answer(
+        'getClassBehaviour',
+        () => ClassBehaviour.fromJson(classBehaviour),
+      );
+
+  @override
+  Future<BehaviourNote> writeBehaviour({
+    required int studentId,
+    required int categoryId,
+    String? note,
+  }) => _answer('writeBehaviour', () {
+    behaviourWritten.add((
+      studentId: studentId,
+      categoryId: categoryId,
+      note: note,
+    ));
+    return BehaviourNote.fromJson(behaviourNoteJson(studentId: studentId));
+  });
+
+  @override
+  Future<void> deleteBehaviour(int noteId) =>
+      _answer('deleteBehaviour', () => behaviourDeleted.add(noteId));
 }

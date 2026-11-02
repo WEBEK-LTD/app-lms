@@ -58,7 +58,13 @@ import type {
   SchoolAssessment,
   SchoolAttendance,
   SchoolCheckin,
+  SchoolBehaviourCategory,
+  SchoolBehaviourNote,
   SchoolClass,
+  SchoolEvent,
+  SchoolEventInput,
+  SchoolExam,
+  SchoolExamInput,
   SchoolFamilyLink,
   SchoolFee,
   SchoolReport,
@@ -3969,6 +3975,191 @@ export class MysqlStore implements DataStore {
         .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
     );
     return result.affectedRows === 1;
+  }
+
+  // 113.8 The school's calendar, the exams' timetable and behaviour
+
+  async listSchoolEvents(appId: string, filter: { from?: string; to?: string } = {}): Promise<SchoolEvent[]> {
+    const t = schema.schoolEvents;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.from ? gte(t.endsOn, filter.from) : undefined, filter.to ? lte(t.startsOn, filter.to) : undefined))
+        .orderBy(asc(t.startsOn), sql`coalesce(${t.startMinute}, -1)`, asc(t.id)),
+    );
+  }
+
+  async getSchoolEvent(appId: string, id: number): Promise<SchoolEvent | null> {
+    const t = schema.schoolEvents;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolEvent(input: SchoolEventInput & { id: number | null }, now: Date): Promise<SchoolEvent | null> {
+    const t = schema.schoolEvents;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const values = { ...fields, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [result] = await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    if (result.affectedRows !== 1) return null;
+    return this.getSchoolEvent(input.appId, id);
+  }
+
+  async deleteSchoolEvent(appId: string, id: number): Promise<void> {
+    const t = schema.schoolEvents;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolExams(appId: string, filter: { from?: string; to?: string; published?: boolean } = {}): Promise<SchoolExam[]> {
+    const t = schema.schoolExams;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.from ? gte(t.date, filter.from) : undefined,
+            filter.to ? lte(t.date, filter.to) : undefined,
+            filter.published !== undefined ? eq(t.published, filter.published) : undefined,
+          ),
+        )
+        .orderBy(asc(t.date), asc(t.startMinute), asc(t.id)),
+    );
+  }
+
+  async getSchoolExam(appId: string, id: number): Promise<SchoolExam | null> {
+    const t = schema.schoolExams;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolExam(input: SchoolExamInput & { id: number | null }, now: Date): Promise<SchoolExam | null> {
+    const t = schema.schoolExams;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const values = { ...fields, published: false, publishedAt: null, remindedAt: null, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const found = await this.getSchoolExam(input.appId, id);
+    if (!found) return null;
+    // A new date or time: its reminder goes again.
+    const moved = found.date !== fields.date || found.startMinute !== fields.startMinute;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...fields, ...(moved ? { remindedAt: null } : {}), updatedAt: now })
+        .where(and(eq(t.appId, input.appId), eq(t.id, id))),
+    );
+    return this.getSchoolExam(input.appId, id);
+  }
+
+  async publishSchoolExams(appId: string, ids: number[], now: Date): Promise<SchoolExam[]> {
+    const t = schema.schoolExams;
+    const wanted = [...new Set(ids)];
+    if (wanted.length === 0) return [];
+    const drafts = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), inArray(t.id, wanted), eq(t.published, false))),
+    );
+    const out: SchoolExam[] = [];
+    for (const exam of drafts) {
+      // Each draft is published by one run only.
+      const [result] = await this.run((db) =>
+        db
+          .update(t)
+          .set({ published: true, publishedAt: now, updatedAt: now })
+          .where(and(eq(t.appId, appId), eq(t.id, exam.id), eq(t.published, false))),
+      );
+      if (result.affectedRows === 1) out.push({ ...exam, published: true, publishedAt: now, updatedAt: now });
+    }
+    return out.sort((a, b) => a.date.localeCompare(b.date) || a.startMinute - b.startMinute || a.id - b.id);
+  }
+
+  async markSchoolExamReminded(appId: string, id: number, now: Date): Promise<boolean> {
+    const t = schema.schoolExams;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ remindedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.id, id), isNull(t.remindedAt))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async deleteSchoolExam(appId: string, id: number): Promise<void> {
+    const t = schema.schoolExams;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolBehaviourCategories(appId: string): Promise<SchoolBehaviourCategory[]> {
+    const t = schema.schoolBehaviourCategories;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async saveSchoolBehaviourCategory(input: Pick<SchoolBehaviourCategory, "appId" | "name" | "kind" | "points" | "active"> & { id: number | null }, now: Date): Promise<SchoolBehaviourCategory | null> {
+    const t = schema.schoolBehaviourCategories;
+    const { id, ...fields } = input;
+    if (id === null) {
+      const [top] = await this.run((db) => db.select({ n: sql<number>`coalesce(max(${t.position}), 0)` }).from(t).where(eq(t.appId, input.appId)));
+      const values = { ...fields, position: Number(top?.n ?? 0) + 1, createdAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.id, id))).limit(1));
+    if (!row) return null;
+    await this.run((db) => db.update(t).set({ name: fields.name, kind: fields.kind, points: fields.points, active: fields.active }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return { ...row, ...fields };
+  }
+
+  async deleteSchoolBehaviourCategory(appId: string, id: number): Promise<void> {
+    // Its notes keep their name and points (the foreign key clears their category).
+    const t = schema.schoolBehaviourCategories;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolBehaviour(appId: string, filter: { studentId?: number; studentIds?: number[]; classId?: number; since?: Date; until?: Date } = {}): Promise<SchoolBehaviourNote[]> {
+    const t = schema.schoolBehaviour;
+    if (filter.studentIds && filter.studentIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.studentIds ? inArray(t.studentId, filter.studentIds) : undefined,
+            filter.classId !== undefined ? eq(t.classId, filter.classId) : undefined,
+            filter.since ? gte(t.createdAt, filter.since) : undefined,
+            filter.until ? lt(t.createdAt, filter.until) : undefined,
+          ),
+        )
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+  }
+
+  async getSchoolBehaviour(appId: string, id: number): Promise<SchoolBehaviourNote | null> {
+    const t = schema.schoolBehaviour;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolBehaviour(input: Omit<SchoolBehaviourNote, "id">): Promise<SchoolBehaviourNote> {
+    const [result] = await this.run((db) => db.insert(schema.schoolBehaviour).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async deleteSchoolBehaviour(appId: string, id: number): Promise<void> {
+    const t = schema.schoolBehaviour;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
   }
 
   async deleteTeacher(appId: string, id: number): Promise<void> {

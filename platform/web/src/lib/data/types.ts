@@ -4690,6 +4690,10 @@ export interface SchoolSettings {
   bus?: SchoolBusSettings;
   /** 113.11 The library's loan and hold days; left out: the defaults (lib/school/library.ts). */
   library?: SchoolLibrarySettings;
+  /** 113.8 Which behaviour notes parents get a push for; "all" when not set. */
+  behaviourAlerts?: SchoolBehaviourAlerts;
+  /** 113.8 The school saved its behaviour categories once: the suggested ones aren't added again. */
+  behaviourCategoriesSet?: boolean;
 }
 
 /** 113.2 How people check in: the gate's QR code, inside the school's area, either one, or both at once. */
@@ -4914,6 +4918,97 @@ export interface SchoolAnnouncement {
   teacherId: number | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  createdAt: Date;
+}
+
+// 113.8 The school's calendar, the exams' timetable and behaviour
+
+export type SchoolEventKind = "event" | "holiday" | "exam";
+export const SCHOOL_EVENT_KINDS: readonly SchoolEventKind[] = ["event", "holiday", "exam"];
+/** Who an event is for: everyone, a grade's classes, one class, or the people who work at the school. */
+export type SchoolEventAudience = "school" | "grade" | "class" | "staff";
+export const SCHOOL_EVENT_AUDIENCES: readonly SchoolEventAudience[] = ["school", "grade", "class", "staff"];
+
+/** A day or days on the school's calendar: an event, a holiday or break (no school), or exam days. */
+export interface SchoolEvent {
+  id: number;
+  appId: string;
+  kind: SchoolEventKind;
+  title: string;
+  notes: string | null;
+  /** YYYY-MM-DD; `endsOn` the same day for one day. */
+  startsOn: string;
+  endsOn: string;
+  /** Minutes from midnight; null: all day. */
+  startMinute: number | null;
+  endMinute: number | null;
+  place: string | null;
+  audience: SchoolEventAudience;
+  /** The grade (`SchoolClass.grade`) of a grade's event. */
+  grade: string | null;
+  classId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolEventInput = Omit<SchoolEvent, "id" | "createdAt" | "updatedAt">;
+
+/** An exam in the exams' timetable, for a class or every class of a grade; families see it once published. */
+export interface SchoolExam {
+  id: number;
+  appId: string;
+  classId: number | null;
+  grade: string | null;
+  subjectId: number;
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  startMinute: number;
+  durationMinutes: number;
+  room: string | null;
+  /** What it covers and what to bring. */
+  notes: string | null;
+  published: boolean;
+  publishedAt: Date | null;
+  /** The day-before reminder went out. */
+  remindedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type SchoolExamInput = Pick<SchoolExam, "appId" | "classId" | "grade" | "subjectId" | "date" | "startMinute" | "durationMinutes" | "room" | "notes">;
+
+export type SchoolBehaviourKind = "positive" | "negative";
+/** Which notes parents are told of. */
+export type SchoolBehaviourAlerts = "all" | "negative" | "none";
+export const SCHOOL_BEHAVIOUR_ALERTS: readonly SchoolBehaviourAlerts[] = ["all", "negative", "none"];
+
+/** A kind of merit or note the school defines, with its points (negative for a negative note). */
+export interface SchoolBehaviourCategory {
+  id: number;
+  appId: string;
+  name: string;
+  kind: SchoolBehaviourKind;
+  points: number;
+  position: number;
+  active: boolean;
+  createdAt: Date;
+}
+
+/** A merit or a note on a student, by a teacher or the school. */
+export interface SchoolBehaviourNote {
+  id: number;
+  appId: string;
+  studentId: number;
+  /** The student's class when it was written. */
+  classId: number | null;
+  categoryId: number | null;
+  /** Kept as written, should the category change. */
+  categoryName: string;
+  kind: SchoolBehaviourKind;
+  points: number;
+  note: string | null;
+  /** The teacher who wrote it; null: the school. */
+  teacherId: number | null;
   createdAt: Date;
 }
 

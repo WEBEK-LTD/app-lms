@@ -11,6 +11,7 @@ import '../shared/shared_routes.dart';
 import 'screens/classroom_reports_screens.dart';
 import 'screens/checkin_screens.dart';
 import 'screens/bus_screens.dart';
+import 'screens/calendar_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/messages_screen.dart';
 import 'screens/library_screens.dart';
@@ -164,6 +165,25 @@ List<RouteBase> _pushedRoutes() => [
     pageBuilder: (context, state) => appPage(state, const BusDutyScreen()),
   ),
   _byId('${Paths.busDuty}/run/:id', (id) => BusRunScreen(runId: id)),
+  // 113.8 The calendar, the exams' timetable and behaviour; the teacher's
+  // calendar and exams, and a class's behaviour.
+  _part('calendar', (student) => SchoolCalendarScreen(student: student)),
+  _part('exams', (student) => SchoolExamsScreen(student: student)),
+  _part('behaviour', (student) => BehaviourScreen(student: student)),
+  GoRoute(
+    path: '${Paths.classroom}/calendar',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolCalendarScreen(classroom: true)),
+  ),
+  GoRoute(
+    path: '${Paths.classroom}/exams',
+    pageBuilder: (context, state) =>
+        appPage(state, const SchoolExamsScreen(classroom: true)),
+  ),
+  _byId(
+    '${Paths.classroom}/class/:id/behaviour',
+    (id) => ClassBehaviourScreen(classId: id),
+  ),
   _byId(
     '${Paths.classroom}/class/:id/attendance',
     (id) => TakeAttendanceScreen(classId: id),

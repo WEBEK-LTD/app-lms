@@ -6309,6 +6309,189 @@
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
   },
+  "schoolCalendar": "Calendar",
+  "@schoolCalendar": {
+    "description": "113.8 The school's calendar: events, holidays and exams."
+  },
+  "schoolExams": "Exams",
+  "@schoolExams": {
+    "description": "113.8 The exams' timetable of the student's class."
+  },
+  "schoolBehaviour": "Behaviour",
+  "@schoolBehaviour": {
+    "description": "113.8 The student's merits and notes, with their points."
+  },
+  "calendarMonth": "Month",
+  "@calendarMonth": {
+    "description": "113.8 Shows the school's calendar a month at a time."
+  },
+  "calendarList": "List",
+  "@calendarList": {
+    "description": "113.8 Shows the school's calendar as a list of what is coming."
+  },
+  "calendarNothingThisDay": "Nothing on this day",
+  "@calendarNothingThisDay": {
+    "description": "113.8 A day of the school's calendar without events or exams."
+  },
+  "calendarNothingAhead": "Nothing on the calendar in the coming weeks",
+  "@calendarNothingAhead": {
+    "description": "113.8 The school's calendar list with nothing coming."
+  },
+  "calendarAllDay": "All day",
+  "@calendarAllDay": {
+    "description": "113.8 An event of the school's calendar that lasts all day."
+  },
+  "calendarDayOff": "No school",
+  "@calendarDayOff": {
+    "description": "113.8 Label of a holiday or a break on the school's calendar."
+  },
+  "calendarExamDays": "Exam days",
+  "@calendarExamDays": {
+    "description": "113.8 Label of exam days on the school's calendar."
+  },
+  "calendarExam": "Exam",
+  "@calendarExam": {
+    "description": "113.8 Label of an exam of the timetable on the school's calendar."
+  },
+  "calendarStaffOnly": "Staff",
+  "@calendarStaffOnly": {
+    "description": "113.8 An event of the school's calendar for the staff only."
+  },
+  "calendarDays": "{from} to {to}",
+  "@calendarDays": {
+    "description": "113.8 The days of an event of the school's calendar that lasts several days.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@calendarItems": {
+    "description": "113.8 How many events and exams a day of the school's calendar has, for screen readers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "examsComing": "Coming",
+  "@examsComing": {
+    "description": "113.8 The exams still to come on the exams' timetable."
+  },
+  "examsDone": "Done",
+  "@examsDone": {
+    "description": "113.8 The exams already done on the exams' timetable."
+  },
+  "examsNone": "No exams on the timetable yet",
+  "@examsNone": {
+    "description": "113.8 The exams' timetable with no exams published."
+  },
+  "examsNoneMessage": "The school publishes the exams' timetable here.",
+  "@examsNoneMessage": {
+    "description": "113.8 Under the empty exams' timetable."
+  },
+  "examTime": "{starts}–{ends} · {minutes} min",
+  "@examTime": {
+    "description": "113.8 When an exam is and how long it takes.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "behaviourPoints": "Points",
+  "@behaviourPoints": {
+    "description": "113.8 The points total of a student's behaviour record."
+  },
+  "behaviourMerits": "Merits",
+  "@behaviourMerits": {
+    "description": "113.8 How many merits a student's behaviour record has."
+  },
+  "behaviourNotes": "Notes",
+  "@behaviourNotes": {
+    "description": "113.8 How many negative notes a student's behaviour record has."
+  },
+  "behaviourNone": "No merits or notes yet",
+  "@behaviourNone": {
+    "description": "113.8 A student's behaviour record with nothing in it."
+  },
+  "behaviourFromSchool": "From the school",
+  "@behaviourFromSchool": {
+    "description": "113.8 A merit or a note the school wrote, not a teacher."
+  },
+  "behaviourPointsValue": "{points} points",
+  "@behaviourPointsValue": {
+    "description": "113.8 The points of a merit (+2) or a note (-1).",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "behaviourWrite": "Write a merit or a note",
+  "@behaviourWrite": {
+    "description": "113.8 Button and sheet title in the Classroom tab's class behaviour."
+  },
+  "behaviourFor": "For {name}",
+  "@behaviourFor": {
+    "description": "113.8 Whom the teacher writes a merit or a note for.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "behaviourCategory": "Category",
+  "@behaviourCategory": {
+    "description": "113.8 The school's category of a merit or a note, to choose."
+  },
+  "behaviourNoteHint": "A note for the family (optional)",
+  "@behaviourNoteHint": {
+    "description": "113.8 The words a teacher adds to a merit or a note."
+  },
+  "behaviourSaved": "Saved. The family sees it in the app.",
+  "@behaviourSaved": {
+    "description": "113.8 After a teacher wrote a merit or a note."
+  },
+  "behaviourChooseCategory": "Choose a category",
+  "@behaviourChooseCategory": {
+    "description": "113.8 A teacher sends a merit or a note without its category."
+  },
+  "behaviourTakeBack": "Take back",
+  "@behaviourTakeBack": {
+    "description": "113.8 Removes a merit or a note the teacher wrote today."
+  },
+  "behaviourTakenBack": "Taken back",
+  "@behaviourTakenBack": {
+    "description": "113.8 After a teacher took back a merit or a note."
+  },
+  "behaviourLatest": "Latest",
+  "@behaviourLatest": {
+    "description": "113.8 The class's latest merits and notes."
+  },
+  "behaviourNoCategories": "The school hasn't set behaviour categories yet",
+  "@behaviourNoCategories": {
+    "description": "113.8 A teacher opens behaviour before the school set any categories."
+  },
+  "classroomDayOff": "No school: {title}. Nobody is told of an absence on this day.",
+  "@classroomDayOff": {
+    "description": "113.8 The attendance register on a holiday or a break of the school's calendar.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "schoolBus": "School bus",
   "@schoolBus": {
     "description": "113.10 On the School tab: opens the child's school bus, live on the map while it runs."

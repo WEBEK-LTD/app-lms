@@ -11,6 +11,8 @@ import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../deliver
  * (`school_homework`), a mark or a score (`school_grade`), a fee
  * (`school_fee`) and the school's or a teacher's news
  * (`school_announcement`). A student is told too, once they have the app.
+ * 113.8 Exams published and the day before each (`school_exam`), and a
+ * merit or a note to the parents (`school_behaviour`).
  */
 
 /** The account of a person the school added: the one they last used, else the one with their number (or email). */
@@ -199,4 +201,86 @@ export async function tellLeave(deps: DeliveryNotifyDeps, person: SchoolPerson, 
   const user = await personUser(deps.store, person);
   if (!user) return 0;
   return deliver(deps, user.id, LEAVE[status][await langOf(deps, user)](from, to), { type: "school_leave" }, false);
+}
+
+// 113.8 Exams and behaviour
+
+/** The accounts of a student's parents (not the student's own). */
+export async function parentUsers(store: DataStore, student: SchoolPerson): Promise<HostedUser[]> {
+  const links = await store.listSchoolFamily(student.appId, { studentId: student.id });
+  const parents = await store.listSchoolPeople(student.appId, { role: "parent", ids: links.map((l) => l.parentId) });
+  const out: HostedUser[] = [];
+  for (const person of parents.filter((p) => p.active)) {
+    const user = await personUser(store, person);
+    if (user && !out.some((u) => u.id === user.id)) out.push(user);
+  }
+  return out;
+}
+
+export interface ExamWords {
+  id: number;
+  subject: string;
+  date: string;
+  time: string;
+  room: string | null;
+}
+
+const EXAMS: Record<Lang, (name: string, exams: readonly ExamWords[]) => Words> = {
+  en: (name, exams) =>
+    exams.length === 1
+      ? { title: `${exams[0]!.subject} exam for ${name}`, body: `On ${exams[0]!.date} at ${exams[0]!.time}. See the exams' timetable in the app.` }
+      : { title: `Exams' timetable for ${name}`, body: `${exams.length} exams, the first on ${exams[0]!.date}. See them in the app.` },
+  ar: (name, exams) =>
+    exams.length === 1
+      ? { title: `امتحان ${exams[0]!.subject} لـ ${name}`, body: `يوم ${exams[0]!.date} الساعة ${exams[0]!.time}. جدول الامتحانات في التطبيق.` }
+      : { title: `جدول امتحانات ${name}`, body: `${exams.length} امتحانات، أولها يوم ${exams[0]!.date}. التفاصيل في التطبيق.` },
+  tr: (name, exams) =>
+    exams.length === 1
+      ? { title: `${name} için ${exams[0]!.subject} sınavı`, body: `${exams[0]!.date}, saat ${exams[0]!.time}. Sınav programı uygulamada.` }
+      : { title: `${name} için sınav programı`, body: `${exams.length} sınav, ilki ${exams[0]!.date}. Ayrıntılar uygulamada.` },
+};
+
+/** A student and their family, of exams published for them (one push for all of them). */
+export async function tellExams(deps: DeliveryNotifyDeps, student: SchoolPerson, exams: readonly ExamWords[]): Promise<number> {
+  if (exams.length === 0) return 0;
+  return tellFamily(deps, student, (lang) => EXAMS[lang](student.name, exams), {
+    type: "school_exam",
+    student_id: String(student.id),
+    ...(exams.length === 1 ? { exam_id: String(exams[0]!.id) } : {}),
+  });
+}
+
+const REMINDER: Record<Lang, (name: string, exam: ExamWords) => Words> = {
+  en: (name, exam) => ({ title: `${exam.subject} exam tomorrow`, body: `${name}: ${exam.time}${exam.room ? `, room ${exam.room}` : ""}. Good luck!` }),
+  ar: (name, exam) => ({ title: `امتحان ${exam.subject} غدًا`, body: `${name}: الساعة ${exam.time}${exam.room ? `، القاعة ${exam.room}` : ""}. بالتوفيق!` }),
+  tr: (name, exam) => ({ title: `Yarın ${exam.subject} sınavı`, body: `${name}: saat ${exam.time}${exam.room ? `, derslik ${exam.room}` : ""}. Başarılar!` }),
+};
+
+/** A student and their family, the day before an exam. */
+export async function tellExamReminder(deps: DeliveryNotifyDeps, student: SchoolPerson, exam: ExamWords): Promise<number> {
+  return tellFamily(deps, student, (lang) => REMINDER[lang](student.name, exam), { type: "school_exam", student_id: String(student.id), exam_id: String(exam.id) });
+}
+
+const BEHAVIOUR: Record<"positive" | "negative", Record<Lang, (name: string, category: string, points: string, note: string) => Words>> = {
+  positive: {
+    en: (name, category, points, note) => ({ title: `${name}: ${category}`, body: `${points} points.${note ? ` ${note}` : ""}` }),
+    ar: (name, category, points, note) => ({ title: `${name}: ${category}`, body: `${points} نقاط.${note ? ` ${note}` : ""}` }),
+    tr: (name, category, points, note) => ({ title: `${name}: ${category}`, body: `${points} puan.${note ? ` ${note}` : ""}` }),
+  },
+  negative: {
+    en: (name, category, points, note) => ({ title: `A note about ${name}`, body: `${category} (${points} points).${note ? ` ${note}` : ""}` }),
+    ar: (name, category, points, note) => ({ title: `ملاحظة عن ${name}`, body: `${category} (${points} نقاط).${note ? ` ${note}` : ""}` }),
+    tr: (name, category, points, note) => ({ title: `${name} hakkında bir not`, body: `${category} (${points} puan).${note ? ` ${note}` : ""}` }),
+  },
+};
+
+/** A student's parents, of a merit or a note. */
+export async function tellBehaviour(deps: DeliveryNotifyDeps, student: SchoolPerson, note: { id: number; kind: "positive" | "negative"; categoryName: string; points: number; note: string | null }): Promise<number> {
+  let reached = 0;
+  const points = note.points > 0 ? `+${note.points}` : String(note.points);
+  for (const user of await parentUsers(deps.store, student)) {
+    const words = BEHAVIOUR[note.kind][await langOf(deps, user)](student.name, note.categoryName, points, (note.note ?? "").slice(0, 120));
+    reached += await deliver(deps, user.id, words, { type: "school_behaviour", student_id: String(student.id), note_id: String(note.id) }, false);
+  }
+  return reached;
 }

@@ -177,6 +177,25 @@ class _Overview extends ConsumerWidget {
                   title: l10n.schoolReports,
                   onTap: () => open('reports'),
                 ),
+              // 113.8
+              SettingsTile(
+                key: const ValueKey('school-calendar'),
+                icon: AppIcons.event,
+                title: l10n.schoolCalendar,
+                onTap: () => open('calendar'),
+              ),
+              SettingsTile(
+                key: const ValueKey('school-exams'),
+                icon: AppIcons.quiz,
+                title: l10n.schoolExams,
+                onTap: () => open('exams'),
+              ),
+              SettingsTile(
+                key: const ValueKey('school-behaviour'),
+                icon: AppIcons.star,
+                title: l10n.schoolBehaviour,
+                onTap: () => open('behaviour'),
+              ),
               SettingsTile(
                 key: const ValueKey('school-news'),
                 icon: AppIcons.campaignUpdate,

@@ -10594,6 +10594,222 @@ abstract class AppLocalizations {
   /// **'Continue without a coupon'**
   String get couponWithout;
 
+  /// 113.8 The school's calendar: events, holidays and exams.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get schoolCalendar;
+
+  /// 113.8 The exams' timetable of the student's class.
+  ///
+  /// In en, this message translates to:
+  /// **'Exams'**
+  String get schoolExams;
+
+  /// 113.8 The student's merits and notes, with their points.
+  ///
+  /// In en, this message translates to:
+  /// **'Behaviour'**
+  String get schoolBehaviour;
+
+  /// 113.8 Shows the school's calendar a month at a time.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get calendarMonth;
+
+  /// 113.8 Shows the school's calendar as a list of what is coming.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get calendarList;
+
+  /// 113.8 A day of the school's calendar without events or exams.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day'**
+  String get calendarNothingThisDay;
+
+  /// 113.8 The school's calendar list with nothing coming.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on the calendar in the coming weeks'**
+  String get calendarNothingAhead;
+
+  /// 113.8 An event of the school's calendar that lasts all day.
+  ///
+  /// In en, this message translates to:
+  /// **'All day'**
+  String get calendarAllDay;
+
+  /// 113.8 Label of a holiday or a break on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No school'**
+  String get calendarDayOff;
+
+  /// 113.8 Label of exam days on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam days'**
+  String get calendarExamDays;
+
+  /// 113.8 Label of an exam of the timetable on the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get calendarExam;
+
+  /// 113.8 An event of the school's calendar for the staff only.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get calendarStaffOnly;
+
+  /// 113.8 The days of an event of the school's calendar that lasts several days.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String calendarDays(String from, String to);
+
+  /// 113.8 How many events and exams a day of the school's calendar has, for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String calendarItems(int count);
+
+  /// 113.8 The exams still to come on the exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming'**
+  String get examsComing;
+
+  /// 113.8 The exams already done on the exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get examsDone;
+
+  /// 113.8 The exams' timetable with no exams published.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams on the timetable yet'**
+  String get examsNone;
+
+  /// 113.8 Under the empty exams' timetable.
+  ///
+  /// In en, this message translates to:
+  /// **'The school publishes the exams\' timetable here.'**
+  String get examsNoneMessage;
+
+  /// 113.8 When an exam is and how long it takes.
+  ///
+  /// In en, this message translates to:
+  /// **'{starts}–{ends} · {minutes} min'**
+  String examTime(String starts, String ends, int minutes);
+
+  /// 113.8 The points total of a student's behaviour record.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get behaviourPoints;
+
+  /// 113.8 How many merits a student's behaviour record has.
+  ///
+  /// In en, this message translates to:
+  /// **'Merits'**
+  String get behaviourMerits;
+
+  /// 113.8 How many negative notes a student's behaviour record has.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get behaviourNotes;
+
+  /// 113.8 A student's behaviour record with nothing in it.
+  ///
+  /// In en, this message translates to:
+  /// **'No merits or notes yet'**
+  String get behaviourNone;
+
+  /// 113.8 A merit or a note the school wrote, not a teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'From the school'**
+  String get behaviourFromSchool;
+
+  /// 113.8 The points of a merit (+2) or a note (-1).
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String behaviourPointsValue(String points);
+
+  /// 113.8 Button and sheet title in the Classroom tab's class behaviour.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a merit or a note'**
+  String get behaviourWrite;
+
+  /// 113.8 Whom the teacher writes a merit or a note for.
+  ///
+  /// In en, this message translates to:
+  /// **'For {name}'**
+  String behaviourFor(String name);
+
+  /// 113.8 The school's category of a merit or a note, to choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get behaviourCategory;
+
+  /// 113.8 The words a teacher adds to a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the family (optional)'**
+  String get behaviourNoteHint;
+
+  /// 113.8 After a teacher wrote a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The family sees it in the app.'**
+  String get behaviourSaved;
+
+  /// 113.8 A teacher sends a merit or a note without its category.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get behaviourChooseCategory;
+
+  /// 113.8 Removes a merit or a note the teacher wrote today.
+  ///
+  /// In en, this message translates to:
+  /// **'Take back'**
+  String get behaviourTakeBack;
+
+  /// 113.8 After a teacher took back a merit or a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken back'**
+  String get behaviourTakenBack;
+
+  /// 113.8 The class's latest merits and notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get behaviourLatest;
+
+  /// 113.8 A teacher opens behaviour before the school set any categories.
+  ///
+  /// In en, this message translates to:
+  /// **'The school hasn\'t set behaviour categories yet'**
+  String get behaviourNoCategories;
+
+  /// 113.8 The attendance register on a holiday or a break of the school's calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No school: {title}. Nobody is told of an absence on this day.'**
+  String classroomDayOff(String title);
+
   /// 113.10 On the School tab: opens the child's school bus, live on the map while it runs.
   ///
   /// In en, this message translates to:

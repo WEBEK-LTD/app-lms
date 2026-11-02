@@ -64,7 +64,7 @@ test("the school makes a School project in Yallapp Studio, not among the regular
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Classes", "People", "Timetable", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Fees", "News", "School settings"]) {
+  for (const link of ["Classes", "People", "Timetable", "Calendar", "Exams", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Behaviour", "Fees", "News", "School settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 
@@ -180,77 +180,6 @@ test("112.5 Report cards: the class over the term, and a student's report card",
   await expect(own.getByRole("button", { name: "Print or save as PDF" })).toBeVisible();
 });
 
-test("113.5 The syllabus written and imported; the class behind the plan, then a lesson covered", async () => {
-  await own.goto("/dashboard/school/syllabus");
-  await expect(own).toHaveURL(/\/studio\/project\/school\/syllabus$/);
-  await expect(own.getByRole("heading", { level: 1, name: "Syllabus" })).toBeVisible();
-  const syllabus = own.getByRole("region", { name: "Mathematics · Grade 5" });
-  await expect(syllabus.getByText("No units yet.", { exact: false })).toBeVisible();
-  await syllabus.getByLabel("Unit", { exact: true }).fill("Fractions");
-  await syllabus.locator("details", { hasText: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
-  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
-  await own.reload();
-  await expect(syllabus.getByText("Unit 1: Fractions")).toBeVisible();
-  const addTopic = syllabus.locator("details", { hasText: "Add a lesson or topic" });
-  await addTopic.getByLabel("Lesson or topic").fill("Halves");
-  await addTopic.getByLabel("Planned from").fill("2025-09-07");
-  await addTopic.getByLabel("To", { exact: true }).fill("2025-09-11");
-  await addTopic.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
-  // A second lesson from a sheet.
-  const sheet = own.getByRole("region", { name: "Import from a sheet" });
-  await sheet.getByLabel("CSV file").setInputFiles({
-    name: "syllabus.csv",
-    mimeType: "text/csv",
-    buffer: Buffer.from("grade,subject,unit,topic,from,to\nGrade 5,Mathematics,Fractions,Quarters,2025-09-14,2025-09-18\nGrade 9,Mathematics,Algebra,Equations,2025-09-14,2025-09-18\n"),
-  });
-  await sheet.getByRole("button", { name: "Import" }).click();
-  await expect(own.getByText("Imported: 1 added, 0 updated.")).toBeVisible();
-  await expect(own.getByText("Line 3: none of your classes is in the grade Grade 9.")).toBeVisible();
-  await own.reload();
-  await expect(syllabus.locator("[data-topic]")).toHaveCount(2);
-
-  await own.goto("/dashboard/school/progress");
-  await expect(own.getByRole("heading", { level: 1, name: "Progress" })).toBeVisible();
-  const row = own.locator('[data-row="Grade 5 A · Mathematics"]');
-  await expect(row).toContainText("0 of 2 (0%)");
-  await expect(row).toContainText("Behind the plan by 2 lessons");
-  await row.getByRole("link", { name: "Grade 5 A" }).click();
-  await expect(own.getByText("0 of 2 covered (0%); the plan says 100% by today.")).toBeVisible();
-  const halves = own.locator('[data-topic="Halves"]');
-  await halves.locator("summary", { hasText: "Mark covered" }).click();
-  await halves.getByLabel("Note (optional)").fill("With paper folding.");
-  await halves.locator('button[type="submit"]', { hasText: "Mark covered" }).click();
-  // Its form goes once the lesson is covered (its "Saved." with it): the lesson says Covered.
-  await expect(halves.getByText("Covered", { exact: true })).toBeVisible();
-  await expect(halves).toContainText("covered on");
-  await own.reload();
-  await expect(own.getByText("Behind the plan by 1 lesson", { exact: true })).toBeVisible();
-  await expect(halves).toContainText("With paper folding.");
-});
-
-test("113.5 Report templates and the teachers' reports", async () => {
-  await own.goto("/dashboard/school/report-templates");
-  await expect(own).toHaveURL(/\/studio\/project\/school\/report-templates$/);
-  const students = own.getByRole("region", { name: "Reports on a student" });
-  await students.getByRole("button", { name: "Add a ready-made student report" }).click();
-  const template = students.locator('[data-template="Student report"]');
-  await expect(template.locator("[data-field]")).toHaveCount(5);
-  await expect(template.locator('[data-field="Behaviour"]')).toContainText("A rating from 1 to 5");
-  await template.locator("summary", { hasText: "Add a field" }).click();
-  await template.getByLabel("Label").fill("Homework");
-  await template.getByLabel("Type").selectOption({ label: "A choice" });
-  await template.getByLabel("Choices (for a choice)").fill("Always\nSometimes\nRarely");
-  await template.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(own.getByText("Added. Reports started from now on have it.")).toBeVisible();
-  await own.reload();
-  await expect(template.locator('[data-field="Homework"]')).toContainText("Always / Sometimes / Rarely");
-
-  await own.goto("/dashboard/school/teacher-reports");
-  await expect(own.getByRole("heading", { level: 1, name: "Teachers' reports" })).toBeVisible();
-  await expect(own.getByText("Nothing to review. New reports show here when teachers send them.")).toBeVisible();
-});
-
 test("113.3 Staff: a member of staff with their job and hours, and news for the staff only", async () => {
   await own.goto("/dashboard/school/people?role=staff");
   await expect(own).toHaveURL(/\/studio\/project\/school\/people\?role=staff$/);
@@ -341,6 +270,158 @@ test("113.2 Check-in: settings, the gate's code, the board with a correction and
   const today = await request.get(`${api}/school/checkin`);
   expect(today.status()).toBe(403);
   expect((await today.json()).code).toBe("feature_disabled");
+});
+
+test("113.5 The syllabus written and imported; the class behind the plan, then a lesson covered", async () => {
+  await own.goto("/dashboard/school/syllabus");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/syllabus$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Syllabus" })).toBeVisible();
+  const syllabus = own.getByRole("region", { name: "Mathematics · Grade 5" });
+  await expect(syllabus.getByText("No units yet.", { exact: false })).toBeVisible();
+  await syllabus.getByLabel("Unit", { exact: true }).fill("Fractions");
+  await syllabus.locator("details", { hasText: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
+  await own.reload();
+  await expect(syllabus.getByText("Unit 1: Fractions")).toBeVisible();
+  const addTopic = syllabus.locator("details", { hasText: "Add a lesson or topic" });
+  await addTopic.getByLabel("Lesson or topic").fill("Halves");
+  await addTopic.getByLabel("Planned from").fill("2025-09-07");
+  await addTopic.getByLabel("To", { exact: true }).fill("2025-09-11");
+  await addTopic.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
+  // A second lesson from a sheet.
+  const sheet = own.getByRole("region", { name: "Import from a sheet" });
+  await sheet.getByLabel("CSV file").setInputFiles({
+    name: "syllabus.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from("grade,subject,unit,topic,from,to\nGrade 5,Mathematics,Fractions,Quarters,2025-09-14,2025-09-18\nGrade 9,Mathematics,Algebra,Equations,2025-09-14,2025-09-18\n"),
+  });
+  await sheet.getByRole("button", { name: "Import" }).click();
+  await expect(own.getByText("Imported: 1 added, 0 updated.")).toBeVisible();
+  await expect(own.getByText("Line 3: none of your classes is in the grade Grade 9.")).toBeVisible();
+  await own.reload();
+  await expect(syllabus.locator("[data-topic]")).toHaveCount(2);
+
+  await own.goto("/dashboard/school/progress");
+  await expect(own.getByRole("heading", { level: 1, name: "Progress" })).toBeVisible();
+  const row = own.locator('[data-row="Grade 5 A · Mathematics"]');
+  await expect(row).toContainText("0 of 2 (0%)");
+  await expect(row).toContainText("Behind the plan by 2 lessons");
+  await row.getByRole("link", { name: "Grade 5 A" }).click();
+  await expect(own.getByText("0 of 2 covered (0%); the plan says 100% by today.")).toBeVisible();
+  const halves = own.locator('[data-topic="Halves"]');
+  await halves.locator("summary", { hasText: "Mark covered" }).click();
+  await halves.getByLabel("Note (optional)").fill("With paper folding.");
+  await halves.locator('button[type="submit"]', { hasText: "Mark covered" }).click();
+  // Its form goes once the lesson is covered (its "Saved." with it): the lesson says Covered.
+  await expect(halves.getByText("Covered", { exact: true })).toBeVisible();
+  await expect(halves).toContainText("covered on");
+  await own.reload();
+  await expect(own.getByText("Behind the plan by 1 lesson", { exact: true })).toBeVisible();
+  await expect(halves).toContainText("With paper folding.");
+});
+
+test("113.5 Report templates and the teachers' reports", async () => {
+  await own.goto("/dashboard/school/report-templates");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/report-templates$/);
+  const students = own.getByRole("region", { name: "Reports on a student" });
+  await students.getByRole("button", { name: "Add a ready-made student report" }).click();
+  const template = students.locator('[data-template="Student report"]');
+  await expect(template.locator("[data-field]")).toHaveCount(5);
+  await expect(template.locator('[data-field="Behaviour"]')).toContainText("A rating from 1 to 5");
+  await template.locator("summary", { hasText: "Add a field" }).click();
+  await template.getByLabel("Label").fill("Homework");
+  await template.getByLabel("Type").selectOption({ label: "A choice" });
+  await template.getByLabel("Choices (for a choice)").fill("Always\nSometimes\nRarely");
+  await template.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Added. Reports started from now on have it.")).toBeVisible();
+  await own.reload();
+  await expect(template.locator('[data-field="Homework"]')).toContainText("Always / Sometimes / Rarely");
+
+  await own.goto("/dashboard/school/teacher-reports");
+  await expect(own.getByRole("heading", { level: 1, name: "Teachers' reports" })).toBeVisible();
+  await expect(own.getByText("Nothing to review. New reports show here when teachers send them.")).toBeVisible();
+});
+
+/** A day from today (UTC), as the date fields take it. */
+const dayFromToday = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+
+test("113.8 Calendar: an event and a break, in the month and the list", async () => {
+  await own.goto("/dashboard/school/calendar");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/calendar$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Calendar" })).toBeVisible();
+  await expect(own.getByText("Nothing on the calendar this month.")).toBeVisible();
+  await own.getByLabel("Title").fill("Science fair");
+  await own.getByLabel("From", { exact: true }).fill(dayFromToday(2));
+  await own.getByLabel("Starts", { exact: true }).fill("09:00");
+  await own.getByLabel("Ends (optional)").fill("12:00");
+  await own.getByLabel("Place (optional)").fill("The school hall");
+  await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved. It is on the calendar in the app.")).toBeVisible();
+
+  await own.goto("/dashboard/school/calendar?view=list");
+  await own.getByText("Add to the calendar").click();
+  await own.getByLabel("What it is").selectOption({ label: "Holiday or break (no school)" });
+  await own.getByLabel("Title").fill("Mid-term break");
+  await own.getByLabel("From", { exact: true }).fill(dayFromToday(10));
+  await own.getByLabel("To (optional)").fill(dayFromToday(14));
+  await own.getByLabel("For", { exact: true }).selectOption({ label: "All of Grade 5" });
+  await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved. It is on the calendar in the app.")).toBeVisible();
+  await own.reload();
+  const list = own.locator("[data-events]");
+  await expect(list.locator("[data-event]")).toHaveCount(2);
+  await expect(list).toContainText("Science fair");
+  await expect(list).toContainText("09:00 to 12:00 · The school hall · The whole school");
+  await expect(list).toContainText(`Mid-term break`);
+  await expect(list).toContainText(`${dayFromToday(10)} to ${dayFromToday(14)} · All day · All of Grade 5`);
+});
+
+test("113.8 Exams: a draft, then published to the class", async () => {
+  await own.goto("/dashboard/school/exams");
+  await expect(own.getByRole("heading", { level: 1, name: "Exams" })).toBeVisible();
+  await own.getByLabel("Class or grade").selectOption({ label: "Class Grade 5 A" });
+  await own.getByLabel("Subject", { exact: true }).selectOption({ label: "Mathematics" });
+  await own.getByLabel("Date", { exact: true }).fill(dayFromToday(7));
+  await own.getByLabel("Minutes").fill("90");
+  await own.getByLabel("Room (optional)").fill("B2");
+  await own.getByLabel("What it covers and what to bring (optional)").fill("Units 1 to 3.");
+  await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Added as a draft. Publish the timetable when it is ready.")).toBeVisible();
+  await own.reload();
+  const exam = own.locator("[data-exams=upcoming] [data-exam]");
+  await expect(exam).toContainText("Draft");
+  await expect(exam).toContainText("Class Grade 5 A · 09:00 to 10:30 · 90 minutes · Room B2");
+  await own.getByRole("region", { name: "Publish the draft" }).getByRole("button", { name: "Publish the draft" }).click();
+  await expect(own.getByText("Published 1 exam(s). Students and families were told in the app.")).toBeVisible();
+  await own.reload();
+  await expect(exam).toContainText("Published");
+  await expect(own.getByRole("region", { name: "Publish the draft" })).toHaveCount(0);
+});
+
+test("113.8 Behaviour: the suggested categories, a merit from the school, the report and whom parents are told of", async () => {
+  await own.goto("/dashboard/school/behaviour");
+  await expect(own.getByRole("heading", { level: 1, name: "Behaviour" })).toBeVisible();
+  const categories = own.locator("[data-categories]");
+  await expect(categories).toContainText("Helping others");
+  await expect(categories).toContainText("Positive · +2 points");
+  await expect(categories).toContainText("Disrupting the class");
+  await own.getByLabel("Student", { exact: true }).selectOption({ label: "Omar Hassan · Grade 5 A" });
+  await own.getByLabel("Category", { exact: true }).selectOption({ label: "Helping others (+2)" });
+  await own.getByLabel("Note (optional)").fill("Helped a classmate.");
+  await own.getByRole("region", { name: "Write a merit or a note" }).getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Saved. The student's parents see it in the app.")).toBeVisible();
+  await own.reload();
+  const students = own.locator("[data-report=students]");
+  await expect(students.locator("tr", { hasText: "Omar Hassan" })).toContainText("+2");
+  await expect(own.locator("[data-notes]")).toContainText("Omar Hassan · Helping others (+2)");
+  await expect(own.locator("[data-notes]")).toContainText("From the school");
+
+  await own.getByRole("combobox", { name: "Parents are told" }).selectOption({ label: "Of negative notes only" });
+  await own.getByRole("region", { name: "Parents are told" }).getByRole("button", { name: "Save" }).click();
+  await expect(own.getByRole("region", { name: "Parents are told" }).getByText("Saved.", { exact: true })).toBeVisible();
+  await own.reload();
+  await expect(own.getByRole("combobox", { name: "Parents are told" })).toHaveValue("negative");
 });
 
 test("113.10 Buses & routes: a route with its driver, a stop on the map and a student on it; the live map without buses", async ({ request }) => {

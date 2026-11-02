@@ -63,6 +63,7 @@ import { classroomReportsRoute, studentReports } from "./reports-hosted";
 // 113.10 The bus; 113.11 the library.
 import { handleBusRoute, schoolRolesOf, studentBus } from "./bus-hosted";
 import { handleLibraryRoute } from "./library-hosted";
+import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, studentExams } from "./hosted-calendar";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -147,6 +148,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
   if (route === "GET /school/announcements") return announcements(ctx, request, member);
   // 113.2 Checking in and out.
   if (path[1] === "checkin") return checkinRoute(ctx, request, member, settings);
+  // 113.8 The calendar the person sees (a parent's per child).
+  if (route === "GET /school/calendar") return schoolCalendar(ctx, request, member, settings);
   if (path[1] === "uploads") return uploads(ctx, request);
   // 113.10 The bus's crew; 113.11 the library.
   if (path[1] === "bus") return (await handleBusRoute(ctx, request, member, settings))!;
@@ -174,6 +177,9 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
     // 113.10 The student's bus, live while it runs.
     if (request.method === "GET" && tail === "bus") return studentBus(ctx, student, settings);
+    // 113.8 The exams' timetable and the behaviour record.
+    if (request.method === "GET" && tail === "exams") return studentExams(ctx, student, settings);
+    if (request.method === "GET" && tail === "behaviour") return studentBehaviour(ctx, request, student);
     if (request.method === "POST" && path[3] === "fees" && path[5] === "pay" && path.length === 6) return pay(ctx, request, student, idOf(path[4]), settings);
   }
   return error(404, "not_found", "Page not found.");
@@ -409,6 +415,9 @@ async function classroomRoute(ctx: SchoolContext, request: ConnectorRequest, tea
   // 113.5 The syllabus of the teacher's classes, and their reports to the administration.
   const reports = await classroomReportsRoute(ctx, request, teacher, teaching, settings);
   if (reports) return reports;
+  // 113.8 Exams, behaviour.
+  const life = await classroomLifeRoute(ctx, request, teacher, teaching.classIds, settings);
+  if (life) return life;
   const id = idOf(path[2]);
   if (path[1] === "classes" && id !== null && teaching.classIds.includes(id)) {
     if (route === `GET /classroom/classes/${id}/students`) return classStudents(ctx, teaching, id);
@@ -481,6 +490,8 @@ async function classAttendance(ctx: SchoolContext, request: ConnectorRequest, te
   return ok({
     class_id: classId,
     date: day,
+    // 113.8 A holiday or a break: the register says so (and nobody is told of an absence).
+    day_off: await registerDayOff(ctx, classId, day),
     students: students.map((s) => ({ student: studentJson(s, teaching.dir, ctx.assetUrl), status: marks.get(s.id)?.status ?? null, note: marks.get(s.id)?.note ?? null })),
   });
 }

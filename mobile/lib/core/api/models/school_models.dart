@@ -620,17 +620,23 @@ class ClassAttendance {
     required this.classId,
     required this.date,
     this.students = const [],
+    this.dayOff,
   });
 
   factory ClassAttendance.fromJson(Json json) => ClassAttendance(
     classId: reqInt(json, 'class_id'),
     date: reqString(json, 'date'),
     students: listOf(json, 'students', AttendanceMark.fromJson),
+    dayOff: (json['day_off'] as Map?)?['title'] as String?,
   );
 
   final int classId;
   final String date;
   final List<AttendanceMark> students;
+
+  /// 113.8 The holiday or break that day falls on (no school); null on a
+  /// school day.
+  final String? dayOff;
 
   bool get taken => students.any((s) => s.status != null);
 }

@@ -124,9 +124,12 @@ import type { TeacherStatus } from "../data/types";
 import type {
   SchoolAssessmentKind,
   SchoolAttendanceStatus,
+  SchoolBehaviourKind,
   SchoolCheckin,
   SchoolCheckinCorrection,
   SchoolCheckinMethod,
+  SchoolEventAudience,
+  SchoolEventKind,
   SchoolFeeStatus,
   SchoolFileRef,
   SchoolLeaveKind,
@@ -3800,3 +3803,95 @@ export const schoolBookHolds = mysqlTable(
   },
   (t) => [index("school_book_holds_book_idx").on(t.bookId, t.status), index("school_book_holds_person_idx").on(t.appId, t.personId)],
 );
+
+// 113.8 The school's calendar, the exams' timetable and behaviour
+
+export const schoolEvents = mysqlTable(
+  "school_events",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolEventKind>(),
+    title: varchar("title", { length: 120 }).notNull(),
+    notes: varchar("notes", { length: 1000 }),
+    startsOn: varchar("starts_on", { length: 10 }).notNull(),
+    endsOn: varchar("ends_on", { length: 10 }).notNull(),
+    startMinute: int("start_minute"),
+    endMinute: int("end_minute"),
+    place: varchar("place", { length: 120 }),
+    audience: varchar("audience", { length: 8 }).notNull().$type<SchoolEventAudience>(),
+    grade: varchar("grade", { length: 80 }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_events_app_idx").on(t.appId, t.startsOn)],
+);
+
+export const schoolExams = mysqlTable(
+  "school_exams",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "cascade" }),
+    grade: varchar("grade", { length: 80 }),
+    subjectId: bigint("subject_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolSubjects.id, { onDelete: "cascade" }),
+    date: varchar("date", { length: 10 }).notNull(),
+    startMinute: int("start_minute").notNull(),
+    durationMinutes: int("duration_minutes").notNull(),
+    room: varchar("room", { length: 40 }),
+    notes: varchar("notes", { length: 2000 }),
+    published: boolean("published").notNull().default(false),
+    publishedAt: time("published_at"),
+    remindedAt: time("reminded_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_exams_app_idx").on(t.appId, t.date)],
+);
+
+export const schoolBehaviourCategories = mysqlTable(
+  "school_behaviour_categories",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 60 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolBehaviourKind>(),
+    points: int("points").notNull(),
+    position: int("position").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("school_behaviour_categories_app_idx").on(t.appId, t.position)],
+);
+
+export const schoolBehaviour = mysqlTable(
+  "school_behaviour",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    classId: bigint("class_id", { mode: "number", unsigned: true }).references(() => schoolClasses.id, { onDelete: "set null" }),
+    categoryId: bigint("category_id", { mode: "number", unsigned: true }).references(() => schoolBehaviourCategories.id, { onDelete: "set null" }),
+    categoryName: varchar("category_name", { length: 60 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<SchoolBehaviourKind>(),
+    points: int("points").notNull(),
+    note: varchar("note", { length: 500 }),
+    teacherId: bigint("teacher_id", { mode: "number", unsigned: true }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("school_behaviour_student_idx").on(t.appId, t.studentId, t.createdAt), index("school_behaviour_class_idx").on(t.appId, t.classId)],
+);
+

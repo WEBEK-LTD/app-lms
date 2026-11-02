@@ -24,6 +24,7 @@ export 'page_models.dart';
 export 'quiz_models.dart';
 export 'restaurant_models.dart';
 export 'rides_models.dart';
+export 'school_life_models.dart';
 export 'school_models.dart';
 export 'school_report_models.dart';
 export 'taxi_models.dart';

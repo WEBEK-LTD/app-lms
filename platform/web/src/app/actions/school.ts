@@ -33,7 +33,7 @@ import {
 } from "@/lib/school/forms";
 import { schoolToday } from "@/lib/school/service";
 import { parseWorkForm, STAFF_LIMITS } from "@/lib/school/staff";
-import { schoolSettingsOf } from "@/lib/school/settings";
+import { schoolSettingsOf, withMainSettings } from "@/lib/school/settings";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 
@@ -481,9 +481,8 @@ export async function saveSchoolSettingsAction(_: FormState, formData: FormData)
   const parsed = parseSchoolSettings(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
   const store = await getStore();
-  // 113.2 The check-in settings, 113.6 the messages' rules are saved on their own forms.
-  const saved = await store.getSchoolSettings(context.app.id);
-  await store.saveSchoolSettings(context.app.id, { ...parsed.value, ...(saved?.checkin ? { checkin: saved.checkin } : {}), ...(saved?.messages ? { messages: saved.messages } : {}) }, new Date());
+  // 113.2, 113.6, 113.8, 113.10, 113.11 What the other pages keep in the settings (check-in, messages, behaviour, the bus, the library) stays.
+  await store.saveSchoolSettings(context.app.id, withMainSettings(await store.getSchoolSettings(context.app.id), parsed.value), new Date());
   await recordStaffChange(context, "Saved the school settings");
   refresh();
   return { ok: true, message: "Saved. The app shows it the next time it opens.", values };
