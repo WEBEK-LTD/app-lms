@@ -59,6 +59,8 @@ import {
   STUDIO_SHADOWS,
   STUDIO_TEXT_ALIGNS,
   STUDIO_VISIBILITY,
+  STUDIO_INDICATORS,
+  STUDIO_CATEGORY_STYLES,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -668,6 +670,8 @@ function parseQuery(ctx: Context, where: string, value: unknown, source: unknown
     sort: oneOf(ctx.sources, source) ? sortFor(source, known) : known,
     limit: Number.isInteger(limit) ? Math.min(Math.max(limit, 1), LAYOUT_LIMITS.maxItems) : 10,
     ids: ids.slice(0, LAYOUT_LIMITS.maxHandPicked),
+    // 112.4 Products on sale only (the other sources have no sale price).
+    ...(v.on_sale === true && source === "products" ? { on_sale: true } : {}),
   };
 }
 
@@ -968,6 +972,8 @@ function parseStudioHeader(ctx: Context, where: string, value: unknown): StudioH
 }
 
 const NODE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+/** 112.4 A coupon's code: letters (any script), numbers, - and _. */
+const COUPON_CODE = /^[\p{L}\p{N}_-]{1,40}$/u;
 
 /** A number in [min, max], rounded to tenths; `undefined` when left out; NaN when wrong. */
 function studioNumber(value: unknown, min: number, max: number): number | undefined {
@@ -1068,6 +1074,14 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   if (self) node.self_align = self;
   const pin = pick("pin", STUDIO_PINS, "choose whether it stays on the screen.");
   if (pin && pin !== "none") node.pin = pin;
+  // 112.4 Its place in a stack, in percent (kept for a stack's children only, below).
+  if (v.place !== undefined && v.place !== null && depth > 0) {
+    const p = record(v.place);
+    const x = studioNumber(p?.x, 0, 100);
+    const y = studioNumber(p?.y, 0, 100);
+    if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) bad("its place needs a spot across and down, 0 to 100%.");
+    else node.place = { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
+  }
 
   // Colours and shape.
   for (const [key, what] of [
@@ -1208,6 +1222,17 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       const perView = num("per_view", 1, 4, "how many show at a time");
       if (perView && perView !== 1) node.per_view = perView;
       if (v.dots === false) node.dots = false;
+      // 112.4 Lines filling over it, or "2 / 5".
+      const indicator = pick("indicator", STUDIO_INDICATORS, "choose how the slider shows where it is.");
+      if (indicator && indicator !== "dots") node.indicator = indicator;
+      break;
+    }
+    case "coupon": {
+      // 112.4 A code people copy with one tap.
+      const code = typeof v.code === "string" ? v.code.trim() : "";
+      if (!code) bad("add the coupon's code.");
+      else if (!COUPON_CODE.test(code)) bad(`the code can have letters, numbers, - and _, up to ${L.codeChars}.`);
+      else node.code = code;
       break;
     }
     case "row":
@@ -1234,6 +1259,11 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       node.query = parseQuery(ctx, where, v.query, v.source);
       const columns = num("columns", 1, L.maxColumns, "the columns");
       if (columns) node.columns = Math.round(columns);
+      // 112.4 The products this person opened lately, kept on the phone.
+      if (v.recent === true) {
+        if (v.source !== "products") bad("only products can show what was seen lately.");
+        else node.recent = true;
+      }
       if (v.card !== undefined && v.card !== null) {
         if (card) bad("a card can't hold another list.");
         else {
@@ -1243,10 +1273,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       }
       break;
     }
-    case "categories":
+    case "categories": {
       if (!oneOf(ctx.categorySources, v.source)) bad("choose whose categories to show.");
       node.source = v.source as ItemSource;
+      // 112.4 Chips, tiles, pictures or round pictures.
+      const style = pick("style", STUDIO_CATEGORY_STYLES, "choose how the categories look.");
+      if (style && style !== "chips") node.style = style;
+      const columns = num("columns", 1, L.maxColumns, "the columns");
+      if (columns && style === "pictures") node.columns = Math.round(columns);
       break;
+    }
     case "form": {
       const f = record(v.form);
       if (!f) {
@@ -1366,7 +1402,9 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     node.children = raw
       .slice(0, L.maxChildren)
       .map((child, i) => parseNode(ctx, `${where} › ${i + 1}`, child, state, depth + 1, card))
-      .filter((child): child is StudioNode => child !== null);
+      .filter((child): child is StudioNode => child !== null)
+      // 112.4 A place is for what lies on a stack.
+      .map((child) => (child.place && node.type !== "stack" ? (({ place: _p, ...rest }) => (void _p, rest))(child) : child));
   } else if (Array.isArray(v.children) && v.children.length) bad("only rows, columns and other layouts hold elements.");
   return node;
 }

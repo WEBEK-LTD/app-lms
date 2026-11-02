@@ -826,7 +826,9 @@ class ItemsBlock extends PageBlock {
   final List<PageItem> items;
 }
 
-enum CategoriesStyle { chips, tiles }
+/// 112.4 Studio's categories also come as [pictures] in a grid and as
+/// [circles], round pictures in a row that scrolls.
+enum CategoriesStyle { chips, tiles, pictures, circles }
 
 class CategoriesBlock extends PageBlock {
   const CategoriesBlock({
@@ -835,11 +837,15 @@ class CategoriesBlock extends PageBlock {
     required this.source,
     required this.categories,
     this.style = CategoriesStyle.chips,
+    this.columns = 2,
   });
 
   final ItemSource? source;
   final CategoriesStyle style;
   final List<Category> categories;
+
+  /// 112.4 For [CategoriesStyle.pictures].
+  final int columns;
 }
 
 class SearchBlock extends PageBlock {
@@ -1767,6 +1773,31 @@ enum StudioNodeType {
   // 107.3 A countdown, and a list with an icon on each line.
   countdown,
   bullets,
+  // 112.4 A code people copy with one tap.
+  coupon,
+}
+
+/// 112.4 How a slider shows where it is: dots under it, a line per slide
+/// filling over it, or "2 / 5" over it.
+enum StudioIndicator { dots, progress, count }
+
+/// 112.4 Where a child of a stack sits, in percent from its start and top.
+class StudioPlace {
+  const StudioPlace(this.x, this.y);
+
+  static StudioPlace? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final x = value['x'];
+    final y = value['y'];
+    if (x is! num || y is! num) return null;
+    return StudioPlace(
+      x.toDouble().clamp(0, 100).toDouble(),
+      y.toDouble().clamp(0, 100).toDouble(),
+    );
+  }
+
+  final double x;
+  final double y;
 }
 
 /// 103R `StudioSize`: fill the parent's space, hug the content, or [fixed]
@@ -2035,6 +2066,11 @@ class StudioNode {
     this.intervalMs = 4000,
     this.perView = 1,
     this.dots = true,
+    this.indicator = StudioIndicator.dots,
+    this.place,
+    this.categoriesStyle = CategoriesStyle.chips,
+    this.code,
+    this.recent = false,
     this.scroll = false,
     this.source,
     this.layout = ItemsLayout.grid,
@@ -2123,6 +2159,19 @@ class StudioNode {
         intervalMs: intOr(json, 'interval_ms', 4000).clamp(1500, 20000),
         perView: n('per_view', 1, 1, 4),
         dots: boolOr(json, 'dots', true),
+        indicator: enumFrom(
+          StudioIndicator.values,
+          json['indicator'],
+          StudioIndicator.dots,
+        ),
+        place: StudioPlace.tryParse(json['place']),
+        categoriesStyle: enumFrom(
+          CategoriesStyle.values,
+          json['style'],
+          CategoriesStyle.chips,
+        ),
+        code: optString(json, 'code'),
+        recent: boolOr(json, 'recent', false),
         scroll: boolOr(json, 'scroll', false),
         source: enumOrNull(ItemSource.values, json['source']),
         layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
@@ -2214,6 +2263,22 @@ class StudioNode {
   final int intervalMs;
   final double perView;
   final bool dots;
+
+  /// 112.4 For a slider: how it shows where it is.
+  final StudioIndicator indicator;
+
+  /// 112.4 For a child of a stack: its place, in percent.
+  final StudioPlace? place;
+
+  /// 112.4 For categories: chips, tiles, pictures or circles.
+  final CategoriesStyle categoriesStyle;
+
+  /// 112.4 For a coupon: the code people copy.
+  final String? code;
+
+  /// 112.4 For a list of products: the ones this person opened lately on
+  /// this phone, filled by the app.
+  final bool recent;
 
   /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
   final bool scroll;

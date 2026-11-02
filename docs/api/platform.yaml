@@ -1511,7 +1511,10 @@ components:
             and `items` and `categories` elements carrying a `query` (as the
             `items` and `categories` blocks) instead of their lists. The
             plugin fills the lists from the site, leaves out an element whose
-            list it can't serve, and serves the rest as it is.
+            list it can't serve, and serves the rest as it is. 112.4 An
+            `items` element with `recent` is served with no `items` (the app
+            keeps what was opened lately), and categories carry their
+            pictures.
 
     LayoutBlock:
       type: object
@@ -1565,6 +1568,7 @@ components:
           properties:
             category_id: { type: [string, 'null'] }
             featured: { type: boolean }
+            on_sale: { type: boolean, default: false, description: "112.4 For products: only those on sale." }
             sort: { type: string, enum: [newest, popular, price_asc, price_desc], default: newest }
             limit: { type: integer, minimum: 1, maximum: 30 }
             ids:

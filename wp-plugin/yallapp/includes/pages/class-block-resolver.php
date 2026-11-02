@@ -456,7 +456,7 @@ class Block_Resolver {
 	 * Runs an items query.
 	 *
 	 * @param string $source Source the site serves.
-	 * @param array  $query  Query: ids, category_id, featured, sort, limit.
+	 * @param array  $query  Query: ids, category_id, featured, on_sale (112.4), sort, limit.
 	 * @return array[] Item shapes.
 	 */
 	public function items( $source, array $query ) {
@@ -470,6 +470,8 @@ class Block_Resolver {
 			'ids'         => array_slice( array_values( array_unique( $ids ) ), 0, self::MAX_ITEMS ),
 			'category_id' => isset( $query['category_id'] ) && is_scalar( $query['category_id'] ) ? absint( $query['category_id'] ) : 0,
 			'featured'    => ! empty( $query['featured'] ),
+			// 112.4 Products on sale only.
+			'on_sale'     => ! empty( $query['on_sale'] ),
 			'sort'        => self::choice( $query['sort'] ?? null, self::SORTS, 'newest' ),
 			'limit'       => isset( $query['limit'] ) && is_numeric( $query['limit'] ) ? max( 1, min( self::MAX_ITEMS, (int) $query['limit'] ) ) : 10,
 		);
@@ -587,6 +589,7 @@ class Block_Resolver {
 		} else {
 			$args['featured'] = $query['featured'];
 			$args['category'] = $query['category_id'];
+			$args['on_sale']  = ! empty( $query['on_sale'] );
 		}
 		$items = array();
 		foreach ( ( new Catalog() )->products( $args )['items'] as $product ) {
@@ -833,11 +836,16 @@ class Block_Resolver {
 		}
 		$categories = array();
 		foreach ( $terms as $term ) {
-			$categories[] = array(
+			$category = array(
 				'id'    => (int) $term['id'],
 				'name'  => (string) $term['name'],
 				'count' => (int) $term['count'],
 			);
+			// 112.4 A product category's picture, for categories shown as pictures.
+			if ( array_key_exists( 'image_url', $term ) ) {
+				$category['image_url'] = is_string( $term['image_url'] ) ? $term['image_url'] : null;
+			}
+			$categories[] = $category;
 		}
 		return $categories;
 	}
@@ -967,7 +975,7 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon' );
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
 
 	/**
@@ -1103,6 +1111,9 @@ class Block_Resolver {
 			'layout'        => array( 'list', 'grid', 'carousel' ),
 			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
+			// 112.4 How a slider shows where it is, and how categories look.
+			'indicator'     => array( 'dots', 'progress', 'count' ),
+			'style'         => array( 'chips', 'tiles', 'pictures', 'circles' ),
 		);
 		foreach ( $choices as $field => $values ) {
 			if ( isset( $raw[ $field ] ) && in_array( $raw[ $field ], $values, true ) ) {
@@ -1145,6 +1156,13 @@ class Block_Resolver {
 			$node['overlay'] = array(
 				'color'   => self::hex( $raw['overlay']['color'] ),
 				'opacity' => round( max( 0, min( 1, (float) $raw['overlay']['opacity'] ) ), 2 ),
+			);
+		}
+		// 112.4 Where a child of a stack sits, in percent.
+		if ( isset( $raw['place']['x'], $raw['place']['y'] ) && is_numeric( $raw['place']['x'] ) && is_numeric( $raw['place']['y'] ) ) {
+			$node['place'] = array(
+				'x' => round( max( 0, min( 100, (float) $raw['place']['x'] ) ), 1 ),
+				'y' => round( max( 0, min( 100, (float) $raw['place']['y'] ) ), 1 ),
 			);
 		}
 		if ( isset( $raw['gradient']['from'], $raw['gradient']['to'] ) && null !== self::hex( $raw['gradient']['from'] ) && null !== self::hex( $raw['gradient']['to'] ) ) {
@@ -1207,7 +1225,32 @@ class Block_Resolver {
 					return null;
 				}
 				break;
+			case 'coupon':
+				// 112.4 A code people copy: letters, numbers, - and _.
+				$code = is_string( $raw['code'] ?? null ) ? trim( $raw['code'] ) : '';
+				if ( ! preg_match( '/^[\p{L}\p{N}_-]{1,40}$/u', $code ) ) {
+					return null;
+				}
+				$node['code'] = $code;
+				break;
 			case 'items':
+				// 112.4 What this person opened lately is kept on the phone: sent without entries.
+				if ( true === ( $raw['recent'] ?? false ) ) {
+					if ( 'products' !== ( $raw['source'] ?? null ) || ! $this->serves( 'products' ) ) {
+						return null;
+					}
+					$node['source'] = 'products';
+					$node['recent'] = true;
+					$node['items']  = array();
+					$node['layout'] = $node['layout'] ?? 'carousel';
+					if ( is_array( $raw['card'] ?? null ) ) {
+						$card = $this->studio_node( $raw['card'], $depth + 1, $language );
+						if ( null !== $card ) {
+							$node['card'] = $card;
+						}
+					}
+					return $node;
+				}
 				$list = $this->items_block( $raw );
 				if ( ! $list ) {
 					return null;

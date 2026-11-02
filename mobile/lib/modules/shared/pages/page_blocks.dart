@@ -988,6 +988,120 @@ class _Categories extends ConsumerWidget {
         ),
       );
     }
+    // 112.4 Round pictures with the name under them, in a row that scrolls.
+    if (block.style == CategoriesStyle.circles) {
+      return SizedBox(
+        height: 104 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.4),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          itemCount: block.categories.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 12),
+          itemBuilder: (context, i) {
+            final c = block.categories[i];
+            return Semantics(
+              button: true,
+              label: '${c.name}, ${l10n.itemCount(c.count)}',
+              excludeSemantics: true,
+              child: InkWell(
+                key: ValueKey('category-circle-${c.id}'),
+                borderRadius: BorderRadius.circular(36),
+                onTap: open(c),
+                child: SizedBox(
+                  width: 72,
+                  child: Column(
+                    children: [
+                      ClipOval(
+                        child: SizedBox.square(
+                          dimension: 64,
+                          child: _CategoryPicture(category: c, index: i),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        c.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+    // 112.4 Pictures in a grid, the name over a shade at the bottom.
+    if (block.style == CategoriesStyle.pictures) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const spacing = 10.0;
+          final columns = block.columns.clamp(1, 4);
+          final width =
+              (constraints.maxWidth - spacing * (columns - 1)) / columns;
+          return Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [
+              for (final (i, c) in block.categories.indexed)
+                SizedBox(
+                  key: ValueKey('category-picture-${c.id}'),
+                  width: width,
+                  height: width,
+                  child: Semantics(
+                    button: true,
+                    label: '${c.name}, ${l10n.itemCount(c.count)}',
+                    excludeSemantics: true,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          _CategoryPicture(category: c, index: i),
+                          const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.center,
+                                end: Alignment.bottomCenter,
+                                colors: [Color(0x00000000), Color(0x8C000000)],
+                              ),
+                            ),
+                          ),
+                          PositionedDirectional(
+                            start: 10,
+                            end: 10,
+                            bottom: 8,
+                            child: Text(
+                              c.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Material(
+                            type: MaterialType.transparency,
+                            child: InkWell(onTap: open(c)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         const spacing = 10.0;
@@ -1038,6 +1152,34 @@ class _Categories extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// 112.4 A category's picture, or a colour of the app's when it has none.
+class _CategoryPicture extends StatelessWidget {
+  const _CategoryPicture({required this.category, required this.index});
+
+  final Category category;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = category.imageUrl;
+    if (url != null) return AppNetworkImage(url: url, seed: category.id);
+    final p = context.palette;
+    return ColoredBox(
+      color: p.placeholderFor(index),
+      child: Center(
+        child: Text(
+          category.name.characters.take(1).toString().toUpperCase(),
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: p.isDark ? p.text : BrandColors.midnight,
+          ),
+        ),
+      ),
     );
   }
 }

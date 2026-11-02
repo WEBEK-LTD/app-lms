@@ -38,6 +38,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // 107.3 A countdown to an offer's end, and a list with an icon on each line.
   { type: "countdown", group: "content", icon: "timer", keywords: "countdown timer offer ends sale" },
   { type: "bullets", group: "content", icon: "list", keywords: "list bullets points features checklist" },
+  // 112.4 A code people copy with one tap.
+  { type: "coupon", group: "content", icon: "confirmation_number", keywords: "coupon code discount promo voucher copy offer" },
   { type: "icon", group: "more", icon: "emoji_symbols", keywords: "icon symbol" },
   { type: "categories", group: "more", icon: "label", keywords: "categories chips tags filter" },
   { type: "search", group: "more", icon: "search", keywords: "search field" },
@@ -131,5 +133,7 @@ export function newNode(type: StudioNodeType, options: { source: ItemSource | nu
     }
     case "bullets":
       return { id, type, text: options.text("bullets"), icon: "check_circle", icon_size: 20, gap: 8, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
+    case "coupon":
+      return { id, type, code: "SAVE10", radius: 10, color: options.brand, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
   }
 }
