@@ -6094,4 +6094,107 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get taxiPlaceFailed => 'This place can\'t be used. Choose another.';
+
+  @override
+  String get assignmentTitle => 'Assignment';
+
+  @override
+  String assignmentOutOf(int points) {
+    return 'Out of $points points';
+  }
+
+  @override
+  String assignmentPassScore(int points) {
+    return 'Pass score: $points';
+  }
+
+  @override
+  String get assignmentWaiting =>
+      'Handed in. Waiting for your teacher\'s grade.';
+
+  @override
+  String get assignmentReturned =>
+      'Your teacher sent it back. Change it and hand it in again.';
+
+  @override
+  String assignmentGraded(int score, int max) {
+    return 'Graded: $score of $max';
+  }
+
+  @override
+  String get assignmentBelowPass => 'Below the pass score.';
+
+  @override
+  String get assignmentFeedback => 'Your teacher\'s note';
+
+  @override
+  String get liveClass => 'Live class';
+
+  @override
+  String get liveClasses => 'Live classes';
+
+  @override
+  String get liveUpcoming => 'Coming up';
+
+  @override
+  String get livePast => 'Past';
+
+  @override
+  String get liveNow => 'On now';
+
+  @override
+  String get liveEnded => 'This live class is over.';
+
+  @override
+  String get liveJoin => 'Join the live class';
+
+  @override
+  String get liveJoinSoon => 'You can join from 15 minutes before it starts.';
+
+  @override
+  String get liveStartsSoon => 'Starts soon. You can join now.';
+
+  @override
+  String get liveRecording => 'Watch the recording';
+
+  @override
+  String get liveNone => 'No live classes coming up.';
+
+  @override
+  String get liveNonePast => 'No past live classes yet.';
+
+  @override
+  String get lockedPreviousNotDone =>
+      'Finish what comes before it in the course first.';
+
+  @override
+  String get lockedAccessEnded => 'Your access to this course has ended.';
+
+  @override
+  String get afterPrevious => 'After the one before';
+
+  @override
+  String get shortAnswerHint => 'Write your answer';
+
+  @override
+  String get quizReviewTitle => 'Your answers';
+
+  @override
+  String quizReviewYours(String answer) {
+    return 'Your answer: $answer';
+  }
+
+  @override
+  String quizReviewRight(String answer) {
+    return 'Right answer: $answer';
+  }
+
+  @override
+  String get quizReviewNone => 'No answer';
+
+  @override
+  String get quizReviewCorrect => 'Right';
+
+  @override
+  String get quizReviewWrong => 'Wrong';
 }

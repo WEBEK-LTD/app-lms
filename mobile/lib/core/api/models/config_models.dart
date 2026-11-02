@@ -430,6 +430,8 @@ class SiteFeatures {
     this.offline = false,
     this.downloads = false,
     this.memberships = false,
+    this.assignments = false,
+    this.liveClasses = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -448,6 +450,8 @@ class SiteFeatures {
     offline: boolOr(json, 'offline', false),
     downloads: boolOr(json, 'downloads', false),
     memberships: boolOr(json, 'memberships', false),
+    assignments: boolOr(json, 'assignments', false),
+    liveClasses: boolOr(json, 'live_classes', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -476,6 +480,11 @@ class SiteFeatures {
   /// 90.3 The website gives access through memberships, subscriptions or
   /// groups: the account lists the student's (`GET /me/subscriptions`).
   final bool memberships;
+
+  /// 112.5 Courses managed in Yallapp have assignments and live classes
+  /// (the account lists the student's live classes).
+  final bool assignments;
+  final bool liveClasses;
 }
 
 enum SignupField { name, email, city }

@@ -28,6 +28,9 @@ abstract final class Paths {
   static const subscriptions = '/account/memberships';
   static const quizResults = '/account/quiz-results';
 
+  /// 112.5 The student's live classes.
+  static const liveClasses = '/account/live-classes';
+
   /// 45 Lessons saved for offline viewing.
   static const downloads = '/account/downloads';
   static const orders = '/account/orders';
@@ -121,6 +124,10 @@ abstract final class Paths {
   static String course(int id) => '/course/$id';
   static String lesson(int id) => '/lesson/$id';
   static String quiz(int id) => '/quiz/$id';
+
+  /// 112.5 An assignment and a live class of a course managed in Yallapp.
+  static String assignment(int id) => '/assignment/$id';
+  static String liveSession(int id) => '/live/$id';
   static String question(int id) => '/question/$id';
   static String product(int id) => '/product/$id';
 
@@ -201,6 +208,9 @@ abstract final class Paths {
       location.startsWith('/appointment') ||
       location.startsWith('/question/') ||
       location.startsWith('/quiz/') ||
+      // 112.5 An assignment and a live class are the student's.
+      location.startsWith('/assignment/') ||
+      location.startsWith('/live/') ||
       // 28 A ticket is the signed-in user's own.
       location.startsWith('/ticket/') ||
       // 104 A shipment and a courier's job too.
