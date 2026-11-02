@@ -8,7 +8,10 @@ import { E2E } from "../../playwright.config";
  * certificate for students who finish (90.1), and each student's progress
  * and quiz results for the teacher, with the CSV file (90.2). 112.5 An
  * assignment and a live class added and moved, the assignment handed in
- * from the app and graded, and the grade in the gradebook.
+ * from the app and graded, and the grade in the gradebook. 113.7 The rules
+ * to complete the course, a rubric with another try, a timed exam, a
+ * learning path, points and badges with the leaderboard, notes and the
+ * lesson's discussion, pinned from Questions.
  */
 test.describe.configure({ mode: "serial" });
 // Its own address, so the sign-up and sign-in limits per IP don't reach the other specs.
@@ -249,4 +252,126 @@ test("112.5 a student hands the assignment in from the app, the academy grades i
   });
   await own.goto(`/dashboard/courses/${courseId}/students`);
   await expect(own.locator("tr", { hasText: "Fatma" })).toContainText("Introduce yourself 18/20");
+});
+
+test("113.7 the academy sets the rules to complete the course, a rubric with another try, a timed exam and a learning path", async () => {
+  await own.goto(`/dashboard/courses/${courseId}`);
+  const details = own.getByRole("region", { name: "Details" });
+  await details.getByLabel("Students complete it when they finish").selectOption("quizzes");
+  await details.getByLabel("Minimum final score (%)").fill("120");
+  await details.getByRole("button", { name: "Save course" }).click();
+  await expect(details.getByText("Enter a score from 1 to 100, or leave it empty.")).toBeVisible();
+  await details.getByLabel("Minimum final score (%)").fill("50");
+  await details.getByRole("button", { name: "Save course" }).click();
+  await expect(details.getByText("Saved “Turkish in a Week”.")).toBeVisible();
+
+  const curriculum = own.getByRole("region", { name: "Sections and lessons" });
+  const addAssignment = curriculum.locator("details", { hasText: "Add an assignment to Hello" });
+  await addAssignment.getByText("Add an assignment to Hello").click();
+  await addAssignment.getByLabel("Assignment title").fill("Describe your city");
+  await addAssignment.getByLabel("Instructions").fill("Five sentences about where you live.");
+  await addAssignment.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4");
+  await addAssignment.getByRole("button", { name: "Add assignment" }).click();
+  await expect(addAssignment.getByText("Give “Spelling” at least two levels.")).toBeVisible();
+  await addAssignment.getByLabel("Rubric").fill("Content\n- Excellent | 6\n- Good | 3\n\nSpelling\n- No mistakes | 4\n- A few | 1");
+  await addAssignment.getByLabel("Times it can be handed in").fill("2");
+  await addAssignment.getByRole("button", { name: "Add assignment" }).click();
+  await expect(curriculum.getByText("assignment · 10 points · rubric · 2 tries")).toBeVisible();
+
+  const addQuiz = curriculum.locator("details", { hasText: "Add a quiz to Hello" });
+  await addQuiz.getByText("Add a quiz to Hello").click();
+  await addQuiz.getByLabel("Quiz title").fill("Final exam");
+  await addQuiz.getByLabel("Questions", { exact: true }).fill("Q: Teşekkürler means\n* Thank you\n- Sorry");
+  await addQuiz.getByText("Timed exam").click();
+  await addQuiz.getByLabel("This quiz is an exam").check();
+  await addQuiz.getByLabel("Show students their results once it closes").check();
+  await addQuiz.getByRole("button", { name: "Add quiz" }).click();
+  await expect(addQuiz.getByText("Choose when it closes, to show the results then.")).toBeVisible();
+  await addQuiz.getByLabel("Closes on").fill("2030-01-01");
+  await addQuiz.getByLabel("Time limit (minutes)").fill("30");
+  await addQuiz.getByRole("button", { name: "Add quiz" }).click();
+  await expect(curriculum.getByText("1 question · pass mark 70% · exam")).toBeVisible();
+
+  // A second course, after the first in a path taken in order.
+  await own.goto("/dashboard/courses");
+  const add = own.getByRole("region", { name: "Add a course" });
+  await add.getByLabel("Title").fill("Turkish in a Month");
+  await add.getByRole("button", { name: "Add course" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Turkish in a Month" })).toBeVisible();
+  await own.goto("/dashboard/courses");
+  await own.getByRole("link", { name: "Paths, points and badges" }).click();
+  await expect(own.getByRole("heading", { level: 1, name: "Learning paths, points and badges" })).toBeVisible();
+  await own.getByLabel("Path title").fill("Turkish from zero");
+  await own.getByLabel("Turkish in a Month", { exact: true }).check();
+  await own.getByLabel("Place of Turkish in a Month in the path").fill("2");
+  await own.getByLabel("Turkish in a Week", { exact: true }).check();
+  await own.getByLabel("Place of Turkish in a Week in the path").fill("1");
+  await own.getByRole("button", { name: "Add path" }).click();
+  await expect(own.locator("[data-path]")).toContainText("Turkish in a Week → Turkish in a Month");
+  const points = own.getByRole("region", { name: "Points and badges" });
+  await points.getByLabel("Show points, badges and leaderboards in the app").check();
+  await points.getByRole("button", { name: "Save" }).click();
+  await expect(points.getByText("Points and badges are on in your app.")).toBeVisible();
+});
+
+test("113.7 a student follows the path, keeps notes, asks under the lesson and hands the rubric assignment in twice", async ({ request }) => {
+  const student = await signUp(request, "Gul", 3);
+  const config = (await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json()) as { features: Record<string, unknown> };
+  expect(config.features).toMatchObject({ learning_paths: true, gamification: true, notes: true, lesson_discussion: true });
+  const paths = (await (await request.get(`${api}/learning-paths`, { headers: student })).json()).items as { courses: { course: { id: number }; locked: boolean }[] }[];
+  expect(paths[0]!.courses.map((c) => c.locked)).toEqual([false, true]);
+  const second = paths[0]!.courses[1]!.course.id;
+  expect(await (await request.get(`${api}/courses/${second}`, { headers: student })).json()).toMatchObject({ prerequisites_met: false, purchase: { action: "none" } });
+  expect((await request.post(`${api}/courses/${second}/enroll`, { headers: student })).status()).toBe(403);
+
+  await request.post(`${api}/courses/${courseId}/enroll`, { headers: student });
+  const items = (await (await request.get(`${api}/courses/${courseId}/curriculum`, { headers: student })).json()).topics[0].items as { id: number; type: string; title: string }[];
+  const lesson = items.find((it) => it.type === "lesson")!;
+  const note = await request.post(`${api}/lessons/${lesson.id}/notes`, { headers: student, data: { text: "Merhaba = hello", position_seconds: 12 } });
+  expect(note.status()).toBe(201);
+  expect((await request.put(`${api}/lessons/${lesson.id}/bookmark`, { headers: student })).status()).toBe(204);
+  expect(await (await request.get(`${api}/courses/${courseId}/notes`, { headers: student })).json()).toMatchObject({ items: [{ text: "Merhaba = hello" }], bookmarks: [{ lesson_id: lesson.id }] });
+  const asked = await request.post(`${api}/courses/${courseId}/questions`, { headers: student, data: { text: "How do I say good morning?", lesson_id: lesson.id } });
+  expect(asked.status()).toBe(201);
+  expect(await (await request.get(`${api}/lessons/${lesson.id}`, { headers: student })).json()).toMatchObject({ bookmarked: true, note_count: 1, discussion_count: 1 });
+
+  const exam = items.find((it) => it.title === "Final exam")!;
+  expect(await (await request.get(`${api}/quizzes/${exam.id}`, { headers: student })).json()).toMatchObject({ exam: { status: "open", results_after_close: true } });
+  const attempt = await (await request.post(`${api}/quizzes/${exam.id}/attempts`, { headers: student })).json();
+  expect(Date.parse(attempt.ends_at) - Date.now()).toBeLessThan(31 * 60_000);
+  const result = await (await request.post(`${api}/quizzes/${exam.id}/attempts/${attempt.id}/submit`, { headers: student, data: { answers: [{ question_id: attempt.questions[0].id, option_ids: ["a"] }] } })).json();
+  expect(result).toMatchObject({ status: "awaiting_results", score_percent: null });
+
+  const essay = items.find((it) => it.title === "Describe your city")!;
+  expect(await (await request.get(`${api}/assignments/${essay.id}`, { headers: student })).json()).toMatchObject({ max_points: 10, attempts_allowed: 2, rubric: [{ title: "Content" }, { title: "Spelling" }] });
+  expect((await request.put(`${api}/assignments/${essay.id}/submission`, { headers: student, data: { text: "Istanbul is big." } })).status()).toBe(200);
+
+  await own.goto(`/dashboard/courses/${courseId}/assignments`);
+  const work = own.locator("[data-submission]", { hasText: "Gul" });
+  await work.getByRole("group", { name: "Content" }).getByLabel("Good · 3").check();
+  await work.getByRole("button", { name: "Save the grade" }).click();
+  await expect(work.getByText("Choose a level for each criterion.")).toBeVisible();
+  await work.getByRole("group", { name: "Spelling" }).getByLabel("A few · 1").check();
+  await work.getByRole("button", { name: "Save the grade" }).click();
+  await expect
+    .poll(async () => ((await (await request.get(`${api}/assignments/${essay.id}`, { headers: student })).json()) as { submission?: { score?: number } }).submission?.score)
+    .toBe(4);
+  const graded = await (await request.get(`${api}/assignments/${essay.id}`, { headers: student })).json();
+  expect(graded).toMatchObject({ can_submit: true, attempts_used: 1, submission: { rubric_result: [{ level_label: "Good", points: 3 }, { level_label: "A few", points: 1 }] } });
+  expect(await (await request.put(`${api}/assignments/${essay.id}/submission`, { headers: student, data: { text: "Istanbul is very big and old." } })).json()).toMatchObject({ submission: { attempt: 2, status: "submitted" } });
+
+  // Points for the lesson she completes, and the course's leaderboard with first names only.
+  await request.post(`${api}/lessons/${lesson.id}/complete`, { headers: student });
+  const board = await (await request.get(`${api}/courses/${courseId}/leaderboard`, { headers: student })).json();
+  expect(board.items.find((r: { me: boolean }) => r.me)).toMatchObject({ name: "Gul", points: 10 });
+  expect(await (await request.get(`${api}/me/achievements`, { headers: student })).json()).toMatchObject({ badges: expect.arrayContaining([expect.objectContaining({ id: "first_lesson", earned: true })]) });
+
+  // The academy pins the question in Questions.
+  await own.goto("/dashboard/courses/questions?status=all");
+  await own.getByText("How do I say good morning?").click();
+  await expect(own.getByText("In the lesson Greetings")).toBeVisible();
+  await own.getByRole("button", { name: "Pin" }).click();
+  await expect(own.getByRole("button", { name: "Unpin" })).toBeVisible();
+  const listed = (await (await request.get(`${api}/courses/${courseId}/questions?lesson_id=${lesson.id}`, { headers: student })).json()).items as { pinned: boolean }[];
+  expect(listed[0]!.pinned).toBe(true);
 });

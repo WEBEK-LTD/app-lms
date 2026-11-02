@@ -166,6 +166,7 @@ void main() {
       sendBack: false,
       score: 18,
       feedback: 'Güzel!',
+      rubric: null,
     ));
     expect(find.text('Nothing to grade. Well done!'), findsOneWidget);
     expect(tester.takeException(), isNull);

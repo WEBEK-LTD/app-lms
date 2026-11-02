@@ -1,5 +1,6 @@
 import 'json.dart';
 import 'learning_models.dart';
+import 'lms_more_models.dart';
 import 'school_models.dart';
 
 /// 112.5 Assignments and live classes of courses managed in Yallapp
@@ -21,6 +22,8 @@ class AssignmentSubmission {
     this.feedback,
     this.gradedAt,
     this.late = false,
+    this.attempt = 1,
+    this.rubricResult = const [],
   });
 
   factory AssignmentSubmission.fromJson(Json json) => AssignmentSubmission(
@@ -39,6 +42,8 @@ class AssignmentSubmission {
     submittedAt: reqDate(json, 'submitted_at'),
     gradedAt: optDate(json, 'graded_at'),
     late: boolOr(json, 'late', false),
+    attempt: intOr(json, 'attempt', 1),
+    rubricResult: listOf(json, 'rubric_result', RubricResult.fromJson),
   );
 
   final int id;
@@ -48,6 +53,10 @@ class AssignmentSubmission {
   final int? score;
   final int maxPoints;
   final bool? passed;
+
+  /// 113.7 Which try it is, and each rubric criterion's level once graded.
+  final int attempt;
+  final List<RubricResult> rubricResult;
   final String? feedback;
   final DateTime submittedAt;
   final DateTime? gradedAt;
@@ -68,6 +77,9 @@ class Assignment {
     this.acceptsFiles = false,
     this.canSubmit = true,
     this.submission,
+    this.rubric = const [],
+    this.attemptsAllowed = 1,
+    this.attemptsUsed = 0,
   });
 
   factory Assignment.fromJson(Json json) => Assignment(
@@ -83,6 +95,9 @@ class Assignment {
     acceptsFiles: boolOr(json, 'accepts_files', false),
     canSubmit: boolOr(json, 'can_submit', true),
     submission: optObject(json, 'submission', AssignmentSubmission.fromJson),
+    rubric: listOf(json, 'rubric', RubricCriterion.fromJson),
+    attemptsAllowed: intOr(json, 'attempts_allowed', 1),
+    attemptsUsed: intOr(json, 'attempts_used', 0),
   );
 
   final int id;
@@ -97,6 +112,11 @@ class Assignment {
   final bool acceptsFiles;
   final bool canSubmit;
   final AssignmentSubmission? submission;
+
+  /// 113.7 The rubric it's graded with, and the tries it allows.
+  final List<RubricCriterion> rubric;
+  final int attemptsAllowed;
+  final int attemptsUsed;
 }
 
 enum LiveStatus { upcoming, live, ended }
@@ -211,6 +231,10 @@ class TeacherSubmission {
     this.score,
     this.feedback,
     this.late = false,
+    this.rubric = const [],
+    this.rubricResult = const [],
+    this.attempt = 1,
+    this.attemptsAllowed = 1,
   });
 
   factory TeacherSubmission.fromJson(Json json) => TeacherSubmission(
@@ -230,6 +254,10 @@ class TeacherSubmission {
     feedback: optString(json, 'feedback'),
     submittedAt: reqDate(json, 'submitted_at'),
     late: boolOr(json, 'late', false),
+    rubric: listOf(json, 'rubric', RubricCriterion.fromJson),
+    rubricResult: listOf(json, 'rubric_result', RubricResult.fromJson),
+    attempt: intOr(json, 'attempt', 1),
+    attemptsAllowed: intOr(json, 'attempts_allowed', 1),
   );
 
   final int id;
@@ -244,4 +272,10 @@ class TeacherSubmission {
   final String? feedback;
   final DateTime submittedAt;
   final bool late;
+
+  /// 113.7 The rubric to grade with, the levels chosen, which try it is.
+  final List<RubricCriterion> rubric;
+  final List<RubricResult> rubricResult;
+  final int attempt;
+  final int attemptsAllowed;
 }
