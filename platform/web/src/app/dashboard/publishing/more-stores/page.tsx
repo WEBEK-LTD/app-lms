@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { Notice, PageHeader } from "@/components/ui";
+import { Badge, Notice, PageHeader } from "@/components/ui";
 import { UpgradeHint } from "@/components/upgrade";
 import { appLabel } from "@/lib/app/label";
 import { hasStoreKeys, managedPublishing } from "@/lib/app/setup";
@@ -52,10 +52,12 @@ export default async function MoreStoresPage() {
   });
   const bold = { b: (chunk: string) => <b>{chunk}</b> };
 
+  const saved = (on: boolean) => <Badge tone={on ? "success" : "neutral"}>{t(on ? "integrations.states.connected" : "integrations.states.not_set")}</Badge>;
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: back to Publishing, then one card per store with its state. */}
       <PageHeader
-        eyebrow={<Link href="/dashboard/publishing">{t("publishing.title")}</Link>}
+        back={{ href: "/dashboard/publishing", label: t("publishing.title") }}
         title={t("stores.moreTitle")}
         description={t("stores.moreIntro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
       />
@@ -69,12 +71,17 @@ export default async function MoreStoresPage() {
       ) : null}
 
       <section aria-labelledby="h-galaxy" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-galaxy" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <div className="flex flex-wrap items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
             <Icon name="storefront" size={22} />
+          </span>
+          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
+          <h2 id="h-galaxy" className="m-0 text-lg font-bold">
             Samsung Galaxy Store
           </h2>
           <span className="text-sm text-muted">{t("stores.galaxyText")}</span>
+          </div>
+          {saved(keys.galaxy)}
         </div>
         <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
           <li>{richText(t("stores.galaxyStep1"), external("https://seller.samsungapps.com/"))}</li>
@@ -97,12 +104,17 @@ export default async function MoreStoresPage() {
       </section>
 
       <section aria-labelledby="h-huawei" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-huawei" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <div className="flex flex-wrap items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
             <Icon name="storefront" size={22} />
+          </span>
+          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
+          <h2 id="h-huawei" className="m-0 text-lg font-bold">
             Huawei AppGallery
           </h2>
           <span className="text-sm text-muted">{t("stores.huaweiText")}</span>
+          </div>
+          {saved(keys.appGallery)}
         </div>
         <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
           <li>{richText(t("stores.huaweiStep1"), external("https://developer.huawei.com/consumer/en/"))}</li>
@@ -130,12 +142,17 @@ export default async function MoreStoresPage() {
 
       {/* 42 Xiaomi GetApps */}
       <section aria-labelledby="h-xiaomi" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-xiaomi" className="m-0 flex items-center gap-2 text-lg font-bold">
+        <div className="flex flex-wrap items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory text-midnight">
             <Icon name="storefront" size={22} />
+          </span>
+          <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
+          <h2 id="h-xiaomi" className="m-0 text-lg font-bold">
             Xiaomi GetApps
           </h2>
           <span className="text-sm text-muted">{t("stores.xiaomiText")}</span>
+          </div>
+          {saved(keys.xiaomi)}
         </div>
         <ol className="m-0 list-decimal space-y-2 ps-5 text-[15px] leading-relaxed text-ink-4 marker:font-bold">
           <li>{richText(t("stores.xiaomiStep1"), external("https://dev.mi.com/"))}</li>
@@ -156,6 +173,6 @@ export default async function MoreStoresPage() {
         />
         <p className="m-0 text-sm text-muted">{t("stores.keyEncrypted")}</p>
       </section>
-    </>
+    </div>
   );
 }
