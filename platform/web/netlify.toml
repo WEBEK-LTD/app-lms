@@ -9,6 +9,9 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+  # next build's type check outgrew Node's default heap on Netlify's build
+  # machines (about 2 GB there); 4 GB, as GitHub's runners give it.
+  NODE_OPTIONS = "--max-old-space-size=4096"
 
 # Next.js runtime (OpenNext adapter), pinned through package.json.
 [[plugins]]

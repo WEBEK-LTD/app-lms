@@ -34,7 +34,9 @@ import {
   type HostedNotification,
   type HostedSettings,
   type HostedUser,
+  type PushProvider,
 } from "../data/types";
+import { hubCourierAt } from "../courier-hub/access";
 import { hitRateLimit, type RateLimitRule } from "../rate-limit";
 import type { Connector } from "./connectors/types";
 import { decodeJwt, encodeJwt } from "./jwt";
@@ -982,10 +984,28 @@ function deviceInput(value: unknown): DeviceFields | null {
   return { id, platform, name: text(device.name, 100), appVersion: text(device.app_version, 20) };
 }
 
-/** Signs a customer in on a device: registers it within the device limit and issues tokens. */
-async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<string, unknown>): Promise<HostedResult> {
+/** 104.8.2 The Yallapp Courier device a company session is opened from, with its push token. */
+export interface CourierHubDevice {
+  id: string;
+  pushToken: string | null;
+  pushProvider: PushProvider;
+}
+
+/** 104.8.2 A company session opened from Yallapp Courier: a courier's phone, with Yallapp Courier's push token. */
+function hubFields(hub: CourierHubDevice | null) {
+  if (!hub) return {};
+  return { courierDeviceId: hub.id, appRole: "courier" as const, ...(hub.pushToken ? { pushToken: hub.pushToken, pushProvider: hub.pushProvider } : {}) };
+}
+
+/**
+ * Signs a customer in on a device: registers it within the device limit and issues tokens.
+ * 104.8.2 `hub`: Yallapp Courier opens the session for a courier of the company (lib/courier-hub).
+ */
+async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<string, unknown>, hub: CourierHubDevice | null = null): Promise<HostedResult> {
   const input = deviceInput(rawDevice);
   if (!input) return error(400, "invalid_device", "Device details are missing.");
+  // 104.8.2 A token moves with the install: forget Yallapp Courier's on the company's other devices first.
+  if (hub?.pushToken) await ctx.store.clearHostedPushToken(ctx.app.id, hub.pushToken);
   let device = await ctx.store.findHostedDevice(ctx.app.id, user.id, input.id);
   if (device) {
     await ctx.store.updateHostedDevice(ctx.app.id, device.id, {
@@ -994,6 +1014,7 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       appVersion: input.appVersion,
       lastSeenAt: ctx.now,
       ...(ctx.country ? { country: ctx.country } : {}),
+      ...hubFields(hub),
     });
   } else {
     // 16 The shared demo account is on every visitor's phone.
@@ -1026,10 +1047,28 @@ async function session(ctx: HostedContext, user: HostedUser, rawDevice: Record<s
       country: ctx.country ?? null,
       createdAt: ctx.now,
       lastSeenAt: ctx.now,
+      ...hubFields(hub),
     };
     await ctx.store.createHostedDevice(device);
   }
   return ok({ ...(await issueTokens(ctx, user, device.id)), user: await meJson(ctx, user) });
+}
+
+/**
+ * 104.8.2 `POST /companies/{app_id}/session` of Yallapp Courier (lib/courier-hub):
+ * the company's hosted session, as `POST /auth/otp/verify` answers it, for the
+ * courier's account at the company, on a device marked as Yallapp Courier's.
+ */
+export async function courierHubSession(ctx: HostedContext, user: HostedUser, rawDevice: Record<string, unknown>, hub: CourierHubDevice): Promise<HostedResult> {
+  return session(ctx, user, rawDevice, hub);
+}
+
+/** 104.8.2 A session Yallapp Courier opened ends at its next call once the company left Yallapp Courier or paused or removed the courier. */
+async function hubSessionEnded(ctx: HostedContext, user: HostedUser, device: HostedDevice): Promise<boolean> {
+  if (!device.courierDeviceId) return false;
+  if ((await hubCourierAt({ store: ctx.store, app: ctx.app, plan: ctx.plan ?? null, now: ctx.now }, user)) === "ok") return false;
+  await ctx.store.deleteHostedDevice(ctx.app.id, device.id);
+  return true;
 }
 
 async function issueTokens(ctx: HostedContext, user: HostedUser, deviceRowId: string) {
@@ -1063,7 +1102,7 @@ async function refresh(ctx: HostedContext, body: Record<string, unknown>): Promi
   if (!device || device.userId !== token.userId) return unauthorized();
   // 34 The new access token carries the person's current name, phone and email.
   const user = await ctx.store.getHostedUser(ctx.app.id, token.userId);
-  if (!user) return unauthorized();
+  if (!user || (await hubSessionEnded(ctx, user, device))) return unauthorized();
   await ctx.store.updateHostedDevice(ctx.app.id, device.id, { lastSeenAt: ctx.now, ...(ctx.country ? { country: ctx.country } : {}) });
   return ok(await issueTokens(ctx, user, device.id));
 }
@@ -1092,7 +1131,7 @@ async function authenticate(ctx: HostedContext, token: string | null): Promise<S
   const device = await ctx.store.getHostedDevice(ctx.app.id, subject.deviceRowId);
   if (!device || device.userId !== subject.userId) return null;
   const user = await ctx.store.getHostedUser(ctx.app.id, subject.userId);
-  return user ? { user, device } : null;
+  return user && !(await hubSessionEnded(ctx, user, device)) ? { user, device } : null;
 }
 
 // Account
