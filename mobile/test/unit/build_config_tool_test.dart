@@ -140,6 +140,27 @@ void main() {
     );
   });
 
+  test('104.8.5 config/yallapp-courier.json is Yallapp Courier', () {
+    final hub = jsonDecode(
+      File('config/yallapp-courier.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    expect(validateBuildConfig(hub).errors, isEmpty);
+    expect(hub['android_package'], 'tr.com.yallapp.courier');
+    expect(hub['ios_bundle_id'], 'tr.com.yallapp.courier');
+    expect(hub['app_name'], 'Yallapp Courier');
+    expect(hub['api_base_url'], endsWith('/api/courier/v1'));
+    expect(
+      renderDartConfig(hub),
+      allOf(
+        contains('courierHub: true,'),
+        contains('role: AppRole.courier,'),
+        contains('appId: null,'),
+      ),
+    );
+    // Every other build is a company's own app.
+    expect(renderDartConfig(example()), contains('courierHub: false,'));
+  });
+
   test('104.8.4 courier_hub only with the Courier API, as a courier app', () {
     Map<String, dynamic> hub() => example()
       ..['app_type'] = 'delivery'
