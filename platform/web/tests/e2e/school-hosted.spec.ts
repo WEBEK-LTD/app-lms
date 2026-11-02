@@ -221,7 +221,9 @@ test("113.5 The syllabus written and imported; the class behind the plan, then a
   await halves.locator("summary", { hasText: "Mark covered" }).click();
   await halves.getByLabel("Note (optional)").fill("With paper folding.");
   await halves.locator('button[type="submit"]', { hasText: "Mark covered" }).click();
-  await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
+  // Its form goes once the lesson is covered (its "Saved." with it): the lesson says Covered.
+  await expect(halves.getByText("Covered", { exact: true })).toBeVisible();
+  await expect(halves).toContainText("covered on");
   await own.reload();
   await expect(own.getByText("Behind the plan by 1 lesson", { exact: true })).toBeVisible();
   await expect(halves).toContainText("With paper folding.");
