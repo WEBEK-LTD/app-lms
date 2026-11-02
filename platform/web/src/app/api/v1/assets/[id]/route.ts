@@ -24,6 +24,8 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/v1/a
       "content-type": asset.contentType,
       "content-length": String(file.data.length),
       "cache-control": "public, max-age=31536000, immutable",
+      // 17 The app preview draws pictures from the platform's other addresses too (the web app reads them with fetch).
+      "access-control-allow-origin": "*",
       "content-security-policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
       "x-content-type-options": "nosniff",
     },

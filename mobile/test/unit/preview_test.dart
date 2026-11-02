@@ -195,6 +195,39 @@ void main() {
       );
     });
 
+    test('reads the hosted API at the address the page was opened from', () {
+      final json = _previewJson();
+      (json['config'] as Map)['auth_base_url'] =
+          'https://yallapp.com.tr/api/app/11111111-2222-4333-8444-555555555555';
+      final start = previewStartFromJson(
+        json,
+        platformUrl: 'https://www.yallapp.com.tr/',
+      );
+      expect(
+        start.build.apiBaseUrl,
+        'https://www.yallapp.com.tr/api/app/11111111-2222-4333-8444-555555555555',
+      );
+      expect(
+        start.build.authBaseUrl,
+        'https://www.yallapp.com.tr/api/app/11111111-2222-4333-8444-555555555555',
+      );
+      expect(
+        onPageOrigin(
+          'https://yallapp.com.tr/api/app/x',
+          'http://localhost:3210',
+        ),
+        'http://localhost:3210/api/app/x',
+      );
+      // Not the hosted API: as it is.
+      expect(
+        onPageOrigin(
+          'https://shop.example/wp-json/yallapp/v1',
+          'https://www.yallapp.com.tr',
+        ),
+        'https://shop.example/wp-json/yallapp/v1',
+      );
+    });
+
     test('knows apps without content yet', () {
       final start = previewStartFromJson(
         _previewJson(source: 'none'),
