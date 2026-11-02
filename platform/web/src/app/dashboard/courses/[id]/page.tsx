@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteCohortAction, deleteCourseAction, deleteItemAction, deleteLessonAction, deleteQuizAction, deleteTopicAction, moveItemAction, moveTopicAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { formatDate } from "@/components/ui";
+import type { IconName } from "@/components/icon-names";
+import { Badge, formatDate, PageHeader, Section } from "@/components/ui";
+import { DetailLayout, ItemList, ItemRow, LinkCards, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
-import { centsToDecimal } from "@/lib/catalog/money";
-import { courseSetup } from "@/lib/courses/setup";
+import { centsToDecimal, formatCents } from "@/lib/catalog/money";
+import { courseSetup, lessonsOf } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
 import type { CourseLesson, CourseQuiz } from "@/lib/data/types";
 import { appZone } from "@/lib/analytics/zone";
@@ -62,6 +64,21 @@ function quizValues(q: CourseQuiz, zone: string): Record<string, string> {
 }
 
 const ITEM_ICON = { lesson: "play_circle", quiz: "quiz", assignment: "assignment", live: "live_tv" } as const;
+const ITEM_TINT = { lesson: "bg-tile-1 text-ink-3", quiz: "bg-tile-2 text-ink-3", assignment: "bg-tile-3 text-ink-3", live: "bg-tile-4 text-ink-3" } as const;
+
+/** Something to add to a section, opened in place. */
+function AddBox({ icon, title, open = false, children }: { icon: IconName; title: string; open?: boolean; children: React.ReactNode }) {
+  return (
+    <details className="rounded-xl border border-dashed border-line-strong bg-white px-3 py-2.5" open={open}>
+      <summary className="flex cursor-pointer items-center gap-2 text-[15px] font-semibold">
+        <Icon name="add" size={18} className="text-muted" />
+        <Icon name={icon} size={18} />
+        {title}
+      </summary>
+      <div className="pt-3">{children}</div>
+    </details>
+  );
+}
 
 /** 112.5 An item's place in its section: one place up or down. */
 function MoveButtons({ courseId, topicId, itemId, first, last, t }: { courseId: number; topicId: number; itemId: number; first: boolean; last: boolean; t: DashT }) {
@@ -130,93 +147,49 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
   const cohortName = new Map((course.cohorts ?? []).map((c) => [c.id, c.name]));
   const toGrade = (await store.listAssignmentSubmissions({ appId: app.id, courseId: course.id, status: "submitted" })).length;
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/courses" className="flex items-center gap-1 text-sm no-underline">
-          <Icon name="arrow_back" size={18} />
-          {t("courses.backToCourses")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{course.title}</h1>
-        {teachers && course.teacherId ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <StageBadge stage={stage} t={t} />
-            {stage === "returned" && course.reviewNote ? <span className="text-sm text-muted">{t("teachers.reviewNote", { note: course.reviewNote })}</span> : null}
-          </div>
-        ) : null}
-      </div>
+  const lessons = lessonsOf(course).length;
+  const cohorts = course.cohorts ?? [];
+  const bank = course.questionBank ?? [];
 
-      {teachers ? (
-        <section aria-labelledby="h-teacher" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-col gap-1">
-            <h2 id="h-teacher" className="m-0 text-lg font-bold">
-              {t("teachers.courseTeacher")}
-            </h2>
-            <p className="m-0 text-sm leading-relaxed text-muted">{t("teachers.courseTeacherIntro")}</p>
-          </div>
-          <form action={setCourseTeacherAction} className="flex flex-wrap items-end gap-3">
-            <input type="hidden" name="courseId" value={course.id} />
-            <label htmlFor="f-course-teacher" className="sr-only">
-              {t("teachers.courseTeacher")}
-            </label>
-            <select id="f-course-teacher" name="teacherId" defaultValue={course.teacherId ? String(course.teacherId) : ""} className="input h-10 min-w-[240px]">
-              <option value="">{t("teachers.theAcademy")}</option>
-              {teachers.map((teacher) => (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </option>
-              ))}
-            </select>
-            <SubmitButton variant="secondary" className="h-10">
-              {t("teachers.setTeacher")}
-            </SubmitButton>
-          </form>
-          {course.teacherId && stage === "in_review" ? <ReviewForm courseId={course.id} /> : null}
-        </section>
-      ) : null}
+  const teacherSection = teachers ? (
+    <Section titleId="h-teacher" title={t("teachers.courseTeacher")} description={t("teachers.courseTeacherIntro")}>
+      <form action={setCourseTeacherAction} className="flex flex-wrap items-end gap-3">
+        <input type="hidden" name="courseId" value={course.id} />
+        <label htmlFor="f-course-teacher" className="sr-only">
+          {t("teachers.courseTeacher")}
+        </label>
+        <select id="f-course-teacher" name="teacherId" defaultValue={course.teacherId ? String(course.teacherId) : ""} className="input h-10 min-w-0 flex-[1_1_200px]">
+          <option value="">{t("teachers.theAcademy")}</option>
+          {teachers.map((teacher) => (
+            <option key={teacher.id} value={teacher.id}>
+              {teacher.name}
+            </option>
+          ))}
+        </select>
+        <SubmitButton variant="secondary" className="h-10">
+          {t("teachers.setTeacher")}
+        </SubmitButton>
+      </form>
+      {course.teacherId && stage === "in_review" ? <ReviewForm courseId={course.id} /> : null}
+    </Section>
+  ) : null;
 
-      <section aria-labelledby="h-details" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-details" className="m-0 text-lg font-bold">
-          {t("courses.details")}
-        </h2>
-        <CourseForm
-          current={{
-            id: String(course.id),
-            title: course.title,
-            description: course.description,
-            price: course.priceCents ? centsToDecimal(course.priceCents) : "",
-            instructor: course.instructorName ?? "",
-            level: course.level ?? "",
-            categoryIds: course.categoryIds.join(","),
-            active: course.active ? "on" : "",
-            restart: course.canRestart === false ? "" : "on",
-            certificate: course.certificate ? "on" : "",
-            accessDays: course.accessDays ? String(course.accessDays) : "",
-            sequential: course.sequential ? "on" : "",
-            certificateSigner: course.certificateSigner ?? "",
-            // 113.7
-            completeWhen: course.completeWhen ?? "all",
-            minFinalScore: course.minFinalScore ? String(course.minFinalScore) : "",
-            prerequisiteIds: (course.prerequisites ?? []).join(","),
-          }}
-          others={setup.courses.filter((c) => c.id !== course.id).map((c) => ({ id: c.id, title: c.title }))}
-          categories={setup.categories}
-          currency={setup.currency}
-          imageUrl={course.imageAssetId ? assetUrl(course.imageAssetId) : null}
-          submit={t("courses.saveCourse")}
-        />
-      </section>
-
-      <section aria-labelledby="h-curriculum" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-curriculum" className="m-0 text-lg font-bold">
-          {t("courses.curriculum")}
-        </h2>
-        {course.topics.map((topic, topicIndex) => {
-          const items = topicItems(topic);
-          return (
-          <div key={topic.id} className="flex flex-col gap-3 rounded-xl border border-line p-4" data-topic={topic.id}>
+  const curriculum = (
+    <Section titleId="h-curriculum" title={t("courses.curriculum")} description={t("courses.curriculumCount", { sections: course.topics.length, lessons })}>
+      {course.topics.map((topic, topicIndex) => {
+        const items = topicItems(topic);
+        return (
+          <div key={topic.id} className="flex flex-col gap-3 rounded-2xl border border-line bg-sand/40 p-4" data-topic={topic.id}>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="m-0 text-[17px] font-bold">{topic.title}</h3>
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-midnight text-sm font-extrabold text-ivory tabular-nums">
+                  {topicIndex + 1}
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <h3 className="m-0 text-[17px] font-bold break-words">{topic.title}</h3>
+                  <span className="text-[13px] text-muted">{t("courses.sectionItems", { count: items.length })}</span>
+                </span>
+              </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {/* 112.5 The section's place in the course. */}
                 {(["up", "down"] as const).map((step) => (
@@ -239,223 +212,262 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                 </form>
               </div>
             </div>
-            <details className="rounded-lg border border-line-soft px-3 py-2">
+            <details className="rounded-xl border border-line-soft bg-white px-3 py-2">
               <summary className="cursor-pointer text-sm font-semibold">{t("lms.renameSection")}</summary>
               <div className="pt-3">
                 <TopicTitleForm courseId={course.id} topicId={topic.id} title={topic.title} />
               </div>
             </details>
-            {items.map((it, i) => (
-              <div key={`${it.kind}-${it.id}`} className="flex items-start gap-2" data-item={it.id} data-kind={it.kind}>
-                <details className="min-w-0 flex-1 rounded-lg border border-line-soft">
-                  <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-[15px]">
-                    <span className="flex items-center gap-1.5 font-semibold">
-                      <Icon name={ITEM_ICON[it.kind]} size={18} />
-                      {it.kind === "lesson" ? it.lesson.title : it.kind === "quiz" ? it.quiz.title : it.kind === "assignment" ? it.assignment.title : it.live.title}
-                    </span>
-                    <span className="text-[13px] text-muted">{itemMeta(it, t, zone)}</span>
-                  </summary>
-                  <div className="flex flex-col gap-3 border-t border-line-soft p-3">
-                    {it.kind === "lesson" ? (
-                      <>
-                        <LessonForm courseId={course.id} topicId={topic.id} current={lessonValues(it.lesson, zone)} submit={t("courses.saveLesson")} />
-                        <form action={deleteLessonAction}>
-                          <input type="hidden" name="courseId" value={course.id} />
-                          <input type="hidden" name="lessonId" value={it.id} />
-                          <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
-                            {t("courses.deleteLesson")}
-                          </SubmitButton>
-                        </form>
-                      </>
-                    ) : it.kind === "quiz" ? (
-                      <>
-                        <QuizForm courseId={course.id} topicId={topic.id} current={quizValues(it.quiz, zone)} submit={t("courses.saveQuiz")} />
-                        <form action={deleteQuizAction}>
-                          <input type="hidden" name="courseId" value={course.id} />
-                          <input type="hidden" name="quizId" value={it.id} />
-                          <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
-                            {t("courses.deleteQuiz")}
-                          </SubmitButton>
-                        </form>
-                      </>
-                    ) : (
-                      <>
-                        {it.kind === "assignment" ? (
-                          <AssignmentForm courseId={course.id} topicId={topic.id} current={assignmentValues(it.assignment, zone)} submit={t("lms.saveAssignment")} />
+            {items.length ? (
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                {items.map((it, i) => (
+                  <li key={`${it.kind}-${it.id}`} className="flex items-start gap-2" data-item={it.id} data-kind={it.kind}>
+                    <details className="group min-w-0 flex-1 rounded-xl border border-line bg-white">
+                      <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5 text-[15px]">
+                        <span className="flex min-w-0 items-center gap-2.5 font-semibold">
+                          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] ${ITEM_TINT[it.kind]}`}>
+                            <Icon name={ITEM_ICON[it.kind]} size={18} />
+                          </span>
+                          <span className="min-w-0 break-words">{it.kind === "lesson" ? it.lesson.title : it.kind === "quiz" ? it.quiz.title : it.kind === "assignment" ? it.assignment.title : it.live.title}</span>
+                        </span>
+                        <span className="text-[13px] text-muted">{itemMeta(it, t, zone)}</span>
+                      </summary>
+                      <div className="flex flex-col gap-3 border-t border-line-soft p-3">
+                        {it.kind === "lesson" ? (
+                          <>
+                            <LessonForm courseId={course.id} topicId={topic.id} current={lessonValues(it.lesson, zone)} submit={t("courses.saveLesson")} />
+                            <form action={deleteLessonAction}>
+                              <input type="hidden" name="courseId" value={course.id} />
+                              <input type="hidden" name="lessonId" value={it.id} />
+                              <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
+                                {t("courses.deleteLesson")}
+                              </SubmitButton>
+                            </form>
+                          </>
+                        ) : it.kind === "quiz" ? (
+                          <>
+                            <QuizForm courseId={course.id} topicId={topic.id} current={quizValues(it.quiz, zone)} submit={t("courses.saveQuiz")} />
+                            <form action={deleteQuizAction}>
+                              <input type="hidden" name="courseId" value={course.id} />
+                              <input type="hidden" name="quizId" value={it.id} />
+                              <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
+                                {t("courses.deleteQuiz")}
+                              </SubmitButton>
+                            </form>
+                          </>
                         ) : (
-                          <LiveForm courseId={course.id} topicId={topic.id} current={liveValues(it.live, zone)} submit={t("lms.saveLive")} zone={zone} />
+                          <>
+                            {it.kind === "assignment" ? (
+                              <AssignmentForm courseId={course.id} topicId={topic.id} current={assignmentValues(it.assignment, zone)} submit={t("lms.saveAssignment")} />
+                            ) : (
+                              <LiveForm courseId={course.id} topicId={topic.id} current={liveValues(it.live, zone)} submit={t("lms.saveLive")} zone={zone} />
+                            )}
+                            <form action={deleteItemAction}>
+                              <input type="hidden" name="courseId" value={course.id} />
+                              <input type="hidden" name="itemId" value={it.id} />
+                              <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
+                                {it.kind === "assignment" ? t("lms.deleteAssignment") : t("lms.deleteLive")}
+                              </SubmitButton>
+                            </form>
+                          </>
                         )}
-                        <form action={deleteItemAction}>
-                          <input type="hidden" name="courseId" value={course.id} />
-                          <input type="hidden" name="itemId" value={it.id} />
-                          <SubmitButton variant="danger" className="h-8 px-3 text-[13px]">
-                            {it.kind === "assignment" ? t("lms.deleteAssignment") : t("lms.deleteLive")}
-                          </SubmitButton>
-                        </form>
-                      </>
-                    )}
-                  </div>
-                </details>
-                <MoveButtons courseId={course.id} topicId={topic.id} itemId={it.id} first={i === 0} last={i === items.length - 1} t={t} />
-              </div>
-            ))}
-            <details className="rounded-lg bg-sand p-3" open={topic.lessons.length === 0}>
-              <summary className="cursor-pointer text-[15px] font-semibold">{t("courses.addLessonTo", { section: topic.title })}</summary>
-              <div className="pt-3">
-                <LessonForm
-                  courseId={course.id}
-                  topicId={topic.id}
-                  current={{ title: "", videoUrl: "", text: "", duration: "", preview: "" }}
-                  submit={t("courses.addLesson")}
-                />
-              </div>
-            </details>
-            {topic.lessons.length ? (
-              <details className="rounded-lg bg-sand p-3">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("courses.addQuizTo", { section: topic.title })}</summary>
+                      </div>
+                    </details>
+                    <MoveButtons courseId={course.id} topicId={topic.id} itemId={it.id} first={i === 0} last={i === items.length - 1} t={t} />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {/* What can go in the section, each opened in place. */}
+            <div className="flex flex-col gap-2">
+              <AddBox icon="play_circle" title={t("courses.addLessonTo", { section: topic.title })} open={topic.lessons.length === 0}>
+                <LessonForm courseId={course.id} topicId={topic.id} current={{ title: "", videoUrl: "", text: "", duration: "", preview: "" }} submit={t("courses.addLesson")} />
+              </AddBox>
+              {topic.lessons.length ? (
+                <AddBox icon="quiz" title={t("courses.addQuizTo", { section: topic.title })}>
+                  <QuizForm courseId={course.id} topicId={topic.id} current={{ title: "", passPercent: "70", attemptsAllowed: "", timeLimit: "", questions: "" }} submit={t("courses.addQuiz")} />
+                </AddBox>
+              ) : null}
+              {/* 112.5 Assignments and live classes. */}
+              <AddBox icon="assignment" title={t("lms.addAssignmentTo", { section: topic.title })}>
+                <AssignmentForm courseId={course.id} topicId={topic.id} current={{ title: "", instructions: "", maxPoints: "100", passPoints: "", dueDays: "", dueOn: "", attachments: "" }} submit={t("lms.addAssignment")} />
+              </AddBox>
+              <AddBox icon="live_tv" title={t("lms.addLiveTo", { section: topic.title })}>
+                <LiveForm courseId={course.id} topicId={topic.id} current={{ title: "", date: "", time: "", duration: "60", meetingUrl: "", notes: "", recordingUrl: "" }} submit={t("lms.addLive")} zone={zone} />
+              </AddBox>
+            </div>
+          </div>
+        );
+      })}
+      {/* The course's next section: in a Sheet, in place for the first one. */}
+      <Sheet id="new-section" inline={course.topics.length === 0} title={t("courses.addSectionTitle")} description={t("courses.addSectionHint")}>
+        <TopicForm courseId={course.id} />
+      </Sheet>
+    </Section>
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header and its main action, the numbers, then the course's forms beside its students, links and cohorts. */}
+      <PageHeader
+        back={{ href: "/dashboard/courses", label: t("courses.backToCourses") }}
+        title={course.title}
+        description={
+          <span className="flex flex-col gap-2">
+            <span>{t("courses.courseLine", { price: course.priceCents ? formatCents(course.priceCents, setup.currency) : t("common.free"), lessons, students: enrollments.length })}</span>
+            {teachers && course.teacherId ? (
+              <span className="flex flex-wrap items-center gap-2">
+                <StageBadge stage={stage} t={t} />
+                {stage === "returned" && course.reviewNote ? <span className="text-sm text-muted">{t("teachers.reviewNote", { note: course.reviewNote })}</span> : null}
+              </span>
+            ) : null}
+          </span>
+        }
+        actions={
+          course.topics.length ? (
+            <SheetButton target="new-section" icon="add">
+              {t("courses.addSectionTitle")}
+            </SheetButton>
+          ) : null
+        }
+      />
+
+      <StatRow label={course.title}>
+        <Stat icon="groups" tone="accent" label={t("courses.statStudents")} value={enrollments.length} href={enrollments.length ? `/dashboard/courses/${course.id}/students` : undefined} />
+        <Stat icon="play_circle" label={t("courses.statLessons")} value={lessons} hint={t("courses.sectionsCount", { count: course.topics.length })} />
+        <Stat icon="assignment" tone={toGrade ? "warn" : "success"} label={t("courses.statToGrade")} value={toGrade} />
+        <Stat icon="groups" label={t("lms.cohorts")} value={cohorts.length} />
+      </StatRow>
+
+      <DetailLayout
+        main={
+          <>
+            <Section titleId="h-details" title={t("courses.details")}>
+              <CourseForm
+                current={{
+                  id: String(course.id),
+                  title: course.title,
+                  description: course.description,
+                  price: course.priceCents ? centsToDecimal(course.priceCents) : "",
+                  instructor: course.instructorName ?? "",
+                  level: course.level ?? "",
+                  categoryIds: course.categoryIds.join(","),
+                  active: course.active ? "on" : "",
+                  restart: course.canRestart === false ? "" : "on",
+                  certificate: course.certificate ? "on" : "",
+                  accessDays: course.accessDays ? String(course.accessDays) : "",
+                  sequential: course.sequential ? "on" : "",
+                  certificateSigner: course.certificateSigner ?? "",
+                  // 113.7
+                  completeWhen: course.completeWhen ?? "all",
+                  minFinalScore: course.minFinalScore ? String(course.minFinalScore) : "",
+                  prerequisiteIds: (course.prerequisites ?? []).join(","),
+                }}
+                others={setup.courses.filter((c) => c.id !== course.id).map((c) => ({ id: c.id, title: c.title }))}
+                categories={setup.categories}
+                currency={setup.currency}
+                imageUrl={course.imageAssetId ? assetUrl(course.imageAssetId) : null}
+                submit={t("courses.saveCourse")}
+              />
+            </Section>
+
+            {curriculum}
+
+            {/* 112.5 The question bank the quizzes draw from. */}
+            <Section titleId="h-bank" title={t("lms.bankTitle")} description={t("lms.bankIntro")} actions={<Badge tone="neutral">{t("courses.bankCount", { count: bank.length })}</Badge>}>
+              <details className="rounded-xl border border-line-soft bg-sand p-3" open={bank.length > 0}>
+                <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.editBank")}</summary>
                 <div className="pt-3">
-                  <QuizForm
-                    courseId={course.id}
-                    topicId={topic.id}
-                    current={{ title: "", passPercent: "70", attemptsAllowed: "", timeLimit: "", questions: "" }}
-                    submit={t("courses.addQuiz")}
-                  />
+                  <QuestionBankForm courseId={course.id} current={questionsText({ questions: bank })} />
                 </div>
               </details>
-            ) : null}
-            {/* 112.5 Assignments and live classes. */}
-            <details className="rounded-lg bg-sand p-3">
-              <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.addAssignmentTo", { section: topic.title })}</summary>
-              <div className="pt-3">
-                <AssignmentForm courseId={course.id} topicId={topic.id} current={{ title: "", instructions: "", maxPoints: "100", passPoints: "", dueDays: "", dueOn: "", attachments: "" }} submit={t("lms.addAssignment")} />
+            </Section>
+          </>
+        }
+        side={
+          <>
+            {teacherSection}
+
+            {/* 90.2 Each student's progress and quiz results; 112.5 the gradebook, assignments to grade and a notification to the course. */}
+            <LinkCards
+              label={t("courses.courseTools")}
+              items={[
+                ...(enrollments.length ? [{ href: `/dashboard/courses/${course.id}/students`, icon: "monitoring" as const, label: t("lms.gradebook") }] : []),
+                // 113.7
+                ...(enrollments.length && setup.gamification ? [{ href: `/dashboard/courses/${course.id}/leaderboard`, icon: "emoji_events" as const, label: t("learning.leaderboard") }] : []),
+                { href: `/dashboard/courses/${course.id}/assignments`, icon: "assignment" as const, label: toGrade ? t("lms.toGradeCount", { count: toGrade }) : t("lms.assignmentsTitle") },
+                ...(enrollments.length && app.backend === "hosted" ? [{ href: `/dashboard/notifications/campaigns/new?course=${course.id}`, icon: "campaign" as const, label: t("lms.notifyStudents") }] : []),
+              ]}
+            />
+
+            <Section titleId="h-students" title={t("courses.students")} actions={<Badge tone="neutral">{enrollments.length}</Badge>} flush>
+              {students.length ? (
+                <ItemList>
+                  {students.map((s, i) => (
+                    <ItemRow
+                      key={s.userId}
+                      media={<Thumb icon="person" shape="round" tint={i} />}
+                      title={s.user?.name ?? t("courses.deletedAccount")}
+                      meta={
+                        <>
+                          {s.user?.phone ? <bdi dir="ltr">{s.user.phone}</bdi> : null}
+                          {s.user?.phone ? " · " : null}
+                          {s.source === "paid" ? t("courses.paid") : s.source === "manual" ? t("courses.addedByYou") : t("common.free")} · {formatDate(s.enrolledAt, lang)}
+                          {s.cohortId && cohortName.get(s.cohortId) ? ` · ${cohortName.get(s.cohortId)}` : ""}
+                        </>
+                      }
+                    />
+                  ))}
+                </ItemList>
+              ) : (
+                <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("courses.noStudents")}</p>
+              )}
+              <div className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 sm:px-6">
+                <StudentForm courseId={course.id} cohorts={cohorts} />
+                {/* 112.5 Many at once. */}
+                <details className="rounded-xl bg-sand p-3">
+                  <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.addStudents")}</summary>
+                  <div className="pt-3">
+                    <StudentsForm courseId={course.id} cohorts={cohorts} />
+                  </div>
+                </details>
               </div>
-            </details>
-            <details className="rounded-lg bg-sand p-3">
-              <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.addLiveTo", { section: topic.title })}</summary>
-              <div className="pt-3">
-                <LiveForm courseId={course.id} topicId={topic.id} current={{ title: "", date: "", time: "", duration: "60", meetingUrl: "", notes: "", recordingUrl: "" }} submit={t("lms.addLive")} zone={zone} />
-              </div>
-            </details>
-          </div>
-          );
-        })}
-        <TopicForm courseId={course.id} />
-      </section>
+            </Section>
 
-      {/* 112.5 Cohorts: students who start together. */}
-      <section aria-labelledby="h-cohorts" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-cohorts" className="m-0 text-lg font-bold">
-            {t("lms.cohorts")} <span className="font-normal text-muted">{(course.cohorts ?? []).length}</span>
-          </h2>
-          <p className="m-0 text-sm leading-relaxed text-muted">{t("lms.cohortsIntro")}</p>
-        </div>
-        {(course.cohorts ?? []).length ? (
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
-            {(course.cohorts ?? []).map((cohort) => (
-              <li key={cohort.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line-soft px-3 py-2" data-cohort={cohort.id}>
-                <span>
-                  <span className="font-semibold">{cohort.name}</span>{" "}
-                  <span className="text-muted">
-                    {t("lms.cohortLine", { date: localParts(cohort.startsAt, zone).date, count: enrollments.filter((e) => e.cohortId === cohort.id).length })}
-                  </span>
-                </span>
-                <form action={deleteCohortAction}>
-                  <input type="hidden" name="courseId" value={course.id} />
-                  <input type="hidden" name="cohortId" value={cohort.id} />
-                  <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]">
-                    {t("lms.deleteCohort")}
-                  </SubmitButton>
-                </form>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <CohortForm courseId={course.id} />
-      </section>
+            {/* 112.5 Cohorts: students who start together. */}
+            <Section titleId="h-cohorts" title={t("lms.cohorts")} description={t("lms.cohortsIntro")} actions={<Badge tone="neutral">{cohorts.length}</Badge>}>
+              {cohorts.length ? (
+                <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
+                  {cohorts.map((cohort) => (
+                    <li key={cohort.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line-soft px-3 py-2" data-cohort={cohort.id}>
+                      <span className="flex min-w-0 flex-col">
+                        <span className="font-semibold">{cohort.name}</span>
+                        <span className="text-[13px] text-muted">{t("lms.cohortLine", { date: localParts(cohort.startsAt, zone).date, count: enrollments.filter((e) => e.cohortId === cohort.id).length })}</span>
+                      </span>
+                      <form action={deleteCohortAction}>
+                        <input type="hidden" name="courseId" value={course.id} />
+                        <input type="hidden" name="cohortId" value={cohort.id} />
+                        <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]">
+                          {t("lms.deleteCohort")}
+                        </SubmitButton>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <CohortForm courseId={course.id} />
+            </Section>
 
-      {/* 112.5 The question bank the quizzes draw from. */}
-      <section aria-labelledby="h-bank" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-bank" className="m-0 text-lg font-bold">
-            {t("lms.bankTitle")} <span className="font-normal text-muted">{(course.questionBank ?? []).length}</span>
-          </h2>
-          <p className="m-0 text-sm leading-relaxed text-muted">{t("lms.bankIntro")}</p>
-        </div>
-        <details className="rounded-lg bg-sand p-3" open={(course.questionBank ?? []).length > 0}>
-          <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.editBank")}</summary>
-          <div className="pt-3">
-            <QuestionBankForm courseId={course.id} current={questionsText({ questions: course.questionBank ?? [] })} />
-          </div>
-        </details>
-      </section>
-
-      <section aria-labelledby="h-students" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="h-students" className="m-0 text-lg font-bold">
-            {t("courses.students")} <span className="font-normal text-muted">{enrollments.length}</span>
-          </h2>
-          {/* 90.2 Each student's progress and quiz results; 112.5 the gradebook, assignments to grade and a notification to the course. */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {enrollments.length ? (
-              <Link href={`/dashboard/courses/${course.id}/students`} className="flex items-center gap-1 text-sm font-semibold no-underline">
-                <Icon name="monitoring" size={18} />
-                {t("lms.gradebook")}
-              </Link>
-            ) : null}
-            {/* 113.7 */}
-            {enrollments.length && setup.gamification ? (
-              <Link href={`/dashboard/courses/${course.id}/leaderboard`} className="flex items-center gap-1 text-sm font-semibold no-underline">
-                <Icon name="emoji_events" size={18} />
-                {t("learning.leaderboard")}
-              </Link>
-            ) : null}
-            <Link href={`/dashboard/courses/${course.id}/assignments`} className="flex items-center gap-1 text-sm font-semibold no-underline" data-to-grade={toGrade}>
-              <Icon name="assignment" size={18} />
-              {toGrade ? t("lms.toGradeCount", { count: toGrade }) : t("lms.assignmentsTitle")}
-            </Link>
-            {enrollments.length && app.backend === "hosted" ? (
-              <Link href={`/dashboard/notifications/campaigns/new?course=${course.id}`} className="flex items-center gap-1 text-sm font-semibold no-underline">
-                <Icon name="campaign" size={18} />
-                {t("lms.notifyStudents")}
-              </Link>
-            ) : null}
-          </div>
-        </div>
-        {students.length ? (
-          <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[15px]">
-            {students.map((s) => (
-              <li key={s.userId} className="flex flex-wrap gap-x-3">
-                <span className="font-semibold">{s.user?.name ?? t("courses.deletedAccount")}</span>
-                <span className="text-muted" dir="ltr">
-                  {s.user?.phone}
-                </span>
-                <span className="text-muted">
-                  {s.source === "paid" ? t("courses.paid") : s.source === "manual" ? t("courses.addedByYou") : t("common.free")} · {formatDate(s.enrolledAt, lang)}
-                  {s.cohortId && cohortName.get(s.cohortId) ? ` · ${cohortName.get(s.cohortId)}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="m-0 text-[15px] text-muted">{t("courses.noStudents")}</p>
-        )}
-        <StudentForm courseId={course.id} cohorts={course.cohorts ?? []} />
-        {/* 112.5 Many at once. */}
-        <details className="rounded-lg bg-sand p-3">
-          <summary className="cursor-pointer text-[15px] font-semibold">{t("lms.addStudents")}</summary>
-          <div className="pt-3">
-            <StudentsForm courseId={course.id} cohorts={course.cohorts ?? []} />
-          </div>
-        </details>
-      </section>
-
-      <form action={deleteCourseAction}>
-        <input type="hidden" name="id" value={course.id} />
-        <SubmitButton variant="danger" className="h-10">
-          {t("courses.deleteCourse")}
-        </SubmitButton>
-      </form>
+            <form action={deleteCourseAction} className="flex justify-end">
+              <input type="hidden" name="id" value={course.id} />
+              <SubmitButton variant="danger" className="h-10">
+                <Icon name="delete" size={18} />
+                {t("courses.deleteCourse")}
+              </SubmitButton>
+            </form>
+          </>
+        }
+      />
     </div>
   );
 }

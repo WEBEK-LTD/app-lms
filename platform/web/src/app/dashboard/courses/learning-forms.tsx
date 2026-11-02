@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveGamificationAction, savePathAction } from "@/app/actions/courses";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 /** 113.7 Learning paths, and points and badges on or off. */
@@ -54,15 +55,15 @@ export function PathForm({ current, courses, submit }: { current: Record<string,
         </label>
         <span className="ps-6 text-[13px] text-muted">{t("learning.inOrderHint")}</span>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <label className="flex cursor-pointer items-center gap-2 text-[15px]">
-          <input type="checkbox" name="active" defaultChecked={v.active !== ""} className="h-4 w-4 accent-midnight" />
-          {t("learning.pathShown")}
-        </label>
+      <label className="flex cursor-pointer items-center gap-2 text-[15px]">
+        <input type="checkbox" name="active" defaultChecked={v.active !== ""} className="h-4 w-4 accent-midnight" />
+        {t("learning.pathShown")}
+      </label>
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

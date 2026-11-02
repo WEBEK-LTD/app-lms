@@ -178,6 +178,15 @@ export const en = {
     csvFree: "Free",
     csvPassed: "passed",
   },
+  // The page kit on a course's page.
+  addSectionTitle: "Add a section",
+  addSectionHint: "A section groups lessons, quizzes, assignments and live classes, in the order students take them.",
+  curriculumCount: "{sections, plural, one {{sections} section} other {{sections} sections}} · {lessons, plural, one {{lessons} lesson} other {{lessons} lessons}}",
+  sectionItems: "{count, plural, =0 {Nothing in it yet} one {{count} item} other {{count} items}}",
+  sectionsCount: "{count, plural, one {In {count} section} other {In {count} sections}}",
+  statToGrade: "To grade",
+  bankCount: "{count, plural, one {{count} question} other {{count} questions}}",
+  courseTools: "This course's students and work",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -353,6 +362,14 @@ export const ar: Messages = {
     csvFree: "مجاني",
     csvPassed: "ناجح",
   },
+  addSectionTitle: "إضافة قسم",
+  addSectionHint: "يجمع القسم الدروس والاختبارات والواجبات والحصص المباشرة بالترتيب الذي يتبعه الطلاب.",
+  curriculumCount: "{sections, plural, zero {لا أقسام} one {قسم واحد} two {قسمان} few {{sections} أقسام} many {{sections} قسمًا} other {{sections} قسم}} · {lessons, plural, zero {لا دروس} one {درس واحد} two {درسان} few {{lessons} دروس} many {{lessons} درسًا} other {{lessons} درس}}",
+  sectionItems: "{count, plural, =0 {لا شيء فيه بعد} one {عنصر واحد} two {عنصران} few {{count} عناصر} many {{count} عنصرًا} other {{count} عنصر}}",
+  sectionsCount: "{count, plural, one {في قسم واحد} two {في قسمين} few {في {count} أقسام} many {في {count} قسمًا} other {في {count} قسم}}",
+  statToGrade: "بانتظار التقييم",
+  bankCount: "{count, plural, zero {لا أسئلة} one {سؤال واحد} two {سؤالان} few {{count} أسئلة} many {{count} سؤالًا} other {{count} سؤال}}",
+  courseTools: "طلاب هذه الدورة وأعمالهم",
 };
 
 export const tr: Messages = {
@@ -525,4 +542,12 @@ export const tr: Messages = {
     csvFree: "Ücretsiz",
     csvPassed: "geçti",
   },
+  addSectionTitle: "Bölüm ekle",
+  addSectionHint: "Bir bölüm dersleri, sınavları, ödevleri ve canlı dersleri öğrencilerin izleyeceği sırayla bir araya getirir.",
+  curriculumCount: "{sections} bölüm · {lessons} ders",
+  sectionItems: "{count, plural, =0 {Henüz içi boş} other {{count} öğe}}",
+  sectionsCount: "{count} bölümde",
+  statToGrade: "Notlanacak",
+  bankCount: "{count} soru",
+  courseTools: "Bu kursun öğrencileri ve çalışmaları",
 };

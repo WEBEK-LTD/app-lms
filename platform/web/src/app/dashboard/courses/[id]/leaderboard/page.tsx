@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Icon } from "@/components/icon";
+import { EmptyState, PageHeader } from "@/components/ui";
+import { FilterLinks, ListBar } from "@/components/page-kit-b";
 import { appZone } from "@/lib/analytics/zone";
 import { requireClient } from "@/lib/auth/session";
 import { classLearners, coursePoints, leaderboard } from "@/lib/courses/gamification";
@@ -36,42 +36,38 @@ export default async function CourseLeaderboardPage({ params, searchParams }: Pa
   const full = new Map(users.map((u) => [u.id, u.name]));
   const rows = leaderboard(users.map((user) => ({ user, points: coursePoints(course, learners.get(user.id) ?? { progress: new Map(), attempts: [], submissions: [] }, zone) })));
 
+  const podium = ["bg-tile-1 text-ink-3", "bg-tile-3 text-ink-3", "bg-tile-5 text-ink-3"];
+
   return (
-    <div className="flex max-w-[760px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href={`/dashboard/courses/${course.id}`} className="flex items-center gap-1 text-sm no-underline">
-          <Icon name="arrow_back" size={18} />
-          {course.title}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("learning.leaderboard")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{setup.gamification ? t("learning.leaderboardIntro") : t("learning.leaderboardOff")}</p>
-      </div>
-      {(course.cohorts ?? []).length ? (
-        <nav aria-label={t("lms.cohorts")} className="flex flex-wrap gap-2">
-          {[null, ...(course.cohorts ?? [])].map((c) => (
-            <Link
-              key={c?.id ?? "all"}
-              href={`/dashboard/courses/${course.id}/leaderboard${c ? `?cohort=${c.id}` : ""}`}
-              aria-current={(cohort?.id ?? null) === (c?.id ?? null) ? "page" : undefined}
-              className={`rounded-[10px] px-3.5 py-2 text-[15px] no-underline ${(cohort?.id ?? null) === (c?.id ?? null) ? "bg-midnight font-bold text-white hover:text-white" : "border border-line bg-white text-midnight hover:text-midnight"}`}
-            >
-              {c?.name ?? t("community.all")}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
-      <section aria-label={t("learning.leaderboard")} className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, then the ranking in a flush Section, by cohort when the course has them. */}
+      <PageHeader back={{ href: `/dashboard/courses/${course.id}`, label: course.title }} title={t("learning.leaderboard")} description={setup.gamification ? t("learning.leaderboardIntro") : t("learning.leaderboardOff")} />
+      <section aria-label={t("learning.leaderboard")} className="flex min-w-0 max-w-[860px] flex-col rounded-2xl border border-line bg-white">
+        {(course.cohorts ?? []).length ? (
+          <ListBar>
+            <FilterLinks
+              label={t("lms.cohorts")}
+              items={[null, ...(course.cohorts ?? [])].map((c) => ({
+                href: `/dashboard/courses/${course.id}/leaderboard${c ? `?cohort=${c.id}` : ""}`,
+                label: c?.name ?? t("community.all"),
+                current: (cohort?.id ?? null) === (c?.id ?? null),
+              }))}
+            />
+          </ListBar>
+        ) : null}
         {rows.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("courses.noStudents")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="emoji_events" title={t("courses.noStudents")} />
+          </div>
         ) : (
           <ol className="m-0 flex list-none flex-col p-0" data-testid="leaderboard">
             {rows.map((r) => (
-              <li key={r.userId} className="flex items-center gap-3 border-t border-line-soft py-2.5 text-[15px] first:border-t-0">
-                <span className="w-8 shrink-0 text-center font-extrabold text-muted">{r.rank}</span>
+              <li key={r.userId} className="flex items-center gap-3 border-t border-line-soft px-5 py-3 text-[15px] first:border-t-0 sm:px-6">
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold tabular-nums ${r.rank <= 3 ? podium[r.rank - 1] : "bg-sand text-muted"}`}>{r.rank}</span>
                 <span className="min-w-0 flex-1 truncate font-semibold">
                   {full.get(r.userId)} <span className="font-normal text-muted">({r.name})</span>
                 </span>
-                <span className="shrink-0 font-bold">{t("learning.points", { count: r.points })}</span>
+                <span className="shrink-0 rounded-full bg-peach px-3 py-1 text-sm font-bold text-midnight">{t("learning.points", { count: r.points })}</span>
               </li>
             ))}
           </ol>

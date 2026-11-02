@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteBundleAction } from "@/app/actions/courses";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Notice } from "@/components/ui";
+import { Badge, Notice, PageHeader, Section } from "@/components/ui";
+import { DetailLayout, ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal, formatCents } from "@/lib/catalog/money";
@@ -36,48 +36,72 @@ export default async function BundlePage({ params }: PageProps<"/dashboard/cours
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/courses/bundles" className="flex items-center gap-1 text-sm no-underline">
-          <Icon name="arrow_back" size={18} />
-          {t("lms.backToBundles")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{bundle.title}</h1>
-        <p className="m-0 text-[15px] text-ink-4" data-compare-at>
-          {saving > 0 ? t("lms.bundleCompare", { amount: money(compareCents), saving: money(saving) }) : t("lms.bundleCompareNone", { amount: money(compareCents) })}
-        </p>
-      </div>
+      {/* The page kit: the header, then the form beside the bundle's price and courses. */}
+      <PageHeader
+        back={{ href: "/dashboard/courses/bundles", label: t("lms.backToBundles") }}
+        title={bundle.title}
+        description={
+          <span data-compare-at>{saving > 0 ? t("lms.bundleCompare", { amount: money(compareCents), saving: money(saving) }) : t("lms.bundleCompareNone", { amount: money(compareCents) })}</span>
+        }
+      />
       {bundle.active && courses.length < BUNDLE_MIN_COURSES ? (
         <Notice tone="warn" icon="warning">
           {t("lms.bundleNotShown")}
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-bundle" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-bundle" className="m-0 text-lg font-bold">
-          {t("common.details")}
-        </h2>
-        <BundleForm
-          current={{
-            id: String(bundle.id),
-            title: bundle.title,
-            description: bundle.description,
-            price: centsToDecimal(bundle.priceCents),
-            courseIds: bundle.courseIds.join(","),
-            active: bundle.active ? "on" : "",
-          }}
-          courses={bundleChoices(setup, t("common.free"))}
-          currency={setup.currency}
-          imageUrl={bundle.imageAssetId ? assetUrl(bundle.imageAssetId) : null}
-          submit={t("lms.saveBundle")}
-        />
-      </section>
-
-      <form action={deleteBundleAction}>
-        <input type="hidden" name="id" value={bundle.id} />
-        <SubmitButton variant="danger" className="h-10">
-          {t("lms.deleteBundle")}
-        </SubmitButton>
-      </form>
+      <DetailLayout
+        main={
+          <Section titleId="h-bundle" title={t("common.details")}>
+            <BundleForm
+              current={{
+                id: String(bundle.id),
+                title: bundle.title,
+                description: bundle.description,
+                price: centsToDecimal(bundle.priceCents),
+                courseIds: bundle.courseIds.join(","),
+                active: bundle.active ? "on" : "",
+              }}
+              courses={bundleChoices(setup, t("common.free"))}
+              currency={setup.currency}
+              imageUrl={bundle.imageAssetId ? assetUrl(bundle.imageAssetId) : null}
+              submit={t("lms.saveBundle")}
+            />
+          </Section>
+        }
+        side={
+          <>
+            <StatRow label={bundle.title}>
+              <Stat icon="sell" tone="accent" label={t("lms.bundlePriceStat")} value={money(bundle.priceCents)} hint={saving > 0 ? t("lms.bundleSaves", { amount: money(saving) }) : undefined} />
+              <Stat icon={bundle.active ? "visibility" : "visibility_off"} tone={bundle.active ? "success" : "warn"} label={t("lms.bundleInApp")} value={bundle.active ? t("lms.bundleShownShort") : t("common.hidden")} />
+            </StatRow>
+            <Section titleId="h-bundle-courses" title={t("lms.bundleCourses")} actions={<Badge tone="neutral">{courses.length}</Badge>} flush>
+              {courses.length ? (
+                <ItemList>
+                  {courses.map((c, i) => (
+                    <ItemRow
+                      key={c.id}
+                      href={`/dashboard/courses/${c.id}`}
+                      media={<Thumb src={c.imageAssetId ? assetUrl(c.imageAssetId) : null} icon="school" shape="square" tint={i} />}
+                      title={c.title}
+                      meta={c.priceCents ? money(c.priceCents) : t("common.free")}
+                    />
+                  ))}
+                </ItemList>
+              ) : (
+                <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("lms.bundleNotShown")}</p>
+              )}
+            </Section>
+            <form action={deleteBundleAction} className="flex justify-end">
+              <input type="hidden" name="id" value={bundle.id} />
+              <SubmitButton variant="danger" className="h-10">
+                <Icon name="delete" size={18} />
+                {t("lms.deleteBundle")}
+              </SubmitButton>
+            </form>
+          </>
+        }
+      />
     </div>
   );
 }
