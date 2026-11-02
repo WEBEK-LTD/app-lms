@@ -618,11 +618,13 @@ test("113.12 Salaries: a salary and an advance, the month's payslips with a bonu
   // Locked: final, then paid in cash and written down here.
   await own.goto("/dashboard/school/salaries");
   await own.getByRole("button", { name: "Lock the month" }).click();
-  await expect(own.getByText("Locked. 1 payslips are final; each person sees theirs in the app.")).toBeVisible();
+  // The month's form gives way to the locked month's note.
+  await expect(own.getByText(/^Locked by Nile School on \d{4}-\d{2}-\d{2}: the payslips are final and each person sees theirs in the app\./)).toBeVisible();
   await own.goto(payslipUrl);
   await expect(own.locator("#f-pay-amount-payslip")).toHaveValue("6400.00");
   await own.getByRole("button", { name: "Record as paid" }).click();
-  await expect(own.getByText("Recorded. The payslip is paid.")).toBeVisible();
+  // Paid in full: the payment form gives way to the payments.
+  await expect(own.getByRole("button", { name: "Record as paid" })).toHaveCount(0);
   await own.reload();
   await expect(own.locator("[data-payments]")).toContainText("E£6,400.00 · Cash");
   await expect(own.locator("[data-payments]")).toContainText("Recorded by");

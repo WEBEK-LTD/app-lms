@@ -2,7 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
 
 /**
- * 113.9 A School project in university mode: the school turns it on,
+ * 113.9 A School project in university mode, on a Studio plan without
+ * universities (the dashboard says so): the school turns it on,
  * adds a faculty and a department, a program, courses (one by hand, one
  * from a sheet), a student and a lecturer (People) and the student's
  * program and advisor, a term whose registration is open and a section of
@@ -56,6 +57,15 @@ test("a School project turns university mode on", async () => {
   await own.getByRole("radio", { name: "Blank page" }).click();
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
+  // The team puts the project on a Studio plan without universities.
+  await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
+  await admin.getByRole("link", { name: client.name, exact: true }).click();
+  await admin.waitForURL(/\/admin\/clients\/[0-9a-f-]{36}$/);
+  const plan = admin.getByRole("region", { name: client.name }).getByRole("region", { name: "Plan and license" });
+  await plan.getByLabel("Plan").selectOption("studio_1");
+  await plan.getByRole("button", { name: "Activate & send license" }).click();
+  await expect(admin.getByRole("status")).toContainText("Activated");
+  await own.goto("/studio/project");
   await own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "University", exact: true }).click();
   await expect(own).toHaveURL(/\/studio\/project\/school\/university$/);
   await expect(own.getByText("Universities aren't included in this app's plan yet")).toBeVisible();
@@ -122,8 +132,8 @@ test("a student and a lecturer, the student's program and advisor, a term and it
 
   await own.goto("/dashboard/school/university/students");
   await own.getByText("Edit Omar Hassan").click();
-  await own.getByLabel("Program").selectOption({ label: "BSc Computer Science" });
-  await own.getByLabel("Advisor").selectOption({ label: "Mona Adel" });
+  await own.getByLabel("Program", { exact: true }).selectOption({ label: "BSc Computer Science" });
+  await own.getByLabel("Advisor", { exact: true }).selectOption({ label: "Mona Adel" });
   await own.getByRole("button", { name: "Save", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
@@ -157,10 +167,10 @@ test("the office enrols the student past the prerequisite; the grade is publishe
   await own.getByRole("link", { name: /Omar Hassan/ }).first().click();
   const panel = own.getByRole("region", { name: "Omar Hassan in Spring 2027" });
   await expect(panel.getByText("No sections yet.")).toBeVisible();
-  await panel.getByLabel("Section").selectOption({ index: 1 });
+  await panel.getByLabel("Section", { exact: true }).selectOption({ index: 1 });
   await panel.getByRole("button", { name: "Add to the section" }).click();
-  await expect(panel.getByText("Pass CS101 first.")).toBeVisible();
-  await panel.getByLabel("Section").selectOption({ index: 1 });
+  await expect(panel.getByRole("alert")).toHaveText("Pass CS101 first.");
+  await panel.getByLabel("Section", { exact: true }).selectOption({ index: 1 });
   await panel.getByLabel("Past the rules").check();
   await panel.getByRole("button", { name: "Add to the section" }).click();
   await expect(own.getByText("Added. The student is enrolled.")).toBeVisible();
