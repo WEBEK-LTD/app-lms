@@ -163,7 +163,7 @@ export async function listChatLibraryAction(): Promise<ChatLibraryFile[]> {
 
 const isSchoolApp = (app: App) => app.connector?.kind === "school";
 
-/** The administration writes to one teacher, all of them or a department: in each teacher's own conversation with the school. */
+/** The administration writes to one teacher or member of staff (113.3), all teachers, all staff, everyone or a department: in each one's own conversation with the school. */
 export async function writeToTeachersAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app, deps, team, context } = await chatContext();
   if (!isSchoolApp(app)) return { message: "This app isn't a school." };
@@ -171,17 +171,17 @@ export async function writeToTeachersAction(_: FormState, formData: FormData): P
   const text = String(formData.get("text") ?? "").trim();
   const values = { to, text };
   const audience: TeacherAudience | null =
-    to === "all" ? { kind: "all" } : to.startsWith("department:") ? { kind: "department", name: to.slice(11) } : /^teacher:\d{1,15}$/.test(to) ? { kind: "teacher", id: Number(to.slice(8)) } : null;
+    to === "all" || to === "staff" || to === "everyone" ? { kind: to } : to.startsWith("department:") ? { kind: "department", name: to.slice(11) } : /^teacher:\d{1,15}$/.test(to) ? { kind: "teacher", id: Number(to.slice(8)) } : null;
   if (!audience) return { errors: { to: "Choose whom to write to." }, values };
   if (!text) return { errors: { text: "Write a message or attach a file." }, values };
   const sent = await writeToTeachers(deps, app, { audience, text, clientId: field(formData, "client") || newId(), team });
   if (!sent.ok) return sent.status === 404 ? { errors: { to: "No teacher to write to." }, values } : { errors: { text: sent.message }, values };
-  await recordStaffChange(context, `Wrote to ${sent.value.sent} teacher(s) in the chat`);
+  await recordStaffChange(context, `Wrote to ${sent.value.sent} teacher(s) or staff in the chat`);
   revalidatePath("/dashboard/chat", "layout");
   if (sent.value.sent === 0) return { ok: false, message: `None of them has signed in to the app yet: ${sent.value.notInApp.join(", ")}.`, values };
   return {
     ok: true,
-    message: sent.value.notInApp.length ? `Sent to ${sent.value.sent} teacher(s). Not yet in the app: ${sent.value.notInApp.join(", ")}.` : `Sent to ${sent.value.sent} teacher(s).`,
+    message: sent.value.notInApp.length ? `Sent to ${sent.value.sent} person(s). Not yet in the app: ${sent.value.notInApp.join(", ")}.` : `Sent to ${sent.value.sent} person(s).`,
   };
 }
 

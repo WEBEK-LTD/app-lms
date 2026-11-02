@@ -513,39 +513,51 @@ export async function closeSchoolConversation(store: DataStore, app: App, conver
   return true;
 }
 
-/** The teachers the administration writes to: one, all of them, or a department's. */
-export type TeacherAudience = { kind: "all" } | { kind: "department"; name: string } | { kind: "teacher"; id: number };
+/** Who the administration writes to: all its teachers, 113.3 all its staff, everyone who works there, a department's people (teachers and staff), or one of them. */
+export type TeacherAudience = { kind: "all" } | { kind: "staff" } | { kind: "everyone" } | { kind: "department"; name: string } | { kind: "teacher"; id: number };
+
+/** 113.3 An active teacher or member of staff: the administration writes to them in their own conversation with the school. */
+const worksHere = (p: Pick<SchoolPerson, "role" | "active">) => p.active && (p.role === "teacher" || p.role === "staff");
 
 export function teachersFor(people: Iterable<SchoolPerson>, audience: TeacherAudience): SchoolPerson[] {
-  return [...people].filter(
-    (p) =>
-      p.role === "teacher" &&
-      p.active &&
-      (audience.kind === "all" || (audience.kind === "department" ? (p.department ?? "").trim().toLowerCase() === audience.name.trim().toLowerCase() : p.id === audience.id)),
-  );
+  return [...people].filter((p) => {
+    if (!worksHere(p)) return false;
+    switch (audience.kind) {
+      case "all":
+        return p.role === "teacher";
+      case "staff":
+        return p.role === "staff";
+      case "everyone":
+        return true;
+      case "department":
+        return (p.department ?? "").trim().toLowerCase() === audience.name.trim().toLowerCase();
+      case "teacher":
+        return p.id === audience.id;
+    }
+  });
 }
 
-/** The school's departments, from its teachers. */
+/** The school's departments, from its teachers and staff. */
 export function departmentsOf(people: Iterable<SchoolPerson>): string[] {
   const out = new Map<string, string>();
   for (const p of people) {
-    const name = p.role === "teacher" && p.active ? p.department?.trim() : "";
+    const name = worksHere(p) ? p.department?.trim() : "";
     if (name && !out.has(name.toLowerCase())) out.set(name.toLowerCase(), name);
   }
   return [...out.values()].sort((a, b) => a.localeCompare(b));
 }
 
 /**
- * The administration writes to its teachers: the message goes into each
- * teacher's own conversation with the school, where they answer. Teachers
- * who never signed in to the app can't be written to yet.
+ * The administration writes to its teachers (113.3 and its staff): the
+ * message goes into each one's own conversation with the school, where
+ * they answer. Those who never signed in to the app can't be written to yet.
  */
 export async function writeToTeachers(
   deps: ChatDeps,
   app: App,
   input: { audience: TeacherAudience; text: string; clientId: string; team: { userId: string; name: string } },
 ): Promise<ChatResult<{ sent: number; notInApp: string[] }>> {
-  const people = await deps.store.listSchoolPeople(app.id, { role: "teacher" });
+  const people = await deps.store.listSchoolPeople(app.id);
   const teachers = teachersFor(people, input.audience);
   if (teachers.length === 0) return { ok: false, status: 404, code: "not_found", message: "No teacher to write to." };
   let sent = 0;

@@ -101,7 +101,10 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
   const deps = dashboardChatDeps(store, app, plan, now);
   const reports = view === "reports" ? await Promise.all([ownerReports(deps, app, "open"), ownerReports(deps, app, "closed")]) : null;
   const allInbox = await ownerConversations(deps, app, { kind: view === "direct" || view === "group" ? view : undefined, unread: view === "unread", q, limit: 200 });
-  const teachers = school ? (await store.listSchoolPeople(app.id, { role: "teacher" })).filter((p) => p.active) : [];
+  // 113.3 The school's staff too: the administration writes to them as to its teachers.
+  const workers = school ? (await store.listSchoolPeople(app.id)).filter((p) => p.active && (p.role === "teacher" || p.role === "staff")) : [];
+  const teachers = workers.filter((p) => p.role === "teacher");
+  const staff = workers.filter((p) => p.role === "staff");
   const teacherMembers = new Set<string>();
   for (const teacher of teachers) {
     const found = teacher.userId !== null ? await store.findChatMember(app.id, "hosted", String(teacher.userId)) : null;
@@ -197,14 +200,16 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
               {t("chat.writeTo")}
               <select id="f-teachers-to" name="to" defaultValue="all" className="input h-10">
                 <option value="all">{t("chat.allTeachers", { count: teachers.length })}</option>
-                {departmentsOf(teachers).map((d) => (
+                {staff.length ? <option value="staff">{t("chat.allStaff", { count: staff.length })}</option> : null}
+                {staff.length && teachers.length ? <option value="everyone">{t("chat.everyone", { count: workers.length })}</option> : null}
+                {departmentsOf(workers).map((d) => (
                   <option key={d} value={`department:${d}`}>
                     {t("chat.department", { name: d })}
                   </option>
                 ))}
-                {teachers.map((p) => (
+                {workers.map((p) => (
                   <option key={p.id} value={`teacher:${p.id}`}>
-                    {p.name}
+                    {p.role === "staff" ? t("chat.staffName", { name: p.name }) : p.name}
                   </option>
                 ))}
               </select>
