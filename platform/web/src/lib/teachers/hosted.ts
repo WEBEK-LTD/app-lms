@@ -4,7 +4,8 @@ import { courseSetup } from "../courses/setup";
 import type { DataStore } from "../data/store";
 import type { App, AssignmentSubmission, Course, CourseAssignment, CourseLesson, CourseSetup, HostedUser, Teacher } from "../data/types";
 import { assignmentDone, assignmentDueAt, assignmentsOf, learningStart } from "../courses/learning";
-import { parseGrade } from "../courses/grading";
+import { attemptsOf, parseGrade, rubricJson, rubricResult } from "../courses/grading";
+import { findLesson } from "../courses/setup";
 import { courierWho } from "../delivery/service";
 import { appZone } from "../analytics/zone";
 import { CoursesConnector } from "../hosted/connectors/courses";
@@ -529,6 +530,9 @@ async function questions(ctx: TeachersContext, request: ConnectorRequest, teache
       answered: q.status === "answered",
       answer_count: q.answerCount,
       updated_at: q.updatedAt.toISOString(),
+      // 113.7 A lesson's discussion, and pinned.
+      lesson_title: q.lessonId ? (findLesson(setup, q.lessonId)?.lesson.title ?? null) : null,
+      pinned: q.pinned,
     });
   }
   return ok({ page, per_page: perPage, total: sorted.length, total_pages: Math.max(1, Math.ceil(sorted.length / perPage)), items: out });
@@ -587,6 +591,11 @@ async function submissionJson(ctx: TeachersContext, s: AssignmentSubmission, of:
     submitted_at: s.submittedAt.toISOString(),
     graded_at: s.gradedAt?.toISOString() ?? null,
     late: due !== null && s.submittedAt.getTime() > due.getTime(),
+    // 113.7 The rubric to grade with and the levels chosen; which try it is.
+    rubric: rubricJson(of.assignment.rubric),
+    rubric_result: s.status === "graded" ? rubricResult(of.assignment.rubric, s.rubric) : null,
+    attempt: s.attempt,
+    attempts_allowed: attemptsOf(of.assignment),
   };
 }
 
@@ -613,7 +622,10 @@ async function grade(ctx: TeachersContext, request: ConnectorRequest, teacher: T
   if (!submission || !of) return error(404, "not_found", "Assignment not found.");
   const body = record(request.body);
   const outcome = body.outcome === "return" ? "return" : "grade";
-  const parsed = parseGrade({ outcome, score: body.score === undefined || body.score === null ? "" : String(body.score), feedback: typeof body.feedback === "string" ? body.feedback : "" }, of.assignment);
+  // 113.7 With a rubric: the level chosen for each criterion (by their IDs).
+  const levels = record(body.rubric);
+  const chosen = Object.fromEntries(Object.entries(levels).map(([criterion, level]) => [`rubric-${criterion}`, String(level)]));
+  const parsed = parseGrade({ ...chosen, outcome, score: body.score === undefined || body.score === null ? "" : String(body.score), feedback: typeof body.feedback === "string" ? body.feedback : "" }, of.assignment);
   if (!parsed.ok) return error(400, "invalid_request", Object.values(parsed.errors)[0]!);
   const graded = { ...submission, ...parsed.value, gradedAt: request.now, gradedBy: teacher.name };
   await ctx.store.gradeAssignmentSubmission(ctx.app.id, submission.id, { ...parsed.value, gradedAt: request.now, gradedBy: teacher.name });

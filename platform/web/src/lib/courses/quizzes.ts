@@ -1,4 +1,5 @@
-import type { CourseQuiz, CourseQuizQuestion, CourseSetup } from "../data/types";
+import type { CourseExam, CourseQuiz, CourseQuizQuestion, CourseSetup } from "../data/types";
+import { localInstant, localParts } from "./builder";
 import { withCourse } from "./edit";
 import { QUIZ_LIMITS } from "./learning";
 
@@ -72,7 +73,7 @@ export function questionsText(quiz: Pick<CourseQuiz, "questions">): string {
     .join("\n\n");
 }
 
-export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "id">> {
+export function parseQuiz(v: Record<string, string>, zone = "UTC"): Parsed<Omit<CourseQuiz, "id">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > QUIZ_LIMITS.title) errors.title = `Enter a title of up to ${QUIZ_LIMITS.title} characters.`;
@@ -87,6 +88,19 @@ export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "i
   if (!Number.isInteger(picks) || picks < 0 || picks > QUIZ_LIMITS.questions) errors.bankPicks = `Enter 0 to ${QUIZ_LIMITS.questions} questions, or leave it empty.`;
   const parsed = picks > 0 && !(v.questions ?? "").trim() ? { questions: [] } : parseQuestions(v.questions ?? "");
   if ("error" in parsed) errors.questions = parsed.error;
+  // 113.7 A timed exam: when it opens and closes (in the app's time zone), its results maybe after it closes.
+  let exam: CourseExam | null = null;
+  if (v.exam === "on") {
+    const opensAt = localInstant((v.opensOn ?? "").trim(), (v.opensTime ?? "").trim(), zone);
+    const closesAt = localInstant((v.closesOn ?? "").trim(), (v.closesTime ?? "").trim() || "23:59", zone);
+    if (opensAt === undefined) errors.opensOn = "Choose a date and time, or leave it empty.";
+    if (closesAt === undefined) errors.closesOn = "Choose a date and time, or leave it empty.";
+    else if (opensAt && closesAt && Date.parse(closesAt) <= Date.parse(opensAt)) errors.closesOn = "Choose a time after it opens.";
+    const after = v.resultsAfterClose === "on";
+    if (after && !closesAt && closesAt !== undefined) errors.closesOn = "Choose when it closes, to show the results then.";
+    if (minutes === null && !closesAt && closesAt !== undefined) errors.timeLimit = "Give the exam a time limit or a time it closes.";
+    exam = { opensAt: opensAt ?? null, closesAt: closesAt ?? null, resultsAfterClose: after };
+  }
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
     ok: true,
@@ -100,8 +114,17 @@ export function parseQuiz(v: Record<string, string>): Parsed<Omit<CourseQuiz, "i
       shuffle: v.shuffle === "on",
       showAnswers: v.showAnswers === "on",
       ...(picks > 0 ? { bankPicks: picks } : {}),
+      ...(exam ? { exam } : {}),
     },
   };
+}
+
+/** 113.7 The exam's fields on the quiz's form, in the app's time zone. */
+export function examValues(quiz: Pick<CourseQuiz, "exam">, zone: string): Record<string, string> {
+  if (!quiz.exam) return { exam: "" };
+  const opens = localParts(quiz.exam.opensAt, zone);
+  const closes = localParts(quiz.exam.closesAt, zone);
+  return { exam: "on", opensOn: opens.date, opensTime: opens.time, closesOn: closes.date, closesTime: closes.time, resultsAfterClose: quiz.exam.resultsAfterClose ? "on" : "" };
 }
 
 /** 112.5 The bank's questions start at this ID, apart from a quiz's own (1, 2, …). */
@@ -128,10 +151,10 @@ export function saveQuestionBank(setup: CourseSetup, courseId: number, text: str
 export type QuizSave = { ok: true; setup: CourseSetup; quiz: CourseQuiz; added: boolean } | { ok: false; message?: string; errors?: Record<string, string> };
 
 /** Adds a quiz at the end of a section, or with `v.id` saves one. */
-export function saveQuiz(setup: CourseSetup, courseId: number, topicId: number, v: Record<string, string>): QuizSave {
+export function saveQuiz(setup: CourseSetup, courseId: number, topicId: number, v: Record<string, string>, zone = "UTC"): QuizSave {
   const topic = setup.courses.find((c) => c.id === courseId)?.topics.find((t) => t.id === topicId);
   if (!topic) return { ok: false, message: "This section no longer exists." };
-  const parsed = parseQuiz(v);
+  const parsed = parseQuiz(v, zone);
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
   const id = v.id ? Number(v.id) : null;
   const quizzes = topic.quizzes ?? [];

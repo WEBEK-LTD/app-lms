@@ -91,6 +91,11 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
             <Icon name="inventory_2" size={20} />
             {t("lms.bundlesOpen")}
           </Link>
+          {/* 113.7 Learning paths, and points and badges. */}
+          <Link href="/dashboard/courses/paths" className={`${btn.secondary} h-11`}>
+            <Icon name="route" size={20} />
+            {t("learning.pathsLink")}
+          </Link>
           {/* 81.4 */}
           <Link href="/dashboard/courses/import" className={`${btn.secondary} h-11`}>
             <Icon name="upload" size={20} />
@@ -150,6 +155,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
         </h2>
         <CourseForm
           current={{ title: "", description: "", price: "", instructor: "", level: "", categoryIds: "", active: "on", restart: "on" }}
+          others={setup.courses.map((c) => ({ id: c.id, title: c.title }))}
           categories={setup.categories}
           currency={setup.currency}
           imageUrl={null}

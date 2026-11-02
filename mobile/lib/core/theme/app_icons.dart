@@ -217,6 +217,13 @@ abstract final class AppIcons {
   // 112 Rides and deliveries on the map.
   static const recent = Symbols.history_rounded;
   static const navigate = Symbols.navigation_rounded;
+
+  // 113.7 More of a real LMS.
+  static const pin = Symbols.push_pin_rounded;
+  static const bookmarkAdd = Symbols.bookmark_add_rounded;
+  static const leaderboard = Symbols.emoji_events_rounded;
+  static const streak = Symbols.bolt_rounded;
+  static const discussion = Symbols.forum_rounded;
 }
 
 /// A Material Symbols icon with an optional filled style.

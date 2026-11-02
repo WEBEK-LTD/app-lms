@@ -205,6 +205,21 @@ class ProfileScreen extends ConsumerWidget {
                       title: context.l10n.liveClasses,
                       onTap: () => context.push(Paths.liveClasses),
                     ),
+                  // 113.7 Learning paths, and points and badges.
+                  if (config.features.learningPaths)
+                    SettingsTile(
+                      key: const ValueKey('account-learning-paths'),
+                      icon: AppIcons.route,
+                      title: context.l10n.learningPaths,
+                      onTap: () => context.push(Paths.learningPaths),
+                    ),
+                  if (config.features.gamification)
+                    SettingsTile(
+                      key: const ValueKey('account-achievements'),
+                      icon: AppIcons.leaderboard,
+                      title: context.l10n.achievementsTitle,
+                      onTap: () => context.push(Paths.achievements),
+                    ),
                   if (config.features.wishlist)
                     SettingsTile(
                       icon: AppIcons.favorite,
@@ -228,6 +243,8 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   if (!config.features.certificates &&
                       !config.features.liveClasses &&
+                      !config.features.learningPaths &&
+                      !config.features.gamification &&
                       !config.features.memberships &&
                       !config.features.quizzes &&
                       !config.features.wishlist &&

@@ -945,7 +945,46 @@ export const lessonProgress = mysqlTable(
     completedAt: time("completed_at"),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId)],
+  // 113.7 A course's every student (its leaderboard).
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_progress_course_idx").on(t.appId, t.userId, t.courseId), index("lesson_progress_course_all_idx").on(t.appId, t.courseId)],
+);
+
+/** 113.7 A student's own notes on lessons; only they see them. */
+export const lessonNotes = mysqlTable(
+  "lesson_notes",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    lessonId: int("lesson_id").notNull(),
+    text: text("text").notNull(),
+    positionSeconds: int("position_seconds"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("lesson_notes_user_idx").on(t.appId, t.userId, t.courseId, t.lessonId)],
+);
+
+/** 113.7 Lessons a student bookmarked. */
+export const lessonBookmarks = mysqlTable(
+  "lesson_bookmarks",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    courseId: int("course_id").notNull(),
+    lessonId: int("lesson_id").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.lessonId] }), index("lesson_bookmarks_course_idx").on(t.appId, t.userId, t.courseId)],
 );
 
 /** 90.1 Quiz attempts of courses managed in Yallapp. */
@@ -1012,6 +1051,9 @@ export const assignmentSubmissions = mysqlTable(
     submittedAt: time("submitted_at").notNull(),
     gradedAt: time("graded_at"),
     gradedBy: varchar("graded_by", { length: 120 }),
+    // 113.7 Which time it was handed in, and the rubric's levels chosen.
+    attempt: int("attempt").notNull().default(1),
+    rubric: jsonText<Record<string, number>>("rubric"),
   },
   (t) => [
     uniqueIndex("assignment_submissions_unique").on(t.appId, t.assignmentId, t.userId),
@@ -2749,9 +2791,13 @@ export const courseQuestions = mysqlTable(
     hidden: boolean("hidden").notNull().default(false),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
+    // 113.7 A lesson's discussion, and pinned by the teacher or the academy.
+    lessonId: int("lesson_id"),
+    pinned: boolean("pinned").notNull().default(false),
   },
   (t) => [
     index("course_questions_course_idx").on(t.appId, t.courseId, t.createdAt),
+    index("course_questions_lesson_idx").on(t.appId, t.courseId, t.lessonId),
     index("course_questions_app_idx").on(t.appId, t.status, t.updatedAt),
     index("course_questions_hidden_idx").on(t.appId, t.hidden, t.status, t.updatedAt),
   ],

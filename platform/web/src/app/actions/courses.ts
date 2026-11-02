@@ -28,6 +28,7 @@ import { askAfterOwnEntry } from "@/lib/samples/lists";
 import { appZone } from "@/lib/analytics/zone";
 import { deleteCohort, deleteItem, moveItem, moveTopic, renameTopic, saveAssignment, saveCohort, saveLive } from "@/lib/courses/builder";
 import { findAssignment } from "@/lib/courses/learning";
+import { deletePath, orderedChoice, parsePrerequisites, savePath } from "@/lib/courses/paths";
 import { parseGrade, parsePhones } from "@/lib/courses/grading";
 import { notifyGraded } from "@/lib/hosted/auto-notifications";
 
@@ -89,6 +90,11 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   // 112.5 Taken in order, and who signs the certificate.
   v.sequential = formData.get("sequential") === "on" ? "on" : "";
   v.certificateSigner = String(formData.get("certificateSigner") ?? "").trim();
+  // 113.7 The rules to complete it, and the courses it needs first.
+  v.completeWhen = String(formData.get("completeWhen") ?? "all");
+  v.minFinalScore = String(formData.get("minFinalScore") ?? "").trim();
+  const prerequisiteIds = formData.getAll("prerequisiteIds").map(Number);
+  v.prerequisiteIds = prerequisiteIds.join(",");
   const categoryIds = formData.getAll("categoryIds").map(Number);
   v.categoryIds = categoryIds.join(",");
   const setup = courseSetup(app);
@@ -97,16 +103,18 @@ export async function saveCourseAction(_: FormState, formData: FormData): Promis
   if (id !== null && !existing) return { message: "This course no longer exists." };
   const parsed = parseCourse(v, setup, categoryIds);
   if (!parsed.ok) return { errors: parsed.errors, values: v };
+  const prerequisites = parsePrerequisites(setup, existing?.id ?? null, prerequisiteIds);
+  if (!prerequisites.ok) return { errors: { prerequisites: prerequisites.error }, values: v };
 
   const image = await formImage(context, formData, existing?.imageAssetId ?? null);
   if (!image.ok) return { errors: { image: image.error }, values: v };
   const imageAssetId = image.assetId;
 
   if (existing) {
-    await saveSetup(app, withCourse(setup, existing.id, (c) => ({ ...c, ...parsed.value, imageAssetId })));
+    await saveSetup(app, withCourse(setup, existing.id, (c) => ({ ...c, ...parsed.value, prerequisites: prerequisites.value, imageAssetId })));
     return { ok: true, message: `Saved “${parsed.value.title}”.`, values: v };
   }
-  const course: Course = { id: setup.nextId, ...parsed.value, imageAssetId, topics: [], createdAt: new Date().toISOString() };
+  const course: Course = { id: setup.nextId, ...parsed.value, ...(prerequisites.value.length ? { prerequisites: prerequisites.value } : {}), imageAssetId, topics: [], createdAt: new Date().toISOString() };
   await saveSetup(app, { ...setup, courses: [...setup.courses, course], nextId: setup.nextId + 1 });
   // 110.2 Their first own course next to the samples: the list asks whether to remove them.
   redirect((await askAfterOwnEntry(await getStore(), app.id, "courses")) ?? `/dashboard/courses/${course.id}`);
@@ -205,11 +213,14 @@ export async function saveQuizAction(_: FormState, formData: FormData): Promise<
   const { app } = await requireCoursesApp();
   const courseId = Number(formData.get("courseId"));
   const topicId = Number(formData.get("topicId"));
-  const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions", "bankPicks"]);
+  const v = values(formData, ["id", "title", "passPercent", "attemptsAllowed", "timeLimit", "questions", "bankPicks", "opensOn", "opensTime", "closesOn", "closesTime"]);
   // 112.5
   v.shuffle = formData.get("shuffle") === "on" ? "on" : "";
   v.showAnswers = formData.get("showAnswers") === "on" ? "on" : "";
-  const saved = saveQuiz(courseSetup(app), courseId, topicId, v);
+  // 113.7 A timed exam, its times in the app's time zone.
+  v.exam = formData.get("exam") === "on" ? "on" : "";
+  v.resultsAfterClose = formData.get("resultsAfterClose") === "on" ? "on" : "";
+  const saved = saveQuiz(courseSetup(app), courseId, topicId, v, await appZone(await getStore(), app));
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
   await saveSetup(app, saved.setup);
   return { ok: true, message: saved.added ? `Added “${saved.quiz.title}”.` : `Saved “${saved.quiz.title}”.`, values: saved.added ? undefined : v };
@@ -298,7 +309,8 @@ const isMedia = (url: string) => parseMediaLink(url, appUrl()) !== null;
 
 export async function saveAssignmentAction(_: FormState, formData: FormData): Promise<FormState> {
   const { app } = await requireCoursesApp();
-  const v = values(formData, ["id", "title", "instructions", "maxPoints", "passPoints", "dueDays", "dueOn", "attachments"]);
+  // 113.7 With a rubric and the tries a student has.
+  const v = values(formData, ["id", "title", "instructions", "maxPoints", "passPoints", "dueDays", "dueOn", "attachments", "rubric", "attemptsAllowed"]);
   const saved = saveAssignment(courseSetup(app), Number(formData.get("courseId")), Number(formData.get("topicId")), v, await appZone(await getStore(), app), isMedia);
   if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
   await saveSetup(app, saved.setup);
@@ -323,6 +335,8 @@ export async function gradeSubmissionAction(_: FormState, formData: FormData): P
   const found = submission ? findAssignment(courseSetup(app), submission.assignmentId) : null;
   if (!submission || !found) return { message: "This assignment no longer exists." };
   const v = values(formData, ["score", "feedback", "outcome"]);
+  // 113.7 The rubric's level chosen for each criterion.
+  for (const c of found.assignment.rubric ?? []) v[`rubric-${c.id}`] = String(formData.get(`rubric-${c.id}`) ?? "");
   const grade = parseGrade(v, found.assignment);
   if (!grade.ok) return { errors: grade.errors, values: v };
   const now = new Date();
@@ -400,6 +414,34 @@ export async function setStudentCohortAction(formData: FormData): Promise<void> 
   const chosen = cohortChoice(app, courseId, formData);
   await (await getStore()).setEnrollmentCohort({ appId: app.id, userId: Number(formData.get("userId")), courseId, cohortId: chosen.cohortId ?? null });
   revalidatePath(`/dashboard/courses/${courseId}`, "layout");
+}
+
+// 113.7 Learning paths, and points and badges.
+
+export async function savePathAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const v = values(formData, ["id", "title", "description"]);
+  v.inOrder = formData.get("inOrder") === "on" ? "on" : "";
+  v.active = formData.get("active") === "on" ? "on" : "";
+  const chosen = formData.getAll("courseIds").map(Number);
+  const places = Object.fromEntries(chosen.map((id) => [id, String(formData.get(`place-${id}`) ?? "")]));
+  v.courseIds = chosen.join(",");
+  const saved = savePath(courseSetup(app), v, orderedChoice(chosen, places));
+  if (!saved.ok) return saved.errors ? { errors: saved.errors, values: v } : { message: saved.message };
+  await saveSetup(app, saved.setup);
+  return { ok: true, message: saved.added ? `Added “${saved.path.title}”.` : `Saved “${saved.path.title}”.`, values: saved.added ? undefined : v };
+}
+
+export async function deletePathAction(formData: FormData): Promise<void> {
+  const { app } = await requireCoursesApp();
+  await saveSetup(app, deletePath(courseSetup(app), Number(formData.get("pathId"))));
+}
+
+export async function saveGamificationAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { app } = await requireCoursesApp();
+  const on = formData.get("gamification") === "on";
+  await saveSetup(app, { ...courseSetup(app), gamification: on });
+  return { ok: true, message: on ? "Points and badges are on in your app." : "Points and badges are off." };
 }
 
 // 113.1 Course bundles

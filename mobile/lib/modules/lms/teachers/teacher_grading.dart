@@ -11,6 +11,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../school/screens/student_screens.dart' show FileTile;
+import '../learning/rubric_widgets.dart';
 import 'teacher_widgets.dart' show LabeledField;
 import 'teachers_providers.dart';
 
@@ -110,6 +111,9 @@ class _TeacherGradingState extends ConsumerState<TeacherGrading> {
                           [
                             dayAndTime(s.submittedAt),
                             if (s.late) l10n.homeworkLate,
+                            // 113.7 Which try it is.
+                            if (s.attemptsAllowed > 1)
+                              l10n.tryOf(s.attempt, s.attemptsAllowed),
                             if (s.status == SubmissionStatus.graded)
                               l10n.assignmentGraded(s.score ?? 0, s.maxPoints),
                             if (s.status == SubmissionStatus.returned)
@@ -160,6 +164,12 @@ class _GradeSheetState extends ConsumerState<_GradeSheet> {
   );
   bool _saving = false;
 
+  /// 113.7 The level chosen for each rubric criterion.
+  late Map<int, int> _levels = {
+    for (final r in widget.submission.rubricResult)
+      if (r.levelId != null) r.criterionId: r.levelId!,
+  };
+
   @override
   void dispose() {
     _score.dispose();
@@ -170,8 +180,16 @@ class _GradeSheetState extends ConsumerState<_GradeSheet> {
   Future<void> _save({required bool sendBack}) async {
     final l10n = context.l10n;
     final s = widget.submission;
-    final score = int.tryParse(_score.text.trim());
-    if (!sendBack && (score == null || score < 0 || score > s.maxPoints)) {
+    final rubric = s.rubric.isNotEmpty;
+    // 113.7 With a rubric, a level for each criterion makes the score.
+    if (!sendBack && rubric && _levels.length < s.rubric.length) {
+      showMessage(context, l10n.rubricChooseAll);
+      return;
+    }
+    final score = rubric ? null : int.tryParse(_score.text.trim());
+    if (!sendBack &&
+        !rubric &&
+        (score == null || score < 0 || score > s.maxPoints)) {
       showMessage(context, l10n.gradingScoreRange(s.maxPoints));
       return;
     }
@@ -188,6 +206,7 @@ class _GradeSheetState extends ConsumerState<_GradeSheet> {
             sendBack: sendBack,
             score: sendBack ? null : score,
             feedback: _note.text.trim(),
+            rubric: sendBack || !rubric ? null : _levels,
           );
       if (!mounted) return;
       showMessage(context, sendBack ? l10n.gradingSentBack : l10n.gradingSaved);
@@ -227,12 +246,19 @@ class _GradeSheetState extends ConsumerState<_GradeSheet> {
               ],
               if (s.file != null) FileTile(file: s.file!),
               const SizedBox(height: 16),
-              LabeledField(
-                key: const ValueKey('grade-score'),
-                label: l10n.gradingScore(s.maxPoints),
-                controller: _score,
-                keyboard: TextInputType.number,
-              ),
+              if (s.rubric.isNotEmpty)
+                RubricPicker(
+                  rubric: s.rubric,
+                  chosen: _levels,
+                  onChanged: (v) => setState(() => _levels = v),
+                )
+              else
+                LabeledField(
+                  key: const ValueKey('grade-score'),
+                  label: l10n.gradingScore(s.maxPoints),
+                  controller: _score,
+                  keyboard: TextInputType.number,
+                ),
               const SizedBox(height: 12),
               LabeledField(
                 key: const ValueKey('grade-note'),

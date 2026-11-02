@@ -1825,9 +1825,13 @@ export interface CourseQuestion {
   createdAt: Date;
   /** The latest question or answer. */
   updatedAt: Date;
+  /** 113.7 The lesson it's under (the lesson's discussion); null: the course's. */
+  lessonId: number | null;
+  /** 113.7 Pinned by the teacher or the academy: first in the list. */
+  pinned: boolean;
 }
 
-export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount" | "hidden">;
+export type CourseQuestionInput = Omit<CourseQuestion, "id" | "answerCount" | "hidden" | "lessonId" | "pinned"> & { lessonId?: number | null };
 
 /** An answer under a question: a student's (`userId`), or the business's (`userId` null). */
 export interface CourseAnswer {
@@ -1896,6 +1900,17 @@ export interface CourseQuiz {
   showAnswers?: boolean;
   /** 112.5 This many questions drawn at random from the course's question bank for each attempt, besides its own. */
   bankPicks?: number;
+  /** 113.7 A timed exam: open between two times, its time limit kept by the server, results maybe shown once it closes. */
+  exam?: CourseExam | null;
+}
+
+/** 113.7 A quiz taken as an exam. */
+export interface CourseExam {
+  /** Opens and closes at these times (null: from now, or never closes). */
+  opensAt: string | null;
+  closesAt: string | null;
+  /** Students see their scores (and the review) only once it closes. */
+  resultsAfterClose: boolean;
 }
 
 /** 112.5 An assignment in a section: the student hands in a text, a file or both, and the teacher grades it. */
@@ -1912,6 +1927,17 @@ export interface CourseAssignment {
   /** The score that counts it as done; null: any grade does. */
   passPoints: number | null;
   attachments?: CourseAttachment[];
+  /** 113.7 Graded with a rubric: each criterion's level gives its points; `maxPoints` is their highest levels added up. */
+  rubric?: RubricCriterion[];
+  /** 113.7 How many times a student may hand it in (another try after a grade); missing: once. */
+  attemptsAllowed?: number;
+}
+
+/** 113.7 A rubric's criterion and its levels (the highest first, as the teacher wrote them). */
+export interface RubricCriterion {
+  id: number;
+  title: string;
+  levels: { id: number; label: string; points: number }[];
 }
 
 /** 112.5 A live class in a section: a meeting at a time, on Zoom, Google Meet or any meeting link. */
@@ -1992,7 +2018,24 @@ export interface Course {
   reviewNote?: string | null;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  /** 113.7 Courses to finish before enrolling in this one. */
+  prerequisites?: number[];
+  /** 113.7 What finishes the course (missing: `all`): its lessons, also its quizzes passed, also its assignments done. */
+  completeWhen?: "lessons" | "quizzes" | "all";
+  /** 113.7 The final score (quizzes' best and assignments' grades, as percents) that finishes it too; null: none. */
+  minFinalScore?: number | null;
   createdAt: string;
+}
+
+/** 113.7 A learning path: courses taken one after another, shown with the student's progress. */
+export interface LearningPath {
+  id: number;
+  title: string;
+  description: string;
+  courseIds: number[];
+  /** Each course of the path waits for the one before it. */
+  inOrder: boolean;
+  active: boolean;
 }
 
 export interface CourseSetup {
@@ -2004,6 +2047,10 @@ export interface CourseSetup {
   nextId: number;
   /** 105.3 Academies with many teachers: people may apply to teach from the app (missing: false). */
   teachersApply?: boolean;
+  /** 113.7 Learning paths. */
+  paths?: LearningPath[];
+  /** 113.7 Points, badges and the courses' leaderboards in the app (missing: off). */
+  gamification?: boolean;
   /** 113.1 Courses sold together at one price; missing: none. */
   bundles?: CourseBundle[];
 }
@@ -2056,6 +2103,35 @@ export interface AssignmentSubmission {
   gradedAt: Date | null;
   /** Who graded it (the dashboard's person). */
   gradedBy: string | null;
+  /** 113.7 Which time it was handed in after a grade (1 the first). */
+  attempt: number;
+  /** 113.7 The rubric's level chosen for each criterion (by its ID), when graded with one. */
+  rubric: Record<string, number> | null;
+}
+
+/** 113.7 Handed in: the first attempt and no rubric unless said. */
+export type AssignmentSubmissionInput = Omit<AssignmentSubmission, "id" | "attempt" | "rubric"> & Partial<Pick<AssignmentSubmission, "attempt" | "rubric">>;
+
+/** 113.7 A student's own note on a lesson, at a place in its video maybe; only they see it. */
+export interface LessonNote {
+  id: number;
+  appId: string;
+  userId: number;
+  courseId: number;
+  lessonId: number;
+  text: string;
+  positionSeconds: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** 113.7 A lesson the student bookmarked. */
+export interface LessonBookmark {
+  appId: string;
+  userId: number;
+  courseId: number;
+  lessonId: number;
+  createdAt: Date;
 }
 
 export interface CourseEnrollment {

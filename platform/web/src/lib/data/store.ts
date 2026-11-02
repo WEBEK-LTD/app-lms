@@ -37,6 +37,9 @@ import type {
   LessonProgress,
   QuizAttempt,
   AssignmentSubmission,
+  AssignmentSubmissionInput,
+  LessonBookmark,
+  LessonNote,
   CatalogCoupon,
   CatalogProduct,
   CatalogProductInput,
@@ -518,6 +521,7 @@ export interface DataStore {
   /**
    * `created`: newest question first (the app); `updated`: latest activity first (the business).
    * 64 `hidden` filters by it; `viewerId`: the shown ones and that student's own (the app).
+   * 113.7 `lessonId`: a lesson's discussion (null: the course's own questions); `created`: pinned ones first.
    */
   listCourseQuestions(input: {
     appId: string;
@@ -525,10 +529,17 @@ export interface DataStore {
     status?: CourseQuestionStatus;
     hidden?: boolean;
     viewerId?: number;
+    lessonId?: number | null;
     order: "created" | "updated";
     offset: number;
     limit: number;
   }): Promise<{ items: CourseQuestion[]; total: number }>;
+  /** 113.7 Pins a question (first in its list) or unpins it; false when it isn't the app's. */
+  setCourseQuestionPinned(appId: string, id: number, pinned: boolean): Promise<boolean>;
+  /** 113.7 Deletes a question with its answers; false when it isn't the app's. */
+  deleteCourseQuestion(appId: string, id: number): Promise<boolean>;
+  /** 113.7 Deletes an answer under the question; false when there's no such answer. */
+  deleteCourseAnswer(appId: string, questionId: number, id: number): Promise<boolean>;
   /** Adds an answer and sets the question's status and time, together. */
   addCourseAnswer(input: CourseAnswerInput, status: CourseQuestionStatus): Promise<CourseAnswer>;
   /** 64 Hides a question from everyone but its author, or shows it again; false when it isn't the app's. */
@@ -545,7 +556,8 @@ export interface DataStore {
   setEnrollmentCohort(input: { appId: string; userId: number; courseId: number; cohortId: number | null }): Promise<boolean>;
   /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */
   saveLessonProgress(input: LessonProgress): Promise<void>;
-  listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]>;
+  /** 113.7 Without `userId`, every student's (a course's leaderboard). */
+  listLessonProgress(input: { appId: string; userId?: number; courseId?: number }): Promise<LessonProgress[]>;
   /** 73 Clears a student's progress in a course (start it again); how many lessons had some. */
   deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number>;
   // 90.1 Quiz attempts of courses managed in Yallapp.
@@ -556,14 +568,26 @@ export interface DataStore {
   listQuizAttempts(input: { appId: string; userId?: number; courseId?: number; quizId?: number }): Promise<QuizAttempt[]>;
   deleteQuizAttempts(input: { appId: string; userId: number; courseId: number }): Promise<number>;
   // 112.5 Assignments' submissions: one per student and assignment.
-  /** Hands in (or again): the text and file, `submitted`, the grade cleared; the row's ID kept. */
-  saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission>;
+  /** Hands in (or again): the text and file, `submitted`, the grade cleared; the row's ID kept. 113.7 With its attempt. */
+  saveAssignmentSubmission(input: AssignmentSubmissionInput): Promise<AssignmentSubmission>;
   getAssignmentSubmission(appId: string, id: number): Promise<AssignmentSubmission | null>;
   /** Newest first. */
   listAssignmentSubmissions(input: { appId: string; userId?: number; courseId?: number; assignmentId?: number; status?: AssignmentSubmission["status"] }): Promise<AssignmentSubmission[]>;
   /** Grades a submission, or returns it for another try; false when there's no such submission. */
-  gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean>;
+  gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy"> & { rubric?: AssignmentSubmission["rubric"] }): Promise<boolean>;
   deleteAssignmentSubmissions(input: { appId: string; userId: number; courseId: number }): Promise<number>;
+  // 113.7 A student's notes and bookmarks in lessons.
+  createLessonNote(input: Omit<LessonNote, "id">): Promise<LessonNote>;
+  getLessonNote(appId: string, id: number): Promise<LessonNote | null>;
+  /** Oldest first. */
+  listLessonNotes(input: { appId: string; userId: number; courseId?: number; lessonId?: number }): Promise<LessonNote[]>;
+  /** False when there's no such note. */
+  updateLessonNote(appId: string, id: number, patch: Pick<LessonNote, "text" | "updatedAt">): Promise<boolean>;
+  deleteLessonNote(appId: string, id: number): Promise<boolean>;
+  /** Bookmarks a lesson (once) or takes the bookmark away. */
+  setLessonBookmark(input: Omit<LessonBookmark, "createdAt"> & { on: boolean; now: Date }): Promise<void>;
+  /** Newest first. */
+  listLessonBookmarks(input: { appId: string; userId: number; courseId?: number }): Promise<LessonBookmark[]>;
   /** Paid orders sold through Yallapp's account (with a commission), newest first, every shop. */
   listMarketplaceOrders(limit: number): Promise<CatalogOrder[]>;
   createPlanPayment(payment: PlanPayment): Promise<void>;

@@ -13,7 +13,7 @@ import { parseQuestions, parseQuiz, questionsText } from "@/lib/courses/quizzes"
 import { assignmentSummaries, atRisk, courseReport, courseReportCsv } from "@/lib/courses/report";
 import { lessonsOf } from "@/lib/courses/setup";
 import { MemoryStore } from "@/lib/data/memory";
-import type { App, AssignmentSubmission, Course, CourseQuiz, CourseSetup, LessonProgress } from "@/lib/data/types";
+import type { App, AssignmentSubmissionInput, Course, CourseQuiz, CourseSetup, LessonProgress } from "@/lib/data/types";
 import { CoursesConnector } from "@/lib/hosted/connectors/courses";
 import { notifyGraded, runAutoNotifications } from "@/lib/hosted/auto-notifications";
 import { SERVICE_ACCOUNT_CONTEXT } from "@/lib/hosted/notify";
@@ -180,9 +180,9 @@ describe("112.5 quizzes", () => {
 describe("112.5 grading and students", () => {
   it("grades within the highest score, and needs a note to send it back", () => {
     expect(parseGrade({ score: "21", outcome: "grade" }, { maxPoints: 20 })).toMatchObject({ ok: false, errors: { score: "Enter a score from 0 to 20." } });
-    expect(parseGrade({ score: "18", feedback: " Well done ", outcome: "grade" }, { maxPoints: 20 })).toEqual({ ok: true, value: { status: "graded", score: 18, feedback: "Well done" } });
+    expect(parseGrade({ score: "18", feedback: " Well done ", outcome: "grade" }, { maxPoints: 20 })).toEqual({ ok: true, value: { status: "graded", score: 18, feedback: "Well done", rubric: null } });
     expect(parseGrade({ outcome: "return" }, { maxPoints: 20 })).toMatchObject({ ok: false, errors: { feedback: expect.any(String) } });
-    expect(parseGrade({ outcome: "return", feedback: "Add a sentence." }, { maxPoints: 20 })).toEqual({ ok: true, value: { status: "returned", score: null, feedback: "Add a sentence." } });
+    expect(parseGrade({ outcome: "return", feedback: "Add a sentence." }, { maxPoints: 20 })).toEqual({ ok: true, value: { status: "returned", score: null, feedback: "Add a sentence.", rubric: null } });
   });
 
   it("reads phone numbers pasted from a sheet, each once", () => {
@@ -381,7 +381,7 @@ describe("112.5 the gradebook and the course at a glance", () => {
     await store.enrollInCourse({ appId: app.id, userId: quiet.id, courseId: 10, source: "manual", enrolledAt: days(-20) });
     await store.saveLessonProgress({ appId: app.id, userId: active.id, courseId: 10, lessonId: 12, positionSeconds: 40, completedAt: days(-1), updatedAt: days(-1) });
     await store.saveLessonProgress({ appId: app.id, userId: quiet.id, courseId: 10, lessonId: 12, positionSeconds: 10, completedAt: null, updatedAt: days(-10) });
-    const handedIn: Omit<AssignmentSubmission, "id"> = { appId: app.id, userId: active.id, courseId: 10, assignmentId: 16, text: "Hi", file: null, status: "graded", score: 15, feedback: null, submittedAt: days(-1), gradedAt: NOW, gradedBy: "Owner" };
+    const handedIn: AssignmentSubmissionInput = { appId: app.id, userId: active.id, courseId: 10, assignmentId: 16, text: "Hi", file: null, status: "graded", score: 15, feedback: null, submittedAt: days(-1), gradedAt: NOW, gradedBy: "Owner" };
     await store.saveAssignmentSubmission(handedIn);
     await store.saveAssignmentSubmission({ ...handedIn, userId: quiet.id, status: "submitted", score: null, gradedAt: null, gradedBy: null });
 
@@ -402,7 +402,7 @@ describe("112.5 the gradebook and the course at a glance", () => {
 
     const insights = await courseInsights(store, app, academy(), course(), rows, NOW);
     expect(insights).toMatchObject({ students: 2, newStudents30: 2, finished: 0, completionRate: 0, lessons: [{ lessonId: 12, started: 2, completed: 1 }] });
-    expect(courseProgress(course(), new Map(), [], [{ ...handedIn, id: 1 }])).toMatchObject({ completed_items: 1, total_items: 4 });
+    expect(courseProgress(course(), new Map(), [], [{ ...handedIn, id: 1, attempt: 1, rubric: null }])).toMatchObject({ completed_items: 1, total_items: 4 });
   });
 });
 
