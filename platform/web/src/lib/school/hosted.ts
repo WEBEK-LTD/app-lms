@@ -37,6 +37,9 @@ import {
 } from "./service";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "./settings";
 import { classGradebook, reportPeriod, type Period } from "./report-cards";
+// 113.10 The bus; 113.11 the library.
+import { handleBusRoute, schoolRolesOf, studentBus } from "./bus-hosted";
+import { handleLibraryRoute } from "./library-hosted";
 
 /**
  * 105.4 The hosted API's School endpoints (a student and their parents:
@@ -102,6 +105,9 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
   if (route === "GET /school/me") return schoolMe(ctx, request, member);
   if (route === "GET /school/announcements") return announcements(ctx, request, member);
   if (path[1] === "uploads") return uploads(ctx, request);
+  // 113.10 The bus's crew; 113.11 the library.
+  if (path[1] === "bus") return (await handleBusRoute(ctx, request, member, settings))!;
+  if (path[1] === "library") return (await handleLibraryRoute(ctx, request, member, settings))!;
   if (path[1] === "students") {
     const studentId = idOf(path[2]);
     const students = await visibleStudents(ctx.store, ctx.app, member);
@@ -119,6 +125,8 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
     // 112.5 The student's report card over the term.
     if (request.method === "GET" && tail === "report-card") return reportCard(ctx, request, student, settings);
     if (request.method === "GET" && tail === "fees") return fees(ctx, student, settings);
+    // 113.10 The student's bus, live while it runs.
+    if (request.method === "GET" && tail === "bus") return studentBus(ctx, student, settings);
     if (request.method === "POST" && path[3] === "fees" && path[5] === "pay" && path.length === 6) return pay(ctx, request, student, idOf(path[4]), settings);
   }
   return error(404, "not_found", "Page not found.");
@@ -129,7 +137,7 @@ export async function handleSchoolRoute(ctx: SchoolContext, request: ConnectorRe
 async function schoolMe(ctx: SchoolContext, request: ConnectorRequest, member: SchoolMember): Promise<ConnectorResult> {
   const [students, dir] = await Promise.all([visibleStudents(ctx.store, ctx.app, member), schoolDirectory(ctx.store, ctx.app.id)]);
   const name = member.parent?.name ?? member.student?.name ?? member.teacher?.name ?? request.user!.name;
-  return ok({ name, roles: memberRoles(member), students: students.map((s) => studentJson(s, dir, ctx.assetUrl)) });
+  return ok({ name, roles: await schoolRolesOf(ctx, member), students: students.map((s) => studentJson(s, dir, ctx.assetUrl)) });
 }
 
 async function timetable(ctx: SchoolContext, student: SchoolPerson): Promise<ConnectorResult> {

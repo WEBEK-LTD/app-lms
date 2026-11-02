@@ -71,6 +71,21 @@ import type {
   SchoolSubject,
   SchoolSubmission,
 } from "./types";
+// 113.10 The school bus; 113.11 the library
+import type {
+  SchoolBook,
+  SchoolBookCopy,
+  SchoolBookHold,
+  SchoolBookHoldStatus,
+  SchoolBookLoan,
+  SchoolBusMark,
+  SchoolBusRider,
+  SchoolBusRoute,
+  SchoolBusRun,
+  SchoolBusRunStatus,
+  SchoolBusStop,
+  SchoolBusTrip,
+} from "./types";
 import type { Courier, CourierInput, CourierPatch, DeliveryService, DeliveryServiceInput, DeliverySettings, Shipment, ShipmentInput, ShipmentPatch, ShipmentQuery, ShipmentStatus } from "./types";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
@@ -3292,6 +3307,392 @@ export class MysqlStore implements DataStore {
   async deleteSchoolFee(appId: string, id: number): Promise<void> {
     const t = schema.schoolFees;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  // 113.10 The school bus
+
+  async listSchoolBusRoutes(appId: string): Promise<SchoolBusRoute[]> {
+    const t = schema.schoolBusRoutes;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async getSchoolBusRoute(appId: string, id: number): Promise<SchoolBusRoute | null> {
+    const t = schema.schoolBusRoutes;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolBusRoute(input: Pick<SchoolBusRoute, "appId" | "name" | "plate" | "capacity" | "driverId" | "supervisorId" | "active"> & { id: number | null }, now: Date): Promise<SchoolBusRoute | null> {
+    const t = schema.schoolBusRoutes;
+    const fields = { name: input.name, plate: input.plate, capacity: input.capacity, driverId: input.driverId, supervisorId: input.supervisorId, active: input.active };
+    if (input.id === null) {
+      const [top] = await this.run((db) => db.select({ n: sql<number>`coalesce(max(${t.position}), 0)` }).from(t).where(eq(t.appId, input.appId)));
+      const values = { appId: input.appId, ...fields, position: Number(top?.n ?? 0) + 1, createdAt: now, updatedAt: now };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [result] = await this.run((db) => db.update(t).set({ ...fields, updatedAt: now }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    if (result.affectedRows !== 1) return null;
+    return this.getSchoolBusRoute(input.appId, id);
+  }
+
+  async deleteSchoolBusRoute(appId: string, id: number): Promise<void> {
+    // Its stops, riders, trips and marks go by the foreign keys.
+    const t = schema.schoolBusRoutes;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolBusStops(appId: string, filter: { routeId?: number } = {}): Promise<SchoolBusStop[]> {
+    const t = schema.schoolBusStops;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.routeId !== undefined ? eq(t.routeId, filter.routeId) : undefined))
+        .orderBy(asc(t.routeId), asc(t.position), asc(t.id)),
+    );
+  }
+
+  async saveSchoolBusStop(input: Omit<SchoolBusStop, "id" | "position"> & { id: number | null }): Promise<SchoolBusStop | null> {
+    const t = schema.schoolBusStops;
+    if (!(await this.getSchoolBusRoute(input.appId, input.routeId))) return null;
+    const fields = { name: input.name, lat: input.lat, lng: input.lng, morningMinute: input.morningMinute, afternoonMinute: input.afternoonMinute };
+    if (input.id === null) {
+      const [top] = await this.run((db) => db.select({ n: sql<number>`coalesce(max(${t.position}), 0)` }).from(t).where(eq(t.routeId, input.routeId)));
+      const values = { appId: input.appId, routeId: input.routeId, ...fields, position: Number(top?.n ?? 0) + 1 };
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const id = input.id;
+    const [result] = await this.run((db) => db.update(t).set(fields).where(and(eq(t.appId, input.appId), eq(t.routeId, input.routeId), eq(t.id, id))));
+    if (result.affectedRows !== 1) {
+      const [same] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.routeId, input.routeId), eq(t.id, id))).limit(1));
+      return same ?? null;
+    }
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async deleteSchoolBusStop(appId: string, id: number): Promise<void> {
+    // Its riders go by the foreign key.
+    const t = schema.schoolBusStops;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async orderSchoolBusStops(appId: string, routeId: number, stopIds: number[]): Promise<void> {
+    const t = schema.schoolBusStops;
+    const stops = await this.listSchoolBusStops(appId, { routeId });
+    const ordered = [...stopIds.map((id) => stops.find((x) => x.id === id)).filter((x) => x !== undefined), ...stops.filter((x) => !stopIds.includes(x.id))];
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        for (const [i, stop] of ordered.entries()) if (stop.position !== i + 1) await tx.update(t).set({ position: i + 1 }).where(and(eq(t.appId, appId), eq(t.id, stop.id)));
+      }),
+    );
+  }
+
+  async listSchoolBusRiders(appId: string, filter: { routeId?: number; stopId?: number; studentId?: number; trip?: SchoolBusTrip } = {}): Promise<SchoolBusRider[]> {
+    const t = schema.schoolBusRiders;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.routeId !== undefined ? eq(t.routeId, filter.routeId) : undefined,
+            filter.stopId !== undefined ? eq(t.stopId, filter.stopId) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+            filter.trip ? eq(t.trip, filter.trip) : undefined,
+          ),
+        )
+        .orderBy(asc(t.studentId), asc(t.trip)),
+    );
+  }
+
+  async setSchoolBusRiders(appId: string, rows: { studentId: number; trip: SchoolBusTrip; stop: Pick<SchoolBusStop, "id" | "routeId"> | null }[]): Promise<void> {
+    if (rows.length === 0) return;
+    const t = schema.schoolBusRiders;
+    const people = new Set((await this.listSchoolPeople(appId, { ids: [...new Set(rows.map((r) => r.studentId))] })).map((p) => p.id));
+    const stops = new Map((await this.listSchoolBusStops(appId)).map((x) => [x.id, x]));
+    await this.run((db) =>
+      db.transaction(async (tx) => {
+        for (const row of rows) {
+          if (!people.has(row.studentId)) continue;
+          if (!row.stop) {
+            await tx.delete(t).where(and(eq(t.appId, appId), eq(t.studentId, row.studentId), eq(t.trip, row.trip)));
+            continue;
+          }
+          const stop = stops.get(row.stop.id);
+          if (!stop) continue;
+          await tx
+            .insert(t)
+            .values({ appId, studentId: row.studentId, trip: row.trip, routeId: stop.routeId, stopId: stop.id })
+            .onDuplicateKeyUpdate({ set: { routeId: stop.routeId, stopId: stop.id } });
+        }
+      }),
+    );
+  }
+
+  async listSchoolBusRuns(appId: string, filter: { routeId?: number; routeIds?: number[]; status?: SchoolBusRunStatus; date?: string; limit?: number } = {}): Promise<SchoolBusRun[]> {
+    const t = schema.schoolBusRuns;
+    if (filter.routeIds && filter.routeIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.routeId !== undefined ? eq(t.routeId, filter.routeId) : undefined,
+            filter.routeIds ? inArray(t.routeId, filter.routeIds) : undefined,
+            filter.status ? eq(t.status, filter.status) : undefined,
+            filter.date ? eq(t.date, filter.date) : undefined,
+          ),
+        )
+        .orderBy(desc(t.startedAt), desc(t.id))
+        .limit(filter.limit ?? 10_000),
+    );
+  }
+
+  async getSchoolBusRun(appId: string, id: number): Promise<SchoolBusRun | null> {
+    const t = schema.schoolBusRuns;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async startSchoolBusRun(input: Omit<SchoolBusRun, "id">): Promise<{ run: SchoolBusRun; created: boolean }> {
+    const t = schema.schoolBusRuns;
+    try {
+      const [result] = await this.run((db) => db.insert(t).values(input));
+      return { run: { id: Number(result.insertId), ...input }, created: true };
+    } catch (error) {
+      if (errorCode(error) !== "ER_DUP_ENTRY") throw error;
+      const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, input.appId), eq(t.routeId, input.routeId), eq(t.date, input.date), eq(t.trip, input.trip))).limit(1));
+      if (!row) throw error;
+      return { run: row, created: false };
+    }
+  }
+
+  async updateSchoolBusRun(
+    appId: string,
+    id: number,
+    patch: Partial<Pick<SchoolBusRun, "status" | "endedAt" | "startedAt" | "startedBy" | "lat" | "lng" | "locatedAt" | "passedStopIds" | "toldStopIds">>,
+    expect: { status?: SchoolBusRunStatus } = {},
+  ): Promise<boolean> {
+    const t = schema.schoolBusRuns;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.status ? eq(t.status, expect.status) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async listSchoolBusMarks(appId: string, filter: { runId?: number; runIds?: number[]; studentId?: number }): Promise<SchoolBusMark[]> {
+    const t = schema.schoolBusMarks;
+    if (filter.runIds && filter.runIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.runId !== undefined ? eq(t.runId, filter.runId) : undefined,
+            filter.runIds ? inArray(t.runId, filter.runIds) : undefined,
+            filter.studentId !== undefined ? eq(t.studentId, filter.studentId) : undefined,
+          ),
+        )
+        .orderBy(asc(t.runId), asc(t.studentId)),
+    );
+  }
+
+  async saveSchoolBusMark(mark: SchoolBusMark): Promise<void> {
+    if (!(await this.getSchoolBusRun(mark.appId, mark.runId))) return;
+    const { status, boardedAt, offAt, markedBy, updatedAt } = mark;
+    await this.run((db) =>
+      db
+        .insert(schema.schoolBusMarks)
+        .values(mark)
+        .onDuplicateKeyUpdate({ set: { status, boardedAt, offAt, markedBy, updatedAt } }),
+    );
+  }
+
+  // 113.11 The library
+
+  async listSchoolBooks(appId: string, filter: { q?: string; category?: string; ids?: number[]; limit?: number } = {}): Promise<SchoolBook[]> {
+    const t = schema.schoolBooks;
+    if (filter.ids && filter.ids.length === 0) return [];
+    const q = filter.q?.trim();
+    const pattern = q ? `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : null;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            pattern ? or(like(t.title, pattern), like(t.author, pattern), like(t.isbn, pattern)) : undefined,
+            filter.category ? eq(t.category, filter.category) : undefined,
+            filter.ids ? inArray(t.id, filter.ids) : undefined,
+          ),
+        )
+        .orderBy(asc(t.title), asc(t.id))
+        .limit(filter.limit ?? 100_000),
+    );
+  }
+
+  async getSchoolBook(appId: string, id: number): Promise<SchoolBook | null> {
+    const t = schema.schoolBooks;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolBook(input: Omit<SchoolBook, "id">): Promise<SchoolBook> {
+    const [result] = await this.run((db) => db.insert(schema.schoolBooks).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateSchoolBook(appId: string, id: number, patch: Partial<Omit<SchoolBook, "id" | "appId" | "createdAt">>): Promise<boolean> {
+    const t = schema.schoolBooks;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async deleteSchoolBook(appId: string, id: number): Promise<void> {
+    // Its copies, loans and holds go by the foreign keys.
+    const t = schema.schoolBooks;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolBookCopies(appId: string, filter: { bookId?: number; bookIds?: number[] } = {}): Promise<SchoolBookCopy[]> {
+    const t = schema.schoolBookCopies;
+    if (filter.bookIds && filter.bookIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), filter.bookId !== undefined ? eq(t.bookId, filter.bookId) : undefined, filter.bookIds ? inArray(t.bookId, filter.bookIds) : undefined))
+        .orderBy(asc(t.bookId), asc(t.code), asc(t.id)),
+    );
+  }
+
+  async getSchoolBookCopyByCode(appId: string, code: string): Promise<SchoolBookCopy | null> {
+    const t = schema.schoolBookCopies;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.code, code.trim()))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolBookCopy(input: Omit<SchoolBookCopy, "id">): Promise<{ ok: true; copy: SchoolBookCopy } | { ok: false; reason: "duplicate" }> {
+    try {
+      const [result] = await this.run((db) => db.insert(schema.schoolBookCopies).values(input));
+      return { ok: true, copy: { id: Number(result.insertId), ...input } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async deleteSchoolBookCopy(appId: string, id: number): Promise<void> {
+    // Its loans go by the foreign key; a hold on it waits again for another copy.
+    const t = schema.schoolBookCopies;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolBookLoans(appId: string, filter: { bookId?: number; copyId?: number; personId?: number; personIds?: number[]; open?: boolean; limit?: number } = {}): Promise<SchoolBookLoan[]> {
+    const t = schema.schoolBookLoans;
+    if (filter.personIds && filter.personIds.length === 0) return [];
+    const { openCopyId: _open, ...columns } = getTableColumns(t);
+    return this.run((db) =>
+      db
+        .select(columns)
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.bookId !== undefined ? eq(t.bookId, filter.bookId) : undefined,
+            filter.copyId !== undefined ? eq(t.copyId, filter.copyId) : undefined,
+            filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined,
+            filter.personIds ? inArray(t.personId, filter.personIds) : undefined,
+            filter.open === undefined ? undefined : filter.open ? isNull(t.returnedAt) : isNotNull(t.returnedAt),
+          ),
+        )
+        .orderBy(desc(t.lentAt), desc(t.id))
+        .limit(filter.limit ?? 10_000),
+    );
+  }
+
+  async createSchoolBookLoan(input: Omit<SchoolBookLoan, "id">): Promise<{ ok: true; loan: SchoolBookLoan } | { ok: false; reason: "on_loan" }> {
+    try {
+      const [result] = await this.run((db) => db.insert(schema.schoolBookLoans).values({ ...input, openCopyId: input.returnedAt === null ? input.copyId : null }));
+      return { ok: true, loan: { id: Number(result.insertId), ...input } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "on_loan" };
+      throw error;
+    }
+  }
+
+  async updateSchoolBookLoan(appId: string, id: number, patch: Partial<Pick<SchoolBookLoan, "dueOn" | "returnedAt" | "dueToldOn" | "overdueToldOn">>, expect: { open?: boolean } = {}): Promise<boolean> {
+    const t = schema.schoolBookLoans;
+    const set = patch.returnedAt ? { ...patch, openCopyId: null } : patch;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(set)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.open === undefined ? undefined : expect.open ? isNull(t.returnedAt) : isNotNull(t.returnedAt))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async listDueSchoolBookLoans(dueBy: string, limit: number): Promise<SchoolBookLoan[]> {
+    const t = schema.schoolBookLoans;
+    const { openCopyId: _open, ...columns } = getTableColumns(t);
+    return this.run((db) =>
+      db
+        .select(columns)
+        .from(t)
+        .where(and(isNull(t.returnedAt), lte(t.dueOn, dueBy)))
+        .orderBy(asc(t.dueOn), asc(t.id))
+        .limit(limit),
+    );
+  }
+
+  async listSchoolBookHolds(appId: string, filter: { bookId?: number; personId?: number; personIds?: number[]; statuses?: SchoolBookHoldStatus[] } = {}): Promise<SchoolBookHold[]> {
+    const t = schema.schoolBookHolds;
+    if ((filter.personIds && filter.personIds.length === 0) || (filter.statuses && filter.statuses.length === 0)) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.bookId !== undefined ? eq(t.bookId, filter.bookId) : undefined,
+            filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined,
+            filter.personIds ? inArray(t.personId, filter.personIds) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+          ),
+        )
+        .orderBy(asc(t.createdAt), asc(t.id)),
+    );
+  }
+
+  async createSchoolBookHold(input: Omit<SchoolBookHold, "id">): Promise<SchoolBookHold> {
+    const [result] = await this.run((db) => db.insert(schema.schoolBookHolds).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateSchoolBookHold(appId: string, id: number, patch: Partial<Pick<SchoolBookHold, "status" | "copyId" | "readyAt" | "expiresAt" | "updatedAt">>, expect: { statuses?: SchoolBookHoldStatus[] } = {}): Promise<boolean> {
+    const t = schema.schoolBookHolds;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    return result.affectedRows === 1;
   }
 
   async deleteTeacher(appId: string, id: number): Promise<void> {

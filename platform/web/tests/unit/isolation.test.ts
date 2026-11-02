@@ -602,11 +602,23 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const assessment = await store.createSchoolAssessment({ appId: k12, classId: theirClass.id, subjectId: theirSubject.subject.id, teacherId: null, kind: "exam", title: `${MARK} exam`, date: "2026-10-20", maxScore: 100, createdAt: NOW });
     await store.saveSchoolScores(k12, assessment.id, [{ studentId: theirStudent.person.id, score: 90, note: MARK }], NOW);
     const fee = await store.createSchoolFee({ appId: k12, studentId: theirStudent.person.id, title: `${MARK} fee`, amountCents: 100_00, dueOn: null, status: "due", paidAt: null, paidBy: null, orderId: null, receiptCode: null, createdAt: NOW, updatedAt: NOW });
+    // 113.10 Their bus route, its stop, a trip running; 113.11 their book and a hold of it.
+    const busRoute = (await store.saveSchoolBusRoute({ id: null, appId: k12, name: `${MARK} route`, plate: MARK, capacity: 20, driverId: null, supervisorId: null, active: true }, NOW))!;
+    const busStop = (await store.saveSchoolBusStop({ id: null, appId: k12, routeId: busRoute.id, name: `${MARK} stop`, lat: 30.05, lng: 31.24, morningMinute: 420, afternoonMinute: null }))!;
+    await store.setSchoolBusRiders(k12, [{ studentId: theirStudent.person.id, trip: "morning", stop: busStop }]);
+    const busRun = (await store.startSchoolBusRun({ appId: k12, routeId: busRoute.id, trip: "morning", date: "2026-10-20", status: "running", startedAt: NOW, endedAt: null, startedBy: null, lat: 30.05, lng: 31.24, locatedAt: NOW, passedStopIds: [], toldStopIds: [] })).run;
+    const book = await store.createSchoolBook({ appId: k12, title: `${MARK} book`, author: MARK, isbn: null, coverAssetId: null, shelf: MARK, category: MARK, language: null, description: MARK, file: null, createdAt: NOW, updatedAt: NOW });
+    await store.createSchoolBookCopy({ appId: k12, bookId: book.id, code: MARK, note: null, createdAt: NOW });
+    const bookHold = await store.createSchoolBookHold({ appId: k12, bookId: book.id, personId: theirStudent.person.id, status: "waiting", copyId: null, readyAt: null, expiresAt: null, createdAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
       assessment_id: String(assessment.id),
       fee_id: String(fee.id),
+      route_id: String(busRoute.id),
+      run_id: String(busRun.id),
+      book_id: String(book.id),
+      hold_id: String(bookHold.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.

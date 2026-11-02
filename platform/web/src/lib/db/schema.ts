@@ -122,6 +122,8 @@ import type { NotificationAudience, NotificationCampaignStatus } from "../data/t
 import type { TeacherStatus } from "../data/types";
 // 105.4 Schools
 import type { SchoolAssessmentKind, SchoolAttendanceStatus, SchoolFeeStatus, SchoolFileRef, SchoolRole, SchoolSettings } from "../data/types";
+// 113.10 The school bus; 113.11 the library
+import type { SchoolBookHoldStatus, SchoolBusMarkStatus, SchoolBusRunStatus, SchoolBusTrip } from "../data/types";
 
 /**
  * MySQL schema (MySQL 8.0.13+ and MariaDB 10.3+, the usual cPanel servers).
@@ -3401,3 +3403,207 @@ export const schoolFees = mysqlTable(
   (t) => [index("school_fees_student_idx").on(t.appId, t.studentId), uniqueIndex("school_fees_receipt_unique").on(t.receiptCode)],
 );
 
+
+// 113.10 The school bus
+
+export const schoolBusRoutes = mysqlTable(
+  "school_bus_routes",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    plate: varchar("plate", { length: 20 }).notNull(),
+    capacity: int("capacity").notNull(),
+    driverId: bigint("driver_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    supervisorId: bigint("supervisor_id", { mode: "number", unsigned: true }).references(() => schoolPeople.id, { onDelete: "set null" }),
+    active: boolean("active").notNull().default(true),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_bus_routes_app_idx").on(t.appId, t.position), index("school_bus_routes_driver_idx").on(t.driverId), index("school_bus_routes_supervisor_idx").on(t.supervisorId)],
+);
+
+export const schoolBusStops = mysqlTable(
+  "school_bus_stops",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    routeId: bigint("route_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBusRoutes.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    lat: double("lat").notNull(),
+    lng: double("lng").notNull(),
+    morningMinute: int("morning_minute"),
+    afternoonMinute: int("afternoon_minute"),
+    position: int("position").notNull(),
+  },
+  (t) => [index("school_bus_stops_route_idx").on(t.routeId, t.position)],
+);
+
+export const schoolBusRiders = mysqlTable(
+  "school_bus_riders",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    trip: varchar("trip", { length: 10 }).notNull().$type<SchoolBusTrip>(),
+    routeId: bigint("route_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBusRoutes.id, { onDelete: "cascade" }),
+    stopId: bigint("stop_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBusStops.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.studentId, t.trip] }), index("school_bus_riders_route_idx").on(t.routeId), index("school_bus_riders_stop_idx").on(t.stopId)],
+);
+
+export const schoolBusRuns = mysqlTable(
+  "school_bus_runs",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    routeId: bigint("route_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBusRoutes.id, { onDelete: "cascade" }),
+    trip: varchar("trip", { length: 10 }).notNull().$type<SchoolBusTrip>(),
+    date: varchar("date", { length: 10 }).notNull(),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolBusRunStatus>(),
+    startedAt: time("started_at").notNull(),
+    endedAt: time("ended_at"),
+    startedBy: bigint("started_by", { mode: "number", unsigned: true }),
+    lat: double("lat"),
+    lng: double("lng"),
+    locatedAt: time("located_at"),
+    passedStopIds: jsonText<number[]>("passed_stop_ids").notNull(),
+    toldStopIds: jsonText<number[]>("told_stop_ids").notNull(),
+  },
+  (t) => [uniqueIndex("school_bus_runs_trip_unique").on(t.routeId, t.date, t.trip), index("school_bus_runs_app_idx").on(t.appId, t.status, t.startedAt)],
+);
+
+export const schoolBusMarks = mysqlTable(
+  "school_bus_marks",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    runId: bigint("run_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBusRuns.id, { onDelete: "cascade" }),
+    studentId: bigint("student_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolBusMarkStatus>(),
+    boardedAt: time("boarded_at"),
+    offAt: time("off_at"),
+    markedBy: bigint("marked_by", { mode: "number", unsigned: true }),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.runId, t.studentId] }), index("school_bus_marks_student_idx").on(t.studentId)],
+);
+
+// 113.11 The library
+
+export const schoolBooks = mysqlTable(
+  "school_books",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    author: varchar("author", { length: 120 }).notNull(),
+    isbn: varchar("isbn", { length: 20 }),
+    coverAssetId: id("cover_asset_id"),
+    shelf: varchar("shelf", { length: 40 }),
+    category: varchar("category", { length: 60 }),
+    language: varchar("language", { length: 40 }),
+    description: text("description"),
+    file: jsonText<SchoolFileRef>("file"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_books_app_idx").on(t.appId, t.title)],
+);
+
+export const schoolBookCopies = mysqlTable(
+  "school_book_copies",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    bookId: bigint("book_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBooks.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 40 }).notNull(),
+    note: varchar("note", { length: 120 }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("school_book_copies_code_unique").on(t.appId, t.code), index("school_book_copies_book_idx").on(t.bookId)],
+);
+
+export const schoolBookLoans = mysqlTable(
+  "school_book_loans",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    bookId: bigint("book_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBooks.id, { onDelete: "cascade" }),
+    copyId: bigint("copy_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBookCopies.id, { onDelete: "cascade" }),
+    // The copy while the loan is open, so one copy is out on one loan at a time.
+    openCopyId: bigint("open_copy_id", { mode: "number", unsigned: true }),
+    personId: bigint("person_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    lentAt: time("lent_at").notNull(),
+    dueOn: varchar("due_on", { length: 10 }).notNull(),
+    returnedAt: time("returned_at"),
+    dueToldOn: varchar("due_told_on", { length: 10 }),
+    overdueToldOn: varchar("overdue_told_on", { length: 10 }),
+  },
+  (t) => [
+    uniqueIndex("school_book_loans_open_unique").on(t.openCopyId),
+    index("school_book_loans_person_idx").on(t.appId, t.personId),
+    index("school_book_loans_book_idx").on(t.bookId),
+    index("school_book_loans_due_idx").on(t.returnedAt, t.dueOn),
+  ],
+);
+
+export const schoolBookHolds = mysqlTable(
+  "school_book_holds",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    bookId: bigint("book_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolBooks.id, { onDelete: "cascade" }),
+    personId: bigint("person_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => schoolPeople.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 10 }).notNull().$type<SchoolBookHoldStatus>(),
+    copyId: bigint("copy_id", { mode: "number", unsigned: true }).references(() => schoolBookCopies.id, { onDelete: "set null" }),
+    readyAt: time("ready_at"),
+    expiresAt: time("expires_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("school_book_holds_book_idx").on(t.bookId, t.status), index("school_book_holds_person_idx").on(t.appId, t.personId)],
+);

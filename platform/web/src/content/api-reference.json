@@ -1655,6 +1655,90 @@
           "summary": "Finish an upload",
           "description": "409 `incomplete` with the offset reached when part of the file is missing.",
           "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/bus",
+          "summary": "The student's school bus, live while it runs",
+          "description": "Roadmap 113.10. Each trip (morning, afternoon) the student rides: the route and its bus, the stops in the order the bus reaches them and the student's stop; `run` is today's trip once the driver started it, with the bus's position while it runs (`bus`, recent ones only, drawn on `SchoolConfig.map`) and how soon it reaches the student's stop (`eta_minutes`, `distance_m`: before they get on in the morning, while they're on the bus in the afternoon), and how the driver or the supervisor marked the student. Ask again every 15 seconds or so while the screen is open. Parents are pushed (`school_bus`) when the bus is near the stop and when the child gets on and off.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/bus/routes",
+          "summary": "The routes the person drives or supervises, with today's trips",
+          "description": "Roadmap 113.10. For the school's people who drive or supervise one of its buses (`User.roles` has `bus`); `not_bus_crew` (403) for anyone else. `drives`: the person starts the route's trips and their phone sends the bus's position (the driver; without one, the supervisor).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/bus/routes/{route_id}/runs",
+          "summary": "Start the route's morning or afternoon trip today",
+          "description": "Roadmap 113.10. By whoever `drives` the route. A trip started again the same day goes on where it was (200; 201 when it is new); `trip_running` (409) while the bus is on its other trip. While it runs, the driver's phone sends its position (`PUT /school/bus/runs/{run_id}/location`) as long as the trip's screen is open; nothing runs in the background.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/bus/runs/{run_id}",
+          "summary": "A trip as its crew sees it, the stops with their students",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/school/bus/runs/{run_id}/location",
+          "summary": "The bus's position, from the driver's phone while the trip runs",
+          "description": "Roadmap 113.10. At most every 5 seconds (more often is accepted and left out). The stops the bus comes within about 120 m of are reached; the parents of the stops it is now near (as the school chose: a distance or minutes) are pushed once each. `trip_ended` (409) once it ended.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/school/bus/runs/{run_id}/riders/{student_id}",
+          "summary": "Mark a student on the trip as on the bus, off it, or absent",
+          "description": "Roadmap 113.10. By the route's driver or supervisor, for a student of the trip. The parents are pushed (`school_bus`) when the child gets on and off.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/bus/runs/{run_id}/end",
+          "summary": "End the trip",
+          "description": "Roadmap 113.10. By whoever `drives` the route. A trip left running ends on its own the next day.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/library/books",
+          "summary": "The school library's books, searched and by category",
+          "description": "Roadmap 113.11. For everyone the school added. `q` matches the title, the author or the ISBN; `categories` are the library's, to browse by.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/library/books/{book_id}",
+          "summary": "A book, its copies on the shelf, its e-book and the person's holds of it",
+          "description": "Roadmap 113.11. `file`: the e-book (a PDF) to read in the app, by a link that lasts a few hours. `borrowers`: whom the person may reserve it for (themselves, a parent's children).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/library/books/{book_id}/hold",
+          "summary": "Reserve the book",
+          "description": "Roadmap 113.11. Held now when a copy is free (`ready`, until `expires_at`: the school's days), else `waiting` until one comes back, in the order people reserved; they're pushed (`school_library`) when it is ready. `person_id`: whom it is for, when the person borrows for more than one (a parent's children). `already_held`, `on_loan_to_you`, `too_many_holds` and `no_copies` (409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/school/library/holds/{hold_id}",
+          "summary": "Cancel a hold; its copy goes to the next one waiting",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/library/loans",
+          "summary": "The books out now, borrowed before and reserved",
+          "description": "Roadmap 113.11. Of whoever the person follows: themselves (a student, a teacher), a parent's children; one of them with `person_id`. Books are lent and returned at the library's desk; the student and their parents are pushed (`school_library`) before the due date and when a book is overdue.",
+          "access": "signed-in"
         }
       ]
     },

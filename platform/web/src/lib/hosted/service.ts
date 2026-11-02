@@ -5,7 +5,8 @@ import { encryptionKey } from "../env";
 import { MEDIA_CHUNK_BYTES } from "../media/signing";
 import { handleTeachersRoute } from "../teachers/hosted";
 import { handleSchoolRoute } from "../school/hosted";
-import { memberRoles, schoolConfig, schoolMemberOf } from "../school/service";
+import { schoolPartsConfig, schoolRolesOf } from "../school/bus-hosted";
+import { schoolConfig, schoolMemberOf } from "../school/service";
 import { feesByCardReady, schoolOn, schoolSettingsOf } from "../school/settings";
 import { notifyGraded, notifyNewLesson } from "./auto-notifications";
 import { teacherOf, teachersOn } from "../teachers/service";
@@ -604,7 +605,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
 /** 105.4 `Config.school`. */
 async function schoolConfigOf(ctx: HostedContext) {
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
-  return schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings));
+  // 113.10 and 113.11 The bus and the library.
+  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)) };
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
@@ -1099,7 +1101,7 @@ async function meJson(ctx: HostedContext, user: HostedUser) {
   // 105.3 In academies with many teachers, `teacher` for the academy's active teachers.
   if (kind === "courses") return teachersOn(ctx.app, ctx.plan) && (await teacherOf(ctx.store, ctx.app, user, ctx.now)) ? { ...userJson(user), roles: ["teacher"] } : userJson(user);
   // 105.4 In schools, `student`, `parent` and `teacher` for the people the school added.
-  if (kind === "school") return { ...userJson(user), roles: schoolOn(ctx.app, ctx.plan) ? memberRoles(await schoolMemberOf(ctx.store, ctx.app, user, ctx.now)) : [] };
+  if (kind === "school") return { ...userJson(user), roles: schoolOn(ctx.app, ctx.plan) ? await schoolRolesOf(ctx, await schoolMemberOf(ctx.store, ctx.app, user, ctx.now)) : [] };
   // 105.2 In ride apps, `driver` for the company's active drivers (and the store review account).
   if (kind === "rides") return { ...userJson(user), roles: (await isDriver({ store: ctx.store, app: ctx.app }, user, ctx.now)) ? ["driver"] : [] };
   if (kind !== "deliveries" && kind !== "restaurants") return userJson(user);
