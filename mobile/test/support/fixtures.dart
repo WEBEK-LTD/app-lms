@@ -3086,6 +3086,110 @@ Map<String, dynamic> sharedReportJson() => {
   'shared_at': '2026-10-13T09:00:00Z',
 };
 
+// 113.7 Learning paths, points and badges, notes, rubrics and exams.
+
+Map<String, dynamic> learningPathJson({int id = 90, bool locked = true}) => {
+  'id': id,
+  'title': 'Python from zero',
+  'description': 'Three courses, one after another.',
+  'in_order': true,
+  'course_count': 2,
+  'completed_count': 1,
+  'percent': 50,
+  'courses': [
+    {
+      'course': courseSummaryJson(
+        id: 1,
+        title: 'Python for Beginners',
+        enrolled: true,
+      ),
+      'completed': true,
+      'percent': 100,
+      'locked': false,
+    },
+    {
+      'course': courseSummaryJson(id: 2, title: 'Python Projects'),
+      'completed': false,
+      'percent': 0,
+      'locked': locked,
+      if (locked) 'after_course_id': 1,
+    },
+  ],
+};
+
+Map<String, dynamic> achievementsJson() => {
+  'points': 145,
+  'streak_days': 3,
+  'best_streak': 7,
+  'badges': [
+    {
+      'id': 'first_lesson',
+      'icon': 'play_circle',
+      'earned': true,
+      'earned_at': '2026-10-01T09:00:00Z',
+    },
+    {'id': 'perfect_quiz', 'icon': 'star', 'earned': false, 'earned_at': null},
+    {
+      'id': 'streak_7',
+      'icon': 'bolt',
+      'earned': true,
+      'earned_at': '2026-10-08T12:00:00Z',
+    },
+  ],
+  'courses': [
+    {'course_id': 1, 'course_title': 'Python for Beginners', 'points': 145},
+  ],
+};
+
+Map<String, dynamic> leaderboardJson() => {
+  'course_id': 1,
+  'scope': 'course',
+  'cohort': null,
+  'total_students': 3,
+  'my_rank': 2,
+  'my_points': 80,
+  'items': [
+    {'rank': 1, 'name': 'Ece K.', 'points': 120, 'me': false},
+    {'rank': 2, 'name': 'Deniz A.', 'points': 80, 'me': true},
+    {'rank': 3, 'name': 'Can E.', 'points': 10, 'me': false},
+  ],
+};
+
+Map<String, dynamic> noteJson({
+  int id = 40,
+  int lessonId = 12,
+  String text = 'Merhaba means hello',
+  int? positionSeconds = 75,
+}) => {
+  'id': id,
+  'course_id': 1,
+  'lesson_id': lessonId,
+  'lesson_title': 'Greetings',
+  'text': text,
+  'position_seconds': positionSeconds,
+  'created_at': '2026-10-03T12:00:00Z',
+  'updated_at': '2026-10-03T12:00:00Z',
+};
+
+List<Map<String, dynamic>> rubricJson() => [
+  {
+    'id': 1,
+    'title': 'Content',
+    'levels': [
+      {'id': 1, 'label': 'Excellent', 'points': 6},
+      {'id': 2, 'label': 'Good', 'points': 3},
+    ],
+  },
+  {
+    'id': 2,
+    'title': 'Spelling',
+    'levels': [
+      {'id': 1, 'label': 'No mistakes', 'points': 4},
+      {'id': 2, 'label': 'A few', 'points': 1},
+    ],
+  },
+];
+
 /// 113.1 A course bundle (`Bundle`): three courses at ₺900 instead of ₺1,350.
 Map<String, dynamic> bundleJson({
   int id = 50,

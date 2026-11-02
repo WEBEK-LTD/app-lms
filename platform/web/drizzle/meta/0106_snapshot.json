@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "779ce9e5-61d4-400e-9522-aeebc6c1ad4f",
+  "id": "1f7fcc04-9a09-48ec-89e1-e9655ee6bcd2",
   "prevId": "9a41d3af-07d5-415f-8f54-98cf5d61aefe",
   "tables": {
     "account_deletion_requests": {
@@ -2696,6 +2696,21 @@
         "graded_by": {
           "name": "graded_by",
           "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "attempt": {
+          "name": "attempt",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "rubric": {
+          "name": "rubric",
+          "type": "longtext",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -6513,6 +6528,21 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pinned": {
+          "name": "pinned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {
@@ -6522,6 +6552,15 @@
             "app_id",
             "course_id",
             "created_at"
+          ],
+          "isUnique": false
+        },
+        "course_questions_lesson_idx": {
+          "name": "course_questions_lesson_idx",
+          "columns": [
+            "app_id",
+            "course_id",
+            "lesson_id"
           ],
           "isUnique": false
         },
@@ -9526,6 +9565,215 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "lesson_bookmarks": {
+      "name": "lesson_bookmarks",
+      "columns": {
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "lesson_bookmarks_course_idx": {
+          "name": "lesson_bookmarks_course_idx",
+          "columns": [
+            "app_id",
+            "user_id",
+            "course_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "lesson_bookmarks_app_id_apps_id_fk": {
+          "name": "lesson_bookmarks_app_id_apps_id_fk",
+          "tableFrom": "lesson_bookmarks",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "lesson_bookmarks_user_id_hosted_users_id_fk": {
+          "name": "lesson_bookmarks_user_id_hosted_users_id_fk",
+          "tableFrom": "lesson_bookmarks",
+          "tableTo": "hosted_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "lesson_bookmarks_app_id_user_id_lesson_id_pk": {
+          "name": "lesson_bookmarks_app_id_user_id_lesson_id_pk",
+          "columns": [
+            "app_id",
+            "user_id",
+            "lesson_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "lesson_notes": {
+      "name": "lesson_notes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_id": {
+          "name": "course_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lesson_id": {
+          "name": "lesson_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "position_seconds": {
+          "name": "position_seconds",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "lesson_notes_user_idx": {
+          "name": "lesson_notes_user_idx",
+          "columns": [
+            "app_id",
+            "user_id",
+            "course_id",
+            "lesson_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "lesson_notes_app_id_apps_id_fk": {
+          "name": "lesson_notes_app_id_apps_id_fk",
+          "tableFrom": "lesson_notes",
+          "tableTo": "apps",
+          "columnsFrom": [
+            "app_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "lesson_notes_user_id_hosted_users_id_fk": {
+          "name": "lesson_notes_user_id_hosted_users_id_fk",
+          "tableFrom": "lesson_notes",
+          "tableTo": "hosted_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "lesson_notes_id": {
+          "name": "lesson_notes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "lesson_progress": {
       "name": "lesson_progress",
       "columns": {
@@ -9585,6 +9833,14 @@
           "columns": [
             "app_id",
             "user_id",
+            "course_id"
+          ],
+          "isUnique": false
+        },
+        "lesson_progress_course_all_idx": {
+          "name": "lesson_progress_course_all_idx",
+          "columns": [
+            "app_id",
             "course_id"
           ],
           "isUnique": false
@@ -14953,370 +15209,6 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "school_report_templates": {
-      "name": "school_report_templates",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "kind": {
-          "name": "kind",
-          "type": "varchar(8)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(120)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "fields": {
-          "name": "fields",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "school_report_templates_app_idx": {
-          "name": "school_report_templates_app_idx",
-          "columns": [
-            "app_id",
-            "kind"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "school_report_templates_app_id_apps_id_fk": {
-          "name": "school_report_templates_app_id_apps_id_fk",
-          "tableFrom": "school_report_templates",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "school_report_templates_id": {
-          "name": "school_report_templates_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "school_reports": {
-      "name": "school_reports",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "kind": {
-          "name": "kind",
-          "type": "varchar(8)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "template_id": {
-          "name": "template_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "template_name": {
-          "name": "template_name",
-          "type": "varchar(120)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "fields": {
-          "name": "fields",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "answers": {
-          "name": "answers",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "teacher_id": {
-          "name": "teacher_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "teacher_name": {
-          "name": "teacher_name",
-          "type": "varchar(120)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "student_id": {
-          "name": "student_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "class_id": {
-          "name": "class_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "subject_id": {
-          "name": "subject_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "period_from": {
-          "name": "period_from",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "period_to": {
-          "name": "period_to",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "comments": {
-          "name": "comments",
-          "type": "longtext",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sent_at": {
-          "name": "sent_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "read_at": {
-          "name": "read_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "reviewed_at": {
-          "name": "reviewed_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "shared_at": {
-          "name": "shared_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "school_reports_app_idx": {
-          "name": "school_reports_app_idx",
-          "columns": [
-            "app_id",
-            "status",
-            "updated_at"
-          ],
-          "isUnique": false
-        },
-        "school_reports_teacher_idx": {
-          "name": "school_reports_teacher_idx",
-          "columns": [
-            "app_id",
-            "teacher_id"
-          ],
-          "isUnique": false
-        },
-        "school_reports_student_idx": {
-          "name": "school_reports_student_idx",
-          "columns": [
-            "student_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "school_reports_app_id_apps_id_fk": {
-          "name": "school_reports_app_id_apps_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_reports_template_id_school_report_templates_id_fk": {
-          "name": "school_reports_template_id_school_report_templates_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "school_report_templates",
-          "columnsFrom": [
-            "template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "school_reports_teacher_id_school_people_id_fk": {
-          "name": "school_reports_teacher_id_school_people_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "school_people",
-          "columnsFrom": [
-            "teacher_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "school_reports_student_id_school_people_id_fk": {
-          "name": "school_reports_student_id_school_people_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "school_people",
-          "columnsFrom": [
-            "student_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_reports_class_id_school_classes_id_fk": {
-          "name": "school_reports_class_id_school_classes_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "school_classes",
-          "columnsFrom": [
-            "class_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "school_reports_subject_id_school_subjects_id_fk": {
-          "name": "school_reports_subject_id_school_subjects_id_fk",
-          "tableFrom": "school_reports",
-          "tableTo": "school_subjects",
-          "columnsFrom": [
-            "subject_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "school_reports_id": {
-          "name": "school_reports_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
     "school_scores": {
       "name": "school_scores",
       "columns": {
@@ -15676,361 +15568,6 @@
           "columns": [
             "homework_id",
             "student_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "school_syllabus_topics": {
-      "name": "school_syllabus_topics",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "unit_id": {
-          "name": "unit_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(200)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "starts_on": {
-          "name": "starts_on",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ends_on": {
-          "name": "ends_on",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "position": {
-          "name": "position",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "school_syllabus_topics_unit_idx": {
-          "name": "school_syllabus_topics_unit_idx",
-          "columns": [
-            "unit_id",
-            "position"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "school_syllabus_topics_app_id_apps_id_fk": {
-          "name": "school_syllabus_topics_app_id_apps_id_fk",
-          "tableFrom": "school_syllabus_topics",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_syllabus_topics_unit_id_school_syllabus_units_id_fk": {
-          "name": "school_syllabus_topics_unit_id_school_syllabus_units_id_fk",
-          "tableFrom": "school_syllabus_topics",
-          "tableTo": "school_syllabus_units",
-          "columnsFrom": [
-            "unit_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "school_syllabus_topics_id": {
-          "name": "school_syllabus_topics_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "school_syllabus_units": {
-      "name": "school_syllabus_units",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "subject_id": {
-          "name": "subject_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "grade": {
-          "name": "grade",
-          "type": "varchar(80)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(200)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "position": {
-          "name": "position",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "school_syllabus_units_subject_idx": {
-          "name": "school_syllabus_units_subject_idx",
-          "columns": [
-            "app_id",
-            "subject_id",
-            "grade",
-            "position"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "school_syllabus_units_app_id_apps_id_fk": {
-          "name": "school_syllabus_units_app_id_apps_id_fk",
-          "tableFrom": "school_syllabus_units",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_syllabus_units_subject_id_school_subjects_id_fk": {
-          "name": "school_syllabus_units_subject_id_school_subjects_id_fk",
-          "tableFrom": "school_syllabus_units",
-          "tableTo": "school_subjects",
-          "columnsFrom": [
-            "subject_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "school_syllabus_units_id": {
-          "name": "school_syllabus_units_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "school_topic_progress": {
-      "name": "school_topic_progress",
-      "columns": {
-        "app_id": {
-          "name": "app_id",
-          "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "class_id": {
-          "name": "class_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "topic_id": {
-          "name": "topic_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "covered_on": {
-          "name": "covered_on",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "teacher_id": {
-          "name": "teacher_id",
-          "type": "bigint unsigned",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "school_topic_progress_topic_idx": {
-          "name": "school_topic_progress_topic_idx",
-          "columns": [
-            "topic_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "school_topic_progress_app_id_apps_id_fk": {
-          "name": "school_topic_progress_app_id_apps_id_fk",
-          "tableFrom": "school_topic_progress",
-          "tableTo": "apps",
-          "columnsFrom": [
-            "app_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_topic_progress_class_id_school_classes_id_fk": {
-          "name": "school_topic_progress_class_id_school_classes_id_fk",
-          "tableFrom": "school_topic_progress",
-          "tableTo": "school_classes",
-          "columnsFrom": [
-            "class_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_topic_progress_topic_id_school_syllabus_topics_id_fk": {
-          "name": "school_topic_progress_topic_id_school_syllabus_topics_id_fk",
-          "tableFrom": "school_topic_progress",
-          "tableTo": "school_syllabus_topics",
-          "columnsFrom": [
-            "topic_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "school_topic_progress_teacher_id_school_people_id_fk": {
-          "name": "school_topic_progress_teacher_id_school_people_id_fk",
-          "tableFrom": "school_topic_progress",
-          "tableTo": "school_people",
-          "columnsFrom": [
-            "teacher_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "school_topic_progress_class_id_topic_id_pk": {
-          "name": "school_topic_progress_class_id_topic_id_pk",
-          "columns": [
-            "class_id",
-            "topic_id"
           ]
         }
       },

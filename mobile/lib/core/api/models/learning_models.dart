@@ -157,6 +157,9 @@ class Lesson {
     this.previousId,
     this.nextId,
     this.offline,
+    this.bookmarked = false,
+    this.noteCount = 0,
+    this.discussionCount,
   });
 
   factory Lesson.fromJson(Json json) => Lesson(
@@ -185,6 +188,9 @@ class Lesson {
     previousId: optInt(json, 'previous_id'),
     nextId: optInt(json, 'next_id'),
     offline: optObject(json, 'offline', LessonOffline.fromJson),
+    bookmarked: boolOr(json, 'bookmarked', false),
+    noteCount: intOr(json, 'note_count', 0),
+    discussionCount: optInt(json, 'discussion_count'),
   );
 
   final int id;
@@ -209,6 +215,12 @@ class Lesson {
   /// servers, connected schools) means it can't.
   final LessonOffline? offline;
 
+  /// 113.7 The student bookmarked it, their notes on it, and the questions
+  /// in its discussion (null: the server has no lesson discussions).
+  final bool bookmarked;
+  final int noteCount;
+  final int? discussionCount;
+
   /// The embed height rule for this lesson: its own override, else the
   /// site's setting.
   EmbedHeightMode embedHeightFor(ContentRules rules) =>
@@ -230,6 +242,9 @@ class Lesson {
     previousId: previousId,
     nextId: nextId,
     offline: offline,
+    bookmarked: bookmarked,
+    noteCount: noteCount,
+    discussionCount: discussionCount,
   );
 }
 
@@ -433,6 +448,8 @@ class Progress {
     required this.percent,
     this.courseCompleted = false,
     this.completedAt,
+    this.finalScore,
+    this.minFinalScore,
   });
 
   factory Progress.fromJson(Json json) => Progress(
@@ -442,6 +459,8 @@ class Progress {
     percent: reqInt(json, 'percent').clamp(0, 100),
     courseCompleted: boolOr(json, 'course_completed', false),
     completedAt: optDate(json, 'completed_at'),
+    finalScore: optInt(json, 'final_score'),
+    minFinalScore: optInt(json, 'min_final_score'),
   );
 
   final int courseId;
@@ -452,6 +471,11 @@ class Progress {
 
   /// 45 When the course was completed, when known.
   final DateTime? completedAt;
+
+  /// 113.7 The quizzes' and assignments' final score, and the one the course
+  /// needs to be completed (null: none).
+  final int? finalScore;
+  final int? minFinalScore;
 }
 
 class MyCourse {

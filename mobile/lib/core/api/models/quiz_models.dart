@@ -1,6 +1,7 @@
 import 'course_work_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'lms_more_models.dart';
 import '../../l10n/l10n.dart';
 
 class Quiz {
@@ -14,6 +15,7 @@ class Quiz {
     this.timeLimitSeconds,
     this.passPercent,
     this.lastResult,
+    this.exam,
   });
 
   factory Quiz.fromJson(Json json) => Quiz(
@@ -26,6 +28,7 @@ class Quiz {
     attemptsAllowed: optInt(json, 'attempts_allowed'),
     attemptsUsed: reqInt(json, 'attempts_used'),
     lastResult: optObject(json, 'last_result', AttemptResult.fromJson),
+    exam: optObject(json, 'exam', ExamInfo.fromJson),
   );
 
   final int id;
@@ -40,8 +43,14 @@ class Quiz {
   final int attemptsUsed;
   final AttemptResult? lastResult;
 
+  /// 113.7 A timed exam's window; null for a quiz.
+  final ExamInfo? exam;
+
+  /// 113.7 An exam starts while it's open (an attempt in progress goes on).
   bool get canStart =>
-      attemptsAllowed == null || attemptsUsed < attemptsAllowed!;
+      (exam?.inProgress ?? false) ||
+      ((exam == null || exam!.status == ExamStatus.open) &&
+          (attemptsAllowed == null || attemptsUsed < attemptsAllowed!));
 }
 
 class Attempt {
@@ -178,7 +187,8 @@ class AnswerInput {
   };
 }
 
-enum AttemptStatus { passed, failed, pendingReview }
+/// 113.7 `awaitingResults`: an exam's results show once it closes.
+enum AttemptStatus { passed, failed, pendingReview, awaitingResults }
 
 class AttemptResult {
   const AttemptResult({
@@ -189,6 +199,7 @@ class AttemptResult {
     this.scorePercent,
     this.finishedAt,
     this.review = const [],
+    this.resultsAt,
   });
 
   factory AttemptResult.fromJson(Json json) => AttemptResult(
@@ -203,6 +214,7 @@ class AttemptResult {
     scorePercent: optDouble(json, 'score_percent'),
     finishedAt: optDate(json, 'finished_at'),
     review: listOf(json, 'review', QuestionReview.fromJson),
+    resultsAt: optDate(json, 'results_at'),
   );
 
   final int attemptId;
@@ -216,9 +228,13 @@ class AttemptResult {
   /// the quiz shows them.
   final List<QuestionReview> review;
 
+  /// 113.7 With [AttemptStatus.awaitingResults], when the exam closes.
+  final DateTime? resultsAt;
+
   String get statusLabel => switch (status) {
     AttemptStatus.passed => currentL10n.attemptPassed,
     AttemptStatus.failed => currentL10n.attemptFailed,
     AttemptStatus.pendingReview => currentL10n.attemptPendingReview,
+    AttemptStatus.awaitingResults => currentL10n.attemptAwaitingResults,
   };
 }

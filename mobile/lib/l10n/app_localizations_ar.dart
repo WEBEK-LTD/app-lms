@@ -6872,4 +6872,298 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get couponEnrollFree => 'التسجيل مجانًا';
+
+  @override
+  String get attemptAwaitingResults => 'النتيجة بعد إغلاق الامتحان';
+
+  @override
+  String get learningPaths => 'المسارات التعليمية';
+
+  @override
+  String get noLearningPaths => 'لا توجد مسارات تعليمية بعد';
+
+  @override
+  String pathProgress(int done, int total) {
+    return 'أتممت $done من $total دورات';
+  }
+
+  @override
+  String get pathInOrder => 'ادرس هذه الدورات بالترتيب';
+
+  @override
+  String get pathLocked => 'تُفتح بعد الدورة التي قبلها';
+
+  @override
+  String get courseDoneLabel => 'مكتملة';
+
+  @override
+  String get prerequisitesTitle => 'أتمم هذه الدورات أولًا';
+
+  @override
+  String get prerequisitesHint => 'يمكنك التسجيل بعد أن تُتمّها.';
+
+  @override
+  String finalScore(int score) {
+    return 'الدرجة النهائية: $score%';
+  }
+
+  @override
+  String finalScoreNeeded(int score, int min) {
+    return 'الدرجة النهائية: $score% · يلزم $min% لإتمامها';
+  }
+
+  @override
+  String get achievementsTitle => 'النقاط والشارات';
+
+  @override
+  String pointsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نقطة',
+      many: '$count نقطة',
+      few: '$count نقاط',
+      two: 'نقطتان',
+      one: 'نقطة واحدة',
+      zero: 'لا نقاط',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تتابع $count يوم',
+      many: 'تتابع $count يومًا',
+      few: 'تتابع $count أيام',
+      two: 'تتابع يومين',
+      one: 'تتابع يوم واحد',
+      zero: 'لا تتابع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bestStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أطول تتابع: $count يوم',
+      many: 'أطول تتابع: $count يومًا',
+      few: 'أطول تتابع: $count أيام',
+      two: 'أطول تتابع: يومان',
+      one: 'أطول تتابع: يوم واحد',
+      zero: 'أطول تتابع: لا شيء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get badgesTitle => 'الشارات';
+
+  @override
+  String get badgeNotYet => 'ليس بعد';
+
+  @override
+  String get badgeFirstLesson => 'الدرس الأول';
+
+  @override
+  String get badgeFirstQuiz => 'أول اختبار ناجح';
+
+  @override
+  String get badgePerfectQuiz => 'اختبار بالدرجة الكاملة';
+
+  @override
+  String get badgeFirstAssignment => 'الواجب الأول';
+
+  @override
+  String get badgeStreak7 => 'تتابع 7 أيام';
+
+  @override
+  String get badgeCourseCompleted => 'إتمام دورة';
+
+  @override
+  String get badgePathCompleted => 'إتمام مسار';
+
+  @override
+  String get badgePoints500 => '500 نقطة';
+
+  @override
+  String get leaderboardTitle => 'لوحة المتصدرين';
+
+  @override
+  String get leaderboardCourse => 'الدورة';
+
+  @override
+  String get leaderboardCohort => 'مجموعتي';
+
+  @override
+  String leaderboardRank(int rank, int total) {
+    return 'ترتيبك $rank من $total';
+  }
+
+  @override
+  String get leaderboardEmpty => 'لا أحد في لوحة المتصدرين بعد';
+
+  @override
+  String get leaderboardPrivacy =>
+      'تظهر الأسماء الأولى والحرف الأول من اسم العائلة فقط.';
+
+  @override
+  String get leaderboardYou => 'أنت';
+
+  @override
+  String get myNotes => 'ملاحظاتي';
+
+  @override
+  String get notesTitle => 'الملاحظات';
+
+  @override
+  String get notesPrivate => 'لا يرى ملاحظاتك أحد غيرك.';
+
+  @override
+  String get noNotes => 'لا ملاحظات بعد';
+
+  @override
+  String get noteHint => 'اكتب ملاحظة لنفسك';
+
+  @override
+  String get addNote => 'إضافة ملاحظة';
+
+  @override
+  String noteAt(String time) {
+    return 'عند $time';
+  }
+
+  @override
+  String get editNote => 'تعديل الملاحظة';
+
+  @override
+  String get deleteNote => 'حذف الملاحظة';
+
+  @override
+  String get bookmarkLesson => 'إشارة مرجعية';
+
+  @override
+  String get removeBookmark => 'إزالة الإشارة المرجعية';
+
+  @override
+  String get bookmarksTitle => 'الإشارات المرجعية';
+
+  @override
+  String get lessonDiscussion => 'النقاش';
+
+  @override
+  String discussionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال',
+      many: '$count سؤالًا',
+      few: '$count أسئلة',
+      two: 'سؤالان',
+      one: 'سؤال واحد',
+      zero: 'لا أسئلة بعد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get askAboutLesson => 'اسأل عن هذا الدرس';
+
+  @override
+  String get pinnedLabel => 'مثبّت';
+
+  @override
+  String get pinQuestion => 'تثبيت';
+
+  @override
+  String get unpinQuestion => 'إلغاء التثبيت';
+
+  @override
+  String get deleteQuestion => 'حذف السؤال';
+
+  @override
+  String get deleteAnswer => 'حذف الإجابة';
+
+  @override
+  String get deleteConfirm => 'هل تريد حذفه؟ لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get examLabel => 'امتحان';
+
+  @override
+  String examOpensAt(String time) {
+    return 'يُفتح $time';
+  }
+
+  @override
+  String examClosesAt(String time) {
+    return 'يُغلق $time';
+  }
+
+  @override
+  String get examNotOpen => 'لم يُفتح هذا الامتحان بعد';
+
+  @override
+  String get examClosed => 'أُغلق هذا الامتحان';
+
+  @override
+  String get examResume => 'العودة إلى الامتحان';
+
+  @override
+  String examResultsAt(String time) {
+    return 'تظهر نتيجتك في $time';
+  }
+
+  @override
+  String get examTimeUp => 'انتهى الوقت: وصلت إجاباتك متأخرة.';
+
+  @override
+  String get examTimedHint => 'يستمر الوقت حتى إن خرجت من التطبيق.';
+
+  @override
+  String get rubricTitle => 'معايير التقييم';
+
+  @override
+  String rubricPoints(int points, int max) {
+    return '$points من $max';
+  }
+
+  @override
+  String rubricLevelPoints(String level, int points) {
+    return '$level · $points';
+  }
+
+  @override
+  String get rubricChooseAll => 'اختر مستوى لكل معيار';
+
+  @override
+  String rubricTotal(int score, int max) {
+    return 'الدرجة: $score من $max';
+  }
+
+  @override
+  String tryOf(int attempt, int total) {
+    return 'المحاولة $attempt من $total';
+  }
+
+  @override
+  String triesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يمكنك تسليمه $count مرة أخرى.',
+      many: 'يمكنك تسليمه $count مرة أخرى.',
+      few: 'يمكنك تسليمه $count مرات أخرى.',
+      two: 'يمكنك تسليمه مرتين أخريين.',
+      one: 'يمكنك تسليمه مرة أخرى.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get handInAgain => 'التسليم مرة أخرى';
 }

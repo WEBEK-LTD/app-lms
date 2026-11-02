@@ -16,6 +16,7 @@ export 'donation_models.dart';
 export 'delivery_models.dart';
 export 'json.dart' show Json;
 export 'learning_models.dart';
+export 'lms_more_models.dart';
 export 'listing_models.dart';
 export 'news_models.dart';
 export 'page_models.dart';

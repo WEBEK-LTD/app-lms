@@ -71,6 +71,9 @@ import type {
   LessonProgress,
   QuizAttempt,
   AssignmentSubmission,
+  AssignmentSubmissionInput,
+  LessonBookmark,
+  LessonNote,
   CatalogCoupon,
   AdminMember,
   AdminMemberRow,
@@ -203,6 +206,10 @@ export class MemoryStore implements DataStore {
   // 90.1
   private quizAttempts: QuizAttempt[] = [];
   private assignmentSubmissions: AssignmentSubmission[] = [];
+  // 113.7
+  private lessonNotes = new Map<number, LessonNote>();
+  private nextLessonNoteId = 1;
+  private lessonBookmarks = new Map<string, LessonBookmark>();
   private catalogCoupons: CatalogCoupon[] = [];
   // 44 Analytics: raw events, and daily totals keyed by app, day, metric and key.
   private analyticsEvents: AnalyticsEventRow[] = [];
@@ -681,6 +688,9 @@ export class MemoryStore implements DataStore {
     this.loyaltyEntries = this.loyaltyEntries.filter((e) => !(e.appId === appId && e.userId === id));
     // 112.5 Their assignments go with them (MySQL: the foreign key).
     this.assignmentSubmissions = this.assignmentSubmissions.filter((s) => !(s.appId === appId && s.userId === id));
+    // 113.7 and their notes and bookmarks.
+    for (const [key, n] of this.lessonNotes) if (n.appId === appId && n.userId === id) this.lessonNotes.delete(key);
+    for (const [key, b] of this.lessonBookmarks) if (b.appId === appId && b.userId === id) this.lessonBookmarks.delete(key);
     // 28 Tickets stay with the organiser, with their holder's name.
     for (const ticket of this.tickets.values()) {
       if (ticket.appId === appId && ticket.userId === id) ticket.userId = null;
@@ -1482,7 +1492,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createCourseQuestion(input: CourseQuestionInput): Promise<CourseQuestion> {
-    const row: CourseQuestion = { ...clone(input), hidden: false, id: this.nextCourseQuestionId++, answerCount: 0 };
+    const row: CourseQuestion = { ...clone(input), lessonId: input.lessonId ?? null, pinned: false, hidden: false, id: this.nextCourseQuestionId++, answerCount: 0 };
     this.courseQuestions.set(row.id, clone(row));
     return row;
   }
@@ -1505,6 +1515,7 @@ export class MemoryStore implements DataStore {
     status?: CourseQuestionStatus;
     hidden?: boolean;
     viewerId?: number;
+    lessonId?: number | null;
     order: "created" | "updated";
     offset: number;
     limit: number;
@@ -1517,9 +1528,11 @@ export class MemoryStore implements DataStore {
           (!input.courseIds || input.courseIds.includes(q.courseId)) &&
           (!input.status || q.status === input.status) &&
           (input.hidden === undefined || q.hidden === input.hidden) &&
-          (input.viewerId === undefined || !q.hidden || q.userId === input.viewerId),
+          (input.viewerId === undefined || !q.hidden || q.userId === input.viewerId) &&
+          (input.lessonId === undefined || (q.lessonId ?? null) === input.lessonId),
       )
-      .sort((a, b) => at(b) - at(a) || b.id - a.id);
+      // 113.7 Pinned ones first in the app's lists.
+      .sort((a, b) => (input.order === "created" ? Number(b.pinned) - Number(a.pinned) : 0) || at(b) - at(a) || b.id - a.id);
     return { items: all.slice(input.offset, input.offset + input.limit).map((q) => this.counted(q)), total: all.length };
   }
 
@@ -1535,6 +1548,27 @@ export class MemoryStore implements DataStore {
     const row = this.courseQuestions.get(id);
     if (!row || row.appId !== appId) return false;
     this.courseQuestions.set(id, { ...row, hidden });
+    return true;
+  }
+
+  async setCourseQuestionPinned(appId: string, id: number, pinned: boolean): Promise<boolean> {
+    const row = this.courseQuestions.get(id);
+    if (!row || row.appId !== appId) return false;
+    this.courseQuestions.set(id, { ...row, pinned });
+    return true;
+  }
+
+  async deleteCourseQuestion(appId: string, id: number): Promise<boolean> {
+    const row = this.courseQuestions.get(id);
+    if (!row || row.appId !== appId) return false;
+    this.deleteQuestion(id);
+    return true;
+  }
+
+  async deleteCourseAnswer(appId: string, questionId: number, id: number): Promise<boolean> {
+    const row = this.courseAnswers.get(id);
+    if (!row || row.appId !== appId || row.questionId !== questionId) return false;
+    this.courseAnswers.delete(id);
     return true;
   }
 
@@ -1585,9 +1619,9 @@ export class MemoryStore implements DataStore {
     this.lessonProgress.set(key, clone({ ...input, completedAt: saved?.completedAt ?? input.completedAt }));
   }
 
-  async listLessonProgress(input: { appId: string; userId: number; courseId?: number }): Promise<LessonProgress[]> {
+  async listLessonProgress(input: { appId: string; userId?: number; courseId?: number }): Promise<LessonProgress[]> {
     return [...this.lessonProgress.values()]
-      .filter((p) => p.appId === input.appId && p.userId === input.userId && (input.courseId === undefined || p.courseId === input.courseId))
+      .filter((p) => p.appId === input.appId && (input.userId === undefined || p.userId === input.userId) && (input.courseId === undefined || p.courseId === input.courseId))
       .map(clone);
   }
 
@@ -1628,13 +1662,14 @@ export class MemoryStore implements DataStore {
     return before - this.quizAttempts.length;
   }
 
-  async saveAssignmentSubmission(input: Omit<AssignmentSubmission, "id">): Promise<AssignmentSubmission> {
+  async saveAssignmentSubmission(input: AssignmentSubmissionInput): Promise<AssignmentSubmission> {
     const found = this.assignmentSubmissions.find((s) => s.appId === input.appId && s.assignmentId === input.assignmentId && s.userId === input.userId);
+    const full = { ...clone(input), attempt: input.attempt ?? 1, rubric: input.rubric ?? null };
     if (found) {
-      Object.assign(found, clone(input));
+      Object.assign(found, full);
       return clone(found);
     }
-    const row = { ...clone(input), id: this.assignmentSubmissions.reduce((max, s) => Math.max(max, s.id), 0) + 1 };
+    const row = { ...full, id: this.assignmentSubmissions.reduce((max, s) => Math.max(max, s.id), 0) + 1 };
     this.assignmentSubmissions.push(row);
     return clone(row);
   }
@@ -1658,7 +1693,7 @@ export class MemoryStore implements DataStore {
       .map(clone);
   }
 
-  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy">): Promise<boolean> {
+  async gradeAssignmentSubmission(appId: string, id: number, grade: Pick<AssignmentSubmission, "status" | "score" | "feedback" | "gradedAt" | "gradedBy"> & { rubric?: AssignmentSubmission["rubric"] }): Promise<boolean> {
     const found = this.assignmentSubmissions.find((s) => s.appId === appId && s.id === id);
     if (!found) return false;
     Object.assign(found, clone(grade));
@@ -1669,6 +1704,53 @@ export class MemoryStore implements DataStore {
     const before = this.assignmentSubmissions.length;
     this.assignmentSubmissions = this.assignmentSubmissions.filter((s) => !(s.appId === input.appId && s.userId === input.userId && s.courseId === input.courseId));
     return before - this.assignmentSubmissions.length;
+  }
+
+  // 113.7 Notes and bookmarks
+
+  async createLessonNote(input: Omit<LessonNote, "id">): Promise<LessonNote> {
+    const row: LessonNote = { ...clone(input), id: this.nextLessonNoteId++ };
+    this.lessonNotes.set(row.id, clone(row));
+    return row;
+  }
+
+  async getLessonNote(appId: string, id: number): Promise<LessonNote | null> {
+    const row = this.lessonNotes.get(id);
+    return row && row.appId === appId ? clone(row) : null;
+  }
+
+  async listLessonNotes(input: { appId: string; userId: number; courseId?: number; lessonId?: number }): Promise<LessonNote[]> {
+    return [...this.lessonNotes.values()]
+      .filter((n) => n.appId === input.appId && n.userId === input.userId && (input.courseId === undefined || n.courseId === input.courseId) && (input.lessonId === undefined || n.lessonId === input.lessonId))
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id)
+      .map(clone);
+  }
+
+  async updateLessonNote(appId: string, id: number, patch: Pick<LessonNote, "text" | "updatedAt">): Promise<boolean> {
+    const row = this.lessonNotes.get(id);
+    if (!row || row.appId !== appId) return false;
+    this.lessonNotes.set(id, { ...row, ...clone(patch) });
+    return true;
+  }
+
+  async deleteLessonNote(appId: string, id: number): Promise<boolean> {
+    const row = this.lessonNotes.get(id);
+    if (!row || row.appId !== appId) return false;
+    this.lessonNotes.delete(id);
+    return true;
+  }
+
+  async setLessonBookmark(input: Omit<LessonBookmark, "createdAt"> & { on: boolean; now: Date }): Promise<void> {
+    const key = `${input.appId}:${input.userId}:${input.lessonId}`;
+    if (!input.on) this.lessonBookmarks.delete(key);
+    else if (!this.lessonBookmarks.has(key)) this.lessonBookmarks.set(key, { appId: input.appId, userId: input.userId, courseId: input.courseId, lessonId: input.lessonId, createdAt: input.now });
+  }
+
+  async listLessonBookmarks(input: { appId: string; userId: number; courseId?: number }): Promise<LessonBookmark[]> {
+    return [...this.lessonBookmarks.values()]
+      .filter((b) => b.appId === input.appId && b.userId === input.userId && (input.courseId === undefined || b.courseId === input.courseId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
   }
 
   async deleteLessonProgress(input: { appId: string; userId: number; courseId: number }): Promise<number> {

@@ -6669,4 +6669,279 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couponEnrollFree => 'Enroll for free';
+
+  @override
+  String get attemptAwaitingResults => 'Results after the exam closes';
+
+  @override
+  String get learningPaths => 'Learning paths';
+
+  @override
+  String get noLearningPaths => 'No learning paths yet';
+
+  @override
+  String pathProgress(int done, int total) {
+    return '$done of $total courses completed';
+  }
+
+  @override
+  String get pathInOrder => 'Take these courses in order';
+
+  @override
+  String get pathLocked => 'Opens after the course before it';
+
+  @override
+  String get courseDoneLabel => 'Completed';
+
+  @override
+  String get prerequisitesTitle => 'Finish these courses first';
+
+  @override
+  String get prerequisitesHint => 'You can enrol once you\'ve completed them.';
+
+  @override
+  String finalScore(int score) {
+    return 'Final score: $score%';
+  }
+
+  @override
+  String finalScoreNeeded(int score, int min) {
+    return 'Final score: $score% · $min% needed to complete it';
+  }
+
+  @override
+  String get achievementsTitle => 'Points and badges';
+
+  @override
+  String pointsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count points',
+      one: '1 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day streak',
+      one: '1-day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bestStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Best streak: $count days',
+      one: 'Best streak: 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get badgesTitle => 'Badges';
+
+  @override
+  String get badgeNotYet => 'Not yet';
+
+  @override
+  String get badgeFirstLesson => 'First lesson';
+
+  @override
+  String get badgeFirstQuiz => 'First quiz passed';
+
+  @override
+  String get badgePerfectQuiz => 'Perfect quiz';
+
+  @override
+  String get badgeFirstAssignment => 'First assignment';
+
+  @override
+  String get badgeStreak7 => '7-day streak';
+
+  @override
+  String get badgeCourseCompleted => 'Course completed';
+
+  @override
+  String get badgePathCompleted => 'Path completed';
+
+  @override
+  String get badgePoints500 => '500 points';
+
+  @override
+  String get leaderboardTitle => 'Leaderboard';
+
+  @override
+  String get leaderboardCourse => 'Course';
+
+  @override
+  String get leaderboardCohort => 'My cohort';
+
+  @override
+  String leaderboardRank(int rank, int total) {
+    return 'You\'re #$rank of $total';
+  }
+
+  @override
+  String get leaderboardEmpty => 'No one on the leaderboard yet';
+
+  @override
+  String get leaderboardPrivacy => 'Only first names and an initial are shown.';
+
+  @override
+  String get leaderboardYou => 'You';
+
+  @override
+  String get myNotes => 'My notes';
+
+  @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String get notesPrivate => 'Only you can see your notes.';
+
+  @override
+  String get noNotes => 'No notes yet';
+
+  @override
+  String get noteHint => 'Write a note for yourself';
+
+  @override
+  String get addNote => 'Add note';
+
+  @override
+  String noteAt(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String get editNote => 'Edit note';
+
+  @override
+  String get deleteNote => 'Delete note';
+
+  @override
+  String get bookmarkLesson => 'Bookmark';
+
+  @override
+  String get removeBookmark => 'Remove bookmark';
+
+  @override
+  String get bookmarksTitle => 'Bookmarks';
+
+  @override
+  String get lessonDiscussion => 'Discussion';
+
+  @override
+  String discussionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+      zero: 'No questions yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get askAboutLesson => 'Ask about this lesson';
+
+  @override
+  String get pinnedLabel => 'Pinned';
+
+  @override
+  String get pinQuestion => 'Pin';
+
+  @override
+  String get unpinQuestion => 'Unpin';
+
+  @override
+  String get deleteQuestion => 'Delete question';
+
+  @override
+  String get deleteAnswer => 'Delete answer';
+
+  @override
+  String get deleteConfirm => 'Delete it? This can\'t be undone.';
+
+  @override
+  String get examLabel => 'Exam';
+
+  @override
+  String examOpensAt(String time) {
+    return 'Opens $time';
+  }
+
+  @override
+  String examClosesAt(String time) {
+    return 'Closes $time';
+  }
+
+  @override
+  String get examNotOpen => 'This exam isn\'t open yet';
+
+  @override
+  String get examClosed => 'This exam has closed';
+
+  @override
+  String get examResume => 'Back to the exam';
+
+  @override
+  String examResultsAt(String time) {
+    return 'Your results show on $time';
+  }
+
+  @override
+  String get examTimeUp => 'The time was over: your answers came too late.';
+
+  @override
+  String get examTimedHint => 'The time keeps running if you leave the app.';
+
+  @override
+  String get rubricTitle => 'Rubric';
+
+  @override
+  String rubricPoints(int points, int max) {
+    return '$points of $max';
+  }
+
+  @override
+  String rubricLevelPoints(String level, int points) {
+    return '$level · $points';
+  }
+
+  @override
+  String get rubricChooseAll => 'Choose a level for each criterion';
+
+  @override
+  String rubricTotal(int score, int max) {
+    return 'Score: $score of $max';
+  }
+
+  @override
+  String tryOf(int attempt, int total) {
+    return 'Try $attempt of $total';
+  }
+
+  @override
+  String triesLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You can hand it in again $count times.',
+      one: 'You can hand it in again once.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get handInAgain => 'Hand in again';
 }

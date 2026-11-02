@@ -31,6 +31,18 @@ abstract final class Paths {
   /// 112.5 The student's live classes.
   static const liveClasses = '/account/live-classes';
 
+  /// 113.7 Learning paths, and the student's points and badges.
+  static const learningPaths = '/learning-paths';
+  static const achievements = '/account/achievements';
+  static String learningPath(int id) => '/learning-path/$id';
+
+  /// 113.7 A course's leaderboard and the student's notes in it; a lesson's
+  /// discussion.
+  static String leaderboard(int courseId) => '/course/$courseId/leaderboard';
+  static String courseNotes(int courseId) => '/course/$courseId/notes';
+  static String lessonDiscussion(int lessonId) =>
+      '/lesson/$lessonId/discussion';
+
   /// 45 Lessons saved for offline viewing.
   static const downloads = '/account/downloads';
   static const orders = '/account/orders';

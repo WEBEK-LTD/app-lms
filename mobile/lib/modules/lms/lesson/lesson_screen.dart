@@ -28,6 +28,7 @@ import '../navigation.dart';
 import 'content/html_content.dart';
 import 'embeds/inline_embed.dart';
 import 'video/lesson_video_player.dart';
+import '../learning/lesson_tools.dart';
 import 'video/watermark.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/review_prompt.dart';
@@ -133,7 +134,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   /// screen has left the tree.
   late final _queue = ref.read(progressQueueProvider);
 
+  /// 113.7 Where the video is, for a note written while watching.
+  int? _lastPosition;
+
   void _saveProgress(int position, double percent) {
+    _lastPosition = position;
     if (!_signedIn) return;
     final lessonId = widget.lessonId;
     final queue = _queue;
@@ -292,6 +297,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       ),
     );
     final subtitle = [?course?.title, ?position.topic?.title].join(' · ');
+    // 113.7 The student's bookmark and notes, and the lesson's discussion.
+    final tools =
+        course?.enrolled == true && ref.watch(authControllerProvider).isSignedIn
+        ? LessonTools(lesson: lesson, position: () => _lastPosition)
+        : null;
     // 45 Save for offline.
     final download = LessonDownloadButton(
       lesson: lesson,
@@ -306,6 +316,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         subtitle: subtitle,
         position: position,
         footer: footer,
+        tools: tools,
         // 53 Paused and covered while a protected lesson is recorded (iOS);
         // the route is under ProtectedContent (lms_routes.dart).
         captured:
@@ -383,6 +394,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                     const SizedBox(height: 8),
                     _Attachments(attachments: lesson.attachments),
                   ],
+                  if (tools != null) ...[const SizedBox(height: 24), tools],
                 ],
               ),
             ),
@@ -527,9 +539,13 @@ class _VideoLesson extends ConsumerStatefulWidget {
     required this.reloadVideo,
     required this.onProgress,
     required this.onEnded,
+    this.tools,
   });
 
   final Lesson lesson;
+
+  /// 113.7 The student's bookmark, notes and the lesson's discussion.
+  final Widget? tools;
 
   /// 45 The "Save for offline" button.
   final Widget download;
@@ -606,6 +622,10 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
                     widget.download,
                   ],
                 ),
+                if (widget.tools != null) ...[
+                  const SizedBox(height: 12),
+                  widget.tools!,
+                ],
                 const SizedBox(height: 14),
                 SegmentedTabs(
                   labels: [

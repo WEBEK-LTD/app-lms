@@ -1,4 +1,5 @@
 import 'json.dart';
+import 'lms_more_models.dart';
 import 'learning_models.dart' show Progress;
 import '../../l10n/l10n.dart';
 
@@ -198,6 +199,8 @@ class CourseDetail extends CourseSummary {
     this.storeProductId,
     this.cohort,
     this.takesCoupons = false,
+    this.prerequisites = const [],
+    this.prerequisitesMet = true,
     this.bundles = const [],
   });
 
@@ -236,6 +239,8 @@ class CourseDetail extends CourseSummary {
       membership: optObject(json, 'membership', CourseMembership.fromJson),
       storeProductId: _nonEmpty(optString(purchase, 'store_product_id')),
       takesCoupons: boolOr(purchase, 'coupons', false),
+      prerequisites: listOf(json, 'prerequisites', Prerequisite.fromJson),
+      prerequisitesMet: boolOr(json, 'prerequisites_met', true),
       bundles: listOf(json, 'bundles', Bundle.fromJson),
     );
   }
@@ -270,6 +275,11 @@ class CourseDetail extends CourseSummary {
 
   /// 112.5 The academy takes coupons at its checkout.
   final bool takesCoupons;
+
+  /// 113.7 The courses to finish before enrolling, and whether the student
+  /// has (the main button is `none` until then).
+  final List<Prerequisite> prerequisites;
+  final bool prerequisitesMet;
 
   /// 113.1 The bundles this course is in.
   final List<Bundle> bundles;
