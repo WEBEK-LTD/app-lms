@@ -106,6 +106,7 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
@@ -116,6 +117,7 @@ import type {
   SchoolSyllabusUnit,
   SchoolTopicProgress,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -2199,6 +2201,10 @@ export class MemoryStore implements DataStore {
   private schoolScores = new Map<string, SchoolScore>();
   private schoolAnnouncements = new Map<number, SchoolAnnouncement>();
   private schoolFees = new Map<number, SchoolFee>();
+  /** 113.2 Keyed `personId:date`. */
+  private schoolCheckins = new Map<string, SchoolCheckin>();
+  /** 113.3 */
+  private schoolLeave = new Map<number, SchoolLeave>();
   private nextSchoolId = 1;
 
   async getSchoolSettings(appId: string): Promise<SchoolSettings | null> {
@@ -2318,6 +2324,8 @@ export class MemoryStore implements DataStore {
     for (const [key, x] of this.schoolSubmissions) if (x.studentId === id) this.schoolSubmissions.delete(key);
     for (const [key, x] of this.schoolScores) if (x.studentId === id) this.schoolScores.delete(key);
     for (const [key, f] of this.schoolFees) if (f.studentId === id) this.schoolFees.delete(key);
+    for (const [key, c] of this.schoolCheckins) if (c.personId === id) this.schoolCheckins.delete(key);
+    for (const [key, l] of this.schoolLeave) if (l.personId === id) this.schoolLeave.delete(key);
     for (const p of this.schoolPeriods.values()) if (p.teacherId === id) p.teacherId = null;
     // 113.5 A student's reports go with them; a teacher's stay, with their name.
     for (const [key, r] of this.schoolReports) if (r.studentId === id) this.schoolReports.delete(key);
@@ -2696,6 +2704,64 @@ export class MemoryStore implements DataStore {
   async deleteSchoolReport(appId: string, id: number): Promise<void> {
     const found = this.schoolReports.get(id);
     if (found && found.appId === appId) this.schoolReports.delete(id);
+  }
+
+  async listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]> {
+    return [...this.schoolCheckins.values()]
+      .filter(
+        (c) =>
+          c.appId === appId &&
+          (filter.personId === undefined || c.personId === filter.personId) &&
+          (!filter.personIds || filter.personIds.includes(c.personId)) &&
+          (!filter.date || c.date === filter.date) &&
+          (!filter.from || c.date >= filter.from) &&
+          (!filter.to || c.date <= filter.to),
+      )
+      .sort((a, b) => b.date.localeCompare(a.date) || a.personId - b.personId)
+      .map(clone);
+  }
+
+  async getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null> {
+    const found = this.schoolCheckins.get(`${personId}:${date}`);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async saveSchoolCheckin(row: SchoolCheckin): Promise<void> {
+    const person = this.schoolPeople.get(row.personId);
+    if (!person || person.appId !== row.appId) return;
+    this.schoolCheckins.set(`${row.personId}:${row.date}`, clone(row));
+  }
+
+  async listSchoolLeave(appId: string, filter: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string } = {}): Promise<SchoolLeave[]> {
+    return [...this.schoolLeave.values()]
+      .filter(
+        (l) =>
+          l.appId === appId &&
+          (filter.personId === undefined || l.personId === filter.personId) &&
+          (!filter.statuses || filter.statuses.includes(l.status)) &&
+          (!filter.from || l.endsOn >= filter.from) &&
+          (!filter.to || l.startsOn <= filter.to),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null> {
+    const found = this.schoolLeave.get(id);
+    return found && found.appId === appId ? clone(found) : null;
+  }
+
+  async createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave> {
+    const made: SchoolLeave = { ...clone(input), id: this.nextSchoolId++ };
+    this.schoolLeave.set(made.id, clone(made));
+    return made;
+  }
+
+  async updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean> {
+    const found = this.schoolLeave.get(id);
+    if (!found || found.appId !== appId || !statuses.includes(found.status)) return false;
+    this.schoolLeave.set(id, { ...found, ...clone(patch) });
+    return true;
   }
 
   // 105.3 Academies with many teachers

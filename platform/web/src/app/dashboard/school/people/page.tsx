@@ -10,6 +10,8 @@ import { getStore } from "@/lib/data";
 import type { SchoolPerson, SchoolRole } from "@/lib/data/types";
 import { appPlan } from "@/lib/entitlements";
 import { PEOPLE_CSV_EXAMPLE, personFormValues, SCHOOL_LIMITS } from "@/lib/school/forms";
+import { STAFF_LIMITS, workFormValues } from "@/lib/school/staff";
+import { WorkFields } from "../staff/parts";
 import { ConfirmButton } from "../../chat/forms";
 import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
@@ -19,8 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("school.people") };
 }
 
-const ROLE_KEYS: Record<SchoolRole, DashKey> = { student: "school.students", parent: "school.parents", teacher: "school.teachers" };
-const ADD_KEYS: Record<SchoolRole, DashKey> = { student: "school.addStudent", parent: "school.addParent", teacher: "school.addTeacher" };
+const ROLE_KEYS: Record<SchoolRole, DashKey> = { student: "school.students", parent: "school.parents", teacher: "school.teachers", staff: "school.staff" };
+const ADD_KEYS: Record<SchoolRole, DashKey> = { student: "school.addStudent", parent: "school.addParent", teacher: "school.addTeacher", staff: "school.addStaff" };
 const PER_PAGE = 50;
 
 /**
@@ -33,7 +35,7 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
   const { t } = await dashboardText();
   if (!isSchool(app)) return <NotSchool title={t("school.people")} t={t} />;
   const params = await searchParams;
-  const role: SchoolRole = params.role === "parent" || params.role === "teacher" ? params.role : "student";
+  const role: SchoolRole = params.role === "parent" || params.role === "teacher" || params.role === "staff" ? params.role : "student";
   const q = (params.q ?? "").trim().toLowerCase();
   const store = await getStore();
   const [people, classes, family, plan] = await Promise.all([store.listSchoolPeople(app.id), store.listSchoolClasses(app.id), store.listSchoolFamily(app.id, {}), appPlan(store, license, new Date())]);
@@ -70,6 +72,8 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
             <Field id={`f-children${suffix}`} label={t("school.children")} name="children" defaultValue={children.join(", ")} hint={t("school.childrenHint")} className="sm:col-span-2" />
           ) : null}
         </div>
+        {/* 113.3 A teacher's or staff member's job, department, working hours and duties. */}
+        {role === "teacher" || role === "staff" ? <WorkFields suffix={suffix} values={workFormValues(person)} t={t} limits={STAFF_LIMITS} /> : null}
         {person ? (
           <label className="flex items-center gap-2 text-[15px] font-semibold">
             <input type="checkbox" name="active" defaultChecked={values.active === "on"} className="h-4 w-4 accent-midnight" />
@@ -88,7 +92,7 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <nav aria-label={t("school.people")} className="flex flex-wrap gap-1.5">
-          {(["student", "parent", "teacher"] as const).map((r) => (
+          {(["student", "parent", "teacher", "staff"] as const).map((r) => (
             <Link
               key={r}
               href={link(r)}
@@ -128,6 +132,8 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
                         person.phone,
                         person.email,
                         person.classId ? className.get(person.classId) : null,
+                        person.jobTitle ?? null,
+                        person.department ?? null,
                         person.code ? t("school.codeIs", { code: person.code }) : null,
                         related.length ? (person.role === "parent" ? t("school.childrenAre", { names: related.map((s) => s.name).join(", ") }) : t("school.parentsAre", { names: related.map((s) => s.name).join(", ") })) : null,
                       ]

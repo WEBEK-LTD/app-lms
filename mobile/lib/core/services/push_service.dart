@@ -59,6 +59,8 @@ abstract class PushService {
 ///   `school_fee` their fees, `school_announcement` the school's news;
 /// - 113.5 `school_report` the teacher's report, `school_report_shared` the
 ///   child's reports the school shared with their parents;
+///   113.2 `school_checkin` the child's attendance; 113.3 `school_staff` the
+///   staff's news, `school_leave` the person's leave requests;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -131,6 +133,13 @@ String pushTargetLocation(Map<String, dynamic> data) {
           : Paths.classroomReports;
     case 'school_report_shared':
       return Paths.schoolPart('reports', student: id('student_id'));
+    // 113.2 A child checked in or out; 113.3 the staff's news, a leave answer.
+    case 'school_checkin':
+      return Paths.schoolPart('attendance', student: id('student_id'));
+    case 'school_staff':
+      return Paths.staffNews;
+    case 'school_leave':
+      return Paths.staffLeave;
     case 'chat':
       final conversation = '${data['conversation_id'] ?? ''}'.trim();
       if (conversation.isNotEmpty) return Paths.chatConversation(conversation);

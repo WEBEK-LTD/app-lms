@@ -4659,9 +4659,9 @@ export interface TeacherReview {
 
 // 105.4 Schools
 
-/** Who a person is at a school. One person may be on the list twice (a teacher who is also a parent). */
-export type SchoolRole = "student" | "parent" | "teacher";
-export const SCHOOL_ROLES: readonly SchoolRole[] = ["student", "parent", "teacher"];
+/** Who a person is at a school. One person may be on the list twice (a teacher who is also a parent). 113.3 `staff`: who works at the school and doesn't teach. */
+export type SchoolRole = "student" | "parent" | "teacher" | "staff";
+export const SCHOOL_ROLES: readonly SchoolRole[] = ["student", "parent", "teacher", "staff"];
 
 /** The school's settings (school_settings). */
 export interface SchoolSettings {
@@ -4674,6 +4674,47 @@ export interface SchoolSettings {
   absenceAlerts: boolean;
   /** Fees can be paid by card on the school's payment page. */
   feesByCard: boolean;
+  /** 113.2 Checking in and out from the app; left out: off (lib/school/checkin.ts). */
+  checkin?: SchoolCheckinSettings;
+}
+
+/** 113.2 How people check in: the gate's QR code, inside the school's area, either one, or both at once. */
+export type SchoolCheckinMethods = "qr" | "location" | "either" | "both";
+export const SCHOOL_CHECKIN_METHODS: readonly SchoolCheckinMethods[] = ["qr", "location", "either", "both"];
+
+/** 113.2 A school day's times, in minutes from midnight: it starts, late from, it ends, leaving early before. */
+export interface SchoolDayTimes {
+  startMinute: number;
+  lateMinute: number;
+  endMinute: number;
+  earlyMinute: number;
+}
+
+/** 113.2 Checking in and out at the school. */
+export interface SchoolCheckinSettings {
+  on: boolean;
+  methods: SchoolCheckinMethods;
+  /** The school's place and how far from it counts as inside, in metres. */
+  place: { lat: number; lng: number; radiusM: number } | null;
+  /** The school's days, 1 Monday … 7 Sunday. */
+  days: number[];
+  students: SchoolDayTimes;
+  /** Teachers and staff, unless their own working hours say otherwise. */
+  staff: SchoolDayTimes;
+  /** Parents are told when their child checks in and out. */
+  parentAlerts: boolean;
+  /** Turning this up makes every gate code new (when a gate screen's link went where it shouldn't). */
+  gateKey: number;
+  /** The first day counted: days before it are never absent. */
+  since: string | null;
+}
+
+/** 113.3 When a teacher or a member of staff works. */
+export interface SchoolWorkHours {
+  /** 1 Monday … 7 Sunday. */
+  days: number[];
+  startMinute: number;
+  endMinute: number;
 }
 
 export interface SchoolClass {
@@ -4715,12 +4756,18 @@ export interface SchoolPerson {
   code: string | null;
   photoAssetId: string | null;
   active: boolean;
+  /** 113.3 A teacher's or staff member's job ("Nurse"), department ("Office"), working hours (else the school's staff times) and duties. */
+  jobTitle?: string | null;
+  department?: string | null;
+  workHours?: SchoolWorkHours | null;
+  duties?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active">;
-export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active">>;
+export type SchoolPersonInput = Pick<SchoolPerson, "appId" | "role" | "name" | "phone" | "email" | "classId" | "code" | "photoAssetId" | "active"> &
+  Partial<Pick<SchoolPerson, "jobTitle" | "department" | "workHours" | "duties">>;
+export type SchoolPersonPatch = Partial<Pick<SchoolPerson, "name" | "phone" | "email" | "userId" | "classId" | "code" | "photoAssetId" | "active" | "jobTitle" | "department" | "workHours" | "duties">>;
 
 /** A parent's child. */
 export interface SchoolFamilyLink {
@@ -4821,11 +4868,11 @@ export interface SchoolScore {
   updatedAt: Date;
 }
 
-/** The school's news: to everyone, a class, or one student and their family. */
+/** The school's news: to everyone, a class, or one student and their family; 113.3 or to its teachers and staff only. */
 export interface SchoolAnnouncement {
   id: number;
   appId: string;
-  audience: "school" | "class" | "student";
+  audience: "school" | "class" | "student" | "staff";
   classId: number | null;
   studentId: number | null;
   title: string;
@@ -4971,6 +5018,66 @@ export interface SchoolReport {
   reviewedAt: Date | null;
   /** Shared with the student's parents (an approved student report only). */
   sharedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 113.2 Checking in and out
+
+export type SchoolCheckinMethod = "qr" | "location" | "office";
+
+/** A correction by the school's office, kept on the day's record. */
+export interface SchoolCheckinCorrection {
+  /** ISO time. */
+  at: string;
+  /** Who made it (their name, else their email). */
+  by: string;
+  reason: string;
+  /** What changed, in English: "In 07:55 → 07:40". */
+  change: string;
+}
+
+/** A person's day at the gate: one per person and day. */
+export interface SchoolCheckin {
+  appId: string;
+  personId: number;
+  role: "student" | "teacher" | "staff";
+  /** YYYY-MM-DD in the school's time zone. */
+  date: string;
+  inAt: Date | null;
+  inMethod: SchoolCheckinMethod | null;
+  outAt: Date | null;
+  outMethod: SchoolCheckinMethod | null;
+  late: boolean;
+  leftEarly: boolean;
+  /** The office's mark for the day; null: as they checked in. */
+  mark: "absent" | "excused" | null;
+  corrections: SchoolCheckinCorrection[];
+  updatedAt: Date;
+}
+
+// 113.3 Leave requests
+
+export type SchoolLeaveKind = "sick" | "annual" | "other";
+export const SCHOOL_LEAVE_KINDS: readonly SchoolLeaveKind[] = ["sick", "annual", "other"];
+export type SchoolLeaveStatus = "pending" | "approved" | "refused" | "cancelled";
+
+/** A teacher's or staff member's request for days off, answered in the dashboard. */
+export interface SchoolLeave {
+  id: number;
+  appId: string;
+  personId: number;
+  kind: SchoolLeaveKind;
+  startsOn: string;
+  endsOn: string;
+  note: string | null;
+  /** A photo or PDF of a document (a doctor's note). */
+  file: SchoolFileRef | null;
+  status: SchoolLeaveStatus;
+  /** The school's note with its answer. */
+  answer: string | null;
+  answeredBy: string | null;
+  answeredAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -6408,6 +6408,248 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couponWithout => 'Continue without a coupon';
 
   @override
+  String get checkinTitle => 'Check in and out';
+
+  @override
+  String get checkinButton => 'Check in';
+
+  @override
+  String get checkoutButton => 'Check out';
+
+  @override
+  String get checkinCardTitle => 'Today at school';
+
+  @override
+  String get checkinStateNotYet => 'Not checked in yet';
+
+  @override
+  String get checkinStateIn => 'Checked in';
+
+  @override
+  String get checkinStateLeft => 'Checked out';
+
+  @override
+  String get checkinStateAbsent => 'Absent';
+
+  @override
+  String get checkinStateExcused => 'Excused';
+
+  @override
+  String get checkinStateLeave => 'On leave';
+
+  @override
+  String get checkinStateOff => 'Not a school day';
+
+  @override
+  String checkinInAt(String time) {
+    return 'In at $time';
+  }
+
+  @override
+  String checkinOutAt(String time) {
+    return 'Out at $time';
+  }
+
+  @override
+  String get checkinLate => 'Late';
+
+  @override
+  String get checkinLeftEarly => 'Left early';
+
+  @override
+  String checkinTimes(String starts, String ends, String late) {
+    return '$starts–$ends · late from $late';
+  }
+
+  @override
+  String get checkinCodeLabel => 'The gate\'s code';
+
+  @override
+  String get checkinCodeHint =>
+      'The six digits on the school\'s screen at the gate';
+
+  @override
+  String get checkinWithLocation => 'Use my location';
+
+  @override
+  String get checkinBothNote =>
+      'Your school asks for the gate\'s code and your location.';
+
+  @override
+  String get checkinLocating => 'Finding your location…';
+
+  @override
+  String get checkinLocationOff =>
+      'Turn on your phone\'s location to check in.';
+
+  @override
+  String get checkinLocationDenied =>
+      'Allow the app to use your location to check in.';
+
+  @override
+  String get checkinLocationFailed =>
+      'Your location couldn\'t be found. Try again.';
+
+  @override
+  String checkinDoneOnTime(String time) {
+    return 'Checked in at $time, on time.';
+  }
+
+  @override
+  String checkinDoneLate(String time) {
+    return 'Checked in at $time: late.';
+  }
+
+  @override
+  String checkinDoneOut(String time) {
+    return 'Checked out at $time.';
+  }
+
+  @override
+  String checkinDoneEarly(String time) {
+    return 'Checked out at $time, before the end of the day.';
+  }
+
+  @override
+  String get checkinMonth => 'This month';
+
+  @override
+  String get checkinCountPresent => 'Present';
+
+  @override
+  String get checkinCountAbsent => 'Absent';
+
+  @override
+  String get checkinNoDays => 'No school days this month yet.';
+
+  @override
+  String checkinCorrected(String reason) {
+    return 'Corrected by the school: $reason';
+  }
+
+  @override
+  String get checkinOff => 'Your school doesn\'t take check-ins in the app.';
+
+  @override
+  String get checkinNotSchoolDay => 'Today isn\'t one of your school days.';
+
+  @override
+  String get checkinAtGate => 'At the gate';
+
+  @override
+  String get tabStaff => 'Staff';
+
+  @override
+  String get staffNotStaff => 'For the school\'s staff';
+
+  @override
+  String get staffNotStaffMessage =>
+      'The school adds its staff\'s numbers; they sign in with them and their work shows here.';
+
+  @override
+  String get staffWork => 'Your work';
+
+  @override
+  String staffDays(String days) {
+    return 'Days: $days';
+  }
+
+  @override
+  String staffHours(String starts, String ends) {
+    return 'Hours: $starts–$ends';
+  }
+
+  @override
+  String get staffDuties => 'Duties';
+
+  @override
+  String get staffLeave => 'Leave requests';
+
+  @override
+  String get staffNews => 'Staff news';
+
+  @override
+  String get staffNoNews => 'No staff news yet.';
+
+  @override
+  String get leaveAsk => 'Ask for leave';
+
+  @override
+  String get leaveKind => 'Kind of leave';
+
+  @override
+  String get leaveSick => 'Sick';
+
+  @override
+  String get leaveAnnual => 'Annual';
+
+  @override
+  String get leaveOther => 'Other';
+
+  @override
+  String get leaveFirstDay => 'First day';
+
+  @override
+  String get leaveLastDay => 'Last day';
+
+  @override
+  String get leaveNote => 'Note (optional)';
+
+  @override
+  String get leaveAddPhoto => 'Photo of a document';
+
+  @override
+  String get leaveAddFile => 'PDF';
+
+  @override
+  String get leaveSend => 'Send the request';
+
+  @override
+  String get leaveSent => 'Sent. The school answers in the app.';
+
+  @override
+  String get leaveNone => 'No leave requests yet.';
+
+  @override
+  String leaveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leavePending => 'Waiting';
+
+  @override
+  String get leaveApproved => 'Approved';
+
+  @override
+  String get leaveRefused => 'Not approved';
+
+  @override
+  String get leaveCancelled => 'Withdrawn';
+
+  @override
+  String get leaveWithdraw => 'Withdraw';
+
+  @override
+  String leaveSchoolNote(String note) {
+    return 'The school: $note';
+  }
+
+  @override
+  String leaveDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get leaveDatesOrder => 'The last day is on or after the first.';
+
+  @override
   String get classroomSyllabus => 'Syllabus';
 
   @override

@@ -3085,3 +3085,120 @@ Map<String, dynamic> sharedReportJson() => {
   'answers': {'f1': 4, 'f2': 'Good', 'f3': 'Read 20 minutes at home.'},
   'shared_at': '2026-10-13T09:00:00Z',
 };
+
+// 113.2 Checking in and out; 113.3 teachers and staff.
+
+Map<String, dynamic> checkinTimesJson({String starts = '07:30'}) => {
+  'starts': starts,
+  'late_from': '08:00',
+  'ends': '14:00',
+  'early_before': '13:45',
+};
+
+Map<String, dynamic> checkinDayJson({
+  String date = '2026-10-12',
+  String state = 'not_yet',
+  String? inTime,
+  String? outTime,
+  bool late = false,
+  bool leftEarly = false,
+  List<Map<String, dynamic>> corrections = const [],
+}) => {
+  'date': date,
+  'state': state,
+  'in_at': inTime == null ? null : '${date}T05:00:00Z',
+  'in_time': inTime,
+  'in_method': inTime == null ? null : 'qr',
+  'out_at': outTime == null ? null : '${date}T11:00:00Z',
+  'out_time': outTime,
+  'out_method': outTime == null ? null : 'location',
+  'late': late,
+  'left_early': leftEarly,
+  'corrections': corrections,
+};
+
+Map<String, dynamic> checkinTodayJson({
+  String methods = 'either',
+  String role = 'student',
+  bool on = true,
+  bool schoolDay = true,
+  Map<String, dynamic>? today,
+}) => {
+  'on': on,
+  'methods': methods,
+  'place': methods == 'qr'
+      ? null
+      : {'lat': 30.0444, 'lng': 31.2357, 'radius_m': 150},
+  'role': role,
+  'date': '2026-10-12',
+  'school_day': schoolDay,
+  'times': checkinTimesJson(),
+  'today': today ?? checkinDayJson(),
+};
+
+Map<String, dynamic> checkinMonthJson() => {
+  'month': '2026-10',
+  'role': 'student',
+  'times': checkinTimesJson(),
+  'counts': {
+    'days': 8,
+    'present': 6,
+    'late': 2,
+    'left_early': 1,
+    'absent': 1,
+    'excused': 1,
+    'leave': 0,
+  },
+  'days': [
+    checkinDayJson(
+      date: '2026-10-11',
+      state: 'left',
+      inTime: '08:10',
+      outTime: '14:05',
+      late: true,
+      corrections: [
+        {
+          'at': '2026-10-11T12:00:00Z',
+          'reason': 'Came after the bell',
+          'change': 'In 07:50 → 08:10',
+        },
+      ],
+    ),
+    checkinDayJson(date: '2026-10-08', state: 'absent'),
+  ],
+};
+
+Map<String, dynamic> staffMeJson({String role = 'staff'}) => {
+  'name': 'Samir Fawzy',
+  'photo_url': null,
+  'role': role,
+  'job_title': 'Nurse',
+  'department': 'Clinic',
+  'work_hours': {
+    'days': [1, 2, 3, 4, 7],
+    'starts': '09:00',
+    'ends': '17:00',
+  },
+  'days': [1, 2, 3, 4, 7],
+  'times': checkinTimesJson(starts: '09:00'),
+  'duties': 'First aid and the morning check.',
+  'timetable': {'days': <Object>[]},
+};
+
+Map<String, dynamic> leaveRequestJson({
+  int id = 71,
+  String status = 'pending',
+  String? answer,
+}) => {
+  'id': id,
+  'kind': 'sick',
+  'starts_on': '2026-10-13',
+  'ends_on': '2026-10-14',
+  'days': 2,
+  'note': 'Flu',
+  'file': null,
+  'status': status,
+  'answer': answer,
+  'answered_at': answer == null ? null : '2026-10-12T10:00:00Z',
+  'created_at': '2026-10-12T08:00:00Z',
+};

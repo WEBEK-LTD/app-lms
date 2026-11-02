@@ -1,6 +1,18 @@
 import { isDate, isTimeZone, minutesOf, timeOf } from "../bookings/time";
 import { CATALOG_CURRENCIES, centsToDecimal, parsePrice } from "../catalog/money";
-import { SCHOOL_ASSESSMENT_KINDS, SCHOOL_ROLES, type SchoolAssessmentKind, type SchoolClass, type SchoolPerson, type SchoolRole, type SchoolSettings } from "../data/types";
+import {
+  SCHOOL_ASSESSMENT_KINDS,
+  SCHOOL_CHECKIN_METHODS,
+  SCHOOL_ROLES,
+  type SchoolAssessmentKind,
+  type SchoolCheckinMethods,
+  type SchoolCheckinSettings,
+  type SchoolClass,
+  type SchoolDayTimes,
+  type SchoolPerson,
+  type SchoolRole,
+  type SchoolSettings,
+} from "../data/types";
 import { parseAnyPhone } from "../hosted/phone";
 import { parseCsv, ImportFormatError } from "../import/table";
 
@@ -10,6 +22,9 @@ import { parseCsv, ImportFormatError } from "../import/table";
  * fees, news and the school's settings. Messages are English; the dashboard
  * translates them (`school.known`). Every amount is the school's.
  */
+
+/** 113.2 The largest check-in area: 5 km. */
+const MAX_RADIUS_M = 5000;
 
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 
@@ -105,7 +120,7 @@ export function parsePersonForm(form: Record<string, string>, defaultCountryCode
   const errors: Record<string, string> = {};
   const roleText = fixedRole ?? str(form, "role");
   const role = (SCHOOL_ROLES as readonly string[]).includes(roleText) ? (roleText as SchoolRole) : null;
-  if (!role) errors.role = "Choose a student, a parent or a teacher.";
+  if (!role) errors.role = "Choose a student, a parent, a teacher or staff.";
   const name = limited(form, "name", SCHOOL_LIMITS.personName, errors, "Enter the name.");
   const phoneText = str(form, "phone");
   const phone = phoneText ? parseAnyPhone(phoneText, defaultCountryCode) : null;
@@ -155,9 +170,10 @@ export const PEOPLE_CSV_EXAMPLE = [
   "student,Omar Hassan,01001234567,,Grade 5 A,1023,",
   "parent,Hassan Ali,01007654321,,,,1023",
   "teacher,Mona Adel,01112223334,mona@example.com,,,",
+  "staff,Samir Fawzy,01223334445,,,,",
 ].join("\n");
 
-const ROLE_WORDS: Record<string, SchoolRole> = { student: "student", students: "student", parent: "parent", parents: "parent", teacher: "teacher", teachers: "teacher" };
+const ROLE_WORDS: Record<string, SchoolRole> = { student: "student", students: "student", parent: "parent", parents: "parent", teacher: "teacher", teachers: "teacher", staff: "staff" };
 
 /**
  * A CSV of people: a header row with role, name, phone, email, class (a
@@ -185,7 +201,7 @@ export function parsePeopleCsv(text: string, defaultCountryCode: string): { ok: 
     const cell = (name: string) => (columns[name]! >= 0 ? (cells[columns[name]!] ?? "") : "");
     const role = ROLE_WORDS[cell("role").toLowerCase()];
     if (!role) {
-      problems.push(`Line ${line}: the role is student, parent or teacher.`);
+      problems.push(`Line ${line}: the role is student, parent, teacher or staff.`);
       return;
     }
     const parsed = parsePersonForm({ name: cell("name"), phone: cell("phone"), email: cell("email"), code: cell("code") }, defaultCountryCode, [], role);
@@ -326,7 +342,7 @@ export function parseFeeForm(form: Record<string, string>, studentIds: readonly 
 }
 
 export interface NewsForm {
-  audience: "school" | "class" | "student";
+  audience: "school" | "class" | "student" | "staff";
   classId: number | null;
   studentId: number | null;
   title: string;
@@ -347,7 +363,8 @@ export function parseNewsForm(form: Record<string, string>, classIds: readonly n
     audience = "student";
     studentId = Number(to.slice(8));
     if (!studentIds.includes(studentId)) errors.to = "Choose who it is for.";
-  } else if (to !== "school") errors.to = "Choose who it is for.";
+  } else if (to === "staff") audience = "staff";
+  else if (to !== "school") errors.to = "Choose who it is for.";
   const title = limited(form, "title", SCHOOL_LIMITS.title, errors, "Give it a title.");
   const body = limited(form, "body", SCHOOL_LIMITS.body, errors, "Write the news.");
   if (Object.keys(errors).length) return { ok: false, errors };
@@ -391,3 +408,88 @@ export function schoolSettingsFormValues(settings: SchoolSettings): Record<strin
 
 /** 4500 → "4500.00" for a fee's amount field. */
 export const amountText = (cents: number) => centsToDecimal(cents);
+
+// 113.2 Checking in and out
+
+/** The check-in settings, checked; `gateKey` and `since` are kept from `saved` (the first day counted is the day it is turned on). */
+export function parseCheckinSettings(form: Record<string, string>, saved: SchoolCheckinSettings, today: string): Parsed<SchoolCheckinSettings> {
+  const errors: Record<string, string> = {};
+  const on = form.on === "on";
+  const methodText = str(form, "methods");
+  const methods = (SCHOOL_CHECKIN_METHODS as readonly string[]).includes(methodText) ? (methodText as SchoolCheckinMethods) : null;
+  if (!methods) errors.methods = "Choose how people check in.";
+  let place: SchoolCheckinSettings["place"] = null;
+  const latText = str(form, "lat").replace(",", ".");
+  const lngText = str(form, "lng").replace(",", ".");
+  const radiusText = str(form, "radius");
+  const needsPlace = methods !== null && methods !== "qr";
+  if (latText || lngText || needsPlace) {
+    const lat = Number(latText);
+    const lng = Number(lngText);
+    const radius = Number(radiusText);
+    if (!latText || !Number.isFinite(lat) || Math.abs(lat) > 90) errors.lat = "Enter the school's latitude, like 30.0444.";
+    if (!lngText || !Number.isFinite(lng) || Math.abs(lng) > 180) errors.lng = "Enter the school's longitude, like 31.2357.";
+    if (!radiusText || !Number.isInteger(radius) || radius < 20 || radius > MAX_RADIUS_M) errors.radius = `Enter how far from it counts, from 20 to ${MAX_RADIUS_M} metres.`;
+    if (!errors.lat && !errors.lng && !errors.radius) place = { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6, radiusM: radius };
+  }
+  const days = [1, 2, 3, 4, 5, 6, 7].filter((d) => form[`day${d}`] === "on");
+  if (!days.length) errors.days = "Choose the school's days.";
+  const times = (prefix: string): SchoolDayTimes => {
+    const read = (name: string) => {
+      const value = minutesOf(str(form, `${prefix}${name}`));
+      if (value === null) errors[`${prefix}${name}`] = "Enter a time, like 07:30.";
+      return value ?? 0;
+    };
+    const t = { startMinute: read("Start"), lateMinute: read("Late"), endMinute: read("End"), earlyMinute: read("Early") };
+    if (!errors[`${prefix}Late`] && !errors[`${prefix}Start`] && t.lateMinute < t.startMinute) errors[`${prefix}Late`] = "Late is from the start or after it.";
+    if (!errors[`${prefix}End`] && !errors[`${prefix}Start`] && t.endMinute <= t.lateMinute) errors[`${prefix}End`] = "The day ends after late starts.";
+    if (!errors[`${prefix}Early`] && !errors[`${prefix}End`] && (t.earlyMinute > t.endMinute || t.earlyMinute < t.lateMinute)) errors[`${prefix}Early`] = "Leaving early is before the end, after late starts.";
+    return t;
+  };
+  const students = times("student");
+  const staff = times("staff");
+  if (Object.keys(errors).length || !methods) return { ok: false, errors };
+  return { ok: true, value: { on, methods, place, days, students, staff, parentAlerts: form.parentAlerts === "on", gateKey: saved.gateKey, since: on ? (saved.on && saved.since ? saved.since : today) : saved.since } };
+}
+
+export function checkinFormValues(c: SchoolCheckinSettings): Record<string, string> {
+  const times = (prefix: string, t: SchoolDayTimes) => ({ [`${prefix}Start`]: timeOf(t.startMinute), [`${prefix}Late`]: timeOf(t.lateMinute), [`${prefix}End`]: timeOf(t.endMinute), [`${prefix}Early`]: timeOf(t.earlyMinute) });
+  return {
+    on: c.on ? "on" : "",
+    methods: c.methods,
+    lat: c.place ? String(c.place.lat) : "",
+    lng: c.place ? String(c.place.lng) : "",
+    radius: c.place ? String(c.place.radiusM) : "150",
+    ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((d) => [`day${d}`, c.days.includes(d) ? "on" : ""])),
+    ...times("student", c.students),
+    ...times("staff", c.staff),
+    parentAlerts: c.parentAlerts ? "on" : "",
+  };
+}
+
+export interface CorrectionForm {
+  inTime: string | null;
+  outTime: string | null;
+  mark: "present" | "absent" | "excused";
+  reason: string;
+}
+
+/** The office's correction of a day: the times, the mark and why. */
+export function parseCorrectionForm(form: Record<string, string>): Parsed<CorrectionForm> {
+  const errors: Record<string, string> = {};
+  const inText = str(form, "inTime");
+  const outText = str(form, "outTime");
+  const inMinute = inText ? minutesOf(inText) : null;
+  const outMinute = outText ? minutesOf(outText) : null;
+  if (inText && inMinute === null) errors.inTime = "Enter a time, like 07:30.";
+  if (outText && outMinute === null) errors.outTime = "Enter a time, like 07:30.";
+  const markText = str(form, "mark");
+  const mark = markText === "absent" || markText === "excused" || markText === "present" ? markText : null;
+  if (!mark) errors.mark = "Choose present, absent or excused.";
+  if (mark === "present" && !inText) errors.inTime = "Enter the time they came in.";
+  if (outText && !inText) errors.inTime = "Enter the time they came in.";
+  if (inMinute !== null && outMinute !== null && outMinute <= inMinute) errors.outTime = "They leave after they come in.";
+  const reason = limited(form, "reason", 300, errors, "Write why it is corrected.");
+  if (Object.keys(errors).length || !mark) return { ok: false, errors };
+  return { ok: true, value: { inTime: inText || null, outTime: outText || null, mark, reason } };
+}

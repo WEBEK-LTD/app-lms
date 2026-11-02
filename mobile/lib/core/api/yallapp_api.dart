@@ -1027,6 +1027,27 @@ abstract class YallappApi {
 
   /// The teachers' reports the school shared with a student's parents.
   Future<List<SharedReport>> listSharedReports(int studentId);
+
+  // 113.2 Checking in and out at the school.
+  Future<CheckinToday> getCheckinToday();
+
+  /// [action] `in` or `out`, with the gate's [code], the phone's position,
+  /// or both, as the school's methods ask.
+  Future<CheckinResult> checkIn({
+    required String action,
+    String? code,
+    double? lat,
+    double? lng,
+  });
+  Future<CheckinMonth> getCheckinHistory({String? month});
+  Future<CheckinMonth> getStudentCheckins(int studentId, {String? month});
+
+  // 113.3 The school's teachers and staff.
+  Future<StaffMe> getStaffMe();
+  Future<Paged<LeaveRequest>> listLeaveRequests({int page = 1});
+  Future<LeaveRequest> requestLeave(LeaveInput input);
+  Future<void> withdrawLeaveRequest(int id);
+  Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1});
 }
 
 /// [YallappApi] over HTTP.
@@ -3403,4 +3424,77 @@ class HttpYallappApi implements YallappApi {
     _required,
     (json) => reqListOf(json, 'items', SharedReport.fromJson),
   );
+
+  // 113.2 Checking in and out.
+
+  @override
+  Future<CheckinToday> getCheckinToday() =>
+      _get('/school/checkin', _required, CheckinToday.fromJson);
+
+  @override
+  Future<CheckinResult> checkIn({
+    required String action,
+    String? code,
+    double? lat,
+    double? lng,
+  }) => _send(
+    'POST',
+    '/school/checkin',
+    _required,
+    (data) => CheckinResult.fromJson(asJson(data)),
+    body: {'action': action, 'code': ?code, 'lat': ?lat, 'lng': ?lng},
+  );
+
+  @override
+  Future<CheckinMonth> getCheckinHistory({String? month}) => _get(
+    '/school/checkin/history',
+    _required,
+    CheckinMonth.fromJson,
+    query: {'month': ?month},
+  );
+
+  @override
+  Future<CheckinMonth> getStudentCheckins(int studentId, {String? month}) =>
+      _get(
+        '/school/students/$studentId/checkins',
+        _required,
+        CheckinMonth.fromJson,
+        query: {'month': ?month},
+      );
+
+  // 113.3 Teachers and staff.
+
+  @override
+  Future<StaffMe> getStaffMe() =>
+      _get('/staff/me', _required, StaffMe.fromJson);
+
+  @override
+  Future<Paged<LeaveRequest>> listLeaveRequests({int page = 1}) => _get(
+    '/staff/leave',
+    _required,
+    (json) => Paged.fromJson(json, LeaveRequest.fromJson),
+    query: {'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<LeaveRequest> requestLeave(LeaveInput input) => _send(
+    'POST',
+    '/staff/leave',
+    _required,
+    (data) => LeaveRequest.fromJson(asJson(data)),
+    body: input.toJson(),
+  );
+
+  @override
+  Future<void> withdrawLeaveRequest(int id) =>
+      _send('DELETE', '/staff/leave/$id', _required, _ignore);
+
+  @override
+  Future<Paged<SchoolAnnouncement>> listStaffAnnouncements({int page = 1}) =>
+      _get(
+        '/staff/announcements',
+        _required,
+        (json) => Paged.fromJson(json, SchoolAnnouncement.fromJson),
+        query: {'page': page, 'per_page': 20},
+      );
 }

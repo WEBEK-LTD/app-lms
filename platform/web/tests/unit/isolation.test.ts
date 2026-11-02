@@ -630,6 +630,11 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 113.2 Their student's day at the gate; 113.3 a member of their staff and their leave request.
+    await store.saveSchoolCheckin({ appId: k12, personId: theirStudent.person.id, role: "student", date: "2026-10-20", inAt: NOW, inMethod: "qr", outAt: null, outMethod: null, late: false, leftEarly: false, mark: null, corrections: [{ at: NOW.toISOString(), by: MARK, reason: MARK, change: MARK }], updatedAt: NOW });
+    const theirStaff = await store.createSchoolPerson({ appId: k12, role: "staff", name: `${MARK} nurse`, phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, jobTitle: MARK }, NOW);
+    if (!theirStaff.ok) throw new Error("staff");
+    const leave = await store.createSchoolLeave({ appId: k12, personId: theirStaff.person.id, kind: "sick", startsOn: "2026-10-20", endsOn: "2026-10-21", note: MARK, file: null, status: "pending", answer: null, answeredBy: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
@@ -637,6 +642,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       fee_id: String(fee.id),
       topic_id: String(theirTopic.id),
       report_id: String(theirReport.id),
+      leave_id: String(leave.id),
       teacher_id: String(teacher.teacher.id),
       ride_id: String(ride.id),
       // 105.9 Places are the map provider's, nobody's own: one that names nothing of the other client.
@@ -719,7 +725,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
-    if (/^\/(school|classroom)\//.test(route)) return "k12";
+    if (/^\/(school|classroom|staff)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
     return "shop";
   }
@@ -732,7 +738,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     // 105.4 At a school: its student, a parent and a teacher with a class of their own, so the paths go past who they are.
     if (app.connector?.kind === "school") {
       const klass = (await store.saveSchoolClass({ appId: app.id, id: null, name: "Mine", grade: null, homeroomTeacherId: null }, NOW))!;
-      for (const role of ["student", "parent", "teacher"] as const) {
+      for (const role of ["student", "parent", "teacher", "staff"] as const) {
         const made = await store.createSchoolPerson({ appId: app.id, role, name: "Intruder", phone: user.phone, email: null, classId: role === "student" ? klass.id : null, code: null, photoAssetId: null, active: true }, NOW);
         if (made.ok && role === "teacher") await store.saveSchoolClass({ appId: app.id, id: klass.id, name: "Mine", grade: null, homeroomTeacherId: made.person.id }, NOW);
       }

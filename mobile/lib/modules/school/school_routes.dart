@@ -9,18 +9,22 @@ import '../../core/theme/app_icons.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
 import 'screens/classroom_reports_screens.dart';
+import 'screens/checkin_screens.dart';
 import 'screens/classroom_screens.dart';
 import 'screens/school_screen.dart';
 import 'screens/shared_reports_screen.dart';
+import 'screens/staff_screens.dart';
 import 'screens/student_screens.dart';
 
 /// 105.4 The School module (hosted API): the school and the account as
 /// tabs, for students and parents (a parent switches between their
 /// children), and each part of it as a page; for the school's teachers a
 /// Classroom tab (added for them only, see `withClassroomTab`) with their
-/// classes, attendance, homework and scores.
+/// classes, attendance, homework and scores. 113.2 Checking in and out for
+/// students, teachers and staff; 113.3 a Staff tab for the staff who don't
+/// teach (added for them only, see `withStaffTab`).
 final schoolModule = AppModule(
-  tabPaths: {Paths.school, Paths.classroom, Paths.account},
+  tabPaths: {Paths.school, Paths.classroom, Paths.staff, Paths.account},
   screens: _screens,
   defaultTabs: (_) => _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
@@ -81,9 +85,17 @@ final classroomTab = ShellTab(
   location: Paths.classroom,
 );
 
+/// 113.3 The Staff tab, for the school's staff who don't teach.
+final staffTab = ShellTab(
+  icon: AppIcons.staffBadge,
+  label: (c) => c.l10n.tabStaff,
+  location: Paths.staff,
+);
+
 List<TabScreen> _screens() => [
   TabScreen(Paths.school, (state) => const SchoolScreen()),
   TabScreen(Paths.classroom, (state) => const ClassroomScreen()),
+  TabScreen(Paths.staff, (state) => const StaffScreen()),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
@@ -111,7 +123,17 @@ GoRoute _part(String part, Widget Function(int? student) build) => GoRoute(
   ),
 );
 
+GoRoute _page(String path, Widget screen) => GoRoute(
+  path: path,
+  pageBuilder: (context, state) => appPage(state, screen),
+);
+
 List<RouteBase> _pushedRoutes() => [
+  // 113.2 Checking in and out; 113.3 leave and the staff's news.
+  _page(Paths.checkin, const CheckinScreen()),
+  _page(Paths.staffLeaveNew, const LeaveFormScreen()),
+  _page(Paths.staffLeave, const LeaveScreen()),
+  _page(Paths.staffNews, const StaffNewsScreen()),
   _part('timetable', (student) => TimetableScreen(student: student)),
   _part('homework', (student) => HomeworkScreen(student: student)),
   _part('grades', (student) => GradesScreen(student: student)),

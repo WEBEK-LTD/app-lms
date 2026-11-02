@@ -822,6 +822,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           { href: "/dashboard/school/people", label: "People", icon: "groups" },
           { href: "/dashboard/school/timetable", label: "Timetable", icon: "calendar_month" },
           { href: "/dashboard/school/attendance", label: "Attendance", icon: "task_alt" },
+          // 113.2 Checking in and out at the gate; 113.3 teachers and staff.
+          { href: "/dashboard/school/checkin", label: "Check-in", icon: "qr_code_2" },
+          { href: "/dashboard/school/staff", label: "Staff", icon: "support_agent" },
           { href: "/dashboard/school/homework", label: "Homework", icon: "assignment" },
           { href: "/dashboard/school/grades", label: "Grades", icon: "workspace_premium" },
           // 112.5

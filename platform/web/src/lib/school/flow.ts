@@ -1,8 +1,8 @@
 import { formatCents } from "../catalog/money";
 import type { DataStore } from "../data/store";
-import type { App, SchoolAnnouncement, SchoolAttendanceStatus, SchoolFee, SchoolHomework, SchoolPerson, SchoolSubmission } from "../data/types";
+import type { App, SchoolAnnouncement, SchoolAttendanceStatus, SchoolFee, SchoolHomework, SchoolLeave, SchoolPerson, SchoolSubmission } from "../data/types";
 import { notifyDeps, type FlowDeps } from "../delivery/flow";
-import { tellAbsence, tellAnnouncement, tellFee, tellGrade, tellHomework } from "./notify";
+import { tellAbsence, tellAnnouncement, tellFee, tellGrade, tellHomework, tellLeave, tellStaff } from "./notify";
 import { schoolCurrency, schoolSettingsOf } from "./settings";
 
 /**
@@ -91,6 +91,11 @@ export function trimScore(value: number): string {
 export async function postAnnouncement(deps: SchoolFlowDeps, input: Omit<SchoolAnnouncement, "id" | "appId" | "createdAt">): Promise<SchoolAnnouncement> {
   const { store, app, now } = deps;
   const announcement = await store.createSchoolAnnouncement({ ...input, appId: app.id, createdAt: now });
+  // 113.3 The staff's own news: only teachers and staff hear of it.
+  if (input.audience === "staff") {
+    await safely(() => tellStaff(notifyDeps(deps), input.title, input.body));
+    return announcement;
+  }
   let students: SchoolPerson[] = [];
   if (input.audience === "school") students = await store.listSchoolPeople(app.id, { role: "student" });
   else if (input.audience === "class" && input.classId !== null) students = await store.listSchoolPeople(app.id, { role: "student", classId: input.classId });
@@ -130,4 +135,14 @@ export async function tellFeePaid(deps: { store: DataStore; app: App; now: Date 
   if (!student) return;
   const settings = schoolSettingsOf(await deps.store.getSchoolSettings(deps.app.id), deps.app);
   await safely(() => tellFee(notifyDeps(deps), student, "paid", fee.title, formatCents(fee.amountCents, schoolCurrency(settings))));
+}
+
+/** 113.3 The school's answer to a leave request (while it waits); the person hears of it. False: it was answered or withdrawn already. */
+export async function answerLeave(deps: SchoolFlowDeps, leave: SchoolLeave, status: "approved" | "refused", answer: string | null, by: string): Promise<boolean> {
+  const { store, app, now } = deps;
+  const changed = await store.updateSchoolLeave(app.id, leave.id, { status, answer, answeredBy: by, answeredAt: now, updatedAt: now }, ["pending"]);
+  if (!changed) return false;
+  const person = await store.getSchoolPerson(app.id, leave.personId);
+  if (person) await safely(() => tellLeave(notifyDeps(deps), person, status, leave.startsOn, leave.endsOn));
+  return true;
 }

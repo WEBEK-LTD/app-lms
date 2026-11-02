@@ -6309,6 +6309,355 @@
   "@couponWithout": {
     "description": "112.5 Goes to a paid course's checkout without a coupon."
   },
+  "checkinTitle": "Check in and out",
+  "@checkinTitle": {
+    "description": "113.2 The screen where a student, teacher or staff member checks in and out at the school."
+  },
+  "checkinButton": "Check in",
+  "@checkinButton": {
+    "description": "113.2 Checks the person in at the school."
+  },
+  "checkoutButton": "Check out",
+  "@checkoutButton": {
+    "description": "113.2 Checks the person out of the school."
+  },
+  "checkinCardTitle": "Today at school",
+  "@checkinCardTitle": {
+    "description": "113.2 The card with today's check-in on the School, Classroom and Staff tabs."
+  },
+  "checkinStateNotYet": "Not checked in yet",
+  "@checkinStateNotYet": {
+    "description": "113.2 Today's state: not checked in yet."
+  },
+  "checkinStateIn": "Checked in",
+  "@checkinStateIn": {
+    "description": "113.2 Today's state: at school."
+  },
+  "checkinStateLeft": "Checked out",
+  "@checkinStateLeft": {
+    "description": "113.2 Today's state: checked out."
+  },
+  "checkinStateAbsent": "Absent",
+  "@checkinStateAbsent": {
+    "description": "113.2 A school day without a check-in."
+  },
+  "checkinStateExcused": "Excused",
+  "@checkinStateExcused": {
+    "description": "113.2 A day the school excused."
+  },
+  "checkinStateLeave": "On leave",
+  "@checkinStateLeave": {
+    "description": "113.2 A day of approved leave."
+  },
+  "checkinStateOff": "Not a school day",
+  "@checkinStateOff": {
+    "description": "113.2 A day that isn't one of the person's school days."
+  },
+  "checkinInAt": "In at {time}",
+  "@checkinInAt": {
+    "description": "113.2 When the person checked in.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinOutAt": "Out at {time}",
+  "@checkinOutAt": {
+    "description": "113.2 When the person checked out.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinLate": "Late",
+  "@checkinLate": {
+    "description": "113.2 Checked in after the school's late time."
+  },
+  "checkinLeftEarly": "Left early",
+  "@checkinLeftEarly": {
+    "description": "113.2 Checked out before the end of the day."
+  },
+  "checkinTimes": "{starts}–{ends} · late from {late}",
+  "@checkinTimes": {
+    "description": "113.2 The person's school day and when late starts.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      },
+      "late": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinCodeLabel": "The gate's code",
+  "@checkinCodeLabel": {
+    "description": "113.2 The field for the six digits shown at the school's gate."
+  },
+  "checkinCodeHint": "The six digits on the school's screen at the gate",
+  "@checkinCodeHint": {
+    "description": "113.2 Under the gate's code field."
+  },
+  "checkinWithLocation": "Use my location",
+  "@checkinWithLocation": {
+    "description": "113.2 Checks in or out with the phone's location inside the school's area."
+  },
+  "checkinBothNote": "Your school asks for the gate's code and your location.",
+  "@checkinBothNote": {
+    "description": "113.2 When the school checks both the gate's code and the area."
+  },
+  "checkinLocating": "Finding your location…",
+  "@checkinLocating": {
+    "description": "113.2 While the phone's location is read."
+  },
+  "checkinLocationOff": "Turn on your phone's location to check in.",
+  "@checkinLocationOff": {
+    "description": "113.2 The phone's location is off."
+  },
+  "checkinLocationDenied": "Allow the app to use your location to check in.",
+  "@checkinLocationDenied": {
+    "description": "113.2 The app may not use the phone's location."
+  },
+  "checkinLocationFailed": "Your location couldn't be found. Try again.",
+  "@checkinLocationFailed": {
+    "description": "113.2 The phone's location couldn't be read."
+  },
+  "checkinDoneOnTime": "Checked in at {time}, on time.",
+  "@checkinDoneOnTime": {
+    "description": "113.2 A check-in on time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneLate": "Checked in at {time}: late.",
+  "@checkinDoneLate": {
+    "description": "113.2 A check-in after the school's late time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneOut": "Checked out at {time}.",
+  "@checkinDoneOut": {
+    "description": "113.2 A check-out.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinDoneEarly": "Checked out at {time}, before the end of the day.",
+  "@checkinDoneEarly": {
+    "description": "113.2 A check-out before the end of the day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinMonth": "This month",
+  "@checkinMonth": {
+    "description": "113.2 The month's days at the gate."
+  },
+  "checkinCountPresent": "Present",
+  "@checkinCountPresent": {
+    "description": "113.2 The month's days present."
+  },
+  "checkinCountAbsent": "Absent",
+  "@checkinCountAbsent": {
+    "description": "113.2 The month's days absent."
+  },
+  "checkinNoDays": "No school days this month yet.",
+  "@checkinNoDays": {
+    "description": "113.2 A month without school days yet."
+  },
+  "checkinCorrected": "Corrected by the school: {reason}",
+  "@checkinCorrected": {
+    "description": "113.2 A day the school's office corrected, with its reason.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "checkinOff": "Your school doesn't take check-ins in the app.",
+  "@checkinOff": {
+    "description": "113.2 The school hasn't turned on checking in."
+  },
+  "checkinNotSchoolDay": "Today isn't one of your school days.",
+  "@checkinNotSchoolDay": {
+    "description": "113.2 Today isn't one of the person's days."
+  },
+  "checkinAtGate": "At the gate",
+  "@checkinAtGate": {
+    "description": "113.2 A student's days at the gate, on their attendance."
+  },
+  "tabStaff": "Staff",
+  "@tabStaff": {
+    "description": "113.3 The tab of the school's staff who don't teach."
+  },
+  "staffNotStaff": "For the school's staff",
+  "@staffNotStaff": {
+    "description": "113.3 Someone who isn't on the school's staff opens the Staff tab."
+  },
+  "staffNotStaffMessage": "The school adds its staff's numbers; they sign in with them and their work shows here.",
+  "@staffNotStaffMessage": {
+    "description": "113.3 Under the title for someone who isn't on the school's staff."
+  },
+  "staffWork": "Your work",
+  "@staffWork": {
+    "description": "113.3 The person's job, hours and duties."
+  },
+  "staffDays": "Days: {days}",
+  "@staffDays": {
+    "description": "113.3 The days the person works.",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "staffHours": "Hours: {starts}–{ends}",
+  "@staffHours": {
+    "description": "113.3 The hours the person works.",
+    "placeholders": {
+      "starts": {
+        "type": "String"
+      },
+      "ends": {
+        "type": "String"
+      }
+    }
+  },
+  "staffDuties": "Duties",
+  "@staffDuties": {
+    "description": "113.3 What the person does, as the school wrote it."
+  },
+  "staffLeave": "Leave requests",
+  "@staffLeave": {
+    "description": "113.3 The person's leave requests."
+  },
+  "staffNews": "Staff news",
+  "@staffNews": {
+    "description": "113.3 News for the school's teachers and staff only."
+  },
+  "staffNoNews": "No staff news yet.",
+  "@staffNoNews": {
+    "description": "113.3 The staff's news is empty."
+  },
+  "leaveAsk": "Ask for leave",
+  "@leaveAsk": {
+    "description": "113.3 Opens the form to ask for leave."
+  },
+  "leaveKind": "Kind of leave",
+  "@leaveKind": {
+    "description": "113.3 Sick, annual or other leave."
+  },
+  "leaveSick": "Sick",
+  "@leaveSick": {
+    "description": "113.3 Sick leave."
+  },
+  "leaveAnnual": "Annual",
+  "@leaveAnnual": {
+    "description": "113.3 Annual leave."
+  },
+  "leaveOther": "Other",
+  "@leaveOther": {
+    "description": "113.3 Another kind of leave."
+  },
+  "leaveFirstDay": "First day",
+  "@leaveFirstDay": {
+    "description": "113.3 The first day of the leave."
+  },
+  "leaveLastDay": "Last day",
+  "@leaveLastDay": {
+    "description": "113.3 The last day of the leave."
+  },
+  "leaveNote": "Note (optional)",
+  "@leaveNote": {
+    "description": "113.3 A note with the leave request."
+  },
+  "leaveAddPhoto": "Photo of a document",
+  "@leaveAddPhoto": {
+    "description": "113.3 Adds a photo of a document (a doctor's note) to the leave request."
+  },
+  "leaveAddFile": "PDF",
+  "@leaveAddFile": {
+    "description": "113.3 Adds a PDF to the leave request."
+  },
+  "leaveSend": "Send the request",
+  "@leaveSend": {
+    "description": "113.3 Sends the leave request to the school."
+  },
+  "leaveSent": "Sent. The school answers in the app.",
+  "@leaveSent": {
+    "description": "113.3 The leave request was sent."
+  },
+  "leaveNone": "No leave requests yet.",
+  "@leaveNone": {
+    "description": "113.3 The person hasn't asked for leave yet."
+  },
+  "leaveDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@leaveDays": {
+    "description": "113.3 How many days a leave request is for.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leavePending": "Waiting",
+  "@leavePending": {
+    "description": "113.3 A leave request the school hasn't answered."
+  },
+  "leaveApproved": "Approved",
+  "@leaveApproved": {
+    "description": "113.3 A leave request the school approved."
+  },
+  "leaveRefused": "Not approved",
+  "@leaveRefused": {
+    "description": "113.3 A leave request the school refused."
+  },
+  "leaveCancelled": "Withdrawn",
+  "@leaveCancelled": {
+    "description": "113.3 A leave request the person withdrew."
+  },
+  "leaveWithdraw": "Withdraw",
+  "@leaveWithdraw": {
+    "description": "113.3 Withdraws a leave request the school hasn't answered."
+  },
+  "leaveSchoolNote": "The school: {note}",
+  "@leaveSchoolNote": {
+    "description": "113.3 The school's note with its answer to a leave request.",
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDates": "{from} – {to}",
+  "@leaveDates": {
+    "description": "113.3 A leave request's first and last days.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDatesOrder": "The last day is on or after the first.",
+  "@leaveDatesOrder": {
+    "description": "113.3 The leave form's last day is before its first."
+  },
   "classroomSyllabus": "Syllabus",
   "@classroomSyllabus": {
     "description": "113.5 On a class's syllabus screen in the teacher's Classroom tab: the class's progress through each subject's syllabus."

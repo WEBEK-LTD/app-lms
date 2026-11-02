@@ -1847,6 +1847,81 @@
       ]
     },
     {
+      "name": "Check-in",
+      "description": "Roadmap 113.2. Students, teachers and staff check in and out at the school from the app: with the gate's code (a QR code and its six digits on the school's Gate screen, new every 30 seconds and signed by the platform, so an old or made-up code fails; nothing secret is in the app), inside the school's area (the phone's `lat` and `lng` against the school's place and radius), either one, or both at once, as the school chooses (`methods`). Checking in after the school's `late_from` is late; checking out before `early_before` is leaving early. A teacher checks in as a teacher, a member of staff as staff, a student as a student (with the school's student times); a parent doesn't check in (`not_checkin_member`) and follows each child's days with `GET /school/students/{student_id}/checkins`, and is pushed (`school_checkin`) when the school wants. The school's office corrects a day in the dashboard with a reason, kept on the day (`corrections`). The teacher's class register (`/classroom/classes/{class_id}/attendance`) stays apart.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/school/students/{student_id}/checkins",
+          "summary": "A student's month at the gate, for them and their parents",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/checkin",
+          "summary": "Today at the gate for the signed-in student, teacher or member of staff",
+          "description": "Whether the school takes check-ins, how, its place and radius (for the location method), the person's times and today's record.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/school/checkin",
+          "summary": "Check in or out",
+          "description": "`action` `in` or `out`, with what the school's `methods` ask: the gate's `code` (the six digits typed, or what its QR code holds), the phone's `lat` and `lng`, or both. Errors: `checkin_off` (403, the school doesn't take check-ins), `outside_area` (403, with `details.distance_m`), `code_needed`, `invalid_code` (an old or another school's code) and `location_needed` (400), `not_school_day`, `too_early` (check-in opens two hours before the day starts), `already_in`, `not_in` and `already_out` (409). A student's parents get `school_checkin`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/school/checkin/history",
+          "summary": "The signed-in person's month at the gate",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "description": "Roadmap 113.3. Everyone who works at the school, teachers and staff (`User.roles` has `teacher` or `staff`); every endpoint here answers `not_staff` (403) to anyone else. Their job, department, working days and hours and duties as the school set them, their leave requests (sick, annual or other, with a note and a photo or PDF of a document sent with `/school/uploads`), approved or refused by the school in the dashboard with a note (`school_leave`), and the staff's own news, which students and parents never see (`school_staff`).",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/staff/me",
+          "summary": "The signed-in teacher or member of staff at work",
+          "description": "Their job, department, working days and hours (else the school's times for teachers and staff), duties, and a teacher's lessons in the week.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/staff/leave",
+          "summary": "The person's leave requests",
+          "description": "Newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/staff/leave",
+          "summary": "Ask for leave",
+          "description": "From up to 30 days back to a year ahead, up to 90 days at a time; `leave_overlaps` (409) when a waiting or approved request has some of the days. A document is a photo or a PDF sent with `/school/uploads`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/staff/leave/{leave_id}",
+          "summary": "Withdraw a leave request the school hasn't answered",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/staff/announcements",
+          "summary": "The staff's own news",
+          "description": "Newest first; for teachers and staff only.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Bookings",
       "description": "Services, staff, free times and appointments, for Bookings apps. The plugin reads them from the site's booking plugin (Amelia, BookingPress or LatePoint); the booking plugin's own rules decide the free times and whether a new appointment is approved or waits for the business. Appointments are paid at the business.",
       "endpoints": [

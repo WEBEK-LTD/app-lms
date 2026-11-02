@@ -64,7 +64,7 @@ test("the school makes a School project in Yallapp Studio, not among the regular
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Classes", "People", "Timetable", "Attendance", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Fees", "News", "School settings"]) {
+  for (const link of ["Classes", "People", "Timetable", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Fees", "News", "School settings"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 
@@ -249,4 +249,96 @@ test("113.5 Report templates and the teachers' reports", async () => {
   await own.goto("/dashboard/school/teacher-reports");
   await expect(own.getByRole("heading", { level: 1, name: "Teachers' reports" })).toBeVisible();
   await expect(own.getByText("Nothing to review. New reports show here when teachers send them.")).toBeVisible();
+});
+
+test("113.3 Staff: a member of staff with their job and hours, and news for the staff only", async () => {
+  await own.goto("/dashboard/school/people?role=staff");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/people\?role=staff$/);
+  await own.getByLabel("Name", { exact: true }).fill("Samir Fawzy");
+  await own.getByLabel("Mobile number").fill("+20 100 222 3366");
+  await own.getByLabel("Job (optional)").fill("Nurse");
+  await own.getByLabel("Department (optional)").fill("Clinic");
+  await own.getByRole("checkbox", { name: "Sunday" }).check();
+  await own.getByRole("checkbox", { name: "Monday" }).check();
+  await own.getByLabel("Work starts").fill("09:00");
+  await own.getByLabel("Work ends").fill("17:00");
+  await own.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(own.getByText("Added. They sign in to the app with this number.")).toBeVisible();
+
+  await own.goto("/dashboard/school/news");
+  await own.getByLabel("For").selectOption({ label: "Teachers and staff only" });
+  await own.getByLabel("Title").fill("Staff meeting");
+  await own.getByLabel("Message").fill("Thursday at 2, in the library.");
+  await own.getByRole("button", { name: "Post", exact: true }).click();
+  await expect(own.getByText("Posted. Everyone it is for was told in the app.")).toBeVisible();
+
+  await own.goto("/dashboard/school/staff");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/staff$/);
+  await expect(own.getByRole("heading", { level: 1, name: "Staff" })).toBeVisible();
+  const workers = own.getByRole("region", { name: "Who works here" });
+  await expect(workers.getByRole("heading", { name: "Clinic" })).toBeVisible();
+  await expect(workers.getByText(/Nurse · Staff · Sunday, Monday · 09:00–17:00|Nurse · Staff · Monday, Sunday · 09:00–17:00/)).toBeVisible();
+  await expect(own.getByRole("region", { name: "Leave requests" }).getByText("No leave requests yet.")).toBeVisible();
+  await expect(own.getByRole("region", { name: "Staff news" }).getByText("Staff meeting")).toBeVisible();
+});
+
+test("113.2 Check-in: settings, the gate's code, the board with a correction and the month's report", async ({ request }) => {
+  await own.goto("/dashboard/school/checkin");
+  await expect(own).toHaveURL(/\/studio\/project\/school\/checkin$/);
+  await expect(own.getByText("Checking in from the app is off.")).toBeVisible();
+
+  await own.goto("/dashboard/school/checkin/settings");
+  await own.getByRole("checkbox", { name: "Students, teachers and staff check in and out in the app" }).check();
+  await own.getByRole("radio", { name: "Either one" }).check();
+  await own.getByLabel("Latitude").fill("30.0444");
+  await own.getByLabel("Longitude").fill("31.2357");
+  await own.getByLabel("Area (metres around it)").fill("150");
+  // Every day, so today is a school day whatever day the test runs.
+  for (const day of ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]) await own.getByRole("checkbox", { name: day, exact: true }).check();
+  await own.getByRole("button", { name: "Save check-in settings" }).click();
+  await expect(own.getByText("Saved. The app shows it the next time it opens.")).toBeVisible();
+  await own.reload();
+  await expect(own.getByLabel("Latitude")).toHaveValue("30.0444");
+
+  // The gate's screen: six digits, new every 30 seconds.
+  await own.goto("/dashboard/school/checkin/gate");
+  await expect(own.getByRole("heading", { level: 1, name: "Gate screen" })).toBeVisible();
+  await expect(own.locator("[data-gate-code]")).toHaveText(/^\d{3} \d{3}$/);
+  await expect(own.getByRole("img", { name: "The gate's check-in code" })).toBeVisible();
+  await expect(own.getByRole("button", { name: "Full screen" })).toBeVisible();
+
+  // The board: Omar isn't in yet; the office corrects his day with a reason.
+  await own.goto("/dashboard/school/checkin");
+  await expect(own.getByText("Checking in from the app is off.")).toHaveCount(0);
+  const omar = own.locator("li[data-person]", { hasText: "Omar Hassan" });
+  await expect(omar).toContainText("Grade 5 A");
+  await omar.getByText("Correct this day").click();
+  await omar.getByRole("radio", { name: "Present" }).check();
+  await omar.getByLabel("Came in").fill("07:45");
+  await omar.getByLabel("Reason").fill("The phone was off");
+  await omar.getByRole("button", { name: "Save the correction" }).click();
+  await expect(own.getByText("Corrected. The reason is kept on the day's record.")).toBeVisible();
+  await own.reload();
+  const corrected = own.locator("li[data-person]", { hasText: "Omar Hassan" });
+  await expect(corrected).toContainText("In 07:45 · office");
+  await expect(corrected).toContainText("In");
+  await corrected.getByText("Correct this day").click();
+  await expect(corrected.getByText(/: In — → 07:45 \(The phone was off\)$/)).toBeVisible();
+  await expect(own.locator("li[data-person]", { hasText: "Samir Fawzy" })).toContainText("Nurse · Clinic");
+
+  // The month's report and its CSV file.
+  await own.goto("/dashboard/school/checkin/report");
+  const row = own.locator("tr", { hasText: "Omar Hassan" });
+  await expect(row.locator("td").nth(2)).toHaveText("1");
+  const csv = await own.request.get("/api/dashboard/school/checkins");
+  expect(csv.status()).toBe(200);
+  expect(csv.headers()["content-type"]).toContain("text/csv");
+  const text = await csv.text();
+  expect(text).toContain("Name,Role,Class or job,School days,Present,Late,Left early,Absent,Excused,On leave");
+  expect(text).toMatch(/Omar Hassan,Student,Grade 5 A,1,1,0,0,0,0,0/);
+
+  // Schools aren't on this plan: the app's check-in waits for it.
+  const today = await request.get(`${api}/school/checkin`);
+  expect(today.status()).toBe(403);
+  expect((await today.json()).code).toBe("feature_disabled");
 });

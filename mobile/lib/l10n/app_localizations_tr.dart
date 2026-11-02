@@ -6397,6 +6397,245 @@ class AppLocalizationsTr extends AppLocalizations {
   String get couponWithout => 'Kuponsuz devam et';
 
   @override
+  String get checkinTitle => 'Giriş ve çıkış';
+
+  @override
+  String get checkinButton => 'Giriş yap';
+
+  @override
+  String get checkoutButton => 'Çıkış yap';
+
+  @override
+  String get checkinCardTitle => 'Bugün okulda';
+
+  @override
+  String get checkinStateNotYet => 'Henüz giriş yapılmadı';
+
+  @override
+  String get checkinStateIn => 'Giriş yapıldı';
+
+  @override
+  String get checkinStateLeft => 'Çıkış yapıldı';
+
+  @override
+  String get checkinStateAbsent => 'Gelmedi';
+
+  @override
+  String get checkinStateExcused => 'İzinli';
+
+  @override
+  String get checkinStateLeave => 'İzinde';
+
+  @override
+  String get checkinStateOff => 'Okul günü değil';
+
+  @override
+  String checkinInAt(String time) {
+    return 'Giriş $time';
+  }
+
+  @override
+  String checkinOutAt(String time) {
+    return 'Çıkış $time';
+  }
+
+  @override
+  String get checkinLate => 'Geç';
+
+  @override
+  String get checkinLeftEarly => 'Erken çıktı';
+
+  @override
+  String checkinTimes(String starts, String ends, String late) {
+    return '$starts–$ends · $late sonrası geç';
+  }
+
+  @override
+  String get checkinCodeLabel => 'Kapı kodu';
+
+  @override
+  String get checkinCodeHint => 'Okulun kapıdaki ekranında görünen altı hane';
+
+  @override
+  String get checkinWithLocation => 'Konumumu kullan';
+
+  @override
+  String get checkinBothNote => 'Okulunuz kapı kodunu ve konumunuzu istiyor.';
+
+  @override
+  String get checkinLocating => 'Konumunuz bulunuyor…';
+
+  @override
+  String get checkinLocationOff =>
+      'Giriş yapmak için telefonunuzun konumunu açın.';
+
+  @override
+  String get checkinLocationDenied =>
+      'Giriş yapmak için uygulamanın konumunuzu kullanmasına izin verin.';
+
+  @override
+  String get checkinLocationFailed => 'Konumunuz bulunamadı. Tekrar deneyin.';
+
+  @override
+  String checkinDoneOnTime(String time) {
+    return '$time itibarıyla zamanında giriş yapıldı.';
+  }
+
+  @override
+  String checkinDoneLate(String time) {
+    return '$time itibarıyla giriş yapıldı: geç.';
+  }
+
+  @override
+  String checkinDoneOut(String time) {
+    return '$time itibarıyla çıkış yapıldı.';
+  }
+
+  @override
+  String checkinDoneEarly(String time) {
+    return '$time itibarıyla, gün bitmeden çıkış yapıldı.';
+  }
+
+  @override
+  String get checkinMonth => 'Bu ay';
+
+  @override
+  String get checkinCountPresent => 'Geldi';
+
+  @override
+  String get checkinCountAbsent => 'Gelmedi';
+
+  @override
+  String get checkinNoDays => 'Bu ay henüz okul günü yok.';
+
+  @override
+  String checkinCorrected(String reason) {
+    return 'Okul düzeltti: $reason';
+  }
+
+  @override
+  String get checkinOff => 'Okulunuz uygulamadan giriş kabul etmiyor.';
+
+  @override
+  String get checkinNotSchoolDay => 'Bugün okul günlerinizden biri değil.';
+
+  @override
+  String get checkinAtGate => 'Kapıda';
+
+  @override
+  String get tabStaff => 'Personel';
+
+  @override
+  String get staffNotStaff => 'Okulun personeli için';
+
+  @override
+  String get staffNotStaffMessage =>
+      'Okul personelinin numaralarını ekler; onlarla giriş yaparlar ve işleri burada görünür.';
+
+  @override
+  String get staffWork => 'İşiniz';
+
+  @override
+  String staffDays(String days) {
+    return 'Günler: $days';
+  }
+
+  @override
+  String staffHours(String starts, String ends) {
+    return 'Saatler: $starts–$ends';
+  }
+
+  @override
+  String get staffDuties => 'Görevler';
+
+  @override
+  String get staffLeave => 'İzin talepleri';
+
+  @override
+  String get staffNews => 'Personel duyuruları';
+
+  @override
+  String get staffNoNews => 'Henüz personel duyurusu yok.';
+
+  @override
+  String get leaveAsk => 'İzin iste';
+
+  @override
+  String get leaveKind => 'İzin türü';
+
+  @override
+  String get leaveSick => 'Hastalık';
+
+  @override
+  String get leaveAnnual => 'Yıllık';
+
+  @override
+  String get leaveOther => 'Diğer';
+
+  @override
+  String get leaveFirstDay => 'İlk gün';
+
+  @override
+  String get leaveLastDay => 'Son gün';
+
+  @override
+  String get leaveNote => 'Not (isteğe bağlı)';
+
+  @override
+  String get leaveAddPhoto => 'Belge fotoğrafı';
+
+  @override
+  String get leaveAddFile => 'PDF';
+
+  @override
+  String get leaveSend => 'Talebi gönder';
+
+  @override
+  String get leaveSent => 'Gönderildi. Okul uygulamadan yanıt verir.';
+
+  @override
+  String get leaveNone => 'Henüz izin talebi yok.';
+
+  @override
+  String leaveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gün',
+      one: '1 gün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leavePending => 'Bekliyor';
+
+  @override
+  String get leaveApproved => 'Onaylandı';
+
+  @override
+  String get leaveRefused => 'Onaylanmadı';
+
+  @override
+  String get leaveCancelled => 'Geri çekildi';
+
+  @override
+  String get leaveWithdraw => 'Geri çek';
+
+  @override
+  String leaveSchoolNote(String note) {
+    return 'Okul: $note';
+  }
+
+  @override
+  String leaveDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get leaveDatesOrder => 'Son gün, ilk günle aynı ya da sonra olmalı.';
+
+  @override
   String get classroomSyllabus => 'Müfredat';
 
   @override

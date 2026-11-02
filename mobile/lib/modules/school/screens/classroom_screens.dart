@@ -20,6 +20,8 @@ import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../../shared/shared_routes.dart' show NotFoundScreen;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart' show CheckinCard;
+import 'staff_screens.dart' show StaffTiles;
 import 'student_screens.dart' show FileTile;
 
 /// 105.4 The Classroom tab, for the school's teachers only: today's lessons
@@ -64,11 +66,15 @@ class ClassroomScreen extends ConsumerWidget {
             Expanded(
               child: switch (ref.watch(classroomMeProvider)) {
                 AsyncValue(value: final me?) => RefreshIndicator(
-                  onRefresh: () async => ref.invalidate(classroomMeProvider),
+                  onRefresh: () async => ref
+                    ..invalidate(classroomMeProvider)
+                    ..invalidate(checkinTodayProvider),
                   child: ListView(
                     key: const ValueKey('classroom'),
                     padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                     children: [
+                      // 113.2 The teacher checks in and out like everyone.
+                      const CheckinCard(),
                       SectionHeader(title: l10n.schoolToday, size: 16),
                       const SizedBox(height: 4),
                       if (me.today.isEmpty)
@@ -188,6 +194,9 @@ class ClassroomScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                       ],
+                      // 113.3 Their leave requests and the staff's news.
+                      const SizedBox(height: 10),
+                      const StaffTiles(),
                     ],
                   ),
                 ),

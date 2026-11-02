@@ -57,6 +57,7 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
@@ -67,6 +68,7 @@ import type {
   SchoolSyllabusUnit,
   SchoolTopicProgress,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -3492,6 +3494,80 @@ export class MysqlStore implements DataStore {
   async deleteSchoolReport(appId: string, id: number): Promise<void> {
     const t = schema.schoolReports;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]> {
+    const t = schema.schoolCheckins;
+    if (filter.personIds && filter.personIds.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined,
+            filter.personIds ? inArray(t.personId, filter.personIds) : undefined,
+            filter.date ? eq(t.date, filter.date) : undefined,
+            filter.from ? gte(t.date, filter.from) : undefined,
+            filter.to ? lte(t.date, filter.to) : undefined,
+          ),
+        )
+        .orderBy(desc(t.date), asc(t.personId)),
+    );
+  }
+
+  async getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null> {
+    const t = schema.schoolCheckins;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.personId, personId), eq(t.date, date))).limit(1));
+    return row ?? null;
+  }
+
+  async saveSchoolCheckin(row: SchoolCheckin): Promise<void> {
+    const t = schema.schoolCheckins;
+    const p = schema.schoolPeople;
+    // Only for a person of the same school.
+    const [person] = await this.run((db) => db.select({ id: p.id }).from(p).where(and(eq(p.appId, row.appId), eq(p.id, row.personId))).limit(1));
+    if (!person) return;
+    const { appId: _app, personId: _person, date: _date, ...set } = row;
+    await this.run((db) => db.insert(t).values(row).onDuplicateKeyUpdate({ set }));
+  }
+
+  async listSchoolLeave(appId: string, filter: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string } = {}): Promise<SchoolLeave[]> {
+    const t = schema.schoolLeave;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            filter.personId !== undefined ? eq(t.personId, filter.personId) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+            filter.from ? gte(t.endsOn, filter.from) : undefined,
+            filter.to ? lte(t.startsOn, filter.to) : undefined,
+          ),
+        )
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+  }
+
+  async getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null> {
+    const t = schema.schoolLeave;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave> {
+    const [result] = await this.run((db) => db.insert(schema.schoolLeave).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean> {
+    const t = schema.schoolLeave;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id), inArray(t.status, statuses))));
+    return result.affectedRows === 1;
   }
 
   async deleteTeacher(appId: string, id: number): Promise<void> {

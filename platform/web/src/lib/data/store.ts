@@ -86,6 +86,7 @@ import type {
   SchoolAnnouncement,
   SchoolAssessment,
   SchoolAttendance,
+  SchoolCheckin,
   SchoolClass,
   SchoolFamilyLink,
   SchoolFee,
@@ -96,6 +97,7 @@ import type {
   SchoolSyllabusUnit,
   SchoolTopicProgress,
   SchoolHomework,
+  SchoolLeave,
   SchoolPeriod,
   SchoolPerson,
   SchoolPersonInput,
@@ -890,6 +892,19 @@ export interface DataStore {
   /** Only while the fee is in one of `statuses` when given; false when it wasn't changed. */
   updateSchoolFee(appId: string, id: number, patch: Partial<Pick<SchoolFee, "title" | "amountCents" | "dueOn" | "status" | "paidAt" | "paidBy" | "orderId" | "receiptCode" | "updatedAt">>, expect?: { statuses?: SchoolFee["status"][] }): Promise<boolean>;
   deleteSchoolFee(appId: string, id: number): Promise<void>;
+  // 113.2 Checking in and out
+  /** By day (newest first) and person; one person's or some people's, one day's or a period's. */
+  listSchoolCheckins(appId: string, filter: { personId?: number; personIds?: number[]; date?: string; from?: string; to?: string }): Promise<SchoolCheckin[]>;
+  getSchoolCheckin(appId: string, personId: number, date: string): Promise<SchoolCheckin | null>;
+  /** One per person and day: saving again replaces it. */
+  saveSchoolCheckin(row: SchoolCheckin): Promise<void>;
+  // 113.3 Leave requests
+  /** Newest first; a person's, of a status, or overlapping a period. */
+  listSchoolLeave(appId: string, filter?: { personId?: number; statuses?: SchoolLeave["status"][]; from?: string; to?: string }): Promise<SchoolLeave[]>;
+  getSchoolLeave(appId: string, id: number): Promise<SchoolLeave | null>;
+  createSchoolLeave(input: Omit<SchoolLeave, "id">): Promise<SchoolLeave>;
+  /** Only while the request is in one of `statuses`; false when it wasn't changed. */
+  updateSchoolLeave(appId: string, id: number, patch: Partial<Pick<SchoolLeave, "status" | "answer" | "answeredBy" | "answeredAt" | "updatedAt">>, statuses: SchoolLeave["status"][]): Promise<boolean>;
 
   // 113.5 The syllabus, each class's progress, and the teachers' reports
   /** In the plan's order; a subject's, a grade's when given. */

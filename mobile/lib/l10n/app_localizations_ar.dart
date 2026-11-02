@@ -6606,6 +6606,247 @@ class AppLocalizationsAr extends AppLocalizations {
   String get couponWithout => 'المتابعة دون قسيمة';
 
   @override
+  String get checkinTitle => 'الحضور والانصراف';
+
+  @override
+  String get checkinButton => 'تسجيل الحضور';
+
+  @override
+  String get checkoutButton => 'تسجيل الانصراف';
+
+  @override
+  String get checkinCardTitle => 'اليوم في المدرسة';
+
+  @override
+  String get checkinStateNotYet => 'لم يُسجَّل الحضور بعد';
+
+  @override
+  String get checkinStateIn => 'تم تسجيل الحضور';
+
+  @override
+  String get checkinStateLeft => 'تم تسجيل الانصراف';
+
+  @override
+  String get checkinStateAbsent => 'غائب';
+
+  @override
+  String get checkinStateExcused => 'بعذر';
+
+  @override
+  String get checkinStateLeave => 'في إجازة';
+
+  @override
+  String get checkinStateOff => 'ليس يوم دراسة';
+
+  @override
+  String checkinInAt(String time) {
+    return 'حضور الساعة $time';
+  }
+
+  @override
+  String checkinOutAt(String time) {
+    return 'انصراف الساعة $time';
+  }
+
+  @override
+  String get checkinLate => 'متأخر';
+
+  @override
+  String get checkinLeftEarly => 'انصرف مبكرًا';
+
+  @override
+  String checkinTimes(String starts, String ends, String late) {
+    return '$starts–$ends · التأخر من $late';
+  }
+
+  @override
+  String get checkinCodeLabel => 'رمز البوابة';
+
+  @override
+  String get checkinCodeHint => 'الأرقام الستة على شاشة المدرسة عند البوابة';
+
+  @override
+  String get checkinWithLocation => 'استخدام موقعي';
+
+  @override
+  String get checkinBothNote => 'تطلب مدرستك رمز البوابة وموقعك.';
+
+  @override
+  String get checkinLocating => 'جارٍ تحديد موقعك…';
+
+  @override
+  String get checkinLocationOff => 'شغّل الموقع في هاتفك لتسجيل الحضور.';
+
+  @override
+  String get checkinLocationDenied =>
+      'اسمح للتطبيق باستخدام موقعك لتسجيل الحضور.';
+
+  @override
+  String get checkinLocationFailed => 'تعذّر تحديد موقعك. حاول مرة أخرى.';
+
+  @override
+  String checkinDoneOnTime(String time) {
+    return 'تم تسجيل الحضور الساعة $time في الموعد.';
+  }
+
+  @override
+  String checkinDoneLate(String time) {
+    return 'تم تسجيل الحضور الساعة $time: متأخر.';
+  }
+
+  @override
+  String checkinDoneOut(String time) {
+    return 'تم تسجيل الانصراف الساعة $time.';
+  }
+
+  @override
+  String checkinDoneEarly(String time) {
+    return 'تم تسجيل الانصراف الساعة $time قبل نهاية اليوم.';
+  }
+
+  @override
+  String get checkinMonth => 'هذا الشهر';
+
+  @override
+  String get checkinCountPresent => 'حضور';
+
+  @override
+  String get checkinCountAbsent => 'غياب';
+
+  @override
+  String get checkinNoDays => 'لا توجد أيام دراسة في هذا الشهر بعد.';
+
+  @override
+  String checkinCorrected(String reason) {
+    return 'صحّحته المدرسة: $reason';
+  }
+
+  @override
+  String get checkinOff => 'لا تستقبل مدرستك تسجيل الحضور في التطبيق.';
+
+  @override
+  String get checkinNotSchoolDay => 'اليوم ليس من أيامك الدراسية.';
+
+  @override
+  String get checkinAtGate => 'عند البوابة';
+
+  @override
+  String get tabStaff => 'الموظفون';
+
+  @override
+  String get staffNotStaff => 'لموظفي المدرسة';
+
+  @override
+  String get staffNotStaffMessage =>
+      'تضيف المدرسة أرقام موظفيها؛ يسجّلون الدخول بها ويظهر عملهم هنا.';
+
+  @override
+  String get staffWork => 'عملك';
+
+  @override
+  String staffDays(String days) {
+    return 'الأيام: $days';
+  }
+
+  @override
+  String staffHours(String starts, String ends) {
+    return 'الساعات: $starts–$ends';
+  }
+
+  @override
+  String get staffDuties => 'المهام';
+
+  @override
+  String get staffLeave => 'طلبات الإجازة';
+
+  @override
+  String get staffNews => 'أخبار الموظفين';
+
+  @override
+  String get staffNoNews => 'لا توجد أخبار للموظفين بعد.';
+
+  @override
+  String get leaveAsk => 'طلب إجازة';
+
+  @override
+  String get leaveKind => 'نوع الإجازة';
+
+  @override
+  String get leaveSick => 'مرضية';
+
+  @override
+  String get leaveAnnual => 'سنوية';
+
+  @override
+  String get leaveOther => 'أخرى';
+
+  @override
+  String get leaveFirstDay => 'اليوم الأول';
+
+  @override
+  String get leaveLastDay => 'اليوم الأخير';
+
+  @override
+  String get leaveNote => 'ملاحظة (اختياري)';
+
+  @override
+  String get leaveAddPhoto => 'صورة مستند';
+
+  @override
+  String get leaveAddFile => 'ملف PDF';
+
+  @override
+  String get leaveSend => 'إرسال الطلب';
+
+  @override
+  String get leaveSent => 'تم الإرسال. ترد المدرسة في التطبيق.';
+
+  @override
+  String get leaveNone => 'لا توجد طلبات إجازة بعد.';
+
+  @override
+  String leaveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم',
+      many: '$count يومًا',
+      few: '$count أيام',
+      two: 'يومان',
+      one: 'يوم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leavePending => 'بانتظار الرد';
+
+  @override
+  String get leaveApproved => 'موافَق عليها';
+
+  @override
+  String get leaveRefused => 'غير موافَق عليها';
+
+  @override
+  String get leaveCancelled => 'مسحوبة';
+
+  @override
+  String get leaveWithdraw => 'سحب';
+
+  @override
+  String leaveSchoolNote(String note) {
+    return 'المدرسة: $note';
+  }
+
+  @override
+  String leaveDates(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get leaveDatesOrder => 'اليوم الأخير في اليوم الأول أو بعده.';
+
+  @override
   String get classroomSyllabus => 'المنهج';
 
   @override

@@ -107,6 +107,13 @@ abstract final class Paths {
   static const classroomReports = '$classroom/reports';
   static String classroomReport(int id) => '$classroom/report/$id';
 
+  // 113.2 Checking in and out; 113.3 the Staff tab, leave and the staff's news.
+  static const checkin = '/school/checkin';
+  static const staff = '/staff';
+  static const staffLeave = '/staff/leave';
+  static const staffLeaveNew = '/staff/leave/new';
+  static const staffNews = '/staff/news';
+
   /// 77 The chat: the conversation with the business and course groups.
   static const chat = '/chat';
   static String chatConversation(String id) =>
@@ -234,7 +241,8 @@ abstract final class Paths {
       location.startsWith('/teacher-course/') ||
       // 105.4 A school's screens, for the people it added.
       location.startsWith(school) ||
-      location.startsWith(classroom);
+      location.startsWith(classroom) ||
+      location.startsWith(staff);
 
   static bool isSignIn(String location) => location.startsWith(signIn);
 }

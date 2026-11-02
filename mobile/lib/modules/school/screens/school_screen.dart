@@ -13,6 +13,7 @@ import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart';
 
 /// 105.4 The School tab, for a student and their parents: today's lessons
 /// and each part of the school (a parent with several children picks one
@@ -36,6 +37,7 @@ class SchoolScreen extends ConsumerWidget {
                   ? StudentGate(
                       builder: (context, me, student) => _Overview(
                         student: student,
+                        me: me,
                         parent: me.roles.contains(SchoolRole.parent),
                       ),
                     )
@@ -54,9 +56,14 @@ class SchoolScreen extends ConsumerWidget {
 }
 
 class _Overview extends ConsumerWidget {
-  const _Overview({required this.student, this.parent = false});
+  const _Overview({
+    required this.student,
+    required this.me,
+    this.parent = false,
+  });
 
   final SchoolStudent student;
+  final SchoolMe me;
 
   /// 113.5 Seen by a parent: the teachers' reports the school shared.
   final bool parent;
@@ -72,7 +79,8 @@ class _Overview extends ConsumerWidget {
       onRefresh: () async {
         ref
           ..invalidate(studentTimetableProvider(id))
-          ..invalidate(studentFeesProvider(id));
+          ..invalidate(studentFeesProvider(id))
+          ..invalidate(checkinTodayProvider);
       },
       child: ListView(
         key: const ValueKey('school-overview'),
@@ -116,6 +124,9 @@ class _Overview extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
+          // 113.2 A student checks in and out; a parent follows it on the attendance.
+          if (me.isStudent && student.id == me.students.first.id)
+            const CheckinCard(),
           SectionHeader(
             title: l10n.schoolToday,
             onSeeAll: () => open('timetable'),

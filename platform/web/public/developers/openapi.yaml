@@ -428,6 +428,34 @@ tags:
       are told), gives homework and marks what was handed in, enters the
       scores of exams and quizzes, and writes to a class (its students and
       their parents).
+  - name: Check-in
+    description: |
+      Roadmap 113.2. Students, teachers and staff check in and out at the
+      school from the app: with the gate's code (a QR code and its six
+      digits on the school's Gate screen, new every 30 seconds and signed
+      by the platform, so an old or made-up code fails; nothing secret is in
+      the app), inside the school's area (the phone's `lat` and `lng`
+      against the school's place and radius), either one, or both at once,
+      as the school chooses (`methods`). Checking in after the school's
+      `late_from` is late; checking out before `early_before` is leaving
+      early. A teacher checks in as a teacher, a member of staff as staff, a
+      student as a student (with the school's student times); a parent
+      doesn't check in (`not_checkin_member`) and follows each child's days
+      with `GET /school/students/{student_id}/checkins`, and is pushed
+      (`school_checkin`) when the school wants. The school's office corrects
+      a day in the dashboard with a reason, kept on the day (`corrections`).
+      The teacher's class register (`/classroom/classes/{class_id}/attendance`)
+      stays apart.
+  - name: Staff
+    description: |
+      Roadmap 113.3. Everyone who works at the school, teachers and staff
+      (`User.roles` has `teacher` or `staff`); every endpoint here answers
+      `not_staff` (403) to anyone else. Their job, department, working days
+      and hours and duties as the school set them, their leave requests
+      (sick, annual or other, with a note and a photo or PDF of a document
+      sent with `/school/uploads`), approved or refused by the school in the
+      dashboard with a note (`school_leave`), and the staff's own news, which
+      students and parents never see (`school_staff`).
   - name: Bookings
     description: |
       Services, staff, free times and appointments, for Bookings apps. The
@@ -6582,6 +6610,25 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /school/students/{student_id}/checkins:
+    get:
+      tags: [Check-in]
+      operationId: getStudentCheckins
+      summary: A student's month at the gate, for them and their parents
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinMonth' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /school/students/{student_id}/homework:
     get:
       tags: [School]
@@ -6787,6 +6834,75 @@ paths:
                       items:
                         type: array
                         items: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /school/checkin:
+    get:
+      tags: [Check-in]
+      operationId: getCheckinToday
+      summary: Today at the gate for the signed-in student, teacher or member of staff
+      description: Whether the school takes check-ins, how, its place and radius (for the location method), the person's times and today's record.
+      responses:
+        '200':
+          description: Today
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinToday' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Check-in]
+      operationId: checkInOrOut
+      summary: Check in or out
+      description: |
+        `action` `in` or `out`, with what the school's `methods` ask: the
+        gate's `code` (the six digits typed, or what its QR code holds), the
+        phone's `lat` and `lng`, or both. Errors: `checkin_off` (403, the
+        school doesn't take check-ins), `outside_area` (403, with
+        `details.distance_m`), `code_needed`, `invalid_code` (an old or
+        another school's code) and `location_needed` (400), `not_school_day`,
+        `too_early` (check-in opens two hours before the day starts),
+        `already_in`, `not_in` and `already_out` (409). A student's parents
+        get `school_checkin`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [in, out] }
+                code: { type: [string, 'null'], maxLength: 80, description: "The six digits on the gate's screen, or what its QR code holds (`YG1.…`)." }
+                lat: { type: [number, 'null'], minimum: -90, maximum: 90 }
+                lng: { type: [number, 'null'], minimum: -180, maximum: 180 }
+      responses:
+        '200':
+          description: Checked in or out
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /school/checkin/history:
+    get:
+      tags: [Check-in]
+      operationId: getCheckinHistory
+      summary: The signed-in person's month at the gate
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckinMonth' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
@@ -7471,6 +7587,116 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /staff/me:
+    get:
+      tags: [Staff]
+      operationId: getStaffMe
+      summary: The signed-in teacher or member of staff at work
+      description: Their job, department, working days and hours (else the school's times for teachers and staff), duties, and a teacher's lessons in the week.
+      responses:
+        '200':
+          description: At work
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StaffMe' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /staff/leave:
+    get:
+      tags: [Staff]
+      operationId: listLeaveRequests
+      summary: The person's leave requests
+      description: Newest first.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Leave requests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/LeaveRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Staff]
+      operationId: requestLeave
+      summary: Ask for leave
+      description: From up to 30 days back to a year ahead, up to 90 days at a time; `leave_overlaps` (409) when a waiting or approved request has some of the days. A document is a photo or a PDF sent with `/school/uploads`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, starts_on, ends_on]
+              properties:
+                kind: { type: string, enum: [sick, annual, other] }
+                starts_on: { type: string, format: date }
+                ends_on: { type: string, format: date }
+                note: { type: [string, 'null'], maxLength: 1000 }
+                upload_id: { type: [string, 'null'], format: uuid }
+      responses:
+        '201':
+          description: Asked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LeaveRequest' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /staff/leave/{leave_id}:
+    delete:
+      tags: [Staff]
+      operationId: withdrawLeaveRequest
+      summary: Withdraw a leave request the school hasn't answered
+      parameters:
+        - $ref: '#/components/parameters/LeaveId'
+      responses:
+        '204': { description: Withdrawn }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /staff/announcements:
+    get:
+      tags: [Staff]
+      operationId: listStaffAnnouncements
+      summary: The staff's own news
+      description: Newest first; for teachers and staff only.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/SchoolAnnouncement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
 webhooks:
   accountDeleted:
     post:
@@ -7636,6 +7862,16 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    LeaveId:
+      name: leave_id
+      in: path
+      required: true
+      schema: { type: integer }
+    Month:
+      name: month
+      in: query
+      description: 113.2 A month like 2026-11; this month in the school's time zone by default.
+      schema: { type: string, pattern: '^\d{4}-(0[1-9]|1[0-2])$' }
     HomeworkId:
       name: homework_id
       in: path
@@ -8250,7 +8486,7 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent] }
+          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent, staff] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
@@ -8261,7 +8497,9 @@ components:
             the academy's teachers (the Teacher endpoints).
             105.4 In school apps, `student` and `parent` for the school's
             students and parents (the School endpoints), `teacher` for its
-            teachers (the Classroom endpoints).
+            teachers (the Classroom endpoints). 113.3 `staff` for those who
+            work at the school and don't teach (the Staff endpoints, which
+            teachers use too).
             Missing or empty: a customer only. Apps ignore roles they don't
             know.
 
@@ -9120,7 +9358,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_report, school_report_shared]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_checkin, school_staff, school_leave, school_report, school_report_shared]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -9150,6 +9388,11 @@ components:
             teacher marked homework or entered a score, and opens their grades; `school_fee`, a
             fee was added or paid, and opens their fees. `school_announcement` (with
             `student_id` when it is for one student's class or family) opens the school's news.
+            113.2 `school_checkin` (with `student_id`): the parent's child checked in or out at
+            the school (late or leaving early says so), and opens the child's attendance.
+            113.3 `school_staff`: news for the school's teachers and staff, and opens the staff's
+            news; `school_leave`: the school approved or refused a leave request, and opens the
+            person's leave requests.
             112.5 `live_class_soon` (with `course_id` and `live_id`): one of the student's
             live classes starts within the hour, and opens it; `assignment_graded` (with
             `course_id` and `assignment_id`): the teacher graded or sent back one of the
@@ -13051,6 +13294,13 @@ components:
             - type: 'null'
         absence_alerts: { type: boolean, description: 'Parents get a push when their child is marked absent or late.' }
         fees_by_card: { type: boolean, description: "Fees can be paid by card on the school's payment page." }
+        checkin:
+          description: 113.2 Whether students, teachers and staff check in and out in the app, and how. Missing on older servers (off).
+          type: object
+          required: [on, methods]
+          properties:
+            on: { type: boolean }
+            methods: { $ref: '#/components/schemas/CheckinMethods' }
 
     SchoolMe:
       type: object
@@ -13060,7 +13310,7 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [student, parent, teacher] }
+          items: { type: string, enum: [student, parent, teacher, staff] }
         students:
           type: array
           description: Whom the person may see; empty for a teacher who is no parent.
@@ -13485,9 +13735,149 @@ components:
         id: { type: integer }
         title: { type: string }
         body: { type: string }
-        audience: { type: string, enum: [school, class, student] }
+        audience: { type: string, enum: [school, class, student, staff], description: "113.3 `staff`: the staff's own news, only in `GET /staff/announcements`." }
         class_name: { type: [string, 'null'] }
         author: { type: string, description: 'The school, or the teacher who wrote it.' }
+        created_at: { type: string, format: date-time }
+
+    CheckinMethods:
+      type: string
+      enum: [qr, location, either, both]
+      description: 113.2 `qr` the gate's code, `location` inside the school's area, `either` one of them, `both` the code and inside the area.
+
+    CheckinTimes:
+      type: object
+      required: [starts, late_from, ends, early_before]
+      properties:
+        starts: { type: string, example: '07:30' }
+        late_from: { type: string, example: '08:00' }
+        ends: { type: string, example: '14:00' }
+        early_before: { type: string, example: '13:45' }
+
+    CheckinDay:
+      type: object
+      description: 113.2 A day at the gate. Times are the school's, `HH:MM`.
+      required: [date, state, in_at, in_time, in_method, out_at, out_time, out_method, late, left_early, corrections]
+      properties:
+        date: { type: string, format: date }
+        state:
+          type: string
+          enum: [not_yet, in, left, absent, excused, leave, off]
+          description: '`not_yet` not in yet today, `in` at school, `left` checked out, `absent`, `excused` (by the office), `leave` on approved leave, `off` not a school day.'
+        in_at: { type: [string, 'null'], format: date-time }
+        in_time: { type: [string, 'null'], example: '07:52' }
+        in_method: { type: [string, 'null'], enum: [qr, location, office, null] }
+        out_at: { type: [string, 'null'], format: date-time }
+        out_time: { type: [string, 'null'] }
+        out_method: { type: [string, 'null'], enum: [qr, location, office, null] }
+        late: { type: boolean }
+        left_early: { type: boolean }
+        corrections:
+          type: array
+          description: The office's corrections of the day, oldest first.
+          items:
+            type: object
+            required: [at, reason, change]
+            properties:
+              at: { type: string, format: date-time }
+              reason: { type: string }
+              change: { type: string, example: 'In 07:55 → 07:40' }
+
+    CheckinToday:
+      type: object
+      required: [on, methods, place, role, date, school_day, times, today]
+      properties:
+        on: { type: boolean, description: The school takes check-ins in the app. }
+        methods: { $ref: '#/components/schemas/CheckinMethods' }
+        place:
+          description: The school's place and radius, when it checks the area.
+          oneOf:
+            - type: object
+              required: [lat, lng, radius_m]
+              properties:
+                lat: { type: number }
+                lng: { type: number }
+                radius_m: { type: integer }
+            - type: 'null'
+        role: { type: string, enum: [student, teacher, staff] }
+        date: { type: string, format: date }
+        school_day: { type: boolean }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        today: { $ref: '#/components/schemas/CheckinDay' }
+
+    CheckinResult:
+      type: object
+      required: [result, time, day]
+      properties:
+        result: { type: string, enum: [on_time, late, out, left_early] }
+        time: { type: string, example: '07:52' }
+        day: { $ref: '#/components/schemas/CheckinDay' }
+
+    CheckinMonth:
+      type: object
+      required: [month, role, times, counts, days]
+      properties:
+        month: { type: string, example: '2026-11' }
+        role: { type: string, enum: [student, teacher, staff] }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        counts:
+          type: object
+          description: The school days to today, and how many were present, late, left early, absent, excused and on leave.
+          required: [days, present, late, left_early, absent, excused, leave]
+          properties:
+            days: { type: integer }
+            present: { type: integer }
+            late: { type: integer }
+            left_early: { type: integer }
+            absent: { type: integer }
+            excused: { type: integer }
+            leave: { type: integer }
+        days:
+          type: array
+          description: Newest first; school days to today, and any other day with a record.
+          items: { $ref: '#/components/schemas/CheckinDay' }
+
+    StaffMe:
+      type: object
+      required: [name, role, job_title, department, work_hours, days, times, duties, timetable]
+      properties:
+        name: { type: string }
+        photo_url: { type: [string, 'null'], format: uri }
+        role: { type: string, enum: [teacher, staff] }
+        job_title: { type: [string, 'null'], example: Nurse }
+        department: { type: [string, 'null'], example: Administration }
+        work_hours:
+          description: Their own working days and hours; null for the school's times.
+          oneOf:
+            - type: object
+              required: [days, starts, ends]
+              properties:
+                days: { type: array, items: { type: integer, minimum: 1, maximum: 7 } }
+                starts: { type: string }
+                ends: { type: string }
+            - type: 'null'
+        days: { type: array, description: 'The days they work, 1 Monday … 7 Sunday.', items: { type: integer, minimum: 1, maximum: 7 } }
+        times: { $ref: '#/components/schemas/CheckinTimes' }
+        duties: { type: [string, 'null'] }
+        timetable: { $ref: '#/components/schemas/Timetable' }
+
+    LeaveRequest:
+      type: object
+      required: [id, kind, starts_on, ends_on, days, note, file, status, answer, answered_at, created_at]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [sick, annual, other] }
+        starts_on: { type: string, format: date }
+        ends_on: { type: string, format: date }
+        days: { type: integer }
+        note: { type: [string, 'null'] }
+        file:
+          oneOf:
+            - $ref: '#/components/schemas/SchoolFile'
+            - type: 'null'
+        status: { type: string, enum: [pending, approved, refused, cancelled] }
+        answer: { type: [string, 'null'], description: "The school's note with its answer." }
+        answered_at: { type: [string, 'null'], format: date-time }
         created_at: { type: string, format: date-time }
 
     ClassroomMe:
