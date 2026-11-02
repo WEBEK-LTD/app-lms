@@ -11,6 +11,7 @@ import {
   savePlanBillingAction,
   savePublishingSettingAction,
   saveMapsSettingAction,
+  saveCourierHubSettingAction,
   saveOtpSettingAction,
   savePartnerAppAction,
   saveSmtpSettingAction,
@@ -510,6 +511,68 @@ export function MapsSettingForm({ tilesUrl, attribution, searchUrl, routingUrl }
         hint="An OSRM server (its /route/v1/driving), for the route drawn between places, its time, and ride fares by the road's distance. Without it the apps draw a straight line."
         error={state.errors?.routingUrl}
       />
+      <div className="flex justify-end">
+        <SubmitButton className="h-10" pendingText="Saving…">
+          Save
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 104.8.2 Yallapp Courier: the stores' review account (a number or an email, with its fixed code) and 104.8.3 the store links once it is published. */
+export function CourierHubSettingForm({ current }: { current: { reviewPhone: string; reviewEmail: string; reviewCode: string; playUrl: string; appStoreUrl: string } }) {
+  const [state, action] = useActionState(saveCourierHubSettingAction, initialFormState);
+  const v = (name: keyof typeof current) => state.values?.[name] ?? current[name];
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4">
+      <FormMessage message={state.message} ok={state.ok} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Review phone number"
+          name="reviewPhone"
+          type="tel"
+          dir="ltr"
+          defaultValue={v("reviewPhone")}
+          placeholder="+20 100 123 4567"
+          hint="With its country code. Signing in with it sends no message."
+          error={state.errors?.reviewPhone}
+        />
+        <Field label="Or review email" name="reviewEmail" type="email" dir="ltr" defaultValue={v("reviewEmail")} hint="Instead of a number, not both." error={state.errors?.reviewEmail} />
+      </div>
+      <Field
+        label="Fixed code"
+        name="reviewCode"
+        inputMode="numeric"
+        maxLength={6}
+        dir="ltr"
+        defaultValue={v("reviewCode")}
+        placeholder="123456"
+        hint="The 6 digits reviewers type. Choose one used nowhere else."
+        error={state.errors?.reviewCode}
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label="Google Play link (once published)"
+          name="playUrl"
+          type="url"
+          dir="ltr"
+          defaultValue={v("playUrl")}
+          placeholder="https://play.google.com/store/apps/details?id=tr.com.yallapp.courier"
+          hint="Shown to delivery companies that choose Yallapp Courier, for their couriers."
+          error={state.errors?.playUrl}
+        />
+        <Field
+          label="App Store link (once published)"
+          name="appStoreUrl"
+          type="url"
+          dir="ltr"
+          defaultValue={v("appStoreUrl")}
+          placeholder="https://apps.apple.com/app/yallapp-courier/id…"
+          hint="Shown with the Google Play link."
+          error={state.errors?.appStoreUrl}
+        />
+      </div>
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText="Saving…">
           Save
