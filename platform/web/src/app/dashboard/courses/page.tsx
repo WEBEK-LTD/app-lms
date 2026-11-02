@@ -85,11 +85,18 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
           <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("courses.title")}</h1>
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("courses.intro")}</p>
         </div>
-        {/* 81.4 */}
-        <Link href="/dashboard/courses/import" className={`${btn.secondary} h-11`}>
-          <Icon name="upload" size={20} />
-          {t("imports.open")}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {/* 113.7 Learning paths, and points and badges. */}
+          <Link href="/dashboard/courses/paths" className={`${btn.secondary} h-11`}>
+            <Icon name="route" size={20} />
+            {t("learning.pathsLink")}
+          </Link>
+          {/* 81.4 */}
+          <Link href="/dashboard/courses/import" className={`${btn.secondary} h-11`}>
+            <Icon name="upload" size={20} />
+            {t("imports.open")}
+          </Link>
+        </div>
       </div>
       {/* 110.2 */}
       <SampleEntries app={app} list="courses" query={await searchParams} />
@@ -143,6 +150,7 @@ export default async function CoursesPage({ searchParams }: { searchParams: Prom
         </h2>
         <CourseForm
           current={{ title: "", description: "", price: "", instructor: "", level: "", categoryIds: "", active: "on", restart: "on" }}
+          others={setup.courses.map((c) => ({ id: c.id, title: c.title }))}
           categories={setup.categories}
           currency={setup.currency}
           imageUrl={null}

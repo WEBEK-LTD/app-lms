@@ -47,18 +47,23 @@ export function CourseForm({
   currency,
   imageUrl,
   submit,
+  others = [],
 }: {
   current: Record<string, string>;
   categories: { id: number; name: string }[];
   currency: string;
   imageUrl: string | null;
   submit: string;
+  /** 113.7 The academy's other courses, to need first. */
+  others?: { id: number; title: string }[];
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveCourseAction, initialFormState);
   const v = state.values ?? current;
   const e = state.errors ?? {};
   const chosen = new Set((v.categoryIds ?? "").split(",").filter(Boolean).map(Number));
+  const needed = new Set((v.prerequisiteIds ?? "").split(",").filter(Boolean).map(Number));
+  const key = `f-course-${current.id || "new"}`;
   return (
     <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
@@ -128,6 +133,46 @@ export function CourseForm({
         <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
         <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
       </div>
+      {/* 113.7 The rules to complete the course (and earn its certificate), and the courses it needs first. */}
+      <fieldset className="m-0 flex flex-col gap-3 rounded-lg border border-line-soft p-3">
+        <legend className="px-1 text-sm font-semibold">{t("learning.completeTitle")}</legend>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${key}-complete`} className="text-sm font-semibold">
+            {t("learning.completeWhen")}
+          </label>
+          <select id={`${key}-complete`} name="completeWhen" defaultValue={v.completeWhen || "all"} className="input input-sm sm:max-w-[420px]">
+            <option value="lessons">{t("learning.completeLessons")}</option>
+            <option value="quizzes">{t("learning.completeQuizzes")}</option>
+            <option value="all">{t("learning.completeAll")}</option>
+          </select>
+        </div>
+        <Field
+          label={t("learning.minFinalScore")}
+          name="minFinalScore"
+          id={`${key}-min-score`}
+          inputMode="numeric"
+          defaultValue={v.minFinalScore}
+          hint={t("learning.minFinalScoreHint")}
+          error={e.minFinalScore}
+          className="sm:max-w-[320px]"
+          small
+        />
+      </fieldset>
+      {others.length ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 text-sm font-semibold">{t("learning.prerequisites")}</legend>
+          <span className="text-[13px] text-muted">{t("learning.prerequisitesHint")}</span>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {others.map((c) => (
+              <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                <input type="checkbox" name="prerequisiteIds" value={c.id} defaultChecked={needed.has(c.id)} className="h-4 w-4 accent-midnight" />
+                {c.title}
+              </label>
+            ))}
+          </div>
+          <FieldError id={`${key}-prerequisites-error`} error={e.prerequisites} />
+        </fieldset>
+      ) : null}
       <Field
         label={t("courses.accessDays")}
         name="accessDays"
@@ -306,6 +351,24 @@ export function QuizForm({ courseId, topicId, current, submit }: { courseId: num
           <span className="ps-6 text-[13px] text-muted">{t("lms.showAnswersHint")}</span>
         </div>
       </div>
+      {/* 113.7 A timed exam: open between two times, its time kept by the server. */}
+      <details className="rounded-lg border border-line-soft p-3" open={v.exam === "on"}>
+        <summary className="cursor-pointer text-[15px] font-semibold">{t("learning.examTitle")}</summary>
+        <div className="flex flex-col gap-3 pt-3">
+          <div className="flex flex-col gap-1">
+            <Check name="exam" label={t("learning.exam")} checked={v.exam === "on"} />
+            <span className="ps-6 text-[13px] text-muted">{t("learning.examHint")}</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label={t("learning.opensOn")} name="opensOn" id={`${key}-opens-on`} type="date" defaultValue={v.opensOn} error={e.opensOn} small />
+            <Field label={t("learning.opensTime")} name="opensTime" id={`${key}-opens-time`} type="time" defaultValue={v.opensTime} small />
+            <Field label={t("learning.closesOn")} name="closesOn" id={`${key}-closes-on`} type="date" defaultValue={v.closesOn} error={e.closesOn} small />
+            <Field label={t("learning.closesTime")} name="closesTime" id={`${key}-closes-time`} type="time" defaultValue={v.closesTime} small />
+          </div>
+          <span className="text-[13px] text-muted">{t("learning.examTimesHint")}</span>
+          <Check name="resultsAfterClose" label={t("learning.resultsAfterClose")} checked={v.resultsAfterClose === "on"} />
+        </div>
+      </details>
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}

@@ -11,7 +11,7 @@ export function parseCourse(
   v: Values,
   setup: CourseSetup,
   categoryIds: number[],
-): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active" | "canRestart" | "certificate" | "accessDays" | "sequential" | "certificateSigner">> {
+): Parsed<Pick<Course, "title" | "description" | "priceCents" | "categoryIds" | "instructorName" | "level" | "active" | "canRestart" | "certificate" | "accessDays" | "sequential" | "certificateSigner" | "completeWhen" | "minFinalScore">> {
   const errors: Record<string, string> = {};
   const title = (v.title ?? "").trim();
   if (title.length < 2 || title.length > 120) errors.title = "Enter a title of up to 120 characters.";
@@ -29,6 +29,10 @@ export function parseCourse(
   // 112.5 Who signs the certificate.
   const signer = (v.certificateSigner ?? "").trim();
   if (signer.length > 80) errors.certificateSigner = "Use at most 80 characters.";
+  // 113.7 The rules to complete the course (the certificate's too).
+  const completeWhen = v.completeWhen === "lessons" || v.completeWhen === "quizzes" ? v.completeWhen : "all";
+  const minScore = (v.minFinalScore ?? "").trim() === "" ? null : Number(v.minFinalScore);
+  if (minScore !== null && (!Number.isInteger(minScore) || minScore < 1 || minScore > 100)) errors.minFinalScore = "Enter a score from 1 to 100, or leave it empty.";
   if (Object.keys(errors).length) return { ok: false, errors };
   const known = new Set(setup.categories.map((c) => c.id));
   return {
@@ -49,6 +53,9 @@ export function parseCourse(
       // 112.5
       sequential: v.sequential === "on",
       certificateSigner: signer || null,
+      // 113.7
+      completeWhen,
+      minFinalScore: minScore,
     },
   };
 }

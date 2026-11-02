@@ -1,5 +1,6 @@
 import { isDate, localToUtc, utcToLocal } from "../bookings/time";
-import type { CourseAssignment, CourseAttachment, CourseCohort, CourseLiveSession, CourseSetup, CourseTopic } from "../data/types";
+import type { CourseAssignment, CourseAttachment, CourseCohort, CourseLiveSession, CourseSetup, CourseTopic, RubricCriterion } from "../data/types";
+import { rubricMax } from "./grading";
 import { withCourse } from "./edit";
 import { moveTopicItem } from "./learning";
 
@@ -15,7 +16,9 @@ type Values = Record<string, string>;
 type Parsed<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> };
 export type ItemSave<T> = { ok: true; setup: CourseSetup; item: T; added: boolean } | { ok: false; message?: string; errors?: Record<string, string> };
 
-export const ASSIGNMENT_LIMITS = { title: 120, instructions: 10_000, points: 1000, dueDays: 365 } as const;
+export const ASSIGNMENT_LIMITS = { title: 120, instructions: 10_000, points: 1000, dueDays: 365, attempts: 10 } as const;
+/** 113.7 A rubric's size. */
+export const RUBRIC_LIMITS = { criteria: 12, levels: 6, text: 120 } as const;
 export const LIVE_LIMITS = { title: 120, notes: 2000, minutes: 600 } as const;
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -135,11 +138,71 @@ export function parseAssignment(v: Values, zone: string, isMediaLink: (url: stri
   if (dueAt === undefined) errors.dueOn = "Choose a date, or leave it empty.";
   const files = parseFiles(v.attachments ?? "", isMediaLink);
   if (!files) errors.attachments = "Write one file per line, as Name | address: a file from Media or an https address, up to 10 files.";
+  // 113.7 A rubric (its highest levels make the highest score) and the tries a student has.
+  const rubric = parseRubric(v.rubric ?? "");
+  if ("error" in rubric) errors.rubric = rubric.error;
+  const highest = "criteria" in rubric && rubric.criteria.length ? rubricMax(rubric.criteria) : max;
+  if (highest !== max) {
+    // The rubric gives the highest score: the field's is left aside.
+    delete errors.maxPoints;
+    delete errors.passPoints;
+    if (pass !== null && (!Number.isInteger(pass) || pass < 0 || pass > highest)) errors.passPoints = "Enter a pass score from 0 to the highest score, or leave it empty.";
+  }
+  const attempts = (v.attemptsAllowed ?? "").trim() === "" ? 1 : Number(v.attemptsAllowed);
+  if (!Number.isInteger(attempts) || attempts < 1 || attempts > ASSIGNMENT_LIMITS.attempts) errors.attemptsAllowed = "Enter 1 to 10 times.";
   if (Object.keys(errors).length) return { ok: false, errors };
+  const criteria = (rubric as { criteria: RubricCriterion[] }).criteria;
   return {
     ok: true,
-    value: { title, instructions, dueDays, ...(dueAt ? { dueAt } : {}), maxPoints: max, passPoints: pass, ...(files!.length ? { attachments: files! } : {}) },
+    value: {
+      title,
+      instructions,
+      dueDays,
+      ...(dueAt ? { dueAt } : {}),
+      maxPoints: highest,
+      passPoints: pass,
+      ...(files!.length ? { attachments: files! } : {}),
+      ...(criteria.length ? { rubric: criteria } : {}),
+      ...(attempts > 1 ? { attemptsAllowed: attempts } : {}),
+    },
   };
+}
+
+/**
+ * 113.7 A rubric as the owner writes it: each criterion on a line, then its
+ * levels each on a line after `-`, with their points after `|`.
+ *
+ *   Content
+ *   - Excellent | 10
+ *   - Good | 6
+ *   - Needs work | 2
+ */
+export function parseRubric(text: string): { criteria: RubricCriterion[] } | { error: string } {
+  const criteria: RubricCriterion[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const level = /^-\s*(.+?)\s*[|=]\s*(\d{1,4})\s*$/.exec(line);
+    if (line.startsWith("-")) {
+      const current = criteria[criteria.length - 1];
+      if (!level || !current) return { error: `Write each level as - Level | points, under its criterion: “${line.slice(0, 60)}”.` };
+      if (current.levels.length >= RUBRIC_LIMITS.levels) return { error: `Give “${current.title.slice(0, 60)}” at most ${RUBRIC_LIMITS.levels} levels.` };
+      current.levels.push({ id: current.levels.length + 1, label: level[1]!.slice(0, RUBRIC_LIMITS.text), points: Number(level[2]) });
+    } else {
+      if (criteria.length >= RUBRIC_LIMITS.criteria) return { error: `Use at most ${RUBRIC_LIMITS.criteria} criteria.` };
+      criteria.push({ id: criteria.length + 1, title: line.slice(0, RUBRIC_LIMITS.text), levels: [] });
+    }
+  }
+  const short = criteria.find((c) => c.levels.length < 2);
+  if (short) return { error: `Give “${short.title.slice(0, 60)}” at least two levels.` };
+  if (criteria.length && rubricMax(criteria) < 1) return { error: "Give the highest levels some points." };
+  if (rubricMax(criteria) > ASSIGNMENT_LIMITS.points) return { error: "The highest levels can add up to 1000 points at most." };
+  return { criteria };
+}
+
+/** 113.7 The rubric written back in the same format, to edit it. */
+export function rubricText(rubric: readonly RubricCriterion[] | undefined): string {
+  return (rubric ?? []).map((c) => [c.title, ...c.levels.map((l) => `- ${l.label} | ${l.points}`)].join("\n")).join("\n\n");
 }
 
 export function saveAssignment(setup: CourseSetup, courseId: number, topicId: number, v: Values, zone: string, isMediaLink?: (url: string) => boolean): ItemSave<CourseAssignment> {
@@ -158,6 +221,9 @@ export function assignmentValues(a: CourseAssignment, zone: string): Values {
     dueDays: a.dueDays ? String(a.dueDays) : "",
     dueOn: localParts(a.dueAt, zone).date,
     attachments: (a.attachments ?? []).map((f) => `${f.name} | ${f.url}`).join("\n"),
+    // 113.7
+    rubric: rubricText(a.rubric),
+    attemptsAllowed: a.attemptsAllowed && a.attemptsAllowed > 1 ? String(a.attemptsAllowed) : "",
   };
 }
 

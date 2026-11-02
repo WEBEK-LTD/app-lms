@@ -181,7 +181,7 @@ describe("courses on the hosted API", () => {
 
     expect((await call("PUT", "/lessons/{lesson_id}/progress", { params: ["12"], token, body: { position_seconds: 95, watched_percent: 20 } })).status).toBe(204);
     expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ position_seconds: 95, completed: false });
-    expect((await call("POST", "/lessons/{lesson_id}/complete", { params: ["12"], token })).body).toEqual({ course_id: 10, completed_items: 1, total_items: 2, percent: 50, course_completed: false, completed_at: null });
+    expect((await call("POST", "/lessons/{lesson_id}/complete", { params: ["12"], token })).body).toEqual({ course_id: 10, completed_items: 1, total_items: 2, percent: 50, course_completed: false, completed_at: null, complete_when: "all", final_score: null, min_final_score: null });
     // Saving a position later doesn't undo completing.
     await call("PUT", "/lessons/{lesson_id}/progress", { params: ["12"], token, body: { position_seconds: 10, watched_percent: 5 } });
     expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ completed: true, position_seconds: 10 });
@@ -209,7 +209,7 @@ describe("courses on the hosted API", () => {
     expect((await call("GET", "/courses/{course_id}", { params: ["10"], token })).body).toMatchObject({ progress: { course_completed: true }, can_restart: true });
 
     const restarted = await call("POST", "/courses/{course_id}/restart", { params: ["10"], token });
-    expect(restarted.body).toEqual({ course_id: 10, completed_items: 0, total_items: 2, percent: 0, course_completed: false, completed_at: null });
+    expect(restarted.body).toEqual({ course_id: 10, completed_items: 0, total_items: 2, percent: 0, course_completed: false, completed_at: null, complete_when: "all", final_score: null, min_final_score: null });
     expect((await call("GET", "/lessons/{lesson_id}", { params: ["12"], token })).body).toMatchObject({ completed: false, position_seconds: 0 });
     const curriculum = (await call("GET", "/courses/{course_id}/curriculum", { params: ["10"], token })).body;
     expect(curriculum).toMatchObject({ topics: [{ items: [{ id: 12, completed: false }, { id: 13, completed: false }] }] });

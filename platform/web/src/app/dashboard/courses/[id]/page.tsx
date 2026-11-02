@@ -16,7 +16,7 @@ import { assignmentValues, liveValues, localParts } from "@/lib/courses/builder"
 import { topicItems, type TopicItem } from "@/lib/courses/learning";
 import { AssignmentForm, CohortForm, LiveForm, StudentsForm, TopicTitleForm } from "../builder-forms";
 import type { DashT } from "@/i18n/dashboard";
-import { questionsText } from "@/lib/courses/quizzes";
+import { examValues, questionsText } from "@/lib/courses/quizzes";
 import { CourseForm, LessonForm, QuestionBankForm, QuizForm, StudentForm, TopicForm } from "../forms";
 import { setCourseTeacherAction } from "@/app/actions/teachers";
 import { courseStage, isTeachersApp } from "@/lib/teachers/service";
@@ -45,7 +45,7 @@ function lessonValues(l: CourseLesson, zone: string): Record<string, string> {
   };
 }
 
-function quizValues(q: CourseQuiz): Record<string, string> {
+function quizValues(q: CourseQuiz, zone: string): Record<string, string> {
   return {
     id: String(q.id),
     title: q.title,
@@ -56,6 +56,8 @@ function quizValues(q: CourseQuiz): Record<string, string> {
     shuffle: q.shuffle ? "on" : "",
     showAnswers: q.showAnswers ? "on" : "",
     bankPicks: q.bankPicks ? String(q.bankPicks) : "",
+    // 113.7
+    ...examValues(q, zone),
   };
 }
 
@@ -96,9 +98,14 @@ function itemMeta(it: TopicItem, t: DashT, zone: string): string {
   }
   if (it.kind === "quiz") {
     const meta = t("courses.quizMeta", { questions: it.quiz.questions.length, pass: it.quiz.passPercent });
-    return it.quiz.bankPicks ? `${meta} · ${t("lms.bankPicksMeta", { count: it.quiz.bankPicks })}` : meta;
+    // 113.7 An exam says when it opens.
+    const exam = it.quiz.exam ? ` · ${it.quiz.exam.opensAt ? t("learning.examMeta", { date: localParts(it.quiz.exam.opensAt, zone).date }) : t("learning.examShort")}` : "";
+    return (it.quiz.bankPicks ? `${meta} · ${t("lms.bankPicksMeta", { count: it.quiz.bankPicks })}` : meta) + exam;
   }
-  if (it.kind === "assignment") return t("lms.assignmentMeta", { points: it.assignment.maxPoints });
+  if (it.kind === "assignment") {
+    const meta = t("lms.assignmentMeta", { points: it.assignment.maxPoints });
+    return [meta, ...(it.assignment.rubric?.length ? [t("learning.rubricMeta")] : []), ...((it.assignment.attemptsAllowed ?? 1) > 1 ? [t("learning.triesMeta", { count: it.assignment.attemptsAllowed! })] : [])].join(" · ");
+  }
   const { date, time } = localParts(it.live.startsAt, zone);
   return t("lms.liveMeta", { date, time, minutes: it.live.durationMinutes });
 }
@@ -187,7 +194,12 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
             accessDays: course.accessDays ? String(course.accessDays) : "",
             sequential: course.sequential ? "on" : "",
             certificateSigner: course.certificateSigner ?? "",
+            // 113.7
+            completeWhen: course.completeWhen ?? "all",
+            minFinalScore: course.minFinalScore ? String(course.minFinalScore) : "",
+            prerequisiteIds: (course.prerequisites ?? []).join(","),
           }}
+          others={setup.courses.filter((c) => c.id !== course.id).map((c) => ({ id: c.id, title: c.title }))}
           categories={setup.categories}
           currency={setup.currency}
           imageUrl={course.imageAssetId ? assetUrl(course.imageAssetId) : null}
@@ -257,7 +269,7 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
                       </>
                     ) : it.kind === "quiz" ? (
                       <>
-                        <QuizForm courseId={course.id} topicId={topic.id} current={quizValues(it.quiz)} submit={t("courses.saveQuiz")} />
+                        <QuizForm courseId={course.id} topicId={topic.id} current={quizValues(it.quiz, zone)} submit={t("courses.saveQuiz")} />
                         <form action={deleteQuizAction}>
                           <input type="hidden" name="courseId" value={course.id} />
                           <input type="hidden" name="quizId" value={it.id} />
@@ -389,6 +401,13 @@ export default async function CoursePage({ params }: PageProps<"/dashboard/cours
               <Link href={`/dashboard/courses/${course.id}/students`} className="flex items-center gap-1 text-sm font-semibold no-underline">
                 <Icon name="monitoring" size={18} />
                 {t("lms.gradebook")}
+              </Link>
+            ) : null}
+            {/* 113.7 */}
+            {enrollments.length && setup.gamification ? (
+              <Link href={`/dashboard/courses/${course.id}/leaderboard`} className="flex items-center gap-1 text-sm font-semibold no-underline">
+                <Icon name="emoji_events" size={18} />
+                {t("learning.leaderboard")}
               </Link>
             ) : null}
             <Link href={`/dashboard/courses/${course.id}/assignments`} className="flex items-center gap-1 text-sm font-semibold no-underline" data-to-grade={toGrade}>

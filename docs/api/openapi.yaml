@@ -2172,11 +2172,15 @@ paths:
       tags: [Community]
       operationId: listQuestions
       summary: List a course's questions
-      description: Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others.
+      description: Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others. Roadmap 113.7, pinned questions first; with `lesson_id`, a lesson's discussion only (404 when the lesson isn't in the course).
       parameters:
         - $ref: '#/components/parameters/CourseId'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
+        - name: lesson_id
+          in: query
+          description: Roadmap 113.7. The questions under this lesson (its discussion).
+          schema: { type: integer }
       responses:
         '200':
           description: Questions
@@ -2198,13 +2202,19 @@ paths:
       tags: [Community]
       operationId: askQuestion
       summary: Ask a question
+      description: Roadmap 113.7. With `lesson_id`, under one of the course's lessons (its discussion).
       parameters:
         - $ref: '#/components/parameters/CourseId'
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/TextInput' }
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/TextInput'
+                - type: object
+                  properties:
+                    lesson_id: { type: [integer, 'null'], description: "Roadmap 113.7. One of the course's lessons." }
       responses:
         '201':
           description: Asked
@@ -2218,6 +2228,18 @@ paths:
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /questions/{question_id}:
+    delete:
+      tags: [Community]
+      operationId: deleteQuestion
+      summary: Delete a question
+      description: Roadmap 113.7. Its author, or the course's teacher (`CourseQuestionThread.can_delete`); its answers go with it.
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
     get:
       tags: [Community]
       operationId: getQuestion
@@ -2231,6 +2253,48 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/CourseQuestionThread' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /questions/{question_id}/pin:
+    put:
+      tags: [Community]
+      operationId: pinQuestion
+      summary: Pin a question, or unpin it
+      description: Roadmap 113.7. The course's teacher (an academy with many teachers) pins a question first in its list; others get `not_teacher` (403). The academy pins from its dashboard.
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pinned]
+              properties:
+                pinned: { type: boolean }
+      responses:
+        '204': { description: Saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /questions/{question_id}/answers/{answer_id}:
+    delete:
+      tags: [Community]
+      operationId: deleteAnswer
+      summary: Delete an answer
+      description: Roadmap 113.7. Its author, or the course's teacher (`QuestionAnswer.can_delete`).
+      parameters:
+        - $ref: '#/components/parameters/QuestionId'
+        - name: answer_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204': { description: Deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -2642,6 +2706,238 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /learning-paths:
+    get:
+      tags: [Courses]
+      operationId: listLearningPaths
+      summary: The academy's learning paths
+      description: Roadmap 113.7. Courses managed in Yallapp taken one after another, each with the signed-in student's progress (empty for visitors). In a path taken in order (`in_order`) a course the student isn't in waits for the one before it (`locked`, enrolling answers `prerequisites_not_met`).
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Learning paths
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/LearningPath' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /learning-paths/{path_id}:
+    get:
+      tags: [Courses]
+      operationId: getLearningPath
+      summary: A learning path with the student's progress
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PathId'
+      responses:
+        '200':
+          description: The path
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LearningPath' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/achievements:
+    get:
+      tags: [Courses]
+      operationId: getMyAchievements
+      summary: The student's points, streak and badges
+      description: |
+        Roadmap 113.7. When the academy turned points and badges on
+        (`features.gamification`; `feature_disabled` 403 otherwise). Points:
+        10 for each lesson completed, up to 20 for each quiz passed (its best
+        score), up to 20 for each assignment done (its grade) and 5 for each
+        day of learning that follows another (a streak). `streak_days` is the
+        streak going on (to today or yesterday, in the academy's time zone).
+        Every badge comes, earned or not, with its Material Symbols icon.
+      responses:
+        '200':
+          description: Points and badges
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Achievements' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /courses/{course_id}/leaderboard:
+    get:
+      tags: [Courses]
+      operationId: getCourseLeaderboard
+      summary: A course's leaderboard
+      description: |
+        Roadmap 113.7. The course's students (or with `scope=cohort` the
+        signed-in student's cohort) by their points in the course, the top 20
+        and the student's own row, with first names and an initial only. For
+        its students and its teacher; `feature_disabled` (403) unless the
+        academy turned points and badges on.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+        - name: scope
+          in: query
+          schema: { type: string, enum: [course, cohort], default: course }
+      responses:
+        '200':
+          description: The leaderboard
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Leaderboard' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/{course_id}/notes:
+    get:
+      tags: [Courses]
+      operationId: listCourseNotes
+      summary: The student's notes and bookmarks in a course
+      description: Roadmap 113.7. Their own only, in the course's order of lessons. Enrolled students.
+      parameters:
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Notes and bookmarks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [course_id, items, bookmarks]
+                properties:
+                  course_id: { type: integer }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/LessonNote' }
+                  bookmarks:
+                    type: array
+                    items:
+                      type: object
+                      required: [lesson_id, lesson_title, created_at]
+                      properties:
+                        lesson_id: { type: integer }
+                        lesson_title: { type: string }
+                        created_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /lessons/{lesson_id}/notes:
+    get:
+      tags: [Courses]
+      operationId: listLessonNotes
+      summary: The student's notes on a lesson
+      description: Roadmap 113.7. Private to the student, oldest first; with whether they bookmarked it.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '200':
+          description: Notes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [lesson_id, bookmarked, items]
+                properties:
+                  lesson_id: { type: integer }
+                  bookmarked: { type: boolean }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/LessonNote' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Courses]
+      operationId: addLessonNote
+      summary: Write a note on a lesson
+      description: Roadmap 113.7. Up to 2000 characters, with the place in the video it was written at maybe; up to 100 notes on a lesson (`too_many_notes` 409).
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoteInput' }
+      responses:
+        '201':
+          description: The note
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LessonNote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /lessons/{lesson_id}/bookmark:
+    put:
+      tags: [Courses]
+      operationId: bookmarkLesson
+      summary: Bookmark a lesson
+      description: Roadmap 113.7.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '204': { description: Bookmarked }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Courses]
+      operationId: unbookmarkLesson
+      summary: Take a lesson's bookmark away
+      description: Roadmap 113.7.
+      parameters:
+        - $ref: '#/components/parameters/LessonId'
+      responses:
+        '204': { description: Taken away }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /notes/{note_id}:
+    patch:
+      tags: [Courses]
+      operationId: editLessonNote
+      summary: Change a note
+      description: Roadmap 113.7. The student's own (anyone else's is 404).
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoteInput' }
+      responses:
+        '200':
+          description: The note
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LessonNote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Courses]
+      operationId: deleteLessonNote
+      summary: Delete a note
+      description: Roadmap 113.7.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /quizzes/{quiz_id}:
     get:
       tags: [Quizzes]
@@ -2764,7 +3060,8 @@ paths:
       description: |
         Roadmap 112.5. Some text, a photo or a PDF (sent with `/course-uploads`),
         or both. It can be handed in again until it's graded (also when the
-        teacher sent it back, `returned`); then `already_graded` (409). After
+        teacher sent it back, `returned`); then `already_graded` (409), roadmap
+        113.7 unless the assignment allows another try (`attempts_allowed`). After
         its due date it's marked `late`. The student is told in the app when
         it's graded or sent back (`assignment_graded`).
       parameters:
@@ -6339,7 +6636,7 @@ paths:
       tags: [Teacher]
       operationId: gradeTeacherSubmission
       summary: Grade an assignment, or send it back for another try
-      description: Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`).
+      description: Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`). Roadmap 113.7 With a rubric, `rubric` gives the level chosen for each criterion and the score is their points added up.
       parameters:
         - name: submission_id
           in: path
@@ -6356,6 +6653,10 @@ paths:
                 outcome: { type: string, enum: [grade, return] }
                 score: { type: [integer, 'null'] }
                 feedback: { type: string, maxLength: 5000 }
+                rubric:
+                  type: object
+                  description: Roadmap 113.7. The level's ID for each criterion's ID.
+                  additionalProperties: { type: integer }
       responses:
         '200':
           description: The assignment as graded
@@ -7409,6 +7710,16 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    PathId:
+      name: path_id
+      in: path
+      required: true
+      schema: { type: integer }
+    NoteId:
+      name: note_id
+      in: path
+      required: true
+      schema: { type: integer }
     ProductId:
       name: product_id
       in: path
@@ -7667,6 +7978,10 @@ components:
             quizzes: { type: boolean }
             assignments: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have assignments (`GET /assignments/{assignment_id}`). Missing on older servers means false." }
             live_classes: { type: boolean, description: "Roadmap 112.5. Courses managed in Yallapp have live classes (`GET /me/live-sessions`). Missing on older servers means false." }
+            learning_paths: { type: boolean, description: "Roadmap 113.7. The academy has learning paths (`GET /learning-paths`). Missing on older servers means false." }
+            gamification: { type: boolean, description: "Roadmap 113.7. The academy turned on points and badges: `GET /me/achievements` and each course's `GET /courses/{course_id}/leaderboard`. Missing means false." }
+            notes: { type: boolean, description: "Roadmap 113.7. Students keep their own notes and bookmarks in lessons (`/lessons/{lesson_id}/notes`, `/lessons/{lesson_id}/bookmark`, `GET /courses/{course_id}/notes`). Missing means false." }
+            lesson_discussion: { type: boolean, description: "Roadmap 113.7. Each lesson has its discussion: the course's questions asked under it (`lesson_id`), pinned and deleted by the course's teacher. Missing means false." }
             wishlist: { type: boolean }
             reviews: { type: boolean }
             qna: { type: boolean }
@@ -8153,6 +8468,22 @@ components:
                 progress (on WordPress: Tutor LMS, LearnDash, LifterLMS and Sensei LMS can;
                 LearnPress only while the course allows retakes, and counts one; MasterStudy and
                 Masteriyo can't yet). Missing on older servers means false.
+            prerequisites:
+              type: array
+              description: >-
+                Roadmap 113.7. Courses to finish before enrolling in this one (its own, and the
+                course before it in a learning path taken in order), each with whether the
+                signed-in student finished it. Missing or empty: none.
+              items:
+                type: object
+                required: [id, title, completed]
+                properties:
+                  id: { type: integer }
+                  title: { type: string }
+                  completed: { type: boolean }
+            prerequisites_met:
+              type: boolean
+              description: Roadmap 113.7. False while one of `prerequisites` isn't finished; then `purchase.action` is `none` and enrolling or buying answers `prerequisites_not_met` (403). Missing means true.
             categories:
               type: array
               items: { $ref: '#/components/schemas/Category' }
@@ -8255,6 +8586,9 @@ components:
         previous_id: { type: [integer, 'null'], description: The previous lesson in the course. Quizzes and other items are skipped. }
         next_id: { type: [integer, 'null'], description: The next lesson in the course. Quizzes and other items are skipped. }
         offline: { $ref: '#/components/schemas/LessonOffline' }
+        bookmarked: { type: boolean, description: "Roadmap 113.7. The enrolled student bookmarked it (`/lessons/{lesson_id}/bookmark`)." }
+        note_count: { type: integer, description: "Roadmap 113.7. The student's own notes on it (`/lessons/{lesson_id}/notes`)." }
+        discussion_count: { type: integer, description: "Roadmap 113.7. Questions in the lesson's discussion (`GET /courses/{course_id}/questions?lesson_id=`)." }
 
     LessonOffline:
       type: object
@@ -8388,6 +8722,16 @@ components:
           type: [string, 'null']
           format: date-time
           description: Roadmap 45. When the student completed the course, when known (the LMS's record, the certificate's date, or when the app completed the last item). Null while not completed, or when the date isn't known.
+        complete_when:
+          type: string
+          enum: [lessons, quizzes, all]
+          description: "Roadmap 113.7. What completes the course (and earns its certificate), as the academy set it; `total_items` counts these: its lessons, also its quizzes passed, or also its assignments done. Missing on other servers."
+        final_score:
+          type: [integer, 'null']
+          description: Roadmap 113.7. Each quiz's best score and each assignment's grade as percents (0 until done), averaged; null when the course has neither.
+        min_final_score:
+          type: [integer, 'null']
+          description: Roadmap 113.7. The final score the course also needs to be completed; null when none.
 
     MyCourse:
       type: object
@@ -8424,8 +8768,31 @@ components:
         time_limit_seconds: { type: [integer, 'null'] }
         pass_percent: { type: [integer, 'null'] }
         attempts_allowed: { type: [integer, 'null'], description: Null means unlimited. }
-        attempts_used: { type: integer }
+        attempts_used: { type: integer, description: "Roadmap 113.7. For an exam, every attempt started." }
         last_result: { $ref: '#/components/schemas/AttemptResult' }
+        exam:
+          type: object
+          description: >-
+            Roadmap 113.7. A timed exam: started between `opens_at` and `closes_at` only
+            (`exam_not_open` and `exam_closed`, 403), each attempt ends at its time limit and no
+            later than it closes (`Attempt.ends_at`, the app counts down), and answers sent more
+            than a minute after the end are refused (`time_up`, 409; the attempt closes with
+            none). Starting again while an attempt is in progress gives that attempt back.
+            With `results_after_close`, results are `awaiting_results` until it closes.
+            Missing for a quiz that isn't an exam.
+          required: [opens_at, closes_at, status, results_after_close]
+          properties:
+            opens_at: { type: [string, 'null'], format: date-time }
+            closes_at: { type: [string, 'null'], format: date-time }
+            status: { type: string, enum: [upcoming, open, closed] }
+            results_after_close: { type: boolean }
+            in_progress:
+              type: [object, 'null']
+              description: The student's attempt still going on.
+              required: [attempt_id, ends_at]
+              properties:
+                attempt_id: { type: integer }
+                ends_at: { type: [string, 'null'], format: date-time }
 
     Attempt:
       type: object
@@ -8434,7 +8801,8 @@ components:
         id: { type: integer }
         quiz_id: { type: integer }
         started_at: { type: string, format: date-time }
-        ends_at: { type: [string, 'null'], format: date-time }
+        ends_at: { type: [string, 'null'], format: date-time, description: "When the answers must be in. Roadmap 113.7: an exam's, kept by the server (see `Quiz.exam`)." }
+        exam: { type: boolean, description: "Roadmap 113.7. The attempt is at an exam." }
         questions:
           type: array
           items: { $ref: '#/components/schemas/Question' }
@@ -8485,9 +8853,10 @@ components:
         attempt_id: { type: integer }
         quiz_id: { type: integer }
         quiz_title: { type: string }
-        status: { type: string, enum: [passed, failed, pending_review] }
+        status: { type: string, enum: [passed, failed, pending_review, awaiting_results], description: "Roadmap 113.7 `awaiting_results`: an exam whose results show once it closes (`results_at`); no score or review until then." }
         score_percent: { type: [number, 'null'] }
         finished_at: { type: [string, 'null'], format: date-time }
+        results_at: { type: [string, 'null'], format: date-time, description: "Roadmap 113.7. With `awaiting_results`, when the exam closes." }
         review:
           type: array
           description: >-
@@ -8545,11 +8914,19 @@ components:
           type: array
           items: { $ref: '#/components/schemas/Attachment' }
         accepts_files: { type: boolean, description: "A photo or a PDF can be handed in (`/course-uploads`); false: text only." }
-        can_submit: { type: boolean, description: False once it's graded. }
+        can_submit: { type: boolean, description: "False once it's graded, roadmap 113.7 unless it allows another try (`attempts_allowed`)." }
         submission:
           oneOf:
             - $ref: '#/components/schemas/AssignmentSubmission'
             - type: 'null'
+        rubric:
+          description: Roadmap 113.7. The rubric it's graded with (its levels' points add up to `max_points`); null without one.
+          oneOf:
+            - type: array
+              items: { $ref: '#/components/schemas/RubricCriterion' }
+            - type: 'null'
+        attempts_allowed: { type: integer, minimum: 1, description: "Roadmap 113.7. How many times it may be handed in (another try after a grade); 1 by default. A teacher sending it back always allows another." }
+        attempts_used: { type: integer, description: "Roadmap 113.7. The tries handed in so far." }
 
     AssignmentSubmission:
       type: object
@@ -8572,6 +8949,141 @@ components:
         submitted_at: { type: string, format: date-time }
         graded_at: { type: [string, 'null'], format: date-time }
         late: { type: boolean }
+        attempt: { type: integer, description: "Roadmap 113.7. Which try this is (1 the first)." }
+        rubric_result:
+          description: Roadmap 113.7. Once graded with a rubric, each criterion with the level the teacher chose; null otherwise.
+          oneOf:
+            - type: array
+              items: { $ref: '#/components/schemas/RubricResult' }
+            - type: 'null'
+
+    RubricCriterion:
+      type: object
+      description: Roadmap 113.7. A rubric's criterion and its levels.
+      required: [id, title, levels]
+      properties:
+        id: { type: integer }
+        title: { type: string, example: Content }
+        levels:
+          type: array
+          items:
+            type: object
+            required: [id, label, points]
+            properties:
+              id: { type: integer }
+              label: { type: string, example: Excellent }
+              points: { type: integer }
+
+    RubricResult:
+      type: object
+      required: [criterion_id, title, level_id, level_label, points, max_points]
+      properties:
+        criterion_id: { type: integer }
+        title: { type: string }
+        level_id: { type: [integer, 'null'] }
+        level_label: { type: [string, 'null'] }
+        points: { type: integer }
+        max_points: { type: integer }
+
+    LearningPath:
+      type: object
+      description: Roadmap 113.7. Courses taken one after another, with the student's progress.
+      required: [id, title, description, in_order, course_count, completed_count, percent, courses]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        in_order: { type: boolean, description: "Each course waits for the one before it." }
+        course_count: { type: integer }
+        completed_count: { type: integer }
+        percent: { type: integer, minimum: 0, maximum: 100 }
+        courses:
+          type: array
+          items:
+            type: object
+            required: [course, completed, percent, locked]
+            properties:
+              course: { $ref: '#/components/schemas/CourseSummary' }
+              completed: { type: boolean }
+              percent: { type: integer }
+              locked: { type: boolean, description: "The student can't enrol yet: a course before it (or one it needs) isn't finished." }
+              after_course_id: { type: integer, description: "In a path taken in order, the course before it that isn't finished yet." }
+
+    Achievements:
+      type: object
+      required: [points, streak_days, best_streak, badges, courses]
+      properties:
+        points: { type: integer }
+        streak_days: { type: integer }
+        best_streak: { type: integer }
+        badges:
+          type: array
+          items:
+            type: object
+            required: [id, icon, earned, earned_at]
+            properties:
+              id:
+                type: string
+                enum: [first_lesson, first_quiz, perfect_quiz, first_assignment, streak_7, course_completed, path_completed, points_500]
+              icon: { type: string, description: "A Material Symbols name (Rounded)." }
+              earned: { type: boolean }
+              earned_at: { type: [string, 'null'], format: date-time }
+        courses:
+          type: array
+          description: The courses the student has points in.
+          items:
+            type: object
+            required: [course_id, course_title, points]
+            properties:
+              course_id: { type: integer }
+              course_title: { type: string }
+              points: { type: integer }
+
+    Leaderboard:
+      type: object
+      required: [course_id, scope, cohort, total_students, my_rank, my_points, items]
+      properties:
+        course_id: { type: integer }
+        scope: { type: string, enum: [course, cohort] }
+        cohort:
+          type: [object, 'null']
+          required: [id, name]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        total_students: { type: integer }
+        my_rank: { type: [integer, 'null'] }
+        my_points: { type: [integer, 'null'] }
+        items:
+          type: array
+          items:
+            type: object
+            required: [rank, name, points, me]
+            properties:
+              rank: { type: integer }
+              name: { type: string, description: "The first name and the last name's initial." }
+              points: { type: integer }
+              me: { type: boolean }
+
+    LessonNote:
+      type: object
+      required: [id, course_id, lesson_id, lesson_title, text, position_seconds, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        lesson_id: { type: integer }
+        lesson_title: { type: string }
+        text: { type: string }
+        position_seconds: { type: [integer, 'null'], description: "Where the video was when it was written." }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    NoteInput:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 2000 }
+        position_seconds: { type: [integer, 'null'], minimum: 0 }
 
     LiveSession:
       type: object
@@ -9134,6 +9646,9 @@ components:
           description: |
             64 The business hid the question from others: only its author
             gets it (`mine`), and the app tells them so. Missing: false.
+        lesson_id: { type: [integer, 'null'], description: "Roadmap 113.7. The lesson it's under (its discussion); null for the course's own questions." }
+        lesson_title: { type: [string, 'null'] }
+        pinned: { type: boolean, description: "Roadmap 113.7. Pinned by the course's teacher or the academy (first in the list)." }
 
     QuestionAnswer:
       type: object
@@ -9149,6 +9664,7 @@ components:
           description: |
             64 The business hid the answer from others: only its author gets
             it (`mine`), and the app tells them so. Missing: false.
+        can_delete: { type: boolean, description: "Roadmap 113.7. The signed-in person may delete it (its author, or the course's teacher)." }
 
     CourseQuestionThread:
       allOf:
@@ -9156,6 +9672,8 @@ components:
         - type: object
           required: [answers]
           properties:
+            can_moderate: { type: boolean, description: "Roadmap 113.7. The signed-in person is the course's teacher, who pins and deletes." }
+            can_delete: { type: boolean, description: "Roadmap 113.7. They may delete the question." }
             answers:
               type: array
               items: { $ref: '#/components/schemas/QuestionAnswer' }
@@ -12695,6 +13213,19 @@ components:
         submitted_at: { type: string, format: date-time }
         graded_at: { type: [string, 'null'], format: date-time }
         late: { type: boolean }
+        rubric:
+          description: Roadmap 113.7. The assignment's rubric to grade with (`rubric` in the grade); null without one.
+          oneOf:
+            - type: array
+              items: { $ref: '#/components/schemas/RubricCriterion' }
+            - type: 'null'
+        rubric_result:
+          oneOf:
+            - type: array
+              items: { $ref: '#/components/schemas/RubricResult' }
+            - type: 'null'
+        attempt: { type: integer, description: "Roadmap 113.7. Which try this is." }
+        attempts_allowed: { type: integer }
 
     TeacherQuestion:
       type: object
@@ -12708,6 +13239,8 @@ components:
         answered: { type: boolean }
         answer_count: { type: integer }
         updated_at: { type: string, format: date-time }
+        lesson_title: { type: [string, 'null'], description: "Roadmap 113.7. The lesson whose discussion it's in." }
+        pinned: { type: boolean }
 
     TeacherEarnings:
       type: object

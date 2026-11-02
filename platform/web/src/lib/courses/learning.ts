@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import type { AssignmentSubmission, Course, CourseEnrollment, CourseAssignment, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
+import type { AssignmentSubmission, Course, CourseEnrollment, CourseAssignment, CourseExam, CourseLesson, CourseLiveSession, CourseQuiz, CourseSetup, CourseTopic, LessonProgress, QuizAttempt } from "../data/types";
 
 /**
  * 90.1 Academies without a website: quizzes at the end of topics, files
@@ -237,19 +237,50 @@ export function waitingForPrevious(course: Course, learner: Learner): Set<number
   return out;
 }
 
-/** Progress over the course's lessons, quizzes and 112.5 assignments, and when it was finished. */
+/** 113.7 Whether the item is one that finishes the course: its lessons, also its quizzes (`quizzes`), also its assignments (`all`, the default). */
+export function completionCounts(course: Pick<Course, "completeWhen">, item: TopicItem): boolean {
+  if (!itemCounts(item)) return false;
+  const rule = course.completeWhen ?? "all";
+  if (item.kind === "quiz") return rule !== "lessons";
+  if (item.kind === "assignment") return rule === "all";
+  return true;
+}
+
+/**
+ * 113.7 The final score: each quiz's best score and each assignment's grade
+ * (as a percent of its highest), 0 for one not taken or graded yet,
+ * averaged; null when the course has no quizzes or assignments.
+ */
+export function finalScore(course: Course, learner: Learner): number | null {
+  const parts = [
+    ...quizzesOf(course).map((q) => Math.max(0, ...learner.attempts.filter((a) => a.quizId === q.id && a.submittedAt && a.scorePercent !== null).map((a) => a.scorePercent!))),
+    ...assignmentsOf(course).map((a) => {
+      const s = (learner.submissions ?? []).find((x) => x.assignmentId === a.id);
+      return s?.status === "graded" && s.score !== null ? Math.min(100, (s.score / a.maxPoints) * 100) : 0;
+    }),
+  ];
+  return parts.length ? Math.round(parts.reduce((sum, n) => sum + n, 0) / parts.length) : null;
+}
+
+/** Progress over the course's lessons, quizzes and 112.5 assignments, and when it was finished; 113.7 by the course's rules to complete it. */
 export function courseProgress(course: Course, progress: Map<number, LessonProgress>, attempts: readonly QuizAttempt[], submissions: readonly AssignmentSubmission[] = []) {
   const learner: Learner = { progress, attempts, submissions };
   const passed = passedQuizzes(attempts);
-  const items = courseItems(course).filter(itemCounts);
+  const items = courseItems(course).filter((it) => completionCounts(course, it));
   const total = items.length;
   const done = items.filter((it) => itemDone(it, learner, passed)).length;
-  const completed = total > 0 && done === total;
+  // 113.7 A minimum final score too, when the course has one (and anything scored).
+  const score = finalScore(course, learner);
+  const min = course.minFinalScore ?? null;
+  const scored = min === null || score === null || score >= min;
+  const completed = total > 0 && done === total && scored;
+  const rule = course.completeWhen ?? "all";
   const lessonIds = new Set(items.filter((it) => it.kind === "lesson").map((it) => it.id));
-  const assignmentIds = new Set(items.filter((it) => it.kind === "assignment").map((it) => it.id));
+  const assignmentIds = new Set(courseItems(course).filter((it) => it.kind === "assignment" && (rule === "all" || min !== null)).map((it) => it.id));
+  const quizzesCount = rule !== "lessons" || min !== null;
   const times = [
     ...[...progress.values()].filter((p) => lessonIds.has(p.lessonId)).map((p) => p.completedAt?.getTime() ?? 0),
-    ...attempts.filter((a) => a.passed && a.submittedAt).map((a) => a.submittedAt!.getTime()),
+    ...(quizzesCount ? attempts.filter((a) => (a.passed || min !== null) && a.submittedAt).map((a) => a.submittedAt!.getTime()) : []),
     ...submissions.filter((s) => assignmentIds.has(s.assignmentId) && s.gradedAt).map((s) => s.gradedAt!.getTime()),
   ];
   const last = completed ? Math.max(0, ...times) : 0;
@@ -260,7 +291,38 @@ export function courseProgress(course: Course, progress: Map<number, LessonProgr
     percent: total ? Math.round((done / total) * 100) : 0,
     course_completed: completed,
     completed_at: last > 0 ? new Date(last).toISOString() : null,
+    // 113.7
+    complete_when: rule,
+    final_score: score,
+    min_final_score: min,
   };
+}
+
+// 113.7 Timed exams ---------------------------------------------------------------
+
+/** An exam's answers sent this long after its end still count (the network); later ones are refused. */
+export const EXAM_GRACE_SECONDS = 60;
+
+/** Whether an exam is yet to open, open, or closed. */
+export function examStatus(exam: CourseExam, now: Date): "upcoming" | "open" | "closed" {
+  if (exam.opensAt && now.getTime() < Date.parse(exam.opensAt)) return "upcoming";
+  if (exam.closesAt && now.getTime() >= Date.parse(exam.closesAt)) return "closed";
+  return "open";
+}
+
+/** When an attempt must be in: its time limit, and for an exam no later than it closes; null: no end. */
+export function attemptEndsAt(quiz: Pick<CourseQuiz, "timeLimitMinutes" | "exam">, startedAt: Date): Date | null {
+  const ends = [
+    ...(quiz.timeLimitMinutes ? [startedAt.getTime() + quiz.timeLimitMinutes * 60_000] : []),
+    ...(quiz.exam?.closesAt ? [Date.parse(quiz.exam.closesAt)] : []),
+  ];
+  return ends.length ? new Date(Math.min(...ends)) : null;
+}
+
+/** An exam whose results wait for it to close: hidden from its students until then. */
+export function resultsHidden(quiz: Pick<CourseQuiz, "exam">, now: Date): boolean {
+  const exam = quiz.exam;
+  return Boolean(exam?.resultsAfterClose && exam.closesAt && now.getTime() < Date.parse(exam.closesAt));
 }
 
 // Certificates ------------------------------------------------------------------

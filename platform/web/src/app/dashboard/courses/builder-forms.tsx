@@ -6,6 +6,7 @@ import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form"
 import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
 import { initialFormState } from "@/lib/forms";
+import type { RubricCriterion } from "@/lib/data/types";
 
 /** 112.5 The course builder's forms: a section's name, assignments, live classes, grading and students added at once. */
 
@@ -67,6 +68,19 @@ export function AssignmentForm({ courseId, topicId, current, submit }: { courseI
         <Field label={t("lms.dueOn")} name="dueOn" id={`${key}-due-on`} type="date" defaultValue={v.dueOn} hint={t("lms.dueOnHint")} error={e.dueOn} small />
       </div>
       <TextArea id={`${key}-files`} label={t("lms.assignmentFiles")} name="attachments" value={v.attachments} rows={2} error={e.attachments} hint={t("courses.filesHint")} />
+      {/* 113.7 A rubric, and another try after a grade. */}
+      <TextArea id={`${key}-rubric`} label={t("learning.rubric")} name="rubric" value={v.rubric} rows={5} error={e.rubric} hint={t("learning.rubricHint")} />
+      <Field
+        label={t("learning.attemptsAllowed")}
+        name="attemptsAllowed"
+        id={`${key}-attempts`}
+        inputMode="numeric"
+        defaultValue={v.attemptsAllowed}
+        hint={t("learning.attemptsAllowedHint")}
+        error={e.attemptsAllowed}
+        className="sm:max-w-[320px]"
+        small
+      />
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}
@@ -130,8 +144,8 @@ export function LiveForm({ courseId, topicId, current, submit, zone }: { courseI
   );
 }
 
-/** A score and a note, or the assignment sent back for another try. */
-export function GradeForm({ submissionId, maxPoints, current }: { submissionId: number; maxPoints: number; current: Record<string, string> }) {
+/** A score and a note, or the assignment sent back for another try. 113.7 With a rubric: a level for each criterion. */
+export function GradeForm({ submissionId, maxPoints, current, rubric = [] }: { submissionId: number; maxPoints: number; current: Record<string, string>; rubric?: RubricCriterion[] }) {
   const t = useDashT();
   const [state, action] = useActionState(gradeSubmissionAction, initialFormState);
   const v = state.values ?? current;
@@ -141,7 +155,27 @@ export function GradeForm({ submissionId, maxPoints, current }: { submissionId: 
     <form action={action} noValidate className="flex flex-col gap-3">
       <FormMessage message={state.message} ok={state.ok} />
       <input type="hidden" name="submissionId" value={submissionId} />
-      <Field label={t("lms.scoreOf", { max: maxPoints })} name="score" id={`${key}-score`} inputMode="numeric" defaultValue={v.score} error={e.score} className="sm:max-w-[220px]" small />
+      {rubric.length ? (
+        <div className="flex flex-col gap-3" data-rubric={submissionId}>
+          {rubric.map((c) => (
+            <fieldset key={c.id} className="m-0 flex flex-col gap-1.5 border-0 p-0">
+              <legend className="mb-1 text-sm font-semibold">{c.title}</legend>
+              <div className="flex flex-wrap gap-2">
+                {c.levels.map((l) => (
+                  <label key={l.id} className="flex cursor-pointer items-center gap-2 rounded-lg border border-line px-3 py-2 text-[14px]">
+                    <input type="radio" name={`rubric-${c.id}`} value={l.id} defaultChecked={v[`rubric-${c.id}`] === String(l.id)} className="h-4 w-4 accent-midnight" />
+                    {t("learning.levelPoints", { level: l.label, points: l.points })}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+          <span className="text-[13px] text-muted">{t("learning.rubricScoreHint", { max: maxPoints })}</span>
+          <FieldError id={`${key}-rubric-error`} error={e.rubric} />
+        </div>
+      ) : (
+        <Field label={t("lms.scoreOf", { max: maxPoints })} name="score" id={`${key}-score`} inputMode="numeric" defaultValue={v.score} error={e.score} className="sm:max-w-[220px]" small />
+      )}
       <TextArea id={`${key}-feedback`} label={t("lms.feedback")} name="feedback" value={v.feedback} rows={3} error={e.feedback} hint={t("lms.feedbackHint")} />
       <div className="flex flex-wrap justify-end gap-2">
         <SubmitButton variant="secondary" className="h-10" name="outcome" value="return">

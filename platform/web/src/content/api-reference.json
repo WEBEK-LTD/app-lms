@@ -359,7 +359,7 @@
           "method": "PUT",
           "path": "/assignments/{assignment_id}/submission",
           "summary": "Hand in an assignment",
-          "description": "Roadmap 112.5. Some text, a photo or a PDF (sent with `/course-uploads`), or both. It can be handed in again until it's graded (also when the teacher sent it back, `returned`); then `already_graded` (409). After its due date it's marked `late`. The student is told in the app when it's graded or sent back (`assignment_graded`).",
+          "description": "Roadmap 112.5. Some text, a photo or a PDF (sent with `/course-uploads`), or both. It can be handed in again until it's graded (also when the teacher sent it back, `returned`); then `already_graded` (409), roadmap 113.7 unless the assignment allows another try (`attempts_allowed`). After its due date it's marked `late`. The student is told in the app when it's graded or sent back (`assignment_graded`).",
           "access": "signed-in"
         },
         {
@@ -647,14 +647,14 @@
           "method": "GET",
           "path": "/courses/{course_id}/questions",
           "summary": "List a course's questions",
-          "description": "Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others.",
+          "description": "Questions students asked in the course, newest first, without their answers. Enrolled students only. A question the business hid (roadmap 64) is listed only for its author, with `hidden`, and isn't in `total` for others. Roadmap 113.7, pinned questions first; with `lesson_id`, a lesson's discussion only (404 when the lesson isn't in the course).",
           "access": "signed-in"
         },
         {
           "method": "POST",
           "path": "/courses/{course_id}/questions",
           "summary": "Ask a question",
-          "description": null,
+          "description": "Roadmap 113.7. With `lesson_id`, under one of the course's lessons (its discussion).",
           "access": "signed-in"
         },
         {
@@ -662,6 +662,27 @@
           "path": "/questions/{question_id}",
           "summary": "Get a question with its answers",
           "description": "A question the business hid (roadmap 64) is `404` to everyone but its author. Hidden answers are listed only for their author.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/questions/{question_id}",
+          "summary": "Delete a question",
+          "description": "Roadmap 113.7. Its author, or the course's teacher (`CourseQuestionThread.can_delete`); its answers go with it.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/questions/{question_id}/pin",
+          "summary": "Pin a question, or unpin it",
+          "description": "Roadmap 113.7. The course's teacher (an academy with many teachers) pins a question first in its list; others get `not_teacher` (403). The academy pins from its dashboard.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/questions/{question_id}/answers/{answer_id}",
+          "summary": "Delete an answer",
+          "description": "Roadmap 113.7. Its author, or the course's teacher (`QuestionAnswer.can_delete`).",
           "access": "signed-in"
         },
         {
@@ -1549,7 +1570,7 @@
           "method": "PUT",
           "path": "/teacher/submissions/{submission_id}/grade",
           "summary": "Grade an assignment, or send it back for another try",
-          "description": "Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`).",
+          "description": "Roadmap 112.5. `grade` with a score from 0 to the assignment's highest (and a note), or `return` with a note saying what to change. The student is told in the app (`assignment_graded`). Roadmap 113.7 With a rubric, `rubric` gives the level chosen for each criterion and the score is their points added up.",
           "access": "signed-in"
         },
         {

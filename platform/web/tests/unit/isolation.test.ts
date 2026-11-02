@@ -255,6 +255,10 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     ids.question_id = String(question.id);
     ids.answer_id = String(answer.id);
     ids.review_id = String(review.id);
+    // 113.7 Their student's private note and bookmark on the lesson.
+    const note = await store.createLessonNote({ appId: theirs.school.id, userId: student.id, courseId: 10, lessonId: 12, text: `${MARK} note`, positionSeconds: null, createdAt: NOW, updatedAt: NOW });
+    await store.setLessonBookmark({ appId: theirs.school.id, userId: student.id, courseId: 10, lessonId: 12, on: true, now: NOW });
+    ids.note_id = String(note.id);
 
     ids.article_id = String(
       (
@@ -630,6 +634,10 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       assignment_id: "1",
       live_id: "1",
       submission_id: "1",
+      // 113.7 Learning paths, notes and answers: none of these apps' own.
+      path_id: "1",
+      note_id: ids.note_id,
+      answer_id: ids.answer_id,
       service_id: "1",
       class_id: "1",
       product_id: ids.product_id,
@@ -681,7 +689,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
   function hostedKind(route: string): keyof Kinds {
     if (/^\/(me\/appointments|bookings\/services)/.test(route)) return "clinic";
     if (/^\/bookings\/classes/.test(route)) return "gym";
-    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist|teachers|teacher|assignments|live-sessions|course-uploads|me\/live-sessions)\b/.test(route)) return "school";
+    if (/^\/(courses|lessons|quizzes|questions|me\/wishlist|teachers|teacher|assignments|live-sessions|course-uploads|me\/live-sessions|learning-paths|notes|me\/achievements)\b/.test(route)) return "school";
     if (/^\/news/.test(route)) return "news";
     if (/^\/(listings|me\/favorites|me\/inquiries)/.test(route)) return "estate";
     if (/^\/(events|me\/tickets)/.test(route)) return "events";

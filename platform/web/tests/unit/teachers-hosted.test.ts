@@ -238,7 +238,7 @@ describe("105.3 academies with many teachers on the hosted API", () => {
     await store.enrollInCourse({ appId: app.id, userId: student.user.id, courseId: id, source: "paid", enrolledAt: now });
     const asked = (await call("POST", "/courses/{course_id}/questions", { params: [String(id)], token: student.access_token, body: { text: "Is the verb always first?" } })).body as { id: number };
     const waiting = (await call("GET", "/teacher/questions", { token: teacher.access_token })).body as { items: Record<string, unknown>[] };
-    expect(waiting.items).toEqual([{ id: asked.id, course_id: id, course_title: "Arabic grammar", text: "Is the verb always first?", student_name: "Omar", answered: false, answer_count: 0, updated_at: expect.any(String) }]);
+    expect(waiting.items).toEqual([{ id: asked.id, course_id: id, course_title: "Arabic grammar", text: "Is the verb always first?", student_name: "Omar", answered: false, answer_count: 0, updated_at: expect.any(String), lesson_title: null, pinned: false }]);
     // The teacher, not enrolled, reads and answers it.
     expect((await call("GET", "/questions/{question_id}", { params: [String(asked.id)], token: teacher.access_token })).status).toBe(200);
     const answer = (await call("POST", "/questions/{question_id}/answers", { params: [String(asked.id)], token: teacher.access_token, body: { text: "Not always: in a nominal sentence the noun comes first." } })).body;

@@ -11,6 +11,7 @@ import type { AssignmentStatus } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { appUrl } from "@/lib/env";
 import { mediaLink } from "@/lib/media/files";
+import { rubricResult } from "@/lib/courses/grading";
 import { GradeForm } from "../../builder-forms";
 
 export async function generateMetadata({ params }: PageProps<"/dashboard/courses/[id]/assignments">): Promise<Metadata> {
@@ -106,6 +107,8 @@ export default async function CourseAssignmentsPage({ params, searchParams }: Pa
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {late ? <Badge tone="warn">{t("lms.late")}</Badge> : null}
+                        {/* 113.7 Which try it is. */}
+                        {(a.attemptsAllowed ?? 1) > 1 ? <Badge tone="neutral">{t("learning.tryOf", { attempt: s.attempt, count: a.attemptsAllowed! })}</Badge> : null}
                         <Badge tone={status[s.status].tone}>{s.status === "graded" ? t("lms.scoreBadge", { score: s.score ?? 0, max: a.maxPoints }) : status[s.status].text}</Badge>
                       </div>
                     </div>
@@ -116,11 +119,27 @@ export default async function CourseAssignmentsPage({ params, searchParams }: Pa
                         {s.file.name}
                       </a>
                     ) : null}
+                    {/* 113.7 The rubric's levels the student was given. */}
+                    {s.status === "graded" && a.rubric?.length && s.rubric ? (
+                      <ul className="m-0 flex list-none flex-col gap-1 p-0 text-[14px]" data-rubric-result={s.id}>
+                        {(rubricResult(a.rubric, s.rubric) ?? []).map((r) => (
+                          <li key={r.criterion_id} className="flex flex-wrap justify-between gap-2">
+                            <span className="font-semibold">{r.title}</span>
+                            <span className="text-ink-4">{t("learning.levelResult", { level: r.level_label ?? "—", points: r.points, max: r.max_points })}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {s.gradedBy && s.gradedAt ? <p className="m-0 text-[13px] text-muted">{t("lms.gradedBy", { name: s.gradedBy, time: t("listings.utc", { time: date(s.gradedAt, WHEN) }) })}</p> : null}
                     <details className="rounded-lg border border-line-soft p-3" open={s.status === "submitted"}>
                       <summary className="cursor-pointer text-[15px] font-semibold">{s.status === "submitted" ? t("lms.grade") : t("lms.changeGrade")}</summary>
                       <div className="pt-3">
-                        <GradeForm submissionId={s.id} maxPoints={a.maxPoints} current={{ score: s.score === null ? "" : String(s.score), feedback: s.feedback ?? "" }} />
+                        <GradeForm
+                          submissionId={s.id}
+                          maxPoints={a.maxPoints}
+                          rubric={a.rubric}
+                          current={{ score: s.score === null ? "" : String(s.score), feedback: s.feedback ?? "", ...Object.fromEntries(Object.entries(s.rubric ?? {}).map(([c, l]) => [`rubric-${c}`, String(l)])) }}
+                        />
                       </div>
                     </details>
                   </article>
