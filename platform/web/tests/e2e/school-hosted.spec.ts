@@ -64,7 +64,7 @@ test("the school makes a School project in Yallapp Studio, not among the regular
   await own.getByRole("button", { name: "Next" }).click();
   await expect(own).toHaveURL(/\/studio\/project$/);
   const nav = own.getByRole("navigation", { name: "Project dashboard" });
-  for (const link of ["Classes", "People", "Timetable", "Calendar", "Exams", "Attendance", "Check-in", "Staff", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Behaviour", "Fees", "Permission slips", "Absence excuses", "News", "School settings"]) {
+  for (const link of ["Classes", "People", "Timetable", "Calendar", "Exams", "Attendance", "Check-in", "Staff", "Salaries", "Homework", "Grades", "Report cards", "Syllabus", "Progress", "Teachers' reports", "Report templates", "Behaviour", "Fees", "Permission slips", "Absence excuses", "News", "School settings", "University"]) {
     await expect(nav.getByRole("link", { name: link, exact: true })).toBeVisible();
   }
 

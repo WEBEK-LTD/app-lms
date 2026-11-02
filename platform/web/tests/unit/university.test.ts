@@ -5,6 +5,7 @@ import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type UniMe
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { PLAN_INFO } from "@/lib/plans";
+import { schoolReviewNotes } from "@/lib/school/review";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { parseCourseForm, parseCoursesCsv, parseSectionForm, parseTermForm, parseUniStudentsCsv, parseScaleText } from "@/lib/university/forms";
 import { academicRecord, uniData } from "@/lib/university/records";
@@ -150,6 +151,18 @@ describe("113.9 a university's rules", () => {
     const students = parseUniStudentsCsv("code,program,advisor,start_year\n1023,CS,+201110000000,2025/2026\n");
     if (!students.ok) throw new Error(students.message);
     expect(students.rows).toEqual([{ line: 2, code: "1023", program: "CS", advisor: "+201110000000", startYear: "2025/2026" }]);
+  });
+});
+
+describe("113.9 a university's review notes", () => {
+  it("tell the reviewers the university's screens, the Parent tab's and the payslips", () => {
+    const app = { appName: "Nile University", hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, reviewPhone: "+201009990000", reviewCode: "424242" } };
+    const school = schoolReviewNotes(app)!;
+    expect(school).toContain("My payslips");
+    expect(school).not.toContain("is a university");
+    const uni = schoolReviewNotes(app, { university: true })!;
+    expect(uni).toContain("The school is a university");
+    expect(uni).toContain("the Parent tab has the same pages, read only");
   });
 });
 

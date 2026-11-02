@@ -4,6 +4,7 @@ import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 import 'package:yallapp/core/services/external_links.dart';
+import 'package:yallapp/core/services/push_service.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -12,7 +13,9 @@ import '../support/test_app.dart';
 /// 113.9 A university in the app: the student's School tab (program, GPA,
 /// registration with its rules, results, transcript, study plan), a parent
 /// reading it, the lecturer's sections (grades, publishing, attendance) and
-/// the advisor approving a registration.
+/// the advisor approving a registration. 113 With the other parts: the
+/// Parent tab of a university's parent, the lecturer's payslips and the
+/// pushes.
 
 void usePhone(WidgetTester tester) {
   final view = tester.view
@@ -249,4 +252,91 @@ void main() {
     expect(find.text('Approved. The student was told.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+  test('113.9 the university\'s pushes open its pages', () {
+    expect(
+      pushTargetLocation({'type': 'uni_registration', 'student_id': '11'}),
+      '/school/uni-registration?student=11',
+    );
+    expect(
+      pushTargetLocation({'type': 'uni_seat', 'student_id': '11'}),
+      '/school/uni-registration?student=11',
+    );
+    expect(
+      pushTargetLocation({'type': 'uni_results', 'student_id': '11'}),
+      '/school/uni-results?student=11',
+    );
+    expect(
+      pushTargetLocation({'type': 'uni_advisee', 'student_id': '11'}),
+      Paths.classroomAdvisee(11),
+    );
+    expect(
+      pushTargetLocation({'type': 'uni_advisee'}),
+      Paths.classroomAdvisees,
+    );
+  });
+
+  testWidgets('113.4 a university\'s parent: the Parent tab has its pages', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final api = uniApi(['parent'])
+      ..uniRegistration = uniRegistrationJson(status: 'returned');
+    final app = TestApp(api: api, appType: AppType.school, signedIn: true);
+    await app.pump(tester);
+    // The School tab of a parent who isn't a student points to the Parent tab.
+    await push(app, tester, Paths.school);
+    expect(find.byKey(const ValueKey('school-for-parents')), findsOneWidget);
+    expect(find.byKey(const ValueKey('university-overview')), findsNothing);
+    await push(app, tester, Paths.parent);
+    expect(find.byKey(const ValueKey('parent-day')), findsOneWidget);
+    // Today's lectures instead of the class's lessons and homework.
+    expect(find.byKey(const ValueKey('parent-lessons')), findsNothing);
+    expect(find.byKey(const ValueKey('parent-homework-due')), findsNothing);
+    expect(api.count('getUniTimetable'), 1);
+    final dayList = find
+        .descendant(
+          of: find.byKey(const ValueKey('parent-day')),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    // The parents' own parts stay; the university's pages are beside them.
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('parent-slips')),
+      200,
+      scrollable: dayList,
+    );
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('parent-uni-plan')),
+      200,
+      scrollable: dayList,
+    );
+    for (final key in ['parent-grades', 'parent-report-card', 'parent-exams']) {
+      expect(find.byKey(ValueKey(key)), findsNothing);
+    }
+    await tapKey(tester, 'parent-uni-registration');
+    expect(
+      find.text('Only the student changes the registration.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('uni-submit')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    '113.12 a lecturer has My payslips and checks in like a teacher',
+    (tester) async {
+      usePhone(tester);
+      final api = uniApi(['teacher']);
+      final app = TestApp(api: api, appType: AppType.school, signedIn: true);
+      await app.pump(tester);
+      await push(app, tester, Paths.classroom);
+      expect(find.byKey(const ValueKey('lecturer-home')), findsOneWidget);
+      // Sections, not the classes' exams.
+      expect(find.byKey(const ValueKey('classroom-exams')), findsNothing);
+      expect(find.byKey(const ValueKey('classroom-calendar')), findsOneWidget);
+      await tapKey(tester, 'staff-payslips');
+      expect(api.count('listPayslips'), 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

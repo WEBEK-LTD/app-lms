@@ -66,6 +66,9 @@ abstract class PushService {
 ///   113.8 `school_exam` their exams, `school_behaviour` their behaviour;
 ///   113.4 `school_slip` the parent's permission slips, `school_excuse` the
 ///   child's absence excuses;
+///   113.9 a university's: `uni_registration` and `uni_seat` the student's
+///   registration, `uni_results` their results, `uni_advisee` the advisee
+///   in the Classroom tab;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -158,6 +161,17 @@ String pushTargetLocation(Map<String, dynamic> data) {
       return student != null
           ? Paths.parentPart('excuses', student: student)
           : Paths.parent;
+    // 113.9 A university's student (and parents) and advisors.
+    case 'uni_registration':
+    case 'uni_seat':
+      return Paths.schoolPart('uni-registration', student: id('student_id'));
+    case 'uni_results':
+      return Paths.schoolPart('uni-results', student: id('student_id'));
+    case 'uni_advisee':
+      final advisee = id('student_id');
+      return advisee != null
+          ? Paths.classroomAdvisee(advisee)
+          : Paths.classroomAdvisees;
     // 113.8
     case 'school_exam':
       return Paths.schoolPart('exams', student: id('student_id'));

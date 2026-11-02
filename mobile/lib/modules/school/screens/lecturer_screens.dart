@@ -12,15 +12,22 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../data/school_providers.dart';
 import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart' show CheckinCard;
+import 'classroom_screens.dart' show BusDutyEntry, SchoolStaffEntries;
+import 'messages_screen.dart' show SchoolMessagesTile;
+import 'staff_screens.dart' show StaffTiles;
 import 'university_screens.dart'
     show meetingsText, uniEnrolmentLabel, uniStatusLabel, uniStatusTone;
 
 /// 113.9 The Classroom tab of a university, for its lecturers: their
 /// sections this term (each lecture's attendance, the grades and publishing
 /// the results) and the students they advise (approving their registration
-/// or sending it back).
+/// or sending it back); 113 like every teacher, checking in and out, bus
+/// duty, messages, their leave, the staff's news, their payslips, the
+/// calendar and the library.
 class LecturerHomeView extends ConsumerWidget {
   const LecturerHomeView({super.key});
 
@@ -30,11 +37,17 @@ class LecturerHomeView extends ConsumerWidget {
     final l10n = context.l10n;
     return switch (ref.watch(lecturerHomeProvider)) {
       AsyncValue(value: final home?) => RefreshIndicator(
-        onRefresh: () async => ref.invalidate(lecturerHomeProvider),
+        onRefresh: () async => ref
+          ..invalidate(lecturerHomeProvider)
+          ..invalidate(checkinTodayProvider),
         child: ListView(
           key: const ValueKey('lecturer-home'),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           children: [
+            // 113.2 A lecturer checks in and out like every teacher;
+            // 113.10 bus duty.
+            const CheckinCard(),
+            const BusDutyEntry(),
             if (home.term != null)
               Text(
                 home.term!.name,
@@ -101,6 +114,14 @@ class LecturerHomeView extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
             ],
+            // 113.6 Messages; 113.3 their leave and the staff's news, 113.12
+            // their payslips; 113.8 the calendar and 113.11 the library.
+            const SizedBox(height: 10),
+            const AppCard(child: SchoolMessagesTile(teacher: true)),
+            const SizedBox(height: 20),
+            const StaffTiles(),
+            const SizedBox(height: 10),
+            const SchoolStaffEntries(classroom: true, exams: false),
           ],
         ),
       ),

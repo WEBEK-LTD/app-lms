@@ -11553,7 +11553,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -11608,6 +11608,13 @@ components:
             children, or one they haven't answered is due tomorrow, and opens the slips;
             `school_excuse` (with `student_id`): the school accepted or declined an excuse
             for the child's absence, and opens the child's excuses.
+            113.9 In a university (each with `student_id`): `uni_registration` (with
+            `term_id`), the advisor approved the student's registration or sent it back, and
+            opens it; `uni_seat` (with `term_id`), a seat came free from the waiting list, and
+            opens the registration; `uni_results`, a section's results were published, and
+            opens the student's results (the student's and their parents' pushes alike);
+            `uni_advisee` (with `term_id`), an advisee's registration waits for the advisor,
+            and opens that advisee in the Classroom tab.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -17230,7 +17237,7 @@ components:
               oneOf:
                 - $ref: '#/components/schemas/UniProgram'
                 - type: 'null'
-            pdf_url: { type: [string, 'null'], format: uri, description: The transcript as a PDF, for an hour. }
+            pdf_url: { type: [string, 'null'], format: uri, description: "The transcript as a PDF, for an hour." }
 
     UniStudyPlan:
       type: object

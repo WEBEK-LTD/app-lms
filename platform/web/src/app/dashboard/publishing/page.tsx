@@ -39,6 +39,7 @@ import { ReviewSection } from "./review-section";
 import { courierAppNameOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { reviewNotes } from "@/lib/delivery/review";
 import { schoolReviewNotes } from "@/lib/school/review";
+import { loadUniSettings, universityOn } from "@/lib/university/settings";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { readiness } from "@/lib/publishing/readiness";
 import { REJECTION_LINK } from "@/lib/publishing/review";
@@ -121,7 +122,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
   const notes = delivery ? reviewNotes(app, delivery) : null;
   // 105.4.7b A school's notes: the one review sign-in and where each role is.
-  const schoolNotes = app.connector?.kind === "school" ? schoolReviewNotes(app) : null;
+  // 113.9 And whether it is a university.
+  const schoolNotes = app.connector?.kind === "school" ? schoolReviewNotes(app, { university: universityOn(app, current, await loadUniSettings(store, app.id)) }) : null;
   const deliveryNotes = notes && delivery ? { ...notes, courierName: courierAppNameOf(app, delivery), driver: secondAppRoleOf(app) === "driver" } : schoolNotes ? { customer: schoolNotes, courier: null, courierName: "" } : null;
 
   // 41 Every store Yallapp publishes to.

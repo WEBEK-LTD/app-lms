@@ -20,10 +20,12 @@ import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/parent_providers.dart';
 import '../data/school_providers.dart';
+import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show checkinDayLine, checkinStateLabel;
 import 'messages_screen.dart' show SchoolMessagesTile;
 import 'student_screens.dart' show FileTile;
+import 'university_screens.dart' show UniToday;
 
 /// 113.4 The Parent tab, which only the school's parents see (added for
 /// them, see `withParentTab`): one account for all their children, each
@@ -136,7 +138,8 @@ class _ChildDayView extends ConsumerWidget {
       onRefresh: () async {
         ref
           ..invalidate(childDayProvider(id))
-          ..invalidate(parentMeProvider);
+          ..invalidate(parentMeProvider)
+          ..invalidate(uniTimetableProvider(id));
       },
       child: switch (ref.watch(childDayProvider(id))) {
         AsyncValue(value: final day?) => _Day(me: me, day: day),
@@ -163,6 +166,9 @@ class _Day extends ConsumerWidget {
     final student = day.student;
     final id = student.id;
     final config = ref.watch(schoolConfigProvider);
+    // 113.9 A university's student: their lectures, registration (read
+    // only), results, transcript and plan instead of the classes' parts.
+    final uni = ref.watch(isUniversityProvider);
     void open(String part) => context.push(Paths.schoolPart(part, student: id));
     void openParent(String part) =>
         context.push(Paths.parentPart(part, student: id));
@@ -265,10 +271,12 @@ class _Day extends ConsumerWidget {
         const SizedBox(height: 20),
         SectionHeader(
           title: l10n.schoolToday,
-          onSeeAll: () => open('timetable'),
+          onSeeAll: () => open(uni ? 'uni-timetable' : 'timetable'),
         ),
         const SizedBox(height: 4),
-        if (day.lessons.isEmpty)
+        if (uni)
+          UniToday(studentId: id)
+        else if (day.lessons.isEmpty)
           Text(l10n.schoolNoLessonsToday, style: small)
         else
           AppCard(
@@ -280,25 +288,27 @@ class _Day extends ConsumerWidget {
               ],
             ),
           ),
-        const SizedBox(height: 20),
-        SectionHeader(
-          title: l10n.schoolHomework,
-          onSeeAll: () => open('homework'),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.parentHomeworkDue(day.homeworkDue),
-          key: const ValueKey('parent-homework-due'),
-          style: small,
-        ),
-        for (final h in day.homework)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              '${h.subject} · ${h.title} · ${isoDayLabel(h.dueOn)}',
-              style: strong,
-            ),
+        if (!uni) ...[
+          const SizedBox(height: 20),
+          SectionHeader(
+            title: l10n.schoolHomework,
+            onSeeAll: () => open('homework'),
           ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.parentHomeworkDue(day.homeworkDue),
+            key: const ValueKey('parent-homework-due'),
+            style: small,
+          ),
+          for (final h in day.homework)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                '${h.subject} · ${h.title} · ${isoDayLabel(h.dueOn)}',
+                style: strong,
+              ),
+            ),
+        ],
         if (day.grades.isNotEmpty) ...[
           const SizedBox(height: 20),
           SectionHeader(
@@ -434,30 +444,63 @@ class _Day extends ConsumerWidget {
               title: l10n.schoolCalendar,
               onTap: () => open('calendar'),
             ),
-            SettingsTile(
-              key: const ValueKey('parent-exams'),
-              icon: AppIcons.quiz,
-              title: l10n.schoolExams,
-              onTap: () => open('exams'),
-            ),
-            SettingsTile(
-              key: const ValueKey('parent-attendance'),
-              icon: AppIcons.attendance,
-              title: l10n.schoolAttendance,
-              onTap: () => open('attendance'),
-            ),
-            SettingsTile(
-              key: const ValueKey('parent-grades'),
-              icon: AppIcons.certificate,
-              title: l10n.schoolGrades,
-              onTap: () => open('grades'),
-            ),
-            SettingsTile(
-              key: const ValueKey('parent-report-card'),
-              icon: AppIcons.assignment,
-              title: l10n.reportCard,
-              onTap: () => open('report-card'),
-            ),
+            if (uni) ...[
+              SettingsTile(
+                key: const ValueKey('parent-uni-registration'),
+                icon: AppIcons.assignment,
+                title: l10n.uniRegister,
+                onTap: () => open('uni-registration'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-uni-timetable'),
+                icon: AppIcons.calendar,
+                title: l10n.uniTimetable,
+                onTap: () => open('uni-timetable'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-uni-results'),
+                icon: AppIcons.certificate,
+                title: l10n.uniResults,
+                onTap: () => open('uni-results'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-uni-transcript'),
+                icon: AppIcons.file,
+                title: l10n.uniTranscript,
+                onTap: () => open('uni-transcript'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-uni-plan'),
+                icon: AppIcons.list,
+                title: l10n.uniStudyPlan,
+                onTap: () => open('uni-plan'),
+              ),
+            ] else ...[
+              SettingsTile(
+                key: const ValueKey('parent-exams'),
+                icon: AppIcons.quiz,
+                title: l10n.schoolExams,
+                onTap: () => open('exams'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-attendance'),
+                icon: AppIcons.attendance,
+                title: l10n.schoolAttendance,
+                onTap: () => open('attendance'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-grades'),
+                icon: AppIcons.certificate,
+                title: l10n.schoolGrades,
+                onTap: () => open('grades'),
+              ),
+              SettingsTile(
+                key: const ValueKey('parent-report-card'),
+                icon: AppIcons.assignment,
+                title: l10n.reportCard,
+                onTap: () => open('report-card'),
+              ),
+            ],
             if (config?.library ?? false)
               SettingsTile(
                 key: const ValueKey('parent-library'),

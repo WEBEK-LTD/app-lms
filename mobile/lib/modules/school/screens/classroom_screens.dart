@@ -1661,9 +1661,16 @@ class BusDutyEntry extends ConsumerWidget {
 /// staff see the staff's own events on it too), a teacher's exams in the
 /// Classroom tab ([classroom]), and 113.11 the library.
 class SchoolStaffEntries extends StatelessWidget {
-  const SchoolStaffEntries({super.key, this.classroom = false});
+  const SchoolStaffEntries({
+    super.key,
+    this.classroom = false,
+    this.exams = true,
+  });
 
   final bool classroom;
+
+  /// 113.9 A university's lecturers have sections, not the classes' exams.
+  final bool exams;
 
   @override
   Widget build(BuildContext context) {
@@ -1679,7 +1686,7 @@ class SchoolStaffEntries extends StatelessWidget {
             classroom ? '${Paths.classroom}/calendar' : Paths.staffCalendar,
           ),
         ),
-        if (classroom)
+        if (classroom && exams)
           SettingsTile(
             key: const ValueKey('classroom-exams'),
             icon: AppIcons.quiz,

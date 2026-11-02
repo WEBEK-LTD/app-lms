@@ -16,11 +16,15 @@ import '../../../core/widgets/common.dart';
 import '../data/school_providers.dart';
 import '../data/university_providers.dart';
 import '../widgets/school_widgets.dart';
+import 'checkin_screens.dart' show CheckinCard;
+import 'library_screens.dart' show LibraryTile;
+import 'messages_screen.dart' show SchoolMessagesTile;
 
-/// 113.9 A university student's part of the School tab, for them and their
-/// parents: the program and GPA, registering in the term's sections (sent
-/// to the advisor), the week of lectures, results by term, the transcript
-/// (and its PDF) and the study plan. Parents see it read only.
+/// 113.9 A university student's part of the School tab: the program and
+/// GPA, registering in the term's sections (sent to the advisor), the week
+/// of lectures, results by term, the transcript (and its PDF) and the study
+/// plan. 113.4 Their parents open the same pages from the Parent tab, read
+/// only.
 
 String uniStatusLabel(AppLocalizations l10n, UniRegistrationStatus s) =>
     switch (s) {
@@ -85,7 +89,8 @@ class UniversityOverview extends ConsumerWidget {
       onRefresh: () async {
         ref
           ..invalidate(universityStudentProvider(id))
-          ..invalidate(uniTimetableProvider(id));
+          ..invalidate(uniTimetableProvider(id))
+          ..invalidate(checkinTodayProvider);
       },
       child: ListView(
         key: const ValueKey('university-overview'),
@@ -200,12 +205,14 @@ class UniversityOverview extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: 20),
+          // 113.2 A student checks in and out.
+          const CheckinCard(),
           SectionHeader(
             title: l10n.schoolToday,
             onSeeAll: () => open('uni-timetable'),
           ),
           const SizedBox(height: 4),
-          _Today(studentId: id),
+          UniToday(studentId: id),
           const SizedBox(height: 20),
           SettingsGroup(
             title: l10n.schoolEverything,
@@ -247,12 +254,29 @@ class UniversityOverview extends ConsumerWidget {
                 subtitle: fees == null ? null : l10n.feesDue(fees.dueFormatted),
                 onTap: () => open('fees'),
               ),
+              // 113.8 The calendar.
+              SettingsTile(
+                key: const ValueKey('school-calendar'),
+                icon: AppIcons.event,
+                title: l10n.schoolCalendar,
+                onTap: () => open('calendar'),
+              ),
               SettingsTile(
                 key: const ValueKey('school-news'),
                 icon: AppIcons.campaignUpdate,
                 title: l10n.schoolNews,
                 onTap: () => open('news'),
               ),
+              // 113.6 Messages; 113.10 the bus; 113.11 the library.
+              const SchoolMessagesTile(teacher: false),
+              if (ref.watch(schoolConfigProvider)?.bus ?? false)
+                SettingsTile(
+                  key: const ValueKey('school-bus'),
+                  icon: AppIcons.bus,
+                  title: l10n.schoolBus,
+                  onTap: () => open('bus'),
+                ),
+              const LibraryTile(),
             ],
           ),
         ],
@@ -261,8 +285,10 @@ class UniversityOverview extends ConsumerWidget {
   }
 }
 
-class _Today extends ConsumerWidget {
-  const _Today({required this.studentId});
+/// Today's lectures, from the week's (the School tab and 113.4 the Parent
+/// tab).
+class UniToday extends ConsumerWidget {
+  const UniToday({super.key, required this.studentId});
 
   final int studentId;
 
@@ -380,7 +406,11 @@ class UniRegistrationScreen extends StatelessWidget {
     title: context.l10n.uniRegister,
     student: student,
     builder: (context, me, s) =>
-        _Registration(studentId: s.id, readOnly: !me.isStudent),
+        // 113.4 Only the student changes it; their parents see it.
+        _Registration(
+          studentId: s.id,
+          readOnly: !me.isStudent || me.students.first.id != s.id,
+        ),
   );
 }
 

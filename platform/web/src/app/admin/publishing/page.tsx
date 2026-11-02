@@ -11,6 +11,7 @@ import { reviewNotesFor } from "@/lib/publishing/review-notes";
 import { reviewSignIn } from "@/lib/publishing/review-account";
 import { reviewNotes } from "@/lib/delivery/review";
 import { schoolReviewNotes } from "@/lib/school/review";
+import { loadUniSettings } from "@/lib/university/settings";
 import { hasCourierJobs } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { encryptionKey } from "@/lib/env";
@@ -69,7 +70,7 @@ export default async function PublishingQueuePage({ searchParams }: PageProps<"/
       ]);
       const user = client ? await store.getUserById(client.userId) : null;
       // 104.7 A delivery app's notes for the reviewers of both apps.
-      const school = app?.connector?.kind === "school" ? schoolReviewNotes(app) : null;
+      const school = app?.connector?.kind === "school" ? schoolReviewNotes(app, { university: (await loadUniSettings(store, app.id)).enabled }) : null;
       // 105.4.7b A school's notes for the reviewers: one sign-in, each role.
       const deliveryNotes = app && hasCourierJobs(app) ? reviewNotes(app, deliverySettingsOf(await store.getDeliverySettings(app.id))) : school ? { customer: school, courier: null } : null;
       return { request, client, user, app, events, deliveryNotes };
