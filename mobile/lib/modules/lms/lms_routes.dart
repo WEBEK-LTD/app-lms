@@ -20,6 +20,7 @@ import 'courses/courses_screen.dart';
 import 'downloads/downloads_screen.dart';
 import 'home/home_screen.dart';
 import 'lesson/lesson_screen.dart';
+import 'learning/learning_screens.dart';
 import 'my_courses/my_courses_screen.dart';
 import 'quiz/quiz_screen.dart';
 import 'teachers/teach_apply_screen.dart';
@@ -169,6 +170,13 @@ List<TabScreen> _screens() => [
           pageBuilder: (context, state) =>
               appPage(state, const LiveClassesScreen()),
         ),
+        // 113.7 The student's points and badges.
+        GoRoute(
+          path: 'achievements',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) =>
+              appPage(state, const AchievementsScreen()),
+        ),
         // 45 Lessons saved for offline viewing.
         GoRoute(
           path: 'downloads',
@@ -213,6 +221,55 @@ List<RouteBase> _pushedRoutes() => [
       return appPage(
         state,
         id == null ? const NotFoundScreen() : TeacherCourseScreen(courseId: id),
+      );
+    },
+  ),
+  // 113.7 Learning paths, a course's leaderboard and the student's notes in
+  // it, a lesson's discussion.
+  GoRoute(
+    path: Paths.learningPaths,
+    pageBuilder: (context, state) =>
+        appPage(state, const LearningPathsScreen()),
+  ),
+  GoRoute(
+    path: '/learning-path/:id',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : LearningPathScreen(pathId: id),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/course/:id/leaderboard',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : LeaderboardScreen(courseId: id),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/course/:id/notes',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null ? const NotFoundScreen() : CourseNotesScreen(courseId: id),
+      );
+    },
+  ),
+  GoRoute(
+    path: '/lesson/:id/discussion',
+    pageBuilder: (context, state) {
+      final id = intParam(state, 'id');
+      return appPage(
+        state,
+        id == null
+            ? const NotFoundScreen()
+            : LessonDiscussionScreen(lessonId: id),
       );
     },
   ),

@@ -10593,6 +10593,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue without a coupon'**
   String get couponWithout;
+
+  /// 113.7 An exam's attempt whose results show once it closes.
+  ///
+  /// In en, this message translates to:
+  /// **'Results after the exam closes'**
+  String get attemptAwaitingResults;
+
+  /// 113.7 Account and the screen title: the academy's learning paths.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning paths'**
+  String get learningPaths;
+
+  /// 113.7 The learning paths list when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No learning paths yet'**
+  String get noLearningPaths;
+
+  /// 113.7 How far the student got in a learning path.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} courses completed'**
+  String pathProgress(int done, int total);
+
+  /// 113.7 A learning path whose courses open one after another.
+  ///
+  /// In en, this message translates to:
+  /// **'Take these courses in order'**
+  String get pathInOrder;
+
+  /// 113.7 A course of a learning path that waits for the one before it.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens after the course before it'**
+  String get pathLocked;
+
+  /// 113.7 A course the student completed (a learning path, the courses a course needs).
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get courseDoneLabel;
+
+  /// 113.7 A course page: the courses to finish before enrolling.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish these courses first'**
+  String get prerequisitesTitle;
+
+  /// 113.7 Under the courses a course needs first.
+  ///
+  /// In en, this message translates to:
+  /// **'You can enrol once you\'ve completed them.'**
+  String get prerequisitesHint;
+
+  /// 113.7 A course page: the student's final score (the quizzes' and assignments').
+  ///
+  /// In en, this message translates to:
+  /// **'Final score: {score}%'**
+  String finalScore(int score);
+
+  /// 113.7 A course page: the final score and the one the course needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Final score: {score}% · {min}% needed to complete it'**
+  String finalScoreNeeded(int score, int min);
+
+  /// 113.7 Account and the screen title: the student's points and badges.
+  ///
+  /// In en, this message translates to:
+  /// **'Points and badges'**
+  String get achievementsTitle;
+
+  /// 113.7 A number of points.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 point} other{{count} points}}'**
+  String pointsCount(int count);
+
+  /// 113.7 The days in a row the student learned, to today.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1-day streak} other{{count}-day streak}}'**
+  String streakDays(int count);
+
+  /// 113.7 The longest streak the student had.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Best streak: 1 day} other{Best streak: {count} days}}'**
+  String bestStreak(int count);
+
+  /// 113.7 The badges on the points and badges screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get badgesTitle;
+
+  /// 113.7 A badge the student hasn't earned yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get badgeNotYet;
+
+  /// 113.7 A badge: the first lesson completed.
+  ///
+  /// In en, this message translates to:
+  /// **'First lesson'**
+  String get badgeFirstLesson;
+
+  /// 113.7 A badge: the first quiz passed.
+  ///
+  /// In en, this message translates to:
+  /// **'First quiz passed'**
+  String get badgeFirstQuiz;
+
+  /// 113.7 A badge: a quiz with every answer right.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect quiz'**
+  String get badgePerfectQuiz;
+
+  /// 113.7 A badge: the first assignment done.
+  ///
+  /// In en, this message translates to:
+  /// **'First assignment'**
+  String get badgeFirstAssignment;
+
+  /// 113.7 A badge: learning seven days in a row.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day streak'**
+  String get badgeStreak7;
+
+  /// 113.7 A badge: a course completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Course completed'**
+  String get badgeCourseCompleted;
+
+  /// 113.7 A badge: a learning path completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Path completed'**
+  String get badgePathCompleted;
+
+  /// 113.7 A badge: 500 points earned.
+  ///
+  /// In en, this message translates to:
+  /// **'500 points'**
+  String get badgePoints500;
+
+  /// 113.7 A course's leaderboard: its button and screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get leaderboardTitle;
+
+  /// 113.7 The leaderboard of the whole course.
+  ///
+  /// In en, this message translates to:
+  /// **'Course'**
+  String get leaderboardCourse;
+
+  /// 113.7 The leaderboard of the student's own cohort.
+  ///
+  /// In en, this message translates to:
+  /// **'My cohort'**
+  String get leaderboardCohort;
+
+  /// 113.7 The student's place on the leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re #{rank} of {total}'**
+  String leaderboardRank(int rank, int total);
+
+  /// 113.7 A leaderboard without students.
+  ///
+  /// In en, this message translates to:
+  /// **'No one on the leaderboard yet'**
+  String get leaderboardEmpty;
+
+  /// 113.7 Under a leaderboard: how names show.
+  ///
+  /// In en, this message translates to:
+  /// **'Only first names and an initial are shown.'**
+  String get leaderboardPrivacy;
+
+  /// 113.7 The student's own row on a leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get leaderboardYou;
+
+  /// 113.7 A course page: the student's notes and bookmarks in it.
+  ///
+  /// In en, this message translates to:
+  /// **'My notes'**
+  String get myNotes;
+
+  /// 113.7 A lesson's notes: the button and the sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// 113.7 Under the student's notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see your notes.'**
+  String get notesPrivate;
+
+  /// 113.7 The notes when there are none.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get noNotes;
+
+  /// 113.7 The field for a new note on a lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a note for yourself'**
+  String get noteHint;
+
+  /// 113.7 Saves a new note on a lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get addNote;
+
+  /// 113.7 Where the video was when a note was written.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String noteAt(String time);
+
+  /// 113.7 Changes a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get editNote;
+
+  /// 113.7 Deletes a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get deleteNote;
+
+  /// 113.7 Bookmarks a lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get bookmarkLesson;
+
+  /// 113.7 Takes a lesson's bookmark away.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get removeBookmark;
+
+  /// 113.7 The lessons the student bookmarked in a course.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarksTitle;
+
+  /// 113.7 A lesson's discussion: its button and screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get lessonDiscussion;
+
+  /// 113.7 How many questions a lesson's discussion has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No questions yet} =1{1 question} other{{count} questions}}'**
+  String discussionCount(int count);
+
+  /// 113.7 The field for a question in a lesson's discussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about this lesson'**
+  String get askAboutLesson;
+
+  /// 113.7 A question the teacher pinned first.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get pinnedLabel;
+
+  /// 113.7 The course's teacher pins a question first.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get pinQuestion;
+
+  /// 113.7 The course's teacher unpins a question.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get unpinQuestion;
+
+  /// 113.7 Deletes a question (its author or the teacher).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete question'**
+  String get deleteQuestion;
+
+  /// 113.7 Deletes an answer (its author or the teacher).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete answer'**
+  String get deleteAnswer;
+
+  /// 113.7 Asks before deleting a note, a question or an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete it? This can\'t be undone.'**
+  String get deleteConfirm;
+
+  /// 113.7 A quiz that is a timed exam.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam'**
+  String get examLabel;
+
+  /// 113.7 When an exam opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {time}'**
+  String examOpensAt(String time);
+
+  /// 113.7 When an exam closes.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes {time}'**
+  String examClosesAt(String time);
+
+  /// 113.7 An exam before it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam isn\'t open yet'**
+  String get examNotOpen;
+
+  /// 113.7 An exam after it closed.
+  ///
+  /// In en, this message translates to:
+  /// **'This exam has closed'**
+  String get examClosed;
+
+  /// 113.7 Goes back to an exam's attempt that's going on.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the exam'**
+  String get examResume;
+
+  /// 113.7 When an exam's results show.
+  ///
+  /// In en, this message translates to:
+  /// **'Your results show on {time}'**
+  String examResultsAt(String time);
+
+  /// 113.7 An exam's answers sent after its time.
+  ///
+  /// In en, this message translates to:
+  /// **'The time was over: your answers came too late.'**
+  String get examTimeUp;
+
+  /// 113.7 On an exam's page, before starting.
+  ///
+  /// In en, this message translates to:
+  /// **'The time keeps running if you leave the app.'**
+  String get examTimedHint;
+
+  /// 113.7 An assignment's rubric (criteria and levels).
+  ///
+  /// In en, this message translates to:
+  /// **'Rubric'**
+  String get rubricTitle;
+
+  /// 113.7 A rubric criterion's points out of its highest.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} of {max}'**
+  String rubricPoints(int points, int max);
+
+  /// 113.7 A rubric level and its points.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} · {points}'**
+  String rubricLevelPoints(String level, int points);
+
+  /// 113.7 Grading with a rubric in the Teacher tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a level for each criterion'**
+  String get rubricChooseAll;
+
+  /// 113.7 The rubric's levels added up while grading.
+  ///
+  /// In en, this message translates to:
+  /// **'Score: {score} of {max}'**
+  String rubricTotal(int score, int max);
+
+  /// 113.7 Which try of an assignment it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Try {attempt} of {total}'**
+  String tryOf(int attempt, int total);
+
+  /// 113.7 A graded assignment that allows more tries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You can hand it in again once.} other{You can hand it in again {count} times.}}'**
+  String triesLeft(int count);
+
+  /// 113.7 Hands a graded assignment in again (another try).
+  ///
+  /// In en, this message translates to:
+  /// **'Hand in again'**
+  String get handInAgain;
 }
 
 class _AppLocalizationsDelegate

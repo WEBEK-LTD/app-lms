@@ -558,6 +558,7 @@ class QuestionAnswer {
     required this.createdAt,
     required this.mine,
     this.hidden = false,
+    this.canDelete = false,
   });
 
   factory QuestionAnswer.fromJson(Json json) => QuestionAnswer(
@@ -567,6 +568,7 @@ class QuestionAnswer {
     createdAt: reqDate(json, 'created_at'),
     mine: boolOr(json, 'mine', false),
     hidden: boolOr(json, 'hidden', false),
+    canDelete: boolOr(json, 'can_delete', false),
   );
 
   final int id;
@@ -577,6 +579,9 @@ class QuestionAnswer {
 
   /// 64 Hidden by the business: only its author gets it, and is told.
   final bool hidden;
+
+  /// 113.7 Its author, or the course's teacher, may delete it.
+  final bool canDelete;
 }
 
 /// A question in a course's Q&A, without its answers.
@@ -590,6 +595,9 @@ class CourseQuestion {
     required this.mine,
     this.courseId,
     this.hidden = false,
+    this.lessonId,
+    this.lessonTitle,
+    this.pinned = false,
   });
 
   factory CourseQuestion.fromJson(Json json) => CourseQuestion(
@@ -601,6 +609,9 @@ class CourseQuestion {
     answerCount: intOr(json, 'answer_count', 0),
     mine: boolOr(json, 'mine', false),
     hidden: boolOr(json, 'hidden', false),
+    lessonId: optInt(json, 'lesson_id'),
+    lessonTitle: optString(json, 'lesson_title'),
+    pinned: boolOr(json, 'pinned', false),
   );
 
   final int id;
@@ -613,19 +624,36 @@ class CourseQuestion {
 
   /// 64 Hidden by the business: only its author gets it, and is told.
   final bool hidden;
+
+  /// 113.7 Under a lesson (its discussion), and pinned first.
+  final int? lessonId;
+  final String? lessonTitle;
+  final bool pinned;
 }
 
 /// `GET /questions/{id}`: a question and its answers, oldest first.
 class QuestionThread {
-  const QuestionThread({required this.question, required this.answers});
+  const QuestionThread({
+    required this.question,
+    required this.answers,
+    this.canModerate = false,
+    this.canDelete = false,
+  });
 
   factory QuestionThread.fromJson(Json json) => QuestionThread(
     question: CourseQuestion.fromJson(json),
     answers: reqListOf(json, 'answers', QuestionAnswer.fromJson),
+    canModerate: boolOr(json, 'can_moderate', false),
+    canDelete: boolOr(json, 'can_delete', false),
   );
 
   final CourseQuestion question;
   final List<QuestionAnswer> answers;
+
+  /// 113.7 The signed-in person is the course's teacher (pins, deletes);
+  /// they may delete the question.
+  final bool canModerate;
+  final bool canDelete;
 }
 
 /// 48 What an address on the site is (`GET /links/resolve`, `LinkResolution`):

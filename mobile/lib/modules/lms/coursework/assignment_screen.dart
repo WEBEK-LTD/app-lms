@@ -19,6 +19,7 @@ import '../../school/screens/student_screens.dart' show FileTile;
 import '../../shared/account/account_scaffold.dart';
 import '../lesson/content/html_content.dart';
 import '../teachers/teacher_widgets.dart' show LabeledField;
+import '../learning/rubric_widgets.dart';
 import '../data/lms_providers.dart';
 import 'coursework_providers.dart';
 
@@ -152,7 +153,14 @@ class _AssignmentBodyState extends ConsumerState<_AssignmentBody> {
       if (a.dueAt != null) l10n.homeworkDueOn(dayAndTime(a.dueAt!)),
       l10n.assignmentOutOf(a.maxPoints),
       if (a.passPoints != null) l10n.assignmentPassScore(a.passPoints!),
+      // 113.7 The tries it allows.
+      if (a.attemptsAllowed > 1)
+        l10n.tryOf(
+          submission == null ? 1 : submission.attempt,
+          a.attemptsAllowed,
+        ),
     ];
+    final again = submission?.status == SubmissionStatus.graded && a.canSubmit;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -169,6 +177,14 @@ class _AssignmentBodyState extends ConsumerState<_AssignmentBody> {
         if (a.instructionsHtml.trim().isNotEmpty) ...[
           const SizedBox(height: 12),
           HtmlContent(html: a.instructionsHtml),
+        ],
+        // 113.7 The rubric it's graded with, until it is.
+        if (a.rubric.isNotEmpty &&
+            submission?.status != SubmissionStatus.graded) ...[
+          const SizedBox(height: 12),
+          SectionHeader(title: l10n.rubricTitle, size: 16),
+          const SizedBox(height: 6),
+          RubricView(rubric: a.rubric),
         ],
         if (a.attachments.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -196,6 +212,14 @@ class _AssignmentBodyState extends ConsumerState<_AssignmentBody> {
               l10n.homeworkLate,
               style: TextStyle(fontSize: 13, color: p.danger),
             ),
+        ],
+        if (again) ...[
+          const SizedBox(height: 12),
+          Text(
+            l10n.triesLeft(a.attemptsAllowed - a.attemptsUsed),
+            key: const ValueKey('assignment-tries'),
+            style: TextStyle(fontSize: 14, color: p.textSecondary),
+          ),
         ],
         if (a.canSubmit) ...[
           const SizedBox(height: 16),
@@ -248,6 +272,8 @@ class _AssignmentBodyState extends ConsumerState<_AssignmentBody> {
             key: const ValueKey('assignment-send'),
             label: submission == null
                 ? l10n.homeworkSend
+                : again
+                ? l10n.handInAgain
                 : l10n.homeworkSendAgain,
             loading: _sending,
             height: 52,
@@ -318,6 +344,9 @@ class _Grade extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: p.textSecondary),
               ),
             ),
+          // 113.7 The rubric's levels the teacher chose.
+          if (s.rubricResult.isNotEmpty)
+            RubricResultList(results: s.rubricResult),
           if (s.feedback != null && s.feedback!.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(

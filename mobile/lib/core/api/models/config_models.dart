@@ -432,6 +432,10 @@ class SiteFeatures {
     this.memberships = false,
     this.assignments = false,
     this.liveClasses = false,
+    this.learningPaths = false,
+    this.gamification = false,
+    this.notes = false,
+    this.lessonDiscussion = false,
   });
 
   factory SiteFeatures.fromJson(Json json) => SiteFeatures(
@@ -452,6 +456,10 @@ class SiteFeatures {
     memberships: boolOr(json, 'memberships', false),
     assignments: boolOr(json, 'assignments', false),
     liveClasses: boolOr(json, 'live_classes', false),
+    learningPaths: boolOr(json, 'learning_paths', false),
+    gamification: boolOr(json, 'gamification', false),
+    notes: boolOr(json, 'notes', false),
+    lessonDiscussion: boolOr(json, 'lesson_discussion', false),
   );
 
   /// Null on a site without an LMS (a Store app).
@@ -485,6 +493,14 @@ class SiteFeatures {
   /// (the account lists the student's live classes).
   final bool assignments;
   final bool liveClasses;
+
+  /// 113.7 Learning paths (`GET /learning-paths`), points and badges with
+  /// the courses' leaderboards (the academy's choice), the student's notes
+  /// and bookmarks in lessons, and each lesson's discussion.
+  final bool learningPaths;
+  final bool gamification;
+  final bool notes;
+  final bool lessonDiscussion;
 }
 
 enum SignupField { name, email, city }

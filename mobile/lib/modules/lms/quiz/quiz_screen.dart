@@ -13,6 +13,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../lesson/content/html_content.dart';
+import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// Answers for the questions the app shows natively. Questions answered in
@@ -160,7 +161,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         showMessage(context, context.l10n.timeUp);
       }
     } on ApiException catch (e) {
-      if (mounted) showMessage(context, e.message);
+      if (!mounted) return;
+      // 113.7 An exam's answers after its time: the attempt is over.
+      if (e.code == 'time_up') {
+        _ticker?.cancel();
+        ref
+          ..invalidate(quizProvider(widget.quizId))
+          ..invalidate(quizAttemptsProvider);
+        setState(() => _attempt = null);
+        showMessage(context, context.l10n.examTimeUp);
+      } else {
+        showMessage(context, e.message);
+      }
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -402,6 +414,17 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         ),
       if (quiz.passPercent != null)
         (AppIcons.flag, context.l10n.passMark(quiz.passPercent!)),
+      // 113.7 A timed exam's window.
+      if (quiz.exam?.opensAt != null)
+        (
+          AppIcons.schedule,
+          context.l10n.examOpensAt(dayAndTime(quiz.exam!.opensAt!)),
+        ),
+      if (quiz.exam?.closesAt != null)
+        (
+          AppIcons.schedule,
+          context.l10n.examClosesAt(dayAndTime(quiz.exam!.closesAt!)),
+        ),
       (
         AppIcons.replay,
         quiz.attemptsAllowed == null
@@ -426,6 +449,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (quiz.exam != null) ...[
+                        Text(
+                          context.l10n.examLabel,
+                          key: const ValueKey('quiz-exam'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: p.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                      ],
                       Semantics(
                         header: true,
                         child: Text(
@@ -461,10 +496,21 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
             ),
           ),
         ),
+        if (quiz.exam != null && quiz.canStart && quiz.timeLimitSeconds != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: Text(
+              context.l10n.examTimedHint,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: p.textSecondary),
+            ),
+          ),
         BottomActionBar(
           child: quiz.canStart
               ? PrimaryButton(
-                  label: quiz.attemptsUsed == 0
+                  label: quiz.exam?.inProgress ?? false
+                      ? context.l10n.examResume
+                      : quiz.attemptsUsed == 0
                       ? context.l10n.startQuiz
                       : context.l10n.startNewAttempt,
                   height: 54,
@@ -472,7 +518,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   onPressed: _start,
                 )
               : Text(
-                  context.l10n.noAttemptsLeft,
+                  // 113.7 An exam outside its window.
+                  switch (quiz.exam?.status) {
+                    ExamStatus.upcoming => context.l10n.examNotOpen,
+                    ExamStatus.closed => context.l10n.examClosed,
+                    _ => context.l10n.noAttemptsLeft,
+                  },
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: p.textSecondary),
                 ),
@@ -489,6 +540,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         AppIcons.schedule,
         context.l10n.submittedForReview,
       ),
+      AttemptStatus.awaitingResults => (
+        AppIcons.schedule,
+        context.l10n.attemptAwaitingResults,
+      ),
     };
     final score = result.scorePercent;
     final message = MessageView(
@@ -502,6 +557,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           context.l10n.passMarkColon(quiz.passPercent!),
         if (result.status == AttemptStatus.pendingReview)
           context.l10n.instructorWillReview,
+        if (result.resultsAt != null)
+          context.l10n.examResultsAt(dayAndTime(result.resultsAt!)),
       ].join('\n'),
     );
     return SafeArea(
@@ -779,7 +836,8 @@ class AttemptResultTile extends StatelessWidget {
     final color = switch (result.status) {
       AttemptStatus.passed => p.success,
       AttemptStatus.failed => p.danger,
-      AttemptStatus.pendingReview => p.textSecondary,
+      AttemptStatus.pendingReview ||
+      AttemptStatus.awaitingResults => p.textSecondary,
     };
     final score = result.scorePercent;
     return AppCard(

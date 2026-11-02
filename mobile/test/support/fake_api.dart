@@ -402,7 +402,10 @@ class FakeApi implements YallappApi {
 
   @override
   Future<Quiz> getQuiz(int quizId) =>
-      _answer('getQuiz', () => Quiz.fromJson(quizJson()));
+      _answer('getQuiz', () => Quiz.fromJson(quiz ?? quizJson()));
+
+  /// 113.7 The quiz `getQuiz` answers; the fixture's when null.
+  Map<String, dynamic>? quiz;
 
   /// 112.5 The attempt started and the result sent back, when a test sets them.
   Map<String, dynamic>? attempt;
@@ -577,23 +580,168 @@ class FakeApi implements YallappApi {
 
   List<Map<String, dynamic>> questions = [questionJson()];
 
+  /// 113.7 The lesson the last list was asked for.
+  int? listedLesson;
+
   @override
-  Future<Paged<CourseQuestion>> listQuestions(int courseId, {int page = 1}) =>
-      _answer(
-        'listQuestions',
-        () => Paged.fromJson(pageJson(questions), CourseQuestion.fromJson),
-      );
+  Future<Paged<CourseQuestion>> listQuestions(
+    int courseId, {
+    int page = 1,
+    int? lessonId,
+  }) => _answer('listQuestions', () {
+    listedLesson = lessonId;
+    return Paged.fromJson(
+      pageJson([
+        for (final q in questions)
+          if (lessonId == null || q['lesson_id'] == lessonId) q,
+      ]),
+      CourseQuestion.fromJson,
+    );
+  });
 
   String? lastQuestion;
+  int? lastQuestionLesson;
 
   @override
-  Future<CourseQuestion> askQuestion(int courseId, String text) =>
-      _answer('askQuestion', () {
-        lastQuestion = text;
-        final question = {...questionJson(id: 5, answers: 0), 'text': text};
-        questions = [question, ...questions];
-        return CourseQuestion.fromJson(question);
+  Future<CourseQuestion> askQuestion(
+    int courseId,
+    String text, {
+    int? lessonId,
+  }) => _answer('askQuestion', () {
+    lastQuestion = text;
+    lastQuestionLesson = lessonId;
+    final question = {
+      ...questionJson(id: 5, answers: 0),
+      'text': text,
+      'lesson_id': lessonId,
+    };
+    questions = [question, ...questions];
+    return CourseQuestion.fromJson(question);
+  });
+
+  // 113.7 Pinned and deleted questions and answers.
+  final pinned = <int, bool>{};
+  final deletedQuestions = <int>[];
+  final deletedAnswers = <int>[];
+
+  @override
+  Future<void> pinQuestion(int questionId, {required bool pinned}) =>
+      _answer('pinQuestion', () => this.pinned[questionId] = pinned);
+
+  @override
+  Future<void> deleteQuestion(int questionId) =>
+      _answer('deleteQuestion', () => deletedQuestions.add(questionId));
+
+  @override
+  Future<void> deleteAnswer(int questionId, int answerId) =>
+      _answer('deleteAnswer', () => deletedAnswers.add(answerId));
+
+  // 113.7 Learning paths, points and badges, notes and bookmarks.
+
+  List<Map<String, dynamic>> learningPaths = [learningPathJson()];
+  Map<String, dynamic> achievements = achievementsJson();
+  Map<String, dynamic> leaderboard = leaderboardJson();
+  bool? leaderboardCohort;
+  List<Map<String, dynamic>> notes = [noteJson()];
+  final bookmarks = <int>{};
+  int _nextNote = 50;
+
+  @override
+  Future<List<LearningPath>> listLearningPaths() => _answer(
+    'listLearningPaths',
+    () => [for (final p in learningPaths) LearningPath.fromJson(p)],
+  );
+
+  @override
+  Future<LearningPath> getLearningPath(int pathId) => _answer(
+    'getLearningPath',
+    () => LearningPath.fromJson(
+      learningPaths.firstWhere((p) => p['id'] == pathId),
+    ),
+  );
+
+  @override
+  Future<Achievements> getAchievements() =>
+      _answer('getAchievements', () => Achievements.fromJson(achievements));
+
+  @override
+  Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false}) =>
+      _answer('getLeaderboard', () {
+        leaderboardCohort = cohort;
+        return Leaderboard.fromJson({
+          ...leaderboard,
+          'scope': cohort ? 'cohort' : 'course',
+        });
       });
+
+  @override
+  Future<CourseNotes> listCourseNotes(int courseId) => _answer(
+    'listCourseNotes',
+    () => CourseNotes.fromJson({
+      'course_id': courseId,
+      'items': notes,
+      'bookmarks': [
+        for (final id in bookmarks)
+          {
+            'lesson_id': id,
+            'lesson_title': 'Lesson $id',
+            'created_at': '2026-10-03T12:00:00Z',
+          },
+      ],
+    }),
+  );
+
+  @override
+  Future<LessonNotes> listLessonNotes(int lessonId) => _answer(
+    'listLessonNotes',
+    () => LessonNotes.fromJson({
+      'lesson_id': lessonId,
+      'bookmarked': bookmarks.contains(lessonId),
+      'items': [
+        for (final n in notes)
+          if (n['lesson_id'] == lessonId) n,
+      ],
+    }),
+  );
+
+  @override
+  Future<LessonNote> addLessonNote(
+    int lessonId,
+    String text, {
+    int? positionSeconds,
+  }) => _answer('addLessonNote', () {
+    final note = noteJson(
+      id: _nextNote++,
+      lessonId: lessonId,
+      text: text.trim(),
+      positionSeconds: positionSeconds,
+    );
+    notes = [...notes, note];
+    return LessonNote.fromJson(note);
+  });
+
+  @override
+  Future<LessonNote> editLessonNote(int noteId, String text) =>
+      _answer('editLessonNote', () {
+        final i = notes.indexWhere((n) => n['id'] == noteId);
+        notes[i] = {...notes[i], 'text': text.trim()};
+        return LessonNote.fromJson(notes[i]);
+      });
+
+  @override
+  Future<void> deleteLessonNote(int noteId) => _answer(
+    'deleteLessonNote',
+    () => notes = [
+      for (final n in notes)
+        if (n['id'] != noteId) n,
+    ],
+  );
+
+  @override
+  Future<void> setLessonBookmark(int lessonId, {required bool on}) => _answer(
+    'setLessonBookmark',
+    () => on ? bookmarks.add(lessonId) : bookmarks.remove(lessonId),
+  );
 
   /// 64 The thread `getQuestion` answers; the fixture's when null.
   Map<String, dynamic>? thread;
@@ -2218,7 +2366,16 @@ class FakeApi implements YallappApi {
 
   // 112.5 Grading in the Teacher tab.
   List<Map<String, dynamic>> teacherSubmissions = [];
-  final graded = <({int id, bool sendBack, int? score, String feedback})>[];
+  final graded =
+      <
+        ({
+          int id,
+          bool sendBack,
+          int? score,
+          String feedback,
+          Map<int, int>? rubric,
+        })
+      >[];
 
   @override
   Future<Paged<TeacherSubmission>> listTeacherSubmissions({
@@ -2238,8 +2395,15 @@ class FakeApi implements YallappApi {
     bool sendBack = false,
     int? score,
     String feedback = '',
+    Map<int, int>? rubric,
   }) => _answer('gradeTeacherSubmission', () {
-    graded.add((id: id, sendBack: sendBack, score: score, feedback: feedback));
+    graded.add((
+      id: id,
+      sendBack: sendBack,
+      score: score,
+      feedback: feedback,
+      rubric: rubric,
+    ));
     final i = teacherSubmissions.indexWhere((s) => s['id'] == id);
     teacherSubmissions[i] = {
       ...teacherSubmissions[i],

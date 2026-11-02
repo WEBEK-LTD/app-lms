@@ -30,6 +30,7 @@ import '../downloads/progress_queue.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../teachers/teachers_providers.dart';
+import '../learning/course_learning.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 
@@ -432,6 +433,33 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                             course: course,
                             topics: topics.value,
                           ),
+                        ],
+                        // 113.7 The courses to finish first, the final
+                        // score, the leaderboard and the student's notes.
+                        if (!course.enrolled &&
+                            course.prerequisites.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          CoursePrerequisites(course: course),
+                        ],
+                        if (course.enrolled) ...[
+                          if (course.progress?.finalScore
+                              case final score?) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              course.progress!.minFinalScore == null
+                                  ? l10n.finalScore(score)
+                                  : l10n.finalScoreNeeded(
+                                      score,
+                                      course.progress!.minFinalScore!,
+                                    ),
+                              key: const ValueKey('course-final-score'),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: context.palette.textSecondary,
+                              ),
+                            ),
+                          ],
+                          CourseLearningLinks(courseId: course.id),
                         ],
                         const SizedBox(height: 16),
                         SegmentedTabs(
