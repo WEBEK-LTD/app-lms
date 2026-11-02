@@ -44,6 +44,9 @@ import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { courierAppNameOf, courierBundleIdOf, courierPackageOf, hasCourierJobs, secondAppRoleOf } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { SamplesStoreNotice } from "@/components/samples";
+import { TwoApps } from "@/components/two-apps";
+import { twoAppsOf } from "@/lib/delivery/two-apps";
+import { isStudioProject, studioPathFor } from "@/lib/studio/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("builds.title") };
@@ -180,10 +183,12 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   const wa = { wa: (chunk: string) => <a href={contact.whatsappUrl}>{chunk}</a> };
   const autoRebuildTo = lowestPlanWith(effective, (p) => hasFeature(p, "auto_rebuild"), plan);
 
-  // 104.6 The delivery (105.1.6 or food) company's courier app, when it chose one in its own name.
+  // 104.6 The delivery (105.1.6 or food, 105.2 ride) company's courier app; 112.3 every such company has it.
   const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  const twoApps = delivery ? await twoAppsOf(store, app, currentPlan) : null;
+  const inFrame = (href: string) => (isStudioProject(app) ? (studioPathFor(href) ?? href) : href);
   const courier =
-    delivery?.courierApp === "bundle"
+    delivery && twoApps
       ? {
           name: courierAppNameOf(app, delivery),
           android: app.androidPackage ? courierPackageOf(app.androidPackage, secondAppRoleOf(app)) : "—",
@@ -216,6 +221,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
       />
       {/* 110.2 Sample entries left: nothing goes to the stores. */}
       <SamplesStoreNotice app={app} />
+      {/* 112.3 The customers' app and the couriers' (drivers') app. */}
+      {twoApps ? <TwoApps text={text} data={twoApps} href={inFrame} /> : null}
 
       {started === "auto" ? (
         <Notice tone="success" icon="check_circle" role="status">
@@ -306,7 +313,10 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           {/* The heading's grandparent holds the status badge (tests read it from there). */}
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-sm font-semibold text-muted">{t("builds.latestBuild")}</span>
+              <span className="text-sm font-semibold text-muted">
+                {twoApps ? `${t(twoApps.role === "driver" ? "builds.ridersApp" : "builds.customersApp")} · ` : null}
+                {t("builds.latestBuild")}
+              </span>
               <h2 id="h-current" className="m-0 text-lg font-bold">
                 {t("builds.buildTitle", { number: current.number, version: current.versionName })}
               </h2>

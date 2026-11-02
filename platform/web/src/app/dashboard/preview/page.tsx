@@ -25,6 +25,8 @@ import { languagesForPlan } from "@/lib/pages/plan";
 import { draftPreviewSupported, missingSteps, previewContentSource, previewWaitingFor } from "@/lib/preview/config";
 import { wordpressPluginConnected } from "@/lib/preview/service";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
+import { courierAppNameOf, hasCourierJobs, hasSecondApp, secondAppRoleOf } from "@/lib/delivery/courier-app";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { PreviewPanel } from "./panel";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,6 +62,21 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
   const draft = draftSupported && params.pages === "draft";
   const token = createPreviewToken({ appId: app.id, draft }, previewKey(signingSecret()), now);
   const path = previewAppPath(token);
+  // 112.3 A delivery, food, ride or taxi project: its couriers' (drivers') app too, with its own link.
+  const delivery = hasCourierJobs(app) ? deliverySettingsOf(await store.getDeliverySettings(app.id)) : null;
+  const role = secondAppRoleOf(app);
+  const apps =
+    delivery && hasSecondApp(app, delivery)
+      ? [
+          { key: "customers", label: t(role === "driver" ? "builds.ridersApp" : "builds.customersApp"), src: path, name: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) },
+          {
+            key: role,
+            label: t(role === "driver" ? "builds.driversApp" : "builds.couriersApp"),
+            src: previewAppPath(createPreviewToken({ appId: app.id, draft, role }, previewKey(signingSecret()), now)),
+            name: courierAppNameOf(app, delivery),
+          },
+        ]
+      : undefined;
   const phoneUrl = `${appUrl()}${path}`;
   const missing = missingSteps(app, planId, plans);
   const pluginConnected = await wordpressPluginConnected(store, app);
@@ -140,7 +157,7 @@ export default async function PreviewPage({ searchParams }: PageProps<"/dashboar
       )}
 
       <div className="grid items-start gap-6 lg:grid-cols-[auto_minmax(0,1fr)]">
-        <PreviewPanel src={path} appName={name} languages={languageOptions} defaultLanguage={startLanguage} />
+        <PreviewPanel src={path} appName={name} languages={languageOptions} defaultLanguage={startLanguage} apps={apps} />
 
         <div className="flex min-w-0 flex-col gap-4">
           {missing.length ? (

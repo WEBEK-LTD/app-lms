@@ -8,6 +8,9 @@ import { Icon } from "@/components/icon";
 import { Notice, PageHeader, btn, formatDate } from "@/components/ui";
 import { AppDeletion } from "@/components/app-deletion";
 import { richText } from "@/i18n/rich";
+import { TwoApps } from "@/components/two-apps";
+import { hasCourierJobs } from "@/lib/delivery/courier-app";
+import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -91,6 +94,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const inFrame = (href: string): string | null => (studio ? studioPathFor(href) : href);
   const here = (href: string): string => inFrame(href) ?? href;
   const upcoming = editableSteps.slice(index + 1);
+  // 112.3 A delivery, food, ride or taxi project's two apps.
+  const twoApps = hasCourierJobs(app) ? await twoAppsOf(store, app, current) : null;
+  const text = await dashboardText();
 
   return (
     <>
@@ -161,6 +167,8 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           );
         })}
       </ol>
+
+      {twoApps && step !== "website" ? <TwoApps text={text} data={twoApps} href={here} /> : null}
 
       {step === "website" && websiteSwitchedOff ? (
         <Notice tone="warn" icon="info" role="status">
