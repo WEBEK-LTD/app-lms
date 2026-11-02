@@ -3,7 +3,10 @@ import Link from "next/link";
 import { importBooksAction, saveBookAction, saveLibrarySettingsAction } from "@/app/actions/school-library";
 import { Field } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn } from "@/components/ui";
+import { Badge, EmptyState, btn } from "@/components/ui";
+import { ItemRow, PageGroup, Stat, StatRow } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ChipLinks, ListBar, Pager, SearchForm } from "@/components/page-kit-c";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -13,7 +16,6 @@ import { holdLive, LIBRARY_LIMITS, librarySettingsOf } from "@/lib/school/librar
 import { BOOKS_CSV_EXAMPLE, bookFormValues } from "@/lib/school/library-forms";
 import { schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
-import { AddServiceBox } from "../../delivery/forms";
 import { SchoolForm } from "../forms";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 import { BookFields } from "./parts";
@@ -58,102 +60,117 @@ export default async function SchoolLibraryPage({ searchParams }: { searchParams
   const overdue = open.filter((l) => l.dueOn < today).length;
   const ready = holds.filter((h) => h.status === "ready" && holdLive(h, now)).length;
 
+  const canAdd = all.length < LIBRARY_LIMITS.books;
+  const has = all.length > 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead title={t("library.title")} intro={t("library.intro")} />
-        <Link href="/dashboard/school/library/desk" className={`${btn.primary} h-10 gap-1.5 px-4 text-sm`}>
-          <Icon name="qr_code_scanner" size={18} />
-          {t("library.desk")}
-        </Link>
-      </div>
-      <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <p className="m-0 text-[15px] font-semibold">{t("library.counts", { books: all.length, copies: copies.length, out: open.length, overdue, ready })}</p>
-
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("library.categories")} className="flex flex-wrap gap-1.5">
-          {["", ...categories].map((c) => (
-            <Link
-              key={c || "all"}
-              href={`/dashboard/school/library${c ? `?category=${encodeURIComponent(c)}` : ""}`}
-              aria-current={c === category ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                c === category ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {c || t("library.allBooks")}
+      {/* The page kit: the header and its main action, the numbers, the books by category, then the import and settings. */}
+      <PageHead
+        title={t("library.title")}
+        intro={t("library.intro")}
+        actions={
+          <>
+            <Link href="/dashboard/school/library/desk" className={`${btn.secondary} h-11 gap-1.5 px-4`}>
+              <Icon name="qr_code_scanner" size={18} />
+              {t("library.desk")}
             </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          {category ? <input type="hidden" name="category" value={category} /> : null}
-          <label htmlFor="f-q" className="sr-only">
-            {t("library.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={q} placeholder={t("library.searchBooks")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("library.search")}
-          </button>
-        </form>
-      </div>
+            {has && canAdd ? (
+              <SheetButton target="new-book" icon="add">
+                {t("library.addBook")}
+              </SheetButton>
+            ) : null}
+          </>
+        }
+      />
+      <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
+      {has ? (
+        <StatRow label={t("library.counts", { books: all.length, copies: copies.length, out: open.length, overdue, ready })}>
+          <Stat icon="menu_book" tone="accent" label={t("library.books")} value={all.length} hint={t("library.statCopies", { count: copies.length })} />
+          <Stat icon="logout" label={t("library.statOut")} value={open.length} href="/dashboard/school/library/desk" />
+          <Stat icon="warning" tone={overdue ? "warn" : "neutral"} label={t("library.statOverdue")} value={overdue} href="/dashboard/school/library/desk" />
+          <Stat icon="bookmark" tone="success" label={t("library.statReady")} value={ready} href="/dashboard/school/library/desk" />
+        </StatRow>
+      ) : null}
 
-      <Panel id="h-books" title={t("library.books")}>
-        {list.length === 0 ? <p className="m-0 text-[15px] text-muted">{all.length === 0 ? t("library.noBooks") : t("library.noMatch")}</p> : null}
+      <Panel id="h-books" title={t("library.books")} flush>
+        {has ? (
+          <ListBar>
+            <ChipLinks
+              label={t("library.categories")}
+              items={["", ...categories].map((c) => ({
+                href: `/dashboard/school/library${c ? `?category=${encodeURIComponent(c)}` : ""}`,
+                label: c || t("library.allBooks"),
+                count: c ? all.filter((b) => b.category === c).length : all.length,
+                current: c === category,
+              }))}
+            />
+            <SearchForm label={t("library.search")} placeholder={t("library.searchBooks")} defaultValue={q} keep={category ? { category } : {}} button={t("library.search")} />
+          </ListBar>
+        ) : null}
+        {list.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="menu_book" title={all.length === 0 ? t("library.noBooks") : t("library.noMatch")} />
+          </div>
+        ) : null}
         <ul className="m-0 flex list-none flex-col p-0" data-books>
           {list.map((book) => {
             const mine = copies.filter((c) => c.bookId === book.id);
             const out = open.filter((l) => l.bookId === book.id).length;
             return (
-              <li key={book.id} className="border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <Link href={`/dashboard/school/library/${book.id}`} className="flex items-center gap-3 text-inherit no-underline hover:[&_.name]:underline">
-                  {book.coverAssetId ? (
+              <ItemRow
+                key={book.id}
+                href={`/dashboard/school/library/${book.id}`}
+                media={
+                  book.coverAssetId ? (
                     // eslint-disable-next-line @next/next/no-img-element -- the school's own picture
-                    <img src={assetUrl(book.coverAssetId)} alt="" className="h-14 w-10 shrink-0 rounded border border-line object-cover" />
+                    <img src={assetUrl(book.coverAssetId)} alt="" className="h-14 w-10 shrink-0 rounded-md border border-line-soft object-cover" />
                   ) : (
-                    <span aria-hidden="true" className="grid h-14 w-10 shrink-0 place-items-center rounded border border-line bg-sand text-midnight">
+                    <span aria-hidden="true" className="grid h-14 w-10 shrink-0 place-items-center rounded-md bg-tile-2 text-ink-3">
                       <Icon name="menu_book" size={20} />
                     </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="name text-[15px] font-bold">{book.title}</span>
-                    <span className="text-[13px] text-muted">
-                      {[book.author, book.category, book.shelf ? t("library.shelfIs", { shelf: book.shelf }) : null, t("library.copiesLine", { copies: mine.length, out })].filter(Boolean).join(" · ")}
-                    </span>
-                  </span>
-                  {book.file ? <Badge tone="info">{t("library.ebookBadge")}</Badge> : null}
-                </Link>
-              </li>
+                  )
+                }
+                title={book.title}
+                badges={book.file ? <Badge tone="info">{t("library.ebookBadge")}</Badge> : null}
+                meta={[book.author, book.category, book.shelf ? t("library.shelfIs", { shelf: book.shelf }) : null].filter(Boolean).join(" · ")}
+                aside={<span className="rounded-full bg-sand px-2.5 py-1 text-xs font-bold text-ink-3">{t("library.copiesLine", { copies: mine.length, out })}</span>}
+              />
             );
           })}
         </ul>
         {pages > 1 ? (
-          <nav aria-label={t("library.pages")} className="flex items-center justify-between gap-3 text-[15px]">
-            {page > 1 ? <Link href={link(page - 1)}>{t("library.previous")}</Link> : <span />}
-            <span className="text-muted">{t("library.pageOf", { page, pages })}</span>
-            {page < pages ? <Link href={link(page + 1)}>{t("library.next")}</Link> : <span />}
-          </nav>
-        ) : null}
-        {all.length < LIBRARY_LIMITS.books ? (
-          <AddServiceBox title={t("library.addBook")} open={all.length === 0}>
-            <SchoolForm action={saveBookAction} submit={t("library.add")}>
-              <BookFields suffix="-new" values={bookFormValues(null, "")} coverUrl={null} t={t} />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex min-w-0 flex-col gap-1.5">
-                  <label htmlFor="f-book-codes" className="text-sm font-semibold">
-                    {t("library.copyCodes")}
-                  </label>
-                  <textarea id="f-book-codes" name="codes" rows={3} dir="ltr" className="input min-h-[84px] py-2" aria-describedby="f-book-codes-hint" />
-                  <span id="f-book-codes-hint" className="text-[13px] text-muted">
-                    {t("library.copyCodesHint")}
-                  </span>
-                </div>
-                <Field id="f-book-count" label={t("library.copyCount")} name="count" type="number" min={0} max={LIBRARY_LIMITS.copiesPerBook} defaultValue="1" dir="ltr" hint={t("library.copyCountHint")} />
-              </div>
-            </SchoolForm>
-          </AddServiceBox>
+          <Pager
+            label={t("library.pages")}
+            prev={page > 1 ? { href: link(page - 1), label: t("library.previous") } : null}
+            next={page < pages ? { href: link(page + 1), label: t("library.next") } : null}
+            text={t("library.pageOf", { page, pages })}
+          />
         ) : null}
       </Panel>
 
+      {canAdd ? (
+        // One place in the page either way, so the form that adds the first book keeps its message.
+        <Sheet id="new-book" inline={!has} title={t("library.addBook")}>
+          <SchoolForm action={saveBookAction} submit={t("library.add")} sheet>
+            <BookFields suffix="-new" values={bookFormValues(null, "")} coverUrl={null} t={t} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <label htmlFor="f-book-codes" className="text-sm font-semibold">
+                  {t("library.copyCodes")}
+                </label>
+                <textarea id="f-book-codes" name="codes" rows={3} dir="ltr" className="input min-h-[84px] py-2" aria-describedby="f-book-codes-hint" />
+                <span id="f-book-codes-hint" className="text-[13px] text-muted">
+                  {t("library.copyCodesHint")}
+                </span>
+              </div>
+              <Field id="f-book-count" label={t("library.copyCount")} name="count" type="number" min={0} max={LIBRARY_LIMITS.copiesPerBook} defaultValue="1" dir="ltr" hint={t("library.copyCountHint")} />
+            </div>
+          </SchoolForm>
+        </Sheet>
+      ) : null}
+
+      <PageGroup title={t("library.groupMore")}>
       <Panel id="h-import-books" title={t("library.importTitle")} intro={t("library.importIntro")}>
         <pre dir="ltr" className="m-0 overflow-x-auto rounded-xl bg-sand p-3 text-[13px] leading-relaxed">
           {BOOKS_CSV_EXAMPLE}
@@ -178,6 +195,7 @@ export default async function SchoolLibraryPage({ searchParams }: { searchParams
           </div>
         </SchoolForm>
       </Panel>
+      </PageGroup>
     </div>
   );
 }
