@@ -44,6 +44,8 @@ BuildConfigData buildConfigFromJson(Map<String, dynamic> json) {
       _ => AppType.lms,
     },
     vertical: AppVertical.fromWire(json['vertical']),
+    // 104.8.4 Yallapp Courier's own build.
+    courierHub: json['courier_hub'] == true,
     appName: appName,
     shortName: text(json['short_name'], appName),
     siteUrl: normalizeSiteUrl(text(json['site_url'], '')),

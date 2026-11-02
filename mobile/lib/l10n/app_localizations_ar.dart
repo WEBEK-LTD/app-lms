@@ -8593,4 +8593,85 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get uniAttendanceSaved => 'تم حفظ الحضور.';
+
+  @override
+  String get hubSignInIntro =>
+      'سجّل الدخول برقم الجوال أو البريد الإلكتروني الذي أضافته الشركة التي توصّل لها.';
+
+  @override
+  String get hubCompaniesTitle => 'شركاتك';
+
+  @override
+  String get hubCompaniesIntro => 'اختر الشركة التي توصّل لها الآن.';
+
+  @override
+  String get hubNoCompaniesTitle => 'لا توجد شركات بعد';
+
+  @override
+  String get hubNoCompaniesMessage =>
+      'لم تُضِف أي شركة رقمك أو بريدك الإلكتروني مندوبًا على Yallapp Courier بعد. اطلب من الشركة التي توصّل لها إضافته، ثم تحقّق مرة أخرى.';
+
+  @override
+  String get hubCheckAgain => 'تحقّق مرة أخرى';
+
+  @override
+  String hubJobsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مهمة في الانتظار',
+      many: '$count مهمة في الانتظار',
+      few: '$count مهام في الانتظار',
+      two: 'مهمتان في الانتظار',
+      one: 'مهمة واحدة في الانتظار',
+      zero: 'لا مهام في الانتظار',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hubOffDuty => 'خارج الخدمة';
+
+  @override
+  String get hubPaused => 'أوقفتك الشركة مؤقتًا';
+
+  @override
+  String hubPausedMessage(String company) {
+    return 'أوقفتك $company مؤقتًا بصفتك مندوبًا. اطلب منها إعادة تفعيلك.';
+  }
+
+  @override
+  String hubCompanyGone(String company) {
+    return 'لم تعد $company من شركاتك.';
+  }
+
+  @override
+  String hubSessionEnded(String company) {
+    return 'انتهت جلستك في $company. افتحها مرة أخرى من القائمة.';
+  }
+
+  @override
+  String get hubCompanyGroup => 'الشركة';
+
+  @override
+  String get hubSwitchCompany => 'تبديل الشركة';
+
+  @override
+  String get hubSignOutMessage =>
+      'سيُسجَّل خروجك من Yallapp Courier ومن كل الشركات على هذا الهاتف.';
+
+  @override
+  String hubOpening(String company) {
+    return 'جارٍ فتح $company…';
+  }
+
+  @override
+  String get hubDeleteAccount => 'حذف حسابي في Yallapp Courier';
+
+  @override
+  String get hubDeleteAccountTitle => 'حذف حسابك في Yallapp Courier؟';
+
+  @override
+  String get hubDeleteAccountMessage =>
+      'سيُسجَّل خروجك على كل الهواتف وستنتهي جلساتك في كل الشركات. تحتفظ كل شركة بسجلاتها الخاصة عن توصيلاتك، فاطلب من الشركة إزالتك لديها.';
 }

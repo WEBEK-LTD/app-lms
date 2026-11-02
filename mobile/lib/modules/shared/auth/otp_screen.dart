@@ -231,7 +231,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _CodeBoxes(
+                    CodeBoxes(
                       controller: _code,
                       focusNode: _focus,
                       length: _length,
@@ -318,8 +318,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
 /// One box per digit over a single text field, so paste and SMS autofill
 /// work and screen readers see one "Verification code" field.
-class _CodeBoxes extends StatelessWidget {
-  const _CodeBoxes({
+class CodeBoxes extends StatelessWidget {
+  const CodeBoxes({
+    super.key,
     required this.controller,
     required this.focusNode,
     required this.length,

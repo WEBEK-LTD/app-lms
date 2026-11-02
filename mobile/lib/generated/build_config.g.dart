@@ -7,6 +7,7 @@ const buildConfig = BuildConfigData(
   appType: AppType.lms,
   vertical: null,
   role: AppRole.customer,
+  courierHub: false,
   appName: 'Your Academy',
   shortName: 'Academy',
   siteUrl: 'https://your-academy.com',
