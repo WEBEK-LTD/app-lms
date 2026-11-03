@@ -4,6 +4,7 @@ import { startTransition, useActionState, useEffect, useRef, type ReactNode } fr
 import { FormMessage } from "@/components/form";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { Icon } from "@/components/icon";
+import { FormActions } from "@/components/page-kit";
 import { btn } from "@/components/ui";
 import { initialFormState, type FormState } from "@/lib/forms";
 
@@ -11,6 +12,8 @@ import { initialFormState, type FormState } from "@/lib/forms";
  * 105.4 A school page's form: its fields come from the page; the action's
  * message and the fields' problems show above the button. What was typed
  * stays when something is wrong; a form that adds is emptied once added.
+ * With `sheet` (a form in the page kit's Sheet) the button stays in sight
+ * at the form's foot.
  */
 export function SchoolForm({
   action,
@@ -18,12 +21,14 @@ export function SchoolForm({
   children,
   reset = false,
   className = "",
+  sheet = false,
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   submit: string;
   children: ReactNode;
   reset?: boolean;
   className?: string;
+  sheet?: boolean;
 }) {
   const t = useDashT();
   const known = useKnownText();
@@ -33,6 +38,18 @@ export function SchoolForm({
     if (state.ok && reset) form.current?.reset();
   }, [state, reset]);
   const problems = [...new Set(Object.values(state.errors ?? {}))];
+  const button = (
+    <button type="submit" disabled={pending} className={`${btn.primary} h-10 px-4 text-[15px]`}>
+      {pending ? (
+        <>
+          <Icon name="progress_activity" size={20} className="animate-spin" />
+          {t("common.saving")}
+        </>
+      ) : (
+        submit
+      )}
+    </button>
+  );
   return (
     <form
       ref={form}
@@ -53,18 +70,7 @@ export function SchoolForm({
           ))}
         </ul>
       ) : null}
-      <div className="flex justify-end">
-        <button type="submit" disabled={pending} className={`${btn.primary} h-10 px-4 text-[15px]`}>
-          {pending ? (
-            <>
-              <Icon name="progress_activity" size={20} className="animate-spin" />
-              {t("common.saving")}
-            </>
-          ) : (
-            submit
-          )}
-        </button>
-      </div>
+      {sheet ? <FormActions>{button}</FormActions> : <div className="flex justify-end">{button}</div>}
     </form>
   );
 }

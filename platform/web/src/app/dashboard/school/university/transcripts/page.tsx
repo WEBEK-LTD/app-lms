@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SearchForm } from "@/components/page-kit-c";
 import Link from "next/link";
 import { btn } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
@@ -33,15 +34,9 @@ export default async function UniversityTranscriptsPage({ searchParams }: { sear
   return (
     <div className="flex flex-col gap-6">
       <UniHead title={t("university.tabTranscripts")} intro={t("university.transcriptsIntro")} current="/transcripts" t={t} app={app} plan={plan} settings={data.settings} />
-      <form method="get" className="flex items-end gap-2">
-        <label htmlFor="f-q" className="sr-only">
-          {t("university.search")}
-        </label>
-        <input id="f-q" name="q" type="search" defaultValue={params.q ?? ""} placeholder={t("university.searchStudents")} className="input input-sm w-[240px]" />
-        <button type="submit" className={`${btn.secondary} h-10`}>
-          {t("university.search")}
-        </button>
-      </form>
+      <div className="rounded-2xl border border-line bg-white px-5 py-3 sm:px-6">
+        <SearchForm label={t("university.search")} placeholder={t("university.searchStudents")} defaultValue={params.q ?? ""} button={t("university.search")} />
+      </div>
       {q ? (
         <Panel id="h-found" title={t("university.found", { count: found.length })}>
           <ul className="m-0 flex list-none flex-col p-0">

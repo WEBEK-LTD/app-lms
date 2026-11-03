@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { Stat, StatRow } from "@/components/page-kit";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Icon } from "@/components/icon";
 import { Badge } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { requireClient } from "@/lib/auth/session";
@@ -45,11 +45,8 @@ export default async function BusTripPage({ params }: PageProps<"/dashboard/scho
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href={`/dashboard/school/bus/${route.id}`} className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {route.name}
-      </Link>
       <PageHead
+        back={{ href: `/dashboard/school/bus/${route.id}`, label: route.name }}
         title={`${route.name} · ${t(run.trip === "morning" ? "bus.morning" : "bus.afternoon")}`}
         intro={[
           formatDate(lang, new Date(`${run.date}T00:00:00Z`)),
@@ -60,21 +57,25 @@ export default async function BusTripPage({ params }: PageProps<"/dashboard/scho
           .join(" · ")}
       />
       {run.status === "running" ? (
-        <p role="note" className="m-0 max-w-[860px] rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed text-success">
+        <p role="note" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed text-success">
           {t("bus.tripRunning")} <Link href="/dashboard/school/bus/live">{t("bus.liveMap")}</Link>
         </p>
       ) : null}
-      <p className="m-0 text-[15px] font-semibold">
-        {t("bus.boardCounts", { boarded: marks.filter((m) => m.status === "boarded").length, off: marks.filter((m) => m.status === "off").length, absent: marks.filter((m) => m.status === "absent").length, riders: riders.length })}
-      </p>
+      {/* The page kit: the trip's numbers, then its stops with each student's mark. */}
+      <StatRow label={t("bus.boardCounts", { boarded: marks.filter((m) => m.status === "boarded").length, off: marks.filter((m) => m.status === "off").length, absent: marks.filter((m) => m.status === "absent").length, riders: riders.length })}>
+        <Stat icon="login" tone="success" label={t("bus.markBoarded")} value={marks.filter((m) => m.status === "boarded").length} />
+        <Stat icon="logout" tone="accent" label={t("bus.markOff")} value={marks.filter((m) => m.status === "off").length} />
+        <Stat icon="cancel" tone="warn" label={t("bus.markAbsent")} value={marks.filter((m) => m.status === "absent").length} />
+        <Stat icon="groups" label={t("bus.statRiders")} value={riders.length} />
+      </StatRow>
 
-      <Panel id="h-trip-stops" title={t("bus.stops")}>
+      <Panel id="h-trip-stops" title={t("bus.stops")} flush>
         <ol className="m-0 flex list-none flex-col p-0" data-trip-stops>
           {ordered.map((stop, i) => {
             const json = busStopJson(stop, run.trip, run.passedStopIds);
             const here = riders.filter((r) => r.stopId === stop.id);
             return (
-              <li key={stop.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
+              <li key={stop.id} className="flex flex-col gap-2 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span aria-hidden="true" className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold ${json.passed ? "bg-success text-white" : "bg-sand text-midnight"}`}>
                     {i + 1}
@@ -103,7 +104,7 @@ export default async function BusTripPage({ params }: PageProps<"/dashboard/scho
           })}
         </ol>
         {unplaced.length ? (
-          <ul className="m-0 flex list-none flex-col gap-1.5 border-t border-line-soft p-0 pt-3">
+          <ul className="m-0 flex list-none flex-col gap-1.5 border-t border-line-soft px-5 py-3 sm:px-6">
             {unplaced.map((m) => (
               <li key={m.studentId} className="flex flex-wrap items-center gap-2 text-[15px]">
                 <span className="min-w-0 flex-1">{person.get(m.studentId)?.name ?? "—"}</span>

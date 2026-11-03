@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { closeSchoolConversationAction, deleteSchoolMessageAction } from "@/app/actions/chat";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, Notice, Section } from "@/components/ui";
+import { Badge, Notice, PageHeader, Section } from "@/components/ui";
+import { DetailLayout } from "@/components/page-kit";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { chatAvailable } from "@/lib/chat/access";
@@ -57,49 +58,57 @@ export default async function SchoolConversationPage({ params, searchParams }: P
   const when = (iso: string) => t("listings.utc", { time: date(new Date(iso), WHEN) });
 
   return (
-    <div className="flex max-w-[820px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/chat?view=school" className="text-sm font-semibold">
-          {t("chat.backSchool")}
-        </Link>
-        <h1 className="m-0 flex flex-wrap items-center gap-2 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">
-          {teacher?.name ?? "—"} · {other?.name ?? "—"}
-          {conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
-        </h1>
-        <p className="m-0 text-[15px] text-ink-4">{other?.role === "student" ? t("chat.teacherAndStudent") : t("chat.teacherAndParent", { names: students.join(", ") || "—" })}</p>
-      </div>
-
-      <Notice icon={world.messages.adminReads ? "visibility" : "lock"}>{world.messages.adminReads ? t("chat.schoolReads") : t("chat.schoolReportedOnly")}</Notice>
-
-      <Section title={t("chat.messages")} titleId="h-school-messages">
-        {hasMore || before ? (
-          <nav className="flex justify-between text-sm">
-            {hasMore && messages[0] ? <Link href={`/dashboard/chat/school/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : <span />}
-            {before ? <Link href={`/dashboard/chat/school/${conversation.id}`}>{t("chat.newest")}</Link> : null}
-          </nav>
-        ) : null}
-        {messages.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("chat.noMessages")}</p>
-        ) : (
-          <ol className="m-0 flex list-none flex-col gap-3 p-0">
-            {messages.map((m) => (
-              <Message key={m.id} m={m} />
-            ))}
-          </ol>
-        )}
-      </Section>
-
-      <Section title={t("chat.thisConversation")} titleId="h-school-conversation">
-        <form action={closeSchoolConversationAction} className="flex flex-wrap items-center justify-between gap-3">
-          <input type="hidden" name="conversation" value={conversation.id} />
-          <input type="hidden" name="closed" value={conversation.closedAt ? "0" : "1"} />
-          <span className="max-w-[520px] text-sm text-muted">{conversation.closedAt ? t("chat.closedText") : t("chat.closeText")}</span>
-          <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
-            <Icon name={conversation.closedAt ? "forum" : "lock"} size={18} />
-            {conversation.closedAt ? t("chat.reopen") : t("chat.close")}
-          </SubmitButton>
-        </form>
-      </Section>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the conversation's header with the way back, its messages beside what the school sees and closing it. */}
+      <PageHeader
+        title={
+          <span className="flex flex-wrap items-center gap-2">
+            {teacher?.name ?? "—"} · {other?.name ?? "—"}
+            {conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
+          </span>
+        }
+        description={other?.role === "student" ? t("chat.teacherAndStudent") : t("chat.teacherAndParent", { names: students.join(", ") || "—" })}
+        back={{ href: "/dashboard/chat?view=school", label: t("chat.backSchool") }}
+      />
+      <DetailLayout
+        main={
+          <>
+            <Section title={t("chat.messages")} titleId="h-school-messages">
+              {hasMore || before ? (
+                <nav className="flex justify-between gap-3 text-sm">
+                  {hasMore && messages[0] ? <Link href={`/dashboard/chat/school/${conversation.id}?before=${messages[0].id}`}>{t("chat.older")}</Link> : <span />}
+                  {before ? <Link href={`/dashboard/chat/school/${conversation.id}`}>{t("chat.newest")}</Link> : null}
+                </nav>
+              ) : null}
+              {messages.length === 0 ? (
+                <p className="m-0 text-[15px] text-muted">{t("chat.noMessages")}</p>
+              ) : (
+                <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                  {messages.map((m) => (
+                    <Message key={m.id} m={m} />
+                  ))}
+                </ol>
+              )}
+            </Section>
+          </>
+        }
+        side={
+          <>
+            <Notice icon={world.messages.adminReads ? "visibility" : "lock"}>{world.messages.adminReads ? t("chat.schoolReads") : t("chat.schoolReportedOnly")}</Notice>
+            <Section title={t("chat.thisConversation")} titleId="h-school-conversation">
+              <form action={closeSchoolConversationAction} className="flex flex-col items-start gap-3">
+                <input type="hidden" name="conversation" value={conversation.id} />
+                <input type="hidden" name="closed" value={conversation.closedAt ? "0" : "1"} />
+                <span className="text-sm text-muted">{conversation.closedAt ? t("chat.closedText") : t("chat.closeText")}</span>
+                <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm" pendingText={t("chat.saving")}>
+                  <Icon name={conversation.closedAt ? "forum" : "lock"} size={18} />
+                  {conversation.closedAt ? t("chat.reopen") : t("chat.close")}
+                </SubmitButton>
+              </form>
+            </Section>
+          </>
+        }
+      />
     </div>
   );
 

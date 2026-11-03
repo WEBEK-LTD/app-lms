@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { correctCheckinAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
-import { Icon } from "@/components/icon";
-import { btn } from "@/components/ui";
+import { LinkCards } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { utcToLocal } from "@/lib/bookings/time";
 import type { SchoolCheckin, SchoolCheckinMethod } from "@/lib/data/types";
@@ -68,49 +67,43 @@ export function CorrectForm({ entry, date, timezone, t }: { entry: Pick<BoardRow
   const id = `${entry.person.id}-${date}`;
   const mark = entry.row?.mark ?? (entry.row?.inAt ? "present" : entry.state === "absent" ? "absent" : "present");
   return (
-    <details className="rounded-xl border border-line p-3">
-      <summary className="cursor-pointer text-sm font-semibold">{t("school.correct")}</summary>
-      <div className="flex flex-col gap-3 pt-3">
+    <>
+      {/* The page kit: the correction in a Sheet, opened from the person's entry. */}
+      <SheetButton target={`correct-${id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+        {t("school.correct")}
+      </SheetButton>
+      <Sheet id={`correct-${id}`} title={entry.person.name} description={date}>
         <Corrections row={entry.row} timezone={timezone} t={t} />
-        <SchoolForm action={correctCheckinAction} submit={t("school.saveCorrection")}>
+        <SchoolForm action={correctCheckinAction} submit={t("school.saveCorrection")} sheet>
           <input type="hidden" name="personId" value={entry.person.id} />
           <input type="hidden" name="date" value={date} />
           <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
             <legend className="mb-1.5 text-sm font-semibold">{t("school.dayMark")}</legend>
             {(["present", "absent", "excused"] as const).map((m) => (
-              <label key={m} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand has-[:checked]:font-bold">
-                <input type="radio" name="mark" value={m} defaultChecked={mark === m} className="h-4 w-4 accent-midnight" />
+              <label key={m} className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm has-[:checked]:border-midnight has-[:checked]:bg-midnight has-[:checked]:font-bold has-[:checked]:text-ivory">
+                <input type="radio" name="mark" value={m} defaultChecked={mark === m} className="h-4 w-4 accent-ember" />
                 {t(m === "present" ? "school.markPresent" : m === "absent" ? "school.markAbsent" : "school.markExcused")}
               </label>
             ))}
           </fieldset>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Field id={`f-in-${id}`} label={t("school.cameIn")} name="inTime" type="time" dir="ltr" defaultValue={at(entry.row?.inAt)} />
             <Field id={`f-out-${id}`} label={t("school.leftAt")} name="outTime" type="time" dir="ltr" defaultValue={at(entry.row?.outAt)} />
-            <Field id={`f-reason-${id}`} label={t("school.reason")} name="reason" maxLength={300} hint={t("school.reasonHint")} />
+            <Field id={`f-reason-${id}`} label={t("school.reason")} name="reason" maxLength={300} hint={t("school.reasonHint")} className="sm:col-span-2" />
           </div>
         </SchoolForm>
-      </div>
-    </details>
+      </Sheet>
+    </>
   );
 }
 
-/** 113.2 Links between the check-in pages. */
-export function CheckinLinks({ t }: { t: DashT }) {
+/** 113.2 Links between the check-in pages: the kit's cards, but for the page they're on. */
+export function CheckinLinks({ t, current }: { t: DashT; current?: string }) {
   const links = [
     { href: "/dashboard/school/checkin", label: t("school.checkin"), icon: "qr_code_2" as const },
     { href: "/dashboard/school/checkin/gate", label: t("school.gate"), icon: "tablet" as const },
     { href: "/dashboard/school/checkin/report", label: t("school.monthReport"), icon: "calendar_month" as const },
     { href: "/dashboard/school/checkin/settings", label: t("school.checkinSettings"), icon: "tune" as const },
   ];
-  return (
-    <nav aria-label={t("school.checkin")} className="flex max-w-[860px] flex-wrap gap-2">
-      {links.map((l) => (
-        <Link key={l.href} href={l.href} className={`${btn.secondary} h-10 px-4 text-sm`}>
-          <Icon name={l.icon} size={18} />
-          {l.label}
-        </Link>
-      ))}
-    </nav>
-  );
+  return <LinkCards label={t("school.checkin")} items={links.filter((l) => l.href !== current)} />;
 }

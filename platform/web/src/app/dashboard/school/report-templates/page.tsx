@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { addSuggestedTemplateAction, addTemplateFieldAction, changeTemplateFieldAction, deleteReportTemplateAction, saveReportTemplateAction } from "@/app/actions/school-reports";
 import { Field } from "@/components/form";
 import { Icon } from "@/components/icon";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { Badge, btn } from "@/components/ui";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
@@ -11,7 +12,6 @@ import { SCHOOL_REPORT_FIELD_TYPES, SCHOOL_REPORT_KINDS, type SchoolReportKind }
 import { appPlan } from "@/lib/entitlements";
 import { REPORT_LIMITS } from "@/lib/school/teacher-reports";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 import { FIELD_TYPE_KEYS } from "../report-parts";
@@ -58,12 +58,23 @@ export default async function ReportTemplatesPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* The page kit: each kind of report in its section, each template a card with its fields; adding and renaming in Sheets. */}
       <PageHead title={t("reports.templates")} intro={t("reports.templatesIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {SCHOOL_REPORT_KINDS.map((kind) => {
         const own = templates.filter((x) => x.kind === kind);
         return (
-          <Panel key={kind} id={`h-templates-${kind}`} title={t(KIND_KEYS[kind].title)} intro={t(KIND_KEYS[kind].intro)}>
+          <Panel
+            key={kind}
+            id={`h-templates-${kind}`}
+            title={t(KIND_KEYS[kind].title)}
+            intro={t(KIND_KEYS[kind].intro)}
+            actions={
+              <SheetButton target={`new-template-${kind}`} icon="add" variant="secondary" className="h-10 px-3.5 text-sm">
+                {t("reports.addTemplate")}
+              </SheetButton>
+            }
+          >
             {own.length === 0 ? (
               <div className="flex flex-wrap items-center gap-3">
                 <p className="m-0 flex-1 text-[15px] text-muted">{t("reports.noTemplates")}</p>
@@ -77,9 +88,21 @@ export default async function ReportTemplatesPage() {
             ) : null}
             <ul className="m-0 flex list-none flex-col gap-4 p-0">
               {own.map((template) => (
-                <li key={template.id} className="flex flex-col gap-3 rounded-xl border border-line p-4" data-template={template.name}>
-                  <div className="flex flex-wrap items-center gap-3">
+                <li key={template.id} className="flex flex-col overflow-hidden rounded-2xl border border-line" data-template={template.name}>
+                  <div className="flex flex-wrap items-center gap-3 bg-sand px-4 py-3">
+                    <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-ink-3">
+                      <Icon name="description" size={20} />
+                    </span>
                     <span className="min-w-0 flex-1 text-[16px] font-bold">{template.name}</span>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-ink-3 tabular-nums">{t("reports.fieldCount", { count: template.fields.length })}</span>
+                    {template.fields.length < REPORT_LIMITS.fields ? (
+                      <SheetButton target={`field-${template.id}`} icon="add" variant="secondary" className="h-9 px-3.5 text-sm">
+                        {t("reports.addField")}
+                      </SheetButton>
+                    ) : null}
+                    <SheetButton target={`template-${template.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                      {t("reports.renameTemplate")}
+                    </SheetButton>
                     <form action={deleteReportTemplateAction}>
                       <input type="hidden" name="id" value={template.id} />
                       <ConfirmButton confirm={t("reports.deleteTemplate", { name: template.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
@@ -87,10 +110,10 @@ export default async function ReportTemplatesPage() {
                       </ConfirmButton>
                     </form>
                   </div>
-                  {template.fields.length === 0 ? <p className="m-0 text-[14px] text-muted">{t("reports.noFields")}</p> : null}
+                  {template.fields.length === 0 ? <p className="m-0 px-4 py-3 text-[14px] text-muted">{t("reports.noFields")}</p> : null}
                   <ol className="m-0 flex list-none flex-col p-0">
                     {template.fields.map((field, i) => (
-                      <li key={field.id} className="flex flex-wrap items-center gap-2 border-t border-line-soft py-2 first:border-t-0" data-field={field.label}>
+                      <li key={field.id} className="flex flex-wrap items-center gap-2 border-t border-line-soft px-4 py-2.5" data-field={field.label}>
                         <span className="flex min-w-0 flex-1 flex-col">
                           <span className="text-[15px] font-semibold">{field.label}</span>
                           <span className="text-[13px] text-muted">{[t(FIELD_TYPE_KEYS[field.type]), field.options.join(" / ")].filter(Boolean).join(" · ")}</span>
@@ -103,8 +126,8 @@ export default async function ReportTemplatesPage() {
                     ))}
                   </ol>
                   {template.fields.length < REPORT_LIMITS.fields ? (
-                    <AddServiceBox title={t("reports.addField")} open={template.fields.length === 0}>
-                      <SchoolForm action={addTemplateFieldAction} submit={t("school.add")} reset>
+                    <Sheet id={`field-${template.id}`} title={t("reports.addField")} description={template.name}>
+                      <SchoolForm action={addTemplateFieldAction} submit={t("school.add")} reset sheet>
                         <input type="hidden" name="id" value={template.id} />
                         <div className="grid gap-4 sm:grid-cols-2">
                           <Field id={`f-label-${template.id}`} label={t("reports.fieldLabel")} name="label" maxLength={REPORT_LIMITS.label} placeholder={t("reports.fieldLabelExample")} required />
@@ -122,27 +145,24 @@ export default async function ReportTemplatesPage() {
                           {t("reports.mustFill")}
                         </label>
                       </SchoolForm>
-                    </AddServiceBox>
+                    </Sheet>
                   ) : null}
-                  <details className="rounded-lg border border-line-soft px-3 py-2">
-                    <summary className="cursor-pointer text-sm font-semibold">{t("reports.renameTemplate")}</summary>
-                    <div className="pt-3">
-                      <SchoolForm action={saveReportTemplateAction} submit={t("school.save")}>
-                        <input type="hidden" name="id" value={template.id} />
-                        <input type="hidden" name="kind" value={template.kind} />
-                        <Field id={`f-name-${template.id}`} label={t("reports.templateName")} name="name" defaultValue={template.name} maxLength={REPORT_LIMITS.templateName} />
-                      </SchoolForm>
-                    </div>
-                  </details>
+                  <Sheet id={`template-${template.id}`} title={t("reports.renameTemplate")}>
+                    <SchoolForm action={saveReportTemplateAction} submit={t("school.save")} sheet>
+                      <input type="hidden" name="id" value={template.id} />
+                      <input type="hidden" name="kind" value={template.kind} />
+                      <Field id={`f-name-${template.id}`} label={t("reports.templateName")} name="name" defaultValue={template.name} maxLength={REPORT_LIMITS.templateName} />
+                    </SchoolForm>
+                  </Sheet>
                 </li>
               ))}
             </ul>
-            <AddServiceBox title={t("reports.addTemplate")} open={false}>
-              <SchoolForm action={saveReportTemplateAction} submit={t("school.add")} reset>
+            <Sheet id={`new-template-${kind}`} title={t("reports.addTemplate")} description={t(KIND_KEYS[kind].title)}>
+              <SchoolForm action={saveReportTemplateAction} submit={t("school.add")} reset sheet>
                 <input type="hidden" name="kind" value={kind} />
                 <Field id={`f-name-new-${kind}`} label={t("reports.templateName")} name="name" maxLength={REPORT_LIMITS.templateName} placeholder={t("reports.templateNameExample")} required />
               </SchoolForm>
-            </AddServiceBox>
+            </Sheet>
           </Panel>
         );
       })}

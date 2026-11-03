@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { deleteSchoolClassAction, deleteSchoolSubjectAction, saveSchoolClassAction, saveSchoolSubjectAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
-import { btn } from "@/components/ui";
+import { EmptyState, btn } from "@/components/ui";
+import { LinkCards, PageGroup, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList, Sheet, SheetButton } from "@/components/page-kit-client";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { classFormValues, SCHOOL_LIMITS } from "@/lib/school/forms";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 
@@ -31,6 +32,9 @@ export default async function SchoolClassesPage() {
   ]);
   const teacherOptions = teachers.filter((p) => p.active).map((p) => ({ value: String(p.id), label: p.name }));
   const teacherName = new Map(teachers.map((p) => [p.id, p.name]));
+  const studentsIn = (id: number) => students.filter((s) => s.active && s.classId === id).length;
+  const grades = [...new Set(classes.map((c) => c.grade).filter((g): g is string => !!g))];
+  const has = classes.length > 0;
 
   const classFields = (suffix: string, values: Record<string, string>) => (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -42,77 +46,117 @@ export default async function SchoolClassesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.classes")} intro={t("school.classesIntro")} />
+      {/* The page kit: the header and its main action, the numbers, the class pages, the classes, then the subjects. */}
+      <PageHead
+        title={t("school.classes")}
+        intro={t("school.classesIntro")}
+        actions={
+          has ? (
+            <SheetButton target="new-class" icon="add">
+              {t("school.addClass")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
 
-      <Panel id="h-classes" title={t("school.classes")}>
-        {classes.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noClasses")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {classes.map((klass) => (
-            <li key={klass.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{klass.name}</span>
-                  <span className="text-[13px] text-muted">
-                    {[
-                      klass.grade,
-                      t("school.studentCount", { count: students.filter((s) => s.active && s.classId === klass.id).length }),
-                      klass.homeroomTeacherId ? t("school.classTeacherIs", { name: teacherName.get(klass.homeroomTeacherId) ?? "—" }) : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                </span>
-                <form action={deleteSchoolClassAction}>
-                  <input type="hidden" name="id" value={klass.id} />
-                  <ConfirmButton confirm={t("school.deleteClass", { name: klass.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                    {t("school.delete")}
-                  </ConfirmButton>
-                </form>
-              </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("school.editClass", { name: klass.name })}</summary>
-                <div className="pt-3">
-                  <SchoolForm action={saveSchoolClassAction} submit={t("school.save")}>
-                    <input type="hidden" name="id" value={klass.id} />
-                    {classFields(`-${klass.id}`, classFormValues(klass))}
-                  </SchoolForm>
-                </div>
-              </details>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("school.addClass")} open={classes.length === 0}>
-          <SchoolForm action={saveSchoolClassAction} submit={t("school.add")} reset>
-            {classFields("-new", classFormValues(null))}
-          </SchoolForm>
-        </AddServiceBox>
-      </Panel>
+      {has ? (
+        <>
+          <StatRow label={t("school.classes")}>
+            <Stat icon="school" label={t("school.classes")} value={classes.length} hint={grades.length ? t("school.statGrades", { count: grades.length }) : undefined} />
+            <Stat icon="groups" tone="accent" label={t("school.students")} value={students.filter((s) => s.active && s.classId !== null).length} href="/dashboard/school/people" />
+            <Stat icon="menu_book" label={t("school.subjects")} value={subjects.length} />
+            <Stat icon="person" tone={classes.every((c) => c.homeroomTeacherId) ? "success" : "warn"} label={t("school.statWithTeacher")} value={classes.filter((c) => c.homeroomTeacherId).length} />
+          </StatRow>
+          <LinkCards
+            label={t("school.classPages")}
+            items={[
+              { href: "/dashboard/school/timetable", icon: "calendar_month", label: t("school.timetable") },
+              { href: "/dashboard/school/attendance", icon: "task_alt", label: t("school.attendance") },
+              { href: "/dashboard/school/homework", icon: "assignment", label: t("school.homework") },
+              { href: "/dashboard/school/grades", icon: "quiz", label: t("school.grades") },
+            ]}
+          />
+          <Panel id="h-classes" title={t("school.classCount", { count: classes.length })} flush>
+            <FilterList
+              allLabel={t("common.all")}
+              searchLabel={t("school.searchClasses")}
+              noMatch={t("school.noClassMatch")}
+              filters={grades.map((g) => ({ value: g, label: g }))}
+              items={classes.map((klass, i) => ({
+                id: klass.id,
+                text: [klass.name, klass.grade, klass.homeroomTeacherId ? teacherName.get(klass.homeroomTeacherId) : null].filter(Boolean).join(" "),
+                group: klass.grade ?? undefined,
+                node: (
+                  <ItemRow
+                    media={<Thumb icon="school" shape="square" tint={i} />}
+                    title={klass.name}
+                    meta={[klass.grade, t("school.studentCount", { count: studentsIn(klass.id) })].filter(Boolean).join(" · ")}
+                    extra={klass.homeroomTeacherId ? <span>{t("school.classTeacherIs", { name: teacherName.get(klass.homeroomTeacherId) ?? "—" })}</span> : null}
+                    actions={
+                      <>
+                        <SheetButton target={`class-${klass.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                          {t("school.edit")}
+                        </SheetButton>
+                        <form action={deleteSchoolClassAction}>
+                          <input type="hidden" name="id" value={klass.id} />
+                          <ConfirmButton confirm={t("school.deleteClass", { name: klass.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                            {t("school.delete")}
+                          </ConfirmButton>
+                        </form>
+                        <Sheet id={`class-${klass.id}`} title={t("school.editClass", { name: klass.name })}>
+                          <SchoolForm action={saveSchoolClassAction} submit={t("school.save")} sheet>
+                            <input type="hidden" name="id" value={klass.id} />
+                            {classFields(`-${klass.id}`, classFormValues(klass))}
+                          </SchoolForm>
+                        </Sheet>
+                      </>
+                    }
+                  />
+                ),
+              }))}
+            />
+          </Panel>
+        </>
+      ) : null}
 
-      <Panel id="h-subjects" title={t("school.subjects")} intro={t("school.subjectsIntro")}>
-        {subjects.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noSubjects")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {subjects.map((subject) => (
-            <li key={subject.id} className="flex flex-wrap items-end gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <SchoolForm action={saveSchoolSubjectAction} submit={t("school.rename")} className="min-w-0 flex-1 sm:flex-row sm:items-end">
-                <input type="hidden" name="id" value={subject.id} />
-                <Field id={`f-subject-${subject.id}`} label={t("school.subjectName")} name="name" defaultValue={subject.name} maxLength={SCHOOL_LIMITS.subjectName} className="flex-1" />
-              </SchoolForm>
-              <form action={deleteSchoolSubjectAction} className="pb-0.5">
-                <input type="hidden" name="id" value={subject.id} />
-                <ConfirmButton confirm={t("school.deleteSubject", { name: subject.name })} className={`${btn.danger} h-10 px-3.5 text-sm`}>
-                  {t("school.delete")}
-                </ConfirmButton>
-              </form>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("school.addSubject")} open={subjects.length === 0}>
-          <SchoolForm action={saveSchoolSubjectAction} submit={t("school.add")} reset>
-            <Field id="f-subject-new" label={t("school.subjectName")} name="name" maxLength={SCHOOL_LIMITS.subjectName} placeholder={t("school.subjectExample")} required />
-          </SchoolForm>
-        </AddServiceBox>
-      </Panel>
+      {/* One place in the page either way, so the form that adds the first class keeps its message. */}
+      <Sheet id="new-class" inline={!has} title={t("school.addClass")} description={has ? t("school.addClassHint") : t("school.noClasses")}>
+        <SchoolForm action={saveSchoolClassAction} submit={t("school.add")} reset sheet>
+          {classFields("-new", classFormValues(null))}
+        </SchoolForm>
+      </Sheet>
+
+      <PageGroup title={t("school.groupSubjects")}>
+        <Panel id="h-subjects" title={t("school.subjects")} intro={t("school.subjectsIntro")}>
+          {subjects.length === 0 ? (
+            <EmptyState icon="menu_book" title={t("school.noSubjects")} />
+          ) : (
+            <ul className="m-0 flex list-none flex-col p-0">
+              {subjects.map((subject) => (
+                <li key={subject.id} className="flex flex-wrap items-end gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
+                  <SchoolForm action={saveSchoolSubjectAction} submit={t("school.rename")} className="min-w-0 flex-1 sm:flex-row sm:items-end">
+                    <input type="hidden" name="id" value={subject.id} />
+                    <Field id={`f-subject-${subject.id}`} label={t("school.subjectName")} name="name" defaultValue={subject.name} maxLength={SCHOOL_LIMITS.subjectName} className="flex-1" />
+                  </SchoolForm>
+                  <form action={deleteSchoolSubjectAction} className="pb-0.5">
+                    <input type="hidden" name="id" value={subject.id} />
+                    <ConfirmButton confirm={t("school.deleteSubject", { name: subject.name })} className={`${btn.danger} h-10 px-3.5 text-sm`}>
+                      {t("school.delete")}
+                    </ConfirmButton>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-col gap-3 rounded-xl bg-sand p-4">
+            <p className="m-0 text-[15px] font-bold">{t("school.addSubject")}</p>
+            <SchoolForm action={saveSchoolSubjectAction} submit={t("school.add")} reset className="sm:flex-row sm:items-end">
+              <Field id="f-subject-new" label={t("school.subjectName")} name="name" maxLength={SCHOOL_LIMITS.subjectName} placeholder={t("school.subjectExample")} required className="flex-1" />
+            </SchoolForm>
+          </div>
+        </Panel>
+      </PageGroup>
     </div>
   );
 }

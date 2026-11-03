@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { deleteSchoolPeriodAction, saveSchoolPeriodAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
-import { btn } from "@/components/ui";
+import { EmptyState, btn } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ListBar } from "@/components/page-kit-c";
 import { requireClient } from "@/lib/auth/session";
 import { timeOf } from "@/lib/bookings/time";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -10,7 +13,6 @@ import type { SchoolPeriod } from "@/lib/data/types";
 import { appPlan } from "@/lib/entitlements";
 import { periodFormValues, SCHOOL_LIMITS } from "@/lib/school/forms";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { ClassTabs, FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice, WEEKDAY_KEYS } from "../parts";
 
@@ -53,66 +55,101 @@ export default async function SchoolTimetablePage({ searchParams }: { searchPara
     );
   };
 
+  const minutes = periods.reduce((sum, p) => sum + Math.max(0, p.endMinute - p.startMinute), 0);
+  const canAdd = klass !== null && subjects.length > 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.timetable")} intro={t("school.timetableIntro")} />
+      {/* The page kit: the header and its main action, the week's numbers, then the week by day. */}
+      <PageHead
+        title={t("school.timetable")}
+        intro={t("school.timetableIntro")}
+        actions={
+          canAdd && periods.length ? (
+            <SheetButton target="new-lesson" icon="add">
+              {t("school.addLesson")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {classes.length === 0 ? <FirstNote text={t("school.classesFirst")} href="/dashboard/school/classes" /> : null}
       {classes.length > 0 && subjects.length === 0 ? <FirstNote text={t("school.subjectsFirst")} href="/dashboard/school/classes" /> : null}
       {klass ? (
         <>
-          <ClassTabs classes={classes} current={klass.id} base="/dashboard/school/timetable" label={t("school.classes")} />
-          <Panel id="h-week" title={t("school.weekOf", { name: klass.name })}>
-            {periods.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noLessons")}</p> : null}
+          {periods.length ? (
+            <StatRow label={t("school.weekOf", { name: klass.name })}>
+              <Stat icon="calendar_month" tone="accent" label={t("school.statLessons")} value={periods.length} />
+              <Stat icon="schedule" label={t("school.statHours")} value={(minutes / 60).toLocaleString("en", { maximumFractionDigits: 1 })} />
+              <Stat icon="menu_book" label={t("school.subjects")} value={new Set(periods.map((p) => p.subjectId)).size} />
+              <Stat icon="person" label={t("school.teachers")} value={new Set(periods.map((p) => p.teacherId).filter((id) => id !== null)).size} />
+            </StatRow>
+          ) : null}
+          <Panel id="h-week" title={t("school.weekOf", { name: klass.name })} flush>
+            <ListBar>
+              <ClassTabs classes={classes} current={klass.id} base="/dashboard/school/timetable" label={t("school.classes")} />
+            </ListBar>
+            {periods.length === 0 ? (
+              <div className="p-5 sm:p-6">
+                <EmptyState icon="calendar_month" title={t("school.noLessons")} />
+              </div>
+            ) : null}
             {WEEKDAY_KEYS.map((key, i) => {
               const day = periods.filter((p) => p.weekday === i + 1);
               if (!day.length) return null;
               return (
-                <div key={key} className="flex flex-col gap-2">
-                  <h3 className="m-0 text-[15px] font-bold">{t(key)}</h3>
-                  <ul className="m-0 flex list-none flex-col p-0">
+                <div key={key} role="group" aria-labelledby={`h-day-${i + 1}`} className="flex flex-col border-t border-line-soft first:border-t-0">
+                  <h3 id={`h-day-${i + 1}`} className="m-0 flex items-center gap-2 bg-sand px-5 py-2 text-xs font-bold tracking-[0.4px] text-muted uppercase sm:px-6">
+                    {t(key)}
+                    <span className="rounded-full bg-white px-1.5 tabular-nums">{day.length}</span>
+                  </h3>
+                  <ItemList>
                     {day.map((period) => (
-                      <li key={period.id} className="flex flex-col gap-2 border-t border-line-soft py-2.5 first:border-t-0 first:pt-0">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span dir="ltr" className="w-[110px] shrink-0 text-[14px] font-semibold tabular-nums">
+                      <ItemRow
+                        key={period.id}
+                        media={
+                          <span dir="ltr" className="flex h-11 w-[112px] shrink-0 items-center justify-center rounded-xl bg-ivory text-[14px] font-bold tabular-nums">
                             {timeOf(period.startMinute)}–{timeOf(period.endMinute)}
                           </span>
-                          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                            <span className="text-[15px] font-bold">{subjectName.get(period.subjectId) ?? "—"}</span>
-                            <span className="text-[13px] text-muted">
-                              {[period.teacherId ? teacherName.get(period.teacherId) : null, period.room ? t("school.roomIs", { room: period.room }) : null].filter(Boolean).join(" · ")}
-                            </span>
-                          </span>
-                          <form action={deleteSchoolPeriodAction}>
-                            <input type="hidden" name="id" value={period.id} />
-                            <ConfirmButton confirm={t("school.deleteLesson")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                              {t("school.delete")}
-                            </ConfirmButton>
-                          </form>
-                        </div>
-                        <details className="rounded-xl border border-line p-4">
-                          <summary className="cursor-pointer text-[15px] font-semibold">{t("school.editLesson")}</summary>
-                          <div className="pt-3">
-                            <SchoolForm action={saveSchoolPeriodAction} submit={t("school.save")}>
+                        }
+                        title={subjectName.get(period.subjectId) ?? "—"}
+                        meta={[period.teacherId ? teacherName.get(period.teacherId) : null, period.room ? t("school.roomIs", { room: period.room }) : null].filter(Boolean).join(" · ") || null}
+                        actions={
+                          <>
+                            <SheetButton target={`lesson-${period.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                              {t("school.edit")}
+                            </SheetButton>
+                            <form action={deleteSchoolPeriodAction}>
                               <input type="hidden" name="id" value={period.id} />
-                              <input type="hidden" name="classId" value={klass.id} />
-                              {fields(`-${period.id}`, period)}
-                            </SchoolForm>
-                          </div>
-                        </details>
-                      </li>
+                              <ConfirmButton confirm={t("school.deleteLesson")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                                {t("school.delete")}
+                              </ConfirmButton>
+                            </form>
+                            <Sheet id={`lesson-${period.id}`} title={t("school.editLesson")} description={`${subjectName.get(period.subjectId) ?? "—"} · ${t(key)}`}>
+                              <SchoolForm action={saveSchoolPeriodAction} submit={t("school.save")} sheet>
+                                <input type="hidden" name="id" value={period.id} />
+                                <input type="hidden" name="classId" value={klass.id} />
+                                {fields(`-${period.id}`, period)}
+                              </SchoolForm>
+                            </Sheet>
+                          </>
+                        }
+                      />
                     ))}
-                  </ul>
+                  </ItemList>
                 </div>
               );
             })}
-            <AddServiceBox title={t("school.addLesson")} open={periods.length === 0}>
-              <SchoolForm action={saveSchoolPeriodAction} submit={t("school.add")} reset>
+          </Panel>
+          {canAdd ? (
+            // Keyed by the class, so another class's first lesson shows its form in place.
+            <Sheet key={klass.id} id="new-lesson" inline={periods.length === 0} title={t("school.addLesson")}>
+              <SchoolForm action={saveSchoolPeriodAction} submit={t("school.add")} reset sheet>
                 <input type="hidden" name="classId" value={klass.id} />
                 {fields("-new", null)}
               </SchoolForm>
-            </AddServiceBox>
-          </Panel>
+            </Sheet>
+          ) : null}
         </>
       ) : null}
     </div>

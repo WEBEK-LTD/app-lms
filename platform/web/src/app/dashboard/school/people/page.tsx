@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteSchoolPersonAction, importSchoolPeopleAction, saveSchoolPersonAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
-import { Badge, btn } from "@/components/ui";
+import { Badge, EmptyState, btn } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ChipLinks, ListBar, Pager, SearchForm } from "@/components/page-kit-c";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -13,7 +16,6 @@ import { PEOPLE_CSV_EXAMPLE, personFormValues, SCHOOL_LIMITS } from "@/lib/schoo
 import { STAFF_LIMITS, workFormValues } from "@/lib/school/staff";
 import { WorkFields } from "../staff/parts";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 
@@ -21,8 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("school.people") };
 }
 
+const ROLES = ["student", "parent", "teacher", "staff"] as const;
 const ROLE_KEYS: Record<SchoolRole, DashKey> = { student: "school.students", parent: "school.parents", teacher: "school.teachers", staff: "school.staff" };
 const ADD_KEYS: Record<SchoolRole, DashKey> = { student: "school.addStudent", parent: "school.addParent", teacher: "school.addTeacher", staff: "school.addStaff" };
+const ROLE_ICONS = { student: "school", parent: "child_care", teacher: "menu_book", staff: "home_work" } as const;
 const PER_PAGE = 50;
 
 /**
@@ -41,9 +45,8 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
   const [people, classes, family, plan] = await Promise.all([store.listSchoolPeople(app.id), store.listSchoolClasses(app.id), store.listSchoolFamily(app.id, {}), appPlan(store, license, new Date())]);
   const byId = new Map(people.map((p) => [p.id, p]));
   const className = new Map(classes.map((c) => [c.id, c.name]));
-  const shown = people
-    .filter((p) => p.role === role)
-    .filter((p) => !q || p.name.toLowerCase().includes(q) || (p.phone ?? "").includes(q) || (p.email ?? "").includes(q) || (p.code ?? "").toLowerCase().includes(q));
+  const ofRole = people.filter((p) => p.role === role);
+  const shown = ofRole.filter((p) => !q || p.name.toLowerCase().includes(q) || (p.phone ?? "").includes(q) || (p.email ?? "").includes(q) || (p.code ?? "").toLowerCase().includes(q));
   const pages = Math.max(1, Math.ceil(shown.length / PER_PAGE));
   const page = Math.min(pages, Math.max(1, Number(params.page) || 1));
   const list = shown.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -51,6 +54,8 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
   const parentsOf = (student: SchoolPerson) => family.filter((l) => l.studentId === student.id).map((l) => byId.get(l.parentId)).filter((p) => p !== undefined);
   const classOptions = classes.map((c) => ({ value: String(c.id), label: c.name }));
   const link = (r: SchoolRole, p = 1) => `/dashboard/school/people?role=${r}${q ? `&q=${encodeURIComponent(q)}` : ""}${p > 1 ? `&page=${p}` : ""}`;
+  const count = (r: SchoolRole) => people.filter((p) => p.role === r).length;
+  const has = ofRole.length > 0;
 
   const fields = (suffix: string, person: SchoolPerson | null) => {
     const values = personFormValues(person, role);
@@ -86,108 +91,113 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.people")} intro={t("school.peopleIntro")} />
+      {/* The page kit: the header and its main action, the numbers, the list by role, then the import. */}
+      <PageHead
+        title={t("school.people")}
+        intro={t("school.peopleIntro")}
+        actions={
+          has ? (
+            <SheetButton target="new-person" icon="add">
+              {t(ADD_KEYS[role])}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {classes.length === 0 ? <FirstNote text={t("school.classesFirst")} href="/dashboard/school/classes" /> : null}
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("school.people")} className="flex flex-wrap gap-1.5">
-          {(["student", "parent", "teacher", "staff"] as const).map((r) => (
-            <Link
-              key={r}
-              href={link(r)}
-              aria-current={r === role ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                r === role ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(ROLE_KEYS[r])} ({people.filter((p) => p.role === r).length})
-            </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          <input type="hidden" name="role" value={role} />
-          <label htmlFor="f-q" className="sr-only">
-            {t("school.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={params.q ?? ""} placeholder={t("school.searchPeople")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("school.search")}
-          </button>
-        </form>
-      </div>
+      {people.length ? (
+        <StatRow label={t("school.people")}>
+          <Stat icon="school" tone="accent" label={t("school.students")} value={count("student")} href={link("student")} />
+          <Stat icon="child_care" label={t("school.parents")} value={count("parent")} href={link("parent")} />
+          <Stat icon="menu_book" label={t("school.teachers")} value={count("teacher")} href={link("teacher")} hint={`${t("school.staff")}: ${count("staff")}`} />
+          <Stat icon="smartphone" tone="success" label={t("school.statUsesApp")} value={people.filter((p) => p.userId !== null).length} />
+        </StatRow>
+      ) : null}
 
-      <Panel id="h-people" title={t(ROLE_KEYS[role])}>
-        {list.length === 0 ? <p className="m-0 text-[15px] text-muted">{q ? t("school.noMatch") : t("school.noPeople")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {list.map((person) => {
-            const related = person.role === "parent" ? childrenOf(person) : person.role === "student" ? parentsOf(person) : [];
-            return (
-              <li key={person.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-[15px] font-bold">{person.name}</span>
-                    <span className="text-[13px] text-muted" dir="auto">
-                      {[
-                        person.phone,
-                        person.email,
-                        person.classId ? className.get(person.classId) : null,
-                        person.jobTitle ?? null,
-                        person.department ?? null,
-                        person.code ? t("school.codeIs", { code: person.code }) : null,
-                        related.length ? (person.role === "parent" ? t("school.childrenAre", { names: related.map((s) => s.name).join(", ") }) : t("school.parentsAre", { names: related.map((s) => s.name).join(", ") })) : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </span>
-                  {person.userId !== null ? <Badge tone="success">{t("school.usesApp")}</Badge> : null}
-                  {person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
-                  {/* 113.4 The student's page: pick-up, excuses, slips. */}
-                  {person.role === "student" ? (
-                    <Link href={`/dashboard/school/people/${person.id}`} className="text-sm">
-                      {t("parents.studentPage")}
-                    </Link>
-                  ) : null}
-                  {/* 113.5 The teachers' reports on the student. */}
-                  {person.role === "student" ? (
-                    <Link href={`/dashboard/school/teacher-reports?student=${person.id}`} className="text-sm">
-                      {t("reports.inbox")}
-                    </Link>
-                  ) : null}
-                  <form action={deleteSchoolPersonAction}>
-                    <input type="hidden" name="id" value={person.id} />
-                    <ConfirmButton confirm={t("school.deletePerson", { name: person.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                      {t("school.remove")}
-                    </ConfirmButton>
-                  </form>
-                </div>
-                <details className="rounded-xl border border-line p-4">
-                  <summary className="cursor-pointer text-[15px] font-semibold">{t("school.editPerson", { name: person.name })}</summary>
-                  <div className="pt-3">
-                    <SchoolForm action={saveSchoolPersonAction} submit={t("school.save")}>
-                      <input type="hidden" name="id" value={person.id} />
-                      {fields(`-${person.id}`, person)}
-                    </SchoolForm>
-                  </div>
-                </details>
-              </li>
-            );
-          })}
-        </ul>
+      <Panel id="h-people" title={t(ROLE_KEYS[role])} flush>
+        <ListBar>
+          <ChipLinks label={t("school.people")} items={ROLES.map((r) => ({ href: link(r), label: t(ROLE_KEYS[r]), count: count(r), current: r === role }))} />
+          {has ? <SearchForm label={t("school.search")} placeholder={t("school.searchPeople")} defaultValue={params.q ?? ""} keep={{ role }} button={t("school.search")} /> : null}
+        </ListBar>
+        {list.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon={q ? "search" : ROLE_ICONS[role]} title={q ? t("school.noMatch") : t("school.noPeople")} />
+          </div>
+        ) : (
+          <ItemList>
+            {list.map((person, i) => {
+              const related = person.role === "parent" ? childrenOf(person) : person.role === "student" ? parentsOf(person) : [];
+              return (
+                <ItemRow
+                  key={person.id}
+                  // 113.4 The student's page: pick-up, excuses, slips.
+                  href={person.role === "student" ? `/dashboard/school/people/${person.id}` : undefined}
+                  media={<Thumb icon="person" shape="round" tint={i} />}
+                  title={person.name}
+                  badges={
+                    <>
+                      {person.userId !== null ? <Badge tone="success">{t("school.usesApp")}</Badge> : null}
+                      {person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
+                    </>
+                  }
+                  meta={[person.phone, person.email, person.code ? t("school.codeIs", { code: person.code }) : null].filter(Boolean).join(" · ")}
+                  extra={
+                    [
+                      person.classId ? className.get(person.classId) : null,
+                      person.jobTitle ?? null,
+                      person.department ?? null,
+                      related.length ? (person.role === "parent" ? t("school.childrenAre", { names: related.map((s) => s.name).join(", ") }) : t("school.parentsAre", { names: related.map((s) => s.name).join(", ") })) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || null
+                  }
+                  actions={
+                    <>
+                      {/* 113.5 The teachers' reports on the student. */}
+                      {person.role === "student" ? (
+                        <Link href={`/dashboard/school/teacher-reports?student=${person.id}`} className={`${btn.ghost} h-9 px-3 text-sm hover:bg-sand`}>
+                          {t("reports.inbox")}
+                        </Link>
+                      ) : null}
+                      <SheetButton target={`person-${person.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                        {t("school.edit")}
+                      </SheetButton>
+                      <form action={deleteSchoolPersonAction}>
+                        <input type="hidden" name="id" value={person.id} />
+                        <ConfirmButton confirm={t("school.deletePerson", { name: person.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                          {t("school.remove")}
+                        </ConfirmButton>
+                      </form>
+                      <Sheet id={`person-${person.id}`} title={t("school.editPerson", { name: person.name })}>
+                        <SchoolForm action={saveSchoolPersonAction} submit={t("school.save")} sheet>
+                          <input type="hidden" name="id" value={person.id} />
+                          {fields(`-${person.id}`, person)}
+                        </SchoolForm>
+                      </Sheet>
+                    </>
+                  }
+                />
+              );
+            })}
+          </ItemList>
+        )}
         {pages > 1 ? (
-          <nav aria-label={t("school.pages")} className="flex items-center justify-between gap-3 text-[15px]">
-            {page > 1 ? <Link href={link(role, page - 1)}>{t("school.previous")}</Link> : <span />}
-            <span className="text-muted">{t("school.pageOf", { page, pages })}</span>
-            {page < pages ? <Link href={link(role, page + 1)}>{t("school.next")}</Link> : <span />}
-          </nav>
+          <Pager
+            label={t("school.pages")}
+            prev={page > 1 ? { href: link(role, page - 1), label: t("school.previous") } : null}
+            next={page < pages ? { href: link(role, page + 1), label: t("school.next") } : null}
+            text={t("school.pageOf", { page, pages })}
+          />
         ) : null}
-        <AddServiceBox title={t(ADD_KEYS[role])} open={shown.length === 0 && !q}>
-          <SchoolForm action={saveSchoolPersonAction} submit={t("school.add")} reset>
-            {fields("-new", null)}
-          </SchoolForm>
-        </AddServiceBox>
       </Panel>
+
+      {/* One place in the page either way (a role of its own), so the form that adds the first one keeps its message. */}
+      <Sheet key={role} id="new-person" inline={!has && !q} title={t(ADD_KEYS[role])}>
+        <SchoolForm action={saveSchoolPersonAction} submit={t("school.add")} reset sheet>
+          {fields("-new", null)}
+        </SchoolForm>
+      </Sheet>
 
       <Panel id="h-import" title={t("school.importTitle")} intro={t("school.importIntro")}>
         <pre dir="ltr" className="m-0 overflow-x-auto rounded-xl bg-sand p-3 text-[13px] leading-relaxed">

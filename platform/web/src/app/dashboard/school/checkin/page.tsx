@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Badge, btn } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { ListBar, Pager } from "@/components/page-kit-c";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { addDays, isDate } from "@/lib/bookings/time";
@@ -57,97 +58,111 @@ export default async function SchoolCheckinPage({ searchParams }: { searchParams
   const detail = (b: BoardRow) =>
     b.role === "student" ? (b.person.classId ? (className.get(b.person.classId) ?? null) : null) : ([b.person.jobTitle, b.person.department].filter(Boolean).join(" · ") || t(b.role === "teacher" ? "school.teacher" : "school.staff"));
 
+  const STATE_ICONS = { not_yet: "hourglass_top", in: "login", left: "logout", absent: "cancel", excused: "event_busy", leave: "event_busy", off: "block" } as const;
+
   return (
     <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the day's numbers, the other check-in pages, today's pick-ups, then the board. */}
       <PageHead title={t("school.checkin")} intro={t("school.checkinIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {c.on ? null : <FirstNote text={t("school.checkinOff")} href="/dashboard/school/checkin/settings" />}
-      <CheckinLinks t={t} />
-      <form method="get" className="flex max-w-[860px] flex-wrap items-end gap-2">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-date" className="text-sm font-semibold">
-            {t("school.date")}
-          </label>
-          <input id="f-date" name="date" type="date" dir="ltr" defaultValue={date} max={today} className="input input-sm" />
-        </div>
-        <Choice
-          id="f-role"
-          name="role"
-          label={t("school.people")}
-          options={[
-            { value: "all", label: t("school.allPeople") },
-            { value: "student", label: t("school.students") },
-            { value: "teacher", label: t("school.teachers") },
-            { value: "staff", label: t("school.staff") },
-          ]}
-          defaultValue={role}
-        />
-        {classes.length ? <Choice id="f-class" name="class" label={t("school.class")} options={classes.map((k) => ({ value: String(k.id), label: k.name }))} defaultValue={classId ? String(classId) : ""} empty={t("school.allClasses")} /> : null}
-        <button type="submit" className={`${btn.secondary} h-10`}>
-          {t("school.show")}
-        </button>
-      </form>
+      {counts.length ? (
+        <StatRow label={t("school.boardOf", { date })}>
+          {counts.map((x) => (
+            <Stat key={x.state} icon={STATE_ICONS[x.state]} tone={x.state === "in" ? "success" : x.state === "absent" ? "warn" : "neutral"} label={t(STATE_KEYS[x.state])} value={x.count} />
+          ))}
+          {late || early ? <Stat icon="schedule" tone="accent" label={t("school.late")} value={late} hint={early ? `${t("school.leftEarly")}: ${early}` : undefined} /> : null}
+        </StatRow>
+      ) : null}
+      <CheckinLinks t={t} current="/dashboard/school/checkin" />
       {/* 113.4 The day's pick-up notes from the parents. */}
-      <Panel id="h-pickup-today" title={t("parents.todayPickup")} intro={pickups.length ? t("parents.todayPickupIntro") : undefined}>
-        {pickups.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noTodayPickup")}</p> : null}
-        <ul className="m-0 flex list-none flex-col gap-1 p-0" data-pickup-board>
-          {pickups.map((b) => (
-            <li key={b.person.id} className="text-[15px]" dir="auto">
-              <Link href={`/dashboard/school/people/${b.person.id}`} className="font-bold">
-                {b.person.name}
-              </Link>
-              <span className="text-muted">
-                {" · "}
-                {[detail(b), t("parents.picksUp", { who: [b.pickup!.name, b.pickup!.relation, b.pickup!.phone].filter(Boolean).join(" · ") }), b.pickup!.note].filter(Boolean).join(" · ")}
-              </span>
-            </li>
+      <Panel id="h-pickup-today" title={t("parents.todayPickup")} intro={pickups.length ? t("parents.todayPickupIntro") : undefined} flush>
+        {pickups.length === 0 ? <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("parents.noTodayPickup")}</p> : null}
+        <ul className="m-0 flex list-none flex-col p-0" data-pickup-board>
+          {pickups.map((b, i) => (
+            <ItemRow
+              key={b.person.id}
+              href={`/dashboard/school/people/${b.person.id}`}
+              media={<Thumb icon="child_care" shape="round" tint={i} />}
+              title={<span dir="auto">{b.person.name}</span>}
+              meta={[detail(b), t("parents.picksUp", { who: [b.pickup!.name, b.pickup!.relation, b.pickup!.phone].filter(Boolean).join(" · ") }), b.pickup!.note].filter(Boolean).join(" · ")}
+            />
           ))}
         </ul>
       </Panel>
-      <Panel
-        id="h-board"
-        title={t("school.boardOf", { date })}
-        intro={[...counts.map((x) => `${t(STATE_KEYS[x.state])}: ${x.count}`), late ? `${t("school.late")}: ${late}` : null, early ? `${t("school.leftEarly")}: ${early}` : null].filter(Boolean).join(" · ")}
-      >
-        {board.length === 0 ? <FirstNote text={t("school.noOneChecksIn")} href="/dashboard/school/people" /> : null}
-        {board.length > 0 && list.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noMatch")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {list.map((b) => (
-            <li key={b.person.id} data-person={b.person.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
-                  {b.role === "student" ? (
-                    <Link href={`/dashboard/school/people/${b.person.id}`} className="text-[15px] font-bold">
-                      {b.person.name}
-                    </Link>
-                  ) : (
-                    <span className="text-[15px] font-bold">{b.person.name}</span>
-                  )}
-                  <span className="text-[13px] text-muted">{detail(b)}</span>
+      <Panel id="h-board" title={t("school.boardOf", { date })} flush>
+        <ListBar>
+          <form method="get" className="flex flex-wrap items-end gap-2">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="f-date" className="text-xs font-semibold text-muted">
+                {t("school.date")}
+              </label>
+              <input id="f-date" name="date" type="date" dir="ltr" defaultValue={date} max={today} className="input input-sm" />
+            </div>
+            <Choice
+              id="f-role"
+              name="role"
+              label={t("school.people")}
+              options={[
+                { value: "all", label: t("school.allPeople") },
+                { value: "student", label: t("school.students") },
+                { value: "teacher", label: t("school.teachers") },
+                { value: "staff", label: t("school.staff") },
+              ]}
+              defaultValue={role}
+            />
+            {classes.length ? <Choice id="f-class" name="class" label={t("school.class")} options={classes.map((k) => ({ value: String(k.id), label: k.name }))} defaultValue={classId ? String(classId) : ""} empty={t("school.allClasses")} /> : null}
+            <button type="submit" className={`${btn.secondary} h-10 px-3.5 text-sm`}>
+              {t("school.show")}
+            </button>
+          </form>
+        </ListBar>
+        {board.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <FirstNote text={t("school.noOneChecksIn")} href="/dashboard/school/people" />
+          </div>
+        ) : null}
+        {board.length > 0 && list.length === 0 ? <p className="m-0 px-5 py-8 text-center text-[15px] text-muted sm:px-6">{t("school.noMatch")}</p> : null}
+        <ItemList>
+          {list.map((b, i) => (
+            <ItemRow
+              key={b.person.id}
+              data-person={b.person.id}
+              href={b.role === "student" ? `/dashboard/school/people/${b.person.id}` : undefined}
+              media={<Thumb icon={b.role === "student" ? "school" : b.role === "teacher" ? "menu_book" : "home_work"} shape="round" tint={i} />}
+              title={b.person.name}
+              meta={detail(b)}
+              extra={
+                <>
                   <DayRecord row={b.row} timezone={settings.timezone} t={t} />
-                  {b.register ? <span className="text-[13px] text-muted">{t("school.register", { status: t(REGISTER_KEYS[b.register]) })}</span> : null}
+                  {b.register ? <span>{t("school.register", { status: t(REGISTER_KEYS[b.register]) })}</span> : null}
                   {/* 113.4 The parents' accepted excuse, and who picks the child up today. */}
-                  {b.excuse ? <span className="text-[13px] text-muted">{t("parents.excusedFor", { reason: b.excuse.reason })}</span> : null}
+                  {b.excuse ? <span>{t("parents.excusedFor", { reason: b.excuse.reason })}</span> : null}
                   {b.pickup ? (
-                    <span className="text-[13px] font-semibold" data-pickup-today>
+                    <span className="font-semibold text-midnight" data-pickup-today>
                       {t("parents.picksUp", { who: [b.pickup.name, b.pickup.relation, b.pickup.phone].filter(Boolean).join(" · ") })}
                     </span>
                   ) : null}
-                </span>
-                <Badge tone={STATE_TONES[b.state]}>{t(STATE_KEYS[b.state])}</Badge>
-                {b.row?.late && (b.state === "in" || b.state === "left") ? <Badge tone="warn">{t("school.late")}</Badge> : null}
-                {b.row?.leftEarly && b.state === "left" ? <Badge tone="warn">{t("school.leftEarly")}</Badge> : null}
-              </div>
-              {b.state !== "off" || b.row ? <CorrectForm entry={b} date={date} timezone={settings.timezone} t={t} /> : null}
-            </li>
+                </>
+              }
+              aside={
+                <>
+                  <Badge tone={STATE_TONES[b.state]}>{t(STATE_KEYS[b.state])}</Badge>
+                  {b.row?.late && (b.state === "in" || b.state === "left") ? <Badge tone="warn">{t("school.late")}</Badge> : null}
+                  {b.row?.leftEarly && b.state === "left" ? <Badge tone="warn">{t("school.leftEarly")}</Badge> : null}
+                </>
+              }
+              actions={b.state !== "off" || b.row ? <CorrectForm entry={b} date={date} timezone={settings.timezone} t={t} /> : null}
+            />
           ))}
-        </ul>
+        </ItemList>
         {pages > 1 ? (
-          <nav aria-label={t("school.pages")} className="flex items-center justify-between gap-3 text-[15px]">
-            {page > 1 ? <Link href={link(page - 1)}>{t("school.previous")}</Link> : <span />}
-            <span className="text-muted">{t("school.pageOf", { page, pages })}</span>
-            {page < pages ? <Link href={link(page + 1)}>{t("school.next")}</Link> : <span />}
-          </nav>
+          <Pager
+            label={t("school.pages")}
+            prev={page > 1 ? { href: link(page - 1), label: t("school.previous") } : null}
+            next={page < pages ? { href: link(page + 1), label: t("school.next") } : null}
+            text={t("school.pageOf", { page, pages })}
+          />
         ) : null}
       </Panel>
     </div>

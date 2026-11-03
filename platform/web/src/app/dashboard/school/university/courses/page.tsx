@@ -10,9 +10,8 @@ import { appPlan } from "@/lib/entitlements";
 import { COURSES_CSV_EXAMPLE, UNI_LIMITS } from "@/lib/university/forms";
 import { loadUniSettings } from "@/lib/university/settings";
 import { ConfirmButton } from "../../../chat/forms";
-import { AddServiceBox } from "../../../delivery/forms";
 import { Choice, SchoolForm } from "../../forms";
-import { credits, isSchool, NotSchool, Panel, UniHead } from "../parts";
+import { AddSheet, credits, EditSheet, isSchool, NotSchool, Panel, UniHead } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.tabCourses") };
@@ -86,23 +85,20 @@ export default async function UniversityCoursesPage({ searchParams }: { searchPa
                   </ConfirmButton>
                 </form>
               </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: course.code })}</summary>
-                <div className="pt-3">
-                  <SchoolForm action={saveCourseAction} submit={t("university.save")}>
+              <EditSheet title={t("university.edit", { name: course.code })}>
+                  <SchoolForm action={saveCourseAction} submit={t("university.save")} sheet>
                     <input type="hidden" name="id" value={course.id} />
                     {fields(`-${course.id}`, course)}
                   </SchoolForm>
-                </div>
-              </details>
+                </EditSheet>
             </li>
           ))}
         </ul>
-        <AddServiceBox title={t("university.addCourse")} open={courses.length === 0}>
-          <SchoolForm action={saveCourseAction} submit={t("university.add")} reset>
+        <AddSheet title={t("university.addCourse")} inline={courses.length === 0}>
+          <SchoolForm action={saveCourseAction} submit={t("university.add")} reset sheet>
             {fields("-new", null)}
           </SchoolForm>
-        </AddServiceBox>
+        </AddSheet>
       </Panel>
       <Panel id="h-import-courses" title={t("university.importCourses")} intro={t("university.importCoursesIntro")}>
         <pre dir="ltr" className="m-0 overflow-x-auto rounded-xl bg-sand p-3 text-[13px] leading-relaxed">

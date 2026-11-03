@@ -6,6 +6,7 @@ import { Field, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { Notice } from "@/components/ui";
+import { FormSection, PageGroup } from "@/components/page-kit";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
@@ -32,7 +33,7 @@ async function SchoolPayments({ app }: { app: App }) {
   const payment = catalogSettings(app).payment;
   const own = isOwnPayment(payment) ? payment : null;
   return (
-    <section id="payments" aria-labelledby="h-payments" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <section id="payments" aria-labelledby="h-payments" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <h2 id="h-payments" className="m-0 text-lg font-bold">
         {t("school.cardPayments")}
       </h2>
@@ -89,37 +90,43 @@ export default async function SchoolSettingsPage() {
     <div className="flex flex-col gap-6">
       <PageHead title={t("school.settings")} intro={t("school.settingsIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <Panel id="h-settings" title={t("school.settings")}>
-        <SchoolForm action={saveSchoolSettingsAction} submit={t("school.saveSettings")}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Choice id="f-timezone" name="timezone" label={t("school.timezone")} options={zones.map((z) => ({ value: z, label: z }))} defaultValue={values.timezone} />
-            <Choice id="f-currency" name="currency" label={t("school.currency")} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} defaultValue={values.currency} />
-          </div>
-          <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line p-4">
-            <legend className="px-1 text-sm font-bold">{t("school.term")}</legend>
-            <p className="m-0 text-[14px] text-muted">{t("school.termHint")}</p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field id="f-term-name" label={t("school.termName")} name="termName" defaultValue={values.termName} maxLength={60} placeholder={t("school.termExample")} />
-              <Field id="f-term-starts" label={t("school.termStarts")} name="termStarts" type="date" dir="ltr" defaultValue={values.termStarts} />
-              <Field id="f-term-ends" label={t("school.termEnds")} name="termEnds" type="date" dir="ltr" defaultValue={values.termEnds} />
-            </div>
-          </fieldset>
-          <label className="flex items-start gap-2 text-[15px]">
-            <input type="checkbox" name="absenceAlerts" defaultChecked={values.absenceAlerts === "on"} className="mt-1 h-4 w-4 accent-midnight" />
-            <span className="flex flex-col gap-0.5">
-              <span className="font-semibold">{t("school.absenceAlerts")}</span>
-              <span className="text-[14px] text-muted">{t("school.absenceAlertsHint")}</span>
-            </span>
-          </label>
-          <label className="flex items-start gap-2 text-[15px]">
-            <input type="checkbox" name="feesByCard" defaultChecked={values.feesByCard === "on"} className="mt-1 h-4 w-4 accent-midnight" />
-            <span className="flex flex-col gap-0.5">
-              <span className="font-semibold">{t("school.feesByCard")}</span>
-              <span className="text-[14px] text-muted">{t("school.feesByCardHint")}</span>
-            </span>
-          </label>
-        </SchoolForm>
-      </Panel>
+      <PageGroup title={t("school.groupSchool")}>
+        <Panel id="h-settings" title={t("school.settings")}>
+          <SchoolForm action={saveSchoolSettingsAction} submit={t("school.saveSettings")}>
+            {/* The page kit: the form in its parts. */}
+            <FormSection id="s-place" title={t("school.formPlace")}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Choice id="f-timezone" name="timezone" label={t("school.timezone")} options={zones.map((z) => ({ value: z, label: z }))} defaultValue={values.timezone} />
+                <Choice id="f-currency" name="currency" label={t("school.currency")} options={CATALOG_CURRENCIES.map((c) => ({ value: c, label: c }))} defaultValue={values.currency} />
+              </div>
+            </FormSection>
+            <FormSection id="s-term" title={t("school.term")} description={t("school.termHint")}>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field id="f-term-name" label={t("school.termName")} name="termName" defaultValue={values.termName} maxLength={60} placeholder={t("school.termExample")} />
+                <Field id="f-term-starts" label={t("school.termStarts")} name="termStarts" type="date" dir="ltr" defaultValue={values.termStarts} />
+                <Field id="f-term-ends" label={t("school.termEnds")} name="termEnds" type="date" dir="ltr" defaultValue={values.termEnds} />
+              </div>
+            </FormSection>
+            <FormSection id="s-families" title={t("school.formFamilies")}>
+              <label className="flex items-start gap-2 text-[15px]">
+                <input type="checkbox" name="absenceAlerts" defaultChecked={values.absenceAlerts === "on"} className="mt-1 h-4 w-4 accent-midnight" />
+                <span className="flex flex-col gap-0.5">
+                  <span className="font-semibold">{t("school.absenceAlerts")}</span>
+                  <span className="text-[14px] text-muted">{t("school.absenceAlertsHint")}</span>
+                </span>
+              </label>
+              <label className="flex items-start gap-2 text-[15px]">
+                <input type="checkbox" name="feesByCard" defaultChecked={values.feesByCard === "on"} className="mt-1 h-4 w-4 accent-midnight" />
+                <span className="flex flex-col gap-0.5">
+                  <span className="font-semibold">{t("school.feesByCard")}</span>
+                  <span className="text-[14px] text-muted">{t("school.feesByCardHint")}</span>
+                </span>
+              </label>
+            </FormSection>
+          </SchoolForm>
+        </Panel>
+      </PageGroup>
+      <PageGroup title={t("school.groupMessages")}>
       <Panel id="h-messages" title={t("school.messages")} intro={t("school.messagesIntro")}>
         {chatAvailable(app, plan) ? null : <Notice icon="info">{t("school.messagesNeedChat")}</Notice>}
         <SchoolForm action={saveSchoolMessagesAction} submit={t("school.saveMessages")}>
@@ -167,7 +174,12 @@ export default async function SchoolSettingsPage() {
           {check("adminReads", t("school.messagesAdminReads"), t("school.messagesAdminReadsHint"))}
         </SchoolForm>
       </Panel>
-      {settings.feesByCard || isOwnPayment(catalogSettings(app).payment) ? <SchoolPayments app={app} /> : null}
+      </PageGroup>
+      {settings.feesByCard || isOwnPayment(catalogSettings(app).payment) ? (
+        <PageGroup title={t("school.groupPayments")}>
+          <SchoolPayments app={app} />
+        </PageGroup>
+      ) : null}
     </div>
   );
 }

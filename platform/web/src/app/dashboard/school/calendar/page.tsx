@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { deleteSchoolEventAction, saveSchoolEventAction } from "@/app/actions/school-calendar";
 import { Field } from "@/components/form";
-import { btn } from "@/components/ui";
+import { EmptyState, btn } from "@/components/ui";
+import { ItemRow, Stat, StatRow } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ChipLinks } from "@/components/page-kit-c";
 import { requireClient } from "@/lib/auth/session";
 import { addDays, timeOf } from "@/lib/bookings/time";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -14,7 +17,6 @@ import { CALENDAR_LIMITS, eventFormValues } from "@/lib/school/calendar-forms";
 import { isoWeekday, schoolToday } from "@/lib/school/service";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { audienceLabel, audienceOptions, KIND_TONE } from "../life";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice, WEEKDAY_KEYS } from "../parts";
@@ -88,26 +90,42 @@ export default async function SchoolCalendarPage({ searchParams }: { searchParam
     ...exams.filter((x) => x.date === day).map((x) => ({ key: `x${x.id}`, text: t("schoolLife.examOn", { subject: subjectName.get(x.subjectId) ?? "—" }), tone: KIND_TONE.exam, href: "/dashboard/school/exams" })),
   ];
 
+  const adding = !editing;
+  const firstOne = events.length === 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("schoolLife.calendar")} intro={t("schoolLife.calendarIntro")} />
+      {/* The page kit: the header and its main action, the numbers, the month (or the list), then its events. */}
+      <PageHead
+        title={t("schoolLife.calendar")}
+        intro={t("schoolLife.calendarIntro")}
+        actions={
+          adding && !firstOne ? (
+            <SheetButton target="new-event" icon="add">
+              {t("schoolLife.addEvent")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
 
-      <nav aria-label={t("schoolLife.views")} className="flex max-w-[860px] flex-wrap items-center gap-1.5">
-        {[
-          { href: `?month=${month}`, label: t("schoolLife.monthView"), on: !list },
-          { href: "?view=list", label: t("schoolLife.listView"), on: list },
-        ].map((v) => (
-          <Link
-            key={v.label}
-            href={v.href}
-            aria-current={v.on ? "page" : undefined}
-            className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${v.on ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"}`}
-          >
-            {v.label}
-          </Link>
-        ))}
-      </nav>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ChipLinks
+          label={t("schoolLife.views")}
+          items={[
+            { href: `?month=${month}`, label: t("schoolLife.monthView"), current: !list },
+            { href: "?view=list", label: t("schoolLife.listView"), current: list },
+          ]}
+        />
+      </div>
+
+      {events.length || exams.length ? (
+        <StatRow label={list ? t("schoolLife.comingUp") : month}>
+          <Stat icon="event" tone="success" label={t(KIND_KEY.event)} value={events.filter((e) => e.kind === "event").length} />
+          <Stat icon="event_busy" tone="accent" label={t(KIND_KEY.holiday)} value={events.filter((e) => e.kind === "holiday").length} />
+          <Stat icon="quiz" label={t(KIND_KEY.exam)} value={events.filter((e) => e.kind === "exam").length + exams.length} href="/dashboard/school/exams" />
+        </StatRow>
+      ) : null}
 
       {editing ? (
         <Panel id="h-edit" title={t("schoolLife.editEvent", { title: editing.title })}>
@@ -122,19 +140,24 @@ export default async function SchoolCalendarPage({ searchParams }: { searchParam
       ) : null}
 
       {list ? null : (
-        <Panel id="h-month" title={month}>
-          <div className="flex items-center justify-between gap-3">
-            <Link href={`?month=${shift(-1)}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
-              {t("schoolLife.previousMonth")}
-            </Link>
-            <Link href={`?month=${shift(1)}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
-              {t("schoolLife.nextMonth")}
-            </Link>
-          </div>
+        <Panel
+          id="h-month"
+          title={month}
+          actions={
+            <>
+              <Link href={`?month=${shift(-1)}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("schoolLife.previousMonth")}
+              </Link>
+              <Link href={`?month=${shift(1)}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("schoolLife.nextMonth")}
+              </Link>
+            </>
+          }
+        >
           <div className="overflow-x-auto">
-            <div className="grid min-w-[560px] grid-cols-7 gap-1" data-calendar-month={month}>
+            <div className="grid min-w-[560px] grid-cols-7 gap-1.5" data-calendar-month={month}>
               {WEEKDAY_KEYS.map((key) => (
-                <div key={key} className="px-1 pb-1 text-center text-[12px] font-semibold text-muted">
+                <div key={key} className="px-1 pb-1 text-center text-xs font-bold tracking-[0.4px] text-muted uppercase">
                   {t(key)}
                 </div>
               ))}
@@ -142,12 +165,12 @@ export default async function SchoolCalendarPage({ searchParams }: { searchParam
                 day === null ? (
                   <div key={`lead-${i}`} />
                 ) : (
-                  <div key={day} data-day={day} className={`flex min-h-[86px] flex-col gap-1 rounded-lg border p-1.5 ${day === today ? "border-midnight" : "border-line-soft"}`}>
-                    <span className="text-[12px] font-bold tabular-nums">{Number(day.slice(8))}</span>
+                  <div key={day} data-day={day} className={`flex min-h-[92px] flex-col gap-1 rounded-xl border p-1.5 ${day === today ? "border-ember bg-peach-soft" : "border-line-soft bg-white"}`}>
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[12px] font-bold tabular-nums ${day === today ? "bg-ember text-[#0e0d24]" : ""}`}>{Number(day.slice(8))}</span>
                     {onDay(day)
                       .slice(0, 3)
                       .map((item) => (
-                        <Link key={item.key} href={item.href} className={`truncate rounded px-1 py-0.5 text-[11px] font-semibold no-underline ${item.tone}`}>
+                        <Link key={item.key} href={item.href} className={`truncate rounded-md px-1.5 py-0.5 text-[11px] font-semibold no-underline ${item.tone}`}>
                           {item.text}
                         </Link>
                       ))}
@@ -160,36 +183,52 @@ export default async function SchoolCalendarPage({ searchParams }: { searchParam
         </Panel>
       )}
 
-      <Panel id="h-events" title={list ? t("schoolLife.comingUp") : t("schoolLife.calendar")}>
-        {events.length === 0 ? <p className="m-0 text-[15px] text-muted">{list ? t("schoolLife.noEventsAhead") : t("schoolLife.noEventsMonth")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0" data-events="">
-          {events.map((e) => (
-            <li key={e.id} data-event={e.id} className="flex flex-wrap items-start gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="flex flex-wrap items-center gap-2 text-[15px] font-bold">
-                  {e.title}
-                  <span className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${KIND_TONE[e.kind]}`}>{t(KIND_KEY[e.kind])}</span>
-                </span>
-                <span className="text-[13px] text-muted">{[when(e), e.place, audienceLabel(e, className, t)].filter(Boolean).join(" · ")}</span>
-                {e.notes ? <span className="text-[14px] whitespace-pre-line text-ink-4">{e.notes}</span> : null}
-              </span>
-              <Link href={`?${list ? "view=list" : `month=${month}`}&edit=${e.id}#h-edit`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
-                {t("schoolLife.edit")}
-              </Link>
-              <form action={deleteSchoolEventAction}>
-                <input type="hidden" name="id" value={e.id} />
-                <ConfirmButton confirm={t("schoolLife.deleteEvent", { title: e.title })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                  {t("schoolLife.delete")}
-                </ConfirmButton>
-              </form>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("schoolLife.addEvent")} open={events.length === 0 && !editing}>
-          <SchoolForm action={saveSchoolEventAction} submit={t("school.add")} reset>
+      {adding ? (
+        // One place in the page either way, so the form that adds the first event keeps its message.
+        <Sheet id="new-event" inline={firstOne} title={t("schoolLife.addEvent")}>
+          <SchoolForm action={saveSchoolEventAction} submit={t("school.add")} reset sheet>
             {fields("-new", null)}
           </SchoolForm>
-        </AddServiceBox>
+        </Sheet>
+      ) : null}
+
+      <Panel id="h-events" title={list ? t("schoolLife.comingUp") : t("schoolLife.calendar")} flush>
+        {events.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="calendar_month" title={list ? t("schoolLife.noEventsAhead") : t("schoolLife.noEventsMonth")} />
+          </div>
+        ) : null}
+        <ul className="m-0 flex list-none flex-col p-0" data-events="">
+          {events.map((e) => (
+            <ItemRow
+              key={e.id}
+              data-event={e.id}
+              media={
+                <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl leading-none ${KIND_TONE[e.kind]}`}>
+                  <span className="text-[16px] font-extrabold tabular-nums">{Number(e.startsOn.slice(8))}</span>
+                  <span className="text-[10px] font-bold tabular-nums">{e.startsOn.slice(5, 7)}</span>
+                </span>
+              }
+              title={e.title}
+              badges={<span className={`rounded-full px-2 py-0.5 text-[12px] font-semibold ${KIND_TONE[e.kind]}`}>{t(KIND_KEY[e.kind])}</span>}
+              meta={[when(e), e.place, audienceLabel(e, className, t)].filter(Boolean).join(" · ")}
+              extra={e.notes ? <span className="whitespace-pre-line text-ink-4">{e.notes}</span> : null}
+              actions={
+                <>
+                  <Link href={`?${list ? "view=list" : `month=${month}`}&edit=${e.id}#h-edit`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                    {t("schoolLife.edit")}
+                  </Link>
+                  <form action={deleteSchoolEventAction}>
+                    <input type="hidden" name="id" value={e.id} />
+                    <ConfirmButton confirm={t("schoolLife.deleteEvent", { title: e.title })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                      {t("schoolLife.delete")}
+                    </ConfirmButton>
+                  </form>
+                </>
+              }
+            />
+          ))}
+        </ul>
       </Panel>
     </div>
   );

@@ -140,6 +140,12 @@ export const en = {
     maxLoans: "Enter the books one person borrows at once, from 1 to {max}.",
     remindDays: "Enter the days before the due date, from 0 to {max}.",
   },
+  // The page kit: Library.
+  statCopies: "{count, plural, one {{count} copy} other {{count} copies}}",
+  statOut: "Out now",
+  statOverdue: "Overdue",
+  statReady: "Held, ready to take",
+  groupMore: "Books from a sheet and the library's rules",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -281,6 +287,12 @@ export const ar: Strings<typeof en> = {
     maxLoans: "أدخل عدد الكتب التي يستعيرها الشخص في وقت واحد، من 1 إلى {max}.",
     remindDays: "أدخل الأيام قبل موعد الإرجاع، من 0 إلى {max}.",
   },
+  // The page kit: Library.
+  statCopies: "{count, plural, zero {لا نسخ} one {نسخة واحدة} two {نسختان} few {{count} نسخ} many {{count} نسخة} other {{count} نسخة}}",
+  statOut: "مُعارة الآن",
+  statOverdue: "متأخرة",
+  statReady: "محجوزة وجاهزة للاستلام",
+  groupMore: "الكتب من ملف وقواعد المكتبة",
 };
 
 export const tr: Strings<typeof en> = {
@@ -422,4 +434,10 @@ export const tr: Strings<typeof en> = {
     maxLoans: "Bir kişinin aynı anda alacağı kitap sayısını 1 ile {max} arasında girin.",
     remindDays: "İade gününden önceki günleri 0 ile {max} arasında girin.",
   },
+  // The page kit: Library.
+  statCopies: "{count} kopya",
+  statOut: "Şu an ödünçte",
+  statOverdue: "Gecikmiş",
+  statReady: "Ayrıldı, alınmaya hazır",
+  groupMore: "Dosyadan kitaplar ve kütüphane kuralları",
 };

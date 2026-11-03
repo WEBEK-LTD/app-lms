@@ -133,6 +133,9 @@ export const en = {
     choosePositive: "Choose positive or negative.",
     pointsRange: "Points are 0 to {max}.",
   },
+  // The page kit: Behaviour.
+  statStudents: "Students with notes",
+  groupSettings: "Settings",
 };
 
 export const ar: Strings<typeof en> = {
@@ -264,6 +267,9 @@ export const ar: Strings<typeof en> = {
     choosePositive: "اختر إيجابية أو سلبية.",
     pointsRange: "النقاط من 0 إلى {max}.",
   },
+  // The page kit: Behaviour.
+  statStudents: "طلاب لهم ملاحظات",
+  groupSettings: "الإعدادات",
 };
 
 export const tr: Strings<typeof en> = {
@@ -395,4 +401,7 @@ export const tr: Strings<typeof en> = {
     choosePositive: "Olumlu veya olumsuz seçin.",
     pointsRange: "Puan 0 ile {max} arasıdır.",
   },
+  // The page kit: Behaviour.
+  statStudents: "Notu olan öğrenciler",
+  groupSettings: "Ayarlar",
 };

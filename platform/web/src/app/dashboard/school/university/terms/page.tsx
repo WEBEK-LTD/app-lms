@@ -14,10 +14,9 @@ import { meetingsText, UNI_LIMITS } from "@/lib/university/forms";
 import { seatsTaken } from "@/lib/university/records";
 import { currentTerm, loadUniSettings } from "@/lib/university/settings";
 import { ConfirmButton } from "../../../chat/forms";
-import { AddServiceBox } from "../../../delivery/forms";
 import { Choice, SchoolForm } from "../../forms";
 import { WEEKDAY_KEYS } from "../../parts";
-import { FirstNote, isSchool, NotSchool, Panel, TermTabs, UNI_BASE, UniHead } from "../parts";
+import { AddSheet, EditSheet, FirstNote, isSchool, NotSchool, Panel, TermTabs, UNI_BASE, UniHead } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.tabTerms") };
@@ -109,23 +108,20 @@ export default async function UniversityTermsPage({ searchParams }: { searchPara
                   </ConfirmButton>
                 </form>
               </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: x.name })}</summary>
-                <div className="pt-3">
-                  <SchoolForm action={saveTermAction} submit={t("university.save")}>
+              <EditSheet title={t("university.edit", { name: x.name })}>
+                  <SchoolForm action={saveTermAction} submit={t("university.save")} sheet>
                     <input type="hidden" name="id" value={x.id} />
                     {termFields(`-${x.id}`, x)}
                   </SchoolForm>
-                </div>
-              </details>
+                </EditSheet>
             </li>
           ))}
         </ul>
-        <AddServiceBox title={t("university.addTerm")} open={terms.length === 0}>
-          <SchoolForm action={saveTermAction} submit={t("university.add")} reset>
+        <AddSheet title={t("university.addTerm")} inline={terms.length === 0}>
+          <SchoolForm action={saveTermAction} submit={t("university.add")} reset sheet>
             {termFields("-new", null)}
           </SchoolForm>
-        </AddServiceBox>
+        </AddSheet>
       </Panel>
 
       <TermTabs terms={terms} current={term?.id ?? null} base={`${UNI_BASE}/terms`} label={t("university.terms")} />
@@ -162,27 +158,24 @@ export default async function UniversityTermsPage({ searchParams }: { searchPara
                       </ConfirmButton>
                     </form>
                   </div>
-                  <details className="rounded-xl border border-line p-4">
-                    <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: label(s) })}</summary>
-                    <div className="pt-3">
-                      <SchoolForm action={saveSectionAction} submit={t("university.save")}>
+                  <EditSheet title={t("university.edit", { name: label(s) })}>
+                      <SchoolForm action={saveSectionAction} submit={t("university.save")} sheet>
                         <input type="hidden" name="id" value={s.id} />
                         <input type="hidden" name="termId" value={term.id} />
                         {sectionFields(`-${s.id}`, s)}
                       </SchoolForm>
-                    </div>
-                  </details>
+                    </EditSheet>
                 </li>
               );
             })}
           </ul>
           {courses.length ? (
-            <AddServiceBox title={t("university.addSection")} open={ordered.length === 0}>
-              <SchoolForm action={saveSectionAction} submit={t("university.add")} reset>
+            <AddSheet title={t("university.addSection")} inline={ordered.length === 0}>
+              <SchoolForm action={saveSectionAction} submit={t("university.add")} reset sheet>
                 <input type="hidden" name="termId" value={term.id} />
                 {sectionFields("-new", null)}
               </SchoolForm>
-            </AddServiceBox>
+            </AddSheet>
           ) : null}
         </Panel>
       ) : null}

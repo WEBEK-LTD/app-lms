@@ -95,7 +95,8 @@ test("faculties, departments, a program and courses", async () => {
   await own.getByLabel("Course code").fill("cs101");
   await own.getByLabel("Title", { exact: true }).fill("Introduction to programming");
   await own.getByLabel("Credits", { exact: true }).fill("3");
-  await own.getByRole("region", { name: /courses?$/ }).getByRole("button", { name: "Add", exact: true }).click();
+  // The first course's form is in place on the page (later ones open from its button).
+  await own.getByRole("region", { name: "Add a course" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.getByLabel("CSV file").setInputFiles({ name: "courses.csv", mimeType: "text/csv", buffer: Buffer.from("code,title,credits,department,prerequisites\nCS201,Data structures,3,CS,CS101\n") });
   await own.getByRole("button", { name: "Import" }).click();
@@ -131,7 +132,7 @@ test("a student and a lecturer, the student's program and advisor, a term and it
   await expect(own.getByText("Added. They sign in to the app with this number.")).toBeVisible();
 
   await own.goto("/dashboard/school/university/students");
-  await own.getByText("Edit Omar Hassan").click();
+  await own.getByRole("button", { name: "Edit Omar Hassan" }).click();
   await own.getByLabel("Program", { exact: true }).selectOption({ label: "BSc Computer Science" });
   await own.getByLabel("Advisor", { exact: true }).selectOption({ label: "Mona Adel" });
   await own.getByRole("button", { name: "Save", exact: true }).click();

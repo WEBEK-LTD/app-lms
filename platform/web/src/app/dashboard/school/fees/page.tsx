@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { addSchoolFeeAction, cancelSchoolFeeAction, markSchoolFeePaidAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
-import { Badge, btn } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, EmptyState, btn } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { ChipLinks, ListBar, Pager, SearchForm } from "@/components/page-kit-c";
+import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -13,7 +17,6 @@ import { feeReceiptUrl, feeReference } from "@/lib/school/service";
 import { feesByCardReady, schoolCurrency, schoolSettingsOf } from "@/lib/school/settings";
 import { appUrl } from "@/lib/env";
 import { ConfirmButton } from "../../chat/forms";
-import { AddServiceBox } from "../../delivery/forms";
 import { Choice, SchoolForm } from "../forms";
 import { FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
 
@@ -58,119 +61,126 @@ export default async function SchoolFeesPage({ searchParams }: { searchParams: P
     ...active.map((s) => ({ value: `student:${s.id}`, label: s.classId ? `${s.name} (${className.get(s.classId) ?? ""})` : s.name })),
   ];
 
+  const showKey = (st: SchoolFeeStatus): DashKey => (st === "due" ? "school.feeDue" : st === "paid" ? "school.feePaid" : "school.feeCancelled");
+  const countOf = (st: SchoolFeeStatus) => fees.filter((f) => f.status === st).length;
+  const has = fees.length > 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.fees")} intro={t("school.feesIntro")} />
+      {/* The page kit: the header and its main action, the numbers, the fees by status, then adding one. */}
+      <PageHead
+        title={t("school.fees")}
+        intro={t("school.feesIntro")}
+        actions={
+          has && active.length ? (
+            <SheetButton target="new-fee" icon="add">
+              {t("school.addFee")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {feesByCardReady(app, plan, settings) ? (
-        <p role="note" className="m-0 max-w-[860px] rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed text-success">
-          {t("school.byCardOn")}
+        <p role="note" className="m-0 flex gap-2.5 rounded-xl bg-success-bg px-4 py-3 text-[15px] leading-relaxed text-success">
+          <Icon name="credit_card" size={22} className="shrink-0" />
+          <span>{t("school.byCardOn")}</span>
         </p>
       ) : (
         <FirstNote text={t("school.byCardOff")} href="/dashboard/school/settings" />
       )}
-      <p className="m-0 text-[15px] font-semibold">{t("school.dueTotal", { amount: formatCents(dueTotal, currency) })}</p>
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("school.fees")} className="flex flex-wrap gap-1.5">
-          {SHOWS.map((s) => (
-            <Link
-              key={s}
-              href={link(s)}
-              aria-current={s === show ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                s === show ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(s === "due" ? "school.feeDue" : s === "paid" ? "school.feePaid" : "school.feeCancelled")} ({fees.filter((f) => f.status === s).length})
-            </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          <input type="hidden" name="show" value={show} />
-          <label htmlFor="f-q" className="sr-only">
-            {t("school.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={params.q ?? ""} placeholder={t("school.searchFees")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("school.search")}
-          </button>
-        </form>
-      </div>
+      <StatRow label={t("school.fees")}>
+        <Stat icon="payments" tone="accent" label={t("school.statDueAmount")} value={<span dir="ltr">{formatCents(dueTotal, currency)}</span>} />
+        <Stat icon="hourglass_top" tone="warn" label={t("school.feeDue")} value={countOf("due")} href={link("due")} />
+        <Stat icon="check_circle" tone="success" label={t("school.feePaid")} value={countOf("paid")} href={link("paid")} />
+        <Stat icon="cancel" label={t("school.feeCancelled")} value={countOf("cancelled")} href={link("cancelled")} />
+      </StatRow>
 
-      <Panel id="h-fees" title={t(show === "due" ? "school.feeDue" : show === "paid" ? "school.feePaid" : "school.feeCancelled")}>
-        {list.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noFees")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {list.map((fee) => {
-            const who = student.get(fee.studentId);
-            return (
-              <li key={fee.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">
-                    {fee.title} · <span dir="ltr">{formatCents(fee.amountCents, currency)}</span>
-                  </span>
-                  <span className="text-[13px] text-muted">
-                    {[
-                      feeReference(fee),
-                      who ? `${who.name}${who.classId ? ` (${className.get(who.classId) ?? ""})` : ""}` : null,
-                      fee.dueOn ? t("school.dueOn", { date: fee.dueOn }) : null,
-                      fee.paidAt ? t(fee.paidBy === "card" ? "school.paidByCard" : "school.paidAtSchool", { date: fee.paidAt.toISOString().slice(0, 10) }) : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                </span>
-                {fee.status === "paid" && fee.receiptCode ? (
-                  <a href={feeReceiptUrl(appUrl(), fee.receiptCode)} target="_blank" rel="noopener" className="text-[15px]">
-                    {t("school.receipt")}
-                  </a>
-                ) : null}
-                {fee.status === "cancelled" ? <Badge tone="neutral">{t("school.feeCancelled")}</Badge> : null}
-                {fee.status === "due" ? (
-                  <>
-                    <form action={markSchoolFeePaidAction}>
-                      <input type="hidden" name="id" value={fee.id} />
-                      <ConfirmButton confirm={t("school.confirmPaid", { title: fee.title, name: who?.name ?? "" })} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
-                        {t("school.markPaid")}
-                      </ConfirmButton>
-                    </form>
-                    <form action={cancelSchoolFeeAction}>
-                      <input type="hidden" name="id" value={fee.id} />
-                      <ConfirmButton confirm={t("school.confirmCancelFee", { title: fee.title })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                        {t("school.cancelFee")}
-                      </ConfirmButton>
-                    </form>
-                  </>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
+      <Panel id="h-fees" title={t(showKey(show))} flush>
+        <ListBar>
+          <ChipLinks label={t("school.fees")} items={SHOWS.map((st) => ({ href: link(st), label: t(showKey(st)), count: countOf(st), current: st === show }))} />
+          {has ? <SearchForm label={t("school.search")} placeholder={t("school.searchFees")} defaultValue={params.q ?? ""} keep={{ show }} button={t("school.search")} /> : null}
+        </ListBar>
+        {list.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon={q ? "search" : "receipt_long"} title={t("school.noFees")} />
+          </div>
+        ) : (
+          <ItemList>
+            {list.map((fee, i) => {
+              const who = student.get(fee.studentId);
+              return (
+                <ItemRow
+                  key={fee.id}
+                  media={<Thumb icon="receipt_long" shape="square" tint={i} />}
+                  title={
+                    <>
+                      {fee.title} · <span dir="ltr">{formatCents(fee.amountCents, currency)}</span>
+                    </>
+                  }
+                  badges={fee.status === "cancelled" ? <Badge tone="neutral">{t("school.feeCancelled")}</Badge> : null}
+                  meta={[feeReference(fee), who ? `${who.name}${who.classId ? ` (${className.get(who.classId) ?? ""})` : ""}` : null].filter(Boolean).join(" · ")}
+                  extra={
+                    fee.dueOn || fee.paidAt
+                      ? [fee.dueOn ? t("school.dueOn", { date: fee.dueOn }) : null, fee.paidAt ? t(fee.paidBy === "card" ? "school.paidByCard" : "school.paidAtSchool", { date: fee.paidAt.toISOString().slice(0, 10) }) : null].filter(Boolean).join(" · ")
+                      : null
+                  }
+                  actions={
+                    <>
+                      {fee.status === "paid" && fee.receiptCode ? (
+                        <a href={feeReceiptUrl(appUrl(), fee.receiptCode)} target="_blank" rel="noopener" className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                          <Icon name="receipt_long" size={18} />
+                          {t("school.receipt")}
+                        </a>
+                      ) : null}
+                      {fee.status === "due" ? (
+                        <>
+                          <form action={markSchoolFeePaidAction}>
+                            <input type="hidden" name="id" value={fee.id} />
+                            <ConfirmButton confirm={t("school.confirmPaid", { title: fee.title, name: who?.name ?? "" })} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                              {t("school.markPaid")}
+                            </ConfirmButton>
+                          </form>
+                          <form action={cancelSchoolFeeAction}>
+                            <input type="hidden" name="id" value={fee.id} />
+                            <ConfirmButton confirm={t("school.confirmCancelFee", { title: fee.title })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                              {t("school.cancelFee")}
+                            </ConfirmButton>
+                          </form>
+                        </>
+                      ) : null}
+                    </>
+                  }
+                />
+              );
+            })}
+          </ItemList>
+        )}
         {pages > 1 ? (
-          <nav aria-label={t("school.pages")} className="flex items-center justify-between gap-3 text-[15px]">
-            {page > 1 ? <Link href={link(show, page - 1)}>{t("school.previous")}</Link> : <span />}
-            <span className="text-muted">{t("school.pageOf", { page, pages })}</span>
-            {page < pages ? <Link href={link(show, page + 1)}>{t("school.next")}</Link> : <span />}
-          </nav>
+          <Pager
+            label={t("school.pages")}
+            prev={page > 1 ? { href: link(show, page - 1), label: t("school.previous") } : null}
+            next={page < pages ? { href: link(show, page + 1), label: t("school.next") } : null}
+            text={t("school.pageOf", { page, pages })}
+          />
         ) : null}
       </Panel>
 
-      <Panel id="h-add-fee" title={t("school.addFee")} intro={t("school.addFeeIntro")}>
-        {active.length === 0 ? (
-          <FirstNote text={t("school.studentsFirst")} href="/dashboard/school/people" />
-        ) : (
-          <AddServiceBox title={t("school.addFee")} open={fees.length === 0}>
-            <SchoolForm action={addSchoolFeeAction} submit={t("school.add")} reset>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Choice id="f-to" name="to" label={t("school.feeFor")} options={toOptions} empty={t("school.choose")} className="sm:col-span-2" />
-                <Field id="f-title" label={t("school.feeTitle")} name="title" maxLength={120} placeholder={t("school.feeTitleExample")} required />
-                <Field id="f-amount" label={t("school.amount", { currency })} name="amount" inputMode="decimal" dir="ltr" required />
-                <Field id="f-due" label={t("school.dueOptional")} name="dueOn" type="date" dir="ltr" />
-              </div>
-            </SchoolForm>
-          </AddServiceBox>
-        )}
-      </Panel>
+      {active.length === 0 ? (
+        <FirstNote text={t("school.studentsFirst")} href="/dashboard/school/people" />
+      ) : (
+        // One place in the page either way, so the form that adds the first fee keeps its message.
+        <Sheet id="new-fee" inline={!has} title={t("school.addFee")} description={t("school.addFeeIntro")}>
+          <SchoolForm action={addSchoolFeeAction} submit={t("school.add")} reset sheet>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Choice id="f-to" name="to" label={t("school.feeFor")} options={toOptions} empty={t("school.choose")} className="sm:col-span-2" />
+              <Field id="f-title" label={t("school.feeTitle")} name="title" maxLength={120} placeholder={t("school.feeTitleExample")} required />
+              <Field id="f-amount" label={t("school.amount", { currency })} name="amount" inputMode="decimal" dir="ltr" required />
+              <Field id="f-due" label={t("school.dueOptional")} name="dueOn" type="date" dir="ltr" />
+            </div>
+          </SchoolForm>
+        </Sheet>
+      )}
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { answerLeaveAction } from "@/app/actions/school";
-import { Badge } from "@/components/ui";
+import { Badge, EmptyState, btn } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { timeOf, utcToLocal } from "@/lib/bookings/time";
@@ -38,8 +40,9 @@ function hoursLine(person: SchoolPerson, t: DashT): string | null {
 function LeaveItem({ leave, person, t, timezone }: { leave: SchoolLeave; person: SchoolPerson | undefined; t: DashT; timezone: string }) {
   const answered = leave.answeredAt ? utcToLocal(leave.answeredAt, timezone).date : null;
   return (
-    <li data-leave={leave.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-      <div className="flex flex-wrap items-center gap-2">
+    <li data-leave={leave.id} className="flex flex-col gap-3 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Thumb icon="event_busy" shape="round" tint={leave.id} />
         <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
           <span className="text-[15px] font-bold">{person?.name ?? "—"}</span>
           <span className="text-[13px] text-muted">
@@ -60,13 +63,13 @@ function LeaveItem({ leave, person, t, timezone }: { leave: SchoolLeave; person:
         <Badge tone={STATUS_TONES[leave.status]}>{t(STATUS_KEYS[leave.status])}</Badge>
       </div>
       {leave.status === "pending" ? (
-        <SchoolForm action={answerLeaveAction} submit={t("school.save")} className="rounded-xl border border-line p-3">
+        <SchoolForm action={answerLeaveAction} submit={t("school.save")} className="rounded-xl bg-sand p-4">
           <input type="hidden" name="id" value={leave.id} />
           <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
             <legend className="sr-only">{person?.name ?? ""}</legend>
             {(["approved", "refused"] as const).map((a) => (
-              <label key={a} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand has-[:checked]:font-bold">
-                <input type="radio" name="answer" value={a} defaultChecked={a === "approved"} className="h-4 w-4 accent-midnight" />
+              <label key={a} className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-3 text-sm has-[:checked]:border-midnight has-[:checked]:bg-midnight has-[:checked]:font-bold has-[:checked]:text-ivory">
+                <input type="radio" name="answer" value={a} defaultChecked={a === "approved"} className="h-4 w-4 accent-ember" />
                 {t(a === "approved" ? "school.approve" : "school.refuse")}
               </label>
             ))}
@@ -117,11 +120,34 @@ export default async function SchoolStaffPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.staff")} intro={t("school.staffIntro")} />
+      {/* The page kit: the header (people are added on People), the numbers, leave requests, who works here, then their news. */}
+      <PageHead
+        title={t("school.staff")}
+        intro={t("school.staffIntro")}
+        actions={
+          <Link href="/dashboard/school/people?role=staff" className={`${btn.main} h-11`}>
+            <Icon name="add" size={20} />
+            {t("school.addStaff")}
+          </Link>
+        }
+      />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
 
-      <Panel id="h-leave" title={t("school.leaveRequests")} intro={waiting.length ? `${t("school.leaveIntro")} ${t("school.waitingCount", { count: waiting.length })}` : t("school.leaveIntro")}>
-        {ordered.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noLeave")}</p> : null}
+      {workers.length ? (
+        <StatRow label={t("school.staff")}>
+          <Stat icon="menu_book" label={t("school.teachers")} value={workers.filter((p) => p.role === "teacher").length} href="/dashboard/school/people?role=teacher" />
+          <Stat icon="home_work" label={t("school.staff")} value={workers.filter((p) => p.role === "staff").length} href="/dashboard/school/people?role=staff" />
+          <Stat icon="pending" tone={waiting.length ? "warn" : "neutral"} label={t("school.leaveRequests")} value={waiting.length} hint={waiting.length ? t("school.waitingCount", { count: waiting.length }) : undefined} />
+          <Stat icon="campaign" tone="accent" label={t("school.staffNews")} value={staffNews.length} href="/dashboard/school/news" />
+        </StatRow>
+      ) : null}
+
+      <Panel id="h-leave" title={t("school.leaveRequests")} intro={waiting.length ? `${t("school.leaveIntro")} ${t("school.waitingCount", { count: waiting.length })}` : t("school.leaveIntro")} flush>
+        {ordered.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="event_available" title={t("school.noLeave")} />
+          </div>
+        ) : null}
         <ul className="m-0 flex list-none flex-col p-0">
           {ordered.map((l) => (
             <LeaveItem key={l.id} leave={l} person={byId.get(l.personId)} t={t} timezone={settings.timezone} />
@@ -129,45 +155,43 @@ export default async function SchoolStaffPage() {
         </ul>
       </Panel>
 
-      <Panel id="h-workers" title={t("school.whoWorks")}>
-        {workers.length === 0 ? <FirstNote text={t("school.noStaff")} href="/dashboard/school/people?role=staff" /> : null}
+      <Panel id="h-workers" title={t("school.whoWorks")} flush>
+        {workers.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <FirstNote text={t("school.noStaff")} href="/dashboard/school/people?role=staff" />
+          </div>
+        ) : null}
         {departments.map(([department, list]) => (
-          <section key={department || "-"} className="flex flex-col gap-1">
-            {department ? <h3 className="m-0 text-[15px] font-bold">{department}</h3> : null}
-            <ul className="m-0 flex list-none flex-col p-0">
-              {list.map((person) => {
+          <section key={department || "-"} className="flex flex-col border-t border-line-soft first:border-t-0">
+            {department ? <h3 className="m-0 bg-sand px-5 py-2 text-xs font-bold tracking-[0.4px] text-muted uppercase sm:px-6">{department}</h3> : null}
+            <ItemList>
+              {list.map((person, i) => {
                 const today = board.get(person.id);
                 return (
-                  <li key={person.id} className="flex flex-wrap items-center gap-2 border-t border-line-soft py-2.5 first:border-t-0">
-                    <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
-                      <Link href={`/dashboard/school/people?role=${person.role}&q=${encodeURIComponent(person.name)}`} className="text-[15px] font-bold">
-                        {person.name}
-                      </Link>
-                      <span className="text-[13px] text-muted">{[person.jobTitle ?? t("school.noJob"), t(person.role === "teacher" ? "school.teacher" : "school.staff"), hoursLine(person, t)].filter(Boolean).join(" · ")}</span>
-                      {person.duties ? <span className="text-[13px] whitespace-pre-line text-ink-4">{person.duties}</span> : null}
-                    </span>
-                    {today && person.active ? <Badge tone={STATE_TONES[today.state]}>{t("school.todayIs", { state: t(STATE_KEYS[today.state]) })}</Badge> : null}
-                    {person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
-                  </li>
+                  <ItemRow
+                    key={person.id}
+                    href={`/dashboard/school/people?role=${person.role}&q=${encodeURIComponent(person.name)}`}
+                    media={<Thumb icon={person.role === "teacher" ? "menu_book" : "home_work"} shape="round" tint={i} />}
+                    title={person.name}
+                    badges={person.active ? null : <Badge tone="neutral">{t("school.inactive")}</Badge>}
+                    meta={[person.jobTitle ?? t("school.noJob"), t(person.role === "teacher" ? "school.teacher" : "school.staff"), hoursLine(person, t)].filter(Boolean).join(" · ")}
+                    extra={person.duties ? <span className="whitespace-pre-line">{person.duties}</span> : null}
+                    aside={today && person.active ? <Badge tone={STATE_TONES[today.state]}>{t("school.todayIs", { state: t(STATE_KEYS[today.state]) })}</Badge> : null}
+                  />
                 );
               })}
-            </ul>
+            </ItemList>
           </section>
         ))}
       </Panel>
 
-      <Panel id="h-staff-news" title={t("school.staffNews")}>
-        <FirstNote text={t("school.staffNewsIntro")} href="/dashboard/school/news" />
-        {staffNews.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("school.noStaffNews")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {staffNews.map((a) => (
-            <li key={a.id} className="flex flex-col gap-0.5 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <span className="text-[15px] font-bold">{a.title}</span>
-              <span className="text-[13px] text-muted">{a.createdAt.toISOString().slice(0, 10)}</span>
-              <span className="text-[14px] whitespace-pre-line text-ink-4">{a.body}</span>
-            </li>
+      <Panel id="h-staff-news" title={t("school.staffNews")} intro={<FirstNote text={t("school.staffNewsIntro")} href="/dashboard/school/news" />} flush>
+        {staffNews.length === 0 ? <p className="m-0 px-5 py-5 text-[15px] text-muted sm:px-6">{t("school.noStaffNews")}</p> : null}
+        <ItemList>
+          {staffNews.map((a, i) => (
+            <ItemRow key={a.id} media={<Thumb icon="campaign" shape="square" tint={i} />} title={a.title} meta={a.createdAt.toISOString().slice(0, 10)} extra={<span className="whitespace-pre-line text-ink-4">{a.body}</span>} />
           ))}
-        </ul>
+        </ItemList>
       </Panel>
     </div>
   );

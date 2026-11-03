@@ -88,7 +88,8 @@ test("Classes: not on the plan yet; a class and a subject added", async () => {
   await expect(own.getByText("No classes yet.", { exact: false })).toBeVisible();
   await own.getByLabel("Class name").fill("Grade 5 A");
   await own.getByLabel("Grade (optional)").fill("Grade 5");
-  await own.getByRole("region", { name: "Classes" }).getByRole("button", { name: "Add", exact: true }).click();
+  // The first class's form is in place on the page (later ones open from the header's button).
+  await own.getByRole("region", { name: "Add a class" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(own.getByText("Grade 5 A", { exact: true })).toBeVisible();
@@ -195,6 +196,8 @@ test("113.3 Staff: a member of staff with their job and hours, and news for the 
   await expect(own.getByText("Added. They sign in to the app with this number.")).toBeVisible();
 
   await own.goto("/dashboard/school/news");
+  // With news on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Post news" }).click();
   await own.getByLabel("For").selectOption({ label: "Teachers and staff only" });
   await own.getByLabel("Title").fill("Staff meeting");
   await own.getByLabel("Message").fill("Thursday at 2, in the library.");
@@ -279,11 +282,13 @@ test("113.5 The syllabus written and imported; the class behind the plan, then a
   const syllabus = own.getByRole("region", { name: "Mathematics · Grade 5" });
   await expect(syllabus.getByText("No units yet.", { exact: false })).toBeVisible();
   await syllabus.getByLabel("Unit", { exact: true }).fill("Fractions");
-  await syllabus.locator("details", { hasText: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
+  // The first unit's form is in place in the syllabus (later ones open from the header's button).
+  await syllabus.getByRole("region", { name: "Add a unit" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(own.getByText("Saved.", { exact: true })).toBeVisible();
   await own.reload();
   await expect(syllabus.getByText("Unit 1: Fractions")).toBeVisible();
-  const addTopic = syllabus.locator("details", { hasText: "Add a lesson or topic" });
+  // A unit's first lesson is added in place in the unit.
+  const addTopic = syllabus.getByRole("region", { name: "Add a lesson or topic" });
   await addTopic.getByLabel("Lesson or topic").fill("Halves");
   await addTopic.getByLabel("Planned from").fill("2025-09-07");
   await addTopic.getByLabel("To", { exact: true }).fill("2025-09-11");
@@ -329,7 +334,7 @@ test("113.5 Report templates and the teachers' reports", async () => {
   const template = students.locator('[data-template="Student report"]');
   await expect(template.locator("[data-field]")).toHaveCount(5);
   await expect(template.locator('[data-field="Behaviour"]')).toContainText("A rating from 1 to 5");
-  await template.locator("summary", { hasText: "Add a field" }).click();
+  await template.getByRole("button", { name: "Add a field" }).click();
   await template.getByLabel("Label").fill("Homework");
   await template.getByLabel("Type").selectOption({ label: "A choice" });
   await template.getByLabel("Choices (for a choice)").fill("Always\nSometimes\nRarely");
@@ -360,7 +365,8 @@ test("113.8 Calendar: an event and a break, in the month and the list", async ()
   await expect(own.getByText("Saved. It is on the calendar in the app.")).toBeVisible();
 
   await own.goto("/dashboard/school/calendar?view=list");
-  await own.getByText("Add to the calendar").click();
+  // With an event on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Add to the calendar" }).click();
   await own.getByLabel("What it is").selectOption({ label: "Holiday or break (no school)" });
   await own.getByLabel("Title").fill("Mid-term break");
   await own.getByLabel("From", { exact: true }).fill(dayFromToday(10));
@@ -536,12 +542,13 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
 
   // The student's page: the office adds someone to the pick-up list and today's pick-up.
   await own.goto("/dashboard/school/people");
-  await own.getByRole("link", { name: "Student's page" }).first().click();
+  // The whole entry is the link to the student's page.
+  await own.getByRole("link", { name: /^Omar Hassan/ }).first().click();
   await expect(own).toHaveURL(/\/school\/people\/\d+$/);
   await expect(own.getByRole("heading", { level: 1, name: "Omar Hassan" })).toBeVisible();
   await expect(own.getByRole("region", { name: "Parents", exact: true })).toContainText("Hassan Ali");
   const list = own.getByRole("region", { name: "Pick-up", exact: true });
-  await list.getByText("Add to the list").click();
+  await list.getByRole("button", { name: "Add to the list" }).click();
   await list.getByLabel("Name", { exact: true }).fill("Mona Ali");
   await list.getByLabel("Relation (optional)").fill("Grandmother");
   await list.getByRole("button", { name: "Add", exact: true }).click();
@@ -550,7 +557,7 @@ test("113.4 Permission slips for a class, absence excuses, and pick-up on the st
   await expect(own.locator("[data-pickup]")).toContainText("Mona Ali");
   await expect(own.locator("[data-pickup]")).toContainText("Grandmother");
   const notes = own.getByRole("region", { name: "One-day pick-up", exact: true });
-  await notes.getByText("Add a note for a day").click();
+  await notes.getByRole("button", { name: "Add a note for a day" }).click();
   await notes.getByLabel("Name", { exact: true }).fill("Karim Ali");
   await notes.getByLabel("Relation (optional)").fill("Uncle");
   await notes.getByRole("button", { name: "Save", exact: true }).click();
@@ -607,7 +614,7 @@ test("113.12 Salaries: a salary and an advance, the month's payslips with a bonu
   await expect(sheet).toContainText("Base salary");
   await expect(sheet).toContainText("+E£500.00");
   await expect(sheet.locator('[data-line="advance"]')).toContainText("−E£500.00");
-  await own.getByText("Add a bonus or a deduction").click();
+  await own.getByRole("button", { name: "Add a bonus or a deduction" }).click();
   await own.locator("#f-line-label").fill("Exam supervision");
   await own.locator("#f-line-amount").fill("400");
   await own.getByRole("button", { name: "Add", exact: true }).click();
