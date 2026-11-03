@@ -16,7 +16,8 @@
 // Running it twice with the same config changes nothing.
 //
 // --offline skips the Firebase and Huawei downloads (push stays off in that
-// build).
+// build). 104.8.6 A `file://` URL is read from this machine (Yallapp
+// Courier's release workflow writes its Firebase files to the runner).
 // Launcher icons and splash images from branding.icon_url are a later step.
 
 import 'dart:convert';
@@ -166,9 +167,11 @@ void _remove(File file) {
 }
 
 Future<String> _download(String url) async {
+  final uri = Uri.parse(url);
+  if (uri.scheme == 'file') return File.fromUri(uri).readAsString();
   final client = HttpClient();
   try {
-    final request = await client.getUrl(Uri.parse(url));
+    final request = await client.getUrl(uri);
     final response = await request.close();
     final body = await response.transform(utf8.decoder).join();
     if (response.statusCode != 200) {

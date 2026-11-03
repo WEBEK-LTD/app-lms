@@ -28,6 +28,19 @@ Firebase options). Nothing here prints a secret.
   business_store.py check
       The listing's texts: every file in every language, within the stores'
       limits. Exit 1 with the problems.
+
+104.8.6 Yallapp Courier, Yallapp's courier app (built from mobile/), with
+--app courier before the command: its listing in mobile/store/courier, its
+App Review details from the YC_APP_REVIEW_* variables and secrets (the
+contact falls back to Yallapp Business's YB_APP_REVIEW_* ones), and
+
+  business_store.py --app courier firebase android|ios <config> <dir> <out-config>
+      The Firebase file of the Actions variable YC_FIREBASE_GOOGLE_SERVICES
+      (the whole google-services.json) or YC_FIREBASE_SERVICE_INFO (the whole
+      GoogleService-Info.plist), checked to be tr.com.yallapp.courier's and
+      written to <dir>, and <out-config>: the build config <config> with
+      `firebase` pointing at it (file://) for tool/apply_config.dart. Without
+      the variable, the config without `firebase`: no pushes.
 """
 import json
 import os
@@ -40,6 +53,20 @@ ROOT = Path(__file__).resolve().parents[2]
 STORE = ROOT / "business" / "store"
 BRAND = ROOT / "brand" / "stores"
 PACKAGE = "tr.com.yallapp.business"
+# The prefix of App Review's variables and secrets.
+PREFIX = "YB"
+
+# 104.8.6 The apps Yallapp publishes under its own accounts.
+APPS = {
+    "business": {"store": ROOT / "business" / "store", "package": "tr.com.yallapp.business", "prefix": "YB"},
+    "courier": {"store": ROOT / "mobile" / "store" / "courier", "package": "tr.com.yallapp.courier", "prefix": "YC"},
+}
+
+
+def use(app):
+    """Points the listing, the package and the variables at one of APPS."""
+    global STORE, PACKAGE, PREFIX
+    STORE, PACKAGE, PREFIX = APPS[app]["store"], APPS[app]["package"], APPS[app]["prefix"]
 
 # The app's languages: (screenshots folder, Google Play locale, App Store locale).
 LANGUAGES = [("en", "en-US", "en-US"), ("ar", "ar", "ar-SA"), ("tr", "tr-TR", "tr")]
@@ -153,6 +180,42 @@ def cmd_firebase(platform, out):
     return 0
 
 
+# 104.8.6 Yallapp Courier's Firebase files, for tool/apply_config.dart.
+COURIER_FIREBASE = {
+    "android": ("YC_FIREBASE_GOOGLE_SERVICES", "google-services.json", "android_config_url", from_google_services),
+    "ios": ("YC_FIREBASE_SERVICE_INFO", "GoogleService-Info.plist", "ios_config_url", from_google_service_info),
+}
+
+
+def courier_firebase(platform, config, folder, out, env):
+    """Writes the platform's Firebase file to folder and the config pointing at it; returns the line to show."""
+    name, filename, key, parse = COURIER_FIREBASE[platform]
+    data = json.loads(Path(config).read_text(encoding="utf-8"))
+    data.pop("firebase", None)
+    text = (env.get(name) or "").strip()
+    line = f"Pushes: off (no {name})"
+    if text:
+        values = parse(text)
+        path = Path(folder) / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text + "\n", encoding="utf-8")
+        data["firebase"] = {key: path.resolve().as_uri()}
+        project = values.get("YB_FIREBASE_PROJECT_ID", "")
+        line = f"Pushes: on (from {name}, project {project})"
+    Path(out).write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    return line
+
+
+def cmd_courier_firebase(platform, config, folder, out):
+    try:
+        line = courier_firebase(platform, config, folder, out, os.environ)
+    except (ValueError, plistlib.InvalidFileException) as error:
+        print(f"Firebase file can't be read: {error}.", file=sys.stderr)
+        return 1
+    print(line)
+    return 0
+
+
 # Listings -------------------------------------------------------------------
 
 
@@ -198,13 +261,18 @@ def cmd_play(out, shots):
 
 def review_information(env):
     """App Review's details: contact from variables, the demo account from secrets (only when given)."""
+
+    def contact(name):
+        # 104.8.6 The same person answers for every Yallapp app: Yallapp Business's contact by default.
+        return (env.get(f"{PREFIX}_APP_REVIEW_{name}", "").strip() or env.get(f"YB_APP_REVIEW_{name}", "").strip())
+
     info = {
-        "first_name": env.get("YB_APP_REVIEW_FIRST_NAME", "").strip(),
-        "last_name": env.get("YB_APP_REVIEW_LAST_NAME", "").strip(),
-        "phone_number": env.get("YB_APP_REVIEW_PHONE", "").strip(),
-        "email_address": env.get("YB_APP_REVIEW_EMAIL", "").strip() or "info@yallapp.com.tr",
-        "demo_user": env.get("YB_APP_REVIEW_DEMO_USER", "").strip(),
-        "demo_password": env.get("YB_APP_REVIEW_DEMO_PASSWORD", ""),
+        "first_name": contact("FIRST_NAME"),
+        "last_name": contact("LAST_NAME"),
+        "phone_number": contact("PHONE"),
+        "email_address": contact("EMAIL") or "info@yallapp.com.tr",
+        "demo_user": env.get(f"{PREFIX}_APP_REVIEW_DEMO_USER", "").strip(),
+        "demo_password": env.get(f"{PREFIX}_APP_REVIEW_DEMO_PASSWORD", ""),
         "notes": read(STORE / "ios" / "review_notes.txt"),
     }
     return {key: value for key, value in info.items() if value}
@@ -292,6 +360,15 @@ def cmd_check():
 
 
 def main(argv):
+    if argv[:1] == ["--app"] and len(argv) > 1 and argv[1] in APPS:
+        use(argv[1])
+        argv = argv[2:]
+    if PACKAGE == APPS["courier"]["package"]:
+        if len(argv) == 5 and argv[0] == "firebase" and argv[1] in COURIER_FIREBASE:
+            return cmd_courier_firebase(*argv[1:])
+        if argv[:1] == ["firebase"]:
+            print(__doc__, file=sys.stderr)
+            return 2
     if len(argv) == 3 and argv[0] == "firebase" and argv[1] in FIREBASE_KEYS:
         return cmd_firebase(argv[1], argv[2])
     if len(argv) == 3 and argv[0] == "play":

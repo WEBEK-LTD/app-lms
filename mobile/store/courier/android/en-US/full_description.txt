@@ -1,0 +1,12 @@
+Yallapp Courier is the app for couriers of the delivery companies that work with Yallapp. Your company adds your mobile number or email to its couriers; you sign in with a code and start delivering.
+
+- One sign-in for every company you deliver for. Pick one and its jobs open; switch company from Account at any time.
+- Go on and off duty. Off duty, you're not offered new jobs.
+- Your jobs, the jobs waiting for a courier and the ones you've done.
+- Each job's steps: picked up, on the way, delivered, or couldn't deliver with a reason. Give a job back when you can't take it.
+- The cash to collect, shown on the job.
+- Call the sender or the receiver, and get directions in your maps app.
+- While a parcel is on the way and the job is open on your screen, its customer sees where it is. Nothing is shared when the app is closed.
+- Notifications for new jobs and changes to yours, opening the right company's job.
+
+No company yet? Ask the company you deliver for to add your number or email to its couriers, then sign in again.
