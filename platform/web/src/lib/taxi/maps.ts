@@ -350,8 +350,8 @@ export interface MapAccess {
 }
 
 /** 112.6 An OpenStreetMap-style map searches with its Nominatim server, else with MapTiler's geocoding when its tiles are MapTiler's. */
-export function osmSearches(settings: Pick<TaxiSettings, "tilesUrl" | "searchUrl">): boolean {
-  return settings.searchUrl !== null || maptilerKeyOf(settings.tilesUrl) !== null;
+export function osmSearches(settings: { tilesUrl: string | null | undefined; searchUrl?: string | null }): boolean {
+  return !!settings.searchUrl || maptilerKeyOf(settings.tilesUrl) !== null;
 }
 
 export function canSearch(access: MapAccess): boolean {
