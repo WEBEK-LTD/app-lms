@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { Badge, btn, ProgressBar } from "@/components/ui";
+import { Badge, EmptyState, PageHeader, ProgressBar, Section, btn } from "@/components/ui";
+import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
-import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
+import { CATALOG_CURRENCIES, formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
 import { CampaignStatusBadge } from "./campaign-page";
 import { raisedLine } from "@/lib/donations/page-items";
-import { donationSettingsOf, donationsSetUp } from "@/lib/donations/service";
+import { donationSettingsOf, donationsSetUp, publicStatus } from "@/lib/donations/service";
 import { DonationSettingsForm } from "./forms";
 import { DonationPayments } from "./payments";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -28,11 +30,8 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
   const { t, lang, date } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.campaigns")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("donations.campaignsNotHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("donations.campaigns")} description={richText(t("donations.campaignsNotHere"), { link: (chunk) => <Link href="/dashboard/app-type">{chunk}</Link> })} />
       </div>
     );
   }
@@ -48,18 +47,19 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
   const settings = donationSettingsOf(settingsRow);
   const ready = donationsSetUp(app);
 
+  const has = campaigns.length > 0;
+  const groupOf = (c: (typeof campaigns)[number]) => publicStatus(c, now) ?? "draft";
+  const addLink = (
+    <Link href="/dashboard/campaigns/new" className={`${btn.main} h-11`}>
+      <Icon name="add" size={20} />
+      {t("donations.addCampaign")}
+    </Link>
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.campaigns")}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.campaignsIntro")}</p>
-        </div>
-        <Link href="/dashboard/campaigns/new" className={`${btn.primary} h-11`}>
-          <Icon name="add" size={20} />
-          {t("donations.addCampaign")}
-        </Link>
-      </div>
+      {/* The page kit: the header and its one main action, the numbers, the donations, the campaigns, then payments and settings. */}
+      <PageHeader title={t("donations.campaigns")} description={t("donations.campaignsIntro")} actions={has ? addLink : null} />
 
       {saved ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -76,59 +76,70 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
 
       {!ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
 
-      <section aria-labelledby="h-campaigns" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-campaigns" className="m-0 text-lg font-bold">
-          {t("donations.count", { count: campaigns.length })}
-        </h2>
-        {campaigns.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("donations.noCampaigns")}</p>
+      {has ? (
+        <StatRow label={t("donations.campaigns")}>
+          <Stat icon="campaign" label={t("donations.open")} value={campaigns.filter((c) => groupOf(c) === "open").length} tone="success" />
+          <Stat icon="volunteer_activism" tone="accent" label={t("donations.statRaised")} value={formatCents(campaigns.reduce((sum, c) => sum + c.raisedCents, 0), settings.currency)} />
+          <Stat icon="groups" label={t("donations.donorsTitle")} value={campaigns.reduce((sum, c) => sum + c.donorCount, 0)} href="/dashboard/donations/donors" />
+        </StatRow>
+      ) : null}
+
+      <LinkCards
+        label={t("donations.toolsLabel")}
+        items={[
+          { href: "/dashboard/donations", icon: "receipt_long", label: t("donations.donations"), hint: t("donations.donationsHint") },
+          { href: "/dashboard/donations/donors", icon: "groups", label: t("donations.donorsTitle"), hint: t("donations.donorsHint") },
+        ]}
+      />
+
+      <Section titleId="h-campaigns" title={t("donations.count", { count: campaigns.length })} flush>
+        {has ? (
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("donations.search")}
+            noMatch={t("donations.noMatch")}
+            filters={[
+              { value: "open", label: t("donations.open") },
+              { value: "draft", label: t("donations.draft") },
+              { value: "closed", label: t("donations.ended") },
+            ]}
+            items={campaigns.map((c, i) => ({
+              id: c.id,
+              text: [c.title, c.summary].filter(Boolean).join(" "),
+              group: groupOf(c),
+              node: (
+                <ItemRow
+                  href={`/dashboard/campaigns/${c.id}`}
+                  media={<Thumb src={c.imageAssetIds[0] ? assetUrl(c.imageAssetIds[0]) : null} icon="volunteer_activism" tint={i} />}
+                  title={c.title}
+                  badges={
+                    <>
+                      <SampleBadge sample={c.sample} />
+                      {c.featured ? <Badge tone="info">{t("donations.featured")}</Badge> : null}
+                    </>
+                  }
+                  meta={[raisedLine(c, settings.currency, itemWords(lang)), t("donations.donors", { count: c.donorCount }), c.endsAt ? t("donations.ends", { date: date(c.endsAt, ENDS) }) : null]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  extra={c.goalCents ? <span className="block w-full max-w-[320px]"><ProgressBar value={c.raisedCents} max={c.goalCents} label={t("donations.raisedSoFar", { title: c.title })} tone="success" /></span> : null}
+                  aside={<CampaignStatusBadge campaign={c} now={now} t={t} />}
+                />
+              ),
+            }))}
+          />
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {campaigns.map((c) => (
-              <li key={c.id} className="border-t border-line-soft first:border-t-0">
-                <Link href={`/dashboard/campaigns/${c.id}`} className="flex items-center gap-3 py-3 text-midnight no-underline hover:bg-sand">
-                  {c.imageAssetIds[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={assetUrl(c.imageAssetIds[0])} alt="" className="h-12 w-16 shrink-0 rounded-lg object-cover" />
-                  ) : (
-                    <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-sand text-muted">
-                      <Icon name="volunteer_activism" size={22} />
-                    </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col gap-1">
-                    <span className="truncate text-[15px] font-bold">{c.title}</span>
-                    <span className="truncate text-[13px] text-muted">
-                      {[
-                        raisedLine(c, settings.currency, itemWords(lang)),
-                        t("donations.donors", { count: c.donorCount }),
-                        c.endsAt ? t("donations.ends", { date: date(c.endsAt, ENDS) }) : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                    {c.goalCents ? <ProgressBar value={c.raisedCents} max={c.goalCents} label={t("donations.raisedSoFar", { title: c.title })} tone="success" /> : null}
-                  </span>
-                  <SampleBadge sample={c.sample} />
-                  {c.featured ? <Badge tone="info">{t("donations.featured")}</Badge> : null}
-                  <CampaignStatusBadge campaign={c} now={now} t={t} />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="volunteer_activism" title={t("donations.noCampaigns")} action={addLink} />
+          </div>
         )}
-      </section>
+      </Section>
 
-      {ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
-
-      <section aria-labelledby="h-donation-settings" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-donation-settings" className="m-0 text-lg font-bold">
-            {t("donations.inApp")}
-          </h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("donations.inAppText")}</p>
-        </div>
-        <DonationSettingsForm settings={settings} currencies={CATALOG_CURRENCIES} currencyLocked={given.total > 0} />
-      </section>
+      <PageGroup title={t("donations.groupSettings")}>
+        {ready ? <DonationPayments app={app} currency={settings.currency} /> : null}
+        <Section titleId="h-donation-settings" title={t("donations.inApp")} description={t("donations.inAppText")} className="max-w-[640px]">
+          <DonationSettingsForm settings={settings} currencies={CATALOG_CURRENCIES} currencyLocked={given.total > 0} />
+        </Section>
+      </PageGroup>
     </div>
   );
 }

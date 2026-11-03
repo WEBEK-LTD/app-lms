@@ -168,6 +168,10 @@ export const en = {
     doneAll: "Refunded {amount}: all of it.",
     donePart: "Refunded {amount}. {left} wasn't: {warning}",
   },
+  // The page kit: the list's title and search.
+  paidCount: "{count, plural, =0 {Paid orders} one {{count} paid order} other {{count} paid orders}}",
+  search: "Search by customer, product or number",
+  noMatch: "No orders match.",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -329,6 +333,10 @@ export const ar: Messages = {
     doneAll: "استُرد {amount}: المبلغ كاملًا.",
     donePart: "استُرد {amount}. ولم يُسترد {left}: {warning}",
   },
+  // The page kit: the list's title and search.
+  paidCount: "{count, plural, =0 {الطلبات المدفوعة} one {طلب مدفوع واحد} two {طلبان مدفوعان} few {{count} طلبات مدفوعة} many {{count} طلبًا مدفوعًا} other {{count} طلب مدفوع}}",
+  search: "ابحث بالعميل أو المنتج أو الرقم",
+  noMatch: "لا توجد طلبات مطابقة.",
 };
 
 export const tr: Messages = {
@@ -488,4 +496,8 @@ export const tr: Messages = {
     doneAll: "{amount} iade edildi: tamamı.",
     donePart: "{amount} iade edildi. {left} iade edilemedi: {warning}",
   },
+  // The page kit: the list's title and search.
+  paidCount: "{count, plural, =0 {Ödenen siparişler} one {{count} ödenen sipariş} other {{count} ödenen sipariş}}",
+  search: "Müşteri, ürün veya numarayla arayın",
+  noMatch: "Eşleşen sipariş yok.",
 };

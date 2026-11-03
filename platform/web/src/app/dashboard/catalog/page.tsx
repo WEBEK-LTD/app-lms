@@ -3,7 +3,9 @@ import Link from "next/link";
 import { deleteCategoryAction, renameCategoryAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, EmptyState, Notice, btn } from "@/components/ui";
+import { Badge, EmptyState, Notice, PageHeader, Section, btn } from "@/components/ui";
+import { ItemRow, LinkCards, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { CATALOG_CURRENCIES, centsToDecimal, formatCents } from "@/lib/catalog/money";
@@ -65,11 +67,8 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const pageTitle = t("shop.page", { kind });
   if (!app || app.connector?.kind !== "catalog") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{pageTitle}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("shop.fromSite", { kind }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={pageTitle} description={richText(t("shop.fromSite", { kind }), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
       </div>
     );
   }
@@ -88,25 +87,20 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const loyaltyTo = lowestPlanWith(plans, (p) => hasFeature(p, "loyalty"), planId);
   const loyalty = settings.loyalty;
 
+  const has = products.length > 0;
+  const groupOf = (p: (typeof products)[number]) => (!p.active ? "hidden" : p.stock === 0 ? "out" : "shown");
+  const shown = products.filter((p) => groupOf(p) === "shown").length;
+  const addLink = (
+    <Link href="/dashboard/catalog/new" className={`${btn.main} h-11`}>
+      <Icon name="add" size={20} />
+      {t("shop.add", { kind })}
+    </Link>
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{pageTitle}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.intro", { kind })}</p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {/* 81.4 */}
-          <Link href="/dashboard/catalog/import" className={`${btn.secondary} h-11`}>
-            <Icon name="upload" size={20} />
-            {t("imports.open")}
-          </Link>
-          <Link href="/dashboard/catalog/new" className={`${btn.primary} h-11`}>
-            <Icon name="add" size={20} />
-            {t("shop.add", { kind })}
-          </Link>
-        </div>
-      </div>
+      {/* The page kit: the header and its one main action, the numbers, import, the list, then the settings and payments. */}
+      <PageHeader title={pageTitle} description={t("shop.intro", { kind })} actions={has ? addLink : null} />
 
       {saved ? (
         <p role="status" className="m-0 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
@@ -121,139 +115,149 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-products" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-products" className="m-0 text-lg font-bold">
-          {t("shop.count", { kind, count: products.length })}
-        </h2>
-        {products.length === 0 ? (
-          <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={t("shop.none", { kind })}>
-            {t("shop.noneText", { kind })}
-          </EmptyState>
+      {has ? (
+        <StatRow label={pageTitle}>
+          <Stat icon={fulfilment ? "restaurant_menu" : "inventory_2"} label={t("shop.statItems", { kind })} value={num(products.length)} hint={categories.length ? `${t("shop.categories")}: ${num(categories.length)}` : undefined} />
+          <Stat icon="check_circle" tone="success" label={t("shop.statShown")} value={num(shown)} />
+          <Stat icon="visibility_off" tone="neutral" label={t("common.hidden")} value={num(products.filter((p) => !p.active).length)} />
+          <Stat icon="warning" tone="warn" label={t("shop.outOfStock")} value={num(products.filter((p) => groupOf(p) === "out").length)} />
+        </StatRow>
+      ) : null}
+
+      <LinkCards
+        label={t("shop.toolsLabel", { kind })}
+        items={[
+          // 81.4
+          { href: "/dashboard/catalog/import", icon: "upload", label: t("imports.open"), hint: t("shop.importHint") },
+        ]}
+      />
+
+      <Section titleId="h-products" title={t("shop.count", { kind, count: products.length })} flush>
+        {has ? (
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("shop.search", { kind })}
+            noMatch={t("shop.noMatch", { kind })}
+            filters={[
+              { value: "shown", label: t("shop.statShown") },
+              { value: "out", label: t("shop.outOfStock") },
+              { value: "hidden", label: t("common.hidden") },
+            ]}
+            items={products.map((p, i) => ({
+              id: p.id,
+              text: [p.name, p.sku, ...p.categoryIds.map((c) => categoryName.get(c))].filter(Boolean).join(" "),
+              group: groupOf(p),
+              node: (
+                <ItemRow
+                  href={`/dashboard/catalog/${p.id}`}
+                  media={<Thumb src={p.imageAssetIds[0] ? assetUrl(p.imageAssetIds[0]) : null} icon={fulfilment ? "restaurant_menu" : "shopping_bag"} shape="square" tint={i} />}
+                  title={p.name}
+                  badges={
+                    <>
+                      <SampleBadge sample={p.sample} />
+                      {p.featured ? <Badge tone="info">{t("shop.featured")}</Badge> : null}
+                    </>
+                  }
+                  meta={[
+                    money(priceOf(p)),
+                    p.stock === null ? null : t("shop.inStock", { count: num(p.stock) }),
+                    p.optionGroups?.length ? t("shop.optionGroups", { count: p.optionGroups.length }) : null,
+                    ...p.categoryIds.map((c) => categoryName.get(c)),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  aside={!p.active ? <Badge tone="neutral">{t("common.hidden")}</Badge> : p.stock === 0 ? <Badge tone="warn">{t("shop.outOfStock")}</Badge> : null}
+                />
+              ),
+            }))}
+          />
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {products.map((p) => (
-              <li key={p.id} className="border-t border-line-soft first:border-t-0">
-                <Link href={`/dashboard/catalog/${p.id}`} className="flex items-center gap-3 py-3 text-midnight no-underline hover:bg-sand">
-                  {p.imageAssetIds[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={assetUrl(p.imageAssetIds[0])} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-                  ) : (
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-sand text-muted">
-                      <Icon name={fulfilment ? "restaurant_menu" : "shopping_bag"} size={22} />
-                    </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="truncate text-[15px] font-bold">{p.name}</span>
-                    <span className="truncate text-[13px] text-muted">
-                      {[
-                        money(priceOf(p)),
-                        p.stock === null ? null : t("shop.inStock", { count: num(p.stock) }),
-                        p.optionGroups?.length ? t("shop.optionGroups", { count: p.optionGroups.length }) : null,
-                        ...p.categoryIds.map((c) => categoryName.get(c)),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </span>
-                  <SampleBadge sample={p.sample} />
-                  {!p.active ? <Badge tone="neutral">{t("common.hidden")}</Badge> : p.stock === 0 ? <Badge tone="warn">{t("shop.outOfStock")}</Badge> : null}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <div className="flex flex-wrap items-start gap-6">
-        <section aria-labelledby="h-categories" className="flex min-w-0 flex-[1_1_380px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-categories" className="m-0 text-lg font-bold">
-            {t("shop.categories")}
-          </h2>
-          {categories.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("shop.categoriesHint", { kind })}</p> : null}
-          <ul className="m-0 flex list-none flex-col gap-2 p-0">
-            {categories.map((c) => (
-              <li key={c.id} className="flex items-center gap-2">
-                <form action={renameCategoryAction} className="flex flex-1 items-center gap-2">
-                  <input type="hidden" name="id" value={c.id} />
-                  <label htmlFor={`cat-${c.id}`} className="sr-only">
-                    {t("shop.categoryName")}
-                  </label>
-                  <input id={`cat-${c.id}`} name="name" defaultValue={c.name} maxLength={80} className="input input-sm flex-1" />
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    {t("shop.rename")}
-                  </SubmitButton>
-                </form>
-                <form action={deleteCategoryAction}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    {t("common.delete")}
-                  </SubmitButton>
-                </form>
-              </li>
-            ))}
-          </ul>
-          <AddCategoryForm />
-        </section>
-
-        <section aria-labelledby="h-shop" className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-shop" className="m-0 text-lg font-bold">
-            {fulfilment ? t("shop.currency") : t("shop.shopSettings")}
-          </h2>
-          <ShopSettingsForm
-            currency={settings.currency}
-            currencies={CATALOG_CURRENCIES}
-            shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents) : ""}
-            freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents) : ""}
-            returnDays={settings.returnDays ? String(settings.returnDays) : ""}
-            tax={settings.tax ? { label: settings.tax.label, rate: String(settings.tax.rateBps / 100), included: settings.tax.included } : { label: "", rate: "", included: true }}
-            shippingFields={!fulfilment}
-          />
-        </section>
-      </div>
-
-      {/* 91.4 Loyalty points. */}
-      {loyaltyInPlan ? (
-        <section aria-labelledby="h-loyalty" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-loyalty" className="m-0 text-lg font-bold">
-            {t("shop.loyalty")}
-          </h2>
-          <LoyaltyForm
-            currency={settings.currency}
-            values={{
-              on: loyalty ? "on" : "",
-              spend: centsToDecimal(loyalty?.spendPerPointCents ?? 1000),
-              value: centsToDecimal(loyalty?.pointValueCents ?? 10),
-              minPoints: String(loyalty?.minPoints ?? 100),
-            }}
-          />
-        </section>
-      ) : planId ? (
-        <UpgradeHint title={t("shop.loyalty")} to={loyaltyTo} cta={loyaltyTo ? t("overview.upgradeTo", { plan: loyaltyTo.name }) : undefined}>
-          {t("shop.loyaltyUpgradeText")}
-        </UpgradeHint>
-      ) : null}
-
-      {/* 91.1 Coupons. */}
-      <CouponsPanel coupons={coupons} currency={settings.currency} />
-
-      {fulfilment ? (
-        <section aria-labelledby="h-fulfilment" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-col gap-1">
-            <h2 id="h-fulfilment" className="m-0 text-lg font-bold">
-              {t("shop.pickupDelivery")}
-            </h2>
-            <p className="m-0 text-[15px] text-ink-4">{t("shop.pickupDeliveryText")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon={fulfilment ? "restaurant_menu" : "inventory_2"} title={t("shop.none", { kind })} action={addLink}>
+              {t("shop.noneText", { kind })}
+            </EmptyState>
           </div>
-          <FulfilmentForm
-            current={fulfilmentValues(fulfilment)}
-            timezones={TIMEZONES.includes(fulfilment.timezone) ? TIMEZONES : [fulfilment.timezone, ...TIMEZONES]}
-            currency={settings.currency}
-          />
-        </section>
-      ) : null}
+        )}
+      </Section>
 
-      <CardPayments app={app} />
-      <OtherPayments app={app} />
+      <PageGroup title={t("shop.groupSettings")}>
+        <div className="flex flex-wrap items-start gap-5">
+          <Section titleId="h-categories" title={t("shop.categories")} description={t("shop.categoriesHint", { kind })} className="flex-[1_1_380px]">
+            {categories.length ? (
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                {categories.map((c) => (
+                  <li key={c.id} className="flex flex-wrap items-center gap-2">
+                    <form action={renameCategoryAction} className="flex min-w-0 flex-[1_1_220px] items-center gap-2">
+                      <input type="hidden" name="id" value={c.id} />
+                      <label htmlFor={`cat-${c.id}`} className="sr-only">
+                        {t("shop.categoryName")}
+                      </label>
+                      <input id={`cat-${c.id}`} name="name" defaultValue={c.name} maxLength={80} className="input input-sm min-w-0 flex-1" />
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        {t("shop.rename")}
+                      </SubmitButton>
+                    </form>
+                    <form action={deleteCategoryAction}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        {t("common.delete")}
+                      </SubmitButton>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <AddCategoryForm />
+          </Section>
+
+          <Section titleId="h-shop" title={fulfilment ? t("shop.currency") : t("shop.shopSettings")} className="flex-[1_1_320px]">
+            <ShopSettingsForm
+              currency={settings.currency}
+              currencies={CATALOG_CURRENCIES}
+              shipping={settings.shippingCents ? centsToDecimal(settings.shippingCents) : ""}
+              freeOver={settings.freeShippingOverCents !== null ? centsToDecimal(settings.freeShippingOverCents) : ""}
+              returnDays={settings.returnDays ? String(settings.returnDays) : ""}
+              tax={settings.tax ? { label: settings.tax.label, rate: String(settings.tax.rateBps / 100), included: settings.tax.included } : { label: "", rate: "", included: true }}
+              shippingFields={!fulfilment}
+            />
+          </Section>
+        </div>
+
+        {fulfilment ? (
+          <Section titleId="h-fulfilment" title={t("shop.pickupDelivery")} description={t("shop.pickupDeliveryText")}>
+            <FulfilmentForm
+              current={fulfilmentValues(fulfilment)}
+              timezones={TIMEZONES.includes(fulfilment.timezone) ? TIMEZONES : [fulfilment.timezone, ...TIMEZONES]}
+              currency={settings.currency}
+            />
+          </Section>
+        ) : null}
+      </PageGroup>
+
+      <PageGroup title={t("shop.groupSelling")}>
+        <CardPayments app={app} />
+        <OtherPayments app={app} />
+        {/* 91.1 Coupons. */}
+        <CouponsPanel coupons={coupons} currency={settings.currency} />
+        {/* 91.4 Loyalty points. */}
+        {loyaltyInPlan ? (
+          <Section titleId="h-loyalty" title={t("shop.loyalty")}>
+            <LoyaltyForm
+              currency={settings.currency}
+              values={{
+                on: loyalty ? "on" : "",
+                spend: centsToDecimal(loyalty?.spendPerPointCents ?? 1000),
+                value: centsToDecimal(loyalty?.pointValueCents ?? 10),
+                minPoints: String(loyalty?.minPoints ?? 100),
+              }}
+            />
+          </Section>
+        ) : planId ? (
+          <UpgradeHint title={t("shop.loyalty")} to={loyaltyTo} cta={loyaltyTo ? t("overview.upgradeTo", { plan: loyaltyTo.name }) : undefined}>
+            {t("shop.loyaltyUpgradeText")}
+          </UpgradeHint>
+        ) : null}
+      </PageGroup>
     </div>
   );
 }

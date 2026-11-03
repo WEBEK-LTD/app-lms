@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setListingFeaturedAction, setListingStatusAction } from "@/app/actions/listings";
 import { SubmitButton } from "@/components/form";
-import { Badge } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, PageHeader, Section } from "@/components/ui";
+import { DetailLayout } from "@/components/page-kit";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
@@ -114,51 +115,66 @@ export async function ListingPage({ id }: { id: number | null }) {
         videoUrl: "",
         images: [],
       };
-  return (
-    <div className="flex max-w-[760px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/listings" className="text-sm font-semibold">
-          {t("listings.back")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{listing ? listing.title : t("listings.newListing")}</h1>
+  const header = <PageHeader back={{ href: "/dashboard/listings", label: t("listings.title") }} title={listing ? listing.title : t("listings.newListing")} />;
+  const form = (
+    <section aria-label={t("listings.listing")} className="flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <ListingForm
+        listing={values}
+        types={PROPERTY_TYPES.map((type) => ({ key: type.key, label: propertyTypeIn(t, type.key) }))}
+        currencies={LISTING_CURRENCIES}
+        areaSymbol={areaSymbol(settings.areaUnit)}
+      />
+    </section>
+  );
+  if (!listing) {
+    return (
+      <div className="flex max-w-[860px] flex-col gap-6">
+        {/* The page kit: the header, then the form in its parts. */}
+        {header}
+        {form}
       </div>
-      {listing ? (
-        <section aria-labelledby="h-status" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 id="h-status" className="m-0 text-lg font-bold">
-              {t("common.status")}
-            </h2>
-            <StatusBadge status={listing.status} t={t} />
-            {listing.featured ? <Badge tone="info">{t("listings.featured")}</Badge> : null}
-          </div>
-          <p className="m-0 text-[15px] text-ink-4">{t(STATUS_TEXT[listing.status])}</p>
-          <div className="flex flex-wrap gap-3">
-            {STATUS_ACTIONS[listing.status].map((a) => (
-              <form key={a.status} action={setListingStatusAction}>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the form, and at the side where the listing is. */}
+      {header}
+      <DetailLayout
+        main={form}
+        side={
+          <Section
+            titleId="h-status"
+            title={t("common.status")}
+            actions={
+              <>
+                <StatusBadge status={listing.status} t={t} />
+                {listing.featured ? <Badge tone="info">{t("listings.featured")}</Badge> : null}
+              </>
+            }
+          >
+            <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t(STATUS_TEXT[listing.status])}</p>
+            <div className="flex flex-col gap-2.5">
+              {STATUS_ACTIONS[listing.status].map((a) => (
+                <form key={a.status} action={setListingStatusAction}>
+                  <input type="hidden" name="id" value={listing.id} />
+                  <input type="hidden" name="status" value={a.status} />
+                  <SubmitButton variant={a.primary ? "primary" : "secondary"} className="h-10 w-full" pendingText={t("common.saving")}>
+                    {t(a.label)}
+                  </SubmitButton>
+                </form>
+              ))}
+              <form action={setListingFeaturedAction}>
                 <input type="hidden" name="id" value={listing.id} />
-                <input type="hidden" name="status" value={a.status} />
-                <SubmitButton variant={a.primary ? "primary" : "secondary"} className="h-10" pendingText={t("common.saving")}>
-                  {t(a.label)}
+                <input type="hidden" name="featured" value={listing.featured ? "off" : "on"} />
+                <SubmitButton variant="secondary" className="h-10 w-full" pendingText={t("common.saving")}>
+                  <Icon name="star" size={18} />
+                  {listing.featured ? t("listings.unfeature") : t("listings.markFeatured")}
                 </SubmitButton>
               </form>
-            ))}
-            <form action={setListingFeaturedAction}>
-              <input type="hidden" name="id" value={listing.id} />
-              <input type="hidden" name="featured" value={listing.featured ? "off" : "on"} />
-              <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
-                {listing.featured ? t("listings.unfeature") : t("listings.markFeatured")}
-              </SubmitButton>
-            </form>
-          </div>
-        </section>
-      ) : null}
-      <section aria-label={t("listings.listing")} className="rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <ListingForm
-          listing={values}
-          types={PROPERTY_TYPES.map((type) => ({ key: type.key, label: propertyTypeIn(t, type.key) }))}           currencies={LISTING_CURRENCIES}
-          areaSymbol={areaSymbol(settings.areaUnit)}
-        />
-      </section>
+            </div>
+          </Section>
+        }
+      />
     </div>
   );
 }

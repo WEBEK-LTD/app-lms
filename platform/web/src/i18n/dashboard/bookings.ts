@@ -271,6 +271,21 @@ export const en = {
     planCredits: "Enter 1 to 1000 classes, or leave it empty for unlimited.",
     packCredits: "A class pack needs a number of classes.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  toolsLabel: "{kind, select, fitness {More for your classes} clinic {More for your services} other {More for your services}}",
+  groupSettings: "Booking settings",
+  groupPlans: "Booking and payments",
+  statWeekClasses: "Classes this week",
+  statBooked: "Spots booked",
+  statSpots: "{count, plural, one {of {count} spot} other {of {count} spots}}",
+  apptSearch: "Search by name, service or date",
+  apptNoMatch: "No appointments match.",
+  membersTools: "More for your members",
+  checkInHint: "Let members in by their code or name",
+  plansCount: "{count, plural, =0 {No plans yet} one {{count} plan} other {{count} plans}}",
+  giveHint: "For someone who paid at your desk: it starts at once.",
+  membersSearch: "Search members",
+  membersNoMatch: "No members match.",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -530,6 +545,21 @@ export const ar: Messages = {
     planCredits: "أدخل من 1 إلى 1000 حصة، أو اتركه فارغًا لحصص غير محدودة.",
     packCredits: "تحتاج حزمة الحصص إلى عدد من الحصص.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  toolsLabel: "{kind, select, fitness {المزيد لحصصك} clinic {المزيد لخدماتك} other {المزيد لخدماتك}}",
+  groupSettings: "إعدادات الحجز",
+  groupPlans: "الحجز والمدفوعات",
+  statWeekClasses: "حصص هذا الأسبوع",
+  statBooked: "الأماكن المحجوزة",
+  statSpots: "{count, plural, zero {من دون أماكن} one {من مكان واحد} two {من مكانين} few {من {count} أماكن} many {من {count} مكانًا} other {من {count} مكان}}",
+  apptSearch: "ابحث بالاسم أو الخدمة أو التاريخ",
+  apptNoMatch: "لا توجد مواعيد مطابقة.",
+  membersTools: "المزيد لأعضائك",
+  checkInHint: "أدخِل الأعضاء برمزهم أو باسمهم",
+  plansCount: "{count, plural, zero {لا توجد خطط بعد} one {خطة واحدة} two {خطتان} few {{count} خطط} many {{count} خطة} other {{count} خطة}}",
+  giveHint: "لمن دفع في مكتب الاستقبال: تبدأ فورًا.",
+  membersSearch: "ابحث في الأعضاء",
+  membersNoMatch: "لا يوجد أعضاء مطابقون.",
 };
 
 export const tr: Messages = {
@@ -787,4 +817,19 @@ export const tr: Messages = {
     planCredits: "1 ile 1000 arasında ders girin veya sınırsız için boş bırakın.",
     packCredits: "Bir ders paketinin ders sayısı olmalıdır.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  toolsLabel: "{kind, select, fitness {Dersleriniz için daha fazlası} clinic {Hizmetleriniz için daha fazlası} other {Hizmetleriniz için daha fazlası}}",
+  groupSettings: "Rezervasyon ayarları",
+  groupPlans: "Rezervasyon ve ödemeler",
+  statWeekClasses: "Bu haftanın dersleri",
+  statBooked: "Ayrılan yerler",
+  statSpots: "{count, plural, one {{count} yerden} other {{count} yerden}}",
+  apptSearch: "Ad, hizmet veya tarihle arayın",
+  apptNoMatch: "Eşleşen randevu yok.",
+  membersTools: "Üyeleriniz için daha fazlası",
+  checkInHint: "Üyeleri kodlarıyla veya adlarıyla içeri alın",
+  plansCount: "{count, plural, =0 {Henüz plan yok} one {{count} plan} other {{count} plan}}",
+  giveHint: "Kayıtta ödeme yapan biri için: hemen başlar.",
+  membersSearch: "Üyelerde ara",
+  membersNoMatch: "Eşleşen üye yok.",
 };

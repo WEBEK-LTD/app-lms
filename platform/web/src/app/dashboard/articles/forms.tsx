@@ -1,11 +1,12 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- the article's picture, served by our own asset route */
-import { useActionState, type ReactNode } from "react";
+import { useActionState, useId, type ReactNode } from "react";
 import { addArticleCategoryAction, renameArticleCategoryAction, saveArticleAction, saveNewsSettingsAction } from "@/app/actions/articles";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { initialFormState } from "@/lib/forms";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 
 export interface ArticleFormValues {
   id: number | null;
@@ -31,11 +32,12 @@ function Check({ name, label, hint, defaultChecked }: { name: string; label: str
 }
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
+  // The page kit: the form's parts.
+  const id = useId();
   return (
-    <fieldset className="m-0 flex flex-col gap-4 border-0 border-t border-line-soft p-0 pt-5 first:border-t-0 first:pt-0">
-      <legend className="float-left mb-1 w-full text-[17px] font-bold">{title}</legend>
+    <FormSection id={id} title={title}>
       {children}
-    </fieldset>
+    </FormSection>
   );
 }
 
@@ -161,7 +163,7 @@ export function ArticleForm({
         />
       ) : null}
 
-      <div className="flex flex-wrap justify-end gap-3 pt-1">
+      <FormActions>
         {article.published ? (
           <SubmitButton className="h-11" pendingText={t("common.saving")}>
             {t("articles.saveArticle")}
@@ -176,7 +178,7 @@ export function ArticleForm({
             </SubmitButton>
           </>
         )}
-      </div>
+      </FormActions>
     </form>
   );
 }

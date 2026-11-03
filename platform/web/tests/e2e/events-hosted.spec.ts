@@ -134,7 +134,8 @@ test("an event with a picture, published, with a free and a paid ticket type", a
   await types.getByRole("button", { name: "Add ticket type" }).click();
   await expect(types.getByText("Added “Supporter”.")).toBeVisible();
   // Card payments aren't set up: the Events page says so.
-  await own.getByRole("link", { name: "← Events" }).click();
+  // The page kit: the way back is a small link over the title.
+  await own.getByRole("main").getByRole("link", { name: "Events", exact: true }).click();
   await expect(own.getByText("Paid tickets can't be bought until you set up")).toBeVisible();
   await expect(own.getByRole("link", { name: /Saturday Film Club/ })).toContainText("0 tickets");
 });

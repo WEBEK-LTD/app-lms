@@ -86,6 +86,10 @@ export const en = {
     writeArticle: "Write the article.",
     sectionTaken: "You already have a section with this name.",
   },
+  // The page kit: the numbers and the groups.
+  statArticles: "Articles",
+  statFeatured: "Top stories",
+  groupSettings: "Sections and settings",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -174,6 +178,10 @@ export const ar: Messages = {
     writeArticle: "اكتب المقال.",
     sectionTaken: "لديك قسم بهذا الاسم بالفعل.",
   },
+  // The page kit: the numbers and the groups.
+  statArticles: "المقالات",
+  statFeatured: "القصص الرئيسية",
+  groupSettings: "الأقسام والإعدادات",
 };
 
 export const tr: Messages = {
@@ -260,4 +268,8 @@ export const tr: Messages = {
     writeArticle: "Makaleyi yazın.",
     sectionTaken: "Bu adda bir bölümünüz zaten var.",
   },
+  // The page kit: the numbers and the groups.
+  statArticles: "Makaleler",
+  statFeatured: "Öne çıkan haberler",
+  groupSettings: "Bölümler ve ayarlar",
 };

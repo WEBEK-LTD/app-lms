@@ -1,7 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteProductAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
+import { Icon } from "@/components/icon";
+import { PageHeader, Section } from "@/components/ui";
+import { DetailLayout } from "@/components/page-kit";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { centsToDecimal } from "@/lib/catalog/money";
@@ -70,43 +72,62 @@ export async function ProductPage({ id }: { id: number | null }) {
         variants,
       }
     : { id: null, name: "", description: "", price: "", salePrice: "", stock: "", sku: "", categoryIds: [], images: [], digital: false, featured: false, active: true, optionGroups, variants };
-  return (
-    <div className="flex max-w-[720px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/catalog" className="text-sm font-semibold">
-          {t("shop.back", { kind })}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{product ? product.name : t("shop.new", { kind })}</h1>
-        {product?.active ? (
-          <p className="m-0 text-[15px] text-ink-4">
-            {richText(t("shop.shareIt"), {
-              link: () => (
-                <a href={productUrl(appUrl(), app.id, product.id)} className="break-all" dir="ltr">
-                  {productUrl(appUrl(), app.id, product.id)}
-                </a>
-              ),
-            })}
-          </p>
-        ) : null}
+  const form = (
+    <section aria-label={t("shop.itemLabel", { kind })} className="flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <ProductForm
+        product={values}
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+        currency={catalogSettings(app).currency}
+        words={{ add: t("shop.add", { kind }), save: t("shop.save", { kind }) }}
+        restaurant={restaurant}
+      />
+    </section>
+  );
+  const header = <PageHeader back={{ href: "/dashboard/catalog", label: t("shop.page", { kind }) }} title={product ? product.name : t("shop.new", { kind })} description={product ? undefined : t("shop.intro", { kind })} />;
+  if (!product) {
+    return (
+      <div className="flex max-w-[760px] flex-col gap-6">
+        {header}
+        {form}
       </div>
-      <section aria-label={t("shop.itemLabel", { kind })} className="rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <ProductForm
-          product={values}
-          categories={categories.map((c) => ({ id: c.id, name: c.name }))}
-          currency={catalogSettings(app).currency}
-          words={{ add: t("shop.add", { kind }), save: t("shop.save", { kind }) }}
-          restaurant={restaurant}
-        />
-      </section>
-      {product ? (
-        <form action={deleteProductAction} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <input type="hidden" name="id" value={product.id} />
-          <span className="text-[15px] text-ink-4">{t("shop.deleteNote", { kind })}</span>
-          <SubmitButton variant="secondary" className="h-10">
-            {t("shop.deleteItem", { kind })}
-          </SubmitButton>
-        </form>
-      ) : null}
+    );
+  }
+  const share = productUrl(appUrl(), app.id, product.id);
+  return (
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the form, and at the side where it shows, its link and deleting it. */}
+      {header}
+      <DetailLayout
+        main={form}
+        side={
+          <>
+            <Section titleId="h-product-status" title={t("shop.sideStatus")}>
+              <p className={`m-0 flex items-center gap-2 text-[15px] font-semibold ${product.active ? "text-success" : "text-muted"}`}>
+                <Icon name={product.active ? "visibility" : "visibility_off"} size={20} />
+                {t(product.active ? "shop.sideShown" : "shop.sideHidden")}
+              </p>
+              {product.active ? (
+                <p className="m-0 text-sm leading-relaxed text-ink-4">
+                  {richText(t("shop.shareIt"), {
+                    link: () => (
+                      <a href={share} className="break-all" dir="ltr">
+                        {share}
+                      </a>
+                    ),
+                  })}
+                </p>
+              ) : null}
+            </Section>
+            <form action={deleteProductAction} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+              <input type="hidden" name="id" value={product.id} />
+              <span className="text-sm leading-relaxed text-ink-4">{t("shop.deleteNote", { kind })}</span>
+              <SubmitButton variant="danger" className="h-10 self-start">
+                {t("shop.deleteItem", { kind })}
+              </SubmitButton>
+            </form>
+          </>
+        }
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { importKindOf } from "@/lib/import/kinds";
 import type { ImportKind } from "@/lib/import/plan";
 import { ImportForm } from "./import-form";
+import { PageHeader } from "./ui";
 
 const LIST: Record<ImportKind, string> = { products: "/dashboard/catalog", services: "/dashboard/services", courses: "/dashboard/courses" };
 
@@ -20,15 +21,23 @@ export async function ImportView({ context, kind }: { context: ClientContext; ki
   const title =
     kind === "services" ? t("imports.titleServices") : kind === "courses" ? t("imports.titleCourses") : app.vertical === "restaurant" ? t("imports.titleMenu") : t("imports.titleProducts");
   const columns = kind === "services" ? t("imports.columnsServices") : kind === "courses" ? t("imports.columnsCourses") : t("imports.columnsProducts");
+  const kindWord = app.vertical === "clinic" ? "clinic" : app.vertical === "fitness" ? "fitness" : "other";
+  const back = kind === "services" ? t("bookings.page", { kind: kindWord }) : kind === "courses" ? t("courses.backToCourses") : t("shop.page", { kind: app.vertical === "restaurant" ? "restaurant" : "shop" });
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[720px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{title}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("imports.intro")}</p>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {columns} {t("imports.columnsLanguages")}
-        </p>
-      </div>
+      {/* The page kit: the header with the way back to the list, then the steps. */}
+      <PageHeader
+        back={{ href: LIST[kind], label: back }}
+        title={title}
+        description={
+          <>
+            <p className="m-0">{t("imports.intro")}</p>
+            <p className="m-0 mt-1.5">
+              {columns} {t("imports.columnsLanguages")}
+            </p>
+          </>
+        }
+      />
       <ImportForm />
     </div>
   );

@@ -7,13 +7,13 @@ export function DonationTabs({ current, t }: { current: "donations" | "donors"; 
     <Link
       href={href}
       aria-current={current === id ? "page" : undefined}
-      className={`rounded-full border border-line px-4 py-2 text-[15px] font-semibold no-underline ${current === id ? "bg-midnight text-white hover:text-white" : "bg-white text-midnight"}`}
+      className={`inline-flex h-10 items-center rounded-full border px-4 text-sm no-underline ${current === id ? "border-midnight bg-midnight font-bold text-ivory hover:text-ivory" : "border-line bg-white font-semibold text-midnight hover:border-line-strong hover:text-midnight"}`}
     >
       {label}
     </Link>
   );
   return (
-    <nav aria-label={t("donations.tabs")} className="flex gap-2">
+    <nav aria-label={t("donations.tabs")} className="flex flex-wrap gap-2">
       {tab("/dashboard/donations", "donations", t("donations.donations"))}
       {tab("/dashboard/donations/donors", "donors", t("donations.donorsTitle"))}
     </nav>

@@ -118,8 +118,8 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   expect(sessionCalls.map((c) => c.method)).toEqual(expect.arrayContaining(["POST", "GET"]));
   expect(new Set(sessionCalls.map((c) => c.headers.authorization))).toEqual(new Set(["Bearer sk_test_51HarbourMugsKey"]));
 
-  // PayPal: the REST app's client ID and secret, with the sandbox switch.
-  await page.getByRole("link", { name: "Products", exact: true }).click();
+  // PayPal: the REST app's client ID and secret, with the sandbox switch. Back from the product's page by its header's link.
+  await page.getByRole("main").getByRole("link", { name: "Products", exact: true }).click();
   await payments.getByLabel("Payment provider").selectOption("paypal");
   await payments.getByLabel("Client ID").fill("AYharbour-client");
   await payments.getByLabel("Secret").fill("harbour-paypal-secret");

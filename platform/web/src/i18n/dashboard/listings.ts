@@ -169,6 +169,16 @@ export const en = {
     officeName: "Enter your office's name.",
     phoneFormat: "Use the international format, like +20 100 123 4567.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  statListings: "Listings",
+  statUnread: "Unread inquiries",
+  groupSettings: "Your office",
+  inquiriesSearch: "Search by name, listing or message",
+  inquiriesNoMatch: "No conversations match.",
+  filterNew: "New",
+  filterRead: "Read",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "Price and terms",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -345,6 +355,16 @@ export const ar: Messages = {
     officeName: "أدخل اسم مكتبك.",
     phoneFormat: "استخدم الصيغة الدولية، مثل ‎+20 100 123 4567.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  statListings: "العقارات",
+  statUnread: "استفسارات غير مقروءة",
+  groupSettings: "مكتبك",
+  inquiriesSearch: "ابحث بالاسم أو العقار أو الرسالة",
+  inquiriesNoMatch: "لا توجد محادثات مطابقة.",
+  filterNew: "جديدة",
+  filterRead: "مقروءة",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "السعر والشروط",
 };
 
 export const tr: Messages = {
@@ -517,4 +537,14 @@ export const tr: Messages = {
     officeName: "Ofisinizin adını girin.",
     phoneFormat: "Uluslararası biçimi kullanın, örneğin +20 100 123 4567.",
   },
+  // The page kit: the numbers, the lists' search and the groups.
+  statListings: "İlanlar",
+  statUnread: "Okunmamış talepler",
+  groupSettings: "Ofisiniz",
+  inquiriesSearch: "Ad, ilan veya mesajla arayın",
+  inquiriesNoMatch: "Eşleşen konuşma yok.",
+  filterNew: "Yeni",
+  filterRead: "Okunan",
+  // The page kit: a form part's name (not the same as its field's).
+  formPrice: "Fiyat ve koşullar",
 };

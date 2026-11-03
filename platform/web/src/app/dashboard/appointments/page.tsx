@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { setAppointmentStatusAction } from "@/app/actions/bookings";
 import { SubmitButton } from "@/components/form";
-import { Badge, btn, Notice } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, btn, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { Thumb } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
 import { canReschedule } from "@/lib/bookings/reschedule";
 import { requireClient } from "@/lib/auth/session";
 import { BOOKING_STATUS_LABELS, bookingSetup } from "@/lib/bookings/setup";
@@ -51,9 +54,8 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   const sr = { sr: (chunk: string) => <span className="sr-only">{chunk}</span> };
   if (!app || app.connector?.kind !== "bookings") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{title}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bookings.apptNotHere")}</p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={title} description={t("bookings.apptNotHere")} />
       </div>
     );
   }
@@ -70,113 +72,149 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   });
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const tab = (active: boolean) =>
-    `flex h-9 items-center rounded-[18px] px-3.5 text-sm no-underline ${active ? "bg-midnight font-semibold text-white hover:text-white" : "border border-line bg-white text-midnight hover:border-midnight hover:text-midnight"}`;
+    `inline-flex h-9 items-center rounded-full border px-3.5 text-[13px] no-underline ${active ? "border-midnight bg-midnight font-bold text-ivory hover:text-ivory" : "border-line bg-white text-midnight hover:border-line-strong hover:text-midnight"}`;
+  const groups: { value: BookingStatus; label: string }[] = (["pending", "approved", "completed", "cancelled", "rejected", "no_show"] as const).map((value) => ({ value, label: k(BOOKING_STATUS_LABELS[value]) }));
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{title}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t(rules.autoApprove ? "bookings.apptIntroAuto" : "bookings.apptIntroManual"), { zone: () => <bdi dir="ltr">{rules.timezone}</bdi> })}
-        </p>
-      </div>
+      {/* The page kit: the header, then the appointments with their status, search and filters. */}
+      <PageHeader title={title} description={richText(t(rules.autoApprove ? "bookings.apptIntroAuto" : "bookings.apptIntroManual"), { zone: () => <bdi dir="ltr">{rules.timezone}</bdi> })} />
       {/* 61 Back from Change time. */}
       {params.moved ? (
         <Notice tone="success" icon="check_circle" role="status">
           {t("bookings.movedDone")}
         </Notice>
       ) : null}
-      <nav aria-label={title} className="flex gap-2.5">
-        <Link href="/dashboard/appointments" aria-current={past ? undefined : "page"} className={tab(!past)}>
-          {t("bookings.upcoming")}
-        </Link>
-        <Link href="/dashboard/appointments?show=past" aria-current={past ? "page" : undefined} className={tab(past)}>
-          {t("bookings.pastCancelled")}
-        </Link>
-      </nav>
-      {items.length === 0 ? (
-        <p className="m-0 rounded-2xl border border-line bg-white p-5 text-[15px] text-muted sm:p-6">{past ? t("bookings.nothingYet") : t("bookings.noUpcoming", { kind })}</p>
-      ) : (
-        <ul className="m-0 flex list-none flex-col gap-3 p-0">
-          {items.map((a) => {
-            const local = utcToLocal(a.startAt, rules.timezone);
-            const ended = a.endAt < now;
-            return (
-              <li key={a.id} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[17px] font-bold">
-                    {local.date} · {local.time} · {a.serviceName}
-                  </span>
-                  <Badge tone={TONES[a.status]}>{k(BOOKING_STATUS_LABELS[a.status])}</Badge>
-                </div>
-                <span className="text-[15px]">
-                  {a.customerName}
-                  {/* 19 Someone who signed in by email is reached by email. */}
-                  {a.customerPhone ? (
-                    <>
-                      {" "}
-                      ·{" "}
-                      <a href={`tel:${a.customerPhone}`} dir="ltr">
-                        {a.customerPhone}
-                      </a>
-                    </>
-                  ) : a.customerEmail ? (
-                    <>
-                      {" "}
-                      · <a href={`mailto:${a.customerEmail}`}>{a.customerEmail}</a>
-                    </>
-                  ) : null}{" "}
-                  · {t("bookings.withPrice", { staff: a.staffName, price: formatCents(a.priceCents, a.currency) })}
-                </span>
-                {a.notes ? <span className="rounded-xl bg-sand p-3 text-[15px] text-ink-4">{a.notes}</span> : null}
-                {/* 21 Intake answers: health data, shown here only (never emailed). */}
-                {a.answers?.length ? (
-                  <details className="rounded-xl border border-line-soft">
-                    <summary className="cursor-pointer px-3 py-2 text-[15px] font-semibold">
-                      {richText(t("bookings.intakeAnswers", { name: a.customerName }), sr)}
-                    </summary>
-                    <dl className="m-0 flex flex-col gap-2 border-t border-line-soft p-3 text-[15px]">
-                      {a.answers.map((x) => (
-                        <div key={x.id} className="flex flex-col gap-0.5">
-                          <dt className="text-[13px] font-semibold text-muted">{x.label}</dt>
-                          <dd className="m-0 whitespace-pre-line">{x.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </details>
-                ) : null}
-                <div className="flex flex-wrap gap-2">
-                  {a.status === "pending" ? (
-                    <>
-                      <Action a={a} status="approved" label={t("bookings.approve")} variant="primary" />
-                      <Action a={a} status="rejected" label={t("bookings.reject")} variant="danger" />
-                    </>
-                  ) : null}
-                  {a.status === "approved" && !ended ? <Action a={a} status="cancelled" label={t("common.cancel")} variant="danger" /> : null}
-                  {canReschedule(a, now) ? (
-                    <Link href={`/dashboard/appointments/${a.id}/move`} className={`${btn.secondary} h-9 px-3 text-sm`}>
-                      {t("bookings.changeTime")}
-                    </Link>
-                  ) : null}
-                  {a.status === "approved" && ended ? (
-                    <>
-                      <Action a={a} status="completed" label={t("bookings.markDone")} />
-                      <Action a={a} status="no_show" label={t("bookings.didntCome")} />
-                    </>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {pages > 1 ? (
-        <nav aria-label={t("orders.pages")} className="flex items-center gap-3 text-[15px]">
-          {page > 1 ? <Link href={`/dashboard/appointments?${past ? "show=past&" : ""}page=${page - 1}`}>{t("common.previous")}</Link> : null}
-          <span className="text-muted">{t("common.page", { page, pages })}</span>
-          {page < pages ? <Link href={`/dashboard/appointments?${past ? "show=past&" : ""}page=${page + 1}`}>{t("common.next")}</Link> : null}
-        </nav>
-      ) : null}
+      <Section
+        titleId="h-appointments"
+        title={`${past ? t("bookings.pastCancelled") : t("bookings.upcoming")} · ${total}`}
+        actions={
+          <nav aria-label={title} className="flex flex-wrap gap-2">
+            <Link href="/dashboard/appointments" aria-current={past ? undefined : "page"} className={tab(!past)}>
+              {t("bookings.upcoming")}
+            </Link>
+            <Link href="/dashboard/appointments?show=past" aria-current={past ? "page" : undefined} className={tab(past)}>
+              {t("bookings.pastCancelled")}
+            </Link>
+          </nav>
+        }
+        flush
+      >
+        {items.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="event_available" title={past ? t("bookings.nothingYet") : t("bookings.noUpcoming", { kind })} />
+          </div>
+        ) : (
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("bookings.apptSearch")}
+            noMatch={t("bookings.apptNoMatch")}
+            filters={groups}
+            items={items.map((a, i) => {
+              const local = utcToLocal(a.startAt, rules.timezone);
+              const ended = a.endAt < now;
+              return {
+                id: a.id,
+                text: [a.customerName, a.customerPhone, a.customerEmail, a.serviceName, a.staffName, local.date].filter(Boolean).join(" "),
+                group: a.status,
+                node: (
+                  <li className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
+                    <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+                      <Thumb icon="event_available" shape="square" tint={i} />
+                      <span className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
+                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="text-[15px] font-bold break-words">
+                            {local.date} · {local.time} · {a.serviceName}
+                          </span>
+                          <Badge tone={TONES[a.status]}>{k(BOOKING_STATUS_LABELS[a.status])}</Badge>
+                        </span>
+                        <span className="text-[13px] text-muted">
+                          {a.customerName}
+                          {/* 19 Someone who signed in by email is reached by email. */}
+                          {a.customerPhone ? (
+                            <>
+                              {" "}
+                              ·{" "}
+                              <a href={`tel:${a.customerPhone}`} dir="ltr">
+                                {a.customerPhone}
+                              </a>
+                            </>
+                          ) : a.customerEmail ? (
+                            <>
+                              {" "}
+                              · <a href={`mailto:${a.customerEmail}`} className="break-all">{a.customerEmail}</a>
+                            </>
+                          ) : null}{" "}
+                          · {t("bookings.withPrice", { staff: a.staffName, price: formatCents(a.priceCents, a.currency) })}
+                        </span>
+                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {a.status === "pending" ? (
+                          <>
+                            <Action a={a} status="approved" label={t("bookings.approve")} variant="primary" />
+                            <Action a={a} status="rejected" label={t("bookings.reject")} variant="danger" />
+                          </>
+                        ) : null}
+                        {a.status === "approved" && !ended ? <Action a={a} status="cancelled" label={t("common.cancel")} variant="danger" /> : null}
+                        {canReschedule(a, now) ? (
+                          <Link href={`/dashboard/appointments/${a.id}/move`} className={`${btn.secondary} h-9 px-3 text-sm`}>
+                            <Icon name="schedule" size={18} />
+                            {t("bookings.changeTime")}
+                          </Link>
+                        ) : null}
+                        {a.status === "approved" && ended ? (
+                          <>
+                            <Action a={a} status="completed" label={t("bookings.markDone")} />
+                            <Action a={a} status="no_show" label={t("bookings.didntCome")} />
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                    {a.notes ? <span className="rounded-xl bg-sand px-4 py-3 text-[15px] text-ink-4">{a.notes}</span> : null}
+                    {/* 21 Intake answers: health data, shown here only (never emailed). */}
+                    {a.answers?.length ? (
+                      <details className="group rounded-xl border border-line-soft">
+                        <summary className="flex cursor-pointer list-none items-center gap-2 px-3.5 py-2.5 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                          <Icon name="assignment" size={18} className="text-muted" />
+                          <span className="flex-1">{richText(t("bookings.intakeAnswers", { name: a.customerName }), sr)}</span>
+                          <Icon name="expand_more" size={18} className="text-muted transition-transform group-open:rotate-180" />
+                        </summary>
+                        <dl className="m-0 flex flex-col gap-2 border-t border-line-soft px-3.5 py-3 text-[15px]">
+                          {a.answers.map((x) => (
+                            <div key={x.id} className="flex flex-col gap-0.5">
+                              <dt className="text-[13px] font-semibold text-muted">{x.label}</dt>
+                              <dd className="m-0 whitespace-pre-line">{x.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </details>
+                    ) : null}
+                  </li>
+                ),
+              };
+            })}
+          />
+        )}
+        {pages > 1 ? (
+          <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3 text-[15px] sm:px-6">
+            {page > 1 ? (
+              <Link href={`/dashboard/appointments?${past ? "show=past&" : ""}page=${page - 1}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("common.previous")}
+              </Link>
+            ) : (
+              <span />
+            )}
+            <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
+            {page < pages ? (
+              <Link href={`/dashboard/appointments?${past ? "show=past&" : ""}page=${page + 1}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("common.next")}
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        ) : null}
+      </Section>
     </div>
   );
 }
