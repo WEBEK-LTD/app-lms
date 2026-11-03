@@ -15,6 +15,10 @@ export interface Mail {
   html?: string;
   /** 71 Files sent with it (a receipt's PDF). */
   attachments?: MailAttachment[];
+  /** 114 More headers (a campaign's List-Unsubscribe). */
+  headers?: Record<string, string>;
+  /** 114 Where replies go. */
+  replyTo?: string;
 }
 
 /**
@@ -55,7 +59,53 @@ export async function sendMail(input: Mail, options: { fromName?: string } = {})
   });
   // 24 Emails to an app's users go out from Yallapp's address with the app's name.
   const from = options.fromName ? fromWithName(config.from, options.fromName) : config.from;
-  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, attachments: mail.attachments });
+  await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, attachments: mail.attachments, headers: mail.headers, replyTo: mail.replyTo });
+}
+
+/** 114 Sends many emails through one SMTP connection (an email campaign's batch). */
+export interface Mailer {
+  send(mail: Mail, options?: { fromName?: string }): Promise<void>;
+  close(): void;
+}
+
+/**
+ * 114 A mailer for a batch: the SMTP settings are read once and one
+ * connection is kept open. Without SMTP it does what sendMail does (the log
+ * and the end-to-end folder outside production), but in production it fails
+ * each email, so a campaign never counts as sent what went nowhere.
+ */
+export async function openMailer(store: DataStore): Promise<Mailer> {
+  const config = await resolvedSmtpConfig(store, encryptionKey());
+  if (!config) {
+    const quiet = isProduction() && process.env.YALLAPP_DATA !== "memory" && !mailCaptureDir();
+    return {
+      async send(mail) {
+        if (quiet) throw new Error("SMTP is not configured.");
+        if (!isProduction() || process.env.YALLAPP_DATA === "memory") console.info(`[mail] To: ${mail.to}\n[mail] Subject: ${mail.subject}\n`);
+        await captureMail(mail);
+      },
+      close() {},
+    };
+  }
+  const nodemailer = await import("nodemailer");
+  const transport = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: config.user ? { user: config.user, pass: config.pass ?? "" } : undefined,
+    requireTLS: !config.secure,
+    pool: true,
+    maxConnections: 1,
+  });
+  return {
+    async send(mail, options = {}) {
+      const from = options.fromName ? fromWithName(config.from, options.fromName) : config.from;
+      await transport.sendMail({ from, to: mail.to, subject: mail.subject, text: mail.text, html: mail.html, headers: mail.headers, replyTo: mail.replyTo });
+    },
+    close() {
+      transport.close();
+    },
+  };
 }
 
 /** 19 Whether SMTP is set up (in the admin's Settings or the server's variables). */

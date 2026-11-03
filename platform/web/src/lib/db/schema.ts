@@ -66,6 +66,7 @@ import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, Revi
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
+import type { MailAudience, MailCampaignStatus, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import {
@@ -4413,3 +4414,102 @@ export const uniAttendance = mysqlTable(
   },
   (t) => [primaryKey({ columns: [t.sectionId, t.studentId, t.date] }), index("uni_attendance_student_idx").on(t.studentId)],
 );
+
+// 114 Email campaigns (Admin › Email campaigns)
+
+export const mailCampaigns = mysqlTable(
+  "mail_campaigns",
+  {
+    id: id("id").primaryKey(),
+    name: varchar("name", { length: 200 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull().$type<MailCampaignStatus>(),
+    archived: boolean("archived").notNull().default(false),
+    audience: jsonText<MailAudience>("audience").notNull(),
+    segmentId: id("segment_id"),
+    fromName: varchar("from_name", { length: 120 }),
+    replyTo: varchar("reply_to", { length: 191 }),
+    contents: jsonText<MailContents>("contents").notNull(),
+    defaultLang: varchar("default_lang", { length: 4 }).notNull().$type<MailLang>(),
+    track: boolean("track").notNull().default(true),
+    perMinute: int("per_minute").notNull().default(60),
+    scheduledAt: time("scheduled_at"),
+    timeZone: varchar("time_zone", { length: 64 }),
+    recipients: int("recipients").notNull().default(0),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    startedAt: time("started_at"),
+    finishedAt: time("finished_at"),
+  },
+  (t) => [index("mail_campaigns_status_idx").on(t.status, t.scheduledAt)],
+);
+
+export const mailSegments = mysqlTable("mail_segments", {
+  id: id("id").primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  audience: jsonText<MailAudience>("audience").notNull(),
+  createdAt: time("created_at").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const mailTemplates = mysqlTable("mail_templates", {
+  id: id("id").primaryKey(),
+  name: varchar("name", { length: 120 }).notNull(),
+  category: varchar("category", { length: 40 }).notNull(),
+  contents: jsonText<MailContents>("contents").notNull(),
+  createdBy: varchar("created_by", { length: 191 }).notNull(),
+  createdAt: time("created_at").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const mailRecipients = mysqlTable(
+  "mail_recipients",
+  {
+    id: autoId("id").primaryKey(),
+    campaignId: id("campaign_id")
+      .notNull()
+      .references(() => mailCampaigns.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 191 }).notNull(),
+    userId: id("user_id"),
+    clientId: id("client_id"),
+    name: varchar("name", { length: 120 }).notNull(),
+    lang: varchar("lang", { length: 4 }).notNull().$type<MailLang>(),
+    status: varchar("status", { length: 12 }).notNull().$type<MailRecipientStatus>(),
+    attempts: int("attempts").notNull().default(0),
+    error: varchar("error", { length: 300 }),
+    nextAttemptAt: time("next_attempt_at"),
+    claim: varchar("claim", { length: 36 }),
+    leaseUntil: time("lease_until"),
+    sentAt: time("sent_at"),
+    team: boolean("team").notNull().default(false),
+  },
+  (t) => [
+    // A campaign never lists an address twice, so it never mails one twice.
+    uniqueIndex("mail_recipients_campaign_email_unique").on(t.campaignId, t.email),
+    index("mail_recipients_queue_idx").on(t.campaignId, t.status, t.id),
+    index("mail_recipients_sent_idx").on(t.campaignId, t.sentAt),
+    index("mail_recipients_claim_idx").on(t.claim),
+  ],
+);
+
+export const mailEvents = mysqlTable(
+  "mail_events",
+  {
+    id: autoId("id").primaryKey(),
+    campaignId: id("campaign_id")
+      .notNull()
+      .references(() => mailCampaigns.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 191 }).notNull(),
+    kind: varchar("kind", { length: 12 }).notNull().$type<MailEventKind>(),
+    url: varchar("url", { length: 1024 }),
+    at: time("at").notNull(),
+  },
+  (t) => [index("mail_events_campaign_idx").on(t.campaignId, t.kind)],
+);
+
+export const mailSuppressions = mysqlTable("mail_suppressions", {
+  email: varchar("email", { length: 191 }).primaryKey(),
+  reason: varchar("reason", { length: 16 }).notNull().$type<MailSuppressionReason>(),
+  campaignId: id("campaign_id"),
+  createdAt: time("created_at").notNull(),
+});
