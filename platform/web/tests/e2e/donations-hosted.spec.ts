@@ -187,7 +187,8 @@ test("a supporter donates; the campaign moves once iyzico confirms, with a recei
   const receipt = (await mailsTo(donor.email)).at(-1)!;
   expect(receipt.subject).toMatch(/^Your donation to .+ · D-\d+$/);
   expect(receipt.text).toContain("Amount: ₺300.00");
-  expect(receipt.text).not.toMatch(/tax/i);
+  // The word itself, not letters in the random receipt link ("…/receipts/Yq9nxltax…").
+  expect(receipt.text.replace(/https?:\/\/\S+/g, "")).not.toMatch(/\btax\b/i);
   const receiptUrl = /(https?:\/\/\S+\/receipts\/\S+)/.exec(receipt.text)![1]!;
   await page.goto(new URL(new URL(receiptUrl).pathname, E2E.baseURL).toString());
   await expect(page.getByRole("heading", { name: "Donation receipt" })).toBeVisible();

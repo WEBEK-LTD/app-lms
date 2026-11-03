@@ -12,7 +12,7 @@ import { CONTENT_PAGES, contentPage, faqMarkdown, parseFaq, parseGuide, readCont
 import { headingId } from "@/lib/content/markdown";
 import { icuArguments, parseIcu } from "@/lib/i18n/icu";
 import { PRICED_PAGES } from "@/lib/geo-vary";
-import { COMPARISON, FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, REQUIREMENTS, SCREEN_ALT, SOLUTIONS, STEPS } from "@/lib/marketing";
+import { ALL_SOLUTIONS, COMPARISON, FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, REQUIREMENTS, SCREEN_ALT, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { faqFor, integrationGroupsFor, planFor, solutionsFor } from "@/lib/marketing-lang";
 import { PLAN_INFO, REGULAR_PLANS } from "@/lib/plans";
 import { DEMO_GUIDES } from "@/lib/demo/content";
@@ -172,9 +172,10 @@ describe("55 the long texts in Arabic and Turkish", () => {
 
     it(`${lang}: the marketing lists mirror the English item by item`, () => {
       expect(Object.keys(x.screenAlt).sort()).toEqual(Object.keys(SCREEN_ALT).sort());
-      for (const s of SOLUTIONS) {
-        const t = x.solutions[s.kind]!;
-        expect(t, s.kind).toBeDefined();
+      for (const s of ALL_SOLUTIONS) {
+        const t = x.solutions[s.key]!;
+        expect(t, s.key).toBeDefined();
+        expect(t.faq?.length ?? 0, s.key).toBe(s.faq?.length ?? 0);
         expect(t.sources).toHaveLength(s.sources.length);
         expect(t.highlights).toHaveLength(s.highlights.length);
         expect(t.inTheApp).toHaveLength(s.inTheApp.length);

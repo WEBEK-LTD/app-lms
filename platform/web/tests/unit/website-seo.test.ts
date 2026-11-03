@@ -556,21 +556,21 @@ describe("SEO search snippets and share images", () => {
 });
 
 describe("SEO pages for Studio's kinds of business", () => {
-  it("gives delivery companies a page with its own questions and answers, in every language", async () => {
+  it("gives each of Studio's kinds a page with its own questions and answers, in every language", async () => {
     const { STUDIO_SOLUTIONS } = await import("@/lib/marketing");
     const { solutionFor } = await import("@/lib/marketing-lang");
-    expect(STUDIO_SOLUTIONS.map((s) => s.id)).toEqual(["delivery"]);
-    for (const lang of LANGS) {
-      const s = solutionFor(lang, "delivery")!;
+    expect(STUDIO_SOLUTIONS.map((s) => s.id)).toEqual(["delivery", "food", "rides", "school", "university", "instructors"]);
+    for (const lang of LANGS) for (const studio of STUDIO_SOLUTIONS) {
+      const s = solutionFor(lang, studio.id)!;
       expect(s, lang).toBeDefined();
       expect(s.faq!.length, lang).toBeGreaterThanOrEqual(3);
-      expect(s.faq).toHaveLength(STUDIO_SOLUTIONS[0]!.faq!.length);
+      expect(s.faq).toHaveLength(studio.faq!.length);
       const text = [s.summary, ...s.highlights.map((h) => h.text), ...s.faq!.map((f) => f.a)].join(" ");
       // Not claimed: Yallapp Courier in the stores today, or fares by road distance.
       expect(text, lang).not.toMatch(/available on Google Play|متاح على Google Play|Google Play'de mevcut|road distance/i);
-      expect(isLocalizedPath("/solutions/delivery")).toBe(true);
+      expect(isLocalizedPath(`/solutions/${studio.id}`)).toBe(true);
     }
     // The regular kinds' list (home, /solutions) stays the regular kinds.
-    expect(SOLUTIONS.some((s) => s.id === "delivery")).toBe(false);
+    expect(SOLUTIONS.some((s) => STUDIO_SOLUTIONS.some((o) => o.id === s.id))).toBe(false);
   });
 });
