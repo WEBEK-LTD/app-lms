@@ -14,6 +14,7 @@ import { siteMetadata } from "@/lib/seo";
  * Yallapp delete their Yallapp account, without the app: from the dashboard,
  * or by email when they can't sign in; what is deleted, what is kept and for
  * how long. The address given to Google Play (Data safety) and the App Store.
+ * 104.8 Also for Yallapp Courier's couriers (#courier): deleting in the app, or by email.
  */
 
 export function deleteAccountMetadata(lang: Lang): Metadata {
@@ -38,6 +39,7 @@ export async function DeleteAccountPage({ lang }: { lang: Lang }) {
   );
   // The email address goes where {email} is, as a link.
   const [beforeEmail, afterEmail] = m.howEmail.split("{email}");
+  const [courierBeforeEmail, courierAfterEmail] = m.courierEmail.split("{email}");
   return (
     <DocLayout groups={legalNav(lang)} current={localePath(lang, "/delete-account")} lang={lang}>
       <DocTitle>{m.title}</DocTitle>
@@ -77,6 +79,20 @@ export async function DeleteAccountPage({ lang }: { lang: Lang }) {
       <h2>{m.whenTitle}</h2>
       <p>{fill(m.when, { days: DELETION_DAYS })}</p>
       <p>{richText(m.plans, tags)}</p>
+
+      <h2 id="courier">{m.courierTitle}</h2>
+      <p>{m.courierIntro}</p>
+      <ul>
+        <li>{richText(m.courierApp, tags)}</li>
+        <li data-delete-courier-email="">
+          {richText(courierBeforeEmail ?? "", tags)}
+          {email}
+          {richText(courierAfterEmail ?? "", tags)}
+        </li>
+      </ul>
+      <p>{m.courierDeleted}</p>
+      <p>{m.courierKept}</p>
+
       <p>{richText(m.more, tags)}</p>
     </DocLayout>
   );
