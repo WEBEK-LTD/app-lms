@@ -13,9 +13,9 @@ import { planShownPrice, POUNDS_VIEW, type PlanInfo, type PriceView } from "./pl
  */
 
 export const SITE_NAME = COMPANY.name;
-export const DEFAULT_TITLE = "Yallapp: your business as your own mobile app";
+export const DEFAULT_TITLE = "Yallapp: make an app for your shop, school or delivery company";
 export const DEFAULT_DESCRIPTION =
-  "Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, from your WordPress site, Shopify and other platforms, your own API, or no website at all.";
+  "Your own branded app for shops, academies, schools, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.";
 
 /**
  * 67 Netlify's own addresses (yallapp.netlify.app, deploy previews). Visitors

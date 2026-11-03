@@ -163,6 +163,10 @@ interface SolutionCopy {
   /** What the business does in the dashboard or on its website. */
   forYou: string[];
   docs: { href: string; label: string }[];
+  /** SEO: questions and answers shown on the page (and as FAQPage data). */
+  faq?: { q: string; a: string }[];
+  /** SEO: the page's own short name ("Delivery") when the kind's ("Delivery & couriers") reads badly in its titles. */
+  pageName?: string;
 }
 
 export interface Solution extends SolutionCopy {
@@ -728,8 +732,104 @@ export const SOLUTIONS: Solution[] = SOLUTION_COPY.map((copy) => {
   return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: kind.name, icon: kind.marketing.icon };
 });
 
+/**
+ * SEO: pages for Yallapp Studio's own kinds of business, in the same design as the others.
+ * They aren't counted with the regular kinds (home, solutions list) while those kinds are
+ * Studio's only; each has its own address under /solutions.
+ */
+const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
+  {
+    kind: "delivery",
+    pageName: "Delivery",
+    summary: "Parcels sent, tracked live and delivered, with an app for your couriers.",
+    audience: "Delivery and courier companies, and shops that deliver their own orders.",
+    screens: ["delivery-send", "delivery-shipment", "delivery-courier"],
+    sources: ["No website: services, prices, couriers and shipments managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "local_shipping",
+        title: "Yallapp Courier for your couriers",
+        text: "Your couriers work in Yallapp Courier, one app for every company that added them, or in a courier app under your own name. Yallapp Courier is coming to Google Play and the App Store.",
+      },
+      {
+        icon: "map",
+        title: "Live tracking on the map",
+        text: "While a parcel is on the way and the courier has the job open, the customer sees where it is on the map. Nothing is shared when the courier's app is closed.",
+      },
+      {
+        icon: "payments",
+        title: "The cash to collect",
+        text: "Customers pay by card through your own payment page, or in cash. The courier sees the amount to collect on the job.",
+      },
+      {
+        icon: "my_location",
+        title: "Places found in seconds",
+        text: "Customers search for a place by name, or tap My location and the address is filled in. A pasted maps link works too.",
+      },
+      {
+        icon: "notifications",
+        title: "Notifications at every step",
+        text: "Customers hear when their parcel is picked up, on the way and delivered. Couriers hear about new jobs and changes to theirs.",
+      },
+    ],
+    inTheApp: [
+      "Send a parcel: the service, the pickup, the drop-off, the recipient and the parcel",
+      "Find a place by name, with My location or with a maps link",
+      "See the price as they type, then pay by card or in cash",
+      "Follow each shipment's stages, and the courier on the map",
+      "Pay for or cancel a shipment from My shipments",
+      "Get a notification at every step",
+    ],
+    forYou: [
+      "Shipments: give one to a courier, move it on or cancel it",
+      "Couriers: add them by mobile number or email, and see who is on duty",
+      "Prices by distance, by area or fixed, and the ways customers pay",
+      "Jobs you give, or taken by the first courier who accepts",
+      "Where your couriers work: Yallapp Courier or a courier app under your name",
+    ],
+    docs: [
+      { href: "/docs/yallapp-courier", label: "Yallapp Courier for your couriers" },
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Do my couriers need an app of their own?",
+        a: "No. They can use Yallapp Courier, Yallapp's app for the couriers of every company on Yallapp, or a courier app built under your company's name. You choose in Delivery settings, under Where couriers work.",
+      },
+      {
+        q: "When can couriers download Yallapp Courier?",
+        a: "Yallapp Courier is coming to Google Play and the App Store. Until then, your couriers can work in the courier mode of your own app.",
+      },
+      {
+        q: "Does the customer see the courier all the time?",
+        a: "Only while their parcel is on the way and the courier has the job open. The last position is shown for 10 minutes, and nothing is shared when the courier's app is closed.",
+      },
+      {
+        q: "How do customers pay?",
+        a: "By card through your own payment page, or in cash to the courier, as you choose in Delivery settings.",
+      },
+      {
+        q: "Is a delivery app a Yallapp Studio project?",
+        a: "Yes. Delivery apps are made in Yallapp Studio and have Studio's own plans.",
+      },
+    ],
+  },
+];
+
+function solutionFromCopy(copy: SolutionCopy): Solution {
+  const kind = kindById(copy.kind);
+  if (!kind) throw new Error(`Unknown kind ${copy.kind}`);
+  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: copy.pageName ?? kind.name, icon: kind.marketing.icon };
+}
+
+/** SEO: Studio's kinds with a page of their own. */
+export const STUDIO_SOLUTIONS: Solution[] = STUDIO_SOLUTION_COPY.map(solutionFromCopy);
+
+/** Every page under /solutions: the regular kinds, then Studio's. */
+export const ALL_SOLUTIONS: Solution[] = [...SOLUTIONS, ...STUDIO_SOLUTIONS];
+
 export function solution(id: string): Solution | undefined {
-  return SOLUTIONS.find((s) => s.id === id);
+  return ALL_SOLUTIONS.find((s) => s.id === id);
 }
 
 // ---------------------------------------------------------------------------

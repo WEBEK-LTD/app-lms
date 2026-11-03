@@ -9,7 +9,7 @@ import { COMPANY_PLACE, legalLine } from "@/lib/company";
 import { contentPage } from "@/lib/content/site";
 import { parseMarkdown } from "@/lib/content/markdown";
 import { EMAIL_TEMPLATES } from "@/lib/email/templates";
-import { countAtLeast, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
+import { ALL_SOLUTIONS, countAtLeast, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { PLAN_INFO, planLimitLines, plansWith } from "@/lib/plans";
 import {
   blocksText,
@@ -169,9 +169,9 @@ describe("32 search engines", () => {
     for (const path of ["", "/solutions", "/features", "/integrations", "/how-it-works", "/pricing", "/yallapp-studio", "/demo", "/demo/studio", "/docs", "/developers", "/faq", "/contact", "/terms", "/privacy", "/refund", "/delete-account"]) {
       expect(urls).toContain(`${BASE}${path}`);
     }
-    for (const s of SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
+    for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
     for (const d of DOCS) expect(urls).toContain(`${BASE}/docs/${d.slug}`);
-    expect(urls).toHaveLength(17 + SOLUTIONS.length + DOCS.length);
+    expect(urls).toHaveLength(17 + ALL_SOLUTIONS.length + DOCS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);
@@ -215,8 +215,8 @@ describe("32 search engines", () => {
     expect(own.openGraph!.images).toEqual([{ url: "/docs/shopify/opengraph-image", width: 1200, height: 630, alt: "Connect Shopify · Yallapp" }]);
     expect(own.twitter!.images).toEqual(own.openGraph!.images);
     expect(pageMetadata({ description: "Home.", path: "/" })).toMatchObject({
-      title: { absolute: "Yallapp: your business as your own mobile app" },
-      openGraph: { title: "Yallapp: your business as your own mobile app" },
+      title: { absolute: "Yallapp: make an app for your shop, school or delivery company" },
+      openGraph: { title: "Yallapp: make an app for your shop, school or delivery company" },
     });
   });
 });
@@ -424,7 +424,7 @@ describe("67 Google: the favicon, and every public page indexed", () => {
     // Every Arabic and Turkish page has its English one.
     for (const r of routes.filter((r) => r.startsWith("/[lang]") && !NOT_LISTED.test(r))) expect(english, r).toContain(r.slice("/[lang]".length) || "/");
     const expected = english.flatMap((r) => {
-      if (r === "/solutions/[id]") return SOLUTIONS.map((s) => `/solutions/${s.id}`);
+      if (r === "/solutions/[id]") return ALL_SOLUTIONS.map((s) => `/solutions/${s.id}`);
       if (r === "/docs/[slug]") return DOCS.map((d) => `/docs/${d.slug}`);
       expect(r, `${r}: list its pages here and in lib/sitemap.ts`).not.toMatch(/\[/);
       return [r];
@@ -523,5 +523,54 @@ describe("67 Google: the favicon, and every public page indexed", () => {
       ].map((t) => t.toLocaleLowerCase(lang));
       expect(titles.filter((t, i) => titles.indexOf(t) !== i), lang).toEqual([]);
     }
+  });
+});
+
+describe("SEO search snippets and share images", () => {
+  it("keeps the main pages' descriptions short enough for search results, in every language", () => {
+    for (const lang of LANGS) {
+      const m = messagesFor(lang);
+      const descriptions = {
+        default: m.meta.defaultDescription,
+        solutions: m.meta.solutionsDescription,
+        features: m.meta.featuresDescription,
+        pricing: m.meta.pricingDescription,
+        demo: m.meta.demoDescription,
+        faq: m.meta.faqDescription,
+        studio: m.studio.metaDescription,
+      };
+      for (const [page, text] of Object.entries(descriptions)) expect(text.length, `${lang} ${page}`).toBeLessThanOrEqual(170);
+    }
+  });
+
+  it("gives Yallapp Studio, Features and the FAQ their own share image, in English, Arabic and Turkish", () => {
+    for (const page of ["yallapp-studio", "features", "faq"]) {
+      expect(existsSync(path.join("src/app", page, "opengraph-image.tsx")), page).toBe(true);
+      expect(existsSync(path.join("src/app/[lang]", page, "opengraph-image.tsx")), page).toBe(true);
+    }
+    for (const lang of LANGS) {
+      const og = messagesFor(lang).og;
+      for (const text of [og.studioTitle, og.studioText, og.featuresTitle, og.featuresText, og.faqTitle, og.faqText]) expect(text.trim().length, lang).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("SEO pages for Studio's kinds of business", () => {
+  it("gives delivery companies a page with its own questions and answers, in every language", async () => {
+    const { STUDIO_SOLUTIONS } = await import("@/lib/marketing");
+    const { solutionFor } = await import("@/lib/marketing-lang");
+    expect(STUDIO_SOLUTIONS.map((s) => s.id)).toEqual(["delivery"]);
+    for (const lang of LANGS) {
+      const s = solutionFor(lang, "delivery")!;
+      expect(s, lang).toBeDefined();
+      expect(s.faq!.length, lang).toBeGreaterThanOrEqual(3);
+      expect(s.faq).toHaveLength(STUDIO_SOLUTIONS[0]!.faq!.length);
+      const text = [s.summary, ...s.highlights.map((h) => h.text), ...s.faq!.map((f) => f.a)].join(" ");
+      // Not claimed: Yallapp Courier in the stores today, or fares by road distance.
+      expect(text, lang).not.toMatch(/available on Google Play|متاح على Google Play|Google Play'de mevcut|road distance/i);
+      expect(isLocalizedPath("/solutions/delivery")).toBe(true);
+    }
+    // The regular kinds' list (home, /solutions) stays the regular kinds.
+    expect(SOLUTIONS.some((s) => s.id === "delivery")).toBe(false);
   });
 });

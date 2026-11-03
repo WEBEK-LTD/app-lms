@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { DOCS } from "@/content/docs";
 import { LANGS } from "@/i18n/config";
 import { languageAlternates, localePath } from "@/i18n/paths";
-import { SOLUTIONS } from "./marketing";
+import { ALL_SOLUTIONS } from "./marketing";
 
 /** 32 The sitemap and robots.txt: only yallapp.com.tr's public pages are listed, and the private areas are kept out. */
 
@@ -46,7 +46,7 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
   return [
     entry("/", 1),
     entry("/solutions", 0.9),
-    ...SOLUTIONS.map((s) => entry(`/solutions/${s.id}`, 0.8)),
+    ...ALL_SOLUTIONS.map((s) => entry(`/solutions/${s.id}`, 0.8)),
     entry("/features", 0.8),
     entry("/integrations", 0.8),
     entry("/how-it-works", 0.8),

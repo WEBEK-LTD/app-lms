@@ -13,6 +13,7 @@ import {
   REQUIREMENTS,
   SCREEN_ALT,
   SOLUTIONS,
+  ALL_SOLUTIONS,
   STEPS,
   type AppScreen,
   type DashboardScreen,
@@ -46,8 +47,17 @@ export interface LocalizedSolution extends Solution {
 }
 
 export function solutionsFor(lang: Lang): LocalizedSolution[] {
+  return localizeSolutions(SOLUTIONS, lang);
+}
+
+/** SEO: every page under /solutions in a language, Studio's kinds included. */
+export function allSolutionsFor(lang: Lang): LocalizedSolution[] {
+  return localizeSolutions(ALL_SOLUTIONS, lang);
+}
+
+function localizeSolutions(list: Solution[], lang: Lang): LocalizedSolution[] {
   const t = translation(lang);
-  return SOLUTIONS.map((s) => {
+  return list.map((s) => {
     const lower = s.name.toLowerCase();
     const english = { ...s, appsTitle: `${s.name} apps`, apps: `${lower} apps`, app: `${lower} app`, demo: `${lower} demo`, demoApp: `${lower} demo app` };
     const x = t?.solutions[s.kind];
@@ -67,12 +77,13 @@ export function solutionsFor(lang: Lang): LocalizedSolution[] {
       inTheApp: x.inTheApp,
       forYou: x.forYou,
       docs: s.docs.map((d, i) => ({ ...d, label: x.docs[i] ?? d.label })),
+      ...(s.faq ? { faq: x.faq ?? s.faq } : {}),
     };
   });
 }
 
 export function solutionFor(lang: Lang, id: string): LocalizedSolution | undefined {
-  return solutionsFor(lang).find((s) => s.id === id);
+  return allSolutionsFor(lang).find((s) => s.id === id);
 }
 
 /** A kind's name ("Academy", "News & blog") in a language. */

@@ -1,6 +1,6 @@
 import { DOCS, type DocDefault } from "@/content/docs";
 import { PRIVACY, REFUND, TERMS, type LegalDefault } from "@/content/legal";
-import { FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
+import { ALL_SOLUTIONS, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "../marketing";
 import { inlineText, parseMarkdown, type Block, type Inline } from "./markdown";
 
 /**
@@ -99,6 +99,13 @@ function legalPage(page: LegalDefault): ContentPage {
 
 /** 20 The editable header of each solution page, by kind (lib/app/kinds.ts); its key, title and address come from the kind. */
 const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: string }> = {
+  // SEO: Studio's delivery companies.
+  delivery: {
+    eyebrow: "Delivery apps",
+    title: "Your delivery company, in your customers' pockets",
+    intro:
+      "Customers send parcels and follow them live on the map; your couriers take jobs and collect cash in Yallapp Courier or an app under your name, all run from Yallapp Studio.",
+  },
   academy: {
     eyebrow: "Academy apps",
     title: "Your academy, in your students' pockets",
@@ -246,7 +253,7 @@ export const CONTENT_PAGES: ContentPage[] = [
     title: "An app for the way your business works",
     intro: "Academies, shops, restaurants, clinics, gyms, events, charities and more each get their own screens, built on the same platform, with or without a website.",
   }),
-  ...SOLUTIONS.map((solution) =>
+  ...ALL_SOLUTIONS.map((solution) =>
     headerPage(solution.contentKey, `Solutions: ${solution.name}`, `/solutions/${solution.id}`, SOLUTION_HEADERS[solution.kind] ?? { eyebrow: `${solution.name} apps`, title: solution.name, intro: solution.summary }),
   ),
   headerPage("features", "Features", "/features", {

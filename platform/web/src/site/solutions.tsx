@@ -6,9 +6,9 @@ import { Icon } from "@/components/icon";
 import { JsonLdScript } from "@/components/json-ld";
 import { CheckList, Comparison, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { getSiteContent } from "@/lib/content/get";
-import { SOLUTIONS } from "@/lib/marketing";
+import { ALL_SOLUTIONS, STUDIO_SOLUTIONS } from "@/lib/marketing";
 import { comparisonFor, screenAltFor, solutionFor, solutionsFor } from "@/lib/marketing-lang";
-import { breadcrumbLd, siteMetadata, siteUrl } from "@/lib/seo";
+import { breadcrumbLd, faqLd, siteMetadata, siteUrl } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 
@@ -60,7 +60,7 @@ export async function SolutionsPage({ lang }: { lang: Lang }) {
 }
 
 export function solutionParams(): { id: string }[] {
-  return SOLUTIONS.map((s) => ({ id: s.id }));
+  return ALL_SOLUTIONS.map((s) => ({ id: s.id }));
 }
 
 export async function solutionMetadata(lang: Lang, id: string): Promise<Metadata> {
@@ -79,6 +79,8 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
   const t = m.solutions;
   const alt = screenAltFor(lang);
   const lp = (path: string) => localePath(lang, path);
+  // SEO: Studio's kinds are tried in Studio's demo apps and made in Yallapp Studio.
+  const studio = STUDIO_SOLUTIONS.some((o) => o.id === s.id);
   return (
     <MarketingPage
       current="solutions"
@@ -98,6 +100,7 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
           lang === "en" ? undefined : lang,
         )}
       />
+      {s.faq ? <JsonLdScript data={faqLd(s.faq.map((f) => ({ question: f.q, answer: f.a })), lang === "en" ? undefined : lang)} /> : null}
       <Section>
         <SectionTitle title={lang === "en" ? `What makes a great ${s.name.toLowerCase()} app` : formatMessage(lang, t.great, { app: s.app })} text={s.audience} />
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">
@@ -134,15 +137,20 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
       </Section>
 
       <Section>
-        <SectionTitle title={t.sourcesTitle} text={t.sourcesText} />
-        <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-          {s.sources.map((source) => (
-            <li key={source} className="flex gap-3 rounded-2xl border border-line p-5 text-[15px]">
-              <Icon name="link" size={22} />
-              {source}
-            </li>
-          ))}
-        </ul>
+        {/* SEO: Studio's kinds keep their content in Studio, so there's no source to choose. */}
+        {studio ? null : (
+          <>
+            <SectionTitle title={t.sourcesTitle} text={t.sourcesText} />
+            <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+              {s.sources.map((source) => (
+                <li key={source} className="flex gap-3 rounded-2xl border border-line p-5 text-[15px]">
+                  <Icon name="link" size={22} />
+                  {source}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <div className="flex flex-col gap-3">
           <h3 className="m-0 text-lg font-bold">{t.guides}</h3>
           <ul className="m-0 flex list-none flex-wrap gap-x-6 gap-y-2 p-0">
@@ -155,7 +163,7 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
             ))}
           </ul>
         </div>
-        <MoreLink href={lp("/integrations")}>{m.common.allIntegrations}</MoreLink>
+        {studio ? null : <MoreLink href={lp("/integrations")}>{m.common.allIntegrations}</MoreLink>}
       </Section>
 
       <Section>
@@ -165,7 +173,7 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
             <p className="m-0 text-[16px] leading-relaxed text-ink-4">{formatMessage(lang, t.tryText, { demoApp: s.demoApp })}</p>
           </div>
           <Link
-            href={`${lp("/demo")}#${s.id}`}
+            href={studio ? `${lp("/demo/studio")}#${s.id}` : `${lp("/demo")}#${s.id}`}
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
           >
             <Icon name="smartphone" size={20} />
@@ -173,6 +181,46 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
           </Link>
         </div>
       </Section>
+
+      {s.faq ? (
+        <Section>
+          <SectionTitle title={t.faqTitle} />
+          <div className="flex flex-col gap-3">
+            {s.faq.map((f) => (
+              <details
+                key={f.q}
+                className="group rounded-2xl border border-line bg-white transition-colors duration-200 open:border-line-strong hover:border-line-strong"
+              >
+                <summary className="flex items-center justify-between gap-4 rounded-2xl px-5 py-[18px] text-[17px] leading-snug font-bold sm:px-6">
+                  {f.q}
+                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-sand transition-colors group-open:bg-midnight group-open:text-white">
+                    <Icon name="expand_more" size={22} className="transition-transform duration-200 group-open:rotate-180" />
+                  </span>
+                </summary>
+                <p className="m-0 px-5 pb-5 text-[15px] leading-relaxed text-ink-4 sm:px-6">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </Section>
+      ) : null}
+
+      {studio ? (
+        <Section>
+          <div className="flex flex-wrap items-center justify-between gap-6 rounded-[20px] border border-line p-6 sm:p-8">
+            <div className="flex max-w-[620px] flex-col gap-2">
+              <h2 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">{t.studioTitle}</h2>
+              <p className="m-0 text-[16px] leading-relaxed text-ink-4">{t.studioText}</p>
+            </div>
+            <Link
+              href={lp("/yallapp-studio")}
+              className="flex h-[50px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
+            >
+              {t.studioButton}
+              <Icon name="arrow_forward" size={20} />
+            </Link>
+          </div>
+        </Section>
+      ) : null}
 
       <Section tinted>
         <SectionTitle title={t.others} />

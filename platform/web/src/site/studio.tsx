@@ -25,7 +25,7 @@ import { localePath } from "@/i18n/paths";
 
 export function studioMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).studio;
-  return siteMetadata(lang, { title: m.metaTitle, description: m.metaDescription, path: "/yallapp-studio" });
+  return siteMetadata(lang, { title: m.metaTitle, description: m.metaDescription, path: "/yallapp-studio", image: "/yallapp-studio/opengraph-image" });
 }
 
 export function studioDemoMetadata(lang: Lang): Metadata {

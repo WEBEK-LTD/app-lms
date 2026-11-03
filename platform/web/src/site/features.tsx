@@ -19,7 +19,7 @@ const isDashboard = (screen: AppScreen | DashboardScreen): screen is DashboardSc
 
 export function featuresMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
-  return siteMetadata(lang, { title: m.featuresTitle, description: m.featuresDescription, path: "/features" });
+  return siteMetadata(lang, { title: m.featuresTitle, description: m.featuresDescription, path: "/features", image: "/features/opengraph-image" });
 }
 
 export async function FeaturesPage({ lang }: { lang: Lang }) {
