@@ -1391,13 +1391,20 @@
     },
     {
       "name": "Maps",
-      "description": "Roadmap 112. Place search and routes on the map an app draws, through Yallapp, for ride, taxi, delivery and food apps: the company's own map (`TaxiConfig.map`, set on Maps & live) or, for apps without one, the platform's (ride hailing apps' `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). `search` and `routes` on those say whether `GET /maps/places` and `POST /maps/route` work; without them the app chooses places by the phone's position, a maps link or on the map, and draws a straight line.",
+      "description": "Roadmap 112. Place search and routes on the map an app draws, through Yallapp, for ride, taxi, delivery and food apps: the company's own map (`TaxiConfig.map`, set on Maps & live) or, for apps without one, the platform's (ride hailing apps' `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). `search` and `routes` on those say whether `GET /maps/places` and `POST /maps/route` work; without them the app chooses places by the phone's position, a maps link or on the map, and draws a straight line.\n\nRoadmap 112.6. With the platform's MapTiler tiles (or a company's) and no search server, the search is MapTiler's geocoding with the tiles' key, from Yallapp's servers. `GET /maps/address` names the place at the phone's position, for \"My location\", wherever `search` is true.",
       "endpoints": [
         {
           "method": "GET",
           "path": "/maps/places",
           "summary": "Places by name",
-          "description": "Places matching what the person typed, near them first, on the app's map: the company's Google Maps (Places) or OpenStreetMap search server, or the platform's search server (`search` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google place comes without its position: ask `GET /maps/places/{place_id}` when the person picks it. `feature_disabled` (403) when the app's map has no search.",
+          "description": "Places matching what the person typed, near them first, on the app's map: the company's Google Maps (Places) or OpenStreetMap search server, or the platform's search server, or 112.6 MapTiler's geocoding with the tiles' key (`search` in `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google place comes without its position: ask `GET /maps/places/{place_id}` when the person picks it. `feature_disabled` (403) when the app's map has no search.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/maps/address",
+          "summary": "The address at a position",
+          "description": "Roadmap 112.6. The place at the phone's position, named in the person's language, so \"My location\" fills the address: the company's Google Maps (Geocoding API), its or the platform's Nominatim server (`/reverse`), or MapTiler's geocoding with the tiles' key. Works wherever `search` is true; `feature_disabled` (403) otherwise, and `not_found` (404) when the map names nothing there. The app keeps its field as it is on any error.",
           "access": "optional"
         },
         {

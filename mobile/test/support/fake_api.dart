@@ -2107,6 +2107,25 @@ class FakeApi implements YallappApi {
     () => TaxiPlace.fromJson(taxiPlaces.firstWhere((p) => p['id'] == id)),
   );
 
+  /// 112.6 `GET /maps/address`'s answer; null: `not_found`.
+  Map<String, dynamic>? mapAddress;
+  final addressAsked = <({double lat, double lng})>[];
+
+  @override
+  Future<TaxiPlace> getMapAddress(double lat, double lng) =>
+      _answer('getMapAddress', () {
+        addressAsked.add((lat: lat, lng: lng));
+        final found = mapAddress;
+        if (found == null) {
+          throw const ApiException(
+            code: 'not_found',
+            message: 'No address here.',
+            statusCode: 404,
+          );
+        }
+        return TaxiPlace.fromJson(found);
+      });
+
   @override
   Future<TaxiRoute> getTaxiRoute(
     ({double lat, double lng}) from,

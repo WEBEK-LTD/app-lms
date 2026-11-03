@@ -498,7 +498,7 @@ export function MapsSettingForm({ tilesUrl, attribution, searchUrl, routingUrl }
         dir="ltr"
         defaultValue={state.values?.searchUrl ?? searchUrl}
         placeholder="https://search.example.com"
-        hint="A Nominatim server (its /search and /lookup), so riders and customers find places by name. Without it they choose places by their position, a maps link or on the map."
+        hint="A Nominatim server (its /search, /lookup and /reverse), so riders and customers find places by name and get the address of their position. Without it, MapTiler tiles search with MapTiler's geocoding and the same key; other tiles choose places by their position, a maps link or on the map."
         error={state.errors?.searchUrl}
       />
       <Field

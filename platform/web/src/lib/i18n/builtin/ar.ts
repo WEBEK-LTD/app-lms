@@ -951,6 +951,9 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "Give both places' lat and lng.": "أرسل خط العرض وخط الطول للمكانين.",
   "There's no road between these places.": "لا يوجد طريق بين هذين المكانين.",
   "The map isn't answering right now. Please try again.": "الخريطة لا تستجيب الآن. حاول مرة أخرى.",
+  // 112.6 The address at a position.
+  "Give the position's lat and lng.": "أرسل خط العرض وخط الطول للموقع.",
+  "No address here.": "لا يوجد عنوان هنا.",
   // 113.5 The syllabus and the teachers' reports.
   "Report not found.": "لم يُعثر على التقرير.",
   "Only a draft can be deleted.": "لا يمكن حذف إلا المسودة.",

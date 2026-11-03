@@ -11,7 +11,12 @@ import { safeFetch } from "../net/safe-fetch";
  * - OpenStreetMap: the company's tile server, and optionally its Nominatim
  *   search and OSRM routing servers (OpenStreetMap's own servers aren't for
  *   apps). Those are the company's addresses, so they are called through
- *   `safeFetch`.
+ *   `safeFetch`. 112.6 Tiles from MapTiler (api.maptiler.com with a `key=`)
+ *   search with MapTiler's geocoding and the same key when there's no
+ *   Nominatim server, here, so the apps never need the key for it.
+ *
+ * 112.6 Each of them also names the place at a position (`addressAt`), for the
+ * apps' "My location".
  */
 
 type Fetch = typeof fetch;
@@ -53,6 +58,8 @@ const CALL_MS = 6000;
 const SESSION_MARGIN_MS = 24 * 3600_000;
 /** OpenStreetMap servers want to know who calls them. */
 const USER_AGENT = "Yallapp taxi (https://yallapp.com.tr)";
+/** 112.6 Shorter for the address at a position: the field stays as it is without one. */
+const ADDRESS_MS = 4000;
 
 export interface MapDeps {
   /** Google's own servers. */
@@ -195,10 +202,10 @@ export function thin(points: [number, number][], max = ROUTE_POINTS): [number, n
 
 // OpenStreetMap
 
-async function companyCall(deps: MapDeps, url: string): Promise<unknown> {
+async function companyCall(deps: MapDeps, url: string, ms = CALL_MS): Promise<unknown> {
   let response: Response;
   try {
-    response = await companyFetch(deps)(url, { headers: { "user-agent": USER_AGENT, accept: "application/json" }, signal: AbortSignal.timeout(CALL_MS) });
+    response = await companyFetch(deps)(url, { headers: { "user-agent": USER_AGENT, accept: "application/json" }, signal: AbortSignal.timeout(ms) });
   } catch {
     throw new MapError("The map server didn't answer.");
   }
@@ -248,6 +255,77 @@ async function osmPlace(searchUrl: string, id: string, language: string, deps: M
   return place;
 }
 
+async function osmAddress(searchUrl: string, at: LatLng, language: string, deps: MapDeps): Promise<MapPlace | null> {
+  const query = new URLSearchParams({ lat: String(at.lat), lon: String(at.lng), format: "jsonv2", zoom: "18", "accept-language": language });
+  const body = await companyCall(deps, `${searchUrl}/reverse?${query}`, ADDRESS_MS);
+  return body && typeof body === "object" && !Array.isArray(body) ? nominatimPlace(body as NominatimPlace) : null;
+}
+
+// 112.6 MapTiler
+
+/** MapTiler's key in a tile address on api.maptiler.com; null for any other. */
+export function maptilerKeyOf(tilesUrl: string | null | undefined): string | null {
+  if (!tilesUrl) return null;
+  let url: URL;
+  try {
+    url = new URL(tilesUrl.replace(/\{[a-z]\}/g, "0"));
+  } catch {
+    return null;
+  }
+  const key = url.searchParams.get("key");
+  return url.protocol === "https:" && url.hostname === "api.maptiler.com" && key && /^[A-Za-z0-9_-]{8,100}$/.test(key) ? key : null;
+}
+
+interface MaptilerFeature {
+  id?: string;
+  text?: string;
+  place_name?: string;
+  center?: [number, number];
+}
+
+function maptilerPlace(f: MaptilerFeature): MapPlace | null {
+  const [lng, lat] = f.center ?? [];
+  if (!f.id || typeof lat !== "number" || typeof lng !== "number" || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const address = f.place_name ?? null;
+  return { id: `mt:${f.id}`, name: f.text || address?.split(",")[0] || "", address, lat, lng };
+}
+
+const maptilerLanguage = (language: string) => (/^[a-z]{2}$/.test(language) ? language : "en");
+
+async function maptilerCall(key: string, path: string, query: URLSearchParams, deps: MapDeps, ms = CALL_MS): Promise<MaptilerFeature[]> {
+  query.set("key", key);
+  const body = (await companyCall(deps, `https://api.maptiler.com/geocoding/${path}.json?${query}`, ms)) as { features?: MaptilerFeature[] } | null;
+  return Array.isArray(body?.features) ? body.features : [];
+}
+
+async function maptilerPlaces(key: string, input: { q: string; near: LatLng | null; language: string }, deps: MapDeps): Promise<MapPlace[]> {
+  const query = new URLSearchParams({ language: maptilerLanguage(input.language), limit: String(PLACES_MAX), autocomplete: "true" });
+  if (input.near) query.set("proximity", `${input.near.lng},${input.near.lat}`);
+  const features = await maptilerCall(key, encodeURIComponent(input.q), query, deps);
+  return features.flatMap((f) => maptilerPlace(f) ?? []);
+}
+
+async function maptilerAddress(key: string, at: LatLng, language: string, deps: MapDeps): Promise<MapPlace | null> {
+  const features = await maptilerCall(key, `${at.lng},${at.lat}`, new URLSearchParams({ language: maptilerLanguage(language) }), deps, ADDRESS_MS);
+  for (const f of features) {
+    const place = maptilerPlace(f);
+    if (place) return { ...place, lat: at.lat, lng: at.lng };
+  }
+  return null;
+}
+
+async function googleAddress(key: string, at: LatLng, language: string, deps: MapDeps): Promise<MapPlace | null> {
+  const query = new URLSearchParams({ latlng: `${at.lat},${at.lng}`, language, key });
+  const response = await googleCall(deps, `https://maps.googleapis.com/maps/api/geocode/json?${query}`, {});
+  const body = (await response.json()) as { status?: string; results?: { place_id?: string; formatted_address?: string }[] };
+  const first = body.results?.find((r) => r.place_id && r.formatted_address);
+  if (!first) {
+    if (body.status && body.status !== "OK" && body.status !== "ZERO_RESULTS") throw new MapError(`Google Maps: ${body.status}`);
+    return null;
+  }
+  return { id: first.place_id!, name: first.formatted_address!.split(",")[0]!.trim(), address: first.formatted_address!, lat: at.lat, lng: at.lng };
+}
+
 async function osmRoute(routingUrl: string, from: LatLng, to: LatLng, deps: MapDeps): Promise<MapRoute> {
   const body = (await companyCall(deps, `${routingUrl}/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`)) as {
     code?: string;
@@ -271,8 +349,13 @@ export interface MapAccess {
   language: string;
 }
 
+/** 112.6 An OpenStreetMap-style map searches with its Nominatim server, else with MapTiler's geocoding when its tiles are MapTiler's. */
+export function osmSearches(settings: Pick<TaxiSettings, "tilesUrl" | "searchUrl">): boolean {
+  return settings.searchUrl !== null || maptilerKeyOf(settings.tilesUrl) !== null;
+}
+
 export function canSearch(access: MapAccess): boolean {
-  return access.settings.provider === "google" ? access.googleKey !== null : access.settings.searchUrl !== null;
+  return access.settings.provider === "google" ? access.googleKey !== null : osmSearches(access.settings);
 }
 
 export function canRoute(access: MapAccess): boolean {
@@ -280,15 +363,49 @@ export function canRoute(access: MapAccess): boolean {
 }
 
 export async function searchPlaces(access: MapAccess, input: { q: string; near: LatLng | null; session: string | null }, deps: MapDeps = {}): Promise<MapPlace[]> {
+  const { settings } = access;
   const places =
-    access.settings.provider === "google"
+    settings.provider === "google"
       ? await googlePlaces(access.googleKey!, { ...input, language: access.language }, deps)
-      : await osmPlaces(access.settings.searchUrl!, { ...input, language: access.language }, deps);
+      : settings.searchUrl
+        ? await osmPlaces(settings.searchUrl, { ...input, language: access.language }, deps)
+        : await maptilerPlaces(maptilerKeyOf(settings.tilesUrl)!, { ...input, language: access.language }, deps);
   return places.slice(0, PLACES_MAX);
 }
 
 export async function placeById(access: MapAccess, id: string, session: string | null, deps: MapDeps = {}): Promise<MapPlace> {
-  return access.settings.provider === "google" ? googlePlace(access.googleKey!, id, session, access.language, deps) : osmPlace(access.settings.searchUrl!, id, access.language, deps);
+  const { settings } = access;
+  if (settings.provider === "google") return googlePlace(access.googleKey!, id, session, access.language, deps);
+  // MapTiler's places come with their position: nothing to look up.
+  if (!settings.searchUrl) throw new MapError("Place not found.", "not_found");
+  return osmPlace(settings.searchUrl, id, access.language, deps);
+}
+
+/** 112.6 Addresses already named, by provider, language and position (about a metre): a person tapping "My location" again asks nothing. */
+const ADDRESSES = new Map<string, { place: MapPlace | null; until: number }>();
+const ADDRESSES_MAX = 500;
+const ADDRESS_KEEP_MS = 3600_000;
+
+export function clearAddressCache(): void {
+  ADDRESSES.clear();
+}
+
+/** 112.6 The place at a position, named in the map's language, for "My location"; null when the provider has none there. */
+export async function addressAt(access: MapAccess, at: LatLng, deps: MapDeps = {}, now: Date = new Date()): Promise<MapPlace | null> {
+  const { settings } = access;
+  const provider = settings.provider === "google" ? "google" : settings.searchUrl ? `osm:${settings.searchUrl}` : "maptiler";
+  const cacheKey = `${provider}|${access.language}|${at.lat.toFixed(5)},${at.lng.toFixed(5)}`;
+  const kept = ADDRESSES.get(cacheKey);
+  if (kept && kept.until > now.getTime()) return kept.place;
+  const place =
+    settings.provider === "google"
+      ? await googleAddress(access.googleKey!, at, access.language, deps)
+      : settings.searchUrl
+        ? await osmAddress(settings.searchUrl, at, access.language, deps)
+        : await maptilerAddress(maptilerKeyOf(settings.tilesUrl)!, at, access.language, deps);
+  if (ADDRESSES.size >= ADDRESSES_MAX) ADDRESSES.delete(ADDRESSES.keys().next().value!);
+  ADDRESSES.set(cacheKey, { place, until: now.getTime() + ADDRESS_KEEP_MS });
+  return place;
 }
 
 export async function routeBetween(access: MapAccess, from: LatLng, to: LatLng, deps: MapDeps = {}): Promise<MapRoute> {
@@ -344,7 +461,7 @@ export async function checkMap(access: MapAccess, options: { region: string }, d
       if (!(response.headers.get("content-type") ?? "").startsWith("image/")) throw new MapError("The tile server didn't answer with a picture.");
     }),
   ];
-  if (settings.searchUrl) checks.push(checked("search", () => searchPlaces(access, { q: "Cairo", near: CHECK_FROM, session: null }, deps)));
+  if (osmSearches(settings)) checks.push(checked("search", () => searchPlaces(access, { q: "Cairo", near: CHECK_FROM, session: null }, deps)));
   if (settings.routingUrl) checks.push(checked("routes", () => routeBetween(access, CHECK_FROM, CHECK_TO, deps)));
   return Promise.all(checks);
 }

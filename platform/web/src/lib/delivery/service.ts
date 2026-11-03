@@ -3,6 +3,7 @@ import { centsToDecimal, formatCents } from "../catalog/money";
 import type { Courier, DeliveryService, DeliverySettings, MapTilesSetting, PackageSize, Shipment, ShipmentPlace, ShipmentStage, ShipmentStatus } from "../data/types";
 import { PACKAGE_SIZES } from "../data/types";
 import { parseAnyPhone } from "../hosted/phone";
+import { osmSearches } from "../taxi/maps";
 
 /**
  * 104 Shipments as the app reads them (tags Delivery and Courier in
@@ -151,7 +152,8 @@ export function mapConfigJson(map: MapTilesSetting | null) {
   return {
     tiles_url: tiles,
     attribution: tiles ? (map?.attribution ?? null) : null,
-    search: tiles !== null && !!map?.searchUrl,
+    // 112.6 MapTiler's tiles search with its geocoding when there's no search server.
+    search: tiles !== null && osmSearches({ tilesUrl: tiles, searchUrl: map?.searchUrl ?? null }),
     routes: tiles !== null && !!map?.routingUrl,
   };
 }

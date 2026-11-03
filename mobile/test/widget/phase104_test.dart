@@ -397,4 +397,32 @@ void main() {
     expect(locator.reads, 1);
     expect(find.byKey(const ValueKey('pickup-located')), findsOneWidget);
   });
+
+  testWidgets('112.6 "My location" writes the address the map names', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final api = deliveryApi()
+      ..mapAddress = {
+        'id': 'mt:address.9',
+        'name': 'Talaat Harb Street',
+        'address': 'Talaat Harb Street, Downtown, Cairo',
+        'lat': 30.0444,
+        'lng': 31.2357,
+      };
+    final app = deliveryApp(api);
+    await app.pump(tester);
+    await go(app, tester, Paths.send);
+    await tapKey(tester, 'pickup-here');
+    expect(api.count('getMapAddress'), 1);
+    final field = tester.widget<TextField>(
+      find.byKey(const ValueKey('pickup-address')),
+    );
+    expect(field.controller!.text, 'Talaat Harb Street, Downtown, Cairo');
+
+    // A field with words in it keeps them.
+    await typeInto(tester, 'dropoff-address', '9 Road 233, Maadi');
+    await tapKey(tester, 'dropoff-here');
+    expect(api.count('getMapAddress'), 1);
+  });
 }

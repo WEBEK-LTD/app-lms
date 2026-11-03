@@ -20,6 +20,7 @@ import '../../real_estate/widgets/listing_widgets.dart'
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/delivery_providers.dart';
 import '../data/locate.dart';
+import '../data/my_address.dart';
 import '../widgets/delivery_map.dart';
 import '../widgets/delivery_widgets.dart';
 
@@ -170,7 +171,15 @@ class _SendParcelScreenState extends ConsumerState<SendParcelScreen> {
       });
       return;
     }
-    _setAt(fields, (lat: p.lat, lng: p.lng));
+    final at = (lat: p.lat, lng: p.lng);
+    _setAt(fields, at);
+    // 112.6 The address of the position, in an empty field.
+    if (fields.address.text.trim().isNotEmpty) return;
+    final named = await addressAt(ref, at);
+    if (!mounted || named == null) return;
+    if (fields.at == at && fields.address.text.trim().isEmpty) {
+      fields.address.text = addressLine(named);
+    }
   }
 
   Future<void> _pasteLink(PlaceFields fields) async {
