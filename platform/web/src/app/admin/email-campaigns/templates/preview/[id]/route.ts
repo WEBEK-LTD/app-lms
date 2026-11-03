@@ -6,7 +6,7 @@ import { renderContent } from "@/lib/mailing/render";
 import { MAIL_TEMPLATES, templateContent } from "@/lib/mailing/templates";
 import type { MailContent, MailLang } from "@/lib/mailing/types";
 
-/** 114 A template as the email it makes (`ready:<id>` or `saved:<id>`), with the example person, for the gallery's preview. */
+/** 114 A template as the email it makes (`ready:<id>`, `saved:<id>`, or a campaign's main email, `campaign:<id>`), with the example person, for the gallery's preview. */
 export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, { params }: RouteContext<"/admin/email-campaigns/templates/preview/[id]">): Promise<Response> {
@@ -24,6 +24,12 @@ export async function GET(_request: Request, { params }: RouteContext<"/admin/em
     if (template && first) {
       content = template.contents[first]!;
       lang = first;
+    }
+  } else if (source.startsWith("campaign:")) {
+    const campaign = await (await getStore()).getMailCampaign(source.slice(9));
+    if (campaign?.contents[campaign.defaultLang]) {
+      content = campaign.contents[campaign.defaultLang]!;
+      lang = campaign.defaultLang;
     }
   }
   if (!content) return new Response("Not found.", { status: 404 });

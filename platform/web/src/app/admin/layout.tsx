@@ -70,6 +70,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               items: [
                 { href: "/admin/content", label: "Website content", icon: "web" },
                 { href: "/admin/emails", label: "Emails", icon: "mail" },
+                // 114 Emails to the people on Yallapp.
+                { href: "/admin/email-campaigns", label: "Email campaigns", icon: "send" },
                 { href: "/admin/announcements", label: "Announcements", icon: "campaign" },
                 { href: "/admin/demos", label: "Demo apps", icon: "smartphone" },
                 { href: "/admin/designs", label: "Designs", icon: "palette" },
