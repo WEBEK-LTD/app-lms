@@ -1,0 +1,49 @@
+name: IndexNow
+
+# Tells IndexNow (Bing and the engines that share it) about the public site's pages after main
+# changes them. Netlify publishes main a few minutes after the push, so the script waits until
+# the site serves the key file and the sitemap, then sends every sitemap URL. Google doesn't use
+# IndexNow; it reads the sitemap. Run it by hand from Actions › IndexNow › Run workflow.
+# The key is public by design (build/indexnow-key.txt, served as platform/web/public/<key>.txt).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/web/src/site/**'
+      - 'platform/web/src/content/**'
+      - 'platform/web/src/i18n/messages/**'
+      - 'platform/web/src/app/[[]lang]/**'
+      - 'platform/web/src/lib/seo.ts'
+      - 'platform/web/src/lib/sitemap.ts'
+      - 'platform/web/src/lib/marketing.ts'
+      - 'platform/web/public/**'
+      - 'build/indexnow-key.txt'
+      - 'build/scripts/indexnow.py'
+      - '.github/workflows/indexnow.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    name: Send the sitemap's pages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          sparse-checkout: |
+            build/indexnow-key.txt
+            build/scripts/indexnow.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Wait for the deploy and send
+        run: python3 build/scripts/indexnow.py --site https://yallapp.com.tr --wait 1200
