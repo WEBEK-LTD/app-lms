@@ -158,6 +158,7 @@ export function organizationLd(base: string, contact: { email: string; whatsapp:
     name: SITE_NAME,
     url: `${base}/`,
     logo: `${base}${LOGO_PATH}`,
+    sameAs: [...COMPANY.profiles],
     address: { "@type": "PostalAddress", addressLocality: COMPANY.city, addressCountry: COMPANY.countryCode },
     contactPoint: [
       {
@@ -188,6 +189,7 @@ export function websiteLd(base: string, lang: Lang = "en"): JsonLd {
     "@type": "WebSite",
     "@id": `${base}/#website`,
     name: SITE_NAME,
+    alternateName: [...COMPANY.alternateNames],
     url: `${base}${lang === "en" ? "/" : localePath(lang, "/")}`,
     inLanguage: lang,
     publisher: { "@id": `${base}/#organization` },

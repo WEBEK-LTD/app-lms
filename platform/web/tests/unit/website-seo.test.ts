@@ -238,6 +238,11 @@ describe("32 structured data", () => {
       name: "Yallapp",
       url: `${BASE}/`,
       logo: `${BASE}${LOGO_PATH}`,
+      sameAs: [
+        "https://www.facebook.com/profile.php?id=61595642630978",
+        "https://www.instagram.com/ya.ll.app/",
+        "https://www.linkedin.com/company/yallapp/",
+      ],
       address: { "@type": "PostalAddress", addressLocality: "Cairo", addressCountry: "EG" },
       contactPoint: [
         {
@@ -261,6 +266,8 @@ describe("32 structured data", () => {
       ],
     });
     expect(websiteLd(BASE)).toMatchObject({ "@type": "WebSite", url: `${BASE}/`, publisher: { "@id": `${BASE}/#organization` } });
+    // The names people search Yallapp by, in English and Arabic.
+    expect(websiteLd(BASE).alternateName).toEqual(expect.arrayContaining(["Yalla App", "يلا اب"]));
   });
 
   it("offers only the plans that have a price", () => {
