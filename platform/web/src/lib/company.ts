@@ -10,6 +10,14 @@ export const COMPANY = {
   /** ISO 3166-1 alpha-2, for structured data. */
   countryCode: "EG",
   website: "https://yallapp.com.tr",
+  /** Other names people search Yallapp by, for search engines (WebSite alternateName). */
+  alternateNames: ["Yalla App", "Yallapp app", "يلا اب", "يلا آب", "يلا أب"],
+  /** Yallapp's official profiles, for search engines (Organization sameAs). */
+  profiles: [
+    "https://www.facebook.com/profile.php?id=61595642630978",
+    "https://www.instagram.com/ya.ll.app/",
+    "https://www.linkedin.com/company/yallapp/",
+  ],
 } as const;
 
 /** "Cairo, Egypt". */
