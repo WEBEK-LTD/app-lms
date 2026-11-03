@@ -47,7 +47,7 @@
   --color-phone: #16161a;
   --color-phone-edge: #4a4a52;
 
-  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-bricolage), var(--font-bricolage-ext), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
