@@ -546,7 +546,11 @@ describe("SEO search snippets and share images", () => {
         faq: m.meta.faqDescription,
         studio: m.studio.metaDescription,
       };
-      for (const [page, text] of Object.entries(descriptions)) expect(text.length, `${lang} ${page}`).toBeLessThanOrEqual(170);
+      // Bing reports descriptions over 160 characters (or under 25); 155 leaves room.
+      for (const [page, text] of Object.entries(descriptions)) {
+        expect(text.length, `${lang} ${page}`).toBeLessThanOrEqual(155);
+        expect(text.length, `${lang} ${page}`).toBeGreaterThanOrEqual(50);
+      }
     }
   });
 

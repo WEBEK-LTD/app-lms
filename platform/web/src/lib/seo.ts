@@ -15,7 +15,7 @@ import { planShownPrice, POUNDS_VIEW, type PlanInfo, type PriceView } from "./pl
 export const SITE_NAME = COMPANY.name;
 export const DEFAULT_TITLE = "Yallapp: make an app for your shop, school or delivery company";
 export const DEFAULT_DESCRIPTION =
-  "Your own branded app for shops, academies, schools, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.";
+  "Your branded app for shops, schools, academies, restaurants, clinics, delivery and taxis, on Google Play, App Store, Galaxy Store, AppGallery and GetApps.";
 
 /**
  * 67 Netlify's own addresses (yallapp.netlify.app, deploy previews). Visitors
