@@ -469,7 +469,7 @@ export function renderHtmlMode(html: string, content: Pick<MailContent, "subject
 /** One language of the email, ready but for its merge tags. */
 export function renderContent(content: MailContent, options: RenderOptions): RenderedMail {
   const html = content.mode === "html" ? renderHtmlMode(content.html ?? "", content, options) : renderDoc(content.doc ?? { version: 1, theme: BRAND_THEME, blocks: [] }, content, options);
-  return { subject: content.subject, html, text: htmlToText(html.replace(/<div style="display:none[^>]*>[\s\S]*?<\/div>/, "")) };
+  return { subject: content.subject, html, text: htmlToText(html) };
 }
 
 /** Gmail cuts emails past about 102 KB; the review step warns before then. */

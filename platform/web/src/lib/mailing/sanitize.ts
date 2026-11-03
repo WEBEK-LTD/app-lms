@@ -256,22 +256,60 @@ function sanitizeAttributes(tag: string, source: string, profile: SanitizeProfil
   return out;
 }
 
-/** Text without any tag (the email's plain text part, the inbox preview). */
+/**
+ * Text without any tag (the email's plain text part, the inbox preview).
+ * The HTML is first put through the sanitizer (a tokenizer: no script, no
+ * comment, every "<" of the text escaped), then read tag by tag, so no
+ * removed piece can join with another into a tag.
+ */
 export function htmlToText(html: string): string {
-  return decodeEntities(
-    html
-      .replace(/<(style|script|title|head)[^>]*>[\s\S]*?<\/\1>/gi, "")
-      .replace(/<!--[\s\S]*?-->/g, "")
-      .replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_w, href: string, label: string) => {
-        const text = label.replace(/<[^>]+>/g, "").trim();
-        const address = decodeEntities(href);
-        return !text ? address : text === address || address.startsWith("mailto:") || address.startsWith("tel:") ? text : `${text} (${address})`;
-      })
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/(p|div|h[1-6]|li|tr|table|blockquote|center)>/gi, "\n")
-      .replace(/<li[^>]*>/gi, "• ")
-      .replace(/<[^>]+>/g, ""),
-  )
+  const clean = sanitizeHtml(html, "document");
+  let out = "";
+  let i = 0;
+  let skipUntil: string | null = null;
+  const links: { href: string; start: number }[] = [];
+  while (i < clean.length) {
+    const lt = clean.indexOf("<", i);
+    const text = clean.slice(i, lt === -1 ? clean.length : lt);
+    if (!skipUntil) out += decodeEntities(text);
+    if (lt === -1) break;
+    const gt = clean.indexOf(">", lt);
+    if (gt === -1) break;
+    const tag = clean.slice(lt + 1, gt);
+    i = gt + 1;
+    const match = /^(\/?)([a-z][a-z0-9:-]*)/i.exec(tag);
+    if (!match) continue; // Outlook's conditional markers and the doctype.
+    const closing = match[1] === "/";
+    const name = match[2]!.toLowerCase();
+    if (skipUntil) {
+      if (closing && name === skipUntil) skipUntil = null;
+      continue;
+    }
+    // The hidden inbox preview line isn't part of the text.
+    if (!closing && (name === "style" || name === "title" || name === "head" || (name === "div" && /display:\s*none/i.test(tag)))) {
+      skipUntil = name;
+      continue;
+    }
+    if (name === "a") {
+      if (!closing) {
+        const href = /\shref="([^"]*)"/.exec(tag)?.[1];
+        links.push({ href: href ? decodeEntities(href) : "", start: out.length });
+      } else {
+        const link = links.pop();
+        if (link?.href) {
+          const label = out.slice(link.start).trim();
+          const address = link.href;
+          if (!label) out += address;
+          else if (label !== address && !address.startsWith("mailto:") && !address.startsWith("tel:")) out += ` (${address})`;
+        }
+      }
+      continue;
+    }
+    if (name === "br") out += "\n";
+    else if (!closing && name === "li") out += "• ";
+    else if (closing && /^(p|div|h[1-6]|li|tr|table|blockquote|center)$/.test(name)) out += "\n";
+  }
+  return out
     .replace(/\u00a0/g, " ")
     .replace(/[ \t]+/g, " ")
     .replace(/ *\n */g, "\n")
