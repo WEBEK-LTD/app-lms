@@ -85,7 +85,7 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
       <nav aria-label={t("salaries.months")} className="flex flex-wrap items-end gap-2">
         {monthOpenForSheets(previous, current) ? (
           <Link href={`/dashboard/school/salaries?month=${previous}`} className={`${btn.secondary} h-10 gap-1 px-3 text-sm`}>
-            <Icon name="chevron_left" size={18} className="rtl:rotate-180" />
+            <Icon name="chevron_left" size={18} />
             {monthLabel(lang, previous)}
           </Link>
         ) : null}
@@ -103,7 +103,7 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
         {next <= current ? (
           <Link href={`/dashboard/school/salaries?month=${next}`} className={`${btn.secondary} h-10 gap-1 px-3 text-sm`}>
             {monthLabel(lang, next)}
-            <Icon name="chevron_right" size={18} className="rtl:rotate-180" />
+            <Icon name="chevron_right" size={18} />
           </Link>
         ) : null}
       </nav>
