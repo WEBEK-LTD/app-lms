@@ -6,7 +6,9 @@ import { PaymentKeysForm } from "@/app/dashboard/catalog/forms";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
-import { Badge, btn, Notice } from "@/components/ui";
+import { Badge, btn, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, LinkCards, PageGroup, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { richText } from "@/i18n/rich";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
@@ -25,7 +27,7 @@ import { courierAppNameOf, workedInCustomersApp } from "@/lib/delivery/courier-a
 import { courierHubSetting } from "@/lib/courier-hub/review";
 import { ConfirmButton } from "../chat/forms";
 import { isDelivery, isFood, NotDelivery, PlanNotice } from "../shipments/parts";
-import { AddServiceBox, DeliverySettingsForm, ServiceForm } from "./forms";
+import { DeliverySettingsForm, ServiceForm } from "./forms";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -84,15 +86,34 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
   const links = await courierHubSetting(store);
   const hub = app.appType !== "delivery" ? null : { company: (app.appName ?? "").trim() || t("emails.yourAppName"), play: links.playUrl, appStore: links.appStoreUrl };
 
+  const food = isFood(app);
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[640px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("delivery.settings")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("delivery.settingsIntro")}</p>
-      </div>
+      {/* The page kit: the header and its main action, the settings form in parts, the services as rows (each edited in a Sheet), then card payments. */}
+      <PageHeader
+        title={t("delivery.settings")}
+        description={t("delivery.settingsIntro")}
+        actions={
+          !food && services.length ? (
+            <SheetButton target="new-service" icon="add">
+              {t("delivery.addService")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <PlanNotice plan={plan} t={t} app={app} />
+      <LinkCards
+        label={t("delivery.settings")}
+        items={[
+          { href: "/dashboard/couriers", icon: "two_wheeler", label: t("delivery.couriers") },
+          { href: "/dashboard/shipments", icon: "package_2", label: food ? t("food.courierJobs") : t("delivery.shipments") },
+          { href: "/dashboard/delivery/live", icon: "map", label: t("delivery.liveMap") },
+        ]}
+      />
 
-      <section aria-labelledby="h-settings" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <PageGroup title={t("delivery.groupHow")}>
+      <section aria-labelledby="h-settings" className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <h2 id="h-settings" className="sr-only">
           {t("delivery.settings")}
         </h2>
@@ -134,76 +155,91 @@ export default async function DeliverySettingsPage({ searchParams }: { searchPar
         />
       </section>
 
+      </PageGroup>
+
       {/* 105.1 A food company's prices are the delivery fee only: no services. */}
-      {isFood(app) ? null : (
-      <section aria-labelledby="h-services" className="flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-services" className="m-0 text-lg font-bold">
-            {t("delivery.services")}
-          </h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("delivery.servicesIntro")}</p>
-        </div>
-        {/* 110.2 */}
-        <SampleEntries app={app} list="delivery_services" query={await searchParams} />
-        {services.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("delivery.noServices")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {services.map((s, i) => (
-            <li key={s.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{s.name}</span>
-                  <span className="text-[13px] text-muted">{[s.extraCents > 0 ? `+${formatCents(s.extraCents, settings.currency)}` : null, s.eta].filter(Boolean).join(" · ")}</span>
-                </span>
-                <SampleBadge sample={s.sample} />
-                {s.active ? null : <Badge tone="neutral">{t("delivery.hidden")}</Badge>}
-                <form action={moveDeliveryServiceAction}>
-                  <input type="hidden" name="id" value={s.id} />
-                  <input type="hidden" name="step" value="up" />
-                  <button type="submit" disabled={i === 0} aria-label={t("delivery.up")} className={`${btn.ghost} h-9 px-2`}>
-                    <Icon name="arrow_upward" size={18} />
-                  </button>
-                </form>
-                <form action={moveDeliveryServiceAction}>
-                  <input type="hidden" name="id" value={s.id} />
-                  <input type="hidden" name="step" value="down" />
-                  <button type="submit" disabled={i === services.length - 1} aria-label={t("delivery.down")} className={`${btn.ghost} h-9 px-2`}>
-                    <Icon name="arrow_downward" size={18} />
-                  </button>
-                </form>
-                <form action={deleteDeliveryServiceAction}>
-                  <input type="hidden" name="id" value={s.id} />
-                  <ConfirmButton confirm={t("delivery.deleteService", { name: s.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                    {t("delivery.delete")}
-                  </ConfirmButton>
-                </form>
-              </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("delivery.editService", { name: s.name })}</summary>
-                <div className="pt-3">
-                  <ServiceForm
-                    currency={settings.currency}
-                    service={{
-                      id: s.id,
-                      name: s.name,
-                      description: s.description ?? "",
-                      extra: s.extraCents > 0 ? centsToDecimal(s.extraCents) : "",
-                      eta: s.eta ?? "",
-                      active: s.active,
-                      imageUrl: s.imageAssetId ? assetUrl(s.imageAssetId) : null,
-                    }}
+      {food ? null : (
+        <PageGroup title={t("delivery.services")}>
+          <Section titleId="h-services" title={t("delivery.services")} description={t("delivery.servicesIntro")} actions={<Badge tone="neutral">{services.length}</Badge>} flush>
+            {/* 110.2 */}
+            <div className="empty:hidden px-5 pt-4 sm:px-6">
+              <SampleEntries app={app} list="delivery_services" query={await searchParams} />
+            </div>
+            {services.length === 0 ? (
+              <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("delivery.noServices")}</p>
+            ) : (
+              <ItemList>
+                {services.map((s, i) => (
+                  <ItemRow
+                    key={s.id}
+                    media={<Thumb src={s.imageAssetId ? assetUrl(s.imageAssetId) : null} icon="local_shipping" shape="square" tint={i} />}
+                    title={s.name}
+                    badges={
+                      <>
+                        <SampleBadge sample={s.sample} />
+                        {s.active ? null : <Badge tone="neutral">{t("delivery.hidden")}</Badge>}
+                      </>
+                    }
+                    meta={[s.extraCents > 0 ? `+${formatCents(s.extraCents, settings.currency)}` : null, s.eta].filter(Boolean).join(" · ") || undefined}
+                    extra={s.description ? <span className="line-clamp-1">{s.description}</span> : null}
+                    actions={
+                      <>
+                        <form action={moveDeliveryServiceAction}>
+                          <input type="hidden" name="id" value={s.id} />
+                          <input type="hidden" name="step" value="up" />
+                          <button type="submit" disabled={i === 0} aria-label={t("delivery.up")} className={`${btn.ghost} h-9 px-2`}>
+                            <Icon name="arrow_upward" size={18} />
+                          </button>
+                        </form>
+                        <form action={moveDeliveryServiceAction}>
+                          <input type="hidden" name="id" value={s.id} />
+                          <input type="hidden" name="step" value="down" />
+                          <button type="submit" disabled={i === services.length - 1} aria-label={t("delivery.down")} className={`${btn.ghost} h-9 px-2`}>
+                            <Icon name="arrow_downward" size={18} />
+                          </button>
+                        </form>
+                        <SheetButton target={`service-${s.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                          {t("delivery.editService", { name: s.name })}
+                        </SheetButton>
+                        <form action={deleteDeliveryServiceAction}>
+                          <input type="hidden" name="id" value={s.id} />
+                          <ConfirmButton confirm={t("delivery.deleteService", { name: s.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                            {t("delivery.delete")}
+                          </ConfirmButton>
+                        </form>
+                        <Sheet id={`service-${s.id}`} title={s.name}>
+                          <ServiceForm
+                            currency={settings.currency}
+                            service={{
+                              id: s.id,
+                              name: s.name,
+                              description: s.description ?? "",
+                              extra: s.extraCents > 0 ? centsToDecimal(s.extraCents) : "",
+                              eta: s.eta ?? "",
+                              active: s.active,
+                              imageUrl: s.imageAssetId ? assetUrl(s.imageAssetId) : null,
+                            }}
+                          />
+                        </Sheet>
+                      </>
+                    }
                   />
-                </div>
-              </details>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("delivery.addService")} open={services.length === 0}>
-          <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
-        </AddServiceBox>
-      </section>
+                ))}
+              </ItemList>
+            )}
+          </Section>
+          {/* The new service: in a Sheet, in place while there are none. */}
+          <Sheet id="new-service" inline={services.length === 0} title={t("delivery.addService")} description={t("delivery.servicesIntro")}>
+            <ServiceForm currency={settings.currency} service={{ id: null, name: "", description: "", extra: "", eta: "", active: true, imageUrl: null }} />
+          </Sheet>
+        </PageGroup>
       )}
 
-      {settings.card || isOwnPayment(catalogSettings(app).payment) ? <DeliveryPayments app={app} /> : null}
+      {settings.card || isOwnPayment(catalogSettings(app).payment) ? (
+        <PageGroup title={t("delivery.groupPayments")}>
+          <DeliveryPayments app={app} />
+        </PageGroup>
+      ) : null}
     </div>
   );
 }

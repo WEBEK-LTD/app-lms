@@ -1,12 +1,15 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import type { App, UniSettings, UniTerm } from "@/lib/data/types";
 import type { PlanInfo } from "@/lib/plans";
 import { universityInPlan } from "@/lib/university/settings";
+import { Icon } from "@/components/icon";
+import { ChipLinks } from "@/components/page-kit-c";
 import { PageHead, SchoolPlanNotice } from "../parts";
 
-export { FirstNote, isSchool, NotSchool, Panel } from "../parts";
+export { AddSheet, EditSheet, FirstNote, isSchool, NotSchool, Panel } from "../parts";
 
 /** 113.9 What the University pages share: their tabs, the notes on top and a term picker. */
 
@@ -24,20 +27,18 @@ const TABS: { path: string; key: DashKey }[] = [
   { path: "/transcripts", key: "university.tabTranscripts" },
 ];
 
-const pill = (active: boolean) =>
-  `flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-    active ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-  }`;
-
+/** The pages as the kit's chips. */
 export function UniTabs({ current, t }: { current: string; t: DashT }) {
+  return <ChipLinks label={t("university.title")} items={TABS.map((tab) => ({ href: `${UNI_BASE}${tab.path}`, label: t(tab.key), current: tab.path === current }))} />;
+}
+
+/** A note on top, with its link. */
+function UniNote({ children }: { children: ReactNode }) {
   return (
-    <nav aria-label={t("university.title")} className="flex max-w-[960px] flex-wrap gap-1.5">
-      {TABS.map((tab) => (
-        <Link key={tab.path} href={`${UNI_BASE}${tab.path}`} aria-current={tab.path === current ? "page" : undefined} className={pill(tab.path === current)}>
-          {t(tab.key)}
-        </Link>
-      ))}
-    </nav>
+    <p role="note" className="m-0 flex gap-2.5 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+      <Icon name="info" size={22} className="shrink-0 text-accent" />
+      <span>{children}</span>
+    </p>
   );
 }
 
@@ -48,14 +49,10 @@ export function UniHead({ title, intro, current, t, app, plan, settings }: { tit
       <PageHead title={title} intro={intro} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {plan && !universityInPlan(app, plan) ? (
-        <p role="note" className="m-0 max-w-[860px] rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
-          {richText(t("university.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
-        </p>
+        <UniNote>{richText(t("university.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}</UniNote>
       ) : null}
       {!settings.enabled && current !== "" ? (
-        <p role="note" className="m-0 max-w-[860px] rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
-          {richText(t("university.modeOff"), { link: (chunk) => <Link href={UNI_BASE}>{chunk}</Link> })}
-        </p>
+        <UniNote>{richText(t("university.modeOff"), { link: (chunk) => <Link href={UNI_BASE}>{chunk}</Link> })}</UniNote>
       ) : null}
       <UniTabs current={current} t={t} />
     </>
@@ -66,15 +63,10 @@ export function UniHead({ title, intro, current, t, app, plan, settings }: { tit
 export function TermTabs({ terms, current, base, label, extra = "" }: { terms: readonly UniTerm[]; current: number | null; base: string; label: string; extra?: string }) {
   if (!terms.length) return null;
   return (
-    <nav aria-label={label} className="flex max-w-[960px] flex-wrap gap-1.5">
-      {[...terms]
-        .sort((a, b) => a.startsOn.localeCompare(b.startsOn))
-        .map((term) => (
-          <Link key={term.id} href={`${base}?term=${term.id}${extra}`} aria-current={term.id === current ? "page" : undefined} className={pill(term.id === current)}>
-            {term.name}
-          </Link>
-        ))}
-    </nav>
+    <ChipLinks
+      label={label}
+      items={[...terms].sort((a, b) => a.startsOn.localeCompare(b.startsOn)).map((term) => ({ href: `${base}?term=${term.id}${extra}`, label: term.name, current: term.id === current }))}
+    />
   );
 }
 

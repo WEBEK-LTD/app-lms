@@ -8,7 +8,11 @@ import { effectivePlans } from "@/lib/entitlements";
 import { hasReviewSignIn } from "@/lib/publishing/review-account";
 import { deliveryOverview, studioProjectCard } from "@/lib/studio/projects";
 import { isStudioProject } from "@/lib/studio/section";
-import { ago, C, Glyph, ProjectPhone, StateBadge } from "../chrome";
+import { Icon } from "@/components/icon";
+import type { IconName } from "@/components/icon-names";
+import { Stat, StatRow } from "@/components/page-kit";
+import { Badge, ProgressBar, Section, btn } from "@/components/ui";
+import { ago, ProjectPhone, StateBadge } from "../chrome";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await dashboardText();
@@ -41,79 +45,82 @@ export default async function StudioProjectPage() {
     { done: card.plan !== null, label: t("studio.checkPlan"), href: "/studio/project/license", link: t("studio.plansLink") },
   ];
   const number = (n: number) => n.toLocaleString(lang === "ar" ? "ar-EG" : lang);
-  const stats = delivery
+  const stats: { label: string; value: string; icon: IconName }[] = delivery
     ? [
-        { label: t("studio.statShipmentsToday"), value: number(delivery.shipmentsToday) },
-        { label: t("studio.statCouriersOnDuty"), value: number(delivery.couriersOnDuty) },
+        { label: t("studio.statShipmentsToday"), value: number(delivery.shipmentsToday), icon: "package_2" },
+        { label: t("studio.statCouriersOnDuty"), value: number(delivery.couriersOnDuty), icon: "two_wheeler" },
       ]
     : [
-        { label: t("studio.statPages"), value: number(card.pages) },
-        { label: t("studio.statLanguages"), value: number(card.languages) },
+        { label: t("studio.statPages"), value: number(card.pages), icon: "description" },
+        { label: t("studio.statLanguages"), value: number(card.languages), icon: "translate" },
       ];
+  const done = steps.filter((step) => step.done).length;
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
-  const box = { background: "#FFFFFF", border: `1px solid ${C.line}` };
   return (
-    <>
-      <section aria-labelledby="h-project" className="flex flex-wrap items-center gap-6 rounded-[18px] p-5" style={box}>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the project and its one main action, the numbers, then what's left before publishing. */}
+      <section aria-labelledby="h-project" className="flex flex-wrap items-center gap-6 rounded-[18px] border border-line bg-white p-5 sm:p-6">
         <ProjectPhone home={card.home} size="whole" words={words} />
-        <div className="flex flex-[1_1_320px] flex-col gap-2">
+        <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 id="h-project" className="m-0 text-[26px] font-extrabold">
+            <h1 id="h-project" className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">
               {card.name ?? t("studio.untitledProject")}
             </h1>
             <StateBadge published={card.published} label={t(card.published ? "studio.statePublished" : "studio.stateDraft")} />
           </div>
-          <div className="text-sm" style={{ color: C.muted }}>
+          <div className="text-[15px] leading-relaxed text-ink-4">
             {[k(card.kindName), source, t("studio.pageCount", { count: card.pages }), t("studio.lastSaved", { time: ago(card.editedAt, now, lang) })].join(" · ")}
           </div>
-          <div className="mt-1.5 flex flex-wrap gap-2">
-            <Link href="/studio/editor" className="flex h-[42px] items-center gap-2 rounded-xl px-[18px] text-sm font-extrabold no-underline" style={{ background: C.ink, color: C.ivory }}>
-              <Glyph name="draw" size={18} />
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link href="/studio/editor" className={`${btn.main} h-11`}>
+              <Icon name="draw" size={20} />
               {t("studio.openEditor")}
             </Link>
-            <Link href="/studio/project/preview" className="flex h-[42px] items-center gap-2 rounded-xl px-4 text-sm font-bold no-underline" style={{ border: `1px solid ${C.line}`, color: C.ink }}>
-              <Glyph name="qr_code_2" size={18} />
+            <Link href="/studio/project/preview" className={`${btn.secondary} h-11`}>
+              <Icon name="qr_code_2" size={20} />
               {t("studio.tryOnPhone")}
             </Link>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="h-steps" className="flex flex-col gap-3 rounded-[18px] p-5" style={box}>
-        <h2 id="h-steps" className="m-0 text-[17px] font-extrabold">
-          {t("studio.beforePublish")}
-        </h2>
-        <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+      <StatRow label={t("studio.numbersLabel")}>
+        {stats.map((stat) => (
+          <Stat key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} />
+        ))}
+        <Stat icon="workspace_premium" tone={card.plan ? "success" : "warn"} label={t("studio.statPlan")} value={<span className="text-lg">{card.plan ?? t("studio.notChosen")}</span>} href="/studio/project/license" />
+      </StatRow>
+
+      <Section
+        titleId="h-steps"
+        title={t("studio.beforePublish")}
+        description={
+          <span className="flex flex-col gap-2 pt-1">
+            <span className="font-semibold text-midnight">{done === steps.length ? t("studio.allStepsDone") : t("studio.stepsDone", { done, total: steps.length })}</span>
+            <ProgressBar value={done} max={steps.length} label={t("studio.beforePublish")} tone={done === steps.length ? "success" : "accent"} />
+          </span>
+        }
+        flush
+      >
+        <ol className="m-0 flex list-none flex-col p-0">
           {steps.map((step) => (
-            <li key={step.label} className="flex items-center gap-2.5">
-              <Glyph name={step.done ? "check_circle" : "radio_button_unchecked"} className={step.done ? "text-[#1F8A4C]" : "text-[#B9B3A5]"} />
-              {step.label}
-              {step.done ? null : (
-                <Link href={step.href} className="ms-auto font-bold" style={{ color: C.ink }}>
+            <li key={step.label} className="flex flex-wrap items-center gap-x-3.5 gap-y-2 border-t border-line-soft px-5 py-3.5 first:border-t-0 sm:px-6">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] ${step.done ? "bg-success-bg text-success" : "bg-sand text-faint"}`}>
+                <Icon name={step.done ? "check_circle" : "radio_button_unchecked"} size={22} />
+              </span>
+              <span className={`min-w-0 flex-[1_1_200px] text-[15px] ${step.done ? "text-muted" : "font-bold text-midnight"}`}>{step.label}</span>
+              {step.done ? (
+                <Badge tone="success">{t("studio.stepDone")}</Badge>
+              ) : (
+                <Link href={step.href} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
                   {step.link}
+                  <Icon name="chevron_right" size={18} />
                 </Link>
               )}
             </li>
           ))}
         </ol>
-      </section>
-
-      <div className="grid gap-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-        {stats.map((stat) => (
-          <div key={stat.label} className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
-            <span className="text-[13px]" style={{ color: C.muted }}>
-              {stat.label}
-            </span>
-            <span className="text-[26px] font-extrabold">{stat.value}</span>
-          </div>
-        ))}
-        <div className="flex flex-col gap-1 rounded-2xl p-4" style={box}>
-          <span className="text-[13px]" style={{ color: C.muted }}>
-            {t("studio.statPlan")}
-          </span>
-          <span className="text-lg font-extrabold">{card.plan ?? t("studio.notChosen")}</span>
-        </div>
-      </div>
-    </>
+      </Section>
+    </div>
   );
 }

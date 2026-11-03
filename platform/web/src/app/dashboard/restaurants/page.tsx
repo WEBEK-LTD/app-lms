@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { Badge } from "@/components/ui";
+import { Badge, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList, Sheet, SheetButton } from "@/components/page-kit-client";
 import { richText } from "@/i18n/rich";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
@@ -38,95 +40,117 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
   const timezone = settings.timezone ?? DEFAULT_FOOD_TIMEZONE;
   const sorted = [...restaurants].sort((a, b) => a.position - b.position || a.id - b.id);
 
+  const rows = sorted.map((r) => {
+    const state = restaurantState(r, timezone, now);
+    const menu = menus[restaurants.indexOf(r)];
+    const dishes = menu ? menu.sections.reduce((n, sec) => n + sec.dishes.length, 0) : 0;
+    const people = staff.filter((p) => p.restaurantId === r.id).length;
+    const group = !r.active ? "paused" : state.busy ? "busy" : state.inHours ? "open" : "closed";
+    return { r, dishes, people, group };
+  });
+  const has = restaurants.length > 0;
+  const count = (group: string) => rows.filter((row) => row.group === group).length;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[640px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("food.restaurants")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("food.restaurantsIntro")}</p>
-      </div>
+      {/* The page kit: the header and its main action, the numbers, the form in a Sheet (in place for the first restaurant), then the list. */}
+      <PageHeader
+        title={t("food.restaurants")}
+        description={t("food.restaurantsIntro")}
+        actions={
+          has ? (
+            <SheetButton target="new-restaurant" icon="add">
+              {t("food.addRestaurant")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <PlanNotice plan={plan} t={t} app={app} />
       {!pricesSet(settings) ? (
-        <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+        <Notice tone="warn" icon="warning">
           {richText(t("food.pricesFirst"), { link: (chunk) => <Link href="/dashboard/delivery">{chunk}</Link> })}
-        </p>
+        </Notice>
       ) : null}
       {cuisines.length === 0 ? (
-        <p role="note" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px] leading-relaxed">
+        <Notice tone="neutral" icon="restaurant_menu">
           {richText(t("food.cuisinesFirst"), { link: (chunk) => <Link href="/dashboard/delivery">{chunk}</Link> })}
-        </p>
+        </Notice>
+      ) : null}
+      {/* 110.2 */}
+      <SampleEntries app={app} list="restaurants" query={await searchParams} />
+
+      {has ? (
+        <StatRow label={t("food.restaurants")}>
+          <Stat icon="storefront" label={t("food.restaurants")} value={restaurants.length} />
+          <Stat icon="check_circle" tone="success" label={t("food.openNow")} value={count("open")} hint={count("busy") ? `${t("food.busyNow")}: ${count("busy")}` : undefined} />
+          <Stat icon="restaurant_menu" tone="accent" label={t("food.statDishes")} value={rows.reduce((n, row) => n + row.dishes, 0)} />
+          <Stat icon="groups" label={t("food.staff")} value={staff.length} />
+        </StatRow>
       ) : null}
 
-      <section aria-labelledby="h-restaurants" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-restaurants" className="m-0 text-lg font-bold">
-          {t("food.restaurantCount", { count: restaurants.length })}
-        </h2>
-        {/* 110.2 */}
-        <SampleEntries app={app} list="restaurants" query={await searchParams} />
-        {sorted.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("food.noRestaurants")}</p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {sorted.map((r) => {
-              const state = restaurantState(r, timezone, now);
-              const menu = menus[restaurants.indexOf(r)];
-              const dishes = menu ? menu.sections.reduce((n, s) => n + s.dishes.length, 0) : 0;
-              const people = staff.filter((s) => s.restaurantId === r.id).length;
-              return (
-                <li key={r.id} className="flex flex-wrap items-center gap-3 border-t border-line-soft py-4 first:border-t-0 first:pt-0">
-                  {r.logoAssetId ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={assetUrl(r.logoAssetId)} alt="" className="h-11 w-11 shrink-0 rounded-xl border border-line object-cover" />
-                  ) : (
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sand text-muted">
-                      <Icon name="storefront" size={22} />
-                    </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <Link href={`/dashboard/restaurants/${r.id}`} className="text-[15px] font-bold">
-                      {r.name}
-                    </Link>
-                    <span className="text-[13px] text-muted">
-                      {[
-                        r.cuisines
-                          .map((id) => names.get(id))
-                          .filter(Boolean)
-                          .join(", "),
-                        t("food.dishCount", { count: dishes }),
-                        t("food.staffCount", { count: people }),
-                        t("food.shareLine", { percent: percentOf(r.commissionBp) }),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </span>
-                  </span>
-                  <SampleBadge sample={r.sample} />
-                  {!r.active ? (
-                    <Badge tone="warn">{t("food.paused")}</Badge>
-                  ) : state.busy ? (
-                    <Badge tone="warn">{t("food.busyNow")}</Badge>
-                  ) : (
-                    <Badge tone={state.inHours ? "success" : "neutral"}>{t(state.inHours ? "food.openNow" : "food.closedNow")}</Badge>
-                  )}
-                  <Link href={`/dashboard/restaurants/${r.id}`} className="text-sm font-semibold">
-                    {t("food.manage")}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      <section aria-labelledby="h-add" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-add" className="m-0 text-lg font-bold">
-          {t("food.addRestaurant")}
-        </h2>
+      {/* One place in the page either way, so the form that adds the first restaurant keeps its message. */}
+      <Sheet id="new-restaurant" inline={!has} title={t("food.addRestaurant")} description={t("food.addRestaurantHint")}>
         <RestaurantForm
           currency={settings.currency}
           cuisines={cuisines}
           restaurant={{ id: null, name: "", description: "", phone: "", address: "", details: "", map: "", cuisines: [], prepMinutes: "20", minOrder: "", maxKm: "", commission: "", logoUrl: null, coverUrl: null }}
         />
-      </section>
+      </Sheet>
+
+      <Section titleId="h-restaurants" title={t("food.restaurantCount", { count: restaurants.length })} flush>
+        {sorted.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="storefront" title={t("food.noRestaurants")} />
+          </div>
+        ) : (
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("food.searchRestaurants")}
+            noMatch={t("food.noRestaurantMatch")}
+            filters={[
+              { value: "open", label: t("food.openNow") },
+              { value: "busy", label: t("food.busyNow") },
+              { value: "closed", label: t("food.closedNow") },
+              { value: "paused", label: t("food.paused") },
+            ]}
+            items={rows.map(({ r, dishes, people, group }, i) => {
+              const kinds = r.cuisines
+                .map((id) => names.get(id))
+                .filter(Boolean)
+                .join(", ");
+              return {
+                id: r.id,
+                text: [r.name, kinds, r.address.address].filter(Boolean).join(" "),
+                group,
+                node: (
+                  <ItemRow
+                    href={`/dashboard/restaurants/${r.id}`}
+                    media={<Thumb src={r.logoAssetId ? assetUrl(r.logoAssetId) : null} icon="storefront" shape="square" tint={i} />}
+                    title={r.name}
+                    badges={<SampleBadge sample={r.sample} />}
+                    meta={[kinds, t("food.dishCount", { count: dishes }), t("food.staffCount", { count: people }), t("food.shareLine", { percent: percentOf(r.commissionBp) })].filter(Boolean).join(" · ")}
+                    extra={
+                      <span className="flex min-w-0 items-center gap-1">
+                        <Icon name="location_on" size={16} className="text-muted" />
+                        <span className="truncate">{r.address.address}</span>
+                      </span>
+                    }
+                    aside={
+                      group === "paused" ? (
+                        <Badge tone="warn">{t("food.paused")}</Badge>
+                      ) : group === "busy" ? (
+                        <Badge tone="warn">{t("food.busyNow")}</Badge>
+                      ) : (
+                        <Badge tone={group === "open" ? "success" : "neutral"}>{t(group === "open" ? "food.openNow" : "food.closedNow")}</Badge>
+                      )
+                    }
+                  />
+                ),
+              };
+            })}
+          />
+        )}
+      </Section>
     </div>
   );
 }

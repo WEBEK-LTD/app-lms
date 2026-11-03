@@ -10,9 +10,8 @@ import { appPlan } from "@/lib/entitlements";
 import { UNI_LIMITS } from "@/lib/university/forms";
 import { loadUniSettings } from "@/lib/university/settings";
 import { ConfirmButton } from "../../../chat/forms";
-import { AddServiceBox } from "../../../delivery/forms";
 import { Choice, SchoolForm } from "../../forms";
-import { FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
+import { AddSheet, EditSheet, FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.tabStructure") };
@@ -59,23 +58,20 @@ export default async function UniversityStructurePage() {
                   </ConfirmButton>
                 </form>
               </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: faculty.name })}</summary>
-                <div className="pt-3">
-                  <SchoolForm action={saveFacultyAction} submit={t("university.save")}>
+              <EditSheet title={t("university.edit", { name: faculty.name })}>
+                  <SchoolForm action={saveFacultyAction} submit={t("university.save")} sheet>
                     <input type="hidden" name="id" value={faculty.id} />
                     {unitFields(`-f${faculty.id}`, faculty, true)}
                   </SchoolForm>
-                </div>
-              </details>
+                </EditSheet>
             </li>
           ))}
         </ul>
-        <AddServiceBox title={t("university.addFaculty")} open={faculties.length === 0}>
-          <SchoolForm action={saveFacultyAction} submit={t("university.add")} reset>
+        <AddSheet title={t("university.addFaculty")} inline={faculties.length === 0}>
+          <SchoolForm action={saveFacultyAction} submit={t("university.add")} reset sheet>
             {unitFields("-f-new", null, true)}
           </SchoolForm>
-        </AddServiceBox>
+        </AddSheet>
       </Panel>
 
       <Panel id="h-departments" title={t("university.departments")}>
@@ -101,15 +97,12 @@ export default async function UniversityStructurePage() {
                         </ConfirmButton>
                       </form>
                     </div>
-                    <details className="rounded-xl border border-line p-4">
-                      <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: department.name })}</summary>
-                      <div className="pt-3">
-                        <SchoolForm action={saveDepartmentAction} submit={t("university.save")}>
+                    <EditSheet title={t("university.edit", { name: department.name })}>
+                        <SchoolForm action={saveDepartmentAction} submit={t("university.save")} sheet>
                           <input type="hidden" name="id" value={department.id} />
                           {unitFields(`-d${department.id}`, department, false)}
                         </SchoolForm>
-                      </div>
-                    </details>
+                      </EditSheet>
                   </li>
                 ))}
               </ul>
@@ -117,11 +110,11 @@ export default async function UniversityStructurePage() {
           );
         })}
         {faculties.length ? (
-          <AddServiceBox title={t("university.addDepartment")} open={departments.length === 0}>
-            <SchoolForm action={saveDepartmentAction} submit={t("university.add")} reset>
+          <AddSheet title={t("university.addDepartment")} inline={departments.length === 0}>
+            <SchoolForm action={saveDepartmentAction} submit={t("university.add")} reset sheet>
               {unitFields("-d-new", null, false)}
             </SchoolForm>
-          </AddServiceBox>
+          </AddSheet>
         ) : null}
       </Panel>
     </div>

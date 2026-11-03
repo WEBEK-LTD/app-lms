@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { setInquiryStatusAction } from "@/app/actions/listings";
 import { SubmitButton } from "@/components/form";
-import { Badge } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, PageHeader, Section } from "@/components/ui";
+import { DetailLayout } from "@/components/page-kit";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { listingSettingsFor } from "@/lib/listings/types";
@@ -39,65 +41,69 @@ export default async function InquiryPage({ params }: { params: Promise<{ id: st
   const appUser = t("listings.appUser");
 
   return (
-    <div className="flex max-w-[760px] flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link href="/dashboard/inquiries" className="text-sm font-semibold">
-          {t("listings.backInquiries")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{user?.name ?? appUser}</h1>
-        <p className="m-0 flex flex-wrap items-center gap-2 text-[15px] text-ink-4">
-          <span>
-            {listing
-              ? richText(t("listings.aboutListing", { title: listing.title }), { link: (chunk) => <Link href={`/dashboard/listings/${listing.id}`}>{chunk}</Link> })
-              : t("listings.aboutRemoved")}
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the conversation, and at the side the listing, the person and closing it. */}
+      <PageHeader
+        back={{ href: "/dashboard/inquiries", label: t("listings.inquiries") }}
+        title={user?.name ?? appUser}
+        description={
+          listing
+            ? richText(t("listings.aboutListing", { title: listing.title }), { link: (chunk) => <Link href={`/dashboard/listings/${listing.id}`}>{chunk}</Link> })
+            : t("listings.aboutRemoved")
+        }
+      />
+
+      <DetailLayout
+        main={
+          <Section titleId="h-messages" title={t("listings.messagesTitle")}>
+            <ol className="m-0 flex list-none flex-col gap-3 p-0">
+              {messages.map((m) => (
+                <li key={m.id} className={`flex flex-col gap-1 ${m.from === "office" ? "items-end" : "items-start"}`}>
+                  <span className="text-[13px] text-muted">
+                    {[m.from === "office" ? office.contactName : (user?.name ?? appUser), when(m.createdAt), m.from === "office" && m.readAt ? t("listings.seen") : null]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                  <p className={`m-0 max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${m.from === "office" ? "rounded-ee-md bg-midnight text-ivory" : "rounded-es-md bg-sand text-ink-2"}`}>
+                    {m.text}
+                  </p>
+                </li>
+              ))}
+            </ol>
+            <ReplyForm id={inquiry.id} />
+          </Section>
+        }
+        side={
+          <Section titleId="h-inquiry-status" title={t("common.status")} actions={inquiry.status === "open" ? <Badge tone="success">{t("listings.open")}</Badge> : <Badge tone="neutral">{t("listings.closed")}</Badge>}>
             {user ? (
-              <>
-                {" · "}
-                <a href={`tel:${user.phone}`}>{user.phone}</a>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
+                <li className="flex items-center gap-2">
+                  <Icon name="call" size={18} className="text-muted" />
+                  <a href={`tel:${user.phone}`} dir="ltr">
+                    {user.phone}
+                  </a>
+                </li>
                 {user.email ? (
-                  <>
-                    {" · "}
-                    <a href={`mailto:${user.email}`}>{user.email}</a>
-                  </>
+                  <li className="flex min-w-0 items-center gap-2">
+                    <Icon name="mail" size={18} className="text-muted" />
+                    <a href={`mailto:${user.email}`} className="break-all">
+                      {user.email}
+                    </a>
+                  </li>
                 ) : null}
-              </>
+              </ul>
             ) : null}
-          </span>
-          {inquiry.status === "open" ? <Badge tone="success">{t("listings.open")}</Badge> : <Badge tone="neutral">{t("listings.closed")}</Badge>}
-        </p>
-      </div>
-
-      <section aria-labelledby="h-messages" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-messages" className="m-0 text-lg font-bold">
-          {t("listings.messagesTitle")}
-        </h2>
-        <ol className="m-0 flex list-none flex-col gap-3 p-0">
-          {messages.map((m) => (
-            <li key={m.id} className={`flex flex-col gap-1 ${m.from === "office" ? "items-end" : "items-start"}`}>
-              <span className="text-[13px] text-muted">
-                {[m.from === "office" ? office.contactName : (user?.name ?? appUser), when(m.createdAt), m.from === "office" && m.readAt ? t("listings.seen") : null]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
-              <p className={`m-0 max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${m.from === "office" ? "bg-midnight text-white" : "bg-sand text-ink-2"}`}>
-                {m.text}
-              </p>
-            </li>
-          ))}
-        </ol>
-        <ReplyForm id={inquiry.id} />
-      </section>
-
-      <form action={setInquiryStatusAction} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <input type="hidden" name="id" value={inquiry.id} />
-        <input type="hidden" name="status" value={inquiry.status === "open" ? "closed" : "open"} />
-        <span className="text-[15px] text-ink-4">
-          {inquiry.status === "open" ? t("listings.closeText") : t("listings.reopenText")}
-        </span>
-        <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
-          {inquiry.status === "open" ? t("listings.closeConversation") : t("listings.reopenConversation")}
-        </SubmitButton>
-      </form>
+            <form action={setInquiryStatusAction} className="flex flex-col gap-3 border-t border-line-soft pt-4">
+              <input type="hidden" name="id" value={inquiry.id} />
+              <input type="hidden" name="status" value={inquiry.status === "open" ? "closed" : "open"} />
+              <span className="text-sm leading-relaxed text-ink-4">{inquiry.status === "open" ? t("listings.closeText") : t("listings.reopenText")}</span>
+              <SubmitButton variant="secondary" className="h-10 w-full" pendingText={t("common.saving")}>
+                {inquiry.status === "open" ? t("listings.closeConversation") : t("listings.reopenConversation")}
+              </SubmitButton>
+            </form>
+          </Section>
+        }
+      />
     </div>
   );
 }

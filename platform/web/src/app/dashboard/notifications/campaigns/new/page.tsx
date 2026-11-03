@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Icon } from "@/components/icon";
+import { PageHeader, Section } from "@/components/ui";
 import { appZone } from "@/lib/analytics/zone";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -26,15 +25,11 @@ export default async function NewCampaignPage({ searchParams }: { searchParams: 
   const initial = campaignFormValues(app, null, zone, appUrl());
   const forCourse = choices.courses.some((c) => c.id === course) ? { ...initial, who: "students" as const, courseId: String(course) } : initial;
   return (
-    <div className="flex max-w-[680px] flex-col gap-5">
-      <Link href="/dashboard/notifications/campaigns" className="flex items-center gap-1 text-[14px] font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("campaigns.title")}
-      </Link>
-      <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("campaigns.newCampaign")}</h1>
-      <section className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <div className="flex flex-col gap-6">
+      <PageHeader back={{ href: "/dashboard/notifications/campaigns", label: t("campaigns.title") }} title={t("campaigns.newCampaign")} description={t("campaigns.intro")} />
+      <Section titleId="h-new-campaign" title={t("campaigns.newCampaign")} className="max-w-[760px]">
         <CampaignForm initial={forCourse} choices={choices} />
-      </section>
+      </Section>
     </div>
   );
 }

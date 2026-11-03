@@ -25,11 +25,12 @@ export default async function SchoolGatePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("school.gate")} intro={t("school.gateIntro")} />
+      {/* The page kit: the header with the way back, then the screen to show at the gate. */}
+      <PageHead title={t("school.gate")} intro={t("school.gateIntro")} back={{ href: "/dashboard/school/checkin", label: t("school.checkin") }} />
       {c.on ? null : <FirstNote text={t("school.checkinOff")} href="/dashboard/school/checkin/settings" />}
-      <CheckinLinks t={t} />
+      <CheckinLinks t={t} current="/dashboard/school/checkin/gate" />
       {usesCode(c) ? (
-        <div className="flex max-w-[860px] flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <GateScreen schoolName={app.appName ?? ""} />
           <form action={newGateCodesAction} className="flex justify-end">
             <ConfirmButton confirm={t("school.newCodesConfirm")} className={`${btn.secondary} h-10 px-4 text-sm`}>
@@ -38,9 +39,7 @@ export default async function SchoolGatePage() {
           </form>
         </div>
       ) : (
-        <p role="note" className="m-0 max-w-[860px] rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
-          {t("school.gateLocationOnly")}
-        </p>
+        <FirstNote text={t("school.gateLocationOnly")} href="/dashboard/school/checkin/settings" />
       )}
     </div>
   );

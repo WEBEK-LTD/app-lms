@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge, Notice } from "@/components/ui";
+import { Badge, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemList, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { AddDetails, ItemDetails } from "@/components/page-kit-a";
+import { DetailsButton } from "@/components/page-kit-a-client";
 import { requireClient } from "@/lib/auth/session";
 import { creditsText, PERIOD_LABELS } from "@/lib/bookings/memberships";
 import { bookingSetup } from "@/lib/bookings/setup";
@@ -35,72 +38,71 @@ export default async function MembershipPlansPage() {
   const { t, k } = await dashboardText();
   if (!app || app.connector?.kind !== "bookings") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.plansTitle")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {richText(t("bookings.plansNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}
-        </p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("bookings.plansTitle")} description={richText(t("bookings.plansNotHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />
       </div>
     );
   }
   const setup = bookingSetup(app);
   const { currency } = setup.rules;
+  const plans = setup.membershipPlans;
+  const onSale = plans.filter((p) => p.active).length;
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("bookings.plansTitle")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bookings.plansIntro")}</p>
-      </div>
+      {/* The page kit: the header and its main action, the numbers, the plans (each opens in place), then the rules and payments. */}
+      <PageHeader
+        title={t("bookings.plansTitle")}
+        description={t("bookings.plansIntro")}
+        actions={
+          plans.length ? (
+            <DetailsButton target="add-plan" icon="add">
+              {t("bookings.addPlan")}
+            </DetailsButton>
+          ) : null
+        }
+      />
       {!paymentsSetUp(app) ? (
         <Notice tone="warn" icon="warning">
           {t("bookings.plansNoPayments")}
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-rules" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-rules" className="m-0 text-lg font-bold">
-          {t("bookings.bookingClasses")}
-        </h2>
-        <MembershipRulesForm required={setup.membershipRequired} />
-      </section>
+      {plans.length ? (
+        <StatRow label={t("bookings.plansTitle")}>
+          <Stat icon="card_membership" label={t("bookings.plans")} value={plans.length} />
+          <Stat icon="check_circle" tone="success" label={t("bookings.onSale")} value={onSale} />
+          <Stat icon="visibility_off" tone="warn" label={t("bookings.notOnSale")} value={plans.length - onSale} />
+        </StatRow>
+      ) : null}
 
-      <section aria-labelledby="h-plans" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-plans" className="m-0 text-lg font-bold">
-            {t("bookings.plans")}
-          </h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("bookings.plansText")}</p>
-        </div>
-        {setup.membershipPlans.length ? (
-          <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {setup.membershipPlans.map((p) => (
-              <li key={p.id} className="rounded-xl border border-line">
-                <details>
-                  <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3">
-                    <span className="text-[15px] font-bold">{p.name}</span>
-                    <span className="flex items-center gap-2 text-sm text-muted">
-                      {formatCents(p.priceCents, currency)} · {k(PERIOD_LABELS[p.period])} · {k(creditsText(p.credits))}
-                      {p.active ? null : <Badge tone="warn">{t("bookings.notOnSale")}</Badge>}
-                    </span>
-                  </summary>
-                  <div className="border-t border-line-soft p-4">
-                    <MembershipPlanForm current={planValues(p)} submit={t("bookings.savePlan")} currency={currency} />
-                  </div>
-                </details>
-              </li>
+      <Section titleId="h-plans" title={t("bookings.plans")} description={t("bookings.plansText")} flush>
+        {plans.length ? (
+          <ItemList>
+            {plans.map((p, i) => (
+              <ItemDetails
+                key={p.id}
+                media={<Thumb icon="card_membership" shape="square" tint={i} />}
+                title={p.name}
+                meta={`${formatCents(p.priceCents, currency)} · ${k(PERIOD_LABELS[p.period])} · ${k(creditsText(p.credits))}`}
+                aside={p.active ? null : <Badge tone="warn">{t("bookings.notOnSale")}</Badge>}
+              >
+                <MembershipPlanForm current={planValues(p)} submit={t("bookings.savePlan")} currency={currency} />
+              </ItemDetails>
             ))}
-          </ul>
+          </ItemList>
         ) : null}
-        <details className="rounded-xl border border-line p-4" open={setup.membershipPlans.length === 0}>
-          <summary className="cursor-pointer text-[15px] font-bold">{t("bookings.addPlan")}</summary>
-          <div className="pt-3">
-            <MembershipPlanForm current={planValues(null)} submit={t("bookings.addPlanButton")} currency={currency} />
-          </div>
-        </details>
-      </section>
+        <AddDetails id="add-plan" label={t("bookings.addPlan")} open={plans.length === 0}>
+          <MembershipPlanForm current={planValues(null)} submit={t("bookings.addPlanButton")} currency={currency} />
+        </AddDetails>
+      </Section>
 
-      <CardPayments app={app} currency={currency} />
-      <OtherPayments app={app} />
+      <PageGroup title={t("bookings.groupPlans")}>
+        <Section titleId="h-rules" title={t("bookings.bookingClasses")}>
+          <MembershipRulesForm required={setup.membershipRequired} />
+        </Section>
+        <CardPayments app={app} currency={currency} />
+        <OtherPayments app={app} />
+      </PageGroup>
     </div>
   );
 }

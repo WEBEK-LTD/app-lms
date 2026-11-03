@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "client_id": "yallapp-courier",
+  "app_type": "delivery",
+  "role": "courier",
+  "courier_hub": true,
+  "app_name": "Yallapp Courier",
+  "short_name": "Courier",
+  "site_url": "https://yallapp.com.tr",
+  "api_base_url": "https://yallapp.com.tr/api/courier/v1",
+  "android_package": "tr.com.yallapp.courier",
+  "ios_bundle_id": "tr.com.yallapp.courier",
+  "version_name": "1.0.0",
+  "version_code": 1,
+  "branding": {
+    "primary_color": "#0E0D24",
+    "splash_color": "#F4EFE6",
+    "template": "classic",
+    "font": "Bricolage Grotesque",
+    "logo_url": "https://yallapp.com.tr/android-chrome-512x512.png"
+  }
+}

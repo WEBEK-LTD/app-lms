@@ -186,6 +186,10 @@ export const en = {
     returned: "Sent back. The teacher was told what to change in the app.",
     commented: "Sent. The teacher was told in the app.",
   },
+  // The page kit: Syllabus and report templates.
+  statUnits: "Units",
+  statTopics: "Lessons and topics",
+  fieldCount: "{count, plural, one {{count} field} other {{count} fields}}",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -363,6 +367,10 @@ export const ar: Strings<typeof en> = {
     returned: "أُعيد للتعديل. أُبلغ المعلم في التطبيق بما ينبغي تعديله.",
     commented: "تم الإرسال. أُبلغ المعلم في التطبيق.",
   },
+  // The page kit: Syllabus and report templates.
+  statUnits: "الوحدات",
+  statTopics: "الدروس والموضوعات",
+  fieldCount: "{count, plural, zero {لا حقول} one {حقل واحد} two {حقلان} few {{count} حقول} many {{count} حقلًا} other {{count} حقل}}",
 };
 
 export const tr: Strings<typeof en> = {
@@ -540,4 +548,8 @@ export const tr: Strings<typeof en> = {
     returned: "Geri gönderildi. Öğretmene neyi değiştireceği uygulamada bildirildi.",
     commented: "Gönderildi. Öğretmene uygulamada bildirildi.",
   },
+  // The page kit: Syllabus and report templates.
+  statUnits: "Üniteler",
+  statTopics: "Dersler ve konular",
+  fieldCount: "{count} alan",
 };

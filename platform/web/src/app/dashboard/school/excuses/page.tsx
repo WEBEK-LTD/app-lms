@@ -4,8 +4,11 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
 import { schoolSettingsOf } from "@/lib/school/settings";
+import { EmptyState } from "@/components/ui";
+import { Stat, StatRow } from "@/components/page-kit";
+import { FilterList } from "@/components/page-kit-client";
 import { isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } from "../parts";
-import { ExcuseItem } from "./parts";
+import { EXCUSE_KEYS, ExcuseItem } from "./parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("parents.excuses") };
@@ -33,17 +36,39 @@ export default async function SchoolExcusesPage() {
     return student?.classId ? (className.get(student.classId) ?? null) : null;
   };
 
+  const count = (status: (typeof excuses)[number]["status"]) => excuses.filter((e) => e.status === status).length;
+
   return (
     <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the numbers by answer, then the excuses (waiting ones first) with search and filters. */}
       <PageHead title={t("parents.excuses")} intro={t("parents.excusesIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <Panel id="h-excuses" title={t("parents.excuses")} intro={waiting.length ? t("parents.waitingCount", { count: waiting.length }) : undefined}>
-        {ordered.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("parents.noExcuses")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {ordered.map((e) => (
-            <ExcuseItem key={e.id} excuse={e} student={byId.get(e.studentId)} parent={e.parentId !== null ? byId.get(e.parentId) : undefined} className={classOf(e.studentId)} t={t} timezone={settings.timezone} />
-          ))}
-        </ul>
+      {excuses.length ? (
+        <StatRow label={t("parents.excuses")}>
+          <Stat icon="pending" tone={waiting.length ? "warn" : "neutral"} label={t(EXCUSE_KEYS.pending)} value={waiting.length} />
+          <Stat icon="check_circle" tone="success" label={t(EXCUSE_KEYS.accepted)} value={count("accepted")} />
+          <Stat icon="cancel" label={t(EXCUSE_KEYS.declined)} value={count("declined")} />
+        </StatRow>
+      ) : null}
+      <Panel id="h-excuses" title={t("parents.excuses")} intro={waiting.length ? t("parents.waitingCount", { count: waiting.length }) : undefined} flush>
+        {ordered.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="event_busy" title={t("parents.noExcuses")} />
+          </div>
+        ) : (
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("parents.searchExcuses")}
+            noMatch={t("parents.noExcuseMatch")}
+            filters={(["pending", "accepted", "declined", "cancelled"] as const).map((s) => ({ value: s, label: t(EXCUSE_KEYS[s]) }))}
+            items={ordered.map((e) => ({
+              id: e.id,
+              text: [byId.get(e.studentId)?.name, classOf(e.studentId), e.reason].filter(Boolean).join(" "),
+              group: e.status,
+              node: <ExcuseItem excuse={e} student={byId.get(e.studentId)} parent={e.parentId !== null ? byId.get(e.parentId) : undefined} className={classOf(e.studentId)} t={t} timezone={settings.timezone} />,
+            }))}
+          />
+        )}
       </Panel>
     </div>
   );

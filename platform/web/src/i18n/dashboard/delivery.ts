@@ -254,6 +254,17 @@ export const en = {
     courierEmail: "Enter the email the courier signs in with.",
     courierPhone: "Enter the mobile number the courier signs in with.",
   },
+  // The page kit on Delivery settings and Couriers.
+  groupHow: "Prices and how it works",
+  groupPayments: "Card payments",
+  pricingHint: "What customers pay for each delivery.",
+  formJobs: "Tracking and jobs",
+  formJobsHint: "What customers follow, and how couriers get their jobs.",
+  statJobsNow: "Jobs with a courier",
+  searchCouriers: "Search couriers",
+  noCourierMatch: "No couriers match.",
+  editCourierTitle: "Edit {name}",
+  addCourierHint: "Their name, the number they sign in with and their vehicle.",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -502,6 +513,16 @@ export const ar: Strings<typeof en> = {
     courierEmail: "أدخل البريد الذي يسجّل به المندوب الدخول.",
     courierPhone: "أدخل رقم الجوال الذي يسجّل به المندوب الدخول.",
   },
+  groupHow: "الأسعار وطريقة العمل",
+  groupPayments: "الدفع بالبطاقة",
+  pricingHint: "ما يدفعه العملاء مقابل كل توصيلة.",
+  formJobs: "التتبع والمهام",
+  formJobsHint: "ما يتابعه العملاء، وكيف يحصل المندوبون على مهامهم.",
+  statJobsNow: "مهام مع مندوب",
+  searchCouriers: "ابحث في المندوبين",
+  noCourierMatch: "لا يوجد مندوبون مطابقون.",
+  editCourierTitle: "تعديل {name}",
+  addCourierHint: "اسمه والرقم الذي يسجّل الدخول به ومركبته.",
 };
 
 export const tr: Strings<typeof en> = {
@@ -750,4 +771,14 @@ export const tr: Strings<typeof en> = {
     courierEmail: "Kuryenin girdiği e-postayı girin.",
     courierPhone: "Kuryenin girdiği cep numarasını girin.",
   },
+  groupHow: "Fiyatlar ve işleyiş",
+  groupPayments: "Kartla ödemeler",
+  pricingHint: "Müşterilerin her teslimat için ödediği.",
+  formJobs: "Takip ve işler",
+  formJobsHint: "Müşterilerin neyi takip ettiği ve kuryelerin işleri nasıl aldığı.",
+  statJobsNow: "Kuryedeki işler",
+  searchCouriers: "Kuryelerde ara",
+  noCourierMatch: "Eşleşen kurye yok.",
+  editCourierTitle: "{name} düzenle",
+  addCourierHint: "Adı, giriş yaptığı numara ve aracı.",
 };

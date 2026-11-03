@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { Stat, StatRow } from "@/components/page-kit";
 import { UpgradeHint } from "@/components/upgrade";
 import { appLabel } from "@/lib/app/label";
 import { contextCan, requireClient } from "@/lib/auth/session";
@@ -50,7 +51,7 @@ export default async function InAppPurchasesPage() {
   const source = storeBillingSource(app);
   if (!source) {
     return (
-      <>
+      <div className="flex flex-col gap-6">
         {header}
         {/* 100.7 An academy on its own API sells once Yallapp signs people in. */}
         {needsYallappSignIn(app) ? (
@@ -58,14 +59,14 @@ export default async function InAppPurchasesPage() {
         ) : (
           <Notice icon="info">{t("inapp.notForApp")}</Notice>
         )}
-      </>
+      </div>
     );
   }
   if (!planHasStoreBilling(plan)) {
     const plans = plansIn(lang, await effectivePlans(store));
     const to = lowestPlanWith(plans, (p) => hasFeature(p, "store_billing"), plan?.id ?? null);
     return (
-      <>
+      <div className="flex flex-col gap-6">
         {header}
         {to ? (
           <UpgradeHint title={t("inapp.title")} to={{ id: to.id, name: to.name }} cta={t("overview.upgradeTo", { plan: to.name })}>
@@ -74,7 +75,7 @@ export default async function InAppPurchasesPage() {
         ) : (
           <Notice icon="info">{t("inapp.upgrade")}</Notice>
         )}
-      </>
+      </div>
     );
   }
   // The dashboard's courses (100.7 or the owner's list and the school's courses) are read as they are now (a WordPress site sends its own).
@@ -122,8 +123,9 @@ export default async function InAppPurchasesPage() {
     const check = which === "google" ? settings.googleCheck : settings.appleCheck;
     const subject = which === "google" ? (app.googlePlayClientEmail ?? app.androidPackage ?? "") : (app.ascKeyId ?? "");
     return (
-      <section aria-labelledby={`h-inapp-${which}`} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5" data-store-key={which} data-state={hasKey ? "saved" : "missing"}>
-        <h3 id={`h-inapp-${which}`} className="m-0 text-base font-bold">
+      <section aria-labelledby={`h-inapp-${which}`} className="flex min-w-0 flex-col gap-2 rounded-xl border border-line-soft bg-sand p-4" data-store-key={which} data-state={hasKey ? "saved" : "missing"}>
+        <h3 id={`h-inapp-${which}`} className="m-0 flex items-center gap-2 text-base font-bold">
+          <Icon name={which === "google" ? "android" : "phone_iphone"} size={20} className="text-muted" />
           {t(which === "google" ? "inapp.google" : "inapp.apple")}
         </h3>
         {hasKey ? (
@@ -144,7 +146,7 @@ export default async function InAppPurchasesPage() {
         ) : null}
         <p className="m-0 text-sm text-ink-4">{t(which === "google" ? "inapp.googleHint" : "inapp.appleHint")}</p>
         {which === "google" && topic ? (
-          <div className="flex flex-col gap-1 rounded-xl bg-sand px-3 py-2" data-pubsub-topic="">
+          <div className="flex flex-col gap-1 rounded-xl bg-white px-3 py-2" data-pubsub-topic="">
             <span className="text-sm font-semibold">{t("inapp.realtime")}</span>
             <code className="text-xs break-all" dir="ltr">
               {topic}
@@ -159,9 +161,18 @@ export default async function InAppPurchasesPage() {
     );
   };
 
+  const synced = (which: "google" | "apple") => products.filter((p) => stateOf(p, p[which], which === "google" ? keys.google : keys.apple) === "synced").length;
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the numbers, then selling, the stores, the list and the products. */}
       {header}
+      {products.length ? (
+        <StatRow label={t("inapp.productsTitle")}>
+          <Stat icon="shopping_bag" label={t("inapp.productsTitle")} value={num(products.length)} hint={products.some((p) => !p.active) ? `${t("inapp.stopped")}: ${num(products.filter((p) => !p.active).length)}` : undefined} />
+          <Stat icon="android" tone="success" label={t("inapp.colGoogle")} value={num(synced("google"))} hint={t("inapp.statSynced")} />
+          <Stat icon="phone_iphone" tone="accent" label={t("inapp.colApple")} value={num(synced("apple"))} hint={t("inapp.statSynced")} />
+        </StatRow>
+      ) : null}
       <Section
         id="selling"
         title={t("inapp.onTitle")}
@@ -205,7 +216,7 @@ export default async function InAppPurchasesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-start text-sm" data-store-products="">
               <thead>
-                <tr className="border-b border-line-soft text-muted">
+                <tr className="border-b border-line-soft bg-sand text-muted">
                   <th scope="col" className="px-5 py-3 text-start font-semibold">{t("inapp.colProduct")}</th>
                   <th scope="col" className="px-3 py-3 text-start font-semibold">{t("inapp.colSitePrice")}</th>
                   <th scope="col" className="px-3 py-3 text-start font-semibold">{t("inapp.colPrice")}</th>
@@ -246,7 +257,7 @@ export default async function InAppPurchasesPage() {
       </Section>
       {products.length > 0 && keys.apple ? <Notice icon="info">{t("inapp.appleReview")}</Notice> : null}
       {source === "own_api" ? <ForYourDeveloper text={{ t, k, date }} apiBaseUrl={app.apiBaseUrl ?? ""} billingUrl={billingBaseUrl(appUrl(), app.id)} guide={localePath(lang, "/docs/my-own-api") + "#sell-in-the-app"} notices={notices} /> : null}
-    </>
+    </div>
   );
 }
 

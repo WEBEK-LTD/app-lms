@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/config/build_config.dart';
+import 'package:yallapp/core/config/build_config_json.dart';
 
 import '../../tool/src/build_config_tool.dart';
 
@@ -137,6 +138,88 @@ void main() {
         contains('role: AppRole.driver,'),
       ),
     );
+  });
+
+  test('104.8.5 config/yallapp-courier.json is Yallapp Courier', () {
+    final hub = jsonDecode(
+      File('config/yallapp-courier.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    expect(validateBuildConfig(hub).errors, isEmpty);
+    expect(hub['android_package'], 'tr.com.yallapp.courier');
+    expect(hub['ios_bundle_id'], 'tr.com.yallapp.courier');
+    expect(hub['app_name'], 'Yallapp Courier');
+    expect(hub['api_base_url'], endsWith('/api/courier/v1'));
+    expect(
+      renderDartConfig(hub),
+      allOf(
+        contains('courierHub: true,'),
+        contains('role: AppRole.courier,'),
+        contains('appId: null,'),
+      ),
+    );
+    // Every other build is a company's own app.
+    expect(renderDartConfig(example()), contains('courierHub: false,'));
+  });
+
+  test('104.8.4 courier_hub only with the Courier API, as a courier app', () {
+    Map<String, dynamic> hub() => example()
+      ..['app_type'] = 'delivery'
+      ..['role'] = 'courier'
+      ..['courier_hub'] = true
+      ..['api_base_url'] = 'https://platform.test/api/courier/v1';
+    expect(validateBuildConfig(hub()).isValid, isTrue);
+    expect(
+      validateBuildConfig(hub()..['courier_hub'] = 'yes').errors,
+      contains('"courier_hub" must be true or false.'),
+    );
+    expect(
+      validateBuildConfig(hub()..remove('role')).errors,
+      contains('"courier_hub" needs "role" courier and "app_type" delivery.'),
+    );
+    expect(
+      validateBuildConfig(hub()..remove('api_base_url')).errors,
+      contains('"courier_hub" needs "api_base_url" (the Courier API).'),
+    );
+    expect(
+      validateBuildConfig(
+        hub()..['auth_base_url'] = 'https://platform.test/api/app/x',
+      ).errors,
+      contains('"courier_hub" has no "auth_base_url".'),
+    );
+    expect(
+      validateBuildConfig(example()..['courier_hub'] = false).isValid,
+      isTrue,
+    );
+  });
+
+  test('104.8.4 a company\'s courier screens inside Yallapp Courier', () {
+    final hub = buildConfigFromJson({
+      'app_name': 'Yallapp Courier',
+      'courier_hub': true,
+      'site_url': 'https://platform.test',
+      'api_base_url': 'https://platform.test/api/courier/v1',
+    });
+    expect(hub.courierHub, isTrue);
+    expect(buildConfigFromJson({'app_name': 'Shop'}).courierHub, isFalse);
+    final company = courierCompanyBuild(
+      hub,
+      appId: 'app-1',
+      name: 'Swift Parcels',
+      apiBaseUrl: 'https://platform.test/api/app/app-1/',
+      logoUrl: 'https://platform.test/logo.png',
+      primaryColor: 0xFF1F8A70,
+    );
+    expect(company.courierHub, isFalse);
+    expect(company.appType, AppType.delivery);
+    expect(company.role, AppRole.courier);
+    expect(company.appId, 'app-1');
+    expect(company.appName, 'Swift Parcels');
+    expect(apiUrlOf(company), 'https://platform.test/api/app/app-1');
+    expect(company.authBaseUrl, isNull);
+    expect(company.siteUrl, 'https://platform.test');
+    expect(company.logoUrl, 'https://platform.test/logo.png');
+    expect(company.primaryColor, 0xFF1F8A70);
+    expect(company.androidPackage, hub.androidPackage);
   });
 
   test('an API address for sites without WordPress', () {

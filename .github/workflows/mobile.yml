@@ -234,6 +234,24 @@ jobs:
           flutter build apk --debug
           rm android/app/agconnect-services.json
 
+      # 104.8.5 Yallapp Courier, Yallapp's own courier app for every company
+      # that picks it: its own build config (tr.com.yallapp.courier).
+      - name: Apply the Yallapp Courier build config
+        run: |
+          dart run tool/apply_config.dart config/yallapp-courier.json
+          grep -q 'courierHub: true' lib/generated/build_config.g.dart
+
+      - name: Build Yallapp Courier debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Yallapp Courier debug APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: yallapp-courier-debug-apk
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+
   # 59 Yallapp Business (business/), the app for the people who run an app
   # on Yallapp: the same checks as the client app. No APK here: release
   # builds are made for the stores (docs/LAUNCH-CHECKLIST.md).

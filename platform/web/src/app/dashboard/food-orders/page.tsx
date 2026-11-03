@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { btn, EmptyState, formatDateTime } from "@/components/ui";
+import { Icon } from "@/components/icon";
+import { Badge, btn, EmptyState, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterLinks, kitTable, ListBar, ListSearch, Pager } from "@/components/page-kit-b";
 import { richText } from "@/i18n/rich";
 import { requireClient } from "@/lib/auth/session";
 import { localToUtc } from "@/lib/bookings/time";
@@ -79,146 +82,116 @@ export default async function FoodOrdersPage({ searchParams }: { searchParams: P
   const link = (p: number, show: Filter = filter) => `/dashboard/food-orders?${new URLSearchParams({ show, ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`;
   const money = (cents: number) => formatCents(cents, settings.currency);
   const sum = (key: "orders" | "subtotalCents" | "commissionCents" | "deliveryFeeCents" | "cashSubtotalCents" | "cardSubtotalCents") => statement.reduce((n, r) => n + r[key], 0);
-  const th = "px-4 py-3 font-semibold";
+  const T = kitTable;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("food.foodOrders")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("food.foodOrdersIntro")}</p>
-      </div>
+      {/* The page kit: the header, the month's numbers, the orders in a flush Section with their filters, search and pages, then the month's statement. */}
+      <PageHeader title={t("food.foodOrders")} description={t("food.foodOrdersIntro")} />
       <PlanNotice plan={plan} t={t} app={app} />
       {!pricesSet(settings) ? (
-        <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+        <Notice tone="warn" icon="warning">
           {richText(t("food.pricesFirst"), { link: (chunk) => <Link href="/dashboard/delivery">{chunk}</Link> })}
-        </p>
+        </Notice>
       ) : null}
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("food.foodOrders")} className="flex flex-wrap gap-1.5">
-          {(Object.keys(FILTERS) as Filter[]).map((f) => (
-            <Link
-              key={f}
-              href={link(1, f)}
-              aria-current={f === filter ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                f === filter ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(FILTER_KEYS[f])}
-            </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          <input type="hidden" name="show" value={filter} />
-          <label htmlFor="f-q" className="sr-only">
-            {t("food.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={q} placeholder={t("food.searchPlaceholder")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("food.search")}
-          </button>
-        </form>
-      </div>
+      <StatRow label={t("food.statement")}>
+        <Stat icon="receipt_long" label={t("food.statDelivered")} value={sum("orders")} hint={<bdi dir="ltr">{month}</bdi>} />
+        <Stat icon="payments" tone="accent" label={t("food.sales")} value={money(sum("subtotalCents"))} />
+        <Stat icon="percent" tone="success" label={t("food.yourShare")} value={money(sum("commissionCents"))} />
+        <Stat icon="local_shipping" label={t("food.fees")} value={money(sum("deliveryFeeCents"))} />
+      </StatRow>
 
-      {items.length === 0 ? (
-        <EmptyState icon="receipt_long" title={t("food.noOrders")}>
-          {t("food.noOrdersText")}
-        </EmptyState>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[760px] border-collapse text-start text-[15px]">
-            <thead>
-              <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className={`${th} text-start`}>
-                  {t("food.order")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("food.restaurant")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("food.customer")}
-                </th>
-                <th scope="col" className={`${th} text-end`}>
-                  {t("food.total")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("common.status")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((o) => (
-                <tr key={o.id} className="border-b border-line-soft align-top last:border-b-0">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Link href={`/dashboard/food-orders/${o.id}`} className="font-semibold">
-                      {foodOrderReference(o)}
-                    </Link>
-                    <span className="block text-[13px] text-muted">{formatDateTime(o.createdAt, lang)}</span>
-                  </td>
-                  <td className="px-4 py-3">{o.restaurantName}</td>
-                  <td className="px-4 py-3">
-                    <span className="flex flex-col gap-0.5">
-                      <span>{o.customerName}</span>
-                      <span className="line-clamp-1 text-[13px] text-muted">{o.dropoff.address}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">
-                    {formatCents(o.totalCents, o.currency)}
-                    <span className="block text-[13px] text-muted">
-                      {t(o.paymentMethod === "cash" ? "food.payCash" : "food.payCard")} · {t(o.paymentStatus === "paid" ? "food.paid" : o.paymentStatus === "refunded" ? "food.refunded" : "food.unpaid")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <FoodStatusBadge status={o.status} t={t} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {pages > 1 ? (
-        <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3">
-          {page > 1 ? <Link href={link(page - 1)}>{t("food.newer")}</Link> : <span />}
-          <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
-          {page < pages ? <Link href={link(page + 1)}>{t("food.older")}</Link> : <span />}
-        </nav>
-      ) : null}
-
-      <section aria-labelledby="h-statement" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex max-w-[620px] flex-col gap-1">
-            <h2 id="h-statement" className="m-0 text-lg font-bold">
-              {t("food.statement")}
-            </h2>
-            <p className="m-0 text-[15px] text-ink-4">{t("food.statementIntro")}</p>
+      <Section titleId="h-orders" title={t(FILTER_KEYS[filter])} actions={<Badge tone="neutral">{total}</Badge>} flush>
+        <ListBar>
+          <FilterLinks label={t("food.foodOrders")} items={(Object.keys(FILTERS) as Filter[]).map((f) => ({ href: link(1, f), label: t(FILTER_KEYS[f]), current: f === filter }))} />
+          <ListSearch id="f-q" value={q} label={t("food.search")} placeholder={t("food.searchPlaceholder")} button={t("food.search")} keep={{ show: filter }} />
+        </ListBar>
+        {items.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="receipt_long" title={t("food.noOrders")}>
+              {t("food.noOrdersText")}
+            </EmptyState>
           </div>
+        ) : (
+          <ItemList>
+            {items.map((o, i) => (
+              <ItemRow
+                key={o.id}
+                href={`/dashboard/food-orders/${o.id}`}
+                media={<Thumb icon="receipt_long" shape="square" tint={i} />}
+                title={foodOrderReference(o)}
+                meta={`${o.restaurantName} · ${o.customerName}`}
+                extra={
+                  <>
+                    <span>{formatDateTime(o.createdAt, lang)}</span>
+                    <span className="flex min-w-0 items-center gap-1">
+                      <Icon name="location_on" size={16} className="text-muted" />
+                      <span className="line-clamp-1">{o.dropoff.address}</span>
+                    </span>
+                  </>
+                }
+                aside={
+                  <>
+                    <span className="flex flex-col items-end text-end">
+                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">{formatCents(o.totalCents, o.currency)}</span>
+                      <span className="text-[13px] text-muted">
+                        {t(o.paymentMethod === "cash" ? "food.payCash" : "food.payCard")} · {t(o.paymentStatus === "paid" ? "food.paid" : o.paymentStatus === "refunded" ? "food.refunded" : "food.unpaid")}
+                      </span>
+                    </span>
+                    <FoodStatusBadge status={o.status} t={t} />
+                  </>
+                }
+              />
+            ))}
+          </ItemList>
+        )}
+        <Pager
+          label={t("orders.pages")}
+          page={page}
+          pages={pages}
+          newer={link(page - 1)}
+          older={link(page + 1)}
+          newerLabel={t("food.newer")}
+          olderLabel={t("food.older")}
+          pageLabel={t("common.page", { page, pages })}
+        />
+      </Section>
+
+      <Section
+        titleId="h-statement"
+        title={t("food.statement")}
+        description={t("food.statementIntro")}
+        actions={
           <form method="get" className="flex items-end gap-2">
             <input type="hidden" name="show" value={filter} />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="f-month" className="text-sm font-semibold">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="f-month" className="text-[13px] font-semibold text-muted">
                 {t("food.month")}
               </label>
-              <input id="f-month" name="month" type="month" defaultValue={month} className="input input-sm w-[180px]" dir="ltr" />
+              <input id="f-month" name="month" type="month" defaultValue={month} className="input input-sm w-[170px]" dir="ltr" />
             </div>
-            <button type="submit" className={`${btn.secondary} h-10`}>
+            <button type="submit" className={`${btn.secondary} h-10 px-4 text-sm`}>
               {t("food.show")}
             </button>
           </form>
-        </div>
+        }
+        flush
+      >
         {statement.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("food.noStatement")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="receipt_long" title={t("food.noStatement")} />
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] border-collapse text-[15px]">
+          <div className={T.wrap}>
+            <table className={`${T.table} min-w-[860px]`}>
               <thead>
-                <tr className="border-b border-line text-[13px] text-muted">
-                  <th scope="col" className={`${th} text-start`}>
+                <tr className={T.head}>
+                  <th scope="col" className={`${T.th} ${T.start}`}>
                     {t("food.restaurant")}
                   </th>
                   {(["orders", "sales", "yourShare", "owed", "inCash", "byCard", "fees"] as const).map((k) => (
-                    <th key={k} scope="col" className={`${th} text-end`}>
+                    <th key={k} scope="col" className={`${T.th} ${T.num}`}>
                       {t(`food.${k}`)}
                     </th>
                   ))}
@@ -226,36 +199,36 @@ export default async function FoodOrdersPage({ searchParams }: { searchParams: P
               </thead>
               <tbody>
                 {statement.map((r) => (
-                  <tr key={`${r.restaurantId}-${r.restaurantName}`} className="border-b border-line-soft">
-                    <td className="px-4 py-3 font-semibold">{r.restaurantName}</td>
-                    <td className="px-4 py-3 text-end">{r.orders}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{money(r.subtotalCents)}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{money(r.commissionCents)}</td>
-                    <td className="px-4 py-3 text-end font-semibold whitespace-nowrap">{money(r.subtotalCents - r.commissionCents)}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{money(r.cashSubtotalCents)}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{money(r.cardSubtotalCents)}</td>
-                    <td className="px-4 py-3 text-end whitespace-nowrap">{money(r.deliveryFeeCents)}</td>
+                  <tr key={`${r.restaurantId}-${r.restaurantName}`} className={T.row}>
+                    <td className={`${T.td} font-semibold`}>{r.restaurantName}</td>
+                    <td className={`${T.td} ${T.num}`}>{r.orders}</td>
+                    <td className={`${T.td} ${T.num}`}>{money(r.subtotalCents)}</td>
+                    <td className={`${T.td} ${T.num}`}>{money(r.commissionCents)}</td>
+                    <td className={`${T.td} ${T.num} font-semibold`}>{money(r.subtotalCents - r.commissionCents)}</td>
+                    <td className={`${T.td} ${T.num}`}>{money(r.cashSubtotalCents)}</td>
+                    <td className={`${T.td} ${T.num}`}>{money(r.cardSubtotalCents)}</td>
+                    <td className={`${T.td} ${T.num}`}>{money(r.deliveryFeeCents)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="font-bold">
-                  <th scope="row" className="px-4 py-3 text-start">
+                <tr className={T.foot}>
+                  <th scope="row" className={`${T.td} ${T.start}`}>
                     {t("food.totalRow")}
                   </th>
-                  <td className="px-4 py-3 text-end">{sum("orders")}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("subtotalCents"))}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("commissionCents"))}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("subtotalCents") - sum("commissionCents"))}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("cashSubtotalCents"))}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("cardSubtotalCents"))}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{money(sum("deliveryFeeCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{sum("orders")}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("subtotalCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("commissionCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("subtotalCents") - sum("commissionCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("cashSubtotalCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("cardSubtotalCents"))}</td>
+                  <td className={`${T.td} ${T.num}`}>{money(sum("deliveryFeeCents"))}</td>
                 </tr>
               </tfoot>
             </table>
           </div>
         )}
-      </section>
+      </Section>
     </div>
   );
 }

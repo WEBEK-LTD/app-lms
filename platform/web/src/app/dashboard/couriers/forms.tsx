@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { addCourierAction, updateCourierAction } from "@/app/actions/delivery";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 export interface CourierFormValues {
@@ -33,11 +34,11 @@ export function CourierForm({ courier, emailOnly }: { courier: CourierFormValues
         )}
         <Field id={`f-vehicle${suffix}`} label={t("delivery.vehicle")} name="vehicle" defaultValue={value("vehicle")} maxLength={60} error={state.errors?.vehicle} hint={t("delivery.vehicleHint")} />
       </div>
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {courier.id ? t("delivery.saveCourier") : t("delivery.add")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

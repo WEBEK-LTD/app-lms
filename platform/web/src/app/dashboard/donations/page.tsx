@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { Fragment } from "react";
-import { Badge, btn, EmptyState, formatDateTime } from "@/components/ui";
+import { Badge, btn, EmptyState, PageHeader, Section, formatDateTime } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { getStore } from "@/lib/data";
@@ -34,9 +34,8 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
   const { t, k, lang } = await dashboardText();
   if (!app || app.connector?.kind !== "campaigns") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donations")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donationsNotHere")}</p>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={t("donations.donations")} description={t("donations.donationsNotHere")} />
       </div>
     );
   }
@@ -67,137 +66,155 @@ export default async function DonationsPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex max-w-[620px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("donations.donations")}</h1>
-          <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("donations.donationsIntro")}</p>
-        </div>
-        <a href={`/api/dashboard/donations?${filter}`} className={`${btn.secondary} h-11`} download>
-          <Icon name="download" size={20} />
-          {t("donations.exportCsv")}
-        </a>
-      </div>
+      {/* The page kit: the header and its main action, the two pages, then the donations in a Section with its filters. */}
+      <PageHeader
+        title={t("donations.donations")}
+        description={t("donations.donationsIntro")}
+        actions={
+          <a href={`/api/dashboard/donations?${filter}`} className={`${btn.main} h-11`} download>
+            <Icon name="download" size={20} />
+            {t("donations.exportCsv")}
+          </a>
+        }
+      />
       <DonationTabs current="donations" t={t} />
 
-      <form method="get" className="flex flex-wrap items-end gap-3">
-        <div className="flex min-w-[200px] flex-col gap-1.5">
-          <label htmlFor="f-campaign" className="text-sm font-semibold">
-            {t("donations.campaignFilter")}
-          </label>
-          <select id="f-campaign" name="campaign" defaultValue={campaignId ? String(campaignId) : ""} className="input input-sm">
-            <option value="">{t("donations.allCampaigns")}</option>
-            {campaigns.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="f-status" className="text-sm font-semibold">
+      <Section titleId="h-donations" title={`${t("donations.donations")} · ${total}`} flush>
+        <form method="get" className="flex flex-wrap items-end gap-3 border-b border-line-soft px-5 py-4 sm:px-6">
+          <div className="flex min-w-[200px] flex-col gap-1.5">
+            <label htmlFor="f-campaign" className="text-sm font-semibold">
+              {t("donations.campaignFilter")}
+            </label>
+            <select id="f-campaign" name="campaign" defaultValue={campaignId ? String(campaignId) : ""} className="input input-sm">
+              <option value="">{t("donations.allCampaigns")}</option>
+              {campaigns.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="f-status" className="text-sm font-semibold">
+              {t("donations.show")}
+            </label>
+            <select id="f-status" name="status" defaultValue={status} className="input input-sm">
+              <option value="paid">{t("donations.paidRefunded")}</option>
+              <option value="all">{t("donations.alsoUnpaid")}</option>
+            </select>
+          </div>
+          <button type="submit" className={`${btn.secondary} h-10`}>
+            <Icon name="tune" size={18} />
             {t("donations.show")}
-          </label>
-          <select id="f-status" name="status" defaultValue={status} className="input input-sm">
-            <option value="paid">{t("donations.paidRefunded")}</option>
-            <option value="all">{t("donations.alsoUnpaid")}</option>
-          </select>
-        </div>
-        <button type="submit" className={`${btn.secondary} h-10`}>
-          {t("donations.show")}
-        </button>
-      </form>
+          </button>
+        </form>
 
-      {items.length === 0 ? (
-        <EmptyState icon="payments" title={t("donations.noDonations")}>
-          {t("donations.noDonationsText")}
-        </EmptyState>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[720px] border-collapse text-start text-[15px]">
-            <thead>
-              <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("donations.reference")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("donations.donor")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("donations.campaignFilter")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-end font-semibold">
-                  {t("donations.amount")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("common.date")}
-                </th>
-                <th scope="col" className="px-4 py-3 text-start font-semibold">
-                  {t("common.status")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((d, index) => (
-                <Fragment key={d.id}>
-                <tr className="border-b border-line-soft align-top last:border-b-0">
-                  <td className="px-4 py-3 font-semibold whitespace-nowrap">{donationReference(d)}</td>
-                  <td className="px-4 py-3">
-                    <span className="flex flex-col gap-0.5">
-                      <span>
-                        {d.donorName ?? t("donations.notGiven")} {d.anonymous ? <Badge tone="neutral">{t("donations.anonymous")}</Badge> : null}
-                      </span>
-                      {d.donorEmail ? <span className="text-[13px] text-muted">{d.donorEmail}</span> : null}
-                      {d.message ? <span className="text-[13px] text-ink-4">“{d.message}”</span> : null}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">{d.campaignTitle}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
-                  <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt, lang)}</td>
-                  <td className="px-4 py-3">
-                    <span className="flex flex-col items-start gap-1">
-                      <Badge tone={TONES[d.status]}>{t(STATUS_LABELS[d.status])}</Badge>
-                      {d.status === "paid" && d.refundedCents ? (
-                        <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency) ?? "")}</span>
-                      ) : null}
-                      {/* 71 The donor's receipt, the same PDF they got by email. */}
-                      {d.status === "paid" || d.status === "refunded" ? (
-                        <a href={`/receipts/${d.receiptCode}/pdf`} download className="inline-flex items-center gap-1 text-[13px] font-semibold whitespace-nowrap">
-                          <Icon name="download" size={16} />
-                          {t("orders.receiptPdf")}
-                        </a>
-                      ) : null}
-                    </span>
-                  </td>
+        {items.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="payments" title={t("donations.noDonations")}>
+              {t("donations.noDonationsText")}
+            </EmptyState>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-collapse text-start text-[15px]">
+              <thead>
+                <tr className="border-b border-line-soft bg-sand text-[13px] text-muted">
+                  <th scope="col" className="px-4 py-3 text-start font-semibold">
+                    {t("donations.reference")}
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-start font-semibold">
+                    {t("donations.donor")}
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-start font-semibold">
+                    {t("donations.campaignFilter")}
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-end font-semibold">
+                    {t("donations.amount")}
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-start font-semibold">
+                    {t("common.date")}
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-start font-semibold">
+                    {t("common.status")}
+                  </th>
                 </tr>
-                {options[index]!.refundable || refunds.some((r) => r.targetId === d.id) ? (
-                  <tr className="border-b border-line-soft">
-                    <td colSpan={6} className="px-4 pb-4">
-                      <div className="flex flex-col gap-2">
-                        <RefundSection
-                          kind="donation"
-                          id={d.id}
-                          label={t("donations.donationLabel", { reference: donationReference(d) })}
-                          currency={d.currency}
-                          refunds={refunds.filter((r) => r.targetId === d.id)}
-                          options={options[index]!}
-                        />
-                      </div>
+              </thead>
+              <tbody>
+                {items.map((d, index) => (
+                  <Fragment key={d.id}>
+                  <tr className="border-b border-line-soft align-top last:border-b-0">
+                    <td className="px-4 py-3 font-semibold whitespace-nowrap">{donationReference(d)}</td>
+                    <td className="px-4 py-3">
+                      <span className="flex flex-col gap-0.5">
+                        <span>
+                          {d.donorName ?? t("donations.notGiven")} {d.anonymous ? <Badge tone="neutral">{t("donations.anonymous")}</Badge> : null}
+                        </span>
+                        {d.donorEmail ? <span className="text-[13px] text-muted">{d.donorEmail}</span> : null}
+                        {d.message ? <span className="text-[13px] text-ink-4">“{d.message}”</span> : null}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{d.campaignTitle}</td>
+                    <td className="px-4 py-3 text-end whitespace-nowrap">{formatCents(d.amountCents, d.currency)}</td>
+                    <td className="px-4 py-3 text-[13px] whitespace-nowrap text-muted">{formatDateTime(d.paidAt ?? d.createdAt, lang)}</td>
+                    <td className="px-4 py-3">
+                      <span className="flex flex-col items-start gap-1">
+                        <Badge tone={TONES[d.status]}>{t(STATUS_LABELS[d.status])}</Badge>
+                        {d.status === "paid" && d.refundedCents ? (
+                          <span className="text-[13px] text-muted">{k(refundedLine(d.refundedCents, d.amountCents, d.currency) ?? "")}</span>
+                        ) : null}
+                        {/* 71 The donor's receipt, the same PDF they got by email. */}
+                        {d.status === "paid" || d.status === "refunded" ? (
+                          <a href={`/receipts/${d.receiptCode}/pdf`} download className="inline-flex items-center gap-1 text-[13px] font-semibold whitespace-nowrap">
+                            <Icon name="download" size={16} />
+                            {t("orders.receiptPdf")}
+                          </a>
+                        ) : null}
+                      </span>
                     </td>
                   </tr>
-                ) : null}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {pages > 1 ? (
-        <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3">
-          {page > 1 ? <Link href={pageLink(page - 1)}>{t("donations.newer")}</Link> : <span />}
-          <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
-          {page < pages ? <Link href={pageLink(page + 1)}>{t("donations.older")}</Link> : <span />}
-        </nav>
-      ) : null}
+                  {options[index]!.refundable || refunds.some((r) => r.targetId === d.id) ? (
+                    <tr className="border-b border-line-soft">
+                      <td colSpan={6} className="px-4 pb-4">
+                        <div className="flex flex-col gap-2">
+                          <RefundSection
+                            kind="donation"
+                            id={d.id}
+                            label={t("donations.donationLabel", { reference: donationReference(d) })}
+                            currency={d.currency}
+                            refunds={refunds.filter((r) => r.targetId === d.id)}
+                            options={options[index]!}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ) : null}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {pages > 1 ? (
+          <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3 sm:px-6">
+            {page > 1 ? (
+              <Link href={pageLink(page - 1)} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("donations.newer")}
+              </Link>
+            ) : (
+              <span />
+            )}
+            <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
+            {page < pages ? (
+              <Link href={pageLink(page + 1)} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("donations.older")}
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        ) : null}
+      </Section>
     </div>
   );
 }

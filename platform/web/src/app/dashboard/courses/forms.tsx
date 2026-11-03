@@ -17,6 +17,7 @@ import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
 import { initialFormState } from "@/lib/forms";
 import { MediaPickButton } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { CohortSelect } from "./builder-forms";
 
 function Check({ name, label, checked }: { name: string; label: string; checked: boolean }) {
@@ -65,130 +66,141 @@ export function CourseForm({
   const needed = new Set((v.prerequisiteIds ?? "").split(",").filter(Boolean).map(Number));
   const key = `f-course-${current.id || "new"}`;
   return (
-    <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(v)}>
+    <form action={action} noValidate className="flex flex-col gap-5" key={JSON.stringify(v)}>
       <FormMessage message={state.message} ok={state.ok} />
       <input type="hidden" name="id" value={current.id ?? ""} />
-      <Field label={t("common.title")} name="title" defaultValue={v.title} error={e.title} small />
-      <TextArea id="f-course-description" label={t("common.description")} name="description" value={v.description} rows={4} error={e.description} />
-      <div className="grid gap-4 sm:grid-cols-3">
+      {/* The page kit: the form in four parts. */}
+      <FormSection id={`${key}-about`} title={t("courses.formAbout")} description={t("courses.formAboutHint")}>
+        <Field label={t("common.title")} name="title" defaultValue={v.title} error={e.title} small />
+        <TextArea id="f-course-description" label={t("common.description")} name="description" value={v.description} rows={4} error={e.description} />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="f-course-image" className="text-sm font-semibold">
+            {t("courses.coverImage")}
+          </label>
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- A small preview of an uploaded file.
+            <img src={imageUrl} alt="" className="h-24 w-40 rounded-lg border border-line object-cover" />
+          ) : null}
+          <input id="f-course-image" type="file" name="image" accept="image/png,image/jpeg" className="text-sm" />
+          <span className="text-[13px] text-muted">{t("courses.imageHint")}</span>
+          {imageUrl ? <Check name="removeImage" label={t("courses.removeImage")} checked={false} /> : null}
+          <FieldError id="f-course-image-error" error={e.image} />
+        </div>
+        {categories.length ? (
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1.5 text-sm font-semibold">{t("courses.categories")}</legend>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded-full border border-line py-1.5 ps-2.5 pe-3.5 text-sm has-[:checked]:border-midnight has-[:checked]:bg-sand">
+                  <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={chosen.has(c.id)} className="h-4 w-4 accent-midnight" />
+                  {c.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+      </FormSection>
+      <FormSection id={`${key}-selling`} title={t("courses.formSelling")}>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field
+            label={t("courses.priceIn", { currency })}
+            name="price"
+            inputMode="decimal"
+            defaultValue={v.price}
+            hint={t("courses.priceHint")}
+            error={e.price}
+            small
+          />
+          <Field label={t("courses.instructor")} name="instructor" defaultValue={v.instructor} error={e.instructor} small />
+          <Field label={t("courses.level")} name="level" placeholder={t("courses.levelPlaceholder")} defaultValue={v.level} error={e.level} small />
+        </div>
+      </FormSection>
+      <FormSection id={`${key}-finish`} title={t("courses.formFinish")} description={t("courses.formFinishHint")}>
+        {/* 90.1 Certificates. */}
+        <div className="flex flex-col gap-1">
+          <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
+          <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
+        </div>
+        {/* 112.5 Who signs the certificate, and a course taken in order. */}
         <Field
-          label={t("courses.priceIn", { currency })}
-          name="price"
-          inputMode="decimal"
-          defaultValue={v.price}
-          hint={t("courses.priceHint")}
-          error={e.price}
+          label={t("lms.certificateSigner")}
+          name="certificateSigner"
+          defaultValue={v.certificateSigner}
+          placeholder={t("lms.certificateSignerPlaceholder")}
+          hint={t("lms.certificateSignerHint")}
+          error={e.certificateSigner}
+          className="sm:max-w-[420px]"
           small
         />
-        <Field label={t("courses.instructor")} name="instructor" defaultValue={v.instructor} error={e.instructor} small />
-        <Field label={t("courses.level")} name="level" placeholder={t("courses.levelPlaceholder")} defaultValue={v.level} error={e.level} small />
-      </div>
-      {categories.length ? (
-        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-1.5 text-sm font-semibold">{t("courses.categories")}</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {categories.map((c) => (
-              <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                <input type="checkbox" name="categoryIds" value={c.id} defaultChecked={chosen.has(c.id)} className="h-4 w-4 accent-midnight" />
-                {c.name}
+        <div className="flex flex-col gap-1">
+          <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
+          <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
+        </div>
+        {/* 113.7 The rules to complete the course (and earn its certificate), and the courses it needs first. */}
+        <fieldset className="m-0 flex flex-col gap-3 rounded-xl border border-line-soft bg-sand p-3.5">
+          <legend className="px-1 text-sm font-semibold">{t("learning.completeTitle")}</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor={`${key}-complete`} className="text-sm font-semibold">
+                {t("learning.completeWhen")}
               </label>
-            ))}
+              <select id={`${key}-complete`} name="completeWhen" defaultValue={v.completeWhen || "all"} className="input input-sm">
+                <option value="lessons">{t("learning.completeLessons")}</option>
+                <option value="quizzes">{t("learning.completeQuizzes")}</option>
+                <option value="all">{t("learning.completeAll")}</option>
+              </select>
+            </div>
+            <Field
+              label={t("learning.minFinalScore")}
+              name="minFinalScore"
+              id={`${key}-min-score`}
+              inputMode="numeric"
+              defaultValue={v.minFinalScore}
+              hint={t("learning.minFinalScoreHint")}
+              error={e.minFinalScore}
+              small
+            />
           </div>
         </fieldset>
-      ) : null}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="f-course-image" className="text-sm font-semibold">
-          {t("courses.coverImage")}
-        </label>
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- A small preview of an uploaded file.
-          <img src={imageUrl} alt="" className="h-24 w-40 rounded-lg border border-line object-cover" />
+        {others.length ? (
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1.5 text-sm font-semibold">{t("learning.prerequisites")}</legend>
+            <span className="text-[13px] text-muted">{t("learning.prerequisitesHint")}</span>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {others.map((c) => (
+                <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                  <input type="checkbox" name="prerequisiteIds" value={c.id} defaultChecked={needed.has(c.id)} className="h-4 w-4 accent-midnight" />
+                  {c.title}
+                </label>
+              ))}
+            </div>
+            <FieldError id={`${key}-prerequisites-error`} error={e.prerequisites} />
+          </fieldset>
         ) : null}
-        <input id="f-course-image" type="file" name="image" accept="image/png,image/jpeg" className="text-sm" />
-        <span className="text-[13px] text-muted">{t("courses.imageHint")}</span>
-        {imageUrl ? <Check name="removeImage" label={t("courses.removeImage")} checked={false} /> : null}
-        <FieldError id="f-course-image-error" error={e.image} />
-      </div>
-      <div className="flex flex-col gap-1">
-        <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
-        <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
-      </div>
-      {/* 90.1 Certificates and access that ends. */}
-      <div className="flex flex-col gap-1">
-        <Check name="certificate" label={t("courses.certificate")} checked={v.certificate === "on"} />
-        <span className="ps-6 text-[13px] text-muted">{t("courses.certificateHint")}</span>
-      </div>
-      {/* 112.5 Who signs the certificate, and a course taken in order. */}
-      <Field
-        label={t("lms.certificateSigner")}
-        name="certificateSigner"
-        defaultValue={v.certificateSigner}
-        placeholder={t("lms.certificateSignerPlaceholder")}
-        hint={t("lms.certificateSignerHint")}
-        error={e.certificateSigner}
-        className="sm:max-w-[420px]"
-        small
-      />
-      <div className="flex flex-col gap-1">
-        <Check name="sequential" label={t("lms.sequential")} checked={v.sequential === "on"} />
-        <span className="ps-6 text-[13px] text-muted">{t("lms.sequentialHint")}</span>
-      </div>
-      {/* 113.7 The rules to complete the course (and earn its certificate), and the courses it needs first. */}
-      <fieldset className="m-0 flex flex-col gap-3 rounded-lg border border-line-soft p-3">
-        <legend className="px-1 text-sm font-semibold">{t("learning.completeTitle")}</legend>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={`${key}-complete`} className="text-sm font-semibold">
-            {t("learning.completeWhen")}
-          </label>
-          <select id={`${key}-complete`} name="completeWhen" defaultValue={v.completeWhen || "all"} className="input input-sm sm:max-w-[420px]">
-            <option value="lessons">{t("learning.completeLessons")}</option>
-            <option value="quizzes">{t("learning.completeQuizzes")}</option>
-            <option value="all">{t("learning.completeAll")}</option>
-          </select>
-        </div>
+      </FormSection>
+      <FormSection id={`${key}-access`} title={t("courses.formAccess")}>
+        {/* 90.1 Access that ends. */}
         <Field
-          label={t("learning.minFinalScore")}
-          name="minFinalScore"
-          id={`${key}-min-score`}
+          label={t("courses.accessDays")}
+          name="accessDays"
           inputMode="numeric"
-          defaultValue={v.minFinalScore}
-          hint={t("learning.minFinalScoreHint")}
-          error={e.minFinalScore}
+          defaultValue={v.accessDays}
+          hint={t("courses.accessDaysHint")}
+          error={e.accessDays}
           className="sm:max-w-[320px]"
           small
         />
-      </fieldset>
-      {others.length ? (
-        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-1.5 text-sm font-semibold">{t("learning.prerequisites")}</legend>
-          <span className="text-[13px] text-muted">{t("learning.prerequisitesHint")}</span>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {others.map((c) => (
-              <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                <input type="checkbox" name="prerequisiteIds" value={c.id} defaultChecked={needed.has(c.id)} className="h-4 w-4 accent-midnight" />
-                {c.title}
-              </label>
-            ))}
-          </div>
-          <FieldError id={`${key}-prerequisites-error`} error={e.prerequisites} />
-        </fieldset>
-      ) : null}
-      <Field
-        label={t("courses.accessDays")}
-        name="accessDays"
-        inputMode="numeric"
-        defaultValue={v.accessDays}
-        hint={t("courses.accessDaysHint")}
-        error={e.accessDays}
-        className="sm:max-w-[320px]"
-        small
-      />
-      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <Check name="restart" label={t("courses.restart")} checked={v.restart !== ""} />
+          <span className="ps-6 text-[13px] text-muted">{t("courses.restartHint")}</span>
+        </div>
         <Check name="active" label={t("courses.visible")} checked={v.active !== ""} />
+      </FormSection>
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {submit}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

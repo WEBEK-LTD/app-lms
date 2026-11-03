@@ -130,6 +130,11 @@ export const en = {
     putOn: "Saved. On {stop}: {count}.",
     keepUnder: "Keep it under {max} characters.",
   },
+  // The page kit: Buses.
+  statStops: "Stops",
+  statRiders: "Students on a bus",
+  statRunning: "On a trip now",
+  groupSettings: "Settings",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -261,6 +266,11 @@ export const ar: Strings<typeof en> = {
     putOn: "تم الحفظ. على {stop}: {count}.",
     keepUnder: "اجعله أقل من {max} حرف.",
   },
+  // The page kit: Buses.
+  statStops: "المحطات",
+  statRiders: "طلاب في الحافلات",
+  statRunning: "في رحلة الآن",
+  groupSettings: "الإعدادات",
 };
 
 export const tr: Strings<typeof en> = {
@@ -392,4 +402,9 @@ export const tr: Strings<typeof en> = {
     putOn: "Kaydedildi. {stop} durağında: {count}.",
     keepUnder: "{max} karakterden kısa tutun.",
   },
+  // The page kit: Buses.
+  statStops: "Duraklar",
+  statRiders: "Serviste öğrenci",
+  statRunning: "Şu an seferde",
+  groupSettings: "Ayarlar",
 };

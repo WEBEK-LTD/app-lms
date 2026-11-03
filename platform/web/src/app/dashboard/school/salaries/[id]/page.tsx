@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { DetailLayout } from "@/components/page-kit";
 import { notFound } from "next/navigation";
 import { addLineAction, answerLineAction, deleteDraftAction, finalisePayslipAction, recordPaymentAction, removePaymentAction, savePayslipNoteAction } from "@/app/actions/school-salaries";
 import { Field } from "@/components/form";
@@ -14,9 +14,8 @@ import type { SchoolPayslip, SchoolPayslipLine } from "@/lib/data/types";
 import { leftToPay, payslipNumber, payslipTotals, SALARY_LIMITS } from "@/lib/school/salaries";
 import { schoolSettingsOf } from "@/lib/school/settings";
 import { schoolToday } from "@/lib/school/service";
-import { AddServiceBox } from "../../../delivery/forms";
 import { Choice, SchoolForm } from "../../forms";
-import { isSchool, NotSchool, PageHead, Panel } from "../../parts";
+import { AddSheet, isSchool, NotSchool, PageHead, Panel } from "../../parts";
 import { lineLabel, monthLabel, PayFields, RecordLine, SheetBadge } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -103,20 +102,17 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href={`/dashboard/school/salaries?month=${payslip.month}`} className="inline-flex items-center gap-1 text-sm font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("salaries.monthSheets", { month: monthLabel(lang, payslip.month) })}
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead
-          title={t("salaries.payslipOf", { name: payslip.personName, month: monthLabel(lang, payslip.month) })}
-          intro={[payslipNumber(payslip), payslip.jobTitle, payslip.department, t(payslip.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")}
-        />
-        <a href={`/api/dashboard/school/salaries/${payslip.id}/pdf`} className={`${btn.secondary} h-10 gap-1.5 px-4 text-sm`}>
-          <Icon name="download" size={18} />
-          {t("salaries.downloadPdf")}
-        </a>
-      </div>
+      <PageHead
+        title={t("salaries.payslipOf", { name: payslip.personName, month: monthLabel(lang, payslip.month) })}
+        intro={[payslipNumber(payslip), payslip.jobTitle, payslip.department, t(payslip.role === "teacher" ? "salaries.teacher" : "salaries.staffMember")].filter(Boolean).join(" · ")}
+        back={{ href: `/dashboard/school/salaries?month=${payslip.month}`, label: t("salaries.monthSheets", { month: monthLabel(lang, payslip.month) }) }}
+        actions={
+          <a href={`/api/dashboard/school/salaries/${payslip.id}/pdf`} className={`${btn.secondary} h-11 gap-1.5 px-4 text-sm`}>
+            <Icon name="download" size={18} />
+            {t("salaries.downloadPdf")}
+          </a>
+        }
+      />
       <div className="flex flex-wrap items-center gap-2">
         <SheetBadge payslip={payslip} t={t} />
         {payslip.finalAt ? <span className="text-[14px] text-muted">{t("salaries.finalBy", { by: payslip.finalBy ?? "—", date: payslip.finalAt.toISOString().slice(0, 10) })}</span> : null}
@@ -124,114 +120,124 @@ export default async function PayslipPage({ params }: { params: Promise<{ id: st
         {locked && payslip.status === "draft" ? <span className="text-[14px] text-muted">{t("salaries.monthIsLocked")}</span> : null}
       </div>
 
-      <Panel id="h-sheet" title={t("salaries.sheet")} intro={a ? t("salaries.daysLine", { working: a.workingDays, present: a.present, absent: a.absent, late: a.late, early: a.leftEarly, leave: a.leave, excused: a.excused }) : t("salaries.noDays")}>
-        <ul className="m-0 flex list-none flex-col p-0" data-sheet>
-          <li className={`${row} border-t-0`}>
-            <span className="text-[15px] font-semibold">{t("salaries.base")}</span>
-            <span dir="ltr" className="text-[15px] font-semibold">
-              {fmt(payslip.baseCents)}
-            </span>
-          </li>
-          {payslip.allowances.map((al, i) => (
-            <li key={i} className={row}>
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-semibold">{al.name}</span>
-                <span className="text-[13px] text-muted">{t("salaries.allowance")}</span>
-              </span>
-              <span dir="ltr" className="text-[15px] font-semibold">
-                +{fmt(al.cents)}
-              </span>
-            </li>
-          ))}
-          {[...bonuses, ...deductions].map((line) => (
-            <LineRow key={line.id} payslip={payslip} line={line} editable={editable} t={t} />
-          ))}
-        </ul>
-        <dl className="m-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-t border-line pt-3 text-[15px]" data-net>
-          <dt>{t("salaries.gross")}</dt>
-          <dd className="m-0 text-end" dir="ltr">
-            {fmt(totals.gross)}
-          </dd>
-          <dt>{t("salaries.deductions")}</dt>
-          <dd className="m-0 text-end" dir="ltr">
-            −{fmt(totals.deductions + totals.advances)}
-          </dd>
-          <dt className="font-bold">{t("salaries.net")}</dt>
-          <dd className="m-0 text-end font-bold" dir="ltr">
-            {fmt(payslip.netCents)}
-          </dd>
-        </dl>
-        {payslip.note ? <p className="m-0 text-[14px] whitespace-pre-line text-ink-4">{payslip.note}</p> : null}
-        {editable ? (
+      {/* The page kit: the main parts beside a narrower side that goes below on phones. */}
+      <DetailLayout
+        main={
           <>
-            <AddServiceBox title={t("salaries.addLine")} open={false}>
-              <SchoolForm action={addLineAction} submit={t("salaries.add")} reset>
-                <input type="hidden" name="id" value={payslip.id} />
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Choice
-                    id="f-line-kind"
-                    name="kind"
-                    label={t("salaries.lineKind")}
-                    options={[
-                      { value: "bonus", label: t("salaries.bonus") },
-                      { value: "deduction", label: t("salaries.deduction") },
-                    ]}
-                  />
-                  <Field id="f-line-label" label={t("salaries.lineFor")} name="label" maxLength={SALARY_LIMITS.label} placeholder={t("salaries.lineExample")} />
-                  <Field id="f-line-amount" label={t("salaries.amount")} name="amount" inputMode="decimal" dir="ltr" />
+          <Panel id="h-sheet" title={t("salaries.sheet")} intro={a ? t("salaries.daysLine", { working: a.workingDays, present: a.present, absent: a.absent, late: a.late, early: a.leftEarly, leave: a.leave, excused: a.excused }) : t("salaries.noDays")}>
+            <ul className="m-0 flex list-none flex-col p-0" data-sheet>
+              <li className={`${row} border-t-0`}>
+                <span className="text-[15px] font-semibold">{t("salaries.base")}</span>
+                <span dir="ltr" className="text-[15px] font-semibold">
+                  {fmt(payslip.baseCents)}
+                </span>
+              </li>
+              {payslip.allowances.map((al, i) => (
+                <li key={i} className={row}>
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-[15px] font-semibold">{al.name}</span>
+                    <span className="text-[13px] text-muted">{t("salaries.allowance")}</span>
+                  </span>
+                  <span dir="ltr" className="text-[15px] font-semibold">
+                    +{fmt(al.cents)}
+                  </span>
+                </li>
+              ))}
+              {[...bonuses, ...deductions].map((line) => (
+                <LineRow key={line.id} payslip={payslip} line={line} editable={editable} t={t} />
+              ))}
+            </ul>
+            <dl className="m-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-t border-line pt-3 text-[15px]" data-net>
+              <dt>{t("salaries.gross")}</dt>
+              <dd className="m-0 text-end" dir="ltr">
+                {fmt(totals.gross)}
+              </dd>
+              <dt>{t("salaries.deductions")}</dt>
+              <dd className="m-0 text-end" dir="ltr">
+                −{fmt(totals.deductions + totals.advances)}
+              </dd>
+              <dt className="font-bold">{t("salaries.net")}</dt>
+              <dd className="m-0 text-end font-bold" dir="ltr">
+                {fmt(payslip.netCents)}
+              </dd>
+            </dl>
+            {payslip.note ? <p className="m-0 text-[14px] whitespace-pre-line text-ink-4">{payslip.note}</p> : null}
+            {editable ? (
+              <>
+                <AddSheet title={t("salaries.addLine")} inline={false}>
+                  <SchoolForm action={addLineAction} submit={t("salaries.add")} reset sheet>
+                    <input type="hidden" name="id" value={payslip.id} />
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <Choice
+                        id="f-line-kind"
+                        name="kind"
+                        label={t("salaries.lineKind")}
+                        options={[
+                          { value: "bonus", label: t("salaries.bonus") },
+                          { value: "deduction", label: t("salaries.deduction") },
+                        ]}
+                      />
+                      <Field id="f-line-label" label={t("salaries.lineFor")} name="label" maxLength={SALARY_LIMITS.label} placeholder={t("salaries.lineExample")} />
+                      <Field id="f-line-amount" label={t("salaries.amount")} name="amount" inputMode="decimal" dir="ltr" />
+                    </div>
+                  </SchoolForm>
+                </AddSheet>
+                <AddSheet title={t("salaries.payslipNote")} inline={false}>
+                  <SchoolForm action={savePayslipNoteAction} submit={t("salaries.save")} sheet>
+                    <input type="hidden" name="id" value={payslip.id} />
+                    <label htmlFor="f-payslip-note" className="sr-only">
+                      {t("salaries.payslipNote")}
+                    </label>
+                    <textarea id="f-payslip-note" name="note" rows={2} maxLength={SALARY_LIMITS.note} defaultValue={payslip.note ?? ""} className="input min-h-16 py-3" />
+                  </SchoolForm>
+                </AddSheet>
+                <div className="flex flex-wrap gap-3">
+                  <SchoolForm action={finalisePayslipAction} submit={t("salaries.finalise")}>
+                    <input type="hidden" name="id" value={payslip.id} />
+                  </SchoolForm>
+                  <SchoolForm action={deleteDraftAction} submit={t("salaries.deleteDraft")}>
+                    <input type="hidden" name="id" value={payslip.id} />
+                  </SchoolForm>
                 </div>
-              </SchoolForm>
-            </AddServiceBox>
-            <AddServiceBox title={t("salaries.payslipNote")} open={false}>
-              <SchoolForm action={savePayslipNoteAction} submit={t("salaries.save")}>
-                <input type="hidden" name="id" value={payslip.id} />
-                <label htmlFor="f-payslip-note" className="sr-only">
-                  {t("salaries.payslipNote")}
-                </label>
-                <textarea id="f-payslip-note" name="note" rows={2} maxLength={SALARY_LIMITS.note} defaultValue={payslip.note ?? ""} className="input min-h-16 py-3" />
-              </SchoolForm>
-            </AddServiceBox>
-            <div className="flex flex-wrap gap-3">
-              <SchoolForm action={finalisePayslipAction} submit={t("salaries.finalise")}>
-                <input type="hidden" name="id" value={payslip.id} />
-              </SchoolForm>
-              <SchoolForm action={deleteDraftAction} submit={t("salaries.deleteDraft")}>
-                <input type="hidden" name="id" value={payslip.id} />
-              </SchoolForm>
-            </div>
+              </>
+            ) : null}
+          </Panel>
           </>
-        ) : null}
-      </Panel>
-
-      <Panel id="h-payments" title={t("salaries.payments")} intro={t("salaries.paymentsIntro")}>
-        {payslip.payments.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("salaries.noPayments")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0" data-payments>
-          {payslip.payments.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-line-soft py-2.5 first:border-t-0">
-              <RecordLine record={p} money={fmt(p.cents)} t={t} />
-              <SchoolForm action={removePaymentAction} submit={t("salaries.removePayment")}>
-                <input type="hidden" name="id" value={payslip.id} />
-                <input type="hidden" name="payment" value={p.id} />
-              </SchoolForm>
-            </li>
-          ))}
-        </ul>
-        {payslip.payments.length ? <p className="m-0 text-[15px] font-semibold">{t("salaries.paidLeft", { paid: fmt(payslip.paidCents), left: fmt(left) })}</p> : null}
-        {left <= 0 && payslip.payments.length ? (
-          <p role="status" className="m-0 text-[15px] text-muted">
-            {t("salaries.paidInFull")}
-          </p>
-        ) : null}
-        {left > 0 && (payslip.status !== "draft" || !locked) ? (
-          <AddServiceBox title={t("salaries.recordPayment")} open={payslip.status === "final"}>
-            <SchoolForm action={recordPaymentAction} submit={t("salaries.recordPaid")} reset>
-              <input type="hidden" name="id" value={payslip.id} />
-              {payslip.status === "draft" ? <p className="m-0 text-[14px] text-muted">{t("salaries.payFinalises")}</p> : null}
-              <PayFields suffix="-payslip" amount={(left / 100).toFixed(2)} today={today} t={t} />
-            </SchoolForm>
-          </AddServiceBox>
-        ) : null}
-      </Panel>
+        }
+        side={
+          <>
+          <Panel id="h-payments" title={t("salaries.payments")} intro={t("salaries.paymentsIntro")}>
+            {payslip.payments.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("salaries.noPayments")}</p> : null}
+            <ul className="m-0 flex list-none flex-col p-0" data-payments>
+              {payslip.payments.map((p) => (
+                <li key={p.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-line-soft py-2.5 first:border-t-0">
+                  <RecordLine record={p} money={fmt(p.cents)} t={t} />
+                  <SchoolForm action={removePaymentAction} submit={t("salaries.removePayment")}>
+                    <input type="hidden" name="id" value={payslip.id} />
+                    <input type="hidden" name="payment" value={p.id} />
+                  </SchoolForm>
+                </li>
+              ))}
+            </ul>
+            {payslip.payments.length ? <p className="m-0 text-[15px] font-semibold">{t("salaries.paidLeft", { paid: fmt(payslip.paidCents), left: fmt(left) })}</p> : null}
+            {left <= 0 && payslip.payments.length ? (
+              <p role="status" className="m-0 text-[15px] text-muted">
+                {t("salaries.paidInFull")}
+              </p>
+            ) : null}
+            {left > 0 && (payslip.status !== "draft" || !locked) ? (
+              <AddSheet title={t("salaries.recordPayment")} inline={payslip.status === "final"}>
+                <SchoolForm action={recordPaymentAction} submit={t("salaries.recordPaid")} reset sheet>
+                  <input type="hidden" name="id" value={payslip.id} />
+                  {payslip.status === "draft" ? <p className="m-0 text-[14px] text-muted">{t("salaries.payFinalises")}</p> : null}
+                  <PayFields suffix="-payslip" amount={(left / 100).toFixed(2)} today={today} t={t} />
+                </SchoolForm>
+              </AddSheet>
+            ) : null}
+          </Panel>
+          </>
+        }
+      />
     </div>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- previews of uploaded photos served by our own asset route */
-import { useActionState, useState, type ReactNode } from "react";
+import { useActionState, useId, useState, type ReactNode } from "react";
 import { saveListingAction, saveOfficeAction } from "@/app/actions/listings";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { initialFormState } from "@/lib/forms";
 import { MediaImagesPicker } from "@/components/media-picker";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { LISTING_IMAGE_MAX_BYTES, LISTING_IMAGES_MAX } from "@/lib/listings/forms";
 
 export interface ListingFormValues {
@@ -89,11 +90,12 @@ function Check({ name, label, hint, defaultChecked }: { name: string; label: str
 }
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
+  // The page kit: the form's parts.
+  const id = useId();
   return (
-    <fieldset className="m-0 flex flex-col gap-4 border-0 border-t border-line-soft p-0 pt-5 first:border-t-0 first:pt-0">
-      <legend className="float-left mb-1 w-full text-[17px] font-bold">{title}</legend>
+    <FormSection id={id} title={title}>
       {children}
-    </fieldset>
+    </FormSection>
   );
 }
 
@@ -195,7 +197,7 @@ export function ListingForm({
         </div>
       </Group>
 
-      <Group title={t("listings.price")}>
+      <Group title={t("listings.formPrice")}>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label={t("listings.price")} name="price" inputMode="decimal" required defaultValue={v("price", listing.price)} placeholder="4250000" error={e.price} />
           <Select label={t("shop.currency")} name="currency" defaultValue={v("currency", listing.currency)} options={currencies.map((c) => ({ value: c, label: c }))} error={e.currency} />
@@ -362,7 +364,7 @@ export function ListingForm({
         </div>
       </Group>
 
-      <div className="flex flex-wrap justify-end gap-3 pt-1">
+      <FormActions>
         {listing.id === null ? (
           <>
             <SubmitButton variant="secondary" className="h-11" name="intent" value="draft" pendingText={t("common.saving")}>
@@ -377,7 +379,7 @@ export function ListingForm({
             {t("listings.saveListing")}
           </SubmitButton>
         )}
-      </div>
+      </FormActions>
     </form>
   );
 }

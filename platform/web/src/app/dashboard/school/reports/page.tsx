@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { btn } from "@/components/ui";
+import { ListBar } from "@/components/page-kit-c";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -37,32 +38,43 @@ export default async function SchoolReportsPage({ searchParams }: { searchParams
       {classes.length === 0 ? <FirstNote text={t("school.classesFirst")} href="/dashboard/school/classes" /> : null}
       {klass && book ? (
         <>
-          <ClassTabs classes={classes} current={klass.id} base="/dashboard/school/reports" label={t("school.classes")} extra={range} />
-          <form method="get" className="flex max-w-[860px] flex-wrap items-end gap-3">
-            <input type="hidden" name="class" value={klass.id} />
-            <label className="flex flex-col gap-1.5 text-sm font-semibold">
-              {t("lms.periodFrom")}
-              <input type="date" name="from" defaultValue={period.from} className="input input-sm" />
-            </label>
-            <label className="flex flex-col gap-1.5 text-sm font-semibold">
-              {t("lms.periodTo")}
-              <input type="date" name="to" defaultValue={period.to} className="input input-sm" />
-            </label>
-            <button type="submit" className={`${btn.secondary} h-11 px-4 text-sm`}>
-              {t("lms.showPeriod")}
-            </button>
-          </form>
-          <Panel id="h-gradebook" title={klass.name} intro={period.term ? t("lms.periodTerm", { term: period.term, from: period.from, to: period.to }) : t("lms.period", { from: period.from, to: period.to })}>
+          {/* The page kit: the class chips and the period in the list's bar, the CSV file in the header of the gradebook. */}
+          <Panel
+            id="h-gradebook"
+            title={klass.name}
+            intro={period.term ? t("lms.periodTerm", { term: period.term, from: period.from, to: period.to }) : t("lms.period", { from: period.from, to: period.to })}
+            flush
+            actions={
+              book.rows.length ? (
+                <a href={`/api/dashboard/school/reports?class=${klass.id}${range}`} download className={`${btn.secondary} h-10 gap-1.5 px-4 text-sm`}>
+                  <Icon name="download" size={18} />
+                  {t("courses.downloadCsv")}
+                </a>
+              ) : null
+            }
+          >
+            <ListBar>
+              <ClassTabs classes={classes} current={klass.id} base="/dashboard/school/reports" label={t("school.classes")} extra={range} />
+              <form method="get" className="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="class" value={klass.id} />
+                <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
+                  {t("lms.periodFrom")}
+                  <input type="date" name="from" defaultValue={period.from} className="input input-sm" />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-semibold text-muted">
+                  {t("lms.periodTo")}
+                  <input type="date" name="to" defaultValue={period.to} className="input input-sm" />
+                </label>
+                <button type="submit" className={`${btn.secondary} h-10 px-3.5 text-sm`}>
+                  {t("lms.showPeriod")}
+                </button>
+              </form>
+            </ListBar>
+            <div className="flex flex-col gap-4 px-5 pt-4 pb-5 sm:px-6">
             {book.rows.length === 0 ? (
               <FirstNote text={t("school.studentsFirst")} href="/dashboard/school/people" />
             ) : (
               <>
-                <div className="flex justify-end">
-                  <a href={`/api/dashboard/school/reports?class=${klass.id}${range}`} download className={`${btn.secondary} h-10 gap-1.5 px-4 text-sm`}>
-                    <Icon name="download" size={18} />
-                    {t("courses.downloadCsv")}
-                  </a>
-                </div>
                 <table className="table-cards w-full border-collapse text-sm" data-gradebook="">
                   <thead>
                     <tr className="text-muted">
@@ -97,7 +109,8 @@ export default async function SchoolReportsPage({ searchParams }: { searchParams
                           {t("lms.attendanceCounts", { present: r.attendance.present, absent: r.attendance.absent, late: r.attendance.late })}
                         </td>
                         <td className="md:py-2.5">
-                          <Link href={`/dashboard/school/reports/${r.student.id}?from=${period.from}&to=${period.to}`} className="text-sm font-semibold no-underline">
+                          <Link href={`/dashboard/school/reports/${r.student.id}?from=${period.from}&to=${period.to}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                            <Icon name="description" size={18} />
                             {t("lms.reportCard")}
                           </Link>
                         </td>
@@ -107,6 +120,7 @@ export default async function SchoolReportsPage({ searchParams }: { searchParams
                 </table>
               </>
             )}
+            </div>
           </Panel>
         </>
       ) : null}

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Icon } from "@/components/icon";
-import { Badge, Notice } from "@/components/ui";
+import { Badge, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { CardGrid, ItemCard } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
+import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { BUNDLE_MIN_COURSES, bundlesOf } from "@/lib/courses/bundles";
@@ -24,59 +25,70 @@ export default async function BundlesPage() {
   const bundles = bundlesOf(setup);
   const choices = bundleChoices(setup, t("common.free"));
   const money = (cents: number) => formatCents(cents, setup.currency);
+  const canAdd = choices.length >= BUNDLE_MIN_COURSES;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[680px] flex-col gap-2">
-        <Link href="/dashboard/courses" className="flex items-center gap-1 text-sm no-underline">
-          <Icon name="arrow_back" size={18} />
-          {t("courses.backToCourses")}
-        </Link>
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("lms.bundlesTitle")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("lms.bundlesIntro")}</p>
-        <p className="m-0 text-sm leading-relaxed text-muted">{t("lms.bundleCoupons")}</p>
-      </div>
+      {/* The page kit: the header and its main action, the bundles as cards, the form in a Sheet (in place while there are none). */}
+      <PageHeader
+        back={{ href: "/dashboard/courses", label: t("courses.backToCourses") }}
+        title={t("lms.bundlesTitle")}
+        description={t("lms.bundlesIntro")}
+        actions={
+          bundles.length && canAdd ? (
+            <SheetButton target="new-bundle" icon="add">
+              {t("lms.addBundle")}
+            </SheetButton>
+          ) : null
+        }
+      />
+      <Notice tone="neutral" icon="local_offer">
+        {t("lms.bundleCoupons")}
+      </Notice>
 
-      <section aria-labelledby="h-bundles" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-bundles" className="m-0 text-lg font-bold">
-          {t("lms.bundlesCount", { count: bundles.length })}
-        </h2>
+      <Section titleId="h-bundles" title={t("lms.bundlesCount", { count: bundles.length })}>
         {bundles.length ? (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {bundles.map((b) => {
+          <CardGrid>
+            {bundles.map((b, i) => {
               const { courses, compareCents } = bundleSums(setup, b);
+              const saves = compareCents - b.priceCents;
               return (
-                <li key={b.id} className="border-t border-line-soft py-3 first:border-t-0" data-bundle={b.id}>
-                  <Link href={`/dashboard/courses/bundles/${b.id}`} className="flex flex-wrap items-center justify-between gap-2 no-underline">
-                    <span className="text-[15px] font-bold">{b.title}</span>
-                    <span className="flex items-center gap-2 text-sm text-muted">
-                      {t("lms.bundleLine", { courses: courses.length, price: money(b.priceCents), compare: money(compareCents) })}
+                <ItemCard
+                  key={b.id}
+                  data-bundle={b.id}
+                  href={`/dashboard/courses/bundles/${b.id}`}
+                  image={b.imageAssetId ? assetUrl(b.imageAssetId) : null}
+                  icon="inventory_2"
+                  tint={i + 2}
+                  title={b.title}
+                  badges={
+                    <>
                       {!b.active ? <Badge tone="warn">{t("common.hidden")}</Badge> : null}
-                    </span>
-                  </Link>
-                  {b.active && courses.length < BUNDLE_MIN_COURSES ? <p className="m-0 mt-1 text-[13px] text-muted">{t("lms.bundleNotShown")}</p> : null}
-                </li>
+                      {saves > 0 ? <Badge tone="success">{t("lms.bundleSaves", { amount: money(saves) })}</Badge> : null}
+                    </>
+                  }
+                >
+                  <span className="text-sm text-muted">{t("lms.bundleLine", { courses: courses.length, price: money(b.priceCents), compare: money(compareCents) })}</span>
+                  {courses.length ? <span className="line-clamp-2 text-[13px] text-ink-4">{courses.map((c) => c.title).join(" · ")}</span> : null}
+                  {b.active && courses.length < BUNDLE_MIN_COURSES ? <span className="text-[13px] text-warn">{t("lms.bundleNotShown")}</span> : null}
+                </ItemCard>
               );
             })}
-          </ul>
+          </CardGrid>
         ) : (
-          <p className="m-0 text-[15px] text-muted">{t("lms.noBundles")}</p>
+          <EmptyState icon="inventory_2" title={t("lms.noBundles")} />
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-new-bundle" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-new-bundle" className="m-0 text-lg font-bold">
-          {t("lms.addBundle")}
-        </h2>
-        {choices.length >= BUNDLE_MIN_COURSES ? (
+      <Sheet id="new-bundle" inline={!bundles.length || !canAdd} title={t("lms.addBundle")} description={t("lms.bundleStore")}>
+        {canAdd ? (
           <BundleForm current={{ title: "", description: "", price: "", courseIds: "", active: "on" }} courses={choices} currency={setup.currency} imageUrl={null} submit={t("lms.addBundleButton")} />
         ) : (
           <Notice tone="info" icon="info">
             {t("lms.noBundleCourses")}
           </Notice>
         )}
-        <p className="m-0 text-[13px] text-muted">{t("lms.bundleStore")}</p>
-      </section>
+      </Sheet>
     </div>
   );
 }

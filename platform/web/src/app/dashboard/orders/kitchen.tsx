@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { moveOrderAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
-import { Badge, EmptyState, formatDateTime } from "@/components/ui";
+import { Badge, EmptyState, PageHeader, Section, btn, formatDateTime } from "@/components/ui";
+import { Thumb } from "@/components/page-kit";
 import { FULFILMENT_LABELS, nextStep } from "@/lib/catalog/fulfilment";
 import { formatCents } from "@/lib/catalog/money";
 import { optionsText } from "@/lib/catalog/options";
@@ -118,37 +119,33 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
   return (
     <div className="flex flex-col gap-6">
       <AutoRefresh seconds={30} />
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("orders.kitchen")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("orders.kitchenIntro")}</p>
-      </div>
+      {/* The page kit: the header, the orders waiting for their payment, the kitchen's queue, then the finished orders. */}
+      <PageHeader title={t("orders.kitchen")} description={t("orders.kitchenIntro")} />
       {/* 96.2 Orders to pay by bank transfer or the owner's own method reach the kitchen once marked paid. */}
       <AwaitingPayment app={app} />
 
-      <section aria-labelledby="h-kitchen" className="flex flex-col gap-4">
-        <h2 id="h-kitchen" className="m-0 text-lg font-bold">
-          {queue.length === 0 ? t("orders.noKitchen") : t("orders.inKitchen", { count: queue.length })}
-        </h2>
+      <Section titleId="h-kitchen" title={queue.length === 0 ? t("orders.noKitchen") : t("orders.inKitchen", { count: queue.length })} flush>
         {queue.length === 0 ? (
-          <EmptyState icon="skillet" title={t("orders.nothingPrepare")}>
-            {t("orders.nothingPrepareText")}
-          </EmptyState>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="skillet" title={t("orders.nothingPrepare")}>
+              {t("orders.nothingPrepareText")}
+            </EmptyState>
+          </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col gap-4 p-0">
-            {queue.map((order) => {
+          <ul className="m-0 flex list-none flex-col p-0">
+            {queue.map((order, index) => {
               const step = order.fulfilmentStatus ?? "received";
               const next = order.fulfilment ? nextStep(step, order.fulfilment.type) : null;
               return (
-                <li
-                  key={order.id}
-                  aria-label={t("orders.orderAria", { number: orderNumber(order) })}
-                  className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[17px] font-bold">{t("orders.orderTitle", { number: orderNumber(order), total: money(order, order.totalCents) })}</span>
+                <li key={order.id} aria-label={t("orders.orderAria", { number: orderNumber(order) })} className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
+                  <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+                    <Thumb icon="skillet" shape="square" tint={index} />
+                    <span className="flex min-w-0 flex-[1_1_220px] flex-col gap-0.5">
+                      <span className="text-[15px] font-bold break-words">{t("orders.orderTitle", { number: orderNumber(order), total: money(order, order.totalCents) })}</span>
+                      <span className="text-[13px] text-muted">{t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}</span>
+                    </span>
                     <Badge tone={STEP_TONES[step]}>{k(FULFILMENT_LABELS[step])}</Badge>
                   </div>
-                  <span className="text-[13px] text-muted">{t("orders.paidOn", { date: formatDateTime(order.paidAt, lang) })}</span>
                   <OrderDetails order={order} kitchen={kitchen} text={text} />
                   <div className="flex flex-wrap gap-2">
                     {next ? <MoveButton order={order} to={next} label={k(FULFILMENT_LABELS[next])} primary /> : null}
@@ -159,20 +156,18 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
             })}
           </ul>
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-past" className="flex flex-col gap-4">
-        <h2 id="h-past" className="m-0 text-lg font-bold">
-          {t("orders.finished")}
-        </h2>
+      <Section titleId="h-past" title={t("orders.finished")} flush>
         {past.items.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("orders.finishedEmpty")}</p>
+          <p className="m-0 px-5 py-5 text-[15px] text-muted sm:px-6">{t("orders.finishedEmpty")}</p>
         ) : (
-          <ul className="m-0 flex list-none flex-col gap-3 p-0">
+          <ul className="m-0 flex list-none flex-col p-0">
             {past.items.map((order, index) => (
-              <li key={order.id} aria-label={t("orders.orderAria", { number: orderNumber(order) })} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[16px] font-bold">{t("orders.orderTitle", { number: orderNumber(order), total: money(order, order.totalCents) })}</span>
+              <li key={order.id} aria-label={t("orders.orderAria", { number: orderNumber(order) })} className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
+                <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+                  <Thumb icon="receipt_long" shape="square" tint={index + 2} />
+                  <span className="min-w-0 flex-[1_1_220px] text-[15px] font-bold break-words">{t("orders.orderTitle", { number: orderNumber(order), total: money(order, order.totalCents) })}</span>
                   <Badge tone="neutral">{k(order.status === "refunded" ? ORDER_STATUS_LABELS.refunded : FULFILMENT_LABELS[order.fulfilmentStatus ?? "completed"])}</Badge>
                 </div>
                 <OrderDetails order={order} kitchen={kitchen} text={text} />
@@ -191,13 +186,25 @@ export async function KitchenView({ app, kitchen, page }: { app: App; kitchen: F
           </ul>
         )}
         {pages > 1 ? (
-          <nav aria-label={t("orders.pages")} className="flex items-center gap-3 text-[15px]">
-            {page > 1 ? <Link href={`/dashboard/orders?page=${page - 1}`}>{t("orders.newer")}</Link> : null}
+          <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3 text-sm sm:px-6">
+            {page > 1 ? (
+              <Link href={`/dashboard/orders?page=${page - 1}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("orders.newer")}
+              </Link>
+            ) : (
+              <span />
+            )}
             <span className="text-muted">{t("common.page", { page, pages })}</span>
-            {page < pages ? <Link href={`/dashboard/orders?page=${page + 1}`}>{t("orders.older")}</Link> : null}
+            {page < pages ? (
+              <Link href={`/dashboard/orders?page=${page + 1}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
+                {t("orders.older")}
+              </Link>
+            ) : (
+              <span />
+            )}
           </nav>
         ) : null}
-      </section>
+      </Section>
     </div>
   );
 }

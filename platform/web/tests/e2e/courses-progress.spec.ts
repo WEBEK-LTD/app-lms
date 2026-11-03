@@ -294,6 +294,8 @@ test("113.7 the academy sets the rules to complete the course, a rubric with ano
 
   // A second course, after the first in a path taken in order.
   await own.goto("/dashboard/courses");
+  // With courses on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Add a course" }).click();
   const add = own.getByRole("region", { name: "Add a course" });
   await add.getByLabel("Title").fill("Turkish in a Month");
   await add.getByRole("button", { name: "Add course" }).click();

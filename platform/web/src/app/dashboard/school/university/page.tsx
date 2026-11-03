@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Stat, StatRow } from "@/components/page-kit";
 import { saveUniSettingsAction } from "@/app/actions/university";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -7,7 +8,7 @@ import { appPlan } from "@/lib/entitlements";
 import { scaleText } from "@/lib/university/forms";
 import { loadUniSettings } from "@/lib/university/settings";
 import { Choice, SchoolForm } from "../forms";
-import { isSchool, NotSchool, Panel, UniHead } from "./parts";
+import { isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "./parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.title") };
@@ -31,7 +32,13 @@ export default async function UniversitySettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <UniHead title={t("university.title")} intro={t("university.intro")} current="" t={t} app={app} plan={plan} settings={settings} />
-      <p className="m-0 text-[15px] text-muted">{t("university.counts", { faculties: faculties.length, programs: programs.length, courses: courses.length, terms: terms.length })}</p>
+      {/* The page kit: the university's numbers, each opening its page, then its settings. */}
+      <StatRow label={t("university.counts", { faculties: faculties.length, programs: programs.length, courses: courses.length, terms: terms.length })}>
+        <Stat icon="apartment" label={t("university.tabStructure")} value={faculties.length} href={`${UNI_BASE}/structure`} />
+        <Stat icon="workspace_premium" tone="accent" label={t("university.tabPrograms")} value={programs.length} href={`${UNI_BASE}/programs`} />
+        <Stat icon="menu_book" label={t("university.tabCourses")} value={courses.length} href={`${UNI_BASE}/courses`} />
+        <Stat icon="calendar_month" label={t("university.tabTerms")} value={terms.length} href={`${UNI_BASE}/terms`} />
+      </StatRow>
       <Panel id="h-uni-settings" title={t("university.settingsTitle")} intro={t("university.settingsIntro")}>
         <SchoolForm action={saveUniSettingsAction} submit={t("university.saveSettings")}>
           <label className="flex items-start gap-2 text-[15px]">

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Pager, SearchForm } from "@/components/page-kit-c";
 import { importUniStudentsAction, saveUniStudentAction } from "@/app/actions/university";
 import { Field } from "@/components/form";
-import { btn } from "@/components/ui";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -10,7 +9,7 @@ import { appPlan } from "@/lib/entitlements";
 import { STUDENTS_CSV_EXAMPLE, UNI_LIMITS } from "@/lib/university/forms";
 import { loadUniSettings } from "@/lib/university/settings";
 import { Choice, SchoolForm } from "../../forms";
-import { FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
+import { EditSheet, FirstNote, isSchool, NotSchool, Panel, UNI_BASE, UniHead } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("university.tabStudents") };
@@ -50,15 +49,9 @@ export default async function UniversityStudentsPage({ searchParams }: { searchP
       <UniHead title={t("university.tabStudents")} intro={t("university.studentsIntro")} current="/students" t={t} app={app} plan={plan} settings={settings} />
       {students.length === 0 ? <FirstNote text={t("university.peopleFirst")} href="/dashboard/school/people" /> : null}
       {programs.length === 0 ? <FirstNote text={t("university.programsFirst")} href={`${UNI_BASE}/programs`} /> : null}
-      <form method="get" className="flex items-end gap-2">
-        <label htmlFor="f-q" className="sr-only">
-          {t("university.search")}
-        </label>
-        <input id="f-q" name="q" type="search" defaultValue={params.q ?? ""} placeholder={t("university.searchStudents")} className="input input-sm w-[240px]" />
-        <button type="submit" className={`${btn.secondary} h-10`}>
-          {t("university.search")}
-        </button>
-      </form>
+      <div className="rounded-2xl border border-line bg-white px-5 py-3 sm:px-6">
+        <SearchForm label={t("university.search")} placeholder={t("university.searchStudents")} defaultValue={params.q ?? ""} button={t("university.search")} />
+      </div>
       <Panel id="h-uni-students" title={t("university.studentsCount", { count: students.length })}>
         {list.length === 0 && students.length ? <p className="m-0 text-[15px] text-muted">{t("university.noMatch")}</p> : null}
         <ul className="m-0 flex list-none flex-col p-0">
@@ -79,10 +72,8 @@ export default async function UniversityStudentsPage({ searchParams }: { searchP
                       .join(" · ")}
                   </span>
                 </span>
-                <details className="rounded-xl border border-line p-4">
-                  <summary className="cursor-pointer text-[15px] font-semibold">{t("university.edit", { name: student.name })}</summary>
-                  <div className="pt-3">
-                    <SchoolForm action={saveUniStudentAction} submit={t("university.save")}>
+                <EditSheet title={t("university.edit", { name: student.name })}>
+                    <SchoolForm action={saveUniStudentAction} submit={t("university.save")} sheet>
                       <input type="hidden" name="studentId" value={student.id} />
                       <div className="grid gap-4 sm:grid-cols-3">
                         <Choice id={`f-program-${student.id}`} name="programId" label={t("university.program")} options={programOptions} defaultValue={row?.programId ? String(row.programId) : ""} empty={t("university.none")} />
@@ -90,18 +81,18 @@ export default async function UniversityStudentsPage({ searchParams }: { searchP
                         <Field id={`f-start-${student.id}`} label={t("university.startYear")} name="startYear" dir="ltr" defaultValue={row?.startYear ?? ""} maxLength={UNI_LIMITS.year} placeholder="2026/2027" />
                       </div>
                     </SchoolForm>
-                  </div>
-                </details>
+                  </EditSheet>
               </li>
             );
           })}
         </ul>
         {pages > 1 ? (
-          <nav aria-label={t("university.pages")} className="flex items-center justify-between gap-3 text-[15px]">
-            {page > 1 ? <Link href={link(page - 1)}>{t("university.previous")}</Link> : <span />}
-            <span className="text-muted">{t("university.pageOf", { page, pages })}</span>
-            {page < pages ? <Link href={link(page + 1)}>{t("university.next")}</Link> : <span />}
-          </nav>
+          <Pager
+            label={t("university.pages")}
+            prev={page > 1 ? { href: link(page - 1), label: t("university.previous") } : null}
+            next={page < pages ? { href: link(page + 1), label: t("university.next") } : null}
+            text={t("university.pageOf", { page, pages })}
+          />
         ) : null}
       </Panel>
       <Panel id="h-import-students" title={t("university.importStudents")} intro={t("university.importStudentsIntro")}>

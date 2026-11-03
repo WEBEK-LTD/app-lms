@@ -23,6 +23,8 @@ export const en = {
   signedOut: "{name} is signed out.",
   signedOutAll: "Every phone is signed out.",
   passwordNote: "Changing your password also signs out every phone.",
+  statPhones: "Phones signed in",
+  count: "{count, plural, one {# phone} other {# phones}}",
   needs: {
     ordersInProgress: "{count, plural, one {{count} order in progress} other {{count} orders in progress}}",
     toConfirm: "{count, plural, one {{count} appointment to confirm} other {{count} appointments to confirm}}",
@@ -101,6 +103,8 @@ export const ar: Messages = {
   signedOut: "تم تسجيل خروج {name}.",
   signedOutAll: "تم تسجيل الخروج من كل الهواتف.",
   passwordNote: "تغيير كلمة المرور يسجّل الخروج من كل الهواتف أيضًا.",
+  statPhones: "الهواتف المسجّل دخولها",
+  count: "{count, plural, zero {لا هواتف} one {هاتف واحد} two {هاتفان} few {# هواتف} many {# هاتفًا} other {# هاتف}}",
   needs: {
     ordersInProgress:
       "{count, plural, one {طلب واحد قيد التنفيذ} two {طلبان قيد التنفيذ} few {{count} طلبات قيد التنفيذ} other {طلبات قيد التنفيذ: {count}}}",
@@ -179,6 +183,8 @@ export const tr: Messages = {
   signedOut: "{name} oturumu kapatıldı.",
   signedOutAll: "Tüm telefonlarda oturum kapatıldı.",
   passwordNote: "Şifrenizi değiştirmek de tüm telefonlarda oturumu kapatır.",
+  statPhones: "Oturum açık telefonlar",
+  count: "{count, plural, one {# telefon} other {# telefon}}",
   needs: {
     ordersInProgress: "{count, plural, one {Hazırlanan {count} sipariş} other {Hazırlanan {count} sipariş}}",
     toConfirm: "{count, plural, one {Onay bekleyen {count} randevu} other {Onay bekleyen {count} randevu}}",

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-status";
 import { Icon } from "@/components/icon";
-import { LinkCard } from "@/components/dashboard";
+import { LinkCards, PageGroup } from "@/components/page-kit";
 import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
 import { firebaseListsCourierApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
@@ -213,7 +213,8 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
   };
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header with New build, the build now, the stores as cards, then the history. */}
       <PageHeader
         title={t("builds.title")}
         description={t("builds.intro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app), plan: k(planName(plan, plans)) })}
@@ -475,19 +476,19 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
         </Notice>
       ) : null}
 
-      <section aria-labelledby="h-next" className="flex flex-col gap-3">
-        <h2 id="h-next" className="m-0 text-lg font-bold">
-          {t("builds.stores")}
-        </h2>
-        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))]">
-          <LinkCard href="/dashboard/publishing" icon="publish" title={t("builds.publishing")} text={t("builds.publishingText")} />
-          <LinkCard href={localePath(lang, "/docs/google-play")} icon="menu_book" title={t("builds.guideGoogle")} text={t("builds.stepByStep")} />
-          <LinkCard href={localePath(lang, "/docs/app-store")} icon="menu_book" title={t("builds.guideApple")} text={t("builds.stepByStep")} />
-          <LinkCard href={localePath(lang, "/docs/galaxy-store")} icon="menu_book" title={t("builds.guideGalaxy")} text={t("builds.stepByStep")} />
-          <LinkCard href={localePath(lang, "/docs/huawei-appgallery")} icon="menu_book" title={t("builds.guideHuawei")} text={t("builds.stepByStep")} />
-          <LinkCard href={localePath(lang, "/docs/xiaomi-getapps")} icon="menu_book" title={t("builds.guideXiaomi")} text={t("builds.stepByStep")} />
-        </div>
-      </section>
+      <PageGroup title={t("builds.stores")}>
+        <LinkCards
+          label={t("builds.stores")}
+          items={[
+            { href: "/dashboard/publishing", icon: "publish", label: t("builds.publishing"), hint: t("builds.publishingText") },
+            { href: localePath(lang, "/docs/google-play"), icon: "menu_book", label: t("builds.guideGoogle"), hint: t("builds.stepByStep") },
+            { href: localePath(lang, "/docs/app-store"), icon: "menu_book", label: t("builds.guideApple"), hint: t("builds.stepByStep") },
+            { href: localePath(lang, "/docs/galaxy-store"), icon: "menu_book", label: t("builds.guideGalaxy"), hint: t("builds.stepByStep") },
+            { href: localePath(lang, "/docs/huawei-appgallery"), icon: "menu_book", label: t("builds.guideHuawei"), hint: t("builds.stepByStep") },
+            { href: localePath(lang, "/docs/xiaomi-getapps"), icon: "menu_book", label: t("builds.guideXiaomi"), hint: t("builds.stepByStep") },
+          ]}
+        />
+      </PageGroup>
 
       {/* 89.2 Staged releases, with "We publish for you". */}
       {autoPublish ? (
@@ -647,6 +648,6 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           </table>
         )}
       </Section>
-    </>
+    </div>
   );
 }

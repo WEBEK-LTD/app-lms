@@ -6,7 +6,9 @@ import type { DashT } from "@/i18n/dashboard";
 import { formatNumber } from "@/i18n/format";
 import { utcToLocal } from "@/lib/bookings/time";
 import { DELIVERY_BOARD_EVERY_SECONDS, type BoardJob, type DeliveryBoard } from "@/lib/delivery/board";
-import { PageHead } from "../../rides/parts";
+import { Notice, PageHeader } from "@/components/ui";
+import { Stat, StatRow } from "@/components/page-kit";
+import { LiveBadge } from "@/components/page-kit-b";
 import { ShipmentStatusBadge } from "../../shipments/parts";
 import { LiveMap, Refresher, type MapMarker } from "../../taxi/live/map";
 
@@ -60,51 +62,45 @@ export function DeliveryBoardView({
       ),
   ];
   const counts = [
-    { key: "onDuty", label: t("delivery.countOnDuty"), value: board.counts.onDuty, color: "#1c9d55" },
-    { key: "onTheWay", label: t("delivery.countOnTheWay"), value: board.counts.onTheWay, color: "#f2650f" },
-    { key: "waiting", label: t("delivery.countWaiting"), value: board.counts.waiting, color: "#e3a500" },
-    { key: "today", label: t("delivery.countToday"), value: board.counts.today, color: null },
-  ];
+    { key: "onDuty", label: t("delivery.countOnDuty"), value: board.counts.onDuty, icon: "two_wheeler", tone: "success" },
+    { key: "onTheWay", label: t("delivery.countOnTheWay"), value: board.counts.onTheWay, icon: "local_shipping", tone: "accent" },
+    { key: "waiting", label: t("delivery.countWaiting"), value: board.counts.waiting, icon: "hourglass_top", tone: "warn" },
+    { key: "today", label: t("delivery.countToday"), value: board.counts.today, icon: "task_alt", tone: "neutral" },
+  ] as const;
   const number = (n: number) => formatNumber(lang, n);
 
   return (
     <div className="flex flex-col gap-6">
       <Refresher seconds={DELIVERY_BOARD_EVERY_SECONDS} />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead title={t("delivery.liveMap")} intro={t("delivery.liveMapIntro")} />
-        <p className="m-0 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-bold text-success" title={t("taxi.liveUpdatingHint", { seconds: DELIVERY_BOARD_EVERY_SECONDS })}>
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-success" />
-          {t("taxi.liveUpdating")}
-          <span className="sr-only">{t("taxi.liveUpdatingHint", { seconds: DELIVERY_BOARD_EVERY_SECONDS })}</span>
-        </p>
-      </div>
+      {/* The page kit: the header with the live badge, the numbers, then the map beside the jobs now. */}
+      <PageHeader
+        title={t("delivery.liveMap")}
+        description={t("delivery.liveMapIntro")}
+        actions={<LiveBadge label={t("taxi.liveUpdating")} hint={t("taxi.liveUpdatingHint", { seconds: DELIVERY_BOARD_EVERY_SECONDS })} />}
+      />
       {notice}
 
-      <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr))]" aria-label={t("delivery.liveMap")}>
+      <StatRow label={t("delivery.liveMap")}>
         {counts.map((c) => (
-          <li key={c.key} className="flex min-w-0 flex-col gap-1 rounded-2xl border border-line bg-white px-4 py-3.5" data-count={c.key}>
-            <bdi className="text-[28px] leading-tight font-extrabold text-midnight" data-value>
-              {number(c.value)}
-            </bdi>
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-4">
-              <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: c.color ?? "var(--color-faint)" }} />
-              {c.label}
-            </span>
-          </li>
+          <div key={c.key} className="flex min-w-0 flex-col" data-count={c.key}>
+            <Stat icon={c.icon} tone={c.tone} label={c.label} value={<bdi data-value>{number(c.value)}</bdi>} />
+          </div>
         ))}
-      </ul>
+      </StatRow>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex flex-col gap-3">
           {tilesUrl ? null : (
-            <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed" data-no-map>
-              {t("delivery.liveNoMap")}
-            </p>
+            <div data-no-map>
+              <Notice tone="warn" icon="map">
+                {t("delivery.liveNoMap")}
+              </Notice>
+            </div>
           )}
           {live ? null : (
-            <p role="note" className="m-0 rounded-xl bg-sand px-4 py-3 text-[15px] leading-relaxed">
+            <Notice tone="neutral" icon="info">
               {t("delivery.liveStagesOnly")}
-            </p>
+            </Notice>
           )}
           <LiveMap
             tilesUrl={tilesUrl}

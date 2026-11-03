@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Link from "next/link";
 import { lockMonthAction, makeSheetsAction, reopenMonthAction, saveSalarySettingsAction } from "@/app/actions/school-salaries";
 import { Field } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, btn } from "@/components/ui";
+import { ItemList, ItemRow, PageGroup, Stat, StatRow, Thumb } from "@/components/page-kit";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -61,11 +63,26 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
     <div className="flex flex-col gap-6">
       <PageHead title={t("salaries.title")} intro={t("salaries.intro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
-      <p role="note" className="m-0 max-w-[860px] rounded-xl bg-sand px-4 py-3 text-[15px] leading-relaxed">
-        {t("salaries.byHand")}
+      <p role="note" className="m-0 flex gap-2.5 rounded-xl border border-line bg-sand px-4 py-3 text-[15px] leading-relaxed">
+        <Icon name="info" size={22} className="shrink-0 text-muted" />
+        <span>{t("salaries.byHand")}</span>
       </p>
 
-      <nav aria-label={t("salaries.months")} className="flex max-w-[860px] flex-wrap items-end gap-2">
+      {/* The page kit: the month's numbers (per currency), the months, the payslips, the people, then the rules. */}
+      {totals.length ? (
+        <StatRow label={t("salaries.monthSheets", { month: monthLabel(lang, month) })}>
+          {totals.slice(0, 1).map((total) => (
+            <Fragment key={total.currency}>
+              <Stat icon="groups" label={t("salaries.people")} value={total.people} />
+              <Stat icon="payments" tone="accent" label={t("salaries.colNet")} value={<span dir="ltr">{formatCents(total.net, total.currency)}</span>} />
+              <Stat icon="check_circle" tone="success" label={t("salaries.colPaid")} value={<span dir="ltr">{formatCents(total.paid, total.currency)}</span>} />
+              <Stat icon="hourglass_top" tone={total.left > 0 ? "warn" : "neutral"} label={t("salaries.statLeft")} value={<span dir="ltr">{formatCents(total.left, total.currency)}</span>} />
+            </Fragment>
+          ))}
+        </StatRow>
+      ) : null}
+
+      <nav aria-label={t("salaries.months")} className="flex flex-wrap items-end gap-2">
         {monthOpenForSheets(previous, current) ? (
           <Link href={`/dashboard/school/salaries?month=${previous}`} className={`${btn.secondary} h-10 gap-1 px-3 text-sm`}>
             <Icon name="chevron_left" size={18} className="rtl:rotate-180" />
@@ -171,38 +188,45 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
         ) : null}
       </Panel>
 
-      <Panel id="h-salary-people" title={t("salaries.people")} intro={t("salaries.peopleIntro")}>
-        {workers.length === 0 ? <FirstNote text={t("salaries.noWorkers")} href="/dashboard/school/people?role=staff" /> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {workers.map((person) => {
+      <Panel id="h-salary-people" title={t("salaries.people")} intro={t("salaries.peopleIntro")} flush>
+        {workers.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <FirstNote text={t("salaries.noWorkers")} href="/dashboard/school/people?role=staff" />
+          </div>
+        ) : null}
+        <ItemList>
+          {workers.map((person, i) => {
             const salary = salaryOf.get(person.id);
             return (
-              <li key={person.id} data-person={person.id} className="flex flex-wrap items-center gap-2 border-t border-line-soft py-2.5 first:border-t-0">
-                <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
-                  <Link href={`/dashboard/school/salaries/people/${person.id}`} className="text-[15px] font-bold">
-                    {person.name}
-                  </Link>
-                  <span className="text-[13px] text-muted">
-                    {[
-                      person.jobTitle ?? t(person.role === "teacher" ? "salaries.teacher" : "salaries.staffMember"),
-                      salary
-                        ? salary.allowances.length
-                          ? t("salaries.salaryWithAllowances", { amount: formatCents(salary.monthlyCents, salary.currency), allowances: formatCents(allowancesOf(salary), salary.currency) })
-                          : t("salaries.salaryLine", { amount: formatCents(salary.monthlyCents, salary.currency) })
-                        : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                </span>
-                {salary ? null : <Badge tone="warn">{t("salaries.noSalary")}</Badge>}
-                {person.active ? null : <Badge tone="neutral">{t("salaries.inactive")}</Badge>}
-              </li>
+              <ItemRow
+                key={person.id}
+                data-person={person.id}
+                href={`/dashboard/school/salaries/people/${person.id}`}
+                media={<Thumb icon={person.role === "teacher" ? "menu_book" : "home_work"} shape="round" tint={i} />}
+                title={person.name}
+                meta={[
+                  person.jobTitle ?? t(person.role === "teacher" ? "salaries.teacher" : "salaries.staffMember"),
+                  salary
+                    ? salary.allowances.length
+                      ? t("salaries.salaryWithAllowances", { amount: formatCents(salary.monthlyCents, salary.currency), allowances: formatCents(allowancesOf(salary), salary.currency) })
+                      : t("salaries.salaryLine", { amount: formatCents(salary.monthlyCents, salary.currency) })
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+                aside={
+                  <>
+                    {salary ? null : <Badge tone="warn">{t("salaries.noSalary")}</Badge>}
+                    {person.active ? null : <Badge tone="neutral">{t("salaries.inactive")}</Badge>}
+                  </>
+                }
+              />
             );
           })}
-        </ul>
+        </ItemList>
       </Panel>
 
+      <PageGroup title={t("salaries.rules")}>
       <Panel id="h-salary-rules" title={t("salaries.rules")} intro={t("salaries.rulesIntro")}>
         {checkinOn ? null : <FirstNote text={t("salaries.checkinOff")} href="/dashboard/school/checkin/settings" />}
         <SchoolForm action={saveSalarySettingsAction} submit={t("salaries.saveRules")}>
@@ -237,6 +261,7 @@ export default async function SalariesPage({ searchParams }: { searchParams: Pro
           </label>
         </SchoolForm>
       </Panel>
+      </PageGroup>
     </div>
   );
 }

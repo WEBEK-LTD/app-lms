@@ -114,6 +114,9 @@ export const en = {
     noteSaved: "Saved. It shows on the day's board.",
     noteRemoved: "Deleted.",
   },
+  // The page kit: Excuses.
+  searchExcuses: "Search excuses",
+  noExcuseMatch: "No excuse matches your search.",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -229,6 +232,9 @@ export const ar: Strings<typeof en> = {
     noteSaved: "تم الحفظ. تظهر في لوحة ذلك اليوم.",
     noteRemoved: "تم الحذف.",
   },
+  // The page kit: Excuses.
+  searchExcuses: "ابحث في الأعذار",
+  noExcuseMatch: "لا يوجد عذر يطابق بحثك.",
 };
 
 export const tr: Strings<typeof en> = {
@@ -344,4 +350,7 @@ export const tr: Strings<typeof en> = {
     noteSaved: "Kaydedildi. O günün panosunda görünüyor.",
     noteRemoved: "Silindi.",
   },
+  // The page kit: Excuses.
+  searchExcuses: "Mazeretlerde ara",
+  noExcuseMatch: "Aramanıza uyan mazeret yok.",
 };

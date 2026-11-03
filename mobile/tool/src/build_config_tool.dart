@@ -12,6 +12,7 @@ const _topLevelKeys = {
   'app_type',
   'vertical',
   'role',
+  'courier_hub',
   'app_name',
   'short_name',
   'site_url',
@@ -207,6 +208,29 @@ ValidationResult validateBuildConfig(Object? decoded) {
       errors.add('"role" courier is for delivery apps only.');
     } else if (c['role'] == 'driver' && c['app_type'] != 'rides') {
       errors.add('"role" driver is for ride apps only.');
+    }
+  }
+  // 104.8.4 Yallapp Courier: Yallapp's own courier app for every company
+  // that picks it, on the Courier API, without an app of its own.
+  if (c.containsKey('courier_hub')) {
+    final hub = c['courier_hub'];
+    if (hub is! bool) {
+      errors.add('"courier_hub" must be true or false.');
+    } else if (hub) {
+      if (c['role'] != 'courier' || c['app_type'] != 'delivery') {
+        errors.add(
+          '"courier_hub" needs "role" courier and "app_type" delivery.',
+        );
+      }
+      if (c['api_base_url'] == null) {
+        errors.add('"courier_hub" needs "api_base_url" (the Courier API).');
+      }
+      if (c['auth_base_url'] != null) {
+        errors.add('"courier_hub" has no "auth_base_url".');
+      }
+      if (c['links'] != null) {
+        errors.add('"courier_hub" has no "links": it isn\'t one app.');
+      }
     }
   }
   _string(c, 'client_id', errors);
@@ -630,6 +654,7 @@ const buildConfig = BuildConfigData(
   appType: AppType.${dartAppType(c['app_type'] as String)},
   vertical: ${c['vertical'] == null ? 'null' : 'AppVertical.${c['vertical']}'},
   role: AppRole.${c['role'] ?? 'customer'},
+  courierHub: ${c['courier_hub'] == true},
   appName: ${_dartString(c['app_name'] as String)},
   shortName: ${_dartString(c['short_name'] as String)},
   siteUrl: ${_dartString(_trimSlash(c['site_url'] as String))},

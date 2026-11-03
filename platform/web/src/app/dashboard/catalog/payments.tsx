@@ -1,7 +1,7 @@
 import { removePaymentKeysAction } from "@/app/actions/catalog";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Notice } from "@/components/ui";
+import { Notice, Section } from "@/components/ui";
 import { mayDo, OwnerOnly } from "@/components/owner-only";
 import { catalogSettings, isOwnPayment } from "@/lib/catalog/settings";
 import type { App, CatalogCurrency } from "@/lib/data/types";
@@ -30,19 +30,16 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
   const { t, lang } = await dashboardText();
   const list = (p: keyof typeof PROVIDER_CURRENCIES) => (lang === "en" ? currencyList(p) : formatList(lang, PROVIDER_CURRENCIES[p], "disjunction"));
   return (
-    <section aria-labelledby="h-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-      <h2 id="h-payments" className="m-0 text-lg font-bold">
-        {t("shop.cardPayments")}
-      </h2>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.cardIntro")}</p>
+    // The page kit: a Section, its state on a soft line, then the account's keys.
+    <Section titleId="h-payments" title={t("shop.cardPayments")} description={t("shop.cardIntro")} className="max-w-[640px]">
       {own ? (
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-success-bg px-4 py-3">
           <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
             <Icon name="check_circle" size={20} filled />
             {t(own.sandbox ? "shop.onOwnSandbox" : "shop.onOwn", { provider: PROVIDER_NAME[own.provider] })}
           </p>
           <form action={removePaymentKeysAction}>
-            <SubmitButton variant="secondary" className="h-10">
+            <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
               {t("shop.removeKeys")}
             </SubmitButton>
           </form>
@@ -58,14 +55,18 @@ export async function CardPayments({ app, currency }: { app: App; currency?: Cat
           {t("shop.currencyWarn", { provider: PROVIDER_NAME[own.provider], list: list(own.provider), currency: sells })}
         </Notice>
       ) : null}
-      <details className="rounded-xl border border-line p-4" open>
-        <summary className="cursor-pointer text-[15px] font-bold">{t("shop.ownAccount")}</summary>
+      <details className="group rounded-xl border border-line-soft bg-sand p-4" open>
+        <summary className="flex cursor-pointer list-none items-center gap-2 text-[15px] font-bold [&::-webkit-details-marker]:hidden">
+          <Icon name="credit_card" size={20} className="text-muted" />
+          <span className="flex-1">{t("shop.ownAccount")}</span>
+          <Icon name="expand_more" size={20} className="text-muted transition-transform group-open:rotate-180" />
+        </summary>
         <div className="flex flex-col gap-4 pt-3">
           <p className="m-0 text-sm leading-relaxed text-ink-4">{t("shop.ownText")}</p>
           <PaymentKeysForm provider={own?.provider ?? null} sandbox={own?.sandbox ?? false} merchantId={own?.provider === "kashier" ? own.merchantId : ""} clientId={own?.provider === "paypal" ? own.clientId : ""} />
         </div>
       </details>
-    </section>
+    </Section>
   );
 }
 
@@ -81,13 +82,9 @@ export async function OtherPayments({ app }: { app: App }) {
   const on = manualChoices(manual);
   const names = on.map((c) => (c.method === "bank_transfer" ? t("orders.bankTransfer") : c.name));
   return (
-    <section aria-labelledby="h-other-payments" className="flex max-w-[640px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-      <h2 id="h-other-payments" className="m-0 text-lg font-bold">
-        {t("shop.otherPayments")}
-      </h2>
-      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("shop.otherIntro")}</p>
+    <Section titleId="h-other-payments" title={t("shop.otherPayments")} description={t("shop.otherIntro")} className="max-w-[640px]">
       {on.length > 0 ? (
-        <p className="m-0 flex items-center gap-2 text-[15px] font-semibold text-success">
+        <p className="m-0 flex items-center gap-2 rounded-xl bg-success-bg px-4 py-3 text-[15px] font-semibold text-success">
           <Icon name="check_circle" size={20} filled />
           {t("shop.otherOn", { methods: formatList(lang, names) })}
         </p>
@@ -100,6 +97,6 @@ export async function OtherPayments({ app }: { app: App }) {
           payWithinDays: String(manual?.payWithinDays ?? PAY_WITHIN_DAYS.default),
         }}
       />
-    </section>
+    </Section>
   );
 }

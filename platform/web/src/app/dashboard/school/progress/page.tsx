@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { markTopicAction, unmarkTopicAction } from "@/app/actions/school-reports";
 import { Field } from "@/components/form";
+import { Stat, StatRow } from "@/components/page-kit";
+import { ChipLinks } from "@/components/page-kit-c";
 import { Badge, btn, ProgressBar } from "@/components/ui";
 import type { DashKey, DashT } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
@@ -17,9 +19,6 @@ import { FirstNote, isSchool, NotSchool, PageHead, Panel, SchoolPlanNotice } fro
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("reports.progress") };
 }
-
-const pill = (current: boolean) =>
-  `flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${current ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"}`;
 
 const STATUS: Record<ProgressStatus, { key: DashKey; tone: "danger" | "success" | "info" }> = {
   behind: { key: "reports.behind", tone: "danger" },
@@ -62,14 +61,16 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
       <PageHead title={t("reports.progress")} intro={t("reports.progressIntro")} />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
       {classes.length === 0 ? <FirstNote text={t("school.classesFirst")} href="/dashboard/school/classes" /> : null}
+      {/* The page kit: the whole school's numbers, the class chips, then the school's table or the class's subjects. */}
+      {rows && rows.length ? (
+        <StatRow label={t("reports.wholeSchool")}>
+          <Stat icon="warning" tone={rows.some((r) => r.progress.status === "behind") ? "warn" : "neutral"} label={t("reports.behind")} value={rows.filter((r) => r.progress.status === "behind").length} />
+          <Stat icon="check_circle" tone="success" label={t("reports.onPlan")} value={rows.filter((r) => r.progress.status === "on_plan").length} />
+          <Stat icon="rocket_launch" tone="accent" label={t("reports.ahead")} value={rows.filter((r) => r.progress.status === "ahead").length} />
+        </StatRow>
+      ) : null}
       {classes.length ? (
-        <nav aria-label={t("school.classes")} className="flex max-w-[860px] flex-wrap gap-1.5">
-          {[{ id: 0, name: t("reports.wholeSchool") }, ...classes].map((c) => (
-            <Link key={c.id} href={c.id ? `${base}?class=${c.id}` : base} aria-current={(klass?.id ?? 0) === c.id ? "page" : undefined} className={pill((klass?.id ?? 0) === c.id)}>
-              {c.name}
-            </Link>
-          ))}
-        </nav>
+        <ChipLinks label={t("school.classes")} items={[{ id: 0, name: t("reports.wholeSchool") }, ...classes].map((c) => ({ href: c.id ? `${base}?class=${c.id}` : base, label: c.name, current: (klass?.id ?? 0) === c.id }))} />
       ) : null}
       {rows ? (
         <Panel id="h-school-progress" title={t("reports.wholeSchool")} intro={t("reports.wholeSchoolIntro", { date: today })}>
@@ -124,11 +125,11 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
               </div>
               {p.planned ? <p className="m-0 text-[14px] text-ink-4">{t("reports.planSays", { topic: p.planned.title })}</p> : null}
               {p.units.map((u) => (
-                <section key={u.unit.id} aria-label={u.unit.title} className="flex flex-col gap-1">
-                  <h3 className="m-0 text-[15px] font-bold">{u.unit.title}</h3>
+                <section key={u.unit.id} aria-label={u.unit.title} className="flex flex-col overflow-hidden rounded-xl border border-line-soft">
+                  <h3 className="m-0 bg-sand px-4 py-2 text-xs font-bold tracking-[0.4px] text-muted uppercase">{u.unit.title}</h3>
                   <ul className="m-0 flex list-none flex-col p-0">
                     {u.topics.map((x) => (
-                      <li key={x.topic.id} className={`flex flex-col gap-2 border-t border-line-soft py-2.5 first:border-t-0 ${x.due && !x.covered ? "rounded-lg bg-danger-bg/40 px-2" : ""}`} data-topic={x.topic.title}>
+                      <li key={x.topic.id} className={`flex flex-col gap-2 border-t border-line-soft px-4 py-2.5 first:border-t-0 ${x.due && !x.covered ? "bg-danger-bg/40" : ""}`} data-topic={x.topic.title}>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="flex min-w-0 flex-1 flex-col">
                             <span className="text-[15px] font-semibold">{x.topic.title}</span>
@@ -157,7 +158,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
                           ) : null}
                         </div>
                         {x.covered ? null : (
-                          <details className="rounded-lg border border-line-soft px-3 py-2">
+                          <details className="rounded-xl bg-sand px-3 py-2">
                             <summary className="cursor-pointer text-sm font-semibold">{t("reports.markCovered")}</summary>
                             <div className="pt-3">
                               <SchoolForm action={markTopicAction} submit={t("reports.markCovered")}>

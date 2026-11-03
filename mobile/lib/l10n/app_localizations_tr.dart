@@ -8328,4 +8328,81 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get uniAttendanceSaved => 'Yoklama kaydedildi.';
+
+  @override
+  String get hubSignInIntro =>
+      'Teslimat yaptığınız şirketin eklediği cep telefonu numarası veya e-posta adresiyle giriş yapın.';
+
+  @override
+  String get hubCompaniesTitle => 'Şirketleriniz';
+
+  @override
+  String get hubCompaniesIntro => 'Şu anda teslimat yaptığınız şirketi seçin.';
+
+  @override
+  String get hubNoCompaniesTitle => 'Henüz şirket yok';
+
+  @override
+  String get hubNoCompaniesMessage =>
+      'Henüz hiçbir şirket numaranızı veya e-postanızı Yallapp Courier\'da kurye olarak eklemedi. Teslimat yaptığınız şirketten eklemesini isteyin, sonra tekrar kontrol edin.';
+
+  @override
+  String get hubCheckAgain => 'Tekrar kontrol et';
+
+  @override
+  String hubJobsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count iş bekliyor',
+      zero: 'Bekleyen iş yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get hubOffDuty => 'Görev dışı';
+
+  @override
+  String get hubPaused => 'Şirket tarafından duraklatıldı';
+
+  @override
+  String hubPausedMessage(String company) {
+    return '$company sizi kurye olarak duraklattı. Sizi yeniden açmalarını isteyin.';
+  }
+
+  @override
+  String hubCompanyGone(String company) {
+    return '$company artık şirketleriniz arasında değil.';
+  }
+
+  @override
+  String hubSessionEnded(String company) {
+    return '$company oturumunuz sona erdi. Listeden yeniden açın.';
+  }
+
+  @override
+  String get hubCompanyGroup => 'Şirket';
+
+  @override
+  String get hubSwitchCompany => 'Şirket değiştir';
+
+  @override
+  String get hubSignOutMessage =>
+      'Bu telefonda Yallapp Courier\'dan ve tüm şirketlerden çıkış yapılacak.';
+
+  @override
+  String hubOpening(String company) {
+    return '$company açılıyor…';
+  }
+
+  @override
+  String get hubDeleteAccount => 'Yallapp Courier hesabımı sil';
+
+  @override
+  String get hubDeleteAccountTitle => 'Yallapp Courier hesabınız silinsin mi?';
+
+  @override
+  String get hubDeleteAccountMessage =>
+      'Tüm telefonlarda çıkış yapılacak ve tüm şirketlerdeki oturumlarınız sona erecek. Her şirket teslimatlarınızla ilgili kendi kayıtlarını tutar: sizi oradan kaldırmasını şirketten isteyin.';
 }
