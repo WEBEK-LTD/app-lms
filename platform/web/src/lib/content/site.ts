@@ -99,6 +99,37 @@ function legalPage(page: LegalDefault): ContentPage {
 
 /** 20 The editable header of each solution page, by kind (lib/app/kinds.ts); its key, title and address come from the kind. */
 const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: string }> = {
+  // SEO: Studio's kinds of business.
+  food: {
+    eyebrow: "Food delivery apps",
+    title: "Every restaurant you deliver for, in one app",
+    intro:
+      "Customers order from your restaurants and follow the courier on the map; each restaurant runs its orders from its own tab, all managed in Yallapp Studio.",
+  },
+  rides: {
+    eyebrow: "Ride hailing and taxi apps",
+    title: "Your rides and taxis, on your riders' map",
+    intro:
+      "Riders ask for a ride on the map and follow the driver live; your drivers take rides in their own app, all managed in Yallapp Studio.",
+  },
+  school: {
+    eyebrow: "School apps",
+    title: "Your school's day, in every family's pocket",
+    intro:
+      "Students, parents, teachers and staff in one app: the timetable, homework, check-in at the gate, the bus, the library and the parents' area, all managed in Yallapp Studio.",
+  },
+  university: {
+    eyebrow: "University apps",
+    title: "Your university, from registration to results",
+    intro:
+      "Faculties and programs, course registration with advisors, lectures, attendance and results by term with the GPA and transcript, all managed in Yallapp Studio.",
+  },
+  instructors: {
+    eyebrow: "Apps for academies with many teachers",
+    title: "Many teachers, one academy app",
+    intro:
+      "Each teacher with their page, courses and students; teachers build courses in the app and you review them, with shares and statements, all managed in Yallapp Studio.",
+  },
   // SEO: Studio's delivery companies.
   delivery: {
     eyebrow: "Delivery apps",
@@ -254,7 +285,7 @@ export const CONTENT_PAGES: ContentPage[] = [
     intro: "Academies, shops, restaurants, clinics, gyms, events, charities and more each get their own screens, built on the same platform, with or without a website.",
   }),
   ...ALL_SOLUTIONS.map((solution) =>
-    headerPage(solution.contentKey, `Solutions: ${solution.name}`, `/solutions/${solution.id}`, SOLUTION_HEADERS[solution.kind] ?? { eyebrow: `${solution.name} apps`, title: solution.name, intro: solution.summary }),
+    headerPage(solution.contentKey, `Solutions: ${solution.name}`, `/solutions/${solution.id}`, SOLUTION_HEADERS[solution.key] ?? { eyebrow: `${solution.name} apps`, title: solution.name, intro: solution.summary }),
   ),
   headerPage("features", "Features", "/features", {
     eyebrow: "Features",

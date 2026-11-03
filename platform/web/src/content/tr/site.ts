@@ -36,6 +36,31 @@ export const TR_SITE: SiteContentTranslation = {
     title: "İşletmenizin çalışma şekline uygun bir uygulama",
     intro: "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, etkinlikler, yardım kuruluşları ve daha fazlası; web siteli ya da web sitesiz, aynı platformda kendi ekranlarıyla.",
   },
+  "solution-food": {
+    eyebrow: "Yemek teslimatı uygulamaları",
+    title: "Teslimat yaptığınız tüm restoranlar, tek uygulamada",
+    intro: "Müşteriler restoranlarınızdan sipariş verir ve kuryeyi haritada takip eder; her restoran siparişlerini kendi sekmesinden yönetir, hepsi Yallapp Studio'dan.",
+  },
+  "solution-rides": {
+    eyebrow: "Yolculuk ve taksi uygulamaları",
+    title: "Yolculuklarınız ve taksileriniz, yolcularınızın haritasında",
+    intro: "Yolcular haritada yolculuk ister ve sürücüyü canlı takip eder; sürücüleriniz kendi uygulamalarında yolculuk alır, hepsi Yallapp Studio'dan yönetilir.",
+  },
+  "solution-school": {
+    eyebrow: "Okul uygulamaları",
+    title: "Okulunuzun günü, her ailenin cebinde",
+    intro: "Öğrenciler, veliler, öğretmenler ve personel tek uygulamada: ders programı, ödevler, kapıda giriş, servis, kütüphane ve veli alanı, hepsi Yallapp Studio'dan yönetilir.",
+  },
+  "solution-university": {
+    eyebrow: "Üniversite uygulamaları",
+    title: "Üniversiteniz, kayıttan sonuçlara",
+    intro: "Fakülteler ve programlar, danışmanlarla ders kaydı, dersler ve yoklama, not ortalaması ve transkriptle dönem sonuçları, hepsi Yallapp Studio'dan yönetilir.",
+  },
+  "solution-instructors": {
+    eyebrow: "Çok öğretmenli akademi uygulamaları",
+    title: "Birçok öğretmen, tek akademi uygulaması",
+    intro: "Her öğretmen sayfası, kursları ve öğrencileriyle; öğretmenler kursları uygulamada oluşturur ve siz incelersiniz, paylar ve hesap dökümleriyle, hepsi Yallapp Studio'dan.",
+  },
   "solution-delivery": {
     eyebrow: "Teslimat uygulamaları",
     title: "Teslimat şirketiniz, müşterilerinizin cebinde",

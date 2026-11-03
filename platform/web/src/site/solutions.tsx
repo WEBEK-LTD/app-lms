@@ -173,7 +173,7 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
             <p className="m-0 text-[16px] leading-relaxed text-ink-4">{formatMessage(lang, t.tryText, { demoApp: s.demoApp })}</p>
           </div>
           <Link
-            href={studio ? `${lp("/demo/studio")}#${s.id}` : `${lp("/demo")}#${s.id}`}
+            href={studio ? `${lp("/demo/studio")}#${s.demoSlug}` : `${lp("/demo")}#${s.demoSlug}`}
             className="flex h-[50px] items-center gap-2.5 rounded-xl bg-midnight px-[22px] text-base font-bold text-white no-underline hover:bg-ink-3 hover:text-white"
           >
             <Icon name="smartphone" size={20} />

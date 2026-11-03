@@ -214,7 +214,7 @@ export const tr: Messages = {
     ogFallback: "İşletmenizin çalışma şekline uygun bir uygulama",
     faqTitle: "Sorular ve yanıtlar",
     studioTitle: "Yallapp Studio'da yapılır",
-    studioText: "Teslimat uygulamaları Yallapp Studio projeleridir: her sayfayı özgürce tasarlayın, Studio'nun kendi paketleriyle.",
+    studioText: "Bu uygulamalar Yallapp Studio projeleridir: her sayfayı özgürce tasarlayın, Studio'nun kendi paketleriyle.",
     studioButton: "Yallapp Studio'ya göz atın",
   },
   features: {

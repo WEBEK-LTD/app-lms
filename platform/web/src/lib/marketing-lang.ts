@@ -60,7 +60,7 @@ function localizeSolutions(list: Solution[], lang: Lang): LocalizedSolution[] {
   return list.map((s) => {
     const lower = s.name.toLowerCase();
     const english = { ...s, appsTitle: `${s.name} apps`, apps: `${lower} apps`, app: `${lower} app`, demo: `${lower} demo`, demoApp: `${lower} demo app` };
-    const x = t?.solutions[s.kind];
+    const x = t?.solutions[s.key];
     if (!x) return english;
     return {
       ...english,

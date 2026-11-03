@@ -1,5 +1,5 @@
 import type { IconName } from "@/components/icon-names";
-import { KINDS, kindById } from "./app/kinds";
+import { demoSlugOfKind, KINDS, kindById } from "./app/kinds";
 import { ALL_STORES_TEXT, MORE_ANDROID_STORES_TEXT } from "./stores";
 
 /** "a, b and c" (or "a, b or c"). */
@@ -167,6 +167,8 @@ interface SolutionCopy {
   faq?: { q: string; a: string }[];
   /** SEO: the page's own short name ("Delivery") when the kind's ("Delivery & couriers") reads badly in its titles. */
   pageName?: string;
+  /** SEO: the page's address and key when it isn't the kind's ("university", a School project in university mode). */
+  slug?: string;
 }
 
 export interface Solution extends SolutionCopy {
@@ -174,6 +176,10 @@ export interface Solution extends SolutionCopy {
   id: string;
   /** The content key of the page's editable header (lib/content/site.ts). */
   contentKey: string;
+  /** SEO: its translations' and header's key: the page's own slug, else the kind. */
+  key: string;
+  /** SEO: its demo's anchor on /demo or /demo/studio (the kind's demo, else the page's id). */
+  demoSlug: string;
   name: string;
   icon: IconName;
 }
@@ -729,7 +735,7 @@ const SOLUTION_COPY: SolutionCopy[] = [
 export const SOLUTIONS: Solution[] = SOLUTION_COPY.map((copy) => {
   const kind = kindById(copy.kind);
   if (!kind) throw new Error(`Unknown kind ${copy.kind}`);
-  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: kind.name, icon: kind.marketing.icon };
+  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, key: copy.kind, demoSlug: kind.marketing.slug, name: kind.name, icon: kind.marketing.icon };
 });
 
 /**
@@ -814,12 +820,397 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
       },
     ],
   },
+  {
+    kind: "food",
+    pageName: "Food delivery",
+    summary: "Restaurants, their menus, orders and couriers, in one food delivery app.",
+    audience: "Food delivery companies, and groups of restaurants that deliver.",
+    screens: ["food-restaurants", "food-menu", "food-order"],
+    sources: ["No website: restaurants, menus, couriers and orders managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "restaurant",
+        title: "Many restaurants, one app",
+        text: "Each restaurant with its hours, its menu and the choices on its dishes. Customers filter the restaurants and order from one at a time.",
+      },
+      {
+        icon: "storefront",
+        title: "A tab for each restaurant",
+        text: "The restaurant's staff get new orders with a sound, accept them with a time, turn them down, mark them ready, and set the restaurant open or busy.",
+      },
+      {
+        icon: "map",
+        title: "The courier on the map",
+        text: "While an order is on its way, the customer follows the courier on the map with the pickup, the drop-off, the route and the time left.",
+      },
+      {
+        icon: "payments",
+        title: "Cash or card, and statements",
+        text: "Customers pay by card or in cash. You set each restaurant's commission and see its statement.",
+      },
+      {
+        icon: "my_location",
+        title: "The address in a tap",
+        text: "Customers tap My location and the address is filled in, or search for a place by name.",
+      },
+    ],
+    inTheApp: [
+      "Browse and filter the restaurants",
+      "Open a restaurant's menu and choose each dish's options",
+      "Fill the cart and check out, by card or in cash",
+      "Fill the address with My location or a place's name",
+      "Follow the order's stages, and the courier on the map",
+      "Rate the order",
+    ],
+    forYou: [
+      "Restaurants: their details, hours, menu, staff and commission",
+      "Food orders, and a statement for each restaurant",
+      "Couriers and the delivery settings, shared with delivery apps",
+      "A separate app for your couriers, under your name",
+    ],
+    docs: [
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Can each restaurant handle its own orders?",
+        a: "Yes. The restaurant's staff have a Restaurant tab: new orders arrive with a sound, and they accept with a time, turn down, mark ready, or set the restaurant open or busy.",
+      },
+      {
+        q: "Who delivers the orders?",
+        a: "Your couriers, in their own app under your company's name. They get the job, the route and the cash to collect.",
+      },
+      {
+        q: "Does the customer see the courier?",
+        a: "Yes, while the order is on its way: the courier on the map with the pickup, the drop-off, the route and the time left.",
+      },
+      {
+        q: "How do customers pay?",
+        a: "By card or in cash, as you choose for your app.",
+      },
+      {
+        q: "Is a food delivery app a Yallapp Studio project?",
+        a: "Yes. Food delivery apps are made in Yallapp Studio and have Studio's own plans.",
+      },
+    ],
+  },
+  {
+    kind: "rides",
+    pageName: "Ride and taxi",
+    summary: "Riders ask for a ride on the map, drivers take it, and both follow it live.",
+    audience: "Ride hailing and taxi companies.",
+    screens: ["taxi-map", "rides-ride", "rides-driver"],
+    sources: ["No website: vehicle types, fares, drivers and rides managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "map",
+        title: "The map is home",
+        text: "Riders start from \"Where to?\", move the pickup on the map, and see the route with each vehicle type's fare before they ask.",
+      },
+      {
+        icon: "local_taxi",
+        title: "Taxis around, live",
+        text: "For a taxi company, riders see the taxis around them on the map, and follow the driver coming and then the trip.",
+      },
+      {
+        icon: "directions_car",
+        title: "An app for your drivers",
+        text: "Drivers go online, get one offer at a time with the seconds left, accept or decline, follow each stage with the rider's code, see the cash to collect and their earnings.",
+      },
+      {
+        icon: "my_location",
+        title: "Places found in seconds",
+        text: "Riders search for a place by name, or tap My location and the pickup's address is filled in.",
+      },
+      {
+        icon: "verified_user",
+        title: "Safer rides",
+        text: "The driver's car and a code to check, sharing the ride, and an emergency button during the trip.",
+      },
+    ],
+    inTheApp: [
+      "Choose where to: by name, with My location, a maps link or on the map",
+      "Ride now or later",
+      "Pick a vehicle type, with its fare and how soon",
+      "Follow the driver coming, with the car and the code",
+      "Pay a card ride, or pay the driver in cash, then rate",
+      "See my rides, share a ride, and use the emergency button",
+    ],
+    forYou: [
+      "Rides: the drivers online now, give a ride to a driver, cancel",
+      "Drivers: their documents, approve, suspend",
+      "Vehicle types and their fares, areas and promo codes",
+      "Statements and the company's share",
+      "A separate app for your drivers, under your name",
+    ],
+    docs: [
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Do drivers use a separate app?",
+        a: "Yes. Your drivers have their own app under your company's name, with their offers, rides and earnings.",
+      },
+      {
+        q: "Is the driver's position shared all the time?",
+        a: "No. A driver's position is sent while they are online with the app's screen open.",
+      },
+      {
+        q: "How are fares set?",
+        a: "You set each vehicle type's fare in Vehicle types and fares, with your areas and promo codes. Riders see the fare before they ask.",
+      },
+      {
+        q: "How do riders pay?",
+        a: "By card or in cash to the driver, as you choose.",
+      },
+      {
+        q: "Is a rides or taxi app a Yallapp Studio project?",
+        a: "Yes. Ride hailing and taxi apps are made in Yallapp Studio and have Studio's own plans.",
+      },
+    ],
+  },
+  {
+    kind: "school",
+    summary: "The timetable, homework, attendance, parents and teachers, in your school's app.",
+    audience: "Schools, with their students, parents, teachers and staff.",
+    screens: ["school-today", "school-homework", "school-classroom"],
+    sources: ["No website: classes, people and the school day managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "groups",
+        title: "Every role in one app",
+        text: "Students, parents, teachers and staff each see their own tabs. Parents switch between their children with one account.",
+      },
+      {
+        icon: "qr_code_2",
+        title: "Check in at the gate",
+        text: "Students, teachers and staff check in and out with the gate's code, which changes every 30 seconds, so an old photo of it doesn't work.",
+      },
+      {
+        icon: "child_care",
+        title: "The parents' area",
+        text: "Each child's day at a glance: check-in times, lessons, homework due, the latest grades, the bus and library books, and messages with teachers when the school allows them.",
+      },
+      {
+        icon: "directions_bus",
+        title: "The bus and the library",
+        text: "Parents follow the school bus on the map and are told when it's near. Books are reserved from the app and read as e-books.",
+      },
+      {
+        icon: "payments",
+        title: "Fees and salaries, recorded by hand",
+        text: "Fees and receipts in the app. Salaries are recorded as paid in cash or by bank transfer, never through a payment gateway.",
+      },
+    ],
+    inTheApp: [
+      "The timetable, announcements and the school's calendar",
+      "Homework, and handing it in",
+      "Grades, attendance and the exams' timetable",
+      "Check in and out with the gate's code",
+      "Library books and the school bus",
+      "Messages with teachers, when the school allows them",
+    ],
+    forYou: [
+      "The school's structure and people, imported from a sheet",
+      "Timetable, attendance, homework and grades",
+      "Fees and receipts",
+      "The calendar, exams and behaviour",
+      "Staff, leave requests and salaries recorded by hand",
+      "Bus routes and the library",
+    ],
+    docs: [
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Can parents with several children use one account?",
+        a: "Yes. A parent switches between their children in the app and sees each child's day.",
+      },
+      {
+        q: "How does checking in at the gate work?",
+        a: "The gate shows a code that changes every 30 seconds. Students, teachers and staff scan it or type it in the app; an old code doesn't work.",
+      },
+      {
+        q: "Can parents message teachers?",
+        a: "When the school allows it: a parent only with their children's teachers, and a student only with their own.",
+      },
+      {
+        q: "Are salaries paid through the app?",
+        a: "No. Salaries are recorded by hand as paid in cash or by bank transfer, never through a payment gateway.",
+      },
+      {
+        q: "Is a school app a Yallapp Studio project?",
+        a: "Yes. School apps are made in Yallapp Studio and have Studio's own plans.",
+      },
+    ],
+  },
+  {
+    kind: "school",
+    slug: "university",
+    pageName: "University",
+    summary: "Faculties, programs, course registration and results by term, in your university's app.",
+    audience: "Universities, colleges and institutes.",
+    screens: ["school-today", "school-classroom", "school-homework"],
+    sources: ["No website: faculties, programs, courses and terms managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "apartment",
+        title: "Faculties, departments and programs",
+        text: "Each program with its degree, the credits to graduate, its years, the credits allowed each term and its study plan.",
+      },
+      {
+        icon: "event_available",
+        title: "Registration in the app",
+        text: "Students register for sections with the seats left, lectures that don't clash, prerequisites passed and their program's credits, with a waiting list for full sections.",
+      },
+      {
+        icon: "task_alt",
+        title: "Advisors who approve",
+        text: "Each registration goes to the student's advisor, who approves it or sends it back with a note. Students drop courses until the term's date.",
+      },
+      {
+        icon: "workspace_premium",
+        title: "Results by term",
+        text: "Results by term with the term and cumulative GPA, the transcript in the app and as a PDF, and the study plan done, in progress and left.",
+      },
+      {
+        icon: "groups",
+        title: "Lecturers, staff and parents",
+        text: "Lecturers take each lecture's attendance and enter grades. Parents see their child's results, read only.",
+      },
+    ],
+    inTheApp: [
+      "Register for courses in the term's window",
+      "See the seats left and join a waiting list",
+      "The week's lectures as a timetable",
+      "Results by term, with the GPA",
+      "The transcript, and the study plan done and left",
+      "The university's news and fees",
+    ],
+    forYou: [
+      "Faculties, departments and programs, with their study plans",
+      "Courses and their prerequisites, imported from a sheet",
+      "Terms, sections, lecturers and seats",
+      "Each student's program and advisor",
+      "Published results and transcripts",
+    ],
+    docs: [
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Can students register for courses in the app?",
+        a: "Yes, in the term's registration window: with the seats left, no clashing lectures, the prerequisites passed and their program's credits.",
+      },
+      {
+        q: "What happens when a section is full?",
+        a: "Students join a waiting list, and the first one who fits takes a freed seat.",
+      },
+      {
+        q: "Who approves a registration?",
+        a: "The student's advisor, who approves it or sends it back with a note. The office can also add and drop courses.",
+      },
+      {
+        q: "Can students get their transcript?",
+        a: "Yes, in the app and as a PDF, with the term and cumulative GPA.",
+      },
+      {
+        q: "Is a university app a Yallapp Studio project?",
+        a: "Yes. It's a School project in university mode, made in Yallapp Studio, with Studio's own plans.",
+      },
+    ],
+  },
+  {
+    kind: "instructors",
+    pageName: "Academy with many teachers",
+    summary: "Many teachers, their courses and their students, in one academy app.",
+    audience: "Academies and training centres that work with many teachers.",
+    screens: ["teachers-list", "teachers-teacher", "teachers-desk"],
+    sources: ["No website: teachers, courses and their shares managed in Yallapp Studio"],
+    highlights: [
+      {
+        icon: "person",
+        title: "A page for each teacher",
+        text: "About the teacher, their courses, students, followers and reviews. Students follow teachers and rate them in one of their courses.",
+      },
+      {
+        icon: "edit",
+        title: "A Teacher tab",
+        text: "Teachers build their courses in the app: sections and lessons with a video link, an uploaded video or PDF, or text. They send them for review and answer students' questions.",
+      },
+      {
+        icon: "assignment",
+        title: "Courses reviewed first",
+        text: "A teacher's course goes live once you publish it, or comes back to them with your note.",
+      },
+      {
+        icon: "payments",
+        title: "Shares and statements",
+        text: "Each teacher's share is a percent you set, and their statement comes from paid orders after coupons and refunds, for any period.",
+      },
+      {
+        icon: "school",
+        title: "A real course builder",
+        text: "Quizzes, assignments handed in from the app, live classes, course bundles, learning paths with points and badges, and certificates.",
+      },
+    ],
+    inTheApp: [
+      "Find teachers by name and subject",
+      "A teacher's page, with their courses and reviews",
+      "Follow teachers and rate them",
+      "Take courses with quizzes, assignments and live classes",
+      "Buy a bundle of courses",
+      "Apply to teach",
+    ],
+    forYou: [
+      "Teachers: add them, set their share, feature or suspend them",
+      "Applications to teach, and whether people may apply",
+      "Courses to review: publish, or return with a note",
+      "Teacher statements for any period",
+      "Bundles, coupons and learning paths",
+    ],
+    docs: [
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+      { href: "/docs/courses", label: "Courses without a website" },
+    ],
+    faq: [
+      {
+        q: "Can anyone apply to teach?",
+        a: "Only if you allow applications. You see each application and answer it in Yallapp Studio.",
+      },
+      {
+        q: "Do teachers' courses go live at once?",
+        a: "No. A course is sent for review, and you publish it or return it with a note.",
+      },
+      {
+        q: "How are teachers' shares worked out?",
+        a: "Each teacher's share is a percent you set. Their statement comes from paid orders after coupons and refunds, for any period.",
+      },
+      {
+        q: "Can teachers upload videos?",
+        a: "Yes. A lesson can have a video link, an uploaded video or PDF, or text.",
+      },
+      {
+        q: "Is an academy with many teachers a Yallapp Studio project?",
+        a: "Yes. These academies are made in Yallapp Studio and have Studio's own plans.",
+      },
+    ],
+  },
 ];
 
 function solutionFromCopy(copy: SolutionCopy): Solution {
   const kind = kindById(copy.kind);
   if (!kind) throw new Error(`Unknown kind ${copy.kind}`);
-  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: copy.pageName ?? kind.name, icon: kind.marketing.icon };
+  const id = copy.slug ?? kind.marketing.slug;
+  return {
+    ...copy,
+    id,
+    contentKey: `solution-${id}`,
+    key: copy.slug ?? copy.kind,
+    demoSlug: demoSlugOfKind(kind) ?? id,
+    name: copy.pageName ?? kind.name,
+    icon: kind.marketing.icon,
+  };
 }
 
 /** SEO: Studio's kinds with a page of their own. */
