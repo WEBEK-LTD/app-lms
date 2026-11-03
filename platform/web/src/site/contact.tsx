@@ -95,7 +95,7 @@ export async function ContactPage({ lang }: { lang: Lang }) {
 
 export function faqMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
-  return siteMetadata(lang, { title: m.faqTitle, path: "/faq", description: m.faqDescription });
+  return siteMetadata(lang, { title: m.faqTitle, path: "/faq", description: m.faqDescription, image: "/faq/opengraph-image" });
 }
 
 export async function FaqPage({ lang }: { lang: Lang }) {

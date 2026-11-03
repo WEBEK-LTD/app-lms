@@ -366,7 +366,7 @@ export const ar: Messages = {
     howText: "تُصنع مشاريع Studio في Yallapp Studio داخل حسابك: اختر نوع المشروع ومصدر محتواه وقالبًا، ثم صمّم صفحاته في المحرر. أما خطوات الإعداد والبناء والنشر فهي نفسها المذكورة هنا.",
     regularDemos: "تطبيقات العرض للتطبيقات العادية",
     metaTitle: "Yallapp Studio",
-    metaDescription: "صمّم تطبيقك على Android وiOS بحرية في المحرر المرئي لـ Yallapp Studio، ويرسمه الهاتف بشكل أصلي، واصنع تطبيقات لشركات التوصيل وتوصيل الطعام وتوصيل الركاب وسيارات الأجرة والأكاديميات بمدرسين كثيرين والمدارس والجامعات. ولمشاريع Studio باقاتها الخاصة.",
+    metaDescription: "صمّم تطبيقك بحرية في Yallapp Studio: تطبيقات لشركات التوصيل وتوصيل الطعام والتاكسي وتوصيل الركاب والأكاديميات بمدرسين كثيرين والمدارس والجامعات.",
     demoMetaTitle: "عرض Yallapp Studio",
     demoMetaDescription: "شاشات من مشاريع Yallapp Studio حقيقية: الصفحة الرئيسية لمقهى صُممت في المحرر وتطبيق شركة توصيل، والمحرر نفسه.",
   },
@@ -583,17 +583,24 @@ export const ar: Messages = {
     solutionAlt: "أحد أنواع تطبيقات Yallapp",
     docAlt: "مقالة من دليل Yallapp",
     docEyebrow: "الدليل · {section}",
+    studioAlt: "Yallapp Studio",
+    studioEyebrow: "Yallapp Studio",
+    studioTitle: "صمّم تطبيقك بحرية.",
+    studioText: "تطبيقات لشركات التوصيل مع Yallapp Courier، وتوصيل الطعام، والتاكسي وتوصيل الركاب، والأكاديميات بمدرسين كثيرين، والمدارس والجامعات.",
+    featuresAlt: "مزايا Yallapp",
+    featuresTitle: "كل ما يحتاجه تطبيقك.",
+    featuresText: "علامتك التجارية وصفحاتك، وثلاث لغات، وتسجيل الدخول برمز، والإشعارات، والدفع بالبطاقة، وخرائط حيّة للمناديب والسائقين، وأدوات للمدارس.",
+    faqAlt: "الأسئلة الشائعة عن Yallapp",
+    faqTitle: "أسئلة وإجابات.",
+    faqText: "البدء، ومصادر المحتوى، ومتاجر التطبيقات الخمسة، والإشعارات، والمدفوعات، واللغات، والباقات، وYallapp Studio وYallapp Courier.",
   },
   meta: {
     defaultTitle: "Yallapp: نشاطك التجاري في تطبيق جوّال خاص بك",
-    defaultDescription:
-      "تطبيقات Android وiOS بعلامتك التجارية للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية والفعاليات والجمعيات الخيرية وغيرها، على Google Play وApp Store وGalaxy Store وAppGallery وGetApps، من موقع WordPress أو Shopify ومنصات أخرى، أو من واجهتك البرمجية الخاصة، أو من دون موقع على الإطلاق.",
+    defaultDescription: "تطبيق بعلامتك التجارية للمتاجر والأكاديميات والمدارس والمطاعم والعيادات وشركات التوصيل والتاكسي، على Google Play وApp Store وGalaxy Store وAppGallery وGetApps.",
     solutionsTitle: "الحلول",
-    solutionsDescription:
-      "تطبيقات بعلامتك التجارية للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية ومكاتب العقارات والمواقع الإخبارية والفعاليات والجمعيات الخيرية، بموقع إلكتروني أو من دونه.",
+    solutionsDescription: "تطبيقات بعلامتك التجارية للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية والعقارات والأخبار والفعاليات والجمعيات الخيرية، بموقع أو من دونه.",
     featuresTitle: "المزايا",
-    featuresDescription:
-      "علامتك التجارية، ومحرّر صفحات بالسحب والإفلات، والوضعان الفاتح والداكن، والعربية والإنجليزية والتركية، وتسجيل الدخول برمز، والإشعارات الفورية، والدفع بالبطاقة، والنشر على Google Play وApp Store وGalaxy Store وAppGallery وGetApps.",
+    featuresDescription: "علامتك التجارية، ومحرّر صفحات، والعربية والإنجليزية والتركية، وتسجيل الدخول برمز، والإشعارات، والدفع بالبطاقة، وخرائط حيّة للمناديب والسائقين، وأدوات للمدارس.",
     integrationsTitle: "التكاملات",
     integrationsDescription:
       "WordPress مع Tutor LMS وLearnPress وLifterLMS وMasterStudy وSensei وMasteriyo وLearnDash وWooCommerce وAmelia وBookingPress وLatePoint؛ وShopify وikas وTicimax وIdeaSoft وWix وSalla وZid وTeachable وThinkific وSimplyBook.me؛ أو واجهتك البرمجية الخاصة؛ أو من دون موقع.",
@@ -601,16 +608,13 @@ export const ar: Messages = {
     howDescription:
       "من التسجيل حتى Google Play وApp Store وGalaxy Store وAppGallery وGetApps في {count} خطوات، بموقعك الإلكتروني أو منصة إلكترونية أو واجهتك البرمجية الخاصة أو من دون موقع على الإطلاق.",
     pricingTitle: "الأسعار",
-    pricingDescription:
-      "أربع باقات لتطبيقك: Starter وGrowth وPro وBusiness. تطبيقات Android وiOS على Google Play وApp Store وGalaxy Store وAppGallery وGetApps، وإشعارات فورية، وصفحاتك الخاصة، والدفع بالبطاقة، والعمل دون اتصال، ونشر نتولّاه عنك.",
+    pricingDescription: "أربع باقات لتطبيقك: Starter وGrowth وPro وBusiness، بتطبيقات على متاجر التطبيقات الخمسة، وإشعارات، ودفع بالبطاقة، ونشر نتولّاه عنك.",
     demoTitle: "جرّب تطبيقًا تجريبيًا",
-    demoDescription:
-      "ثبّت تطبيقًا حقيقيًا من Yallapp على هاتف Android: أكاديمية أو متجر أو مقهى أو تطبيق حجوزات أو عيادة أو صالة رياضية أو تطبيق عقارات أو أخبار أو فعاليات أو جمعية خيرية، بمحتوى تجريبي.",
+    demoDescription: "ثبّت تطبيقًا حقيقيًا من Yallapp على هاتف Android بمحتوى تجريبي: أكاديمية أو متجر أو مقهى أو حجوزات أو عيادة أو صالة رياضية أو عقارات أو أخبار أو فعاليات أو جمعية خيرية.",
     contactTitle: "تواصل معنا",
     contactDescription: "تحدّث مع فريق Yallapp على WhatsApp أو عبر البريد الإلكتروني. مقرّ Yallapp في القاهرة، مصر، ويعمل مع أنشطة تجارية في دول كثيرة.",
     faqTitle: "الأسئلة الشائعة",
-    faqDescription:
-      "إجابات عن البدء ومصادر المحتوى والنشر على Google Play وApp Store وGalaxy Store وAppGallery وGetApps، والإشعارات الفورية والمدفوعات واللغات والباقات وتعدد التطبيقات في الحساب الواحد والأمان والدعم.",
+    faqDescription: "إجابات عن Yallapp: البدء، ومصادر المحتوى، ومتاجر التطبيقات الخمسة، والإشعارات، والمدفوعات، واللغات، والباقات، وYallapp Studio وYallapp Courier.",
     docsTitle: "الدليل",
     developersTitle: "مرجع API",
     termsTitle: "شروط الخدمة",

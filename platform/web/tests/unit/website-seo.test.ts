@@ -525,3 +525,32 @@ describe("67 Google: the favicon, and every public page indexed", () => {
     }
   });
 });
+
+describe("SEO search snippets and share images", () => {
+  it("keeps the main pages' descriptions short enough for search results, in every language", () => {
+    for (const lang of LANGS) {
+      const m = messagesFor(lang);
+      const descriptions = {
+        default: m.meta.defaultDescription,
+        solutions: m.meta.solutionsDescription,
+        features: m.meta.featuresDescription,
+        pricing: m.meta.pricingDescription,
+        demo: m.meta.demoDescription,
+        faq: m.meta.faqDescription,
+        studio: m.studio.metaDescription,
+      };
+      for (const [page, text] of Object.entries(descriptions)) expect(text.length, `${lang} ${page}`).toBeLessThanOrEqual(170);
+    }
+  });
+
+  it("gives Yallapp Studio, Features and the FAQ their own share image, in English, Arabic and Turkish", () => {
+    for (const page of ["yallapp-studio", "features", "faq"]) {
+      expect(existsSync(path.join("src/app", page, "opengraph-image.tsx")), page).toBe(true);
+      expect(existsSync(path.join("src/app/[lang]", page, "opengraph-image.tsx")), page).toBe(true);
+    }
+    for (const lang of LANGS) {
+      const og = messagesFor(lang).og;
+      for (const text of [og.studioTitle, og.studioText, og.featuresTitle, og.featuresText, og.faqTitle, og.faqText]) expect(text.trim().length, lang).toBeGreaterThan(0);
+    }
+  });
+});

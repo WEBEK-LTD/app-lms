@@ -366,7 +366,7 @@ export const tr: Messages = {
     howText: "Studio projeleri hesabındaki Yallapp Studio'da yapılır: proje türünü, içeriğin nereden geleceğini ve bir şablonu seç, ardından sayfalarını düzenleyicide tasarla. Kurulum adımları, derleme ve yayınlama burada anlatılanla aynıdır.",
     regularDemos: "Normal uygulamaların demo uygulamaları",
     metaTitle: "Yallapp Studio",
-    metaDescription: "Android ve iOS uygulamanı Yallapp Studio'nun görsel düzenleyicisinde özgürce tasarla, telefonda yerel olarak çizilsin; teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler için uygulamalar yap. Studio projelerinin kendi planları vardır.",
+    metaDescription: "Uygulamanı Yallapp Studio'da özgürce tasarla: teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksi, çok öğretmenli akademiler, okullar ve üniversiteler için.",
     demoMetaTitle: "Yallapp Studio demosu",
     demoMetaDescription: "Gerçek Yallapp Studio projelerinden ekranlar: düzenleyicide tasarlanmış bir kafenin ana sayfası, bir teslimat şirketinin uygulaması ve düzenleyicinin kendisi.",
   },
@@ -585,17 +585,24 @@ export const tr: Messages = {
     solutionAlt: "Bir Yallapp uygulama türü",
     docAlt: "Bir Yallapp belge makalesi",
     docEyebrow: "Belgeler · {section}",
+    studioAlt: "Yallapp Studio",
+    studioEyebrow: "Yallapp Studio",
+    studioTitle: "Uygulamanı özgürce tasarla.",
+    studioText: "Yallapp Courier ile teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksi, çok öğretmenli akademiler, okullar ve üniversiteler için uygulamalar.",
+    featuresAlt: "Yallapp özellikleri",
+    featuresTitle: "Uygulamanızın ihtiyacı olan her şey.",
+    featuresText: "Markanız ve sayfalarınız, üç dil, kodla giriş, bildirimler, kartla ödeme, kurye ve sürücüler için canlı harita ve okullar için araçlar.",
+    faqAlt: "Yallapp SSS",
+    faqTitle: "Sorular ve yanıtlar.",
+    faqText: "Başlarken, içerik kaynakları, beş uygulama mağazası, bildirimler, ödemeler, diller, paketler, Yallapp Studio ve Yallapp Courier.",
   },
   meta: {
     defaultTitle: "Yallapp: işletmeniz, kendi mobil uygulamanız olarak",
-    defaultDescription:
-      "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, etkinlikler, yardım kuruluşları ve daha fazlası için markanızı taşıyan Android ve iOS uygulamaları; Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te; WordPress sitenizden, Shopify ve diğer platformlardan, kendi API'nizden ya da hiç web sitesi olmadan.",
+    defaultDescription: "Mağaza, akademi, okul, restoran, klinik, kurye ve taksi işletmeleri için markanızı taşıyan uygulama; Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te.",
     solutionsTitle: "Çözümler",
-    solutionsDescription:
-      "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, emlak ofisleri, haber siteleri, etkinlikler ve yardım kuruluşları için web siteli ya da web sitesiz, markanızı taşıyan uygulamalar.",
+    solutionsDescription: "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, emlak, haber, etkinlik ve yardım kuruluşları için web siteli ya da sitesiz markalı uygulamalar.",
     featuresTitle: "Özellikler",
-    featuresDescription:
-      "Markanız, sürükle-bırak sayfa düzenleyici, açık ve koyu tema, Türkçe, İngilizce ve Arapça, kodla giriş, anlık bildirimler, kartla ödeme ve Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te yayın.",
+    featuresDescription: "Markanız, sayfa düzenleyici, Türkçe, İngilizce ve Arapça, kodla giriş, bildirimler, kartla ödeme, kurye ve sürücüler için canlı harita ve okul araçları.",
     integrationsTitle: "Entegrasyonlar",
     integrationsDescription:
       "Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress ve LatePoint ile WordPress; Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific, SimplyBook.me; kendi API'niz; ya da web sitesi olmadan.",
@@ -603,16 +610,13 @@ export const tr: Messages = {
     howDescription:
       "Web sitenizle, bir çevrimiçi platformla, kendi API'nizle ya da hiç web sitesi olmadan; kayıttan Google Play, App Store, Galaxy Store, AppGallery ve GetApps'e {count} adımda.",
     pricingTitle: "Fiyatlar",
-    pricingDescription:
-      "Uygulamanız için dört paket: Starter, Growth, Pro ve Business. Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te Android ve iOS uygulamaları, anlık bildirimler, kendi sayfalarınız, kartla ödeme, çevrimdışı mod ve sizin için yapılan yayın.",
+    pricingDescription: "Uygulamanız için dört paket: Starter, Growth, Pro ve Business; beş uygulama mağazasında uygulamalar, bildirimler, kartla ödeme ve sizin için yayın.",
     demoTitle: "Bir demo uygulama deneyin",
-    demoDescription:
-      "Android telefonunuza gerçek bir Yallapp uygulaması kurun: örnek içerikli bir akademi, mağaza, kafe, randevu uygulaması, klinik, spor salonu, emlak, haber, etkinlik ya da yardım kuruluşu uygulaması.",
+    demoDescription: "Android telefonunuza örnek içerikli gerçek bir Yallapp uygulaması kurun: akademi, mağaza, kafe, randevu, klinik, spor salonu, emlak, haber, etkinlik ya da yardım.",
     contactTitle: "İletişim",
     contactDescription: "Yallapp ekibiyle WhatsApp'tan ya da e-postayla görüşün. Yallapp'in merkezi Kahire, Mısır'dadır ve birçok ülkedeki işletmelerle çalışır.",
     faqTitle: "SSS",
-    faqDescription:
-      "Başlarken, içerik kaynakları, Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te yayın, anlık bildirimler, ödemeler, diller, paketler, hesap başına birden fazla uygulama, güvenlik ve destek hakkında yanıtlar.",
+    faqDescription: "Yallapp hakkında yanıtlar: başlarken, içerik kaynakları, beş uygulama mağazası, bildirimler, ödemeler, diller, paketler, Yallapp Studio ve Yallapp Courier.",
     docsTitle: "Belgeler",
     developersTitle: "API referansı",
     termsTitle: "Hizmet şartları",
