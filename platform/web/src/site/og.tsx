@@ -32,3 +32,19 @@ export async function docOgImage(lang: Lang, slug: string) {
   const text = await getSiteContent(article.key, lang);
   return ogImage({ eyebrow: formatMessage(lang, m.og.docEyebrow, { section: docSectionName(lang, article.section) }), title: text.title!, text: text.description, lang });
 }
+
+/** SEO: the share images of Yallapp Studio, Features and the FAQ, in the page's language. */
+export function studioOgImage(lang: Lang) {
+  const m = messagesFor(lang).og;
+  return ogImage({ eyebrow: m.studioEyebrow, title: m.studioTitle, text: m.studioText, lang });
+}
+
+export function featuresOgImage(lang: Lang) {
+  const m = messagesFor(lang);
+  return ogImage({ eyebrow: m.meta.featuresTitle, title: m.og.featuresTitle, text: m.og.featuresText, lang });
+}
+
+export function faqOgImage(lang: Lang) {
+  const m = messagesFor(lang);
+  return ogImage({ eyebrow: m.meta.faqTitle, title: m.og.faqTitle, text: m.og.faqText, lang });
+}

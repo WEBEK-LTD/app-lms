@@ -377,7 +377,7 @@ export const en = {
     howText: "Studio projects are made in Yallapp Studio, in your account: pick the kind of project, where its content comes from and a template, then design its pages in the editor. The setup steps, building and publishing are the same as here.",
     regularDemos: "Demo apps of regular apps",
     metaTitle: "Yallapp Studio",
-    metaDescription: "Design your Android and iOS app freely in Yallapp Studio's visual editor, drawn natively on the phone, and make apps for delivery companies, food delivery, rides and taxis, academies with many teachers, schools and universities. Studio projects have their own plans.",
+    metaDescription: "Design your app freely in Yallapp Studio, with apps for delivery companies, food delivery, rides and taxis, academies with many teachers, schools and universities.",
     demoMetaTitle: "Yallapp Studio demo",
     demoMetaDescription: "Screens from real Yallapp Studio projects: a café's home page designed in the editor and a delivery company's app, and the editor itself.",
   },
@@ -599,17 +599,24 @@ export const en = {
     solutionAlt: "A Yallapp app type",
     docAlt: "A Yallapp documentation article",
     docEyebrow: "Docs · {section}",
+    studioAlt: "Yallapp Studio",
+    studioEyebrow: "Yallapp Studio",
+    studioTitle: "Design your app freely.",
+    studioText: "Apps for delivery companies with Yallapp Courier, food delivery, rides and taxis, academies with many teachers, schools and universities.",
+    featuresAlt: "Yallapp features",
+    featuresTitle: "Everything your app needs.",
+    featuresText: "Your brand and pages, three languages, sign-in with a code, notifications, card payments, live maps for couriers and drivers, and tools for schools.",
+    faqAlt: "Yallapp FAQ",
+    faqTitle: "Questions and answers.",
+    faqText: "Getting started, content sources, the five app stores, notifications, payments, languages, plans, Yallapp Studio and Yallapp Courier.",
   },
   meta: {
     defaultTitle: "Yallapp: your business as your own mobile app",
-    defaultDescription:
-      "Branded Android and iOS apps for academies, shops, restaurants, clinics, gyms, events, charities and more, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, from your WordPress site, Shopify and other platforms, your own API, or no website at all.",
+    defaultDescription: "Your own branded app for shops, academies, schools, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
     solutionsTitle: "Solutions",
-    solutionsDescription:
-      "Branded apps for academies, shops, restaurants, clinics, gyms, real estate offices, news sites, events and charities, with or without a website.",
+    solutionsDescription: "Branded apps for academies, shops, restaurants, clinics, gyms, real estate, news, events and charities, with or without a website.",
     featuresTitle: "Features",
-    featuresDescription:
-      "Your brand, a drag-and-drop page editor, light and dark, English, Arabic and Turkish, sign-in with a code, push notifications, card payments and publishing on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
+    featuresDescription: "Your brand, a page editor, English, Arabic and Turkish, sign-in with a code, notifications, card payments, live maps for couriers and drivers, and school tools.",
     integrationsTitle: "Integrations",
     integrationsDescription:
       "WordPress with Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint; Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific, SimplyBook.me; your own API; or no website.",
@@ -617,16 +624,13 @@ export const en = {
     howDescription:
       "From sign-up to Google Play, the App Store, Galaxy Store, AppGallery and GetApps in {count} steps, with your website, an online platform, your own API or no website at all.",
     pricingTitle: "Pricing",
-    pricingDescription:
-      "Four plans for your app: Starter, Growth, Pro and Business. Android and iOS apps on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, push notifications, your own pages, card payments, offline mode, and publishing done for you.",
+    pricingDescription: "Four plans for your app: Starter, Growth, Pro and Business, with apps on all five app stores, notifications, card payments and publishing done for you.",
     demoTitle: "Try a demo app",
-    demoDescription:
-      "Install a real Yallapp app on your Android phone: an academy, a shop, a café, a bookings app, a clinic, a gym, a real estate app, a news app, an events app or a charity, with sample content.",
+    demoDescription: "Install a real Yallapp app on your Android phone, with sample content: an academy, a shop, a café, bookings, a clinic, a gym, real estate, news, events or a charity.",
     contactTitle: "Contact",
     contactDescription: "Talk to the Yallapp team on WhatsApp or by email. Yallapp is based in Cairo, Egypt, and works with businesses in many countries.",
     faqTitle: "FAQ",
-    faqDescription:
-      "Answers about getting started, content sources, publishing on Google Play, the App Store, Galaxy Store, AppGallery and GetApps, push notifications, payments, languages, plans, several apps per account, security and support.",
+    faqDescription: "Answers about Yallapp: getting started, content sources, the five app stores, notifications, payments, languages, plans, Yallapp Studio and Yallapp Courier.",
     docsTitle: "Documentation",
     developersTitle: "API reference",
     termsTitle: "Terms of service",
