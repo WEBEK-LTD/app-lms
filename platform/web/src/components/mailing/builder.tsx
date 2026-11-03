@@ -80,7 +80,7 @@ export function Builder({
   const [dark, setDark] = useState(false);
   const [sel, setSel] = useState<Path | null>(null);
   const [drop, setDrop] = useState<{ i: number; col?: number; j?: number } | null>(null);
-  const doc: MailDoc = content.doc ?? { version: 1, theme: BRAND_THEME, blocks: [] };
+  const doc: MailDoc = useMemo(() => content.doc ?? { version: 1, theme: BRAND_THEME, blocks: [] }, [content.doc]);
   const theme = { ...BRAND_THEME, ...doc.theme };
   const dir = content.dir;
   const blocks = doc.blocks;
@@ -254,7 +254,7 @@ export function Builder({
               if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
             }}
           >
-            <div className="mx-auto overflow-hidden shadow-[0_8px_30px_rgba(14,13,36,0.08)]" dir={dir} style={{ maxWidth: theme.width, backgroundColor: theme.body, borderRadius: theme.radius }} data-testid="canvas">
+            <div className="mx-auto shadow-[0_8px_30px_rgba(14,13,36,0.08)]" dir={dir} style={{ maxWidth: theme.width, backgroundColor: theme.body, borderRadius: theme.radius }} data-testid="canvas">
               {blocks.length === 0 ? (
                 <div onDragOver={(e) => overAt(e, 0)} onDrop={(e) => onDropAt(e, 0)} className={`m-4 flex h-48 items-center justify-center rounded-2xl border-2 border-dashed text-[14px] font-semibold ${drop ? "border-ember bg-peach text-accent" : "border-line-strong text-muted"}`}>
                   Drag blocks here, or click one on the left
@@ -319,7 +319,7 @@ export function Builder({
                       ) : (
                         <div className="pointer-events-none select-none" dangerouslySetInnerHTML={{ __html: canvasHtml.get(block.id) ?? "" }} />
                       )}
-                      <span className={`absolute start-2 top-2 z-10 items-center gap-1 rounded-lg bg-midnight px-2 py-1 text-[11px] font-bold text-ivory ${isSel ? "flex" : "hidden group-hover:flex"}`}>
+                      <span className={`absolute -top-3 start-3 z-20 items-center gap-1 rounded-md bg-ember px-2 py-0.5 text-[11px] font-bold text-[#0E0D24] shadow-sm ${isSel ? "flex" : "hidden group-hover:flex"}`}>
                         <Icon name="drag_indicator" size={14} />
                         {BLOCK_INFO[block.type].label}
                       </span>
@@ -374,7 +374,7 @@ function DropLine({ active }: { active: boolean }) {
 
 function BlockTools({ onUp, onDown, onCopy, onDelete, first, last }: { onUp: () => void; onDown: () => void; onCopy: () => void; onDelete: () => void; first: boolean; last: boolean }) {
   return (
-    <span className="absolute end-2 top-2 z-10 flex gap-1" onClick={(e) => e.stopPropagation()}>
+    <span className="absolute -top-4 end-3 z-20 flex gap-1 rounded-[10px] bg-white p-0.5 shadow-[0_4px_14px_rgba(14,13,36,0.18)]" onClick={(e) => e.stopPropagation()}>
       <SmallButton icon="arrow_upward" label="Up" onClick={onUp} disabled={first} />
       <SmallButton icon="arrow_downward" label="Down" onClick={onDown} disabled={last} />
       <SmallButton icon="content_copy" label="Duplicate" onClick={onCopy} />

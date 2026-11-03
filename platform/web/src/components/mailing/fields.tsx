@@ -74,8 +74,9 @@ export function MergeTagMenu({ onPick }: { onPick: (tag: string) => void }) {
 
 export function ColorField({ label, value, onChange, fallback }: { label: ReactNode; value: string | undefined; onChange: (v: string | undefined) => void; fallback: string }) {
   const id = useId();
-  const [text, setText] = useState(value ?? "");
-  useEffect(() => setText(value ?? ""), [value]);
+  // What's being typed, until it's a whole color; else the color itself.
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? value ?? "";
   return (
     <Field label={label} htmlFor={id}>
       <div className="flex items-center gap-2">
@@ -85,10 +86,11 @@ export function ColorField({ label, value, onChange, fallback }: { label: ReactN
           value={text}
           placeholder={fallback}
           onChange={(e) => {
-            setText(e.target.value);
+            setDraft(e.target.value);
             if (/^#[0-9a-f]{6}$/i.test(e.target.value)) onChange(e.target.value.toUpperCase());
             if (!e.target.value) onChange(undefined);
           }}
+          onBlur={() => setDraft(null)}
           className={`${inputClass} font-mono uppercase`}
           dir="ltr"
         />

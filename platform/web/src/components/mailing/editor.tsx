@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
@@ -77,10 +78,12 @@ export function CampaignEditor({
   const [saved, setSaved] = useState<"saved" | "saving" | "dirty" | "error">("saved");
   const [error, setError] = useState<string | null>(null);
   const [, startSave] = useTransition();
-  const history = useRef<{ past: MailContents[]; future: MailContents[]; last: number }>({ past: [], future: [], last: 0 });
-  const [, bump] = useState(0);
+  const [history, setHistory] = useState<{ past: MailContents[]; future: MailContents[] }>({ past: [], future: [] });
+  const lastEdit = useRef(0);
   const latest = useRef(c);
-  latest.current = c;
+  useEffect(() => {
+    latest.current = c;
+  }, [c]);
 
   const save = useCallback(async () => {
     if (!canEdit) return true;
@@ -110,35 +113,27 @@ export function CampaignEditor({
   };
 
   const setContent = (content: MailContent) => {
-    const h = history.current;
     const now = Date.now();
     // Typing in one go is one step of Undo.
-    if (now - h.last > 700) {
-      h.past.push(structuredClone(c.contents));
-      if (h.past.length > 80) h.past.shift();
-    }
-    h.last = now;
-    h.future = [];
+    const step = now - lastEdit.current > 700;
+    lastEdit.current = now;
+    const before = c.contents;
+    setHistory((h) => ({ past: step ? [...h.past, before].slice(-80) : h.past, future: [] }));
     update({ contents: { ...c.contents, [lang]: content } });
-    bump((n) => n + 1);
   };
   const undo = () => {
-    const h = history.current;
-    const prev = h.past.pop();
+    const prev = history.past.at(-1);
     if (!prev) return;
-    h.future.push(structuredClone(c.contents));
-    h.last = 0;
+    setHistory({ past: history.past.slice(0, -1), future: [...history.future, c.contents] });
+    lastEdit.current = 0;
     update({ contents: prev });
-    bump((n) => n + 1);
   };
   const redo = () => {
-    const h = history.current;
-    const next = h.future.pop();
+    const next = history.future.at(-1);
     if (!next) return;
-    h.past.push(structuredClone(c.contents));
-    h.last = 0;
+    setHistory({ past: [...history.past, c.contents], future: history.future.slice(0, -1) });
+    lastEdit.current = 0;
     update({ contents: next });
-    bump((n) => n + 1);
   };
 
   useEffect(() => {
@@ -189,10 +184,10 @@ export function CampaignEditor({
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <a href="/admin/email-campaigns" className="flex w-fit items-center gap-1 text-sm font-semibold text-muted no-underline hover:text-midnight">
+          <Link href="/admin/email-campaigns" className="flex w-fit items-center gap-1 text-sm font-semibold text-muted no-underline hover:text-midnight">
             <Icon name="arrow_back" size={18} />
             Email campaigns
-          </a>
+          </Link>
           <input
             aria-label="Campaign name"
             value={c.name}
@@ -282,8 +277,8 @@ export function CampaignEditor({
               assetBase={assetBase}
               undo={undo}
               redo={redo}
-              canUndo={history.current.past.length > 0}
-              canRedo={history.current.future.length > 0}
+              canUndo={history.past.length > 0}
+              canRedo={history.future.length > 0}
               onSaveTemplate={() => {
                 const name = window.prompt("Name the template", c.name);
                 if (!name?.trim()) return;
@@ -342,8 +337,8 @@ function Details({ c, update, langs, addLang }: { c: EditorCampaign; update: (p:
             ))}
           </div>
         ) : null}
-        <Field label="Main language" hint="Sent to people whose language has no version.">
-          <select value={c.defaultLang} onChange={(e) => update({ defaultLang: e.target.value as MailLang })} className={`${inputClass} max-w-[320px] cursor-pointer`}>
+        <Field label="Main language" hint="Sent to people whose language has no version." htmlFor="f-main-lang">
+          <select id="f-main-lang" value={c.defaultLang} onChange={(e) => update({ defaultLang: e.target.value as MailLang })} className={`${inputClass} max-w-[320px] cursor-pointer`}>
             {langs.map((l) => (
               <option key={l} value={l}>
                 {LANG_NAMES[l]}
@@ -562,11 +557,11 @@ function Review({ c, assetBase, canSend, canEdit, save, onDone, onUnscheduled, o
             </div>
             {when === "later" ? (
               <div className="grid gap-2 sm:grid-cols-2">
-                <Field label="Date and time">
-                  <input type="datetime-local" value={local} onChange={(e) => setLocal(e.target.value)} className={inputClass} data-testid="schedule-at" />
+                <Field label="Date and time" htmlFor="f-schedule-at">
+                  <input id="f-schedule-at" type="datetime-local" value={local} onChange={(e) => setLocal(e.target.value)} className={inputClass} data-testid="schedule-at" />
                 </Field>
-                <Field label="Time zone">
-                  <select value={zone} onChange={(e) => setZone(e.target.value)} className={`${inputClass} cursor-pointer`}>
+                <Field label="Time zone" htmlFor="f-zone">
+                  <select id="f-zone" value={zone} onChange={(e) => setZone(e.target.value)} className={`${inputClass} cursor-pointer`}>
                     {zones().map((z) => (
                       <option key={z} value={z}>
                         {z}
