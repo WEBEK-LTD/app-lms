@@ -19,7 +19,9 @@ never a company's, as Yallapp Business does (LAUNCH-CHECKLIST.md › 7l).
 | Build config | [`mobile/config/yallapp-courier.json`](../../mobile/config/yallapp-courier.json) (`role` courier, `courier_hub` true, the Courier API as `api_base_url`, no `app_id`) |
 | Debug APK in CI | Mobile workflow › Flutter app › artifact `yallapp-courier-debug-apk` |
 | API | The Courier API, [`docs/api/courier.yaml`](../api/courier.yaml); each company's courier screens on that company's hosted API |
-| Pushes | Yallapp Courier's own Firebase project (`COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT` on the platform); its Android and iOS apps' files go in the build config's `firebase` at release time, never in the repository |
+| Pushes | Yallapp Business's Firebase project, where Yallapp Courier's apps are added: the platform sends with Yallapp Business's key (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`, no new key; `COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT` only for a project of its own). The apps' files are Actions variables the release workflow writes to the runner, never in the repository |
+| Store listing | [`mobile/store/courier`](../../mobile/store/courier) (checked by `build/scripts/business_store.py --app courier check` and build/tests); screenshots drawn by `mobile/test/store` |
+| Release | Actions › **Yallapp Courier release** ([`courier-release.yml`](../../.github/workflows/courier-release.yml)), below |
 | Icon and colours | Yallapp's: the app's own launcher icon (the "y." mark), Midnight and Ivory |
 | Languages | English, Arabic (right to left), Turkish |
 | Category | Business (Google Play: Business; App Store: Business) |
@@ -164,16 +166,116 @@ submission, never into this file.
   the app (Account › Delete my Yallapp Courier account), at any time.
 - Privacy policy: Yallapp's privacy page on the website.
 
+## Releasing (104.8.6)
+
+The workflow **Yallapp Courier release** builds Yallapp Courier from
+`mobile/` with `mobile/config/yallapp-courier.json`, signs it, and uploads it
+to a Google Play testing track and to TestFlight with the listing, the
+screenshots (English, Arabic, Turkish; phones and tablets) and App Review's
+details. It never publishes: production on Google Play and "Add for Review"
+on the App Store stay a click in the consoles. It signs in to Google Play and
+App Store Connect as Yallapp Business's release does (LAUNCH-CHECKLIST.md ›
+7l): the same accounts, the same `YB_*` sign-in secrets and variables. The
+run's summary lists what is set or missing.
+
+Where it says "add a secret" or "add a variable": GitHub › this repository ›
+Settings › Secrets and variables › Actions › **Secrets** or **Variables** ›
+New repository secret / variable.
+
+### Firebase (pushes)
+
+- Yallapp Courier's apps are in **Yallapp Business's Firebase project**, so
+  the platform sends couriers' pushes with the key it already has
+  (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`): nothing to add in Netlify.
+- Variable `YC_FIREBASE_GOOGLE_SERVICES`: the whole `google-services.json`
+  of the project (Project settings › Your apps › the Android app
+  `tr.com.yallapp.courier` › download), pasted as it is. It may list
+  Yallapp Business too: the workflow takes the `tr.com.yallapp.courier` app
+  and refuses a file without it.
+- Variable `YC_FIREBASE_SERVICE_INFO`: the whole `GoogleService-Info.plist`
+  of the iOS app `tr.com.yallapp.courier`, once it is added in Firebase.
+  Until then the iOS app is built **without notifications** and the run says
+  so. In Firebase › Project settings › Cloud Messaging › the iOS app ›
+  APNs Authentication Key: the same .p8 as Yallapp Business's (one per Apple
+  team), with its Key ID and the Team ID.
+- These are not secrets (they ship inside the app); never commit them.
+
+### Google Play
+
+- [ ] Play Console › Create app: **Yallapp Courier**, English (United
+      States), App, Free.
+- [ ] The upload key is made by the first run. Add the repository secret
+      `YC_SECRETS_TOKEN` (a fine-grained token for this repository only, with
+      Repository permissions › **Secrets: Read and write**, 7 days; made as in
+      7l). `YB_SECRETS_TOKEN` works too when it is still there. The run
+      saves the key as `YC_ANDROID_UPLOAD_KEYSTORE`,
+      `YC_ANDROID_KEYSTORE_PASSWORD`, `YC_ANDROID_KEY_ALIAS` and
+      `YC_ANDROID_KEY_PASSWORD`; then delete the token secret and the token.
+- [ ] Run the workflow with **android**. The App Bundle is on the
+      **Yallapp Courier test build** pre-release as `yallapp-courier.aab`.
+- [ ] **First upload by hand**: Play Console › Yallapp Courier › Test and
+      release › Testing › Internal testing › Create new release › upload
+      `yallapp-courier.aab` › Save and publish.
+- [ ] Let the release service account upload it. In Play Console › Users and
+      permissions › the service account
+      (`yallapp-play-release@yallapp-business.iam.gserviceaccount.com`) ›
+      App permissions › add **Yallapp Courier** with the same three rights as
+      Yallapp Business. And let this workflow sign in as it: Google Cloud
+      console › project **yallapp-business** › Cloud Shell:
+
+      ```sh
+      gcloud iam workload-identity-pools providers update-oidc github --project yallapp-business \
+        --location global --workload-identity-pool github-actions \
+        --attribute-condition "assertion.repository == 'WEBEK-LTD/app-lms' && assertion.ref == 'refs/heads/main' && (assertion.workflow_ref.startsWith('WEBEK-LTD/app-lms/.github/workflows/business-release.yml@') || assertion.workflow_ref.startsWith('WEBEK-LTD/app-lms/.github/workflows/courier-release.yml@'))"
+      ```
+
+      Then Run workflow with **play_check** to try it: it uploads nothing.
+
+### App Store
+
+- [ ] Run the workflow with **ios**: it registers the App ID
+      `tr.com.yallapp.courier` with push notifications and stops, saying the
+      app doesn't exist yet.
+- [ ] App Store Connect › Apps › + › New App: iOS, name **Yallapp Courier**,
+      English (U.S.), bundle ID **tr.com.yallapp.courier**, SKU
+      `yallapp-courier`, Full Access. Run the workflow again.
+- [ ] App Review's sign-in: secrets `YC_APP_REVIEW_DEMO_USER` (the review
+      number or email from Admin › Settings › Yallapp Courier) and
+      `YC_APP_REVIEW_DEMO_PASSWORD` (its code). The contact Apple calls is
+      Yallapp Business's (`YB_APP_REVIEW_FIRST_NAME`, `_LAST_NAME`,
+      `_PHONE`, `_EMAIL`) unless `YC_APP_REVIEW_*` variables say otherwise.
+      The notes are `mobile/store/courier/ios/review_notes.txt`.
+- [ ] Google Play › App content › App access: the same review number (or
+      email) and code, with the notes above.
+
+### Run it
+
+- [ ] Actions › **Yallapp Courier release** › Run workflow: stores (both,
+      android, ios), the Google Play track (internal by default) and the
+      version (empty = `version_name` in `yallapp-courier.json`; once a
+      version is live on the App Store, type the next one). The build number
+      is the run's (plus `YC_BUILD_NUMBER_OFFSET` if set), so it always goes
+      up.
+
+### Publish
+
+- [ ] The questionnaires (Data safety, App Privacy, content rating, target
+      audience 18+), from "Data safety" above; the age rating is sent from
+      `mobile/store/courier/ios/age_rating.json`.
+- [ ] Google Play: promote the internal release to Production. App Store:
+      the version (its build is chosen) › Add for Review › Submit.
+- [ ] Then the store links in Admin › Settings › Yallapp Courier.
+
 ## Still open (for the owner)
 
 - **Publishing**, together with the owner, from Yallapp's own Google Play and
-  Apple accounts: the store entries, Yallapp Courier's Firebase project and
-  its app files in the build config, signing, the first upload.
+  Apple accounts: the steps in **Releasing** above.
 - ~~Deleting the account in the app~~: done. **Account › Delete my Yallapp
   Courier account** (also under the list of companies, for someone no
   company has added yet) asks first, then deletes it (Courier API
   `DELETE /me`): every phone is signed out and every company session ends.
   The companies keep their own couriers' lists and shipments; the person
   asks a company to remove them there.
-- **Store screenshots and the feature graphic** (Yallapp's brand files are in
-  `brand/stores/`).
+- ~~Store screenshots and the feature graphic~~: drawn by the workflow
+  (`mobile/test/store`), with the icon and feature graphic from
+  `brand/stores/`.

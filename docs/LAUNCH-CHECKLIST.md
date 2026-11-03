@@ -802,6 +802,23 @@ never in a chat or an issue.
       Media, and the app in Arabic. Add the App Store Connect app ID to
       `business/README.md` › Store listing ids.
 
+## 7l2. Yallapp Courier in the stores (Phase 104.8)
+
+Yallapp Courier, Yallapp's courier app for every delivery company, goes to the
+stores under the same accounts as Yallapp Business, through the workflow
+**Yallapp Courier release**. Every step is in
+[docs/publishing/yallapp-courier.md › Releasing](publishing/yallapp-courier.md#releasing-10486):
+
+- [ ] Firebase: the Android app (done) and the iOS app `tr.com.yallapp.courier`
+      in Yallapp Business's project; variables `YC_FIREBASE_GOOGLE_SERVICES`
+      and `YC_FIREBASE_SERVICE_INFO`. Pushes are sent with
+      `OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`: no new key.
+- [ ] Google Play: the app, `YC_SECRETS_TOKEN` for the first run, the first
+      App Bundle by hand, the service account given the app, and the Workload
+      Identity provider's condition allowing `courier-release.yml`.
+- [ ] App Store: the app in App Store Connect, `YC_APP_REVIEW_DEMO_USER` and
+      `YC_APP_REVIEW_DEMO_PASSWORD`.
+
 ## 7m. Team members for clients (Phase 60)
 
 - [ ] Apply migration `0045_team_members.sql` after `0044` (`team_members`,

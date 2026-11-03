@@ -49,6 +49,27 @@ void main() {
     }
   });
 
+  test('104.8.6 Firebase files: https, or a file on the build machine', () {
+    Map<String, dynamic> withFirebase(String url) =>
+        example()..['firebase'] = {'android_config_url': url};
+    expect(
+      validateBuildConfig(
+        withFirebase('file:///runner/temp/google-services.json'),
+      ).isValid,
+      isTrue,
+    );
+    expect(
+      validateBuildConfig(
+        withFirebase('https://files.example.com/google-services.json'),
+      ).isValid,
+      isTrue,
+    );
+    expect(
+      validateBuildConfig(withFirebase('google-services.json')).isValid,
+      isFalse,
+    );
+  });
+
   test('rejects Java keywords in the Android package', () {
     final c = example()..['android_package'] = 'com.class.app';
     expect(validateBuildConfig(c).isValid, isFalse);

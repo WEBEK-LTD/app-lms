@@ -63,10 +63,12 @@ platform :android do
   # options: aab, track (internal, alpha or beta), json_key (the credentials file
   #          google-github-actions/auth writes for Workload Identity Federation: no key in it),
   #          metadata (business_store.py play's folder)
+  #          app (104.8.6 "courier" for Yallapp Courier; Yallapp Business by default)
   lane :business_play do |options|
+    package = release_app(options)[:id]
     upload = lambda do |status|
       upload_to_play_store(
-        package_name: BUSINESS_ID,
+        package_name: package,
         json_key: options[:json_key],
         aab: options[:aab],
         track: options[:track],
@@ -89,14 +91,15 @@ platform :android do
   # through Workload Identity Federation, then an edit opened on the app and thrown away (nothing
   # changes on Google Play).
   #
-  # options: json_key (as business_play), summary (a file the result is added to)
+  # options: json_key (as business_play), summary (a file the result is added to), app (as business_play)
   lane :business_play_check do |options|
     require "supply"
+    package = release_app(options)[:id]
     report = lambda do |line|
       UI.message(line)
       File.write(options[:summary], "#{line}\n", mode: "a") if options[:summary]
     end
-    Supply.config = FastlaneCore::Configuration.create(Supply::Options.available_options, { package_name: BUSINESS_ID, json_key: options[:json_key] })
+    Supply.config = FastlaneCore::Configuration.create(Supply::Options.available_options, { package_name: package, json_key: options[:json_key] })
     begin
       client = Supply::Client.make_from_config(params: Supply.config)
     rescue => error
@@ -105,14 +108,14 @@ platform :android do
     end
     report.call("- Signed in to Google's API as the release service account (Workload Identity Federation).")
     begin
-      client.begin_edit(package_name: BUSINESS_ID)
+      client.begin_edit(package_name: package)
       tracks = client.tracks.map(&:track)
       client.abort_current_edit
-      report.call("- Google Play opened #{BUSINESS_ID} (tracks: #{tracks.empty? ? 'none yet' : tracks.join(', ')}): releases can be uploaded.")
+      report.call("- Google Play opened #{package} (tracks: #{tracks.empty? ? 'none yet' : tracks.join(', ')}): releases can be uploaded.")
     rescue => error
       message = error.message.lines.first.to_s.strip
       if message =~ /not found/i
-        report.call("- Google Play doesn't show #{BUSINESS_ID} to the service account yet: upload the first App Bundle by hand (Internal testing) and check the account is invited in Play Console › Users and permissions with this app. (#{message})")
+        report.call("- Google Play doesn't show #{package} to the service account yet: upload the first App Bundle by hand (Internal testing) and check the account is invited in Play Console › Users and permissions with this app. (#{message})")
       else
         report.call("- **Google Play refused**: #{message}. Usually the service account isn't invited in Play Console › Users and permissions, lacks the app's release rights, or the Google Play Android Developer API isn't enabled in the Cloud project.")
       end
@@ -123,6 +126,18 @@ end
 
 # 65 Yallapp Business's package name and bundle ID.
 BUSINESS_ID = "tr.com.yallapp.business"
+
+# 104.8.6 The apps Yallapp publishes under its own accounts, picked by the lanes' option app
+# (business by default): Yallapp Business (business/, its push entitlement in the project) and
+# Yallapp Courier (mobile/, the client app's project: the push entitlement is written here).
+RELEASE_APPS = {
+  "business" => { id: BUSINESS_ID, name: "Yallapp Business", ipa: "YallappBusiness", keychain: "yallapp-business.keychain", entitlements: false },
+  "courier" => { id: "tr.com.yallapp.courier", name: "Yallapp Courier", ipa: "YallappCourier", keychain: "yallapp-courier.keychain", entitlements: true },
+}.freeze
+
+def release_app(options)
+  RELEASE_APPS.fetch((options[:app] || "business").to_s) { |name| UI.user_error!("No app #{name}: business or courier.") }
+end
 
 # 65 The App Store Connect key for Yallapp Business, from the file the release workflow writes
 # ({"app_store_connect": {key_id, issuer_id, private_key}}, checked by scripts/p8_key.py).
@@ -301,20 +316,23 @@ platform :ios do
   #     certificates are all in use, the oldest one made over 30 days ago is revoked first
   #     (business_old_certificate), so every update just runs.
   #
-  # options: asc, business (path to business/), out, status, cert_out
+  # options: asc, business (path to business/; 104.8.6 or project: the Flutter project), out, status,
+  #          cert_out, app (as business_play), push (Yallapp Courier: "false" without Firebase)
   lane :business_ipa do |options|
+    app = release_app(options)
+    app_id = app[:id]
     api_key = business_api_key(options[:asc])
-    bundle = Spaceship::ConnectAPI::BundleId.find(BUSINESS_ID) ||
-             Spaceship::ConnectAPI::BundleId.create(name: "Yallapp Business", identifier: BUSINESS_ID, platform: "IOS")
+    bundle = Spaceship::ConnectAPI::BundleId.find(app_id) ||
+             Spaceship::ConnectAPI::BundleId.create(name: app[:name], identifier: app_id, platform: "IOS")
     if bundle.get_capabilities.none? { |c| c.capability_type == "PUSH_NOTIFICATIONS" }
       bundle.create_capability(Spaceship::ConnectAPI::BundleIdCapability::Type::PUSH_NOTIFICATIONS)
     end
-    unless Spaceship::ConnectAPI::App.find(BUSINESS_ID)
+    unless Spaceship::ConnectAPI::App.find(app_id)
       File.write(options[:status], "no_app")
-      UI.user_error!("There is no app with the bundle ID #{BUSINESS_ID} in App Store Connect yet.")
+      UI.user_error!("There is no app with the bundle ID #{app_id} in App Store Connect yet.")
     end
 
-    keychain = "yallapp-business.keychain"
+    keychain = app[:keychain]
     keychain_password = SecureRandom.hex(24)
     create_keychain(name: keychain, password: keychain_password, default_keychain: true, unlock: true, timeout: 3600, lock_when_sleeps: false)
 
@@ -350,13 +368,29 @@ platform :ios do
       end
     end
 
-    get_provisioning_profile(api_key: api_key, app_identifier: BUSINESS_ID, cert_id: cert_id, force: true, output_path: options[:out], filename: "distribution.mobileprovision")
+    get_provisioning_profile(api_key: api_key, app_identifier: app_id, cert_id: cert_id, force: true, output_path: options[:out], filename: "distribution.mobileprovision")
     profile_name = lane_context[SharedValues::SIGH_NAME]
     profile = FastlaneCore::ProvisioningProfile.parse(File.join(options[:out], "distribution.mobileprovision"))
     team_id = profile["TeamIdentifier"].first
 
-    # The push entitlement is in the project (Runner/Runner.entitlements for Release).
-    ios_dir = File.join(options[:business], "ios")
+    # Yallapp Business: the push entitlement is in the project (Runner/Runner.entitlements for
+    # Release). 104.8.6 Yallapp Courier: written here, as build_ipa does for the clients' apps,
+    # unless options[:push] is "false" (no GoogleService-Info.plist: built without pushes).
+    ios_dir = File.join(options[:project] || options[:business], "ios")
+    entitlements = nil
+    if app[:entitlements] && options[:push].to_s != "false"
+      entitlements = "Runner/Runner.entitlements"
+      File.write(File.join(ios_dir, entitlements), <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists/PLIST-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+        \t<key>aps-environment</key>
+        \t<string>production</string>
+        </dict>
+        </plist>
+      PLIST
+    end
     update_code_signing_settings(
       path: File.join(ios_dir, "Runner.xcodeproj"),
       use_automatic_signing: false,
@@ -372,9 +406,10 @@ platform :ios do
       configuration: "Release",
       export_method: "app-store",
       export_team_id: team_id,
-      export_options: { provisioningProfiles: { BUSINESS_ID => profile_name }, signingStyle: "manual" },
+      export_options: { provisioningProfiles: { app_id => profile_name }, signingStyle: "manual" },
       output_directory: options[:out],
-      output_name: "YallappBusiness",
+      output_name: app[:ipa],
+      xcargs: entitlements ? "CODE_SIGN_ENTITLEMENTS=#{entitlements}" : nil,
       clean: true,
       skip_profile_detection: true,
     )
@@ -382,7 +417,8 @@ platform :ios do
     delete_keychain(name: keychain) if keychain && File.exist?(File.expand_path("~/Library/Keychains/#{keychain}-db"))
   end
 
-  # 65 Uploads Yallapp Business to TestFlight and waits until Apple has processed it.
+  # 65 Uploads Yallapp Business (104.8.6 or Yallapp Courier: the same) to TestFlight and waits until
+  # Apple has processed it.
   lane :business_testflight do |options|
     api_key = business_api_key(options[:asc])
     upload_to_testflight(
@@ -401,11 +437,12 @@ platform :ios do
   # the first one). App Review's details only with the demo account: without it deliver would
   # mark the demo account as not needed.
   #
-  # options: asc, store (business_store.py appstore's folder), version, build
+  # options: asc, store (business_store.py appstore's folder), version, build, app (as business_play)
   lane :business_appstore do |options|
+    app_id = release_app(options)[:id]
     api_key = business_api_key(options[:asc])
     store = options[:store]
-    app = Spaceship::ConnectAPI::App.find(BUSINESS_ID)
+    app = Spaceship::ConnectAPI::App.find(app_id)
     live = app.get_live_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
     release_notes = nil
     if live
@@ -432,7 +469,7 @@ platform :ios do
 
     deliver(
       api_key: api_key,
-      app_identifier: BUSINESS_ID,
+      app_identifier: app_id,
       platform: "ios",
       app_version: options[:version],
       metadata_path: File.join(store, "metadata"),

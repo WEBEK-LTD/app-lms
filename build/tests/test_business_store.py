@@ -213,3 +213,87 @@ class FirebaseTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CourierTest(unittest.TestCase):
+    """104.8.6 Yallapp Courier through the same script (--app courier)."""
+
+    def setUp(self):
+        store.use("courier")
+        self.addCleanup(store.use, "business")
+
+    def test_its_listing_is_complete(self):
+        self.assertEqual(["mobile", "store", "courier"], list(store.STORE.relative_to(ROOT).parts))
+        self.assertEqual([], store.problems())
+        for _, play, locale in store.LANGUAGES:
+            self.assertEqual("Yallapp Courier", store.read(store.STORE / "android" / play / "title.txt"))
+            self.assertEqual("Yallapp Courier", store.read(store.STORE / "ios" / locale / "name.txt"))
+        notes = store.read(store.STORE / "ios" / "review_notes.txt")
+        self.assertIn("no in-app purchases", notes)
+        self.assertIn("No message is sent", notes)
+
+    def test_review_details_from_its_own_secrets_and_the_business_contact(self):
+        env = {
+            "YB_APP_REVIEW_FIRST_NAME": "Layla",
+            "YC_APP_REVIEW_LAST_NAME": "Courier",
+            "YB_APP_REVIEW_LAST_NAME": "Business",
+            "YB_APP_REVIEW_DEMO_USER": "owner@example.com",
+            "YC_APP_REVIEW_DEMO_USER": "+905000000000",
+            "YC_APP_REVIEW_DEMO_PASSWORD": "000000",
+        }
+        review = store.review_information(env)
+        self.assertEqual("Layla", review["first_name"])
+        self.assertEqual("Courier", review["last_name"])
+        self.assertEqual("+905000000000", review["demo_user"])
+        self.assertEqual("000000", review["demo_password"])
+        self.assertIn("Yallapp Courier", review["notes"])
+
+    def courier_firebase(self, platform, env):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = ROOT / "mobile" / "config" / "yallapp-courier.json"
+            out = Path(tmp) / "config.json"
+            line = store.courier_firebase(platform, config, Path(tmp) / "firebase", out, env)
+            data = json.loads(out.read_text())
+            files = {p.name: p.read_text() for p in (Path(tmp) / "firebase").glob("*")} if (Path(tmp) / "firebase").is_dir() else {}
+        return line, data, files
+
+    def test_firebase_files_for_apply_config(self):
+        services = json.loads(json.dumps(GOOGLE_SERVICES).replace("tr.com.yallapp.business", "tr.com.yallapp.courier"))
+        line, data, files = self.courier_firebase("android", {"YC_FIREBASE_GOOGLE_SERVICES": json.dumps(services)})
+        self.assertEqual(["android_config_url"], list(data["firebase"]))
+        self.assertTrue(data["firebase"]["android_config_url"].startswith("file:///"))
+        self.assertTrue(data["firebase"]["android_config_url"].endswith("/google-services.json"))
+        self.assertEqual(services, json.loads(files["google-services.json"]))
+        self.assertEqual("tr.com.yallapp.courier", data["android_package"])
+        self.assertIn("Pushes: on", line)
+        self.assertNotIn("android-key", line)
+
+        plist = GOOGLE_SERVICE_INFO.replace("tr.com.yallapp.business", "tr.com.yallapp.courier")
+        line, data, files = self.courier_firebase("ios", {"YC_FIREBASE_SERVICE_INFO": plist})
+        self.assertEqual(["ios_config_url"], list(data["firebase"]))
+        self.assertIn("GoogleService-Info.plist", files)
+
+    def test_one_project_with_both_apps(self):
+        # Yallapp Courier in Yallapp Business's Firebase project: its client is the one read.
+        both = json.loads(json.dumps(GOOGLE_SERVICES))
+        courier = json.loads(json.dumps(both["client"][1]))
+        courier["client_info"]["mobilesdk_app_id"] = "1:123:android:courier"
+        courier["client_info"]["android_client_info"]["package_name"] = "tr.com.yallapp.courier"
+        both["client"].append(courier)
+        values = store.from_google_services(json.dumps(both))
+        self.assertEqual("1:123:android:courier", values["YB_FIREBASE_APP_ID_ANDROID"])
+        line, data, _ = self.courier_firebase("android", {"YC_FIREBASE_GOOGLE_SERVICES": json.dumps(both)})
+        self.assertIn("project yallapp-business", line)
+        self.assertIn("android_config_url", data["firebase"])
+
+    def test_no_variable_no_pushes(self):
+        line, data, files = self.courier_firebase("ios", {})
+        self.assertNotIn("firebase", data)
+        self.assertEqual({}, files)
+        self.assertIn("Pushes: off", line)
+
+    def test_another_apps_firebase_file_is_refused(self):
+        with self.assertRaises(ValueError):
+            self.courier_firebase("android", {"YC_FIREBASE_GOOGLE_SERVICES": json.dumps(GOOGLE_SERVICES)})
+        with self.assertRaises(ValueError):
+            self.courier_firebase("ios", {"YC_FIREBASE_SERVICE_INFO": GOOGLE_SERVICE_INFO})

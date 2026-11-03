@@ -1,0 +1,20 @@
+PURPOSE AND AUDIENCE
+Yallapp (yallapp.com.tr) is a public service where small businesses make their own branded mobile app without code; delivery companies among them run their deliveries on it. Yallapp Courier is the courier app for every delivery company on Yallapp that chooses it: a company adds a courier's mobile number or email to its couriers, and the courier signs in with a one-time code and works on that company's deliveries. The app is not made for one company, and has no sign-up: couriers are added by their company.
+
+The app sells nothing: no in-app purchases, no subscriptions, no payment screens and no ads. Couriers see the cash to collect from the receiver, which they collect by hand.
+
+HOW TO USE IT
+On the sign-in screen, enter the review mobile number (or choose Email and enter the review email) given in the sign-in details, tap Send code, and enter the code given there. No message is sent to that number. You'll see a demo delivery company with a sample job: open it from My jobs, follow its steps (Picked up, On the way, Delivered), call or get directions. It reaches no real customer or courier.
+
+Account > Switch company goes back to the list of companies; Account > Log out signs out of the app and every company on the phone. Account > Delete my Yallapp Courier account deletes the account (also under the list of companies): every phone is signed out and every company session ends.
+
+Location: the app asks for the location only while a parcel is on the way and its job is open on the screen, so the customer can see where it is. It never uses the location in the background. Notifications: new jobs and changes to the courier's jobs.
+
+EXTERNAL SERVICES
+Yallapp's own platform at yallapp.com.tr (API, sign-in, data) and Firebase Cloud Messaging with Apple Push Notification service for notifications. Directions open the phone's own maps app. No payment processors, no advertising or analytics SDKs, no third-party sign-in.
+
+REGIONS
+The app works the same in all regions, in English, Arabic and Turkish. What a courier sees depends only on the companies that added them.
+
+REGULATED INDUSTRIES
+None. The app processes no payments and holds no health or financial data.

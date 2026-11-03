@@ -1,0 +1,12 @@
+Yallapp Courier, Yallapp ile çalışan teslimat şirketlerinin kuryeleri için uygulamadır. Şirketiniz cep telefonu numaranızı veya e-postanızı kuryelerine ekler; bir kodla giriş yapar ve teslimata başlarsınız.
+
+- Teslimat yaptığınız tüm şirketler için tek giriş. Birini seçin, işleri açılsın; şirketi istediğiniz zaman Hesap'tan değiştirin.
+- Görevde olun ya da görev dışı kalın. Görev dışındayken size yeni iş önerilmez.
+- İşleriniz, kurye bekleyen işler ve tamamladıklarınız.
+- Her işin adımları: teslim alındı, yolda, teslim edildi ya da nedeniyle teslim edilemedi. Alamayacağınız işi geri verin.
+- Tahsil edilecek nakit, işin üzerinde.
+- Göndereni veya alıcıyı arayın, harita uygulamanızda yol tarifi alın.
+- Gönderi yoldayken ve iş ekranınızda açıkken müşterisi nerede olduğunu görür. Uygulama kapalıyken hiçbir şey paylaşılmaz.
+- Yeni işler ve işlerinizdeki değişiklikler için bildirimler; doğru şirketin işini açar.
+
+Henüz şirket yok mu? Teslimat yaptığınız şirketten numaranızı veya e-postanızı kuryelerine eklemesini isteyin, sonra yeniden giriş yapın.
