@@ -55,12 +55,18 @@ test("66 the public page, in every language, linked from the footer and the priv
   await expect(page.getByRole("navigation", { name: "Legal pages" }).getByRole("link", { name: "Delete your account" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Delete your account" })).toHaveAttribute("href", "/delete-account");
   await expect(page.locator('link[rel="alternate"][hreflang="ar"]')).toHaveAttribute("href", /\/ar\/delete-account$/);
+  // 104.8 Yallapp Courier's couriers: in the app, or by email (the address Google Play's Data safety form links to).
+  await expect(page.locator("#courier")).toHaveText("Couriers on Yallapp Courier");
+  await expect(page.getByText("Delete my Yallapp Courier account", { exact: true }).first()).toBeVisible();
+  await expect(page.locator("[data-delete-courier-email]").getByRole("link", { name: "info@yallapp.com.tr" })).toHaveAttribute("href", "mailto:info@yallapp.com.tr");
 
   await page.goto("/ar/delete-account");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1, name: "حذف حسابك في Yallapp" })).toBeVisible();
+  await expect(page.locator("#courier")).toHaveText("المناديب في Yallapp Courier");
   await page.goto("/tr/delete-account");
   await expect(page.getByRole("heading", { level: 1, name: "Yallapp hesabınızı silme" })).toBeVisible();
+  await expect(page.locator("#courier")).toHaveText("Yallapp Courier'daki kuryeler");
 
   await page.goto("/privacy");
   await expect(page.getByRole("article").getByRole("link", { name: "Deleting your Yallapp account" })).toHaveAttribute("href", "/delete-account");
