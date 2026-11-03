@@ -920,6 +920,20 @@ stores under the same accounts as Yallapp Business, through the workflow
       a URL Inspection each.
 - [ ] If `yallapp.netlify.app` addresses show up in Google, leave them: their
       canonical names yallapp.com.tr and Google moves them over in time.
+- [x] [Bing Webmaster Tools](https://www.bing.com/webmasters): the site added
+      (Bing treats `www` and the bare domain as one) and
+      `https://yallapp.com.tr/sitemap.xml` submitted.
+- [ ] IndexNow (Bing and the engines that share it; Google doesn't use it):
+      `.github/workflows/indexnow.yml` runs after main changes the public site,
+      waits until Netlify serves the new deploy, and sends every sitemap
+      address to `api.indexnow.org`. The key is public by design: it is in
+      `build/indexnow-key.txt` and served as
+      `https://yallapp.com.tr/<key>.txt` (`platform/web/public/<key>.txt`).
+      Check once: `curl -s https://yallapp.com.tr/<key>.txt` prints the key,
+      then Actions › IndexNow › Run workflow; the run's summary shows how many
+      addresses were sent and the answer (200 or 202). Locally:
+      `python3 build/scripts/indexnow.py --dry-run` lists them, sending
+      nothing. A new key: replace both files together.
 
 ## 7r. An ended plan stops the app everywhere (Phase 68)
 
