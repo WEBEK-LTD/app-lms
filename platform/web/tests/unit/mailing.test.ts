@@ -126,6 +126,17 @@ describe("114 sanitizer", () => {
     expect(sanitizeCss("\\65xpression(1)")).toBe("x(1)");
   });
 
+  it("no removed piece re-forms a tag or a comment (nested input)", () => {
+    for (const input of ["<scr<script>ipt>alert(1)</script>", "<!<!--- -->--><script>x()</script>", "<<script>script>alert(1)<</script>/script>", "<scr<!-- -->ipt>bad()</script>", "<a href=\"java<!-- -->script:x\">a</a>"]) {
+      const html = sanitizeHtml(input);
+      expect(html).not.toMatch(/<script|<!--|javascript:/i);
+      // The plain-text part never carries what was inside a script, and is never read as HTML.
+      expect(htmlToText(input)).not.toMatch(/alert\(1\)|x\(\)|<!--/);
+    }
+    expect(htmlToText("<style>p{}</style><!-- note --><p>Hi</p>")).toBe("Hi");
+    expect(htmlToText('<div style="display:none">peek</div><p>Body</p>')).toBe("Body");
+  });
+
   it("turns HTML into the plain-text part", () => {
     expect(htmlToText('<h1>Hi</h1><p>One &amp; two</p><ul><li>A</li><li>B</li></ul><a href="https://x.test">Open</a><style>p{}</style>')).toBe("Hi\nOne & two\n• A\n• B\nOpen (https://x.test)");
   });

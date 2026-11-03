@@ -127,7 +127,7 @@ export function buildRecipientMail(campaign: MailCampaign, recipient: Pick<MailR
   }
   const all: MergeValues = { ...values, email: recipient.email, unsubscribe_link: links.unsubscribePage };
   let html = applyMergeTags(rendered.html, all, { html: true });
-  const text = htmlToText(html.replace(/<div style="display:none[^>]*>[\s\S]*?<\/div>/, ""));
+  const text = htmlToText(html);
   if (campaign.track) html = addOpenPixel(trackLinks(html, links), links);
   return {
     fromName: campaign.fromName?.trim() || DEFAULT_MAIL_FROM_NAME,
@@ -161,7 +161,7 @@ export function buildTestMail(campaign: MailCampaign, lang: MailLang, to: string
     mail: {
       to,
       subject: `[Test] ${applyMergeTags(chosen.content.subject, values, { html: false })}`,
-      text: htmlToText(html.replace(/<div style="display:none[^>]*>[\s\S]*?<\/div>/, "")),
+      text: htmlToText(html),
       html,
       replyTo: campaign.replyTo ?? undefined,
     },
