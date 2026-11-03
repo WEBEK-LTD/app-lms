@@ -208,7 +208,7 @@ Open **App setup** and choose another type. Your next build includes the new typ
     slug: "yallapp-studio",
     section: "Getting started",
     title: "Yallapp Studio: design your app freely",
-    description: "What Yallapp Studio is, how its projects differ from regular apps, making a project, the Studio editor, delivery companies and Studio's own plans.",
+    description: "What Yallapp Studio is, how its projects differ from regular apps, making a project, the Studio editor, delivery companies, rides and taxis, academies with many teachers, schools and universities, and Studio's own plans.",
     steps: false,
     figures: ["studio-editor", "studio-cafe-home", "studio-cafe-home-dark", "delivery-courier"],
     body: `Yallapp Studio is a space of its own in your account for projects you design element by element: rows, columns, layers, pictures, buttons and lists in cards you design, with colours for light and dark mode and motion. What you design is drawn natively in your Android and iOS app, not shown as a web page. Studio also makes project types only it offers, like a delivery company's app with its couriers.
@@ -249,9 +249,21 @@ Check the page on a small phone, a large phone and a tablet, in light and dark. 
 
 ## Delivery companies
 
-A delivery company's project is made in Studio only. Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers work in their own app in your name, with their jobs; your customers' app never shows the courier's screens. The same goes for ride and taxi companies' drivers. **Builds & downloads** and the setup show both apps, each with its own builds, store listing and notes for the reviewers.
+A delivery company's project is made in Studio only. Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers work in their own app in your name, with their jobs, or in Yallapp Courier, Yallapp's own app for couriers: you choose which on **Delivery settings**, under **Where your couriers work**. Your customers' app never shows the courier's screens. The same goes for ride and taxi companies' drivers. With an app of their own, **Builds & downloads** and the setup show both apps, each with its own builds, store listing and notes for the reviewers. See [Yallapp Courier for your couriers](/docs/yallapp-courier).
 
 In the project's dashboard, set your prices and how customers pay on **Delivery settings**, add your couriers on **Couriers**, and follow every shipment on **Shipments**.
+
+## Rides and taxis
+
+Riders choose where to go from their position, a maps link or the map, now or for later, pick a vehicle type with its fare and follow the driver coming to them, with the car and a code; they can share the ride and have an emergency button. A live taxi project shows the taxis around on a full-screen map. Drivers go online in their own app in your name, take one offer at a time, follow each ride's stages, collect the cash and see their earnings. In the dashboard, set the vehicle types, fares and areas, approve drivers and their documents, and follow the rides and your statements.
+
+## Academies with many teachers
+
+An academy whose courses come from several teachers. Teachers have their own tab in the app for their profile, courses and lessons; a course they send is published once you've reviewed it, or returned with your note. Students find the teachers, follow and rate them, and can apply to teach. You set each teacher's share and see the statements for any period. Several courses can be sold together as a bundle.
+
+## Schools and universities
+
+A school's app for students, parents, teachers and staff, each seeing their own part: the timetable, homework, grades, attendance, exams, the calendar and announcements. Parents have a Parent tab for each of their children, with the fees. Students, teachers and staff check in at the gate with a code on the school's screen; teachers and staff ask for leave; the school runs its bus routes and its library in the app, and allows messages between teachers and families if it wants to. Salaries are recorded by hand, as paid in cash or by bank transfer, with a payslip for each person each month. A school project in university mode adds faculties, departments, programs, course registration each term, and results with the GPA.
 
 ## Studio's plans
 
@@ -1384,6 +1396,39 @@ If you work on several businesses, notifications from another business start wit
 On the dashboard, **Your phones** under **Account** lists the phones signed in to Yallapp Business with your account: each phone's name, Android or iPhone, the app's version, when it signed in, when it was last used, and **Notifications on** when it gets them. People on your team see their own phones there.
 
 Select **Sign out** next to a phone you no longer use or don't recognise; it stops getting your notifications. **Sign out every phone** signs them all out. The app lists the same phones under **More › Signed-in devices**. Changing your password also signs out every phone, and **Sign out everywhere** on **Your account** signs you out of the website and of every phone. Removing someone from your team signs them out at once. See [Your account and support](/docs/account-and-support).
+`,
+  }),
+
+  // 104.8 Yallapp Courier: Yallapp's own app for delivery companies' couriers.
+  doc({
+    slug: "yallapp-courier",
+    section: "Your app",
+    title: "Yallapp Courier for your couriers",
+    description: "How a delivery company's couriers work in Yallapp Courier: choosing it, adding your couriers, and what a courier does to sign in and deliver.",
+    steps: false,
+    body: `Yallapp Courier is Yallapp's own app for couriers, for every delivery company made in [Yallapp Studio](/docs/yallapp-studio) that chooses it. Your couriers sign in to it once, choose your company and work on your jobs, with your name and logo. You build and publish nothing for them. It is coming to Google Play and the App Store.
+
+## Choosing Yallapp Courier
+
+In your delivery project's dashboard, open **Delivery settings** and, under **Where your couriers work**, choose **In Yallapp Courier**. The other choice is your couriers' own app in your name, built and published next to your customers' app.
+
+## Adding your couriers
+
+On **Couriers**, add each courier with their name, the mobile number or email they'll sign in with, and their vehicle. **Couriers** shows when each one last signed in to Yallapp Courier. A courier you pause or delete there is signed out of your company at once.
+
+## What a courier does
+
+1. Download Yallapp Courier.
+2. Sign in with the mobile number or email you added, and the code they get.
+3. Choose your company.
+
+They go on and off duty, see the jobs waiting and their own, and follow each job's steps: picked up, on the way, delivered, or couldn't deliver with a reason. Each job shows the cash to collect, and they can call the sender or the receiver and get directions in their maps app. While a parcel is on the way and its job is open on their screen, the customer sees where it is. New jobs reach them as notifications.
+
+Someone who delivers for several companies on Yallapp Courier signs in once and switches between them from **Account**. Signing out ends every company's session on that phone.
+
+## Deleting a courier's account
+
+A courier deletes their Yallapp Courier account in the app, from **Account**. Your list of couriers and your shipments' records stay as they are. See [Deleting your Yallapp account](/delete-account).
 `,
   }),
 

@@ -241,6 +241,11 @@ test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-
     await expect(page.locator(`#apps img[src*="${screen}.png"]`)).toHaveCount(1);
   }
   await expect(page.locator("[data-studio-only]").filter({ hasText: "Delivery & couriers" })).toContainText("Only in Studio");
+  await expect(page.locator("[data-studio-only]").filter({ hasText: "Delivery & couriers" })).toContainText("Yallapp Courier");
+  // Studio's other project types.
+  for (const kind of ["Rides and live taxis", "Academies with many teachers", "Schools", "Universities"]) {
+    await expect(page.locator("[data-studio-only]").filter({ has: page.getByRole("heading", { level: 3, name: kind, exact: true }) })).toContainText("Only in Studio");
+  }
   await expect(page.getByRole("link", { name: "Restaurant & café" })).toHaveAttribute("href", "/solutions/restaurant");
   // Regular apps next to Studio projects.
   const differences = page.getByRole("table", { name: "Regular apps and Studio projects" });
@@ -257,6 +262,20 @@ test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-
   await expect(page.getByRole("link", { name: "Start a Studio project" })).toHaveAttribute("href", "/sign-up");
   await page.getByRole("link", { name: "See the Studio demo" }).first().click();
   await expect(page).toHaveURL(/\/demo\/studio$/);
+});
+
+test("104.8 Yallapp Courier, live maps and schools on the features page, in the FAQ and in its own guide", async ({ page }) => {
+  await page.goto("/features");
+  await expect(page.getByRole("heading", { level: 2, name: "Live maps, couriers and drivers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Schools, universities and academies" })).toBeVisible();
+  await expect(page.locator("#maps").getByText("Yallapp Courier", { exact: true }).first()).toBeVisible();
+  await page.goto("/faq");
+  await expect(page.getByText("What is Yallapp Courier?")).toBeVisible();
+  await page.goto("/docs/yallapp-courier");
+  await expect(page.getByRole("heading", { level: 1, name: "Yallapp Courier for your couriers" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "What a courier does" })).toBeVisible();
+  await page.goto("/ar/docs/yallapp-courier");
+  await expect(page.getByRole("heading", { level: 1, name: "Yallapp Courier لمناديبك" })).toBeVisible();
 });
 
 test("103R the Studio demo has its own page; the regular demo stays as it is", async ({ page }) => {
