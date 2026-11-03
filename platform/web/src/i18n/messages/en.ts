@@ -222,7 +222,7 @@ export const en = {
     ogFallback: "An app for the way your business works",
     faqTitle: "Questions and answers",
     studioTitle: "Made in Yallapp Studio",
-    studioText: "Delivery apps are Yallapp Studio projects: design every page freely, with Studio's own plans.",
+    studioText: "These apps are Yallapp Studio projects: design every page freely, with Studio's own plans.",
     studioButton: "See Yallapp Studio",
   },
   features: {

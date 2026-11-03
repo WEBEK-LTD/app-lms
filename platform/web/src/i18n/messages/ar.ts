@@ -214,7 +214,7 @@ export const ar: Messages = {
     ogFallback: "تطبيق يناسب طريقة عمل نشاطك",
     faqTitle: "أسئلة وإجابات",
     studioTitle: "يُصنع في Yallapp Studio",
-    studioText: "تطبيقات التوصيل مشاريع في Yallapp Studio: صمّم كل صفحة بحرية، مع باقات Studio الخاصة.",
+    studioText: "هذه التطبيقات مشاريع في Yallapp Studio: صمّم كل صفحة بحرية، مع باقات Studio الخاصة.",
     studioButton: "تعرّف على Yallapp Studio",
   },
   features: {
