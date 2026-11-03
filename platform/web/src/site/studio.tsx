@@ -14,6 +14,7 @@ import { getVisitorContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
 import { planFor, screenAltFor, solutionsFor } from "@/lib/marketing-lang";
+import type { AppScreen } from "@/lib/marketing";
 import { planOffered, STUDIO_PLANS } from "@/lib/plans";
 import { siteMetadata } from "@/lib/seo";
 import { messagesFor, type Lang } from "@/i18n";
@@ -45,7 +46,8 @@ async function studioPlans(lang: Lang) {
 /**
  * 103R /yallapp-studio: Yallapp Studio, the space in a client's account for
  * projects designed freely in the Studio editor, with project types only
- * Studio makes (104 delivery companies; 105 food delivery once it's there),
+ * Studio makes (104 delivery companies; 105 food delivery, rides, live taxis, academies
+ * with many teachers, schools and universities),
  * how it differs from regular apps, and its own plans.
  */
 export async function StudioPage({ lang }: { lang: Lang }) {
@@ -63,10 +65,15 @@ export async function StudioPage({ lang }: { lang: Lang }) {
     { icon: "dashboard_customize", text: m.el7 },
     { icon: "layers", text: m.el8 },
   ];
-  const onlyStudio: { icon: IconName; title: string; text: string; screen?: "delivery-courier" }[] = [
+  const onlyStudio: { icon: IconName; title: string; text: string; screen?: AppScreen }[] = [
     { icon: "local_shipping", title: m.deliveryTitle, text: m.deliveryText, screen: "delivery-courier" },
     // 105 Food delivery, once the kind is there.
     ...(kindById("food") ? [{ icon: "restaurant" as IconName, title: m.foodTitle, text: m.foodText }] : []),
+    // 105.2, 105.9 Rides and live taxis; 105.3 academies with many teachers; 105.4, 113 schools and universities.
+    { icon: "local_taxi", title: m.ridesTitle, text: m.ridesText, screen: "taxi-map" },
+    { icon: "groups", title: m.academyTitle, text: m.academyText, screen: "teachers-list" },
+    { icon: "school", title: m.schoolTitle, text: m.schoolText, screen: "school-today" },
+    { icon: "workspace_premium", title: m.universityTitle, text: m.universityText },
   ];
   return (
     <MarketingPage

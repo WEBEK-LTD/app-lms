@@ -801,6 +801,74 @@ export const TR_MARKETING: MarketingTranslation = {
         },
       ],
     },
+    maps: {
+      title: "Canlı haritalar, kuryeler ve sürücüler",
+      text: "Yallapp Studio'nun teslimat, yemek teslimatı, yolcu taşıma ve taksi projelerinde müşteriler yoldaki siparişlerini takip eder; kuryeleriniz ve sürücüleriniz telefonlarından çalışır.",
+      features: [
+        {
+          title: "Canlı takip",
+          text: "Müşteriler paketlerini, yemeklerini ya da sürücülerini aşama aşama, yoldayken de canlı haritada takip eder.",
+          details: [
+            "Alış ve teslim yeri haritada",
+            "İş ya da yolculuk ekranlarında açıkken kuryenin veya sürücünün konumu",
+            "Her aşamada bir bildirim",
+          ],
+        },
+        {
+          title: "Yallapp Courier",
+          text: "Yallapp'ın kuryeler için kendi uygulaması: teslimat şirketi onu Teslimat ayarları'ndan seçer ve kuryeleri için derleyip yayımlayacağı bir uygulaması olmaz.",
+          details: [
+            "Kuryenin teslimat yaptığı tüm şirketler için tek giriş",
+            "Görevde ve görev dışı, bekleyen işler ve her işin adımları",
+            "Tahsil edilecek nakit, aramalar ve yol tarifi",
+            "Yeni işler için bildirimler",
+          ],
+        },
+        {
+          title: "Sürücüler ve yolculuklar",
+          text: "Sürücüler çevrimiçi olur, her seferinde bir teklif alır ve her yolculuğun aşamalarını izler; yolcular ücretiyle bir araç türü seçer ve kendilerine gelen sürücüyü takip eder.",
+          details: [
+            "Şirketinizin adıyla sürücü uygulaması",
+            "Şirketin payı ve hesap dökümleriyle nakit ya da kart",
+            "Yolcular için yolculuğu paylaşma ve acil durum düğmesi",
+          ],
+        },
+      ],
+    },
+    schools: {
+      title: "Okullar, üniversiteler ve akademiler",
+      text: "Yallapp Studio'nun okul, üniversite ve akademi projelerinde herkesin uygulamada kendi bölümü vardır: öğrenciler, veliler, öğretmenler ve personel.",
+      features: [
+        {
+          title: "Öğrenciler, veliler ve öğretmenler",
+          text: "Ders programı, ödevler, notlar, devam, sınavlar, takvim ve duyurular; yalnızca velilerin gördüğü, her çocukları için bir Veli sekmesiyle.",
+          details: [
+            "Okul izin verdiğinde öğretmenler ve aileler arasında mesajlar",
+            "Yönetimle öğretmenler arasındaki raporlar",
+            "Üniversiteler: fakülteler, programlar, ders kaydı, sonuçlar ve not ortalaması",
+          ],
+        },
+        {
+          title: "Okulun günü",
+          text: "Öğrenciler, öğretmenler ve personel kapıda her 30 saniyede değişen bir kodla giriş yapar; okul servisini ve kütüphanesini uygulamada yönetir.",
+          details: [
+            "Durakları olan servis güzergâhları ve servisi haritada takip eden veliler",
+            "Kütüphanenin kitapları, kopyaları ve ödünç verilenleri",
+            "Öğretmenlerin ve personelin izin talepleri",
+          ],
+        },
+        {
+          title: "Ücretler ve maaşlar",
+          text: "Veliler ücretleri ve makbuzlarını görür; her maaş nakit ya da banka havalesiyle ödendi olarak kaydedilir, asla bir ödeme sistemi üzerinden geçmez.",
+          details: ["Her öğretmen ve personel için ayın bordrosu", "Ek ödemeler, primler, kesintiler ve avanslar", "Bordrolar kesinleşince kilitlenen ay"],
+        },
+        {
+          title: "Çok öğretmenli akademiler",
+          text: "Öğretmenler kurslarını siz inceledikten sonra yayımlar; her birinin payını siz belirlersiniz, istediğiniz dönem için hesap dökümleriyle.",
+          details: ["Öğrenciler öğretmenleri takip eder ve puanlar", "Öğretmenlik başvuruları ve sizin cevabınız", "Birlikte bir paket olarak satılan birkaç kurs"],
+        },
+      ],
+    },
   },
   comparison: [
     {
@@ -937,6 +1005,14 @@ export const TR_MARKETING: MarketingTranslation = {
         {
           q: "Başlamadan önce bir Studio projesi görebilir miyim?",
           a: "Evet. [Studio demosu](/demo/studio), uygulamanın kendisinin çizdiği gerçek Studio projelerinden ekranlar gösterir: düzenleyicide tasarlanmış bir kafenin ana sayfası, açık ve karanlık modda, bir teslimat şirketinin müşteri ve kurye ekranları ve düzenleyici. Normal uygulamaların demo uygulamaları [Demo](/demo) sayfasında.",
+        },
+        {
+          q: "Studio hangi proje türlerini yapar?",
+          a: "Yallapp'ın yaptığı her uygulama türünü ve yalnızca Studio'nun sunduğu proje türlerini: kuryeleriyle teslimat şirketleri, birçok restorandan yemek teslimatı, yolcu taşıma ve canlı taksiler, çok öğretmenli akademiler, öğrenciler, veliler ve öğretmenler için okullar ve üniversiteler. [Yallapp Studio](/yallapp-studio) sayfasına bakın.",
+        },
+        {
+          q: "Yallapp Courier nedir?",
+          a: "Yallapp'ın kuryeler için kendi uygulaması. Studio'da yapılmış bir teslimat şirketi, kuryelerinin kendi kurye uygulamasında mı yoksa Yallapp Courier'da mı çalışacağını **Teslimat ayarları**'ndan seçer. Yallapp Courier'da kurye, şirketin eklediği cep numarası ya da e-posta ve gelen kodla giriş yapar, şirketi seçer ve onun işleri üzerinde çalışır: görevde ve görev dışı, her işin adımları, tahsil edilecek nakit, aramalar ve yol tarifi. Birden fazla şirkete teslimat yapan biri uygulamada şirketler arasında geçiş yapar. [Kuryeleriniz için Yallapp Courier](/docs/yallapp-courier) sayfasına bakın.",
         },
       ],
     },

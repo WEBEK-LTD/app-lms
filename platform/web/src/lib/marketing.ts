@@ -1059,6 +1059,87 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
       },
     ],
   },
+  // 104, 105.1, 105.2, 105.9 Yallapp Studio's delivery, food delivery and ride projects.
+  {
+    id: "maps",
+    title: "Live maps, couriers and drivers",
+    text: "In Yallapp Studio's delivery, food delivery, ride and taxi projects, customers follow what's on its way, and your couriers and drivers work from their phones.",
+    screens: ["delivery-shipment", "delivery-courier", "taxi-map"],
+    features: [
+      {
+        icon: "map",
+        title: "Live tracking",
+        text: "Customers follow their parcel, their food or their driver stage by stage, and on a live map while it's on the way.",
+        details: [
+          "The pickup and the drop-off on the map",
+          "The courier's or driver's position while the job or the ride is open on their screen",
+          "A notification at each stage",
+        ],
+      },
+      {
+        icon: "two_wheeler",
+        title: "Yallapp Courier",
+        text: "Yallapp's own app for couriers: a delivery company chooses it in Delivery settings and has no couriers' app of its own to build or publish.",
+        details: [
+          "One sign-in for every company a courier delivers for",
+          "On and off duty, the jobs waiting and each job's steps",
+          "The cash to collect, calls and directions",
+          "Notifications for new jobs",
+        ],
+      },
+      {
+        icon: "local_taxi",
+        title: "Drivers and rides",
+        text: "Drivers go online, take one offer at a time and follow each ride's stages; riders choose a vehicle type with its fare and follow the driver coming to them.",
+        details: [
+          "The drivers' app in your company's name",
+          "Cash or card, with the company's share and statements",
+          "Sharing the ride and an emergency button for riders",
+        ],
+      },
+    ],
+  },
+  // 105.3, 105.4, 113 Yallapp Studio's academies with many teachers, schools and universities.
+  {
+    id: "schools",
+    title: "Schools, universities and academies",
+    text: "In Yallapp Studio's school, university and academy projects, everyone has the part of the app that is theirs: students, parents, teachers and staff.",
+    screens: ["school-today", "school-homework", "teachers-list"],
+    features: [
+      {
+        icon: "school",
+        title: "Students, parents and teachers",
+        text: "The timetable, homework, grades, attendance, exams, the calendar and announcements, with a Parent tab only parents see, for each of their children.",
+        details: [
+          "Messages between teachers and families, when the school allows them",
+          "Reports between the administration and the teachers",
+          "Universities: faculties, programs, course registration, results and the GPA",
+        ],
+      },
+      {
+        icon: "directions_bus",
+        title: "The school's day",
+        text: "Students, teachers and staff check in at the gate with a code that changes every 30 seconds, and the school runs its bus and its library in the app.",
+        details: [
+          "Bus routes with their stops, and parents following the bus on the map",
+          "The library's books, copies and loans",
+          "Leave requests from teachers and staff",
+        ],
+      },
+      {
+        icon: "payments",
+        title: "Fees and salaries",
+        text: "Parents see the fees and their receipts; each salary is written down as paid in cash or by bank transfer, never through a payment gateway.",
+        details: ["The month's payslip for each teacher and staff member", "Allowances, bonuses, deductions and advances", "The month locked once the payslips are final"],
+      },
+      {
+        icon: "groups",
+        title: "Academies with many teachers",
+        text: "Teachers publish their own courses once you've reviewed them, and you set each one's share, with statements for any period.",
+        details: ["Students follow and rate teachers", "Applying to teach, and your answer", "Several courses sold together as a bundle"],
+      },
+    ],
+  },
 ];
 
 /** "A typical app builder" next to Yallapp. No names: only what is often true elsewhere and always true here. */
@@ -1237,6 +1318,14 @@ export const FAQ: FaqGroup[] = [
       {
         q: "Can I see a Studio project before I start?",
         a: "Yes. The [Studio demo](/demo/studio) shows screens from real Studio projects, drawn by the app itself: a café's home page designed in the editor, in light and dark mode, a delivery company's customer and courier screens, and the editor. The demo apps of regular apps are on the [Demo](/demo) page.",
+      },
+      {
+        q: "Which kinds of projects does Studio make?",
+        a: "Every kind of app Yallapp makes, and the project types only Studio offers: delivery companies with their couriers, food delivery from many restaurants, rides and live taxis, academies with many teachers, schools for students, parents and teachers, and universities. See [Yallapp Studio](/yallapp-studio).",
+      },
+      {
+        q: "What is Yallapp Courier?",
+        a: "Yallapp's own app for couriers. A delivery company made in Studio chooses on **Delivery settings** whether its couriers work in its own couriers' app or in Yallapp Courier. In Yallapp Courier a courier signs in with the mobile number or email the company added and the code they get, chooses the company and works on its jobs: on and off duty, each job's steps, the cash to collect, calls and directions. Someone who delivers for several companies switches between them in the app. See [Yallapp Courier for your couriers](/docs/yallapp-courier).",
       },
     ],
   },
