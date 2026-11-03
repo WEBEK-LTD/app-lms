@@ -37,7 +37,6 @@ const text = (html: string, extra: Partial<MailBlock["style"]> = {}): MailBlock 
 const button = (label: string, url = "{{sign_in_link}}", extra: Partial<MailBlock["style"]> = {}): MailBlock => ({ id: blockId(), type: "button", button: { label, url }, style: { align: "left", padding: P(16, 32, 24, 32), radius: 12, ...extra } });
 const list = (items: string[]): MailBlock => ({ id: blockId(), type: "list", items, style: { padding: P(8, 32, 8, 32) } });
 const divider = (): MailBlock => ({ id: blockId(), type: "divider", size: 1, style: { padding: P(18, 32, 18, 32), borderColor: "#ECE6DA" } });
-const spacer = (size = 12): MailBlock => ({ id: blockId(), type: "spacer", size });
 const cards = (items: { kicker?: string; title: string; text: string; link?: string; url?: string }[], extra: Partial<MailBlock["style"]> = {}): MailBlock => ({
   id: blockId(),
   type: "cards",
@@ -294,7 +293,7 @@ export const MAIL_TEMPLATES: MailTemplateDef[] = [
       { ...kicker("SEASON'S GREETINGS", "#FFB26B"), style: { padding: P(24, 32, 0, 32), fontSize: 13, color: "#FFB26B", align: "center" } },
       h1("Warm wishes to you and your customers", { align: "center", color: IVORY }),
       text("<p>Write a short greeting for the season. Thank them for being with Yallapp, and wish their business a good season.</p>", { align: "center", color: "#D9D5EA" }),
-      button("Send my customers a greeting →", "{{sign_in_link}}", { align: "center", surface: "#FF5A1F" }),
+      button("Send my customers a greeting →", "{{sign_in_link}}", { align: "center", surface: IVORY, color: MIDNIGHT }),
       { ...footer("With thanks, the Yallapp team."), style: { align: "center", padding: P(22, 32, 8, 32), color: "#B9B4D3" } },
     ],
   },

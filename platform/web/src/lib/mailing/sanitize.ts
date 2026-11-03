@@ -101,11 +101,29 @@ export function sanitizeCss(css: string): string {
   out = out.replace(/\/\*[\s\S]*?\*\//g, "");
   out = out.replace(/@import[^;]*;?/gi, "").replace(/@charset[^;]*;?/gi, "");
   out = out.replace(/expression\s*\(/gi, "x(").replace(/behaviou?r\s*:/gi, "x:").replace(/-moz-binding\s*:/gi, "x:").replace(/javascript\s*:/gi, "").replace(/vbscript\s*:/gi, "");
-  out = out.replace(/url\s*\(\s*(['"]?)(.*?)\1\s*\)/gi, (_whole, _q: string, address: string) => {
-    const safe = safeUrl(address, "image");
-    return safe && !safe.startsWith("{{") ? `url('${safe.replace(/['"\\()]/g, "")}')` : "none";
-  });
+  out = replaceUrls(out);
   return out.trim();
+}
+
+/** Each url(...) (to its matching parenthesis): kept when it's a picture's web address, else none. */
+function replaceUrls(css: string): string {
+  let out = "";
+  let i = 0;
+  const pattern = /url\s*\(/gi;
+  for (let match = pattern.exec(css); match; match = pattern.exec(css)) {
+    let depth = 1;
+    let j = match.index + match[0].length;
+    for (; j < css.length && depth > 0; j += 1) {
+      if (css[j] === "(") depth += 1;
+      else if (css[j] === ")") depth -= 1;
+    }
+    const inner = css.slice(match.index + match[0].length, depth === 0 ? j - 1 : j).trim().replace(/^(['"])(.*)\1$/s, "$2");
+    const safe = safeUrl(inner, "image");
+    out += css.slice(i, match.index) + (safe && !safe.startsWith("{{") ? `url('${safe.replace(/['"\\()]/g, "")}')` : "none");
+    i = j;
+    pattern.lastIndex = j;
+  }
+  return out + css.slice(i);
 }
 
 function decodeCssEscapes(css: string): string {

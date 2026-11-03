@@ -274,7 +274,7 @@ function blockHtml(block: MailBlock, ctx: Ctx): string {
         (avatar ? `<img src="${attr(avatar)}" width="44" height="44" alt="" style="display:inline-block;width:44px;height:44px;border-radius:999px;vertical-align:middle;margin-${ctx.dir === "rtl" ? "left" : "right"}:10px;border:0;" />` : "") +
         `<span style="display:inline-block;vertical-align:middle;"><strong style="font-family:${font};font-size:15px;color:${qColor};">${escapeHtml(block.title ?? "")}</strong>${block.caption ? `<br /><span style="font-family:${font};font-size:13px;color:${ctx.theme.muted};">${escapeHtml(block.caption)}</span>` : ""}</span>`;
       return row(
-        `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td class="ya-surface" style="background-color:${surface};border-${start(ctx.dir)}:4px solid ${accent};border-radius:${s?.radius ?? 12}px;padding:22px 24px;text-align:${start(ctx.dir)};" bgcolor="${surface}" dir="${ctx.dir}"><div style="font-family:${s?.font ? font : fontStack("serif", ctx.dir)};font-size:${s?.fontSize ?? 19}px;line-height:1.55;color:${qColor};font-style:${ctx.dir === "rtl" ? "normal" : "italic"};margin:0 0 14px 0;" class="ya-text">${ctx.dir === "rtl" ? "”" : "“"}${escapeHtml(block.text ?? "")}${ctx.dir === "rtl" ? "“" : "”"}</div>${who}</td></tr></table>`,
+        `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;"><tr><td class="ya-surface" style="background-color:${surface};border-${start(ctx.dir)}:4px solid ${accent};border-radius:${s?.radius ?? 12}px;padding:22px 24px;text-align:${start(ctx.dir)};" bgcolor="${surface}" dir="${ctx.dir}"><div style="font-family:${s?.font ? font : fontStack("serif", ctx.dir)};font-size:${s?.fontSize ?? 19}px;line-height:1.55;color:${qColor};font-style:${ctx.dir === "rtl" ? "normal" : "italic"};margin:0 0 14px 0;" class="ya-text">${ctx.dir === "rtl" ? "”" : "“"}${escapeHtml(block.text ?? "")}${ctx.dir === "rtl" ? "“" : "”"}</div>${who}</td></tr></table>`,
         ctx,
         block,
         [12, 32, 12, 32],
@@ -301,7 +301,7 @@ function blockHtml(block: MailBlock, ctx: Ctx): string {
             `</div>`;
           const padS = index === 0 ? 0 : gap / 2;
           const padE = index === cards.length - 1 ? 0 : gap / 2;
-          return `<td class="ya-col" width="${w}" valign="top" style="width:${w}px;padding-${start(ctx.dir)}:${padS}px;padding-${ctx.dir === "rtl" ? "left" : "right"}:${padE}px;"><table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td class="ya-surface" bgcolor="${surface}" style="background-color:${surface};border:1px solid ${border};border-radius:${radius}px;">${body}</td></tr></table></td>`;
+          return `<td class="ya-col" width="${w}" valign="top" style="width:${w}px;padding-${start(ctx.dir)}:${padS}px;padding-${ctx.dir === "rtl" ? "left" : "right"}:${padE}px;"><table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;"><tr><td class="ya-surface" bgcolor="${surface}" style="background-color:${surface};border:1px solid ${border};border-radius:${radius}px;">${body}</td></tr></table></td>`;
         })
         .join("");
       return row(`<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" dir="${ctx.dir}"><tr>${cells}</tr></table>`, ctx, block, [12, 32, 12, 32]);
@@ -311,7 +311,7 @@ function blockHtml(block: MailBlock, ctx: Ctx): string {
       const border = s?.borderColor ?? "#FF5A1F";
       const cColor = s?.color ?? ctx.theme.text;
       return row(
-        `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td align="center" class="ya-surface" bgcolor="${surface}" style="background-color:${surface};border:2px dashed ${border};border-radius:${s?.radius ?? ctx.theme.radius}px;padding:24px 20px;text-align:center;">` +
+        `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;"><tr><td align="center" class="ya-surface" bgcolor="${surface}" style="background-color:${surface};border:2px dashed ${border};border-radius:${s?.radius ?? ctx.theme.radius}px;padding:24px 20px;text-align:center;">` +
           (block.text ? `<div style="font-family:${font};font-size:14px;font-weight:600;color:${ctx.theme.muted};margin:0 0 8px 0;" class="ya-muted">${escapeHtml(block.text)}</div>` : "") +
           `<div style="font-family:${FONTS.mono};font-size:30px;font-weight:800;letter-spacing:0.12em;color:${cColor};margin:0;" class="ya-text" dir="ltr">${escapeHtml(block.code ?? "")}</div>` +
           (block.button?.label ? `<div style="padding-top:18px;">${button(block.button, ctx, { fontSize: 15 }, "center")}</div>` : "") +
@@ -366,7 +366,7 @@ const LEGAL: Record<MailLang, { why: string; unsubscribe: string }> = {
 export function legalFooterHtml(lang: MailLang, dir: Dir, unsubscribeUrl: string, theme: MailTheme = BRAND_THEME): string {
   const t = LEGAL[lang];
   const font = fontStack(theme.font, dir);
-  return `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:${theme.width}px;margin:0 auto;"><tr><td class="ya-px" dir="${dir}" style="padding:22px 32px 36px 32px;text-align:center;font-family:${font};font-size:12px;line-height:1.7;color:#7A768C;"><span class="ya-legal">${escapeHtml(t.why)}</span><br /><a href="${attr(unsubscribeUrl)}" target="_blank" rel="noopener noreferrer" class="ya-legal" style="color:#7A768C;text-decoration:underline;">${escapeHtml(t.unsubscribe)}</a> &nbsp;·&nbsp; <span class="ya-legal">${COMPANY.name} · ${escapeHtml(COMPANY_PLACE)}</span></td></tr></table>`;
+  return `<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:${theme.width}px;margin:0 auto;"><tr><td class="ya-px" dir="${dir}" style="padding:22px 32px 36px 32px;text-align:center;font-family:${font};font-size:12px;line-height:1.7;color:#7A768C;"><span class="ya-legal">${escapeHtml(t.why)}</span><br /><a href="${attr(unsubscribeUrl)}" target="_blank" rel="noopener noreferrer" class="ya-legal" style="color:#7A768C;text-decoration:underline;">${escapeHtml(t.unsubscribe)}</a> &nbsp;·&nbsp; <span class="ya-legal" dir="ltr">${COMPANY.name} · ${escapeHtml(COMPANY_PLACE)}</span></td></tr></table>`;
 }
 
 export function legalFooterText(lang: MailLang, unsubscribeUrl: string): string {

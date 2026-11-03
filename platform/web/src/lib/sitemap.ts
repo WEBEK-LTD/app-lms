@@ -23,6 +23,8 @@ export const PRIVATE_PATHS = [
   "/pending",
   "/preview-app/",
   "/demo/download/",
+  // 114 A campaign email's unsubscribe page.
+  "/unsubscribe/",
 ];
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
