@@ -212,6 +212,10 @@ export const ar: Messages = {
     tryButton: "جرّب {demo}",
     others: "أنواع تطبيقات أخرى",
     ogFallback: "تطبيق يناسب طريقة عمل نشاطك",
+    faqTitle: "أسئلة وإجابات",
+    studioTitle: "يُصنع في Yallapp Studio",
+    studioText: "تطبيقات التوصيل مشاريع في Yallapp Studio: صمّم كل صفحة بحرية، مع باقات Studio الخاصة.",
+    studioButton: "تعرّف على Yallapp Studio",
   },
   features: {
     atGlance: "المزايا في لمحة",
@@ -574,7 +578,7 @@ export const ar: Messages = {
   },
   og: {
     footer: "تطبيقات Android وiOS بعلامتك التجارية",
-    siteAlt: "Yallapp: نشاطك التجاري في تطبيق جوّال خاص بك",
+    siteAlt: "Yallapp: أنشئ تطبيقًا لمتجرك أو مدرستك أو شركة التوصيل",
     siteTitle: "نشاطك التجاري، في تطبيق جوّال خاص بك.",
     siteText: "تطبيقات Android وiOS بعلامتك التجارية على متاجر التطبيقات الخمسة، من موقعك الحالي أو من Shopify ومنصات أخرى، أو من دون موقع على الإطلاق.",
     pricingAlt: "أسعار Yallapp",
@@ -595,7 +599,7 @@ export const ar: Messages = {
     faqText: "البدء، ومصادر المحتوى، ومتاجر التطبيقات الخمسة، والإشعارات، والمدفوعات، واللغات، والباقات، وYallapp Studio وYallapp Courier.",
   },
   meta: {
-    defaultTitle: "Yallapp: نشاطك التجاري في تطبيق جوّال خاص بك",
+    defaultTitle: "Yallapp: أنشئ تطبيقًا لمتجرك أو مدرستك أو شركة التوصيل",
     defaultDescription: "تطبيق بعلامتك التجارية للمتاجر والأكاديميات والمدارس والمطاعم والعيادات وشركات التوصيل والتاكسي، على Google Play وApp Store وGalaxy Store وAppGallery وGetApps.",
     solutionsTitle: "الحلول",
     solutionsDescription: "تطبيقات بعلامتك التجارية للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية والعقارات والأخبار والفعاليات والجمعيات الخيرية، بموقع أو من دونه.",

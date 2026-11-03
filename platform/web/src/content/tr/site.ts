@@ -36,6 +36,11 @@ export const TR_SITE: SiteContentTranslation = {
     title: "İşletmenizin çalışma şekline uygun bir uygulama",
     intro: "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, etkinlikler, yardım kuruluşları ve daha fazlası; web siteli ya da web sitesiz, aynı platformda kendi ekranlarıyla.",
   },
+  "solution-delivery": {
+    eyebrow: "Teslimat uygulamaları",
+    title: "Teslimat şirketiniz, müşterilerinizin cebinde",
+    intro: "Müşteriler paket gönderir ve haritada canlı takip eder; kuryeleriniz Yallapp Courier'da ya da adınızı taşıyan bir uygulamada iş alır ve nakit tahsil eder, hepsi Yallapp Studio'dan yönetilir.",
+  },
   "solution-academy": {
     eyebrow: "Akademi uygulamaları",
     title: "Akademiniz, öğrencilerinizin cebinde",

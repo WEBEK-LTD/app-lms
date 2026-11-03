@@ -346,8 +346,10 @@ describe("20 app kinds registry", () => {
       ["solution-news", "Solutions: News & blog", "/solutions/news"],
       ["solution-events", "Solutions: Events & tickets", "/solutions/events"],
       ["solution-charity", "Solutions: Charity & donations", "/solutions/charity"],
+      // SEO: Studio's delivery companies, after the regular kinds.
+      ["solution-delivery", "Solutions: Delivery & couriers", "/solutions/delivery"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Services & company apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps"]);
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Services & company apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps", "Delivery apps"]);
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });
