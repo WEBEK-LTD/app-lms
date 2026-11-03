@@ -5,6 +5,7 @@ import { saveDeliveryServiceAction, saveDeliverySettingsAction } from "@/app/act
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { Notice } from "@/components/ui";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 export interface SettingsFormValues {
@@ -200,8 +201,8 @@ export function DeliverySettingsForm({
   return (
     <form action={action} noValidate className="flex flex-col gap-6">
       <FormMessage message={state.message} ok={state.ok} />
-      <section className="flex flex-col gap-4">
-        <h3 className="m-0 text-[17px] font-bold">{t("delivery.pricing")}</h3>
+      {/* The page kit: the form in parts. */}
+      <FormSection id="f-delivery-pricing" title={t("delivery.pricing")} description={t("delivery.pricingHint")}>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-currency" className="text-sm font-semibold">
             {t("delivery.currency")}
@@ -246,10 +247,9 @@ export function DeliverySettingsForm({
           </span>
           <FieldError id="f-zones-error" error={state.errors?.zones} />
         </div>
-      </section>
+      </FormSection>
 
-      <fieldset className="m-0 flex flex-col gap-3 border-0 border-t border-line-soft p-0 pt-5">
-        <legend className="float-left mb-1 w-full text-[17px] font-bold">{t("delivery.paying")}</legend>
+      <FormSection id="f-delivery-paying" title={t("delivery.paying")}>
         {(
           [
             ["cash", t("delivery.payCash"), t("delivery.payCashHint")],
@@ -265,9 +265,9 @@ export function DeliverySettingsForm({
           </label>
         ))}
         <FieldError id="f-cash-error" error={state.errors?.cash} />
-      </fieldset>
+      </FormSection>
 
-      <div className="flex flex-col gap-6 border-t border-line-soft pt-5">
+      <FormSection id="f-delivery-jobs" title={t("delivery.formJobs")} description={t("delivery.formJobsHint")}>
         <Choices
           legend={t("delivery.tracking")}
           name="tracking"
@@ -288,7 +288,7 @@ export function DeliverySettingsForm({
             { value: "open", label: t("delivery.assignOpen"), hint: t("delivery.assignOpenHint") },
           ]}
         />
-      </div>
+      </FormSection>
 
       {hub ? (
         <section className="flex flex-col gap-4 border-t border-line-soft pt-5" data-couriers-work>
@@ -380,11 +380,11 @@ export function DeliverySettingsForm({
         </section>
       ) : null}
 
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-11" pendingText={t("common.saving")}>
           {t("delivery.saveSettings")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }
@@ -439,11 +439,11 @@ export function ServiceForm({ service, currency }: { service: ServiceFormValues;
         <input type="checkbox" name="active" defaultChecked={state.values ? state.values.active === "on" : service.active} className="h-4 w-4 accent-midnight" />
         {t("delivery.activeService")}
       </label>
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {t("delivery.saveService")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

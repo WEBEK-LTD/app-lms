@@ -213,6 +213,10 @@ export const en = {
     bundleTwo: "Choose at least two courses.",
     bundleMost: "Choose at most {max} courses.",
   },
+  // The page kit on a bundle's page.
+  bundlePriceStat: "Bundle price",
+  bundleInApp: "In the app",
+  bundleShownShort: "Shown",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -413,6 +417,9 @@ export const ar: Messages = {
     bundleTwo: "اختر دورتين على الأقل.",
     bundleMost: "اختر {max} دورة على الأكثر.",
   },
+  bundlePriceStat: "سعر الحزمة",
+  bundleInApp: "في التطبيق",
+  bundleShownShort: "ظاهرة",
 };
 
 export const tr: Messages = {
@@ -611,4 +618,7 @@ export const tr: Messages = {
     bundleTwo: "En az iki kurs seçin.",
     bundleMost: "En fazla {max} kurs seçin.",
   },
+  bundlePriceStat: "Paket fiyatı",
+  bundleInApp: "Uygulamada",
+  bundleShownShort: "Gösteriliyor",
 };

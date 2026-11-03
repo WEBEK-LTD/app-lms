@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
-import { Badge, btn, EmptyState, formatDateTime } from "@/components/ui";
+import { Badge, btn, EmptyState, formatDateTime, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterLinks, ListBar, ListSearch, Pager } from "@/components/page-kit-b";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -11,7 +13,7 @@ import { appPlan } from "@/lib/entitlements";
 import { DRIVER_ACTIVE, RIDE_ACTIVE, rideIdOf, rideReference } from "@/lib/rides/service";
 import { offeredTypes } from "@/lib/rides/settings";
 import { mapsLink } from "../shipments/parts";
-import { isRides, NotRides, PageHead, RideStatusBadge, RidesPlanNotice, TypesFirst } from "./parts";
+import { isRides, NotRides, RideStatusBadge, RidesPlanNotice, TypesFirst } from "./parts";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("rides.rides") };
@@ -66,147 +68,132 @@ export default async function RidesPage({ searchParams }: { searchParams: Promis
   const onRide = new Map(busy.items.filter((r) => r.driverId !== null).map((r) => [r.driverId!, r]));
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const link = (p: number, show: Filter = filter) => `/dashboard/rides?${new URLSearchParams({ show, ...(q ? { q } : {}), ...(p > 1 ? { page: String(p) } : {}) })}`;
-  const th = "px-4 py-3 font-semibold";
+  const busyNow = online.filter((d) => onRide.has(d.id)).length;
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("rides.rides")} intro={t("rides.ridesIntro")} />
+      {/* The page kit: the header and the live map, the drivers' numbers, the rides in a flush Section with their filters, search and pages, then the drivers online. */}
+      <PageHeader
+        title={t("rides.rides")}
+        description={t("rides.ridesIntro")}
+        actions={
+          <Link href="/dashboard/taxi/live" className={`${btn.main} h-11`}>
+            <Icon name="map" size={20} />
+            {t("taxi.liveMap")}
+          </Link>
+        }
+      />
       <RidesPlanNotice app={app} plan={plan} t={t} />
       {offeredTypes(types).length === 0 ? <TypesFirst t={t} /> : null}
 
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <nav aria-label={t("rides.rides")} className="flex flex-wrap gap-1.5">
-          {(Object.keys(FILTERS) as Filter[]).map((f) => (
-            <Link
-              key={f}
-              href={link(1, f)}
-              aria-current={f === filter ? "page" : undefined}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${
-                f === filter ? "border-midnight bg-midnight font-bold text-white hover:text-white" : "border-line bg-white text-ink-3 hover:border-midnight hover:text-midnight"
-              }`}
-            >
-              {t(FILTER_KEYS[f])}
-            </Link>
-          ))}
-        </nav>
-        <form method="get" className="flex items-end gap-2">
-          <input type="hidden" name="show" value={filter} />
-          <label htmlFor="f-q" className="sr-only">
-            {t("rides.search")}
-          </label>
-          <input id="f-q" name="q" type="search" defaultValue={q} placeholder={t("rides.searchPlaceholder")} className="input input-sm w-[220px]" />
-          <button type="submit" className={`${btn.secondary} h-10`}>
-            {t("rides.search")}
-          </button>
-        </form>
-      </div>
+      <StatRow label={t("rides.onlineNow")}>
+        <Stat icon="person" label={t("rides.drivers")} value={drivers.length} href="/dashboard/drivers" />
+        <Stat icon="check_circle" tone="success" label={t("rides.onlineNow")} value={online.length} />
+        <Stat icon="local_taxi" tone="accent" label={t("rides.onRide")} value={busyNow} />
+        <Stat icon="category" label={t("rides.vehicleTypes")} value={offeredTypes(types).length} href="/dashboard/vehicle-types" />
+      </StatRow>
 
-      {items.length === 0 ? (
-        <EmptyState icon="local_taxi" title={t("rides.noRides")}>
-          {t("rides.noRidesText")}
-        </EmptyState>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-          <table className="w-full min-w-[820px] border-collapse text-start text-[15px]">
-            <thead>
-              <tr className="border-b border-line text-[13px] text-muted">
-                <th scope="col" className={`${th} text-start`}>
-                  {t("rides.reference")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("rides.route")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("rides.rider")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("rides.driver")}
-                </th>
-                <th scope="col" className={`${th} text-end`}>
-                  {t("rides.fare")}
-                </th>
-                <th scope="col" className={`${th} text-start`}>
-                  {t("common.status")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((r) => (
-                <tr key={r.id} className="border-b border-line-soft align-top last:border-b-0">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Link href={`/dashboard/rides/${r.id}`} className="font-semibold">
-                      {rideReference(r)}
-                    </Link>
-                    <span className="block text-[13px] text-muted">{formatDateTime(r.scheduledAt ?? r.createdAt, lang)}</span>
-                    <span className="block text-[13px] text-muted">{r.vehicleTypeName}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="flex flex-col gap-0.5">
-                      <span className="line-clamp-1">{r.pickup.address}</span>
-                      <span className="line-clamp-1 text-[13px] text-muted">→ {r.dropoff.address}</span>
+      <Section titleId="h-rides" title={t(FILTER_KEYS[filter])} actions={<Badge tone="neutral">{total}</Badge>} flush>
+        <ListBar>
+          <FilterLinks label={t("rides.rides")} items={(Object.keys(FILTERS) as Filter[]).map((f) => ({ href: link(1, f), label: t(FILTER_KEYS[f]), current: f === filter }))} />
+          <ListSearch id="f-q" value={q} label={t("rides.search")} placeholder={t("rides.searchPlaceholder")} button={t("rides.search")} keep={{ show: filter }} />
+        </ListBar>
+        {items.length === 0 ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="local_taxi" title={t("rides.noRides")}>
+              {t("rides.noRidesText")}
+            </EmptyState>
+          </div>
+        ) : (
+          <ItemList>
+            {items.map((r, i) => (
+              <ItemRow
+                key={r.id}
+                href={`/dashboard/rides/${r.id}`}
+                media={<Thumb icon="local_taxi" shape="square" tint={i} />}
+                title={rideReference(r)}
+                badges={<Badge tone="neutral">{r.vehicleTypeName}</Badge>}
+                meta={
+                  <>
+                    <span className="line-clamp-1">{r.pickup.address}</span>
+                    <span className="line-clamp-1 text-ink-4">→ {r.dropoff.address}</span>
+                  </>
+                }
+                extra={
+                  <>
+                    <span>{formatDateTime(r.scheduledAt ?? r.createdAt, lang)}</span>
+                    <span className="flex items-center gap-1">
+                      <Icon name="person" size={16} className="text-muted" />
+                      {r.riderName}
                     </span>
-                  </td>
-                  <td className="px-4 py-3">{r.riderName}</td>
-                  <td className="px-4 py-3">{r.driverName ?? <span className="text-muted">{t("rides.noDriver")}</span>}</td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">
-                    {formatCents(r.status === "completed" && r.finalCents !== null ? r.finalCents : r.status === "cancelled" ? (r.cancellation?.feeCents ?? 0) : r.quotedCents, r.currency)}
-                    <span className="block text-[13px] text-muted">
-                      {t(r.paymentMethod === "cash" ? "rides.cash" : "rides.card")} · {t(r.paymentStatus === "paid" ? "rides.paid" : r.paymentStatus === "refunded" ? "rides.refunded" : "rides.unpaid")}
+                    <span className="flex items-center gap-1">
+                      <Icon name="directions_car" size={16} className="text-muted" />
+                      {r.driverName ?? t("rides.noDriver")}
                     </span>
-                  </td>
-                  <td className="px-4 py-3">
+                  </>
+                }
+                aside={
+                  <>
+                    <span className="flex flex-col items-end text-end">
+                      <span className="text-[15px] font-bold whitespace-nowrap tabular-nums">
+                        {formatCents(r.status === "completed" && r.finalCents !== null ? r.finalCents : r.status === "cancelled" ? (r.cancellation?.feeCents ?? 0) : r.quotedCents, r.currency)}
+                      </span>
+                      <span className="text-[13px] text-muted">
+                        {t(r.paymentMethod === "cash" ? "rides.cash" : "rides.card")} · {t(r.paymentStatus === "paid" ? "rides.paid" : r.paymentStatus === "refunded" ? "rides.refunded" : "rides.unpaid")}
+                      </span>
+                    </span>
                     <RideStatusBadge status={r.status} t={t} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {pages > 1 ? (
-        <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3">
-          {page > 1 ? <Link href={link(page - 1)}>{t("rides.newer")}</Link> : <span />}
-          <span className="text-sm text-muted">{t("common.page", { page, pages })}</span>
-          {page < pages ? <Link href={link(page + 1)}>{t("rides.older")}</Link> : <span />}
-        </nav>
-      ) : null}
+                  </>
+                }
+              />
+            ))}
+          </ItemList>
+        )}
+        <Pager
+          label={t("orders.pages")}
+          page={page}
+          pages={pages}
+          newer={link(page - 1)}
+          older={link(page + 1)}
+          newerLabel={t("rides.newer")}
+          olderLabel={t("rides.older")}
+          pageLabel={t("common.page", { page, pages })}
+        />
+      </Section>
 
-      <section aria-labelledby="h-online" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <h2 id="h-online" className="m-0 text-lg font-bold">
-            {t("rides.onlineNow")}
-          </h2>
-          <p className="m-0 text-[15px] text-ink-4">{t("rides.onlineNowIntro")}</p>
-        </div>
+      <Section titleId="h-online" title={t("rides.onlineNow")} description={t("rides.onlineNowIntro")} actions={<Badge tone="neutral">{online.length}</Badge>}>
         {online.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("rides.noneOnline")}</p>
+          <EmptyState icon="directions_car" title={t("rides.noneOnline")} />
         ) : (
           <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr))]">
-            {online.map((d) => {
+            {online.map((d, i) => {
               const ride = onRide.get(d.id);
               return (
-                <li key={d.id} className="flex flex-col gap-1 rounded-xl border border-line p-3">
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="font-bold">{d.name}</span>
-                    <Badge tone={ride ? "info" : "success"}>{ride ? t("rides.onRide") : t("rides.free")}</Badge>
+                <li key={d.id} className="flex items-start gap-3 rounded-xl border border-line p-3">
+                  <Thumb icon="person" shape="round" tint={i} />
+                  <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="truncate font-bold">{d.name}</span>
+                      <Badge tone={ride ? "info" : "success"}>{ride ? t("rides.onRide") : t("rides.free")}</Badge>
+                    </span>
+                    {ride ? (
+                      <Link href={`/dashboard/rides/${ride.id}`} className="text-[13px] font-semibold">
+                        {rideReference(ride)}
+                      </Link>
+                    ) : null}
+                    {d.lat !== null && d.lng !== null && d.locatedAt ? (
+                      <a href={mapsLink(d.lat, d.lng)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-semibold">
+                        <Icon name="my_location" size={16} />
+                        {t("rides.lastSeen", { time: formatDateTime(d.locatedAt, lang) })}
+                      </a>
+                    ) : null}
                   </span>
-                  {ride ? (
-                    <Link href={`/dashboard/rides/${ride.id}`} className="text-[13px] font-semibold">
-                      {rideReference(ride)}
-                    </Link>
-                  ) : null}
-                  {d.lat !== null && d.lng !== null && d.locatedAt ? (
-                    <a href={mapsLink(d.lat, d.lng)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-semibold">
-                      <Icon name="my_location" size={16} />
-                      {t("rides.lastSeen", { time: formatDateTime(d.locatedAt, lang) })}
-                    </a>
-                  ) : null}
                 </li>
               );
             })}
           </ul>
         )}
-      </section>
+      </Section>
     </div>
   );
 }

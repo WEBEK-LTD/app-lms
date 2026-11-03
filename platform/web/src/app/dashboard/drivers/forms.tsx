@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { saveDriverAction } from "@/app/actions/rides";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 /** 105.2 A driver: the number (or email) they sign in with, their vehicle type and car, their photo and papers, their own share. */
@@ -103,11 +104,11 @@ export function DriverForm({
           </div>
         </div>
       </fieldset>
-      <div className="flex justify-end">
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {id ? t("rides.saveDriver") : t("rides.add")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }

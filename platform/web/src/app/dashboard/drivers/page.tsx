@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { deleteDriverAction, setDriverActiveAction } from "@/app/actions/rides";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn, formatDateTime } from "@/components/ui";
+import { Badge, btn, EmptyState, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { FilterList, Sheet, SheetButton } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -14,9 +16,8 @@ import { driverFormValues, shareText } from "@/lib/rides/forms";
 import { DRIVER_ACTIVE, ratingOf } from "@/lib/rides/service";
 import { driverOf, ridesSettingsOf } from "@/lib/rides/settings";
 import { ConfirmButton } from "../chat/forms";
-import { AddServiceBox } from "../delivery/forms";
 import { mapsLink } from "../shipments/parts";
-import { isRides, NotRides, PageHead, RidesPlanNotice } from "../rides/parts";
+import { isRides, NotRides, RidesPlanNotice } from "../rides/parts";
 import { DriverForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,101 +45,136 @@ export default async function DriversPage() {
   const typeChoices = types.map((v) => ({ id: v.id, name: v.name }));
   const documentsOf = (d: ReturnType<typeof driverOf>) => d.documents.map((doc) => ({ ...doc, url: `/dashboard/drivers/documents/${doc.assetId}` }));
 
+  const has = drivers.length > 0;
+  const online = drivers.filter((c) => c.active && c.onDuty).length;
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("rides.drivers")} intro={t("rides.driversIntro")} />
+      {/* The page kit: the header and its main action, the numbers, the form in a Sheet (in place for the first driver), then the list. */}
+      <PageHeader
+        title={t("rides.drivers")}
+        description={t("rides.driversIntro")}
+        actions={
+          has ? (
+            <SheetButton target="new-driver" icon="add">
+              {t("rides.addDriver")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <RidesPlanNotice app={app} plan={plan} t={t} />
 
-      <section aria-labelledby="h-add" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <AddServiceBox title={t("rides.addDriver")} open={drivers.length === 0}>
-          <DriverForm id={null} values={driverFormValues(null)} emailOnly={emailOnly} types={typeChoices} usualShare={usualShare} photoUrl={null} documents={[]} />
-        </AddServiceBox>
-        <h2 id="h-add" className="sr-only">
-          {t("rides.addDriver")}
-        </h2>
-      </section>
+      {has ? (
+        <StatRow label={t("rides.drivers")}>
+          <Stat icon="person" label={t("rides.drivers")} value={drivers.length} />
+          <Stat icon="check_circle" tone="success" label={t("rides.online")} value={online} />
+          <Stat icon="local_taxi" tone="accent" label={t("rides.onRide")} value={drivers.filter((c) => onRide.has(c.id)).length} href="/dashboard/rides" />
+          <Stat icon="block" tone="warn" label={t("rides.suspended")} value={drivers.filter((c) => !c.active).length} />
+        </StatRow>
+      ) : null}
 
-      <section aria-labelledby="h-drivers" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-drivers" className="m-0 text-lg font-bold">
-          {t("rides.driverCount", { count: drivers.length })}
-        </h2>
-        {drivers.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("rides.noDriversYet")}</p>
+      {/* One place in the page either way, so the form that adds the first driver keeps its message. */}
+      <Sheet id="new-driver" inline={!has} title={t("rides.addDriver")} description={t("rides.addDriverHint")}>
+        <DriverForm id={null} values={driverFormValues(null)} emailOnly={emailOnly} types={typeChoices} usualShare={usualShare} photoUrl={null} documents={[]} />
+      </Sheet>
+
+      <Section titleId="h-drivers" title={t("rides.driverCount", { count: drivers.length })} flush>
+        {!has ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="directions_car" title={t("rides.noDriversYet")} />
+          </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {drivers.map((c) => {
+          <FilterList
+            allLabel={t("common.all")}
+            searchLabel={t("rides.searchDrivers")}
+            noMatch={t("rides.noDriverMatch")}
+            filters={[
+              { value: "online", label: t("rides.online") },
+              { value: "offline", label: t("rides.offline") },
+              { value: "suspended", label: t("rides.suspended") },
+            ]}
+            items={drivers.map((c, i) => {
               const d = driverOf(c);
               const rating = ratingOf(c);
               const car = [d.carColor, d.carModel, d.plate].filter(Boolean).join(" · ");
-              return (
-                <li key={c.id} className="flex flex-col gap-3 border-t border-line-soft py-4 first:border-t-0 first:pt-0">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {d.photoAssetId ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={assetUrl(d.photoAssetId)} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
-                    ) : (
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-muted">
-                        <Icon name="person" size={22} />
-                      </span>
-                    )}
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="text-[15px] font-bold">{c.name}</span>
-                      <span className="text-[13px] text-muted" dir="auto">
-                        {[c.phone ?? c.email, typeName(d.vehicleTypeId), car, rating !== null ? t("rides.ratingLine", { rating: String(rating), count: d.ratingCount }) : null].filter(Boolean).join(" · ")}
-                      </span>
-                      {c.onDuty && c.lat !== null && c.lng !== null && c.locatedAt ? (
-                        <a href={mapsLink(c.lat, c.lng)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-semibold">
-                          <Icon name="my_location" size={16} />
-                          {t("rides.lastSeen", { time: formatDateTime(c.locatedAt, lang) })}
-                        </a>
-                      ) : null}
-                    </span>
-                    {c.active ? (
-                      <Badge tone={c.onDuty ? "success" : "neutral"}>{onRide.has(c.id) ? t("rides.onRide") : t(c.onDuty ? "rides.online" : "rides.offline")}</Badge>
-                    ) : (
-                      <Badge tone="warn">{t("rides.suspended")}</Badge>
-                    )}
-                    <form action={setDriverActiveAction}>
-                      <input type="hidden" name="id" value={c.id} />
-                      <input type="hidden" name="active" value={c.active ? "false" : "true"} />
-                      <SubmitButton variant="secondary" className="h-9">
-                        {t(c.active ? "rides.suspend" : "rides.approve")}
-                      </SubmitButton>
-                    </form>
-                    <form action={deleteDriverAction}>
-                      <input type="hidden" name="id" value={c.id} />
-                      <ConfirmButton confirm={t("rides.deleteConfirm")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                        {t("rides.delete")}
-                      </ConfirmButton>
-                    </form>
-                  </div>
-                  <details className="rounded-xl border border-line p-4">
-                    <summary className="cursor-pointer text-[15px] font-semibold">{t("rides.edit")}</summary>
-                    <div className="pt-3">
-                      <DriverForm
-                        id={c.id}
-                        values={driverFormValues(c)}
-                        emailOnly={emailOnly}
-                        types={typeChoices}
-                        usualShare={usualShare}
-                        photoUrl={d.photoAssetId ? assetUrl(d.photoAssetId) : null}
-                        documents={documentsOf(d)}
-                      />
-                    </div>
-                  </details>
-                </li>
-              );
+              return {
+                id: c.id,
+                text: [c.name, c.phone, c.email, d.plate, d.carModel, typeName(d.vehicleTypeId)].filter(Boolean).join(" "),
+                group: !c.active ? "suspended" : c.onDuty ? "online" : "offline",
+                node: (
+                  <ItemRow
+                    media={<Thumb src={d.photoAssetId ? assetUrl(d.photoAssetId) : null} icon="person" shape="round" tint={i} />}
+                    title={c.name}
+                    badges={typeName(d.vehicleTypeId) ? <Badge tone="neutral">{typeName(d.vehicleTypeId)}</Badge> : null}
+                    meta={[c.phone ?? c.email, rating !== null ? t("rides.ratingLine", { rating: String(rating), count: d.ratingCount }) : null].filter(Boolean).join(" · ")}
+                    extra={
+                      <>
+                        {car ? (
+                          <span className="flex items-center gap-1">
+                            <Icon name="directions_car" size={16} className="text-muted" />
+                            {car}
+                          </span>
+                        ) : null}
+                        {c.onDuty && c.lat !== null && c.lng !== null && c.locatedAt ? (
+                          <a href={mapsLink(c.lat, c.lng)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[13px] font-semibold">
+                            <Icon name="my_location" size={16} />
+                            {t("rides.lastSeen", { time: formatDateTime(c.locatedAt, lang) })}
+                          </a>
+                        ) : null}
+                      </>
+                    }
+                    aside={
+                      c.active ? (
+                        <Badge tone={c.onDuty ? "success" : "neutral"}>{onRide.has(c.id) ? t("rides.onRide") : t(c.onDuty ? "rides.online" : "rides.offline")}</Badge>
+                      ) : (
+                        <Badge tone="warn">{t("rides.suspended")}</Badge>
+                      )
+                    }
+                    actions={
+                      <>
+                        <SheetButton target={`driver-${c.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                          {t("rides.edit")}
+                        </SheetButton>
+                        <form action={setDriverActiveAction}>
+                          <input type="hidden" name="id" value={c.id} />
+                          <input type="hidden" name="active" value={c.active ? "false" : "true"} />
+                          <SubmitButton variant="secondary" className="h-9 px-3.5 text-sm">
+                            {t(c.active ? "rides.suspend" : "rides.approve")}
+                          </SubmitButton>
+                        </form>
+                        <form action={deleteDriverAction}>
+                          <input type="hidden" name="id" value={c.id} />
+                          <ConfirmButton confirm={t("rides.deleteConfirm")} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                            {t("rides.delete")}
+                          </ConfirmButton>
+                        </form>
+                        <Sheet id={`driver-${c.id}`} title={t("rides.edit")} description={c.phone ?? c.email ?? undefined}>
+                          <DriverForm
+                            id={c.id}
+                            values={driverFormValues(c)}
+                            emailOnly={emailOnly}
+                            types={typeChoices}
+                            usualShare={usualShare}
+                            photoUrl={d.photoAssetId ? assetUrl(d.photoAssetId) : null}
+                            documents={documentsOf(d)}
+                          />
+                        </Sheet>
+                      </>
+                    }
+                  />
+                ),
+              };
             })}
-          </ul>
+          />
         )}
-      </section>
+      </Section>
 
-      <section aria-labelledby="h-how" className="flex max-w-[760px] flex-col gap-2 rounded-2xl border border-line bg-sand p-5 sm:p-6">
-        <h2 id="h-how" className="m-0 text-lg font-bold">
-          {t("rides.howDrivers")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("rides.howDriversText")}</p>
-      </section>
+      <Notice tone="neutral" icon="help">
+        <span className="flex flex-col gap-1">
+          <span className="font-bold">{t("rides.howDrivers")}</span>
+          <span>{t("rides.howDriversText")}</span>
+        </span>
+      </Notice>
     </div>
   );
 }

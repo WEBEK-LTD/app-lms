@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge } from "@/components/ui";
+import { Badge, EmptyState, PageHeader } from "@/components/ui";
+import { ItemRow, Thumb } from "@/components/page-kit";
+import { FilterLinks, ListBar, Pager } from "@/components/page-kit-b";
 import { requireClient } from "@/lib/auth/session";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
 import { getStore } from "@/lib/data";
@@ -21,12 +23,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const { app } = await requireClient("messages");
   const { t, date } = await dashboardText();
   if (!app || app.connector?.kind !== "courses") {
-    return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("community.questions")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{richText(t("community.notHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })}</p>
-      </div>
-    );
+    return <PageHeader title={t("community.questions")} description={richText(t("community.notHere"), { link: (chunk) => <Link href="/dashboard/setup?step=website">{chunk}</Link> })} />;
   }
   const params = await searchParams;
   const filter = FILTERS.find((f) => f === params.status) ?? "open";
@@ -40,61 +37,66 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const label = { open: t("community.waiting"), answered: t("community.answered"), hidden: t("community.hidden"), all: t("community.all") };
 
+  const link = (f: (typeof FILTERS)[number], p = 1) => `/dashboard/courses/questions?status=${f}${p > 1 ? `&page=${p}` : ""}`;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("community.questions")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("community.questionsIntro")}</p>
-      </div>
+      {/* The page kit: the header, then the questions in a flush Section with their filters and pages. */}
+      <PageHeader title={t("community.questions")} description={t("community.questionsIntro")} />
 
-      <nav aria-label={t("community.questions")} className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <Link
-            key={f}
-            href={`/dashboard/courses/questions?status=${f}`}
-            aria-current={filter === f ? "page" : undefined}
-            className={`rounded-[10px] px-3.5 py-2 text-[15px] no-underline ${filter === f ? "bg-midnight font-bold text-white hover:text-white" : "border border-line bg-white text-midnight hover:text-midnight"}`}
-          >
-            {label[f]}
-          </Link>
-        ))}
-      </nav>
-
-      <section aria-label={label[filter]} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <section aria-label={label[filter]} className="flex min-w-0 flex-col rounded-2xl border border-line bg-white">
+        <ListBar>
+          <FilterLinks label={t("community.questions")} items={FILTERS.map((f) => ({ href: link(f), label: label[f], current: filter === f }))} />
+          <span className="text-sm text-muted">{t("learning.questionsTotal", { count: total })}</span>
+        </ListBar>
         {items.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("community.noQuestions")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="forum" title={t("community.noQuestions")} />
+          </div>
         ) : (
           <ul className="m-0 flex list-none flex-col p-0" data-testid="course-questions">
-            {items.map((q) => {
+            {items.map((q, i) => {
               const name = users.get(q.userId)?.name ?? t("community.student");
               return (
-                <li key={q.id} className="border-t border-line-soft first:border-t-0">
-                  <Link href={`/dashboard/courses/questions/${q.id}`} className="flex items-center gap-3 py-3 text-midnight no-underline hover:bg-sand">
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className={`truncate text-[15px] ${q.status === "open" ? "font-extrabold" : "font-bold"}`}>
-                        {name} · {t("community.inCourse", { course: titles.get(q.courseId) ?? t("community.deletedCourse") })}
-                      </span>
-                      <span className="truncate text-[14px] text-ink-4">{q.text}</span>
-                      {/* 113.7 A lesson's discussion. */}
-                      {q.lessonId && lessons.get(q.lessonId) ? <span className="truncate text-[13px] text-muted">{t("learning.inLesson", { lesson: lessons.get(q.lessonId)! })}</span> : null}
-                      <span className="text-[13px] text-muted">{t("community.answers", { count: q.answerCount })}</span>
+                <ItemRow
+                  key={q.id}
+                  href={`/dashboard/courses/questions/${q.id}`}
+                  media={<Thumb icon="forum" shape="round" tint={i} />}
+                  title={
+                    <span className={q.status === "open" ? "font-extrabold" : undefined}>
+                      {name} · {t("community.inCourse", { course: titles.get(q.courseId) ?? t("community.deletedCourse") })}
                     </span>
-                    <span className="shrink-0 text-[13px] text-muted">{t("listings.utc", { time: date(q.updatedAt, WHEN) })}</span>
-                    {q.pinned ? <Badge tone="neutral">{t("learning.pinned")}</Badge> : null}
-                    {q.hidden ? <Badge tone="neutral">{t("community.hiddenBadge")}</Badge> : q.status === "open" ? <Badge tone="info">{t("community.waiting")}</Badge> : null}
-                  </Link>
-                </li>
+                  }
+                  meta={<span className="line-clamp-2 text-ink-4">{q.text}</span>}
+                  extra={
+                    <>
+                      {/* 113.7 A lesson's discussion. */}
+                      {q.lessonId && lessons.get(q.lessonId) ? <span>{t("learning.inLesson", { lesson: lessons.get(q.lessonId)! })}</span> : null}
+                      <span>{t("community.answers", { count: q.answerCount })}</span>
+                      <span>{t("listings.utc", { time: date(q.updatedAt, WHEN) })}</span>
+                    </>
+                  }
+                  aside={
+                    <>
+                      {q.pinned ? <Badge tone="neutral">{t("learning.pinned")}</Badge> : null}
+                      {q.hidden ? <Badge tone="neutral">{t("community.hiddenBadge")}</Badge> : q.status === "open" ? <Badge tone="info">{t("community.waiting")}</Badge> : null}
+                    </>
+                  }
+                />
               );
             })}
           </ul>
         )}
-        {pages > 1 ? (
-          <nav aria-label={t("orders.pages")} className="flex items-center justify-between gap-3 pt-2 text-sm">
-            {page > 1 ? <Link href={`/dashboard/courses/questions?status=${filter}&page=${page - 1}`}>{t("listings.newer")}</Link> : <span />}
-            <span className="text-muted">{t("common.page", { page, pages })}</span>
-            {page < pages ? <Link href={`/dashboard/courses/questions?status=${filter}&page=${page + 1}`}>{t("listings.older")}</Link> : <span />}
-          </nav>
-        ) : null}
+        <Pager
+          label={t("orders.pages")}
+          page={page}
+          pages={pages}
+          newer={link(filter, page - 1)}
+          older={link(filter, page + 1)}
+          newerLabel={t("listings.newer")}
+          olderLabel={t("listings.older")}
+          pageLabel={t("common.page", { page, pages })}
+        />
       </section>
     </div>
   );

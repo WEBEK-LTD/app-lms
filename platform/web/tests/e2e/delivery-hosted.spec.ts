@@ -155,6 +155,8 @@ test("Couriers: one added by mobile number, then a second with the same number i
   await own.reload();
   await expect(own.getByText("Karim Hassan").first()).toBeVisible();
 
+  // With couriers on the page, the form opens from the header's button.
+  await own.getByRole("button", { name: "Add a courier" }).click();
   await add.getByLabel("Name", { exact: true }).fill("Someone else");
   await add.getByLabel("Mobile number").fill("+20 111 222 3334");
   await add.getByRole("button", { name: "Add" }).click();

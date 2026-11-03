@@ -274,6 +274,14 @@ export const en = {
     promoLine: "Write each code on its own line as the code, the % off, the most it takes off, the last day and how many rides may use it (\"-\" for no limit), like \"WELCOME, 20, 50, 2026-12-31, 500\". Check: {line}",
     driverAppName: "Give the drivers' app a name of up to {max} characters.",
   },
+  // The page kit on the ride pages.
+  searchDrivers: "Search drivers",
+  noDriverMatch: "No drivers match.",
+  addDriverHint: "Their name, the number they sign in with, their vehicle type and car.",
+  typesOffered: "{count, plural, =0 {None offered yet} one {{count} offered} other {{count} offered}}",
+  addVehicleTypeHint: "Its name, seats and fares; riders choose it when they ask for a ride.",
+  groupHow: "Fares and how rides work",
+  groupPayments: "Card payments",
 } as const;
 
 export const ar: Strings<typeof en> = {
@@ -542,6 +550,13 @@ export const ar: Strings<typeof en> = {
     promoLine: "اكتب كل رمز في سطر: الرمز، ونسبة الخصم، وأقصى خصم، وآخر يوم، وعدد الرحلات المسموح بها (\"-\" بلا حد)، مثل \"WELCOME, 20, 50, 2026-12-31, 500\". راجع: {line}",
     driverAppName: "اختر لتطبيق السائقين اسمًا لا يتجاوز {max} حرفًا.",
   },
+  searchDrivers: "ابحث في السائقين",
+  noDriverMatch: "لا يوجد سائقون مطابقون.",
+  addDriverHint: "اسمه والرقم الذي يسجّل الدخول به ونوع مركبته وسيارته.",
+  typesOffered: "{count, plural, =0 {لا يوجد نوع معروض بعد} one {نوع واحد معروض} two {نوعان معروضان} few {{count} أنواع معروضة} many {{count} نوعًا معروضًا} other {{count} نوع معروض}}",
+  addVehicleTypeHint: "اسمه وعدد مقاعده وأسعاره، ويختاره الركاب عند طلب رحلة.",
+  groupHow: "الأسعار وطريقة عمل الرحلات",
+  groupPayments: "الدفع بالبطاقة",
 };
 
 export const tr: Strings<typeof en> = {
@@ -810,4 +825,11 @@ export const tr: Strings<typeof en> = {
     promoLine: "Her kodu ayrı satıra kod, indirim yüzdesi, en fazla indirim, son gün ve kaç yolculukta kullanılabileceğiyle (sınırsız için \"-\") yazın, örneğin \"WELCOME, 20, 50, 2026-12-31, 500\". Kontrol edin: {line}",
     driverAppName: "Sürücü uygulamasına en fazla {max} karakterlik bir ad verin.",
   },
+  searchDrivers: "Sürücülerde ara",
+  noDriverMatch: "Eşleşen sürücü yok.",
+  addDriverHint: "Adı, giriş yaptığı numara, araç türü ve arabası.",
+  typesOffered: "{count, plural, =0 {Henüz sunulan yok} other {{count} sunuluyor}}",
+  addVehicleTypeHint: "Adı, koltuk sayısı ve ücretleri; yolcular yolculuk isterken seçer.",
+  groupHow: "Ücretler ve yolculukların işleyişi",
+  groupPayments: "Kartla ödemeler",
 };

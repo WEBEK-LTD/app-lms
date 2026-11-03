@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
+import { Badge, btn, EmptyState, Section } from "@/components/ui";
+import { ItemList, ItemRow, Stat, StatRow, Thumb } from "@/components/page-kit";
+import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
 import { courseSetup, lessonsOf } from "@/lib/courses/setup";
@@ -32,51 +35,60 @@ export default async function ReviewPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the numbers, the courses waiting (each with its review form), then those sent back. */}
       <PageHead title={t("teachers.review")} intro={t("teachers.reviewIntro")} />
-      <section aria-labelledby="h-waiting" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-waiting" className="m-0 text-lg font-bold">
-          {t("teachers.stage_in_review")}
-        </h2>
+      <StatRow label={t("teachers.review")}>
+        <Stat icon="pending" tone="warn" label={t("teachers.stage_in_review")} value={waiting.length} />
+        <Stat icon="undo" label={t("teachers.returnedTitle")} value={returned.length} />
+      </StatRow>
+
+      <Section titleId="h-waiting" title={t("teachers.stage_in_review")} actions={<Badge tone="neutral">{waiting.length}</Badge>} flush>
         {waiting.length === 0 ? (
-          <p className="m-0 text-[15px] text-muted">{t("teachers.noReview")}</p>
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="task_alt" title={t("teachers.noReview")} />
+          </div>
         ) : (
-          <ul className="m-0 flex list-none flex-col p-0">
-            {waiting.map((c) => (
-              <li key={c.id} className="flex flex-col gap-3 border-t border-line-soft py-4 first:border-t-0 first:pt-0">
+          <ItemList>
+            {waiting.map((c, i) => (
+              <li key={c.id} className="flex flex-col gap-3 border-t border-line-soft px-5 py-4 first:border-t-0 sm:px-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-[15px] font-bold">{c.title}</span>
-                    <span className="text-[13px] text-muted">{line(c)}</span>
+                  <span className="flex min-w-0 items-center gap-3.5">
+                    <Thumb src={c.imageAssetId ? assetUrl(c.imageAssetId) : null} icon="school" tint={i} />
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                      <span className="text-[15px] font-bold break-words">{c.title}</span>
+                      <span className="text-[13px] text-muted">{line(c)}</span>
+                    </span>
                   </span>
-                  <Link href={`/dashboard/courses/${c.id}`} className="inline-flex items-center gap-1 text-sm font-semibold">
+                  <Link href={`/dashboard/courses/${c.id}`} className={`${btn.secondary} h-9 px-3.5 text-sm`}>
                     {t("teachers.open")}
                     <Icon name="arrow_forward" size={18} />
                   </Link>
                 </div>
-                <ReviewForm courseId={c.id} />
+                <div className="rounded-xl bg-sand p-4">
+                  <ReviewForm courseId={c.id} />
+                </div>
               </li>
             ))}
-          </ul>
+          </ItemList>
         )}
-      </section>
+      </Section>
+
       {returned.length ? (
-        <section aria-labelledby="h-returned" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-returned" className="m-0 text-lg font-bold">
-            {t("teachers.returnedTitle")}
-          </h2>
-          <ul className="m-0 flex list-none flex-col p-0">
-            {returned.map((c) => (
-              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{c.title}</span>
-                  <span className="text-[13px] text-muted">{line(c)}</span>
-                  {c.reviewNote ? <span className="text-[13px]">{t("teachers.reviewNote", { note: c.reviewNote })}</span> : null}
-                </span>
-                <StageBadge stage="returned" t={t} />
-              </li>
+        <Section titleId="h-returned" title={t("teachers.returnedTitle")} actions={<Badge tone="neutral">{returned.length}</Badge>} flush>
+          <ItemList>
+            {returned.map((c, i) => (
+              <ItemRow
+                key={c.id}
+                href={`/dashboard/courses/${c.id}`}
+                media={<Thumb src={c.imageAssetId ? assetUrl(c.imageAssetId) : null} icon="school" tint={i + 2} />}
+                title={c.title}
+                meta={line(c)}
+                extra={c.reviewNote ? <span className="text-ink-3">{t("teachers.reviewNote", { note: c.reviewNote })}</span> : null}
+                aside={<StageBadge stage="returned" t={t} />}
+              />
             ))}
-          </ul>
-        </section>
+          </ItemList>
+        </Section>
       ) : null}
     </div>
   );

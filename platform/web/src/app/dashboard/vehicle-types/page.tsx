@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { deleteVehicleTypeAction, moveVehicleTypeAction } from "@/app/actions/rides";
 import { Icon } from "@/components/icon";
-import { Badge, btn } from "@/components/ui";
+import { Badge, btn, EmptyState, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
+import { Sheet, SheetButton } from "@/components/page-kit-client";
 import { assetUrl } from "@/lib/assets";
 import { requireClient } from "@/lib/auth/session";
 import { formatCents } from "@/lib/catalog/money";
@@ -12,8 +14,7 @@ import { appPlan } from "@/lib/entitlements";
 import { VEHICLE_ICONS, vehicleTypeFormValues } from "@/lib/rides/forms";
 import { offeredTypes } from "@/lib/rides/settings";
 import { ConfirmButton } from "../chat/forms";
-import { AddServiceBox } from "../delivery/forms";
-import { isRides, NotRides, PageHead, RidesPlanNotice } from "../rides/parts";
+import { isRides, NotRides, RidesPlanNotice } from "../rides/parts";
 import { VehicleTypeForm } from "./forms";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
 
@@ -32,69 +33,92 @@ export default async function VehicleTypesPage({ searchParams }: { searchParams:
   const money = (cents: number) => formatCents(cents, currency);
   const offered = new Set(offeredTypes(types).map((v) => v.id));
 
+  const has = types.length > 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHead title={t("rides.vehicleTypes")} intro={t("rides.vehicleTypesIntro")} />
+      {/* The page kit: the header and its main action, the types as rows in the riders' order (each edited in a Sheet), the form in a Sheet (in place for the first type). */}
+      <PageHeader
+        title={t("rides.vehicleTypes")}
+        description={t("rides.vehicleTypesIntro")}
+        actions={
+          has ? (
+            <SheetButton target="new-type" icon="add">
+              {t("rides.addVehicleType")}
+            </SheetButton>
+          ) : null
+        }
+      />
       <RidesPlanNotice app={app} plan={plan} t={t} />
+      {/* 110.2 */}
+      <SampleEntries app={app} list="vehicle_types" query={await searchParams} />
 
-      <section aria-labelledby="h-types" className="flex max-w-[860px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-types" className="m-0 text-lg font-bold">
-          {t("rides.vehicleTypes")}
-        </h2>
-        {/* 110.2 */}
-        <SampleEntries app={app} list="vehicle_types" query={await searchParams} />
-        {types.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("rides.noVehicleTypes")}</p> : null}
-        <ul className="m-0 flex list-none flex-col p-0">
-          {types.map((type, i) => (
-            <li key={type.id} className="flex flex-col gap-2 border-t border-line-soft py-3 first:border-t-0 first:pt-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand text-muted">
-                  <span aria-hidden="true" className="material-symbols-rounded text-[22px]">
-                    {type.icon}
-                  </span>
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[15px] font-bold">{type.name}</span>
-                  <span className="text-[13px] text-muted">
-                    {t("rides.fareLine", { base: money(type.baseCents), perKm: money(type.perKmCents), perMinute: money(type.perMinuteCents), min: money(type.minCents) })}
-                  </span>
-                </span>
-                <SampleBadge sample={type.sample} />
-                {offered.has(type.id) ? null : <Badge tone="neutral">{t("rides.hidden")}</Badge>}
-                <form action={moveVehicleTypeAction}>
-                  <input type="hidden" name="id" value={type.id} />
-                  <input type="hidden" name="step" value="up" />
-                  <button type="submit" disabled={i === 0} aria-label={t("rides.up")} className={`${btn.ghost} h-9 px-2`}>
-                    <Icon name="arrow_upward" size={18} />
-                  </button>
-                </form>
-                <form action={moveVehicleTypeAction}>
-                  <input type="hidden" name="id" value={type.id} />
-                  <input type="hidden" name="step" value="down" />
-                  <button type="submit" disabled={i === types.length - 1} aria-label={t("rides.down")} className={`${btn.ghost} h-9 px-2`}>
-                    <Icon name="arrow_downward" size={18} />
-                  </button>
-                </form>
-                <form action={deleteVehicleTypeAction}>
-                  <input type="hidden" name="id" value={type.id} />
-                  <ConfirmButton confirm={t("rides.deleteType", { name: type.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
-                    {t("rides.delete")}
-                  </ConfirmButton>
-                </form>
-              </div>
-              <details className="rounded-xl border border-line p-4">
-                <summary className="cursor-pointer text-[15px] font-semibold">{t("rides.editType", { name: type.name })}</summary>
-                <div className="pt-3">
-                  <VehicleTypeForm id={type.id} values={vehicleTypeFormValues(type)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={type.imageAssetId ? assetUrl(type.imageAssetId) : null} />
-                </div>
-              </details>
-            </li>
-          ))}
-        </ul>
-        <AddServiceBox title={t("rides.addVehicleType")} open={types.length === 0}>
-          <VehicleTypeForm id={null} values={vehicleTypeFormValues(null)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={null} />
-        </AddServiceBox>
-      </section>
+      <Section titleId="h-types" title={t("rides.vehicleTypes")} actions={<Badge tone="neutral">{t("rides.typesOffered", { count: offered.size })}</Badge>} flush>
+        {!has ? (
+          <div className="p-5 sm:p-6">
+            <EmptyState icon="category" title={t("rides.noVehicleTypes")} />
+          </div>
+        ) : (
+          <ItemList>
+            {types.map((type, i) => (
+              <ItemRow
+                key={type.id}
+                media={
+                  type.imageAssetId ? (
+                    <Thumb src={assetUrl(type.imageAssetId)} icon="directions_car" shape="square" />
+                  ) : (
+                    <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-3 ${["bg-tile-1", "bg-tile-2", "bg-tile-3", "bg-tile-4", "bg-tile-5"][i % 5]}`}>
+                      <span className="material-symbols-rounded text-[22px]">{type.icon}</span>
+                    </span>
+                  )
+                }
+                title={type.name}
+                badges={
+                  <>
+                    <SampleBadge sample={type.sample} />
+                    {offered.has(type.id) ? null : <Badge tone="neutral">{t("rides.hidden")}</Badge>}
+                  </>
+                }
+                meta={t("rides.fareLine", { base: money(type.baseCents), perKm: money(type.perKmCents), perMinute: money(type.perMinuteCents), min: money(type.minCents) })}
+                actions={
+                  <>
+                    <form action={moveVehicleTypeAction}>
+                      <input type="hidden" name="id" value={type.id} />
+                      <input type="hidden" name="step" value="up" />
+                      <button type="submit" disabled={i === 0} aria-label={t("rides.up")} className={`${btn.ghost} h-9 px-2`}>
+                        <Icon name="arrow_upward" size={18} />
+                      </button>
+                    </form>
+                    <form action={moveVehicleTypeAction}>
+                      <input type="hidden" name="id" value={type.id} />
+                      <input type="hidden" name="step" value="down" />
+                      <button type="submit" disabled={i === types.length - 1} aria-label={t("rides.down")} className={`${btn.ghost} h-9 px-2`}>
+                        <Icon name="arrow_downward" size={18} />
+                      </button>
+                    </form>
+                    <SheetButton target={`type-${type.id}`} icon="edit" variant="secondary" className="h-9 px-3.5 text-sm">
+                      {t("rides.edit")}
+                    </SheetButton>
+                    <form action={deleteVehicleTypeAction}>
+                      <input type="hidden" name="id" value={type.id} />
+                      <ConfirmButton confirm={t("rides.deleteType", { name: type.name })} className={`${btn.danger} h-9 px-3.5 text-sm`}>
+                        {t("rides.delete")}
+                      </ConfirmButton>
+                    </form>
+                    <Sheet id={`type-${type.id}`} title={t("rides.editType", { name: type.name })}>
+                      <VehicleTypeForm id={type.id} values={vehicleTypeFormValues(type)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={type.imageAssetId ? assetUrl(type.imageAssetId) : null} />
+                    </Sheet>
+                  </>
+                }
+              />
+            ))}
+          </ItemList>
+        )}
+      </Section>
+
+      <Sheet id="new-type" inline={!has} title={t("rides.addVehicleType")} description={t("rides.addVehicleTypeHint")}>
+        <VehicleTypeForm id={null} values={vehicleTypeFormValues(null)} currency={currency} iconNames={VEHICLE_ICONS} imageUrl={null} />
+      </Sheet>
     </div>
   );
 }

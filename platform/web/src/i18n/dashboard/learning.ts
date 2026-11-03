@@ -104,6 +104,18 @@ export const en = {
     examClose: "Choose when it closes, to show the results then.",
     examLimit: "Give the exam a time limit or a time it closes.",
   },
+  // The page kit on the paths page.
+  searchPaths: "Search paths",
+  noPathMatch: "No paths match.",
+  pathShownChip: "Shown",
+  editPath: "Edit",
+  editPathTitle: "Edit {name}",
+  gamificationOnBadge: "On in your app",
+  gamificationOffBadge: "Off",
+  // The page kit on Questions.
+  questionsTotal: "{count, plural, one {{count} question} other {{count} questions}}",
+  theQuestion: "The question",
+  askedOn: "Asked",
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -200,6 +212,16 @@ export const ar: Messages = {
     examClose: "اختر وقت إغلاقه، لإظهار النتائج حينها.",
     examLimit: "حدّد للامتحان مدة أو وقت إغلاق.",
   },
+  searchPaths: "ابحث في المسارات",
+  noPathMatch: "لا توجد مسارات مطابقة.",
+  pathShownChip: "ظاهرة",
+  editPath: "تعديل",
+  editPathTitle: "تعديل {name}",
+  gamificationOnBadge: "مفعّلة في تطبيقك",
+  gamificationOffBadge: "متوقفة",
+  questionsTotal: "{count, plural, zero {لا أسئلة} one {سؤال واحد} two {سؤالان} few {{count} أسئلة} many {{count} سؤالًا} other {{count} سؤال}}",
+  theQuestion: "السؤال",
+  askedOn: "تاريخ السؤال",
 };
 
 export const tr: Messages = {
@@ -294,4 +316,14 @@ export const tr: Messages = {
     examClose: "Sonuçları o zaman göstermek için kapanış zamanını seçin.",
     examLimit: "Sınava bir süre sınırı ya da kapanış zamanı verin.",
   },
+  searchPaths: "Yollarda ara",
+  noPathMatch: "Eşleşen yol yok.",
+  pathShownChip: "Gösterilen",
+  editPath: "Düzenle",
+  editPathTitle: "{name} düzenle",
+  gamificationOnBadge: "Uygulamanızda açık",
+  gamificationOffBadge: "Kapalı",
+  questionsTotal: "{count} soru",
+  theQuestion: "Soru",
+  askedOn: "Soruldu",
 };

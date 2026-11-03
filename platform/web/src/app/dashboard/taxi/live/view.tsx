@@ -8,7 +8,10 @@ import { richText } from "@/i18n/rich";
 import { utcToLocal } from "@/lib/bookings/time";
 import { rideReference } from "@/lib/rides/service";
 import { BOARD_EVERY_SECONDS, BOARD_FRESH_MINUTES, type Board, type BoardRide } from "@/lib/taxi/board";
-import { PageHead, RideStatusBadge } from "../../rides/parts";
+import { RideStatusBadge } from "../../rides/parts";
+import { Notice, PageHeader } from "@/components/ui";
+import { Stat, StatRow } from "@/components/page-kit";
+import { LiveBadge } from "@/components/page-kit-b";
 import { LiveMap, Refresher, type MapMarker } from "./map";
 
 /** 105.9 The live map page's body, from the board and the company's tiles. */
@@ -58,46 +61,38 @@ export function LiveBoardView({
   ];
 
   const counts = [
-    { key: "free", label: t("taxi.countFree"), value: board.counts.free, color: "#1c9d55" },
-    { key: "onRide", label: t("taxi.countOnRide"), value: board.counts.onRide, color: "#f2650f" },
-    { key: "searching", label: t("taxi.countSearching"), value: board.counts.searching, color: "#e3a500" },
-    { key: "today", label: t("taxi.countToday"), value: board.counts.today, color: null },
-  ];
+    { key: "free", label: t("taxi.countFree"), value: board.counts.free, icon: "local_taxi", tone: "success" },
+    { key: "onRide", label: t("taxi.countOnRide"), value: board.counts.onRide, icon: "directions_car", tone: "accent" },
+    { key: "searching", label: t("taxi.countSearching"), value: board.counts.searching, icon: "hourglass_top", tone: "warn" },
+    { key: "today", label: t("taxi.countToday"), value: board.counts.today, icon: "task_alt", tone: "neutral" },
+  ] as const;
   const number = { format: (n: number) => formatNumber(lang, n) };
 
   return (
     <div className="flex flex-col gap-6">
       <Refresher seconds={BOARD_EVERY_SECONDS} />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHead title={t("taxi.liveMap")} intro={t("taxi.liveMapIntro")} />
-        <p className="m-0 inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-bold text-success" title={t("taxi.liveUpdatingHint", { seconds: BOARD_EVERY_SECONDS })}>
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-success" />
-          {t("taxi.liveUpdating")}
-          <span className="sr-only">{t("taxi.liveUpdatingHint", { seconds: BOARD_EVERY_SECONDS })}</span>
-        </p>
-      </div>
+      {/* The page kit: the header with the live badge, the numbers, then the map beside the rides now. */}
+      <PageHeader
+        title={t("taxi.liveMap")}
+        description={t("taxi.liveMapIntro")}
+        actions={<LiveBadge label={t("taxi.liveUpdating")} hint={t("taxi.liveUpdatingHint", { seconds: BOARD_EVERY_SECONDS })} />}
+      />
       {notice}
 
-      <ul className="m-0 grid list-none gap-3 p-0 [grid-template-columns:repeat(auto-fill,minmax(min(190px,100%),1fr))]" aria-label={t("taxi.liveMap")}>
+      <StatRow label={t("taxi.liveMap")}>
         {counts.map((c) => (
-          <li key={c.key} className="flex min-w-0 flex-col gap-1 rounded-2xl border border-line bg-white px-4 py-3.5" data-count={c.key}>
-            <bdi className="text-[28px] leading-tight font-extrabold text-midnight" data-value>
-              {number.format(c.value)}
-            </bdi>
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-4">
-              <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ backgroundColor: c.color ?? "var(--color-faint)" }} />
-              {c.label}
-            </span>
-          </li>
+          <div key={c.key} className="flex min-w-0 flex-col" data-count={c.key}>
+            <Stat icon={c.icon} tone={c.tone} label={c.label} value={<bdi data-value>{number.format(c.value)}</bdi>} />
+          </div>
         ))}
-      </ul>
+      </StatRow>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex flex-col gap-3">
           {tilesUrl ? null : (
-            <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[15px] leading-relaxed">
+            <Notice tone="warn" icon="map">
               {richText(t("taxi.mapNotSet"), { link: (chunk) => <Link href="/dashboard/taxi/settings">{chunk}</Link> })}
-            </p>
+            </Notice>
           )}
           <LiveMap
             tilesUrl={tilesUrl}

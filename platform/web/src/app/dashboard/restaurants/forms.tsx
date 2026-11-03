@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { addSectionAction, addStaffAction, foodOrderStepAction, renameSectionAction, saveDishAction, saveHoursAction, saveRestaurantAction } from "@/app/actions/food";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT } from "@/components/dashboard-i18n";
+import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
 
 export interface RestaurantFormValues {
@@ -30,81 +31,90 @@ export function RestaurantForm({ restaurant, cuisines, currency }: { restaurant:
   const value = (key: Exclude<keyof RestaurantFormValues, "id" | "cuisines" | "logoUrl" | "coverUrl">) => state.values?.[key] ?? restaurant[key];
   const suffix = restaurant.id ? `-${restaurant.id}` : "";
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form action={action} noValidate className="flex flex-col gap-5">
       <FormMessage message={state.message} ok={state.ok} />
       {restaurant.id ? <input type="hidden" name="restaurant" value={restaurant.id} /> : null}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field id={`f-name${suffix}`} label={t("food.name")} name="name" defaultValue={value("name")} maxLength={80} error={state.errors?.name} required />
-        <Field id={`f-phone${suffix}`} label={t("food.phone")} name="phone" type="tel" dir="ltr" defaultValue={value("phone")} error={state.errors?.phone} hint={t("food.phoneHint")} />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`f-description${suffix}`} className="text-sm font-semibold">
-          {t("food.about")}
-        </label>
-        <textarea id={`f-description${suffix}`} name="description" rows={2} maxLength={500} defaultValue={value("description")} className="input min-h-16 py-3" />
-        <FieldError id={`f-description${suffix}-error`} error={state.errors?.description} />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field id={`f-address${suffix}`} label={t("food.address")} name="address" defaultValue={value("address")} maxLength={300} error={state.errors?.address} required />
-        <Field id={`f-details${suffix}`} label={t("food.addressDetails")} name="details" defaultValue={value("details")} maxLength={200} />
-      </div>
-      <Field id={`f-map${suffix}`} label={t("food.map")} name="map" dir="ltr" defaultValue={value("map")} maxLength={1000} error={state.errors?.map} hint={t("food.mapHint")} required />
-      {cuisines.length ? (
-        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-          <legend className="mb-1 text-sm font-semibold">{t("food.cuisines")}</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {cuisines.map((c) => (
-              <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                <input
-                  type="checkbox"
-                  name={`cuisine-${c.id}`}
-                  defaultChecked={state.values ? state.values[`cuisine-${c.id}`] === "on" : restaurant.cuisines.includes(c.id)}
-                  className="h-4 w-4 accent-midnight"
-                />
-                {c.name}
+      {/* The page kit: the form in four parts. */}
+      <FormSection id={`f-restaurant${suffix || "-new"}-about`} title={t("food.formAbout")} description={t("food.formAboutHint")}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id={`f-name${suffix}`} label={t("food.name")} name="name" defaultValue={value("name")} maxLength={80} error={state.errors?.name} required />
+          <Field id={`f-phone${suffix}`} label={t("food.phone")} name="phone" type="tel" dir="ltr" defaultValue={value("phone")} error={state.errors?.phone} hint={t("food.phoneHint")} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`f-description${suffix}`} className="text-sm font-semibold">
+            {t("food.about")}
+          </label>
+          <textarea id={`f-description${suffix}`} name="description" rows={2} maxLength={500} defaultValue={value("description")} className="input min-h-16 py-3" />
+          <FieldError id={`f-description${suffix}-error`} error={state.errors?.description} />
+        </div>
+      </FormSection>
+      <FormSection id={`f-restaurant${suffix || "-new"}-where`} title={t("food.formWhere")} description={t("food.formWhereHint")}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id={`f-address${suffix}`} label={t("food.address")} name="address" defaultValue={value("address")} maxLength={300} error={state.errors?.address} required />
+          <Field id={`f-details${suffix}`} label={t("food.addressDetails")} name="details" defaultValue={value("details")} maxLength={200} />
+        </div>
+        <Field id={`f-map${suffix}`} label={t("food.map")} name="map" dir="ltr" defaultValue={value("map")} maxLength={1000} error={state.errors?.map} hint={t("food.mapHint")} required />
+        {cuisines.length ? (
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1 text-sm font-semibold">{t("food.cuisines")}</legend>
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              {cuisines.map((c) => (
+                <label key={c.id} className="flex cursor-pointer items-center gap-2 text-[15px]">
+                  <input
+                    type="checkbox"
+                    name={`cuisine-${c.id}`}
+                    defaultChecked={state.values ? state.values[`cuisine-${c.id}`] === "on" : restaurant.cuisines.includes(c.id)}
+                    className="h-4 w-4 accent-midnight"
+                  />
+                  {c.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+      </FormSection>
+      <FormSection id={`f-restaurant${suffix || "-new"}-orders`} title={t("food.formOrders")} description={t("food.formOrdersHint")}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id={`f-prep${suffix}`} label={t("food.prepMinutes")} name="prepMinutes" inputMode="numeric" defaultValue={value("prepMinutes")} error={state.errors?.prepMinutes} />
+          <Field id={`f-min${suffix}`} label={t("food.minOrder", { currency })} name="minOrder" inputMode="decimal" defaultValue={value("minOrder")} error={state.errors?.minOrder} />
+          <Field id={`f-maxkm${suffix}`} label={t("food.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("food.maxKmHint")} />
+          <Field id={`f-commission${suffix}`} label={t("food.commission")} name="commission" inputMode="decimal" defaultValue={value("commission")} error={state.errors?.commission} hint={t("food.commissionHint")} />
+        </div>
+      </FormSection>
+      <FormSection id={`f-restaurant${suffix || "-new"}-pictures`} title={t("food.formPictures")}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {(
+            [
+              ["logo", t("food.logo"), restaurant.logoUrl, "removeLogo", t("food.removeLogo")],
+              ["cover", t("food.cover"), restaurant.coverUrl, "removeCover", t("food.removeCover")],
+            ] as const
+          ).map(([name, label, url, remove, removeLabel]) => (
+            <div key={name} className="flex flex-col gap-1.5">
+              <label htmlFor={`f-${name}${suffix}`} className="text-sm font-semibold">
+                {label}
               </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field id={`f-prep${suffix}`} label={t("food.prepMinutes")} name="prepMinutes" inputMode="numeric" defaultValue={value("prepMinutes")} error={state.errors?.prepMinutes} />
-        <Field id={`f-min${suffix}`} label={t("food.minOrder", { currency })} name="minOrder" inputMode="decimal" defaultValue={value("minOrder")} error={state.errors?.minOrder} />
-        <Field id={`f-maxkm${suffix}`} label={t("food.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("food.maxKmHint")} />
-        <Field id={`f-commission${suffix}`} label={t("food.commission")} name="commission" inputMode="decimal" defaultValue={value("commission")} error={state.errors?.commission} hint={t("food.commissionHint")} />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {(
-          [
-            ["logo", t("food.logo"), restaurant.logoUrl, "removeLogo", t("food.removeLogo")],
-            ["cover", t("food.cover"), restaurant.coverUrl, "removeCover", t("food.removeCover")],
-          ] as const
-        ).map(([name, label, url, remove, removeLabel]) => (
-          <div key={name} className="flex flex-col gap-1.5">
-            <label htmlFor={`f-${name}${suffix}`} className="text-sm font-semibold">
-              {label}
-            </label>
-            {url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={url} alt="" className="h-16 w-16 rounded-xl border border-line object-cover" />
-            ) : null}
-            <input id={`f-${name}${suffix}`} type="file" name={name} accept="image/png,image/jpeg" className="text-sm" />
-            <span className="text-[13px] text-muted">{t("food.pictureHint")}</span>
-            {url ? (
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name={remove} className="h-4 w-4 accent-midnight" />
-                {removeLabel}
-              </label>
-            ) : null}
-            <FieldError id={`f-${name}${suffix}-error`} error={state.errors?.[name]} />
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-end">
+              {url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={url} alt="" className="h-16 w-16 rounded-xl border border-line object-cover" />
+              ) : null}
+              <input id={`f-${name}${suffix}`} type="file" name={name} accept="image/png,image/jpeg" className="text-sm" />
+              <span className="text-[13px] text-muted">{t("food.pictureHint")}</span>
+              {url ? (
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" name={remove} className="h-4 w-4 accent-midnight" />
+                  {removeLabel}
+                </label>
+              ) : null}
+              <FieldError id={`f-${name}${suffix}-error`} error={state.errors?.[name]} />
+            </div>
+          ))}
+        </div>
+      </FormSection>
+      <FormActions>
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {restaurant.id ? t("food.saveRestaurant") : t("food.add")}
         </SubmitButton>
-      </div>
+      </FormActions>
     </form>
   );
 }
