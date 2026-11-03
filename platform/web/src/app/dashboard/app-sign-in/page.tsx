@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Notice, btn } from "@/components/ui";
+import { PageGroup } from "@/components/page-kit";
+import { Notice, PageHeader, btn } from "@/components/ui";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
@@ -23,8 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("signin.title") };
 }
 
-const sectionClass = "flex max-w-[760px] flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
-const titleClass = "m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]";
+const sectionClass = "flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6";
 const GUIDE_DOC = "/docs/my-own-api";
 const GUIDE_SIGN_IN = "#the-sign-in-flow-simply";
 
@@ -44,7 +44,7 @@ const dayOf = (text: DashboardText, iso: string) => text.date(new Date(iso));
 function ProviderSection({ app, text }: { app: App; text: DashboardText }) {
   return (
     <section aria-labelledby="h-provider" className={sectionClass}>
-      <h2 id="h-provider" className="m-0 text-[19px] font-bold">
+      <h2 id="h-provider" className="m-0 text-lg font-bold">
         {text.t("signin.whoSigns")}
       </h2>
       <SignInProviderForm current={yallappSignsIn(app) ? "yallapp" : "api"} />
@@ -58,7 +58,7 @@ function DeveloperSection({ app, webhooks, text }: { app: App; webhooks: ApiWebh
   const path = signedInPath(app.appType);
   return (
     <section aria-labelledby="h-developer" className={sectionClass}>
-      <h2 id="h-developer" className="m-0 text-[19px] font-bold">
+      <h2 id="h-developer" className="m-0 text-lg font-bold">
         {t("signin.forDeveloper")}
       </h2>
       <DeveloperTokens
@@ -109,13 +109,11 @@ function CustomApiSignIn({ app, text }: { app: App; text: DashboardText }) {
   const current = saved && app.apiBaseUrl && saved.baseUrl === app.apiBaseUrl.replace(/\/+$/, "") ? saved : null;
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className={titleClass}>{t("signin.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{richText(t("signin.customIntro"), { ...config, methods: () => <code>auth.methods</code> })}</p>
-      </div>
+      <PageHeader title={t("signin.title")} description={richText(t("signin.customIntro"), { ...config, methods: () => <code>auth.methods</code> })} />
+      <PageGroup title={t("signin.groupSignIn")}>
       <ProviderSection app={app} text={text} />
       <section aria-labelledby="h-api-sign-in" className={sectionClass}>
-        <h2 id="h-api-sign-in" className="m-0 text-[19px] font-bold">
+        <h2 id="h-api-sign-in" className="m-0 text-lg font-bold">
           {t("signin.apiOffers")}
         </h2>
         {current ? (
@@ -141,11 +139,12 @@ function CustomApiSignIn({ app, text }: { app: App; text: DashboardText }) {
       </section>
       {/* 24 An own API sends its own emails. */}
       <section aria-labelledby="h-app-mail" className={sectionClass}>
-        <h2 id="h-app-mail" className="m-0 text-[19px] font-bold">
+        <h2 id="h-app-mail" className="m-0 text-lg font-bold">
           {t("signin.appEmail")}
         </h2>
         <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("signin.apiOwnEmail")}</p>
       </section>
+      </PageGroup>
     </div>
   );
 }
@@ -172,12 +171,14 @@ export default async function AppSignInPage() {
   const ownApi = app?.backend === "custom_api";
   if (!app || (app.backend !== "hosted" && app.backend !== "wordpress" && app.backend !== "setup_requested" && !ownApi)) {
     return (
-      <div className="flex max-w-[620px] flex-col gap-3">
-        <h1 className={titleClass}>{t("signin.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {t("signin.chooseSourceFirst")} <Link href="/dashboard/setup">{t("signin.backToSetup")}</Link>
-        </p>
-      </div>
+      <PageHeader
+        title={t("signin.title")}
+        description={
+          <>
+            {t("signin.chooseSourceFirst")} <Link href="/dashboard/setup">{t("signin.backToSetup")}</Link>
+          </>
+        }
+      />
     );
   }
   // 19 An app waiting for the WordPress site our team sets up chooses now; it applies once the site is ready.
@@ -196,14 +197,14 @@ export default async function AppSignInPage() {
   const note = emailSignInNote(app);
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex max-w-[620px] flex-col gap-2">
-        <h1 className={titleClass}>{t("signin.title")}</h1>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">
-          {wordpress ? t("signin.introWordpress") : ownApi ? t("signin.introOwnApi") : t("signin.introHosted")}
-        </p>
-      </div>
-      {ownApi ? <ProviderSection app={app} text={text} /> : null}
-      {ownApi ? <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20, ["account.deleted"])} text={text} /> : null}
+      {/* The page kit: the header, then the settings in labelled groups: signing in, then the codes and emails. */}
+      <PageHeader title={t("signin.title")} description={wordpress ? t("signin.introWordpress") : ownApi ? t("signin.introOwnApi") : t("signin.introHosted")} />
+      {ownApi ? (
+        <PageGroup title={t("signin.groupApi")}>
+          <ProviderSection app={app} text={text} />
+          <DeveloperSection app={app} webhooks={await (await getStore()).listApiWebhooks(app.id, 20, ["account.deleted"])} text={text} />
+        </PageGroup>
+      ) : null}
       {waiting ? <Notice icon="hourglass_top">{t("signin.waiting")}</Notice> : null}
 
       {emailOff ? (
@@ -214,8 +215,9 @@ export default async function AppSignInPage() {
         </Notice>
       ) : null}
 
+      <PageGroup title={t("signin.groupSignIn")}>
       <section aria-labelledby="h-methods" className={sectionClass}>
-        <h2 id="h-methods" className="m-0 text-[19px] font-bold">
+        <h2 id="h-methods" className="m-0 text-lg font-bold">
           {t("signin.howSignIn")}
         </h2>
         <SignInMethodsForm
@@ -229,8 +231,19 @@ export default async function AppSignInPage() {
         />
       </section>
 
+      {wordpress ? null : (
+        <section aria-labelledby="h-rules" className={sectionClass}>
+          <h2 id="h-rules" className="m-0 text-lg font-bold">
+            {t("signin.rules")}
+          </h2>
+          <AppSignInForm current={hostedSettingsValues(hostedSettings(app))} emailOnly={methods.length === 1 && methods[0] === "email"} />
+        </section>
+      )}
+      </PageGroup>
+
+      <PageGroup title={t("signin.groupCodes")}>
       <section aria-labelledby="h-whatsapp" className={sectionClass}>
-        <h2 id="h-whatsapp" className="m-0 text-[19px] font-bold">
+        <h2 id="h-whatsapp" className="m-0 text-lg font-bold">
           {t("signin.whatsappTitle")}
         </h2>
         {failedAt ? (
@@ -246,7 +259,7 @@ export default async function AppSignInPage() {
       </section>
 
       <section aria-labelledby="h-app-mail" className={sectionClass}>
-        <h2 id="h-app-mail" className="m-0 text-[19px] font-bold">
+        <h2 id="h-app-mail" className="m-0 text-lg font-bold">
           {t("signin.appEmail")}
         </h2>
         {mailFailedAt ? (
@@ -265,14 +278,7 @@ export default async function AppSignInPage() {
         />
       </section>
 
-      {wordpress ? null : (
-        <section aria-labelledby="h-rules" className={sectionClass}>
-          <h2 id="h-rules" className="m-0 text-[19px] font-bold">
-            {t("signin.rules")}
-          </h2>
-          <AppSignInForm current={hostedSettingsValues(hostedSettings(app))} emailOnly={methods.length === 1 && methods[0] === "email"} />
-        </section>
-      )}
+      </PageGroup>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { releaseSiteAction } from "@/app/actions/dashboard";
 import { CopyButton } from "@/components/copy-button";
 import { Icon } from "@/components/icon";
 import { SubmitButton } from "@/components/form";
-import { Badge, Notice, PageHeader, btn, formatDate, formatDateTime } from "@/components/ui";
+import { Badge, Notice, PageHeader, Section, btn, formatDate, formatDateTime } from "@/components/ui";
+import { ItemList, ItemRow, PageGroup, Thumb } from "@/components/page-kit";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
 import { countryName } from "@/lib/account/country";
@@ -170,11 +171,21 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
     activate: (chunk: string) => <Link href={localePath(lang, "/docs/wordpress-license")}>{chunk}</Link>,
   };
 
+  const payTitle = state === "pending" ? t("license.payByCard") : state === "expired" ? t("license.renewByCard") : t("license.extend");
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header with paying as its main action, then the plan, changing it, and the payments in labelled groups. */}
       <PageHeader
         title={k(licensePageName(app))}
         description={apps.length > 1 ? richText(t(plugin ? "license.manyApps" : "license.manyAppsPlan", { app: name }), tags) : plugin ? t("license.pluginText") : t("license.planText")}
+        actions={
+          payable.length ? (
+            <a href="#renew" className={`${btn.main} h-11`}>
+              <Icon name="credit_card" size={20} />
+              {state === "pending" ? t("license.payByCard") : t("license.renewByCard")}
+            </a>
+          ) : null
+        }
       />
 
       {released ? (
@@ -226,6 +237,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         </Notice>
       ) : null}
 
+      <PageGroup title={plugin ? t("license.license") : t("license.plan")}>
       <section aria-labelledby="h-license" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="h-license" className="m-0 text-lg font-bold">
@@ -297,6 +309,9 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         />
       ) : null}
 
+      </PageGroup>
+
+      <PageGroup title={t("license.groupChange")}>
       <section id="change-plan" aria-labelledby="h-change-plan" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-change-plan" className="m-0 text-lg font-bold">
@@ -396,7 +411,7 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         <section id="renew" aria-labelledby="h-pay" className="flex scroll-mt-6 flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 id="h-pay" className="m-0 text-lg font-bold">
-              {state === "pending" ? t("license.payByCard") : state === "expired" ? t("license.renewByCard") : t("license.extend")}
+              {payTitle}
             </h2>
             <p className="m-0 text-sm text-muted">{state === "pending" ? t("license.payPending", { app: name }) : t("license.payActive")}</p>
           </div>
@@ -412,21 +427,25 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
         </section>
       ) : null}
 
+      </PageGroup>
+
+      {paid.length || plugin ? (
+      <PageGroup title={t("license.groupPaid")}>
       {paid.length ? (
-        <section aria-labelledby="h-payments" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-payments" className="m-0 text-lg font-bold">
-            {t("license.payments")}
-          </h2>
-          <ul className="m-0 flex list-none flex-col p-0">
-            {paid.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line-soft py-3 first:border-t-0">
-                <span className="flex flex-col gap-0.5">
-                  <span className="text-[15px] font-semibold">
+        <Section titleId="h-payments" title={t("license.payments")} flush>
+          <ItemList>
+            {paid.map((p, i) => (
+              <ItemRow
+                key={p.id}
+                media={<Thumb icon="receipt_long" shape="square" tint={i} />}
+                title={
+                  <>
                     {k(paymentWhat(p, planName(p.plan, effective)))} · <bdi dir="ltr">{formatAmount(p.amountCents, p.currency)}</bdi>
-                  </span>
-                  <span className="text-[13px] text-muted">{t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}</span>
-                </span>
-                <span className="flex flex-wrap gap-2">
+                  </>
+                }
+                meta={t("license.paidOn", { date: date(p.paidAt ?? p.createdAt) })}
+                actions={
+                <>
                   <Link href={licensePath(app, `/receipts/${p.id}`)} className={`${btn.secondary} h-9 px-3 text-sm`}>
                     <Icon name="receipt_long" size={18} />
                     {t("license.receipt")}
@@ -436,11 +455,12 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
                     <Icon name="download" size={18} />
                     {t("license.downloadPdf")}
                   </a>
-                </span>
-              </li>
+                </>
+                }
+              />
             ))}
-          </ul>
-        </section>
+          </ItemList>
+        </Section>
       ) : null}
 
       {plugin ? (
@@ -471,6 +491,8 @@ export default async function LicensePage({ searchParams }: PageProps<"/dashboar
           <p className="m-0 text-sm text-muted">{richText(t("license.pluginUpdates"), tags)}</p>
         </section>
       ) : null}
-    </>
+      </PageGroup>
+      ) : null}
+    </div>
   );
 }

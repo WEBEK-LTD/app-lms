@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { deleteCampaignAction, sendCampaignNowAction, stopCampaignAction } from "@/app/actions/campaigns";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Notice } from "@/components/ui";
+import { DetailLayout, ItemList, ItemRow, Thumb } from "@/components/page-kit";
+import { Notice, PageHeader, Section } from "@/components/ui";
 import { formatDate } from "@/i18n/format";
 import { richText } from "@/i18n/rich";
 import { appZone } from "@/lib/analytics/zone";
@@ -45,103 +45,120 @@ export default async function CampaignPage({ params, searchParams }: { params: P
   const weekday = campaign.weekday === null ? "" : new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang, { weekday: "long", timeZone: "UTC" }).format(new Date(Date.UTC(1970, 0, 4 + campaign.weekday)));
   const sr = { sr: (chunk: React.ReactNode) => <span className="sr-only">{chunk}</span> };
 
+  const actions = (
+    <>
+      {campaign.status === "draft" ? (
+        <form action={sendCampaignNowAction}>
+          <input type="hidden" name="id" value={campaign.id} />
+          <SubmitButton variant="main" className="h-11" pendingText={t("common.sending")}>
+            <Icon name="send" size={20} />
+            {t("campaigns.sendNow")}
+          </SubmitButton>
+        </form>
+      ) : null}
+      {campaign.status === "scheduled" ? (
+        <form action={stopCampaignAction}>
+          <input type="hidden" name="id" value={campaign.id} />
+          <SubmitButton variant="secondary" className="h-11" pendingText={t("common.saving")}>
+            {t(campaign.repeat === "weekly" ? "campaigns.stop" : "campaigns.backToDraft")}
+          </SubmitButton>
+        </form>
+      ) : null}
+    </>
+  );
   return (
-    <div className="flex max-w-[760px] flex-col gap-5">
-      <Link href="/dashboard/notifications/campaigns" className="flex items-center gap-1 text-[14px] font-semibold no-underline">
-        <Icon name="arrow_back" size={18} className="rtl:rotate-180" />
-        {t("campaigns.title")}
-      </Link>
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{campaign.title}</h1>
-        <CampaignStatus campaign={campaign} />
-      </div>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: back to the campaigns, its one action, the message and its sends, and how it did beside them. */}
+      <PageHeader
+        back={{ href: "/dashboard/notifications/campaigns", label: t("campaigns.title") }}
+        title={
+          <span className="flex flex-wrap items-center gap-3">
+            {campaign.title}
+            <CampaignStatus campaign={campaign} />
+          </span>
+        }
+        actions={campaign.status === "draft" || campaign.status === "scheduled" ? actions : null}
+      />
       {notice ? (
         <Notice tone="info" icon="info" role="status">
           {k(notice)}
         </Notice>
       ) : null}
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <p className="m-0 text-[15px] text-ink-4">{campaign.body}</p>
-        {campaign.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={campaign.imageUrl} alt={t("campaigns.pictureAlt")} className="h-32 w-full max-w-[320px] rounded-xl border border-line object-cover" />
-        ) : null}
-        {campaign.status === "scheduled" && campaign.sendAt ? (
-          <p className="m-0 text-[14px] text-muted">
-            {campaign.repeat === "weekly" && campaign.time ? `${t("campaigns.weeklyOn", { day: weekday, time: campaign.time })} · ` : ""}
-            {t("campaigns.next", { date: formatDate(lang, campaign.sendAt, { weekday: "short", day: "numeric", month: "short", timeZone: zone }), time: utcToLocal(campaign.sendAt, zone).time })}
-          </p>
-        ) : null}
-        {numbers && numbers.sends > 0 ? (
+      <DetailLayout
+        main={
           <>
-            <CampaignNumbers stats={numbers} />
-            <p className="m-0 text-[13px] text-muted">{t("campaigns.opensNote")}</p>
+            <Section titleId="h-message" title={t("campaigns.message")}>
+              <p className="m-0 text-[15px] leading-relaxed text-ink-2 whitespace-pre-line" dir="auto">
+                {campaign.body}
+              </p>
+              {campaign.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={campaign.imageUrl} alt={t("campaigns.pictureAlt")} className="h-40 w-full max-w-[360px] rounded-xl border border-line object-cover" />
+              ) : null}
+              {campaign.status === "scheduled" && campaign.sendAt ? (
+                <p className="m-0 flex items-center gap-1.5 text-[14px] font-semibold text-muted">
+                  <Icon name="schedule" size={18} />
+                  {campaign.repeat === "weekly" && campaign.time ? `${t("campaigns.weeklyOn", { day: weekday, time: campaign.time })} · ` : ""}
+                  {t("campaigns.next", { date: formatDate(lang, campaign.sendAt, { weekday: "short", day: "numeric", month: "short", timeZone: zone }), time: utcToLocal(campaign.sendAt, zone).time })}
+                </p>
+              ) : null}
+              {campaign.result && campaign.status === "failed" ? (
+                <p className="m-0 text-[14px] text-danger">
+                  {t("campaigns.lastResult")}: {k(campaign.result)}
+                </p>
+              ) : null}
+            </Section>
+
+            {sends.length > 0 ? (
+              <Section titleId="h-sends" title={t("campaigns.history")} flush>
+                <ItemList>
+                  {sends.slice(0, 30).map((s, i) => (
+                    <ItemRow
+                      key={s.id}
+                      media={<Thumb icon="send" shape="square" tint={i} />}
+                      title={t("campaigns.sentOn", { date: when(s.sentAt) })}
+                      meta={`${t("campaigns.people")} ${s.recipients} · ${t("campaigns.reached")} ${s.pushed} · ${t("campaigns.missed")} ${s.failed}`}
+                    />
+                  ))}
+                </ItemList>
+              </Section>
+            ) : null}
+
+            {editable ? (
+              <section aria-labelledby="h-edit" className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+                <details open={campaign.status === "draft"}>
+                  <summary id="h-edit" className="cursor-pointer text-lg font-bold">
+                    {t("campaigns.edit")}
+                  </summary>
+                  <div className="pt-4">
+                    <CampaignForm initial={campaignFormValues(app, campaign, zone, appUrl())} choices={choices} />
+                  </div>
+                </details>
+              </section>
+            ) : null}
           </>
-        ) : null}
-        {campaign.result && campaign.status === "failed" ? (
-          <p className="m-0 text-[14px] text-danger">
-            {t("campaigns.lastResult")}: {k(campaign.result)}
-          </p>
-        ) : null}
-        <div className="flex flex-wrap gap-2">
-          {campaign.status === "draft" ? (
-            <form action={sendCampaignNowAction}>
-              <input type="hidden" name="id" value={campaign.id} />
-              <SubmitButton className="h-10" pendingText={t("common.sending")}>
-                {t("campaigns.sendNow")}
-              </SubmitButton>
-            </form>
-          ) : null}
-          {campaign.status === "scheduled" ? (
-            <form action={stopCampaignAction}>
-              <input type="hidden" name="id" value={campaign.id} />
-              <SubmitButton variant="secondary" className="h-10" pendingText={t("common.saving")}>
-                {t(campaign.repeat === "weekly" ? "campaigns.stop" : "campaigns.backToDraft")}
-              </SubmitButton>
-            </form>
-          ) : null}
-          {campaign.status !== "sending" ? (
-            <form action={deleteCampaignAction}>
-              <input type="hidden" name="id" value={campaign.id} />
-              <SubmitButton variant="danger" className="h-10" pendingText={t("common.saving")}>
-                {richText(t("campaigns.delete", { title: campaign.title }), sr)}
-              </SubmitButton>
-            </form>
-          ) : null}
-        </div>
-      </section>
-
-      {sends.length > 0 ? (
-        <section aria-labelledby="h-sends" className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <h2 id="h-sends" className="m-0 text-lg font-bold">
-            {t("campaigns.history")}
-          </h2>
-          <ul className="m-0 flex list-none flex-col p-0">
-            {sends.slice(0, 30).map((s) => (
-              <li key={s.id} className="flex flex-wrap items-baseline justify-between gap-2 border-t border-line-soft py-2 first:border-t-0">
-                <span className="text-[14px] font-semibold">{t("campaigns.sentOn", { date: when(s.sentAt) })}</span>
-                <span className="text-[14px] text-muted">
-                  {t("campaigns.people")} {s.recipients} · {t("campaigns.reached")} {s.pushed} · {t("campaigns.missed")} {s.failed}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {editable ? (
-        <section aria-labelledby="h-edit" className="rounded-2xl border border-line bg-white p-5 sm:p-6">
-          <details open={campaign.status === "draft"}>
-            <summary id="h-edit" className="cursor-pointer text-lg font-bold">
-              {t("campaigns.edit")}
-            </summary>
-            <div className="pt-4">
-              <CampaignForm initial={campaignFormValues(app, campaign, zone, appUrl())} choices={choices} />
-            </div>
-          </details>
-        </section>
-      ) : null}
+        }
+        side={
+          <>
+            {numbers && numbers.sends > 0 ? (
+              <Section titleId="h-numbers" title={t("campaigns.numbers")} description={t("campaigns.opensNote")}>
+                <CampaignNumbers stats={numbers} />
+              </Section>
+            ) : null}
+            {campaign.status !== "sending" ? (
+              <Section titleId="h-campaign-delete" title={t("campaigns.deleteTitle")}>
+                <form action={deleteCampaignAction}>
+                  <input type="hidden" name="id" value={campaign.id} />
+                  <SubmitButton variant="danger" className="h-10" pendingText={t("common.saving")}>
+                    {richText(t("campaigns.delete", { title: campaign.title }), sr)}
+                  </SubmitButton>
+                </form>
+              </Section>
+            ) : null}
+          </>
+        }
+      />
     </div>
   );
 }

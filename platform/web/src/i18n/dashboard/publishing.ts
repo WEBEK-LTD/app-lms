@@ -5,6 +5,8 @@ export const en = {
   title: "Publishing",
   intro: "{app} on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps.",
   links: "Links to your app",
+  groupYours: "What you do",
+  groupMore: "More",
   passwords:
     "We never ask for your Google or Apple passwords. The accounts stay yours, in your name: you invite our team email, <email></email>, and you can remove our access at any time.",
   notIncluded: "Not included in this app's plan. Upgrade it on {page}.",
@@ -320,6 +322,8 @@ export const ar: Messages = {
   title: "النشر",
   intro: "{app} على Google Play وApp Store وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps.",
   links: "روابط تطبيقك",
+  groupYours: "ما تقوم به",
+  groupMore: "المزيد",
   passwords:
     "لا نطلب أبدًا كلمات مرورك في Google أو Apple. تبقى الحسابات ملكك وباسمك: تدعو البريد الإلكتروني لفريقنا، <email></email>، ويمكنك إلغاء وصولنا في أي وقت.",
   notIncluded: "غير مشمول في باقة هذا التطبيق. قم بترقيتها في صفحة {page}.",
@@ -621,6 +625,8 @@ export const tr: Messages = {
   title: "Yayınlama",
   intro: "Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te {app}.",
   links: "Uygulamanıza bağlantılar",
+  groupYours: "Sizin yapacaklarınız",
+  groupMore: "Daha fazla",
   passwords:
     "Google veya Apple şifrelerinizi asla istemeyiz. Hesaplar sizde ve sizin adınıza kalır: ekip e-posta adresimizi (<email></email>) davet edersiniz ve erişimimizi istediğiniz zaman kaldırabilirsiniz.",
   notIncluded: "Bu uygulamanın paketine dahil değil. {page} sayfasında paketinizi yükseltin.",

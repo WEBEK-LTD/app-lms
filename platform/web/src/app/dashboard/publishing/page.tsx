@@ -5,6 +5,7 @@ import { chooseMoreStoresAction, choosePublishingModeAction } from "@/app/action
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, PageHeader, btn, formatDateTime } from "@/components/ui";
+import { LinkCards, PageGroup } from "@/components/page-kit";
 import { appLabel, licensePageName } from "@/lib/app/label";
 import { hasStoreKeys } from "@/lib/app/setup";
 import { requireClient } from "@/lib/auth/session";
@@ -78,8 +79,10 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
   return (
     <form action={choosePublishingModeAction} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <input type="hidden" name="mode" value={mode} />
-      <span className="flex items-center gap-2.5">
-        <Icon name={mode === "managed" ? "storefront" : "menu_book"} size={26} />
+      <span className="flex items-center gap-3">
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${mode === "managed" ? "bg-peach text-accent" : "bg-sand text-ink-3"}`}>
+          <Icon name={mode === "managed" ? "storefront" : "menu_book"} size={24} />
+        </span>
         <h2 className="m-0 text-lg font-bold">{title}</h2>
       </span>
       <p className="m-0 text-[15px] leading-relaxed text-ink-4">{text}</p>
@@ -92,7 +95,7 @@ function Choice({ mode, title, text, points, disabled, saving }: { mode: "self" 
         ))}
       </ul>
       <div className="mt-auto pt-2">
-        <SubmitButton variant={mode === "managed" ? "primary" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
+        <SubmitButton variant={mode === "managed" ? "main" : "secondary"} className="h-11" disabled={Boolean(disabled)} pendingText={saving}>
           {title}
         </SubmitButton>
         {disabled ? <span className="mt-1.5 block text-sm text-muted">{disabled}</span> : null}
@@ -129,16 +132,17 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
   // 41 Every store Yallapp publishes to.
   // 46 Links that open the app: the Play signing fingerprint and the Team ID live on their own page.
   const pageHeader = (
-    <PageHeader
-      title={t("publishing.title")}
-      description={t("publishing.intro", { app: name })}
-      actions={
-        <Link href="/dashboard/publishing/links" className={`${btn.secondary} h-10 px-4 text-sm`}>
-          <Icon name="link" size={18} />
-          {t("publishing.links")}
-        </Link>
-      }
-    />
+    <>
+      {/* The page kit: the header, the sub-pages as cards, then the page's parts in labelled groups. */}
+      <PageHeader title={t("publishing.title")} description={t("publishing.intro", { app: name })} />
+      <LinkCards
+        label={t("publishing.title")}
+        items={[
+          { href: "/dashboard/publishing/links", icon: "link", label: t("publishing.links") },
+          ...(mode === "self" ? [{ href: "/dashboard/publishing/more-stores", icon: "storefront" as const, label: t("publishing.moreStores") }] : []),
+        ]}
+      />
+    </>
   );
   // 110.2 Sample entries left: nothing goes to the stores.
   const header = (
@@ -252,99 +256,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
     doneAt: request.checklist[step.id] ? formatDateTime(new Date(request.checklist[step.id]!), lang) : null,
   }));
 
-  return (
-    <>
-      {header}
-      {query.chosen === "managed" ? (
-        <Notice tone="success" icon="check_circle" role="status">
-          {t("publishing.thanks")}
-        </Notice>
-      ) : null}
-
-      <section aria-labelledby="h-status" className="flex flex-col gap-3">
-        <h2 id="h-status" className="m-0 text-lg font-bold">
-          {t("publishing.whereStands")}
-        </h2>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-          {requestStores(request).map((which) => {
-            const track = trackOf(request, which);
-            return (
-              <section key={which} aria-label={STORE_TITLE[which]} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="flex items-center gap-2 text-base font-bold">
-                    <Icon name={STORE_ICON[which]} size={22} />
-                    {STORE_TITLE[which]}
-                  </span>
-                  <Badge tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</Badge>
-                </div>
-                <p className="m-0 text-sm leading-relaxed text-ink-4">
-                  {publishingStatusIn(lang, which, track.status).text}
-                </p>
-                {/* 88.3 Why the store turned it down, what to do and where. */}
-                {track.status === "rejected" && track.rejection ? (
-                  <div className="flex flex-col gap-1.5 rounded-lg border border-danger/30 bg-danger-bg px-3 py-2.5 text-sm leading-relaxed" data-rejection={track.rejection}>
-                    <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
-                    <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
-                    {REJECTION_LINK[track.rejection] ? (
-                      <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
-                        {t("publishing.reject.fixIt")}
-                      </Link>
-                    ) : null}
-                  </div>
-                ) : null}
-                {track.note ? (
-                  <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">
-                    {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
-                  </p>
-                ) : null}
-                {track.status === "live" && track.storeUrl ? (
-                  <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold">
-                    {t("publishing.seeOn", { store: STORE_TITLE[which] })}
-                    <Icon name="open_in_new" size={16} />
-                  </a>
-                ) : null}
-                <span className="text-xs text-muted">
-                  {track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}
-                </span>
-                {which === "ios" && track.checkedAt && track.storeState ? (
-                  <span className="text-xs text-muted" data-store-checked="">
-                    {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
-                  </span>
-                ) : null}
-              </section>
-            );
-          })}
-        </div>
-      </section>
-
-      <ReviewSection app={app} text={text} managed delivery={deliveryNotes} />
-      <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
-
-      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
-      <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-more-stores" className="m-0 text-lg font-bold">
-          {t("publishing.moreStores")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresText")}</p>
-        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
-          <legend className="sr-only">{t("publishing.alsoOn")}</legend>
-          {MORE_STORES.map((which) => (
-            <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
-              <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
-              <span className="flex flex-col gap-0.5">
-                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
-                <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <div>
-          <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
-            {t("publishing.saveStores")}
-          </SubmitButton>
-        </div>
-      </form>
-
+  const checklistSection = (
       <section aria-labelledby="h-checklist" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
@@ -368,7 +280,8 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
         <ChecklistForm steps={steps} firebaseBy={request.firebaseBy} />
         {passwords}
       </section>
-
+  );
+  const listingSection = (
       <section aria-labelledby="h-listing" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-1">
           <h2 id="h-listing" className="m-0 text-lg font-bold">
@@ -424,6 +337,107 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           </Notice>
         )}
       </section>
+  );
+
+  return (
+    <>
+      {header}
+      {query.chosen === "managed" ? (
+        <Notice tone="success" icon="check_circle" role="status">
+          {t("publishing.thanks")}
+        </Notice>
+      ) : null}
+
+      <section aria-labelledby="h-status" className="flex flex-col gap-3">
+        <h2 id="h-status" className="m-0 text-lg font-bold">
+          {t("publishing.whereStands")}
+        </h2>
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          {requestStores(request).map((which) => {
+            const track = trackOf(request, which);
+            return (
+              <section key={which} aria-label={STORE_TITLE[which]} className="flex flex-col gap-2.5 rounded-2xl border border-line bg-white p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="flex items-center gap-2.5 text-base font-bold">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-ivory text-midnight">
+                      <Icon name={STORE_ICON[which]} size={20} />
+                    </span>
+                    {STORE_TITLE[which]}
+                  </span>
+                  <Badge tone={statusTone(track.status)}>{k(CLIENT_STATUS_LABEL[track.status])}</Badge>
+                </div>
+                <p className="m-0 text-sm leading-relaxed text-ink-4">
+                  {publishingStatusIn(lang, which, track.status).text}
+                </p>
+                {/* 88.3 Why the store turned it down, what to do and where. */}
+                {track.status === "rejected" && track.rejection ? (
+                  <div className="flex flex-col gap-1.5 rounded-lg border border-danger/30 bg-danger-bg px-3 py-2.5 text-sm leading-relaxed" data-rejection={track.rejection}>
+                    <span className="font-semibold">{t("publishing.reject.why", { reason: t(`publishing.reject.${track.rejection}`) })}</span>
+                    <span>{t("publishing.reject.whatToDo", { fix: t(`publishing.reject.${track.rejection}Fix`) })}</span>
+                    {REJECTION_LINK[track.rejection] ? (
+                      <Link href={REJECTION_LINK[track.rejection]!} className="self-start font-semibold">
+                        {t("publishing.reject.fixIt")}
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
+                {track.note ? (
+                  <p className="m-0 rounded-lg bg-sand px-3 py-2 text-sm leading-relaxed">
+                    {richText(t("publishing.noteFromTeam", { note: track.note }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                  </p>
+                ) : null}
+                {track.status === "live" && track.storeUrl ? (
+                  <a href={track.storeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-semibold">
+                    {t("publishing.seeOn", { store: STORE_TITLE[which] })}
+                    <Icon name="open_in_new" size={16} />
+                  </a>
+                ) : null}
+                <span className="text-xs text-muted">
+                  {track.updatedAt ? t("publishing.updated", { date: formatDateTime(track.updatedAt, lang) }) : t("publishing.asked", { date: formatDateTime(request.requestedAt, lang) })}
+                </span>
+                {which === "ios" && track.checkedAt && track.storeState ? (
+                  <span className="text-xs text-muted" data-store-checked="">
+                    {t("publishing.reject.checked", { date: formatDateTime(track.checkedAt, lang) })}
+                  </span>
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
+      </section>
+
+      <PageGroup title={t("publishing.groupYours")}>
+      <ReviewSection app={app} text={text} managed delivery={deliveryNotes} />
+      <ReadySection items={readiness({ app, listing: request.listing, ios: hasFeature(current, "ios"), managed: true, platformUrl: appUrl() })} text={text} />
+      {checklistSection}
+      {listingSection}
+      </PageGroup>
+
+      <PageGroup title={t("publishing.groupMore")}>
+      {/* 35, 36, 42 Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, when the client wants them too. */}
+      <form action={chooseMoreStoresAction} aria-labelledby="h-more-stores" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <h2 id="h-more-stores" className="m-0 text-lg font-bold">
+          {t("publishing.moreStores")}
+        </h2>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("publishing.moreStoresText")}</p>
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+          <legend className="sr-only">{t("publishing.alsoOn")}</legend>
+          {MORE_STORES.map((which) => (
+            <label key={which} className="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5">
+              <input type="checkbox" name="store" value={which} defaultChecked={Boolean(request[which])} className="mt-1 h-4 w-4 accent-midnight" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-bold">{STORE_TITLE[which]}</span>
+                <span className="text-sm text-ink-4">{t(MORE_STORE_TEXT[which])}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <div>
+          <SubmitButton variant="secondary" className="h-10" pendingText={saving}>
+            {t("publishing.saveStores")}
+          </SubmitButton>
+        </div>
+      </form>
 
       {events.length ? (
         <section aria-labelledby="h-history" className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-5 sm:px-6">
@@ -451,6 +465,7 @@ export default async function PublishingPage({ searchParams }: PageProps<"/dashb
           {t("publishing.self")}
         </SubmitButton>
       </form>
+      </PageGroup>
     </>
   );
 }

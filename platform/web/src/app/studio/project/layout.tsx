@@ -88,7 +88,7 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         <details className="relative">
           <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm" style={{ background: C.barSoft }} aria-label={t("studio.switchProject")}>
             <Glyph name={kindOf(app).icon} size={18} />
-            <span>{name}</span>
+            <span className="max-sm:max-w-[40vw] max-sm:truncate">{name}</span>
             <Glyph name="expand_more" size={18} />
           </summary>
           <div className="absolute start-0 top-[calc(100%+6px)] z-20 flex min-w-[240px] flex-col gap-0.5 rounded-xl bg-white p-1.5 shadow-lg" style={{ border: `1px solid ${C.line}`, color: C.ink }}>
@@ -113,21 +113,23 @@ export default async function StudioProjectLayout({ children }: { children: Reac
           </div>
         </details>
         <div className="flex-[1_1_20px]" />
-        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
+        <Link href="/studio/project/preview" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline max-sm:px-2.5" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
-          {t("studio.previewOnPhone")}
+          {/* On phones the bar's two links as their icons, so the bar stays one line. */}
+          <span className="max-sm:sr-only">{t("studio.previewOnPhone")}</span>
         </Link>
-        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline" style={{ background: C.accent, color: C.ink }}>
+        <Link href="/studio/editor" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-[18px] text-sm font-extrabold no-underline max-sm:px-2.5" style={{ background: C.accent, color: C.ink }}>
           <Glyph name="draw" size={18} />
-          {t("studio.openEditor")}
+          <span className="max-sm:sr-only">{t("studio.openEditor")}</span>
         </Link>
       </StudioBar>
 
-      <div className="flex flex-1 flex-wrap items-stretch">
+      {/* Below lg the menu is a bar above the page: its line keeps its own height. */}
+      <div className="flex flex-1 flex-wrap items-stretch max-lg:content-start">
         <Suspense>
-          <ProjectNav label={t("studio.projectDashboard")} groups={allowed} />
+          <ProjectNav label={t("studio.projectDashboard")} menuLabel={t("studio.projectMenu")} closeLabel={t("studio.closeProjectMenu")} groups={allowed} />
         </Suspense>
-        <main id="main" tabIndex={-1} className="box-border flex min-w-0 flex-[999_1_560px] flex-col gap-5 p-6 outline-none">
+        <main id="main" tabIndex={-1} className="box-border flex min-w-0 flex-[999_1_560px] flex-col gap-5 p-4 outline-none sm:p-6">
           {staff ? (
             <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm text-white" style={{ background: C.ink }}>
               <span className="flex items-center gap-2">

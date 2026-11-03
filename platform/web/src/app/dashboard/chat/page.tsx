@@ -5,6 +5,7 @@ import { keepAllChatsAction, resolveChatReportAction } from "@/app/actions/chat"
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
+import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
 import { UpgradeHint } from "@/components/upgrade";
 import type { DashKey } from "@/i18n/dashboard";
 import { appLabel } from "@/lib/app/label";
@@ -125,7 +126,7 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
       key={v}
       href={v === "all" ? "/dashboard/chat" : `/dashboard/chat?view=${v}`}
       aria-current={view === v ? "page" : undefined}
-      className={`rounded-[10px] px-3.5 py-2 text-[15px] no-underline ${view === v ? "bg-midnight font-bold text-white hover:text-white" : "border border-line bg-white text-midnight hover:text-midnight"}`}
+      className={`inline-flex h-9 items-center rounded-full border px-3.5 text-sm no-underline ${view === v ? "border-midnight bg-midnight font-bold text-ivory hover:text-ivory" : "border-line bg-white text-midnight hover:border-line-strong hover:text-midnight"}`}
     >
       {label}
     </Link>
@@ -164,7 +165,8 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
     </li>
   );
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: the header, the views as chips, then the conversations as a list, and the settings. */}
       <AutoRefresh seconds={15} />
       {header}
       {inbox.expiring.conversations > 0 && inbox.expiring.delete_on ? (
@@ -230,30 +232,24 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
           {schoolList.items.length === 0 ? (
             <p className="m-0 px-5 py-4 text-[15px] text-muted sm:px-6">{t("chat.schoolNone")}</p>
           ) : (
-            <ul className="m-0 flex list-none flex-col p-0 pt-2">
-              {schoolList.items.map((c) => (
-                <li key={c.conversation.id} className="border-t border-line-soft first:border-t-0">
-                  <Link href={`/dashboard/chat/school/${c.conversation.id}`} className="flex items-center gap-3 px-5 py-3 text-midnight no-underline hover:bg-sand sm:px-6">
-                    <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-ivory text-ink-3">
-                      <Icon name="school" size={22} />
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="flex items-center gap-2 truncate text-[15px] font-bold">
-                        <span className="truncate">
-                          {c.teacher?.name ?? "—"} · {c.other?.name ?? "—"}
-                        </span>
-                        {c.reported ? <Badge tone="warn">{t("chat.reported")}</Badge> : null}
-                        {c.conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
-                      </span>
-                      <span className="truncate text-[13px] text-muted">
-                        {c.other?.role === "student" ? t("chat.student") : t("chat.parentOf", { names: c.students.join(", ") || "—" })}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-[13px] text-muted">{when((c.conversation.lastMessageAt ?? c.conversation.createdAt).toISOString())}</span>
-                  </Link>
-                </li>
+            <ItemList>
+              {schoolList.items.map((c, i) => (
+                <ItemRow
+                  key={c.conversation.id}
+                  href={`/dashboard/chat/school/${c.conversation.id}`}
+                  media={<Thumb icon="school" shape="round" tint={i} />}
+                  title={`${c.teacher?.name ?? "—"} · ${c.other?.name ?? "—"}`}
+                  badges={
+                    <>
+                      {c.reported ? <Badge tone="warn">{t("chat.reported")}</Badge> : null}
+                      {c.conversation.closedAt ? <Badge tone="neutral">{t("chat.closed")}</Badge> : null}
+                    </>
+                  }
+                  meta={c.other?.role === "student" ? t("chat.student") : t("chat.parentOf", { names: c.students.join(", ") || "—" })}
+                  aside={<span className="text-[13px] text-muted">{when((c.conversation.lastMessageAt ?? c.conversation.createdAt).toISOString())}</span>}
+                />
               ))}
-            </ul>
+            </ItemList>
           )}
         </Section>
       ) : reports ? (
@@ -300,37 +296,39 @@ export default async function ChatPage({ searchParams }: PageProps<"/dashboard/c
               )}
             </div>
           ) : (
-            <ul className="m-0 flex list-none flex-col p-0">
-              {inbox.items.map((c) => {
+            <ItemList>
+              {inbox.items.map((c, i) => {
                 const soon = c.expires_on && new Date(`${c.expires_on}T00:00:00Z`).getTime() <= now.getTime() + 30 * 86_400_000;
                 return (
-                  <li key={c.id} className="border-t border-line-soft first:border-t-0">
-                    <Link href={`/dashboard/chat/${c.id}`} className="flex items-center gap-3 px-5 py-3 text-midnight no-underline hover:bg-sand sm:px-6">
-                      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-ivory text-ink-3">
-                        <Icon name={c.kind === "group" ? "groups" : "person"} size={22} />
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className={`flex items-center gap-2 truncate text-[15px] ${c.unread_count > 0 ? "font-extrabold" : "font-bold"}`}>
-                          <span className="truncate">{c.title || t("chat.group")}</span>
-                          {c.kind === "group" && c.member_count !== undefined ? <span className="text-[13px] font-normal text-muted">{t("chat.members", { count: c.member_count })}</span> : null}
-                          {c.member && teacherMembers.has(c.member.id) ? <Badge tone="info">{t("chat.teacherBadge")}</Badge> : null}
-                          {c.member?.blocked ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
-                        </span>
-                        <span className="truncate text-[13px] text-muted">{preview(c.last_message)}</span>
-                        {soon && c.expires_on ? <span className="text-[13px] text-warn">{t("chat.deletedOn", { date: day(c.expires_on) })}</span> : null}
-                      </span>
-                      <span className="shrink-0 text-[13px] text-muted">{when(c.updated_at)}</span>
-                      {c.unread_count > 0 ? <Badge tone="info">{t("chat.newCount", { count: c.unread_count })}</Badge> : null}
-                    </Link>
-                  </li>
+                  <ItemRow
+                    key={c.id}
+                    href={`/dashboard/chat/${c.id}`}
+                    media={<Thumb icon={c.kind === "group" ? "groups" : "person"} shape="round" tint={i} />}
+                    title={<span className={c.unread_count > 0 ? "font-extrabold" : undefined}>{c.title || t("chat.group")}</span>}
+                    badges={
+                      <>
+                        {c.kind === "group" && c.member_count !== undefined ? <span className="text-[13px] font-normal text-muted">{t("chat.members", { count: c.member_count })}</span> : null}
+                        {c.member && teacherMembers.has(c.member.id) ? <Badge tone="info">{t("chat.teacherBadge")}</Badge> : null}
+                        {c.member?.blocked ? <Badge tone="neutral">{t("chat.blocked")}</Badge> : null}
+                      </>
+                    }
+                    meta={<span className="line-clamp-1">{preview(c.last_message)}</span>}
+                    extra={soon && c.expires_on ? <span className="text-warn">{t("chat.deletedOn", { date: day(c.expires_on) })}</span> : null}
+                    aside={
+                      <>
+                        <span className="text-[13px] text-muted">{when(c.updated_at)}</span>
+                        {c.unread_count > 0 ? <Badge tone="info">{t("chat.newCount", { count: c.unread_count })}</Badge> : null}
+                      </>
+                    }
+                  />
                 );
               })}
-            </ul>
+            </ItemList>
           )}
         </Section>
       )}
       {settingsSection}
-    </>
+    </div>
   );
 
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { PageHeader } from "@/components/ui";
+import { DetailLayout } from "@/components/page-kit";
+import { PageHeader, Section } from "@/components/ui";
 import { appLabel } from "@/lib/app/label";
 import { requireClient } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -42,42 +42,43 @@ export default async function AppLinksPage() {
   const example = EXAMPLE[app.appType] ?? "page/home";
   const { t, k } = await dashboardText();
   return (
-    <>
+    <div className="flex flex-col gap-6">
+      {/* The page kit: back to Publishing, the keys and the check, and how links work beside them. */}
       <PageHeader
-        eyebrow={<Link href="/dashboard/publishing">{t("publishing.title")}</Link>}
+        back={{ href: "/dashboard/publishing", label: t("publishing.title") }}
         title={t("stores.linksTitle")}
         description={t("stores.linksIntro", { app: appLabel(app) === "Untitled app" ? k("Untitled app") : appLabel(app) })}
       />
-      <section aria-labelledby="h-how" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-how" className="m-0 flex items-center gap-2 text-lg font-bold">
-          <Icon name="link" size={22} />
-          {t("stores.howLinks")}
-        </h2>
-        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{site ? t("stores.howLinksSite") : t("stores.howLinksYallapp")}</p>
-        <ul className="m-0 flex list-none flex-col gap-1.5 p-0 font-mono text-sm break-all" dir="ltr">
-          {site ? <li>{`${site}/${example}`}</li> : null}
-          <li>{`${yallappLinkBase(appUrl(), app.id)}/${example}`}</li>
-        </ul>
-        <p className="m-0 text-sm text-muted">{site ? t("stores.filesSite") : t("stores.filesYallapp")}</p>
-      </section>
-
-      <section aria-labelledby="h-keys" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-keys" className="m-0 text-lg font-bold">
-          {t("stores.filesNeed")}
-        </h2>
-        <AppLinksForm
-          ios={ios}
-          reportedTeamId={Boolean(app.appleTeamId)}
-          saved={{ playSigningSha256: app.playSigningSha256 ?? "", appleTeamId: app.appleTeamId ?? "" }}
-        />
-      </section>
-
-      <section aria-labelledby="h-check" className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-5 sm:p-6">
-        <h2 id="h-check" className="m-0 text-lg font-bold">
-          {t("stores.linkStatus")}
-        </h2>
-        <CheckLinksPanel last={app.linksCheck ?? null} />
-      </section>
-    </>
+      <DetailLayout
+        main={
+          <>
+            <Section titleId="h-keys" title={t("stores.filesNeed")}>
+              <AppLinksForm ios={ios} reportedTeamId={Boolean(app.appleTeamId)} saved={{ playSigningSha256: app.playSigningSha256 ?? "", appleTeamId: app.appleTeamId ?? "" }} />
+            </Section>
+            <Section titleId="h-check" title={t("stores.linkStatus")}>
+              <CheckLinksPanel last={app.linksCheck ?? null} />
+            </Section>
+          </>
+        }
+        side={
+          <Section
+            titleId="h-how"
+            title={
+              <span className="flex items-center gap-2">
+                <Icon name="link" size={22} />
+                {t("stores.howLinks")}
+              </span>
+            }
+          >
+            <p className="m-0 text-sm leading-relaxed text-ink-4">{site ? t("stores.howLinksSite") : t("stores.howLinksYallapp")}</p>
+            <ul className="m-0 flex list-none flex-col gap-1.5 rounded-xl bg-sand p-3 font-mono text-[13px] break-all" dir="ltr">
+              {site ? <li>{`${site}/${example}`}</li> : null}
+              <li>{`${yallappLinkBase(appUrl(), app.id)}/${example}`}</li>
+            </ul>
+            <p className="m-0 text-sm text-muted">{site ? t("stores.filesSite") : t("stores.filesYallapp")}</p>
+          </Section>
+        }
+      />
+    </div>
   );
 }

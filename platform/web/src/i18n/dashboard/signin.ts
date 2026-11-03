@@ -3,6 +3,9 @@ import type { Strings } from "../types";
 /** 56 App sign-in: how people sign in to the app, codes on WhatsApp, the app's email, the rules, and an own API's tokens. */
 export const en = {
   title: "App sign-in",
+  groupSignIn: "Signing in",
+  groupCodes: "Codes and emails",
+  groupApi: "Your API",
   phoneApi: "Phone number, with a code your API sends",
   emailPassword: "Email address and password",
   emailApi: "Email address, with a code your API sends",
@@ -307,6 +310,9 @@ type Messages = Strings<typeof en>;
 
 export const ar: Messages = {
   title: "تسجيل الدخول إلى التطبيق",
+  groupSignIn: "تسجيل الدخول",
+  groupCodes: "الرموز والرسائل",
+  groupApi: "واجهتك البرمجية",
   phoneApi: "رقم الهاتف، مع رمز ترسله واجهتك البرمجية",
   emailPassword: "البريد الإلكتروني وكلمة المرور",
   emailApi: "البريد الإلكتروني، مع رمز ترسله واجهتك البرمجية",
@@ -600,6 +606,9 @@ export const ar: Messages = {
 
 export const tr: Messages = {
   title: "Uygulamada giriş",
+  groupSignIn: "Giriş",
+  groupCodes: "Kodlar ve e-postalar",
+  groupApi: "API'niz",
   phoneApi: "Telefon numarası, API'nizin gönderdiği bir kodla",
   emailPassword: "E-posta adresi ve şifre",
   emailApi: "E-posta adresi, API'nizin gönderdiği bir kodla",
