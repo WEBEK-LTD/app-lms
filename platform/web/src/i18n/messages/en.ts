@@ -616,7 +616,7 @@ export const en = {
   },
   meta: {
     defaultTitle: "Yallapp: make an app for your shop, school or delivery company",
-    defaultDescription: "Your branded app for shops, schools, academies, restaurants, clinics, delivery and taxis, on Google Play, App Store, Galaxy Store, AppGallery and GetApps.",
+    defaultDescription: "Branded apps for shops, schools, academies, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
     solutionsTitle: "Solutions",
     solutionsDescription: "Branded apps for academies, shops, restaurants, clinics, gyms, real estate, news, events and charities, with or without a website.",
     featuresTitle: "Features",
