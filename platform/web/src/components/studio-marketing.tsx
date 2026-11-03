@@ -1,11 +1,12 @@
 import { AccountLink } from "./account-link";
+import { StoreMarks } from "./brand-marks";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { CheckList } from "./marketing";
-import { planPriceFor, storageText } from "./plan-cards";
+import { planPriceFor, planStoresLineFor, storageText } from "./plan-cards";
 import { WhatsAppLink } from "./whatsapp-link";
 import type { Contact } from "@/lib/contact";
-import { hasFeature, STUDIO_PLAN_CHOICES, type PlanInfo, type PriceView } from "@/lib/plans";
+import { hasFeature, planStores, STUDIO_PLAN_CHOICES, type PlanInfo, type PriceView } from "@/lib/plans";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
@@ -87,6 +88,12 @@ export function StudioPlans({ lang, plans, view, contact }: { lang: Lang; plans:
                     {formatMessage(lang, words.storage, { size: storageText(lang, plan.limits.storageGb) })}
                   </li>
                 </ul>
+                {/* The stores the plan's apps can be on, and who publishes them, as on the regular plans' cards. */}
+                <div className="flex flex-col gap-2" data-plan-stores="">
+                  <span className="text-xs font-bold tracking-[0.8px] text-muted uppercase">{words.publishTo}</span>
+                  <StoreMarks stores={planStores(plan).stores} label={formatMessage(lang, words.stores, { plan: plan.name })} size={15} />
+                  <span className="text-[13px] font-semibold text-ink-4">{planStoresLineFor(lang, plan)}</span>
+                </div>
                 <ul className="m-0 flex list-none flex-col gap-2.5 border-t border-line-soft p-0 pt-5 text-[15px]">
                   {shownChoices.map((id) => {
                     const on = (plan.features as readonly string[]).includes(id);
