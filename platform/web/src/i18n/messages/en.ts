@@ -469,6 +469,14 @@ export const en = {
     when: "We delete your account within {days} days of your request and email you when it's done. Until then you can cancel the request from your dashboard. Once deleted, it can't be brought back.",
     plans:
       "Deleting your account ends your apps' plans. Plans renew only when you pay, so nothing more is charged; payments already made are refunded only as the <refund>Refund policy</refund> says.",
+    courierTitle: "Couriers on Yallapp Courier",
+    courierIntro: "For couriers who sign in to the Yallapp Courier app with their mobile number or email.",
+    courierApp:
+      "<b>In the app:</b> open <b>Account</b> and choose <b>Delete my Yallapp Courier account</b>. Someone no company has added yet finds it under the list of companies. The app asks first, then deletes the account at once: every phone is signed out of Yallapp Courier and every company session ends.",
+    courierEmail:
+      "<b>If you can't sign in:</b> email {email} with “Delete my Yallapp Courier account” as the subject, and give the mobile number or email you sign in with. We may ask you to confirm it's you before we delete anything.",
+    courierDeleted: "We delete your Yallapp Courier account: the mobile number or email you sign in with, your sign-ins and the phones signed in with it.",
+    courierKept: "The delivery companies keep their own couriers' lists and their shipments' records. To be removed from a company's list, ask that company.",
     more: "More about how we handle your data: <privacy>Privacy policy</privacy>.",
   },
   notFound: {

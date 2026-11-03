@@ -457,6 +457,14 @@ export const tr: Messages = {
     when: "Hesabınızı isteğinizden itibaren {days} gün içinde siler ve bittiğinde size e-posta göndeririz. O zamana kadar isteği panelinizden iptal edebilirsiniz. Silindikten sonra geri getirilemez.",
     plans:
       "Hesabınızı silmek uygulamalarınızın paketlerini sona erdirir. Paketler yalnızca ödeme yaptığınızda yenilenir, bu yüzden başka bir ücret alınmaz; daha önce yapılan ödemeler yalnızca <refund>İade politikası</refund> kapsamında iade edilir.",
+    courierTitle: "Yallapp Courier'daki kuryeler",
+    courierIntro: "Yallapp Courier uygulamasına cep telefonu numarası veya e-postayla giriş yapan kuryeler için.",
+    courierApp:
+      "<b>Uygulamadan:</b> <b>Hesap</b> sayfasını açın ve <b>Yallapp Courier hesabımı sil</b> seçeneğini kullanın. Henüz hiçbir şirketin eklemediği kişiler bunu şirket listesinin altında bulur. Uygulama önce onay ister, ardından hesabı hemen siler: her telefonda Yallapp Courier oturumu kapanır ve tüm şirket oturumları sona erer.",
+    courierEmail:
+      "<b>Giriş yapamıyorsanız:</b> konu satırına “Yallapp Courier hesabımı sil” yazarak ve giriş yaptığınız cep telefonu numarasını veya e-postayı belirterek {email} adresine e-posta gönderin. Herhangi bir şeyi silmeden önce sizden kimliğinizi doğrulamanızı isteyebiliriz.",
+    courierDeleted: "Yallapp Courier hesabınızı sileriz: giriş yaptığınız cep telefonu numarası veya e-posta, oturumlarınız ve bu hesapla giriş yapılmış telefonlar.",
+    courierKept: "Teslimat şirketleri kendi kurye listelerini ve gönderi kayıtlarını saklar. Bir şirketin listesinden çıkarılmak için o şirkete başvurun.",
     more: "Verilerinizi nasıl işlediğimiz hakkında daha fazlası: <privacy>Gizlilik politikası</privacy>.",
   },
   notFound: {
