@@ -17,6 +17,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../delivery/data/delivery_providers.dart';
 import '../../delivery/data/locate.dart';
+import '../../delivery/data/my_address.dart';
 import '../../delivery/screens/send_parcel_screen.dart'
     show PasteLinkDialog, PlaceEditor, PlaceFields;
 import '../../delivery/widgets/delivery_map.dart';
@@ -136,7 +137,15 @@ class _FoodCartScreenState extends ConsumerState<FoodCartScreen> {
       });
       return;
     }
-    _setAt((lat: p.lat, lng: p.lng));
+    final at = (lat: p.lat, lng: p.lng);
+    _setAt(at);
+    // 112.6 The address of the position, in an empty field.
+    if (_dropoff.address.text.trim().isNotEmpty) return;
+    final named = await addressAt(ref, at);
+    if (!mounted || named == null) return;
+    if (_dropoff.at == at && _dropoff.address.text.trim().isEmpty) {
+      _dropoff.address.text = addressLine(named);
+    }
   }
 
   Future<void> _pasteLink() async {

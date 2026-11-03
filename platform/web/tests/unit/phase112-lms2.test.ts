@@ -114,7 +114,8 @@ describe("112.5 the certificate as a PDF file", () => {
       items: [{ url: `https://yallapp.test/a/${h.state.app.id}/certificate/${code}`, pdf_url: `https://yallapp.test/a/${h.state.app.id}/certificate/${code}/pdf?lang=ar` }],
     });
     expect(await loadCertificate(h.store, SECRET, h.state.app.id, code)).toMatchObject({ name: "Deniz Aksoy", course: { id: 10 } });
-    expect(await loadCertificate(h.store, SECRET, h.state.app.id, code.replace(/.$/, "x"))).toBeNull();
+    const tampered = code.slice(0, -1) + (code.endsWith("x") ? "y" : "x");
+    expect(await loadCertificate(h.store, SECRET, h.state.app.id, tampered)).toBeNull();
   });
 
   it("makes an A4 PDF in English, Arabic and Turkish", async () => {

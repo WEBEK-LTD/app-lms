@@ -6,7 +6,7 @@ import { demoTaxisAround } from "../demo/taxi";
 import { companyMapSet, platformMapFor, platformMapSettings } from "../maps/app-map";
 import { exactKm } from "../rides/fares";
 import { DRIVER_ACTIVE } from "../rides/service";
-import { createTilesSession, googleTilesUrl, regionOf, sessionValid, type MapDeps } from "./maps";
+import { createTilesSession, googleTilesUrl, osmSearches, regionOf, sessionValid, type MapDeps } from "./maps";
 import { driverKey, liveRoot } from "./live";
 import { NEARBY_EVERY_SECONDS, taxiSettingsOf } from "./settings";
 
@@ -73,7 +73,7 @@ export async function taxiConfig(input: TaxiConfigInput) {
       provider: platform ? ("osm" as const) : taxi.provider,
       tiles_url: tilesUrl,
       attribution,
-      search: google || (osm !== null && osm.searchUrl !== null),
+      search: google || (osm !== null && osmSearches(osm)),
       routes: google || (osm !== null && osm.routingUrl !== null),
     },
     live: liveOf(input.app, taxi, input.account),

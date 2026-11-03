@@ -385,6 +385,11 @@ tags:
       `GET /maps/places` and `POST /maps/route` work; without them the app
       chooses places by the phone's position, a maps link or on the map, and
       draws a straight line.
+
+      Roadmap 112.6. With the platform's MapTiler tiles (or a company's) and
+      no search server, the search is MapTiler's geocoding with the tiles'
+      key, from Yallapp's servers. `GET /maps/address` names the place at
+      the phone's position, for "My location", wherever `search` is true.
   - name: Teachers
     description: |
       Roadmap 105.3. Academies with many teachers, on Yallapp's hosted API
@@ -6170,7 +6175,8 @@ paths:
       description: |
         Places matching what the person typed, near them first, on the
         app's map: the company's Google Maps (Places) or OpenStreetMap
-        search server, or the platform's search server (`search` in
+        search server, or the platform's search server, or 112.6 MapTiler's
+        geocoding with the tiles' key (`search` in
         `TaxiConfig.map`, `DeliveryConfig.map`, `FoodConfig.map`). A Google
         place comes without its position: ask `GET /maps/places/{place_id}`
         when the person picks it. `feature_disabled` (403) when the app's map
@@ -6199,6 +6205,39 @@ paths:
                     items: { $ref: '#/components/schemas/TaxiPlace' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502':
+          description: The map provider didn't answer (`map_unavailable`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /maps/address:
+    get:
+      tags: [Maps]
+      operationId: getMapAddress
+      summary: The address at a position
+      description: |
+        Roadmap 112.6. The place at the phone's position, named in the
+        person's language, so "My location" fills the address: the company's
+        Google Maps (Geocoding API), its or the platform's Nominatim server
+        (`/reverse`), or MapTiler's geocoding with the tiles' key. Works
+        wherever `search` is true; `feature_disabled` (403) otherwise, and
+        `not_found` (404) when the map names nothing there. The app keeps
+        its field as it is on any error.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, required: true, schema: { type: number, minimum: -180, maximum: 180 } }
+      responses:
+        '200':
+          description: The place, with the position asked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaxiPlace' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
         '502':
           description: The map provider didn't answer (`map_unavailable`).
@@ -14352,7 +14391,7 @@ components:
           properties:
             tiles_url: { type: [string, 'null'] }
             attribution: { type: [string, 'null'], example: '© OpenStreetMap contributors' }
-            search: { type: boolean, description: 'Roadmap 112.2. `GET /maps/places` works.' }
+            search: { type: boolean, description: 'Roadmap 112.2. `GET /maps/places` (and 112.6 `GET /maps/address`) works.' }
             routes: { type: boolean, description: 'Roadmap 112.2. `POST /maps/route` works.' }
 
     DeliveryService:
@@ -14995,7 +15034,7 @@ components:
                 the app draws the places on a plain background.
               example: 'https://tiles.example.com/{z}/{x}/{y}.png'
             attribution: { type: [string, 'null'], description: 'Shown on the map, as the provider asks.', example: '© OpenStreetMap contributors' }
-            search: { type: boolean, description: '`GET /maps/places` (and `GET /taxi/places`) works.' }
+            search: { type: boolean, description: '`GET /maps/places` (and `GET /taxi/places`, 112.6 `GET /maps/address`) works.' }
             routes: { type: boolean, description: '`POST /maps/route` (and `POST /taxi/route`) works.' }
         live:
           description: The company's Firebase Realtime Database; null without one (the app asks Yallapp every `nearby_every_seconds`).
@@ -15042,7 +15081,7 @@ components:
       type: object
       required: [id, name, address, lat, lng]
       properties:
-        id: { type: string, description: "The provider's ID of the place (`osm:` before OpenStreetMap's)." }
+        id: { type: string, description: "The provider's ID of the place (`osm:` before OpenStreetMap's, 112.6 `mt:` before MapTiler's)." }
         name: { type: string, example: Mall of Egypt }
         address: { type: [string, 'null'], example: 'Wahat Road, 6th of October' }
         lat: { type: [number, 'null'], description: 'Null for a Google place from a search: ask `GET /taxi/places/{place_id}`.' }
