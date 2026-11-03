@@ -23,6 +23,8 @@ export interface RenderOptions {
   unsubscribeUrl?: string;
   /** The builder's canvas: empty pictures show a placeholder and blocks carry their id. */
   editing?: boolean;
+  /** Leave out the unsubscribe line (turning blocks into HTML, which adds its own when sent). */
+  legal?: boolean;
 }
 
 export interface RenderedMail {
@@ -413,6 +415,19 @@ h1{font-size:28px !important;}
 </style></head>`;
 }
 
+/** 114 One block as the builder's canvas draws it: its rows in a table of `width` (the email's, or a column's). */
+export function renderBlockForCanvas(doc: MailDoc, block: MailBlock, options: { dir: Dir; lang: MailLang; assetBase: string; width?: number }): string {
+  const theme = { ...BRAND_THEME, ...doc.theme };
+  const width = options.width ?? theme.width;
+  const ctx: Ctx = { theme, dir: options.dir, lang: options.lang, assetBase: options.assetBase.replace(/\/+$/, ""), editing: true, width };
+  return `<table role="presentation" width="${width}" border="0" cellpadding="0" cellspacing="0" dir="${options.dir}" style="width:100%;max-width:${width}px;border-collapse:collapse;">${blockHtml(block, ctx)}</table>`;
+}
+
+/** The email as the preview shows it in dark mode: the dark colors of clients that apply them, whatever the computer's own setting. */
+export function forceDark(html: string): string {
+  return html.replace("@media (prefers-color-scheme:dark){", "@media all{");
+}
+
 /** The design's blocks as a whole email, with the merge tags still in it. */
 export function renderDoc(doc: MailDoc, content: Pick<MailContent, "subject" | "preview" | "dir">, options: RenderOptions): string {
   const theme = { ...BRAND_THEME, ...doc.theme };
@@ -429,7 +444,7 @@ export function renderDoc(doc: MailDoc, content: Pick<MailContent, "subject" | "
     `<table role="presentation" class="ya-page" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="${theme.background}" style="background-color:${theme.background};"><tr><td align="center" style="padding:28px 12px 0 12px;">` +
     `<!--[if mso]><table role="presentation" width="${theme.width}" align="center" border="0" cellpadding="0" cellspacing="0"><tr><td><![endif]-->` +
     `<table role="presentation" class="ya-wrap ya-body" width="${theme.width}" border="0" cellpadding="0" cellspacing="0" dir="${dir}" bgcolor="${theme.body}" style="width:100%;max-width:${theme.width}px;background-color:${theme.body};border-radius:${radius}px;overflow:hidden;">${rows}<tr><td style="height:16px;line-height:16px;font-size:0;">&nbsp;</td></tr></table>` +
-    legalFooterHtml(options.lang, dir, unsubscribe, theme) +
+    (options.legal === false ? "" : legalFooterHtml(options.lang, dir, unsubscribe, theme)) +
     `<!--[if mso]></td></tr></table><![endif]-->` +
     `</td></tr></table></body></html>`
   );
