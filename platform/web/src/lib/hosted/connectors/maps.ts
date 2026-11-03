@@ -4,14 +4,15 @@ import { hitRateLimit, type RateLimitRule } from "../../rate-limit";
 import { platformAppMap } from "../../maps/app-map";
 import { located } from "../../rides/fares";
 import { platformSetting } from "../../settings/platform";
-import { canRoute, canSearch, MapError, placeById, routeBetween, searchPlaces, type MapAccess, type MapDeps, type MapPlace } from "../../taxi/maps";
+import { addressAt, canRoute, canSearch, MapError, placeById, routeBetween, searchPlaces, type MapAccess, type MapDeps, type MapPlace } from "../../taxi/maps";
 import { error } from "./common";
 import type { ConnectorRequest, ConnectorResult } from "./types";
 
 /**
  * 112 Place search and routes on an app's map, through Yallapp (tag Maps):
- * `GET /maps/places`, `GET /maps/places/{place_id}` and `POST /maps/route`,
- * for ride, taxi, delivery and food apps alike, on the map their app draws
+ * `GET /maps/places`, `GET /maps/places/{place_id}`, 112.6 `GET /maps/address`
+ * (the place at a position, for "My location") and `POST /maps/route`, for
+ * ride, taxi, delivery and food apps alike, on the map their app draws
  * (lib/maps/app-map.ts). 105.9's `/taxi/places` and `/taxi/route` are the
  * same, for the taxi apps built before.
  */
@@ -67,6 +68,7 @@ export async function handleMapRequest(deps: MapEndpointDeps, request: Connector
   const [, part, id] = request.path;
   if (request.method === "GET" && part === "places" && request.path.length === 2) return places(deps, request);
   if (request.method === "GET" && part === "places" && request.path.length === 3) return place(deps, request, id!);
+  if (request.method === "GET" && part === "address" && request.path.length === 2) return address(deps, request);
   if (request.method === "POST" && part === "route" && request.path.length === 2) return route(deps, request);
   return error(404, "not_found", "Not found.");
 }
@@ -102,6 +104,22 @@ async function place(deps: MapEndpointDeps, request: ConnectorRequest, id: strin
   if (await limited(deps, MAP_LIMITS.places, request)) return tooMany();
   try {
     return { status: 200, body: placeJson(await placeById(access, id, (request.query.get("session") ?? "").slice(0, 64) || null, deps.maps)) };
+  } catch (e) {
+    return mapProblem(e);
+  }
+}
+
+/** 112.6 The place at the person's position, named; 404 when the map has none there. */
+async function address(deps: MapEndpointDeps, request: ConnectorRequest): Promise<ConnectorResult> {
+  const lat = coordinate(request.query.get("lat"), 90);
+  const lng = coordinate(request.query.get("lng"), 180);
+  if (lat === null || lng === null) return error(400, "invalid_request", "Give the position's lat and lng.");
+  const access = await deps.access(request.lang ?? "en");
+  if (!access || !canSearch(access)) return noSearch();
+  if (await limited(deps, MAP_LIMITS.places, request)) return tooMany();
+  try {
+    const found = await addressAt(access, { lat, lng }, deps.maps, request.now);
+    return found ? { status: 200, body: placeJson(found) } : error(404, "not_found", "No address here.");
   } catch (e) {
     return mapProblem(e);
   }

@@ -16,6 +16,7 @@ import '../../../core/widgets/common.dart';
 import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
 import '../../delivery/data/locate.dart';
+import '../../delivery/data/my_address.dart';
 import '../../delivery/screens/send_parcel_screen.dart' show PasteLinkDialog;
 import '../../delivery/widgets/delivery_map.dart' show MapPickerScreen;
 import '../data/saved_places.dart';
@@ -247,7 +248,21 @@ class _TaxiPlaceSearchScreenState extends ConsumerState<TaxiPlaceSearchScreen> {
       });
       return;
     }
-    _done((name: l10n.rideMyLocation, address: null, lat: p.lat, lng: p.lng));
+    // 112.6 Named by the map when it searches; "My location" otherwise.
+    TaxiPlace? named;
+    if (widget.map.search) {
+      setState(() => _choosing = true);
+      named = await addressAt(ref, (lat: p.lat, lng: p.lng));
+      if (!mounted) return;
+      setState(() => _choosing = false);
+    }
+    final name = named?.name.trim() ?? '';
+    _done((
+      name: name.isNotEmpty ? name : l10n.rideMyLocation,
+      address: name.isNotEmpty ? named!.address : null,
+      lat: p.lat,
+      lng: p.lng,
+    ));
   }
 
   Future<void> _onMap() async {

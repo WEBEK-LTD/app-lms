@@ -18,6 +18,7 @@ import '../../../core/widgets/common.dart';
 import '../../delivery/data/delivery_providers.dart'
     show LocateProblem, locatorProvider;
 import '../../delivery/data/locate.dart';
+import '../../delivery/data/my_address.dart';
 import '../../delivery/screens/send_parcel_screen.dart'
     show PasteLinkDialog, PlaceEditor, PlaceFields;
 import '../../delivery/widgets/delivery_map.dart' show MapPickerScreen;
@@ -161,6 +162,23 @@ class _RideScreenState extends ConsumerState<RideScreen> {
     if (_pickup.at == null && _pickup.address.text.trim().isEmpty) {
       _pickup.address.text = context.l10n.rideMyLocation;
       _setAt(_pickup, _here);
+      unawaited(_nameMyLocation(_pickup, _here!));
+    }
+  }
+
+  /// 112.6 "My location" named by the map, while the field still says it.
+  Future<void> _nameMyLocation(
+    PlaceFields fields,
+    ({double lat, double lng}) at,
+  ) async {
+    final mine = context.l10n.rideMyLocation;
+    final found = await addressAt(ref, at);
+    if (!mounted || found == null || found.name.trim().isEmpty) return;
+    if (fields.at != at || fields.address.text != mine) return;
+    fields.address.text = found.name;
+    final address = found.address ?? '';
+    if (fields.details.text.trim().isEmpty && address != found.name) {
+      fields.details.text = address;
     }
   }
 
@@ -301,10 +319,11 @@ class _RideScreenState extends ConsumerState<RideScreen> {
       });
       return;
     }
-    if (fields.address.text.trim().isEmpty) {
-      fields.address.text = l10n.rideMyLocation;
-    }
-    _setAt(fields, (lat: p.lat, lng: p.lng));
+    final at = (lat: p.lat, lng: p.lng);
+    final empty = fields.address.text.trim().isEmpty;
+    if (empty) fields.address.text = l10n.rideMyLocation;
+    _setAt(fields, at);
+    if (empty) await _nameMyLocation(fields, at);
   }
 
   Future<void> _pasteLink(PlaceFields fields) async {

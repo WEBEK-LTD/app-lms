@@ -902,6 +902,9 @@ abstract class YallappApi {
     String? session,
   });
   Future<TaxiPlace> getTaxiPlace(String id, {String? session});
+
+  /// 112.6 The place at a position (`GET /maps/address`), for "My location".
+  Future<TaxiPlace> getMapAddress(double lat, double lng);
   Future<TaxiRoute> getTaxiRoute(
     ({double lat, double lng}) from,
     ({double lat, double lng}) to,
@@ -3124,6 +3127,14 @@ class HttpYallappApi implements YallappApi {
     _optional,
     TaxiPlace.fromJson,
     query: {'session': ?session},
+  );
+
+  @override
+  Future<TaxiPlace> getMapAddress(double lat, double lng) => _get(
+    '/maps/address',
+    _optional,
+    TaxiPlace.fromJson,
+    query: {'lat': lat, 'lng': lng},
   );
 
   @override
