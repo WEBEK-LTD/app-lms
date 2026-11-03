@@ -346,7 +346,8 @@ ValidationResult validateBuildConfig(Object? decoded) {
       }
       for (final key in ['android_config_url', 'ios_config_url']) {
         final url = _string(firebase, key, errors, prefix: 'firebase.');
-        if (url != null && !_isAbsoluteUrl(url)) {
+        // 104.8.6 Or a file on the build machine (Yallapp Courier's release).
+        if (url != null && !_isAbsoluteUrl(url) && !_isFileUrl(url)) {
           errors.add('"firebase.$key" must be an absolute URL.');
         }
       }
@@ -483,6 +484,11 @@ final _appId = RegExp(
 bool _isAbsoluteUrl(String value) {
   final uri = Uri.tryParse(value);
   return uri != null && uri.hasScheme && uri.host.isNotEmpty;
+}
+
+bool _isFileUrl(String value) {
+  final uri = Uri.tryParse(value);
+  return uri != null && uri.scheme == 'file' && uri.path.startsWith('/');
 }
 
 String? _string(
