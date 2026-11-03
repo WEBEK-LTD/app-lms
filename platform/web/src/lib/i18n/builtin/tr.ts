@@ -952,6 +952,9 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "Give both places' lat and lng.": "İki yerin de enlem ve boylamını gönderin.",
   "There's no road between these places.": "Bu yerler arasında yol yok.",
   "The map isn't answering right now. Please try again.": "Harita şu an yanıt vermiyor. Lütfen tekrar deneyin.",
+  // 112.6 The address at a position.
+  "Give the position's lat and lng.": "Konumun enlem ve boylamını gönderin.",
+  "No address here.": "Burada adres yok.",
   // 113.5 The syllabus and the teachers' reports.
   "Report not found.": "Rapor bulunamadı.",
   "Only a draft can be deleted.": "Yalnızca taslak silinebilir.",
