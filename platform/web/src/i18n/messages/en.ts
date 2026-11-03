@@ -220,6 +220,10 @@ export const en = {
     tryButton: "Try the {demo}",
     others: "Other app types",
     ogFallback: "An app for the way your business works",
+    faqTitle: "Questions and answers",
+    studioTitle: "Made in Yallapp Studio",
+    studioText: "Delivery apps are Yallapp Studio projects: design every page freely, with Studio's own plans.",
+    studioButton: "See Yallapp Studio",
   },
   features: {
     atGlance: "Features at a glance",
@@ -590,7 +594,7 @@ export const en = {
   },
   og: {
     footer: "Branded Android and iOS apps for your business",
-    siteAlt: "Yallapp: your business as your own mobile app",
+    siteAlt: "Yallapp: make an app for your shop, school or delivery company",
     siteTitle: "Your business, as your own mobile app.",
     siteText: "Branded Android and iOS apps on all five app stores, from the website you already run, from Shopify and other platforms, or with no website at all.",
     pricingAlt: "Yallapp pricing",
@@ -611,7 +615,7 @@ export const en = {
     faqText: "Getting started, content sources, the five app stores, notifications, payments, languages, plans, Yallapp Studio and Yallapp Courier.",
   },
   meta: {
-    defaultTitle: "Yallapp: your business as your own mobile app",
+    defaultTitle: "Yallapp: make an app for your shop, school or delivery company",
     defaultDescription: "Your own branded app for shops, academies, schools, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
     solutionsTitle: "Solutions",
     solutionsDescription: "Branded apps for academies, shops, restaurants, clinics, gyms, real estate, news, events and charities, with or without a website.",

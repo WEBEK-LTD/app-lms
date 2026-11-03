@@ -212,6 +212,10 @@ export const tr: Messages = {
     tryButton: "{demo} deneyin",
     others: "Diğer uygulama türleri",
     ogFallback: "İşletmenizin çalışma şekline uygun bir uygulama",
+    faqTitle: "Sorular ve yanıtlar",
+    studioTitle: "Yallapp Studio'da yapılır",
+    studioText: "Teslimat uygulamaları Yallapp Studio projeleridir: her sayfayı özgürce tasarlayın, Studio'nun kendi paketleriyle.",
+    studioButton: "Yallapp Studio'ya göz atın",
   },
   features: {
     atGlance: "Bir bakışta özellikler",
@@ -576,7 +580,7 @@ export const tr: Messages = {
   },
   og: {
     footer: "İşletmeniz için markanızı taşıyan Android ve iOS uygulamaları",
-    siteAlt: "Yallapp: işletmeniz, kendi mobil uygulamanız olarak",
+    siteAlt: "Yallapp: mağazanız, okulunuz veya kurye şirketiniz için uygulama",
     siteTitle: "İşletmeniz, kendi mobil uygulamanız olarak.",
     siteText: "Beş uygulama mağazasının hepsinde markanızı taşıyan Android ve iOS uygulamaları; mevcut web sitenizden, Shopify ve diğer platformlardan ya da hiç web sitesi olmadan.",
     pricingAlt: "Yallapp fiyatları",
@@ -597,7 +601,7 @@ export const tr: Messages = {
     faqText: "Başlarken, içerik kaynakları, beş uygulama mağazası, bildirimler, ödemeler, diller, paketler, Yallapp Studio ve Yallapp Courier.",
   },
   meta: {
-    defaultTitle: "Yallapp: işletmeniz, kendi mobil uygulamanız olarak",
+    defaultTitle: "Yallapp: mağazanız, okulunuz veya kurye şirketiniz için uygulama",
     defaultDescription: "Mağaza, akademi, okul, restoran, klinik, kurye ve taksi işletmeleri için markanızı taşıyan uygulama; Google Play, App Store, Galaxy Store, AppGallery ve GetApps'te.",
     solutionsTitle: "Çözümler",
     solutionsDescription: "Akademiler, mağazalar, restoranlar, klinikler, spor salonları, emlak, haber, etkinlik ve yardım kuruluşları için web siteli ya da sitesiz markalı uygulamalar.",

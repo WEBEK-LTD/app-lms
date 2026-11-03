@@ -31,6 +31,8 @@ export interface SolutionTranslation {
   forYou: string[];
   /** The labels of its guides, in the English order. */
   docs: string[];
+  /** SEO: the page's questions and answers, in the English order (pages that have them). */
+  faq?: { q: string; a: string }[];
 }
 
 export interface MarketingTranslation {
