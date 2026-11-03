@@ -2,7 +2,9 @@ import { startPipeline } from "@/lib/builds/dispatch";
 import { preflightDeps } from "@/lib/builds/preflight-env";
 import { getStore } from "@/lib/data";
 import { sendTemplate } from "@/lib/email/send";
-import { appUrl, encryptionKey, integrationChecksOn, internalJobSecret, licenseRefreshTestUrl, paymentApiUrls } from "@/lib/env";
+import { appUrl, encryptionKey, integrationChecksOn, internalJobSecret, licenseRefreshTestUrl, paymentApiUrls, signingSecret } from "@/lib/env";
+import { openMailer } from "@/lib/mail";
+import { getPlans } from "@/lib/settings/platform";
 import { runIntegrationChecks } from "@/lib/integrations/schedule";
 import { checkPendingPayments } from "@/lib/payments/pending";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
@@ -45,6 +47,8 @@ export async function POST(request: Request): Promise<Response> {
       // 87.4 Automatic builds: the checks before them, and the pipeline started at once.
       preflight: preflightDeps(store),
       startPipeline,
+      // 114 Email campaigns due start; netlify/functions/mail-campaigns.mts sends the rest every minute.
+      mail: await mailDeps(store),
     });
     await alertFailedScheduledPushes(store, jobs.notifications.failed, now, teamMail);
     const watch = await runWatch({ store, now, mail: teamMail, jobs: ["daily", "webhooks", "pipeline"], dispatch: dispatchSet(), crashes: true });
@@ -68,4 +72,15 @@ export async function POST(request: Request): Promise<Response> {
     return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments };
   });
   return json(report);
+}
+
+/** 114 How the frequent job sends email campaigns; without SIGNING_SECRET they wait (their links couldn't be signed). */
+async function mailDeps(store: Awaited<ReturnType<typeof getStore>>) {
+  let secret: string;
+  try {
+    secret = signingSecret();
+  } catch {
+    return undefined;
+  }
+  return { now: () => new Date(), baseUrl: appUrl(), secret, mailer: () => openMailer(store), plans: await getPlans(store) };
 }

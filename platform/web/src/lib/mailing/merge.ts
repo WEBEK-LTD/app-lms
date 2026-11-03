@@ -14,7 +14,7 @@ export const MERGE_TAGS = [
   { tag: "app_name", label: "App name", example: "Mona's Bakery" },
   { tag: "plan", label: "Plan", example: "Growth" },
   { tag: "expiry_date", label: "Plan end date", example: "15 December 2026" },
-  { tag: "sign_in_link", label: "Sign-in link", example: "https://yallapp.com.tr/login" },
+  { tag: "sign_in_link", label: "Sign-in link", example: "https://yallapp.com.tr/sign-in" },
   { tag: "unsubscribe_link", label: "Unsubscribe link", example: "https://yallapp.com.tr/unsubscribe/example" },
 ] as const;
 

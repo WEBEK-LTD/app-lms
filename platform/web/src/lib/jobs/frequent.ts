@@ -18,6 +18,7 @@ import { appPlan } from "../entitlements";
 import { runRideTicks } from "../rides/tick";
 import { runLibraryReminders } from "../school/library";
 import { runSchoolReminders } from "../school/reminders";
+import { runMailCampaigns, type MailRunDeps, type MailRunReport } from "../mailing/campaigns";
 
 /**
  * 61 The frequent job: `netlify/functions/frequent-jobs.mts` calls `POST
@@ -53,6 +54,8 @@ export interface FrequentReport {
   library: { looked: number; told: number };
   /** 113.8 Tomorrow's exams whose reminder went to their students and families; 113.4 slips due tomorrow whose reminder went to the parents. */
   school: { exams: number; slips: number };
+  /** 114 Email campaigns started on time, and a few seconds of their emails (the minute job sends the rest). */
+  mail: MailRunReport | null;
 }
 
 export async function runFrequentJobs(deps: {
@@ -72,6 +75,8 @@ export async function runFrequentJobs(deps: {
   storeFetch?: typeof fetch;
   /** 91.2 How the connected platforms are reached (tests: a fake fetch). */
   platformFetch?: typeof fetch;
+  /** 114 How email campaigns are sent; left out, they wait for their own job. */
+  mail?: Omit<MailRunDeps, "store" | "budgetMs">;
 }): Promise<FrequentReport> {
   const notifications = await runScheduledNotifications({ store: deps.store, key: deps.key, now: deps.now, send: deps.send });
   let campaigns: CampaignRunReport = { sent: 0, waiting: 0, failed: 0 };
@@ -167,5 +172,14 @@ export async function runFrequentJobs(deps: {
   } catch (error) {
     console.error("[frequent] school", error instanceof Error ? error.message : String(error));
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school };
+  // 114 Email campaigns whose time came start, and a few of their emails go.
+  let mail: MailRunReport | null = null;
+  if (deps.mail) {
+    try {
+      mail = await runMailCampaigns({ ...deps.mail, store: deps.store, budgetMs: 3000 });
+    } catch (error) {
+      console.error("[frequent] email campaigns", error instanceof Error ? error.message : String(error));
+    }
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail };
 }
