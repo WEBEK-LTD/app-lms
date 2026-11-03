@@ -165,6 +165,8 @@ interface SolutionCopy {
   docs: { href: string; label: string }[];
   /** SEO: questions and answers shown on the page (and as FAQPage data). */
   faq?: { q: string; a: string }[];
+  /** SEO: the page's own short name ("Delivery") when the kind's ("Delivery & couriers") reads badly in its titles. */
+  pageName?: string;
 }
 
 export interface Solution extends SolutionCopy {
@@ -738,6 +740,7 @@ export const SOLUTIONS: Solution[] = SOLUTION_COPY.map((copy) => {
 const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
   {
     kind: "delivery",
+    pageName: "Delivery",
     summary: "Parcels sent, tracked live and delivered, with an app for your couriers.",
     audience: "Delivery and courier companies, and shops that deliver their own orders.",
     screens: ["delivery-send", "delivery-shipment", "delivery-courier"],
@@ -816,7 +819,7 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
 function solutionFromCopy(copy: SolutionCopy): Solution {
   const kind = kindById(copy.kind);
   if (!kind) throw new Error(`Unknown kind ${copy.kind}`);
-  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: kind.name, icon: kind.marketing.icon };
+  return { ...copy, id: kind.marketing.slug, contentKey: `solution-${kind.marketing.slug}`, name: copy.pageName ?? kind.name, icon: kind.marketing.icon };
 }
 
 /** SEO: Studio's kinds with a page of their own. */
