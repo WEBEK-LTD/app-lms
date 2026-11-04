@@ -1218,6 +1218,249 @@
       ]
     },
     {
+      "name": "Market",
+      "description": "Roadmap 115. The marketplace: many restaurants, supermarkets and shops in one app (a Yallapp Studio project with the `marketplace` plan feature, growing 105.1's food delivery). Vendors are of three kinds (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and shops have departments, aisles and products, some sold by weight. The customer finds vendors (`GET /market/vendors`, `GET /market/search`), fills one vendor's cart, sees every line of the price before ordering (`POST /market/quote`: items before and after their discounts, the coupon, the club's discount, delivery, taxes, the wallet), and orders for now or for later, delivered or to pick up, paying cash, by card, with Apple Pay or Google Pay (`MarketConfig.payment`), or partly from the wallet. Each vendor chooses who delivers: the app's couriers (the order is followed on the map) or its own drivers (followed by its stages; on the map when the driver uses the courier app). Every amount is in `MarketConfig.currency`, as a decimal string with that currency's decimals (`MarketConfig.currency_decimals`), and formatted. Vendors never reach customers and customers never reach vendors: no vendor's phone, email or chat is ever shown, and support is the app's owner's (the Chat tag, and complaints here). A complaint can be opened on an order from when it is placed until 48 hours after it arrives; the owner's support team decides it.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/market/vendors",
+          "summary": "List the vendors",
+          "description": "The app's active vendors: open ones first, then by `sort`. With the customer's position (`lat`, `lng`) each has its distance, delivery time and fee, and whether it delivers there; vendors that don't are listed last (they can still be ordered from for pick-up when they allow it). `kind` keeps one kind, `category` one cuisine or department (`MarketConfig.categories`), `q` searches vendors and their items, and the flags keep vendors with free delivery, an offer, the club's benefit or pick-up.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/market/vendors/{vendor_id}",
+          "summary": "A vendor",
+          "description": "The vendor with its hours, delivery terms, offers and the sections of what it sells: a restaurant's menu sections with their dishes, or a grocery's or shop's departments with their aisles (products come from `GET /market/vendors/{vendor_id}/products`, as there may be many).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/market/vendors/{vendor_id}/products",
+          "summary": "A vendor's products",
+          "description": "Paged, in the vendor's order. `department` and `aisle` keep one, `q` searches names, brands and descriptions, `barcode` finds one by its barcode or SKU. Out-of-stock products are listed with `in_stock` false after the others.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/market/search",
+          "summary": "Search vendors and what they sell",
+          "description": "Vendors whose name or category matches, and the best matching dishes and products with their vendor, near the customer when `lat` and `lng` are given.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/market/offers",
+          "summary": "Offers and coupons the customer can use",
+          "description": "The app's public offers (with their vendor, or the whole app), and, signed in, the coupons the customer holds (given after a complaint, or for a first order). Codes the owner keeps private are not listed.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/market/quote",
+          "summary": "Price one vendor's cart",
+          "description": "Every line of the price, as the order would be charged: each item before and after its discount, the coupon (and whether the owner or the vendor pays it), the club's discount, the delivery fee (the app's courier prices or the vendor's own), taxes added or included, the wallet's part, and the total. Fails with `invalid_request` (400) for an item or choice the vendor doesn't have, `unavailable_item` (409) for one out of stock (`field` names the line), `vendor_closed` (409) while the vendor is closed, busy or paused (unless `scheduled_for` is within its hours), `below_minimum` (409) under the vendor's smallest order, `quantity_limit` (409) outside its fewest or most items, `outside_delivery_area` (400), `pickup_unavailable` (409), and `coupon_invalid` (409) with the reason in `message`.",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/market/orders",
+          "summary": "Order from a vendor",
+          "description": "Places the order at the prices `POST /market/quote` gives for the same cart (the answer's `quote_id` keeps them for 10 minutes). Paid in cash, or fully from the wallet, it goes to the vendor at once (`placed`; a scheduled order at its time). Paid by card, Apple Pay or Google Pay, it waits for the payment (`awaiting_payment`): the answer has `pay_url`, the gateway's payment page (which offers Apple Pay and Google Pay where the gateway does), opened in the app on both platforms (food and goods delivered are services in the physical world, not in-app purchases); it goes to the vendor once the payment is confirmed. Fails as the quote does, with `quote_expired` (409), for a payment method the app doesn't take, and with `payments_unavailable` (503) while the app's payments aren't set up.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/market-orders",
+          "summary": "The signed-in customer's orders",
+          "description": "Newest first; `active` keeps those not yet delivered, picked up, turned down or cancelled, scheduled ones included.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/market-orders/{order_id}",
+          "summary": "One of the customer's orders",
+          "description": "The order with its stages, and `tracking` while it is on its way.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/cancel",
+          "summary": "Cancel an order",
+          "description": "Until the vendor accepts it (a scheduled order until 30 minutes before its time). An online payment is refunded to it, a wallet part to the wallet. `not_cancellable` (409) after that; the customer can open a complaint instead.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/pay",
+          "summary": "A new payment page for an order waiting for its payment",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/rating",
+          "summary": "Rate a delivered or picked-up order",
+          "description": "Once, within 7 days. The vendor (and the courier, when the app's courier delivered it), 1 to 5, with words for the vendor.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/market-orders/{order_id}/complaints",
+          "summary": "Open a complaint on an order",
+          "description": "From when the order is placed until 48 hours after it was delivered or picked up (`complaint_closed` (409) after that); one open complaint per order at a time (`complaint_open` (409)). Photos are added next with `POST /me/complaints/{complaint_id}/photos`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/complaints",
+          "summary": "The customer's complaints",
+          "description": "Newest first.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/complaints/{complaint_id}",
+          "summary": "A complaint with its messages and decision",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/complaints/{complaint_id}/messages",
+          "summary": "Write to support on a complaint",
+          "description": "Until it is closed (`complaint_closed` (409)).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/complaints/{complaint_id}/photos",
+          "summary": "Add a photo to a complaint",
+          "description": "JPEG, PNG or WebP up to 8 MB, at most 6 photos a complaint (`too_many_photos` (409)). Seen by support and, when support shares it, by the vendor.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/wallet",
+          "summary": "The customer's wallet",
+          "description": "Its balance and history (refunds, credit from support, paid orders). The wallet is in `MarketConfig.currency` and can't be withdrawn as cash.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/market/club",
+          "summary": "The delivery club's plans",
+          "description": "The app owner's club plans (monthly or yearly, at the owner's prices) and their benefits; `MarketConfig.club` false when the app has no club (404).",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/me/club",
+          "summary": "The customer's club membership",
+          "description": "Null `membership` when not a member.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/club",
+          "summary": "Join the club",
+          "description": "Starts a membership on a plan, waiting for its payment (`pay_url`, card, Apple Pay or Google Pay on the gateway's page); it renews at the end of each period by the same payment until cancelled, and the customer is told 3 days before (`club_renewal`). `already_member` (409).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/club/cancel",
+          "summary": "Stop the club from renewing",
+          "description": "The membership stays until the end of the period it is paid for.",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
+      "name": "Vendor",
+      "description": "Roadmap 115. The vendor app's screens (and the vendor's web panel on Yallapp's site, which serves the same data). A vendor's staff are the people the app's owner or the vendor added by mobile number or email; whoever signs in with it works for that vendor (`User.roles` has `vendor`). Every endpoint here answers `not_vendor` (403) to anyone else and to staff of a vendor the owner paused. Staff see their vendor's orders only, with the customer's first name and the order's lines; a vendor that delivers itself also gets the drop-off address and the customer's notes for the door, never a phone number (its driver asks the app's support, which reaches the customer). Staff accept an order with the minutes it needs or turn it down, pick a grocery order (weighed amounts, substitutes, missing items), mark it ready, hand it over, and, when delivering themselves, mark it on the way and delivered; they set the vendor busy or paused, and items in or out of stock.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/vendor/me",
+          "summary": "The vendor, as its staff see it",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vendor/me",
+          "summary": "Set the vendor busy, paused or taking orders",
+          "description": "`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again. Staff with the `orders` role or more.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/orders",
+          "summary": "The vendor's orders",
+          "description": "`status` `new` (waiting for an answer, oldest first), `active` (accepted, not yet handed over or delivered), `scheduled`, or `done` (the last 7 days, newest first).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/orders/{order_id}",
+          "summary": "One of the vendor's orders",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/orders/{order_id}/accept",
+          "summary": "Accept an order with the minutes it needs",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/orders/{order_id}/reject",
+          "summary": "Turn an order down",
+          "description": "The customer is told and refunded in full (to the payment, or the wallet for its wallet part).",
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vendor/orders/{order_id}/lines",
+          "summary": "Pick a grocery or shop order",
+          "description": "For each line: the amount picked (a weighed amount for items sold by weight, within the customer's agreed limit, `MarketConfig.weight_tolerance_percent`), a substitute (only as the customer allowed, `MarketOrderLine.if_missing`), or missing. The order's total is worked out again (a lower total refunds the difference when it was paid online; it is never charged more than the customer agreed). Accepted orders only.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/orders/{order_id}/ready",
+          "summary": "The order is ready",
+          "description": "For the app's courier or the vendor's driver to take it, or for the customer to pick up (told with the pick-up code).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/vendor/orders/{order_id}/handover",
+          "summary": "Hand the order over",
+          "description": "`to` `driver`: the vendor's own driver took it (`on_the_way`); `delivered`: the vendor's driver delivered it; `customer`: picked up, with the customer's 4-digit `pickup_code` (`wrong_code` (409)). With the app's couriers, the courier's own screens move the order instead (`invalid_request` (400) here).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/products",
+          "summary": "The vendor's items, for stock",
+          "description": "Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PATCH",
+          "path": "/vendor/products/{product_id}",
+          "summary": "Put an item in or out of stock",
+          "description": "`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself).",
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Rides",
       "description": "Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the pickup and the drop-off, sees each of the company's vehicle types with its fare (`POST /rides/estimate`) and asks for a ride now or, when the company allows it, at a later time (`POST /rides`). The company's drivers get the request one at a time, nearest first, each with a few seconds to accept (`RidesConfig.matching`), or the company gives it to a driver from the dashboard. The rider follows the driver to the pickup and along the ride on the map, can share the ride with a link, call the company's emergency number, cancel (with the company's fee once the free minutes after a driver accepted are over), pay the fare in cash to the driver or by card on the company's payment page, and rate the driver. Fares, fees and the company's share are the company's: Yallapp sets none of them.",
       "endpoints": [
