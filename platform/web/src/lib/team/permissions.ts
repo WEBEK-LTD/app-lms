@@ -135,6 +135,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // 105.1 A food company's orders; its restaurants and menus are its catalog.
   ["/dashboard/food-orders", "orders"],
   ["/dashboard/restaurants", "catalog"],
+  // 115.12 The marketplace's orders and complaints are its orders.
+  ["/dashboard/market", "orders"],
   ["/dashboard/couriers", "orders"],
   // 105.2 A ride company's rides, drivers and statements are its orders; its vehicle types and fares and its ride settings are its settings.
   ["/dashboard/rides", "orders"],

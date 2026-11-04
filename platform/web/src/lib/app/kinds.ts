@@ -692,6 +692,9 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 112.2 The couriers and their jobs on the map.
           { href: "/dashboard/delivery/live", label: "Live map", icon: "map" },
           { href: "/dashboard/food-orders", label: "Food orders", icon: "receipt_long" },
+          // 115.12 The marketplace's orders from every place, and the complaints queue.
+          { href: "/dashboard/market/orders", label: "Marketplace orders", icon: "shopping_bag" },
+          { href: "/dashboard/market/complaints", label: "Complaints", icon: "support_agent" },
           { href: "/dashboard/restaurants", label: "Restaurants", icon: "storefront" },
           { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },
           { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
