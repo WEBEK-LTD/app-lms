@@ -9,6 +9,7 @@ import { Badge, PageHeader, ProgressBar, formatDateTime } from "@/components/ui"
 import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
+import { MAIL_MIN_PER_MINUTE, MAIL_PACE_WINDOW_MS, runPerMinute } from "@/lib/mailing/campaigns";
 import type { MailRecipientStatus } from "@/lib/mailing/types";
 import { percent, StatusBadge } from "../../shared";
 
@@ -35,7 +36,17 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/a
   const status = (["queued", "sending", "sent", "failed", "skipped"] as const).find((s) => s === query.status);
   const q = typeof query.q === "string" ? query.q.slice(0, 100) : "";
   const page = Math.max(1, Number(query.page) || 1);
-  const [counts, stats, list] = await Promise.all([store.countMailRecipients(id), store.mailEventStats(id), store.listMailRecipients(id, { status, query: q || undefined, offset: (page - 1) * PAGE, limit: PAGE })]);
+  const now = new Date();
+  const [counts, stats, list, runs, lastFive] = await Promise.all([
+    store.countMailRecipients(id),
+    store.mailEventStats(id),
+    store.listMailRecipients(id, { status, query: q || undefined, offset: (page - 1) * PAGE, limit: PAGE }),
+    store.listMailRuns(id, 8),
+    store.countMailSentSince(id, new Date(now.getTime() - MAIL_PACE_WINDOW_MS)),
+  ]);
+  // Emails a minute over the last 5 minutes (the slow-sending alert's measure).
+  const pace = Math.round((lastFive / (MAIL_PACE_WINDOW_MS / 60_000)) * 10) / 10;
+  const floor = Math.min(MAIL_MIN_PER_MINUTE, campaign.perMinute);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   const done = counts.sent + counts.failed + counts.skipped;
   const live = campaign.status === "sending";
@@ -71,6 +82,11 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/a
             </span>
           </div>
           <ProgressBar value={done} max={total} label="Emails done" tone={live ? "accent" : "warn"} />
+          {live ? (
+            <span className={`text-[13px] font-semibold ${pace < floor && campaign.startedAt && campaign.startedAt.getTime() < now.getTime() - MAIL_PACE_WINDOW_MS ? "text-danger" : "text-muted"}`} data-testid="pace">
+              {pace} a minute over the last 5 minutes (at least {floor} expected)
+            </span>
+          ) : null}
         </div>
       ) : null}
       <StatRow label="Results">
@@ -82,6 +98,38 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/a
         <Stat label="Failed" value={counts.failed} icon="error" tone="warn" hint={stats.bounces ? `${stats.bounces} bounced` : counts.skipped ? `${counts.skipped} skipped` : undefined} />
       </StatRow>
       {!campaign.track ? <p className="m-0 text-[13px] text-muted">Opens and clicks weren&apos;t counted for this campaign.</p> : null}
+      {runs.length ? (
+        <section aria-labelledby="h-runs" className="overflow-hidden rounded-2xl border border-line bg-white">
+          <h2 id="h-runs" className="m-0 border-b border-line-soft px-6 py-4 text-[17px] font-extrabold">
+            Sending runs
+          </h2>
+          <div className={kitTable.wrap}>
+            <table className={kitTable.table} data-testid="runs">
+              <thead className={kitTable.head}>
+                <tr>
+                  <th className={`${kitTable.th} ${kitTable.start}`}>Started</th>
+                  <th className={`${kitTable.th} ${kitTable.num}`}>Sent</th>
+                  <th className={`${kitTable.th} ${kitTable.num}`}>Failed</th>
+                  <th className={`${kitTable.th} ${kitTable.num}`}>Took</th>
+                  <th className={`${kitTable.th} ${kitTable.num}`}>A minute while sending</th>
+                </tr>
+              </thead>
+              <tbody>
+                {runs.map((r) => (
+                  <tr key={r.id} className={kitTable.row}>
+                    <td className={`${kitTable.td} text-[13px]`}>{formatDateTime(r.startedAt)}</td>
+                    <td className={`${kitTable.td} ${kitTable.num}`}>{r.sent}</td>
+                    <td className={`${kitTable.td} ${kitTable.num}`}>{r.failed}</td>
+                    <td className={`${kitTable.td} ${kitTable.num}`}>{Math.round((r.finishedAt.getTime() - r.startedAt.getTime()) / 100) / 10} s</td>
+                    <td className={`${kitTable.td} ${kitTable.num}`}>{runPerMinute(r)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="m-0 border-t border-line-soft px-6 py-3 text-[12.5px] text-muted">Each run sends up to the campaign&apos;s rate for the minute ({campaign.perMinute}); the minute job runs every minute.</p>
+        </section>
+      ) : null}
       <section aria-labelledby="h-links" className="overflow-hidden rounded-2xl border border-line bg-white">
         <h2 id="h-links" className="m-0 border-b border-line-soft px-6 py-4 text-[17px] font-extrabold">
           Links clicked
