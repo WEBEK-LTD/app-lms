@@ -301,7 +301,7 @@ tags:
   - name: Market
     description: |
       Roadmap 115. The marketplace: many restaurants, supermarkets and shops in
-      one app (a Yallapp Studio project with the `marketplace` plan feature,
+      one app (a Yallapp Studio project of the kind `marketplace`, whose plan has the `market` feature,
       growing 105.1's food delivery). Vendors are of three kinds
       (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and
       shops have departments, aisles and products, some sold by weight. The
@@ -11342,7 +11342,7 @@ components:
         donations: { $ref: '#/components/schemas/DonationsConfig' }
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         food: { $ref: '#/components/schemas/FoodConfig' }
-        market: { $ref: '#/components/schemas/MarketConfig', description: 'Roadmap 115. Present for marketplace apps (Studio projects with the `marketplace` feature); such apps also have `food`.' }
+        market: { $ref: '#/components/schemas/MarketConfig', description: 'Roadmap 115. Present for marketplace apps (Studio projects of the kind `marketplace`, the vertical `marketplace` on the food engine, whose plan has the `market` feature); such apps also have `food`.' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
         taxi:
@@ -11357,7 +11357,7 @@ components:
             - type: 'null'
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, null]
+          enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, marketplace, null]
           description: |
             The kind of business the app is for, on top of its type (the module
             in the build): it changes wording and defaults in the app, never
