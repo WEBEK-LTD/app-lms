@@ -6,7 +6,7 @@ import { cashCollector } from "./payments";
 import { marketOrderReference } from "./json";
 import { priceOrder, type Tax } from "./money";
 import { commissionOfVendor } from "./cart";
-import { returnToWallet } from "./offers";
+import { joinClub, returnToWallet } from "./offers";
 
 /**
  * 115 How a marketplace order moves. The customer places it (cash, the
@@ -232,10 +232,35 @@ export function collectedByOf(order: Pick<MarketOrder, "paymentMethod" | "fulfil
 /** Marks a market order's gateway payment (the shop order's line carries the market order's id as a negative product id). */
 export const MARKET_PAY_LINE = (orderId: number) => -orderId;
 
+/**
+ * 115.11 A club plan's payment: the shop order's line carries the plan's id
+ * past this base, negative, so it never meets a market order's id.
+ */
+export const CLUB_PAY_BASE = 1_000_000_000_000;
+export const CLUB_PAY_LINE = (planId: number) => -(CLUB_PAY_BASE + planId);
+
+function clubPlanOfLine(productId: number | undefined): number | null {
+  return productId !== undefined && productId <= -CLUB_PAY_BASE ? -productId - CLUB_PAY_BASE : null;
+}
+
+/** A paid club payment: the customer's membership starts, or runs one more period on the same plan (once per payment). */
+export async function payClubMembership(store: DataStore, app: App, paid: CatalogOrder, now: Date): Promise<boolean> {
+  const planId = clubPlanOfLine(paid.lines[0]?.productId);
+  if (app.connector?.kind !== "restaurants" || planId === null || paid.userId === null) return false;
+  const plan = await store.getMarketClubPlan(app.id, planId);
+  await store.updateCatalogOrder(app.id, paid.id, { status: "completed", updatedAt: now });
+  if (!plan) return false;
+  // The same payment confirmed twice (its redirect and its webhook) counts once.
+  const current = await store.getMarketClubMember(app.id, paid.userId);
+  if (current?.paymentRef === `club-${paid.id}`) return false;
+  await joinClub(store, plan, paid.userId, `club-${paid.id}`, now);
+  return true;
+}
+
 /** A paid shop order of a marketplace: its market order is paid and goes to the vendor (once). */
 export async function payMarketOrder(store: DataStore, app: App, paid: CatalogOrder, now: Date): Promise<MarketOrder | null> {
   const productId = paid.lines[0]?.productId;
-  if (app.connector?.kind !== "restaurants" || productId === undefined || productId >= 0) return null;
+  if (app.connector?.kind !== "restaurants" || productId === undefined || productId >= 0 || clubPlanOfLine(productId) !== null) return null;
   const order = await store.getMarketOrder(app.id, -productId);
   if (!order || order.paymentMethod === "cash" || order.paymentStatus !== "unpaid") return null;
   await store.updateCatalogOrder(app.id, paid.id, { status: "completed", updatedAt: now });
