@@ -90,6 +90,13 @@ abstract final class Paths {
   /// 115 A marketplace vendor's page: a restaurant or a shop.
   static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';
 
+  /// 115 The basket and its checkout, an order, and the customer's orders.
+  static const marketCheckout = '/market-checkout';
+  static String marketOrder(int id) => '/market-order/$id';
+  static const marketOrders = '/market-orders';
+  static String marketComplain(int orderId) => '/market-complain/$orderId';
+  static String marketComplaint(int id) => '/market-complaint/$id';
+
   // 105.2 Ride hailing.
   static const ride = '/ride';
   static const myRides = '/my-rides';
@@ -274,6 +281,10 @@ abstract final class Paths {
       location.startsWith('/courier') ||
       // 105.1 A food order, and the restaurant's screens.
       location.startsWith('/food-order/') ||
+      // 115 A marketplace order and the customer's orders.
+      location.startsWith('/market-order/') ||
+      location.startsWith(marketOrders) ||
+      location.startsWith('/market-complain') ||
       location.startsWith(restaurantDesk) ||
       location.startsWith('/restaurant-order/') ||
       // 105.2 A ride, the rider's rides and the driver's screens.

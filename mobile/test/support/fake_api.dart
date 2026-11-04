@@ -7,6 +7,7 @@ import 'package:yallapp/core/api/yallapp_api.dart';
 import 'bus_library_fixtures.dart';
 import 'salary_fixtures.dart';
 import 'fixtures.dart';
+import 'market_order_fixtures.dart';
 import 'parent_fixtures.dart';
 
 /// An in-memory [YallappApi] that answers with contract-shaped fixtures and
@@ -1790,6 +1791,163 @@ class FakeApi implements YallappApi {
           MarketCoupon.fromJson(o),
     ],
   );
+
+  final marketQuotes = <MarketCartInput>[];
+  final marketOrdersPlaced =
+      <({MarketCartInput cart, MarketPayMethod payment})>[];
+  final marketOrders = <int, Map<String, dynamic>>{};
+  String? marketPayUrl;
+
+  @override
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) {
+    marketQuotes.add(cart);
+    return _answer(
+      'quoteMarketOrder',
+      () => MarketQuote.fromJson(marketQuoteJson()),
+    );
+  }
+
+  @override
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  }) {
+    marketOrdersPlaced.add((cart: cart, payment: payment));
+    return _answer('placeMarketOrder', () {
+      final json = marketOrderJson(
+        id: 900 + marketOrdersPlaced.length,
+        status:
+            payment == MarketPayMethod.cash || payment == MarketPayMethod.wallet
+            ? 'placed'
+            : 'awaiting_payment',
+      );
+      marketOrders[json['id'] as int] = json;
+      return (
+        order: MarketOrder.fromJson(json),
+        payUrl:
+            payment == MarketPayMethod.cash || payment == MarketPayMethod.wallet
+            ? null
+            : marketPayUrl,
+      );
+    });
+  }
+
+  @override
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  }) => _answer(
+    'listMyMarketOrders',
+    () => Paged.fromJson(
+      pageJson(marketOrders.values.toList()),
+      MarketOrder.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketOrder> getMyMarketOrder(int id) => _answer(
+    'getMyMarketOrder',
+    () => MarketOrder.fromJson(marketOrders[id] ?? marketOrderJson(id: id)),
+  );
+
+  @override
+  Future<MarketOrder> cancelMyMarketOrder(int id) => _answer(
+    'cancelMyMarketOrder',
+    () => MarketOrder.fromJson({
+      ...(marketOrders[id] ?? marketOrderJson(id: id)),
+      'status': 'cancelled',
+      'can_cancel': false,
+    }),
+  );
+
+  final marketComplaints = <int, Map<String, dynamic>>{};
+  final complaintPhotos = <({int complaint, String upload})>[];
+
+  Map<String, dynamic> _complaint(int id) =>
+      marketComplaints[id] ?? marketComplaintJson(id: id);
+
+  @override
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  }) => _answer('openMarketComplaint', () {
+    final id = 300 + marketComplaints.length;
+    final json = marketComplaintJson(
+      id: id,
+      orderId: orderId,
+      reason: snake(reason),
+      text: text,
+      lineIds: lineIds,
+    );
+    marketComplaints[id] = json;
+    return MarketComplaint.fromJson(json);
+  });
+
+  @override
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1}) => _answer(
+    'listMyComplaints',
+    () => Paged.fromJson(
+      pageJson(marketComplaints.values.toList()),
+      MarketComplaint.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketComplaint> getMyComplaint(int id) =>
+      _answer('getMyComplaint', () => MarketComplaint.fromJson(_complaint(id)));
+
+  @override
+  Future<MarketComplaint> addComplaintMessage(int id, String text) =>
+      _answer('addComplaintMessage', () {
+        final json = {..._complaint(id)};
+        json['messages'] = [
+          ...(json['messages'] as List),
+          {
+            'id': 99,
+            'from': 'customer',
+            'text': text,
+            'at': '2026-11-04T11:00:00Z',
+          },
+        ];
+        marketComplaints[id] = json;
+        return MarketComplaint.fromJson(json);
+      });
+
+  @override
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId) =>
+      _answer('addComplaintPhoto', () {
+        complaintPhotos.add((complaint: id, upload: uploadId));
+        final json = {..._complaint(id)};
+        json['photos'] = [
+          ...(json['photos'] as List),
+          {'id': complaintPhotos.length, 'url': 'https://x.test/$uploadId.jpg'},
+        ];
+        marketComplaints[id] = json;
+        return MarketComplaint.fromJson(json);
+      });
+
+  @override
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => startSchoolUpload(name: name, size: size, type: type);
+
+  @override
+  Future<ChatUpload> resumeMarketUpload(String uploadId) =>
+      resumeSchoolUpload(uploadId);
+
+  @override
+  Future<void> completeMarketUpload(String uploadId) =>
+      completeSchoolUpload(uploadId);
+
+  @override
+  Future<String> payMyMarketOrder(int id) =>
+      _answer('payMyMarketOrder', () => marketPayUrl ?? 'https://pay.test/p');
 
   @override
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request) {

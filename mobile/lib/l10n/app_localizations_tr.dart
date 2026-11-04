@@ -8551,4 +8551,322 @@ class AppLocalizationsTr extends AppLocalizations {
   String marketPlaces(int count) {
     return '$count yer';
   }
+
+  @override
+  String get marketNewBasketTitle => 'Yeni bir sepet başlatılsın mı?';
+
+  @override
+  String marketNewBasketMessage(String vendor) {
+    return 'Sepetinizde $vendor ürünleri var. Bir sipariş tek bir yerden verilir, bu yüzden kaldırılacaklar.';
+  }
+
+  @override
+  String get marketNewBasketConfirm => 'Yeni sepet';
+
+  @override
+  String get marketCheckoutTitle => 'Sepetiniz';
+
+  @override
+  String get marketEmptyBasketTitle => 'Sepetiniz boş';
+
+  @override
+  String get marketEmptyBasketMessage =>
+      'Bir restorandan veya mağazadan yemek ya da ürün ekleyin.';
+
+  @override
+  String get marketBrowse => 'Göz at';
+
+  @override
+  String get marketDelivery => 'Teslimat';
+
+  @override
+  String get marketPickup => 'Gel al';
+
+  @override
+  String get marketDeliverHere => 'Teslimat adresi';
+
+  @override
+  String get marketUseMyLocation => 'Konumumu kullan';
+
+  @override
+  String get marketAddressDetails => 'Bina, kat, daire, bir işaret';
+
+  @override
+  String get marketNeedAddress => 'Önce teslimat yerini seçin.';
+
+  @override
+  String get marketWhen => 'Ne zaman';
+
+  @override
+  String get marketNow => 'En kısa sürede';
+
+  @override
+  String get marketLater => 'Planla';
+
+  @override
+  String marketScheduledFor(String time) {
+    return '$time için';
+  }
+
+  @override
+  String get marketCoupon => 'Kupon kodu';
+
+  @override
+  String get marketApply => 'Uygula';
+
+  @override
+  String get marketUseWallet => 'Cüzdan bakiyemi kullan';
+
+  @override
+  String get marketPayWith => 'Ödeme yöntemi';
+
+  @override
+  String get marketPayCash => 'Kapıda nakit';
+
+  @override
+  String get marketPayCard => 'Kart';
+
+  @override
+  String get marketPayApplePay => 'Apple Pay';
+
+  @override
+  String get marketPayGooglePay => 'Google Pay';
+
+  @override
+  String get marketPayWallet => 'Cüzdan';
+
+  @override
+  String get marketNotes => 'Restoran veya mağaza için bir not';
+
+  @override
+  String get marketIfMissing => 'Yoksa';
+
+  @override
+  String get marketIfMissingSimilar => 'Benzeriyle değiştir';
+
+  @override
+  String get marketIfMissingRemove => 'Çıkar';
+
+  @override
+  String marketPlaceOrder(String total) {
+    return 'Sipariş ver · $total';
+  }
+
+  @override
+  String get marketPricing => 'Toplam hesaplanıyor…';
+
+  @override
+  String get marketOrderSent => 'Siparişiniz gönderildi.';
+
+  @override
+  String get marketOrderPaid =>
+      'Ödendi. Siparişiniz restorana veya mağazaya iletiliyor.';
+
+  @override
+  String marketOrderTitle(String reference) {
+    return 'Sipariş $reference';
+  }
+
+  @override
+  String get marketStatusAwaitingPayment => 'Ödeme bekleniyor';
+
+  @override
+  String get marketStatusScheduled => 'Planlandı';
+
+  @override
+  String get marketStatusPlaced => 'Restorana veya mağazaya gönderildi';
+
+  @override
+  String get marketStatusAccepted => 'Hazırlanıyor';
+
+  @override
+  String get marketStatusPicking => 'Toplanıyor';
+
+  @override
+  String get marketStatusReady => 'Hazır';
+
+  @override
+  String get marketStatusOnTheWay => 'Yolda';
+
+  @override
+  String get marketStatusDelivered => 'Teslim edildi';
+
+  @override
+  String get marketStatusPickedUp => 'Teslim alındı';
+
+  @override
+  String get marketStatusRejected => 'Reddedildi';
+
+  @override
+  String get marketStatusCancelled => 'İptal edildi';
+
+  @override
+  String marketPickupCode(String code) {
+    return 'Teslim alma kodu: $code';
+  }
+
+  @override
+  String get marketCancelOrder => 'Siparişi iptal et';
+
+  @override
+  String get marketPayAgain => 'Şimdi öde';
+
+  @override
+  String get marketMyOrders => 'Siparişlerim';
+
+  @override
+  String get marketNoOrders => 'Henüz sipariş yok';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name siparişinizi getiriyor';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'Güncellendi: $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'Bu siparişi restoran veya mağaza kendisi teslim ediyor. Her adımı burada göreceksiniz.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'Yaklaşık $time gibi gelir';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'Yaklaşık $time gibi hazır';
+  }
+
+  @override
+  String get marketReportProblem => 'Sorun bildir';
+
+  @override
+  String get marketViewComplaint => 'Şikâyetiniz';
+
+  @override
+  String get marketComplaintWindow =>
+      'Sipariş geldikten sonra 48 saate kadar sorun bildirebilirsiniz. Destek ekibimiz burada, uygulamada yanıtlar.';
+
+  @override
+  String marketComplaintTitle(String reference) {
+    return 'Şikâyet $reference';
+  }
+
+  @override
+  String get marketWhatHappened => 'Ne oldu?';
+
+  @override
+  String get marketReasonLate => 'Geç geldi';
+
+  @override
+  String get marketReasonMissingItems => 'Eksik ürünler vardı';
+
+  @override
+  String get marketReasonWrongItems => 'Yanlış ürünler';
+
+  @override
+  String get marketReasonQuality => 'Kalite iyi değildi';
+
+  @override
+  String get marketReasonDamaged => 'Hasarlı geldi';
+
+  @override
+  String get marketReasonNotDelivered => 'Hiç gelmedi';
+
+  @override
+  String get marketReasonChargedWrong => 'Yanlış ücret alındı';
+
+  @override
+  String get marketReasonCourier => 'Kurye hakkında';
+
+  @override
+  String get marketReasonOther => 'Başka bir şey';
+
+  @override
+  String get marketWhichItems => 'Hangi ürünler?';
+
+  @override
+  String get marketTellUs => 'Ne olduğunu anlatın';
+
+  @override
+  String get marketTellUsMore => 'En az birkaç kelime yazın.';
+
+  @override
+  String marketComplaintPhotos(int count) {
+    return 'Fotoğraflar (5\'te $count)';
+  }
+
+  @override
+  String get marketAddPhoto => 'Fotoğraf ekle';
+
+  @override
+  String get marketPhotoType =>
+      '8 MB\'a kadar bir JPEG, PNG veya WebP fotoğraf seçin.';
+
+  @override
+  String get marketSendComplaint => 'Desteğe gönder';
+
+  @override
+  String get marketComplaintSent =>
+      'Gönderildi. Destek ekibimiz burada yanıtlayacak.';
+
+  @override
+  String get marketComplaintOpen => 'Gönderildi';
+
+  @override
+  String get marketComplaintInReview => 'İnceleniyor';
+
+  @override
+  String get marketComplaintWaiting => 'Yanıtınız bekleniyor';
+
+  @override
+  String get marketComplaintResolved => 'Çözüldü';
+
+  @override
+  String get marketComplaintRejected => 'İade olmadan kapatıldı';
+
+  @override
+  String marketDecisionRefund(String amount) {
+    return '$amount iade edildi';
+  }
+
+  @override
+  String marketDecisionPartial(String amount) {
+    return 'Kısmi iade: $amount';
+  }
+
+  @override
+  String marketDecisionCompensation(String amount) {
+    return 'Tazminat: $amount';
+  }
+
+  @override
+  String get marketDecisionNone => 'İade yok';
+
+  @override
+  String get marketDecisionToPayment => 'Ödeme yaptığınız yönteme';
+
+  @override
+  String get marketDecisionToWallet => 'Cüzdanınıza eklendi';
+
+  @override
+  String marketDecisionToCoupon(String code) {
+    return 'Kupon olarak: $code';
+  }
+
+  @override
+  String get marketWriteToSupport => 'Desteğe yazın';
+
+  @override
+  String get marketSupport => 'Destek';
+
+  @override
+  String get marketYou => 'Siz';
+
+  @override
+  String get marketComplaintClosed => 'Bu şikâyet kapatıldı.';
 }

@@ -849,6 +849,45 @@ abstract class YallappApi {
 
   /// Public offers and, signed in, the customer's coupons.
   Future<List<MarketCoupon>> listMarketOffers({int? vendorId});
+
+  /// One vendor's cart priced line by line; `quoteId` keeps the prices.
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart);
+
+  /// The order at the quote's prices and, paid online, its payment page.
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  });
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  });
+  Future<MarketOrder> getMyMarketOrder(int id);
+  Future<MarketOrder> cancelMyMarketOrder(int id);
+
+  /// A new payment page for an order waiting for its payment.
+  Future<String> payMyMarketOrder(int id);
+
+  // 115.9 Complaints on marketplace orders, with the app's support.
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  });
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1});
+  Future<MarketComplaint> getMyComplaint(int id);
+  Future<MarketComplaint> addComplaintMessage(int id, String text);
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId);
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeMarketUpload(String uploadId);
+  Future<void> completeMarketUpload(String uploadId);
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -2899,6 +2938,145 @@ class HttpYallappApi implements YallappApi {
     _optional,
     (json) => reqListOf(json, 'items', MarketCoupon.fromJson),
     query: {'vendor_id': ?vendorId},
+  );
+
+  @override
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) => _send(
+    'POST',
+    '/market/quote',
+    _optional,
+    (data) => MarketQuote.fromJson(asJson(data)),
+    body: cart.toJson(),
+  );
+
+  @override
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  }) => _send(
+    'POST',
+    '/market/orders',
+    _required,
+    (data) {
+      final json = asJson(data);
+      return (
+        order: MarketOrder.fromJson(asJson(json['order'], 'order')),
+        payUrl: optString(json, 'pay_url'),
+      );
+    },
+    body: cart.orderJson(quoteId: quoteId, payment: payment, notes: notes),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  }) => _get(
+    '/me/market-orders',
+    _required,
+    (json) => Paged.fromJson(json, MarketOrder.fromJson),
+    query: {'page': page, if (active) 'active': true},
+  );
+
+  @override
+  Future<MarketOrder> getMyMarketOrder(int id) =>
+      _get('/me/market-orders/$id', _required, MarketOrder.fromJson);
+
+  @override
+  Future<MarketOrder> cancelMyMarketOrder(int id) => _send(
+    'POST',
+    '/me/market-orders/$id/cancel',
+    _required,
+    (data) => MarketOrder.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<String> payMyMarketOrder(int id) => _send(
+    'POST',
+    '/me/market-orders/$id/pay',
+    _required,
+    (data) => reqString(asJson(data), 'pay_url'),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  }) => _send(
+    'POST',
+    '/me/market-orders/$orderId/complaints',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {
+      'reason': snake(reason),
+      'text': text,
+      if (lineIds.isNotEmpty) 'line_ids': lineIds,
+    },
+  );
+
+  @override
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1}) => _get(
+    '/me/complaints',
+    _required,
+    (json) => Paged.fromJson(json, MarketComplaint.fromJson),
+    query: {'page': page},
+  );
+
+  @override
+  Future<MarketComplaint> getMyComplaint(int id) =>
+      _get('/me/complaints/$id', _required, MarketComplaint.fromJson);
+
+  @override
+  Future<MarketComplaint> addComplaintMessage(int id, String text) => _send(
+    'POST',
+    '/me/complaints/$id/messages',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {'text': text},
+  );
+
+  @override
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId) => _send(
+    'POST',
+    '/me/complaints/$id/photos',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {'upload_id': uploadId},
+  );
+
+  @override
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/market/uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeMarketUpload(String uploadId) => _send(
+    'POST',
+    '/market/uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeMarketUpload(String uploadId) => _send(
+    'POST',
+    '/market/uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
   );
 
   @override

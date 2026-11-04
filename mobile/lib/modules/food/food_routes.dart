@@ -7,6 +7,10 @@ import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../delivery/screens/courier_job_screen.dart';
+import '../market/screens/market_checkout_screen.dart';
+import '../market/screens/market_complaint_screens.dart';
+import '../market/screens/market_order_screen.dart';
+import '../market/screens/market_orders_screen.dart';
 import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
@@ -124,6 +128,22 @@ List<RouteBase> _pushedRoutes() => [
   _byId('/food-order/:id', (id) => FoodOrderScreen(orderId: id)),
   _byId('/restaurant-order/:id', (id) => RestaurantOrderScreen(orderId: id)),
   _byId('/courier-job/:id', (id) => CourierJobScreen(jobId: id)),
+  // 115 The marketplace's basket, an order and the customer's orders.
+  GoRoute(
+    path: Paths.marketCheckout,
+    pageBuilder: (context, state) =>
+        appPage(state, const MarketCheckoutScreen()),
+  ),
+  GoRoute(
+    path: Paths.marketOrders,
+    pageBuilder: (context, state) => appPage(state, const MarketOrdersScreen()),
+  ),
+  _byId('/market-order/:id', (id) => MarketOrderScreen(orderId: id)),
+  _byId('/market-complain/:id', (id) => MarketNewComplaintScreen(orderId: id)),
+  _byId(
+    '/market-complaint/:id',
+    (id) => MarketComplaintScreen(complaintId: id),
+  ),
   // 115 A marketplace vendor's page.
   GoRoute(
     path: '/market/:id',

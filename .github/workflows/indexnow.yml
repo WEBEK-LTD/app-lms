@@ -13,7 +13,7 @@ on:
       - 'platform/web/src/site/**'
       - 'platform/web/src/content/**'
       - 'platform/web/src/i18n/messages/**'
-      - 'platform/web/src/app/[[]lang]/**'
+      - 'platform/web/src/app/?lang?/**'
       - 'platform/web/src/lib/seo.ts'
       - 'platform/web/src/lib/sitemap.ts'
       - 'platform/web/src/lib/marketing.ts'

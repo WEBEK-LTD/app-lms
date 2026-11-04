@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_providers.dart';
 import '../widgets/market_look.dart';
@@ -34,55 +38,66 @@ class MarketVendorScreen extends ConsumerWidget {
   }
 }
 
-class _VendorPageView extends StatefulWidget {
+class _VendorPageView extends ConsumerStatefulWidget {
   const _VendorPageView({required this.page});
 
   final MarketVendorPage page;
 
   @override
-  State<_VendorPageView> createState() => _VendorPageViewState();
+  ConsumerState<_VendorPageView> createState() => _VendorPageViewState();
 }
 
-class _VendorPageViewState extends State<_VendorPageView> {
+class _VendorPageViewState extends ConsumerState<_VendorPageView> {
   int _shelf = 0;
-
-  /// Item id to how many (or kilograms), what's in the basket here.
-  final Map<String, double> _basket = {};
 
   MarketVendor get _vendor => widget.page.vendor;
   bool get _shop => _vendor.sellsGoods;
 
-  int get _count => _basket.values.fold(0, (n, q) => n + (q > 0 ? 1 : 0));
-
-  double get _total {
-    var sum = 0.0;
-    for (final shelf in widget.page.shelves) {
-      for (final item in shelf.items) {
-        sum += (_basket[item.id] ?? 0) * item.priceValue;
-      }
+  Future<void> _add(MarketItem item) async {
+    final basket = ref.read(marketBasketProvider.notifier);
+    if (basket.wouldReplace(_vendor)) {
+      final l10n = context.l10n;
+      final yes = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.marketNewBasketTitle),
+          content: Text(
+            l10n.marketNewBasketMessage(
+              ref.read(marketBasketProvider).vendor?.name ?? '',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.marketNewBasketConfirm),
+            ),
+          ],
+        ),
+      );
+      if (yes != true || !mounted) return;
     }
-    return sum;
+    basket.add(
+      _vendor,
+      item,
+      currency: widget.page.currency,
+      decimals: widget.page.decimals,
+    );
   }
 
-  void _add(MarketItem item) => setState(() {
-    final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
-    _basket[item.id] = (_basket[item.id] ?? 0) + step;
-  });
-
-  void _remove(MarketItem item) => setState(() {
-    final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
-    final left = (_basket[item.id] ?? 0) - step;
-    if (left <= 0) {
-      _basket.remove(item.id);
-    } else {
-      _basket[item.id] = left;
-    }
-  });
+  void _remove(MarketItem item) =>
+      ref.read(marketBasketProvider.notifier).remove(item);
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final shelves = widget.page.shelves;
+    final basket = ref.watch(marketBasketProvider);
+    final mine = basket.vendor?.id == _vendor.id;
+    double quantity(MarketItem item) => mine ? basket.quantityOf(item.id) : 0;
     return Scaffold(
       backgroundColor: p.background,
       body: Stack(
@@ -128,7 +143,7 @@ class _VendorPageViewState extends State<_VendorPageView> {
                         for (final item in shelf.items)
                           _ProductTile(
                             item: item,
-                            quantity: _basket[item.id] ?? 0,
+                            quantity: quantity(item),
                             onAdd: () => _add(item),
                             onRemove: () => _remove(item),
                           ),
@@ -141,7 +156,7 @@ class _VendorPageViewState extends State<_VendorPageView> {
                       for (final item in shelf.items)
                         _DishRow(
                           item: item,
-                          quantity: (_basket[item.id] ?? 0).round(),
+                          quantity: quantity(item).round(),
                           onAdd: () => _add(item),
                         ),
                     ],
@@ -150,18 +165,19 @@ class _VendorPageViewState extends State<_VendorPageView> {
               const SliverToBoxAdapter(child: SizedBox(height: 120)),
             ],
           ),
-          if (_count > 0)
+          if (mine && !basket.isEmpty)
             PositionedDirectional(
               start: 16,
               end: 16,
               bottom: MediaQuery.paddingOf(context).bottom + 12,
               child: _BasketBar(
-                count: _count,
+                count: basket.count,
                 total: marketAmount(
-                  _total,
+                  basket.estimate,
                   widget.page.currency,
                   widget.page.decimals,
                 ),
+                onTap: () => context.push(Paths.marketCheckout),
               ),
             ),
         ],
@@ -606,9 +622,12 @@ class _DishRow extends StatelessWidget {
                     Positioned.fill(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(18),
-                        child: AppNetworkImage(
-                          url: item.imageUrl,
-                          seed: item.id.hashCode,
+                        child: GestureDetector(
+                          onTap: () => showMarketPhotos(context, item),
+                          child: AppNetworkImage(
+                            url: item.imageUrl,
+                            seed: item.id.hashCode,
+                          ),
                         ),
                       ),
                     ),
@@ -723,9 +742,12 @@ class _ProductTile extends StatelessWidget {
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: AppNetworkImage(
-                      url: item.imageUrl,
-                      seed: item.id.hashCode,
+                    child: GestureDetector(
+                      onTap: () => showMarketPhotos(context, item),
+                      child: AppNetworkImage(
+                        url: item.imageUrl,
+                        seed: item.id.hashCode,
+                      ),
                     ),
                   ),
                 ),
@@ -844,68 +866,182 @@ class _ProductTile extends StatelessWidget {
 }
 
 class _BasketBar extends StatelessWidget {
-  const _BasketBar({required this.count, required this.total});
+  const _BasketBar({
+    required this.count,
+    required this.total,
+    required this.onTap,
+  });
 
   final int count;
   final String total;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    return Container(
-      height: 58,
-      padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 18, 8),
-      decoration: BoxDecoration(
-        color: p.primary,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: p.primary.withValues(alpha: 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 58,
+          padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 18, 8),
+          decoration: BoxDecoration(
+            color: p.primary,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: p.primary.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-        ],
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  l10n.marketBasketItems(count),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: p.onPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.marketViewBasket,
+                  style: TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w800,
+                    color: p.onPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                total,
+                style: TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w800,
+                  color: p.onPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              l10n.marketBasketItems(count),
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w800,
-                color: p.onPrimary,
+    );
+  }
+}
+
+/// 115.7.1 A product's photos, one after another, with its name and price.
+Future<void> showMarketPhotos(BuildContext context, MarketItem item) {
+  final photos = item.photos.isNotEmpty
+      ? item.photos
+      : [if (item.imageUrl != null) item.imageUrl!];
+  if (photos.isEmpty) return Future.value();
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (context) => _PhotoSheet(item: item, photos: photos),
+  );
+}
+
+class _PhotoSheet extends StatefulWidget {
+  const _PhotoSheet({required this.item, required this.photos});
+
+  final MarketItem item;
+  final List<String> photos;
+
+  @override
+  State<_PhotoSheet> createState() => _PhotoSheetState();
+}
+
+class _PhotoSheetState extends State<_PhotoSheet> {
+  int _at = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final photos = widget.photos;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: PageView.builder(
+                  itemCount: photos.length,
+                  onPageChanged: (i) => setState(() => _at = i),
+                  itemBuilder: (context, i) => AppNetworkImage(
+                    url: photos[i],
+                    seed: widget.item.id.hashCode + i,
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              l10n.marketViewBasket,
+            if (photos.length > 1) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < photos.length; i++)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == _at ? 18 : 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: i == _at ? p.primary : p.border,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            Text(
+              widget.item.name,
               style: TextStyle(
-                fontSize: 15.5,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: p.onPrimary,
+                color: p.text,
               ),
             ),
-          ),
-          Text(
-            total,
-            style: TextStyle(
-              fontSize: 15.5,
-              fontWeight: FontWeight.w800,
-              color: p.onPrimary,
+            if (widget.item.description != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                widget.item.description!,
+                style: TextStyle(color: p.textSecondary),
+              ),
+            ],
+            const SizedBox(height: 6),
+            Text(
+              widget.item.price,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: p.primary,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

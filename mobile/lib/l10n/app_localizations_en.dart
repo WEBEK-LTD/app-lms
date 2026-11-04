@@ -8585,4 +8585,320 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get marketNewBasketTitle => 'Start a new basket?';
+
+  @override
+  String marketNewBasketMessage(String vendor) {
+    return 'Your basket has items from $vendor. An order is from one place, so they\'ll be removed.';
+  }
+
+  @override
+  String get marketNewBasketConfirm => 'New basket';
+
+  @override
+  String get marketCheckoutTitle => 'Your basket';
+
+  @override
+  String get marketEmptyBasketTitle => 'Your basket is empty';
+
+  @override
+  String get marketEmptyBasketMessage =>
+      'Add dishes or products from a restaurant or a shop.';
+
+  @override
+  String get marketBrowse => 'Browse';
+
+  @override
+  String get marketDelivery => 'Delivery';
+
+  @override
+  String get marketPickup => 'Pick up';
+
+  @override
+  String get marketDeliverHere => 'Deliver to';
+
+  @override
+  String get marketUseMyLocation => 'Use my location';
+
+  @override
+  String get marketAddressDetails => 'Building, floor, flat, a landmark';
+
+  @override
+  String get marketNeedAddress => 'Choose where to deliver first.';
+
+  @override
+  String get marketWhen => 'When';
+
+  @override
+  String get marketNow => 'As soon as possible';
+
+  @override
+  String get marketLater => 'Schedule';
+
+  @override
+  String marketScheduledFor(String time) {
+    return 'For $time';
+  }
+
+  @override
+  String get marketCoupon => 'Coupon code';
+
+  @override
+  String get marketApply => 'Apply';
+
+  @override
+  String get marketUseWallet => 'Use my wallet balance';
+
+  @override
+  String get marketPayWith => 'Pay with';
+
+  @override
+  String get marketPayCash => 'Cash on delivery';
+
+  @override
+  String get marketPayCard => 'Card';
+
+  @override
+  String get marketPayApplePay => 'Apple Pay';
+
+  @override
+  String get marketPayGooglePay => 'Google Pay';
+
+  @override
+  String get marketPayWallet => 'Wallet';
+
+  @override
+  String get marketNotes => 'A note for the restaurant or the shop';
+
+  @override
+  String get marketIfMissing => 'If it\'s out';
+
+  @override
+  String get marketIfMissingSimilar => 'Replace with a similar one';
+
+  @override
+  String get marketIfMissingRemove => 'Remove it';
+
+  @override
+  String marketPlaceOrder(String total) {
+    return 'Place order · $total';
+  }
+
+  @override
+  String get marketPricing => 'Working out the total…';
+
+  @override
+  String get marketOrderSent => 'Your order is sent.';
+
+  @override
+  String get marketOrderPaid =>
+      'Paid. Your order is on its way to the restaurant or the shop.';
+
+  @override
+  String marketOrderTitle(String reference) {
+    return 'Order $reference';
+  }
+
+  @override
+  String get marketStatusAwaitingPayment => 'Waiting for payment';
+
+  @override
+  String get marketStatusScheduled => 'Scheduled';
+
+  @override
+  String get marketStatusPlaced => 'Sent to the restaurant or the shop';
+
+  @override
+  String get marketStatusAccepted => 'Being prepared';
+
+  @override
+  String get marketStatusPicking => 'Being picked';
+
+  @override
+  String get marketStatusReady => 'Ready';
+
+  @override
+  String get marketStatusOnTheWay => 'On the way';
+
+  @override
+  String get marketStatusDelivered => 'Delivered';
+
+  @override
+  String get marketStatusPickedUp => 'Picked up';
+
+  @override
+  String get marketStatusRejected => 'Turned down';
+
+  @override
+  String get marketStatusCancelled => 'Cancelled';
+
+  @override
+  String marketPickupCode(String code) {
+    return 'Pick-up code: $code';
+  }
+
+  @override
+  String get marketCancelOrder => 'Cancel order';
+
+  @override
+  String get marketPayAgain => 'Pay now';
+
+  @override
+  String get marketMyOrders => 'My orders';
+
+  @override
+  String get marketNoOrders => 'No orders yet';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name is bringing your order';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'The restaurant or the shop delivers this order itself. You\'ll see each step here.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'Arrives around $time';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'Ready around $time';
+  }
+
+  @override
+  String get marketReportProblem => 'Report a problem';
+
+  @override
+  String get marketViewComplaint => 'Your complaint';
+
+  @override
+  String get marketComplaintWindow =>
+      'You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.';
+
+  @override
+  String marketComplaintTitle(String reference) {
+    return 'Complaint $reference';
+  }
+
+  @override
+  String get marketWhatHappened => 'What happened?';
+
+  @override
+  String get marketReasonLate => 'It came late';
+
+  @override
+  String get marketReasonMissingItems => 'Items were missing';
+
+  @override
+  String get marketReasonWrongItems => 'Wrong items';
+
+  @override
+  String get marketReasonQuality => 'The quality wasn\'t right';
+
+  @override
+  String get marketReasonDamaged => 'It arrived damaged';
+
+  @override
+  String get marketReasonNotDelivered => 'It never arrived';
+
+  @override
+  String get marketReasonChargedWrong => 'I was charged wrong';
+
+  @override
+  String get marketReasonCourier => 'About the courier';
+
+  @override
+  String get marketReasonOther => 'Something else';
+
+  @override
+  String get marketWhichItems => 'Which items?';
+
+  @override
+  String get marketTellUs => 'Tell us what happened';
+
+  @override
+  String get marketTellUsMore => 'Write at least a few words.';
+
+  @override
+  String marketComplaintPhotos(int count) {
+    return 'Photos ($count of 5)';
+  }
+
+  @override
+  String get marketAddPhoto => 'Add a photo';
+
+  @override
+  String get marketPhotoType => 'Choose a JPEG, PNG or WebP photo up to 8 MB.';
+
+  @override
+  String get marketSendComplaint => 'Send to support';
+
+  @override
+  String get marketComplaintSent => 'Sent. Our support team will answer here.';
+
+  @override
+  String get marketComplaintOpen => 'Sent';
+
+  @override
+  String get marketComplaintInReview => 'Being reviewed';
+
+  @override
+  String get marketComplaintWaiting => 'Waiting for your reply';
+
+  @override
+  String get marketComplaintResolved => 'Resolved';
+
+  @override
+  String get marketComplaintRejected => 'Closed without a refund';
+
+  @override
+  String marketDecisionRefund(String amount) {
+    return 'Refunded $amount';
+  }
+
+  @override
+  String marketDecisionPartial(String amount) {
+    return 'Partly refunded: $amount';
+  }
+
+  @override
+  String marketDecisionCompensation(String amount) {
+    return 'Compensation: $amount';
+  }
+
+  @override
+  String get marketDecisionNone => 'No refund';
+
+  @override
+  String get marketDecisionToPayment => 'Back to how you paid';
+
+  @override
+  String get marketDecisionToWallet => 'Added to your wallet';
+
+  @override
+  String marketDecisionToCoupon(String code) {
+    return 'As a coupon: $code';
+  }
+
+  @override
+  String get marketWriteToSupport => 'Write to support';
+
+  @override
+  String get marketSupport => 'Support';
+
+  @override
+  String get marketYou => 'You';
+
+  @override
+  String get marketComplaintClosed => 'This complaint is closed.';
 }
