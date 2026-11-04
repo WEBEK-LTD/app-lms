@@ -18,6 +18,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
 import 'page_actions.dart';
@@ -864,6 +865,10 @@ class StudioNodeView extends ConsumerWidget {
           );
         }
         return _CustomCards(node: node, scope: scope, entries: entries);
+      case StudioNodeType.market:
+        final market = node.market;
+        if (market == null) return const SizedBox.shrink();
+        return MarketSectionView(node: node, market: market, color: color);
       case StudioNodeType.coupon:
         return _StudioCoupon(
           code: node.code ?? '',

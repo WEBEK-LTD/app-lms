@@ -9172,5 +9172,190 @@
   "hubDeleteAccountMessage": "You'll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.",
   "@hubDeleteAccountMessage": {
     "description": "104.8.4 What deleting the Yallapp Courier account does."
+  },
+  "marketDeliverTo": "Deliver to",
+  "@marketDeliverTo": {
+    "description": "115 Over the delivery address on the marketplace home."
+  },
+  "marketSearchHint": "Restaurants, dishes or groceries",
+  "@marketSearchHint": {
+    "description": "115 The marketplace search field."
+  },
+  "marketEta": "{min}–{max} min",
+  "@marketEta": {
+    "description": "115 How long delivery takes.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "marketFreeDelivery": "Free delivery",
+  "@marketFreeDelivery": {
+    "description": "115 A vendor delivers for free."
+  },
+  "marketDeliveryFee": "{fee} delivery",
+  "@marketDeliveryFee": {
+    "description": "115 A vendor's delivery fee.",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "marketMinOrder": "Min. {amount}",
+  "@marketMinOrder": {
+    "description": "115 The smallest order a vendor takes.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClub": "Club",
+  "@marketClub": {
+    "description": "115 The delivery club's short name on a badge."
+  },
+  "marketClubFree": "Free with Club",
+  "@marketClubFree": {
+    "description": "115 Free delivery for club members."
+  },
+  "marketJoinClub": "Join",
+  "@marketJoinClub": {
+    "description": "115 The club banner's button."
+  },
+  "marketClubMember": "You're a member",
+  "@marketClubMember": {
+    "description": "115 The club banner, for a member."
+  },
+  "marketBusy": "Busy",
+  "@marketBusy": {
+    "description": "115 A vendor with too many orders."
+  },
+  "marketClosedOpens": "Closed · opens {time}",
+  "@marketClosedOpens": {
+    "description": "115 A closed vendor.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClosed": "Closed",
+  "@marketClosed": {
+    "description": "115 A closed vendor."
+  },
+  "marketOwnDelivery": "Own delivery",
+  "@marketOwnDelivery": {
+    "description": "115 The vendor delivers itself (no live map)."
+  },
+  "marketLiveTracking": "Live tracking",
+  "@marketLiveTracking": {
+    "description": "115 The app's couriers deliver, live on the map."
+  },
+  "marketSeeAll": "See all",
+  "@marketSeeAll": {
+    "description": "115 Opens the whole list."
+  },
+  "marketOrderAgain": "Order again",
+  "@marketOrderAgain": {
+    "description": "115 Reorders a past order."
+  },
+  "marketCode": "Code {code}",
+  "@marketCode": {
+    "description": "115 An offer's code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAdd": "Add",
+  "@marketAdd": {
+    "description": "115 Adds an item to the basket."
+  },
+  "marketPerKg": "/ kg",
+  "@marketPerKg": {
+    "description": "115 After a price per kilogram."
+  },
+  "marketSoldOut": "Sold out",
+  "@marketSoldOut": {
+    "description": "115 An item out of stock."
+  },
+  "marketKm": "{km} km",
+  "@marketKm": {
+    "description": "115 How far a vendor is.",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "marketSearchVendor": "Search {name}",
+  "@marketSearchVendor": {
+    "description": "115 The vendor page's search field.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketViewBasket": "View basket",
+  "@marketViewBasket": {
+    "description": "115 The basket bar on a vendor page."
+  },
+  "marketBasketItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@marketBasketItems": {
+    "description": "115 Items in the basket.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketSupportNote": "Questions about an order? Our support team answers in the app, any time.",
+  "@marketSupportNote": {
+    "description": "115 On a vendor page: people reach the app owner, never the vendor."
+  },
+  "marketChoices": "Choices",
+  "@marketChoices": {
+    "description": "115 An item with choices."
+  },
+  "marketRatingsCount": "({count})",
+  "@marketRatingsCount": {
+    "description": "115 How many ratings, after the stars.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "marketAisles": "Aisles",
+  "@marketAisles": {
+    "description": "115 A shop's aisles."
+  },
+  "marketMenu": "Menu",
+  "@marketMenu": {
+    "description": "115 A restaurant's menu."
+  },
+  "marketReviews": "Reviews",
+  "@marketReviews": {
+    "description": "115 A vendor's reviews."
+  },
+  "marketInfo": "Info",
+  "@marketInfo": {
+    "description": "115 A vendor's details."
+  },
+  "marketHours": "Open {hours}",
+  "@marketHours": {
+    "description": "115 A vendor's opening hours.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
   }
 }

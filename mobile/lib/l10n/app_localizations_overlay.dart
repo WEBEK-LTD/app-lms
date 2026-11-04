@@ -8912,4 +8912,135 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get hubDeleteAccountMessage =>
       overlay.text('hubDeleteAccountMessage') ?? base.hubDeleteAccountMessage;
+
+  @override
+  String get marketDeliverTo =>
+      overlay.text('marketDeliverTo') ?? base.marketDeliverTo;
+
+  @override
+  String get marketSearchHint =>
+      overlay.text('marketSearchHint') ?? base.marketSearchHint;
+
+  @override
+  String marketEta(int min, int max) =>
+      overlay.format('marketEta', {'min': min, 'max': max}) ??
+      base.marketEta(min, max);
+
+  @override
+  String get marketFreeDelivery =>
+      overlay.text('marketFreeDelivery') ?? base.marketFreeDelivery;
+
+  @override
+  String marketDeliveryFee(String fee) =>
+      overlay.format('marketDeliveryFee', {'fee': fee}) ??
+      base.marketDeliveryFee(fee);
+
+  @override
+  String marketMinOrder(String amount) =>
+      overlay.format('marketMinOrder', {'amount': amount}) ??
+      base.marketMinOrder(amount);
+
+  @override
+  String get marketClub => overlay.text('marketClub') ?? base.marketClub;
+
+  @override
+  String get marketClubFree =>
+      overlay.text('marketClubFree') ?? base.marketClubFree;
+
+  @override
+  String get marketJoinClub =>
+      overlay.text('marketJoinClub') ?? base.marketJoinClub;
+
+  @override
+  String get marketClubMember =>
+      overlay.text('marketClubMember') ?? base.marketClubMember;
+
+  @override
+  String get marketBusy => overlay.text('marketBusy') ?? base.marketBusy;
+
+  @override
+  String marketClosedOpens(String time) =>
+      overlay.format('marketClosedOpens', {'time': time}) ??
+      base.marketClosedOpens(time);
+
+  @override
+  String get marketClosed => overlay.text('marketClosed') ?? base.marketClosed;
+
+  @override
+  String get marketOwnDelivery =>
+      overlay.text('marketOwnDelivery') ?? base.marketOwnDelivery;
+
+  @override
+  String get marketLiveTracking =>
+      overlay.text('marketLiveTracking') ?? base.marketLiveTracking;
+
+  @override
+  String get marketSeeAll => overlay.text('marketSeeAll') ?? base.marketSeeAll;
+
+  @override
+  String get marketOrderAgain =>
+      overlay.text('marketOrderAgain') ?? base.marketOrderAgain;
+
+  @override
+  String marketCode(String code) =>
+      overlay.format('marketCode', {'code': code}) ?? base.marketCode(code);
+
+  @override
+  String get marketAdd => overlay.text('marketAdd') ?? base.marketAdd;
+
+  @override
+  String get marketPerKg => overlay.text('marketPerKg') ?? base.marketPerKg;
+
+  @override
+  String get marketSoldOut =>
+      overlay.text('marketSoldOut') ?? base.marketSoldOut;
+
+  @override
+  String marketKm(String km) =>
+      overlay.format('marketKm', {'km': km}) ?? base.marketKm(km);
+
+  @override
+  String marketSearchVendor(String name) =>
+      overlay.format('marketSearchVendor', {'name': name}) ??
+      base.marketSearchVendor(name);
+
+  @override
+  String get marketViewBasket =>
+      overlay.text('marketViewBasket') ?? base.marketViewBasket;
+
+  @override
+  String marketBasketItems(int count) =>
+      overlay.format('marketBasketItems', {'count': count}) ??
+      base.marketBasketItems(count);
+
+  @override
+  String get marketSupportNote =>
+      overlay.text('marketSupportNote') ?? base.marketSupportNote;
+
+  @override
+  String get marketChoices =>
+      overlay.text('marketChoices') ?? base.marketChoices;
+
+  @override
+  String marketRatingsCount(String count) =>
+      overlay.format('marketRatingsCount', {'count': count}) ??
+      base.marketRatingsCount(count);
+
+  @override
+  String get marketAisles => overlay.text('marketAisles') ?? base.marketAisles;
+
+  @override
+  String get marketMenu => overlay.text('marketMenu') ?? base.marketMenu;
+
+  @override
+  String get marketReviews =>
+      overlay.text('marketReviews') ?? base.marketReviews;
+
+  @override
+  String get marketInfo => overlay.text('marketInfo') ?? base.marketInfo;
+
+  @override
+  String marketHours(String hours) =>
+      overlay.format('marketHours', {'hours': hours}) ??
+      base.marketHours(hours);
 }

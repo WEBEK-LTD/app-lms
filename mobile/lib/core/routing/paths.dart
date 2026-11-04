@@ -87,6 +87,9 @@ abstract final class Paths {
   static String foodOrder(int id) => '/food-order/$id';
   static String restaurantOrder(int id) => '/restaurant-order/$id';
 
+  /// 115 A marketplace vendor's page: a restaurant or a shop.
+  static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';
+
   // 105.2 Ride hailing.
   static const ride = '/ride';
   static const myRides = '/my-rides';

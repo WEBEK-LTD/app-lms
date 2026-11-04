@@ -8674,4 +8674,132 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get hubDeleteAccountMessage =>
       'سيُسجَّل خروجك على كل الهواتف وستنتهي جلساتك في كل الشركات. تحتفظ كل شركة بسجلاتها الخاصة عن توصيلاتك، فاطلب من الشركة إزالتك لديها.';
+
+  @override
+  String get marketDeliverTo => 'التوصيل إلى';
+
+  @override
+  String get marketSearchHint => 'مطاعم أو أطباق أو بقالة';
+
+  @override
+  String marketEta(int min, int max) {
+    return '$min–$max د';
+  }
+
+  @override
+  String get marketFreeDelivery => 'توصيل مجاني';
+
+  @override
+  String marketDeliveryFee(String fee) {
+    return 'توصيل $fee';
+  }
+
+  @override
+  String marketMinOrder(String amount) {
+    return 'الحد الأدنى $amount';
+  }
+
+  @override
+  String get marketClub => 'النادي';
+
+  @override
+  String get marketClubFree => 'مجاني مع النادي';
+
+  @override
+  String get marketJoinClub => 'انضم';
+
+  @override
+  String get marketClubMember => 'أنت عضو';
+
+  @override
+  String get marketBusy => 'مشغول';
+
+  @override
+  String marketClosedOpens(String time) {
+    return 'مغلق · يفتح $time';
+  }
+
+  @override
+  String get marketClosed => 'مغلق';
+
+  @override
+  String get marketOwnDelivery => 'توصيل المطعم';
+
+  @override
+  String get marketLiveTracking => 'تتبع مباشر';
+
+  @override
+  String get marketSeeAll => 'عرض الكل';
+
+  @override
+  String get marketOrderAgain => 'اطلب مرة أخرى';
+
+  @override
+  String marketCode(String code) {
+    return 'الكود $code';
+  }
+
+  @override
+  String get marketAdd => 'أضف';
+
+  @override
+  String get marketPerKg => '/ كجم';
+
+  @override
+  String get marketSoldOut => 'نفد';
+
+  @override
+  String marketKm(String km) {
+    return '$km كم';
+  }
+
+  @override
+  String marketSearchVendor(String name) {
+    return 'ابحث في $name';
+  }
+
+  @override
+  String get marketViewBasket => 'عرض السلة';
+
+  @override
+  String marketBasketItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count منتج',
+      few: '$count منتجات',
+      two: 'منتجان',
+      one: 'منتج واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get marketSupportNote =>
+      'عندك سؤال عن طلب؟ فريق الدعم يرد عليك داخل التطبيق في أي وقت.';
+
+  @override
+  String get marketChoices => 'اختيارات';
+
+  @override
+  String marketRatingsCount(String count) {
+    return '($count)';
+  }
+
+  @override
+  String get marketAisles => 'الأقسام';
+
+  @override
+  String get marketMenu => 'القائمة';
+
+  @override
+  String get marketReviews => 'التقييمات';
+
+  @override
+  String get marketInfo => 'معلومات';
+
+  @override
+  String marketHours(String hours) {
+    return 'يفتح $hours';
+  }
 }
