@@ -1074,4 +1074,5 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "You can order up to {0} of {1}.": "يمكنك طلب {0} كحد أقصى من {1}.",
   "{0} is out of stock.": "نفد {0} من المخزون.",
   "{0} is sold in steps of {1}.": "يُباع {0} بمضاعفات {1}.",
+  "No product here has that SKU or barcode.": "لا يوجد هنا منتج بهذا SKU أو الباركود.",
 };

@@ -1075,4 +1075,5 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "You can order up to {0} of {1}.": "{1} ürününden en fazla {0} sipariş edebilirsiniz.",
   "{0} is out of stock.": "{0} stokta yok.",
   "{0} is sold in steps of {1}.": "{0}, {1} adımlarla satılır.",
+  "No product here has that SKU or barcode.": "Burada bu SKU veya barkoda sahip ürün yok.",
 };

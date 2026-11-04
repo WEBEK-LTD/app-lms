@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { VendorBoard, type BoardData, type BoardOrder } from "@/components/vendor-board";
 import { CatalogSection, PanelTabs, PartnerFrame } from "@/components/partner-pages";
@@ -5,6 +6,7 @@ import { formatMinor } from "@/lib/market/currency";
 import { PANEL_WORDS, panelLang } from "@/lib/market/panel-words";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Partner panel preview", robots: { index: false, follow: false } };
 
 /** The preview's buttons change nothing. */
 async function noop(): Promise<void> {
