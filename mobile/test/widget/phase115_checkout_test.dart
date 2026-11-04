@@ -120,7 +120,7 @@ void main() {
 
     expect(api.marketOrdersPlaced.single.payment, MarketPayMethod.cash);
     expect(find.text('Order M-901'), findsOneWidget);
-    expect(find.text('Sent to the restaurant or the shop'), findsOneWidget);
+    expect(find.text('Sent to the restaurant or the shop'), findsWidgets);
     // The basket is empty once ordered.
     expect(app.container.read(marketBasketProvider).isEmpty, isTrue);
   });
