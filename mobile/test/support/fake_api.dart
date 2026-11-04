@@ -1862,6 +1862,89 @@ class FakeApi implements YallappApi {
     }),
   );
 
+  final marketComplaints = <int, Map<String, dynamic>>{};
+  final complaintPhotos = <({int complaint, String upload})>[];
+
+  Map<String, dynamic> _complaint(int id) =>
+      marketComplaints[id] ?? marketComplaintJson(id: id);
+
+  @override
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  }) => _answer('openMarketComplaint', () {
+    final id = 300 + marketComplaints.length;
+    final json = marketComplaintJson(
+      id: id,
+      orderId: orderId,
+      reason: snake(reason),
+      text: text,
+      lineIds: lineIds,
+    );
+    marketComplaints[id] = json;
+    return MarketComplaint.fromJson(json);
+  });
+
+  @override
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1}) => _answer(
+    'listMyComplaints',
+    () => Paged.fromJson(
+      pageJson(marketComplaints.values.toList()),
+      MarketComplaint.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketComplaint> getMyComplaint(int id) =>
+      _answer('getMyComplaint', () => MarketComplaint.fromJson(_complaint(id)));
+
+  @override
+  Future<MarketComplaint> addComplaintMessage(int id, String text) =>
+      _answer('addComplaintMessage', () {
+        final json = {..._complaint(id)};
+        json['messages'] = [
+          ...(json['messages'] as List),
+          {
+            'id': 99,
+            'from': 'customer',
+            'text': text,
+            'at': '2026-11-04T11:00:00Z',
+          },
+        ];
+        marketComplaints[id] = json;
+        return MarketComplaint.fromJson(json);
+      });
+
+  @override
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId) =>
+      _answer('addComplaintPhoto', () {
+        complaintPhotos.add((complaint: id, upload: uploadId));
+        final json = {..._complaint(id)};
+        json['photos'] = [
+          ...(json['photos'] as List),
+          {'id': complaintPhotos.length, 'url': 'https://x.test/$uploadId.jpg'},
+        ];
+        marketComplaints[id] = json;
+        return MarketComplaint.fromJson(json);
+      });
+
+  @override
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => startSchoolUpload(name: name, size: size, type: type);
+
+  @override
+  Future<ChatUpload> resumeMarketUpload(String uploadId) =>
+      resumeSchoolUpload(uploadId);
+
+  @override
+  Future<void> completeMarketUpload(String uploadId) =>
+      completeSchoolUpload(uploadId);
+
   @override
   Future<String> payMyMarketOrder(int id) =>
       _answer('payMyMarketOrder', () => marketPayUrl ?? 'https://pay.test/p');
