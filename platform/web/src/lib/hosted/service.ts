@@ -591,6 +591,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.delivery ? { delivery: extra.delivery } : {}),
     // 105.1 Food delivery from many restaurants
     ...(extra.food ? { food: extra.food } : {}),
+    // 115 Marketplaces: restaurants, groceries and shops
+    ...(extra.market ? { market: extra.market } : {}),
     // 105.2 Ride hailing
     ...(extra.rides ? { rides: extra.rides } : {}),
     // 105.9 Live taxi on the map
