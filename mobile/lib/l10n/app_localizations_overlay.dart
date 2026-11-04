@@ -9043,4 +9043,36 @@ class OverlayLocalizations extends AppLocalizations {
   String marketHours(String hours) =>
       overlay.format('marketHours', {'hours': hours}) ??
       base.marketHours(hours);
+
+  @override
+  String get marketNew => overlay.text('marketNew') ?? base.marketNew;
+
+  @override
+  String get marketChooseAddress =>
+      overlay.text('marketChooseAddress') ?? base.marketChooseAddress;
+
+  @override
+  String get marketPerGram =>
+      overlay.text('marketPerGram') ?? base.marketPerGram;
+
+  @override
+  String get marketPerLitre =>
+      overlay.text('marketPerLitre') ?? base.marketPerLitre;
+
+  @override
+  String get marketKindRestaurant =>
+      overlay.text('marketKindRestaurant') ?? base.marketKindRestaurant;
+
+  @override
+  String get marketKindGrocery =>
+      overlay.text('marketKindGrocery') ?? base.marketKindGrocery;
+
+  @override
+  String get marketKindShop =>
+      overlay.text('marketKindShop') ?? base.marketKindShop;
+
+  @override
+  String marketPlaces(int count) =>
+      overlay.format('marketPlaces', {'count': count}) ??
+      base.marketPlaces(count);
 }

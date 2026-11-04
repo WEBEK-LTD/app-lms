@@ -8802,4 +8802,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String marketHours(String hours) {
     return 'يفتح $hours';
   }
+
+  @override
+  String get marketNew => 'جديد';
+
+  @override
+  String get marketChooseAddress => 'اختر عنوانك';
+
+  @override
+  String get marketPerGram => '/ جم';
+
+  @override
+  String get marketPerLitre => '/ لتر';
+
+  @override
+  String get marketKindRestaurant => 'الطعام';
+
+  @override
+  String get marketKindGrocery => 'الماركت';
+
+  @override
+  String get marketKindShop => 'المتاجر';
+
+  @override
+  String marketPlaces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مكانًا',
+      few: '$count أماكن',
+      two: 'مكانان',
+      one: 'مكان واحد',
+      zero: 'لا أماكن',
+    );
+    return '$_temp0';
+  }
 }

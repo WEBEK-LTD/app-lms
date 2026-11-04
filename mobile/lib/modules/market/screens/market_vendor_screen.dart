@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/format/bidi.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -46,30 +47,30 @@ class _VendorPageViewState extends State<_VendorPageView> {
   int _shelf = 0;
 
   /// Item id to how many (or kilograms), what's in the basket here.
-  final Map<String, double> _basket = {'smoked-double': 1, 'apples': 1.5};
+  final Map<String, double> _basket = {};
 
   MarketVendor get _vendor => widget.page.vendor;
-  bool get _shop => _vendor.kind == MarketVendorKind.grocery;
+  bool get _shop => _vendor.sellsGoods;
 
   int get _count => _basket.values.fold(0, (n, q) => n + (q > 0 ? 1 : 0));
 
-  int get _total {
-    var cents = 0;
+  double get _total {
+    var sum = 0.0;
     for (final shelf in widget.page.shelves) {
       for (final item in shelf.items) {
-        cents += ((_basket[item.id] ?? 0) * item.priceCents).round();
+        sum += (_basket[item.id] ?? 0) * item.priceValue;
       }
     }
-    return cents;
+    return sum;
   }
 
   void _add(MarketItem item) => setState(() {
-    final step = item.unit == MarketUnit.kg ? item.step : 1.0;
+    final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
     _basket[item.id] = (_basket[item.id] ?? 0) + step;
   });
 
   void _remove(MarketItem item) => setState(() {
-    final step = item.unit == MarketUnit.kg ? item.step : 1.0;
+    final step = item.unit == MarketUnit.piece ? 1.0 : item.step;
     final left = (_basket[item.id] ?? 0) - step;
     if (left <= 0) {
       _basket.remove(item.id);
@@ -127,7 +128,6 @@ class _VendorPageViewState extends State<_VendorPageView> {
                         for (final item in shelf.items)
                           _ProductTile(
                             item: item,
-                            currency: _vendor.currency,
                             quantity: _basket[item.id] ?? 0,
                             onAdd: () => _add(item),
                             onRemove: () => _remove(item),
@@ -141,7 +141,6 @@ class _VendorPageViewState extends State<_VendorPageView> {
                       for (final item in shelf.items)
                         _DishRow(
                           item: item,
-                          currency: _vendor.currency,
                           quantity: (_basket[item.id] ?? 0).round(),
                           onAdd: () => _add(item),
                         ),
@@ -158,7 +157,11 @@ class _VendorPageViewState extends State<_VendorPageView> {
               bottom: MediaQuery.paddingOf(context).bottom + 12,
               child: _BasketBar(
                 count: _count,
-                total: marketMoney(_total, _vendor.currency),
+                total: marketAmount(
+                  _total,
+                  widget.page.currency,
+                  widget.page.decimals,
+                ),
               ),
             ),
         ],
@@ -340,23 +343,24 @@ class _Info extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              chip(
-                Symbols.schedule_rounded,
-                l10n.marketEta(v.etaMin, v.etaMax),
-              ),
-              chip(
-                Symbols.two_wheeler_rounded,
-                v.freeDelivery
-                    ? l10n.marketFreeDelivery
-                    : l10n.marketDeliveryFee(
-                        marketMoney(v.deliveryFeeCents, v.currency),
-                      ),
-                color: v.freeDelivery ? p.success : null,
-              ),
-              chip(
-                Symbols.shopping_bag_rounded,
-                l10n.marketMinOrder(marketMoney(v.minOrderCents, v.currency)),
-              ),
+              if (marketEtaText(context, v) case final eta?)
+                chip(Symbols.schedule_rounded, eta),
+              if (v.freeDelivery)
+                chip(
+                  Symbols.two_wheeler_rounded,
+                  l10n.marketFreeDelivery,
+                  color: p.success,
+                )
+              else if (v.deliveryFee case final fee?)
+                chip(
+                  Symbols.two_wheeler_rounded,
+                  l10n.marketDeliveryFee(ltrRun(fee)),
+                ),
+              if (v.minOrder case final min?)
+                chip(
+                  Symbols.shopping_bag_rounded,
+                  l10n.marketMinOrder(ltrRun(min)),
+                ),
               chip(
                 live ? Symbols.near_me_rounded : Symbols.storefront_rounded,
                 live ? l10n.marketLiveTracking : l10n.marketOwnDelivery,
@@ -492,13 +496,11 @@ class _ShelfTabs extends SliverPersistentHeaderDelegate {
 class _DishRow extends StatelessWidget {
   const _DishRow({
     required this.item,
-    required this.currency,
     required this.quantity,
     required this.onAdd,
   });
 
   final MarketItem item;
-  final String currency;
   final int quantity;
   final VoidCallback onAdd;
 
@@ -563,18 +565,16 @@ class _DishRow extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          marketMoney(item.priceCents, currency),
+                          ltrRun(item.price),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: item.oldPriceCents != null
-                                ? p.danger
-                                : p.text,
+                            color: item.oldPrice != null ? p.danger : p.text,
                           ),
                         ),
-                        if (item.oldPriceCents != null) ...[
+                        if (item.oldPrice case final was?) ...[
                           Text(
-                            marketMoney(item.oldPriceCents!, currency),
+                            ltrRun(was),
                             style: TextStyle(
                               fontSize: 12.5,
                               color: p.textTertiary,
@@ -682,14 +682,12 @@ class _RoundAdd extends StatelessWidget {
 class _ProductTile extends StatelessWidget {
   const _ProductTile({
     required this.item,
-    required this.currency,
     required this.quantity,
     required this.onAdd,
     required this.onRemove,
   });
 
   final MarketItem item;
-  final String currency;
   final double quantity;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
@@ -698,9 +696,16 @@ class _ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = context.l10n;
-    final kg = item.unit == MarketUnit.kg;
+    // Sold by weight or volume: the amount with its unit ("1.5 kg").
+    final kg = item.unit != MarketUnit.piece;
+    final digits = quantity % 1 == 0 ? 0 : ((quantity * 10) % 1 == 0 ? 1 : 2);
+    final unit = switch (item.unit) {
+      MarketUnit.g => 'g',
+      MarketUnit.l => 'L',
+      _ => 'kg',
+    };
     final amount = kg
-        ? '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : ((quantity * 10) % 1 == 0 ? 1 : 2))} kg'
+        ? '${quantity.toStringAsFixed(digits)} $unit'
         : quantity.toStringAsFixed(0);
     return Container(
       decoration: BoxDecoration(
@@ -743,19 +748,23 @@ class _ProductTile extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  marketMoney(item.priceCents, currency),
+                  ltrRun(item.price),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: item.oldPriceCents != null ? p.danger : p.text,
+                    color: item.oldPrice != null ? p.danger : p.text,
                   ),
                 ),
               ),
               if (kg)
                 Text(
-                  ' ${l10n.marketPerKg}',
+                  ' ${switch (item.unit) {
+                    MarketUnit.g => l10n.marketPerGram,
+                    MarketUnit.l => l10n.marketPerLitre,
+                    _ => l10n.marketPerKg,
+                  }}',
                   style: TextStyle(fontSize: 12, color: p.textTertiary),
                 ),
             ],

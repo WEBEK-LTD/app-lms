@@ -8553,4 +8553,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketHours(String hours) {
     return 'Open $hours';
   }
+
+  @override
+  String get marketNew => 'New';
+
+  @override
+  String get marketChooseAddress => 'Choose your address';
+
+  @override
+  String get marketPerGram => '/ g';
+
+  @override
+  String get marketPerLitre => '/ L';
+
+  @override
+  String get marketKindRestaurant => 'Food';
+
+  @override
+  String get marketKindGrocery => 'Market';
+
+  @override
+  String get marketKindShop => 'Shops';
+
+  @override
+  String marketPlaces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count places',
+      one: '1 place',
+    );
+    return '$_temp0';
+  }
 }

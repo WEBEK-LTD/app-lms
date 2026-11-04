@@ -9357,5 +9357,42 @@
         "type": "String"
       }
     }
+  },
+  "marketNew": "New",
+  "@marketNew": {
+    "description": "115 A vendor nobody rated yet."
+  },
+  "marketChooseAddress": "Choose your address",
+  "@marketChooseAddress": {
+    "description": "115 The home's address line before the customer chose one."
+  },
+  "marketPerGram": "/ g",
+  "@marketPerGram": {
+    "description": "115 After a price per gram."
+  },
+  "marketPerLitre": "/ L",
+  "@marketPerLitre": {
+    "description": "115 After a price per litre."
+  },
+  "marketKindRestaurant": "Food",
+  "@marketKindRestaurant": {
+    "description": "115 The restaurants' tile on the marketplace home."
+  },
+  "marketKindGrocery": "Market",
+  "@marketKindGrocery": {
+    "description": "115 The groceries' tile on the marketplace home."
+  },
+  "marketKindShop": "Shops",
+  "@marketKindShop": {
+    "description": "115 The shops' tile on the marketplace home."
+  },
+  "marketPlaces": "{count, plural, =1{1 place} other{{count} places}}",
+  "@marketPlaces": {
+    "description": "115 How many vendors of a kind.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

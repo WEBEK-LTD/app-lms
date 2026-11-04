@@ -12,14 +12,15 @@ import '../data/market_models.dart';
 /// 115 What the marketplace's screens share: money, tints, a vendor's
 /// mark, its facts (time, fee, smallest order) and the section heads.
 
-/// "EGP 150", or "EGP 15.50" when it has piastres.
-String marketMoney(int cents, String currency) {
-  final whole = cents % 100 == 0;
-  final amount = NumberFormat.decimalPatternDigits(
+/// "EGP 530.00": an amount the app adds up itself (the basket's running
+/// total), in the app's currency and decimals. The server's amounts come
+/// written already.
+String marketAmount(double amount, String currency, [int decimals = 2]) {
+  final text = NumberFormat.decimalPatternDigits(
     locale: 'en',
-    decimalDigits: whole ? 0 : 2,
-  ).format(cents / 100);
-  return ltrRun('$currency $amount');
+    decimalDigits: decimals,
+  ).format(amount);
+  return ltrRun('$currency $text');
 }
 
 /// "2.4k" for 2400 ratings.
@@ -102,13 +103,21 @@ class MarketRating extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final rating = vendor.rating;
+    if (rating == null) {
+      return MarketPill(
+        text: context.l10n.marketNew,
+        background: marketTint(p, p.primary, 0.12),
+        color: p.primary,
+      );
+    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         AppIcon(Symbols.star_rounded, size: 16, color: p.star, filled: true),
         const SizedBox(width: 3),
         Text(
-          vendor.rating.toStringAsFixed(1),
+          rating.toStringAsFixed(1),
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
@@ -173,29 +182,19 @@ class MarketVendorFacts extends StatelessWidget {
         ),
       ],
     );
+    final minutes = marketEtaText(context, vendor);
     final facts = [
-      if (eta)
-        fact(
-          Symbols.schedule_rounded,
-          l10n.marketEta(vendor.etaMin, vendor.etaMax),
-        ),
+      if (eta && minutes != null) fact(Symbols.schedule_rounded, minutes),
       if (vendor.freeDelivery)
         fact(
           Symbols.two_wheeler_rounded,
           l10n.marketFreeDelivery,
           color: p.success,
         )
-      else
-        fact(
-          Symbols.two_wheeler_rounded,
-          l10n.marketDeliveryFee(
-            marketMoney(vendor.deliveryFeeCents, vendor.currency),
-          ),
-        ),
-      fact(
-        Symbols.shopping_bag_rounded,
-        l10n.marketMinOrder(marketMoney(vendor.minOrderCents, vendor.currency)),
-      ),
+      else if (vendor.deliveryFee case final fee?)
+        fact(Symbols.two_wheeler_rounded, l10n.marketDeliveryFee(ltrRun(fee))),
+      if (vendor.minOrder case final min?)
+        fact(Symbols.shopping_bag_rounded, l10n.marketMinOrder(ltrRun(min))),
     ];
     if (!wrap) {
       // One line: each fact takes its share and ends in "…" when it must.
@@ -215,6 +214,14 @@ class MarketVendorFacts extends StatelessWidget {
       children: facts,
     );
   }
+}
+
+/// "20–30 min", or null without the customer's position.
+String? marketEtaText(BuildContext context, MarketVendor vendor) {
+  final min = vendor.etaMin;
+  final max = vendor.etaMax;
+  if (min == null || max == null) return null;
+  return context.l10n.marketEta(min, max);
 }
 
 /// A small coloured label: an offer, Club, Busy.

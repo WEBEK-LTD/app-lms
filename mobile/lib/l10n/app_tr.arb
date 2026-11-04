@@ -2312,5 +2312,13 @@
   "marketMenu": "Menü",
   "marketReviews": "Değerlendirmeler",
   "marketInfo": "Bilgi",
-  "marketHours": "Açık {hours}"
+  "marketHours": "Açık {hours}",
+  "marketNew": "Yeni",
+  "marketChooseAddress": "Adresinizi seçin",
+  "marketPerGram": "/ g",
+  "marketPerLitre": "/ L",
+  "marketKindRestaurant": "Yemek",
+  "marketKindGrocery": "Market",
+  "marketKindShop": "Mağazalar",
+  "marketPlaces": "{count} yer"
 }

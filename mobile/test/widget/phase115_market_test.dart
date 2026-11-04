@@ -6,6 +6,8 @@ import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/theme/app_theme.dart';
+import 'package:yallapp/modules/market/data/market_models.dart';
+import 'package:yallapp/modules/market/data/market_providers.dart';
 import 'package:yallapp/modules/market/screens/market_vendor_screen.dart';
 import 'package:yallapp/modules/shared/pages/studio_page.dart';
 
@@ -16,6 +18,7 @@ import '../support/market_fixtures.dart';
 void main() {
   Widget app(Widget home, {String lang = 'en', bool dark = false}) =>
       ProviderScope(
+        overrides: marketSampleOverrides,
         child: MaterialApp(
           theme: buildAppTheme(
             primary: const Color(0xFF0E7C66),
@@ -66,6 +69,70 @@ void main() {
       })!.market,
       isNull,
     );
+  });
+
+  test('the server\'s vendor and product as the screens show them', () {
+    const config = MarketConfig(
+      currency: 'EGP',
+      categories: [
+        MarketCategory(
+          id: 'grills',
+          name: 'Grills',
+          kind: VendorKind.restaurant,
+        ),
+      ],
+    );
+    final vendor = marketVendorFrom(
+      MarketVendorSummary.fromJson({
+        'id': 7,
+        'kind': 'shop',
+        'name': 'Corner Shop',
+        'categories': ['grills', 'unknown'],
+        'rating': null,
+        'ratings_count': 0,
+        'open': false,
+        'opens_at': '2026-11-05T07:00:00Z',
+        'busy': false,
+        'delivery_by': 'vendor',
+        'delivery_minutes': null,
+        'delivery_fee': {'amount': '15.00', 'formatted': 'EGP 15.00'},
+        'min_order': {'amount': '100.00', 'formatted': 'EGP 100.00'},
+        'club_benefit': 'Free delivery',
+        'offer': '10% off',
+      }),
+      config,
+    );
+    expect(vendor.id, '7');
+    expect(vendor.sellsGoods, isTrue);
+    expect(vendor.tags, ['Grills', 'unknown']);
+    expect(vendor.rating, isNull);
+    expect(vendor.etaMin, isNull);
+    expect(vendor.deliveryFee, 'EGP 15.00');
+    expect(vendor.freeDelivery, isFalse);
+    expect(vendor.state, MarketVendorState.closed);
+    expect(vendor.deliveredBy, MarketDeliveredBy.vendor);
+    expect(vendor.clubBenefit, 'Free delivery');
+    expect(vendor.promo, '10% off');
+
+    final item = marketItemFrom(
+      MarketProduct.fromJson({
+        'id': 3,
+        'name': 'Apples',
+        'price': {'amount': '65.00', 'formatted': 'EGP 65.00'},
+        'was_price': {'amount': '80.00', 'formatted': 'EGP 80.00'},
+        'unit': 'kg',
+        'step': 0.5,
+        'in_stock': true,
+        'choices': [],
+        'tags': ['popular'],
+      }),
+    );
+    expect(item.price, 'EGP 65.00');
+    expect(item.priceValue, 65);
+    expect(item.oldPrice, 'EGP 80.00');
+    expect(item.unit, MarketUnit.kg);
+    expect(item.step, 0.5);
+    expect(item.popular, isTrue);
   });
 
   for (final (lang, dark) in [('en', false), ('ar', false), ('en', true)]) {
@@ -122,10 +189,13 @@ void main() {
     expect(find.text('Own delivery'), findsOneWidget);
     expect(find.text('Fruit & vegetables'), findsWidgets);
     expect(find.textContaining('/ kg'), findsWidgets);
-    // Red apples start at 1.5 kg in the sample basket; + adds 0.5 kg.
-    expect(find.text('1.5 kg'), findsOneWidget);
+    // Red apples are sold by the kilo, half a kilo at a time.
+    await tester.tap(find.text('Add').first);
+    await tester.pump();
+    expect(find.text('0.5 kg'), findsOneWidget);
     await tester.tap(find.byIcon(Symbols.add_rounded).first);
     await tester.pump();
-    expect(find.text('2 kg'), findsOneWidget);
+    expect(find.text('1 kg'), findsOneWidget);
+    expect(find.text('View basket'), findsOneWidget);
   });
 }

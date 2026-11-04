@@ -13987,6 +13987,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open {hours}'**
   String marketHours(String hours);
+
+  /// 115 A vendor nobody rated yet.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get marketNew;
+
+  /// 115 The home's address line before the customer chose one.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your address'**
+  String get marketChooseAddress;
+
+  /// 115 After a price per gram.
+  ///
+  /// In en, this message translates to:
+  /// **'/ g'**
+  String get marketPerGram;
+
+  /// 115 After a price per litre.
+  ///
+  /// In en, this message translates to:
+  /// **'/ L'**
+  String get marketPerLitre;
+
+  /// 115 The restaurants' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get marketKindRestaurant;
+
+  /// 115 The groceries' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get marketKindGrocery;
+
+  /// 115 The shops' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get marketKindShop;
+
+  /// 115 How many vendors of a kind.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 place} other{{count} places}}'**
+  String marketPlaces(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -8525,4 +8525,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String marketHours(String hours) {
     return 'Açık $hours';
   }
+
+  @override
+  String get marketNew => 'Yeni';
+
+  @override
+  String get marketChooseAddress => 'Adresinizi seçin';
+
+  @override
+  String get marketPerGram => '/ g';
+
+  @override
+  String get marketPerLitre => '/ L';
+
+  @override
+  String get marketKindRestaurant => 'Yemek';
+
+  @override
+  String get marketKindGrocery => 'Market';
+
+  @override
+  String get marketKindShop => 'Mağazalar';
+
+  @override
+  String marketPlaces(int count) {
+    return '$count yer';
+  }
 }

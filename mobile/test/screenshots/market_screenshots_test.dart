@@ -76,6 +76,7 @@ void main() {
       fontFamily: 'Plus Jakarta Sans',
     );
     final app = ProviderScope(
+      overrides: marketSampleOverrides,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: theme,

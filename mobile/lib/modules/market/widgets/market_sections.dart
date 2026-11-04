@@ -62,8 +62,7 @@ List<MarketVendor> _pick(List<MarketVendor> all, StudioMarket market) {
   final picked = [
     for (final v in all)
       if ((market.kind == StudioMarketKind.all ||
-              (market.kind == StudioMarketKind.restaurant) ==
-                  (v.kind == MarketVendorKind.restaurant)) &&
+              (market.kind == StudioMarketKind.restaurant) == !v.sellsGoods) &&
           (!market.freeDelivery || v.freeDelivery) &&
           (market.tag == null || v.tags.contains(market.tag)))
         v,
@@ -73,8 +72,8 @@ List<MarketVendor> _pick(List<MarketVendor> all, StudioMarket market) {
     final byOpen = open(a) - open(b);
     if (byOpen != 0) return byOpen;
     return switch (market.sort) {
-      StudioMarketSort.fastest => a.etaMin - b.etaMin,
-      StudioMarketSort.rating => b.rating.compareTo(a.rating),
+      StudioMarketSort.fastest => (a.etaMin ?? 999) - (b.etaMin ?? 999),
+      StudioMarketSort.rating => (b.rating ?? 0).compareTo(a.rating ?? 0),
       StudioMarketSort.nearest => (a.distanceKm ?? 99).compareTo(
         b.distanceKm ?? 99,
       ),
@@ -167,7 +166,7 @@ class _Hero extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      home.address,
+                                      home.address ?? l10n.marketChooseAddress,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -1083,17 +1082,18 @@ class MarketVendorCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                PositionedDirectional(
-                  bottom: 10,
-                  end: 10,
-                  child: _EtaBadge(vendor: vendor),
-                ),
+                if (vendor.etaMin != null)
+                  PositionedDirectional(
+                    bottom: 10,
+                    end: 10,
+                    child: _EtaBadge(vendor: vendor),
+                  ),
                 if (vendor.club)
                   PositionedDirectional(
                     top: vendor.promo == null ? 10 : 42,
                     start: 10,
                     child: MarketPill(
-                      text: l10n.marketClubFree,
+                      text: vendor.clubBenefit ?? l10n.marketClubFree,
                       background: p.surface,
                       color: p.text,
                       icon: Symbols.workspace_premium_rounded,
@@ -1194,7 +1194,7 @@ class _EtaBadge extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              context.l10n.marketEta(vendor.etaMin, vendor.etaMax),
+              marketEtaText(context, vendor) ?? '',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -1269,20 +1269,21 @@ class _VendorTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            Row(
-              children: [
-                AppIcon(Symbols.schedule_rounded, size: 14, color: p.primary),
-                const SizedBox(width: 3),
-                Text(
-                  l10n.marketEta(vendor.etaMin, vendor.etaMax),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: p.textSecondary,
+            if (marketEtaText(context, vendor) case final eta?)
+              Row(
+                children: [
+                  AppIcon(Symbols.schedule_rounded, size: 14, color: p.primary),
+                  const SizedBox(width: 3),
+                  Text(
+                    eta,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: p.textSecondary,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),
@@ -1460,7 +1461,7 @@ class _Reorders extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            marketMoney(order.totalCents, order.currency),
+                            order.total,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

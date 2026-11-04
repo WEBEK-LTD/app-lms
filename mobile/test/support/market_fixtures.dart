@@ -1,6 +1,18 @@
 /// 115 Marketplace pages for the tests and the screenshots.
 library;
 
+import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:yallapp/modules/market/data/market_providers.dart';
+import 'package:yallapp/modules/market/data/market_samples.dart';
+
+/// The marketplace's screens on the samples instead of the server.
+final List<Override> marketSampleOverrides = [
+  marketHomeProvider.overrideWith((ref) async => MarketSamples.home),
+  marketVendorPageProvider.overrideWith(
+    (ref, id) async => MarketSamples.page(id),
+  ),
+];
+
 /// The marketplace home as a Studio template would make it.
 Map<String, dynamic> homePage() {
   Map<String, dynamic> market(

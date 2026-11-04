@@ -2312,5 +2312,13 @@
   "marketMenu": "القائمة",
   "marketReviews": "التقييمات",
   "marketInfo": "معلومات",
-  "marketHours": "يفتح {hours}"
+  "marketHours": "يفتح {hours}",
+  "marketNew": "جديد",
+  "marketChooseAddress": "اختر عنوانك",
+  "marketPerGram": "/ جم",
+  "marketPerLitre": "/ لتر",
+  "marketKindRestaurant": "الطعام",
+  "marketKindGrocery": "الماركت",
+  "marketKindShop": "المتاجر",
+  "marketPlaces": "{count, plural, =0{لا أماكن} =1{مكان واحد} =2{مكانان} few{{count} أماكن} other{{count} مكانًا}}"
 }
