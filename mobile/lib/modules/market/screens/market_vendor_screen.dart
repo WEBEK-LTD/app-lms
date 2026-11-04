@@ -622,9 +622,12 @@ class _DishRow extends StatelessWidget {
                     Positioned.fill(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(18),
-                        child: AppNetworkImage(
-                          url: item.imageUrl,
-                          seed: item.id.hashCode,
+                        child: GestureDetector(
+                          onTap: () => showMarketPhotos(context, item),
+                          child: AppNetworkImage(
+                            url: item.imageUrl,
+                            seed: item.id.hashCode,
+                          ),
                         ),
                       ),
                     ),
@@ -739,9 +742,12 @@ class _ProductTile extends StatelessWidget {
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: AppNetworkImage(
-                      url: item.imageUrl,
-                      seed: item.id.hashCode,
+                    child: GestureDetector(
+                      onTap: () => showMarketPhotos(context, item),
+                      child: AppNetworkImage(
+                        url: item.imageUrl,
+                        seed: item.id.hashCode,
+                      ),
                     ),
                   ),
                 ),
@@ -932,6 +938,109 @@ class _BasketBar extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 115.7.1 A product's photos, one after another, with its name and price.
+Future<void> showMarketPhotos(BuildContext context, MarketItem item) {
+  final photos = item.photos.isNotEmpty
+      ? item.photos
+      : [if (item.imageUrl != null) item.imageUrl!];
+  if (photos.isEmpty) return Future.value();
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (context) => _PhotoSheet(item: item, photos: photos),
+  );
+}
+
+class _PhotoSheet extends StatefulWidget {
+  const _PhotoSheet({required this.item, required this.photos});
+
+  final MarketItem item;
+  final List<String> photos;
+
+  @override
+  State<_PhotoSheet> createState() => _PhotoSheetState();
+}
+
+class _PhotoSheetState extends State<_PhotoSheet> {
+  int _at = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final photos = widget.photos;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: PageView.builder(
+                  itemCount: photos.length,
+                  onPageChanged: (i) => setState(() => _at = i),
+                  itemBuilder: (context, i) => AppNetworkImage(
+                    url: photos[i],
+                    seed: widget.item.id.hashCode + i,
+                  ),
+                ),
+              ),
+            ),
+            if (photos.length > 1) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < photos.length; i++)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == _at ? 18 : 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: i == _at ? p.primary : p.border,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            Text(
+              widget.item.name,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: p.text,
+              ),
+            ),
+            if (widget.item.description != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                widget.item.description!,
+                style: TextStyle(color: p.textSecondary),
+              ),
+            ],
+            const SizedBox(height: 6),
+            Text(
+              widget.item.price,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: p.primary,
+              ),
+            ),
+          ],
         ),
       ),
     );

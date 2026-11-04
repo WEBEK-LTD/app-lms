@@ -194,4 +194,24 @@ void main() {
     expect(json['scheduled_for'], '2026-11-05T09:00:00.000Z');
     expect((json['lines'] as List).single['if_missing'], 'similar');
   });
+
+  test('a product\'s photos: all of them, the main one first', () {
+    Map<String, dynamic> product(Map<String, dynamic> extra) => {
+      'id': 4,
+      'name': 'Apples',
+      'price': {'amount': '45.00', 'formatted': 'EGP 45.00'},
+      'image_url': 'https://x.test/a.jpg',
+      ...extra,
+    };
+    final many = MarketProduct.fromJson(
+      product({
+        'images': ['https://x.test/a.jpg', 'https://x.test/b.jpg'],
+      }),
+    );
+    expect(many.photos, ['https://x.test/a.jpg', 'https://x.test/b.jpg']);
+    // An older server sends only the main photo.
+    expect(MarketProduct.fromJson(product({})).photos, [
+      'https://x.test/a.jpg',
+    ]);
+  });
 }

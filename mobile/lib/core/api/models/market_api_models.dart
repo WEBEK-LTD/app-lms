@@ -403,6 +403,7 @@ class MarketProduct {
     required this.price,
     this.description,
     this.imageUrl,
+    this.images = const [],
     this.brand,
     this.wasPrice,
     this.unit = ProductUnit.item,
@@ -418,6 +419,7 @@ class MarketProduct {
     name: reqString(json, 'name'),
     description: optString(json, 'description'),
     imageUrl: optString(json, 'image_url'),
+    images: stringList(json, 'images'),
     brand: optString(json, 'brand'),
     price: MarketMoney.fromJson(asJson(json['price'], 'price')),
     wasPrice: optObject(json, 'was_price', MarketMoney.fromJson),
@@ -433,7 +435,15 @@ class MarketProduct {
   final String name;
   final String? description;
   final String? imageUrl;
+
+  /// All the photos, the main one first (missing from older servers).
+  final List<String> images;
   final String? brand;
+
+  /// The photos to show: [images], else the main one.
+  List<String> get photos => images.isNotEmpty
+      ? images
+      : [if (imageUrl != null && imageUrl!.isNotEmpty) imageUrl!];
 
   /// For one item, or per `unit` (kilogram, gram, litre).
   final MarketMoney price;
