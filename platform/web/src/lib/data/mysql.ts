@@ -22,6 +22,11 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -4868,7 +4873,7 @@ export class MysqlStore implements DataStore {
   }
 
   async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
-    const values = { ...input, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const values = { ...vendorDefaults(input), busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
     const [result] = await this.run((db) => db.insert(schema.restaurants).values({ ...values, menu, dishNames: dishNamesOf(menu) }));
     return { id: Number(result.insertId), ...values };
   }
@@ -4921,7 +4926,7 @@ export class MysqlStore implements DataStore {
   }
 
   async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
-    const values = { ...input, createdAt: now, updatedAt: now };
+    const values = { ...input, role: input.role ?? "manager", createdAt: now, updatedAt: now };
     try {
       const [result] = await this.run((db) => db.insert(schema.restaurantStaff).values(values));
       return { ok: true, staff: { id: Number(result.insertId), ...values } };
@@ -4945,6 +4950,179 @@ export class MysqlStore implements DataStore {
   async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
     const t = schema.restaurantStaff;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  // 115.3 The marketplace's catalogs
+
+  private async ownsVendor(appId: string, vendorId: number): Promise<boolean> {
+    const t = schema.restaurants;
+    const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, appId), eq(t.id, vendorId))).limit(1));
+    return row !== undefined;
+  }
+
+  async listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]> {
+    const t = schema.marketDepartments;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId))).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null> {
+    const t = schema.marketDepartments;
+    if (!(await this.ownsVendor(input.appId, input.vendorId))) return null;
+    const { id, ...values } = input;
+    if (id === null) {
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [result] = await this.run((db) => db.update(t).set({ name: values.name, imageAssetId: values.imageAssetId, position: values.position }).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))));
+    if (result.affectedRows !== 1) {
+      const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))).limit(1));
+      if (!row) return null;
+    }
+    return { id, ...values };
+  }
+
+  async deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void> {
+    const t = schema.marketDepartments;
+    // Its aisles go with it; its products' department and aisle are set to null (foreign keys).
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.id, id))));
+  }
+
+  async listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]> {
+    const t = schema.marketAisles;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), departmentId === undefined ? undefined : eq(t.departmentId, departmentId)))
+        .orderBy(asc(t.position), asc(t.id)),
+    );
+  }
+
+  async saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null> {
+    const t = schema.marketAisles;
+    const d = schema.marketDepartments;
+    const [department] = await this.run((db) => db.select({ id: d.id }).from(d).where(and(eq(d.appId, input.appId), eq(d.vendorId, input.vendorId), eq(d.id, input.departmentId))).limit(1));
+    if (!department) return null;
+    const { id, ...values } = input;
+    if (id === null) {
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))).limit(1));
+    if (!row) return null;
+    await this.run((db) => db.update(t).set({ departmentId: values.departmentId, name: values.name, position: values.position }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return { id, ...values };
+  }
+
+  async deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void> {
+    const t = schema.marketAisles;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.id, id))));
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
+    const t = schema.marketProducts;
+    const q = query.q?.trim() ?? "";
+    const code = query.code?.trim() ?? "";
+    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const where = and(
+      eq(t.appId, query.appId),
+      eq(t.vendorId, query.vendorId),
+      query.departmentId === undefined ? undefined : eq(t.departmentId, query.departmentId),
+      query.aisleId === undefined ? undefined : eq(t.aisleId, query.aisleId),
+      query.outOfStock === undefined ? undefined : eq(t.inStock, !query.outOfStock),
+      code ? or(eq(t.barcode, code), eq(t.sku, code)) : undefined,
+      q ? or(like(t.name, pattern), like(t.brand, pattern), like(t.description, pattern)) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(desc(t.inStock), asc(t.position), asc(t.id))
+          .limit(query.perPage)
+          .offset((query.page - 1) * query.perPage),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {
+    const t = schema.marketProducts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.marketProducts).values(values));
+      return { ok: true, product: { id: Number(result.insertId), ...values } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate_sku" };
+      throw error;
+    }
+  }
+
+  async updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }> {
+    const t = schema.marketProducts;
+    const { appId: _a, vendorId: _v, ...rest } = patch as typeof patch & { appId?: string; vendorId?: number };
+    void _a;
+    void _v;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      if (result.affectedRows === 1) return { ok: true };
+      return { ok: (await this.getMarketProduct(appId, id)) !== null };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate_sku" };
+      throw error;
+    }
+  }
+
+  async deleteMarketProduct(appId: string, id: number): Promise<void> {
+    const t = schema.marketProducts;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
+    const t = schema.marketProducts;
+    if (rows.length === 0 || !(await this.ownsVendor(appId, vendorId))) return { created: 0, updated: 0 };
+    let created = 0;
+    let updated = 0;
+    // A few hundred rows at a time: the vendor's matching products by SKU or barcode, then updates and inserts.
+    for (let start = 0; start < rows.length; start += 500) {
+      const chunk = rows.slice(start, start + 500);
+      const skus = chunk.flatMap((r) => (r.sku !== null ? [r.sku] : []));
+      const barcodes = chunk.flatMap((r) => (r.sku === null && r.barcode !== null ? [r.barcode] : []));
+      const found =
+        skus.length + barcodes.length === 0
+          ? []
+          : await this.run((db) =>
+              db
+                .select({ id: t.id, sku: t.sku, barcode: t.barcode })
+                .from(t)
+                .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), or(skus.length ? inArray(t.sku, skus) : undefined, barcodes.length ? inArray(t.barcode, barcodes) : undefined))),
+            );
+      const bySku = new Map(found.flatMap((f) => (f.sku !== null ? [[f.sku, f.id] as const] : [])));
+      const byBarcode = new Map(found.flatMap((f) => (f.barcode !== null ? [[f.barcode, f.id] as const] : [])));
+      const inserts: (typeof t.$inferInsert)[] = [];
+      for (const row of chunk) {
+        const id = (row.sku !== null ? bySku.get(row.sku) : undefined) ?? (row.sku === null && row.barcode !== null ? byBarcode.get(row.barcode) : undefined);
+        if (id !== undefined) {
+          await this.run((db) => db.update(t).set({ ...row, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+          updated += 1;
+        } else {
+          inserts.push({ ...row, appId, vendorId, createdAt: now, updatedAt: now });
+          if (row.sku !== null) bySku.set(row.sku, -1);
+        }
+      }
+      if (inserts.length) {
+        await this.run((db) => db.insert(t).values(inserts));
+        created += inserts.length;
+      }
+    }
+    return { created, updated };
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {
@@ -8859,4 +9037,9 @@ function toBuild(row: typeof schema.builds.$inferSelect): Build {
 function teamAlertOf({ openKey: _openKey, ...row }: typeof schema.teamAlerts.$inferSelect): TeamAlert {
   void _openKey;
   return row;
+}
+
+/** 115.3 A vendor's marketplace fields, with their defaults for 105.1's restaurants. */
+function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<Restaurant, "kind" | "delivery" | "commissionFixed" | "taxRateBp" | "paused" | "area">> {
+  return { ...input, kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null };
 }

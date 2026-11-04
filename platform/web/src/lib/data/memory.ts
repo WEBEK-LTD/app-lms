@@ -93,6 +93,11 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
@@ -3887,7 +3892,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
-    const restaurant: Restaurant = { ...clone(input), id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const restaurant: Restaurant = { ...clone(input), kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null, id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
     this.restaurants.set(restaurant.id, clone(restaurant));
     this.restaurantMenus.set(restaurant.id, clone(menu));
     return restaurant;
@@ -3910,6 +3915,7 @@ export class MemoryStore implements DataStore {
     this.restaurants.delete(id);
     this.restaurantMenus.delete(id);
     for (const [key, staff] of this.restaurantStaff) if (staff.restaurantId === id) this.restaurantStaff.delete(key);
+    for (const map of [this.marketDepartments, this.marketAisles, this.marketProducts] as Map<number, { vendorId: number }>[]) for (const [key, row] of map) if (row.vendorId === id) map.delete(key);
     for (const order of this.foodOrders.values()) if (order.appId === appId && order.restaurantId === id) order.restaurantId = null;
   }
 
@@ -3940,7 +3946,7 @@ export class MemoryStore implements DataStore {
 
   async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
     if (this.staffTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
-    const staff: RestaurantStaff = { ...clone(input), id: this.nextRestaurantStaffId++, createdAt: now, updatedAt: now };
+    const staff: RestaurantStaff = { ...clone(input), role: input.role ?? "manager", id: this.nextRestaurantStaffId++, createdAt: now, updatedAt: now };
     this.restaurantStaff.set(staff.id, clone(staff));
     return { ok: true, staff };
   }
@@ -3956,6 +3962,134 @@ export class MemoryStore implements DataStore {
 
   async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
     if (this.restaurantStaff.get(id)?.appId === appId) this.restaurantStaff.delete(id);
+  }
+
+  // 115.3 The marketplace's catalogs
+
+  private marketDepartments = new Map<number, MarketDepartment>();
+  private nextMarketDepartmentId = 1;
+  private marketAisles = new Map<number, MarketAisle>();
+  private nextMarketAisleId = 1;
+  private marketProducts = new Map<number, MarketProduct>();
+  private nextMarketProductId = 1;
+
+  private vendorOf(appId: string, vendorId: number): boolean {
+    return this.restaurants.get(vendorId)?.appId === appId;
+  }
+
+  async listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]> {
+    return [...this.marketDepartments.values()].filter((d) => d.appId === appId && d.vendorId === vendorId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null> {
+    if (!this.vendorOf(input.appId, input.vendorId)) return null;
+    if (input.id !== null) {
+      const saved = this.marketDepartments.get(input.id);
+      if (!saved || saved.appId !== input.appId || saved.vendorId !== input.vendorId) return null;
+    }
+    const department: MarketDepartment = { ...clone(input), id: input.id ?? this.nextMarketDepartmentId++ };
+    this.marketDepartments.set(department.id, clone(department));
+    return department;
+  }
+
+  async deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void> {
+    const saved = this.marketDepartments.get(id);
+    if (!saved || saved.appId !== appId || saved.vendorId !== vendorId) return;
+    this.marketDepartments.delete(id);
+    for (const [key, aisle] of this.marketAisles) if (aisle.departmentId === id) this.marketAisles.delete(key);
+    for (const product of this.marketProducts.values()) if (product.departmentId === id) Object.assign(product, { departmentId: null, aisleId: null });
+  }
+
+  async listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]> {
+    return [...this.marketAisles.values()]
+      .filter((a) => a.appId === appId && a.vendorId === vendorId && (departmentId === undefined || a.departmentId === departmentId))
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null> {
+    const department = this.marketDepartments.get(input.departmentId);
+    if (!department || department.appId !== input.appId || department.vendorId !== input.vendorId) return null;
+    if (input.id !== null) {
+      const saved = this.marketAisles.get(input.id);
+      if (!saved || saved.appId !== input.appId || saved.vendorId !== input.vendorId) return null;
+    }
+    const aisle: MarketAisle = { ...clone(input), id: input.id ?? this.nextMarketAisleId++ };
+    this.marketAisles.set(aisle.id, clone(aisle));
+    return aisle;
+  }
+
+  async deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void> {
+    const saved = this.marketAisles.get(id);
+    if (!saved || saved.appId !== appId || saved.vendorId !== vendorId) return;
+    this.marketAisles.delete(id);
+    for (const product of this.marketProducts.values()) if (product.aisleId === id) product.aisleId = null;
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
+    const q = query.q?.trim().toLowerCase() ?? "";
+    const code = query.code?.trim() ?? "";
+    const all = [...this.marketProducts.values()]
+      .filter(
+        (p) =>
+          p.appId === query.appId &&
+          p.vendorId === query.vendorId &&
+          (query.departmentId === undefined || p.departmentId === query.departmentId) &&
+          (query.aisleId === undefined || p.aisleId === query.aisleId) &&
+          (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
+          (!code || p.barcode === code || p.sku === code) &&
+          (!q || [p.name, p.brand ?? "", p.description ?? ""].some((text) => text.toLowerCase().includes(q))),
+      )
+      .sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.position - b.position || a.id - b.id);
+    const start = (query.page - 1) * query.perPage;
+    return { items: all.slice(start, start + query.perPage).map(clone), total: all.length };
+  }
+
+  async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {
+    const product = this.marketProducts.get(id);
+    return product && product.appId === appId ? clone(product) : null;
+  }
+
+  private skuTaken(appId: string, vendorId: number, sku: string | null, id: number | null): boolean {
+    return sku !== null && [...this.marketProducts.values()].some((p) => p.appId === appId && p.vendorId === vendorId && p.sku === sku && p.id !== id);
+  }
+
+  async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
+    if (this.skuTaken(input.appId, input.vendorId, input.sku, null)) return { ok: false, reason: "duplicate_sku" };
+    const product: MarketProduct = { ...clone(input), id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+    this.marketProducts.set(product.id, clone(product));
+    return { ok: true, product };
+  }
+
+  async updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }> {
+    const product = this.marketProducts.get(id);
+    if (!product || product.appId !== appId) return { ok: false };
+    if (patch.sku !== undefined && this.skuTaken(appId, product.vendorId, patch.sku, id)) return { ok: false, reason: "duplicate_sku" };
+    this.marketProducts.set(id, clone({ ...product, ...patch, id, appId, vendorId: product.vendorId, updatedAt: now }));
+    return { ok: true };
+  }
+
+  async deleteMarketProduct(appId: string, id: number): Promise<void> {
+    if (this.marketProducts.get(id)?.appId === appId) this.marketProducts.delete(id);
+  }
+
+  async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
+    if (!this.vendorOf(appId, vendorId)) return { created: 0, updated: 0 };
+    let created = 0;
+    let updated = 0;
+    const mine = () => [...this.marketProducts.values()].filter((p) => p.appId === appId && p.vendorId === vendorId);
+    for (const row of rows) {
+      const found = (row.sku !== null ? mine().find((p) => p.sku === row.sku) : undefined) ?? (row.barcode !== null ? mine().find((p) => p.barcode === row.barcode) : undefined);
+      if (found) {
+        this.marketProducts.set(found.id, clone({ ...found, ...row, id: found.id, appId, vendorId, createdAt: found.createdAt, updatedAt: now }));
+        updated += 1;
+      } else {
+        const product: MarketProduct = { ...clone(row), appId, vendorId, id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+        this.marketProducts.set(product.id, product);
+        created += 1;
+      }
+    }
+    return { created, updated };
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {

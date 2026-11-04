@@ -157,6 +157,11 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 // 105.2 Ride hailing
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -1168,6 +1173,25 @@ export interface DataStore {
   createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }>;
   updateRestaurantStaff(appId: string, id: number, patch: Partial<Pick<RestaurantStaff, "name" | "phone" | "email" | "active">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
   deleteRestaurantStaff(appId: string, id: number): Promise<void>;
+  // 115.3 The marketplace's catalogs: a grocery's or shop's departments, aisles and products (restaurants keep 105.1's menus).
+  listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]>;
+  /** Makes (`id` null) or renames and moves one; null when the vendor isn't the app's or the department isn't the vendor's. */
+  saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null>;
+  /** Its aisles go with it; its products stay, out of any department. */
+  deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void>;
+  listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]>;
+  /** Null when the department (or the aisle) isn't the vendor's. */
+  saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null>;
+  /** Its products stay in its department, out of any aisle. */
+  deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void>;
+  /** In stock first, then the vendor's order; `q` searches names, brands and descriptions, `code` a barcode or SKU. */
+  listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }>;
+  getMarketProduct(appId: string, id: number): Promise<MarketProduct | null>;
+  createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }>;
+  updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }>;
+  deleteMarketProduct(appId: string, id: number): Promise<void>;
+  /** An import's rows: each updates the vendor's product with its SKU (else its barcode), or is added. */
+  upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }>;
   createFoodOrder(input: FoodOrderInput): Promise<FoodOrder>;
   getFoodOrder(appId: string, id: number): Promise<FoodOrder | null>;
   listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }>;

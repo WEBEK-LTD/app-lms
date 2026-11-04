@@ -3577,8 +3577,43 @@ export interface Restaurant {
   position: number;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  /** 115.3 In a marketplace (the `marketplace` feature), what it is; 105.1's restaurants are `restaurant`. */
+  kind?: VendorKind;
+  /** 115.3 Who delivers and on what terms; null: the app's couriers at the app's Delivery prices (105.1). */
+  delivery?: VendorDelivery | null;
+  /** 115.3 A fixed commission per order in minor units, instead of `commissionBp`. */
+  commissionFixed?: number | null;
+  /** 115.3 Its tax rate in basis points when it differs from the app's; null: the app's. */
+  taxRateBp?: number | null;
+  /** 115.3 Not taking orders until the vendor or the owner turns it back on. */
+  paused?: boolean;
+  /** 115.3 Its district, shown to customers (its exact place only for pick-up). */
+  area?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 115.3 What a marketplace vendor sells: dishes (a menu), or products in departments and aisles. */
+export type VendorKind = "restaurant" | "grocery" | "shop";
+
+/** 115.3 A vendor's delivery: by the app's couriers (the owner's prices) or by its own drivers (its prices). */
+export interface VendorDelivery {
+  by: "app" | "vendor";
+  /** For its own drivers: a fixed fee, or a base plus an amount per km. */
+  feeKind: "fixed" | "per_km";
+  /** The fixed fee, or the base, in minor units. */
+  fee: number;
+  /** Per km after the first, in minor units (`per_km`). */
+  perKm: number;
+  /** Free delivery from this subtotal; null for never. */
+  freeOver: number | null;
+  /** The fewest and most items an order may have; null for no limit. */
+  minItems: number | null;
+  maxItems: number | null;
+  /** Customers may pick orders up. */
+  pickup: boolean;
+  /** Customers may order for later. */
+  scheduling: boolean;
 }
 
 export type RestaurantInput = Omit<Restaurant, "id" | "busyUntil" | "ratingSum" | "ratingCount" | "createdAt" | "updatedAt">;
@@ -3595,11 +3630,84 @@ export interface RestaurantStaff {
   /** Lowercase. */
   email: string | null;
   active: boolean;
+  /** 115.3 What they may do: everything (`owner`), all but staff (`manager`), orders and stock (`orders`), picking only (`picker`). 105.1's staff are `manager`. */
+  role?: VendorRole;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active">;
+export type VendorRole = "owner" | "manager" | "orders" | "picker";
+
+/** 115.3 A grocery's or shop's department (Fruit & vegetables), in its order. */
+export interface MarketDepartment {
+  id: number;
+  appId: string;
+  vendorId: number;
+  name: string;
+  imageAssetId: string | null;
+  position: number;
+}
+
+/** 115.3 An aisle in a department (Fresh fruit). */
+export interface MarketAisle {
+  id: number;
+  appId: string;
+  vendorId: number;
+  departmentId: number;
+  name: string;
+  position: number;
+}
+
+export type MarketUnit = "item" | "kg" | "g" | "l";
+
+/** 115.3 A grocery's or shop's product. Prices in minor units of the app's currency. */
+export interface MarketProduct {
+  id: number;
+  appId: string;
+  vendorId: number;
+  departmentId: number | null;
+  aisleId: number | null;
+  name: string;
+  description: string | null;
+  brand: string | null;
+  /** The vendor's own code, unique within the vendor; imports update by it. */
+  sku: string | null;
+  barcode: string | null;
+  imageAssetId: string | null;
+  /** A picture by link (from an import), when there is no uploaded one. */
+  imageUrl: string | null;
+  price: number;
+  /** Before its discount (struck through); null for none. */
+  wasPrice: number | null;
+  unit: MarketUnit;
+  /** The amount added each time (1 for items, 0.25 for a quarter kilo). */
+  step: number;
+  maxQuantity: number | null;
+  /** Counted stock; null when not counted (then `inStock` alone says). */
+  stock: number | null;
+  inStock: boolean;
+  tags: string[];
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketProductInput = Omit<MarketProduct, "id" | "createdAt" | "updatedAt">;
+
+export interface MarketProductQuery {
+  appId: string;
+  vendorId: number;
+  departmentId?: number;
+  aisleId?: number;
+  q?: string;
+  /** A barcode or SKU. */
+  code?: string;
+  outOfStock?: boolean;
+  page: number;
+  perPage: number;
+}
+
+export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active"> & { role?: VendorRole };
 
 export const FOOD_ORDER_STATUSES = ["awaiting_payment", "placed", "accepted", "ready", "picked_up", "on_the_way", "delivered", "rejected", "cancelled", "failed"] as const;
 export type FoodOrderStatus = (typeof FOOD_ORDER_STATUSES)[number];
