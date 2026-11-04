@@ -445,9 +445,12 @@ test("search engines get the sitemap, robots.txt, canonical addresses, link prev
   expect(home[0].address).toEqual({ "@type": "PostalAddress", addressLocality: "Cairo", addressCountry: "EG" });
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /localhost:\d+\/?$/);
   await page.goto("/faq");
-  const faq = (await ld())[0];
+  const faqLd = await ld();
+  const faq = faqLd.find((d) => d["@type"] === "FAQPage");
   expect(faq["@type"]).toBe("FAQPage");
   expect(faq.mainEntity.length).toBeGreaterThan(10);
+  // Every page one step below the home page has its place in search results.
+  expect(faqLd.find((d) => d["@type"] === "BreadcrumbList").itemListElement.map((i: { name: string }) => i.name)).toEqual(["Home", "FAQ"]);
   await page.goto("/docs/shopify");
   expect((await ld())[0].itemListElement.map((i: { name: string }) => i.name)).toEqual(["Home", "Docs", "Connect Shopify"]);
   await page.goto("/solutions/clinic");
