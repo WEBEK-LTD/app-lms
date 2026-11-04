@@ -23,6 +23,7 @@ import { runWatch } from "@/lib/watch/watch";
 import { dispatchSet, teamMail } from "@/lib/watch/env";
 import type { DataStore } from "@/lib/data/store";
 import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
+import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -109,6 +110,13 @@ async function runDaily(store: DataStore, now: Date) {
   const jobRunsPurged = await store.deleteJobRunsBefore(new Date(now.getTime() - 30 * 86_400_000));
   // 78.4 Apps' errors not seen for 90 days.
   const appErrorsPurged = await store.deleteAppErrorsBefore(new Date(now.getTime() - APP_ERROR_DAYS * 86_400_000));
+  // 114 Email campaigns' opens, clicks and per-person rows kept 12 months (the privacy policy).
+  const before = new Date(now);
+  before.setUTCMonth(before.getUTCMonth() - MAIL_HISTORY_MONTHS);
+  const mailHistory = await store.pruneMailHistory(before).catch((e: unknown) => {
+    console.error(`[daily] mail history: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
+  return { ...report, mailHistory, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
 }

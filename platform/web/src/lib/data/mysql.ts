@@ -28,7 +28,7 @@ import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
@@ -8673,6 +8673,37 @@ export class MysqlStore implements DataStore {
     ]);
     return { items, total: Number(total[0]?.n ?? 0) };
   }
+  async addMailRun(run: Omit<MailRun, "id">): Promise<void> {
+    try {
+      await this.run((db) => db.insert(schema.mailRuns).values(run));
+    } catch (error) {
+      // A campaign deleted meanwhile.
+      if (errorCode(error) === "ER_NO_REFERENCED_ROW_2" || errorCode(error) === "ER_NO_REFERENCED_ROW") return;
+      throw error;
+    }
+  }
+
+  async listMailRuns(campaignId: string, limit: number): Promise<MailRun[]> {
+    const t = schema.mailRuns;
+    return this.run((db) => db.select().from(t).where(eq(t.campaignId, campaignId)).orderBy(desc(t.startedAt), desc(t.id)).limit(limit));
+  }
+
+  async pruneMailHistory(before: Date): Promise<{ events: number; recipients: number; runs: number }> {
+    const c = schema.mailCampaigns;
+    const old = (await this.run((db) => db.select({ id: c.id }).from(c).where(lt(c.finishedAt, before)))).map((r) => r.id);
+    const [events] = await this.run((db) => db.delete(schema.mailEvents).where(lt(schema.mailEvents.at, before)));
+    let recipients = 0;
+    let runs = 0;
+    for (let i = 0; i < old.length; i += 200) {
+      const batch = old.slice(i, i + 200);
+      const [r] = await this.run((db) => db.delete(schema.mailRecipients).where(inArray(schema.mailRecipients.campaignId, batch)));
+      const [u] = await this.run((db) => db.delete(schema.mailRuns).where(inArray(schema.mailRuns.campaignId, batch)));
+      recipients += r.affectedRows;
+      runs += u.affectedRows;
+    }
+    return { events: events.affectedRows, recipients, runs };
+  }
+
 
 
 

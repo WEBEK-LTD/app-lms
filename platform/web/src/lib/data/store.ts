@@ -172,7 +172,7 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 // 114 Email campaigns
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 // 104.8.2 Yallapp Courier
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 60 Team members for clients
@@ -1966,4 +1966,14 @@ export interface DataStore {
   unsuppressMail(email: string): Promise<void>;
   /** The latest first. */
   listMailSuppressions(filter: { query?: string; offset: number; limit: number }): Promise<{ items: MailSuppression[]; total: number }>;
+  addMailRun(run: Omit<MailRun, "id">): Promise<void>;
+  /** The latest first. */
+  listMailRuns(campaignId: string, limit: number): Promise<MailRun[]>;
+  /**
+   * The history kept for MAIL_HISTORY_MONTHS (the privacy policy): opens,
+   * clicks and the other events from before `before`, and the per-person rows
+   * and runs of campaigns that finished before it. The campaigns stay, with
+   * their totals; the addresses never to be mailed stay too.
+   */
+  pruneMailHistory(before: Date): Promise<{ events: number; recipients: number; runs: number }>;
 }

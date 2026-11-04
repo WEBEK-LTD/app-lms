@@ -69,8 +69,8 @@ export interface Mailer {
 }
 
 /**
- * 114 A mailer for a batch: the SMTP settings are read once and one
- * connection is kept open. Without SMTP it does what sendMail does (the log
+ * 114 A mailer for a batch: the SMTP settings are read once and a small
+ * pool of connections is kept open for the run (sends go out a few at once). Without SMTP it does what sendMail does (the log
  * and the end-to-end folder outside production), but in production it fails
  * each email, so a campaign never counts as sent what went nowhere.
  */
@@ -94,8 +94,10 @@ export async function openMailer(store: DataStore): Promise<Mailer> {
     secure: config.secure,
     auth: config.user ? { user: config.user, pass: config.pass ?? "" } : undefined,
     requireTLS: !config.secure,
+    // 114 One pool for the whole run: a few connections, each reused for many emails.
     pool: true,
-    maxConnections: 1,
+    maxConnections: 3,
+    maxMessages: 200,
   });
   return {
     async send(mail, options = {}) {

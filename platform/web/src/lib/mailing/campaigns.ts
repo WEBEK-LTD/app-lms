@@ -15,6 +15,7 @@
 import { randomUUID } from "node:crypto";
 import type { DataStore } from "../data/store";
 import type { Mail, Mailer } from "../mail";
+import { closeAlerts, raiseAlert, type TeamMail } from "../watch/alerts";
 import type { Plan, PlanInfo } from "../plans";
 import { resolveAudience } from "./audience";
 import { validDoc } from "./blocks";
@@ -31,9 +32,17 @@ import {
   type MailContents,
   type MailLang,
   type MailRecipient,
+  type MailRun,
 } from "./types";
 
 export const MAIL_MAX_ATTEMPTS = 3;
+/** Emails sent at once through the pooled SMTP connections (lib/mail.ts openMailer). */
+export const MAIL_PARALLEL = 3;
+/** Rows a run takes at a time. */
+export const MAIL_BATCH = 30;
+/** The owner's floor: never fewer than this many emails a minute while a campaign has emails due. */
+export const MAIL_MIN_PER_MINUTE = 45;
+export const MAIL_PACE_WINDOW_MS = 5 * 60_000;
 export const MAIL_RETRY_MINUTES = 5;
 /** How long a run may hold the rows it took before they're taken as lost. */
 export const MAIL_LEASE_MS = 3 * 60_000;
@@ -177,6 +186,10 @@ export interface MailRunDeps {
   plans?: Record<Plan, PlanInfo>;
   /** Stop taking more after this long. */
   budgetMs: number;
+  /** Emails sent at once (MAIL_PARALLEL). */
+  parallel?: number;
+  /** Emails the team about a new slow-sending alert (lib/watch/env.ts teamMail). */
+  alertMail?: TeamMail | null;
 }
 
 export interface MailRunReport {
@@ -269,17 +282,25 @@ export async function runMailCampaigns(deps: MailRunDeps): Promise<MailRunReport
       const cache = new Map<MailLang, ReturnType<typeof renderContent>>();
       const values = new Map<string, MergeValues>();
       let valuesLoaded = false;
+      const run = { startedAt: deps.now(), sent: 0, failed: 0, attempted: 0 };
+      // Nothing was due when the run stopped (all sent, or only retries waiting): not slow.
+      let nothingDue = false;
+      let stillSending = true;
       while (left() > 0) {
         const now = deps.now();
         const room = campaign.perMinute - (await store.countMailSentSince(campaign.id, new Date(now.getTime() - 60_000)));
         // Its minute's emails went: the next run (a minute later) goes on.
         if (room <= 0) break;
         const claim = randomUUID();
-        const rows = await store.claimMailRecipients(campaign.id, claim, Math.min(room, 25), now, new Date(now.getTime() + MAIL_LEASE_MS));
-        if (rows.length === 0) break;
+        const rows = await store.claimMailRecipients(campaign.id, claim, Math.min(room, MAIL_BATCH), now, new Date(now.getTime() + MAIL_LEASE_MS));
+        if (rows.length === 0) {
+          nothingDue = true;
+          break;
+        }
         // Paused or cancelled meanwhile: what this run took goes back (or stays skipped).
         const fresh = await store.getMailCampaign(campaign.id);
         if (!fresh || fresh.status !== "sending") {
+          stillSending = false;
           for (const row of rows) await store.finishMailRecipient(row.id, claim, { status: fresh?.status === "cancelled" ? "skipped" : "queued", error: fresh?.status === "cancelled" ? "cancelled" : null, nextAttemptAt: null, sentAt: null, attempts: row.attempts });
           break;
         }
@@ -289,50 +310,117 @@ export async function runMailCampaigns(deps: MailRunDeps): Promise<MailRunReport
           valuesLoaded = true;
         }
         const suppressed = new Set(await store.listMailSuppressed(rows.map((r) => r.email)));
-        for (const row of rows) {
+        mailer ??= await deps.mailer();
+        const send = mailer;
+        // One row: sent, tried again later, failed or skipped. Each row is this run's alone (its claim), so sending
+        // several at once never sends one twice.
+        const one = async (row: MailRecipient) => {
           if (suppressed.has(row.email)) {
             await store.finishMailRecipient(row.id, claim, { status: "skipped", error: "unsubscribed", nextAttemptAt: null, sentAt: null, attempts: row.attempts });
             report.skipped += 1;
-            continue;
+            return;
           }
           const built = buildRecipientMail(fresh, row, values.get(row.email) ?? { name: row.name, first_name: row.name.split(/\s+/)[0] ?? "" }, deps, cache);
           if (!built) {
             await store.finishMailRecipient(row.id, claim, { status: "failed", error: "No email in a language for this person", nextAttemptAt: null, sentAt: null, attempts: row.attempts });
             report.failed += 1;
-            continue;
+            run.failed += 1;
+            return;
           }
           const attempts = row.attempts + 1;
+          run.attempted += 1;
           try {
-            mailer ??= await deps.mailer();
-            await mailer.send(built.mail, { fromName: built.fromName });
+            await send.send(built.mail, { fromName: built.fromName });
             await store.finishMailRecipient(row.id, claim, { status: "sent", error: null, nextAttemptAt: null, sentAt: deps.now(), attempts });
             report.sent += 1;
+            run.sent += 1;
           } catch (error) {
             if (rejectedAddress(error)) {
               await store.finishMailRecipient(row.id, claim, { status: "failed", error: `Bounced: ${reason(error)}`, nextAttemptAt: null, sentAt: null, attempts });
               await store.suppressMail({ email: row.email, reason: "bounced", campaignId: campaign.id, createdAt: deps.now() });
               await store.addMailEvent({ campaignId: campaign.id, email: row.email, kind: "bounce", url: null, at: deps.now() });
               report.failed += 1;
+              run.failed += 1;
             } else if (attempts < MAIL_MAX_ATTEMPTS) {
               await store.finishMailRecipient(row.id, claim, { status: "queued", error: reason(error), nextAttemptAt: new Date(deps.now().getTime() + attempts * MAIL_RETRY_MINUTES * 60_000), sentAt: null, attempts });
               report.retried += 1;
             } else {
               await store.finishMailRecipient(row.id, claim, { status: "failed", error: reason(error), nextAttemptAt: null, sentAt: null, attempts });
               report.failed += 1;
+              run.failed += 1;
             }
           }
-        }
+        };
+        await inParallel(rows, deps.parallel ?? MAIL_PARALLEL, one);
       }
       if (left() <= 0) report.more = true;
+      const finishedAt = deps.now();
+      if (run.attempted > 0) await store.addMailRun({ campaignId: campaign.id, startedAt: run.startedAt, finishedAt, sent: run.sent, failed: run.failed, attempted: run.attempted });
       const counts = await store.countMailRecipients(campaign.id);
       if (counts.queued === 0 && counts.sending === 0) {
-        if (await store.setMailCampaignStatus(campaign.id, ["sending"], { status: "sent", finishedAt: deps.now(), updatedAt: deps.now() })) report.finished += 1;
+        if (await store.setMailCampaignStatus(campaign.id, ["sending"], { status: "sent", finishedAt, updatedAt: finishedAt })) report.finished += 1;
+        await closeAlerts(store, [slowKey(campaign.id)], finishedAt);
+      } else if (stillSending) {
+        await checkMailPace(deps, campaign, nothingDue);
       }
     }
   } finally {
     mailer?.close();
   }
   return report;
+}
+
+/** Runs `work` on every item, at most `limit` at a time. */
+async function inParallel<T>(items: T[], limit: number, work: (item: T) => Promise<void>): Promise<void> {
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const item = items[next++]!;
+      await work(item);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, worker));
+}
+
+function slowKey(campaignId: string): string {
+  return `mail_slow:${campaignId}`;
+}
+
+/**
+ * The owner's floor: a campaign that has been sending for 5 minutes and still
+ * has emails due sends at least 45 a minute (or its own rate, when the admin
+ * set it lower). Below that, the team gets an alert (Admin › Watching); it
+ * closes by itself once the pace is back or the campaign ends.
+ */
+export async function checkMailPace(deps: Pick<MailRunDeps, "store" | "now" | "alertMail">, campaign: Pick<MailCampaign, "id" | "name" | "perMinute" | "startedAt">, nothingDue: boolean): Promise<"slow" | "ok" | "early"> {
+  const now = deps.now();
+  const since = new Date(now.getTime() - MAIL_PACE_WINDOW_MS);
+  if (!campaign.startedAt || campaign.startedAt.getTime() > since.getTime()) return "early";
+  const target = Math.min(MAIL_MIN_PER_MINUTE, campaign.perMinute);
+  const perMinute = (await deps.store.countMailSentSince(campaign.id, since)) / (MAIL_PACE_WINDOW_MS / 60_000);
+  if (nothingDue || perMinute >= target) {
+    await closeAlerts(deps.store, [slowKey(campaign.id)], now);
+    return "ok";
+  }
+  await raiseAlert(
+    deps.store,
+    {
+      kind: "mail_slow",
+      key: slowKey(campaign.id),
+      title: `Email campaign “${campaign.name}” is sending slowly`,
+      detail: `${Math.round(perMinute * 10) / 10} emails a minute over the last 5 minutes, below ${target}. Check the email server in Admin › Settings, and that netlify/functions/mail-campaigns runs every minute.`,
+      link: `/admin/email-campaigns/${campaign.id}/report`,
+    },
+    now,
+    deps.alertMail ?? null,
+  );
+  return "slow";
+}
+
+/** A run's emails a minute: what it sent over the time it took (the report shows the latest runs). */
+export function runPerMinute(run: Pick<MailRun, "sent" | "startedAt" | "finishedAt">): number {
+  const minutes = Math.max(1, run.finishedAt.getTime() - run.startedAt.getTime()) / 60_000;
+  return Math.round((run.sent / minutes) * 10) / 10;
 }
 
 /** Stops a campaign for good: whoever wasn't mailed yet is skipped. */
