@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { AccountDeletion } from "@/components/account-deletion";
 import { AccountCountryForm } from "@/components/account-country";
+import { MarketingEmails } from "@/components/marketing-emails";
+import { getStore } from "@/lib/data";
+import { marketingAllowed } from "@/lib/mailing/consent";
 import { COUNTRY_MESSAGES, countryOptions } from "@/lib/account/country";
 import { SignOutEverywhere, TwoStepSettings } from "@/components/two-step-settings";
 import { Notice, PageHeader } from "@/components/ui";
@@ -17,7 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * suspended accounts find the same request on the waiting page. 70 Two-step
  * sign-in and "Sign out of all devices" for the signed-in person (the owner
  * or a team member; our team manages its own in the admin). 73 The
- * account's country, which the owner sets (52.9).
+ * account's country, which the owner sets (52.9). 114 Yallapp's marketing
+ * emails on or off.
  */
 export default async function AccountPage({ searchParams }: PageProps<"/dashboard/account">) {
   const context = await requireClient("dashboard");
@@ -65,6 +69,8 @@ export default async function AccountPage({ searchParams }: PageProps<"/dashboar
         {context.member ? <p className="m-0 text-sm text-muted">{k(COUNTRY_MESSAGES.owner)}</p> : null}
         <AccountCountryForm current={context.client.country ?? null} options={countryOptions(lang)} readOnly={context.member !== null} />
       </section>
+      {/* 114 Yallapp's marketing emails, for the signed-in person's own address. */}
+      <MarketingEmails allowed={await marketingAllowed(await getStore(), me.email)} lang={lang} readOnly={context.staff !== null} />
       <AccountDeletion context={context} from="account" done={done} phones={phones} />
     </>
   );

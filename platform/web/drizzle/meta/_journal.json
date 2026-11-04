@@ -778,6 +778,13 @@
       "when": 1793653161175,
       "tag": "0110_courier_hub",
       "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "5",
+      "when": 1793746166707,
+      "tag": "0111_mail_campaigns",
+      "breakpoints": true
     }
   ]
 }

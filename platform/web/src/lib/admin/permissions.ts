@@ -36,6 +36,10 @@ export const ADMIN_PERMISSIONS = [
   "switches.edit",
   /** The demo apps on /demo (roadmap 16): create or refresh them, build them, pick the public download. */
   "demos.manage",
+  /** 114 Email campaigns: write them, their templates and audiences, and send tests. */
+  "marketing.edit",
+  /** 114 Send or schedule a campaign to the people registered on Yallapp, pause, resume or cancel it, and change who never gets one. */
+  "marketing.send",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
@@ -53,7 +57,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings, releases or demo apps.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };
 

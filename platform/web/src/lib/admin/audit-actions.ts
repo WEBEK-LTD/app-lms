@@ -78,6 +78,24 @@ export const AUDIT_ACTIONS = {
   // 73 Deleted apps
   "app_deletion.restore": "Deleted app restored",
   "app_deletion.purge": "Deleted app deleted for good",
+  // 114 Email campaigns
+  "mail.campaign_save": "Email campaign saved",
+  "mail.campaign_delete": "Email campaign deleted",
+  "mail.campaign_duplicate": "Email campaign duplicated",
+  "mail.campaign_archive": "Email campaign archived or restored",
+  "mail.test": "Test email sent",
+  "mail.send": "Email campaign sent",
+  "mail.schedule": "Email campaign scheduled",
+  "mail.unschedule": "Email campaign schedule removed",
+  "mail.pause": "Email campaign paused",
+  "mail.resume": "Email campaign resumed",
+  "mail.cancel": "Email campaign cancelled",
+  "mail.template_save": "Email template saved",
+  "mail.template_delete": "Email template deleted",
+  "mail.segment_save": "Audience saved",
+  "mail.segment_delete": "Audience deleted",
+  "mail.suppress": "Address kept from campaigns",
+  "mail.unsuppress": "Address allowed in campaigns again",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -101,6 +119,10 @@ export const AUDIT_TARGETS = {
   app_deletion: "Deleted app",
   alert: "Alert",
   design: "Design",
+  mail_campaign: "Email campaign",
+  mail_template: "Email template (campaigns)",
+  mail_segment: "Audience",
+  mail_address: "Email address",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

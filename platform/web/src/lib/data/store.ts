@@ -171,6 +171,8 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 // 10.7 Listings
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
+// 114 Email campaigns
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 // 104.8.2 Yallapp Courier
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 60 Team members for clients
@@ -1904,4 +1906,64 @@ export interface DataStore {
   listUniAttendance(appId: string, filter: { sectionId?: number; studentId?: number; from?: string; to?: string }): Promise<UniAttendance[]>;
   /** Adds or replaces each row (one per section, student and day). */
   saveUniAttendance(rows: UniAttendance[]): Promise<void>;
+
+  // 114 Email campaigns (Admin › Email campaigns, lib/mailing)
+  /** The latest first; archived ones only with `archived`. */
+  listMailCampaigns(filter?: { archived?: boolean }): Promise<MailCampaign[]>;
+  getMailCampaign(id: string): Promise<MailCampaign | null>;
+  /** Adds or replaces it. */
+  saveMailCampaign(campaign: MailCampaign): Promise<void>;
+  /**
+   * Moves it to `patch.status` only while it's in one of `from`, so two runs
+   * (or two admins) never both start, finish or cancel it. False when it wasn't.
+   */
+  setMailCampaignStatus(
+    id: string,
+    from: MailCampaignStatus[],
+    patch: Partial<Pick<MailCampaign, "startedAt" | "finishedAt" | "recipients" | "scheduledAt" | "timeZone" | "updatedAt">> & { status: MailCampaignStatus },
+  ): Promise<boolean>;
+  /** Its recipients and their opens and clicks go with it. */
+  deleteMailCampaign(id: string): Promise<void>;
+  /** By name. */
+  listMailSegments(): Promise<MailSegment[]>;
+  saveMailSegment(segment: MailSegment): Promise<void>;
+  deleteMailSegment(id: string): Promise<void>;
+  /** The admin's own designs, the latest first. */
+  listMailTemplates(): Promise<MailTemplate[]>;
+  getMailTemplate(id: string): Promise<MailTemplate | null>;
+  saveMailTemplate(template: MailTemplate): Promise<void>;
+  deleteMailTemplate(id: string): Promise<void>;
+  /** Adds the addresses the campaign doesn't list yet (it never lists one twice). How many were added. */
+  addMailRecipients(rows: Omit<MailRecipient, "id">[]): Promise<number>;
+  getMailRecipient(id: number): Promise<MailRecipient | null>;
+  /** In the order they were listed. `query`: part of the address or name. */
+  listMailRecipients(campaignId: string, filter: { status?: MailRecipientStatus; query?: string; offset: number; limit: number }): Promise<{ items: MailRecipient[]; total: number }>;
+  countMailRecipients(campaignId: string): Promise<Record<MailRecipientStatus, number>>;
+  /**
+   * Takes for this run (`claim`) up to `limit` of the campaign's queued rows
+   * due by `now`, in order, marking them "sending" until `leaseUntil`. A row
+   * is taken by one run only, also when two run at once.
+   */
+  claimMailRecipients(campaignId: string, claim: string, limit: number, now: Date, leaseUntil: Date): Promise<MailRecipient[]>;
+  /** Writes how a taken row ended, only while it's still this run's. False when it isn't. */
+  finishMailRecipient(id: number, claim: string, patch: Pick<MailRecipient, "status" | "error" | "nextAttemptAt" | "sentAt" | "attempts">): Promise<boolean>;
+  /**
+   * Rows a run took and never finished by their lease's end (the run was
+   * lost): failed as "interrupted", never sent again, because they may have gone.
+   */
+  expireMailRecipientClaims(campaignId: string, now: Date): Promise<number>;
+  /** How many of its emails went since then (its rate). */
+  countMailSentSince(campaignId: string, since: Date): Promise<number>;
+  /** Its rows in these statuses become "skipped" with this reason (a cancelled campaign). */
+  skipMailRecipients(campaignId: string, statuses: MailRecipientStatus[], reason: string): Promise<number>;
+  addMailEvent(event: MailEvent): Promise<void>;
+  mailEventStats(campaignId: string): Promise<MailEventStats>;
+  /** Which of these addresses (lower case) are never to be mailed. */
+  listMailSuppressed(emails: string[]): Promise<string[]>;
+  getMailSuppression(email: string): Promise<MailSuppression | null>;
+  /** Keeps the first reason when the address is already there. */
+  suppressMail(suppression: MailSuppression): Promise<void>;
+  unsuppressMail(email: string): Promise<void>;
+  /** The latest first. */
+  listMailSuppressions(filter: { query?: string; offset: number; limit: number }): Promise<{ items: MailSuppression[]; total: number }>;
 }
