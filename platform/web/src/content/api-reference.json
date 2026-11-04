@@ -1337,7 +1337,28 @@
           "method": "POST",
           "path": "/me/complaints/{complaint_id}/photos",
           "summary": "Add a photo to a complaint",
-          "description": "JPEG, PNG or WebP up to 8 MB, at most 6 photos a complaint (`too_many_photos` (409)). Seen by support and, when support shares it, by the vendor.",
+          "description": "A photo sent with `/market/uploads` (JPEG, PNG or WebP up to 8 MB) joins an open complaint, at most 5 a complaint (`too_many_photos` (409); a closed complaint is `complaint_closed` (409)). Seen by support and, when support shares it, by the vendor.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/market/uploads",
+          "summary": "Start sending a complaint photo",
+          "description": "A photo (JPEG, PNG or WebP) up to 8 MB, by a customer with a complaint still open (`no_complaint` (403) otherwise), into the app's Media library (413 `storage_full` when its storage is full). Sent in chunks to `upload_url` as chat files are, then `/complete`, then added with `/me/complaints/{complaint_id}/photos`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/market/uploads/{upload_id}/resume",
+          "summary": "A fresh link to carry on with a complaint photo",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/market/uploads/{upload_id}/complete",
+          "summary": "Finish sending a complaint photo",
+          "description": "409 `incomplete` with the offset reached when part of the photo is missing.",
           "access": "signed-in"
         },
         {
@@ -1365,7 +1386,7 @@
           "method": "POST",
           "path": "/me/club",
           "summary": "Join the club",
-          "description": "Starts a membership on a plan, waiting for its payment (`pay_url`, card, Apple Pay or Google Pay on the gateway's page); it renews at the end of each period by the same payment until cancelled, and the customer is told 3 days before (`club_renewal`). `already_member` (409).",
+          "description": "Starts a membership on a plan, waiting for its payment (`pay_url`, card, Apple Pay or Google Pay on the gateway's page); the membership is active once the payment is confirmed. A new period is paid the same way, by joining again once the paid period ends, or by a cancelled member taking the same plan back. `already_member` (409) while a period is paid.",
           "access": "signed-in"
         },
         {
