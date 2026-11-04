@@ -74,6 +74,8 @@ export interface PriceInput {
   wallet?: number;
   /** Who takes the customer's money: the owner (online, or the app's courier's cash) or the vendor (cash to its own driver or at pick-up). */
   collectedBy: Funder;
+  /** 115.5 What the vendor pays the owner for the app's couriers on this order, besides its commission (lib/market/delivery.ts). */
+  courierCharge?: number;
 }
 
 export type PriceLineKind = "items" | "item_discounts" | "coupon" | "club" | "delivery" | "delivery_discount" | "tax" | "tip" | "wallet" | "total";
@@ -108,6 +110,8 @@ export interface OrderMoney {
 export interface Split {
   /** The vendor's commission to the owner. */
   commission: number;
+  /** 115.5 What the vendor pays the owner for the app's couriers (0 otherwise). Orders priced before 115.5 have none. */
+  courierCharge?: number;
   /** The part of the items' money that is the vendor's, after its commission and the discounts it pays, with its tax. */
   vendorEarns: number;
   /** The owner's part: commission, the app couriers' delivery, less the discounts the owner pays (it can be negative). Tips stay outside. */
@@ -215,10 +219,13 @@ function splitOrder(
   let vendorEarns = m.items - commission - (vendorPays ? coupon!.onItems : 0) + itemsTax;
   // Its own delivery: the whole fee, less a delivery coupon it pays (the club and the owner's coupons are the owner's to pay).
   if (input.deliveryBy === "vendor") vendorEarns += m.delivery - (vendorPays ? coupon!.onDelivery : 0) + deliveryTax;
+  // 115.5 The app's couriers: what the vendor pays the owner for them.
+  const courierCharge = input.deliveryBy === "app" ? Math.max(0, Math.round(input.courierCharge ?? 0)) : 0;
+  vendorEarns -= courierCharge;
   // Tips go to whoever carries the order: the vendor's driver, or the vendor at pick-up; the app's courier otherwise.
   const vendorTip = input.deliveryBy === "app" ? 0 : m.tip;
   const ownerEarns = m.total - m.tip - vendorEarns;
   // The collector holds what was paid now; the owner holds the wallet's part.
   const held = input.collectedBy === "vendor" ? m.payNow : 0;
-  return { commission, vendorEarns, ownerEarns, collectedBy: input.collectedBy, dueToVendor: vendorEarns + vendorTip - held };
+  return { commission, courierCharge, vendorEarns, ownerEarns, collectedBy: input.collectedBy, dueToVendor: vendorEarns + vendorTip - held };
 }

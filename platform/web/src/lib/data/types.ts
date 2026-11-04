@@ -3326,6 +3326,27 @@ export interface DeliverySettings {
   rides?: RidesSettings;
   /** 105.9 Live taxi apps: the map and the live database. */
   taxi?: TaxiSettings;
+  /** 115.5 Marketplace apps: the app's couriers' terms (lib/market/delivery.ts); absent: the Delivery prices above, no charge to vendors. */
+  market?: MarketCourierTerms;
+}
+
+/**
+ * 115.5 The app's couriers in a marketplace, as the owner sets them: what
+ * customers pay for delivery (the Delivery prices above, or a percentage of
+ * the items) and what a vendor that uses them pays the owner per order,
+ * besides its commission. Amounts in the currency's minor units.
+ */
+export interface MarketCourierTerms {
+  customerFee: "delivery_prices" | "percent";
+  /** For `percent`: of the items after discounts, never under `minFee` nor over `maxFee`. */
+  percent: number;
+  minFee: number;
+  maxFee: number | null;
+  /** Free delivery with the app's couriers from this items' total; null: never. */
+  freeOver: number | null;
+  /** The vendor's charge: none, a fixed amount, a percentage of the items, or an amount per km. */
+  vendorCharge: "none" | "fixed" | "percent" | "per_km";
+  vendorChargeValue: number;
 }
 
 /** 105.9 Whose map a live taxi app draws. */

@@ -59,7 +59,7 @@ export function foodStage(status: FoodOrderStatus, now: Date, by: FoodOrderStage
 const WEEK: OpeningPeriod["day"][] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 /** Each opening from `fromDate` for `days` days, as instants, soonest first; a period past midnight ends the next day. */
-function openings(hours: OpeningPeriod[], timezone: string, fromDate: string, days: number): { start: Date; end: Date }[] {
+export function openings(hours: OpeningPeriod[], timezone: string, fromDate: string, days: number): { start: Date; end: Date }[] {
   const out: { start: Date; end: Date }[] = [];
   for (let d = -1; d < days; d += 1) {
     const date = addDays(fromDate, d);
