@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { getStore } from "@/lib/data";
 import { sendAppMail } from "@/lib/email/send";
 import { CODE_MINUTES, endPanelSession, finishPanelSignIn, normalEmail, panelCookie, panelStaff, startPanelSignIn } from "@/lib/market/panel";
-import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelTab } from "@/lib/market/panel-pages";
+import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, IMPORT_MAX_BYTES, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelTab } from "@/lib/market/panel-pages";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
 import { safeFetcher } from "@/lib/net/safe-fetch";
 import { hitRateLimit } from "@/lib/rate-limit";
@@ -92,7 +92,7 @@ export async function importAction(appId: string, lang: string, form: FormData):
   const apply = form.get("apply") === "1";
   let result;
   if (!(file instanceof File) || file.size === 0) result = { ok: false as const, error: "Choose a file." };
-  else if (file.size > 30 * 1024 * 1024) result = { ok: false as const, error: "Files can be up to 30 MB." };
+  else if (file.size > IMPORT_MAX_BYTES) result = { ok: false as const, error: "Files can be up to 5 MB. Split a bigger catalog into several files." };
   else result = await importCatalog(ctx, { bytes: new Uint8Array(await file.arrayBuffer()), name: file.name, type: file.type }, apply, new Date());
   const small = result.ok ? { ...result, errors: result.errors.slice(0, 12).map((e) => ({ line: e.line, errors: e.errors.slice(0, 2).map((x) => x.slice(0, 80)) })) } : result;
   (await cookies()).set(`${panelCookie(appId)}_import`, JSON.stringify(small).slice(0, 3800), { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 120 });
