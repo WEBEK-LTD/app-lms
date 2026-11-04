@@ -978,3 +978,112 @@ class MarketCartInput {
     if (notes != null && notes.isNotEmpty) 'notes': notes,
   };
 }
+
+/// Why a customer complains about an order.
+enum ComplaintReason {
+  late,
+  missingItems,
+  wrongItems,
+  quality,
+  damaged,
+  notDelivered,
+  chargedWrong,
+  courier,
+  other,
+}
+
+enum ComplaintStatus { open, inReview, waitingForCustomer, resolved, rejected }
+
+/// `Complaint`: a customer's complaint on an order, with the messages
+/// between them and the app's support, and support's decision.
+class MarketComplaint {
+  const MarketComplaint({
+    required this.id,
+    required this.reference,
+    required this.orderId,
+    required this.reason,
+    required this.status,
+    required this.text,
+    required this.createdAt,
+    this.lineIds = const [],
+    this.photos = const [],
+    this.messages = const [],
+    this.decision,
+  });
+
+  factory MarketComplaint.fromJson(Json json) => MarketComplaint(
+    id: reqInt(json, 'id'),
+    reference: reqString(json, 'reference'),
+    orderId: reqInt(json, 'order_id'),
+    reason: enumFromSnake(
+      ComplaintReason.values,
+      json['reason'],
+      ComplaintReason.other,
+    ),
+    status: enumFromSnake(
+      ComplaintStatus.values,
+      json['status'],
+      ComplaintStatus.open,
+    ),
+    text: reqString(json, 'text'),
+    lineIds: [
+      for (final v in (json['line_ids'] as List?) ?? const [])
+        if (v is num) v.toInt(),
+    ],
+    photos: listOf(json, 'photos', (j) => reqString(j, 'url')),
+    messages: listOf(
+      json,
+      'messages',
+      (j) => (
+        fromSupport: j['from'] == 'support',
+        text: reqString(j, 'text'),
+        at: reqDate(j, 'at'),
+      ),
+    ),
+    decision: optObject(json, 'decision', ComplaintDecision.fromJson),
+    createdAt: reqDate(json, 'created_at'),
+  );
+
+  final int id;
+  final String reference;
+  final int orderId;
+  final ComplaintReason reason;
+  final ComplaintStatus status;
+  final String text;
+  final List<int> lineIds;
+  final List<String> photos;
+  final List<({bool fromSupport, String text, DateTime at})> messages;
+  final ComplaintDecision? decision;
+  final DateTime createdAt;
+
+  bool get closed =>
+      status == ComplaintStatus.resolved || status == ComplaintStatus.rejected;
+}
+
+/// Support's decision on a complaint.
+class ComplaintDecision {
+  const ComplaintDecision({
+    required this.outcome,
+    this.amount,
+    this.to,
+    this.couponCode,
+    this.reason,
+  });
+
+  factory ComplaintDecision.fromJson(Json json) => ComplaintDecision(
+    outcome: reqString(json, 'outcome'),
+    amount: optObject(json, 'amount', MarketMoney.fromJson),
+    to: optString(json, 'to'),
+    couponCode: optString(json, 'coupon_code'),
+    reason: optString(json, 'reason'),
+  );
+
+  /// refund, partial_refund, compensation or no_refund.
+  final String outcome;
+  final MarketMoney? amount;
+
+  /// payment, wallet or coupon.
+  final String? to;
+  final String? couponCode;
+  final String? reason;
+}

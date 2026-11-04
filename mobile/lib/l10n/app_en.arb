@@ -9663,5 +9663,187 @@
         "type": "String"
       }
     }
+  },
+  "marketReportProblem": "Report a problem",
+  "@marketReportProblem": {
+    "description": "115.9 Opens a complaint on an order."
+  },
+  "marketViewComplaint": "Your complaint",
+  "@marketViewComplaint": {
+    "description": "115.9 Opens the order's complaint."
+  },
+  "marketComplaintWindow": "You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.",
+  "@marketComplaintWindow": {
+    "description": "115.9 Above the complaint form."
+  },
+  "marketComplaintTitle": "Complaint {reference}",
+  "@marketComplaintTitle": {
+    "description": "115.9 A complaint's screen title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWhatHappened": "What happened?",
+  "@marketWhatHappened": {
+    "description": "115.9 The complaint's reason section."
+  },
+  "marketReasonLate": "It came late",
+  "@marketReasonLate": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonMissingItems": "Items were missing",
+  "@marketReasonMissingItems": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonWrongItems": "Wrong items",
+  "@marketReasonWrongItems": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonQuality": "The quality wasn't right",
+  "@marketReasonQuality": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonDamaged": "It arrived damaged",
+  "@marketReasonDamaged": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonNotDelivered": "It never arrived",
+  "@marketReasonNotDelivered": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonChargedWrong": "I was charged wrong",
+  "@marketReasonChargedWrong": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonCourier": "About the courier",
+  "@marketReasonCourier": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonOther": "Something else",
+  "@marketReasonOther": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketWhichItems": "Which items?",
+  "@marketWhichItems": {
+    "description": "115.9 The order's lines a complaint is about."
+  },
+  "marketTellUs": "Tell us what happened",
+  "@marketTellUs": {
+    "description": "115.9 The complaint's text field."
+  },
+  "marketTellUsMore": "Write at least a few words.",
+  "@marketTellUsMore": {
+    "description": "115.9 The complaint's text is too short."
+  },
+  "marketComplaintPhotos": "Photos ({count} of 5)",
+  "@marketComplaintPhotos": {
+    "description": "115.9 Photos added to a complaint.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketAddPhoto": "Add a photo",
+  "@marketAddPhoto": {
+    "description": "115.9 Adds a photo to a complaint."
+  },
+  "marketPhotoType": "Choose a JPEG, PNG or WebP photo up to 8 MB.",
+  "@marketPhotoType": {
+    "description": "115.9 A complaint photo of the wrong kind or too big."
+  },
+  "marketSendComplaint": "Send to support",
+  "@marketSendComplaint": {
+    "description": "115.9 Sends the complaint."
+  },
+  "marketComplaintSent": "Sent. Our support team will answer here.",
+  "@marketComplaintSent": {
+    "description": "115.9 After sending a complaint."
+  },
+  "marketComplaintOpen": "Sent",
+  "@marketComplaintOpen": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintInReview": "Being reviewed",
+  "@marketComplaintInReview": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintWaiting": "Waiting for your reply",
+  "@marketComplaintWaiting": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintResolved": "Resolved",
+  "@marketComplaintResolved": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintRejected": "Closed without a refund",
+  "@marketComplaintRejected": {
+    "description": "115.9 Complaint status."
+  },
+  "marketDecisionRefund": "Refunded {amount}",
+  "@marketDecisionRefund": {
+    "description": "115.9 Support's decision: a full refund.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionPartial": "Partly refunded: {amount}",
+  "@marketDecisionPartial": {
+    "description": "115.9 Support's decision: a partial refund.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionCompensation": "Compensation: {amount}",
+  "@marketDecisionCompensation": {
+    "description": "115.9 Support's decision: compensation.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionNone": "No refund",
+  "@marketDecisionNone": {
+    "description": "115.9 Support's decision: no refund."
+  },
+  "marketDecisionToPayment": "Back to how you paid",
+  "@marketDecisionToPayment": {
+    "description": "115.9 Where the refund went."
+  },
+  "marketDecisionToWallet": "Added to your wallet",
+  "@marketDecisionToWallet": {
+    "description": "115.9 Where the refund went."
+  },
+  "marketDecisionToCoupon": "As a coupon: {code}",
+  "@marketDecisionToCoupon": {
+    "description": "115.9 Where the refund went: a coupon code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWriteToSupport": "Write to support",
+  "@marketWriteToSupport": {
+    "description": "115.9 The message field on a complaint."
+  },
+  "marketSupport": "Support",
+  "@marketSupport": {
+    "description": "115.9 A message from the app's support."
+  },
+  "marketYou": "You",
+  "@marketYou": {
+    "description": "115.9 A message from the customer."
+  },
+  "marketComplaintClosed": "This complaint is closed.",
+  "@marketComplaintClosed": {
+    "description": "115.9 A closed complaint, no more messages."
   }
 }

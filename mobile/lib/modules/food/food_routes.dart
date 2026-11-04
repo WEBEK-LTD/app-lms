@@ -8,6 +8,7 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../delivery/screens/courier_job_screen.dart';
 import '../market/screens/market_checkout_screen.dart';
+import '../market/screens/market_complaint_screens.dart';
 import '../market/screens/market_order_screen.dart';
 import '../market/screens/market_orders_screen.dart';
 import '../market/screens/market_vendor_screen.dart';
@@ -138,6 +139,11 @@ List<RouteBase> _pushedRoutes() => [
     pageBuilder: (context, state) => appPage(state, const MarketOrdersScreen()),
   ),
   _byId('/market-order/:id', (id) => MarketOrderScreen(orderId: id)),
+  _byId('/market-complain/:id', (id) => MarketNewComplaintScreen(orderId: id)),
+  _byId(
+    '/market-complaint/:id',
+    (id) => MarketComplaintScreen(complaintId: id),
+  ),
   // 115 A marketplace vendor's page.
   GoRoute(
     path: '/market/:id',
