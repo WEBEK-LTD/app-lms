@@ -16178,7 +16178,11 @@ components:
         id: { type: integer }
         name: { type: string }
         description: { type: [string, 'null'] }
-        image_url: { type: [string, 'null'], format: uri }
+        image_url: { type: [string, 'null'], format: uri, description: 'The main photo. While the app requires photos (the default), every product customers see has one.' }
+        images:
+          type: array
+          description: 'All the photos, the main one first (a dish has at most one). Added in 115; may be missing from older servers.'
+          items: { type: string, format: uri }
         brand: { type: [string, 'null'] }
         price: { $ref: '#/components/schemas/Money' }
         was_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'Before its discount, struck through.' }

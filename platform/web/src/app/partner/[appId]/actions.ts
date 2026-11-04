@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { getStore } from "@/lib/data";
 import { sendAppMail } from "@/lib/email/send";
 import { CODE_MINUTES, endPanelSession, finishPanelSignIn, normalEmail, panelCookie, panelStaff, startPanelSignIn } from "@/lib/market/panel";
-import { addStaff, can, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, type PanelTab } from "@/lib/market/panel-pages";
+import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelTab } from "@/lib/market/panel-pages";
+import type { BulkPhotoOutcome } from "@/lib/market/photos";
+import { safeFetcher } from "@/lib/net/safe-fetch";
 import { hitRateLimit } from "@/lib/rate-limit";
 
 /** 115.7 The vendors' panel sign-in: an emailed code, then a session cookie for this app only. */
@@ -117,4 +119,41 @@ export async function toggleStaffAction(appId: string, lang: string, form: FormD
   const ctx = await withPanel(appId, "staff");
   if (ctx) await setStaffActive(ctx, Number(form.get("id")), form.get("active") === "1", new Date());
   redirect(back(appId, "staff", lang));
+}
+
+// 115 Products' photos: one at a time from Menu & stock, in bulk and from picture links on the Import page.
+
+export async function uploadPhotoAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "catalog");
+  const page = form.get("page") ? `&page=${form.get("page")}` : "";
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const file = form.get("photo");
+  const as = form.get("as") === "extra" ? "extra" : "main";
+  let error: string | null = null;
+  if (!(file instanceof File) || file.size === 0) error = "Choose a photo.";
+  else {
+    const added = await uploadPhoto(ctx, Number(form.get("id")), new Uint8Array(await file.arrayBuffer()), as, new Date());
+    if (!added.ok) error = added.error;
+  }
+  redirect(back(appId, "catalog", lang, `${page}${error ? `&photo_error=${encodeURIComponent(error)}&photo_id=${Number(form.get("id"))}` : ""}`));
+}
+
+export async function removePhotoAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "catalog");
+  if (ctx) await deletePhoto(ctx, Number(form.get("id")), String(form.get("asset") ?? ""), new Date());
+  redirect(back(appId, "catalog", lang, form.get("page") ? `&page=${form.get("page")}` : ""));
+}
+
+/** A few bulk photos (the browser sends a ZIP's pictures or the chosen files in small batches). */
+export async function bulkPhotosAction(appId: string, form: FormData): Promise<BulkPhotoOutcome[] | { error: string }> {
+  const ctx = await withPanel(appId, "import");
+  if (!ctx) return { error: "Sign in again." };
+  const files = form.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0).slice(0, 20);
+  return bulkPhotos(ctx, await Promise.all(files.map(async (f) => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) }))), new Date());
+}
+
+export async function fetchLinksAction(appId: string): Promise<{ fetched: number; failed: number; left: number } | { error: string }> {
+  const ctx = await withPanel(appId, "import");
+  if (!ctx) return { error: "Sign in again." };
+  return fetchLinksNow(ctx, safeFetcher());
 }

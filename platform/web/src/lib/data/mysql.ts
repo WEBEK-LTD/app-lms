@@ -5059,6 +5059,8 @@ export class MysqlStore implements DataStore {
       query.departmentId === undefined ? undefined : eq(t.departmentId, query.departmentId),
       query.aisleId === undefined ? undefined : eq(t.aisleId, query.aisleId),
       query.outOfStock === undefined ? undefined : eq(t.inStock, !query.outOfStock),
+      query.withPhoto ? isNotNull(t.imageAssetId) : undefined,
+      query.withoutPhoto ? isNull(t.imageAssetId) : undefined,
       code ? or(eq(t.barcode, code), eq(t.sku, code)) : undefined,
       q ? or(like(t.name, pattern), like(t.brand, pattern), like(t.description, pattern)) : undefined,
     );
@@ -5075,6 +5077,18 @@ export class MysqlStore implements DataStore {
       this.run((db) => db.select({ n: count() }).from(t).where(where)),
     ]);
     return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]> {
+    const t = schema.marketProducts;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(isNull(t.imageAssetId), isNull(t.photoError), isNotNull(t.imageUrl), only ? and(eq(t.appId, only.appId), eq(t.vendorId, only.vendorId)) : undefined))
+        .orderBy(asc(t.id))
+        .limit(limit),
+    );
   }
 
   async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {

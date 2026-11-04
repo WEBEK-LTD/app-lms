@@ -1216,6 +1216,8 @@ export interface DataStore {
   /** In stock first, then the vendor's order; `q` searches names, brands and descriptions, `code` a barcode or SKU. */
   listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }>;
   getMarketProduct(appId: string, id: number): Promise<MarketProduct | null>;
+  /** 115 Products whose picture link is still to be fetched into a photo (none fetched, no error), oldest first. */
+  listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]>;
   createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }>;
   updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }>;
   deleteMarketProduct(appId: string, id: number): Promise<void>;

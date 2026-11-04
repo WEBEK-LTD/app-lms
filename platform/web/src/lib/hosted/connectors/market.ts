@@ -4,7 +4,7 @@ import { payUrlFor } from "../../delivery/payment";
 import { courierWho } from "../../delivery/service";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
-import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantStaff, VendorRole } from "../../data/types";
+import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantStaff, VendorRole } from "../../data/types";
 import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
@@ -54,6 +54,7 @@ import {
 import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemCoupon } from "../../market/offers";
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
+import { photosRequired } from "../../market/photos";
 import { parseAnyPhone } from "../phone";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
@@ -295,13 +296,14 @@ export class MarketConnector {
       this.deps.store.listMarketCoupons(this.deps.app.id, { active: true }),
     ]);
     const near = this.near(v, settings, this.position(request.query), request.now, offers.get(v.id) ?? offers.get(null) ?? null, club);
+    const needPhoto = photosRequired(marketSettingsOf(settings));
     const visible = coupons.filter((c) => (!c.vendorIds.length || c.vendorIds.includes(v.id)) && (!c.vendorKinds.length || c.vendorKinds.includes(v.kind ?? "restaurant")) && (!c.endsAt || c.endsAt > request.now));
     const body = vendorJson(
       v,
       near,
       {
         currency,
-        menu: menu ?? EMPTY_MENU,
+        menu: needPhoto ? withPhotosOnly(menu ?? EMPTY_MENU) : (menu ?? EMPTY_MENU),
         departments: departments.sort((a, b) => a.position - b.position).map((d) => ({ id: d.id, name: d.name, imageAssetId: d.imageAssetId, aisles: aisles.filter((a) => a.departmentId === d.id).sort((a, b) => a.position - b.position).map((a) => ({ id: a.id, name: a.name })) })),
         offers: visible,
         pickupOrder: false,
@@ -317,11 +319,13 @@ export class MarketConnector {
     const q = request.query;
     const page = intParam(q, "page", 1, 100_000);
     const perPage = intParam(q, "per_page", 20, 50);
-    const currency = marketCurrency(await this.settings());
+    const settings = await this.settings();
+    const currency = marketCurrency(settings);
+    const needPhoto = photosRequired(marketSettingsOf(settings));
     if ((v.kind ?? "restaurant") === "restaurant") {
       const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, v.id)) ?? EMPTY_MENU;
       const text = (q.get("q") ?? "").trim().toLowerCase();
-      const dishes = menu.sections.flatMap((s) => s.dishes).filter((d) => !text || d.name.toLowerCase().includes(text));
+      const dishes = menu.sections.flatMap((s) => s.dishes).filter((d) => (!text || d.name.toLowerCase().includes(text)) && (!needPhoto || d.imageAssetId));
       const items = dishes.slice((page - 1) * perPage, page * perPage).map((d) => dishJson(d, currency, this.deps.assetUrl));
       return { status: 200, body: { page, per_page: perPage, total: dishes.length, total_pages: Math.max(1, Math.ceil(dishes.length / perPage)), items } };
     }
@@ -334,6 +338,7 @@ export class MarketConnector {
       ...(Number.isInteger(aisle) && aisle > 0 ? { aisleId: aisle } : {}),
       ...(q.get("q") ? { q: q.get("q")!.trim().slice(0, 80) } : {}),
       ...(q.get("barcode") ? { code: q.get("barcode")!.trim().slice(0, 64) } : {}),
+      ...(needPhoto ? { withPhoto: true } : {}),
       page,
       perPage,
     });
@@ -350,6 +355,7 @@ export class MarketConnector {
     const [all, offers, club] = await Promise.all([this.deps.store.listRestaurants(this.deps.app.id), this.offerWords(currency), this.clubWords()]);
     const active = all.filter((v) => v.active && (!kind || (v.kind ?? "restaurant") === kind));
     const lower = text.toLowerCase();
+    const needPhoto = photosRequired(marketSettingsOf(settings));
     const summary = (v: Restaurant) => vendorSummaryJson(v, this.near(v, settings, at, request.now, offers.get(v.id) ?? offers.get(null) ?? null, club), currency, this.deps.assetUrl);
     const vendors = active.filter((v) => v.name.toLowerCase().includes(lower)).slice(0, 20).map(summary);
     const items: { vendor: ReturnType<typeof summary>; product: unknown }[] = [];
@@ -357,9 +363,9 @@ export class MarketConnector {
       if (items.length >= 30) break;
       if ((v.kind ?? "restaurant") === "restaurant") {
         const menu = (await this.deps.store.getRestaurantMenu(this.deps.app.id, v.id)) ?? EMPTY_MENU;
-        for (const d of menu.sections.flatMap((s) => s.dishes).filter((d) => d.name.toLowerCase().includes(lower)).slice(0, 3)) items.push({ vendor: summary(v), product: dishJson(d, currency, this.deps.assetUrl) });
+        for (const d of menu.sections.flatMap((s) => s.dishes).filter((d) => d.name.toLowerCase().includes(lower) && (!needPhoto || d.imageAssetId)).slice(0, 3)) items.push({ vendor: summary(v), product: dishJson(d, currency, this.deps.assetUrl) });
       } else {
-        const found = await this.deps.store.listMarketProducts({ appId: this.deps.app.id, vendorId: v.id, q: text, page: 1, perPage: 3 });
+        const found = await this.deps.store.listMarketProducts({ appId: this.deps.app.id, vendorId: v.id, q: text, ...(needPhoto ? { withPhoto: true } : {}), page: 1, perPage: 3 });
         for (const p of found.items) items.push({ vendor: summary(v), product: productJson(p, currency, this.deps.assetUrl) });
       }
     }
@@ -1017,4 +1023,9 @@ export class MarketConnector {
     await this.deps.store.updateMarketProduct(this.deps.app.id, product.id, patch, request.now);
     return { status: 200, body: productJson({ ...product, ...patch }, currency, this.deps.assetUrl) };
   }
+}
+
+/** 115 The menu as customers see it while photos are required: dishes without their photo left out. */
+function withPhotosOnly(menu: RestaurantMenu): RestaurantMenu {
+  return { ...menu, sections: menu.sections.map((sec) => ({ ...sec, dishes: sec.dishes.filter((d) => d.imageAssetId) })).filter((sec) => sec.dishes.length > 0) };
 }

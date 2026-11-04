@@ -16,6 +16,7 @@ import type {
 import { restaurantRating } from "../food/service";
 import { currencyDecimals, formatMinor, fromMinor } from "./currency";
 import { vendorDelivery } from "./delivery";
+import { productPhotos } from "./photos";
 import type { OrderMoney, PriceLineKind } from "./money";
 
 /**
@@ -104,7 +105,9 @@ export function productJson(p: MarketProduct, currency: string, assetUrl: AssetU
     id: p.id,
     name: p.name,
     description: p.description,
-    image_url: p.imageAssetId ? assetUrl(p.imageAssetId) : p.imageUrl,
+    // 115 Uploaded photos only: a picture link from an import is fetched into a photo first (lib/market/photos.ts).
+    image_url: p.imageAssetId ? assetUrl(p.imageAssetId) : null,
+    images: productPhotos(p).map(assetUrl),
     brand: p.brand,
     price: money(p.price, currency),
     was_price: p.wasPrice !== null && p.wasPrice > p.price ? money(p.wasPrice, currency) : null,
@@ -124,6 +127,7 @@ export function dishJson(d: Dish, currency: string, assetUrl: AssetUrl) {
     name: d.name,
     description: d.description,
     image_url: d.imageAssetId ? assetUrl(d.imageAssetId) : null,
+    images: d.imageAssetId ? [assetUrl(d.imageAssetId)] : [],
     brand: null,
     price: money(d.priceCents, currency),
     was_price: null,
