@@ -296,7 +296,7 @@ void main() {
         expect(shop.area, 'Maadi');
 
         final products = await api.listMarketProducts(9, department: 2);
-        expect(products.items.single.unit, MarketUnit.kg);
+        expect(products.items.single.unit, ProductUnit.kg);
         expect(
           server.requests.last.path,
           endsWith('/market/vendors/9/products'),

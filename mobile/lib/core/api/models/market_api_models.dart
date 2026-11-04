@@ -11,7 +11,7 @@ enum VendorKind { restaurant, grocery, shop }
 /// vendor's own drivers, followed by stages.
 enum VendorDelivery { app, vendor }
 
-enum MarketUnit { item, kg, g, l }
+enum ProductUnit { item, kg, g, l }
 
 enum MarketCouponKind { percent, amount, freeDelivery }
 
@@ -405,7 +405,7 @@ class MarketProduct {
     this.imageUrl,
     this.brand,
     this.wasPrice,
-    this.unit = MarketUnit.item,
+    this.unit = ProductUnit.item,
     this.step = 1,
     this.maxQuantity,
     this.inStock = true,
@@ -421,7 +421,7 @@ class MarketProduct {
     brand: optString(json, 'brand'),
     price: MarketMoney.fromJson(asJson(json['price'], 'price')),
     wasPrice: optObject(json, 'was_price', MarketMoney.fromJson),
-    unit: enumFrom(MarketUnit.values, json['unit'], MarketUnit.item),
+    unit: enumFrom(ProductUnit.values, json['unit'], ProductUnit.item),
     step: optDouble(json, 'step') ?? 1,
     maxQuantity: optDouble(json, 'max_quantity'),
     inStock: boolOr(json, 'in_stock', true),
@@ -438,7 +438,7 @@ class MarketProduct {
   /// For one item, or per `unit` (kilogram, gram, litre).
   final MarketMoney price;
   final MarketMoney? wasPrice;
-  final MarketUnit unit;
+  final ProductUnit unit;
 
   /// The amount added each time: 1 for items, 0.25 for a quarter kilo.
   final double step;
@@ -449,7 +449,7 @@ class MarketProduct {
   /// spicy, vegetarian, vegan, new, popular, organic, frozen, age_restricted.
   final List<String> tags;
 
-  bool get byWeight => unit != MarketUnit.item;
+  bool get byWeight => unit != ProductUnit.item;
 }
 
 /// `MarketCoupon`: an offer or a coupon the customer can use.
