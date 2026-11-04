@@ -296,8 +296,11 @@ export function Builder({
                         }
                         if (e.key === "Delete" || e.key === "Backspace") remove({ i });
                       }}
+                      title={isSel ? undefined : `${BLOCK_INFO[block.type].label}: click to change it, drag to move it`}
                       className={`group relative cursor-pointer outline-offset-[-2px] ${isSel ? "outline-2 outline-ember outline" : "hover:outline-2 hover:outline-dashed hover:outline-[#FF5A1F80]"}`}
                     >
+                      {/* The chosen block's bar takes its own room above the block, so it never covers the email. */}
+                      {isSel ? <BlockBar label={BLOCK_INFO[block.type].label} onUp={() => nudge({ i }, -1)} onDown={() => nudge({ i }, 1)} onCopy={() => duplicate({ i })} onDelete={() => remove({ i })} first={i === 0} last={i === blocks.length - 1} /> : null}
                       {block.type === "columns" ? (
                         <Columns
                           block={block}
@@ -319,11 +322,6 @@ export function Builder({
                       ) : (
                         <div className="pointer-events-none select-none" dangerouslySetInnerHTML={{ __html: canvasHtml.get(block.id) ?? "" }} />
                       )}
-                      <span className={`absolute -top-3 start-3 z-20 items-center gap-1 rounded-md bg-ember px-2 py-0.5 text-[11px] font-bold text-[#0E0D24] shadow-sm ${isSel ? "flex" : "hidden group-hover:flex"}`}>
-                        <Icon name="drag_indicator" size={14} />
-                        {BLOCK_INFO[block.type].label}
-                      </span>
-                      {isSel ? <BlockTools onUp={() => nudge({ i }, -1)} onDown={() => nudge({ i }, 1)} onCopy={() => duplicate({ i })} onDelete={() => remove({ i })} first={i === 0} last={i === blocks.length - 1} /> : null}
                     </div>
                   </div>
                 );
@@ -372,14 +370,20 @@ function DropLine({ active }: { active: boolean }) {
   return <div aria-hidden="true" className={`mx-4 rounded-full transition-all ${active ? "my-1 h-1 bg-ember" : "h-0"}`} />;
 }
 
-function BlockTools({ onUp, onDown, onCopy, onDelete, first, last }: { onUp: () => void; onDown: () => void; onCopy: () => void; onDelete: () => void; first: boolean; last: boolean }) {
+function BlockBar({ label, onUp, onDown, onCopy, onDelete, first, last }: { label: string; onUp: () => void; onDown: () => void; onCopy: () => void; onDelete: () => void; first: boolean; last: boolean }) {
   return (
-    <span className="absolute -top-4 end-3 z-20 flex gap-1 rounded-[10px] bg-white p-0.5 shadow-[0_4px_14px_rgba(14,13,36,0.18)]" onClick={(e) => e.stopPropagation()}>
-      <SmallButton icon="arrow_upward" label="Up" onClick={onUp} disabled={first} />
-      <SmallButton icon="arrow_downward" label="Down" onClick={onDown} disabled={last} />
-      <SmallButton icon="content_copy" label="Duplicate" onClick={onCopy} />
-      <SmallButton icon="delete" label="Delete" tone="danger" onClick={onDelete} />
-    </span>
+    <div className="flex items-center justify-between gap-2 bg-ember px-2 py-1" data-testid="block-bar" onClick={(e) => e.stopPropagation()}>
+      <span className="inline-flex items-center gap-1 text-[12px] font-bold text-[#0E0D24]">
+        <Icon name="drag_indicator" size={16} />
+        {label}
+      </span>
+      <span className="flex gap-1">
+        <SmallButton icon="arrow_upward" label="Up" onClick={onUp} disabled={first} />
+        <SmallButton icon="arrow_downward" label="Down" onClick={onDown} disabled={last} />
+        <SmallButton icon="content_copy" label="Duplicate" onClick={onCopy} />
+        <SmallButton icon="delete" label="Delete" tone="danger" onClick={onDelete} />
+      </span>
+    </div>
   );
 }
 
