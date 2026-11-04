@@ -15,7 +15,7 @@ import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
 import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE, RIDES_DEMO_DRIVERS, TAXI_DEMO_DRIVERS, TAXI_DEMO_TYPES } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
-import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
+import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
 import { connectorFor } from "@/lib/hosted/connectors";
@@ -226,7 +226,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     const taxi = second.apps.find((a) => a.type === "taxi")!.appId;
     expect(await store.listCouriers(taxi)).toHaveLength(TAXI_DEMO_DRIVERS.length);
     const school = second.apps.find((a) => a.type === "school")!.appId;
-    expect(await store.listSchoolPeople(school)).toHaveLength(SCHOOL_TEACHERS.length + SCHOOL_CLASSES.reduce((n, c) => n + c.students.length, 0) + 1);
+    // The teachers, the staff, the students and two parents.
+    expect(await store.listSchoolPeople(school)).toHaveLength(SCHOOL_TEACHERS.length + SCHOOL_STAFF.length + SCHOOL_CLASSES.reduce((n, c) => n + c.students.length, 0) + 2);
     expect(await store.listSchoolHomework(school)).toHaveLength(SCHOOL_HOMEWORK.length);
     expect(await store.listSchoolFees(school)).toHaveLength(4);
     const academy = second.apps.find((a) => a.type === "instructors")!.appId;
@@ -455,7 +456,7 @@ describe("signing in to a demo app", () => {
     // 113.10 Ms. Mona also drives the school's bus.
     expect(roles).toEqual(["student", "parent", "teacher", "bus"]);
     const me = (await go("GET", "/school/me", undefined, token)).body as { name: string; students: { id: number; name: string; class_name: string }[] };
-    // 113.10 Lina rides Route 1; 113.11 she has Charlotte's Web out.
+    // 113.10 Lina rides Route 1; 113.11 she has Charlotte's Web out, Adam is late with Kalila wa Dimna.
     const bus = (await go("GET", `/school/students/${me.students[0]!.id}/bus`, undefined, token)).body as { items: { trip: string; stop: { name: string } }[] };
     expect(bus.items.map((t) => [t.trip, t.stop.name])).toEqual([
       ["morning", "Road 9, Maadi"],
@@ -463,7 +464,10 @@ describe("signing in to a demo app", () => {
     ]);
     expect(((await go("GET", "/school/bus/routes", undefined, token)).body as { items: { name: string; drives: boolean }[] }).items).toEqual([expect.objectContaining({ name: "Route 1, Maadi", drives: true })]);
     const loans = (await go("GET", "/school/library/loans", undefined, token)).body as { current: { book: { title: string }; person: { name: string } }[] };
-    expect(loans.current.map((l) => [l.book.title, l.person.name])).toEqual([["Charlotte's Web", "Lina Haddad"]]);
+    expect(loans.current.map((l) => [l.book.title, l.person.name]).sort()).toEqual([
+      ["Charlotte's Web", "Lina Haddad"],
+      ["Kalila wa Dimna", "Adam Haddad"],
+    ]);
     expect(me.name).toBe("Rania Haddad");
     expect(me.students.map((s) => [s.name, s.class_name])).toEqual([
       ["Lina Haddad", "Grade 5 A"],

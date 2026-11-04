@@ -5,9 +5,10 @@ import type { SchoolPeople } from "./school";
 
 /**
  * 113.4 Nakhla School's parent's area, for Studio's school demo: a
- * permission slip for Grade 5 A that Rania hasn't signed yet, Lina's
- * pick-up list, and Adam's excused day last week. Made again when the demo
- * is set up.
+ * permission slip for Grade 5 A that Rania hasn't signed yet and one for
+ * the whole school she signed, Lina's pick-up list with today's note (her
+ * grandfather picks her up), and Adam's excused day last week. Made again
+ * each school day, so a visitor's answers go with it.
  */
 export async function syncSchoolParentArea(store: DataStore, app: Pick<App, "id">, people: SchoolPeople, now: Date): Promise<void> {
   const today = utcToLocal(now, "Africa/Cairo").date;
@@ -22,7 +23,16 @@ export async function syncSchoolParentArea(store: DataStore, app: Pick<App, "id"
       now,
     );
   }
+  const school = await store.saveSchoolSlip(
+    { id: null, appId: app.id, title: "Sports day photos", details: "The school would like to take photos on sports day for the school's page and the yearbook.", dueOn: addDays(today, 3), feeNote: null, audience: "school", grade: null, classId: null },
+    now,
+  );
+  if (school && rania) {
+    for (const child of [lina, adam]) if (child) await store.saveSchoolSlipAnswer({ appId: app.id, slipId: school.id, studentId: child.id, answer: "yes", signedName: "Rania Haddad", parentId: rania.id, answeredAt: new Date(now.getTime() - 20 * 3_600_000) });
+  }
   if (lina) {
+    for (const note of await store.listSchoolPickupNotes(app.id, { studentId: lina.id })) await store.deleteSchoolPickupNote(app.id, lina.id, note.date);
+    await store.saveSchoolPickupNote({ appId: app.id, studentId: lina.id, date: today, name: "Samir Haddad", relation: "Grandfather", phone: "+20 122 555 0101", note: "I have a meeting until 15:00.", writtenBy: "Rania Haddad", createdAt: now });
     await store.saveSchoolPickup({
       appId: app.id,
       studentId: lina.id,
