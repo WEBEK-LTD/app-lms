@@ -604,9 +604,9 @@ export const tr: Messages = {
     defaultTitle: "Yallapp: mağazanız, okulunuz veya kurye şirketiniz için uygulama",
     defaultDescription: "Mağaza, okul, akademi, restoran, klinik, kurye ve taksi işletmeleri için markanızı taşıyan uygulama; Google Play, App Store, Galaxy Store ve AppGallery'de.",
     solutionsTitle: "Çözümler",
-    solutionsDescription: "Akademi, mağaza, restoran, klinik, spor salonu, emlak, haber, etkinlik ve yardım kuruluşları için web siteli ya da sitesiz markalı uygulamalar.",
+    solutionsDescription: "Yallapp uygulama oluşturucu: akademi, mağaza, restoran, klinik, spor salonu, emlak, haber, etkinlik ve yardım kuruluşları için markalı uygulamalar.",
     featuresTitle: "Özellikler",
-    featuresDescription: "Markanız, sayfa düzenleyici, Türkçe, İngilizce ve Arapça, kodla giriş, bildirimler, kartla ödeme, kurye ve sürücüler için canlı harita ve okul araçları.",
+    featuresDescription: "Yallapp mobil uygulama oluşturucu özellikleri: markanız, sayfa düzenleyici, üç dil, kodla giriş, bildirimler, kartla ödeme ve canlı harita.",
     integrationsTitle: "Entegrasyonlar",
     integrationsDescription:
       "Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress ve LatePoint ile WordPress; Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific, SimplyBook.me; kendi API'niz; ya da web sitesi olmadan.",
@@ -614,7 +614,7 @@ export const tr: Messages = {
     howDescription:
       "Web sitenizle, bir çevrimiçi platformla, kendi API'nizle ya da hiç web sitesi olmadan; kayıttan Google Play, App Store, Galaxy Store, AppGallery ve GetApps'e {count} adımda.",
     pricingTitle: "Fiyatlar",
-    pricingDescription: "Uygulamanız için dört paket: Starter, Growth, Pro ve Business; beş uygulama mağazasında uygulamalar, bildirimler, kartla ödeme ve sizin için yayın.",
+    pricingDescription: "Yallapp paketleri: Starter, Growth, Pro ve Business; beş uygulama mağazasında uygulamalar, bildirimler, kartla ödeme ve sizin için yayın.",
     demoTitle: "Bir demo uygulama deneyin",
     demoDescription: "Android telefonunuza örnek içerikli gerçek bir Yallapp uygulaması kurun: akademi, mağaza, kafe, klinik, spor salonu, emlak, haber, etkinlik ya da yardım.",
     contactTitle: "İletişim",

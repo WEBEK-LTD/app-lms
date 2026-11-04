@@ -3,6 +3,7 @@ import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
 import { legalLine } from "@/lib/company";
 import { PRODUCT_LINKS, siteNavFor, type SitePage } from "@/lib/site-nav";
+import { COMPARE_TEXT } from "@/lib/compare";
 import { APP_STORES } from "@/lib/stores";
 import { DEFAULT_LANG, formatMessage, messagesFor, type Lang, type Messages } from "@/i18n";
 import { localePath } from "@/i18n/paths";
@@ -107,6 +108,7 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
             <Link href={lp("/docs/xiaomi-getapps")} className={footerLink}>{f.getApps}</Link>
             <Link href={lp("/developers")} className={footerLink}>{m.nav.developers}</Link>
             <Link href={lp("/faq")} className={footerLink}>{m.nav.faq}</Link>
+            <Link href={lp("/compare")} className={footerLink}>{COMPARE_TEXT[lang].nav}</Link>
           </nav>
           <nav aria-label={lang === "en" ? "Account" : f.account} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>{f.account}</FooterHeading>
