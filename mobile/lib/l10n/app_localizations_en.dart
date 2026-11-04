@@ -8774,4 +8774,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketReadyAt(String time) {
     return 'Ready around $time';
   }
+
+  @override
+  String get marketReportProblem => 'Report a problem';
+
+  @override
+  String get marketViewComplaint => 'Your complaint';
+
+  @override
+  String get marketComplaintWindow =>
+      'You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.';
+
+  @override
+  String marketComplaintTitle(String reference) {
+    return 'Complaint $reference';
+  }
+
+  @override
+  String get marketWhatHappened => 'What happened?';
+
+  @override
+  String get marketReasonLate => 'It came late';
+
+  @override
+  String get marketReasonMissingItems => 'Items were missing';
+
+  @override
+  String get marketReasonWrongItems => 'Wrong items';
+
+  @override
+  String get marketReasonQuality => 'The quality wasn\'t right';
+
+  @override
+  String get marketReasonDamaged => 'It arrived damaged';
+
+  @override
+  String get marketReasonNotDelivered => 'It never arrived';
+
+  @override
+  String get marketReasonChargedWrong => 'I was charged wrong';
+
+  @override
+  String get marketReasonCourier => 'About the courier';
+
+  @override
+  String get marketReasonOther => 'Something else';
+
+  @override
+  String get marketWhichItems => 'Which items?';
+
+  @override
+  String get marketTellUs => 'Tell us what happened';
+
+  @override
+  String get marketTellUsMore => 'Write at least a few words.';
+
+  @override
+  String marketComplaintPhotos(int count) {
+    return 'Photos ($count of 5)';
+  }
+
+  @override
+  String get marketAddPhoto => 'Add a photo';
+
+  @override
+  String get marketPhotoType => 'Choose a JPEG, PNG or WebP photo up to 8 MB.';
+
+  @override
+  String get marketSendComplaint => 'Send to support';
+
+  @override
+  String get marketComplaintSent => 'Sent. Our support team will answer here.';
+
+  @override
+  String get marketComplaintOpen => 'Sent';
+
+  @override
+  String get marketComplaintInReview => 'Being reviewed';
+
+  @override
+  String get marketComplaintWaiting => 'Waiting for your reply';
+
+  @override
+  String get marketComplaintResolved => 'Resolved';
+
+  @override
+  String get marketComplaintRejected => 'Closed without a refund';
+
+  @override
+  String marketDecisionRefund(String amount) {
+    return 'Refunded $amount';
+  }
+
+  @override
+  String marketDecisionPartial(String amount) {
+    return 'Partly refunded: $amount';
+  }
+
+  @override
+  String marketDecisionCompensation(String amount) {
+    return 'Compensation: $amount';
+  }
+
+  @override
+  String get marketDecisionNone => 'No refund';
+
+  @override
+  String get marketDecisionToPayment => 'Back to how you paid';
+
+  @override
+  String get marketDecisionToWallet => 'Added to your wallet';
+
+  @override
+  String marketDecisionToCoupon(String code) {
+    return 'As a coupon: $code';
+  }
+
+  @override
+  String get marketWriteToSupport => 'Write to support';
+
+  @override
+  String get marketSupport => 'Support';
+
+  @override
+  String get marketYou => 'You';
+
+  @override
+  String get marketComplaintClosed => 'This complaint is closed.';
 }

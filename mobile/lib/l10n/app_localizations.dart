@@ -14371,6 +14371,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ready around {time}'**
   String marketReadyAt(String time);
+
+  /// 115.9 Opens a complaint on an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get marketReportProblem;
+
+  /// 115.9 Opens the order's complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your complaint'**
+  String get marketViewComplaint;
+
+  /// 115.9 Above the complaint form.
+  ///
+  /// In en, this message translates to:
+  /// **'You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.'**
+  String get marketComplaintWindow;
+
+  /// 115.9 A complaint's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint {reference}'**
+  String marketComplaintTitle(String reference);
+
+  /// 115.9 The complaint's reason section.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened?'**
+  String get marketWhatHappened;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It came late'**
+  String get marketReasonLate;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Items were missing'**
+  String get marketReasonMissingItems;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong items'**
+  String get marketReasonWrongItems;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The quality wasn\'t right'**
+  String get marketReasonQuality;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It arrived damaged'**
+  String get marketReasonDamaged;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It never arrived'**
+  String get marketReasonNotDelivered;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'I was charged wrong'**
+  String get marketReasonChargedWrong;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'About the courier'**
+  String get marketReasonCourier;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get marketReasonOther;
+
+  /// 115.9 The order's lines a complaint is about.
+  ///
+  /// In en, this message translates to:
+  /// **'Which items?'**
+  String get marketWhichItems;
+
+  /// 115.9 The complaint's text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what happened'**
+  String get marketTellUs;
+
+  /// 115.9 The complaint's text is too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least a few words.'**
+  String get marketTellUsMore;
+
+  /// 115.9 Photos added to a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos ({count} of 5)'**
+  String marketComplaintPhotos(int count);
+
+  /// 115.9 Adds a photo to a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get marketAddPhoto;
+
+  /// 115.9 A complaint photo of the wrong kind or too big.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a JPEG, PNG or WebP photo up to 8 MB.'**
+  String get marketPhotoType;
+
+  /// 115.9 Sends the complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to support'**
+  String get marketSendComplaint;
+
+  /// 115.9 After sending a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Our support team will answer here.'**
+  String get marketComplaintSent;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get marketComplaintOpen;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Being reviewed'**
+  String get marketComplaintInReview;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your reply'**
+  String get marketComplaintWaiting;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get marketComplaintResolved;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed without a refund'**
+  String get marketComplaintRejected;
+
+  /// 115.9 Support's decision: a full refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded {amount}'**
+  String marketDecisionRefund(String amount);
+
+  /// 115.9 Support's decision: a partial refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly refunded: {amount}'**
+  String marketDecisionPartial(String amount);
+
+  /// 115.9 Support's decision: compensation.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensation: {amount}'**
+  String marketDecisionCompensation(String amount);
+
+  /// 115.9 Support's decision: no refund.
+  ///
+  /// In en, this message translates to:
+  /// **'No refund'**
+  String get marketDecisionNone;
+
+  /// 115.9 Where the refund went.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to how you paid'**
+  String get marketDecisionToPayment;
+
+  /// 115.9 Where the refund went.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your wallet'**
+  String get marketDecisionToWallet;
+
+  /// 115.9 Where the refund went: a coupon code.
+  ///
+  /// In en, this message translates to:
+  /// **'As a coupon: {code}'**
+  String marketDecisionToCoupon(String code);
+
+  /// 115.9 The message field on a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to support'**
+  String get marketWriteToSupport;
+
+  /// 115.9 A message from the app's support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get marketSupport;
+
+  /// 115.9 A message from the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get marketYou;
+
+  /// 115.9 A closed complaint, no more messages.
+  ///
+  /// In en, this message translates to:
+  /// **'This complaint is closed.'**
+  String get marketComplaintClosed;
 }
 
 class _AppLocalizationsDelegate

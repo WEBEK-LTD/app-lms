@@ -209,6 +209,22 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                   onPressed: () => _cancel(context),
                 ),
               ],
+              if (o.complaintId != null) ...[
+                const SizedBox(height: 12),
+                SecondaryButton(
+                  label: l10n.marketViewComplaint,
+                  icon: Symbols.support_agent,
+                  onPressed: () =>
+                      context.push(Paths.marketComplaint(o.complaintId!)),
+                ),
+              ] else if (o.canComplain) ...[
+                const SizedBox(height: 12),
+                SecondaryButton(
+                  label: l10n.marketReportProblem,
+                  icon: Symbols.report,
+                  onPressed: () => context.push(Paths.marketComplain(o.id)),
+                ),
+              ],
               const SizedBox(height: 16),
               Text(
                 l10n.marketSupportNote,

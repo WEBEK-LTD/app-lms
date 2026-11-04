@@ -9301,4 +9301,160 @@ class OverlayLocalizations extends AppLocalizations {
   String marketReadyAt(String time) =>
       overlay.format('marketReadyAt', {'time': time}) ??
       base.marketReadyAt(time);
+
+  @override
+  String get marketReportProblem =>
+      overlay.text('marketReportProblem') ?? base.marketReportProblem;
+
+  @override
+  String get marketViewComplaint =>
+      overlay.text('marketViewComplaint') ?? base.marketViewComplaint;
+
+  @override
+  String get marketComplaintWindow =>
+      overlay.text('marketComplaintWindow') ?? base.marketComplaintWindow;
+
+  @override
+  String marketComplaintTitle(String reference) =>
+      overlay.format('marketComplaintTitle', {'reference': reference}) ??
+      base.marketComplaintTitle(reference);
+
+  @override
+  String get marketWhatHappened =>
+      overlay.text('marketWhatHappened') ?? base.marketWhatHappened;
+
+  @override
+  String get marketReasonLate =>
+      overlay.text('marketReasonLate') ?? base.marketReasonLate;
+
+  @override
+  String get marketReasonMissingItems =>
+      overlay.text('marketReasonMissingItems') ?? base.marketReasonMissingItems;
+
+  @override
+  String get marketReasonWrongItems =>
+      overlay.text('marketReasonWrongItems') ?? base.marketReasonWrongItems;
+
+  @override
+  String get marketReasonQuality =>
+      overlay.text('marketReasonQuality') ?? base.marketReasonQuality;
+
+  @override
+  String get marketReasonDamaged =>
+      overlay.text('marketReasonDamaged') ?? base.marketReasonDamaged;
+
+  @override
+  String get marketReasonNotDelivered =>
+      overlay.text('marketReasonNotDelivered') ?? base.marketReasonNotDelivered;
+
+  @override
+  String get marketReasonChargedWrong =>
+      overlay.text('marketReasonChargedWrong') ?? base.marketReasonChargedWrong;
+
+  @override
+  String get marketReasonCourier =>
+      overlay.text('marketReasonCourier') ?? base.marketReasonCourier;
+
+  @override
+  String get marketReasonOther =>
+      overlay.text('marketReasonOther') ?? base.marketReasonOther;
+
+  @override
+  String get marketWhichItems =>
+      overlay.text('marketWhichItems') ?? base.marketWhichItems;
+
+  @override
+  String get marketTellUs => overlay.text('marketTellUs') ?? base.marketTellUs;
+
+  @override
+  String get marketTellUsMore =>
+      overlay.text('marketTellUsMore') ?? base.marketTellUsMore;
+
+  @override
+  String marketComplaintPhotos(int count) =>
+      overlay.format('marketComplaintPhotos', {'count': count}) ??
+      base.marketComplaintPhotos(count);
+
+  @override
+  String get marketAddPhoto =>
+      overlay.text('marketAddPhoto') ?? base.marketAddPhoto;
+
+  @override
+  String get marketPhotoType =>
+      overlay.text('marketPhotoType') ?? base.marketPhotoType;
+
+  @override
+  String get marketSendComplaint =>
+      overlay.text('marketSendComplaint') ?? base.marketSendComplaint;
+
+  @override
+  String get marketComplaintSent =>
+      overlay.text('marketComplaintSent') ?? base.marketComplaintSent;
+
+  @override
+  String get marketComplaintOpen =>
+      overlay.text('marketComplaintOpen') ?? base.marketComplaintOpen;
+
+  @override
+  String get marketComplaintInReview =>
+      overlay.text('marketComplaintInReview') ?? base.marketComplaintInReview;
+
+  @override
+  String get marketComplaintWaiting =>
+      overlay.text('marketComplaintWaiting') ?? base.marketComplaintWaiting;
+
+  @override
+  String get marketComplaintResolved =>
+      overlay.text('marketComplaintResolved') ?? base.marketComplaintResolved;
+
+  @override
+  String get marketComplaintRejected =>
+      overlay.text('marketComplaintRejected') ?? base.marketComplaintRejected;
+
+  @override
+  String marketDecisionRefund(String amount) =>
+      overlay.format('marketDecisionRefund', {'amount': amount}) ??
+      base.marketDecisionRefund(amount);
+
+  @override
+  String marketDecisionPartial(String amount) =>
+      overlay.format('marketDecisionPartial', {'amount': amount}) ??
+      base.marketDecisionPartial(amount);
+
+  @override
+  String marketDecisionCompensation(String amount) =>
+      overlay.format('marketDecisionCompensation', {'amount': amount}) ??
+      base.marketDecisionCompensation(amount);
+
+  @override
+  String get marketDecisionNone =>
+      overlay.text('marketDecisionNone') ?? base.marketDecisionNone;
+
+  @override
+  String get marketDecisionToPayment =>
+      overlay.text('marketDecisionToPayment') ?? base.marketDecisionToPayment;
+
+  @override
+  String get marketDecisionToWallet =>
+      overlay.text('marketDecisionToWallet') ?? base.marketDecisionToWallet;
+
+  @override
+  String marketDecisionToCoupon(String code) =>
+      overlay.format('marketDecisionToCoupon', {'code': code}) ??
+      base.marketDecisionToCoupon(code);
+
+  @override
+  String get marketWriteToSupport =>
+      overlay.text('marketWriteToSupport') ?? base.marketWriteToSupport;
+
+  @override
+  String get marketSupport =>
+      overlay.text('marketSupport') ?? base.marketSupport;
+
+  @override
+  String get marketYou => overlay.text('marketYou') ?? base.marketYou;
+
+  @override
+  String get marketComplaintClosed =>
+      overlay.text('marketComplaintClosed') ?? base.marketComplaintClosed;
 }
