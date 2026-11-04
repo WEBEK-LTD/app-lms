@@ -3944,6 +3944,184 @@ export interface WalletEntry {
   createdAt: Date;
 }
 
+// 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+
+/** 115.10 A coupon: a code the customer types, or automatic (no code) when its conditions hold. Amounts in the currency's minor units. */
+export interface MarketCoupon {
+  id: number;
+  appId: string;
+  /** Uppercase; null for an automatic offer. */
+  code: string | null;
+  title: string;
+  kind: "percent" | "amount" | "free_delivery";
+  /** A percentage (0–100) for `percent`, an amount for `amount`, unused for `free_delivery`. */
+  value: number;
+  /** The most a percentage takes off. */
+  maxDiscount: number | null;
+  /** The smallest items' total it needs. */
+  minOrder: number;
+  currency: string;
+  /** Who bears the discount in the statements. */
+  paidBy: "owner" | "vendor";
+  firstOrderOnly: boolean;
+  /** Empty: every vendor. */
+  vendorIds: number[];
+  /** Empty: every kind. */
+  vendorKinds: VendorKind[];
+  /** Empty: every department (groceries and shops). */
+  departmentIds: number[];
+  /** Uses in all and per person; null: no limit. */
+  usesLimit: number | null;
+  perUserLimit: number | null;
+  startsAt: Date | null;
+  endsAt: Date | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketCouponInput = Omit<MarketCoupon, "id">;
+export type MarketCouponPatch = Partial<Omit<MarketCoupon, "id" | "appId" | "createdAt">>;
+
+/** One order's use of a coupon (an order uses a coupon once; a cancelled order gives the use back). */
+export interface MarketCouponUse {
+  id: number;
+  appId: string;
+  couponId: number;
+  orderId: number;
+  userId: number | null;
+  discount: number;
+  createdAt: Date;
+}
+
+export type MarketCouponUseResult = { ok: true; use: MarketCouponUse } | { ok: false; reason: "duplicate" | "used_up" | "user_limit" };
+
+/** 115.10 One of the app owner's club plans, at the owner's price (Yallapp sets none). */
+export interface MarketClubPlan {
+  id: number;
+  appId: string;
+  name: string;
+  description: string | null;
+  period: "month" | "year";
+  price: number;
+  currency: string;
+  /** Free delivery on orders whose items reach this amount (0: always); null: no free delivery. */
+  freeDeliveryOver: number | null;
+  /** A percentage off delivery when it isn't free; null: none. */
+  deliveryDiscountPercent: number | null;
+  perks: string[];
+  active: boolean;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketClubPlanInput = Omit<MarketClubPlan, "id">;
+export type MarketClubPlanPatch = Partial<Omit<MarketClubPlan, "id" | "appId" | "createdAt">>;
+
+/** A customer's club membership (one per customer and app). */
+export interface MarketClubMember {
+  id: number;
+  appId: string;
+  userId: number;
+  planId: number | null;
+  status: "pending" | "active" | "cancelled" | "expired";
+  /** Renews at the end of the paid period. */
+  renews: boolean;
+  startedAt: Date | null;
+  paidUntil: Date | null;
+  paymentRef: string | null;
+  /** What the club saved them, in all. */
+  saved: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketClubMemberInput = Omit<MarketClubMember, "id" | "createdAt" | "updatedAt">;
+
+export const APPLICATION_FIELD_KINDS = ["text", "long_text", "phone", "email", "number", "list", "yes_no", "file", "logo", "place", "hours", "documents"] as const;
+export type ApplicationFieldKind = (typeof APPLICATION_FIELD_KINDS)[number];
+
+export interface ApplicationField {
+  /** Stable within the form (answers are kept by it). */
+  key: string;
+  kind: ApplicationFieldKind;
+  label: string;
+  help: string | null;
+  required: boolean;
+  /** For `list`. */
+  options: string[];
+}
+
+/** 115.6 The app owner's form for joining as a vendor; its link (by `token`) is on Yallapp's site only. */
+export interface MarketApplicationForm {
+  id: number;
+  appId: string;
+  title: string;
+  intro: string | null;
+  /** The kinds of vendor it is for. */
+  kinds: VendorKind[];
+  fields: ApplicationField[];
+  /** Random, URL-safe: the form's public link. */
+  token: string;
+  open: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketApplicationFormInput = Omit<MarketApplicationForm, "id">;
+export type MarketApplicationFormPatch = Partial<Pick<MarketApplicationForm, "title" | "intro" | "kinds" | "fields" | "open" | "token" | "updatedAt">>;
+
+export type MarketApplicationStatus = "new" | "more_info" | "accepted" | "rejected";
+
+/** 115.6 A vendor's answers to a joining form. */
+export interface MarketApplication {
+  id: number;
+  appId: string;
+  formId: number;
+  status: MarketApplicationStatus;
+  businessName: string;
+  kind: VendorKind;
+  /** Lowercase: where the decision is emailed and the first staff member's sign-in. */
+  email: string;
+  /** By field key: text, numbers, yes or no, a place, hours, or asset ids for files. */
+  answers: Record<string, unknown>;
+  fileAssetIds: string[];
+  /** What the team asked for (more_info) or why it was turned down. */
+  message: string | null;
+  /** The vendor made when accepted. */
+  vendorId: number | null;
+  decidedBy: string | null;
+  decidedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketApplicationInput = Omit<MarketApplication, "id">;
+export type MarketApplicationPatch = Partial<Pick<MarketApplication, "status" | "answers" | "fileAssetIds" | "message" | "vendorId" | "decidedBy" | "decidedAt" | "updatedAt">>;
+
+/** 115.7 A sign-in code sent to a vendor staff member's email for the vendors' web panel. */
+export interface VendorWebChallenge {
+  tokenHash: string;
+  appId: string;
+  email: string;
+  codeHash: string;
+  attempts: number;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/** 115.7 A vendor staff member signed in to the vendors' web panel (the cookie holds the id; only its hash is kept). */
+export interface VendorWebSession {
+  idHash: string;
+  appId: string;
+  vendorId: number;
+  staffId: number;
+  createdAt: Date;
+  expiresAt: Date;
+  lastSeenAt: Date;
+}
+
 /** One restaurant's delivered orders over a period: what it sold and what the company keeps. */
 export interface FoodStatementRow {
   restaurantId: number | null;
