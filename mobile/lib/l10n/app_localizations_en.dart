@@ -8427,4 +8427,162 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hubDeleteAccountMessage =>
       'You\'ll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.';
+
+  @override
+  String get marketDeliverTo => 'Deliver to';
+
+  @override
+  String get marketSearchHint => 'Restaurants, dishes or groceries';
+
+  @override
+  String marketEta(int min, int max) {
+    return '$min–$max min';
+  }
+
+  @override
+  String get marketFreeDelivery => 'Free delivery';
+
+  @override
+  String marketDeliveryFee(String fee) {
+    return '$fee delivery';
+  }
+
+  @override
+  String marketMinOrder(String amount) {
+    return 'Min. $amount';
+  }
+
+  @override
+  String get marketClub => 'Club';
+
+  @override
+  String get marketClubFree => 'Free with Club';
+
+  @override
+  String get marketJoinClub => 'Join';
+
+  @override
+  String get marketClubMember => 'You\'re a member';
+
+  @override
+  String get marketBusy => 'Busy';
+
+  @override
+  String marketClosedOpens(String time) {
+    return 'Closed · opens $time';
+  }
+
+  @override
+  String get marketClosed => 'Closed';
+
+  @override
+  String get marketOwnDelivery => 'Own delivery';
+
+  @override
+  String get marketLiveTracking => 'Live tracking';
+
+  @override
+  String get marketSeeAll => 'See all';
+
+  @override
+  String get marketOrderAgain => 'Order again';
+
+  @override
+  String marketCode(String code) {
+    return 'Code $code';
+  }
+
+  @override
+  String get marketAdd => 'Add';
+
+  @override
+  String get marketPerKg => '/ kg';
+
+  @override
+  String get marketSoldOut => 'Sold out';
+
+  @override
+  String marketKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String marketSearchVendor(String name) {
+    return 'Search $name';
+  }
+
+  @override
+  String get marketViewBasket => 'View basket';
+
+  @override
+  String marketBasketItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get marketSupportNote =>
+      'Questions about an order? Our support team answers in the app, any time.';
+
+  @override
+  String get marketChoices => 'Choices';
+
+  @override
+  String marketRatingsCount(String count) {
+    return '($count)';
+  }
+
+  @override
+  String get marketAisles => 'Aisles';
+
+  @override
+  String get marketMenu => 'Menu';
+
+  @override
+  String get marketReviews => 'Reviews';
+
+  @override
+  String get marketInfo => 'Info';
+
+  @override
+  String marketHours(String hours) {
+    return 'Open $hours';
+  }
+
+  @override
+  String get marketNew => 'New';
+
+  @override
+  String get marketChooseAddress => 'Choose your address';
+
+  @override
+  String get marketPerGram => '/ g';
+
+  @override
+  String get marketPerLitre => '/ L';
+
+  @override
+  String get marketKindRestaurant => 'Food';
+
+  @override
+  String get marketKindGrocery => 'Market';
+
+  @override
+  String get marketKindShop => 'Shops';
+
+  @override
+  String marketPlaces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count places',
+      one: '1 place',
+    );
+    return '$_temp0';
+  }
 }

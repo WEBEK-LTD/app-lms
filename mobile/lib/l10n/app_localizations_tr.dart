@@ -8405,4 +8405,150 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get hubDeleteAccountMessage =>
       'Tüm telefonlarda çıkış yapılacak ve tüm şirketlerdeki oturumlarınız sona erecek. Her şirket teslimatlarınızla ilgili kendi kayıtlarını tutar: sizi oradan kaldırmasını şirketten isteyin.';
+
+  @override
+  String get marketDeliverTo => 'Teslimat adresi';
+
+  @override
+  String get marketSearchHint => 'Restoran, yemek veya market';
+
+  @override
+  String marketEta(int min, int max) {
+    return '$min–$max dk';
+  }
+
+  @override
+  String get marketFreeDelivery => 'Ücretsiz teslimat';
+
+  @override
+  String marketDeliveryFee(String fee) {
+    return '$fee teslimat';
+  }
+
+  @override
+  String marketMinOrder(String amount) {
+    return 'En az $amount';
+  }
+
+  @override
+  String get marketClub => 'Kulüp';
+
+  @override
+  String get marketClubFree => 'Kulüp ile ücretsiz';
+
+  @override
+  String get marketJoinClub => 'Katıl';
+
+  @override
+  String get marketClubMember => 'Üyesiniz';
+
+  @override
+  String get marketBusy => 'Yoğun';
+
+  @override
+  String marketClosedOpens(String time) {
+    return 'Kapalı · $time açılır';
+  }
+
+  @override
+  String get marketClosed => 'Kapalı';
+
+  @override
+  String get marketOwnDelivery => 'Kendi teslimatı';
+
+  @override
+  String get marketLiveTracking => 'Canlı takip';
+
+  @override
+  String get marketSeeAll => 'Tümü';
+
+  @override
+  String get marketOrderAgain => 'Tekrar sipariş ver';
+
+  @override
+  String marketCode(String code) {
+    return 'Kod $code';
+  }
+
+  @override
+  String get marketAdd => 'Ekle';
+
+  @override
+  String get marketPerKg => '/ kg';
+
+  @override
+  String get marketSoldOut => 'Tükendi';
+
+  @override
+  String marketKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String marketSearchVendor(String name) {
+    return '$name içinde ara';
+  }
+
+  @override
+  String get marketViewBasket => 'Sepeti gör';
+
+  @override
+  String marketBasketItems(int count) {
+    return '$count ürün';
+  }
+
+  @override
+  String get marketSupportNote =>
+      'Bir siparişle ilgili sorunuz mu var? Destek ekibimiz uygulamada her zaman yanıt verir.';
+
+  @override
+  String get marketChoices => 'Seçenekler';
+
+  @override
+  String marketRatingsCount(String count) {
+    return '($count)';
+  }
+
+  @override
+  String get marketAisles => 'Reyonlar';
+
+  @override
+  String get marketMenu => 'Menü';
+
+  @override
+  String get marketReviews => 'Değerlendirmeler';
+
+  @override
+  String get marketInfo => 'Bilgi';
+
+  @override
+  String marketHours(String hours) {
+    return 'Açık $hours';
+  }
+
+  @override
+  String get marketNew => 'Yeni';
+
+  @override
+  String get marketChooseAddress => 'Adresinizi seçin';
+
+  @override
+  String get marketPerGram => '/ g';
+
+  @override
+  String get marketPerLitre => '/ L';
+
+  @override
+  String get marketKindRestaurant => 'Yemek';
+
+  @override
+  String get marketKindGrocery => 'Market';
+
+  @override
+  String get marketKindShop => 'Mağazalar';
+
+  @override
+  String marketPlaces(int count) {
+    return '$count yer';
+  }
 }
