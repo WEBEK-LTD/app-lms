@@ -8,6 +8,8 @@ import { quoteMarketDelivery, vendorDelivery, type DeliveryQuote } from "./deliv
 import { priceOrder, type ClubBenefit, type Commission, type OrderMoney } from "./money";
 import { bestAutomaticOffer, checkCoupon, clubBenefit, couponFromCode, type CouponCheck } from "./offers";
 import { marketSettingsOf, marketCurrency } from "./settings";
+import { assetUrl } from "../assets";
+import { photosRequired } from "./photos";
 
 /**
  * 115 A marketplace cart: read from the app (MarketCartInput), priced at
@@ -140,7 +142,7 @@ export function commissionOfVendor(v: Pick<Restaurant, "commissionBp" | "commiss
 }
 
 /** The cart's lines at today's prices: dishes from the menu (restaurants), products from the catalog (groceries and shops). */
-async function priceLines(store: DataStore, appId: string, vendor: Restaurant, cart: Cart): Promise<{ ok: true; lines: MarketOrderLine[]; departments: (number | null)[]; weighed: boolean } | { ok: false; refusal: PriceRefusal }> {
+async function priceLines(store: DataStore, appId: string, vendor: Restaurant, cart: Cart, needPhoto: boolean): Promise<{ ok: true; lines: MarketOrderLine[]; departments: (number | null)[]; weighed: boolean } | { ok: false; refusal: PriceRefusal }> {
   const lines: MarketOrderLine[] = [];
   const departments: (number | null)[] = [];
   let weighed = false;
@@ -150,7 +152,8 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
     for (const [i, l] of cart.lines.entries()) {
       const field = `lines[${i}]`;
       const dish = menu.sections.flatMap((s) => s.dishes).find((d) => d.id === l.productId);
-      if (!dish) return refuse(409, "invalid_request", "One of the dishes isn't on the menu any more. Refresh the menu.", field);
+      // 115 A dish without its photo isn't shown to customers while photos are required, so it can't be ordered either.
+      if (!dish || (needPhoto && !dish.imageAssetId)) return refuse(409, "invalid_request", "One of the dishes isn't on the menu any more. Refresh the menu.", field);
       if (!dish.available) return refuse(409, "unavailable_item", `${dish.name} is sold out for now.`, field);
       if (!Number.isInteger(l.quantity)) return refuse(400, "invalid_request", "Choose how many.", field);
       const names: string[] = [];
@@ -170,7 +173,7 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
       }
       const unit = dish.priceCents + extra;
       lines.push({
-        id: i + 1, productId: dish.id, name: dish.name, imageUrl: null, quantity: l.quantity, unit: "item", choices: names, note: l.note, unitPrice: unit, wasUnitPrice: null,
+        id: i + 1, productId: dish.id, name: dish.name, imageUrl: dish.imageAssetId ? assetUrl(dish.imageAssetId) : null, quantity: l.quantity, unit: "item", choices: names, note: l.note, unitPrice: unit, wasUnitPrice: null,
         total: Math.round(unit * l.quantity), ifMissing: "remove", substituteProductId: null, outcome: null, pickedQuantity: null, substitute: null,
       });
       departments.push(null);
@@ -180,7 +183,7 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
   for (const [i, l] of cart.lines.entries()) {
     const field = `lines[${i}]`;
     const p = await store.getMarketProduct(appId, l.productId);
-    if (!p || p.vendorId !== vendor.id) return refuse(409, "invalid_request", "One of the items isn't sold here any more. Refresh the list.", field);
+    if (!p || p.vendorId !== vendor.id || (needPhoto && !p.imageAssetId)) return refuse(409, "invalid_request", "One of the items isn't sold here any more. Refresh the list.", field);
     if (!p.inStock || (p.stock !== null && p.stock <= 0)) return refuse(409, "unavailable_item", `${p.name} is out of stock.`, field);
     if (!onStep(l.quantity, p.step)) return refuse(400, "invalid_request", `${p.name} is sold in steps of ${p.step}.`, field);
     if (p.maxQuantity !== null && l.quantity > p.maxQuantity) return refuse(409, "too_many", `You can order up to ${p.maxQuantity} of ${p.name}.`, field);
@@ -191,7 +194,7 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
     }
     if (p.unit !== "item") weighed = true;
     lines.push({
-      id: i + 1, productId: p.id, name: p.name, imageUrl: p.imageUrl, quantity: l.quantity, unit: p.unit, choices: [], note: l.note, unitPrice: p.price,
+      id: i + 1, productId: p.id, name: p.name, imageUrl: p.imageAssetId ? assetUrl(p.imageAssetId) : null, quantity: l.quantity, unit: p.unit, choices: [], note: l.note, unitPrice: p.price,
       wasUnitPrice: p.wasPrice !== null && p.wasPrice > p.price ? p.wasPrice : null, total: Math.round(p.price * l.quantity + 1e-9),
       ifMissing: l.ifMissing, substituteProductId: l.substituteProductId, outcome: null, pickedQuantity: null, substitute: null,
     });
@@ -229,7 +232,7 @@ export async function priceMarketCart(
       return { ok: false, refusal: { status: 400, code: "invalid_request", error: "Choose one of the times shown.", field: "scheduled_for" } };
     }
   }
-  const lined = await priceLines(store, appId, vendor, cart);
+  const lined = await priceLines(store, appId, vendor, cart, photosRequired(settings));
   if (!lined.ok) return lined;
   const itemsTotal = lined.lines.reduce((s, l) => s + l.total, 0);
   const itemCount = lined.lines.reduce((s, l) => s + (l.unit === "item" ? l.quantity : 1), 0);

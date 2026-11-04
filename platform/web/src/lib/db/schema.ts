@@ -1603,6 +1603,9 @@ export const marketProducts = mysqlTable(
     barcode: varchar("barcode", { length: 64 }),
     imageAssetId: varchar("image_asset_id", { length: 36 }),
     imageUrl: varchar("image_url", { length: 500 }),
+    // 115 The photos after the main one, and why a picture link couldn't be fetched.
+    galleryAssetIds: jsonText<string[]>("gallery_asset_ids"),
+    photoError: varchar("photo_error", { length: 160 }),
     price: bigint("price", { mode: "number", unsigned: true }).notNull(),
     wasPrice: bigint("was_price", { mode: "number", unsigned: true }),
     unit: varchar("unit", { length: 8 }).$type<MarketUnit>().notNull(),
@@ -1621,6 +1624,8 @@ export const marketProducts = mysqlTable(
     index("market_products_vendor_idx").on(t.appId, t.vendorId, t.inStock, t.position),
     index("market_products_department_idx").on(t.appId, t.vendorId, t.departmentId, t.aisleId),
     index("market_products_barcode_idx").on(t.appId, t.vendorId, t.barcode),
+    // 115 Links waiting to be fetched into photos (lib/market/photos.ts).
+    index("market_products_photo_wait_idx").on(t.imageAssetId, t.photoError),
   ],
 );
 

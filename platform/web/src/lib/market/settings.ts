@@ -23,6 +23,8 @@ export const DEFAULT_MARKET_SETTINGS: MarketAppSettings = {
   wallet: true,
   weightTolerancePercent: 10,
   vendorApp: "same",
+  // 115 Every product needs its photo unless the owner turns it off.
+  requirePhotos: true,
 };
 
 export function marketSettingsOf(settings: Pick<DeliverySettings, "marketApp">): MarketAppSettings {

@@ -813,6 +813,13 @@
       "when": 1793766413964,
       "tag": "0115_market_coupons_club_joining",
       "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "5",
+      "when": 1793780592058,
+      "tag": "0116_market_product_photos",
+      "breakpoints": true
     }
   ]
 }
