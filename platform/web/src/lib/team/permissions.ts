@@ -137,6 +137,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/restaurants", "catalog"],
   // 115.12 The marketplace's orders and complaints are its orders.
   ["/dashboard/market", "orders"],
+  // 115.12 The marketplace as a whole (payments, taxes, couriers' terms) is its settings.
+  ["/dashboard/market/settings", "settings"],
   ["/dashboard/couriers", "orders"],
   // 105.2 A ride company's rides, drivers and statements are its orders; its vehicle types and fares and its ride settings are its settings.
   ["/dashboard/rides", "orders"],
