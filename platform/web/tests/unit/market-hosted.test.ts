@@ -243,6 +243,24 @@ describe("115 the marketplace's routes", () => {
     await store.updateMarketComplaint(app.id, id, { status: "resolved" });
     const mine = await call("GET", "/me/market-orders/{order_id}", { token: customer.access_token, params: [String(order.id)] });
     expect(mine.body).toMatchObject({ can_complain: false, complaint_id: id });
+
+    // 115.16 The vendor app: the complaint only once support shares it, and never the customer or the conversation.
+    expect((await call("GET", "/vendor/complaints", { token: staff.access_token })).body).toEqual({ items: [] });
+    await store.updateMarketComplaint(app.id, id, { sharedWithVendor: true });
+    const shared = await call("GET", "/vendor/complaints", { token: staff.access_token });
+    expect(shared.body).toMatchObject({ items: [{ id, reason: "quality", status: "resolved", order_reference: expect.any(String) }] });
+    expect(JSON.stringify(shared.body)).not.toContain("Photos to follow.");
+    expect(JSON.stringify(shared.body)).not.toContain("Mona");
+    // Its statement for the month the order was completed in.
+    const completed = (await store.getMarketOrder(app.id, order.id))!.completedAt!;
+    const month = `${completed.getUTCFullYear()}-${String(completed.getUTCMonth() + 1).padStart(2, "0")}`;
+    const statement = await call("GET", "/vendor/statements", { token: staff.access_token, query: { month } });
+    expect(statement.status).toBe(200);
+    expect(statement.body).toMatchObject({ month, totals: { orders: 1, total: { amount: "115.00" } }, orders: [{ id: order.id, payment: "cash" }] });
+    // Statements are for owners and managers only.
+    await store.updateRestaurantStaff(app.id, (await store.listRestaurantStaff(app.id, restaurant))[0]!.id, { role: "picker" }, NOW);
+    expect((await call("GET", "/vendor/statements", { token: staff.access_token })).status).toBe(403);
+    expect((await call("GET", "/vendor/complaints", { token: staff.access_token })).status).toBe(403);
   });
 
   it("weighs a grocery's items when picked, within the agreed tolerance, and hands pick-up orders over with the code", async () => {
