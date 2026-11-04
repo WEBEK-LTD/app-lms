@@ -339,6 +339,8 @@ export const tr: Messages = {
     choiceDelivery: "Teslimat ve kuryeler",
     choiceCourierApp: "Kuryeler için ikinci bir uygulama",
     choiceFood: "Yemek teslimatı",
+    // 115.13
+    choiceMarketplace: "Pazar yeri: restoranlar, süpermarketler ve mağazalar",
     choiceRides: "Araç çağırma",
     choiceInstructors: "Çok eğitmenli akademiler",
     choiceSchool: "Öğrenciler, veliler ve öğretmenler için okullar",

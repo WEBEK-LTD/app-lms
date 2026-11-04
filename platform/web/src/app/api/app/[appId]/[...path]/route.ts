@@ -46,6 +46,7 @@ import { storageLimitBytes } from "@/lib/media/quota";
 import { MEDIA_CHUNK_BYTES } from "@/lib/media/signing";
 import { noteAppError } from "@/lib/watch/app-errors";
 import { isTaxiApp, taxiOn } from "@/lib/taxi/settings";
+import { foodRoutesOn, marketplaceOn } from "@/lib/market/plan";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -184,8 +185,9 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         loyalty: hasFeature(plan, "loyalty"),
         // 104 Delivery and courier apps. Yallapp's own demo apps (checked above) have Studio's project types on any plan.
         delivery: hasFeature(plan, "delivery") || app.demo === true,
-        // 105.1 Food delivery apps.
-        food: hasFeature(plan, "food") || app.demo === true,
+        // 105.1 Food delivery apps; 115.13 marketplace projects (food grown into a marketplace) with their own feature.
+        food: foodRoutesOn(app, plan),
+        marketplace: marketplaceOn(app, plan),
         // 105.2 Ride apps; 105.9 live taxi apps (the same engine) with their own feature.
         rides: isTaxiApp(app) ? taxiOn(app, plan) : hasFeature(plan, "rides") || app.demo === true,
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.

@@ -11357,7 +11357,7 @@ components:
             - type: 'null'
         vertical:
           type: [string, 'null']
-          enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, null]
+          enum: [restaurant, clinic, fitness, charity, services, instructors, taxi, marketplace, null]
           description: |
             The kind of business the app is for, on top of its type (the module
             in the build): it changes wording and defaults in the app, never
