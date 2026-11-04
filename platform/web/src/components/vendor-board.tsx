@@ -139,6 +139,10 @@ function OrderCard({
   onAct: (action: string, body?: Record<string, unknown>) => void;
 }) {
   const [rejecting, setRejecting] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [picks, setPicks] = useState<Record<number, { outcome: "picked" | "missing" | "substituted"; quantity: string; code: string }>>(() =>
+    Object.fromEntries(order.lines.map((l) => [l.id, { outcome: "picked", quantity: String(l.quantity), code: "" }])),
+  );
   const [code, setCode] = useState("");
   const age = minutesSince(order.created_at, now);
   const lateBy = order.ready_at && lane === "preparing" ? Math.floor((now - Date.parse(order.ready_at)) / 60_000) : 0;
@@ -217,6 +221,53 @@ function OrderCard({
         </p>
       ) : null}
 
+      {picking ? (
+        <form
+          className="mx-5 mt-4 flex flex-col gap-2 rounded-2xl border border-midnight/15 bg-white p-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onAct("lines", {
+              lines: order.lines.map((l) => {
+                const p = picks[l.id]!;
+                return { line_id: l.id, outcome: p.outcome, quantity: p.outcome === "picked" ? Number(p.quantity) || l.quantity : null, substitute_code: p.outcome === "substituted" ? p.code : null };
+              }),
+            });
+            setPicking(false);
+          }}
+        >
+          <p className="m-0 px-1 text-xs font-bold tracking-wide text-muted uppercase">{w.pickTitle}</p>
+          {order.lines.map((l) => {
+            const p = picks[l.id]!;
+            const set = (patch: Partial<typeof p>) => setPicks({ ...picks, [l.id]: { ...p, ...patch } });
+            const choices: ("picked" | "missing" | "substituted")[] = l.if_missing === "remove" ? ["picked", "missing"] : ["picked", "substituted", "missing"];
+            return (
+              <div key={l.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-sand px-3 py-2">
+                <span className="min-w-0 flex-1 text-sm font-bold text-ink">{l.name}</span>
+                <div className="flex overflow-hidden rounded-lg border border-line">
+                  {choices.map((c) => (
+                    <button key={c} type="button" onClick={() => set({ outcome: c })} className={`px-2.5 py-1.5 text-xs font-bold ${p.outcome === c ? (c === "missing" ? "bg-danger text-white" : c === "substituted" ? "bg-warn text-white" : "bg-success text-white") : "bg-white text-ink-2"}`}>
+                      {c === "picked" ? w.picked : c === "missing" ? w.missing : w.swap}
+                    </button>
+                  ))}
+                </div>
+                {p.outcome === "picked" && l.unit !== "item" ? (
+                  <input aria-label={w.weighed} value={p.quantity} onChange={(e) => set({ quantity: e.target.value })} inputMode="decimal" className="h-9 w-20 rounded-lg border border-line px-2 text-sm" dir="ltr" />
+                ) : null}
+                {p.outcome === "substituted" ? <input aria-label={w.swapCode} placeholder={w.swapCode} value={p.code} onChange={(e) => set({ code: e.target.value })} className="h-9 w-36 rounded-lg border border-line px-2 text-sm" dir="ltr" /> : null}
+              </div>
+            );
+          })}
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={() => setPicking(false)} className="rounded-xl px-3 py-2 text-sm font-bold text-muted">
+              {w.cancel}
+            </button>
+            <button disabled={busy} className="rounded-xl bg-midnight px-4 py-2 text-sm font-bold text-white">
+              {w.donePicking}
+            </button>
+          </div>
+        </form>
+      ) : null}
+
       <footer className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line-soft px-5 py-4">
         <span className="text-sm font-semibold text-muted">
           {count === 1 ? w.oneItem : fill(w.items, { n: count })} · <b className="text-ink" dir="ltr">{order.subtotal.formatted}</b>
@@ -254,7 +305,7 @@ function OrderCard({
         ) : lane === "preparing" ? (
           <div className="flex gap-2">
             {kind !== "restaurant" && order.status === "picking" && order.lines.some((l) => l.outcome === null) ? (
-              <button disabled={busy} onClick={() => onAct("pick-all")} className="rounded-xl border border-midnight px-4 py-2.5 text-sm font-bold text-midnight hover:bg-midnight hover:text-white">
+              <button disabled={busy} onClick={() => setPicking(true)} className="rounded-xl border border-midnight px-4 py-2.5 text-sm font-bold text-midnight hover:bg-midnight hover:text-white">
                 <Icon name="shopping_cart" size={17} className="me-1 align-[-3px]" />
                 {w.pick}
               </button>
@@ -311,7 +362,7 @@ function Lane({ title, icon, tone, orders, empty, children }: { title: string; i
   );
 }
 
-export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction }: { initial: BoardData; words: PanelWords; lang: PanelLang; endpoint: string | null; signOutAction?: () => void }) {
+export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction, nav }: { initial: BoardData; words: PanelWords; lang: PanelLang; endpoint: string | null; signOutAction?: () => void; nav?: React.ReactNode }) {
   const [data, setData] = useState(initial);
   const [now, setNow] = useState(() => Date.now());
   const [sound, setSound] = useState(true);
@@ -368,7 +419,7 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction }
       kind={d.kind}
       busy={busy}
       onAct={(action, body) =>
-        action === "pick-all" ? void act(o.id, "lines", { lines: o.lines.map((l) => ({ line_id: l.id, outcome: "picked", quantity: l.quantity })) }) : void act(o.id, action, body)
+        void act(o.id, action, body)
       }
     />
   );
@@ -447,6 +498,7 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction }
               </div>
             ))}
           </div>
+          {nav}
         </div>
       </div>
 

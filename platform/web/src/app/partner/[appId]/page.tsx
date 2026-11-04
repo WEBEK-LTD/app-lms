@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
+import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
+import { assetUrl } from "@/lib/assets";
+import { catalogPage, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
 import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
 import { fill, PANEL_WORDS, panelLang, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
-import { requestPanelCode, signOutOfPanel, verifyPanelCode } from "./actions";
+import { addStaffAction, importAction, requestPanelCode, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Partner panel", robots: { index: false, follow: false } };
@@ -23,9 +26,52 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
   if (!app || app.connector?.kind !== "restaurants") notFound();
   const jar = await cookies();
   const staff = await panelStaff(store, app, jar.get(panelCookie(appId))?.value, new Date());
-  if (staff) {
-    const data = await boardData(store, app, staff);
-    if (data) return <VendorBoard initial={data as BoardData} words={w} lang={lang} endpoint={`/api/partner/${encodeURIComponent(appId)}/board`} signOutAction={signOutOfPanel.bind(null, appId, lang)} />;
+  const ctx = staff ? await panelContext(store, app, staff) : null;
+  if (staff && ctx) {
+    const tabs = tabsFor(staff.role);
+    const asked = typeof search.tab === "string" ? (search.tab as PanelTab) : "orders";
+    const tab = tabs.includes(asked) ? asked : "orders";
+    const base = `/partner/${encodeURIComponent(appId)}`;
+    const nav = <PanelTabs tabs={tabs} current={tab} base={base} lang={lang} w={w} />;
+    const signOut = signOutOfPanel.bind(null, appId, lang);
+    if (tab === "orders") {
+      const data = await boardData(store, app, staff);
+      if (data) return <VendorBoard initial={data as BoardData} words={w} lang={lang} endpoint={`/api/partner/${encodeURIComponent(appId)}/board`} signOutAction={signOut} nav={nav} />;
+    }
+    const page = Math.max(1, Number(search.page) || 1);
+    const text = (v: unknown) => (typeof v === "string" ? v : "");
+    let body: React.ReactNode = null;
+    if (tab === "catalog") {
+      const q = text(search.q).slice(0, 80);
+      const out = search.out === "1";
+      const found = await catalogPage(ctx, { q, page, outOfStock: out });
+      body = <CatalogSection w={w} lang={lang} base={base} {...found} page={page} q={q} outOnly={out} currency={ctx.currency} assetUrl={assetUrl} saveStock={saveStockAction.bind(null, appId, lang)} />;
+    } else if (tab === "import") {
+      const raw = jar.get(`${panelCookie(appId)}_import`)?.value;
+      let result: ImportResult | null = null;
+      try {
+        result = raw ? (JSON.parse(raw) as ImportResult) : null;
+      } catch {
+        result = null;
+      }
+      body = <ImportSection w={w} restaurant={(ctx.vendor.kind ?? "restaurant") === "restaurant"} result={result} check={importAction.bind(null, appId, lang)} />;
+    } else if (tab === "delivery") {
+      body = <DeliverySection w={w} values={deliveryValues(ctx)} currency={ctx.currency} error={text(search.error) || null} saved={search.saved === "1"} save={saveDeliveryAction.bind(null, appId, lang)} />;
+    } else if (tab === "staff") {
+      body = <StaffSection w={w} staff={await staffList(ctx)} me={staff.id} error={text(search.error) || null} add={addStaffAction.bind(null, appId, lang)} toggle={toggleStaffAction.bind(null, appId, lang)} />;
+    } else if (tab === "statements") {
+      const now = new Date();
+      const { from, to, month } = monthBounds(text(search.month) || null, now);
+      const months = Array.from({ length: 12 }, (_, i) => monthBounds(null, new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 15))).month);
+      body = <StatementSection w={w} lang={lang} base={base} month={month} months={months} statement={await vendorStatement(ctx, from, to)} />;
+    } else if (tab === "complaints") {
+      body = <ComplaintsSection w={w} lang={lang} items={await vendorComplaints(ctx)} currency={ctx.currency} />;
+    }
+    return (
+      <PartnerFrame name={ctx.vendor.name} kind={ctx.vendor.kind ?? "restaurant"} lang={lang} w={w} tabs={nav} signOut={signOut}>
+        {body}
+      </PartnerFrame>
+    );
   }
   const pending = (jar.get(`${panelCookie(appId)}_pending`)?.value ?? "").split("|")[1] ?? "";
   const step = search.step === "code" && pending ? "code" : "email";

@@ -39,5 +39,20 @@ export async function boardAction(store: DataStore, app: App, staff: RestaurantS
   const { action, order_id: orderId, ...body } = input;
   if (action === "desk") return vendorCall(store, app, staff, "PATCH", ["me"], body);
   if (typeof action !== "string" || !ACTIONS.has(action) || typeof orderId !== "number") return { status: 400, body: { code: "invalid_request", message: "Unknown action." } };
+  // Picking: a swap is named by the product's SKU or barcode, found in the vendor's own catalog.
+  if (action === "lines" && Array.isArray(body.lines)) {
+    const lines = [];
+    for (const raw of body.lines as Record<string, unknown>[]) {
+      const code = typeof raw.substitute_code === "string" ? raw.substitute_code.trim().slice(0, 64) : "";
+      let substitute: number | null = null;
+      if (raw.outcome === "substituted" && code) {
+        const found = await store.listMarketProducts({ appId: app.id, vendorId: staff.restaurantId, code, page: 1, perPage: 1 });
+        substitute = found.items[0]?.id ?? null;
+        if (substitute === null) return { status: 400, body: { code: "invalid_request", message: "No product here has that SKU or barcode." } };
+      }
+      lines.push({ line_id: raw.line_id, outcome: raw.outcome, quantity: raw.quantity ?? null, substitute_product_id: substitute });
+    }
+    return vendorCall(store, app, staff, "PATCH", ["orders", String(orderId), "lines"], { lines });
+  }
   return vendorCall(store, app, staff, action === "lines" ? "PATCH" : "POST", ["orders", String(orderId), action], body);
 }

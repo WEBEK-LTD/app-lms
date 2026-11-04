@@ -5,6 +5,7 @@ import { DEFAULT_HOSTED_SETTINGS, type App } from "@/lib/data/types";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { finishPanelSignIn, panelStaff, startPanelSignIn } from "@/lib/market/panel";
 import { boardAction, boardData } from "@/lib/market/panel-board";
+import { addStaff, catalogPage, importCatalog, monthBounds, panelContext, saveDelivery, setStaffActive, setStock, tabsFor, vendorComplaints, vendorStatement } from "@/lib/market/panel-pages";
 import { NOW, setupClient } from "./helpers";
 
 const EVERY_DAY = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
@@ -75,5 +76,49 @@ describe("115.7 the vendors' web panel", () => {
     expect((await boardAction(store, app, hany, { action: "accept", order_id: other.id, prep_minutes: 15 })).status).toBe(404);
     expect((await boardAction(store, app, hany, { action: "desk", paused: true })).body).toMatchObject({ paused: true });
     expect((await boardAction(store, app, hany, { action: "delete" })).status).toBe(400);
+  });
+
+  it("runs the panel's pages on the staff member's own vendor, by role", async () => {
+    const hany = (await store.listRestaurantStaff(app.id, mine))[0]!;
+    const ctx = (await panelContext(store, app, hany))!;
+    expect(tabsFor("manager")).not.toContain("staff");
+    expect(tabsFor("picker")).toEqual(["orders"]);
+    // A grocery's catalog: imported from CSV, then put out of stock by its count.
+    await store.updateRestaurant(app.id, mine, { kind: "grocery" }, NOW);
+    const grocery = (await panelContext(store, app, hany))!;
+    const csv = new TextEncoder().encode("name,price,sku,unit,stock,department\nApples,40,APL,kg,,Fruit\nMilk,30,MLK,item,10,Dairy\n,5,BAD,item,1,Dairy\n");
+    const checked = await importCatalog(grocery, { bytes: csv, name: "catalog.csv", type: "text/csv" }, false, NOW);
+    expect(checked).toMatchObject({ ok: true, applied: false, plan: { counts: { create: 2 } } });
+    const saved = await importCatalog(grocery, { bytes: csv, name: "catalog.csv", type: "text/csv" }, true, NOW);
+    expect(saved).toMatchObject({ ok: true, applied: true, saved: { created: 2 } });
+    const page = await catalogPage(grocery, { q: "", page: 1, outOfStock: false });
+    expect(page.items.map((i) => i.name).sort()).toEqual(["Apples", "Milk"]);
+    const milk = page.items.find((i) => i.name === "Milk")!;
+    expect(await setStock(grocery, milk.id, true, 0, NOW)).toBe(true);
+    expect((await catalogPage(grocery, { q: "", page: 1, outOfStock: true })).items.map((i) => i.name)).toEqual(["Milk"]);
+    // Another vendor's product isn't this one's.
+    const theirsCtx = (await panelContext(store, app, (await store.listRestaurantStaff(app.id, theirs))[0]!))!;
+    expect(await setStock(theirsCtx, milk.id, true, 5, NOW)).toBe(false);
+    // Delivery: its own drivers at a fixed fee.
+    expect(await saveDelivery(ctx, { by: "vendor", fee_kind: "fixed", fee: "15", per_km: "", free_over: "200", min_items: "", max_items: "", pickup: "on" }, NOW)).toEqual({ ok: true });
+    expect((await store.getRestaurant(app.id, mine))!.delivery).toMatchObject({ by: "vendor", fee: 15_00, freeOver: 200_00, pickup: true });
+    expect(await saveDelivery(ctx, { by: "vendor", fee_kind: "fixed", fee: "abc" }, NOW)).toMatchObject({ ok: false });
+    // Staff: added by email, turned off, never oneself.
+    expect(await addStaff(ctx, { name: "Sara", email: "sara@mine.test", role: "picker" }, NOW)).toEqual({ ok: true });
+    expect(await addStaff(ctx, { name: "Sara again", email: "sara@mine.test", role: "picker" }, NOW)).toMatchObject({ ok: false });
+    const sara = (await store.listRestaurantStaff(app.id, mine)).find((s) => s.email === "sara@mine.test")!;
+    expect(await setStaffActive(ctx, sara.id, false, NOW)).toBe(true);
+    expect(await setStaffActive(ctx, hany.id, false, NOW)).toBe(false);
+    // The statement counts the month's completed orders; complaints only those shared with the vendor.
+    const done = await orderOf(mine);
+    await store.updateMarketOrder(app.id, done.id, { status: "delivered", completedAt: NOW });
+    const { from, to } = monthBounds(null, NOW);
+    expect((await vendorStatement(ctx, from, to)).orders).toHaveLength(1);
+    await store.createMarketComplaint({ appId: app.id, orderId: done.id, vendorId: mine, userId: null, reason: "late", text: "Late", lineIds: [], photoAssetIds: [], status: "open", assignee: null, sharedWithVendor: false, messages: [], notes: [{ text: "secret", by: "team", at: NOW.toISOString() }], decision: null, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    expect(await vendorComplaints(ctx)).toEqual([]);
+    const shared = await store.createMarketComplaint({ appId: app.id, orderId: done.id, vendorId: mine, userId: null, reason: "quality", text: "Cold", lineIds: [], photoAssetIds: [], status: "resolved", assignee: null, sharedWithVendor: true, messages: [], notes: [{ text: "secret", by: "team", at: NOW.toISOString() }], decision: { outcome: "partial_refund", amount: 10_00, to: "wallet", couponCode: null, funder: "vendor", reason: null, by: "team", at: NOW }, answeredAt: null, createdAt: NOW, updatedAt: NOW });
+    const seen = await vendorComplaints(ctx);
+    expect(seen.map((c) => c.id)).toEqual([shared.id]);
+    expect(JSON.stringify(seen)).not.toContain("secret");
   });
 });

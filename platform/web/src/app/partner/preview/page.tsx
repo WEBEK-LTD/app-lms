@@ -1,8 +1,15 @@
 import { notFound } from "next/navigation";
 import { VendorBoard, type BoardData, type BoardOrder } from "@/components/vendor-board";
+import { CatalogSection, PanelTabs, PartnerFrame } from "@/components/partner-pages";
+import { formatMinor } from "@/lib/market/currency";
 import { PANEL_WORDS, panelLang } from "@/lib/market/panel-words";
 
 export const dynamic = "force-dynamic";
+
+/** The preview's buttons change nothing. */
+async function noop(): Promise<void> {
+  "use server";
+}
 
 /** The time the sample orders are placed around. */
 function clock(): number {
@@ -17,7 +24,7 @@ export default async function PanelPreview(props: PageProps<"/partner/preview">)
   const now = clock();
   const ago = (m: number) => new Date(now - m * 60_000).toISOString();
   const later = (m: number) => new Date(now + m * 60_000).toISOString();
-  const egp = (n: number) => ({ amount: n.toFixed(2), formatted: `EGP ${n.toFixed(2)}` });
+  const egp = (n: number) => ({ amount: n.toFixed(2), formatted: formatMinor(Math.round(n * 100), "EGP") });
   const line = (id: number, name: string, quantity: number, total: number, extra: Partial<BoardOrder["lines"][number]> = {}) => ({ id, name, quantity, unit: "item" as const, choices: [], note: null, total: egp(total), if_missing: "remove" as const, outcome: null, ...extra });
   const order = (o: Partial<BoardOrder> & Pick<BoardOrder, "id" | "reference" | "status" | "lines" | "subtotal" | "created_at">): BoardOrder => ({
     fulfilment: "delivery",
@@ -45,5 +52,27 @@ export default async function PanelPreview(props: PageProps<"/partner/preview">)
     ],
     scheduled: [],
   };
-  return <VendorBoard initial={data} words={PANEL_WORDS[lang]} lang={lang} endpoint={null} />;
+  const w = PANEL_WORDS[lang];
+  const tab = search.tab === "catalog" ? "catalog" : "orders";
+  const nav = <PanelTabs tabs={["orders", "catalog", "import", "delivery", "staff", "statements", "complaints"]} current={tab} base="/partner/preview" lang={lang} w={w} />;
+  if (tab === "catalog") {
+    const item = (id: number, name: string, section: string, price: number, unit: string, inStock: boolean, stock: number | null, sku: string) => ({ id, name, section, price, unit, inStock, stock, sku, image: null });
+    const items = [
+      item(1, "Red apples", "Fruit & vegetables", 4500, "kg", true, null, "FRU-001"),
+      item(2, "Bananas", "Fruit & vegetables", 3200, "kg", true, null, "FRU-002"),
+      item(3, "Full cream milk 1 L", "Dairy & eggs", 3850, "item", true, 42, "DAI-104"),
+      item(4, "Greek yoghurt 500 g", "Dairy & eggs", 6500, "item", false, 0, "DAI-118"),
+      item(5, "Free-range eggs, 12", "Dairy & eggs", 9900, "item", true, 18, "DAI-130"),
+      item(6, "Basmati rice 5 kg", "Pantry", 42500, "item", true, 9, "PAN-210"),
+      item(7, "Extra virgin olive oil 1 L", "Pantry", 38900, "item", true, 14, "PAN-233"),
+      item(8, "Sourdough loaf", "Bakery", 6000, "item", false, 0, "BAK-007"),
+      item(9, "Ground coffee 250 g", "Coffee & tea", 21000, "item", true, 25, "COF-012"),
+    ];
+    return (
+      <PartnerFrame name="Green Basket Market" kind="grocery" lang={lang} w={w} tabs={nav} signOut={noop}>
+        <CatalogSection w={w} lang={lang} base="/partner/preview" items={items} total={1248} perPage={30} page={1} q="" outOnly={false} currency="EGP" assetUrl={(id) => id} saveStock={noop} />
+      </PartnerFrame>
+    );
+  }
+  return <VendorBoard initial={data} words={w} lang={lang} endpoint={null} nav={nav} />;
 }
