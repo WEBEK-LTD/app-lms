@@ -1945,6 +1945,68 @@ class FakeApi implements YallappApi {
   Future<void> completeMarketUpload(String uploadId) =>
       completeSchoolUpload(uploadId);
 
+  Map<String, dynamic> marketWallet = {
+    'balance': {'amount': '0.00', 'formatted': 'EGP 0.00'},
+    'entries': const <Map<String, dynamic>>[],
+    'page': 1,
+    'total_pages': 1,
+  };
+  Map<String, dynamic>? marketClub;
+  Map<String, dynamic>? myClub;
+  String? clubPayUrl;
+  final clubJoins = <int>[];
+
+  @override
+  Future<MarketWallet> getMyWallet({int page = 1}) =>
+      _answer('getMyWallet', () => MarketWallet.fromJson(marketWallet));
+
+  @override
+  Future<MarketClubInfo> getMarketClub() => _answer('getMarketClub', () {
+    final club = marketClub;
+    if (club == null) {
+      throw const ApiException(
+        code: 'not_found',
+        message: 'Not found',
+        statusCode: 404,
+      );
+    }
+    return MarketClubInfo.fromJson(club);
+  });
+
+  @override
+  Future<ClubMembership?> getMyClub() => _answer(
+    'getMyClub',
+    () => myClub == null ? null : ClubMembership.fromJson(myClub!),
+  );
+
+  @override
+  Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId) =>
+      _answer('joinClub', () {
+        clubJoins.add(planId);
+        final plan = ((marketClub?['plans'] as List?) ?? const [])
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['id'] == planId);
+        final membership = {
+          'plan': plan,
+          'status': clubPayUrl == null ? 'active' : 'awaiting_payment',
+          'renews': false,
+          'current_period_end': null,
+          'saved': {'amount': '0.00', 'formatted': 'EGP 0.00'},
+        };
+        if (clubPayUrl == null) myClub = membership;
+        return (
+          membership: ClubMembership.fromJson(membership),
+          payUrl: clubPayUrl,
+        );
+      });
+
+  @override
+  Future<ClubMembership?> cancelClub() => _answer('cancelClub', () {
+    if (myClub == null) return null;
+    myClub = {...myClub!, 'status': 'ending', 'renews': false};
+    return ClubMembership.fromJson(myClub!);
+  });
+
   @override
   Future<String> payMyMarketOrder(int id) =>
       _answer('payMyMarketOrder', () => marketPayUrl ?? 'https://pay.test/p');

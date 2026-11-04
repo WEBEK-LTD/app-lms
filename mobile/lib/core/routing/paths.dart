@@ -97,6 +97,10 @@ abstract final class Paths {
   static String marketComplain(int orderId) => '/market-complain/$orderId';
   static String marketComplaint(int id) => '/market-complaint/$id';
 
+  /// 115.10 The customer's wallet and the delivery club.
+  static const marketWallet = '/market-wallet';
+  static const marketClub = '/market-club';
+
   // 105.2 Ride hailing.
   static const ride = '/ride';
   static const myRides = '/my-rides';
@@ -285,6 +289,7 @@ abstract final class Paths {
       location.startsWith('/market-order/') ||
       location.startsWith(marketOrders) ||
       location.startsWith('/market-complain') ||
+      location.startsWith(marketWallet) ||
       location.startsWith(restaurantDesk) ||
       location.startsWith('/restaurant-order/') ||
       // 105.2 A ride, the rider's rides and the driver's screens.

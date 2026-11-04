@@ -9457,4 +9457,62 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketComplaintClosed =>
       overlay.text('marketComplaintClosed') ?? base.marketComplaintClosed;
+
+  @override
+  String get marketWallet => overlay.text('marketWallet') ?? base.marketWallet;
+
+  @override
+  String get marketWalletBalance =>
+      overlay.text('marketWalletBalance') ?? base.marketWalletBalance;
+
+  @override
+  String get marketWalletNote =>
+      overlay.text('marketWalletNote') ?? base.marketWalletNote;
+
+  @override
+  String get marketWalletEmpty =>
+      overlay.text('marketWalletEmpty') ?? base.marketWalletEmpty;
+
+  @override
+  String marketClubJoinWith(String price) =>
+      overlay.format('marketClubJoinWith', {'price': price}) ??
+      base.marketClubJoinWith(price);
+
+  @override
+  String get marketClubPerMonth =>
+      overlay.text('marketClubPerMonth') ?? base.marketClubPerMonth;
+
+  @override
+  String get marketClubPerYear =>
+      overlay.text('marketClubPerYear') ?? base.marketClubPerYear;
+
+  @override
+  String marketClubActiveUntil(String date) =>
+      overlay.format('marketClubActiveUntil', {'date': date}) ??
+      base.marketClubActiveUntil(date);
+
+  @override
+  String marketClubSaved(String amount) =>
+      overlay.format('marketClubSaved', {'amount': amount}) ??
+      base.marketClubSaved(amount);
+
+  @override
+  String get marketClubWaiting =>
+      overlay.text('marketClubWaiting') ?? base.marketClubWaiting;
+
+  @override
+  String get marketClubPayAgain =>
+      overlay.text('marketClubPayAgain') ?? base.marketClubPayAgain;
+
+  @override
+  String get marketClubNoRenew =>
+      overlay.text('marketClubNoRenew') ?? base.marketClubNoRenew;
+
+  @override
+  String get marketClubJoined =>
+      overlay.text('marketClubJoined') ?? base.marketClubJoined;
+
+  @override
+  String get marketClubNone =>
+      overlay.text('marketClubNone') ?? base.marketClubNone;
 }

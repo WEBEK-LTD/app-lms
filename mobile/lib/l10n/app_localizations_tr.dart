@@ -8869,4 +8869,56 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketComplaintClosed => 'Bu şikâyet kapatıldı.';
+
+  @override
+  String get marketWallet => 'Cüzdan';
+
+  @override
+  String get marketWalletBalance => 'Bakiyeniz';
+
+  @override
+  String get marketWalletNote =>
+      'Sonraki siparişlerinizde kullanın. Nakit olarak çekilemez.';
+
+  @override
+  String get marketWalletEmpty =>
+      'İadeler ve destekten gelen krediler burada görünür.';
+
+  @override
+  String marketClubJoinWith(String price) {
+    return 'Katıl · $price';
+  }
+
+  @override
+  String get marketClubPerMonth => 'aylık';
+
+  @override
+  String get marketClubPerYear => 'yıllık';
+
+  @override
+  String marketClubActiveUntil(String date) {
+    return '$date tarihine kadar üye';
+  }
+
+  @override
+  String marketClubSaved(String amount) {
+    return 'Şimdiye kadar tasarruf: $amount';
+  }
+
+  @override
+  String get marketClubWaiting =>
+      'Ödeme bekleniyor. Üyeliğiniz onaylandığında başlar.';
+
+  @override
+  String get marketClubPayAgain => 'Ödeme gerçekleşmedi. Tekrar deneyin.';
+
+  @override
+  String get marketClubNoRenew =>
+      'Her dönem ayrı ödenir; hiçbir şey kendiliğinden yenilenmez.';
+
+  @override
+  String get marketClubJoined => 'Kulübe hoş geldiniz.';
+
+  @override
+  String get marketClubNone => 'Bu uygulamada henüz bir kulüp yok.';
 }
