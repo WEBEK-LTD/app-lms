@@ -14035,6 +14035,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 place} other{{count} places}}'**
   String marketPlaces(int count);
+
+  /// 115 Adding an item from another vendor: the question's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new basket?'**
+  String get marketNewBasketTitle;
+
+  /// 115 Adding an item from another vendor replaces the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket has items from {vendor}. An order is from one place, so they\'ll be removed.'**
+  String marketNewBasketMessage(String vendor);
+
+  /// 115 Confirms starting a new basket.
+  ///
+  /// In en, this message translates to:
+  /// **'New basket'**
+  String get marketNewBasketConfirm;
+
+  /// 115 The checkout screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket'**
+  String get marketCheckoutTitle;
+
+  /// 115 The checkout with nothing in the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket is empty'**
+  String get marketEmptyBasketTitle;
+
+  /// 115 The checkout with nothing in the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Add dishes or products from a restaurant or a shop.'**
+  String get marketEmptyBasketMessage;
+
+  /// 115 Back to the marketplace from an empty basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get marketBrowse;
+
+  /// 115 The order is delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get marketDelivery;
+
+  /// 115 The customer picks the order up at the vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up'**
+  String get marketPickup;
+
+  /// 115 The checkout's address section.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get marketDeliverHere;
+
+  /// 115 Sets the delivery address from the phone's position.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get marketUseMyLocation;
+
+  /// 115 The address details field.
+  ///
+  /// In en, this message translates to:
+  /// **'Building, floor, flat, a landmark'**
+  String get marketAddressDetails;
+
+  /// 115 Ordering for delivery without an address.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where to deliver first.'**
+  String get marketNeedAddress;
+
+  /// 115 The checkout's time section.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get marketWhen;
+
+  /// 115 Order now.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get marketNow;
+
+  /// 115 Order for a later time.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get marketLater;
+
+  /// 115 A scheduled order's time.
+  ///
+  /// In en, this message translates to:
+  /// **'For {time}'**
+  String marketScheduledFor(String time);
+
+  /// 115 The coupon field.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon code'**
+  String get marketCoupon;
+
+  /// 115 Applies the coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get marketApply;
+
+  /// 115 Pays part or all of the order from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my wallet balance'**
+  String get marketUseWallet;
+
+  /// 115 The payment section.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with'**
+  String get marketPayWith;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get marketPayCash;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get marketPayCard;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get marketPayApplePay;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Pay'**
+  String get marketPayGooglePay;
+
+  /// 115 Payment method: all from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get marketPayWallet;
+
+  /// 115 The order's notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the restaurant or the shop'**
+  String get marketNotes;
+
+  /// 115 A shop item: what to do when it's out when picked.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s out'**
+  String get marketIfMissing;
+
+  /// 115 A shop item out of stock: substitute it.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with a similar one'**
+  String get marketIfMissingSimilar;
+
+  /// 115 A shop item out of stock: remove it.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove it'**
+  String get marketIfMissingRemove;
+
+  /// 115 Places the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order · {total}'**
+  String marketPlaceOrder(String total);
+
+  /// 115 While the quote is asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out the total…'**
+  String get marketPricing;
+
+  /// 115 After ordering without an online payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is sent.'**
+  String get marketOrderSent;
+
+  /// 115 After paying online.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your order is on its way to the restaurant or the shop.'**
+  String get marketOrderPaid;
+
+  /// 115 An order's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String marketOrderTitle(String reference);
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get marketStatusAwaitingPayment;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get marketStatusScheduled;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the restaurant or the shop'**
+  String get marketStatusPlaced;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Being prepared'**
+  String get marketStatusAccepted;
+
+  /// 115 Order status: a shop picks the items.
+  ///
+  /// In en, this message translates to:
+  /// **'Being picked'**
+  String get marketStatusPicking;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get marketStatusReady;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get marketStatusOnTheWay;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get marketStatusDelivered;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get marketStatusPickedUp;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned down'**
+  String get marketStatusRejected;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get marketStatusCancelled;
+
+  /// 115 Shown to the vendor when picking up.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick-up code: {code}'**
+  String marketPickupCode(String code);
+
+  /// 115 Cancels an order before the vendor accepts it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get marketCancelOrder;
+
+  /// 115 Opens a new payment page for an order waiting for its payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get marketPayAgain;
+
+  /// 115 The customer's marketplace orders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get marketMyOrders;
+
+  /// 115 The customer has no marketplace orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get marketNoOrders;
 }
 
 class _AppLocalizationsDelegate
