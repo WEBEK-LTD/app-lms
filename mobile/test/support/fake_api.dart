@@ -1701,6 +1701,96 @@ class FakeApi implements YallappApi {
             Restaurant.fromJson(restaurantMenus[id] ?? restaurantJson(id: id)),
       );
 
+  // 115 The marketplace: what the tests put here is what the server says.
+  final marketVendors = <Map<String, dynamic>>[];
+  final marketVendorPages = <int, Map<String, dynamic>>{};
+  final marketProducts = <int, List<Map<String, dynamic>>>{};
+  final marketOffers = <Map<String, dynamic>>[];
+  final marketVendorQueries = <MarketVendorQuery>[];
+
+  @override
+  Future<Paged<MarketVendorSummary>> listMarketVendors(
+    MarketVendorQuery query,
+  ) {
+    marketVendorQueries.add(query);
+    return _answer('listMarketVendors', () {
+      final q = (query.query ?? '').toLowerCase();
+      return Paged.fromJson(
+        pageJson([
+          for (final v in marketVendors)
+            if ((query.kind == null || v['kind'] == query.kind!.name) &&
+                (q.isEmpty || '${v['name']}'.toLowerCase().contains(q)))
+              v,
+        ]),
+        MarketVendorSummary.fromJson,
+      );
+    });
+  }
+
+  @override
+  Future<MarketVendorDetail> getMarketVendor(
+    int id, {
+    double? lat,
+    double? lng,
+  }) => _answer('getMarketVendor', () {
+    final json = marketVendorPages[id];
+    if (json == null) {
+      throw const ApiException(
+        code: 'not_found',
+        message: 'Not found',
+        statusCode: 404,
+      );
+    }
+    return MarketVendorDetail.fromJson(json);
+  });
+
+  @override
+  Future<Paged<MarketProduct>> listMarketProducts(
+    int vendorId, {
+    int page = 1,
+    int perPage = 40,
+    int? department,
+    int? aisle,
+    String? query,
+    String? barcode,
+  }) => _answer(
+    'listMarketProducts',
+    () => Paged.fromJson(
+      pageJson([
+        for (final p in marketProducts[vendorId] ?? const [])
+          if (department == null || p['department_id'] == department) p,
+      ]),
+      MarketProduct.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketSearchResult> searchMarket(
+    String query, {
+    VendorKind? kind,
+    double? lat,
+    double? lng,
+  }) => _answer('searchMarket', () {
+    final q = query.toLowerCase();
+    return MarketSearchResult.fromJson({
+      'vendors': [
+        for (final v in marketVendors)
+          if ('${v['name']}'.toLowerCase().contains(q)) v,
+      ],
+      'items': const [],
+    });
+  });
+
+  @override
+  Future<List<MarketCoupon>> listMarketOffers({int? vendorId}) => _answer(
+    'listMarketOffers',
+    () => [
+      for (final o in marketOffers)
+        if (vendorId == null || o['vendor_id'] == vendorId)
+          MarketCoupon.fromJson(o),
+    ],
+  );
+
   @override
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request) {
     foodQuotes.add(request);
