@@ -158,6 +158,16 @@ import type {
   RestaurantStaff,
   RestaurantStaffInput,
   MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
   MarketDepartment,
   MarketProduct,
   MarketProductInput,
@@ -1192,6 +1202,20 @@ export interface DataStore {
   deleteMarketProduct(appId: string, id: number): Promise<void>;
   /** An import's rows: each updates the vendor's product with its SKU (else its barcode), or is added. */
   upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }>;
+  // 115.3 The marketplace's orders, complaints and wallet.
+  createMarketOrder(input: MarketOrderInput): Promise<MarketOrder>;
+  getMarketOrder(appId: string, id: number): Promise<MarketOrder | null>;
+  listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }>;
+  /** False when it isn't the app's, or (with `expect`) its status changed meanwhile. */
+  updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect?: { statuses?: MarketOrderStatus[] }): Promise<boolean>;
+  createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint>;
+  getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null>;
+  listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }>;
+  updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean>;
+  /** Adds an entry once per `key` (null when that key is already there); a negative one only when the balance covers it ("insufficient"). */
+  addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }>;
+  walletBalance(appId: string, userId: number): Promise<number>;
+  listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }>;
   createFoodOrder(input: FoodOrderInput): Promise<FoodOrder>;
   getFoodOrder(appId: string, id: number): Promise<FoodOrder | null>;
   listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }>;

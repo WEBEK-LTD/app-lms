@@ -94,6 +94,16 @@ import type {
   RestaurantStaff,
   RestaurantStaffInput,
   MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
   MarketDepartment,
   MarketProduct,
   MarketProductInput,
@@ -3917,6 +3927,8 @@ export class MemoryStore implements DataStore {
     for (const [key, staff] of this.restaurantStaff) if (staff.restaurantId === id) this.restaurantStaff.delete(key);
     for (const map of [this.marketDepartments, this.marketAisles, this.marketProducts] as Map<number, { vendorId: number }>[]) for (const [key, row] of map) if (row.vendorId === id) map.delete(key);
     for (const order of this.foodOrders.values()) if (order.appId === appId && order.restaurantId === id) order.restaurantId = null;
+    for (const order of this.marketOrders.values()) if (order.appId === appId && order.vendorId === id) order.vendorId = null;
+    for (const complaint of this.marketComplaints.values()) if (complaint.appId === appId && complaint.vendorId === id) complaint.vendorId = null;
   }
 
   async addRestaurantRating(appId: string, id: number, stars: number): Promise<void> {
@@ -4090,6 +4102,100 @@ export class MemoryStore implements DataStore {
       }
     }
     return { created, updated };
+  }
+
+  // 115.3 The marketplace's orders, complaints and wallet
+
+  private marketOrders = new Map<number, MarketOrder>();
+  private nextMarketOrderId = 1;
+  private marketComplaints = new Map<number, MarketComplaint>();
+  private nextMarketComplaintId = 1;
+  private walletEntries: WalletEntry[] = [];
+  private nextWalletEntryId = 1;
+
+  async createMarketOrder(input: MarketOrderInput): Promise<MarketOrder> {
+    const order: MarketOrder = { ...clone(input), id: this.nextMarketOrderId++ };
+    this.marketOrders.set(order.id, clone(order));
+    return order;
+  }
+
+  async getMarketOrder(appId: string, id: number): Promise<MarketOrder | null> {
+    const order = this.marketOrders.get(id);
+    return order && order.appId === appId ? clone(order) : null;
+  }
+
+  async listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }> {
+    const all = [...this.marketOrders.values()]
+      .filter(
+        (o) =>
+          o.appId === query.appId &&
+          (query.userId === undefined || o.userId === query.userId) &&
+          (query.vendorId === undefined || o.vendorId === query.vendorId) &&
+          (!query.statuses || query.statuses.includes(o.status)) &&
+          (!query.completedSince || (o.completedAt !== null && o.completedAt >= query.completedSince)) &&
+          (!query.completedUntil || (o.completedAt !== null && o.completedAt < query.completedUntil)) &&
+          (!query.createdSince || o.createdAt >= query.createdSince),
+      )
+      .sort((a, b) => (query.order === "oldest" ? 1 : -1) * (a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect: { statuses?: MarketOrderStatus[] } = {}): Promise<boolean> {
+    const order = this.marketOrders.get(id);
+    if (!order || order.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(order.status)) return false;
+    this.marketOrders.set(id, clone({ ...order, ...patch, id, appId }));
+    return true;
+  }
+
+  async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
+    const complaint: MarketComplaint = { ...clone(input), id: this.nextMarketComplaintId++ };
+    this.marketComplaints.set(complaint.id, clone(complaint));
+    return complaint;
+  }
+
+  async getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null> {
+    const complaint = this.marketComplaints.get(id);
+    return complaint && complaint.appId === appId ? clone(complaint) : null;
+  }
+
+  async listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }> {
+    const all = [...this.marketComplaints.values()]
+      .filter(
+        (c) =>
+          c.appId === query.appId &&
+          (query.userId === undefined || c.userId === query.userId) &&
+          (query.vendorId === undefined || c.vendorId === query.vendorId) &&
+          (query.orderId === undefined || c.orderId === query.orderId) &&
+          (!query.statuses || query.statuses.includes(c.status)) &&
+          (query.assignee === undefined || c.assignee === query.assignee),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean> {
+    const complaint = this.marketComplaints.get(id);
+    if (!complaint || complaint.appId !== appId) return false;
+    this.marketComplaints.set(id, clone({ ...complaint, ...patch, id, appId }));
+    return true;
+  }
+
+  async addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }> {
+    if (this.walletEntries.some((e) => e.appId === entry.appId && e.key === entry.key)) return { ok: false, reason: "duplicate" };
+    if (entry.amount < 0 && (await this.walletBalance(entry.appId, entry.userId)) + entry.amount < 0) return { ok: false, reason: "insufficient" };
+    const saved: WalletEntry = { ...clone(entry), id: this.nextWalletEntryId++ };
+    this.walletEntries.push(clone(saved));
+    return { ok: true, entry: saved };
+  }
+
+  async walletBalance(appId: string, userId: number): Promise<number> {
+    return this.walletEntries.filter((e) => e.appId === appId && e.userId === userId).reduce((sum, e) => sum + e.amount, 0);
+  }
+
+  async listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }> {
+    const all = this.walletEntries.filter((e) => e.appId === appId && e.userId === userId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(page.offset, page.offset + page.limit).map(clone), total: all.length };
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {
