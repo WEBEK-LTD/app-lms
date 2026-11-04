@@ -35,3 +35,5 @@ export 'teachers_models.dart';
 // 113.9
 export 'university_models.dart';
 export 'store_models.dart';
+// 115
+export 'market_api_models.dart';

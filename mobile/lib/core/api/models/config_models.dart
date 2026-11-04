@@ -1,3 +1,4 @@
+import 'market_api_models.dart';
 import 'billing_models.dart';
 import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
@@ -38,6 +39,7 @@ class AppConfig {
     this.donations,
     this.delivery,
     this.food,
+    this.market,
     this.rides,
     this.instructors,
     this.school,
@@ -67,6 +69,7 @@ class AppConfig {
     donations: optObject(json, 'donations', DonationsConfig.fromJson),
     delivery: optObject(json, 'delivery', DeliveryConfig.fromJson),
     food: optObject(json, 'food', FoodConfig.fromJson),
+    market: optObject(json, 'market', MarketConfig.fromJson),
     rides: optObject(json, 'rides', RidesConfig.fromJson),
     instructors: optObject(json, 'instructors', InstructorsConfig.fromJson),
     school: optObject(json, 'school', SchoolConfig.fromJson),
@@ -178,6 +181,9 @@ class AppConfig {
 
   /// 105.1 How a food delivery company takes orders from its restaurants.
   final FoodConfig? food;
+
+  /// 115 A marketplace app's settings: kinds, categories, payment, club.
+  final MarketConfig? market;
 
   /// 105.2 How a ride company prices, matches and cancels rides.
   final RidesConfig? rides;

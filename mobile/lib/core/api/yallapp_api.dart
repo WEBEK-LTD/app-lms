@@ -823,6 +823,32 @@ abstract class YallappApi {
     double? lng,
   });
   Future<Restaurant> getRestaurant(int id, {double? lat, double? lng});
+
+  // 115 The marketplace: restaurants, groceries and shops.
+  Future<Paged<MarketVendorSummary>> listMarketVendors(MarketVendorQuery query);
+  Future<MarketVendorDetail> getMarketVendor(
+    int id, {
+    double? lat,
+    double? lng,
+  });
+  Future<Paged<MarketProduct>> listMarketProducts(
+    int vendorId, {
+    int page = 1,
+    int perPage = 40,
+    int? department,
+    int? aisle,
+    String? query,
+    String? barcode,
+  });
+  Future<MarketSearchResult> searchMarket(
+    String query, {
+    VendorKind? kind,
+    double? lat,
+    double? lng,
+  });
+
+  /// Public offers and, signed in, the customer's coupons.
+  Future<List<MarketCoupon>> listMarketOffers({int? vendorId});
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -2799,6 +2825,80 @@ class HttpYallappApi implements YallappApi {
     _optional,
     Restaurant.fromJson,
     query: {'lat': ?lat, 'lng': ?lng},
+  );
+
+  // 115 The marketplace.
+
+  @override
+  Future<Paged<MarketVendorSummary>> listMarketVendors(
+    MarketVendorQuery query,
+  ) => _get(
+    '/market/vendors',
+    _optional,
+    (json) => Paged.fromJson(json, MarketVendorSummary.fromJson),
+    query: query.toQuery(),
+  );
+
+  @override
+  Future<MarketVendorDetail> getMarketVendor(
+    int id, {
+    double? lat,
+    double? lng,
+  }) => _get(
+    '/market/vendors/$id',
+    _optional,
+    MarketVendorDetail.fromJson,
+    query: {'lat': ?lat, 'lng': ?lng},
+  );
+
+  @override
+  Future<Paged<MarketProduct>> listMarketProducts(
+    int vendorId, {
+    int page = 1,
+    int perPage = 40,
+    int? department,
+    int? aisle,
+    String? query,
+    String? barcode,
+  }) => _get(
+    '/market/vendors/$vendorId/products',
+    _optional,
+    (json) => Paged.fromJson(json, MarketProduct.fromJson),
+    query: {
+      'page': page,
+      'per_page': perPage,
+      'department': ?department,
+      'aisle': ?aisle,
+      if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+      if (barcode != null && barcode.trim().isNotEmpty)
+        'barcode': barcode.trim(),
+    },
+  );
+
+  @override
+  Future<MarketSearchResult> searchMarket(
+    String query, {
+    VendorKind? kind,
+    double? lat,
+    double? lng,
+  }) => _get(
+    '/market/search',
+    _optional,
+    MarketSearchResult.fromJson,
+    query: {
+      'q': query.trim(),
+      if (kind != null) 'kind': kind.name,
+      'lat': ?lat,
+      'lng': ?lng,
+    },
+  );
+
+  @override
+  Future<List<MarketCoupon>> listMarketOffers({int? vendorId}) => _get(
+    '/market/offers',
+    _optional,
+    (json) => reqListOf(json, 'items', MarketCoupon.fromJson),
+    query: {'vendor_id': ?vendorId},
   );
 
   @override
