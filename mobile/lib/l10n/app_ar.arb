@@ -2371,5 +2371,10 @@
   "marketCancelOrder": "إلغاء الطلب",
   "marketPayAgain": "ادفع الآن",
   "marketMyOrders": "طلباتي",
-  "marketNoOrders": "لا توجد طلبات بعد"
+  "marketNoOrders": "لا توجد طلبات بعد",
+  "marketTrackingCourier": "{name} في الطريق بطلبك",
+  "marketTrackingUpdated": "آخر تحديث {time}",
+  "marketVendorDelivers": "يوصّل المطعم أو المتجر هذا الطلب بنفسه. ستظهر لك كل خطوة هنا.",
+  "marketArrivesAt": "يصل نحو {time}",
+  "marketReadyAt": "يكون جاهزًا نحو {time}"
 }

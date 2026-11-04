@@ -2371,5 +2371,10 @@
   "marketCancelOrder": "Siparişi iptal et",
   "marketPayAgain": "Şimdi öde",
   "marketMyOrders": "Siparişlerim",
-  "marketNoOrders": "Henüz sipariş yok"
+  "marketNoOrders": "Henüz sipariş yok",
+  "marketTrackingCourier": "{name} siparişinizi getiriyor",
+  "marketTrackingUpdated": "Güncellendi: {time}",
+  "marketVendorDelivers": "Bu siparişi restoran veya mağaza kendisi teslim ediyor. Her adımı burada göreceksiniz.",
+  "marketArrivesAt": "Yaklaşık {time} gibi gelir",
+  "marketReadyAt": "Yaklaşık {time} gibi hazır"
 }

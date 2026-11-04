@@ -3596,6 +3596,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "115 The groceries' tile on the marketplace home.": { ar: "بطاقة البقالة في الصفحة الرئيسية للسوق.", tr: "Pazar yeri ana sayfasındaki marketler kutusu." },
   "115 The shops' tile on the marketplace home.": { ar: "بطاقة المتاجر في الصفحة الرئيسية للسوق.", tr: "Pazar yeri ana sayfasındaki mağazalar kutusu." },
   "115 How many vendors of a kind.": { ar: "عدد المتاجر من نوع واحد.", tr: "Bir türdeki satıcı sayısı." },
+  "115 The app's courier on the way, on the order's map.": { ar: "مندوب التطبيق في الطريق، على خريطة الطلب.", tr: "Uygulamanın kuryesi yolda, siparişin haritasında." },
+  "115 When the courier's position was last updated.": { ar: "آخر وقت تحدّث فيه موقع المندوب.", tr: "Kuryenin konumunun en son güncellendiği zaman." },
+  "115 An order the vendor delivers: stages only, no map.": { ar: "طلب يوصّله البائع بنفسه: مراحل فقط بدون خريطة.", tr: "Satıcının kendisinin teslim ettiği sipariş: harita yok, yalnızca aşamalar." },
+  "115 When the order should arrive.": { ar: "الوقت المتوقع لوصول الطلب.", tr: "Siparişin varması beklenen zaman." },
+  "115 When a pick-up order should be ready.": { ar: "الوقت المتوقع لتجهيز طلب الاستلام.", tr: "Gel-al siparişinin hazır olması beklenen zaman." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
