@@ -11,6 +11,9 @@ import { decideComplaint, supportReply, teamNote } from "@/lib/market/complaints
 import { complaintDecisionDeps } from "@/lib/market/decisions";
 import { complaintReference } from "@/lib/market/json";
 import { currencyDecimals, toMinor } from "@/lib/market/currency";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { parseClubPlanForm, parseCouponForm } from "@/lib/market/offer-forms";
+import { marketCurrency } from "@/lib/market/settings";
 
 /**
  * 115.12 The app owner's complaint queue: replies the customer reads, the
@@ -130,4 +133,65 @@ export async function decideComplaintAction(formData: FormData): Promise<void> {
   if (!done.ok) back(c.id, done.error);
   await recordStaffChange(context, `Decided complaint ${complaintReference(c)}: ${outcome}`);
   back(c.id);
+}
+
+// 115.12 Offers & club: the owner's coupons and automatic offers, and the club's plans.
+
+function backToOffers(message?: string): never {
+  revalidatePath("/dashboard/market/offers");
+  revalidatePath("/studio/project/market/offers");
+  redirect(`/dashboard/market/offers${message ? `?error=${encodeURIComponent(message)}` : ""}`);
+}
+
+async function offerContext() {
+  const context = await requireMarketApp();
+  const store = await getStore();
+  const settings = deliverySettingsOf(await store.getDeliverySettings(context.app.id));
+  return { context, store, currency: marketCurrency(settings) };
+}
+
+const formOf = (formData: FormData) => Object.fromEntries([...formData.entries()].map(([k, v]) => [k, typeof v === "string" ? v : ""]));
+
+export async function createCouponAction(formData: FormData): Promise<void> {
+  const { context, store, currency } = await offerContext();
+  const parsed = parseCouponForm(formOf(formData), { appId: context.app.id, currency, now: new Date() });
+  if (!parsed.ok) backToOffers(parsed.error);
+  const made = await store.createMarketCoupon(parsed.value);
+  if (!made) backToOffers("That code is in use already. Choose another.");
+  await recordStaffChange(context, `Added the offer ${parsed.value.title}`);
+  backToOffers();
+}
+
+export async function couponActiveAction(formData: FormData): Promise<void> {
+  const { context, store } = await offerContext();
+  const id = Number(formData.get("id"));
+  if (Number.isInteger(id) && id > 0) await store.updateMarketCoupon(context.app.id, id, { active: formData.get("active") === "1", updatedAt: new Date() });
+  backToOffers();
+}
+
+export async function deleteCouponAction(formData: FormData): Promise<void> {
+  const { context, store } = await offerContext();
+  const id = Number(formData.get("id"));
+  if (Number.isInteger(id) && id > 0) {
+    await store.deleteMarketCoupon(context.app.id, id);
+    await recordStaffChange(context, `Deleted an offer`);
+  }
+  backToOffers();
+}
+
+export async function createClubPlanAction(formData: FormData): Promise<void> {
+  const { context, store, currency } = await offerContext();
+  const position = (await store.listMarketClubPlans(context.app.id)).length;
+  const parsed = parseClubPlanForm(formOf(formData), { appId: context.app.id, currency, position, now: new Date() });
+  if (!parsed.ok) backToOffers(parsed.error);
+  await store.createMarketClubPlan(parsed.value);
+  await recordStaffChange(context, `Added the club plan ${parsed.value.name}`);
+  backToOffers();
+}
+
+export async function clubPlanActiveAction(formData: FormData): Promise<void> {
+  const { context, store } = await offerContext();
+  const id = Number(formData.get("id"));
+  if (Number.isInteger(id) && id > 0) await store.updateMarketClubPlan(context.app.id, id, { active: formData.get("active") === "1", updatedAt: new Date() });
+  backToOffers();
 }

@@ -105,6 +105,7 @@ export const en = {
     // 115.12 The marketplace
     marketplaceOrders: "Marketplace orders",
     complaints: "Complaints",
+    offersClub: "Offers & club",
     restaurants: "Restaurants",
     courierJobs: "Courier jobs",
     paidOrders: "Paid orders",
@@ -309,6 +310,7 @@ export const ar: Messages = {
     foodOrders: "طلبات الطعام",
     marketplaceOrders: "طلبات السوق",
     complaints: "الشكاوى",
+    offersClub: "العروض والنادي",
     restaurants: "المطاعم",
     courierJobs: "مهام المندوبين",
     paidOrders: "الطلبات المدفوعة",
@@ -508,6 +510,7 @@ export const tr: Messages = {
     foodOrders: "Yemek siparişleri",
     marketplaceOrders: "Pazar yeri siparişleri",
     complaints: "Şikâyetler",
+    offersClub: "Kampanyalar ve kulüp",
     restaurants: "Restoranlar",
     courierJobs: "Kurye işleri",
     paidOrders: "Ödenmiş siparişler",
