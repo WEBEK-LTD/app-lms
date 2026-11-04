@@ -207,7 +207,10 @@ export function planCatalogImport(table: SheetTable, mapping: ColumnMapping, opt
       sku: sku ?? keep("sku", null),
       barcode: barcode ?? keep("barcode", null),
       imageAssetId: keep("imageAssetId", null),
+      // 115 A picture link is fetched once into a photo (lib/market/photos.ts); a new link is tried again.
       imageUrl: has("imageUrl") ? imageUrl : keep("imageUrl", null),
+      galleryAssetIds: keep("galleryAssetIds", null),
+      photoError: has("imageUrl") && imageUrl !== keep("imageUrl", null) ? null : keep("photoError", null),
       price: price!,
       wasPrice: has("wasPrice") ? (wasPrice !== null && wasPrice > price! ? wasPrice : null) : keep("wasPrice", null),
       unit: has("unit") ? unit! : keep("unit", unit!),

@@ -4068,12 +4068,22 @@ export class MemoryStore implements DataStore {
           (query.departmentId === undefined || p.departmentId === query.departmentId) &&
           (query.aisleId === undefined || p.aisleId === query.aisleId) &&
           (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
+          (!query.withPhoto || p.imageAssetId !== null) &&
+          (!query.withoutPhoto || p.imageAssetId === null) &&
           (!code || p.barcode === code || p.sku === code) &&
           (!q || [p.name, p.brand ?? "", p.description ?? ""].some((text) => text.toLowerCase().includes(q))),
       )
       .sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.position - b.position || a.id - b.id);
     const start = (query.page - 1) * query.perPage;
     return { items: all.slice(start, start + query.perPage).map(clone), total: all.length };
+  }
+
+  async listMarketProductsAwaitingPhoto(limit: number, only?: { appId: string; vendorId: number }): Promise<MarketProduct[]> {
+    return [...this.marketProducts.values()]
+      .filter((p) => p.imageAssetId === null && p.imageUrl !== null && !p.photoError && (!only || (p.appId === only.appId && p.vendorId === only.vendorId)))
+      .sort((a, b) => a.id - b.id)
+      .slice(0, limit)
+      .map(clone);
   }
 
   async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {

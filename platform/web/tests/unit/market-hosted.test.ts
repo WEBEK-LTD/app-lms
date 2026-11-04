@@ -40,6 +40,8 @@ const SETTINGS: DeliverySettings = {
     wallet: true,
     weightTolerancePercent: 10,
     vendorApp: "bundle",
+    // These tests' products have no photos; market-photos.test.ts covers the photo rule.
+    requirePhotos: false,
   },
 };
 

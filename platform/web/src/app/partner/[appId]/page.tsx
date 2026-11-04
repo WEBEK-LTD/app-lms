@@ -5,12 +5,12 @@ import { Icon } from "@/components/icon";
 import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
 import { assetUrl } from "@/lib/assets";
-import { catalogPage, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
+import { catalogPage, waitingLinks, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
 import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
 import { fill, PANEL_WORDS, panelLang, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
-import { addStaffAction, importAction, requestPanelCode, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
+import { addStaffAction, bulkPhotosAction, fetchLinksAction, importAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Partner panel", robots: { index: false, follow: false } };
@@ -44,8 +44,29 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
     if (tab === "catalog") {
       const q = text(search.q).slice(0, 80);
       const out = search.out === "1";
-      const found = await catalogPage(ctx, { q, page, outOfStock: out });
-      body = <CatalogSection w={w} lang={lang} base={base} {...found} page={page} q={q} outOnly={out} currency={ctx.currency} assetUrl={assetUrl} saveStock={saveStockAction.bind(null, appId, lang)} />;
+      const noPhoto = search.nophoto === "1";
+      const found = await catalogPage(ctx, { q, page, outOfStock: out, noPhoto });
+      const photoError = text(search.photo_error) ? { id: Number(search.photo_id), error: text(search.photo_error).slice(0, 200) } : null;
+      body = (
+        <CatalogSection
+          w={w}
+          lang={lang}
+          base={base}
+          {...found}
+          page={page}
+          q={q}
+          outOnly={out}
+          noPhotoOnly={noPhoto}
+          photosRequired={ctx.photosRequired}
+          multiPhoto={(ctx.vendor.kind ?? "restaurant") !== "restaurant"}
+          photoError={photoError}
+          currency={ctx.currency}
+          assetUrl={assetUrl}
+          saveStock={saveStockAction.bind(null, appId, lang)}
+          savePhoto={uploadPhotoAction.bind(null, appId, lang)}
+          dropPhoto={removePhotoAction.bind(null, appId, lang)}
+        />
+      );
     } else if (tab === "import") {
       const raw = jar.get(`${panelCookie(appId)}_import`)?.value;
       let result: ImportResult | null = null;
@@ -54,7 +75,15 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
       } catch {
         result = null;
       }
-      body = <ImportSection w={w} restaurant={(ctx.vendor.kind ?? "restaurant") === "restaurant"} result={result} check={importAction.bind(null, appId, lang)} />;
+      body = (
+        <ImportSection
+          w={w}
+          restaurant={(ctx.vendor.kind ?? "restaurant") === "restaurant"}
+          result={result}
+          check={importAction.bind(null, appId, lang)}
+          photos={{ upload: bulkPhotosAction.bind(null, appId), fetchLinks: fetchLinksAction.bind(null, appId), waiting: await waitingLinks(ctx) }}
+        />
+      );
     } else if (tab === "delivery") {
       body = <DeliverySection w={w} values={deliveryValues(ctx)} currency={ctx.currency} error={text(search.error) || null} saved={search.saved === "1"} save={saveDeliveryAction.bind(null, appId, lang)} />;
     } else if (tab === "staff") {

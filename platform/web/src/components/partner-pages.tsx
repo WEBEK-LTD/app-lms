@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
+import { BulkPhotos, PhotoDrop } from "./partner-photo";
+import type { BulkPhotoOutcome } from "@/lib/market/photos";
 import type { RestaurantStaff } from "@/lib/data/types";
 import { formatMinor, fromMinor, currencyDecimals } from "@/lib/market/currency";
 import type { CatalogItem, ImportResult, PanelTab } from "@/lib/market/panel-pages";
@@ -94,11 +96,12 @@ const quiet = "inline-flex h-10 items-center justify-center gap-1.5 rounded-xl b
 
 // Menu & stock
 
-export function CatalogSection({ w, lang, base, items, total, perPage, page, q, outOnly, currency, assetUrl, saveStock }: {
-  w: PanelWords; lang: PanelLang; base: string; items: CatalogItem[]; total: number; perPage: number; page: number; q: string; outOnly: boolean; currency: string; assetUrl: (id: string) => string; saveStock: (f: FormData) => Promise<void>;
+export function CatalogSection({ w, lang, base, items, total, perPage, page, q, outOnly, noPhotoOnly, withoutPhoto, photosRequired, multiPhoto, photoError, currency, assetUrl, saveStock, savePhoto, dropPhoto }: {
+  w: PanelWords; lang: PanelLang; base: string; items: CatalogItem[]; total: number; perPage: number; page: number; q: string; outOnly: boolean; noPhotoOnly: boolean; withoutPhoto: number; photosRequired: boolean; multiPhoto: boolean;
+  photoError: { id: number; error: string } | null; currency: string; assetUrl: (id: string) => string; saveStock: (f: FormData) => Promise<void>; savePhoto: (f: FormData) => Promise<void>; dropPhoto: (f: FormData) => Promise<void>;
 }) {
   const pages = Math.max(1, Math.ceil(total / perPage));
-  const link = (p: number) => `${base}?tab=catalog&lang=${lang}&page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}${outOnly ? "&out=1" : ""}`;
+  const link = (p: number) => `${base}?tab=catalog&lang=${lang}&page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}${outOnly ? "&out=1" : ""}${noPhotoOnly ? "&nophoto=1" : ""}`;
   const out = items.filter((i) => !i.inStock).length;
   return (
     <Card
@@ -116,10 +119,21 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
             <input type="checkbox" name="out" value="1" defaultChecked={outOnly} className="h-4 w-4 accent-[var(--color-ember)]" />
             {w.onlyOut}
           </label>
+          <label className="inline-flex items-center gap-2 text-sm font-semibold text-ink-2">
+            <input type="checkbox" name="nophoto" value="1" defaultChecked={noPhotoOnly} className="h-4 w-4 accent-[var(--color-ember)]" />
+            {w.noPhotoOnly}
+            <span className="rounded-full bg-sand px-2 py-0.5 text-xs font-bold">{withoutPhoto.toLocaleString(lang === "ar" ? "ar-EG" : lang)}</span>
+          </label>
           <button className={quiet}>{w.search}</button>
         </form>
       }
     >
+      {photosRequired && withoutPhoto > 0 ? (
+        <p className="mb-4 flex items-center gap-2 rounded-xl bg-peach px-4 py-3 text-sm font-semibold text-accent">
+          <Icon name="photo_camera" size={18} />
+          {fill(w.noPhotoCount, { n: withoutPhoto.toLocaleString(lang === "ar" ? "ar-EG" : lang) })} · {w.photoRequiredNote}
+        </p>
+      ) : null}
       {items.length === 0 ? (
         <p className="m-0 rounded-2xl border-2 border-dashed border-line px-5 py-12 text-center text-sm font-semibold text-faint">{w.noItems}</p>
       ) : (
@@ -127,8 +141,9 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
           {items.map((it) => (
             <li key={it.id} className={`flex flex-col gap-3 rounded-[20px] border p-4 ${it.inStock ? "border-line-soft bg-sand" : "border-danger/25 bg-danger-bg/40"}`}>
               <div className="flex items-start gap-3">
-                <span className="flex h-14 w-14 flex-none items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm">
-                  {it.image ? <img src={it.image.startsWith("http") ? it.image : assetUrl(it.image)} alt="" className="h-full w-full object-cover" /> : <Icon name="inventory_2" size={24} className="text-faint" />}
+                <span className={`flex h-16 w-16 flex-none items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ${it.image ? "" : "border-2 border-dashed border-line-strong"}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {it.image ? <img src={assetUrl(it.image)} alt="" className="h-full w-full object-cover" /> : <Icon name="photo_camera" size={24} className="text-faint" />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="m-0 truncate text-[15px] font-extrabold text-ink">{it.name}</p>
@@ -141,8 +156,41 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
                     {it.unit !== "item" ? ` / ${it.unit}` : ""}
                   </p>
                 </div>
-                <span className={`flex-none rounded-full px-2.5 py-1 text-xs font-bold ${it.inStock ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>{it.inStock ? w.inStock : w.outOfStock}</span>
+                <span className="flex flex-none flex-col items-end gap-1">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${it.inStock ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>{it.inStock ? w.inStock : w.outOfStock}</span>
+                  {!it.image ? <span className="rounded-full bg-peach px-2.5 py-1 text-xs font-bold text-accent">{photosRequired ? w.needsPhoto : w.noPhoto}</span> : null}
+                </span>
               </div>
+              {photoError && photoError.id === it.id ? <p className="m-0 rounded-xl bg-danger-bg px-3 py-2 text-[13px] font-semibold text-danger">{photoError.error}</p> : null}
+              {!it.image && it.photoNote && it.photoNote !== "waiting" ? <p className="m-0 text-[12px] text-danger">{it.photoNote}</p> : null}
+              <details className="group rounded-2xl bg-white/70 px-3 py-2" open={!it.image && photosRequired && (photoError?.id === it.id || undefined)}>
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-[13px] font-bold text-ink-2">
+                  <Icon name="photo_library" size={17} className="text-accent" />
+                  {it.image ? `${w.photo} · ${it.photos.length}` : w.addPhoto}
+                </summary>
+                <div className="mt-3 flex flex-col gap-3">
+                  {it.photos.length ? (
+                    <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+                      {it.photos.map((assetId, n) => (
+                        <li key={assetId} className="relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={assetUrl(assetId)} alt="" className={`h-14 w-14 rounded-xl object-cover ${n === 0 ? "ring-2 ring-ember" : ""}`} />
+                          <form action={dropPhoto} className="absolute -end-2 -top-2">
+                            <input type="hidden" name="id" value={it.id} />
+                            <input type="hidden" name="asset" value={assetId} />
+                            <input type="hidden" name="page" value={page} />
+                            <button aria-label={w.removePhoto} title={w.removePhoto} className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-danger shadow">
+                              <Icon name="delete" size={14} />
+                            </button>
+                          </form>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <PhotoDrop action={savePhoto} id={it.id} page={page} as="main" w={w} label={it.image ? w.changePhoto : w.dropPhoto} />
+                  {it.image && multiPhoto ? <PhotoDrop action={savePhoto} id={it.id} page={page} as="extra" w={w} label={w.morePhoto} /> : null}
+                </div>
+              </details>
               <form action={saveStock} className="flex items-center gap-2">
                 <input type="hidden" name="id" value={it.id} />
                 <input type="hidden" name="in_stock" value={it.inStock ? "0" : "1"} />
@@ -185,9 +233,13 @@ export function CatalogSection({ w, lang, base, items, total, perPage, page, q, 
 
 // Import
 
-export function ImportSection({ w, restaurant, result, check }: { w: PanelWords; restaurant: boolean; result: ImportResult | null; check: (f: FormData) => Promise<void> }) {
+export function ImportSection({ w, restaurant, result, check, photos }: {
+  w: PanelWords; restaurant: boolean; result: ImportResult | null; check: (f: FormData) => Promise<void>;
+  photos: { upload: (f: FormData) => Promise<BulkPhotoOutcome[] | { error: string }>; fetchLinks: () => Promise<{ fetched: number; failed: number; left: number } | { error: string }>; waiting: number };
+}) {
   if (restaurant) return <Card title={w.importTitle} text={w.restaurantsMenu}>{null}</Card>;
   return (
+    <div className="flex flex-col gap-6">
     <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
       <Card title={w.importTitle} text={w.importText}>
         <form action={check} className="flex flex-col gap-4">
@@ -240,6 +292,10 @@ export function ImportSection({ w, restaurant, result, check }: { w: PanelWords;
           )}
         </Card>
       ) : null}
+    </div>
+    <Card title={w.photosTitle} text={w.photosText}>
+      <BulkPhotos upload={photos.upload} fetchLinks={photos.fetchLinks} waiting={photos.waiting} w={w} />
+    </Card>
     </div>
   );
 }
