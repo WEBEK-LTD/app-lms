@@ -168,6 +168,25 @@ import type {
   MarketOrderQuery,
   MarketOrderStatus,
   WalletEntry,
+  MarketApplication,
+  MarketApplicationForm,
+  MarketApplicationFormInput,
+  MarketApplicationFormPatch,
+  MarketApplicationInput,
+  MarketApplicationPatch,
+  MarketApplicationStatus,
+  MarketClubMember,
+  MarketClubMemberInput,
+  MarketClubPlan,
+  MarketClubPlanInput,
+  MarketClubPlanPatch,
+  MarketCoupon,
+  MarketCouponInput,
+  MarketCouponPatch,
+  MarketCouponUse,
+  MarketCouponUseResult,
+  VendorWebChallenge,
+  VendorWebSession,
   MarketDepartment,
   MarketProduct,
   MarketProductInput,
@@ -1216,6 +1235,59 @@ export interface DataStore {
   addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }>;
   walletBalance(appId: string, userId: number): Promise<number>;
   listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }>;
+
+  // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+  /** Null when the app already has a coupon with this code. */
+  createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null>;
+  getMarketCoupon(appId: string, id: number): Promise<MarketCoupon | null>;
+  /** Any case; the code is kept uppercase. */
+  findMarketCouponByCode(appId: string, code: string): Promise<MarketCoupon | null>;
+  listMarketCoupons(appId: string, query?: { active?: boolean; automatic?: boolean }): Promise<MarketCoupon[]>;
+  /** False when it isn't the app's or the new code is taken. */
+  updateMarketCoupon(appId: string, id: number, patch: MarketCouponPatch): Promise<boolean>;
+  deleteMarketCoupon(appId: string, id: number): Promise<boolean>;
+  /** Counts the use once per order, within the limits in all and per person (atomically). */
+  useMarketCoupon(use: Omit<MarketCouponUse, "id">, limits: { usesLimit: number | null; perUserLimit: number | null }): Promise<MarketCouponUseResult>;
+  /** Gives an order's use back (a cancelled order); false when there was none. */
+  releaseMarketCouponUse(appId: string, couponId: number, orderId: number): Promise<boolean>;
+  countMarketCouponUses(appId: string, couponId: number, userId?: number): Promise<number>;
+  createMarketClubPlan(input: MarketClubPlanInput): Promise<MarketClubPlan>;
+  getMarketClubPlan(appId: string, id: number): Promise<MarketClubPlan | null>;
+  listMarketClubPlans(appId: string): Promise<MarketClubPlan[]>;
+  updateMarketClubPlan(appId: string, id: number, patch: MarketClubPlanPatch): Promise<boolean>;
+  deleteMarketClubPlan(appId: string, id: number): Promise<boolean>;
+  getMarketClubMember(appId: string, userId: number): Promise<MarketClubMember | null>;
+  /** Makes or replaces the customer's membership. */
+  saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember>;
+  listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }>;
+  /** Adds to what the club saved the customer. */
+  addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void>;
+  createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm>;
+  getMarketApplicationForm(appId: string, id: number): Promise<MarketApplicationForm | null>;
+  /** The form behind a public link, of any app. */
+  findMarketApplicationFormByToken(token: string): Promise<MarketApplicationForm | null>;
+  listMarketApplicationForms(appId: string): Promise<MarketApplicationForm[]>;
+  updateMarketApplicationForm(appId: string, id: number, patch: MarketApplicationFormPatch): Promise<boolean>;
+  /** Deletes the form and its applications. */
+  deleteMarketApplicationForm(appId: string, id: number): Promise<boolean>;
+  createMarketApplication(input: MarketApplicationInput): Promise<MarketApplication>;
+  getMarketApplication(appId: string, id: number): Promise<MarketApplication | null>;
+  listMarketApplications(appId: string, query: { formId?: number; statuses?: MarketApplicationStatus[]; email?: string; limit: number; offset: number }): Promise<{ items: MarketApplication[]; total: number }>;
+  /** With `expect`, only while the status is one of those (two team members can't both decide). */
+  updateMarketApplication(appId: string, id: number, patch: MarketApplicationPatch, expect?: { statuses: MarketApplicationStatus[] }): Promise<boolean>;
+  createVendorWebChallenge(challenge: VendorWebChallenge): Promise<void>;
+  getVendorWebChallenge(tokenHash: string): Promise<VendorWebChallenge | null>;
+  /** Counts a try and returns how many there were. */
+  addVendorWebChallengeAttempt(tokenHash: string): Promise<number>;
+  deleteVendorWebChallenge(tokenHash: string): Promise<void>;
+  createVendorWebSession(session: VendorWebSession): Promise<void>;
+  getVendorWebSession(idHash: string): Promise<VendorWebSession | null>;
+  touchVendorWebSession(idHash: string, lastSeenAt: Date): Promise<void>;
+  deleteVendorWebSession(idHash: string): Promise<void>;
+  /** Signs a staff member out everywhere (removed, or turned off); returns how many. */
+  deleteVendorWebSessionsOfStaff(appId: string, staffId: number): Promise<number>;
+  /** Deletes the codes and sessions that expired before `now`. */
+  purgeVendorWeb(now: Date): Promise<void>;
   createFoodOrder(input: FoodOrderInput): Promise<FoodOrder>;
   getFoodOrder(appId: string, id: number): Promise<FoodOrder | null>;
   listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }>;

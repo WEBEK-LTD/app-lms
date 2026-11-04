@@ -123,6 +123,9 @@ import type {
   VendorDelivery,
   VendorKind,
   VendorRole,
+  ApplicationField,
+  MarketApplicationStatus,
+  MarketClubMember,
   ShipmentPlace,
   ShipmentStage,
   ShipmentStatus,
@@ -1723,6 +1726,181 @@ export const walletEntries = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [uniqueIndex("wallet_entries_app_key_unique").on(t.appId, t.key), index("wallet_entries_user_idx").on(t.appId, t.userId, t.createdAt)],
+);
+
+// 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+
+export const marketCoupons = mysqlTable(
+  "market_coupons",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    code: varchar("code", { length: 40 }),
+    title: varchar("title", { length: 120 }).notNull(),
+    kind: varchar("kind", { length: 16 }).$type<"percent" | "amount" | "free_delivery">().notNull(),
+    value: bigint("value", { mode: "number" }).notNull(),
+    maxDiscount: bigint("max_discount", { mode: "number" }),
+    minOrder: bigint("min_order", { mode: "number" }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    paidBy: varchar("paid_by", { length: 8 }).$type<"owner" | "vendor">().notNull(),
+    firstOrderOnly: boolean("first_order_only").notNull(),
+    vendorIds: jsonText<number[]>("vendor_ids").notNull(),
+    vendorKinds: jsonText<VendorKind[]>("vendor_kinds").notNull(),
+    departmentIds: jsonText<number[]>("department_ids").notNull(),
+    usesLimit: int("uses_limit"),
+    perUserLimit: int("per_user_limit"),
+    startsAt: time("starts_at"),
+    endsAt: time("ends_at"),
+    active: boolean("active").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("market_coupons_app_code_unique").on(t.appId, t.code), index("market_coupons_app_idx").on(t.appId, t.active)],
+);
+
+export const marketCouponUses = mysqlTable(
+  "market_coupon_uses",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    couponId: bigint("coupon_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => marketCoupons.id, { onDelete: "cascade" }),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }),
+    discount: bigint("discount", { mode: "number" }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("market_coupon_uses_order_unique").on(t.couponId, t.orderId), index("market_coupon_uses_user_idx").on(t.couponId, t.userId)],
+);
+
+export const marketClubPlans = mysqlTable(
+  "market_club_plans",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    description: varchar("description", { length: 500 }),
+    period: varchar("period", { length: 8 }).$type<"month" | "year">().notNull(),
+    price: bigint("price", { mode: "number" }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    freeDeliveryOver: bigint("free_delivery_over", { mode: "number" }),
+    deliveryDiscountPercent: int("delivery_discount_percent"),
+    perks: jsonText<string[]>("perks").notNull(),
+    active: boolean("active").notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("market_club_plans_app_idx").on(t.appId, t.position)],
+);
+
+export const marketClubMembers = mysqlTable(
+  "market_club_members",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
+    planId: bigint("plan_id", { mode: "number", unsigned: true }).references(() => marketClubPlans.id, { onDelete: "set null" }),
+    status: varchar("status", { length: 12 }).$type<MarketClubMember["status"]>().notNull(),
+    renews: boolean("renews").notNull(),
+    startedAt: time("started_at"),
+    paidUntil: time("paid_until"),
+    paymentRef: varchar("payment_ref", { length: 120 }),
+    saved: bigint("saved", { mode: "number" }).notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("market_club_members_user_unique").on(t.appId, t.userId), index("market_club_members_status_idx").on(t.appId, t.status, t.paidUntil)],
+);
+
+export const marketApplicationForms = mysqlTable(
+  "market_application_forms",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 120 }).notNull(),
+    intro: varchar("intro", { length: 2000 }),
+    kinds: jsonText<VendorKind[]>("kinds").notNull(),
+    fields: jsonText<ApplicationField[]>("fields").notNull(),
+    token: varchar("token", { length: 64 }).notNull(),
+    open: boolean("open").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("market_application_forms_token_unique").on(t.token), index("market_application_forms_app_idx").on(t.appId)],
+);
+
+export const marketApplications = mysqlTable(
+  "market_applications",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    formId: bigint("form_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => marketApplicationForms.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 12 }).$type<MarketApplicationStatus>().notNull(),
+    businessName: varchar("business_name", { length: 120 }).notNull(),
+    kind: varchar("kind", { length: 16 }).$type<VendorKind>().notNull(),
+    email: varchar("email", { length: 191 }).notNull(),
+    answers: jsonText<Record<string, unknown>>("answers").notNull(),
+    fileAssetIds: jsonText<string[]>("file_asset_ids").notNull(),
+    message: varchar("message", { length: 2000 }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true }).references(() => restaurants.id, { onDelete: "set null" }),
+    decidedBy: varchar("decided_by", { length: 191 }),
+    decidedAt: time("decided_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("market_applications_app_idx").on(t.appId, t.status, t.createdAt), index("market_applications_form_idx").on(t.formId), index("market_applications_email_idx").on(t.appId, t.email)],
+);
+
+export const vendorWebChallenges = mysqlTable(
+  "vendor_web_challenges",
+  {
+    tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    email: varchar("email", { length: 191 }).notNull(),
+    codeHash: varchar("code_hash", { length: 64 }).notNull(),
+    attempts: int("attempts").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("vendor_web_challenges_expires_idx").on(t.expiresAt)],
+);
+
+export const vendorWebSessions = mysqlTable(
+  "vendor_web_sessions",
+  {
+    idHash: varchar("id_hash", { length: 64 }).primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    staffId: bigint("staff_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurantStaff.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+    expiresAt: time("expires_at").notNull(),
+    lastSeenAt: time("last_seen_at").notNull(),
+  },
+  (t) => [index("vendor_web_sessions_staff_idx").on(t.appId, t.staffId), index("vendor_web_sessions_expires_idx").on(t.expiresAt)],
 );
 
 export const foodOrders = mysqlTable(
