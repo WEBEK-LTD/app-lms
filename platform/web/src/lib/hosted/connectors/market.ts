@@ -705,9 +705,27 @@ export class MarketConnector {
     return vendor?.active ? { vendor, staff, role: staff.role ?? "manager" } : null;
   }
 
+  /** 115.7 The vendors' web panel: the same vendor routes, for a staff member signed in to the panel. */
+  async handleAsStaff(request: ConnectorRequest, staff: RestaurantStaff): Promise<ConnectorResult> {
+    this.panelStaff = staff;
+    try {
+      return await this.handle({ ...request, path: ["vendor", ...request.path] });
+    } finally {
+      this.panelStaff = null;
+    }
+  }
+
+  private panelStaff: RestaurantStaff | null = null;
+
   private async withVendor(request: ConnectorRequest, roles: VendorRole[] | null, then: (s: Staffed) => Promise<ConnectorResult>): Promise<ConnectorResult> {
-    if (!request.user) return signIn();
-    const staffed = await this.vendorOf(request.user);
+    let staffed: Staffed | null = null;
+    if (this.panelStaff) {
+      const vendor = this.panelStaff.active ? await this.deps.store.getRestaurant(this.deps.app.id, this.panelStaff.restaurantId) : null;
+      staffed = vendor?.active && vendor.appId === this.deps.app.id ? { vendor, staff: this.panelStaff, role: this.panelStaff.role ?? "manager" } : null;
+    } else {
+      if (!request.user) return signIn();
+      staffed = await this.vendorOf(request.user);
+    }
     if (!staffed) return notVendor();
     if (roles && !roles.includes(staffed.role)) return error(403, "not_allowed", "Your role at this place can't do this.");
     return then(staffed);
