@@ -46,6 +46,8 @@ export interface StatementTotals {
   /** Cash the vendor took itself (its own driver, pick-up). */
   cashHeldByVendor: number;
   commission: number;
+  /** 115.5 What vendors paid the owner for the app's couriers. */
+  courierCharges: number;
   vendorEarns: number;
   ownerEarns: number;
   refundsByVendor: number;
@@ -65,7 +67,7 @@ export interface Statement {
 
 const ZERO: StatementTotals = {
   orders: 0, itemsBefore: 0, itemDiscounts: 0, items: 0, couponsByOwner: 0, couponsByVendor: 0, club: 0, delivery: 0, deliveryDiscounts: 0, tax: 0, tips: 0, total: 0,
-  paidOnline: 0, paidCash: 0, cashHeldByVendor: 0, commission: 0, vendorEarns: 0, ownerEarns: 0, refundsByVendor: 0, refundsByOwner: 0, net: 0,
+  paidOnline: 0, paidCash: 0, cashHeldByVendor: 0, commission: 0, courierCharges: 0, vendorEarns: 0, ownerEarns: 0, refundsByVendor: 0, refundsByOwner: 0, net: 0,
 };
 
 /** The statement of the orders completed and adjustments made in [from, to). */
@@ -95,6 +97,7 @@ export function buildStatement(input: { from: Date; to: Date; currency: string; 
       t.paidOnline += m.total;
     }
     t.commission += m.split.commission;
+    t.courierCharges += m.split.courierCharge ?? 0;
     t.vendorEarns += m.split.vendorEarns;
     t.ownerEarns += m.split.ownerEarns;
     t.net += m.split.dueToVendor;

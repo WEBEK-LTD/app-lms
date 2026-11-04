@@ -12,7 +12,7 @@ type TotalKey = Exclude<keyof StatementTotals, "orders">;
 
 export const TOTALS_ORDER: TotalKey[] = [
   "itemsBefore", "itemDiscounts", "items", "couponsByVendor", "couponsByOwner", "club", "delivery", "deliveryDiscounts", "tax", "tips", "total",
-  "paidOnline", "paidCash", "cashHeldByVendor", "commission", "vendorEarns", "ownerEarns", "refundsByVendor", "refundsByOwner", "net",
+  "paidOnline", "paidCash", "cashHeldByVendor", "commission", "courierCharges", "vendorEarns", "ownerEarns", "refundsByVendor", "refundsByOwner", "net",
 ];
 
 interface Words {
@@ -47,7 +47,7 @@ const WORDS: Record<Lang, Words> = {
     totals: {
       itemsBefore: "Items before discounts", itemDiscounts: "Item discounts", items: "Items after discounts", couponsByVendor: "Coupons paid by the vendor", couponsByOwner: "Coupons paid by the app owner",
       club: "Club delivery discounts", delivery: "Delivery fees", deliveryDiscounts: "Delivery discounts", tax: "Tax", tips: "Tips", total: "Paid by customers",
-      paidOnline: "Paid online or from the wallet", paidCash: "Paid in cash", cashHeldByVendor: "Cash taken by the vendor", commission: "Commission",
+      paidOnline: "Paid online or from the wallet", paidCash: "Paid in cash", cashHeldByVendor: "Cash taken by the vendor", commission: "Commission", courierCharges: "Charges for the app's couriers",
       vendorEarns: "The vendor's part", ownerEarns: "The app owner's part", refundsByVendor: "Refunds paid by the vendor", refundsByOwner: "Refunds paid by the app owner", net: "Net",
     },
   },
@@ -59,7 +59,7 @@ const WORDS: Record<Lang, Words> = {
     totals: {
       itemsBefore: "المنتجات قبل الخصومات", itemDiscounts: "خصومات المنتجات", items: "المنتجات بعد الخصومات", couponsByVendor: "قسائم يتحمّلها المتجر", couponsByOwner: "قسائم يتحمّلها صاحب التطبيق",
       club: "خصومات التوصيل للأعضاء", delivery: "رسوم التوصيل", deliveryDiscounts: "خصومات التوصيل", tax: "الضريبة", tips: "الإكراميات", total: "ما دفعه العملاء",
-      paidOnline: "مدفوع إلكترونيًا أو من المحفظة", paidCash: "مدفوع نقدًا", cashHeldByVendor: "نقد استلمه المتجر", commission: "العمولة",
+      paidOnline: "مدفوع إلكترونيًا أو من المحفظة", paidCash: "مدفوع نقدًا", cashHeldByVendor: "نقد استلمه المتجر", commission: "العمولة", courierCharges: "رسوم مندوبي التطبيق",
       vendorEarns: "نصيب المتجر", ownerEarns: "نصيب صاحب التطبيق", refundsByVendor: "مبالغ مستردة يتحمّلها المتجر", refundsByOwner: "مبالغ مستردة يتحمّلها صاحب التطبيق", net: "الصافي",
     },
   },
@@ -71,7 +71,7 @@ const WORDS: Record<Lang, Words> = {
     totals: {
       itemsBefore: "İndirimlerden önce ürünler", itemDiscounts: "Ürün indirimleri", items: "İndirimlerden sonra ürünler", couponsByVendor: "İşletmenin karşıladığı kuponlar", couponsByOwner: "Uygulama sahibinin karşıladığı kuponlar",
       club: "Kulüp teslimat indirimleri", delivery: "Teslimat ücretleri", deliveryDiscounts: "Teslimat indirimleri", tax: "Vergi", tips: "Bahşişler", total: "Müşterilerin ödediği",
-      paidOnline: "Çevrimiçi veya cüzdandan ödenen", paidCash: "Nakit ödenen", cashHeldByVendor: "İşletmenin aldığı nakit", commission: "Komisyon",
+      paidOnline: "Çevrimiçi veya cüzdandan ödenen", paidCash: "Nakit ödenen", cashHeldByVendor: "İşletmenin aldığı nakit", commission: "Komisyon", courierCharges: "Uygulama kuryeleri ücretleri",
       vendorEarns: "İşletmenin payı", ownerEarns: "Uygulama sahibinin payı", refundsByVendor: "İşletmenin karşıladığı iadeler", refundsByOwner: "Uygulama sahibinin karşıladığı iadeler", net: "Net",
     },
   },
