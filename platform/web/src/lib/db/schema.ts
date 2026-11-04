@@ -1,3 +1,4 @@
+import type { OrderMoney } from "../market/money";
 import type {
   AppAuthKey,
   AppBackend,
@@ -111,6 +112,14 @@ import type {
   PackageSize,
   RestaurantMenu,
   MarketUnit,
+  ComplaintDecision,
+  ComplaintReason,
+  ComplaintStatus,
+  MarketOrderLine,
+  MarketOrderStage,
+  MarketOrderStatus,
+  MarketOrder,
+  MarketComplaint,
   VendorDelivery,
   VendorKind,
   VendorRole,
@@ -1610,6 +1619,110 @@ export const marketProducts = mysqlTable(
     index("market_products_department_idx").on(t.appId, t.vendorId, t.departmentId, t.aisleId),
     index("market_products_barcode_idx").on(t.appId, t.vendorId, t.barcode),
   ],
+);
+
+// 115.3 The marketplace's orders, complaints and wallet.
+
+export const marketOrders = mysqlTable(
+  "market_orders",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true }).references(() => restaurants.id, { onDelete: "set null" }),
+    vendorName: varchar("vendor_name", { length: 80 }).notNull(),
+    vendorKind: varchar("vendor_kind", { length: 16 }).$type<VendorKind>().notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }),
+    customerName: varchar("customer_name", { length: 80 }).notNull(),
+    customerPhone: varchar("customer_phone", { length: 24 }).notNull(),
+    fulfilment: varchar("fulfilment", { length: 12 }).$type<"delivery" | "pickup">().notNull(),
+    deliveryBy: varchar("delivery_by", { length: 8 }).$type<"app" | "vendor">(),
+    scheduledFor: time("scheduled_for"),
+    lines: jsonText<MarketOrderLine[]>("lines").notNull(),
+    money: jsonText<OrderMoney>("money").notNull(),
+    // The total, apart, for sums and sorting.
+    total: bigint("total", { mode: "number" }).notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    paymentMethod: varchar("payment_method", { length: 12 }).$type<"cash" | "card" | "apple_pay" | "google_pay" | "wallet">().notNull(),
+    paymentStatus: varchar("payment_status", { length: 16 }).$type<"unpaid" | "paid" | "partly_refunded" | "refunded">().notNull(),
+    paymentRef: varchar("payment_ref", { length: 120 }),
+    couponCode: varchar("coupon_code", { length: 40 }),
+    status: varchar("status", { length: 20 }).$type<MarketOrderStatus>().notNull(),
+    dropoff: jsonText<ShipmentPlace | null>("dropoff"),
+    distanceKm: double("distance_km"),
+    notes: varchar("notes", { length: 300 }),
+    pickupCode: varchar("pickup_code", { length: 4 }),
+    prepMinutes: int("prep_minutes"),
+    readyAt: time("ready_at"),
+    rejection: jsonText<MarketOrder["rejection"]>("rejection"),
+    shipmentId: bigint("shipment_id", { mode: "number", unsigned: true }),
+    rating: jsonText<MarketOrder["rating"]>("rating"),
+    timeline: jsonText<MarketOrderStage[]>("timeline").notNull(),
+    completedAt: time("completed_at"),
+    lang: varchar("lang", { length: 8 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("market_orders_app_idx").on(t.appId, t.status, t.createdAt),
+    index("market_orders_user_idx").on(t.appId, t.userId, t.createdAt),
+    index("market_orders_vendor_idx").on(t.appId, t.vendorId, t.status, t.createdAt),
+    index("market_orders_completed_idx").on(t.appId, t.vendorId, t.completedAt),
+  ],
+);
+
+export const marketComplaints = mysqlTable(
+  "market_complaints",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    orderId: bigint("order_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => marketOrders.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true }).references(() => restaurants.id, { onDelete: "set null" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }),
+    reason: varchar("reason", { length: 20 }).$type<ComplaintReason>().notNull(),
+    text: varchar("text", { length: 2000 }).notNull(),
+    lineIds: jsonText<number[]>("line_ids").notNull(),
+    photoAssetIds: jsonText<string[]>("photo_asset_ids").notNull(),
+    status: varchar("status", { length: 24 }).$type<ComplaintStatus>().notNull(),
+    assignee: varchar("assignee", { length: 191 }),
+    sharedWithVendor: boolean("shared_with_vendor").notNull(),
+    messages: jsonText<MarketComplaint["messages"]>("messages").notNull(),
+    notes: jsonText<MarketComplaint["notes"]>("notes").notNull(),
+    decision: jsonText<ComplaintDecision | null>("decision"),
+    answeredAt: time("answered_at"),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    index("market_complaints_app_idx").on(t.appId, t.status, t.createdAt),
+    index("market_complaints_user_idx").on(t.appId, t.userId, t.createdAt),
+    index("market_complaints_vendor_idx").on(t.appId, t.vendorId, t.createdAt),
+    index("market_complaints_order_idx").on(t.appId, t.orderId),
+  ],
+);
+
+export const walletEntries = mysqlTable(
+  "wallet_entries",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).notNull(),
+    kind: varchar("kind", { length: 12 }).$type<"refund" | "credit" | "payment" | "expired">().notNull(),
+    amount: bigint("amount", { mode: "number" }).notNull(),
+    label: varchar("label", { length: 160 }).notNull(),
+    orderId: bigint("order_id", { mode: "number", unsigned: true }),
+    complaintId: bigint("complaint_id", { mode: "number", unsigned: true }),
+    key: varchar("entry_key", { length: 120 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("wallet_entries_app_key_unique").on(t.appId, t.key), index("wallet_entries_user_idx").on(t.appId, t.userId, t.createdAt)],
 );
 
 export const foodOrders = mysqlTable(

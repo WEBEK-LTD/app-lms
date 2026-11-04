@@ -23,6 +23,16 @@ import type {
   RestaurantStaff,
   RestaurantStaffInput,
   MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
   MarketDepartment,
   MarketProduct,
   MarketProductInput,
@@ -5123,6 +5133,137 @@ export class MysqlStore implements DataStore {
       }
     }
     return { created, updated };
+  }
+
+  // 115.3 The marketplace's orders, complaints and wallet
+
+  async createMarketOrder(input: MarketOrderInput): Promise<MarketOrder> {
+    const [result] = await this.run((db) => db.insert(schema.marketOrders).values({ ...input, total: input.money.total }));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  private marketOrderColumns() {
+    const { total: _total, ...columns } = getTableColumns(schema.marketOrders);
+    void _total;
+    return columns;
+  }
+
+  async getMarketOrder(appId: string, id: number): Promise<MarketOrder | null> {
+    const t = schema.marketOrders;
+    const [row] = await this.run((db) => db.select(this.marketOrderColumns()).from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }> {
+    const t = schema.marketOrders;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.vendorId !== undefined ? eq(t.vendorId, query.vendorId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.completedSince ? gte(t.completedAt, query.completedSince) : undefined,
+      query.completedUntil ? lt(t.completedAt, query.completedUntil) : undefined,
+      query.createdSince ? gte(t.createdAt, query.createdSince) : undefined,
+    );
+    const order = query.order === "oldest" ? [asc(t.createdAt), asc(t.id)] : [desc(t.createdAt), desc(t.id)];
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select(this.marketOrderColumns())
+          .from(t)
+          .where(where)
+          .orderBy(...order)
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect: { statuses?: MarketOrderStatus[] } = {}): Promise<boolean> {
+    const t = schema.marketOrders;
+    if (Object.keys(patch).length === 0) return false;
+    const values = patch.money ? { ...patch, total: patch.money.total } : patch;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(values)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
+    const [result] = await this.run((db) => db.insert(schema.marketComplaints).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null> {
+    const t = schema.marketComplaints;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }> {
+    const t = schema.marketComplaints;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.vendorId !== undefined ? eq(t.vendorId, query.vendorId) : undefined,
+      query.orderId !== undefined ? eq(t.orderId, query.orderId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.assignee !== undefined ? eq(t.assignee, query.assignee) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(query.limit).offset(query.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean> {
+    const t = schema.marketComplaints;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    if (result.affectedRows === 1) return true;
+    return (await this.getMarketComplaint(appId, id)) !== null;
+  }
+
+  async addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }> {
+    const t = schema.walletEntries;
+    try {
+      return await this.run((db) =>
+        db.transaction(async (tx) => {
+          if (entry.amount < 0) {
+            // The person's entries are locked while the balance is read, so two payments can't both spend it.
+            const rows = await tx.select({ amount: t.amount }).from(t).where(and(eq(t.appId, entry.appId), eq(t.userId, entry.userId))).for("update");
+            if (rows.reduce((sum, r) => sum + r.amount, 0) + entry.amount < 0) return { ok: false as const, reason: "insufficient" as const };
+          }
+          const [result] = await tx.insert(t).values(entry);
+          return { ok: true as const, entry: { id: Number(result.insertId), ...entry } };
+        }),
+      );
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async walletBalance(appId: string, userId: number): Promise<number> {
+    const t = schema.walletEntries;
+    const [row] = await this.run((db) => db.select({ sum: sql<string | null>`sum(${t.amount})` }).from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))));
+    return Number(row?.sum ?? 0);
+  }
+
+  async listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }> {
+    const t = schema.walletEntries;
+    const where = and(eq(t.appId, appId), eq(t.userId, userId));
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(page.limit).offset(page.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {

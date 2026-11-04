@@ -1,3 +1,4 @@
+import type { OrderMoney } from "../market/money";
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
@@ -3775,6 +3776,173 @@ export interface FoodOrder {
 
 export type FoodOrderInput = Omit<FoodOrder, "id">;
 export type FoodOrderPatch = Partial<Pick<FoodOrder, "status" | "paymentStatus" | "orderId" | "readyAt" | "rejection" | "shipmentId" | "rating" | "timeline" | "userId" | "updatedAt">>;
+
+// 115.3 The marketplace's orders, complaints and wallet
+
+export const MARKET_ORDER_STATUSES = ["awaiting_payment", "scheduled", "placed", "accepted", "picking", "ready", "on_the_way", "delivered", "picked_up", "rejected", "cancelled"] as const;
+export type MarketOrderStatus = (typeof MARKET_ORDER_STATUSES)[number];
+
+export interface MarketOrderLine {
+  id: number;
+  /** A dish's id (restaurants) or a product's id (groceries and shops). */
+  productId: number;
+  name: string;
+  imageUrl: string | null;
+  quantity: number;
+  unit: MarketUnit;
+  choices: string[];
+  note: string | null;
+  unitPrice: number;
+  wasUnitPrice: number | null;
+  total: number;
+  ifMissing: "similar" | "chosen" | "remove";
+  substituteProductId: number | null;
+  /** Once picked. */
+  outcome: "picked" | "substituted" | "missing" | null;
+  pickedQuantity: number | null;
+  substitute: { productId: number; name: string; quantity: number; total: number } | null;
+}
+
+export interface MarketOrderStage {
+  status: MarketOrderStatus;
+  at: string;
+  by: "customer" | "vendor" | "courier" | "owner" | "system";
+}
+
+/** 115.3 A marketplace order, with its money as priced (lib/market/money.ts `OrderMoney`) kept as it was. */
+export interface MarketOrder {
+  id: number;
+  appId: string;
+  vendorId: number | null;
+  /** Kept when the vendor is deleted. */
+  vendorName: string;
+  vendorKind: VendorKind;
+  userId: number | null;
+  customerName: string;
+  /** E.164; the app's support and the app's courier may see it, never the vendor. */
+  customerPhone: string;
+  fulfilment: "delivery" | "pickup";
+  deliveryBy: "app" | "vendor" | null;
+  scheduledFor: Date | null;
+  lines: MarketOrderLine[];
+  /** The priced order (`OrderMoney`), in minor units of `currency`. */
+  money: OrderMoney;
+  currency: string;
+  paymentMethod: "cash" | "card" | "apple_pay" | "google_pay" | "wallet";
+  paymentStatus: "unpaid" | "paid" | "partly_refunded" | "refunded";
+  /** The gateway payment's reference, once one is started. */
+  paymentRef: string | null;
+  couponCode: string | null;
+  status: MarketOrderStatus;
+  dropoff: ShipmentPlace | null;
+  distanceKm: number | null;
+  notes: string | null;
+  pickupCode: string | null;
+  prepMinutes: number | null;
+  readyAt: Date | null;
+  rejection: { reason: "closing" | "too_busy" | "items_unavailable" | "outside_area" | "other"; note: string | null } | null;
+  /** The app's courier job, once made. */
+  shipmentId: number | null;
+  rating: { vendor: number; courier: number | null; comment: string | null; at: string } | null;
+  timeline: MarketOrderStage[];
+  /** When it was delivered or picked up (statements count it then). */
+  completedAt: Date | null;
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketOrderInput = Omit<MarketOrder, "id">;
+export type MarketOrderPatch = Partial<
+  Pick<MarketOrder, "status" | "paymentStatus" | "paymentRef" | "lines" | "money" | "prepMinutes" | "readyAt" | "rejection" | "shipmentId" | "rating" | "timeline" | "completedAt" | "userId" | "updatedAt">
+>;
+
+export interface MarketOrderQuery {
+  appId: string;
+  userId?: number;
+  vendorId?: number;
+  statuses?: MarketOrderStatus[];
+  /** Completed in [since, until): for statements. */
+  completedSince?: Date;
+  completedUntil?: Date;
+  createdSince?: Date;
+  order?: "newest" | "oldest";
+  limit: number;
+  offset: number;
+}
+
+export const COMPLAINT_REASONS = ["late", "missing_items", "wrong_items", "quality", "damaged", "not_delivered", "charged_wrong", "courier", "other"] as const;
+export type ComplaintReason = (typeof COMPLAINT_REASONS)[number];
+export type ComplaintStatus = "open" | "in_review" | "waiting_for_customer" | "resolved" | "rejected";
+
+export interface ComplaintDecision {
+  outcome: "refund" | "partial_refund" | "compensation" | "no_refund";
+  /** Minor units; null for no refund. */
+  amount: number | null;
+  to: "payment" | "wallet" | "coupon" | null;
+  couponCode: string | null;
+  /** Who bears it in the vendor's statement. */
+  funder: "owner" | "vendor";
+  /** Support's words to the customer. */
+  reason: string | null;
+  by: string;
+  at: Date;
+}
+
+/** 115.3 A complaint on a marketplace order, handled by the app owner's support. */
+export interface MarketComplaint {
+  id: number;
+  appId: string;
+  orderId: number;
+  vendorId: number | null;
+  userId: number | null;
+  reason: ComplaintReason;
+  text: string;
+  lineIds: number[];
+  photoAssetIds: string[];
+  status: ComplaintStatus;
+  /** The support team member it is assigned to (a dashboard user's email). */
+  assignee: string | null;
+  /** The vendor may read it (and the decision). */
+  sharedWithVendor: boolean;
+  messages: { id: number; from: "customer" | "support"; text: string; by: string | null; at: string }[];
+  /** The team's own notes, never shown to the customer or the vendor. */
+  notes: { text: string; by: string; at: string }[];
+  decision: ComplaintDecision | null;
+  /** Last answer from support, for the queue's timers. */
+  answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketComplaintInput = Omit<MarketComplaint, "id">;
+export type MarketComplaintPatch = Partial<Pick<MarketComplaint, "status" | "assignee" | "sharedWithVendor" | "messages" | "notes" | "decision" | "answeredAt" | "photoAssetIds" | "userId" | "updatedAt">>;
+
+export interface MarketComplaintQuery {
+  appId: string;
+  userId?: number;
+  vendorId?: number;
+  orderId?: number;
+  statuses?: ComplaintStatus[];
+  assignee?: string;
+  limit: number;
+  offset: number;
+}
+
+/** 115.3 A wallet entry: positive in (refund, credit), negative out (paid an order, expired). */
+export interface WalletEntry {
+  id: number;
+  appId: string;
+  userId: number;
+  kind: "refund" | "credit" | "payment" | "expired";
+  amount: number;
+  label: string;
+  orderId: number | null;
+  complaintId: number | null;
+  /** Makes an entry once: the same key is never added twice. */
+  key: string;
+  createdAt: Date;
+}
 
 /** One restaurant's delivered orders over a period: what it sold and what the company keeps. */
 export interface FoodStatementRow {
