@@ -7,6 +7,7 @@ import '../../core/routing/app_module.dart';
 import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../delivery/screens/courier_job_screen.dart';
+import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
@@ -123,6 +124,14 @@ List<RouteBase> _pushedRoutes() => [
   _byId('/food-order/:id', (id) => FoodOrderScreen(orderId: id)),
   _byId('/restaurant-order/:id', (id) => RestaurantOrderScreen(orderId: id)),
   _byId('/courier-job/:id', (id) => CourierJobScreen(jobId: id)),
+  // 115 A marketplace vendor's page.
+  GoRoute(
+    path: '/market/:id',
+    pageBuilder: (context, state) => appPage(
+      state,
+      MarketVendorScreen(vendorId: state.pathParameters['id'] ?? ''),
+    ),
+  ),
   GoRoute(
     path: Paths.foodCart,
     pageBuilder: (context, state) => appPage(state, const FoodCartScreen()),
