@@ -8837,4 +8837,319 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get marketNewBasketTitle => 'هل تبدأ سلة جديدة؟';
+
+  @override
+  String marketNewBasketMessage(String vendor) {
+    return 'في سلتك أصناف من $vendor. الطلب يكون من مكان واحد، لذا ستُحذف.';
+  }
+
+  @override
+  String get marketNewBasketConfirm => 'سلة جديدة';
+
+  @override
+  String get marketCheckoutTitle => 'سلتك';
+
+  @override
+  String get marketEmptyBasketTitle => 'سلتك فارغة';
+
+  @override
+  String get marketEmptyBasketMessage =>
+      'أضف أطباقًا أو منتجات من مطعم أو متجر.';
+
+  @override
+  String get marketBrowse => 'تصفّح';
+
+  @override
+  String get marketDelivery => 'توصيل';
+
+  @override
+  String get marketPickup => 'استلام';
+
+  @override
+  String get marketDeliverHere => 'التوصيل إلى';
+
+  @override
+  String get marketUseMyLocation => 'استخدم موقعي';
+
+  @override
+  String get marketAddressDetails => 'المبنى والطابق والشقة وعلامة مميزة';
+
+  @override
+  String get marketNeedAddress => 'اختر مكان التوصيل أولًا.';
+
+  @override
+  String get marketWhen => 'الموعد';
+
+  @override
+  String get marketNow => 'في أقرب وقت';
+
+  @override
+  String get marketLater => 'جدولة';
+
+  @override
+  String marketScheduledFor(String time) {
+    return 'في $time';
+  }
+
+  @override
+  String get marketCoupon => 'رمز القسيمة';
+
+  @override
+  String get marketApply => 'تطبيق';
+
+  @override
+  String get marketUseWallet => 'استخدم رصيد محفظتي';
+
+  @override
+  String get marketPayWith => 'الدفع بواسطة';
+
+  @override
+  String get marketPayCash => 'الدفع عند الاستلام';
+
+  @override
+  String get marketPayCard => 'بطاقة';
+
+  @override
+  String get marketPayApplePay => 'Apple Pay';
+
+  @override
+  String get marketPayGooglePay => 'Google Pay';
+
+  @override
+  String get marketPayWallet => 'المحفظة';
+
+  @override
+  String get marketNotes => 'ملاحظة للمطعم أو المتجر';
+
+  @override
+  String get marketIfMissing => 'إذا لم يتوفر';
+
+  @override
+  String get marketIfMissingSimilar => 'استبدله بمنتج مشابه';
+
+  @override
+  String get marketIfMissingRemove => 'احذفه';
+
+  @override
+  String marketPlaceOrder(String total) {
+    return 'اطلب · $total';
+  }
+
+  @override
+  String get marketPricing => 'جارٍ حساب الإجمالي…';
+
+  @override
+  String get marketOrderSent => 'تم إرسال طلبك.';
+
+  @override
+  String get marketOrderPaid => 'تم الدفع. طلبك في طريقه إلى المطعم أو المتجر.';
+
+  @override
+  String marketOrderTitle(String reference) {
+    return 'الطلب $reference';
+  }
+
+  @override
+  String get marketStatusAwaitingPayment => 'بانتظار الدفع';
+
+  @override
+  String get marketStatusScheduled => 'مجدول';
+
+  @override
+  String get marketStatusPlaced => 'أُرسل إلى المطعم أو المتجر';
+
+  @override
+  String get marketStatusAccepted => 'قيد التحضير';
+
+  @override
+  String get marketStatusPicking => 'قيد التجهيز';
+
+  @override
+  String get marketStatusReady => 'جاهز';
+
+  @override
+  String get marketStatusOnTheWay => 'في الطريق';
+
+  @override
+  String get marketStatusDelivered => 'تم التوصيل';
+
+  @override
+  String get marketStatusPickedUp => 'تم الاستلام';
+
+  @override
+  String get marketStatusRejected => 'مرفوض';
+
+  @override
+  String get marketStatusCancelled => 'ملغى';
+
+  @override
+  String marketPickupCode(String code) {
+    return 'رمز الاستلام: $code';
+  }
+
+  @override
+  String get marketCancelOrder => 'إلغاء الطلب';
+
+  @override
+  String get marketPayAgain => 'ادفع الآن';
+
+  @override
+  String get marketMyOrders => 'طلباتي';
+
+  @override
+  String get marketNoOrders => 'لا توجد طلبات بعد';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name في الطريق بطلبك';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'آخر تحديث $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'يوصّل المطعم أو المتجر هذا الطلب بنفسه. ستظهر لك كل خطوة هنا.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'يصل نحو $time';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'يكون جاهزًا نحو $time';
+  }
+
+  @override
+  String get marketReportProblem => 'الإبلاغ عن مشكلة';
+
+  @override
+  String get marketViewComplaint => 'شكواك';
+
+  @override
+  String get marketComplaintWindow =>
+      'يمكنك الإبلاغ عن مشكلة حتى 48 ساعة بعد وصول الطلب. يرد عليك فريق الدعم هنا في التطبيق.';
+
+  @override
+  String marketComplaintTitle(String reference) {
+    return 'الشكوى $reference';
+  }
+
+  @override
+  String get marketWhatHappened => 'ماذا حدث؟';
+
+  @override
+  String get marketReasonLate => 'وصل متأخرًا';
+
+  @override
+  String get marketReasonMissingItems => 'أصناف ناقصة';
+
+  @override
+  String get marketReasonWrongItems => 'أصناف خاطئة';
+
+  @override
+  String get marketReasonQuality => 'الجودة غير مناسبة';
+
+  @override
+  String get marketReasonDamaged => 'وصل تالفًا';
+
+  @override
+  String get marketReasonNotDelivered => 'لم يصل';
+
+  @override
+  String get marketReasonChargedWrong => 'تم خصم مبلغ خاطئ';
+
+  @override
+  String get marketReasonCourier => 'بخصوص المندوب';
+
+  @override
+  String get marketReasonOther => 'شيء آخر';
+
+  @override
+  String get marketWhichItems => 'أي الأصناف؟';
+
+  @override
+  String get marketTellUs => 'أخبرنا بما حدث';
+
+  @override
+  String get marketTellUsMore => 'اكتب بضع كلمات على الأقل.';
+
+  @override
+  String marketComplaintPhotos(int count) {
+    return 'الصور ($count من 5)';
+  }
+
+  @override
+  String get marketAddPhoto => 'أضف صورة';
+
+  @override
+  String get marketPhotoType => 'اختر صورة JPEG أو PNG أو WebP حتى 8 ميجابايت.';
+
+  @override
+  String get marketSendComplaint => 'أرسل إلى الدعم';
+
+  @override
+  String get marketComplaintSent => 'تم الإرسال. سيرد فريق الدعم هنا.';
+
+  @override
+  String get marketComplaintOpen => 'مُرسلة';
+
+  @override
+  String get marketComplaintInReview => 'قيد المراجعة';
+
+  @override
+  String get marketComplaintWaiting => 'بانتظار ردك';
+
+  @override
+  String get marketComplaintResolved => 'تم الحل';
+
+  @override
+  String get marketComplaintRejected => 'أُغلقت دون استرداد';
+
+  @override
+  String marketDecisionRefund(String amount) {
+    return 'تم استرداد $amount';
+  }
+
+  @override
+  String marketDecisionPartial(String amount) {
+    return 'استرداد جزئي: $amount';
+  }
+
+  @override
+  String marketDecisionCompensation(String amount) {
+    return 'تعويض: $amount';
+  }
+
+  @override
+  String get marketDecisionNone => 'لا يوجد استرداد';
+
+  @override
+  String get marketDecisionToPayment => 'إلى وسيلة الدفع التي استخدمتها';
+
+  @override
+  String get marketDecisionToWallet => 'أُضيف إلى محفظتك';
+
+  @override
+  String marketDecisionToCoupon(String code) {
+    return 'كقسيمة: $code';
+  }
+
+  @override
+  String get marketWriteToSupport => 'اكتب إلى الدعم';
+
+  @override
+  String get marketSupport => 'الدعم';
+
+  @override
+  String get marketYou => 'أنت';
+
+  @override
+  String get marketComplaintClosed => 'هذه الشكوى مغلقة.';
 }

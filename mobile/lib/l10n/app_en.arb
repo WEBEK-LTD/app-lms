@@ -9394,5 +9394,456 @@
         "type": "int"
       }
     }
+  },
+  "marketNewBasketTitle": "Start a new basket?",
+  "@marketNewBasketTitle": {
+    "description": "115 Adding an item from another vendor: the question's title."
+  },
+  "marketNewBasketMessage": "Your basket has items from {vendor}. An order is from one place, so they'll be removed.",
+  "@marketNewBasketMessage": {
+    "description": "115 Adding an item from another vendor replaces the basket.",
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "marketNewBasketConfirm": "New basket",
+  "@marketNewBasketConfirm": {
+    "description": "115 Confirms starting a new basket."
+  },
+  "marketCheckoutTitle": "Your basket",
+  "@marketCheckoutTitle": {
+    "description": "115 The checkout screen's title."
+  },
+  "marketEmptyBasketTitle": "Your basket is empty",
+  "@marketEmptyBasketTitle": {
+    "description": "115 The checkout with nothing in the basket."
+  },
+  "marketEmptyBasketMessage": "Add dishes or products from a restaurant or a shop.",
+  "@marketEmptyBasketMessage": {
+    "description": "115 The checkout with nothing in the basket."
+  },
+  "marketBrowse": "Browse",
+  "@marketBrowse": {
+    "description": "115 Back to the marketplace from an empty basket."
+  },
+  "marketDelivery": "Delivery",
+  "@marketDelivery": {
+    "description": "115 The order is delivered."
+  },
+  "marketPickup": "Pick up",
+  "@marketPickup": {
+    "description": "115 The customer picks the order up at the vendor."
+  },
+  "marketDeliverHere": "Deliver to",
+  "@marketDeliverHere": {
+    "description": "115 The checkout's address section."
+  },
+  "marketUseMyLocation": "Use my location",
+  "@marketUseMyLocation": {
+    "description": "115 Sets the delivery address from the phone's position."
+  },
+  "marketAddressDetails": "Building, floor, flat, a landmark",
+  "@marketAddressDetails": {
+    "description": "115 The address details field."
+  },
+  "marketNeedAddress": "Choose where to deliver first.",
+  "@marketNeedAddress": {
+    "description": "115 Ordering for delivery without an address."
+  },
+  "marketWhen": "When",
+  "@marketWhen": {
+    "description": "115 The checkout's time section."
+  },
+  "marketNow": "As soon as possible",
+  "@marketNow": {
+    "description": "115 Order now."
+  },
+  "marketLater": "Schedule",
+  "@marketLater": {
+    "description": "115 Order for a later time."
+  },
+  "marketScheduledFor": "For {time}",
+  "@marketScheduledFor": {
+    "description": "115 A scheduled order's time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCoupon": "Coupon code",
+  "@marketCoupon": {
+    "description": "115 The coupon field."
+  },
+  "marketApply": "Apply",
+  "@marketApply": {
+    "description": "115 Applies the coupon."
+  },
+  "marketUseWallet": "Use my wallet balance",
+  "@marketUseWallet": {
+    "description": "115 Pays part or all of the order from the wallet."
+  },
+  "marketPayWith": "Pay with",
+  "@marketPayWith": {
+    "description": "115 The payment section."
+  },
+  "marketPayCash": "Cash on delivery",
+  "@marketPayCash": {
+    "description": "115 Payment method."
+  },
+  "marketPayCard": "Card",
+  "@marketPayCard": {
+    "description": "115 Payment method."
+  },
+  "marketPayApplePay": "Apple Pay",
+  "@marketPayApplePay": {
+    "description": "115 Payment method."
+  },
+  "marketPayGooglePay": "Google Pay",
+  "@marketPayGooglePay": {
+    "description": "115 Payment method."
+  },
+  "marketPayWallet": "Wallet",
+  "@marketPayWallet": {
+    "description": "115 Payment method: all from the wallet."
+  },
+  "marketNotes": "A note for the restaurant or the shop",
+  "@marketNotes": {
+    "description": "115 The order's notes field."
+  },
+  "marketIfMissing": "If it's out",
+  "@marketIfMissing": {
+    "description": "115 A shop item: what to do when it's out when picked."
+  },
+  "marketIfMissingSimilar": "Replace with a similar one",
+  "@marketIfMissingSimilar": {
+    "description": "115 A shop item out of stock: substitute it."
+  },
+  "marketIfMissingRemove": "Remove it",
+  "@marketIfMissingRemove": {
+    "description": "115 A shop item out of stock: remove it."
+  },
+  "marketPlaceOrder": "Place order · {total}",
+  "@marketPlaceOrder": {
+    "description": "115 Places the order.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "marketPricing": "Working out the total…",
+  "@marketPricing": {
+    "description": "115 While the quote is asked for."
+  },
+  "marketOrderSent": "Your order is sent.",
+  "@marketOrderSent": {
+    "description": "115 After ordering without an online payment."
+  },
+  "marketOrderPaid": "Paid. Your order is on its way to the restaurant or the shop.",
+  "@marketOrderPaid": {
+    "description": "115 After paying online."
+  },
+  "marketOrderTitle": "Order {reference}",
+  "@marketOrderTitle": {
+    "description": "115 An order's screen title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "marketStatusAwaitingPayment": "Waiting for payment",
+  "@marketStatusAwaitingPayment": {
+    "description": "115 Order status."
+  },
+  "marketStatusScheduled": "Scheduled",
+  "@marketStatusScheduled": {
+    "description": "115 Order status."
+  },
+  "marketStatusPlaced": "Sent to the restaurant or the shop",
+  "@marketStatusPlaced": {
+    "description": "115 Order status."
+  },
+  "marketStatusAccepted": "Being prepared",
+  "@marketStatusAccepted": {
+    "description": "115 Order status."
+  },
+  "marketStatusPicking": "Being picked",
+  "@marketStatusPicking": {
+    "description": "115 Order status: a shop picks the items."
+  },
+  "marketStatusReady": "Ready",
+  "@marketStatusReady": {
+    "description": "115 Order status."
+  },
+  "marketStatusOnTheWay": "On the way",
+  "@marketStatusOnTheWay": {
+    "description": "115 Order status."
+  },
+  "marketStatusDelivered": "Delivered",
+  "@marketStatusDelivered": {
+    "description": "115 Order status."
+  },
+  "marketStatusPickedUp": "Picked up",
+  "@marketStatusPickedUp": {
+    "description": "115 Order status."
+  },
+  "marketStatusRejected": "Turned down",
+  "@marketStatusRejected": {
+    "description": "115 Order status."
+  },
+  "marketStatusCancelled": "Cancelled",
+  "@marketStatusCancelled": {
+    "description": "115 Order status."
+  },
+  "marketPickupCode": "Pick-up code: {code}",
+  "@marketPickupCode": {
+    "description": "115 Shown to the vendor when picking up.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "marketCancelOrder": "Cancel order",
+  "@marketCancelOrder": {
+    "description": "115 Cancels an order before the vendor accepts it."
+  },
+  "marketPayAgain": "Pay now",
+  "@marketPayAgain": {
+    "description": "115 Opens a new payment page for an order waiting for its payment."
+  },
+  "marketMyOrders": "My orders",
+  "@marketMyOrders": {
+    "description": "115 The customer's marketplace orders."
+  },
+  "marketNoOrders": "No orders yet",
+  "@marketNoOrders": {
+    "description": "115 The customer has no marketplace orders."
+  },
+  "marketTrackingCourier": "{name} is bringing your order",
+  "@marketTrackingCourier": {
+    "description": "115 The app's courier on the way, on the order's map.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketTrackingUpdated": "Updated {time}",
+  "@marketTrackingUpdated": {
+    "description": "115 When the courier's position was last updated.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketVendorDelivers": "The restaurant or the shop delivers this order itself. You'll see each step here.",
+  "@marketVendorDelivers": {
+    "description": "115 An order the vendor delivers: stages only, no map."
+  },
+  "marketArrivesAt": "Arrives around {time}",
+  "@marketArrivesAt": {
+    "description": "115 When the order should arrive.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketReadyAt": "Ready around {time}",
+  "@marketReadyAt": {
+    "description": "115 When a pick-up order should be ready.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketReportProblem": "Report a problem",
+  "@marketReportProblem": {
+    "description": "115.9 Opens a complaint on an order."
+  },
+  "marketViewComplaint": "Your complaint",
+  "@marketViewComplaint": {
+    "description": "115.9 Opens the order's complaint."
+  },
+  "marketComplaintWindow": "You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.",
+  "@marketComplaintWindow": {
+    "description": "115.9 Above the complaint form."
+  },
+  "marketComplaintTitle": "Complaint {reference}",
+  "@marketComplaintTitle": {
+    "description": "115.9 A complaint's screen title.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWhatHappened": "What happened?",
+  "@marketWhatHappened": {
+    "description": "115.9 The complaint's reason section."
+  },
+  "marketReasonLate": "It came late",
+  "@marketReasonLate": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonMissingItems": "Items were missing",
+  "@marketReasonMissingItems": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonWrongItems": "Wrong items",
+  "@marketReasonWrongItems": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonQuality": "The quality wasn't right",
+  "@marketReasonQuality": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonDamaged": "It arrived damaged",
+  "@marketReasonDamaged": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonNotDelivered": "It never arrived",
+  "@marketReasonNotDelivered": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonChargedWrong": "I was charged wrong",
+  "@marketReasonChargedWrong": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonCourier": "About the courier",
+  "@marketReasonCourier": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketReasonOther": "Something else",
+  "@marketReasonOther": {
+    "description": "115.9 Complaint reason."
+  },
+  "marketWhichItems": "Which items?",
+  "@marketWhichItems": {
+    "description": "115.9 The order's lines a complaint is about."
+  },
+  "marketTellUs": "Tell us what happened",
+  "@marketTellUs": {
+    "description": "115.9 The complaint's text field."
+  },
+  "marketTellUsMore": "Write at least a few words.",
+  "@marketTellUsMore": {
+    "description": "115.9 The complaint's text is too short."
+  },
+  "marketComplaintPhotos": "Photos ({count} of 5)",
+  "@marketComplaintPhotos": {
+    "description": "115.9 Photos added to a complaint.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "marketAddPhoto": "Add a photo",
+  "@marketAddPhoto": {
+    "description": "115.9 Adds a photo to a complaint."
+  },
+  "marketPhotoType": "Choose a JPEG, PNG or WebP photo up to 8 MB.",
+  "@marketPhotoType": {
+    "description": "115.9 A complaint photo of the wrong kind or too big."
+  },
+  "marketSendComplaint": "Send to support",
+  "@marketSendComplaint": {
+    "description": "115.9 Sends the complaint."
+  },
+  "marketComplaintSent": "Sent. Our support team will answer here.",
+  "@marketComplaintSent": {
+    "description": "115.9 After sending a complaint."
+  },
+  "marketComplaintOpen": "Sent",
+  "@marketComplaintOpen": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintInReview": "Being reviewed",
+  "@marketComplaintInReview": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintWaiting": "Waiting for your reply",
+  "@marketComplaintWaiting": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintResolved": "Resolved",
+  "@marketComplaintResolved": {
+    "description": "115.9 Complaint status."
+  },
+  "marketComplaintRejected": "Closed without a refund",
+  "@marketComplaintRejected": {
+    "description": "115.9 Complaint status."
+  },
+  "marketDecisionRefund": "Refunded {amount}",
+  "@marketDecisionRefund": {
+    "description": "115.9 Support's decision: a full refund.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionPartial": "Partly refunded: {amount}",
+  "@marketDecisionPartial": {
+    "description": "115.9 Support's decision: a partial refund.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionCompensation": "Compensation: {amount}",
+  "@marketDecisionCompensation": {
+    "description": "115.9 Support's decision: compensation.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketDecisionNone": "No refund",
+  "@marketDecisionNone": {
+    "description": "115.9 Support's decision: no refund."
+  },
+  "marketDecisionToPayment": "Back to how you paid",
+  "@marketDecisionToPayment": {
+    "description": "115.9 Where the refund went."
+  },
+  "marketDecisionToWallet": "Added to your wallet",
+  "@marketDecisionToWallet": {
+    "description": "115.9 Where the refund went."
+  },
+  "marketDecisionToCoupon": "As a coupon: {code}",
+  "@marketDecisionToCoupon": {
+    "description": "115.9 Where the refund went: a coupon code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "marketWriteToSupport": "Write to support",
+  "@marketWriteToSupport": {
+    "description": "115.9 The message field on a complaint."
+  },
+  "marketSupport": "Support",
+  "@marketSupport": {
+    "description": "115.9 A message from the app's support."
+  },
+  "marketYou": "You",
+  "@marketYou": {
+    "description": "115.9 A message from the customer."
+  },
+  "marketComplaintClosed": "This complaint is closed.",
+  "@marketComplaintClosed": {
+    "description": "115.9 A closed complaint, no more messages."
   }
 }

@@ -14035,6 +14035,570 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 place} other{{count} places}}'**
   String marketPlaces(int count);
+
+  /// 115 Adding an item from another vendor: the question's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new basket?'**
+  String get marketNewBasketTitle;
+
+  /// 115 Adding an item from another vendor replaces the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket has items from {vendor}. An order is from one place, so they\'ll be removed.'**
+  String marketNewBasketMessage(String vendor);
+
+  /// 115 Confirms starting a new basket.
+  ///
+  /// In en, this message translates to:
+  /// **'New basket'**
+  String get marketNewBasketConfirm;
+
+  /// 115 The checkout screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket'**
+  String get marketCheckoutTitle;
+
+  /// 115 The checkout with nothing in the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Your basket is empty'**
+  String get marketEmptyBasketTitle;
+
+  /// 115 The checkout with nothing in the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Add dishes or products from a restaurant or a shop.'**
+  String get marketEmptyBasketMessage;
+
+  /// 115 Back to the marketplace from an empty basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse'**
+  String get marketBrowse;
+
+  /// 115 The order is delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get marketDelivery;
+
+  /// 115 The customer picks the order up at the vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up'**
+  String get marketPickup;
+
+  /// 115 The checkout's address section.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get marketDeliverHere;
+
+  /// 115 Sets the delivery address from the phone's position.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get marketUseMyLocation;
+
+  /// 115 The address details field.
+  ///
+  /// In en, this message translates to:
+  /// **'Building, floor, flat, a landmark'**
+  String get marketAddressDetails;
+
+  /// 115 Ordering for delivery without an address.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where to deliver first.'**
+  String get marketNeedAddress;
+
+  /// 115 The checkout's time section.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get marketWhen;
+
+  /// 115 Order now.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get marketNow;
+
+  /// 115 Order for a later time.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get marketLater;
+
+  /// 115 A scheduled order's time.
+  ///
+  /// In en, this message translates to:
+  /// **'For {time}'**
+  String marketScheduledFor(String time);
+
+  /// 115 The coupon field.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon code'**
+  String get marketCoupon;
+
+  /// 115 Applies the coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get marketApply;
+
+  /// 115 Pays part or all of the order from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my wallet balance'**
+  String get marketUseWallet;
+
+  /// 115 The payment section.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with'**
+  String get marketPayWith;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get marketPayCash;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get marketPayCard;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get marketPayApplePay;
+
+  /// 115 Payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Pay'**
+  String get marketPayGooglePay;
+
+  /// 115 Payment method: all from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get marketPayWallet;
+
+  /// 115 The order's notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'A note for the restaurant or the shop'**
+  String get marketNotes;
+
+  /// 115 A shop item: what to do when it's out when picked.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s out'**
+  String get marketIfMissing;
+
+  /// 115 A shop item out of stock: substitute it.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with a similar one'**
+  String get marketIfMissingSimilar;
+
+  /// 115 A shop item out of stock: remove it.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove it'**
+  String get marketIfMissingRemove;
+
+  /// 115 Places the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Place order · {total}'**
+  String marketPlaceOrder(String total);
+
+  /// 115 While the quote is asked for.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out the total…'**
+  String get marketPricing;
+
+  /// 115 After ordering without an online payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is sent.'**
+  String get marketOrderSent;
+
+  /// 115 After paying online.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your order is on its way to the restaurant or the shop.'**
+  String get marketOrderPaid;
+
+  /// 115 An order's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String marketOrderTitle(String reference);
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get marketStatusAwaitingPayment;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get marketStatusScheduled;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the restaurant or the shop'**
+  String get marketStatusPlaced;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Being prepared'**
+  String get marketStatusAccepted;
+
+  /// 115 Order status: a shop picks the items.
+  ///
+  /// In en, this message translates to:
+  /// **'Being picked'**
+  String get marketStatusPicking;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get marketStatusReady;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get marketStatusOnTheWay;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get marketStatusDelivered;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get marketStatusPickedUp;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned down'**
+  String get marketStatusRejected;
+
+  /// 115 Order status.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get marketStatusCancelled;
+
+  /// 115 Shown to the vendor when picking up.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick-up code: {code}'**
+  String marketPickupCode(String code);
+
+  /// 115 Cancels an order before the vendor accepts it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get marketCancelOrder;
+
+  /// 115 Opens a new payment page for an order waiting for its payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get marketPayAgain;
+
+  /// 115 The customer's marketplace orders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get marketMyOrders;
+
+  /// 115 The customer has no marketplace orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get marketNoOrders;
+
+  /// 115 The app's courier on the way, on the order's map.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is bringing your order'**
+  String marketTrackingCourier(String name);
+
+  /// 115 When the courier's position was last updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String marketTrackingUpdated(String time);
+
+  /// 115 An order the vendor delivers: stages only, no map.
+  ///
+  /// In en, this message translates to:
+  /// **'The restaurant or the shop delivers this order itself. You\'ll see each step here.'**
+  String get marketVendorDelivers;
+
+  /// 115 When the order should arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives around {time}'**
+  String marketArrivesAt(String time);
+
+  /// 115 When a pick-up order should be ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready around {time}'**
+  String marketReadyAt(String time);
+
+  /// 115.9 Opens a complaint on an order.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get marketReportProblem;
+
+  /// 115.9 Opens the order's complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your complaint'**
+  String get marketViewComplaint;
+
+  /// 115.9 Above the complaint form.
+  ///
+  /// In en, this message translates to:
+  /// **'You can report a problem until 48 hours after the order arrives. Our support team answers here in the app.'**
+  String get marketComplaintWindow;
+
+  /// 115.9 A complaint's screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint {reference}'**
+  String marketComplaintTitle(String reference);
+
+  /// 115.9 The complaint's reason section.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened?'**
+  String get marketWhatHappened;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It came late'**
+  String get marketReasonLate;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Items were missing'**
+  String get marketReasonMissingItems;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong items'**
+  String get marketReasonWrongItems;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The quality wasn\'t right'**
+  String get marketReasonQuality;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It arrived damaged'**
+  String get marketReasonDamaged;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'It never arrived'**
+  String get marketReasonNotDelivered;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'I was charged wrong'**
+  String get marketReasonChargedWrong;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'About the courier'**
+  String get marketReasonCourier;
+
+  /// 115.9 Complaint reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get marketReasonOther;
+
+  /// 115.9 The order's lines a complaint is about.
+  ///
+  /// In en, this message translates to:
+  /// **'Which items?'**
+  String get marketWhichItems;
+
+  /// 115.9 The complaint's text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what happened'**
+  String get marketTellUs;
+
+  /// 115.9 The complaint's text is too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least a few words.'**
+  String get marketTellUsMore;
+
+  /// 115.9 Photos added to a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos ({count} of 5)'**
+  String marketComplaintPhotos(int count);
+
+  /// 115.9 Adds a photo to a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get marketAddPhoto;
+
+  /// 115.9 A complaint photo of the wrong kind or too big.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a JPEG, PNG or WebP photo up to 8 MB.'**
+  String get marketPhotoType;
+
+  /// 115.9 Sends the complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to support'**
+  String get marketSendComplaint;
+
+  /// 115.9 After sending a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Our support team will answer here.'**
+  String get marketComplaintSent;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get marketComplaintOpen;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Being reviewed'**
+  String get marketComplaintInReview;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your reply'**
+  String get marketComplaintWaiting;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get marketComplaintResolved;
+
+  /// 115.9 Complaint status.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed without a refund'**
+  String get marketComplaintRejected;
+
+  /// 115.9 Support's decision: a full refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded {amount}'**
+  String marketDecisionRefund(String amount);
+
+  /// 115.9 Support's decision: a partial refund.
+  ///
+  /// In en, this message translates to:
+  /// **'Partly refunded: {amount}'**
+  String marketDecisionPartial(String amount);
+
+  /// 115.9 Support's decision: compensation.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensation: {amount}'**
+  String marketDecisionCompensation(String amount);
+
+  /// 115.9 Support's decision: no refund.
+  ///
+  /// In en, this message translates to:
+  /// **'No refund'**
+  String get marketDecisionNone;
+
+  /// 115.9 Where the refund went.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to how you paid'**
+  String get marketDecisionToPayment;
+
+  /// 115.9 Where the refund went.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your wallet'**
+  String get marketDecisionToWallet;
+
+  /// 115.9 Where the refund went: a coupon code.
+  ///
+  /// In en, this message translates to:
+  /// **'As a coupon: {code}'**
+  String marketDecisionToCoupon(String code);
+
+  /// 115.9 The message field on a complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to support'**
+  String get marketWriteToSupport;
+
+  /// 115.9 A message from the app's support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get marketSupport;
+
+  /// 115.9 A message from the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get marketYou;
+
+  /// 115.9 A closed complaint, no more messages.
+  ///
+  /// In en, this message translates to:
+  /// **'This complaint is closed.'**
+  String get marketComplaintClosed;
 }
 
 class _AppLocalizationsDelegate

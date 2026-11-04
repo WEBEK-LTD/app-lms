@@ -200,6 +200,7 @@ class MarketItem {
     required this.priceValue,
     this.description,
     this.imageUrl,
+    this.photos = const [],
     this.oldPrice,
     this.unit = MarketUnit.piece,
     this.step = 1,
@@ -213,6 +214,9 @@ class MarketItem {
   final String name;
   final String? description;
   final String? imageUrl;
+
+  /// 115.7.1 Every photo, the main one first.
+  final List<String> photos;
 
   /// Per piece, or per unit of weight ("EGP 65.00").
   final String price;
