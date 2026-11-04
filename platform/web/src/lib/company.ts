@@ -11,7 +11,7 @@ export const COMPANY = {
   countryCode: "EG",
   website: "https://yallapp.com.tr",
   /** Other names people search Yallapp by, for search engines (WebSite alternateName). */
-  alternateNames: ["Yalla App", "Yallapp app", "يلا اب", "يلا آب", "يلا أب"],
+  alternateNames: ["Yalla App", "Yallapp app", "Yallapp App Builder", "يلا اب", "يلا آب", "يلا أب"],
   /** Yallapp's official profiles, for search engines (Organization sameAs). */
   profiles: [
     "https://www.facebook.com/profile.php?id=61595642630978",

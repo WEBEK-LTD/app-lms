@@ -19,6 +19,7 @@ import { APP_STORES, STORE_FACTS } from "@/lib/stores";
 import { formatMessage, formatNumber, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import { COMPARE_TEXT } from "@/lib/compare";
 
 export function pricingMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -156,6 +157,7 @@ export async function PricingPage({ lang }: { lang: Lang }) {
           <p className="m-0">{richText(m.stores, strong)}</p>
           <p className="m-0">{richText(m.fees, { link: (chunk) => <Link href={localePath(lang, "/refund")}>{chunk}</Link> })}</p>
         </div>
+        <MoreLink href={localePath(lang, "/compare")}>{COMPARE_TEXT[lang].title}</MoreLink>
       </Section>
       <Section id="studio">
         <SectionTitle eyebrow={s.studio} title={s.plansTitle} text={s.plansText} />

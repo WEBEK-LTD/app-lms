@@ -11,6 +11,40 @@ import { Icon } from "./icon";
 import { SiteFooter, SiteHeader, type SitePage } from "./site-chrome";
 import { WhatsAppMark } from "./brand-marks";
 import { WhatsAppLink } from "./whatsapp-link";
+import { JsonLdScript } from "./json-ld";
+import { breadcrumbLd, siteUrl } from "@/lib/seo";
+
+/** The marketing pages that are one step below the home page, by the header's `current`, and their address. */
+const TRAIL_PATHS: Partial<Record<SitePage, string>> = {
+  features: "/features",
+  integrations: "/integrations",
+  how: "/how-it-works",
+  studio: "/yallapp-studio",
+  pricing: "/pricing",
+  demo: "/demo",
+  faq: "/faq",
+  contact: "/contact",
+};
+
+/** The page's place below the home page for search results (BreadcrumbList): `trail`, else the one step from `current`. */
+function pageTrail(lang: Lang, current: SitePage | undefined, trail: { name: string; path: string }[] | false | undefined) {
+  if (trail === false) return null;
+  if (trail) return trail;
+  const path = current ? TRAIL_PATHS[current] : undefined;
+  if (!current || !path) return null;
+  const nav = messagesFor(lang).nav;
+  const names: Partial<Record<SitePage, string>> = {
+    features: nav.features,
+    integrations: nav.integrations,
+    how: nav.how,
+    studio: messagesFor(lang).studio.metaTitle,
+    pricing: nav.pricing,
+    demo: nav.demo,
+    faq: messagesFor(lang).meta.faqTitle,
+    contact: nav.contact,
+  };
+  return [{ name: names[current]!, path }];
+}
 
 /** A public marketing page: header with `current` marked, a title band, the content and the full footer. */
 export function MarketingPage({
@@ -20,8 +54,11 @@ export function MarketingPage({
   intro,
   aside,
   children,
+  trail,
   lang = DEFAULT_LANG,
 }: {
+  /** The page's place below the home page for search results; by default the one step from `current`, false for none. */
+  trail?: { name: string; path: string }[] | false;
   /** 55 The page's language: its header, closing band and footer follow it. */
   lang?: Lang;
   current?: SitePage;
@@ -32,8 +69,10 @@ export function MarketingPage({
   aside?: ReactNode;
   children: ReactNode;
 }) {
+  const steps = pageTrail(lang, current, trail);
   return (
     <div className="bg-white">
+      {steps ? <JsonLdScript data={breadcrumbLd(siteUrl(), steps, lang === "en" ? undefined : lang)} /> : null}
       <SiteHeader current={current} lang={lang} />
       <main>
         <section className="bg-ivory">
