@@ -635,6 +635,18 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       createdAt: NOW,
       updatedAt: NOW,
     });
+    // 115 A marketplace order of the other client's, on its vendor, and a complaint about it.
+    const theirMarketOrder = await store.createMarketOrder({
+      appId: theirs.food.id, vendorId: restaurant.id, vendorName: `${MARK} kitchen`, vendorKind: "restaurant", userId: null, customerName: `${MARK} customer`, customerPhone: "+201001113333",
+      fulfilment: "delivery", deliveryBy: "vendor", scheduledFor: null, lines: [], currency: "EGP", paymentMethod: "cash", paymentStatus: "unpaid", paymentRef: null, couponCode: null, status: "placed",
+      money: { lines: [{ kind: "total", amount: 0 }], itemsBefore: 0, itemDiscounts: 0, items: 0, coupon: null, club: 0, delivery: 0, deliveryDiscount: 0, tax: 0, tip: 0, total: 0, wallet: 0, payNow: 0, split: { commission: 0, vendorEarns: 0, ownerEarns: 0, collectedBy: "vendor", dueToVendor: 0 } },
+      dropoff: { address: `${MARK} drop-off`, details: null, lat: null, lng: null }, distanceKm: null, notes: MARK, pickupCode: null, prepMinutes: null, readyAt: null, rejection: null, shipmentId: null, rating: null,
+      timeline: [{ status: "placed", at: NOW.toISOString(), by: "customer" }], completedAt: null, lang: null, createdAt: NOW, updatedAt: NOW,
+    });
+    const theirComplaint = await store.createMarketComplaint({
+      appId: theirs.food.id, orderId: theirMarketOrder.id, vendorId: restaurant.id, userId: null, reason: "late", text: MARK, lineIds: [], photoAssetIds: [], status: "open", assignee: null, sharedWithVendor: false,
+      messages: [{ id: 1, from: "customer", text: MARK, by: null, at: NOW.toISOString() }], notes: [], decision: null, answeredAt: null, createdAt: NOW, updatedAt: NOW,
+    });
     // 113.2 Their student's day at the gate; 113.3 a member of their staff and their leave request.
     await store.saveSchoolCheckin({ appId: k12, personId: theirStudent.person.id, role: "student", date: "2026-10-20", inAt: NOW, inMethod: "qr", outAt: null, outMethod: null, late: false, leftEarly: false, mark: null, corrections: [{ at: NOW.toISOString(), by: MARK, reason: MARK, change: MARK }], updatedAt: NOW });
     const theirStaff = await store.createSchoolPerson({ appId: k12, role: "staff", name: `${MARK} nurse`, phone: "+201007775555", email: null, classId: null, code: null, photoAssetId: null, active: true, jobTitle: MARK }, NOW);
@@ -695,9 +707,10 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       restaurant_id: String(restaurant.id),
       // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
       food_order_id: String(foodOrder.id),
-      // 115.2 The marketplace's contract comes before its server (115.3): no vendors or complaints yet, so each path answers not found.
-      vendor_id: "1",
-      complaint_id: "1",
+      // 115 The other client's vendor, its marketplace order (market paths get this one, see hosted()) and a complaint.
+      vendor_id: String(restaurant.id),
+      market_order_id: String(theirMarketOrder.id),
+      complaint_id: String(theirComplaint.id),
       device_id: customerDevice,
       conversation_id: conversation.id,
       message_id: String(message.id),
@@ -806,7 +819,8 @@ describe("79.3 one client never reaches another's data through the Owner API", (
 
   async function hosted(app: App, method: string, route: string, token: string | null, body: unknown = {}) {
     const food = hostedKind(route) === "food";
-    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[food && name === "order_id" ? "food_order_id" : name === "note_id" && route.startsWith("/classroom/behaviour") ? "behaviour_note_id" : name]!);
+    const market = /^\/(market|vendor|me\/(market-orders|complaints|wallet|club))\b/.test(route);
+    const concrete = route.replace(/\{(\w+)\}/g, (_, name: string) => hostedIds[market && name === "order_id" ? "market_order_id" : food && name === "order_id" ? "food_order_id" : name === "note_id" && route.startsWith("/classroom/behaviour") ? "behaviour_note_id" : name]!);
     const assetUrl = (id: string) => `https://yallapp.test/a/${id}`;
     return handleHosted(
       {

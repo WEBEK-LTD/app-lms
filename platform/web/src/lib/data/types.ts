@@ -3328,6 +3328,27 @@ export interface DeliverySettings {
   taxi?: TaxiSettings;
   /** 115.5 Marketplace apps: the app's couriers' terms (lib/market/delivery.ts); absent: the Delivery prices above, no charge to vendors. */
   market?: MarketCourierTerms;
+  /** 115 Marketplace apps: country, taxes, payment ways, pick-up, orders for later, the club and the wallet (lib/market/settings.ts); absent: the defaults. */
+  marketApp?: MarketAppSettings;
+}
+
+/** 115 A marketplace's settings, as the app owner sets them in Studio › Settings (115.12). Amounts in the currency's minor units. */
+export interface MarketAppSettings {
+  /** ISO 3166-1 alpha-2. */
+  country: string;
+  /** ISO 4217; null: the Delivery settings' currency. */
+  currency: string | null;
+  tax: { ratePercent: number; included: boolean; onDelivery: boolean; label: string };
+  /** lib/market/payments.ts `MarketPaymentSettings`. */
+  payment: { gateway: PaymentProviderId | null; cash: boolean; cashMax: number | null; applePay: boolean; googlePay: boolean };
+  pickup: boolean;
+  scheduling: { enabled: boolean; daysAhead: number };
+  club: boolean;
+  wallet: boolean;
+  /** How far a weighed item may go above what was ordered (percent). */
+  weightTolerancePercent: number;
+  /** Vendors' own app in the bundle, or the Vendor tab in the customer app. */
+  vendorApp: "same" | "bundle";
 }
 
 /**
