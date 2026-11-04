@@ -131,20 +131,45 @@ export async function refundMarketPayment(
   return { ok: true, parts: result.parts };
 }
 
+/** 115.12 One thing the owner sets up for the ways to pay, for Studio's settings page to word in its language. */
+export type PaymentSetupStep =
+  | { step: "choose_gateway" }
+  | { step: "add_keys"; name: string }
+  | { step: "apple_on"; name: string }
+  | { step: "apple_unsupported"; name: string }
+  | { step: "google_on"; name: string }
+  | { step: "google_unsupported"; name: string }
+  | { step: "test_order" };
+
+/** What the owner sets up: by the gateway chosen and the wallets turned on. */
+export function paymentSetupPlan(settings: MarketPaymentSettings): PaymentSetupStep[] {
+  if (!settings.gateway) return [{ step: "choose_gateway" }];
+  const name = PROVIDER_NAME[settings.gateway];
+  const steps: PaymentSetupStep[] = [{ step: "add_keys", name }];
+  if (settings.applePay) steps.push({ step: HOSTED_WALLETS[settings.gateway].applePay ? "apple_on" : "apple_unsupported", name });
+  if (settings.googlePay) steps.push({ step: HOSTED_WALLETS[settings.gateway].googlePay ? "google_on" : "google_unsupported", name });
+  steps.push({ step: "test_order" });
+  return steps;
+}
+
 /** What the owner sets up, shown in Studio › Payments: by the gateway chosen and the wallets turned on. */
 export function paymentSetupSteps(settings: MarketPaymentSettings): string[] {
-  const steps: string[] = [];
-  if (!settings.gateway) return ["Choose a payment gateway that works in your country and currency, and add its keys in Studio › Payments. Until then, customers pay in cash."];
-  const name = PROVIDER_NAME[settings.gateway];
-  steps.push(`Add your ${name} keys in Studio › Payments (test keys first, then live ones).`);
-  if (settings.applePay) {
-    if (HOSTED_WALLETS[settings.gateway].applePay) steps.push(`Turn on Apple Pay in your ${name} account. ${name} may ask you to register an Apple Pay merchant ID and to verify your domain.`);
-    else steps.push(`${name}'s payment page doesn't offer Apple Pay. Choose a gateway that does (Stripe, or Kashier in Egypt) to offer it.`);
-  }
-  if (settings.googlePay) {
-    if (HOSTED_WALLETS[settings.gateway].googlePay) steps.push(`Turn on Google Pay in your ${name} account and ask Google for production access if ${name} asks you to.`);
-    else steps.push(`${name}'s payment page doesn't offer Google Pay. Choose a gateway that does (Stripe) to offer it.`);
-  }
-  steps.push("Make a small test order with each way of paying before opening to customers.");
-  return steps;
+  return paymentSetupPlan(settings).map((s) => {
+    switch (s.step) {
+      case "choose_gateway":
+        return "Choose a payment gateway that works in your country and currency, and add its keys in Studio › Payments. Until then, customers pay in cash.";
+      case "add_keys":
+        return `Add your ${s.name} keys in Studio › Payments (test keys first, then live ones).`;
+      case "apple_on":
+        return `Turn on Apple Pay in your ${s.name} account. ${s.name} may ask you to register an Apple Pay merchant ID and to verify your domain.`;
+      case "apple_unsupported":
+        return `${s.name}'s payment page doesn't offer Apple Pay. Choose a gateway that does (Stripe, or Kashier in Egypt) to offer it.`;
+      case "google_on":
+        return `Turn on Google Pay in your ${s.name} account and ask Google for production access if ${s.name} asks you to.`;
+      case "google_unsupported":
+        return `${s.name}'s payment page doesn't offer Google Pay. Choose a gateway that does (Stripe) to offer it.`;
+      case "test_order":
+        return "Make a small test order with each way of paying before opening to customers.";
+    }
+  });
 }
