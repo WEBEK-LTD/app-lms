@@ -110,6 +110,10 @@ import type {
   OpeningPeriod,
   PackageSize,
   RestaurantMenu,
+  MarketUnit,
+  VendorDelivery,
+  VendorKind,
+  VendorRole,
   ShipmentPlace,
   ShipmentStage,
   ShipmentStatus,
@@ -1494,6 +1498,13 @@ export const restaurants = mysqlTable(
     dishNames: text("dish_names").notNull(),
     // 110.2 A sample entry (lib/samples).
     sample: boolean("sample").notNull().default(false),
+    // 115.3 A marketplace vendor: its kind, delivery terms, fixed commission, tax rate, paused, district.
+    kind: varchar("kind", { length: 16 }).$type<VendorKind>().notNull().default("restaurant"),
+    delivery: jsonText<VendorDelivery | null>("delivery"),
+    commissionFixed: bigint("commission_fixed", { mode: "number", unsigned: true }),
+    taxRateBp: int("tax_rate_bp"),
+    paused: boolean("paused").notNull().default(false),
+    area: varchar("area", { length: 80 }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -1514,11 +1525,91 @@ export const restaurantStaff = mysqlTable(
     phone: varchar("phone", { length: 24 }),
     email: varchar("email", { length: 191 }),
     active: boolean("active").notNull(),
+    // 115.3 What they may do at the vendor.
+    role: varchar("role", { length: 16 }).$type<VendorRole>().notNull().default("manager"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
   // One person works for one restaurant of an app.
   (t) => [uniqueIndex("restaurant_staff_app_phone_unique").on(t.appId, t.phone), uniqueIndex("restaurant_staff_app_email_unique").on(t.appId, t.email)],
+);
+
+// 115.3 The marketplace's catalogs: a grocery's or shop's departments, aisles and products.
+
+export const marketDepartments = mysqlTable(
+  "market_departments",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    imageAssetId: varchar("image_asset_id", { length: 36 }),
+    position: int("position").notNull(),
+  },
+  (t) => [index("market_departments_vendor_idx").on(t.appId, t.vendorId, t.position)],
+);
+
+export const marketAisles = mysqlTable(
+  "market_aisles",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    departmentId: bigint("department_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => marketDepartments.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 80 }).notNull(),
+    position: int("position").notNull(),
+  },
+  (t) => [index("market_aisles_vendor_idx").on(t.appId, t.vendorId, t.departmentId, t.position)],
+);
+
+export const marketProducts = mysqlTable(
+  "market_products",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    vendorId: bigint("vendor_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => restaurants.id, { onDelete: "cascade" }),
+    departmentId: bigint("department_id", { mode: "number", unsigned: true }).references(() => marketDepartments.id, { onDelete: "set null" }),
+    aisleId: bigint("aisle_id", { mode: "number", unsigned: true }).references(() => marketAisles.id, { onDelete: "set null" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    description: varchar("description", { length: 1000 }),
+    brand: varchar("brand", { length: 80 }),
+    sku: varchar("sku", { length: 64 }),
+    barcode: varchar("barcode", { length: 64 }),
+    imageAssetId: varchar("image_asset_id", { length: 36 }),
+    imageUrl: varchar("image_url", { length: 500 }),
+    price: bigint("price", { mode: "number", unsigned: true }).notNull(),
+    wasPrice: bigint("was_price", { mode: "number", unsigned: true }),
+    unit: varchar("unit", { length: 8 }).$type<MarketUnit>().notNull(),
+    step: double("step").notNull(),
+    maxQuantity: double("max_quantity"),
+    stock: int("stock"),
+    inStock: boolean("in_stock").notNull(),
+    tags: jsonText<string[]>("tags").notNull(),
+    position: int("position").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    // An import updates by SKU: one per vendor (MySQL lets many rows have none).
+    uniqueIndex("market_products_vendor_sku_unique").on(t.appId, t.vendorId, t.sku),
+    index("market_products_vendor_idx").on(t.appId, t.vendorId, t.inStock, t.position),
+    index("market_products_department_idx").on(t.appId, t.vendorId, t.departmentId, t.aisleId),
+    index("market_products_barcode_idx").on(t.appId, t.vendorId, t.barcode),
+  ],
 );
 
 export const foodOrders = mysqlTable(
