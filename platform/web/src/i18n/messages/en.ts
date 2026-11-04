@@ -618,9 +618,9 @@ export const en = {
     defaultTitle: "Yallapp: make an app for your shop, school or delivery company",
     defaultDescription: "Branded apps for shops, schools, academies, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.",
     solutionsTitle: "Solutions",
-    solutionsDescription: "Branded apps for academies, shops, restaurants, clinics, gyms, real estate, news, events and charities, with or without a website.",
+    solutionsDescription: "Yallapp app builder for academies, shops, restaurants, clinics, gyms, real estate, news, events and charities, with or without a website.",
     featuresTitle: "Features",
-    featuresDescription: "Your brand, a page editor, English, Arabic and Turkish, code sign-in, notifications, card payments, live maps for couriers and drivers, and school tools.",
+    featuresDescription: "Yallapp app builder features: your brand, a page editor, English, Arabic and Turkish, code sign-in, push, card payments and live maps for couriers.",
     integrationsTitle: "Integrations",
     integrationsDescription:
       "WordPress with Tutor LMS, LearnPress, LifterLMS, MasterStudy, Sensei, Masteriyo, LearnDash, WooCommerce, Amelia, BookingPress and LatePoint; Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable, Thinkific, SimplyBook.me; your own API; or no website.",
@@ -628,7 +628,7 @@ export const en = {
     howDescription:
       "From sign-up to Google Play, the App Store, Galaxy Store, AppGallery and GetApps in {count} steps, with your website, an online platform, your own API or no website at all.",
     pricingTitle: "Pricing",
-    pricingDescription: "Four plans for your app: Starter, Growth, Pro and Business, with apps on all five app stores, notifications, card payments and publishing done for you.",
+    pricingDescription: "Yallapp plans: Starter, Growth, Pro and Business, with apps on all five app stores, push notifications, card payments and publishing done for you.",
     demoTitle: "Try a demo app",
     demoDescription: "Try a real Yallapp app on your Android phone with sample content: an academy, a shop, a café, a clinic, a gym, real estate, news, events or a charity.",
     contactTitle: "Contact",

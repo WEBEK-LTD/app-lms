@@ -14,6 +14,43 @@ import { planShownPrice, POUNDS_VIEW, type PlanInfo, type PriceView } from "./pl
 
 export const SITE_NAME = COMPANY.name;
 export const DEFAULT_TITLE = "Yallapp: make an app for your shop, school or delivery company";
+/**
+ * What Yallapp is, in the words people search for (the competitors' terms
+ * too): the product's keywords and what it does, for the Organization and
+ * SoftwareApplication structured data. Real features only.
+ */
+export const BRAND_KEYWORDS = [
+  "Yallapp",
+  "mobile app builder",
+  "app maker",
+  "no-code app builder",
+  "WordPress to app",
+  "WooCommerce mobile app",
+  "LMS mobile app",
+  "Tutor LMS app",
+  "Shopify mobile app",
+  "white-label app",
+  "white-label delivery app",
+  "food delivery app builder",
+  "taxi app builder",
+  "school app with bus tracking",
+  "university app",
+  "Huawei AppGallery publishing",
+  "Arabic app builder",
+] as const;
+
+/** 115 What Yallapp's apps do, for SoftwareApplication's featureList. */
+export const BRAND_FEATURES = [
+  "Branded Android and iOS apps",
+  "Publishing on Google Play, the App Store, Galaxy Store, AppGallery and GetApps",
+  "WordPress plugin for Tutor LMS, LearnPress, LifterLMS, LearnDash, WooCommerce and bookings",
+  "Shopify, ikas, Ticimax, IdeaSoft, Wix, Salla, Zid, Teachable and Thinkific",
+  "Apps without a website, managed in the dashboard",
+  "English, Arabic (right to left) and Turkish",
+  "Push notifications, chat, analytics and card payments",
+  "Yallapp Studio: delivery with a courier app, food delivery from many restaurants, taxis, schools, universities and academies",
+] as const;
+
 export const DEFAULT_DESCRIPTION =
   "Branded apps for shops, schools, academies, restaurants, clinics, delivery and taxis, on Google Play, the App Store, Galaxy Store, AppGallery and GetApps.";
 
@@ -156,8 +193,12 @@ export function organizationLd(base: string, contact: { email: string; whatsapp:
     "@type": "Organization",
     "@id": `${base}/#organization`,
     name: SITE_NAME,
+    alternateName: [...COMPANY.alternateNames],
     url: `${base}/`,
     logo: `${base}${LOGO_PATH}`,
+    description: DEFAULT_DESCRIPTION,
+    slogan: "Your business, as your own mobile app.",
+    knowsAbout: [...BRAND_KEYWORDS],
     sameAs: [...COMPANY.profiles],
     address: { "@type": "PostalAddress", addressLocality: COMPANY.city, addressCountry: COMPANY.countryCode },
     contactPoint: [
@@ -228,11 +269,15 @@ export function softwareLd(base: string, plans: PlanInfo[], view: PriceView = PO
     "@context": CONTEXT,
     "@type": "SoftwareApplication",
     name: SITE_NAME,
+    alternateName: [...COMPANY.alternateNames],
     url: `${base}${localePath(lang ?? "en", "/")}`,
     description: lang ? messagesFor(lang).meta.defaultDescription : DEFAULT_DESCRIPTION,
     ...(lang ? { inLanguage: lang } : {}),
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web, Android, iOS",
+    keywords: BRAND_KEYWORDS.join(", "),
+    featureList: [...BRAND_FEATURES],
+    sameAs: [...COMPANY.profiles],
     publisher: { "@id": `${base}/#organization` },
     ...(offers.length ? { offers } : {}),
   };

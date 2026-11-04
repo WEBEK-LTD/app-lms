@@ -602,9 +602,9 @@ export const ar: Messages = {
     defaultTitle: "Yallapp: أنشئ تطبيقًا لمتجرك أو مدرستك أو شركة التوصيل",
     defaultDescription: "تطبيق بعلامتك التجارية للمتاجر والمدارس والأكاديميات والمطاعم والعيادات وشركات التوصيل والتاكسي، على Google Play وApp Store وGalaxy Store وAppGallery.",
     solutionsTitle: "الحلول",
-    solutionsDescription: "تطبيقات بعلامتك التجارية للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية والعقارات والأخبار والفعاليات والجمعيات الخيرية، بموقع أو من دونه.",
+    solutionsDescription: "منشئ تطبيقات Yallapp للأكاديميات والمتاجر والمطاعم والعيادات والصالات الرياضية والعقارات والأخبار والفعاليات والجمعيات الخيرية، بموقع أو من دونه.",
     featuresTitle: "المزايا",
-    featuresDescription: "علامتك التجارية ومحرّر صفحات، بالعربية والإنجليزية والتركية، ودخول برمز وإشعارات ودفع بالبطاقة وخرائط حيّة للمناديب والسائقين وأدوات للمدارس.",
+    featuresDescription: "مزايا منشئ تطبيقات Yallapp: علامتك التجارية ومحرّر صفحات بالعربية والإنجليزية والتركية، ودخول برمز وإشعارات ودفع بالبطاقة وخرائط حيّة.",
     integrationsTitle: "التكاملات",
     integrationsDescription:
       "WordPress مع Tutor LMS وLearnPress وLifterLMS وMasterStudy وSensei وMasteriyo وLearnDash وWooCommerce وAmelia وBookingPress وLatePoint؛ وShopify وikas وTicimax وIdeaSoft وWix وSalla وZid وTeachable وThinkific وSimplyBook.me؛ أو واجهتك البرمجية الخاصة؛ أو من دون موقع.",
@@ -612,7 +612,7 @@ export const ar: Messages = {
     howDescription:
       "من التسجيل حتى Google Play وApp Store وGalaxy Store وAppGallery وGetApps في {count} خطوات، بموقعك الإلكتروني أو منصة إلكترونية أو واجهتك البرمجية الخاصة أو من دون موقع على الإطلاق.",
     pricingTitle: "الأسعار",
-    pricingDescription: "أربع باقات لتطبيقك: Starter وGrowth وPro وBusiness، بتطبيقات على متاجر التطبيقات الخمسة، وإشعارات، ودفع بالبطاقة، ونشر نتولّاه عنك.",
+    pricingDescription: "باقات Yallapp: Starter وGrowth وPro وBusiness، بتطبيقات على متاجر التطبيقات الخمسة، وإشعارات، ودفع بالبطاقة، ونشر نتولّاه عنك.",
     demoTitle: "جرّب تطبيقًا تجريبيًا",
     demoDescription: "جرّب تطبيقًا حقيقيًا من Yallapp على هاتف Android بمحتوى تجريبي: أكاديمية أو متجر أو مقهى أو عيادة أو صالة رياضية أو عقارات أو فعاليات أو جمعية خيرية.",
     contactTitle: "تواصل معنا",

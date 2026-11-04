@@ -21,6 +21,8 @@ const EXACT_PAGES = new Set([
   "/yallapp-studio",
   "/demo/studio",
   "/contact",
+  // The comparison with other app builders (its pages are /compare/<name>, a section).
+  "/compare",
   "/faq",
   "/docs",
   "/developers",
@@ -38,7 +40,7 @@ const EXACT_PAGES = new Set([
 ]);
 
 /** Sections whose every page has a version in every language: /solutions/<id>, /docs/<article>. */
-const SECTIONS = ["/solutions/", "/docs/"];
+const SECTIONS = ["/solutions/", "/docs/", "/compare/"];
 
 /** Splits "/docs/x?y#z" into the path and what follows it. */
 function splitSuffix(href: string): [string, string] {
