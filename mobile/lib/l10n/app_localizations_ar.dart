@@ -9001,4 +9001,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketNoOrders => 'لا توجد طلبات بعد';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name في الطريق بطلبك';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'آخر تحديث $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'يوصّل المطعم أو المتجر هذا الطلب بنفسه. ستظهر لك كل خطوة هنا.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'يصل نحو $time';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'يكون جاهزًا نحو $time';
+  }
 }

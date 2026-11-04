@@ -8716,4 +8716,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketNoOrders => 'Henüz sipariş yok';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name siparişinizi getiriyor';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'Güncellendi: $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'Bu siparişi restoran veya mağaza kendisi teslim ediyor. Her adımı burada göreceksiniz.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'Yaklaşık $time gibi gelir';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'Yaklaşık $time gibi hazır';
+  }
 }

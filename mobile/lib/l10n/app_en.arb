@@ -9623,5 +9623,45 @@
   "marketNoOrders": "No orders yet",
   "@marketNoOrders": {
     "description": "115 The customer has no marketplace orders."
+  },
+  "marketTrackingCourier": "{name} is bringing your order",
+  "@marketTrackingCourier": {
+    "description": "115 The app's courier on the way, on the order's map.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "marketTrackingUpdated": "Updated {time}",
+  "@marketTrackingUpdated": {
+    "description": "115 When the courier's position was last updated.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketVendorDelivers": "The restaurant or the shop delivers this order itself. You'll see each step here.",
+  "@marketVendorDelivers": {
+    "description": "115 An order the vendor delivers: stages only, no map."
+  },
+  "marketArrivesAt": "Arrives around {time}",
+  "@marketArrivesAt": {
+    "description": "115 When the order should arrive.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "marketReadyAt": "Ready around {time}",
+  "@marketReadyAt": {
+    "description": "115 When a pick-up order should be ready.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }
