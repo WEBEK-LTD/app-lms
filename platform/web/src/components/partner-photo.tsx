@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { Icon } from "./icon";
 import type { PanelWords } from "@/lib/market/panel-words";
 import { fill } from "@/lib/market/panel-words";
@@ -17,9 +17,10 @@ const BATCH_BYTES = 4.5 * 1024 * 1024;
  */
 export function PhotoDrop({ action, id, page, as, w, label }: { action: (f: FormData) => Promise<void>; id: number; page: number; as: "main" | "extra"; w: PanelWords; label: string }) {
   const input = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<File | null>(null);
   const [over, setOver] = useState(false);
-  const show = (file: File | undefined) => setPreview(file ? URL.createObjectURL(file) : null);
+  // Only a picture file is shown, drawn on a canvas: nothing from the file goes into the page as text or as an address.
+  const show = (file: File | undefined) => setPreview(file && /^image\/(jpeg|png|webp)$/.test(file.type) ? file : null);
   const drop = (e: DragEvent) => {
     e.preventDefault();
     setOver(false);
@@ -45,8 +46,7 @@ export function PhotoDrop({ action, id, page, as, w, label }: { action: (f: Form
         className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed px-3 py-3 text-[13px] font-semibold ${over ? "border-ember bg-peach" : "border-line-strong bg-white"} text-ink-2`}
       >
         {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="" className="h-12 w-12 flex-none rounded-xl object-cover" />
+          <PhotoPreview file={preview} />
         ) : (
           <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-sand">
             <Icon name="photo_camera" size={22} className="text-accent" />
@@ -66,6 +66,28 @@ export function PhotoDrop({ action, id, page, as, w, label }: { action: (f: Form
       ) : null}
     </form>
   );
+}
+
+/** The chosen picture, decoded by the browser and drawn on a small canvas (cropped to a square). */
+function PhotoPreview({ file }: { file: File }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void createImageBitmap(file)
+      .then((bitmap) => {
+        const c = canvas.current;
+        const ctx = c?.getContext("2d");
+        if (cancelled || !c || !ctx) return bitmap.close();
+        const side = Math.min(bitmap.width, bitmap.height);
+        ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, c.width, c.height);
+        bitmap.close();
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
+  return <canvas ref={canvas} width={96} height={96} aria-hidden className="h-12 w-12 flex-none rounded-xl bg-sand" />;
 }
 
 type Summary = { placed: number; unmatched: string[]; failed: { name: string; error: string }[] };
