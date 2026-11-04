@@ -231,6 +231,22 @@ export const en = {
   cPerKm: "An amount per km",
   cVendorChargeValue: "Amount or percentage",
   cSave: "Save the couriers' terms",
+  // 115.12 Statements
+  statements: "Statements",
+  statementsIntro: "Each place's month, from the same numbers it sees on its panel: what it sold, your commission and the couriers' charges, the cash it kept, and who owes whom. You settle with each place yourselves.",
+  stMonth: "Month",
+  stShow: "Show",
+  stOrders: "Orders",
+  stSales: "Sales",
+  stCommission: "Your commission and charges",
+  stYouEarn: "You earn",
+  stNet: "Net",
+  stNetHint: "Net: what you owe the place (positive) or it owes you (negative), after refunds.",
+  stPlaces: "Places",
+  stPlace: "Place",
+  stCash: "Cash it kept",
+  stDownload: "Download",
+  stNone: "No places yet.",
 };
 
 export const ar: Strings<typeof en> = {
@@ -455,6 +471,22 @@ export const ar: Strings<typeof en> = {
   cPerKm: "مبلغًا لكل كيلومتر",
   cVendorChargeValue: "المبلغ أو النسبة",
   cSave: "حفظ شروط المندوبين",
+  // 115.12 كشوف الحساب
+  statements: "كشوف الحساب",
+  statementsIntro: "شهر كل مكان، بالأرقام نفسها التي يراها في لوحته: ما باعه، وعمولتك ورسوم المندوبين، والنقد الذي احتفظ به، ومن يدين لمن. وتتم التسوية بينك وبين كل مكان مباشرةً.",
+  stMonth: "الشهر",
+  stShow: "عرض",
+  stOrders: "الطلبات",
+  stSales: "المبيعات",
+  stCommission: "عمولتك ورسومك",
+  stYouEarn: "ربحك",
+  stNet: "الصافي",
+  stNetHint: "الصافي: ما تدين به للمكان (موجب) أو ما يدين به لك (سالب)، بعد المبالغ المستردة.",
+  stPlaces: "الأماكن",
+  stPlace: "المكان",
+  stCash: "النقد الذي احتفظ به",
+  stDownload: "تنزيل",
+  stNone: "لا توجد أماكن بعد.",
 };
 
 export const tr: Strings<typeof en> = {
@@ -679,4 +711,20 @@ export const tr: Strings<typeof en> = {
   cPerKm: "Kilometre başına bir tutar",
   cVendorChargeValue: "Tutar veya yüzde",
   cSave: "Kurye koşullarını kaydet",
+  // 115.12 Hesap dökümleri
+  statements: "Hesap dökümleri",
+  statementsIntro: "Her işletmenin ayı, panelinde gördüğü rakamlarla: ne sattığı, komisyonunuz ve kurye ücretleri, elinde tuttuğu nakit ve kimin kime borçlu olduğu. Her işletmeyle hesaplaşmayı kendiniz yaparsınız.",
+  stMonth: "Ay",
+  stShow: "Göster",
+  stOrders: "Siparişler",
+  stSales: "Satışlar",
+  stCommission: "Komisyonunuz ve ücretleriniz",
+  stYouEarn: "Kazancınız",
+  stNet: "Net",
+  stNetHint: "Net: iadelerden sonra işletmeye borcunuz (artı) ya da işletmenin size borcu (eksi).",
+  stPlaces: "İşletmeler",
+  stPlace: "İşletme",
+  stCash: "Elinde tuttuğu nakit",
+  stDownload: "İndir",
+  stNone: "Henüz işletme yok.",
 };
