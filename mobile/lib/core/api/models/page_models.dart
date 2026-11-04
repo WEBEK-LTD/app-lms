@@ -1778,6 +1778,80 @@ enum StudioNodeType {
   bullets,
   // 112.4 A code people copy with one tap.
   coupon,
+  // 115 A marketplace section: the address, kinds, offers, cuisines, the
+  // club, the vendors, what to order again (StudioMarket says which).
+  market,
+}
+
+/// 115 Which marketplace section a `market` element is.
+enum StudioMarketSection {
+  address,
+  kinds,
+  offers,
+  cuisines,
+  club,
+  vendors,
+  reorder,
+}
+
+/// 115 How a vendors section draws its vendors.
+enum StudioMarketStyle { spotlight, cards, tiles, list }
+
+/// 115 What a vendors section shows.
+enum StudioMarketKind { all, restaurant, grocery }
+
+enum StudioMarketSort { recommended, fastest, rating, nearest, newest }
+
+/// 115 `StudioMarket`: a marketplace section. Its title and text are the
+/// element's own (`title`, `text`), so the owner words them in the editor.
+class StudioMarket {
+  const StudioMarket({
+    required this.section,
+    this.style = StudioMarketStyle.cards,
+    this.kind = StudioMarketKind.all,
+    this.sort = StudioMarketSort.recommended,
+    this.tag,
+    this.freeDelivery = false,
+    this.limit = 10,
+  });
+
+  static StudioMarket? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final section = enumOrNull(StudioMarketSection.values, json['section']);
+    if (section == null) return null;
+    return StudioMarket(
+      section: section,
+      style: enumFrom(
+        StudioMarketStyle.values,
+        json['style'],
+        StudioMarketStyle.cards,
+      ),
+      kind: enumFrom(
+        StudioMarketKind.values,
+        json['kind'],
+        StudioMarketKind.all,
+      ),
+      sort: enumFrom(
+        StudioMarketSort.values,
+        json['sort'],
+        StudioMarketSort.recommended,
+      ),
+      tag: optString(json, 'tag'),
+      freeDelivery: boolOr(json, 'free_delivery', false),
+      limit: intOr(json, 'limit', 10).clamp(1, 40),
+    );
+  }
+
+  final StudioMarketSection section;
+  final StudioMarketStyle style;
+  final StudioMarketKind kind;
+  final StudioMarketSort sort;
+
+  /// Only the vendors with this tag (a cuisine or an aisle), when set.
+  final String? tag;
+  final bool freeDelivery;
+  final int limit;
 }
 
 /// 112.4 How a slider shows where it is: dots under it, a line per slide
@@ -2089,6 +2163,7 @@ class StudioNode {
     this.visibility = StudioVisibility.everyone,
     this.motion,
     this.hidden = false,
+    this.market,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2186,6 +2261,7 @@ class StudioNode {
             ? FormBlock.tryParse(asJson(json['form'], 'form'), id: id)
             : null,
         map: mapJson is Map ? StudioMapPlace.tryParse(asJson(mapJson)) : null,
+        market: StudioMarket.tryParse(json['market']),
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2309,6 +2385,9 @@ class StudioNode {
   /// 107.2 Kept in the editor only; the servers leave it out, and the app
   /// doesn't draw one that reaches it.
   final bool hidden;
+
+  /// 115 For [StudioNodeType.market]: which section it is.
+  final StudioMarket? market;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

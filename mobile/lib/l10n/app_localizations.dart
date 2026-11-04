@@ -13789,6 +13789,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'ll be signed out on every phone and your sessions at every company will end. Each company keeps its own records of your deliveries: ask the company to remove you there.'**
   String get hubDeleteAccountMessage;
+
+  /// 115 Over the delivery address on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get marketDeliverTo;
+
+  /// 115 The marketplace search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants, dishes or groceries'**
+  String get marketSearchHint;
+
+  /// 115 How long delivery takes.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max} min'**
+  String marketEta(int min, int max);
+
+  /// 115 A vendor delivers for free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery'**
+  String get marketFreeDelivery;
+
+  /// 115 A vendor's delivery fee.
+  ///
+  /// In en, this message translates to:
+  /// **'{fee} delivery'**
+  String marketDeliveryFee(String fee);
+
+  /// 115 The smallest order a vendor takes.
+  ///
+  /// In en, this message translates to:
+  /// **'Min. {amount}'**
+  String marketMinOrder(String amount);
+
+  /// 115 The delivery club's short name on a badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Club'**
+  String get marketClub;
+
+  /// 115 Free delivery for club members.
+  ///
+  /// In en, this message translates to:
+  /// **'Free with Club'**
+  String get marketClubFree;
+
+  /// 115 The club banner's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get marketJoinClub;
+
+  /// 115 The club banner, for a member.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re a member'**
+  String get marketClubMember;
+
+  /// 115 A vendor with too many orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy'**
+  String get marketBusy;
+
+  /// 115 A closed vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed · opens {time}'**
+  String marketClosedOpens(String time);
+
+  /// 115 A closed vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get marketClosed;
+
+  /// 115 The vendor delivers itself (no live map).
+  ///
+  /// In en, this message translates to:
+  /// **'Own delivery'**
+  String get marketOwnDelivery;
+
+  /// 115 The app's couriers deliver, live on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'Live tracking'**
+  String get marketLiveTracking;
+
+  /// 115 Opens the whole list.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get marketSeeAll;
+
+  /// 115 Reorders a past order.
+  ///
+  /// In en, this message translates to:
+  /// **'Order again'**
+  String get marketOrderAgain;
+
+  /// 115 An offer's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Code {code}'**
+  String marketCode(String code);
+
+  /// 115 Adds an item to the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get marketAdd;
+
+  /// 115 After a price per kilogram.
+  ///
+  /// In en, this message translates to:
+  /// **'/ kg'**
+  String get marketPerKg;
+
+  /// 115 An item out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out'**
+  String get marketSoldOut;
+
+  /// 115 How far a vendor is.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String marketKm(String km);
+
+  /// 115 The vendor page's search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {name}'**
+  String marketSearchVendor(String name);
+
+  /// 115 The basket bar on a vendor page.
+  ///
+  /// In en, this message translates to:
+  /// **'View basket'**
+  String get marketViewBasket;
+
+  /// 115 Items in the basket.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String marketBasketItems(int count);
+
+  /// 115 On a vendor page: people reach the app owner, never the vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about an order? Our support team answers in the app, any time.'**
+  String get marketSupportNote;
+
+  /// 115 An item with choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Choices'**
+  String get marketChoices;
+
+  /// 115 How many ratings, after the stars.
+  ///
+  /// In en, this message translates to:
+  /// **'({count})'**
+  String marketRatingsCount(String count);
+
+  /// 115 A shop's aisles.
+  ///
+  /// In en, this message translates to:
+  /// **'Aisles'**
+  String get marketAisles;
+
+  /// 115 A restaurant's menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get marketMenu;
+
+  /// 115 A vendor's reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get marketReviews;
+
+  /// 115 A vendor's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get marketInfo;
+
+  /// 115 A vendor's opening hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {hours}'**
+  String marketHours(String hours);
+
+  /// 115 A vendor nobody rated yet.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get marketNew;
+
+  /// 115 The home's address line before the customer chose one.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your address'**
+  String get marketChooseAddress;
+
+  /// 115 After a price per gram.
+  ///
+  /// In en, this message translates to:
+  /// **'/ g'**
+  String get marketPerGram;
+
+  /// 115 After a price per litre.
+  ///
+  /// In en, this message translates to:
+  /// **'/ L'**
+  String get marketPerLitre;
+
+  /// 115 The restaurants' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get marketKindRestaurant;
+
+  /// 115 The groceries' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get marketKindGrocery;
+
+  /// 115 The shops' tile on the marketplace home.
+  ///
+  /// In en, this message translates to:
+  /// **'Shops'**
+  String get marketKindShop;
+
+  /// 115 How many vendors of a kind.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 place} other{{count} places}}'**
+  String marketPlaces(int count);
 }
 
 class _AppLocalizationsDelegate
