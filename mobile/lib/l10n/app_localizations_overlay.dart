@@ -9277,4 +9277,28 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketNoOrders =>
       overlay.text('marketNoOrders') ?? base.marketNoOrders;
+
+  @override
+  String marketTrackingCourier(String name) =>
+      overlay.format('marketTrackingCourier', {'name': name}) ??
+      base.marketTrackingCourier(name);
+
+  @override
+  String marketTrackingUpdated(String time) =>
+      overlay.format('marketTrackingUpdated', {'time': time}) ??
+      base.marketTrackingUpdated(time);
+
+  @override
+  String get marketVendorDelivers =>
+      overlay.text('marketVendorDelivers') ?? base.marketVendorDelivers;
+
+  @override
+  String marketArrivesAt(String time) =>
+      overlay.format('marketArrivesAt', {'time': time}) ??
+      base.marketArrivesAt(time);
+
+  @override
+  String marketReadyAt(String time) =>
+      overlay.format('marketReadyAt', {'time': time}) ??
+      base.marketReadyAt(time);
 }

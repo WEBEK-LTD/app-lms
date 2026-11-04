@@ -8750,4 +8750,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketNoOrders => 'No orders yet';
+
+  @override
+  String marketTrackingCourier(String name) {
+    return '$name is bringing your order';
+  }
+
+  @override
+  String marketTrackingUpdated(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get marketVendorDelivers =>
+      'The restaurant or the shop delivers this order itself. You\'ll see each step here.';
+
+  @override
+  String marketArrivesAt(String time) {
+    return 'Arrives around $time';
+  }
+
+  @override
+  String marketReadyAt(String time) {
+    return 'Ready around $time';
+  }
 }

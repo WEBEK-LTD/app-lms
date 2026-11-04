@@ -14341,6 +14341,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No orders yet'**
   String get marketNoOrders;
+
+  /// 115 The app's courier on the way, on the order's map.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is bringing your order'**
+  String marketTrackingCourier(String name);
+
+  /// 115 When the courier's position was last updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String marketTrackingUpdated(String time);
+
+  /// 115 An order the vendor delivers: stages only, no map.
+  ///
+  /// In en, this message translates to:
+  /// **'The restaurant or the shop delivers this order itself. You\'ll see each step here.'**
+  String get marketVendorDelivers;
+
+  /// 115 When the order should arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives around {time}'**
+  String marketArrivesAt(String time);
+
+  /// 115 When a pick-up order should be ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready around {time}'**
+  String marketReadyAt(String time);
 }
 
 class _AppLocalizationsDelegate
