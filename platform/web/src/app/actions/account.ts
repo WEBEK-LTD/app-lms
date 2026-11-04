@@ -76,3 +76,19 @@ export async function saveAccountCountryAction(_: FormState, formData: FormData)
   revalidatePath("/dashboard", "layout");
   return { ok: true, message: COUNTRY_MESSAGES.saved, values: { country } };
 }
+
+/**
+ * 114 Dashboard › Your account › Emails from Yallapp: the signed-in person
+ * (the owner or a team member, for their own address) turns Yallapp's
+ * marketing emails off or on again. Emails about the account still come.
+ * Our team managing the dashboard can't change it for them.
+ */
+export async function setMarketingEmailsAction(formData: FormData): Promise<void> {
+  const context = await clientFor("dashboard");
+  if (!context) redirect("/sign-in");
+  if (context.staff) return;
+  const me = context.member ?? context.user;
+  const { setMarketingAllowed } = await import("@/lib/mailing/consent");
+  await setMarketingAllowed(await getStore(), me.email, formData.get("allowed") === "on", new Date());
+  revalidatePath("/dashboard/account");
+}

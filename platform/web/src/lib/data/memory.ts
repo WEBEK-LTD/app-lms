@@ -171,6 +171,9 @@ import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, Reke
 import { candidatesIn, needsRekey } from "../crypto/rekey";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
+// 114 Email campaigns
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import { mailEventStatsOf } from "../mailing/stats";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
 import type { DemoPurgeCounts } from "./types";
@@ -7008,6 +7011,185 @@ export class MemoryStore implements DataStore {
       if (this.uniSections.get(row.sectionId)?.appId !== row.appId) continue;
       this.uniAttendance.set(`${row.sectionId}:${row.studentId}:${row.date}`, clone(row));
     }
+  }
+
+  // 114 Email campaigns
+  private mailCampaigns = new Map<string, MailCampaign>();
+  private mailSegments = new Map<string, MailSegment>();
+  private mailTemplates = new Map<string, MailTemplate>();
+  private mailRecipients = new Map<number, MailRecipient>();
+  private mailRecipientSeq = 0;
+  private mailEvents: MailEvent[] = [];
+  private mailSuppressions = new Map<string, MailSuppression>();
+
+  async listMailCampaigns(filter: { archived?: boolean } = {}): Promise<MailCampaign[]> {
+    return [...this.mailCampaigns.values()]
+      .filter((c) => c.archived === Boolean(filter.archived))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .map(clone);
+  }
+
+  async getMailCampaign(id: string): Promise<MailCampaign | null> {
+    const found = this.mailCampaigns.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async saveMailCampaign(campaign: MailCampaign): Promise<void> {
+    this.mailCampaigns.set(campaign.id, clone(campaign));
+  }
+
+  async setMailCampaignStatus(
+    id: string,
+    from: MailCampaignStatus[],
+    patch: Partial<Pick<MailCampaign, "startedAt" | "finishedAt" | "recipients" | "scheduledAt" | "timeZone" | "updatedAt">> & { status: MailCampaignStatus },
+  ): Promise<boolean> {
+    const found = this.mailCampaigns.get(id);
+    if (!found || !from.includes(found.status)) return false;
+    Object.assign(found, clone(patch));
+    return true;
+  }
+
+  async deleteMailCampaign(id: string): Promise<void> {
+    this.mailCampaigns.delete(id);
+    for (const [key, row] of this.mailRecipients) if (row.campaignId === id) this.mailRecipients.delete(key);
+    this.mailEvents = this.mailEvents.filter((e) => e.campaignId !== id);
+  }
+
+  async listMailSegments(): Promise<MailSegment[]> {
+    return [...this.mailSegments.values()].sort((a, b) => a.name.localeCompare(b.name)).map(clone);
+  }
+
+  async saveMailSegment(segment: MailSegment): Promise<void> {
+    this.mailSegments.set(segment.id, clone(segment));
+  }
+
+  async deleteMailSegment(id: string): Promise<void> {
+    this.mailSegments.delete(id);
+  }
+
+  async listMailTemplates(): Promise<MailTemplate[]> {
+    return [...this.mailTemplates.values()].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).map(clone);
+  }
+
+  async getMailTemplate(id: string): Promise<MailTemplate | null> {
+    const found = this.mailTemplates.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async saveMailTemplate(template: MailTemplate): Promise<void> {
+    this.mailTemplates.set(template.id, clone(template));
+  }
+
+  async deleteMailTemplate(id: string): Promise<void> {
+    this.mailTemplates.delete(id);
+  }
+
+  async addMailRecipients(rows: Omit<MailRecipient, "id">[]): Promise<number> {
+    const taken = new Set([...this.mailRecipients.values()].map((r) => `${r.campaignId}\n${r.email}`));
+    let added = 0;
+    for (const row of rows) {
+      const key = `${row.campaignId}\n${row.email}`;
+      if (taken.has(key) || !this.mailCampaigns.has(row.campaignId)) continue;
+      taken.add(key);
+      const id = ++this.mailRecipientSeq;
+      this.mailRecipients.set(id, { ...clone(row), id });
+      added += 1;
+    }
+    return added;
+  }
+
+  async getMailRecipient(id: number): Promise<MailRecipient | null> {
+    const found = this.mailRecipients.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async listMailRecipients(campaignId: string, filter: { status?: MailRecipientStatus; query?: string; offset: number; limit: number }): Promise<{ items: MailRecipient[]; total: number }> {
+    const query = filter.query?.trim().toLowerCase();
+    const rows = [...this.mailRecipients.values()]
+      .filter((r) => r.campaignId === campaignId && (!filter.status || r.status === filter.status) && (!query || r.email.includes(query) || r.name.toLowerCase().includes(query)))
+      .sort((a, b) => a.id - b.id);
+    return { items: rows.slice(filter.offset, filter.offset + filter.limit).map(clone), total: rows.length };
+  }
+
+  async countMailRecipients(campaignId: string): Promise<Record<MailRecipientStatus, number>> {
+    const counts: Record<MailRecipientStatus, number> = { queued: 0, sending: 0, sent: 0, failed: 0, skipped: 0 };
+    for (const r of this.mailRecipients.values()) if (r.campaignId === campaignId) counts[r.status] += 1;
+    return counts;
+  }
+
+  async claimMailRecipients(campaignId: string, claim: string, limit: number, now: Date, leaseUntil: Date): Promise<MailRecipient[]> {
+    const due = [...this.mailRecipients.values()]
+      .filter((r) => r.campaignId === campaignId && r.status === "queued" && (!r.nextAttemptAt || r.nextAttemptAt.getTime() <= now.getTime()))
+      .sort((a, b) => a.id - b.id)
+      .slice(0, Math.max(0, limit));
+    for (const r of due) Object.assign(r, { status: "sending", claim, leaseUntil: new Date(leaseUntil) });
+    return due.map(clone);
+  }
+
+  async finishMailRecipient(id: number, claim: string, patch: Pick<MailRecipient, "status" | "error" | "nextAttemptAt" | "sentAt" | "attempts">): Promise<boolean> {
+    const found = this.mailRecipients.get(id);
+    if (!found || found.status !== "sending" || found.claim !== claim) return false;
+    Object.assign(found, clone(patch), { claim: null, leaseUntil: null });
+    return true;
+  }
+
+  async expireMailRecipientClaims(campaignId: string, now: Date): Promise<number> {
+    let count = 0;
+    for (const r of this.mailRecipients.values()) {
+      if (r.campaignId !== campaignId || r.status !== "sending" || !r.leaseUntil || r.leaseUntil.getTime() > now.getTime()) continue;
+      Object.assign(r, { status: "failed", error: "interrupted", claim: null, leaseUntil: null, nextAttemptAt: null });
+      count += 1;
+    }
+    return count;
+  }
+
+  async countMailSentSince(campaignId: string, since: Date): Promise<number> {
+    let count = 0;
+    for (const r of this.mailRecipients.values()) if (r.campaignId === campaignId && r.sentAt && r.sentAt.getTime() >= since.getTime()) count += 1;
+    return count;
+  }
+
+  async skipMailRecipients(campaignId: string, statuses: MailRecipientStatus[], reason: string): Promise<number> {
+    let count = 0;
+    for (const r of this.mailRecipients.values()) {
+      if (r.campaignId !== campaignId || !statuses.includes(r.status)) continue;
+      Object.assign(r, { status: "skipped", error: reason, claim: null, leaseUntil: null, nextAttemptAt: null });
+      count += 1;
+    }
+    return count;
+  }
+
+  async addMailEvent(event: MailEvent): Promise<void> {
+    if (!this.mailCampaigns.has(event.campaignId)) return;
+    this.mailEvents.push(clone(event));
+  }
+
+  async mailEventStats(campaignId: string): Promise<MailEventStats> {
+    return mailEventStatsOf(this.mailEvents.filter((e) => e.campaignId === campaignId));
+  }
+
+  async listMailSuppressed(emails: string[]): Promise<string[]> {
+    return [...new Set(emails.map((e) => e.toLowerCase()))].filter((e) => this.mailSuppressions.has(e));
+  }
+
+  async getMailSuppression(email: string): Promise<MailSuppression | null> {
+    const found = this.mailSuppressions.get(email.toLowerCase());
+    return found ? clone(found) : null;
+  }
+
+  async suppressMail(suppression: MailSuppression): Promise<void> {
+    const email = suppression.email.toLowerCase();
+    if (!this.mailSuppressions.has(email)) this.mailSuppressions.set(email, { ...clone(suppression), email });
+  }
+
+  async unsuppressMail(email: string): Promise<void> {
+    this.mailSuppressions.delete(email.toLowerCase());
+  }
+
+  async listMailSuppressions(filter: { query?: string; offset: number; limit: number }): Promise<{ items: MailSuppression[]; total: number }> {
+    const query = filter.query?.trim().toLowerCase();
+    const rows = [...this.mailSuppressions.values()].filter((s) => !query || s.email.includes(query)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return { items: rows.slice(filter.offset, filter.offset + filter.limit).map(clone), total: rows.length };
   }
 }
 

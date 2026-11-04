@@ -27,6 +27,8 @@ import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
+// 114 Email campaigns
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
@@ -8430,6 +8432,246 @@ export class MysqlStore implements DataStore {
         .values(rows)
         .onDuplicateKeyUpdate({ set: { status: sql`values(${t.status})`, note: sql`values(${t.note})`, takenBy: sql`values(${t.takenBy})`, updatedAt: sql`values(${t.updatedAt})` } }),
     );
+  }
+
+  // 114 Email campaigns
+
+  async listMailCampaigns(filter: { archived?: boolean } = {}): Promise<MailCampaign[]> {
+    const t = schema.mailCampaigns;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.archived, Boolean(filter.archived))).orderBy(desc(t.createdAt)));
+    return rows;
+  }
+
+  async getMailCampaign(id: string): Promise<MailCampaign | null> {
+    const t = schema.mailCampaigns;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async saveMailCampaign(campaign: MailCampaign): Promise<void> {
+    // Everything but the id changes on a save.
+    const { id: _id, ...rest } = campaign;
+    void _id;
+    await this.run((db) => db.insert(schema.mailCampaigns).values(campaign).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async setMailCampaignStatus(
+    id: string,
+    from: MailCampaignStatus[],
+    patch: Partial<Pick<MailCampaign, "startedAt" | "finishedAt" | "recipients" | "scheduledAt" | "timeZone" | "updatedAt">> & { status: MailCampaignStatus },
+  ): Promise<boolean> {
+    if (from.length === 0) return false;
+    const t = schema.mailCampaigns;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.id, id), inArray(t.status, from))));
+    return result.affectedRows === 1;
+  }
+
+  async deleteMailCampaign(id: string): Promise<void> {
+    // Its recipients and events go with it (foreign keys).
+    await this.run((db) => db.delete(schema.mailCampaigns).where(eq(schema.mailCampaigns.id, id)));
+  }
+
+  async listMailSegments(): Promise<MailSegment[]> {
+    return this.run((db) => db.select().from(schema.mailSegments).orderBy(asc(schema.mailSegments.name)));
+  }
+
+  async saveMailSegment(segment: MailSegment): Promise<void> {
+    const { id, ...rest } = segment;
+    void id;
+    await this.run((db) => db.insert(schema.mailSegments).values(segment).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteMailSegment(id: string): Promise<void> {
+    await this.run((db) => db.delete(schema.mailSegments).where(eq(schema.mailSegments.id, id)));
+  }
+
+  async listMailTemplates(): Promise<MailTemplate[]> {
+    return this.run((db) => db.select().from(schema.mailTemplates).orderBy(desc(schema.mailTemplates.updatedAt)));
+  }
+
+  async getMailTemplate(id: string): Promise<MailTemplate | null> {
+    const rows = await this.run((db) => db.select().from(schema.mailTemplates).where(eq(schema.mailTemplates.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async saveMailTemplate(template: MailTemplate): Promise<void> {
+    const { id, ...rest } = template;
+    void id;
+    await this.run((db) => db.insert(schema.mailTemplates).values(template).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteMailTemplate(id: string): Promise<void> {
+    await this.run((db) => db.delete(schema.mailTemplates).where(eq(schema.mailTemplates.id, id)));
+  }
+
+  async addMailRecipients(rows: Omit<MailRecipient, "id">[]): Promise<number> {
+    let added = 0;
+    for (let i = 0; i < rows.length; i += 500) {
+      const batch = rows.slice(i, i + 500);
+      // INSERT IGNORE: an address the campaign lists already stays as it is (the unique key).
+      const [result] = await this.run((db) => db.insert(schema.mailRecipients).ignore().values(batch));
+      added += result.affectedRows;
+    }
+    return added;
+  }
+
+  async getMailRecipient(id: number): Promise<MailRecipient | null> {
+    const rows = await this.run((db) => db.select().from(schema.mailRecipients).where(eq(schema.mailRecipients.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async listMailRecipients(campaignId: string, filter: { status?: MailRecipientStatus; query?: string; offset: number; limit: number }): Promise<{ items: MailRecipient[]; total: number }> {
+    const t = schema.mailRecipients;
+    const query = filter.query?.trim().toLowerCase();
+    const pattern = query ? `%${query.replace(/[\\%_]/g, (c) => `\\${c}`)}%` : null;
+    const where = and(eq(t.campaignId, campaignId), filter.status ? eq(t.status, filter.status) : undefined, pattern ? or(like(t.email, pattern), like(t.name, pattern)) : undefined);
+    const [items, total] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(asc(t.id)).limit(filter.limit).offset(filter.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: total[0]?.n ?? 0 };
+  }
+
+  async countMailRecipients(campaignId: string): Promise<Record<MailRecipientStatus, number>> {
+    const t = schema.mailRecipients;
+    const rows = await this.run((db) => db.select({ status: t.status, n: count() }).from(t).where(eq(t.campaignId, campaignId)).groupBy(t.status));
+    const counts: Record<MailRecipientStatus, number> = { queued: 0, sending: 0, sent: 0, failed: 0, skipped: 0 };
+    for (const row of rows) if (row.status in counts) counts[row.status] = Number(row.n);
+    return counts;
+  }
+
+  async claimMailRecipients(campaignId: string, claim: string, limit: number, now: Date, leaseUntil: Date): Promise<MailRecipient[]> {
+    if (limit <= 0) return [];
+    const t = schema.mailRecipients;
+    const due = and(eq(t.campaignId, campaignId), eq(t.status, "queued"), or(isNull(t.nextAttemptAt), lte(t.nextAttemptAt, now)));
+    const candidates = await this.run((db) => db.select({ id: t.id }).from(t).where(due).orderBy(asc(t.id)).limit(limit));
+    if (candidates.length === 0) return [];
+    // Only rows still queued are taken: a run at the same time takes the others.
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "sending", claim, leaseUntil })
+        .where(and(due, inArray(t.id, candidates.map((c) => c.id)))),
+    );
+    return this.run((db) => db.select().from(t).where(and(eq(t.campaignId, campaignId), eq(t.claim, claim), eq(t.status, "sending"))).orderBy(asc(t.id)));
+  }
+
+  async finishMailRecipient(id: number, claim: string, patch: Pick<MailRecipient, "status" | "error" | "nextAttemptAt" | "sentAt" | "attempts">): Promise<boolean> {
+    const t = schema.mailRecipients;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ ...patch, error: patch.error?.slice(0, 300) ?? null, claim: null, leaseUntil: null })
+        .where(and(eq(t.id, id), eq(t.status, "sending"), eq(t.claim, claim))),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async expireMailRecipientClaims(campaignId: string, now: Date): Promise<number> {
+    const t = schema.mailRecipients;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "failed", error: "interrupted", claim: null, leaseUntil: null, nextAttemptAt: null })
+        .where(and(eq(t.campaignId, campaignId), eq(t.status, "sending"), lte(t.leaseUntil, now))),
+    );
+    return result.affectedRows;
+  }
+
+  async countMailSentSince(campaignId: string, since: Date): Promise<number> {
+    const t = schema.mailRecipients;
+    const rows = await this.run((db) => db.select({ n: count() }).from(t).where(and(eq(t.campaignId, campaignId), gte(t.sentAt, since))));
+    return Number(rows[0]?.n ?? 0);
+  }
+
+  async skipMailRecipients(campaignId: string, statuses: MailRecipientStatus[], reason: string): Promise<number> {
+    if (statuses.length === 0) return 0;
+    const t = schema.mailRecipients;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: "skipped", error: reason.slice(0, 300), claim: null, leaseUntil: null, nextAttemptAt: null })
+        .where(and(eq(t.campaignId, campaignId), inArray(t.status, statuses))),
+    );
+    return result.affectedRows;
+  }
+
+  async addMailEvent(event: MailEvent): Promise<void> {
+    try {
+      await this.run((db) => db.insert(schema.mailEvents).values({ ...event, url: event.url?.slice(0, 1024) ?? null }));
+    } catch (error) {
+      // A campaign deleted meanwhile: nothing to count it on.
+      if (errorCode(error) === "ER_NO_REFERENCED_ROW_2" || errorCode(error) === "ER_NO_REFERENCED_ROW") return;
+      throw error;
+    }
+  }
+
+  async mailEventStats(campaignId: string): Promise<MailEventStats> {
+    const t = schema.mailEvents;
+    const [kinds, links] = await Promise.all([
+      this.run((db) =>
+        db
+          .select({ kind: t.kind, n: count(), people: sql<number>`count(distinct ${t.email})` })
+          .from(t)
+          .where(eq(t.campaignId, campaignId))
+          .groupBy(t.kind),
+      ),
+      this.run((db) =>
+        db
+          .select({ url: t.url, n: count(), people: sql<number>`count(distinct ${t.email})` })
+          .from(t)
+          .where(and(eq(t.campaignId, campaignId), eq(t.kind, "click"), isNotNull(t.url)))
+          .groupBy(t.url),
+      ),
+    ]);
+    const of = (kind: string) => kinds.find((k) => k.kind === kind);
+    return {
+      opens: Number(of("open")?.n ?? 0),
+      uniqueOpens: Number(of("open")?.people ?? 0),
+      clicks: Number(of("click")?.n ?? 0),
+      uniqueClicks: Number(of("click")?.people ?? 0),
+      unsubscribes: Number(of("unsubscribe")?.people ?? 0),
+      bounces: Number(of("bounce")?.people ?? 0),
+      complaints: Number(of("complaint")?.people ?? 0),
+      links: links
+        .map((l) => ({ url: l.url ?? "", clicks: Number(l.n), unique: Number(l.people) }))
+        .sort((a, b) => b.clicks - a.clicks || a.url.localeCompare(b.url)),
+    };
+  }
+
+  async listMailSuppressed(emails: string[]): Promise<string[]> {
+    const wanted = [...new Set(emails.map((e) => e.toLowerCase()))];
+    const found: string[] = [];
+    for (let i = 0; i < wanted.length; i += 1000) {
+      const batch = wanted.slice(i, i + 1000);
+      const rows = await this.run((db) => db.select({ email: schema.mailSuppressions.email }).from(schema.mailSuppressions).where(inArray(schema.mailSuppressions.email, batch)));
+      found.push(...rows.map((r) => r.email.toLowerCase()));
+    }
+    return found;
+  }
+
+  async getMailSuppression(email: string): Promise<MailSuppression | null> {
+    const rows = await this.run((db) => db.select().from(schema.mailSuppressions).where(eq(schema.mailSuppressions.email, email.toLowerCase())).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async suppressMail(suppression: MailSuppression): Promise<void> {
+    await this.run((db) => db.insert(schema.mailSuppressions).ignore().values({ ...suppression, email: suppression.email.toLowerCase() }));
+  }
+
+  async unsuppressMail(email: string): Promise<void> {
+    await this.run((db) => db.delete(schema.mailSuppressions).where(eq(schema.mailSuppressions.email, email.toLowerCase())));
+  }
+
+  async listMailSuppressions(filter: { query?: string; offset: number; limit: number }): Promise<{ items: MailSuppression[]; total: number }> {
+    const t = schema.mailSuppressions;
+    const query = filter.query?.trim().toLowerCase();
+    const where = query ? like(t.email, `%${query.replace(/[\\%_]/g, (c) => `\\${c}`)}%`) : undefined;
+    const [items, total] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt)).limit(filter.limit).offset(filter.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(total[0]?.n ?? 0) };
   }
 
 
