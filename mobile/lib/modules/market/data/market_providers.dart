@@ -6,6 +6,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import 'market_models.dart';
+import 'market_place.dart';
 
 /// 115 The marketplace's settings (`Config.market`); null for an app that
 /// isn't a marketplace, or an older server.
@@ -21,15 +22,20 @@ final marketConfigProvider = Provider<api.MarketConfig?>((ref) {
 final marketHomeProvider = FutureProvider.autoDispose<MarketHome>((ref) async {
   final client = ref.contentApi;
   final config = ref.watch(marketConfigProvider);
+  final place = ref.watch(marketPlaceProvider);
   final l10n = currentL10n;
   final (vendorsPage, coupons) = await (
-    client.listMarketVendors(const api.MarketVendorQuery(perPage: 40)),
+    client.listMarketVendors(
+      api.MarketVendorQuery(perPage: 40, lat: place?.lat, lng: place?.lng),
+    ),
     client.listMarketOffers(),
   ).wait;
   final vendors = [
     for (final v in vendorsPage.items) marketVendorFrom(v, config),
   ];
   return MarketHome(
+    address: place?.address,
+    located: place != null,
     kinds: _kinds(config, vendors, l10n),
     offers: [
       for (final (i, c) in coupons.indexed) _offerFrom(c, i, vendorsPage.items),
@@ -57,11 +63,16 @@ final marketVendorPageProvider = FutureProvider.autoDispose
     .family<MarketVendorPage, String>((ref, id) async {
       final client = ref.contentApi;
       final config = ref.watch(marketConfigProvider);
+      final place = ref.watch(marketPlaceProvider);
       final vendorId = int.tryParse(id);
       if (vendorId == null) {
         throw const FormatException('A vendor id is a number');
       }
-      final detail = await client.getMarketVendor(vendorId);
+      final detail = await client.getMarketVendor(
+        vendorId,
+        lat: place?.lat,
+        lng: place?.lng,
+      );
       final vendor = marketVendorFrom(detail.summary, config);
       final List<MarketShelf> shelves;
       if (detail.departments.isNotEmpty) {

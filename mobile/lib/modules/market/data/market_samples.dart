@@ -195,6 +195,7 @@ abstract final class MarketSamples {
 
   static final home = MarketHome(
     address: 'Home · 9 Road 233, Maadi',
+    located: true,
     kinds: [
       MarketKindTile(
         id: 'food',

@@ -6,12 +6,24 @@ import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/l10n/l10n.dart';
 import 'package:yallapp/core/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yallapp/core/providers.dart';
+import 'package:yallapp/core/storage/local_settings.dart';
+import 'package:yallapp/modules/delivery/data/delivery_providers.dart';
 import 'package:yallapp/modules/market/data/market_models.dart';
+import 'package:yallapp/modules/market/data/market_place.dart';
 import 'package:yallapp/modules/market/data/market_providers.dart';
 import 'package:yallapp/modules/market/screens/market_vendor_screen.dart';
 import 'package:yallapp/modules/shared/pages/studio_page.dart';
 
+import '../support/fake_api.dart';
 import '../support/market_fixtures.dart';
+
+class _Here implements Locator {
+  @override
+  Future<LocateResult> current() async =>
+      const LocateResult.found((lat: 29.96, lng: 31.25, accuracy: 10));
+}
 
 /// 115 The marketplace's Studio sections and a vendor's page, on the
 /// sample marketplace, in English and in Arabic (right to left).
@@ -134,6 +146,41 @@ void main() {
     expect(item.step, 0.5);
     expect(item.popular, isTrue);
   });
+
+  test(
+    'the delivery place: the phone\'s position and its address, kept',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final api = FakeApi()
+        ..mapAddress = {
+          'id': 'p1',
+          'name': 'Road 233',
+          'address': '9 Road 233, Maadi',
+          'lat': 29.96,
+          'lng': 31.25,
+        };
+      ProviderContainer container() => ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          locatorProvider.overrideWithValue(_Here()),
+          yallappApiProvider.overrideWithValue(api),
+        ],
+      );
+      final first = container();
+      addTearDown(first.dispose);
+      expect(first.read(marketPlaceProvider), isNull);
+      expect(
+        await first.read(marketPlaceProvider.notifier).useMyLocation(),
+        isNull,
+      );
+      expect(first.read(marketPlaceProvider)?.address, '9 Road 233, Maadi');
+      // The next launch remembers it.
+      final next = container();
+      addTearDown(next.dispose);
+      expect(next.read(marketPlaceProvider)?.lat, 29.96);
+    },
+  );
 
   for (final (lang, dark) in [('en', false), ('ar', false), ('en', true)]) {
     testWidgets('the marketplace home in $lang${dark ? ', dark' : ''}', (

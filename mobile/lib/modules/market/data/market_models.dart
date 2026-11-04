@@ -159,6 +159,7 @@ class MarketReorder {
 class MarketHome {
   const MarketHome({
     this.address,
+    this.located = false,
     required this.kinds,
     required this.offers,
     required this.cuisines,
@@ -170,6 +171,9 @@ class MarketHome {
   /// The delivery address, short ("Home · 9 Road 233, Maadi"); null until
   /// the customer chooses one.
   final String? address;
+
+  /// The customer gave a position (their address, or the phone's).
+  final bool located;
   final List<MarketKindTile> kinds;
   final List<MarketOffer> offers;
   final List<MarketCuisine> cuisines;

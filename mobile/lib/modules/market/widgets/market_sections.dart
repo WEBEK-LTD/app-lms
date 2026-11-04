@@ -12,6 +12,8 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_models.dart';
+import '../../delivery/data/delivery_providers.dart' show LocateProblem;
+import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import 'market_look.dart';
 
@@ -134,56 +136,68 @@ class _Hero extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.16),
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          alignment: Alignment.center,
-                          child: const AppIcon(
-                            Symbols.location_on_rounded,
-                            size: 20,
-                            color: Colors.white,
-                            filled: true,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.marketDeliverTo,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white.withValues(alpha: 0.75),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      home.address ?? l10n.marketChooseAddress,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                          child: _AddressButton(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.16),
+                                    borderRadius: BorderRadius.circular(13),
                                   ),
-                                  const AppIcon(
-                                    Symbols.keyboard_arrow_down_rounded,
+                                  alignment: Alignment.center,
+                                  child: const AppIcon(
+                                    Symbols.location_on_rounded,
                                     size: 20,
                                     color: Colors.white,
+                                    filled: true,
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.marketDeliverTo,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.75,
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              home.address ??
+                                                  l10n.marketChooseAddress,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 14.5,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const AppIcon(
+                                            Symbols.keyboard_arrow_down_rounded,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         _HeroButton(icon: Symbols.notifications_rounded),
@@ -219,6 +233,32 @@ class _Hero extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The address line: a tap uses the phone's position (and its address,
+/// when the map names it), so vendors come with their time and fee.
+class _AddressButton extends ConsumerWidget {
+  const _AddressButton({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: () async {
+      final l10n = context.l10n;
+      final problem = await ref
+          .read(marketPlaceProvider.notifier)
+          .useMyLocation();
+      if (problem == null || !context.mounted) return;
+      showMessage(context, switch (problem) {
+        LocateProblem.off => l10n.locateOff,
+        LocateProblem.denied => l10n.locateDenied,
+        _ => l10n.locateFailed,
+      });
+    },
+    child: child,
+  );
 }
 
 class _Blob extends StatelessWidget {
