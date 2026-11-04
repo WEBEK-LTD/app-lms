@@ -114,3 +114,19 @@ export function vendorDeliveryFormValues(terms: VendorDelivery, currency: string
     scheduling: terms.scheduling ? "on" : "",
   };
 }
+
+/** 115.12 The app's couriers' terms as Studio's form shows them again; absent terms: the Delivery prices, no charge to vendors. */
+export function courierTermsFormValues(terms: MarketCourierTerms | undefined, currency: string): Record<string, string> {
+  const d = currencyDecimals(currency);
+  if (!terms) return { customer_fee: "delivery_prices", percent: "", min_fee: "", max_fee: "", free_over: "", vendor_charge: "none", vendor_charge_value: "" };
+  const charge = terms.vendorCharge === "none" ? "" : terms.vendorCharge === "percent" ? String(terms.vendorChargeValue) : fromMinor(terms.vendorChargeValue, d);
+  return {
+    customer_fee: terms.customerFee,
+    percent: terms.customerFee === "percent" ? String(terms.percent) : "",
+    min_fee: terms.customerFee === "percent" && terms.minFee ? fromMinor(terms.minFee, d) : "",
+    max_fee: terms.maxFee === null ? "" : fromMinor(terms.maxFee, d),
+    free_over: terms.freeOver === null ? "" : fromMinor(terms.freeOver, d),
+    vendor_charge: terms.vendorCharge,
+    vendor_charge_value: charge,
+  };
+}
