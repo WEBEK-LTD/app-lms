@@ -8449,9 +8449,10 @@ export class MysqlStore implements DataStore {
   }
 
   async saveMailCampaign(campaign: MailCampaign): Promise<void> {
-    const { id, ...rest } = campaign;
+    // Everything but the id changes on a save.
+    const { id: _id, ...rest } = campaign;
+    void _id;
     await this.run((db) => db.insert(schema.mailCampaigns).values(campaign).onDuplicateKeyUpdate({ set: rest }));
-    void id;
   }
 
   async setMailCampaignStatus(
