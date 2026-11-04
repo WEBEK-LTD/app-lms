@@ -164,6 +164,14 @@ export async function setStock(ctx: PanelContext, id: number, inStock: boolean, 
 
 // Imports
 
+/**
+ * The biggest catalog file the panel takes: the upload goes through a server
+ * action, whose body Netlify's functions cap at 6 MB (next.config's
+ * `bodySizeLimit`), less the form's own bytes. A bigger catalog goes in
+ * several files; rows update by SKU or barcode, so the order doesn't matter.
+ */
+export const IMPORT_MAX_BYTES = 5 * 1024 * 1024;
+
 export type ImportResult =
   | { ok: true; applied: boolean; plan: Pick<CatalogPlan, "counts" | "departments">; errors: { line: number; errors: string[] }[]; saved?: { created: number; updated: number; skipped: number } }
   | { ok: false; error: string };
