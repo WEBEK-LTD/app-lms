@@ -298,6 +298,46 @@ tags:
       accept each with the minutes it needs or turn it down with a reason,
       mark it ready for the courier, and set the restaurant busy for a while
       (no new orders) or open again.
+  - name: Market
+    description: |
+      Roadmap 115. The marketplace: many restaurants, supermarkets and shops in
+      one app (a Yallapp Studio project with the `marketplace` plan feature,
+      growing 105.1's food delivery). Vendors are of three kinds
+      (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and
+      shops have departments, aisles and products, some sold by weight. The
+      customer finds vendors (`GET /market/vendors`, `GET /market/search`),
+      fills one vendor's cart, sees every line of the price before ordering
+      (`POST /market/quote`: items before and after their discounts, the
+      coupon, the club's discount, delivery, taxes, the wallet), and orders
+      for now or for later, delivered or to pick up, paying cash, by card,
+      with Apple Pay or Google Pay (`MarketConfig.payment`), or partly from
+      the wallet. Each vendor chooses who delivers: the app's couriers (the
+      order is followed on the map) or its own drivers (followed by its
+      stages; on the map when the driver uses the courier app). Every amount
+      is in `MarketConfig.currency`, as a decimal string with that
+      currency's decimals (`MarketConfig.currency_decimals`), and formatted.
+      Vendors never reach customers and customers never reach vendors: no
+      vendor's phone, email or chat is ever shown, and support is the app's
+      owner's (the Chat tag, and complaints here). A complaint can be opened
+      on an order from when it is placed until 48 hours after it arrives;
+      the owner's support team decides it.
+  - name: Vendor
+    description: |
+      Roadmap 115. The vendor app's screens (and the vendor's web panel on
+      Yallapp's site, which serves the same data). A vendor's staff are the
+      people the app's owner or the vendor added by mobile number or email;
+      whoever signs in with it works for that vendor (`User.roles` has
+      `vendor`). Every endpoint here answers `not_vendor` (403) to anyone
+      else and to staff of a vendor the owner paused. Staff see their
+      vendor's orders only, with the customer's first name and the order's
+      lines; a vendor that delivers itself also gets the drop-off address and
+      the customer's notes for the door, never a phone number (its driver
+      asks the app's support, which reaches the customer). Staff accept an
+      order with the minutes it needs or turn it down, pick a grocery order
+      (weighed amounts, substitutes, missing items), mark it ready, hand it
+      over, and, when delivering themselves, mark it on the way and
+      delivered; they set the vendor busy or paused, and items in or out of
+      stock.
   - name: Rides
     description: |
       Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the
@@ -5575,6 +5615,905 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
+  /market/vendors:
+    get:
+      tags: [Market]
+      operationId: listMarketVendors
+      summary: List the vendors
+      description: |
+        The app's active vendors: open ones first, then by `sort`. With the
+        customer's position (`lat`, `lng`) each has its distance, delivery
+        time and fee, and whether it delivers there; vendors that don't are
+        listed last (they can still be ordered from for pick-up when they
+        allow it). `kind` keeps one kind, `category` one cuisine or
+        department (`MarketConfig.categories`), `q` searches vendors and their
+        items, and the flags keep vendors with free delivery, an offer,
+        the club's benefit or pick-up.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - { name: kind, in: query, schema: { $ref: '#/components/schemas/VendorKind' } }
+        - { name: category, in: query, schema: { type: string, maxLength: 40 } }
+        - { name: q, in: query, schema: { type: string, maxLength: 80 } }
+        - { name: sort, in: query, schema: { type: string, enum: [recommended, distance, rating, delivery_time, delivery_fee], default: recommended } }
+        - { name: free_delivery, in: query, schema: { type: boolean } }
+        - { name: offers, in: query, schema: { type: boolean } }
+        - { name: club, in: query, schema: { type: boolean } }
+        - { name: pickup, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Vendors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/MarketVendorSummary' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /market/vendors/{vendor_id}:
+    get:
+      tags: [Market]
+      operationId: getMarketVendor
+      summary: A vendor
+      description: |
+        The vendor with its hours, delivery terms, offers and the sections
+        of what it sells: a restaurant's menu sections with their dishes, or
+        a grocery's or shop's departments with their aisles (products come
+        from `GET /market/vendors/{vendor_id}/products`, as there may be many).
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+      responses:
+        '200':
+          description: The vendor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketVendor' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /market/vendors/{vendor_id}/products:
+    get:
+      tags: [Market]
+      operationId: listMarketProducts
+      summary: A vendor's products
+      description: |
+        Paged, in the vendor's order. `department` and `aisle` keep one,
+        `q` searches names, brands and descriptions, `barcode` finds one by
+        its barcode or SKU. Out-of-stock products are listed with
+        `in_stock` false after the others.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/VendorId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: department, in: query, schema: { type: integer } }
+        - { name: aisle, in: query, schema: { type: integer } }
+        - { name: q, in: query, schema: { type: string, maxLength: 80 } }
+        - { name: barcode, in: query, schema: { type: string, maxLength: 64 } }
+      responses:
+        '200':
+          description: Products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/MarketProduct' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /market/search:
+    get:
+      tags: [Market]
+      operationId: searchMarket
+      summary: Search vendors and what they sell
+      description: Vendors whose name or category matches, and the best matching dishes and products with their vendor, near the customer when `lat` and `lng` are given.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2, maxLength: 80 } }
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - { name: kind, in: query, schema: { $ref: '#/components/schemas/VendorKind' } }
+      responses:
+        '200':
+          description: The matches
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [vendors, items]
+                properties:
+                  vendors:
+                    type: array
+                    maxItems: 20
+                    items: { $ref: '#/components/schemas/MarketVendorSummary' }
+                  items:
+                    type: array
+                    maxItems: 40
+                    items:
+                      type: object
+                      required: [vendor, product]
+                      properties:
+                        vendor: { $ref: '#/components/schemas/MarketVendorSummary' }
+                        product: { $ref: '#/components/schemas/MarketProduct' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /market/offers:
+    get:
+      tags: [Market]
+      operationId: listMarketOffers
+      summary: Offers and coupons the customer can use
+      description: The app's public offers (with their vendor, or the whole app), and, signed in, the coupons the customer holds (given after a complaint, or for a first order). Codes the owner keeps private are not listed.
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: vendor_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Offers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MarketCoupon' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /market/quote:
+    post:
+      tags: [Market]
+      operationId: quoteMarketOrder
+      summary: Price one vendor's cart
+      description: |
+        Every line of the price, as the order would be charged: each item
+        before and after its discount, the coupon (and whether the owner or
+        the vendor pays it), the club's discount, the delivery fee (the app's
+        courier prices or the vendor's own), taxes added or included, the
+        wallet's part, and the total. Fails with `invalid_request` (400) for
+        an item or choice the vendor doesn't have, `unavailable_item` (409)
+        for one out of stock (`field` names the line), `vendor_closed` (409)
+        while the vendor is closed, busy or paused (unless `scheduled_for` is
+        within its hours), `below_minimum` (409) under the vendor's smallest
+        order, `quantity_limit` (409) outside its fewest or most items,
+        `outside_delivery_area` (400), `pickup_unavailable` (409), and
+        `coupon_invalid` (409) with the reason in `message`.
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MarketCartInput' }
+      responses:
+        '200':
+          description: The cart's prices
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketQuote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /market/orders:
+    post:
+      tags: [Market]
+      operationId: placeMarketOrder
+      summary: Order from a vendor
+      description: |
+        Places the order at the prices `POST /market/quote` gives for the
+        same cart (the answer's `quote_id` keeps them for 10 minutes). Paid in
+        cash, or fully from the wallet, it goes to the vendor at once
+        (`placed`; a scheduled order at its time). Paid by card, Apple Pay or
+        Google Pay, it waits for the payment (`awaiting_payment`): the answer
+        has `pay_url`, the gateway's payment page (which offers Apple Pay and
+        Google Pay where the gateway does), opened in the app on both
+        platforms (food and goods delivered are services in the physical
+        world, not in-app purchases); it goes to the vendor once the payment
+        is confirmed. Fails as the quote does, with `quote_expired` (409),
+        for a payment method the app doesn't take, and with
+        `payments_unavailable` (503) while the app's payments aren't set up.
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MarketOrderInput' }
+      responses:
+        '201':
+          description: The order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [order, pay_url]
+                properties:
+                  order: { $ref: '#/components/schemas/MarketOrder' }
+                  pay_url: { type: [string, 'null'], format: uri, description: 'For an online payment: the payment page, good for 60 minutes. Null otherwise.' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/market-orders:
+    get:
+      tags: [Market]
+      operationId: listMyMarketOrders
+      summary: The signed-in customer's orders
+      description: Newest first; `active` keeps those not yet delivered, picked up, turned down or cancelled, scheduled ones included.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: active, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/MarketOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /me/market-orders/{order_id}:
+    get:
+      tags: [Market]
+      operationId: getMyMarketOrder
+      summary: One of the customer's orders
+      description: The order with its stages, and `tracking` while it is on its way.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/market-orders/{order_id}/cancel:
+    post:
+      tags: [Market]
+      operationId: cancelMyMarketOrder
+      summary: Cancel an order
+      description: Until the vendor accepts it (a scheduled order until 30 minutes before its time). An online payment is refunded to it, a wallet part to the wallet. `not_cancellable` (409) after that; the customer can open a complaint instead.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '200':
+          description: The cancelled order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/pay:
+    post:
+      tags: [Market]
+      operationId: payMyMarketOrder
+      summary: A new payment page for an order waiting for its payment
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+        - $ref: '#/components/parameters/Platform'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pay_url]
+                properties:
+                  pay_url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/rating:
+    post:
+      tags: [Market]
+      operationId: rateMyMarketOrder
+      summary: Rate a delivered or picked-up order
+      description: Once, within 7 days. The vendor (and the courier, when the app's courier delivered it), 1 to 5, with words for the vendor.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vendor]
+              properties:
+                vendor: { type: integer, minimum: 1, maximum: 5 }
+                courier: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+                comment: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: The rated order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/market-orders/{order_id}/complaints:
+    post:
+      tags: [Market]
+      operationId: openMarketComplaint
+      summary: Open a complaint on an order
+      description: |
+        From when the order is placed until 48 hours after it was delivered
+        or picked up (`complaint_closed` (409) after that); one open
+        complaint per order at a time (`complaint_open` (409)). Photos are
+        added next with `POST /me/complaints/{complaint_id}/photos`.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ComplaintInput' }
+      responses:
+        '201':
+          description: The complaint
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Complaint' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/complaints:
+    get:
+      tags: [Market]
+      operationId: listMyComplaints
+      summary: The customer's complaints
+      description: Newest first.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Complaints
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Complaint' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /me/complaints/{complaint_id}:
+    get:
+      tags: [Market]
+      operationId: getMyComplaint
+      summary: A complaint with its messages and decision
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+      responses:
+        '200':
+          description: The complaint
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Complaint' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/complaints/{complaint_id}/messages:
+    post:
+      tags: [Market]
+      operationId: addComplaintMessage
+      summary: Write to support on a complaint
+      description: Until it is closed (`complaint_closed` (409)).
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: The complaint with the message
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Complaint' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/complaints/{complaint_id}/photos:
+    post:
+      tags: [Market]
+      operationId: addComplaintPhoto
+      summary: Add a photo to a complaint
+      description: JPEG, PNG or WebP up to 8 MB, at most 6 photos a complaint (`too_many_photos` (409)). Seen by support and, when support shares it, by the vendor.
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo: { type: string, format: binary }
+      responses:
+        '201':
+          description: The complaint with the photo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Complaint' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/wallet:
+    get:
+      tags: [Market]
+      operationId: getMyWallet
+      summary: The customer's wallet
+      description: Its balance and history (refunds, credit from support, paid orders). The wallet is in `MarketConfig.currency` and can't be withdrawn as cash.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: The wallet
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Wallet' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /market/club:
+    get:
+      tags: [Market]
+      operationId: getMarketClub
+      summary: The delivery club's plans
+      description: The app owner's club plans (monthly or yearly, at the owner's prices) and their benefits; `MarketConfig.club` false when the app has no club (404).
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: The club
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [name, description, plans]
+                properties:
+                  name: { type: string, example: Plus }
+                  description: { type: [string, 'null'] }
+                  plans:
+                    type: array
+                    items: { $ref: '#/components/schemas/ClubPlan' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/club:
+    get:
+      tags: [Market]
+      operationId: getMyClub
+      summary: The customer's club membership
+      description: Null `membership` when not a member.
+      responses:
+        '200':
+          description: The membership
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [membership]
+                properties:
+                  membership: { $ref: '#/components/schemas/ClubMembership' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Market]
+      operationId: joinClub
+      summary: Join the club
+      description: Starts a membership on a plan, waiting for its payment (`pay_url`, card, Apple Pay or Google Pay on the gateway's page); it renews at the end of each period by the same payment until cancelled, and the customer is told 3 days before (`club_renewal`). `already_member` (409).
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: integer }
+      responses:
+        '201':
+          description: The membership and its payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [membership, pay_url]
+                properties:
+                  membership: { $ref: '#/components/schemas/ClubMembership' }
+                  pay_url: { type: string, format: uri }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/club/cancel:
+    post:
+      tags: [Market]
+      operationId: cancelClub
+      summary: Stop the club from renewing
+      description: The membership stays until the end of the period it is paid for.
+      responses:
+        '200':
+          description: The membership
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [membership]
+                properties:
+                  membership: { $ref: '#/components/schemas/ClubMembership' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vendor/me:
+    get:
+      tags: [Vendor]
+      operationId: getVendorDesk
+      summary: The vendor, as its staff see it
+      responses:
+        '200':
+          description: The vendor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorDesk' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    patch:
+      tags: [Vendor]
+      operationId: updateVendorDesk
+      summary: Set the vendor busy, paused or taking orders
+      description: '`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again. Staff with the `orders` role or more.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                busy_minutes: { type: [integer, 'null'], minimum: 5, maximum: 240, description: 'Null ends being busy.' }
+                paused: { type: boolean }
+      responses:
+        '200':
+          description: The vendor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorDesk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/orders:
+    get:
+      tags: [Vendor]
+      operationId: listVendorOrders
+      summary: The vendor's orders
+      description: '`status` `new` (waiting for an answer, oldest first), `active` (accepted, not yet handed over or delivered), `scheduled`, or `done` (the last 7 days, newest first).'
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: status, in: query, schema: { type: string, enum: [new, active, scheduled, done], default: new } }
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/VendorOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/orders/{order_id}:
+    get:
+      tags: [Vendor]
+      operationId: getVendorOrder
+      summary: One of the vendor's orders
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vendor/orders/{order_id}/accept:
+    post:
+      tags: [Vendor]
+      operationId: acceptVendorOrder
+      summary: Accept an order with the minutes it needs
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prep_minutes]
+              properties:
+                prep_minutes: { type: integer, minimum: 5, maximum: 180 }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/orders/{order_id}/reject:
+    post:
+      tags: [Vendor]
+      operationId: rejectVendorOrder
+      summary: Turn an order down
+      description: The customer is told and refunded in full (to the payment, or the wallet for its wallet part).
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [closing, too_busy, items_unavailable, outside_area, other] }
+                note: { type: [string, 'null'], maxLength: 300, description: 'Shown to the app owner, not the customer.' }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/orders/{order_id}/lines:
+    patch:
+      tags: [Vendor]
+      operationId: pickVendorOrder
+      summary: Pick a grocery or shop order
+      description: |
+        For each line: the amount picked (a weighed amount for items sold by
+        weight, within the customer's agreed limit,
+        `MarketConfig.weight_tolerance_percent`), a substitute (only as the
+        customer allowed, `MarketOrderLine.if_missing`), or missing. The
+        order's total is worked out again (a lower total refunds the
+        difference when it was paid online; it is never charged more than
+        the customer agreed). Accepted orders only.
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lines]
+              properties:
+                lines:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [line_id, outcome]
+                    properties:
+                      line_id: { type: integer }
+                      outcome: { type: string, enum: [picked, substituted, missing] }
+                      quantity: { type: [number, 'null'], exclusiveMinimum: 0, description: 'For `picked`: units, or the weighed amount in the product''s unit (kg, g, l).' }
+                      substitute_product_id: { type: [integer, 'null'], description: 'For `substituted`.' }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/orders/{order_id}/ready:
+    post:
+      tags: [Vendor]
+      operationId: readyVendorOrder
+      summary: The order is ready
+      description: For the app's courier or the vendor's driver to take it, or for the customer to pick up (told with the pick-up code).
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/orders/{order_id}/handover:
+    post:
+      tags: [Vendor]
+      operationId: handOverVendorOrder
+      summary: Hand the order over
+      description: |
+        `to` `driver`: the vendor's own driver took it (`on_the_way`);
+        `delivered`: the vendor's driver delivered it; `customer`: picked up,
+        with the customer's 4-digit `pickup_code` (`wrong_code` (409)). With
+        the app's couriers, the courier's own screens move the order instead
+        (`invalid_request` (400) here).
+      parameters:
+        - $ref: '#/components/parameters/MarketOrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [to]
+              properties:
+                to: { type: string, enum: [driver, delivered, customer] }
+                pickup_code: { type: [string, 'null'], pattern: '^\d{4}$' }
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VendorOrder' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vendor/products:
+    get:
+      tags: [Vendor]
+      operationId: listVendorProducts
+      summary: The vendor's items, for stock
+      description: Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - { name: q, in: query, schema: { type: string, maxLength: 80 } }
+        - { name: barcode, in: query, schema: { type: string, maxLength: 64 } }
+        - { name: out_of_stock, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Items
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/MarketProduct' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /vendor/products/{product_id}:
+    patch:
+      tags: [Vendor]
+      operationId: updateVendorProductStock
+      summary: Put an item in or out of stock
+      description: '`in_stock`, and for products that count it, `stock` (out of stock at 0 by itself).'
+      parameters:
+        - { name: product_id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                in_stock: { type: boolean }
+                stock: { type: [integer, 'null'], minimum: 0 }
+      responses:
+        '200':
+          description: The item
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketProduct' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /rides/estimate:
     post:
       tags: [Rides]
@@ -9916,6 +10855,21 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    VendorId:
+      name: vendor_id
+      in: path
+      required: true
+      schema: { type: integer }
+    MarketOrderId:
+      name: order_id
+      in: path
+      required: true
+      schema: { type: integer }
+    ComplaintId:
+      name: complaint_id
+      in: path
+      required: true
+      schema: { type: integer }
     TeacherId:
       name: teacher_id
       in: path
@@ -10307,6 +11261,7 @@ components:
         donations: { $ref: '#/components/schemas/DonationsConfig' }
         delivery: { $ref: '#/components/schemas/DeliveryConfig' }
         food: { $ref: '#/components/schemas/FoodConfig' }
+        market: { $ref: '#/components/schemas/MarketConfig', description: 'Roadmap 115. Present for marketplace apps (Studio projects with the `marketplace` feature); such apps also have `food`.' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
         taxi:
@@ -10406,7 +11361,7 @@ components:
         roles:
           type: array
           uniqueItems: true
-          items: { type: string, enum: [courier, restaurant, driver, teacher, student, parent, staff, bus] }
+          items: { type: string, enum: [courier, restaurant, vendor, driver, teacher, student, parent, staff, bus] }
           description: |
             Roadmap 104. In delivery apps, `courier` for a courier of the
             company (the Courier endpoints). 105.1 In food apps, also
@@ -11610,7 +12565,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, market_order_update, vendor_order, complaint_update, club_renewal, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -11625,6 +12580,13 @@ components:
             105.1 `food_order_update` (with `food_order_id`): one of the customer's food orders
             moved to another stage, and opens it; `restaurant_order` (with `food_order_id`): a
             new order reached the restaurant, and opens it in the Restaurant tab.
+            115 `market_order_update` (with `market_order_id`): one of the customer's marketplace
+            orders moved to another stage (accepted, picked with changes, ready, on its way,
+            delivered, turned down), and opens it; `vendor_order` (with `market_order_id`): a new
+            order reached the vendor (pushed with the push's sound), and opens it in the Vendor
+            screens; `complaint_update` (with `complaint_id`): support answered or decided one of
+            the customer's complaints, and opens it; `club_renewal`: the customer's club
+            membership renews in 3 days, or its renewal payment failed, and opens the club.
             105.2 `ride_update` (with `ride_id`): one of the rider's rides moved to another
             stage (a driver accepted, arrived, the ride ended, or no driver was found), and
             opens it; `ride_offer` (with `ride_id`): a ride is offered to the driver, and
@@ -11683,6 +12645,8 @@ components:
         order_id: { type: [integer, 'null'], description: "91.2 For order_update, the order to open (`GET /me/orders/{order_id}`). Missing on older servers." }
         shipment_id: { type: [integer, 'null'], description: "104 For shipment_update and courier_job, the shipment to open. Missing on older servers." }
         food_order_id: { type: [integer, 'null'], description: "105.1 For food_order_update and restaurant_order, the food order to open. Missing on older servers." }
+        market_order_id: { type: [integer, 'null'], description: "115 For market_order_update and vendor_order, the order to open. Missing on older servers." }
+        complaint_id: { type: [integer, 'null'], description: "115 For complaint_update, the complaint to open. Missing on older servers." }
         ride_id: { type: [integer, 'null'], description: "105.2 For ride_update and ride_offer, the ride to open. Missing on older servers." }
         student_id: { type: [integer, 'null'], description: "105.4 For the school's notifications, the student it is about. Missing on older servers." }
         homework_id: { type: [integer, 'null'], description: "105.4 For school_homework, the homework to open. Missing on older servers." }
@@ -13147,7 +14111,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, ride, my_rides, driver, teachers, teacher, school, classroom, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, market, market_orders, vendor, complaints, wallet, club, ride, my_rides, driver, teachers, teacher, school, classroom, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -13164,7 +14128,7 @@ components:
     ItemSource:
       type: string
       description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only); 113.1 `bundles` are an academy's course bundles, each opening the bundle's page (courses managed in Yallapp).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vehicle_types, school_news, bundles]
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vendors, market_products, vehicle_types, school_news, bundles]
 
     Item:
       type: object
@@ -14950,6 +15914,584 @@ components:
               status: { $ref: '#/components/schemas/FoodOrderStatus' }
               at: { type: string, format: date-time }
               note: { type: [string, 'null'] }
+
+    MarketConfig:
+      type: object
+      description: Settings for marketplace apps (roadmap 115). Every amount is the app owner's, in `currency`.
+      required: [country, currency, currency_decimals, timezone, kinds, categories, payment, tax, pickup, scheduling, club, wallet, weight_tolerance_percent, courier_app, vendor_app, map]
+      properties:
+        country: { type: string, pattern: '^[A-Z]{2}$', description: 'ISO 3166-1 alpha-2, the app owner''s choice.', example: EG }
+        currency: { type: string, pattern: '^[A-Z]{3}$', description: 'ISO 4217, the app owner''s choice; any currency.', example: EGP }
+        currency_decimals: { type: integer, minimum: 0, maximum: 3, description: 'The currency''s minor units (2 for EGP, 0 for JPY, 3 for KWD): every amount is written with this many decimals.' }
+        timezone: { type: string, example: Africa/Cairo }
+        kinds:
+          type: array
+          description: The vendor kinds the app has, in the owner's order.
+          items: { $ref: '#/components/schemas/VendorKind' }
+        categories:
+          type: array
+          description: Cuisines (restaurants) and departments (groceries and shops) vendors are filed under, for the filters.
+          items:
+            type: object
+            required: [id, name, kind, image_url]
+            properties:
+              id: { type: string, example: grills }
+              name: { type: string, example: Grills }
+              kind: { $ref: '#/components/schemas/VendorKind' }
+              image_url: { type: [string, 'null'], format: uri }
+        payment:
+          type: object
+          required: [cash, card, apple_pay, google_pay, wallet, cash_max]
+          description: How customers can pay. At least one is true. `apple_pay` and `google_pay` are offered on the gateway's payment page, on iOS and Android respectively.
+          properties:
+            cash: { type: boolean, description: 'On delivery or pick-up.' }
+            card: { type: boolean }
+            apple_pay: { type: boolean }
+            google_pay: { type: boolean }
+            wallet: { type: boolean, description: 'The wallet can pay all or part of an order.' }
+            cash_max: { type: [string, 'null'], description: 'The largest total paid in cash; null for no limit.' }
+        tax:
+          type: object
+          required: [label, included]
+          description: 'How prices show taxes. `included`: prices already include them; otherwise they are added at checkout. Rates may differ per vendor.'
+          properties:
+            label: { type: string, example: VAT }
+            included: { type: boolean }
+        pickup: { type: boolean, description: 'Customers can pick orders up from vendors that allow it.' }
+        scheduling:
+          type: object
+          required: [enabled, days_ahead]
+          properties:
+            enabled: { type: boolean }
+            days_ahead: { type: integer, minimum: 0, maximum: 14 }
+        club: { type: boolean, description: 'The app has a delivery club (`GET /market/club`).' }
+        wallet: { type: boolean }
+        weight_tolerance_percent: { type: integer, minimum: 0, maximum: 30, description: 'How far a weighed item may go above what was ordered; the customer is never charged more than the quote plus this.' }
+        courier_app:
+          type: string
+          enum: [same, bundle, yallapp_courier]
+          description: As `DeliveryConfig.courier_app`.
+        vendor_app:
+          type: string
+          enum: [same, bundle]
+          description: '`bundle`: vendors have their own app in the app''s bundle, and the customer app never shows the Vendor tab; `same`: staff get the Vendor tab in the customer app.'
+        map:
+          type: object
+          required: [tiles_url, attribution, search, routes]
+          description: As `DeliveryConfig.map`.
+          properties:
+            tiles_url: { type: [string, 'null'] }
+            attribution: { type: [string, 'null'] }
+            search: { type: boolean }
+            routes: { type: boolean }
+
+    VendorKind:
+      type: string
+      enum: [restaurant, grocery, shop]
+
+    Money:
+      type: object
+      required: [amount, formatted]
+      properties:
+        amount: { type: string, description: 'A decimal string with `MarketConfig.currency_decimals` decimals; negative for discounts.', example: '125.50' }
+        formatted: { type: string, example: 'EGP 125.50' }
+
+    MarketVendorSummary:
+      type: object
+      required: [id, kind, name, logo_url, cover_url, categories, rating, ratings_count, open, opens_at, busy, delivery_by, delivery_minutes, delivery_fee, free_delivery_over, min_order, distance_km, delivers, pickup, scheduling, offer, club_benefit]
+      properties:
+        id: { type: integer }
+        kind: { $ref: '#/components/schemas/VendorKind' }
+        name: { type: string, example: Abou Tarek }
+        logo_url: { type: [string, 'null'], format: uri }
+        cover_url: { type: [string, 'null'], format: uri }
+        categories:
+          type: array
+          items: { type: string, description: 'A `MarketConfig.categories` id.' }
+        rating: { type: [number, 'null'], example: 4.6 }
+        ratings_count: { type: integer }
+        open: { type: boolean, description: 'Taking orders now: within its hours, not busy and not paused.' }
+        opens_at: { type: [string, 'null'], format: date-time }
+        busy: { type: boolean }
+        delivery_by: { type: string, enum: [app, vendor], description: '`app`: the app''s couriers (followed on the map); `vendor`: its own drivers (followed by stages).' }
+        delivery_minutes:
+          type: [object, 'null']
+          required: [min, max]
+          description: Preparing and delivering, with the customer's position; null without it.
+          properties:
+            min: { type: integer }
+            max: { type: integer }
+        delivery_fee: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'With the customer''s position (or a fixed fee); null otherwise. Zero for free delivery.' }
+        free_delivery_over: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        distance_km: { type: [number, 'null'] }
+        delivers: { type: [boolean, 'null'] }
+        pickup: { type: boolean }
+        scheduling: { type: boolean }
+        offer: { type: [string, 'null'], description: 'Its best offer in a few words, for the card.', example: '20% off grills' }
+        club_benefit: { type: [string, 'null'], description: 'The club''s benefit at this vendor, for members and to invite others.', example: 'Free delivery' }
+
+    MarketVendor:
+      allOf:
+        - $ref: '#/components/schemas/MarketVendorSummary'
+        - type: object
+          required: [description, area, hours, quantity, tax_rate_percent, sections, departments, offers]
+          description: "No phone, email or chat: customers reach the app's support only."
+          properties:
+            description: { type: [string, 'null'] }
+            area: { type: [string, 'null'], description: 'Its district, for the customer to know where it is; its exact place only for pick-up orders.' }
+            hours:
+              type: array
+              items:
+                type: object
+                required: [day, opens, closes]
+                properties:
+                  day: { type: string, enum: [mon, tue, wed, thu, fri, sat, sun] }
+                  opens: { type: string, pattern: '^\d{2}:\d{2}$' }
+                  closes: { type: string, pattern: '^\d{2}:\d{2}$' }
+            quantity:
+              type: object
+              required: [min_items, max_items]
+              properties:
+                min_items: { type: [integer, 'null'] }
+                max_items: { type: [integer, 'null'] }
+            tax_rate_percent: { type: [number, 'null'], description: 'Its tax rate when it differs from the app''s.' }
+            sections:
+              type: array
+              description: A restaurant's menu sections with their dishes; empty for groceries and shops.
+              items:
+                type: object
+                required: [id, name, items]
+                properties:
+                  id: { type: integer }
+                  name: { type: string }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MarketProduct' }
+            departments:
+              type: array
+              description: A grocery's or shop's departments and aisles; empty for restaurants.
+              items:
+                type: object
+                required: [id, name, image_url, aisles]
+                properties:
+                  id: { type: integer }
+                  name: { type: string, example: Fruit & vegetables }
+                  image_url: { type: [string, 'null'], format: uri }
+                  aisles:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name]
+                      properties:
+                        id: { type: integer }
+                        name: { type: string, example: Fresh fruit }
+            offers:
+              type: array
+              items: { $ref: '#/components/schemas/MarketCoupon' }
+
+    MarketProduct:
+      type: object
+      required: [id, name, description, image_url, brand, price, was_price, unit, step, max_quantity, in_stock, choices, tags]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        image_url: { type: [string, 'null'], format: uri }
+        brand: { type: [string, 'null'] }
+        price: { $ref: '#/components/schemas/Money' }
+        was_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'Before its discount, struck through.' }
+        unit: { type: string, enum: [item, kg, g, l], description: 'What `price` is for. Items sold by weight are weighed when picked.' }
+        step: { type: number, description: 'The amount added each time: 1 for items, 0.25 for a quarter kilo.', example: 0.25 }
+        max_quantity: { type: [number, 'null'] }
+        in_stock: { type: boolean }
+        choices:
+          type: array
+          description: A dish's choices (size, extras), as 105.1's.
+          items: { $ref: '#/components/schemas/DishChoiceGroup' }
+        tags:
+          type: array
+          items: { type: string, enum: [spicy, vegetarian, vegan, new, popular, organic, frozen, age_restricted] }
+
+    MarketCoupon:
+      type: object
+      required: [id, title, description, code, vendor_id, kind, value, min_order, ends_at, first_order_only]
+      properties:
+        id: { type: integer }
+        title: { type: string, example: 20% off your first order }
+        description: { type: [string, 'null'] }
+        code: { type: [string, 'null'], description: 'Null for an automatic offer.' }
+        vendor_id: { type: [integer, 'null'], description: 'Null for the whole app.' }
+        kind: { type: string, enum: [percent, amount, free_delivery] }
+        value: { type: [string, 'null'], description: 'The percentage or the amount.' }
+        min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        ends_at: { type: [string, 'null'], format: date-time }
+        first_order_only: { type: boolean }
+
+    MarketCartInput:
+      type: object
+      required: [vendor_id, lines, fulfilment]
+      properties:
+        vendor_id: { type: integer }
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items:
+            type: object
+            required: [product_id, quantity]
+            properties:
+              product_id: { type: integer }
+              quantity: { type: number, exclusiveMinimum: 0, description: 'Units, or kilos/litres for items sold by weight, in steps of the product''s `step`.' }
+              choices:
+                type: array
+                items: { type: integer, description: 'Choice ids.' }
+              note: { type: [string, 'null'], maxLength: 200 }
+              if_missing: { type: string, enum: [similar, chosen, remove], default: remove, description: 'Groceries and shops: what to do when it is out when picked.' }
+              substitute_product_id: { type: [integer, 'null'], description: 'For `if_missing: chosen`.' }
+        fulfilment: { type: string, enum: [delivery, pickup] }
+        dropoff: { oneOf: [{ $ref: '#/components/schemas/PlaceInput' }, { type: 'null' }], description: 'Needed for delivery.' }
+        scheduled_for: { type: [string, 'null'], format: date-time, description: 'An order for later, within the vendor''s hours and `MarketConfig.scheduling.days_ahead`.' }
+        coupon_code: { type: [string, 'null'], maxLength: 40 }
+        use_wallet: { type: boolean, default: false }
+        tip: { type: [string, 'null'], description: 'For the courier, a decimal string.' }
+
+    MarketPriceLine:
+      type: object
+      required: [kind, label, amount]
+      properties:
+        kind: { type: string, enum: [items, item_discounts, coupon, club, delivery, delivery_discount, tax, tip, wallet, total] }
+        label: { type: string, example: Delivery }
+        amount: { $ref: '#/components/schemas/Money' }
+
+    MarketQuote:
+      type: object
+      required: [quote_id, expires_at, lines, price, total, pay_now, coupon, delivery_minutes, warnings]
+      properties:
+        quote_id: { type: string, description: 'Keeps these prices for `POST /market/orders` until `expires_at`.' }
+        expires_at: { type: string, format: date-time }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/MarketOrderLine' }
+        price:
+          type: array
+          description: Every line of the price, in order, ending with the total.
+          items: { $ref: '#/components/schemas/MarketPriceLine' }
+        total: { $ref: '#/components/schemas/Money' }
+        pay_now: { $ref: '#/components/schemas/Money', description: 'What is left to pay after the wallet.' }
+        coupon:
+          type: [object, 'null']
+          required: [code, title]
+          properties:
+            code: { type: string }
+            title: { type: string }
+        delivery_minutes:
+          type: [object, 'null']
+          required: [min, max]
+          properties:
+            min: { type: integer }
+            max: { type: integer }
+        warnings:
+          type: array
+          description: Things to know, e.g. items sold by weight may end up slightly more or less.
+          items: { type: string }
+
+    MarketOrderLine:
+      type: object
+      required: [id, product_id, name, image_url, quantity, unit, choices, unit_price, before_discount, total, if_missing, outcome, substitute]
+      properties:
+        id: { type: integer }
+        product_id: { type: integer }
+        name: { type: string }
+        image_url: { type: [string, 'null'], format: uri }
+        quantity: { type: number }
+        unit: { type: string, enum: [item, kg, g, l] }
+        choices:
+          type: array
+          items: { type: string, description: 'The choices'' names.' }
+        note: { type: [string, 'null'] }
+        unit_price: { $ref: '#/components/schemas/Money' }
+        before_discount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        total: { $ref: '#/components/schemas/Money' }
+        if_missing: { type: string, enum: [similar, chosen, remove] }
+        outcome: { type: [string, 'null'], enum: [picked, substituted, missing, null], description: 'Once picked (groceries and shops).' }
+        picked_quantity: { type: [number, 'null'] }
+        substitute:
+          type: [object, 'null']
+          required: [product_id, name, quantity, total]
+          properties:
+            product_id: { type: integer }
+            name: { type: string }
+            quantity: { type: number }
+            total: { $ref: '#/components/schemas/Money' }
+
+    MarketOrderInput:
+      allOf:
+        - $ref: '#/components/schemas/MarketCartInput'
+        - type: object
+          required: [quote_id, payment]
+          properties:
+            quote_id: { type: string }
+            payment: { type: string, enum: [cash, card, apple_pay, google_pay, wallet], description: '`wallet` only when the wallet covers it all.' }
+            notes: { type: [string, 'null'], maxLength: 300, description: 'For the vendor (and its driver, for the door).' }
+            dropoff_details: { $ref: '#/components/schemas/DeliveryAddress' }
+
+    MarketOrderStatus:
+      type: string
+      enum: [awaiting_payment, scheduled, placed, accepted, picking, ready, on_the_way, delivered, picked_up, rejected, cancelled]
+
+    MarketOrder:
+      type: object
+      required: [id, reference, vendor, status, fulfilment, scheduled_for, lines, price, total, payment, delivery_by, ready_at, eta, pickup_code, tracking, rating, can_cancel, can_complain, complaint_id, created_at, timeline]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: M-1042 }
+        vendor: { $ref: '#/components/schemas/MarketVendorSummary' }
+        status: { $ref: '#/components/schemas/MarketOrderStatus' }
+        fulfilment: { type: string, enum: [delivery, pickup] }
+        scheduled_for: { type: [string, 'null'], format: date-time }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/MarketOrderLine' }
+        price:
+          type: array
+          items: { $ref: '#/components/schemas/MarketPriceLine' }
+        total: { $ref: '#/components/schemas/Money' }
+        payment:
+          type: object
+          required: [method, status, wallet_used]
+          properties:
+            method: { type: string, enum: [cash, card, apple_pay, google_pay, wallet] }
+            status: { type: string, enum: [unpaid, paid, partly_refunded, refunded] }
+            wallet_used: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        delivery_by: { type: [string, 'null'], enum: [app, vendor, null], description: 'Null for pick-up.' }
+        ready_at: { type: [string, 'null'], format: date-time }
+        eta: { type: [string, 'null'], format: date-time, description: 'When it should arrive (or be ready to pick up).' }
+        pickup_code: { type: [string, 'null'], description: 'For pick-up orders, shown to the vendor when picking up.' }
+        tracking: { $ref: '#/components/schemas/MarketTracking' }
+        rating:
+          type: [object, 'null']
+          required: [vendor, courier]
+          properties:
+            vendor: { type: integer }
+            courier: { type: [integer, 'null'] }
+        can_cancel: { type: boolean }
+        can_complain: { type: boolean, description: 'From placing it until 48 hours after it arrived, with no complaint open.' }
+        complaint_id: { type: [integer, 'null'], description: 'Its latest complaint.' }
+        created_at: { type: string, format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/MarketOrderStatus' }
+              at: { type: string, format: date-time }
+
+    MarketTracking:
+      type: [object, 'null']
+      required: [mode, courier, position, updated_at, route]
+      description: 'While on its way. `map`: the courier''s position (the app''s couriers, or a vendor''s driver using the courier app); `stages`: only the stages.'
+      properties:
+        mode: { type: string, enum: [map, stages] }
+        courier:
+          type: [object, 'null']
+          required: [name, photo_url, vehicle]
+          description: No phone; the customer reaches support.
+          properties:
+            name: { type: string, description: 'First name.' }
+            photo_url: { type: [string, 'null'], format: uri }
+            vehicle: { type: [string, 'null'], example: Motorbike }
+        position:
+          type: [object, 'null']
+          required: [lat, lng]
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+        updated_at: { type: [string, 'null'], format: date-time }
+        route:
+          type: array
+          description: The road ahead, when the app's map draws routes.
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items: { type: number }
+
+    ComplaintInput:
+      type: object
+      required: [reason, text]
+      properties:
+        reason: { type: string, enum: [late, missing_items, wrong_items, quality, damaged, not_delivered, charged_wrong, courier, other] }
+        line_ids:
+          type: array
+          description: The order's lines it is about.
+          items: { type: integer }
+        text: { type: string, minLength: 5, maxLength: 2000 }
+
+    Complaint:
+      type: object
+      required: [id, reference, order_id, reason, status, text, line_ids, photos, messages, decision, created_at, updated_at]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: C-208 }
+        order_id: { type: integer }
+        reason: { type: string, enum: [late, missing_items, wrong_items, quality, damaged, not_delivered, charged_wrong, courier, other] }
+        status: { type: string, enum: [open, in_review, waiting_for_customer, resolved, rejected] }
+        text: { type: string }
+        line_ids:
+          type: array
+          items: { type: integer }
+        photos:
+          type: array
+          items:
+            type: object
+            required: [id, url]
+            properties:
+              id: { type: integer }
+              url: { type: string, format: uri }
+        messages:
+          type: array
+          description: Between the customer and the app's support; the team's internal notes are never here.
+          items:
+            type: object
+            required: [id, from, text, at]
+            properties:
+              id: { type: integer }
+              from: { type: string, enum: [customer, support] }
+              text: { type: string }
+              at: { type: string, format: date-time }
+        decision:
+          type: [object, 'null']
+          required: [outcome, amount, to, coupon_code, reason, at]
+          properties:
+            outcome: { type: string, enum: [refund, partial_refund, compensation, no_refund] }
+            amount: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+            to: { type: [string, 'null'], enum: [payment, wallet, coupon, null], description: 'Where the refund or compensation went.' }
+            coupon_code: { type: [string, 'null'] }
+            reason: { type: [string, 'null'], description: 'Support''s words to the customer.' }
+            at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    Wallet:
+      type: object
+      required: [balance, entries, page, total_pages]
+      properties:
+        balance: { $ref: '#/components/schemas/Money' }
+        entries:
+          type: array
+          items:
+            type: object
+            required: [id, kind, amount, label, order_id, at]
+            properties:
+              id: { type: integer }
+              kind: { type: string, enum: [refund, credit, payment, expired] }
+              amount: { $ref: '#/components/schemas/Money' }
+              label: { type: string }
+              order_id: { type: [integer, 'null'] }
+              at: { type: string, format: date-time }
+        page: { type: integer }
+        total_pages: { type: integer }
+
+    ClubPlan:
+      type: object
+      required: [id, name, period, price, benefits]
+      properties:
+        id: { type: integer }
+        name: { type: string, example: Monthly }
+        period: { type: string, enum: [month, year] }
+        price: { $ref: '#/components/schemas/Money' }
+        benefits:
+          type: array
+          items: { type: string, example: 'Free delivery on orders over EGP 150.00' }
+
+    ClubMembership:
+      type: [object, 'null']
+      required: [plan, status, renews, current_period_end, saved]
+      properties:
+        plan: { $ref: '#/components/schemas/ClubPlan' }
+        status: { type: string, enum: [awaiting_payment, active, ending, ended, payment_failed] }
+        renews: { type: boolean }
+        current_period_end: { type: [string, 'null'], format: date-time }
+        saved: { $ref: '#/components/schemas/Money', description: 'What the club saved the member so far.' }
+
+    VendorDesk:
+      type: object
+      required: [id, kind, name, logo_url, open, busy_until, paused, accepting, delivery_by, role, today]
+      description: The vendor as its staff see it.
+      properties:
+        id: { type: integer }
+        kind: { $ref: '#/components/schemas/VendorKind' }
+        name: { type: string }
+        logo_url: { type: [string, 'null'], format: uri }
+        open: { type: boolean, description: 'Within its hours.' }
+        busy_until: { type: [string, 'null'], format: date-time }
+        paused: { type: boolean }
+        accepting: { type: boolean }
+        delivery_by: { type: string, enum: [app, vendor] }
+        role: { type: string, enum: [owner, manager, orders, picker], description: 'The signed-in staff member''s role.' }
+        today:
+          type: object
+          required: [orders, sales, new_orders]
+          properties:
+            orders: { type: integer }
+            sales: { $ref: '#/components/schemas/Money' }
+            new_orders: { type: integer }
+
+    VendorOrder:
+      type: object
+      required: [id, reference, status, fulfilment, scheduled_for, lines, subtotal, customer, notes, dropoff, payment, prep_minutes, ready_at, courier, created_at, timeline]
+      description: An order as the vendor sees it. Never the customer's phone or email; the drop-off only when the vendor delivers itself.
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        status: { $ref: '#/components/schemas/MarketOrderStatus' }
+        fulfilment: { type: string, enum: [delivery, pickup] }
+        scheduled_for: { type: [string, 'null'], format: date-time }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/MarketOrderLine' }
+        subtotal: { $ref: '#/components/schemas/Money' }
+        customer:
+          type: object
+          required: [first_name]
+          properties:
+            first_name: { type: string }
+        notes: { type: [string, 'null'] }
+        dropoff:
+          type: [object, 'null']
+          required: [address, details, lat, lng, notes]
+          properties:
+            address: { type: string }
+            details: { type: [string, 'null'] }
+            lat: { type: [number, 'null'] }
+            lng: { type: [number, 'null'] }
+            notes: { type: [string, 'null'] }
+        payment:
+          type: object
+          required: [method, status, collect]
+          properties:
+            method: { type: string, enum: [cash, card, apple_pay, google_pay, wallet] }
+            status: { type: string, enum: [unpaid, paid, partly_refunded, refunded] }
+            collect: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'Cash to collect from the customer, when the vendor''s driver delivers or for pick-up.' }
+        prep_minutes: { type: [integer, 'null'] }
+        ready_at: { type: [string, 'null'], format: date-time }
+        courier:
+          type: [object, 'null']
+          required: [name]
+          description: The app's courier taking it, once one has the job.
+          properties:
+            name: { type: string }
+        created_at: { type: string, format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [status, at]
+            properties:
+              status: { $ref: '#/components/schemas/MarketOrderStatus' }
+              at: { type: string, format: date-time }
 
     RidesConfig:
       type: object
