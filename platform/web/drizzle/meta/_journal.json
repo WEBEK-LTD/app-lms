@@ -792,6 +792,27 @@
       "when": 1793752028595,
       "tag": "0112_mail_runs",
       "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "5",
+      "when": 1793759703453,
+      "tag": "0113_market_catalogs",
+      "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "5",
+      "when": 1793760245682,
+      "tag": "0114_market_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "5",
+      "when": 1793766413964,
+      "tag": "0115_market_coupons_club_joining",
+      "breakpoints": true
     }
   ]
 }

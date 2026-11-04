@@ -1,3 +1,4 @@
+import type { OrderMoney } from "../market/money";
 import type { Plan, PlanSetting } from "../plans";
 import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
@@ -3325,6 +3326,48 @@ export interface DeliverySettings {
   rides?: RidesSettings;
   /** 105.9 Live taxi apps: the map and the live database. */
   taxi?: TaxiSettings;
+  /** 115.5 Marketplace apps: the app's couriers' terms (lib/market/delivery.ts); absent: the Delivery prices above, no charge to vendors. */
+  market?: MarketCourierTerms;
+  /** 115 Marketplace apps: country, taxes, payment ways, pick-up, orders for later, the club and the wallet (lib/market/settings.ts); absent: the defaults. */
+  marketApp?: MarketAppSettings;
+}
+
+/** 115 A marketplace's settings, as the app owner sets them in Studio › Settings (115.12). Amounts in the currency's minor units. */
+export interface MarketAppSettings {
+  /** ISO 3166-1 alpha-2. */
+  country: string;
+  /** ISO 4217; null: the Delivery settings' currency. */
+  currency: string | null;
+  tax: { ratePercent: number; included: boolean; onDelivery: boolean; label: string };
+  /** lib/market/payments.ts `MarketPaymentSettings`. */
+  payment: { gateway: PaymentProviderId | null; cash: boolean; cashMax: number | null; applePay: boolean; googlePay: boolean };
+  pickup: boolean;
+  scheduling: { enabled: boolean; daysAhead: number };
+  club: boolean;
+  wallet: boolean;
+  /** How far a weighed item may go above what was ordered (percent). */
+  weightTolerancePercent: number;
+  /** Vendors' own app in the bundle, or the Vendor tab in the customer app. */
+  vendorApp: "same" | "bundle";
+}
+
+/**
+ * 115.5 The app's couriers in a marketplace, as the owner sets them: what
+ * customers pay for delivery (the Delivery prices above, or a percentage of
+ * the items) and what a vendor that uses them pays the owner per order,
+ * besides its commission. Amounts in the currency's minor units.
+ */
+export interface MarketCourierTerms {
+  customerFee: "delivery_prices" | "percent";
+  /** For `percent`: of the items after discounts, never under `minFee` nor over `maxFee`. */
+  percent: number;
+  minFee: number;
+  maxFee: number | null;
+  /** Free delivery with the app's couriers from this items' total; null: never. */
+  freeOver: number | null;
+  /** The vendor's charge: none, a fixed amount, a percentage of the items, or an amount per km. */
+  vendorCharge: "none" | "fixed" | "percent" | "per_km";
+  vendorChargeValue: number;
 }
 
 /** 105.9 Whose map a live taxi app draws. */
@@ -3577,8 +3620,43 @@ export interface Restaurant {
   position: number;
   /** 110.2 A sample entry (lib/samples): saving it in the dashboard makes it the owner's. */
   sample?: boolean;
+  /** 115.3 In a marketplace (the `marketplace` feature), what it is; 105.1's restaurants are `restaurant`. */
+  kind?: VendorKind;
+  /** 115.3 Who delivers and on what terms; null: the app's couriers at the app's Delivery prices (105.1). */
+  delivery?: VendorDelivery | null;
+  /** 115.3 A fixed commission per order in minor units, instead of `commissionBp`. */
+  commissionFixed?: number | null;
+  /** 115.3 Its tax rate in basis points when it differs from the app's; null: the app's. */
+  taxRateBp?: number | null;
+  /** 115.3 Not taking orders until the vendor or the owner turns it back on. */
+  paused?: boolean;
+  /** 115.3 Its district, shown to customers (its exact place only for pick-up). */
+  area?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/** 115.3 What a marketplace vendor sells: dishes (a menu), or products in departments and aisles. */
+export type VendorKind = "restaurant" | "grocery" | "shop";
+
+/** 115.3 A vendor's delivery: by the app's couriers (the owner's prices) or by its own drivers (its prices). */
+export interface VendorDelivery {
+  by: "app" | "vendor";
+  /** For its own drivers: a fixed fee, or a base plus an amount per km. */
+  feeKind: "fixed" | "per_km";
+  /** The fixed fee, or the base, in minor units. */
+  fee: number;
+  /** Per km after the first, in minor units (`per_km`). */
+  perKm: number;
+  /** Free delivery from this subtotal; null for never. */
+  freeOver: number | null;
+  /** The fewest and most items an order may have; null for no limit. */
+  minItems: number | null;
+  maxItems: number | null;
+  /** Customers may pick orders up. */
+  pickup: boolean;
+  /** Customers may order for later. */
+  scheduling: boolean;
 }
 
 export type RestaurantInput = Omit<Restaurant, "id" | "busyUntil" | "ratingSum" | "ratingCount" | "createdAt" | "updatedAt">;
@@ -3595,11 +3673,84 @@ export interface RestaurantStaff {
   /** Lowercase. */
   email: string | null;
   active: boolean;
+  /** 115.3 What they may do: everything (`owner`), all but staff (`manager`), orders and stock (`orders`), picking only (`picker`). 105.1's staff are `manager`. */
+  role?: VendorRole;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active">;
+export type VendorRole = "owner" | "manager" | "orders" | "picker";
+
+/** 115.3 A grocery's or shop's department (Fruit & vegetables), in its order. */
+export interface MarketDepartment {
+  id: number;
+  appId: string;
+  vendorId: number;
+  name: string;
+  imageAssetId: string | null;
+  position: number;
+}
+
+/** 115.3 An aisle in a department (Fresh fruit). */
+export interface MarketAisle {
+  id: number;
+  appId: string;
+  vendorId: number;
+  departmentId: number;
+  name: string;
+  position: number;
+}
+
+export type MarketUnit = "item" | "kg" | "g" | "l";
+
+/** 115.3 A grocery's or shop's product. Prices in minor units of the app's currency. */
+export interface MarketProduct {
+  id: number;
+  appId: string;
+  vendorId: number;
+  departmentId: number | null;
+  aisleId: number | null;
+  name: string;
+  description: string | null;
+  brand: string | null;
+  /** The vendor's own code, unique within the vendor; imports update by it. */
+  sku: string | null;
+  barcode: string | null;
+  imageAssetId: string | null;
+  /** A picture by link (from an import), when there is no uploaded one. */
+  imageUrl: string | null;
+  price: number;
+  /** Before its discount (struck through); null for none. */
+  wasPrice: number | null;
+  unit: MarketUnit;
+  /** The amount added each time (1 for items, 0.25 for a quarter kilo). */
+  step: number;
+  maxQuantity: number | null;
+  /** Counted stock; null when not counted (then `inStock` alone says). */
+  stock: number | null;
+  inStock: boolean;
+  tags: string[];
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketProductInput = Omit<MarketProduct, "id" | "createdAt" | "updatedAt">;
+
+export interface MarketProductQuery {
+  appId: string;
+  vendorId: number;
+  departmentId?: number;
+  aisleId?: number;
+  q?: string;
+  /** A barcode or SKU. */
+  code?: string;
+  outOfStock?: boolean;
+  page: number;
+  perPage: number;
+}
+
+export type RestaurantStaffInput = Pick<RestaurantStaff, "appId" | "restaurantId" | "name" | "phone" | "email" | "active"> & { role?: VendorRole };
 
 export const FOOD_ORDER_STATUSES = ["awaiting_payment", "placed", "accepted", "ready", "picked_up", "on_the_way", "delivered", "rejected", "cancelled", "failed"] as const;
 export type FoodOrderStatus = (typeof FOOD_ORDER_STATUSES)[number];
@@ -3667,6 +3818,351 @@ export interface FoodOrder {
 
 export type FoodOrderInput = Omit<FoodOrder, "id">;
 export type FoodOrderPatch = Partial<Pick<FoodOrder, "status" | "paymentStatus" | "orderId" | "readyAt" | "rejection" | "shipmentId" | "rating" | "timeline" | "userId" | "updatedAt">>;
+
+// 115.3 The marketplace's orders, complaints and wallet
+
+export const MARKET_ORDER_STATUSES = ["awaiting_payment", "scheduled", "placed", "accepted", "picking", "ready", "on_the_way", "delivered", "picked_up", "rejected", "cancelled"] as const;
+export type MarketOrderStatus = (typeof MARKET_ORDER_STATUSES)[number];
+
+export interface MarketOrderLine {
+  id: number;
+  /** A dish's id (restaurants) or a product's id (groceries and shops). */
+  productId: number;
+  name: string;
+  imageUrl: string | null;
+  quantity: number;
+  unit: MarketUnit;
+  choices: string[];
+  note: string | null;
+  unitPrice: number;
+  wasUnitPrice: number | null;
+  total: number;
+  ifMissing: "similar" | "chosen" | "remove";
+  substituteProductId: number | null;
+  /** Once picked. */
+  outcome: "picked" | "substituted" | "missing" | null;
+  pickedQuantity: number | null;
+  substitute: { productId: number; name: string; quantity: number; total: number } | null;
+}
+
+export interface MarketOrderStage {
+  status: MarketOrderStatus;
+  at: string;
+  by: "customer" | "vendor" | "courier" | "owner" | "system";
+}
+
+/** 115.3 A marketplace order, with its money as priced (lib/market/money.ts `OrderMoney`) kept as it was. */
+export interface MarketOrder {
+  id: number;
+  appId: string;
+  vendorId: number | null;
+  /** Kept when the vendor is deleted. */
+  vendorName: string;
+  vendorKind: VendorKind;
+  userId: number | null;
+  customerName: string;
+  /** E.164; the app's support and the app's courier may see it, never the vendor. */
+  customerPhone: string;
+  fulfilment: "delivery" | "pickup";
+  deliveryBy: "app" | "vendor" | null;
+  scheduledFor: Date | null;
+  lines: MarketOrderLine[];
+  /** The priced order (`OrderMoney`), in minor units of `currency`. */
+  money: OrderMoney;
+  currency: string;
+  paymentMethod: "cash" | "card" | "apple_pay" | "google_pay" | "wallet";
+  paymentStatus: "unpaid" | "paid" | "partly_refunded" | "refunded";
+  /** The gateway payment's reference, once one is started. */
+  paymentRef: string | null;
+  couponCode: string | null;
+  status: MarketOrderStatus;
+  dropoff: ShipmentPlace | null;
+  distanceKm: number | null;
+  notes: string | null;
+  pickupCode: string | null;
+  prepMinutes: number | null;
+  readyAt: Date | null;
+  rejection: { reason: "closing" | "too_busy" | "items_unavailable" | "outside_area" | "other"; note: string | null } | null;
+  /** The app's courier job, once made. */
+  shipmentId: number | null;
+  rating: { vendor: number; courier: number | null; comment: string | null; at: string } | null;
+  timeline: MarketOrderStage[];
+  /** When it was delivered or picked up (statements count it then). */
+  completedAt: Date | null;
+  lang: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketOrderInput = Omit<MarketOrder, "id">;
+export type MarketOrderPatch = Partial<
+  Pick<MarketOrder, "status" | "paymentStatus" | "paymentRef" | "lines" | "money" | "prepMinutes" | "readyAt" | "rejection" | "shipmentId" | "rating" | "timeline" | "completedAt" | "userId" | "updatedAt">
+>;
+
+export interface MarketOrderQuery {
+  appId: string;
+  userId?: number;
+  vendorId?: number;
+  statuses?: MarketOrderStatus[];
+  /** Completed in [since, until): for statements. */
+  completedSince?: Date;
+  completedUntil?: Date;
+  createdSince?: Date;
+  order?: "newest" | "oldest";
+  limit: number;
+  offset: number;
+}
+
+export const COMPLAINT_REASONS = ["late", "missing_items", "wrong_items", "quality", "damaged", "not_delivered", "charged_wrong", "courier", "other"] as const;
+export type ComplaintReason = (typeof COMPLAINT_REASONS)[number];
+export type ComplaintStatus = "open" | "in_review" | "waiting_for_customer" | "resolved" | "rejected";
+
+export interface ComplaintDecision {
+  outcome: "refund" | "partial_refund" | "compensation" | "no_refund";
+  /** Minor units; null for no refund. */
+  amount: number | null;
+  to: "payment" | "wallet" | "coupon" | null;
+  couponCode: string | null;
+  /** Who bears it in the vendor's statement. */
+  funder: "owner" | "vendor";
+  /** Support's words to the customer. */
+  reason: string | null;
+  by: string;
+  at: Date;
+}
+
+/** 115.3 A complaint on a marketplace order, handled by the app owner's support. */
+export interface MarketComplaint {
+  id: number;
+  appId: string;
+  orderId: number;
+  vendorId: number | null;
+  userId: number | null;
+  reason: ComplaintReason;
+  text: string;
+  lineIds: number[];
+  photoAssetIds: string[];
+  status: ComplaintStatus;
+  /** The support team member it is assigned to (a dashboard user's email). */
+  assignee: string | null;
+  /** The vendor may read it (and the decision). */
+  sharedWithVendor: boolean;
+  messages: { id: number; from: "customer" | "support"; text: string; by: string | null; at: string }[];
+  /** The team's own notes, never shown to the customer or the vendor. */
+  notes: { text: string; by: string; at: string }[];
+  decision: ComplaintDecision | null;
+  /** Last answer from support, for the queue's timers. */
+  answeredAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketComplaintInput = Omit<MarketComplaint, "id">;
+export type MarketComplaintPatch = Partial<Pick<MarketComplaint, "status" | "assignee" | "sharedWithVendor" | "messages" | "notes" | "decision" | "answeredAt" | "photoAssetIds" | "userId" | "updatedAt">>;
+
+export interface MarketComplaintQuery {
+  appId: string;
+  userId?: number;
+  vendorId?: number;
+  orderId?: number;
+  statuses?: ComplaintStatus[];
+  assignee?: string;
+  limit: number;
+  offset: number;
+}
+
+/** 115.3 A wallet entry: positive in (refund, credit), negative out (paid an order, expired). */
+export interface WalletEntry {
+  id: number;
+  appId: string;
+  userId: number;
+  kind: "refund" | "credit" | "payment" | "expired";
+  amount: number;
+  label: string;
+  orderId: number | null;
+  complaintId: number | null;
+  /** Makes an entry once: the same key is never added twice. */
+  key: string;
+  createdAt: Date;
+}
+
+// 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+
+/** 115.10 A coupon: a code the customer types, or automatic (no code) when its conditions hold. Amounts in the currency's minor units. */
+export interface MarketCoupon {
+  id: number;
+  appId: string;
+  /** Uppercase; null for an automatic offer. */
+  code: string | null;
+  title: string;
+  kind: "percent" | "amount" | "free_delivery";
+  /** A percentage (0–100) for `percent`, an amount for `amount`, unused for `free_delivery`. */
+  value: number;
+  /** The most a percentage takes off. */
+  maxDiscount: number | null;
+  /** The smallest items' total it needs. */
+  minOrder: number;
+  currency: string;
+  /** Who bears the discount in the statements. */
+  paidBy: "owner" | "vendor";
+  firstOrderOnly: boolean;
+  /** Empty: every vendor. */
+  vendorIds: number[];
+  /** Empty: every kind. */
+  vendorKinds: VendorKind[];
+  /** Empty: every department (groceries and shops). */
+  departmentIds: number[];
+  /** Uses in all and per person; null: no limit. */
+  usesLimit: number | null;
+  perUserLimit: number | null;
+  startsAt: Date | null;
+  endsAt: Date | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketCouponInput = Omit<MarketCoupon, "id">;
+export type MarketCouponPatch = Partial<Omit<MarketCoupon, "id" | "appId" | "createdAt">>;
+
+/** One order's use of a coupon (an order uses a coupon once; a cancelled order gives the use back). */
+export interface MarketCouponUse {
+  id: number;
+  appId: string;
+  couponId: number;
+  orderId: number;
+  userId: number | null;
+  discount: number;
+  createdAt: Date;
+}
+
+export type MarketCouponUseResult = { ok: true; use: MarketCouponUse } | { ok: false; reason: "duplicate" | "used_up" | "user_limit" };
+
+/** 115.10 One of the app owner's club plans, at the owner's price (Yallapp sets none). */
+export interface MarketClubPlan {
+  id: number;
+  appId: string;
+  name: string;
+  description: string | null;
+  period: "month" | "year";
+  price: number;
+  currency: string;
+  /** Free delivery on orders whose items reach this amount (0: always); null: no free delivery. */
+  freeDeliveryOver: number | null;
+  /** A percentage off delivery when it isn't free; null: none. */
+  deliveryDiscountPercent: number | null;
+  perks: string[];
+  active: boolean;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketClubPlanInput = Omit<MarketClubPlan, "id">;
+export type MarketClubPlanPatch = Partial<Omit<MarketClubPlan, "id" | "appId" | "createdAt">>;
+
+/** A customer's club membership (one per customer and app). */
+export interface MarketClubMember {
+  id: number;
+  appId: string;
+  userId: number;
+  planId: number | null;
+  status: "pending" | "active" | "cancelled" | "expired";
+  /** Renews at the end of the paid period. */
+  renews: boolean;
+  startedAt: Date | null;
+  paidUntil: Date | null;
+  paymentRef: string | null;
+  /** What the club saved them, in all. */
+  saved: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketClubMemberInput = Omit<MarketClubMember, "id" | "createdAt" | "updatedAt">;
+
+export const APPLICATION_FIELD_KINDS = ["text", "long_text", "phone", "email", "number", "list", "yes_no", "file", "logo", "place", "hours", "documents"] as const;
+export type ApplicationFieldKind = (typeof APPLICATION_FIELD_KINDS)[number];
+
+export interface ApplicationField {
+  /** Stable within the form (answers are kept by it). */
+  key: string;
+  kind: ApplicationFieldKind;
+  label: string;
+  help: string | null;
+  required: boolean;
+  /** For `list`. */
+  options: string[];
+}
+
+/** 115.6 The app owner's form for joining as a vendor; its link (by `token`) is on Yallapp's site only. */
+export interface MarketApplicationForm {
+  id: number;
+  appId: string;
+  title: string;
+  intro: string | null;
+  /** The kinds of vendor it is for. */
+  kinds: VendorKind[];
+  fields: ApplicationField[];
+  /** Random, URL-safe: the form's public link. */
+  token: string;
+  open: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketApplicationFormInput = Omit<MarketApplicationForm, "id">;
+export type MarketApplicationFormPatch = Partial<Pick<MarketApplicationForm, "title" | "intro" | "kinds" | "fields" | "open" | "token" | "updatedAt">>;
+
+export type MarketApplicationStatus = "new" | "more_info" | "accepted" | "rejected";
+
+/** 115.6 A vendor's answers to a joining form. */
+export interface MarketApplication {
+  id: number;
+  appId: string;
+  formId: number;
+  status: MarketApplicationStatus;
+  businessName: string;
+  kind: VendorKind;
+  /** Lowercase: where the decision is emailed and the first staff member's sign-in. */
+  email: string;
+  /** By field key: text, numbers, yes or no, a place, hours, or asset ids for files. */
+  answers: Record<string, unknown>;
+  fileAssetIds: string[];
+  /** What the team asked for (more_info) or why it was turned down. */
+  message: string | null;
+  /** The vendor made when accepted. */
+  vendorId: number | null;
+  decidedBy: string | null;
+  decidedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type MarketApplicationInput = Omit<MarketApplication, "id">;
+export type MarketApplicationPatch = Partial<Pick<MarketApplication, "status" | "answers" | "fileAssetIds" | "message" | "vendorId" | "decidedBy" | "decidedAt" | "updatedAt">>;
+
+/** 115.7 A sign-in code sent to a vendor staff member's email for the vendors' web panel. */
+export interface VendorWebChallenge {
+  tokenHash: string;
+  appId: string;
+  email: string;
+  codeHash: string;
+  attempts: number;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/** 115.7 A vendor staff member signed in to the vendors' web panel (the cookie holds the id; only its hash is kept). */
+export interface VendorWebSession {
+  idHash: string;
+  appId: string;
+  vendorId: number;
+  staffId: number;
+  createdAt: Date;
+  expiresAt: Date;
+  lastSeenAt: Date;
+}
 
 /** One restaurant's delivered orders over a period: what it sold and what the company keeps. */
 export interface FoodStatementRow {

@@ -22,6 +22,40 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
+  MarketApplication,
+  MarketApplicationForm,
+  MarketApplicationFormInput,
+  MarketApplicationFormPatch,
+  MarketApplicationInput,
+  MarketApplicationPatch,
+  MarketApplicationStatus,
+  MarketClubMember,
+  MarketClubMemberInput,
+  MarketClubPlan,
+  MarketClubPlanInput,
+  MarketClubPlanPatch,
+  MarketCoupon,
+  MarketCouponInput,
+  MarketCouponPatch,
+  MarketCouponUse,
+  MarketCouponUseResult,
+  VendorWebChallenge,
+  VendorWebSession,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -4868,7 +4902,7 @@ export class MysqlStore implements DataStore {
   }
 
   async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
-    const values = { ...input, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const values = { ...vendorDefaults(input), busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
     const [result] = await this.run((db) => db.insert(schema.restaurants).values({ ...values, menu, dishNames: dishNamesOf(menu) }));
     return { id: Number(result.insertId), ...values };
   }
@@ -4921,7 +4955,7 @@ export class MysqlStore implements DataStore {
   }
 
   async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
-    const values = { ...input, createdAt: now, updatedAt: now };
+    const values = { ...input, role: input.role ?? "manager", createdAt: now, updatedAt: now };
     try {
       const [result] = await this.run((db) => db.insert(schema.restaurantStaff).values(values));
       return { ok: true, staff: { id: Number(result.insertId), ...values } };
@@ -4945,6 +4979,616 @@ export class MysqlStore implements DataStore {
   async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
     const t = schema.restaurantStaff;
     await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  // 115.3 The marketplace's catalogs
+
+  private async ownsVendor(appId: string, vendorId: number): Promise<boolean> {
+    const t = schema.restaurants;
+    const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, appId), eq(t.id, vendorId))).limit(1));
+    return row !== undefined;
+  }
+
+  async listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]> {
+    const t = schema.marketDepartments;
+    return this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId))).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null> {
+    const t = schema.marketDepartments;
+    if (!(await this.ownsVendor(input.appId, input.vendorId))) return null;
+    const { id, ...values } = input;
+    if (id === null) {
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [result] = await this.run((db) => db.update(t).set({ name: values.name, imageAssetId: values.imageAssetId, position: values.position }).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))));
+    if (result.affectedRows !== 1) {
+      const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))).limit(1));
+      if (!row) return null;
+    }
+    return { id, ...values };
+  }
+
+  async deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void> {
+    const t = schema.marketDepartments;
+    // Its aisles go with it; its products' department and aisle are set to null (foreign keys).
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.id, id))));
+  }
+
+  async listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]> {
+    const t = schema.marketAisles;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), departmentId === undefined ? undefined : eq(t.departmentId, departmentId)))
+        .orderBy(asc(t.position), asc(t.id)),
+    );
+  }
+
+  async saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null> {
+    const t = schema.marketAisles;
+    const d = schema.marketDepartments;
+    const [department] = await this.run((db) => db.select({ id: d.id }).from(d).where(and(eq(d.appId, input.appId), eq(d.vendorId, input.vendorId), eq(d.id, input.departmentId))).limit(1));
+    if (!department) return null;
+    const { id, ...values } = input;
+    if (id === null) {
+      const [result] = await this.run((db) => db.insert(t).values(values));
+      return { id: Number(result.insertId), ...values };
+    }
+    const [row] = await this.run((db) => db.select({ id: t.id }).from(t).where(and(eq(t.appId, input.appId), eq(t.vendorId, input.vendorId), eq(t.id, id))).limit(1));
+    if (!row) return null;
+    await this.run((db) => db.update(t).set({ departmentId: values.departmentId, name: values.name, position: values.position }).where(and(eq(t.appId, input.appId), eq(t.id, id))));
+    return { id, ...values };
+  }
+
+  async deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void> {
+    const t = schema.marketAisles;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), eq(t.id, id))));
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
+    const t = schema.marketProducts;
+    const q = query.q?.trim() ?? "";
+    const code = query.code?.trim() ?? "";
+    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const where = and(
+      eq(t.appId, query.appId),
+      eq(t.vendorId, query.vendorId),
+      query.departmentId === undefined ? undefined : eq(t.departmentId, query.departmentId),
+      query.aisleId === undefined ? undefined : eq(t.aisleId, query.aisleId),
+      query.outOfStock === undefined ? undefined : eq(t.inStock, !query.outOfStock),
+      code ? or(eq(t.barcode, code), eq(t.sku, code)) : undefined,
+      q ? or(like(t.name, pattern), like(t.brand, pattern), like(t.description, pattern)) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(t)
+          .where(where)
+          .orderBy(desc(t.inStock), asc(t.position), asc(t.id))
+          .limit(query.perPage)
+          .offset((query.page - 1) * query.perPage),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {
+    const t = schema.marketProducts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
+    const values = { ...input, createdAt: now, updatedAt: now };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.marketProducts).values(values));
+      return { ok: true, product: { id: Number(result.insertId), ...values } };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate_sku" };
+      throw error;
+    }
+  }
+
+  async updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }> {
+    const t = schema.marketProducts;
+    const { appId: _a, vendorId: _v, ...rest } = patch as typeof patch & { appId?: string; vendorId?: number };
+    void _a;
+    void _v;
+    try {
+      const [result] = await this.run((db) => db.update(t).set({ ...rest, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+      if (result.affectedRows === 1) return { ok: true };
+      return { ok: (await this.getMarketProduct(appId, id)) !== null };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate_sku" };
+      throw error;
+    }
+  }
+
+  async deleteMarketProduct(appId: string, id: number): Promise<void> {
+    const t = schema.marketProducts;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
+    const t = schema.marketProducts;
+    if (rows.length === 0 || !(await this.ownsVendor(appId, vendorId))) return { created: 0, updated: 0 };
+    let created = 0;
+    let updated = 0;
+    // A few hundred rows at a time: the vendor's matching products by SKU or barcode, then updates and inserts.
+    for (let start = 0; start < rows.length; start += 500) {
+      const chunk = rows.slice(start, start + 500);
+      const skus = chunk.flatMap((r) => (r.sku !== null ? [r.sku] : []));
+      const barcodes = chunk.flatMap((r) => (r.sku === null && r.barcode !== null ? [r.barcode] : []));
+      const found =
+        skus.length + barcodes.length === 0
+          ? []
+          : await this.run((db) =>
+              db
+                .select({ id: t.id, sku: t.sku, barcode: t.barcode })
+                .from(t)
+                .where(and(eq(t.appId, appId), eq(t.vendorId, vendorId), or(skus.length ? inArray(t.sku, skus) : undefined, barcodes.length ? inArray(t.barcode, barcodes) : undefined))),
+            );
+      const bySku = new Map(found.flatMap((f) => (f.sku !== null ? [[f.sku, f.id] as const] : [])));
+      const byBarcode = new Map(found.flatMap((f) => (f.barcode !== null ? [[f.barcode, f.id] as const] : [])));
+      const inserts: (typeof t.$inferInsert)[] = [];
+      for (const row of chunk) {
+        const id = (row.sku !== null ? bySku.get(row.sku) : undefined) ?? (row.sku === null && row.barcode !== null ? byBarcode.get(row.barcode) : undefined);
+        if (id !== undefined) {
+          await this.run((db) => db.update(t).set({ ...row, updatedAt: now }).where(and(eq(t.appId, appId), eq(t.id, id))));
+          updated += 1;
+        } else {
+          inserts.push({ ...row, appId, vendorId, createdAt: now, updatedAt: now });
+          if (row.sku !== null) bySku.set(row.sku, -1);
+        }
+      }
+      if (inserts.length) {
+        await this.run((db) => db.insert(t).values(inserts));
+        created += inserts.length;
+      }
+    }
+    return { created, updated };
+  }
+
+  // 115.3 The marketplace's orders, complaints and wallet
+
+  async createMarketOrder(input: MarketOrderInput): Promise<MarketOrder> {
+    const [result] = await this.run((db) => db.insert(schema.marketOrders).values({ ...input, total: input.money.total }));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  private marketOrderColumns() {
+    const { total: _total, ...columns } = getTableColumns(schema.marketOrders);
+    void _total;
+    return columns;
+  }
+
+  async getMarketOrder(appId: string, id: number): Promise<MarketOrder | null> {
+    const t = schema.marketOrders;
+    const [row] = await this.run((db) => db.select(this.marketOrderColumns()).from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }> {
+    const t = schema.marketOrders;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.vendorId !== undefined ? eq(t.vendorId, query.vendorId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.completedSince ? gte(t.completedAt, query.completedSince) : undefined,
+      query.completedUntil ? lt(t.completedAt, query.completedUntil) : undefined,
+      query.createdSince ? gte(t.createdAt, query.createdSince) : undefined,
+    );
+    const order = query.order === "oldest" ? [asc(t.createdAt), asc(t.id)] : [desc(t.createdAt), desc(t.id)];
+    const [items, totals] = await Promise.all([
+      this.run((db) =>
+        db
+          .select(this.marketOrderColumns())
+          .from(t)
+          .where(where)
+          .orderBy(...order)
+          .limit(query.limit)
+          .offset(query.offset),
+      ),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect: { statuses?: MarketOrderStatus[] } = {}): Promise<boolean> {
+    const t = schema.marketOrders;
+    if (Object.keys(patch).length === 0) return false;
+    const values = patch.money ? { ...patch, total: patch.money.total } : patch;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(values)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect.statuses ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    return result.affectedRows === 1;
+  }
+
+  async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
+    const [result] = await this.run((db) => db.insert(schema.marketComplaints).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null> {
+    const t = schema.marketComplaints;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }> {
+    const t = schema.marketComplaints;
+    const where = and(
+      eq(t.appId, query.appId),
+      query.userId !== undefined ? eq(t.userId, query.userId) : undefined,
+      query.vendorId !== undefined ? eq(t.vendorId, query.vendorId) : undefined,
+      query.orderId !== undefined ? eq(t.orderId, query.orderId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.assignee !== undefined ? eq(t.assignee, query.assignee) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(query.limit).offset(query.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean> {
+    const t = schema.marketComplaints;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    if (result.affectedRows === 1) return true;
+    return (await this.getMarketComplaint(appId, id)) !== null;
+  }
+
+  async addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }> {
+    const t = schema.walletEntries;
+    try {
+      return await this.run((db) =>
+        db.transaction(async (tx) => {
+          if (entry.amount < 0) {
+            // The person's entries are locked while the balance is read, so two payments can't both spend it.
+            const rows = await tx.select({ amount: t.amount }).from(t).where(and(eq(t.appId, entry.appId), eq(t.userId, entry.userId))).for("update");
+            if (rows.reduce((sum, r) => sum + r.amount, 0) + entry.amount < 0) return { ok: false as const, reason: "insufficient" as const };
+          }
+          const [result] = await tx.insert(t).values(entry);
+          return { ok: true as const, entry: { id: Number(result.insertId), ...entry } };
+        }),
+      );
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async walletBalance(appId: string, userId: number): Promise<number> {
+    const t = schema.walletEntries;
+    const [row] = await this.run((db) => db.select({ sum: sql<string | null>`sum(${t.amount})` }).from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))));
+    return Number(row?.sum ?? 0);
+  }
+
+  async listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }> {
+    const t = schema.walletEntries;
+    const where = and(eq(t.appId, appId), eq(t.userId, userId));
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(page.limit).offset(page.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+
+  async createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null> {
+    const values = { ...input, code: input.code === null ? null : input.code.toUpperCase() };
+    try {
+      const [result] = await this.run((db) => db.insert(schema.marketCoupons).values(values));
+      return { id: Number(result.insertId), ...values };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async getMarketCoupon(appId: string, id: number): Promise<MarketCoupon | null> {
+    const t = schema.marketCoupons;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findMarketCouponByCode(appId: string, code: string): Promise<MarketCoupon | null> {
+    const t = schema.marketCoupons;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.code, code.trim().toUpperCase()))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean } = {}): Promise<MarketCoupon[]> {
+    const t = schema.marketCoupons;
+    return this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            eq(t.appId, appId),
+            query.active !== undefined ? eq(t.active, query.active) : undefined,
+            query.automatic === undefined ? undefined : query.automatic ? isNull(t.code) : isNotNull(t.code),
+          ),
+        )
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+  }
+
+  async updateMarketCoupon(appId: string, id: number, patch: MarketCouponPatch): Promise<boolean> {
+    const t = schema.marketCoupons;
+    if (Object.keys(patch).length === 0) return false;
+    const values = patch.code !== undefined && patch.code !== null ? { ...patch, code: patch.code.toUpperCase() } : patch;
+    try {
+      const [result] = await this.run((db) => db.update(t).set(values).where(and(eq(t.appId, appId), eq(t.id, id))));
+      if (result.affectedRows === 1) return true;
+      return (await this.getMarketCoupon(appId, id)) !== null;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
+
+  async deleteMarketCoupon(appId: string, id: number): Promise<boolean> {
+    const t = schema.marketCoupons;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async useMarketCoupon(use: Omit<MarketCouponUse, "id">, limits: { usesLimit: number | null; perUserLimit: number | null }): Promise<MarketCouponUseResult> {
+    const c = schema.marketCoupons;
+    const u = schema.marketCouponUses;
+    try {
+      return await this.run((db) =>
+        db.transaction(async (tx) => {
+          // The coupon's row is locked while its uses are counted, so two orders can't both take the last one.
+          const [coupon] = await tx.select({ id: c.id }).from(c).where(and(eq(c.appId, use.appId), eq(c.id, use.couponId))).for("update");
+          if (!coupon) return { ok: false as const, reason: "used_up" as const };
+          const [already] = await tx.select({ n: count() }).from(u).where(and(eq(u.couponId, use.couponId), eq(u.orderId, use.orderId)));
+          if (Number(already?.n ?? 0) > 0) return { ok: false as const, reason: "duplicate" as const };
+          if (limits.usesLimit !== null) {
+            const [all] = await tx.select({ n: count() }).from(u).where(eq(u.couponId, use.couponId));
+            if (Number(all?.n ?? 0) >= limits.usesLimit) return { ok: false as const, reason: "used_up" as const };
+          }
+          if (limits.perUserLimit !== null && use.userId !== null) {
+            const [mine] = await tx.select({ n: count() }).from(u).where(and(eq(u.couponId, use.couponId), eq(u.userId, use.userId)));
+            if (Number(mine?.n ?? 0) >= limits.perUserLimit) return { ok: false as const, reason: "user_limit" as const };
+          }
+          const [result] = await tx.insert(u).values(use);
+          return { ok: true as const, use: { id: Number(result.insertId), ...use } };
+        }),
+      );
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return { ok: false, reason: "duplicate" };
+      throw error;
+    }
+  }
+
+  async releaseMarketCouponUse(appId: string, couponId: number, orderId: number): Promise<boolean> {
+    const u = schema.marketCouponUses;
+    const [result] = await this.run((db) => db.delete(u).where(and(eq(u.appId, appId), eq(u.couponId, couponId), eq(u.orderId, orderId))));
+    return result.affectedRows > 0;
+  }
+
+  async countMarketCouponUses(appId: string, couponId: number, userId?: number): Promise<number> {
+    const u = schema.marketCouponUses;
+    const [row] = await this.run((db) =>
+      db
+        .select({ n: count() })
+        .from(u)
+        .where(and(eq(u.appId, appId), eq(u.couponId, couponId), userId !== undefined ? eq(u.userId, userId) : undefined)),
+    );
+    return Number(row?.n ?? 0);
+  }
+
+  async createMarketClubPlan(input: MarketClubPlanInput): Promise<MarketClubPlan> {
+    const [result] = await this.run((db) => db.insert(schema.marketClubPlans).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getMarketClubPlan(appId: string, id: number): Promise<MarketClubPlan | null> {
+    const t = schema.marketClubPlans;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketClubPlans(appId: string): Promise<MarketClubPlan[]> {
+    const t = schema.marketClubPlans;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+  }
+
+  async updateMarketClubPlan(appId: string, id: number, patch: MarketClubPlanPatch): Promise<boolean> {
+    const t = schema.marketClubPlans;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    if (result.affectedRows === 1) return true;
+    return (await this.getMarketClubPlan(appId, id)) !== null;
+  }
+
+  async deleteMarketClubPlan(appId: string, id: number): Promise<boolean> {
+    const t = schema.marketClubPlans;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async getMarketClubMember(appId: string, userId: number): Promise<MarketClubMember | null> {
+    const t = schema.marketClubMembers;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))).limit(1));
+    return row ?? null;
+  }
+
+  async saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember> {
+    const t = schema.marketClubMembers;
+    const { appId: _appId, userId: _userId, ...changes } = member;
+    void _appId;
+    void _userId;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values({ ...member, createdAt: now, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { ...changes, updatedAt: now } }),
+    );
+    return (await this.getMarketClubMember(member.appId, member.userId))!;
+  }
+
+  async listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }> {
+    const t = schema.marketClubMembers;
+    const where = and(eq(t.appId, appId), query.status !== undefined ? eq(t.status, query.status) : undefined, query.planId !== undefined ? eq(t.planId, query.planId) : undefined);
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(query.limit).offset(query.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {
+    const t = schema.marketClubMembers;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ saved: sql`${t.saved} + ${amount}`, updatedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.userId, userId))),
+    );
+  }
+
+  async createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm> {
+    const [result] = await this.run((db) => db.insert(schema.marketApplicationForms).values(input));
+    return { id: Number(result.insertId), ...input };
+  }
+
+  async getMarketApplicationForm(appId: string, id: number): Promise<MarketApplicationForm | null> {
+    const t = schema.marketApplicationForms;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async findMarketApplicationFormByToken(token: string): Promise<MarketApplicationForm | null> {
+    const t = schema.marketApplicationForms;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.token, token)).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketApplicationForms(appId: string): Promise<MarketApplicationForm[]> {
+    const t = schema.marketApplicationForms;
+    return this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.createdAt), asc(t.id)));
+  }
+
+  async updateMarketApplicationForm(appId: string, id: number, patch: MarketApplicationFormPatch): Promise<boolean> {
+    const t = schema.marketApplicationForms;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) => db.update(t).set(patch).where(and(eq(t.appId, appId), eq(t.id, id))));
+    if (result.affectedRows === 1) return true;
+    return (await this.getMarketApplicationForm(appId, id)) !== null;
+  }
+
+  async deleteMarketApplicationForm(appId: string, id: number): Promise<boolean> {
+    const t = schema.marketApplicationForms;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+    return result.affectedRows === 1;
+  }
+
+  async createMarketApplication(input: MarketApplicationInput): Promise<MarketApplication> {
+    const values = { ...input, email: input.email.toLowerCase() };
+    const [result] = await this.run((db) => db.insert(schema.marketApplications).values(values));
+    return { id: Number(result.insertId), ...values };
+  }
+
+  async getMarketApplication(appId: string, id: number): Promise<MarketApplication | null> {
+    const t = schema.marketApplications;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ?? null;
+  }
+
+  async listMarketApplications(appId: string, query: { formId?: number; statuses?: MarketApplicationStatus[]; email?: string; limit: number; offset: number }): Promise<{ items: MarketApplication[]; total: number }> {
+    const t = schema.marketApplications;
+    const where = and(
+      eq(t.appId, appId),
+      query.formId !== undefined ? eq(t.formId, query.formId) : undefined,
+      query.statuses ? inArray(t.status, query.statuses) : undefined,
+      query.email !== undefined ? eq(t.email, query.email.toLowerCase()) : undefined,
+    );
+    const [items, totals] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(query.limit).offset(query.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(totals[0]?.n ?? 0) };
+  }
+
+  async updateMarketApplication(appId: string, id: number, patch: MarketApplicationPatch, expect?: { statuses: MarketApplicationStatus[] }): Promise<boolean> {
+    const t = schema.marketApplications;
+    if (Object.keys(patch).length === 0) return false;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set(patch)
+        .where(and(eq(t.appId, appId), eq(t.id, id), expect ? inArray(t.status, expect.statuses) : undefined)),
+    );
+    if (result.affectedRows === 1) return true;
+    if (expect) return false;
+    return (await this.getMarketApplication(appId, id)) !== null;
+  }
+
+  async createVendorWebChallenge(challenge: VendorWebChallenge): Promise<void> {
+    await this.run((db) => db.insert(schema.vendorWebChallenges).values(challenge));
+  }
+
+  async getVendorWebChallenge(tokenHash: string): Promise<VendorWebChallenge | null> {
+    const c = schema.vendorWebChallenges;
+    const [row] = await this.run((db) => db.select().from(c).where(eq(c.tokenHash, tokenHash)).limit(1));
+    return row ?? null;
+  }
+
+  async addVendorWebChallengeAttempt(tokenHash: string): Promise<number> {
+    const c = schema.vendorWebChallenges;
+    await this.run((db) => db.update(c).set({ attempts: sql`${c.attempts} + 1` }).where(eq(c.tokenHash, tokenHash)));
+    const challenge = await this.getVendorWebChallenge(tokenHash);
+    return challenge ? challenge.attempts : Number.MAX_SAFE_INTEGER;
+  }
+
+  async deleteVendorWebChallenge(tokenHash: string): Promise<void> {
+    await this.run((db) => db.delete(schema.vendorWebChallenges).where(eq(schema.vendorWebChallenges.tokenHash, tokenHash)));
+  }
+
+  async createVendorWebSession(session: VendorWebSession): Promise<void> {
+    await this.run((db) => db.insert(schema.vendorWebSessions).values(session));
+  }
+
+  async getVendorWebSession(idHash: string): Promise<VendorWebSession | null> {
+    const t = schema.vendorWebSessions;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.idHash, idHash)).limit(1));
+    return row ?? null;
+  }
+
+  async touchVendorWebSession(idHash: string, lastSeenAt: Date): Promise<void> {
+    const t = schema.vendorWebSessions;
+    await this.run((db) => db.update(t).set({ lastSeenAt }).where(eq(t.idHash, idHash)));
+  }
+
+  async deleteVendorWebSession(idHash: string): Promise<void> {
+    await this.run((db) => db.delete(schema.vendorWebSessions).where(eq(schema.vendorWebSessions.idHash, idHash)));
+  }
+
+  async deleteVendorWebSessionsOfStaff(appId: string, staffId: number): Promise<number> {
+    const t = schema.vendorWebSessions;
+    const [result] = await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.staffId, staffId))));
+    return result.affectedRows;
+  }
+
+  async purgeVendorWeb(now: Date): Promise<void> {
+    await this.run((db) => db.delete(schema.vendorWebChallenges).where(lte(schema.vendorWebChallenges.expiresAt, now)));
+    await this.run((db) => db.delete(schema.vendorWebSessions).where(lte(schema.vendorWebSessions.expiresAt, now)));
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {
@@ -8859,4 +9503,9 @@ function toBuild(row: typeof schema.builds.$inferSelect): Build {
 function teamAlertOf({ openKey: _openKey, ...row }: typeof schema.teamAlerts.$inferSelect): TeamAlert {
   void _openKey;
   return row;
+}
+
+/** 115.3 A vendor's marketplace fields, with their defaults for 105.1's restaurants. */
+function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<Restaurant, "kind" | "delivery" | "commissionFixed" | "taxRateBp" | "paused" | "area">> {
+  return { ...input, kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null };
 }

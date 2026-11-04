@@ -93,6 +93,40 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
+  MarketApplication,
+  MarketApplicationForm,
+  MarketApplicationFormInput,
+  MarketApplicationFormPatch,
+  MarketApplicationInput,
+  MarketApplicationPatch,
+  MarketApplicationStatus,
+  MarketClubMember,
+  MarketClubMemberInput,
+  MarketClubPlan,
+  MarketClubPlanInput,
+  MarketClubPlanPatch,
+  MarketCoupon,
+  MarketCouponInput,
+  MarketCouponPatch,
+  MarketCouponUse,
+  MarketCouponUseResult,
+  VendorWebChallenge,
+  VendorWebSession,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 // 11.3, 11.4, 11.6 and 11.8
 import type { Announcement, AnnouncementPatch, Coupon, CouponPatch, CouponRedemption, EmailTemplateRecord, SiteContentRecord } from "./types";
@@ -3887,7 +3921,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
-    const restaurant: Restaurant = { ...clone(input), id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const restaurant: Restaurant = { ...clone(input), kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null, id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
     this.restaurants.set(restaurant.id, clone(restaurant));
     this.restaurantMenus.set(restaurant.id, clone(menu));
     return restaurant;
@@ -3910,7 +3944,10 @@ export class MemoryStore implements DataStore {
     this.restaurants.delete(id);
     this.restaurantMenus.delete(id);
     for (const [key, staff] of this.restaurantStaff) if (staff.restaurantId === id) this.restaurantStaff.delete(key);
+    for (const map of [this.marketDepartments, this.marketAisles, this.marketProducts] as Map<number, { vendorId: number }>[]) for (const [key, row] of map) if (row.vendorId === id) map.delete(key);
     for (const order of this.foodOrders.values()) if (order.appId === appId && order.restaurantId === id) order.restaurantId = null;
+    for (const order of this.marketOrders.values()) if (order.appId === appId && order.vendorId === id) order.vendorId = null;
+    for (const complaint of this.marketComplaints.values()) if (complaint.appId === appId && complaint.vendorId === id) complaint.vendorId = null;
   }
 
   async addRestaurantRating(appId: string, id: number, stars: number): Promise<void> {
@@ -3940,7 +3977,7 @@ export class MemoryStore implements DataStore {
 
   async createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }> {
     if (this.staffTaken(input.appId, null, input.phone, input.email)) return { ok: false, reason: "duplicate" };
-    const staff: RestaurantStaff = { ...clone(input), id: this.nextRestaurantStaffId++, createdAt: now, updatedAt: now };
+    const staff: RestaurantStaff = { ...clone(input), role: input.role ?? "manager", id: this.nextRestaurantStaffId++, createdAt: now, updatedAt: now };
     this.restaurantStaff.set(staff.id, clone(staff));
     return { ok: true, staff };
   }
@@ -3956,6 +3993,488 @@ export class MemoryStore implements DataStore {
 
   async deleteRestaurantStaff(appId: string, id: number): Promise<void> {
     if (this.restaurantStaff.get(id)?.appId === appId) this.restaurantStaff.delete(id);
+  }
+
+  // 115.3 The marketplace's catalogs
+
+  private marketDepartments = new Map<number, MarketDepartment>();
+  private nextMarketDepartmentId = 1;
+  private marketAisles = new Map<number, MarketAisle>();
+  private nextMarketAisleId = 1;
+  private marketProducts = new Map<number, MarketProduct>();
+  private nextMarketProductId = 1;
+
+  private vendorOf(appId: string, vendorId: number): boolean {
+    return this.restaurants.get(vendorId)?.appId === appId;
+  }
+
+  async listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]> {
+    return [...this.marketDepartments.values()].filter((d) => d.appId === appId && d.vendorId === vendorId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null> {
+    if (!this.vendorOf(input.appId, input.vendorId)) return null;
+    if (input.id !== null) {
+      const saved = this.marketDepartments.get(input.id);
+      if (!saved || saved.appId !== input.appId || saved.vendorId !== input.vendorId) return null;
+    }
+    const department: MarketDepartment = { ...clone(input), id: input.id ?? this.nextMarketDepartmentId++ };
+    this.marketDepartments.set(department.id, clone(department));
+    return department;
+  }
+
+  async deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void> {
+    const saved = this.marketDepartments.get(id);
+    if (!saved || saved.appId !== appId || saved.vendorId !== vendorId) return;
+    this.marketDepartments.delete(id);
+    for (const [key, aisle] of this.marketAisles) if (aisle.departmentId === id) this.marketAisles.delete(key);
+    for (const product of this.marketProducts.values()) if (product.departmentId === id) Object.assign(product, { departmentId: null, aisleId: null });
+  }
+
+  async listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]> {
+    return [...this.marketAisles.values()]
+      .filter((a) => a.appId === appId && a.vendorId === vendorId && (departmentId === undefined || a.departmentId === departmentId))
+      .sort((a, b) => a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null> {
+    const department = this.marketDepartments.get(input.departmentId);
+    if (!department || department.appId !== input.appId || department.vendorId !== input.vendorId) return null;
+    if (input.id !== null) {
+      const saved = this.marketAisles.get(input.id);
+      if (!saved || saved.appId !== input.appId || saved.vendorId !== input.vendorId) return null;
+    }
+    const aisle: MarketAisle = { ...clone(input), id: input.id ?? this.nextMarketAisleId++ };
+    this.marketAisles.set(aisle.id, clone(aisle));
+    return aisle;
+  }
+
+  async deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void> {
+    const saved = this.marketAisles.get(id);
+    if (!saved || saved.appId !== appId || saved.vendorId !== vendorId) return;
+    this.marketAisles.delete(id);
+    for (const product of this.marketProducts.values()) if (product.aisleId === id) product.aisleId = null;
+  }
+
+  async listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }> {
+    const q = query.q?.trim().toLowerCase() ?? "";
+    const code = query.code?.trim() ?? "";
+    const all = [...this.marketProducts.values()]
+      .filter(
+        (p) =>
+          p.appId === query.appId &&
+          p.vendorId === query.vendorId &&
+          (query.departmentId === undefined || p.departmentId === query.departmentId) &&
+          (query.aisleId === undefined || p.aisleId === query.aisleId) &&
+          (query.outOfStock === undefined || p.inStock !== query.outOfStock) &&
+          (!code || p.barcode === code || p.sku === code) &&
+          (!q || [p.name, p.brand ?? "", p.description ?? ""].some((text) => text.toLowerCase().includes(q))),
+      )
+      .sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.position - b.position || a.id - b.id);
+    const start = (query.page - 1) * query.perPage;
+    return { items: all.slice(start, start + query.perPage).map(clone), total: all.length };
+  }
+
+  async getMarketProduct(appId: string, id: number): Promise<MarketProduct | null> {
+    const product = this.marketProducts.get(id);
+    return product && product.appId === appId ? clone(product) : null;
+  }
+
+  private skuTaken(appId: string, vendorId: number, sku: string | null, id: number | null): boolean {
+    return sku !== null && [...this.marketProducts.values()].some((p) => p.appId === appId && p.vendorId === vendorId && p.sku === sku && p.id !== id);
+  }
+
+  async createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }> {
+    if (this.skuTaken(input.appId, input.vendorId, input.sku, null)) return { ok: false, reason: "duplicate_sku" };
+    const product: MarketProduct = { ...clone(input), id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+    this.marketProducts.set(product.id, clone(product));
+    return { ok: true, product };
+  }
+
+  async updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }> {
+    const product = this.marketProducts.get(id);
+    if (!product || product.appId !== appId) return { ok: false };
+    if (patch.sku !== undefined && this.skuTaken(appId, product.vendorId, patch.sku, id)) return { ok: false, reason: "duplicate_sku" };
+    this.marketProducts.set(id, clone({ ...product, ...patch, id, appId, vendorId: product.vendorId, updatedAt: now }));
+    return { ok: true };
+  }
+
+  async deleteMarketProduct(appId: string, id: number): Promise<void> {
+    if (this.marketProducts.get(id)?.appId === appId) this.marketProducts.delete(id);
+  }
+
+  async upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }> {
+    if (!this.vendorOf(appId, vendorId)) return { created: 0, updated: 0 };
+    let created = 0;
+    let updated = 0;
+    const mine = () => [...this.marketProducts.values()].filter((p) => p.appId === appId && p.vendorId === vendorId);
+    for (const row of rows) {
+      const found = (row.sku !== null ? mine().find((p) => p.sku === row.sku) : undefined) ?? (row.barcode !== null ? mine().find((p) => p.barcode === row.barcode) : undefined);
+      if (found) {
+        this.marketProducts.set(found.id, clone({ ...found, ...row, id: found.id, appId, vendorId, createdAt: found.createdAt, updatedAt: now }));
+        updated += 1;
+      } else {
+        const product: MarketProduct = { ...clone(row), appId, vendorId, id: this.nextMarketProductId++, createdAt: now, updatedAt: now };
+        this.marketProducts.set(product.id, product);
+        created += 1;
+      }
+    }
+    return { created, updated };
+  }
+
+  // 115.3 The marketplace's orders, complaints and wallet
+
+  private marketOrders = new Map<number, MarketOrder>();
+  private nextMarketOrderId = 1;
+  private marketComplaints = new Map<number, MarketComplaint>();
+  private nextMarketComplaintId = 1;
+  private walletEntries: WalletEntry[] = [];
+  private nextWalletEntryId = 1;
+
+  async createMarketOrder(input: MarketOrderInput): Promise<MarketOrder> {
+    const order: MarketOrder = { ...clone(input), id: this.nextMarketOrderId++ };
+    this.marketOrders.set(order.id, clone(order));
+    return order;
+  }
+
+  async getMarketOrder(appId: string, id: number): Promise<MarketOrder | null> {
+    const order = this.marketOrders.get(id);
+    return order && order.appId === appId ? clone(order) : null;
+  }
+
+  async listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }> {
+    const all = [...this.marketOrders.values()]
+      .filter(
+        (o) =>
+          o.appId === query.appId &&
+          (query.userId === undefined || o.userId === query.userId) &&
+          (query.vendorId === undefined || o.vendorId === query.vendorId) &&
+          (!query.statuses || query.statuses.includes(o.status)) &&
+          (!query.completedSince || (o.completedAt !== null && o.completedAt >= query.completedSince)) &&
+          (!query.completedUntil || (o.completedAt !== null && o.completedAt < query.completedUntil)) &&
+          (!query.createdSince || o.createdAt >= query.createdSince),
+      )
+      .sort((a, b) => (query.order === "oldest" ? 1 : -1) * (a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id));
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect: { statuses?: MarketOrderStatus[] } = {}): Promise<boolean> {
+    const order = this.marketOrders.get(id);
+    if (!order || order.appId !== appId) return false;
+    if (expect.statuses && !expect.statuses.includes(order.status)) return false;
+    this.marketOrders.set(id, clone({ ...order, ...patch, id, appId }));
+    return true;
+  }
+
+  async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
+    const complaint: MarketComplaint = { ...clone(input), id: this.nextMarketComplaintId++ };
+    this.marketComplaints.set(complaint.id, clone(complaint));
+    return complaint;
+  }
+
+  async getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null> {
+    const complaint = this.marketComplaints.get(id);
+    return complaint && complaint.appId === appId ? clone(complaint) : null;
+  }
+
+  async listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }> {
+    const all = [...this.marketComplaints.values()]
+      .filter(
+        (c) =>
+          c.appId === query.appId &&
+          (query.userId === undefined || c.userId === query.userId) &&
+          (query.vendorId === undefined || c.vendorId === query.vendorId) &&
+          (query.orderId === undefined || c.orderId === query.orderId) &&
+          (!query.statuses || query.statuses.includes(c.status)) &&
+          (query.assignee === undefined || c.assignee === query.assignee),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean> {
+    const complaint = this.marketComplaints.get(id);
+    if (!complaint || complaint.appId !== appId) return false;
+    this.marketComplaints.set(id, clone({ ...complaint, ...patch, id, appId }));
+    return true;
+  }
+
+  async addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }> {
+    if (this.walletEntries.some((e) => e.appId === entry.appId && e.key === entry.key)) return { ok: false, reason: "duplicate" };
+    if (entry.amount < 0 && (await this.walletBalance(entry.appId, entry.userId)) + entry.amount < 0) return { ok: false, reason: "insufficient" };
+    const saved: WalletEntry = { ...clone(entry), id: this.nextWalletEntryId++ };
+    this.walletEntries.push(clone(saved));
+    return { ok: true, entry: saved };
+  }
+
+  async walletBalance(appId: string, userId: number): Promise<number> {
+    return this.walletEntries.filter((e) => e.appId === appId && e.userId === userId).reduce((sum, e) => sum + e.amount, 0);
+  }
+
+  async listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }> {
+    const all = this.walletEntries.filter((e) => e.appId === appId && e.userId === userId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(page.offset, page.offset + page.limit).map(clone), total: all.length };
+  }
+
+  // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+
+  private marketCoupons = new Map<number, MarketCoupon>();
+  private nextMarketCouponId = 1;
+  private marketCouponUses: MarketCouponUse[] = [];
+  private nextMarketCouponUseId = 1;
+  private marketClubPlans = new Map<number, MarketClubPlan>();
+  private nextMarketClubPlanId = 1;
+  private marketClubMembers = new Map<string, MarketClubMember>();
+  private nextMarketClubMemberId = 1;
+  private marketApplicationForms = new Map<number, MarketApplicationForm>();
+  private nextMarketApplicationFormId = 1;
+  private marketApplications = new Map<number, MarketApplication>();
+  private nextMarketApplicationId = 1;
+  private vendorWebChallenges = new Map<string, VendorWebChallenge>();
+  private vendorWebSessions = new Map<string, VendorWebSession>();
+
+  private couponCodeTaken(appId: string, code: string | null, exceptId: number | null): boolean {
+    if (code === null) return false;
+    return [...this.marketCoupons.values()].some((c) => c.appId === appId && c.code === code && c.id !== exceptId);
+  }
+
+  async createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null> {
+    const code = input.code === null ? null : input.code.toUpperCase();
+    if (this.couponCodeTaken(input.appId, code, null)) return null;
+    const coupon: MarketCoupon = { ...clone(input), code, id: this.nextMarketCouponId++ };
+    this.marketCoupons.set(coupon.id, clone(coupon));
+    return coupon;
+  }
+
+  async getMarketCoupon(appId: string, id: number): Promise<MarketCoupon | null> {
+    const coupon = this.marketCoupons.get(id);
+    return coupon && coupon.appId === appId ? clone(coupon) : null;
+  }
+
+  async findMarketCouponByCode(appId: string, code: string): Promise<MarketCoupon | null> {
+    const upper = code.trim().toUpperCase();
+    const coupon = [...this.marketCoupons.values()].find((c) => c.appId === appId && c.code === upper);
+    return coupon ? clone(coupon) : null;
+  }
+
+  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean } = {}): Promise<MarketCoupon[]> {
+    return [...this.marketCoupons.values()]
+      .filter((c) => c.appId === appId && (query.active === undefined || c.active === query.active) && (query.automatic === undefined || (c.code === null) === query.automatic))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async updateMarketCoupon(appId: string, id: number, patch: MarketCouponPatch): Promise<boolean> {
+    const coupon = this.marketCoupons.get(id);
+    if (!coupon || coupon.appId !== appId) return false;
+    const next = { ...patch };
+    if (next.code !== undefined && next.code !== null) next.code = next.code.toUpperCase();
+    if (next.code !== undefined && this.couponCodeTaken(appId, next.code, id)) return false;
+    this.marketCoupons.set(id, clone({ ...coupon, ...next, id, appId }));
+    return true;
+  }
+
+  async deleteMarketCoupon(appId: string, id: number): Promise<boolean> {
+    const coupon = this.marketCoupons.get(id);
+    if (!coupon || coupon.appId !== appId) return false;
+    this.marketCoupons.delete(id);
+    this.marketCouponUses = this.marketCouponUses.filter((u) => !(u.appId === appId && u.couponId === id));
+    return true;
+  }
+
+  async useMarketCoupon(use: Omit<MarketCouponUse, "id">, limits: { usesLimit: number | null; perUserLimit: number | null }): Promise<MarketCouponUseResult> {
+    const uses = this.marketCouponUses.filter((u) => u.appId === use.appId && u.couponId === use.couponId);
+    if (uses.some((u) => u.orderId === use.orderId)) return { ok: false, reason: "duplicate" };
+    if (limits.usesLimit !== null && uses.length >= limits.usesLimit) return { ok: false, reason: "used_up" };
+    if (limits.perUserLimit !== null && use.userId !== null && uses.filter((u) => u.userId === use.userId).length >= limits.perUserLimit) return { ok: false, reason: "user_limit" };
+    const saved: MarketCouponUse = { ...clone(use), id: this.nextMarketCouponUseId++ };
+    this.marketCouponUses.push(clone(saved));
+    return { ok: true, use: saved };
+  }
+
+  async releaseMarketCouponUse(appId: string, couponId: number, orderId: number): Promise<boolean> {
+    const before = this.marketCouponUses.length;
+    this.marketCouponUses = this.marketCouponUses.filter((u) => !(u.appId === appId && u.couponId === couponId && u.orderId === orderId));
+    return this.marketCouponUses.length < before;
+  }
+
+  async countMarketCouponUses(appId: string, couponId: number, userId?: number): Promise<number> {
+    return this.marketCouponUses.filter((u) => u.appId === appId && u.couponId === couponId && (userId === undefined || u.userId === userId)).length;
+  }
+
+  async createMarketClubPlan(input: MarketClubPlanInput): Promise<MarketClubPlan> {
+    const plan: MarketClubPlan = { ...clone(input), id: this.nextMarketClubPlanId++ };
+    this.marketClubPlans.set(plan.id, clone(plan));
+    return plan;
+  }
+
+  async getMarketClubPlan(appId: string, id: number): Promise<MarketClubPlan | null> {
+    const plan = this.marketClubPlans.get(id);
+    return plan && plan.appId === appId ? clone(plan) : null;
+  }
+
+  async listMarketClubPlans(appId: string): Promise<MarketClubPlan[]> {
+    return [...this.marketClubPlans.values()].filter((p) => p.appId === appId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async updateMarketClubPlan(appId: string, id: number, patch: MarketClubPlanPatch): Promise<boolean> {
+    const plan = this.marketClubPlans.get(id);
+    if (!plan || plan.appId !== appId) return false;
+    this.marketClubPlans.set(id, clone({ ...plan, ...patch, id, appId }));
+    return true;
+  }
+
+  async deleteMarketClubPlan(appId: string, id: number): Promise<boolean> {
+    const plan = this.marketClubPlans.get(id);
+    if (!plan || plan.appId !== appId) return false;
+    this.marketClubPlans.delete(id);
+    for (const member of this.marketClubMembers.values()) if (member.appId === appId && member.planId === id) member.planId = null;
+    return true;
+  }
+
+  async getMarketClubMember(appId: string, userId: number): Promise<MarketClubMember | null> {
+    const member = this.marketClubMembers.get(`${appId}:${userId}`);
+    return member ? clone(member) : null;
+  }
+
+  async saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember> {
+    const key = `${member.appId}:${member.userId}`;
+    const existing = this.marketClubMembers.get(key);
+    const saved: MarketClubMember = { ...clone(member), id: existing?.id ?? this.nextMarketClubMemberId++, createdAt: existing?.createdAt ?? now, updatedAt: now };
+    this.marketClubMembers.set(key, clone(saved));
+    return saved;
+  }
+
+  async listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }> {
+    const all = [...this.marketClubMembers.values()]
+      .filter((m) => m.appId === appId && (query.status === undefined || m.status === query.status) && (query.planId === undefined || m.planId === query.planId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void> {
+    const member = this.marketClubMembers.get(`${appId}:${userId}`);
+    if (member) {
+      member.saved += amount;
+      member.updatedAt = now;
+    }
+  }
+
+  async createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm> {
+    const form: MarketApplicationForm = { ...clone(input), id: this.nextMarketApplicationFormId++ };
+    this.marketApplicationForms.set(form.id, clone(form));
+    return form;
+  }
+
+  async getMarketApplicationForm(appId: string, id: number): Promise<MarketApplicationForm | null> {
+    const form = this.marketApplicationForms.get(id);
+    return form && form.appId === appId ? clone(form) : null;
+  }
+
+  async findMarketApplicationFormByToken(token: string): Promise<MarketApplicationForm | null> {
+    const form = [...this.marketApplicationForms.values()].find((f) => f.token === token);
+    return form ? clone(form) : null;
+  }
+
+  async listMarketApplicationForms(appId: string): Promise<MarketApplicationForm[]> {
+    return [...this.marketApplicationForms.values()].filter((f) => f.appId === appId).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id).map(clone);
+  }
+
+  async updateMarketApplicationForm(appId: string, id: number, patch: MarketApplicationFormPatch): Promise<boolean> {
+    const form = this.marketApplicationForms.get(id);
+    if (!form || form.appId !== appId) return false;
+    this.marketApplicationForms.set(id, clone({ ...form, ...patch, id, appId }));
+    return true;
+  }
+
+  async deleteMarketApplicationForm(appId: string, id: number): Promise<boolean> {
+    const form = this.marketApplicationForms.get(id);
+    if (!form || form.appId !== appId) return false;
+    this.marketApplicationForms.delete(id);
+    for (const [key, application] of this.marketApplications) if (application.appId === appId && application.formId === id) this.marketApplications.delete(key);
+    return true;
+  }
+
+  async createMarketApplication(input: MarketApplicationInput): Promise<MarketApplication> {
+    const application: MarketApplication = { ...clone(input), email: input.email.toLowerCase(), id: this.nextMarketApplicationId++ };
+    this.marketApplications.set(application.id, clone(application));
+    return application;
+  }
+
+  async getMarketApplication(appId: string, id: number): Promise<MarketApplication | null> {
+    const application = this.marketApplications.get(id);
+    return application && application.appId === appId ? clone(application) : null;
+  }
+
+  async listMarketApplications(appId: string, query: { formId?: number; statuses?: MarketApplicationStatus[]; email?: string; limit: number; offset: number }): Promise<{ items: MarketApplication[]; total: number }> {
+    const email = query.email?.toLowerCase();
+    const all = [...this.marketApplications.values()]
+      .filter((a) => a.appId === appId && (query.formId === undefined || a.formId === query.formId) && (!query.statuses || query.statuses.includes(a.status)) && (email === undefined || a.email === email))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: all.slice(query.offset, query.offset + query.limit).map(clone), total: all.length };
+  }
+
+  async updateMarketApplication(appId: string, id: number, patch: MarketApplicationPatch, expect?: { statuses: MarketApplicationStatus[] }): Promise<boolean> {
+    const application = this.marketApplications.get(id);
+    if (!application || application.appId !== appId) return false;
+    if (expect && !expect.statuses.includes(application.status)) return false;
+    this.marketApplications.set(id, clone({ ...application, ...patch, id, appId }));
+    return true;
+  }
+
+  async createVendorWebChallenge(challenge: VendorWebChallenge): Promise<void> {
+    this.vendorWebChallenges.set(challenge.tokenHash, clone(challenge));
+  }
+
+  async getVendorWebChallenge(tokenHash: string): Promise<VendorWebChallenge | null> {
+    const challenge = this.vendorWebChallenges.get(tokenHash);
+    return challenge ? clone(challenge) : null;
+  }
+
+  async addVendorWebChallengeAttempt(tokenHash: string): Promise<number> {
+    const challenge = this.vendorWebChallenges.get(tokenHash);
+    if (!challenge) return Number.MAX_SAFE_INTEGER;
+    challenge.attempts += 1;
+    return challenge.attempts;
+  }
+
+  async deleteVendorWebChallenge(tokenHash: string): Promise<void> {
+    this.vendorWebChallenges.delete(tokenHash);
+  }
+
+  async createVendorWebSession(session: VendorWebSession): Promise<void> {
+    this.vendorWebSessions.set(session.idHash, clone(session));
+  }
+
+  async getVendorWebSession(idHash: string): Promise<VendorWebSession | null> {
+    const session = this.vendorWebSessions.get(idHash);
+    return session ? clone(session) : null;
+  }
+
+  async touchVendorWebSession(idHash: string, lastSeenAt: Date): Promise<void> {
+    const session = this.vendorWebSessions.get(idHash);
+    if (session) session.lastSeenAt = lastSeenAt;
+  }
+
+  async deleteVendorWebSession(idHash: string): Promise<void> {
+    this.vendorWebSessions.delete(idHash);
+  }
+
+  async deleteVendorWebSessionsOfStaff(appId: string, staffId: number): Promise<number> {
+    let n = 0;
+    for (const [key, session] of this.vendorWebSessions) {
+      if (session.appId === appId && session.staffId === staffId) {
+        this.vendorWebSessions.delete(key);
+        n++;
+      }
+    }
+    return n;
+  }
+
+  async purgeVendorWeb(now: Date): Promise<void> {
+    for (const [key, challenge] of this.vendorWebChallenges) if (challenge.expiresAt <= now) this.vendorWebChallenges.delete(key);
+    for (const [key, session] of this.vendorWebSessions) if (session.expiresAt <= now) this.vendorWebSessions.delete(key);
   }
 
   async createFoodOrder(input: FoodOrderInput): Promise<FoodOrder> {

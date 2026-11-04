@@ -157,6 +157,40 @@ import type {
   RestaurantPatch,
   RestaurantStaff,
   RestaurantStaffInput,
+  MarketAisle,
+  MarketComplaint,
+  MarketComplaintInput,
+  MarketComplaintPatch,
+  MarketComplaintQuery,
+  MarketOrder,
+  MarketOrderInput,
+  MarketOrderPatch,
+  MarketOrderQuery,
+  MarketOrderStatus,
+  WalletEntry,
+  MarketApplication,
+  MarketApplicationForm,
+  MarketApplicationFormInput,
+  MarketApplicationFormPatch,
+  MarketApplicationInput,
+  MarketApplicationPatch,
+  MarketApplicationStatus,
+  MarketClubMember,
+  MarketClubMemberInput,
+  MarketClubPlan,
+  MarketClubPlanInput,
+  MarketClubPlanPatch,
+  MarketCoupon,
+  MarketCouponInput,
+  MarketCouponPatch,
+  MarketCouponUse,
+  MarketCouponUseResult,
+  VendorWebChallenge,
+  VendorWebSession,
+  MarketDepartment,
+  MarketProduct,
+  MarketProductInput,
+  MarketProductQuery,
 } from "./types";
 // 105.2 Ride hailing
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
@@ -1168,6 +1202,92 @@ export interface DataStore {
   createRestaurantStaff(input: RestaurantStaffInput, now: Date): Promise<{ ok: true; staff: RestaurantStaff } | { ok: false; reason: "duplicate" }>;
   updateRestaurantStaff(appId: string, id: number, patch: Partial<Pick<RestaurantStaff, "name" | "phone" | "email" | "active">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate" }>;
   deleteRestaurantStaff(appId: string, id: number): Promise<void>;
+  // 115.3 The marketplace's catalogs: a grocery's or shop's departments, aisles and products (restaurants keep 105.1's menus).
+  listMarketDepartments(appId: string, vendorId: number): Promise<MarketDepartment[]>;
+  /** Makes (`id` null) or renames and moves one; null when the vendor isn't the app's or the department isn't the vendor's. */
+  saveMarketDepartment(input: Omit<MarketDepartment, "id"> & { id: number | null }): Promise<MarketDepartment | null>;
+  /** Its aisles go with it; its products stay, out of any department. */
+  deleteMarketDepartment(appId: string, vendorId: number, id: number): Promise<void>;
+  listMarketAisles(appId: string, vendorId: number, departmentId?: number): Promise<MarketAisle[]>;
+  /** Null when the department (or the aisle) isn't the vendor's. */
+  saveMarketAisle(input: Omit<MarketAisle, "id"> & { id: number | null }): Promise<MarketAisle | null>;
+  /** Its products stay in its department, out of any aisle. */
+  deleteMarketAisle(appId: string, vendorId: number, id: number): Promise<void>;
+  /** In stock first, then the vendor's order; `q` searches names, brands and descriptions, `code` a barcode or SKU. */
+  listMarketProducts(query: MarketProductQuery): Promise<{ items: MarketProduct[]; total: number }>;
+  getMarketProduct(appId: string, id: number): Promise<MarketProduct | null>;
+  createMarketProduct(input: MarketProductInput, now: Date): Promise<{ ok: true; product: MarketProduct } | { ok: false; reason: "duplicate_sku" }>;
+  updateMarketProduct(appId: string, id: number, patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>, now: Date): Promise<{ ok: boolean; reason?: "duplicate_sku" }>;
+  deleteMarketProduct(appId: string, id: number): Promise<void>;
+  /** An import's rows: each updates the vendor's product with its SKU (else its barcode), or is added. */
+  upsertMarketProducts(appId: string, vendorId: number, rows: Omit<MarketProductInput, "appId" | "vendorId">[], now: Date): Promise<{ created: number; updated: number }>;
+  // 115.3 The marketplace's orders, complaints and wallet.
+  createMarketOrder(input: MarketOrderInput): Promise<MarketOrder>;
+  getMarketOrder(appId: string, id: number): Promise<MarketOrder | null>;
+  listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }>;
+  /** False when it isn't the app's, or (with `expect`) its status changed meanwhile. */
+  updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect?: { statuses?: MarketOrderStatus[] }): Promise<boolean>;
+  createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint>;
+  getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null>;
+  listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }>;
+  updateMarketComplaint(appId: string, id: number, patch: MarketComplaintPatch): Promise<boolean>;
+  /** Adds an entry once per `key` (null when that key is already there); a negative one only when the balance covers it ("insufficient"). */
+  addWalletEntry(entry: Omit<WalletEntry, "id">): Promise<{ ok: true; entry: WalletEntry } | { ok: false; reason: "duplicate" | "insufficient" }>;
+  walletBalance(appId: string, userId: number): Promise<number>;
+  listWalletEntries(appId: string, userId: number, page: { limit: number; offset: number }): Promise<{ items: WalletEntry[]; total: number }>;
+
+  // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
+  /** Null when the app already has a coupon with this code. */
+  createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null>;
+  getMarketCoupon(appId: string, id: number): Promise<MarketCoupon | null>;
+  /** Any case; the code is kept uppercase. */
+  findMarketCouponByCode(appId: string, code: string): Promise<MarketCoupon | null>;
+  listMarketCoupons(appId: string, query?: { active?: boolean; automatic?: boolean }): Promise<MarketCoupon[]>;
+  /** False when it isn't the app's or the new code is taken. */
+  updateMarketCoupon(appId: string, id: number, patch: MarketCouponPatch): Promise<boolean>;
+  deleteMarketCoupon(appId: string, id: number): Promise<boolean>;
+  /** Counts the use once per order, within the limits in all and per person (atomically). */
+  useMarketCoupon(use: Omit<MarketCouponUse, "id">, limits: { usesLimit: number | null; perUserLimit: number | null }): Promise<MarketCouponUseResult>;
+  /** Gives an order's use back (a cancelled order); false when there was none. */
+  releaseMarketCouponUse(appId: string, couponId: number, orderId: number): Promise<boolean>;
+  countMarketCouponUses(appId: string, couponId: number, userId?: number): Promise<number>;
+  createMarketClubPlan(input: MarketClubPlanInput): Promise<MarketClubPlan>;
+  getMarketClubPlan(appId: string, id: number): Promise<MarketClubPlan | null>;
+  listMarketClubPlans(appId: string): Promise<MarketClubPlan[]>;
+  updateMarketClubPlan(appId: string, id: number, patch: MarketClubPlanPatch): Promise<boolean>;
+  deleteMarketClubPlan(appId: string, id: number): Promise<boolean>;
+  getMarketClubMember(appId: string, userId: number): Promise<MarketClubMember | null>;
+  /** Makes or replaces the customer's membership. */
+  saveMarketClubMember(member: MarketClubMemberInput, now: Date): Promise<MarketClubMember>;
+  listMarketClubMembers(appId: string, query: { status?: MarketClubMember["status"]; planId?: number; limit: number; offset: number }): Promise<{ items: MarketClubMember[]; total: number }>;
+  /** Adds to what the club saved the customer. */
+  addMarketClubSaving(appId: string, userId: number, amount: number, now: Date): Promise<void>;
+  createMarketApplicationForm(input: MarketApplicationFormInput): Promise<MarketApplicationForm>;
+  getMarketApplicationForm(appId: string, id: number): Promise<MarketApplicationForm | null>;
+  /** The form behind a public link, of any app. */
+  findMarketApplicationFormByToken(token: string): Promise<MarketApplicationForm | null>;
+  listMarketApplicationForms(appId: string): Promise<MarketApplicationForm[]>;
+  updateMarketApplicationForm(appId: string, id: number, patch: MarketApplicationFormPatch): Promise<boolean>;
+  /** Deletes the form and its applications. */
+  deleteMarketApplicationForm(appId: string, id: number): Promise<boolean>;
+  createMarketApplication(input: MarketApplicationInput): Promise<MarketApplication>;
+  getMarketApplication(appId: string, id: number): Promise<MarketApplication | null>;
+  listMarketApplications(appId: string, query: { formId?: number; statuses?: MarketApplicationStatus[]; email?: string; limit: number; offset: number }): Promise<{ items: MarketApplication[]; total: number }>;
+  /** With `expect`, only while the status is one of those (two team members can't both decide). */
+  updateMarketApplication(appId: string, id: number, patch: MarketApplicationPatch, expect?: { statuses: MarketApplicationStatus[] }): Promise<boolean>;
+  createVendorWebChallenge(challenge: VendorWebChallenge): Promise<void>;
+  getVendorWebChallenge(tokenHash: string): Promise<VendorWebChallenge | null>;
+  /** Counts a try and returns how many there were. */
+  addVendorWebChallengeAttempt(tokenHash: string): Promise<number>;
+  deleteVendorWebChallenge(tokenHash: string): Promise<void>;
+  createVendorWebSession(session: VendorWebSession): Promise<void>;
+  getVendorWebSession(idHash: string): Promise<VendorWebSession | null>;
+  touchVendorWebSession(idHash: string, lastSeenAt: Date): Promise<void>;
+  deleteVendorWebSession(idHash: string): Promise<void>;
+  /** Signs a staff member out everywhere (removed, or turned off); returns how many. */
+  deleteVendorWebSessionsOfStaff(appId: string, staffId: number): Promise<number>;
+  /** Deletes the codes and sessions that expired before `now`. */
+  purgeVendorWeb(now: Date): Promise<void>;
   createFoodOrder(input: FoodOrderInput): Promise<FoodOrder>;
   getFoodOrder(appId: string, id: number): Promise<FoodOrder | null>;
   listFoodOrders(query: FoodOrderQuery): Promise<{ items: FoodOrder[]; total: number }>;
