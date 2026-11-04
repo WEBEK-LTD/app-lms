@@ -58,7 +58,7 @@ export default async function PanelPreview(props: PageProps<"/partner/preview">)
   const tab = search.tab === "catalog" ? "catalog" : "orders";
   const nav = <PanelTabs tabs={["orders", "catalog", "import", "delivery", "staff", "statements", "complaints"]} current={tab} base="/partner/preview" lang={lang} w={w} />;
   if (tab === "catalog") {
-    const item = (id: number, name: string, section: string, price: number, unit: string, inStock: boolean, stock: number | null, sku: string) => ({ id, name, section, price, unit, inStock, stock, sku, image: null });
+    const item = (id: number, name: string, section: string, price: number, unit: string, inStock: boolean, stock: number | null, sku: string) => ({ id, name, section, price, unit, inStock, stock, sku, image: null, photos: [], photoNote: null });
     const items = [
       item(1, "Red apples", "Fruit & vegetables", 4500, "kg", true, null, "FRU-001"),
       item(2, "Bananas", "Fruit & vegetables", 3200, "kg", true, null, "FRU-002"),
@@ -72,7 +72,7 @@ export default async function PanelPreview(props: PageProps<"/partner/preview">)
     ];
     return (
       <PartnerFrame name="Green Basket Market" kind="grocery" lang={lang} w={w} tabs={nav} signOut={noop}>
-        <CatalogSection w={w} lang={lang} base="/partner/preview" items={items} total={1248} perPage={30} page={1} q="" outOnly={false} currency="EGP" assetUrl={(id) => id} saveStock={noop} />
+        <CatalogSection w={w} lang={lang} base="/partner/preview" items={items} total={1248} perPage={30} page={1} q="" outOnly={false} noPhotoOnly={false} withoutPhoto={items.length} photosRequired multiPhoto photoError={null} currency="EGP" assetUrl={(id) => id} saveStock={noop} savePhoto={noop} dropPhoto={noop} />
       </PartnerFrame>
     );
   }

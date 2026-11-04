@@ -3349,6 +3349,11 @@ export interface MarketAppSettings {
   weightTolerancePercent: number;
   /** Vendors' own app in the bundle, or the Vendor tab in the customer app. */
   vendorApp: "same" | "bundle";
+  /**
+   * 115 Every product needs its photo: products and dishes without one are
+   * hidden from customers. On unless the owner turns it off (lib/market/photos.ts `photosRequired`).
+   */
+  requirePhotos?: boolean;
 }
 
 /**
@@ -3717,8 +3722,15 @@ export interface MarketProduct {
   sku: string | null;
   barcode: string | null;
   imageAssetId: string | null;
-  /** A picture by link (from an import), when there is no uploaded one. */
+  /**
+   * A picture by link (from an import): fetched once into `imageAssetId` by
+   * lib/market/photos.ts, never shown to customers as it is.
+   */
   imageUrl: string | null;
+  /** 115 More photos after the main one (`imageAssetId`), in order; null for none. */
+  galleryAssetIds?: string[] | null;
+  /** 115 Why the picture link couldn't be fetched; null while it waits or once it is fetched. */
+  photoError?: string | null;
   price: number;
   /** Before its discount (struck through); null for none. */
   wasPrice: number | null;
@@ -3746,6 +3758,10 @@ export interface MarketProductQuery {
   /** A barcode or SKU. */
   code?: string;
   outOfStock?: boolean;
+  /** 115 Only products with an uploaded main photo (what customers see when photos are required). */
+  withPhoto?: boolean;
+  /** 115 Only products still without an uploaded main photo (the panel's "No photo" filter). */
+  withoutPhoto?: boolean;
   page: number;
   perPage: number;
 }

@@ -188,6 +188,10 @@ export async function StudioDemoPage({ lang, download }: { lang: Lang; download?
   return (
     <MarketingPage
       current="demo"
+      trail={[
+        { name: m.metaTitle, path: "/yallapp-studio" },
+        { name: m.demoMetaTitle, path: "/demo/studio" },
+      ]}
       eyebrow={m.demoEyebrow}
       title={m.demoTitle}
       intro={m.demoIntro}

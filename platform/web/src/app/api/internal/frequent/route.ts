@@ -7,6 +7,8 @@ import { openMailer } from "@/lib/mail";
 import { getPlans } from "@/lib/settings/platform";
 import { runIntegrationChecks } from "@/lib/integrations/schedule";
 import { checkPendingPayments } from "@/lib/payments/pending";
+import { fetchWaitingPhotos } from "@/lib/market/photos";
+import { safeFetcher } from "@/lib/net/safe-fetch";
 import { errorResponse, hasBearerToken, json } from "@/lib/http";
 import { runFrequentJobs } from "@/lib/jobs/frequent";
 import { runRekey } from "@/lib/jobs/rekey";
@@ -28,6 +30,7 @@ import { dispatchSet, teamMail } from "@/lib/watch/env";
  * current key for a few seconds (lib/jobs/rekey.ts). 80.2 Then a few apps'
  * connections are checked again, each app once a day (lib/integrations/schedule.ts).
  * 80.3 And payments left pending are asked about at their provider (lib/payments/pending.ts).
+ * 115 Then a few picture links from marketplace imports become products' photos (lib/market/photos.ts).
  * Safe to call again, also at the same time.
  */
 export async function POST(request: Request): Promise<Response> {
@@ -69,7 +72,12 @@ export async function POST(request: Request): Promise<Response> {
       console.error("[payments] pending", error instanceof Error ? error.message : String(error));
       return null;
     });
-    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments };
+    // 115 Picture links from marketplace imports fetched into products' photos, a few each run.
+    const productPhotos = await fetchWaitingPhotos({ store, now: () => new Date(), fetcher: safeFetcher(), budgetMs: 5000, limit: 30 }).catch((error: unknown) => {
+      console.error("[photos]", error instanceof Error ? error.message : String(error));
+      return null;
+    });
+    return { ...jobs, watch, rekey: rekey && { moved: rekey.moved, failed: rekey.failed, done: rekey.done }, integrations, pendingPayments, productPhotos };
   });
   return json(report);
 }

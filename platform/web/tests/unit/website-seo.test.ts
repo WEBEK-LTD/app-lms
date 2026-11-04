@@ -9,6 +9,7 @@ import { COMPANY_PLACE, legalLine } from "@/lib/company";
 import { contentPage } from "@/lib/content/site";
 import { parseMarkdown } from "@/lib/content/markdown";
 import { EMAIL_TEMPLATES } from "@/lib/email/templates";
+import { compareParams } from "@/lib/compare";
 import { ALL_SOLUTIONS, countAtLeast, FAQ, INTEGRATION_COUNTS, numberWord, SOLUTIONS, STEPS } from "@/lib/marketing";
 import { PLAN_INFO, planLimitLines, plansWith } from "@/lib/plans";
 import {
@@ -171,7 +172,7 @@ describe("32 search engines", () => {
     }
     for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
     for (const d of DOCS) expect(urls).toContain(`${BASE}/docs/${d.slug}`);
-    expect(urls).toHaveLength(17 + ALL_SOLUTIONS.length + DOCS.length);
+    expect(urls).toHaveLength(18 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);
@@ -236,8 +237,12 @@ describe("32 structured data", () => {
       "@type": "Organization",
       "@id": `${BASE}/#organization`,
       name: "Yallapp",
+      alternateName: expect.arrayContaining(["Yalla App", "يلا اب"]),
       url: `${BASE}/`,
       logo: `${BASE}${LOGO_PATH}`,
+      description: expect.stringContaining("Google Play"),
+      slogan: "Your business, as your own mobile app.",
+      knowsAbout: expect.arrayContaining(["Yallapp", "mobile app builder", "WordPress to app"]),
       sameAs: [
         "https://www.facebook.com/profile.php?id=61595642630978",
         "https://www.instagram.com/ya.ll.app/",
@@ -273,6 +278,9 @@ describe("32 structured data", () => {
   it("offers only the plans that have a price", () => {
     const onRequest = softwareLd(BASE, Object.values(PLAN_INFO));
     expect(onRequest).toMatchObject({ "@type": "SoftwareApplication", name: "Yallapp", applicationCategory: "BusinessApplication" });
+    // The brand, its other spellings and the terms people search app builders by.
+    expect(onRequest).toMatchObject({ alternateName: expect.arrayContaining(["Yalla App"]), keywords: expect.stringContaining("mobile app builder") });
+    expect(onRequest.featureList).toEqual(expect.arrayContaining([expect.stringContaining("AppGallery")]));
     expect(onRequest).not.toHaveProperty("offers");
 
     const plans = plansWith({
@@ -433,6 +441,7 @@ describe("67 Google: the favicon, and every public page indexed", () => {
     const expected = english.flatMap((r) => {
       if (r === "/solutions/[id]") return ALL_SOLUTIONS.map((s) => `/solutions/${s.id}`);
       if (r === "/docs/[slug]") return DOCS.map((d) => `/docs/${d.slug}`);
+      if (r === "/compare/[name]") return compareParams().map((c) => `/compare/${c.name}`);
       expect(r, `${r}: list its pages here and in lib/sitemap.ts`).not.toMatch(/\[/);
       return [r];
     });

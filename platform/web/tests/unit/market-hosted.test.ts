@@ -8,6 +8,8 @@ import { FoodConnector } from "@/lib/hosted/connectors/food";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { runMarketDaily } from "@/lib/market/daily";
+import { payClubMembership } from "@/lib/market/flow";
+import { sha256Hex } from "@/lib/crypto/tokens";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
 
@@ -40,6 +42,8 @@ const SETTINGS: DeliverySettings = {
     wallet: true,
     weightTolerancePercent: 10,
     vendorApp: "bundle",
+    // These tests' products have no photos; market-photos.test.ts covers the photo rule.
+    requirePhotos: false,
   },
 };
 
@@ -309,5 +313,63 @@ describe("115 the marketplace's routes", () => {
   it("runs the marketplace's daily work", async () => {
     const done = await runMarketDaily(store, NOW);
     expect(done).toMatchObject({ apps: 1, expired: 0, released: 0 });
+  });
+
+  it("115.11 joins the club through the app's payment page, and the membership starts once it's paid, once", async () => {
+    const customer = await signUp("1009990001", "Hana Club");
+    const plan = await store.createMarketClubPlan({ appId: app.id, name: "Club Monthly", description: null, period: "month", price: 49_00, currency: "EGP", freeDeliveryOver: 0, deliveryDiscountPercent: null, perks: [], active: true, position: 0, createdAt: NOW, updatedAt: NOW });
+    const joined = await call("POST", "/me/club", { token: customer.access_token, query: { platform: "android" }, body: { plan_id: plan.id } });
+    expect(joined.status, JSON.stringify(joined.body)).toBe(201);
+    const body = joined.body as { membership: { status: string }; pay_url: string };
+    expect(body.membership.status).toBe("awaiting_payment");
+    const token = body.pay_url.split("/").pop()!;
+    const shopOrder = (await store.getCatalogOrderByToken(sha256Hex(token)))!;
+    expect(shopOrder).toMatchObject({ totalCents: 49_00, status: "pending", userId: customer.user.id });
+    // Not a member until the payment is confirmed.
+    expect((await call("GET", "/me/club", { token: customer.access_token })).body).toMatchObject({ membership: { status: "awaiting_payment" } });
+    expect(await payClubMembership(store, app, shopOrder, now)).toBe(true);
+    // The same payment confirmed again (its webhook after its redirect) adds nothing.
+    expect(await payClubMembership(store, app, shopOrder, now)).toBe(false);
+    const mine = (await call("GET", "/me/club", { token: customer.access_token })).body as { membership: { status: string; current_period_end: string } };
+    expect(mine.membership.status).toBe("active");
+    expect(new Date(mine.membership.current_period_end).getTime()).toBeGreaterThan(now.getTime() + 27 * 86_400_000);
+    // A paid period can't be paid again; a free plan starts at once.
+    expect((await call("POST", "/me/club", { token: customer.access_token, body: { plan_id: plan.id } })).status).toBe(409);
+    const other = await signUp("1009990002", "Free Club");
+    const free = await store.createMarketClubPlan({ appId: app.id, name: "Club Free", description: null, period: "month", price: 0, currency: "EGP", freeDeliveryOver: null, deliveryDiscountPercent: 10, perks: [], active: true, position: 1, createdAt: NOW, updatedAt: NOW });
+    const freeJoin = await call("POST", "/me/club", { token: other.access_token, body: { plan_id: free.id } });
+    expect(freeJoin.body).toMatchObject({ membership: { status: "active" }, pay_url: null });
+  });
+
+  it("115.11 adds sent photos to an open complaint, up to five, and only the customer's own", async () => {
+    const customer = await signUp("1009990003", "Photo Customer");
+    const { order } = await quoteAndOrder(customer.access_token, { ...restaurantCart, vendor_id: restaurant });
+    // No complaint yet: no uploads (this app has no storage set up here either).
+    expect((await call("POST", "/market/uploads", { token: customer.access_token, body: { name: "a.jpg", size: 1000, type: "image/jpeg" } })).status).toBe(503);
+    const complaint = await call("POST", "/me/market-orders/{order_id}/complaints", { token: customer.access_token, params: [String(order.id)], body: { reason: "quality", text: "Burnt." } });
+    const id = (complaint.body as { id: number }).id;
+    const ready = async (n: number, patch: Partial<{ kind: "image" | "video"; status: "ready" | "uploading"; source: "library" | "chat" }> = {}) => {
+      const fileId = `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+      await store.createMediaFile({ id: fileId, appId: app.id, name: `p${n}.jpg`, kind: patch.kind ?? "image", contentType: "image/jpeg", sizeBytes: 1000, storageKey: `${app.id}/${fileId}.jpg`, status: patch.status ?? "ready", public: true, source: patch.source ?? "library", createdAt: NOW, updatedAt: NOW } as never);
+      return fileId;
+    };
+    const first = await ready(1);
+    const added = await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: first } });
+    expect(added.status, JSON.stringify(added.body)).toBe(201);
+    expect((added.body as { photos: { url: string }[] }).photos).toEqual([{ id: 1, url: `https://yallapp.test/m/${first}` }]);
+    // The same photo twice counts once; a chat file or one still uploading isn't taken.
+    expect(((await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: first } })).body as { photos: unknown[] }).photos).toHaveLength(1);
+    expect((await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: await ready(2, { source: "chat" }) } })).status).toBe(400);
+    expect((await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: await ready(3, { status: "uploading" }) } })).status).toBe(400);
+    for (const n of [4, 5, 6, 7]) expect((await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: await ready(n) } })).status).toBe(201);
+    const sixth = await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: await ready(8) } });
+    expect(sixth.status).toBe(409);
+    expect(sixth.body).toMatchObject({ code: "too_many_photos" });
+    // Someone else can't add to it.
+    const stranger = await signUp("1009990004", "Someone Else");
+    expect((await call("POST", "/me/complaints/{complaint_id}/photos", { token: stranger.access_token, params: [String(id)], body: { upload_id: first } })).status).toBe(404);
+    // A closed complaint takes no more photos.
+    await store.updateMarketComplaint(app.id, id, { status: "resolved", photoAssetIds: [] });
+    expect((await call("POST", "/me/complaints/{complaint_id}/photos", { token: customer.access_token, params: [String(id)], body: { upload_id: first } })).body).toMatchObject({ code: "complaint_closed" });
   });
 });

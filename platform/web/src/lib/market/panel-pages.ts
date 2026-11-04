@@ -7,7 +7,8 @@ import { complaintAdjustment, vendorComplaintView } from "./complaints";
 import { parseVendorDeliveryForm, vendorDeliveryFormValues } from "./delivery-forms";
 import { vendorDelivery } from "./delivery";
 import { marketOrderReference } from "./json";
-import { marketCurrency, marketTimezone } from "./settings";
+import { marketCurrency, marketSettingsOf, marketTimezone } from "./settings";
+import { addPhoto, fetchWaitingPhotos, photosRequired, placeBulkPhoto, productPhotos, removePhoto, type BulkPhotoOutcome, type PhotoFetcher, type PhotoResult } from "./photos";
 import { readSheet, SheetError } from "./sheets/read";
 import { buildStatement, type Statement } from "./statement";
 
@@ -44,13 +45,15 @@ export interface PanelContext {
   vendor: Restaurant;
   currency: string;
   timezone: string;
+  /** 115 Products without a photo are hidden from customers (the app's setting). */
+  photosRequired: boolean;
 }
 
 export async function panelContext(store: DataStore, app: App, staff: RestaurantStaff): Promise<PanelContext | null> {
   const vendor = await store.getRestaurant(app.id, staff.restaurantId);
   if (!vendor || !vendor.active || vendor.appId !== app.id) return null;
   const delivery = deliverySettingsOf(await store.getDeliverySettings(app.id));
-  return { store, app, staff, vendor, currency: marketCurrency(delivery), timezone: marketTimezone(delivery) };
+  return { store, app, staff, vendor, currency: marketCurrency(delivery), timezone: marketTimezone(delivery), photosRequired: photosRequired(marketSettingsOf(delivery)) };
 }
 
 // The catalog
@@ -64,28 +67,83 @@ export interface CatalogItem {
   inStock: boolean;
   stock: number | null;
   sku: string | null;
+  /** The main photo's asset ID; null without one. */
   image: string | null;
+  /** 115 All the photos' asset IDs, the main one first (products may have more than one). */
+  photos: string[];
+  /** 115 A picture link from an import still being fetched, or why it couldn't be. */
+  photoNote: string | null;
 }
 
-export async function catalogPage(ctx: PanelContext, input: { q: string; page: number; outOfStock: boolean }): Promise<{ items: CatalogItem[]; total: number; perPage: number }> {
+export async function catalogPage(
+  ctx: PanelContext,
+  input: { q: string; page: number; outOfStock: boolean; noPhoto?: boolean },
+): Promise<{ items: CatalogItem[]; total: number; perPage: number; withoutPhoto: number }> {
   const perPage = 30;
   const q = input.q.trim().toLowerCase();
   if ((ctx.vendor.kind ?? "restaurant") === "restaurant") {
     const menu = (await ctx.store.getRestaurantMenu(ctx.app.id, ctx.vendor.id)) ?? EMPTY_MENU;
-    const all = menu.sections.flatMap((s) => s.dishes.map((d) => ({ id: d.id, name: d.name, section: s.name, price: d.priceCents, unit: "item", inStock: d.available, stock: null, sku: null, image: d.imageAssetId })));
-    const hits = all.filter((d) => (!q || d.name.toLowerCase().includes(q)) && (!input.outOfStock || !d.inStock));
-    return { items: hits.slice((input.page - 1) * perPage, input.page * perPage), total: hits.length, perPage };
+    const all: CatalogItem[] = menu.sections.flatMap((s) =>
+      s.dishes.map((d) => ({ id: d.id, name: d.name, section: s.name, price: d.priceCents, unit: "item", inStock: d.available, stock: null, sku: null, image: d.imageAssetId, photos: d.imageAssetId ? [d.imageAssetId] : [], photoNote: null })),
+    );
+    const hits = all.filter((d) => (!q || d.name.toLowerCase().includes(q)) && (!input.outOfStock || !d.inStock) && (!input.noPhoto || !d.image));
+    return { items: hits.slice((input.page - 1) * perPage, input.page * perPage), total: hits.length, perPage, withoutPhoto: all.filter((d) => !d.image).length };
   }
-  const [found, departments] = await Promise.all([
-    ctx.store.listMarketProducts({ appId: ctx.app.id, vendorId: ctx.vendor.id, ...(q ? { q } : {}), ...(input.outOfStock ? { outOfStock: true } : {}), page: input.page, perPage }),
+  const [found, departments, missing] = await Promise.all([
+    ctx.store.listMarketProducts({ appId: ctx.app.id, vendorId: ctx.vendor.id, ...(q ? { q } : {}), ...(input.outOfStock ? { outOfStock: true } : {}), ...(input.noPhoto ? { withoutPhoto: true } : {}), page: input.page, perPage }),
     ctx.store.listMarketDepartments(ctx.app.id, ctx.vendor.id),
+    ctx.store.listMarketProducts({ appId: ctx.app.id, vendorId: ctx.vendor.id, withoutPhoto: true, page: 1, perPage: 1 }),
   ]);
   const dept = new Map(departments.map((d) => [d.id, d.name]));
   return {
-    items: found.items.map((p: MarketProduct) => ({ id: p.id, name: p.name, section: p.departmentId ? (dept.get(p.departmentId) ?? "") : "", price: p.price, unit: p.unit, inStock: p.inStock && (p.stock === null || p.stock > 0), stock: p.stock, sku: p.sku, image: p.imageAssetId ?? p.imageUrl })),
+    items: found.items.map((p: MarketProduct) => ({
+      id: p.id,
+      name: p.name,
+      section: p.departmentId ? (dept.get(p.departmentId) ?? "") : "",
+      price: p.price,
+      unit: p.unit,
+      inStock: p.inStock && (p.stock === null || p.stock > 0),
+      stock: p.stock,
+      sku: p.sku,
+      image: p.imageAssetId,
+      photos: productPhotos(p),
+      photoNote: !p.imageAssetId && p.imageUrl ? (p.photoError ?? "waiting") : null,
+    })),
     total: found.total,
     perPage,
+    withoutPhoto: missing.total,
   };
+}
+
+// 115 Photos
+
+/** A photo for one of the vendor's products or dishes, from the panel: the main one, or one more. */
+export function uploadPhoto(ctx: PanelContext, productId: number, data: Uint8Array, as: "main" | "extra", now: Date): Promise<PhotoResult> {
+  return addPhoto(ctx.store, ctx.app, ctx.vendor, { productId, data, as }, now);
+}
+
+export function deletePhoto(ctx: PanelContext, productId: number, assetId: string, now: Date): Promise<boolean> {
+  return removePhoto(ctx.store, ctx.app, ctx.vendor, productId, assetId, now);
+}
+
+/** Bulk photos (files or a ZIP's pictures, sent a few at a time), each placed on the product its name says. */
+export async function bulkPhotos(ctx: PanelContext, files: { name: string; data: Uint8Array }[], now: Date): Promise<BulkPhotoOutcome[]> {
+  if ((ctx.vendor.kind ?? "restaurant") === "restaurant") return files.map((f) => ({ name: f.name, status: "error" as const, error: "Add each dish's photo from Menu & stock." }));
+  const out: BulkPhotoOutcome[] = [];
+  for (const file of files) out.push(await placeBulkPhoto(ctx.store, ctx.app, ctx.vendor, file, now));
+  return out;
+}
+
+/** How many of the vendor's picture links are still waiting to be fetched (up to 1000). */
+export async function waitingLinks(ctx: PanelContext): Promise<number> {
+  if ((ctx.vendor.kind ?? "restaurant") === "restaurant") return 0;
+  return (await ctx.store.listMarketProductsAwaitingPhoto(1000, { appId: ctx.app.id, vendorId: ctx.vendor.id })).length;
+}
+
+/** A few of the vendor's picture links fetched now, from the panel (the frequent job fetches the rest). */
+export async function fetchLinksNow(ctx: PanelContext, fetcher: PhotoFetcher): Promise<{ fetched: number; failed: number; left: number }> {
+  const done = await fetchWaitingPhotos({ store: ctx.store, now: () => new Date(), fetcher, budgetMs: 8000, limit: 24, only: { appId: ctx.app.id, vendorId: ctx.vendor.id } });
+  return { fetched: done.fetched, failed: done.failed, left: await waitingLinks(ctx) };
 }
 
 /** Puts a dish or product in or out of stock, with a count for products that keep one. */

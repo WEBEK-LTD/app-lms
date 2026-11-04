@@ -146,6 +146,31 @@ export function marketCatalogStoreSuite(store: () => DataStore) {
     expect(await s.upsertMarketProducts(other.app.id, vendor.id, [product({ name: "X" })], NOW)).toEqual({ created: 0, updated: 0 });
   });
 
+  it("115 keeps products' photos, filters by them and lists the picture links still to fetch", async () => {
+    const s = store();
+    const { app, vendorInput, product } = await setup(s);
+    const vendor = await s.createRestaurant(vendorInput({ kind: "grocery" }), { sections: [], nextId: 1 }, NOW);
+    const make = async (patch: Partial<Omit<MarketProductInput, "appId" | "vendorId">>) => {
+      const made = await s.createMarketProduct({ ...product(), appId: app.id, vendorId: vendor.id, ...patch }, NOW);
+      if (!made.ok) throw new Error("product");
+      return made.product.id;
+    };
+    const withPhoto = await make({ sku: "P-1", imageAssetId: "a1", galleryAssetIds: ["a2", "a3"] });
+    const waiting = await make({ sku: "P-2", imageUrl: "https://cdn.example/p2.jpg" });
+    const failed = await make({ sku: "P-3", imageUrl: "https://cdn.example/p3.jpg", photoError: "The picture link answered 404." });
+    await make({ sku: "P-4" });
+    const kept = await s.getMarketProduct(app.id, withPhoto);
+    expect(kept?.galleryAssetIds).toEqual(["a2", "a3"]);
+    expect((await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, withPhoto: true, page: 1, perPage: 10 })).items.map((p) => p.sku)).toEqual(["P-1"]);
+    expect((await s.listMarketProducts({ appId: app.id, vendorId: vendor.id, withoutPhoto: true, page: 1, perPage: 10 })).total).toBe(3);
+    expect((await s.listMarketProductsAwaitingPhoto(10, { appId: app.id, vendorId: vendor.id })).map((p) => p.id)).toEqual([waiting]);
+    await s.updateMarketProduct(app.id, waiting, { imageAssetId: "a4", photoError: null }, NOW);
+    await s.updateMarketProduct(app.id, failed, { photoError: null }, NOW);
+    expect((await s.listMarketProductsAwaitingPhoto(10, { appId: app.id, vendorId: vendor.id })).map((p) => p.id)).toEqual([failed]);
+    await s.updateMarketProduct(app.id, withPhoto, { galleryAssetIds: null }, NOW);
+    expect((await s.getMarketProduct(app.id, withPhoto))?.galleryAssetIds ?? null).toBeNull();
+  });
+
   it("a vendor's catalog goes with it", async () => {
     const s = store();
     const { app, vendorInput, product } = await setup(s);

@@ -6081,18 +6081,18 @@ paths:
       tags: [Market]
       operationId: addComplaintPhoto
       summary: Add a photo to a complaint
-      description: JPEG, PNG or WebP up to 8 MB, at most 6 photos a complaint (`too_many_photos` (409)). Seen by support and, when support shares it, by the vendor.
+      description: A photo sent with `/market/uploads` (JPEG, PNG or WebP up to 8 MB) joins an open complaint, at most 5 a complaint (`too_many_photos` (409); a closed complaint is `complaint_closed` (409)). Seen by support and, when support shares it, by the vendor.
       parameters:
         - $ref: '#/components/parameters/ComplaintId'
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
-              required: [photo]
+              required: [upload_id]
               properties:
-                photo: { type: string, format: binary }
+                upload_id: { type: string, description: 'The id /market/uploads gave, sent once /complete answered.' }
       responses:
         '201':
           description: The complaint with the photo
@@ -6104,6 +6104,77 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+
+  /market/uploads:
+    post:
+      tags: [Market]
+      operationId: startMarketUpload
+      summary: Start sending a complaint photo
+      description: |
+        A photo (JPEG, PNG or WebP) up to 8 MB, by a customer with a
+        complaint still open (`no_complaint` (403) otherwise), into the
+        app's Media library (413 `storage_full` when its storage is full).
+        Sent in chunks to `upload_url` as chat files are, then `/complete`,
+        then added with `/me/complaints/{complaint_id}/photos`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, size, type]
+              properties:
+                name: { type: string, maxLength: 200 }
+                size: { type: integer, minimum: 1 }
+                type: { type: string, example: image/jpeg }
+      responses:
+        '201':
+          description: Started
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413':
+          description: Over 8 MB (`too_big`), or the app's storage is full (`storage_full`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /market/uploads/{upload_id}/resume:
+    post:
+      tags: [Market]
+      operationId: resumeMarketUpload
+      summary: A fresh link to carry on with a complaint photo
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '200':
+          description: A new link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolUpload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /market/uploads/{upload_id}/complete:
+    post:
+      tags: [Market]
+      operationId: completeMarketUpload
+      summary: Finish sending a complaint photo
+      description: 409 `incomplete` with the offset reached when part of the photo is missing.
+      parameters:
+        - $ref: '#/components/parameters/UploadId'
+      responses:
+        '204': { description: Ready to add to the complaint }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
 
   /me/wallet:
     get:
@@ -6169,7 +6240,13 @@ paths:
       tags: [Market]
       operationId: joinClub
       summary: Join the club
-      description: Starts a membership on a plan, waiting for its payment (`pay_url`, card, Apple Pay or Google Pay on the gateway's page); it renews at the end of each period by the same payment until cancelled, and the customer is told 3 days before (`club_renewal`). `already_member` (409).
+      description: |
+        Starts a membership on a plan, waiting for its payment (`pay_url`,
+        card, Apple Pay or Google Pay on the gateway's page); the membership
+        is active once the payment is confirmed. A new period is paid the
+        same way, by joining again once the paid period ends, or by a
+        cancelled member taking the same plan back. `already_member` (409)
+        while a period is paid.
       parameters:
         - $ref: '#/components/parameters/Platform'
       requestBody:
@@ -6191,10 +6268,14 @@ paths:
                 required: [membership, pay_url]
                 properties:
                   membership: { $ref: '#/components/schemas/ClubMembership' }
-                  pay_url: { type: string, format: uri }
+                  pay_url:
+                    type: [string, 'null']
+                    format: uri
+                    description: The payment page; null for a plan the owner offers for free, which starts at once.
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
@@ -16097,7 +16178,11 @@ components:
         id: { type: integer }
         name: { type: string }
         description: { type: [string, 'null'] }
-        image_url: { type: [string, 'null'], format: uri }
+        image_url: { type: [string, 'null'], format: uri, description: 'The main photo. While the app requires photos (the default), every product customers see has one.' }
+        images:
+          type: array
+          description: 'All the photos, the main one first (a dish has at most one). Added in 115; may be missing from older servers.'
+          items: { type: string, format: uri }
         brand: { type: [string, 'null'] }
         price: { $ref: '#/components/schemas/Money' }
         was_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }], description: 'Before its discount, struck through.' }
