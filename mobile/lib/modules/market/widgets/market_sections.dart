@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -15,6 +17,7 @@ import '../data/market_models.dart';
 import '../../delivery/data/delivery_providers.dart' show LocateProblem;
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
+import '../screens/market_orders_screen.dart' show orderAgain;
 import 'market_look.dart';
 
 /// 115 A Studio `market` element: one marketplace section, drawn from the
@@ -475,7 +478,9 @@ class _KindTile extends StatelessWidget {
       ),
     );
     return MarketPressable(
-      onTap: () {},
+      onTap: () => context.push(
+        Paths.marketList(kind: kind.kind?.name, title: kind.title),
+      ),
       child: Container(
         height: large ? 156 : 100,
         decoration: BoxDecoration(
@@ -645,7 +650,9 @@ class _OfferCard extends StatelessWidget {
     final from = parseHexColor(offer.from) ?? context.palette.primary;
     final to = parseHexColor(offer.to) ?? marketDeeper(from);
     return MarketPressable(
-      onTap: () {},
+      onTap: () => offer.vendorId != null
+          ? context.push(Paths.marketVendor(offer.vendorId!))
+          : context.push(Paths.marketList(offers: true, title: offer.title)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(26),
@@ -783,7 +790,9 @@ class _Cuisines extends StatelessWidget {
             itemCount: list.length,
             separatorBuilder: (_, _) => const SizedBox(width: 14),
             itemBuilder: (context, i) => MarketPressable(
-              onTap: () {},
+              onTap: () => context.push(
+                Paths.marketList(category: list[i].id, title: list[i].name),
+              ),
               child: SizedBox(
                 width: 66,
                 child: Column(
@@ -847,7 +856,7 @@ class _Club extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: MarketPressable(
-        onTap: () {},
+        onTap: () => context.push(Paths.marketClub),
         child: Container(
           decoration: BoxDecoration(
             color: background,
@@ -1420,14 +1429,32 @@ class _VendorRow extends StatelessWidget {
 // --------------------------------------------------------------- Reorder
 
 /// Past orders to order again in one tap.
-class _Reorders extends StatelessWidget {
+class _Reorders extends ConsumerWidget {
   const _Reorders({required this.node, required this.home});
 
   final StudioNode node;
   final MarketHome home;
 
+  /// The past order back in the basket; the vendor's page when it can't be
+  /// read.
+  Future<void> _again(
+    BuildContext context,
+    WidgetRef ref,
+    MarketReorder order,
+    MarketVendor vendor,
+  ) async {
+    final id = order.orderId;
+    if (id == null) return _openVendor(context, vendor);
+    try {
+      final o = await ref.read(yallappApiProvider).getMyMarketOrder(id);
+      if (context.mounted) await orderAgain(context, ref, o);
+    } on ApiException {
+      if (context.mounted) _openVendor(context, vendor);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
     final l10n = context.l10n;
     final rows = [
@@ -1448,91 +1475,94 @@ class _Reorders extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: 12),
             itemBuilder: (context, i) {
               final (order, vendor) = rows[i];
-              return Container(
-                width: 262,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: p.surface,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: p.border),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        MarketVendorMark(vendor: vendor, size: 36),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                vendor.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: p.text,
+              return MarketPressable(
+                onTap: () => _again(context, ref, order, vendor),
+                child: Container(
+                  width: 262,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: p.surface,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: p.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          MarketVendorMark(vendor: vendor, size: 36),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  vendor.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: p.text,
+                                  ),
                                 ),
+                                Text(
+                                  order.when,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: p.textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        order.summary,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 13, color: p.textSecondary),
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              order.total,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: p.text,
                               ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Row(
+                            children: [
+                              AppIcon(
+                                Symbols.replay_rounded,
+                                size: 16,
+                                color: p.primary,
+                              ),
+                              const SizedBox(width: 4),
                               Text(
-                                order.when,
+                                l10n.marketOrderAgain,
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: p.textTertiary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: p.primary,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      order.summary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13, color: p.textSecondary),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            order.total,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: p.text,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Row(
-                          children: [
-                            AppIcon(
-                              Symbols.replay_rounded,
-                              size: 16,
-                              color: p.primary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              l10n.marketOrderAgain,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: p.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -1541,4 +1571,14 @@ class _Reorders extends StatelessWidget {
       ],
     );
   }
+}
+
+/// 115 A vendor as a row, for the filtered lists.
+class MarketVendorRow extends StatelessWidget {
+  const MarketVendorRow({super.key, required this.vendor});
+
+  final MarketVendor vendor;
+
+  @override
+  Widget build(BuildContext context) => _VendorRow(vendor: vendor);
 }

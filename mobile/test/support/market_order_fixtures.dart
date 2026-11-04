@@ -109,3 +109,27 @@ Map<String, dynamic> marketOrderJson({
     {'status': 'placed', 'at': '2026-11-04T10:00:00Z'},
   ],
 };
+
+Map<String, dynamic> marketComplaintJson({
+  int id = 300,
+  int orderId = 901,
+  String reason = 'missing_items',
+  String status = 'open',
+  String text = 'The juice was missing.',
+  List<int> lineIds = const [],
+  Map<String, dynamic>? decision,
+  List<Map<String, dynamic>> messages = const [],
+}) => {
+  'id': id,
+  'reference': 'C-$id',
+  'order_id': orderId,
+  'reason': reason,
+  'status': status,
+  'text': text,
+  'line_ids': lineIds,
+  'photos': const <Map<String, dynamic>>[],
+  'messages': messages,
+  'decision': decision,
+  'created_at': '2026-11-04T10:40:00Z',
+  'updated_at': '2026-11-04T10:40:00Z',
+};

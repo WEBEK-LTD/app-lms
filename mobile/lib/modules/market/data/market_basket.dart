@@ -125,6 +125,19 @@ class MarketBasketController extends Notifier<MarketBasket> {
     );
   }
 
+  /// 115 Order again: the basket becomes [lines] from [vendor].
+  void refill(
+    MarketVendor vendor,
+    List<MarketBasketLine> lines, {
+    required String currency,
+    required int decimals,
+  }) => state = MarketBasket(
+    vendor: vendor,
+    lines: lines,
+    currency: currency,
+    decimals: decimals,
+  );
+
   void clear() => state = const MarketBasket();
 }
 

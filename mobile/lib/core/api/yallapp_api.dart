@@ -869,6 +869,35 @@ abstract class YallappApi {
 
   /// A new payment page for an order waiting for its payment.
   Future<String> payMyMarketOrder(int id);
+
+  // 115.9 Complaints on marketplace orders, with the app's support.
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  });
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1});
+  Future<MarketComplaint> getMyComplaint(int id);
+  Future<MarketComplaint> addComplaintMessage(int id, String text);
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId);
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  });
+  Future<ChatUpload> resumeMarketUpload(String uploadId);
+  Future<void> completeMarketUpload(String uploadId);
+
+  // 115.10 The wallet and the delivery club.
+  Future<MarketWallet> getMyWallet({int page = 1});
+  Future<MarketClubInfo> getMarketClub();
+  Future<ClubMembership?> getMyClub();
+
+  /// The membership waiting for its payment, and the payment page (null
+  /// for a free plan, which starts at once).
+  Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId);
+  Future<ClubMembership?> cancelClub();
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -2981,6 +3010,127 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => reqString(asJson(data), 'pay_url'),
     query: {'platform': platform.name},
+  );
+
+  @override
+  Future<MarketComplaint> openMarketComplaint(
+    int orderId, {
+    required ComplaintReason reason,
+    required String text,
+    List<int> lineIds = const [],
+  }) => _send(
+    'POST',
+    '/me/market-orders/$orderId/complaints',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {
+      'reason': snake(reason),
+      'text': text,
+      if (lineIds.isNotEmpty) 'line_ids': lineIds,
+    },
+  );
+
+  @override
+  Future<Paged<MarketComplaint>> listMyComplaints({int page = 1}) => _get(
+    '/me/complaints',
+    _required,
+    (json) => Paged.fromJson(json, MarketComplaint.fromJson),
+    query: {'page': page},
+  );
+
+  @override
+  Future<MarketComplaint> getMyComplaint(int id) =>
+      _get('/me/complaints/$id', _required, MarketComplaint.fromJson);
+
+  @override
+  Future<MarketComplaint> addComplaintMessage(int id, String text) => _send(
+    'POST',
+    '/me/complaints/$id/messages',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {'text': text},
+  );
+
+  @override
+  Future<MarketComplaint> addComplaintPhoto(int id, String uploadId) => _send(
+    'POST',
+    '/me/complaints/$id/photos',
+    _required,
+    (data) => MarketComplaint.fromJson(asJson(data)),
+    body: {'upload_id': uploadId},
+  );
+
+  @override
+  Future<ChatUpload> startMarketUpload({
+    required String name,
+    required int size,
+    required String type,
+  }) => _send(
+    'POST',
+    '/market/uploads',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+    body: {'name': name, 'size': size, 'type': type},
+  );
+
+  @override
+  Future<ChatUpload> resumeMarketUpload(String uploadId) => _send(
+    'POST',
+    '/market/uploads/${Uri.encodeComponent(uploadId)}/resume',
+    _required,
+    (data) => ChatUpload.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<void> completeMarketUpload(String uploadId) => _send(
+    'POST',
+    '/market/uploads/${Uri.encodeComponent(uploadId)}/complete',
+    _required,
+    _ignore,
+  );
+
+  @override
+  Future<MarketWallet> getMyWallet({int page = 1}) => _get(
+    '/me/wallet',
+    _required,
+    MarketWallet.fromJson,
+    query: {'page': page},
+  );
+
+  @override
+  Future<MarketClubInfo> getMarketClub() =>
+      _get('/market/club', _optional, MarketClubInfo.fromJson);
+
+  @override
+  Future<ClubMembership?> getMyClub() => _get(
+    '/me/club',
+    _required,
+    (json) => optObject(json, 'membership', ClubMembership.fromJson),
+  );
+
+  @override
+  Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId) =>
+      _send(
+        'POST',
+        '/me/club',
+        _required,
+        (data) {
+          final json = asJson(data);
+          return (
+            membership: optObject(json, 'membership', ClubMembership.fromJson),
+            payUrl: optString(json, 'pay_url'),
+          );
+        },
+        body: {'plan_id': planId},
+        query: {'platform': platform.name},
+      );
+
+  @override
+  Future<ClubMembership?> cancelClub() => _send(
+    'POST',
+    '/me/club/cancel',
+    _required,
+    (data) => optObject(asJson(data), 'membership', ClubMembership.fromJson),
   );
 
   @override
