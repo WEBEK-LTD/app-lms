@@ -4,8 +4,11 @@ import type { App, SchoolAssessmentKind, SchoolAttendanceStatus, SchoolPerson, S
 import { SAMPLE_SCHOOL_NEWS } from "../samples/content";
 import { markFeePaid } from "../school/fees";
 import { isoWeekday } from "../school/service";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN } from "./constants";
+import { DEFAULT_STAFF_TIMES, DEFAULT_STUDENT_TIMES } from "../school/checkin";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME } from "./constants";
 import { syncSchoolBusAndLibrary } from "./school-bus-library";
+import { NAKHLA_SCHOOL } from "./school-bus";
+import { syncSchoolLife } from "./school-life";
 import { syncSchoolParentArea } from "./school-parent";
 
 /**
@@ -25,13 +28,40 @@ const DAYS = [7, 1, 2, 3, 4] as const;
 /** Sunday to Thursday, as schools in Cairo. */
 export const SCHOOL_DAYS: readonly number[] = DAYS;
 
-export const SCHOOL_DEMO_SETTINGS: Omit<SchoolSettings, "term"> = { timezone: "Africa/Cairo", currency: "EGP", absenceAlerts: true, feesByCard: true };
+export const SCHOOL_DEMO_SETTINGS: Omit<SchoolSettings, "term"> = {
+  timezone: "Africa/Cairo",
+  currency: "EGP",
+  absenceAlerts: true,
+  feesByCard: true,
+  // 113.2 The gate's check-in, by its code or at the school.
+  checkin: { on: true, methods: "either", place: { ...NAKHLA_SCHOOL, radiusM: 300 }, days: [7, 1, 2, 3, 4], students: DEFAULT_STUDENT_TIMES, staff: DEFAULT_STAFF_TIMES, parentAlerts: true, gateKey: 1, since: null },
+  // 113.6 Teachers and families write to each other at any time, so a visitor can try it.
+  messages: { with: "parents_students", startedBy: "both", hours: null, classBroadcast: true, attachments: true, adminReads: false },
+  bus: { nearBy: "minutes", nearMeters: 1000, nearMinutes: 5 },
+  behaviourAlerts: "all",
+  behaviourCategoriesSet: true,
+};
 
 export const SCHOOL_SUBJECTS = ["Arabic", "English", "Maths", "Science", "Social studies", "Art", "PE"];
 
 /** The school's teachers; the first is the demo number's. */
 export const SCHOOL_TEACHERS = ["Mona Saleh", "Youssef Kamal", "Nadia Fahmy", "Daniel Brooks", "Heba Mansour", "Tarek Adel"];
 export const DEMO_TEACHER = SCHOOL_TEACHERS[0]!;
+
+/** 113.3 What the teachers do, and the school's staff. */
+const JOBS: Record<string, { jobTitle: string; department: string }> = {
+  "Mona Saleh": { jobTitle: "Maths teacher, Grade 5 A's class teacher", department: "Primary" },
+  "Youssef Kamal": { jobTitle: "Science teacher", department: "Primary" },
+  "Nadia Fahmy": { jobTitle: "Grade 3 B's class teacher", department: "Primary" },
+  "Daniel Brooks": { jobTitle: "English teacher", department: "Languages" },
+  "Heba Mansour": { jobTitle: "Art and PE teacher, bus supervisor", department: "Activities" },
+  "Tarek Adel": { jobTitle: "Arabic teacher, Grade 5 B's class teacher", department: "Primary" },
+};
+export const SCHOOL_STAFF: { name: string; jobTitle: string; department: string }[] = [
+  { name: "Samia Fouad", jobTitle: "School secretary", department: "Office" },
+  { name: "Hany Lotfy", jobTitle: "Caretaker", department: "Facilities" },
+  { name: "Amal Zaki", jobTitle: "School nurse", department: "Health" },
+];
 
 export const SCHOOL_CLASSES: { name: string; grade: string; homeroom: string; room: string; students: string[] }[] = [
   { name: "Grade 3 B", grade: "Grade 3", homeroom: "Nadia Fahmy", room: "7", students: ["Adam Haddad", "Jana Ashraf", "Hamza Lotfy", "Salma Wagdy", "Karma Ezzat"] },
@@ -42,6 +72,17 @@ export const SCHOOL_CLASSES: { name: string; grade: string; homeroom: string; ro
 /** The demo number is Lina (a student) and Rania, the parent of Lina and Adam. */
 export const DEMO_STUDENT = "Lina Haddad";
 export const DEMO_PARENT = { name: "Rania Haddad", children: ["Lina Haddad", "Adam Haddad"] };
+/** 113.6 Another parent, who writes to Ms. Mona about Omar. */
+export const OTHER_PARENT = { name: "Khaled Khalil", children: ["Omar Khalil"] };
+/**
+ * People with an account of their own in the app, so they can write in the
+ * demo's conversations: no phone, and an address under the reserved
+ * `.example` domain, which no mail reaches, so nobody signs in as them.
+ */
+const WRITERS: [string, string][] = [
+  ["teacher:Nadia Fahmy", "nadia.fahmy@nakhla-school.example"],
+  [`parent:${OTHER_PARENT.name}`, "khaled.khalil@nakhla-school.example"],
+];
 
 /** Who teaches what: a subject's teacher per grade (the class's own teacher teaches every subject of it too). */
 const TEACHES: Record<string, Record<string, string>> = {
@@ -144,6 +185,12 @@ const CLASS_NEWS: { klass: string; teacher: string; title: string; body: string;
   { klass: "Grade 3 B", teacher: "Nadia Fahmy", title: "Our class trip to the zoo", body: "Grade 3 B visits the zoo next Wednesday. Please pack a hat, water and a small lunch.", hoursAgo: 50 },
 ];
 
+/** 113.3 News for the people who work at the school. */
+const STAFF_NEWS: { title: string; body: string; hoursAgo: number }[] = [
+  { title: "Staff meeting tomorrow at 14:30", body: "In the staff room: the term's reports and the exam timetable. Tea and biscuits as usual.", hoursAgo: 5 },
+  { title: "Payslips are in the app", body: "Last month's payslips are in the app, under Account. Speak to Ms. Samia in the office about any question.", hoursAgo: 75 },
+];
+
 /** Fees by student: a term's fees paid at the office, and one due. */
 const FEES: { student: string; title: string; amountCents: number; paidDaysAgo?: number; dueIn?: number }[] = [
   { student: "Lina Haddad", title: "Term 1 fees", amountCents: 45_000_00, paidDaysAgo: 40 },
@@ -210,8 +257,8 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
 
   const byName = new Map<string, SchoolPerson>();
   const people = await store.listSchoolPeople(app.id);
-  const person = async (role: SchoolPerson["role"], name: string, fields: Partial<Pick<SchoolPerson, "phone" | "classId" | "code">>): Promise<SchoolPerson> => {
-    const input = { phone: fields.phone ?? null, email: null, classId: fields.classId ?? null, code: fields.code ?? null, photoAssetId: null, active: true };
+  const person = async (role: SchoolPerson["role"], name: string, fields: Partial<Pick<SchoolPerson, "phone" | "classId" | "code" | "jobTitle" | "department">>): Promise<SchoolPerson> => {
+    const input = { phone: fields.phone ?? null, email: null, classId: fields.classId ?? null, code: fields.code ?? null, photoAssetId: null, active: true, jobTitle: fields.jobTitle ?? null, department: fields.department ?? null };
     const found = people.find((p) => p.role === role && p.name === name);
     if (found) {
       await store.updateSchoolPerson(app.id, found.id, { name, ...input }, now);
@@ -222,7 +269,8 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
     return made.person;
   };
   const key = (role: string, name: string) => `${role}:${name}`;
-  for (const name of SCHOOL_TEACHERS) byName.set(key("teacher", name), await person("teacher", name, { phone: name === DEMO_TEACHER ? DEMO_SIGN_IN.e164 : null }));
+  for (const name of SCHOOL_TEACHERS) byName.set(key("teacher", name), await person("teacher", name, { phone: name === DEMO_TEACHER ? DEMO_SIGN_IN.e164 : null, ...JOBS[name] }));
+  for (const s of SCHOOL_STAFF) byName.set(key("staff", s.name), await person("staff", s.name, { jobTitle: s.jobTitle, department: s.department }));
 
   const classes = new Map<string, number>();
   const savedClasses = await store.listSchoolClasses(app.id);
@@ -243,6 +291,26 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
   const parent = await person("parent", DEMO_PARENT.name, { phone: DEMO_SIGN_IN.e164 });
   byName.set(key("parent", DEMO_PARENT.name), parent);
   await store.setSchoolChildren(app.id, parent.id, DEMO_PARENT.children.map((name) => byName.get(key("student", name))!.id));
+  const other = await person("parent", OTHER_PARENT.name, {});
+  byName.set(key("parent", OTHER_PARENT.name), other);
+  await store.setSchoolChildren(app.id, other.id, OTHER_PARENT.children.map((name) => byName.get(key("student", name))!.id));
+
+  // The demo number's account is Lina, Rania and Ms. Mona; Ms. Nadia and Omar's father have accounts too, to write in the demo's conversations.
+  const demoUser = (await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)) ?? (await store.createHostedUser({ appId: app.id, phone: DEMO_SIGN_IN.e164, name: DEMO_USER_NAME, email: null, city: null, now }));
+  for (const p of byName.values()) {
+    if (p.phone === DEMO_SIGN_IN.e164 && demoUser && p.userId !== demoUser.id) {
+      await store.updateSchoolPerson(app.id, p.id, { userId: demoUser.id }, now);
+      p.userId = demoUser.id;
+    }
+  }
+  for (const [k, email] of WRITERS) {
+    const p = byName.get(k);
+    if (!p || (p.userId !== null && (await store.getHostedUser(app.id, p.userId)))) continue;
+    const user = (await store.getHostedEmailUser(app.id, email)) ?? (await store.createHostedUser({ appId: app.id, phone: null, name: p.name, email, city: null, now }));
+    if (!user) continue;
+    await store.updateSchoolPerson(app.id, p.id, { userId: user.id }, now);
+    p.userId = user.id;
+  }
   const kept = new Set([...byName.values()].map((p) => p.id));
   for (const p of people) if (!kept.has(p.id)) await store.deleteSchoolPerson(app.id, p.id);
 
@@ -254,10 +322,6 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
       await store.saveSchoolPeriod({ id: null, appId: app.id, classId: classes.get(klass.name)!, subjectId: subjects.get(subject)!, teacherId: byName.get(key("teacher", teacher))!.id, weekday, startMinute, endMinute, room });
     }
   }
-  // 113.10 The bus; 113.11 the library.
-  await syncSchoolBusAndLibrary(store, app, { byName, classes, subjects }, now);
-  // 113.4 A slip to sign, a pick-up list and an excused day.
-  await syncSchoolParentArea(store, app, { byName, classes, subjects }, now);
   return { byName, classes, subjects };
 }
 
@@ -272,7 +336,7 @@ async function schoolPeopleOf(store: DataStore, appId: string): Promise<SchoolPe
 
 const SEEDED_HOMEWORK = new Set(SCHOOL_HOMEWORK.map((h) => h.title));
 const SEEDED_ASSESSMENTS = new Set(SCHOOL_ASSESSMENTS.map((a) => a.title));
-const SEEDED_NEWS = new Set([...SAMPLE_SCHOOL_NEWS.map((n) => n.title.en), ...CLASS_NEWS.map((n) => n.title)]);
+const SEEDED_NEWS = new Set([...SAMPLE_SCHOOL_NEWS.map((n) => n.title.en), ...CLASS_NEWS.map((n) => n.title), ...STAFF_NEWS.map((n) => n.title)]);
 
 /**
  * The school day: what the visitor wrote as the teacher more than a day ago
@@ -280,7 +344,7 @@ const SEEDED_NEWS = new Set([...SAMPLE_SCHOOL_NEWS.map((n) => n.title.en), ...CL
  * and attendance are made again, dated from today, when they are from
  * another day (or always, with `force`, when the demo is set up).
  */
-export async function refreshSchoolDay(store: DataStore, app: Pick<App, "id">, now: Date, options: { force?: boolean; people?: SchoolPeople } = {}): Promise<number> {
+export async function refreshSchoolDay(store: DataStore, app: Pick<App, "id" | "timeZone" | "catalogSettings">, now: Date, options: { force?: boolean; people?: SchoolPeople } = {}): Promise<number> {
   const before = now.getTime() - DEMO_RETENTION_HOURS * 3_600_000;
   const settings: SchoolSettings = { ...SCHOOL_DEMO_SETTINGS, term: null };
   const today = utcToLocal(now, settings.timezone).date;
@@ -363,6 +427,9 @@ export async function refreshSchoolDay(store: DataStore, app: Pick<App, "id">, n
   for (const seed of CLASS_NEWS) {
     await store.createSchoolAnnouncement({ appId: app.id, audience: "class", classId: dir.classes.get(seed.klass)!, studentId: null, title: seed.title, body: seed.body, teacherId: teacher(seed.teacher), createdAt: new Date(now.getTime() - seed.hoursAgo * 3_600_000) });
   }
+  for (const seed of STAFF_NEWS) {
+    await store.createSchoolAnnouncement({ appId: app.id, audience: "staff", classId: null, studentId: null, title: seed.title, body: seed.body, teacherId: null, createdAt: new Date(now.getTime() - seed.hoursAgo * 3_600_000) });
+  }
   for (const seed of FEES) {
     const fee = await store.createSchoolFee({
       appId: app.id,
@@ -392,5 +459,9 @@ export async function refreshSchoolDay(store: DataStore, app: Pick<App, "id">, n
     }
   }
   await store.saveSchoolAttendance(rows);
+  // 113.10 The bus; 113.11 the library; 113.4 the parent's area; and the rest of the school's life (lib/demo/school-life.ts).
+  await syncSchoolBusAndLibrary(store, app, dir, now);
+  await syncSchoolParentArea(store, app, dir, now);
+  await syncSchoolLife(store, app, dir, now, today);
   return deleted;
 }
