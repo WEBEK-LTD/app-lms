@@ -337,3 +337,83 @@ export async function unsuppressMailAddressAction(email: string, force = false):
   refresh();
   return { ok: true };
 }
+
+/**
+ * A new draft from a ready-made template (`ready:<id>`), one of the admin's
+ * own (`saved:<id>`) or nothing (`blank`); its id, for the editor.
+ */
+export async function createMailCampaignAction(source: string): Promise<MailActionResult<{ id: string }>> {
+  const admin = await requireAdmin("marketing.edit");
+  const store = await getStore();
+  const now = new Date();
+  const { MAIL_TEMPLATES, templateContent } = await import("@/lib/mailing/templates");
+  const { emptyContent } = await import("@/lib/mailing/blocks");
+  let name = "Untitled campaign";
+  let contents: MailCampaign["contents"] = { en: emptyContent("en") };
+  let defaultLang: MailLang = "en";
+  if (source.startsWith("ready:")) {
+    const def = MAIL_TEMPLATES.find((t) => t.id === source.slice(6));
+    if (!def) return { ok: false, error: "That template isn't there." };
+    name = def.name;
+    contents = { en: templateContent(def, appUrl()) };
+  } else if (source.startsWith("saved:")) {
+    const template = await store.getMailTemplate(source.slice(6));
+    if (!template) return { ok: false, error: "That template isn't there." };
+    name = template.name;
+    contents = structuredClone(template.contents);
+    defaultLang = (MAIL_LANGS.find((l) => contents[l]) ?? "en") as MailLang;
+  } else if (source !== "blank") {
+    return { ok: false, error: "Choose a template." };
+  }
+  const campaign: MailCampaign = {
+    id: randomUUID(),
+    name,
+    status: "draft",
+    archived: false,
+    audience: {},
+    segmentId: null,
+    fromName: null,
+    replyTo: null,
+    contents,
+    defaultLang,
+    track: true,
+    perMinute: DEFAULT_MAIL_PER_MINUTE,
+    scheduledAt: null,
+    timeZone: null,
+    recipients: 0,
+    createdBy: admin.email,
+    createdAt: now,
+    updatedAt: now,
+    startedAt: null,
+    finishedAt: null,
+  };
+  await store.saveMailCampaign(campaign);
+  await recordAudit({ actor: admin, action: "mail.campaign_save", target: { type: "mail_campaign", id: campaign.id }, summary: `Started the email campaign “${campaign.name}”` });
+  refresh();
+  return { ok: true, id: campaign.id };
+}
+
+const IMAGE_BYTES = 5 * 1024 * 1024;
+
+function imageType(data: Buffer): { contentType: string; extension: string } | null {
+  if (data.length < 12) return null;
+  if (data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return { contentType: "image/png", extension: "png" };
+  if (data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) return { contentType: "image/jpeg", extension: "jpg" };
+  if (data.toString("latin1", 0, 6) === "GIF87a" || data.toString("latin1", 0, 6) === "GIF89a") return { contentType: "image/gif", extension: "gif" };
+  return null;
+}
+
+/** A picture for an email (PNG, JPEG or GIF, up to 5 MB, the formats inboxes show), kept in the files store; its public address. */
+export async function uploadMailImageAction(formData: FormData): Promise<MailActionResult<{ url: string }>> {
+  await requireAdmin("marketing.edit");
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Choose a picture." };
+  if (file.size > IMAGE_BYTES) return { ok: false, error: "The picture is over 5 MB. Make it smaller." };
+  const data = Buffer.from(await file.arrayBuffer());
+  const type = imageType(data);
+  if (!type) return { ok: false, error: "Use a PNG, JPEG or GIF picture (inboxes don't all show the others)." };
+  const name = `${randomUUID()}.${type.extension}`;
+  const { getBlobStore } = await import("@/lib/blobs");
+  await getBlobStore().put(`mail-images/${name}`, data, type.contentType);
+  return { ok: true, url: `${appUrl()}/api/mail/image/${name}` };
+}
