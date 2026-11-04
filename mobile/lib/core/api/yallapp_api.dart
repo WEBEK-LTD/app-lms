@@ -849,6 +849,26 @@ abstract class YallappApi {
 
   /// Public offers and, signed in, the customer's coupons.
   Future<List<MarketCoupon>> listMarketOffers({int? vendorId});
+
+  /// One vendor's cart priced line by line; `quoteId` keeps the prices.
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart);
+
+  /// The order at the quote's prices and, paid online, its payment page.
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  });
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  });
+  Future<MarketOrder> getMyMarketOrder(int id);
+  Future<MarketOrder> cancelMyMarketOrder(int id);
+
+  /// A new payment page for an order waiting for its payment.
+  Future<String> payMyMarketOrder(int id);
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -2899,6 +2919,68 @@ class HttpYallappApi implements YallappApi {
     _optional,
     (json) => reqListOf(json, 'items', MarketCoupon.fromJson),
     query: {'vendor_id': ?vendorId},
+  );
+
+  @override
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) => _send(
+    'POST',
+    '/market/quote',
+    _optional,
+    (data) => MarketQuote.fromJson(asJson(data)),
+    body: cart.toJson(),
+  );
+
+  @override
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  }) => _send(
+    'POST',
+    '/market/orders',
+    _required,
+    (data) {
+      final json = asJson(data);
+      return (
+        order: MarketOrder.fromJson(asJson(json['order'], 'order')),
+        payUrl: optString(json, 'pay_url'),
+      );
+    },
+    body: cart.orderJson(quoteId: quoteId, payment: payment, notes: notes),
+    query: {'platform': platform.name},
+  );
+
+  @override
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  }) => _get(
+    '/me/market-orders',
+    _required,
+    (json) => Paged.fromJson(json, MarketOrder.fromJson),
+    query: {'page': page, if (active) 'active': true},
+  );
+
+  @override
+  Future<MarketOrder> getMyMarketOrder(int id) =>
+      _get('/me/market-orders/$id', _required, MarketOrder.fromJson);
+
+  @override
+  Future<MarketOrder> cancelMyMarketOrder(int id) => _send(
+    'POST',
+    '/me/market-orders/$id/cancel',
+    _required,
+    (data) => MarketOrder.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<String> payMyMarketOrder(int id) => _send(
+    'POST',
+    '/me/market-orders/$id/pay',
+    _required,
+    (data) => reqString(asJson(data), 'pay_url'),
+    query: {'platform': platform.name},
   );
 
   @override

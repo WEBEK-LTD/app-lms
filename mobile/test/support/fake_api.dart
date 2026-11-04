@@ -7,6 +7,7 @@ import 'package:yallapp/core/api/yallapp_api.dart';
 import 'bus_library_fixtures.dart';
 import 'salary_fixtures.dart';
 import 'fixtures.dart';
+import 'market_order_fixtures.dart';
 import 'parent_fixtures.dart';
 
 /// An in-memory [YallappApi] that answers with contract-shaped fixtures and
@@ -1790,6 +1791,80 @@ class FakeApi implements YallappApi {
           MarketCoupon.fromJson(o),
     ],
   );
+
+  final marketQuotes = <MarketCartInput>[];
+  final marketOrdersPlaced =
+      <({MarketCartInput cart, MarketPayMethod payment})>[];
+  final marketOrders = <int, Map<String, dynamic>>{};
+  String? marketPayUrl;
+
+  @override
+  Future<MarketQuote> quoteMarketOrder(MarketCartInput cart) {
+    marketQuotes.add(cart);
+    return _answer(
+      'quoteMarketOrder',
+      () => MarketQuote.fromJson(marketQuoteJson()),
+    );
+  }
+
+  @override
+  Future<({MarketOrder order, String? payUrl})> placeMarketOrder(
+    MarketCartInput cart, {
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  }) {
+    marketOrdersPlaced.add((cart: cart, payment: payment));
+    return _answer('placeMarketOrder', () {
+      final json = marketOrderJson(
+        id: 900 + marketOrdersPlaced.length,
+        status:
+            payment == MarketPayMethod.cash || payment == MarketPayMethod.wallet
+            ? 'placed'
+            : 'awaiting_payment',
+      );
+      marketOrders[json['id'] as int] = json;
+      return (
+        order: MarketOrder.fromJson(json),
+        payUrl:
+            payment == MarketPayMethod.cash || payment == MarketPayMethod.wallet
+            ? null
+            : marketPayUrl,
+      );
+    });
+  }
+
+  @override
+  Future<Paged<MarketOrder>> listMyMarketOrders({
+    int page = 1,
+    bool active = false,
+  }) => _answer(
+    'listMyMarketOrders',
+    () => Paged.fromJson(
+      pageJson(marketOrders.values.toList()),
+      MarketOrder.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketOrder> getMyMarketOrder(int id) => _answer(
+    'getMyMarketOrder',
+    () => MarketOrder.fromJson(marketOrders[id] ?? marketOrderJson(id: id)),
+  );
+
+  @override
+  Future<MarketOrder> cancelMyMarketOrder(int id) => _answer(
+    'cancelMyMarketOrder',
+    () => MarketOrder.fromJson({
+      ...(marketOrders[id] ?? marketOrderJson(id: id)),
+      'status': 'cancelled',
+      'can_cancel': false,
+    }),
+  );
+
+  @override
+  Future<String> payMyMarketOrder(int id) =>
+      _answer('payMyMarketOrder', () => marketPayUrl ?? 'https://pay.test/p');
 
   @override
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request) {
