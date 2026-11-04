@@ -2369,4 +2369,9 @@
 {"key":"marketCancelOrder","en":"Cancel order","ar":"إلغاء الطلب","tr":"Siparişi iptal et","description":"115 Cancels an order before the vendor accepts it."},
 {"key":"marketPayAgain","en":"Pay now","ar":"ادفع الآن","tr":"Şimdi öde","description":"115 Opens a new payment page for an order waiting for its payment."},
 {"key":"marketMyOrders","en":"My orders","ar":"طلباتي","tr":"Siparişlerim","description":"115 The customer's marketplace orders."},
-{"key":"marketNoOrders","en":"No orders yet","ar":"لا توجد طلبات بعد","tr":"Henüz sipariş yok","description":"115 The customer has no marketplace orders."}]}
+{"key":"marketNoOrders","en":"No orders yet","ar":"لا توجد طلبات بعد","tr":"Henüz sipariş yok","description":"115 The customer has no marketplace orders."},
+{"key":"marketTrackingCourier","en":"{name} is bringing your order","ar":"{name} في الطريق بطلبك","tr":"{name} siparişinizi getiriyor","description":"115 The app's courier on the way, on the order's map.","placeholders":{"name":"String"}},
+{"key":"marketTrackingUpdated","en":"Updated {time}","ar":"آخر تحديث {time}","tr":"Güncellendi: {time}","description":"115 When the courier's position was last updated.","placeholders":{"time":"String"}},
+{"key":"marketVendorDelivers","en":"The restaurant or the shop delivers this order itself. You'll see each step here.","ar":"يوصّل المطعم أو المتجر هذا الطلب بنفسه. ستظهر لك كل خطوة هنا.","tr":"Bu siparişi restoran veya mağaza kendisi teslim ediyor. Her adımı burada göreceksiniz.","description":"115 An order the vendor delivers: stages only, no map."},
+{"key":"marketArrivesAt","en":"Arrives around {time}","ar":"يصل نحو {time}","tr":"Yaklaşık {time} gibi gelir","description":"115 When the order should arrive.","placeholders":{"time":"String"}},
+{"key":"marketReadyAt","en":"Ready around {time}","ar":"يكون جاهزًا نحو {time}","tr":"Yaklaşık {time} gibi hazır","description":"115 When a pick-up order should be ready.","placeholders":{"time":"String"}}]}
