@@ -9075,4 +9075,206 @@ class OverlayLocalizations extends AppLocalizations {
   String marketPlaces(int count) =>
       overlay.format('marketPlaces', {'count': count}) ??
       base.marketPlaces(count);
+
+  @override
+  String get marketNewBasketTitle =>
+      overlay.text('marketNewBasketTitle') ?? base.marketNewBasketTitle;
+
+  @override
+  String marketNewBasketMessage(String vendor) =>
+      overlay.format('marketNewBasketMessage', {'vendor': vendor}) ??
+      base.marketNewBasketMessage(vendor);
+
+  @override
+  String get marketNewBasketConfirm =>
+      overlay.text('marketNewBasketConfirm') ?? base.marketNewBasketConfirm;
+
+  @override
+  String get marketCheckoutTitle =>
+      overlay.text('marketCheckoutTitle') ?? base.marketCheckoutTitle;
+
+  @override
+  String get marketEmptyBasketTitle =>
+      overlay.text('marketEmptyBasketTitle') ?? base.marketEmptyBasketTitle;
+
+  @override
+  String get marketEmptyBasketMessage =>
+      overlay.text('marketEmptyBasketMessage') ?? base.marketEmptyBasketMessage;
+
+  @override
+  String get marketBrowse => overlay.text('marketBrowse') ?? base.marketBrowse;
+
+  @override
+  String get marketDelivery =>
+      overlay.text('marketDelivery') ?? base.marketDelivery;
+
+  @override
+  String get marketPickup => overlay.text('marketPickup') ?? base.marketPickup;
+
+  @override
+  String get marketDeliverHere =>
+      overlay.text('marketDeliverHere') ?? base.marketDeliverHere;
+
+  @override
+  String get marketUseMyLocation =>
+      overlay.text('marketUseMyLocation') ?? base.marketUseMyLocation;
+
+  @override
+  String get marketAddressDetails =>
+      overlay.text('marketAddressDetails') ?? base.marketAddressDetails;
+
+  @override
+  String get marketNeedAddress =>
+      overlay.text('marketNeedAddress') ?? base.marketNeedAddress;
+
+  @override
+  String get marketWhen => overlay.text('marketWhen') ?? base.marketWhen;
+
+  @override
+  String get marketNow => overlay.text('marketNow') ?? base.marketNow;
+
+  @override
+  String get marketLater => overlay.text('marketLater') ?? base.marketLater;
+
+  @override
+  String marketScheduledFor(String time) =>
+      overlay.format('marketScheduledFor', {'time': time}) ??
+      base.marketScheduledFor(time);
+
+  @override
+  String get marketCoupon => overlay.text('marketCoupon') ?? base.marketCoupon;
+
+  @override
+  String get marketApply => overlay.text('marketApply') ?? base.marketApply;
+
+  @override
+  String get marketUseWallet =>
+      overlay.text('marketUseWallet') ?? base.marketUseWallet;
+
+  @override
+  String get marketPayWith =>
+      overlay.text('marketPayWith') ?? base.marketPayWith;
+
+  @override
+  String get marketPayCash =>
+      overlay.text('marketPayCash') ?? base.marketPayCash;
+
+  @override
+  String get marketPayCard =>
+      overlay.text('marketPayCard') ?? base.marketPayCard;
+
+  @override
+  String get marketPayApplePay =>
+      overlay.text('marketPayApplePay') ?? base.marketPayApplePay;
+
+  @override
+  String get marketPayGooglePay =>
+      overlay.text('marketPayGooglePay') ?? base.marketPayGooglePay;
+
+  @override
+  String get marketPayWallet =>
+      overlay.text('marketPayWallet') ?? base.marketPayWallet;
+
+  @override
+  String get marketNotes => overlay.text('marketNotes') ?? base.marketNotes;
+
+  @override
+  String get marketIfMissing =>
+      overlay.text('marketIfMissing') ?? base.marketIfMissing;
+
+  @override
+  String get marketIfMissingSimilar =>
+      overlay.text('marketIfMissingSimilar') ?? base.marketIfMissingSimilar;
+
+  @override
+  String get marketIfMissingRemove =>
+      overlay.text('marketIfMissingRemove') ?? base.marketIfMissingRemove;
+
+  @override
+  String marketPlaceOrder(String total) =>
+      overlay.format('marketPlaceOrder', {'total': total}) ??
+      base.marketPlaceOrder(total);
+
+  @override
+  String get marketPricing =>
+      overlay.text('marketPricing') ?? base.marketPricing;
+
+  @override
+  String get marketOrderSent =>
+      overlay.text('marketOrderSent') ?? base.marketOrderSent;
+
+  @override
+  String get marketOrderPaid =>
+      overlay.text('marketOrderPaid') ?? base.marketOrderPaid;
+
+  @override
+  String marketOrderTitle(String reference) =>
+      overlay.format('marketOrderTitle', {'reference': reference}) ??
+      base.marketOrderTitle(reference);
+
+  @override
+  String get marketStatusAwaitingPayment =>
+      overlay.text('marketStatusAwaitingPayment') ??
+      base.marketStatusAwaitingPayment;
+
+  @override
+  String get marketStatusScheduled =>
+      overlay.text('marketStatusScheduled') ?? base.marketStatusScheduled;
+
+  @override
+  String get marketStatusPlaced =>
+      overlay.text('marketStatusPlaced') ?? base.marketStatusPlaced;
+
+  @override
+  String get marketStatusAccepted =>
+      overlay.text('marketStatusAccepted') ?? base.marketStatusAccepted;
+
+  @override
+  String get marketStatusPicking =>
+      overlay.text('marketStatusPicking') ?? base.marketStatusPicking;
+
+  @override
+  String get marketStatusReady =>
+      overlay.text('marketStatusReady') ?? base.marketStatusReady;
+
+  @override
+  String get marketStatusOnTheWay =>
+      overlay.text('marketStatusOnTheWay') ?? base.marketStatusOnTheWay;
+
+  @override
+  String get marketStatusDelivered =>
+      overlay.text('marketStatusDelivered') ?? base.marketStatusDelivered;
+
+  @override
+  String get marketStatusPickedUp =>
+      overlay.text('marketStatusPickedUp') ?? base.marketStatusPickedUp;
+
+  @override
+  String get marketStatusRejected =>
+      overlay.text('marketStatusRejected') ?? base.marketStatusRejected;
+
+  @override
+  String get marketStatusCancelled =>
+      overlay.text('marketStatusCancelled') ?? base.marketStatusCancelled;
+
+  @override
+  String marketPickupCode(String code) =>
+      overlay.format('marketPickupCode', {'code': code}) ??
+      base.marketPickupCode(code);
+
+  @override
+  String get marketCancelOrder =>
+      overlay.text('marketCancelOrder') ?? base.marketCancelOrder;
+
+  @override
+  String get marketPayAgain =>
+      overlay.text('marketPayAgain') ?? base.marketPayAgain;
+
+  @override
+  String get marketMyOrders =>
+      overlay.text('marketMyOrders') ?? base.marketMyOrders;
+
+  @override
+  String get marketNoOrders =>
+      overlay.text('marketNoOrders') ?? base.marketNoOrders;
 }

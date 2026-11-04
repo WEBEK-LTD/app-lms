@@ -567,3 +567,404 @@ class MarketVendorQuery {
     'lng': ?lng,
   };
 }
+
+/// `MarketOrderStatus`: where an order is.
+enum MarketOrderStatus {
+  awaitingPayment,
+  scheduled,
+  placed,
+  accepted,
+  picking,
+  ready,
+  onTheWay,
+  delivered,
+  pickedUp,
+  rejected,
+  cancelled,
+}
+
+enum MarketFulfilment { delivery, pickup }
+
+/// What a shop does when an item is out when it's picked.
+enum MarketIfMissing { similar, chosen, remove }
+
+enum MarketPayMethod { cash, card, applePay, googlePay, wallet }
+
+/// `MarketPriceLine`: one line of an order's price, ending with the total.
+class MarketPriceLine {
+  const MarketPriceLine({
+    required this.kind,
+    required this.label,
+    required this.amount,
+  });
+
+  factory MarketPriceLine.fromJson(Json json) => MarketPriceLine(
+    kind: reqString(json, 'kind'),
+    label: reqString(json, 'label'),
+    amount: MarketMoney.fromJson(asJson(json['amount'], 'amount')),
+  );
+
+  /// items, item_discounts, coupon, club, delivery, delivery_discount, tax,
+  /// tip, wallet or total.
+  final String kind;
+  final String label;
+  final MarketMoney amount;
+
+  bool get isTotal => kind == 'total';
+}
+
+/// `MarketOrderLine`: an item of a quote or an order.
+class MarketOrderLine {
+  const MarketOrderLine({
+    required this.productId,
+    required this.name,
+    required this.quantity,
+    required this.unit,
+    required this.unitPrice,
+    required this.total,
+    this.id,
+    this.imageUrl,
+    this.choices = const [],
+    this.note,
+    this.beforeDiscount,
+    this.ifMissing = MarketIfMissing.remove,
+    this.outcome,
+    this.pickedQuantity,
+    this.substituteName,
+  });
+
+  factory MarketOrderLine.fromJson(Json json) => MarketOrderLine(
+    id: optInt(json, 'id'),
+    productId: reqInt(json, 'product_id'),
+    name: reqString(json, 'name'),
+    imageUrl: optString(json, 'image_url'),
+    quantity: optDouble(json, 'quantity') ?? 1,
+    unit: enumFrom(ProductUnit.values, json['unit'], ProductUnit.item),
+    choices: stringList(json, 'choices'),
+    note: optString(json, 'note'),
+    unitPrice: MarketMoney.fromJson(asJson(json['unit_price'], 'unit_price')),
+    beforeDiscount: optObject(json, 'before_discount', MarketMoney.fromJson),
+    total: MarketMoney.fromJson(asJson(json['total'], 'total')),
+    ifMissing: enumFrom(
+      MarketIfMissing.values,
+      json['if_missing'],
+      MarketIfMissing.remove,
+    ),
+    outcome: optString(json, 'outcome'),
+    pickedQuantity: optDouble(json, 'picked_quantity'),
+    substituteName: optObject(json, 'substitute', (j) => reqString(j, 'name')),
+  );
+
+  final int? id;
+  final int productId;
+  final String name;
+  final String? imageUrl;
+  final double quantity;
+  final ProductUnit unit;
+  final List<String> choices;
+  final String? note;
+  final MarketMoney unitPrice;
+  final MarketMoney? beforeDiscount;
+  final MarketMoney total;
+  final MarketIfMissing ifMissing;
+
+  /// picked, substituted or missing, once a shop has picked it.
+  final String? outcome;
+  final double? pickedQuantity;
+  final String? substituteName;
+}
+
+/// `MarketQuote`: a cart's prices, kept for `POST /market/orders` until
+/// `expiresAt`.
+class MarketQuote {
+  const MarketQuote({
+    required this.quoteId,
+    required this.lines,
+    required this.price,
+    required this.total,
+    required this.payNow,
+    this.expiresAt,
+    this.couponTitle,
+    this.etaMin,
+    this.etaMax,
+    this.warnings = const [],
+  });
+
+  factory MarketQuote.fromJson(Json json) {
+    final eta = optObject(json, 'delivery_minutes', (j) => j);
+    return MarketQuote(
+      quoteId: reqString(json, 'quote_id'),
+      expiresAt: optDate(json, 'expires_at'),
+      lines: listOf(json, 'lines', MarketOrderLine.fromJson),
+      price: listOf(json, 'price', MarketPriceLine.fromJson),
+      total: MarketMoney.fromJson(asJson(json['total'], 'total')),
+      payNow: MarketMoney.fromJson(asJson(json['pay_now'], 'pay_now')),
+      couponTitle: optObject(json, 'coupon', (j) => reqString(j, 'title')),
+      etaMin: eta == null ? null : optInt(eta, 'min'),
+      etaMax: eta == null ? null : optInt(eta, 'max'),
+      warnings: stringList(json, 'warnings'),
+    );
+  }
+
+  final String quoteId;
+  final DateTime? expiresAt;
+  final List<MarketOrderLine> lines;
+  final List<MarketPriceLine> price;
+  final MarketMoney total;
+
+  /// What is left to pay after the wallet.
+  final MarketMoney payNow;
+  final String? couponTitle;
+  final int? etaMin;
+  final int? etaMax;
+  final List<String> warnings;
+}
+
+/// `MarketTracking`: an order on its way, on the map or by stages only.
+class MarketTracking {
+  const MarketTracking({
+    required this.onMap,
+    this.courierName,
+    this.courierPhotoUrl,
+    this.vehicle,
+    this.lat,
+    this.lng,
+    this.updatedAt,
+    this.route = const [],
+  });
+
+  factory MarketTracking.fromJson(Json json) {
+    final courier = optObject(json, 'courier', (j) => j);
+    final position = optObject(json, 'position', (j) => j);
+    final route = json['route'];
+    return MarketTracking(
+      onMap: json['mode'] == 'map',
+      courierName: courier == null ? null : optString(courier, 'name'),
+      courierPhotoUrl: courier == null ? null : optString(courier, 'photo_url'),
+      vehicle: courier == null ? null : optString(courier, 'vehicle'),
+      lat: position == null ? null : optDouble(position, 'lat'),
+      lng: position == null ? null : optDouble(position, 'lng'),
+      updatedAt: optDate(json, 'updated_at'),
+      route: [
+        if (route is List)
+          for (final point in route)
+            if (point is List && point.length == 2)
+              ((point[0] as num).toDouble(), (point[1] as num).toDouble()),
+      ],
+    );
+  }
+
+  /// The app's couriers (or a vendor's driver with the courier app) on the
+  /// map; otherwise the stages only.
+  final bool onMap;
+  final String? courierName;
+  final String? courierPhotoUrl;
+  final String? vehicle;
+  final double? lat;
+  final double? lng;
+  final DateTime? updatedAt;
+
+  /// The road ahead as (lat, lng) points.
+  final List<(double, double)> route;
+}
+
+/// `MarketOrder`: a customer's order from one vendor.
+class MarketOrder {
+  const MarketOrder({
+    required this.id,
+    required this.reference,
+    required this.vendor,
+    required this.status,
+    required this.fulfilment,
+    required this.lines,
+    required this.price,
+    required this.total,
+    required this.payMethod,
+    required this.paymentStatus,
+    required this.createdAt,
+    this.scheduledFor,
+    this.walletUsed,
+    this.deliveryBy,
+    this.readyAt,
+    this.eta,
+    this.pickupCode,
+    this.tracking,
+    this.ratedVendor,
+    this.canCancel = false,
+    this.canComplain = false,
+    this.complaintId,
+    this.timeline = const [],
+  });
+
+  factory MarketOrder.fromJson(Json json) {
+    final payment = asJson(json['payment'], 'payment');
+    final rating = optObject(json, 'rating', (j) => j);
+    return MarketOrder(
+      id: reqInt(json, 'id'),
+      reference: reqString(json, 'reference'),
+      vendor: MarketVendorSummary.fromJson(asJson(json['vendor'], 'vendor')),
+      status: enumFromSnake(
+        MarketOrderStatus.values,
+        json['status'],
+        MarketOrderStatus.placed,
+      ),
+      fulfilment: enumFrom(
+        MarketFulfilment.values,
+        json['fulfilment'],
+        MarketFulfilment.delivery,
+      ),
+      scheduledFor: optDate(json, 'scheduled_for'),
+      lines: listOf(json, 'lines', MarketOrderLine.fromJson),
+      price: listOf(json, 'price', MarketPriceLine.fromJson),
+      total: MarketMoney.fromJson(asJson(json['total'], 'total')),
+      payMethod: enumFromSnake(
+        MarketPayMethod.values,
+        payment['method'],
+        MarketPayMethod.cash,
+      ),
+      paymentStatus: optString(payment, 'status') ?? 'unpaid',
+      walletUsed: optObject(payment, 'wallet_used', MarketMoney.fromJson),
+      deliveryBy: enumOrNull(VendorDelivery.values, json['delivery_by']),
+      readyAt: optDate(json, 'ready_at'),
+      eta: optDate(json, 'eta'),
+      pickupCode: optString(json, 'pickup_code'),
+      tracking: optObject(json, 'tracking', MarketTracking.fromJson),
+      ratedVendor: rating == null ? null : optInt(rating, 'vendor'),
+      canCancel: boolOr(json, 'can_cancel', false),
+      canComplain: boolOr(json, 'can_complain', false),
+      complaintId: optInt(json, 'complaint_id'),
+      createdAt: reqDate(json, 'created_at'),
+      timeline: listOf(
+        json,
+        'timeline',
+        (j) => (
+          status: enumFromSnake(
+            MarketOrderStatus.values,
+            j['status'],
+            MarketOrderStatus.placed,
+          ),
+          at: reqDate(j, 'at'),
+        ),
+      ),
+    );
+  }
+
+  final int id;
+  final String reference;
+  final MarketVendorSummary vendor;
+  final MarketOrderStatus status;
+  final MarketFulfilment fulfilment;
+  final DateTime? scheduledFor;
+  final List<MarketOrderLine> lines;
+  final List<MarketPriceLine> price;
+  final MarketMoney total;
+  final MarketPayMethod payMethod;
+
+  /// unpaid, paid, partly_refunded or refunded.
+  final String paymentStatus;
+  final MarketMoney? walletUsed;
+
+  /// Null for pick-up.
+  final VendorDelivery? deliveryBy;
+  final DateTime? readyAt;
+  final DateTime? eta;
+  final String? pickupCode;
+  final MarketTracking? tracking;
+  final int? ratedVendor;
+  final bool canCancel;
+  final bool canComplain;
+  final int? complaintId;
+  final DateTime createdAt;
+  final List<({MarketOrderStatus status, DateTime at})> timeline;
+
+  bool get finished => const {
+    MarketOrderStatus.delivered,
+    MarketOrderStatus.pickedUp,
+    MarketOrderStatus.rejected,
+    MarketOrderStatus.cancelled,
+  }.contains(status);
+}
+
+/// One line of `MarketCartInput`.
+class MarketCartLineInput {
+  const MarketCartLineInput({
+    required this.productId,
+    required this.quantity,
+    this.choices = const [],
+    this.note,
+    this.ifMissing,
+  });
+
+  final int productId;
+  final double quantity;
+  final List<int> choices;
+  final String? note;
+
+  /// Groceries and shops only.
+  final MarketIfMissing? ifMissing;
+
+  Json toJson() => {
+    'product_id': productId,
+    'quantity': quantity,
+    if (choices.isNotEmpty) 'choices': choices,
+    if (note != null && note!.isNotEmpty) 'note': note,
+    if (ifMissing != null) 'if_missing': ifMissing!.name,
+  };
+}
+
+/// `MarketCartInput` (a quote) and, with `quoteId` and `payment`,
+/// `MarketOrderInput` (an order).
+class MarketCartInput {
+  const MarketCartInput({
+    required this.vendorId,
+    required this.lines,
+    required this.fulfilment,
+    this.address,
+    this.addressDetails,
+    this.lat,
+    this.lng,
+    this.scheduledFor,
+    this.couponCode,
+    this.useWallet = false,
+  });
+
+  final int vendorId;
+  final List<MarketCartLineInput> lines;
+  final MarketFulfilment fulfilment;
+  final String? address;
+  final String? addressDetails;
+  final double? lat;
+  final double? lng;
+  final DateTime? scheduledFor;
+  final String? couponCode;
+  final bool useWallet;
+
+  Json toJson() => {
+    'vendor_id': vendorId,
+    'lines': [for (final l in lines) l.toJson()],
+    'fulfilment': fulfilment.name,
+    if (fulfilment == MarketFulfilment.delivery && address != null)
+      'dropoff': {
+        'address': address,
+        if (addressDetails != null && addressDetails!.isNotEmpty)
+          'details': addressDetails,
+        'lat': ?lat,
+        'lng': ?lng,
+      },
+    if (scheduledFor != null)
+      'scheduled_for': scheduledFor!.toUtc().toIso8601String(),
+    if (couponCode != null && couponCode!.isNotEmpty) 'coupon_code': couponCode,
+    if (useWallet) 'use_wallet': true,
+  };
+
+  Json orderJson({
+    required String quoteId,
+    required MarketPayMethod payment,
+    String? notes,
+  }) => {
+    ...toJson(),
+    'quote_id': quoteId,
+    'payment': snake(payment),
+    if (notes != null && notes.isNotEmpty) 'notes': notes,
+  };
+}
