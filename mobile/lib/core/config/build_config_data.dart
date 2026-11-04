@@ -63,7 +63,7 @@ enum AppVertical {
 
 /// 104.6 Who the build is for (`role` in the build config): the customers'
 /// app, or a delivery company's second app for its couriers only.
-enum AppRole { customer, courier, driver }
+enum AppRole { customer, courier, driver, vendor }
 
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
@@ -125,7 +125,8 @@ class BuildConfigData {
   /// sends one.
   final AppVertical? vertical;
 
-  /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only.
+  /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only;
+  /// 115 [AppRole.vendor]: a marketplace's vendor app, with the vendor's.
   final AppRole role;
 
   /// 104.8.4 Yallapp Courier (`courier_hub`): Yallapp's own courier app for

@@ -22,7 +22,7 @@ export interface BuildConfig {
   /** 20 The kind of business; left out when the app has none. */
   vertical?: AppVertical;
   /** 104.6 "courier": a delivery company's second app for its couriers; 105.2 "driver": a ride company's for its drivers; left out for the customers' app. */
-  role?: "customer" | "courier" | "driver";
+  role?: "customer" | "courier" | "driver" | "vendor";
   /** 104.8.4 Only in Yallapp Courier, Yallapp's own courier app for every company that picks it. */
   courier_hub?: boolean;
   /** Only for apps whose content isn't served by the WordPress plugin. */

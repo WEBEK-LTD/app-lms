@@ -22,6 +22,7 @@ import '../../delivery/data/delivery_providers.dart';
 import '../../food/data/food_providers.dart';
 import '../../lms/teachers/teachers_providers.dart';
 import '../../rides/data/rides_providers.dart';
+import '../../vendor/data/vendor_providers.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -69,7 +70,9 @@ class ProfileScreen extends ConsumerWidget {
     // 112.3 The couriers' or drivers' own app: its Courier or Driver tab and
     // this account, none of the customer's lists.
     final secondApp =
-        ref.watch(courierAppProvider) || ref.watch(driverAppProvider);
+        ref.watch(courierAppProvider) ||
+        ref.watch(driverAppProvider) ||
+        ref.watch(vendorAppProvider);
     // 104 Delivery apps: the customer's shipments (112.3 the courier's
     // screens are in the courier app only).
     final delivery = env.build.appType == AppType.delivery && !secondApp;

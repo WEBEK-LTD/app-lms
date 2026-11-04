@@ -14695,6 +14695,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try another address, or look at everything on the home.'**
   String get marketListEmptyMessage;
+
+  /// 115 The vendor app's orders tab, for a restaurant's or a shop's staff.
+  ///
+  /// In en, this message translates to:
+  /// **'My store'**
+  String get tabVendor;
+
+  /// 115 The vendor app's tab that puts items in or out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock'**
+  String get tabVendorStock;
+
+  /// 115 The vendor's screens for someone who doesn't work for a vendor: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'For the stores\' staff'**
+  String get notVendorTitle;
+
+  /// 115 The same: how staff get in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with the number or email the app\'s owner added you with.'**
+  String get notVendorMessage;
+
+  /// 115 The vendor's list of orders for a later time.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get vendorLater;
+
+  /// 115 The vendor stopped new orders until it takes them again.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: not taking orders'**
+  String get vendorPaused;
+
+  /// 115 Pauses the vendor with no end time.
+  ///
+  /// In en, this message translates to:
+  /// **'Until I take orders again'**
+  String get vendorPauseUntilBack;
+
+  /// 115 Under the pause choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders for later still come.'**
+  String get vendorPauseNote;
+
+  /// 115 The vendor's empty order list.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders show here with a sound.'**
+  String get vendorNoOrdersMessage;
+
+  /// 115 How many lines an order has, in the vendor's list.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String vendorItems(int count);
+
+  /// 115 The order's items on the vendor's order screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get vendorItemsTitle;
+
+  /// 115 When a scheduled order is for.
+  ///
+  /// In en, this message translates to:
+  /// **'For {time}'**
+  String vendorFor(String time);
+
+  /// 115 Cash to collect from the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect {amount} in cash'**
+  String vendorCollect(String amount);
+
+  /// 115 The customer's notes on the vendor's order screen.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s notes'**
+  String get vendorCustomerNotes;
+
+  /// 115 The drop-off, when the vendor delivers itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get vendorDeliverTo;
+
+  /// 115 Vendors never reach customers directly.
+  ///
+  /// In en, this message translates to:
+  /// **'For anything about the customer, write to the app\'s support.'**
+  String get vendorNoContact;
+
+  /// 115 A reason to turn an order down.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside our delivery area'**
+  String get vendorRejectOutsideArea;
+
+  /// 115 The vendor's own driver took the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Given to our driver'**
+  String get vendorHandToDriver;
+
+  /// 115 The vendor's driver delivered the order.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get vendorMarkDelivered;
+
+  /// 115 The customer picked the order up, with their code.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up by the customer'**
+  String get vendorHandToCustomer;
+
+  /// 115 After handing an order over.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updated'**
+  String get vendorHandedOver;
+
+  /// 115 Asking for the customer's pick-up code: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer\'s code'**
+  String get vendorPickupCodeTitle;
+
+  /// 115 The pick-up code field.
+  ///
+  /// In en, this message translates to:
+  /// **'4-digit code'**
+  String get vendorPickupCode;
+
+  /// 115 The stock screen's search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search items'**
+  String get vendorStockSearch;
+
+  /// 115 Shows only the items out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock only'**
+  String get vendorOutOfStockOnly;
+
+  /// 115 An item that is out of stock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get vendorOutOfStock;
+
+  /// 115 The stock search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found'**
+  String get vendorStockEmpty;
 }
 
 class _AppLocalizationsDelegate
