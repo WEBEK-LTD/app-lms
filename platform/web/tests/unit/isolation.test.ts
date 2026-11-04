@@ -695,6 +695,9 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       restaurant_id: String(restaurant.id),
       // Food orders are numbered apart from shop orders: their paths get this one (see hosted()).
       food_order_id: String(foodOrder.id),
+      // 115.2 The marketplace's contract comes before its server (115.3): no vendors or complaints yet, so each path answers not found.
+      vendor_id: "1",
+      complaint_id: "1",
       device_id: customerDevice,
       conversation_id: conversation.id,
       message_id: String(message.id),
@@ -777,6 +780,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/donations/.test(route)) return "donations";
     if (/^\/(delivery|courier|me\/shipments)/.test(route)) return "delivery";
     if (/^\/(food|restaurant|me\/food-orders)/.test(route)) return "food";
+    if (/^\/(market|vendor|me\/(market-orders|complaints|wallet|club))\b/.test(route)) return "food";
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
     if (/^\/(school|classroom|staff|parent)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
