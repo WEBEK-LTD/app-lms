@@ -127,7 +127,7 @@ test("sends it; the email unsubscribes in one click", async () => {
   const page = await admin.context().browser()!.newPage();
   await page.goto(new URL(link).pathname);
   await page.getByTestId("unsubscribe").click();
-  await expect(page.getByText("You're unsubscribed")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You're unsubscribed" })).toBeVisible();
   await page.close();
   await admin.goto("/admin/email-campaigns/never-mailed");
   await expect(admin.getByText(client.email)).toBeVisible();
