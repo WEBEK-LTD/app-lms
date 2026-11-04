@@ -1,4 +1,5 @@
 import { runAnalyticsNightly } from "@/lib/analytics/aggregate";
+import { runMarketDaily } from "@/lib/market/daily";
 import { runWeeklySummaries } from "@/lib/analytics/weekly";
 import { purgeAnalyticsHistory } from "@/lib/analytics/retention";
 import { appZone } from "@/lib/analytics/zone";
@@ -117,6 +118,11 @@ async function runDaily(store: DataStore, now: Date) {
     console.error(`[daily] mail history: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
+  // 115 Marketplaces: the club's memberships that ended or renew, the vendors' old web sign-ins, orders for later due.
+  const marketplace = await runMarketDaily(store, now).catch((e: unknown) => {
+    console.error(`[daily] marketplace: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, mailHistory, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
+  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
 }

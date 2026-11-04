@@ -40,6 +40,8 @@ export interface Connector {
     delivery?: unknown;
     /** 105.1 Config.food. */
     food?: unknown;
+    /** 115 Config.market. */
+    market?: unknown;
     /** 105.2 Config.rides. */
     rides?: unknown;
     /** 105.9 Config.taxi. */

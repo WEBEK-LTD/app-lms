@@ -33,10 +33,13 @@ import { error, intParam } from "./common";
 import { handleMapRequest, isMapRequest, platformMapEndpoints } from "./maps";
 import { DeliveryConnector, type DeliveryDeps } from "./delivery";
 import type { Connector, ConnectorRequest, ConnectorResult } from "./types";
+import { isMarketPath, MarketConnector } from "./market";
 
 export interface FoodDeps extends Omit<DeliveryDeps, "delivery"> {
   /** The plan has food delivery apps (default true). */
   food?: boolean;
+  /** 115 The marketplace's routes (default: with food; 115.13 gives them their own plan feature). */
+  marketplace?: boolean;
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
@@ -61,8 +64,11 @@ const RATING_DAYS = 7;
 export class FoodConnector implements Connector {
   private readonly couriers: DeliveryConnector;
 
+  private readonly market: MarketConnector;
+
   constructor(private readonly deps: FoodDeps) {
     this.couriers = new DeliveryConnector({ ...deps, delivery: true });
+    this.market = new MarketConnector(deps);
   }
 
   private async settings(): Promise<DeliverySettings> {
@@ -81,12 +87,18 @@ export class FoodConnector implements Connector {
     const [settings, maps] = await Promise.all([this.settings(), platformSetting(this.deps.store, "maps")]);
     return {
       food: foodConfig({ ...settings, card: settings.card && this.canTakeCards }, maps?.value ?? null),
+      ...(this.deps.marketplace !== false && this.deps.food !== false ? { market: await this.market.config() } : {}),
       features: { orders: settings.card && this.canTakeCards },
     };
   }
 
   async handle(request: ConnectorRequest): Promise<ConnectorResult | null> {
     const path = request.path;
+    // 115 The marketplace's routes.
+    if (isMarketPath(path)) {
+      if (this.deps.food === false || this.deps.marketplace === false) return error(403, "feature_disabled", "Ordering isn't available in this app right now.");
+      return this.market.handle(request);
+    }
     const mine = path[0] === "me" && path[1] === "food-orders";
     if (path[0] !== "food" && path[0] !== "restaurant" && path[0] !== "courier" && path[0] !== "maps" && !mine) return null;
     if (this.deps.food === false) return error(403, "feature_disabled", "Food orders aren't available in this app right now.");
