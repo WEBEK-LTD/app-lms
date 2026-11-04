@@ -55,6 +55,10 @@ describe("105.1 the dashboard's restaurant forms", () => {
     const form = { name: "Abou Tarek", address: "16 Maarouf", map: "https://www.google.com/maps/place/x/@30.0505,31.241,17z", prepMinutes: "20", commission: "12.5", "cuisine-c1": "on" };
     expect(parseRestaurantForm(form, ["c1", "c2"], () => null)).toMatchObject({ ok: true, value: { address: { lat: 30.0505, lng: 31.241 }, cuisines: ["c1"], commissionBp: 1250, prepMinutes: 20, maxKm: null } });
     expect(parseRestaurantForm({ ...form, commission: "60" }, [], () => null)).toMatchObject({ ok: false, errors: { commission: expect.any(String) } });
+    // 115.12 A fixed commission per order and its own tax rate, both optional.
+    expect(parseRestaurantForm(form, [], () => null)).toMatchObject({ ok: true, value: { commissionFixed: null, taxRateBp: null } });
+    expect(parseRestaurantForm({ ...form, commissionFixed: "7.50", taxRate: "14" }, [], () => null)).toMatchObject({ ok: true, value: { commissionFixed: 750, taxRateBp: 1400 } });
+    expect(parseRestaurantForm({ ...form, taxRate: "70" }, [], () => null)).toMatchObject({ ok: false, errors: { taxRate: expect.any(String) } });
     expect(parseRestaurantForm({ ...form, map: "nowhere" }, [], () => null)).toMatchObject({ ok: false, errors: { map: expect.any(String) } });
     expect(parseHoursForm({ "mon-opens": "10:00", "mon-closes": "02:00", "fri-opens": "13:00", "fri-closes": "23:00" })).toEqual({
       ok: true,

@@ -55,6 +55,10 @@ export interface RestaurantForm {
   minOrderCents: number;
   maxKm: number | null;
   commissionBp: number;
+  /** 115.12 A fixed commission per order instead of the percentage; null: the percentage. */
+  commissionFixed: number | null;
+  /** 115.12 Its own tax rate in basis points; null: the app's. */
+  taxRateBp: number | null;
 }
 
 /** A restaurant's details; the phone is checked by the caller (it knows the app's country). */
@@ -88,6 +92,16 @@ export function parseRestaurantForm(form: Record<string, string>, cuisineIds: st
   const percent = Number(str(form, "commission").replaceAll(",", ".").replaceAll("%", "") || "0");
   const commissionBp = Math.round(percent * 100);
   if (!Number.isFinite(percent) || percent < 0 || commissionBp > FOOD_LIMITS.maxCommissionBp) errors.commission = "Enter your share from 0 to 50%.";
+  // 115.12 A fixed amount per order instead (empty: the percentage), and its own tax rate (empty: the app's).
+  const fixedText = str(form, "commissionFixed");
+  const commissionFixed = fixedText ? money(form, "commissionFixed", errors, false) : null;
+  const taxText = str(form, "taxRate").replaceAll(",", ".").replaceAll("%", "");
+  let taxRateBp: number | null = null;
+  if (taxText) {
+    const rate = Number(taxText);
+    if (!Number.isFinite(rate) || rate < 0 || rate > 50) errors.taxRate = "Enter a tax rate from 0 to 50%, or leave it empty for the app's.";
+    else taxRateBp = Math.round(rate * 100);
+  }
   const cuisines = cuisineIds.filter((id) => form[`cuisine-${id}`] === "on");
   if (Object.keys(errors).length || !at) return { ok: false, errors };
   return {
@@ -102,6 +116,8 @@ export function parseRestaurantForm(form: Record<string, string>, cuisineIds: st
       minOrderCents,
       maxKm,
       commissionBp,
+      commissionFixed,
+      taxRateBp,
     },
   };
 }
