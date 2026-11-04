@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart' as api;
+import '../../../core/api/api_exception.dart';
+import '../../../core/api/yallapp_api.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
@@ -52,9 +55,38 @@ final marketHomeProvider = FutureProvider.autoDispose<MarketHome>((ref) async {
         MarketCuisine(id: c.id, name: c.name, imageUrl: c.imageUrl ?? ''),
     ],
     vendors: vendors,
-    reorders: const [],
+    reorders: ref.watch(authControllerProvider).isSignedIn
+        ? await _reorders(client)
+        : const [],
   );
 });
+
+/// 115 The customer's last finished orders, one per vendor, to order again
+/// from the home (`GET /me/market-orders`). The home shows without them
+/// when they can't be read.
+Future<List<MarketReorder>> _reorders(YallappApi client) async {
+  final api.Paged<api.MarketOrder> page;
+  try {
+    page = await client.listMyMarketOrders();
+  } on ApiException {
+    return const [];
+  }
+  final seen = <int>{};
+  return [
+    for (final o in page.items)
+      if ((o.status == api.MarketOrderStatus.delivered ||
+              o.status == api.MarketOrderStatus.pickedUp) &&
+          seen.add(o.vendor.id) &&
+          seen.length <= 6)
+        MarketReorder(
+          orderId: o.id,
+          vendorId: '${o.vendor.id}',
+          summary: [for (final l in o.lines) l.name].join(' · '),
+          total: o.total.formatted,
+          when: shortDate(o.createdAt),
+        ),
+  ];
+}
 
 /// 115 A vendor's page: a restaurant's menu sections with their dishes, or
 /// a shop's departments with their first products

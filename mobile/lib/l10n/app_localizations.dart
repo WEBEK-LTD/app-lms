@@ -14683,6 +14683,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There\'s no club in this app yet.'**
   String get marketClubNone;
+
+  /// 115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here near you yet'**
+  String get marketListEmptyTitle;
+
+  /// 115 The same empty list: what the customer can do.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another address, or look at everything on the home.'**
+  String get marketListEmptyMessage;
 }
 
 class _AppLocalizationsDelegate

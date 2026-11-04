@@ -8952,4 +8952,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketClubNone => 'There\'s no club in this app yet.';
+
+  @override
+  String get marketListEmptyTitle => 'Nothing here near you yet';
+
+  @override
+  String get marketListEmptyMessage =>
+      'Try another address, or look at everything on the home.';
 }

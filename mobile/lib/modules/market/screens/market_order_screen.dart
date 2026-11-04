@@ -202,6 +202,14 @@ class _MarketOrderScreenState extends ConsumerState<MarketOrderScreen> {
                   onPressed: () => _pay(context),
                 ),
               ],
+              if (canOrderAgain(o)) ...[
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  label: l10n.marketOrderAgain,
+                  icon: Symbols.replay,
+                  onPressed: () => orderAgain(context, ref, o),
+                ),
+              ],
               if (o.canCancel) ...[
                 const SizedBox(height: 12),
                 SecondaryButton(

@@ -2428,5 +2428,7 @@
   "marketClubPayAgain": "Ödeme gerçekleşmedi. Tekrar deneyin.",
   "marketClubNoRenew": "Her dönem ayrı ödenir; hiçbir şey kendiliğinden yenilenmez.",
   "marketClubJoined": "Kulübe hoş geldiniz.",
-  "marketClubNone": "Bu uygulamada henüz bir kulüp yok."
+  "marketClubNone": "Bu uygulamada henüz bir kulüp yok.",
+  "marketListEmptyTitle": "Yakınında henüz bir şey yok",
+  "marketListEmptyMessage": "Başka bir adres dene ya da ana sayfada her şeye göz at."
 }
