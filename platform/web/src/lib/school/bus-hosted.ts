@@ -21,6 +21,8 @@ import type { SchoolContext } from "./hosted";
 import { mapConfigJson } from "../delivery/service";
 import { platformSetting } from "../settings/platform";
 import { memberRoles, schoolDirectory, schoolToday, studentJson, type SchoolMember } from "./service";
+import { demoBusMark, demoBusRun, demoBusTrip } from "../demo/school-bus";
+import { minutesOf, utcToLocal } from "../bookings/time";
 
 /**
  * 113.10 The hosted API's bus endpoints (tag School): a family's view of
@@ -69,10 +71,13 @@ export async function studentBus(ctx: SchoolContext, student: SchoolPerson, sett
     const stop = stops.find((s) => s.id === rider.stopId);
     if (!stop) continue;
     const [found] = (await ctx.store.listSchoolBusRuns(ctx.app.id, { routeId: route.id, date: today })).filter((r) => r.trip === trip);
-    const run = found ? await settleRun(ctx.store, ctx.app, found, today) : null;
+    let run = found ? await settleRun(ctx.store, ctx.app, found, today) : null;
+    // Studio's school demo: the bus goes round the trip of this time of day while no trip was started in the app (lib/demo/school-bus.ts).
+    const demo = !run && ctx.app.demo === true && trip === demoBusTrip(minutesOf(utcToLocal(ctx.now, settings.timezone).time) ?? 0) ? demoBusRun(ctx.app.id, route, stops, trip, today, ctx.now) : null;
+    if (demo) run = demo.run;
     let live = null;
     if (run) {
-      const [mark] = await ctx.store.listSchoolBusMarks(ctx.app.id, { runId: run.id, studentId: student.id });
+      const [mark] = demo ? [demoBusMark(demo.run, demo.bus, rider)] : await ctx.store.listSchoolBusMarks(ctx.app.id, { runId: run.id, studentId: student.id });
       const bus = freshPosition(run, ctx.now);
       const eta = bus ? busEta(bus, stops, run.passedStopIds, stop.id) : null;
       live = {

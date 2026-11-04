@@ -1,5 +1,5 @@
 import type { Lang } from "@/i18n/config";
-import { timeOf } from "../bookings/time";
+import { minutesOf, timeOf, utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type {
   App,
@@ -17,6 +17,7 @@ import type {
 import { notifyDeps, type FlowDeps } from "../delivery/flow";
 import type { Words } from "../delivery/notify";
 import { schoolToday } from "./service";
+import { demoBusMark, demoBusRun, demoBusTrip } from "../demo/school-bus";
 import { parentUsers, tellUsers } from "./tell";
 
 /**
@@ -333,7 +334,7 @@ export interface BusBoardRun {
 }
 
 /** 113.10 The buses running now (today's trips not ended), for the dashboard's live map. */
-export async function busBoard(store: DataStore, app: Pick<App, "id">, settings: SchoolSettings, now: Date): Promise<BusBoardRun[]> {
+export async function busBoard(store: DataStore, app: Pick<App, "id" | "demo">, settings: SchoolSettings, now: Date): Promise<BusBoardRun[]> {
   const today = schoolToday(settings, now);
   const [routes, running, people] = await Promise.all([store.listSchoolBusRoutes(app.id), store.listSchoolBusRuns(app.id, { status: "running" }), store.listSchoolPeople(app.id)]);
   const name = new Map(people.map((p) => [p.id, p.name]));
@@ -359,6 +360,29 @@ export async function busBoard(store: DataStore, app: Pick<App, "id">, settings:
       absent: marks.filter((m) => m.status === "absent").length,
       driverName: run.startedBy !== null ? (name.get(run.startedBy) ?? null) : null,
     });
+  }
+  // Studio's school demo: each route's bus going round the trip of this time of day while no trip of it was started today (lib/demo/school-bus.ts).
+  if (app.demo === true) {
+    const trip = demoBusTrip(minutesOf(utcToLocal(now, settings.timezone).time) ?? 0);
+    const todays = await store.listSchoolBusRuns(app.id, { date: today });
+    for (const route of routes) {
+      if (!route.active || todays.some((r) => r.routeId === route.id && r.trip === trip)) continue;
+      const [stops, riders] = await Promise.all([store.listSchoolBusStops(app.id, { routeId: route.id }), store.listSchoolBusRiders(app.id, { routeId: route.id, trip })]);
+      const demo = demoBusRun(app.id, route, stops, trip, today, now);
+      if (!demo) continue;
+      const marks = riders.map((r) => demoBusMark(demo.run, demo.bus, r)).filter((m) => m !== undefined);
+      out.push({
+        run: demo.run,
+        route,
+        position: { lat: demo.bus.lat, lng: demo.bus.lng },
+        stops: tripStops(stops, trip),
+        riders: riders.length,
+        boarded: marks.filter((m) => m.status === "boarded").length,
+        off: marks.filter((m) => m.status === "off").length,
+        absent: 0,
+        driverName: route.driverId !== null ? (name.get(route.driverId) ?? null) : null,
+      });
+    }
   }
   return out.sort((a, b) => a.route.position - b.route.position);
 }
