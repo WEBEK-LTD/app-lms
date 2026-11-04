@@ -251,6 +251,20 @@ export interface MailRecipient {
   team: boolean;
 }
 
+/** One sending run of a campaign (a call of the minute job): how many it sent in how long. */
+export interface MailRun {
+  id: number;
+  campaignId: string;
+  startedAt: Date;
+  finishedAt: Date;
+  sent: number;
+  failed: number;
+  attempted: number;
+}
+
+/** How long the opens, clicks and per-person sending records are kept (the privacy policy says so). */
+export const MAIL_HISTORY_MONTHS = 12;
+
 export type MailEventKind = "open" | "click" | "unsubscribe" | "bounce" | "complaint";
 
 export interface MailEvent {

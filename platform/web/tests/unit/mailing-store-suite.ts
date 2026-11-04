@@ -144,4 +144,33 @@ export function mailingStoreSuite(store: () => DataStore) {
     await s.deleteMailTemplate(t.id);
     expect(await s.getMailTemplate(t.id)).toBeNull();
   });
+
+  it("keeps each run's pace, and drops the history past its 12 months", async () => {
+    const s = store();
+    const old = campaign({ status: "sent", finishedAt: new Date(NOW.getTime() - 400 * 86_400_000) });
+    const recent = campaign({ status: "sent", finishedAt: NOW });
+    await s.saveMailCampaign(old);
+    await s.saveMailCampaign(recent);
+    for (const c of [old, recent]) {
+      await s.addMailRecipients([row(c.id, `history-${c.id}@suite.test`)]);
+      await s.addMailRun({ campaignId: c.id, startedAt: new Date(NOW.getTime() - 7000), finishedAt: NOW, sent: 60, failed: 0, attempted: 60 });
+      await s.addMailRun({ campaignId: c.id, startedAt: NOW, finishedAt: new Date(NOW.getTime() + 5000), sent: 40, failed: 1, attempted: 41 });
+    }
+    await s.addMailEvent({ campaignId: old.id, email: "a@suite.test", kind: "open", url: null, at: new Date(NOW.getTime() - 400 * 86_400_000) });
+    await s.addMailEvent({ campaignId: recent.id, email: "a@suite.test", kind: "open", url: null, at: NOW });
+    const runs = await s.listMailRuns(recent.id, 10);
+    expect(runs.map((r) => r.sent)).toEqual([40, 60]);
+    const pruned = await s.pruneMailHistory(new Date(NOW.getTime() - 365 * 86_400_000));
+    expect(pruned.events).toBeGreaterThanOrEqual(1);
+    expect(pruned.recipients).toBeGreaterThanOrEqual(1);
+    expect(pruned.runs).toBeGreaterThanOrEqual(2);
+    expect(await s.listMailRuns(old.id, 10)).toEqual([]);
+    expect((await s.countMailRecipients(old.id)).queued).toBe(0);
+    expect(await s.listMailRuns(recent.id, 10)).toHaveLength(2);
+    expect((await s.countMailRecipients(recent.id)).queued).toBe(1);
+    expect((await s.mailEventStats(recent.id)).opens).toBe(1);
+    expect((await s.getMailCampaign(old.id))!.status).toBe("sent");
+    await s.deleteMailCampaign(old.id);
+    await s.deleteMailCampaign(recent.id);
+  });
 }

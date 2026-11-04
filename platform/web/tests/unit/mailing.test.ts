@@ -11,11 +11,13 @@ import {
   buildTestMail,
   campaignProblems,
   cancelMailCampaign,
+  checkMailPace,
   cleanContents,
   contentFor,
   duplicateCampaign,
   MAIL_LEASE_MS,
   runMailCampaigns,
+  runPerMinute,
   startMailCampaign,
 } from "@/lib/mailing/campaigns";
 import { marketingAllowed, recipientOfToken, resubscribe, setMarketingAllowed, unsubscribeRecipient } from "@/lib/mailing/consent";
@@ -564,6 +566,83 @@ describe("114 sending", () => {
     await startMailCampaign(store, c, NOW);
     const report = await runMailCampaigns(deps(store, fakeMailer().mailer, { now: NOW }));
     expect(report.finished).toBe(1);
+  });
+});
+
+describe("114 sending pace (the owner's floor: 45 a minute)", () => {
+  async function campaignTo(count: number, patch: Partial<MailCampaign> = {}) {
+    const store = new MemoryStore();
+    await people(store, Array.from({ length: count }, (_, i) => ({ email: `pace${i}@a.test` })));
+    const c = campaign({ status: "draft", ...patch });
+    await store.saveMailCampaign(c);
+    return { store, c };
+  }
+
+  it("reaches the minute's 60 emails in one 7-second run through a slow server (300 ms an email)", async () => {
+    const { store, c } = await campaignTo(90, { perMinute: 60 });
+    await startMailCampaign(store, c, new Date());
+    const sent: string[] = [];
+    let open = 0;
+    let most = 0;
+    const slow: Mailer = {
+      async send(mail) {
+        open += 1;
+        most = Math.max(most, open);
+        await new Promise((r) => setTimeout(r, 300));
+        open -= 1;
+        sent.push(mail.to);
+      },
+      close() {},
+    };
+    const began = Date.now();
+    const report = await runMailCampaigns({ store, now: () => new Date(), baseUrl: BASE, secret: SECRET, mailer: async () => slow, budgetMs: 7000 });
+    const seconds = (Date.now() - began) / 1000;
+    const perMinute = (report.sent / Math.max(seconds, 1)) * 60;
+    console.info(`[pace] ${report.sent} emails in ${seconds.toFixed(1)} s (${Math.round(perMinute)} a minute while sending), at most ${most} at once`);
+    // The minute's quota in one run (a run is 7 s; the scheduled function calls up to 3 a minute).
+    expect(report.sent).toBe(60);
+    expect(report.sent).toBeGreaterThanOrEqual(45);
+    expect(seconds).toBeLessThan(7.5);
+    expect(most).toBe(3);
+    // Never twice.
+    expect(new Set(sent).size).toBe(sent.length);
+    // The run is recorded with its pace.
+    const [run] = await store.listMailRuns(c.id, 5);
+    expect(run!.sent).toBe(60);
+    expect(runPerMinute(run!)).toBeGreaterThanOrEqual(45);
+  }, 20_000);
+
+  it("two runs at once through the slow server still send each email once", async () => {
+    const { store, c } = await campaignTo(40, { perMinute: 600 });
+    await startMailCampaign(store, c, new Date());
+    const sent: string[] = [];
+    const slow: Mailer = { async send(mail) { await new Promise((r) => setTimeout(r, 30)); sent.push(mail.to); }, close() {} };
+    const deps = { store, now: () => new Date(), baseUrl: BASE, secret: SECRET, mailer: async () => slow, budgetMs: 5000 };
+    await Promise.all([runMailCampaigns(deps), runMailCampaigns(deps)]);
+    expect(sent).toHaveLength(40);
+    expect(new Set(sent).size).toBe(40);
+  });
+
+  it("alerts the team when a campaign averages below 45 a minute over 5 minutes, and closes it when the pace is back", async () => {
+    const { store, c } = await campaignTo(3, { perMinute: 60 });
+    const started = new Date(NOW.getTime() - 6 * 60_000);
+    await startMailCampaign(store, c, started);
+    const live = (await store.getMailCampaign(c.id))!;
+    const mailed: string[] = [];
+    const deps = { store, now: () => NOW, alertMail: async (a: { title: string }) => void mailed.push(a.title) };
+    expect(await checkMailPace(deps, live, false)).toBe("slow");
+    const [alert] = await store.listTeamAlerts({ open: true, limit: 10 });
+    expect(alert).toMatchObject({ kind: "mail_slow", key: `mail_slow:${c.id}`, link: `/admin/email-campaigns/${c.id}/report` });
+    expect(mailed).toHaveLength(1);
+    // Seen again: counted, not emailed again.
+    await checkMailPace(deps, live, false);
+    expect(mailed).toHaveLength(1);
+    // Only retries waiting: nothing due, not slow; the alert closes.
+    expect(await checkMailPace(deps, live, true)).toBe("ok");
+    expect(await store.listTeamAlerts({ open: true, limit: 10 })).toHaveLength(0);
+    // A campaign the admin set below 45 is held to its own rate; a young one isn't judged yet.
+    expect(await checkMailPace(deps, { ...live, perMinute: 0 }, false)).toBe("ok");
+    expect(await checkMailPace(deps, { ...live, startedAt: new Date(NOW.getTime() - 60_000) }, false)).toBe("early");
   });
 });
 

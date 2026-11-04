@@ -4,7 +4,7 @@ import type { LegalTranslation } from "../translation-types";
 export const TR_LEGAL: Partial<Record<"privacy" | "terms" | "refund", LegalTranslation>> = {
   privacy: {
     title: "Gizlilik politikası",
-    updated: "27 Ekim 2026",
+    updated: "4 Kasım 2026",
     body: `## 1. Biz kimiz
 
 Yallapp'in merkezi Kahire, Mısır'dadır ve burada açıklanan kişisel verilerin veri sorumlusudur. Pek çok ülkede işletmelerle çalışıyoruz; bu yüzden işlediğimiz verilere uygulanan veri koruma yasalarına uyuyoruz: Mısır Kişisel Verilerin Korunması Kanunu (2020 tarihli 151 sayılı Kanun) ve uygulandıkları durumlarda AB Genel Veri Koruma Tüzüğü (GDPR) ile 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK). İletişim: [{{contact_email}}](mailto:{{contact_email}}).
@@ -38,32 +38,42 @@ Her durumda, uygulama kullanıcılarınıza kendi gizlilik bildiriminizi sunmakt
 - Size destek olmak ve hizmeti güvende tutmak (meşru menfaat).
 - Muhasebe ve vergi kayıtlarını tutmak (hukuki yükümlülük).
 - Hesabınız ve derlemeleriniz hakkında hizmet e-postaları göndermek (sözleşmenin ifası).
+- Hesap sahiplerine Yallapp hakkında haberler ve teklifler göndermek; bunları istediğiniz zaman durdurabilirsiniz (meşru menfaat ya da yasanın gerektirdiği durumlarda açık rızanız).
 
-## 5. Kimlerle paylaşıyoruz
+## 5. Yallapp'ten e-postalar
+
+Hesabınızla ilgili e-postaların yanı sıra, Yallapp hesaplarının sahiplerine zaman zaman Yallapp hakkında haberler, ipuçları ve teklifler içeren e-postalar göndeririz. Bir hesapta ekip üyesi olarak çalışan kişiler bunları yalnızca belirli bir e-postaya onları da eklemeyi seçtiğimizde alır.
+
+- **Kaydettiklerimiz:** e-postanın adresinize gönderildiği ve ne zaman gönderildiği. Bir e-posta için kapatmadıkça, e-posta açıldığında bunu bize bildiren küçük bir görsel içerir ve bağlantıları sizi sayfaya götürmeden önce hangisine tıklandığını bize bildiren bir Yallapp adresinden geçer. Zamanı, hangi e-posta olduğunu ve adresinizi saklarız; bunları yalnızca insanların hangi e-postaları yararlı bulduğunu görmek ve çalışmayan adreslere göndermeyi bırakmak için kullanırız.
+- **Çalışmayan adresler:** alıcı e-posta sunucusu bir adresi var olmadığı için reddettiğinde, o adrese bu e-postaları artık göndermeyiz.
+- **Ne kadar süre:** bu kayıtlar 12 ay saklanır, sonra silinir. Abonelikten çıktığınızda ya da bir adres reddedildiğinde, tercihinize uymaya devam edebilmek için adresi bu e-postaların hiçbirinin gönderilmediği adresler listesinde tutarız.
+- **Nasıl durdurulur:** bu e-postaların herhangi birinin sonundaki abonelikten çıkma bağlantısını ya da e-posta uygulamanızın kendi abonelikten çıkma düğmesini kullanın veya Panel › Hesabınız bölümünde "Yallapp'ten e-postalar"ı kapatın. Giriş kodları, makbuzlar ve plan hatırlatmaları gibi hesabınız ve güvenliğiyle ilgili e-postalar hizmetin parçası olduğu için gelmeye devam eder.
+
+## 6. Kimlerle paylaşıyoruz
 
 Verileri yalnızca Yallapp'i çalıştırmamıza yardım eden sağlayıcılarla paylaşırız: web sitesi, veritabanı, web sitesi olmayan uygulamalar ve derleme dosyaları için barındırma (webek.org), giriş kodları için WhatsApp mesajlaşması (waabek.com), uygulamalarınızı derleyen derleme hizmeti ve sizin adınıza yayınladığımızda ya da uygulamanızın uygulama içi satın almalarını doğruladığımızda Apple veya Google. Yasa gerektirdiğinde verileri profesyonel danışmanlarla veya yetkili makamlarla da paylaşabiliriz. Kişisel verileri asla satmayız.
 
-## 6. Uluslararası aktarımlar
+## 7. Uluslararası aktarımlar
 
 Merkezimiz Mısır'dadır ve pek çok ülkeden müşterilerle çalışırız. Sağlayıcılarımızdan bazıları Amerika Birleşik Devletleri gibi başka ülkelerdedir. Kişisel veriler bir ülkeden diğerine aktarıldığında, uygulanan yasanın gerektirdiği güvenceleri kullanırız; örneğin uygulandıkları durumlarda GDPR kapsamındaki standart sözleşme maddeleri ve KVKK'nın 9. maddesindeki aktarım kuralları.
 
-## 7. Ne kadar süre saklıyoruz
+## 8. Ne kadar süre saklıyoruz
 
-Hesap verilerini hesabınız etkin olduğu sürece ve kapandıktan sonra en fazla 12 ay saklarız. Fatura kayıtları, muhasebe ve vergi yasalarının gerektirdiği süre boyunca saklanır. İmzalama anahtarları, hesabınız sona erdikten sonra silmemizi isteyene kadar saklanır. Teknik kayıtlar en fazla 12 ay saklanır. Uygulamanızdan gelen tek tek kullanım olayları (her uygulama açılışı, ekran veya arama) 90 gün saklanır. Bunlardan hesaplanan günlük toplamlar, uygulamanızın planının kapsadığı süre boyunca saklanır: varsayılan olarak Starter'da 3 ay, Growth'ta 1 yıl, Pro'da 2 yıl ve Business'ta 3 yıl; uygulamanız silindikten sonra ise asla. Sohbet mesajları ve dosyaları gönderildikten sonra bir yıl ya da sohbetlerini sakladığınız sürece saklanır.
+Hesap verilerini hesabınız etkin olduğu sürece ve kapandıktan sonra en fazla 12 ay saklarız. Fatura kayıtları, muhasebe ve vergi yasalarının gerektirdiği süre boyunca saklanır. İmzalama anahtarları, hesabınız sona erdikten sonra silmemizi isteyene kadar saklanır. Teknik kayıtlar en fazla 12 ay saklanır. Uygulamanızdan gelen tek tek kullanım olayları (her uygulama açılışı, ekran veya arama) 90 gün saklanır. Bunlardan hesaplanan günlük toplamlar, uygulamanızın planının kapsadığı süre boyunca saklanır: varsayılan olarak Starter'da 3 ay, Growth'ta 1 yıl, Pro'da 2 yıl ve Business'ta 3 yıl; uygulamanız silindikten sonra ise asla. Sohbet mesajları ve dosyaları gönderildikten sonra bir yıl ya da sohbetlerini sakladığınız sürece saklanır. Yallapp'in haber ve teklif e-postalarının kayıtları (gönderilme, açılma, tıklama) 12 ay saklanır.
 
-## 8. Güvenlik
+## 9. Güvenlik
 
 Tüm bağlantılar HTTPS kullanır. Yayın kimlik bilgileri ve imzalama anahtarları saklanırken şifrelenir ve yalnızca erişmesi gereken kişiler erişebilir.
 
-## 9. Haklarınız
+## 10. Haklarınız
 
 Verilerinize erişmeyi, bunları düzeltmeyi veya silmeyi, bunları nasıl kullandığımızı kısıtlamayı veya buna itiraz etmeyi ve taşınabilir bir biçimde bir kopyasını almayı talep edebilirsiniz. GDPR veya KVKK (11. madde) uygulandığında, verilerinizin kimlerle paylaşıldığını öğrenme hakkı dahil bu hakları size tanır. Bir ay içinde yanıt veririz. [{{contact_email}}](mailto:{{contact_email}}) adresine yazın. Yallapp hesabınızı ve uygulamalarının verilerini silmek için giriş yapıp panelinizden isteyin ya da giriş yapamıyorsanız [Yallapp hesabınızı silme](/delete-account) sayfasındaki adımları izleyin. Ayrıca ülkenizin veri koruma makamına, örneğin Kişisel Verileri Koruma Kurumu'na (kvkk.gov.tr) veya AB ülkenizdeki makama şikâyette bulunabilirsiniz.
 
-## 10. Çerezler
+## 11. Çerezler
 
 Yalnızca oturumunuzu açık tutmak için gereken çerezleri ve seçtiğiniz site dilini hatırlayan bir çerezi kullanırız. Reklam veya izleme çerezleri kullanmayız.
 
-## 11. Değişiklikler ve iletişim
+## 12. Değişiklikler ve iletişim
 
 Değişiklikleri burada yayınlar, önemli olanlar hakkında size e-posta göndeririz. Sorularınız için: [{{contact_email}}](mailto:{{contact_email}}) veya WhatsApp [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (Mısır'da), [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (Mısır dışında).
 `,

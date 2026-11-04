@@ -172,7 +172,7 @@ import { candidatesIn, needsRekey } from "../crypto/rekey";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import { mailEventStatsOf } from "../mailing/stats";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -7021,6 +7021,7 @@ export class MemoryStore implements DataStore {
   private mailRecipientSeq = 0;
   private mailEvents: MailEvent[] = [];
   private mailSuppressions = new Map<string, MailSuppression>();
+  private mailRuns: MailRun[] = [];
 
   async listMailCampaigns(filter: { archived?: boolean } = {}): Promise<MailCampaign[]> {
     return [...this.mailCampaigns.values()]
@@ -7053,6 +7054,7 @@ export class MemoryStore implements DataStore {
     this.mailCampaigns.delete(id);
     for (const [key, row] of this.mailRecipients) if (row.campaignId === id) this.mailRecipients.delete(key);
     this.mailEvents = this.mailEvents.filter((e) => e.campaignId !== id);
+    this.mailRuns = this.mailRuns.filter((r) => r.campaignId !== id);
   }
 
   async listMailSegments(): Promise<MailSegment[]> {
@@ -7191,6 +7193,35 @@ export class MemoryStore implements DataStore {
     const rows = [...this.mailSuppressions.values()].filter((s) => !query || s.email.includes(query)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     return { items: rows.slice(filter.offset, filter.offset + filter.limit).map(clone), total: rows.length };
   }
+  async addMailRun(run: Omit<MailRun, "id">): Promise<void> {
+    if (!this.mailCampaigns.has(run.campaignId)) return;
+    this.mailRuns.push({ ...clone(run), id: this.mailRuns.length + 1 });
+  }
+
+  async listMailRuns(campaignId: string, limit: number): Promise<MailRun[]> {
+    return this.mailRuns
+      .filter((r) => r.campaignId === campaignId)
+      .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async pruneMailHistory(before: Date): Promise<{ events: number; recipients: number; runs: number }> {
+    const old = new Set([...this.mailCampaigns.values()].filter((c) => c.finishedAt && c.finishedAt.getTime() < before.getTime()).map((c) => c.id));
+    const events = this.mailEvents.length;
+    this.mailEvents = this.mailEvents.filter((e) => e.at.getTime() >= before.getTime());
+    let recipients = 0;
+    for (const [id, r] of this.mailRecipients) {
+      if (old.has(r.campaignId)) {
+        this.mailRecipients.delete(id);
+        recipients += 1;
+      }
+    }
+    const runs = this.mailRuns.length;
+    this.mailRuns = this.mailRuns.filter((r) => !old.has(r.campaignId));
+    return { events: events - this.mailEvents.length, recipients, runs: runs - this.mailRuns.length };
+  }
+
 }
 
 /** 61 Whether `at` is in [from, to). */
