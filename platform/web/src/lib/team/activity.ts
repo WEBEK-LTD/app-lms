@@ -32,6 +32,12 @@ export const TEAM_ACTIONS = [
   "team.join",
   "team.update",
   "team.remove",
+  // 115.9 Marketplace complaints.
+  "complaint.assign",
+  "complaint.reply",
+  "complaint.note",
+  "complaint.decide",
+  "complaint.share",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 
