@@ -9,11 +9,12 @@ import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
 import { QUOTE_MINUTES, priceMarketCart, quoteHolds, quoteIdOf, readCart, readOrderRequest, repriceFor } from "../../market/cart";
-import { complaintWindow, customerMessage, openComplaint } from "../../market/complaints";
+import { ACTIVE_COMPLAINT, COMPLAINT_MAX_PHOTOS, complaintWindow, customerMessage, openComplaint } from "../../market/complaints";
 import { pickupCode, quoteMarketDelivery, vendorDelivery } from "../../market/delivery";
 import {
   CUSTOMER_CANCELLABLE,
   MARKET_ACTIVE,
+  CLUB_PAY_LINE,
   MARKET_PAY_LINE,
   VENDOR_ACTIVE,
   VENDOR_DONE,
@@ -50,12 +51,16 @@ import {
   type Tracking,
   type VendorNear,
 } from "../../market/json";
-import { cancelClub as endClub, payFromWallet, redeemCoupon } from "../../market/offers";
+import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemCoupon } from "../../market/offers";
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
 import { parseAnyPhone } from "../phone";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
+import { completeUpload, kindOf, mediaLink, startUpload, uploadUrl } from "../../media/files";
+import type { MediaStorage } from "../../media/storage";
+import type { RateLimitRule } from "../../rate-limit";
+import { hitRateLimit } from "../../rate-limit";
 import type { ConnectorRequest, ConnectorResult } from "./types";
 
 /**
@@ -76,7 +81,16 @@ export interface MarketDeps {
   assetUrl: (assetId: string) => string;
   platformUrl: string;
   cardPayments?: boolean;
+  /** 115.11 Photos customers add to complaints, into the app's Media library; without it complaints take words only. */
+  uploads?: { storage: MediaStorage; chunkBytes: number; limitBytes: () => Promise<number | null> };
 }
+
+/** Complaint photos: pictures (JPEG, PNG or WebP) up to 8 MB. */
+const PHOTO_MAX_BYTES = 8 * 1024 ** 2;
+const PHOTO_KINDS = [{ kind: "image" as const, label: "Photos", maxBytes: PHOTO_MAX_BYTES, types: { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const }];
+const PHOTO_UPLOADS: RateLimitRule = { name: "market_photo_upload", limit: 30, windowSeconds: 3600 };
+/** A complaint photo kept as a Media library file, not an asset. */
+const MEDIA_PHOTO = "media:";
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
 const vendorNotFound = () => error(404, "not_found", "This place isn't in the app any more.");
@@ -130,6 +144,8 @@ export class MarketConnector {
       if (m === "GET" && p.length === 2 && p[1] === "club") return this.club();
       if (m === "POST" && p.length === 2 && p[1] === "quote") return this.quote(request);
       if (m === "POST" && p.length === 2 && p[1] === "orders") return this.order(request);
+      if (m === "POST" && p.length === 2 && p[1] === "uploads") return this.startPhotoUpload(request);
+      if (m === "POST" && p.length === 4 && p[1] === "uploads" && (p[3] === "resume" || p[3] === "complete")) return this.photoUpload(request, p[2] ?? "", p[3]);
       const vid = id(2);
       if (p[1] === "vendors" && vid !== null && m === "GET") {
         if (p.length === 3) return this.vendor(request, vid);
@@ -155,7 +171,7 @@ export class MarketConnector {
         if (cid !== null) {
           if (m === "GET" && p.length === 3) return this.myComplaint(request, cid);
           if (m === "POST" && p.length === 4 && p[3] === "messages") return this.complaintMessage(request, cid);
-          if (m === "POST" && p.length === 4 && p[3] === "photos") return error(409, "photos_unavailable", "Photos can be added once the app is updated.");
+          if (m === "POST" && p.length === 4 && p[3] === "photos") return this.complaintPhoto(request, cid);
         }
       }
       if (p[1] === "wallet" && m === "GET" && p.length === 2) return this.wallet(request);
@@ -470,18 +486,23 @@ export class MarketConnector {
 
   /** A shop order of one line for the market order (its product id is the order's id, negative), on the app's payment page. */
   private async payLink(order: MarketOrder, now: Date): Promise<{ url: string }> {
+    return this.payOrder({ userId: order.userId, lang: order.lang, productId: MARKET_PAY_LINE(order.id), name: `${order.vendorName}: M-${1000 + order.id}`, cents: order.money.payNow, currency: order.currency }, now);
+  }
+
+  /** One line to pay on the app's payment page; its product id says what it pays (a market order, a club plan). */
+  private async payOrder(input: { userId: number | null; lang: string | null; productId: number; name: string; cents: number; currency: string }, now: Date): Promise<{ url: string }> {
     const token = randomToken(24);
     await this.deps.store.createCatalogOrder({
-      lang: order.lang,
+      lang: input.lang,
       appId: this.deps.app.id,
       tokenHash: sha256Hex(token),
-      userId: order.userId,
+      userId: input.userId,
       status: "pending",
-      lines: [{ productId: MARKET_PAY_LINE(order.id), name: `${order.vendorName}: M-${1000 + order.id}`.slice(0, 200), quantity: 1, unitCents: order.money.payNow, imageAssetId: null, digital: true }],
-      subtotalCents: order.money.payNow,
+      lines: [{ productId: input.productId, name: input.name.slice(0, 200), quantity: 1, unitCents: input.cents, imageAssetId: null, digital: true }],
+      subtotalCents: input.cents,
       shippingCents: 0,
-      totalCents: order.money.payNow,
-      currency: order.currency as "EGP",
+      totalCents: input.cents,
+      currency: input.currency as "EGP",
       customer: null,
       paymentId: null,
       createdAt: now,
@@ -611,7 +632,7 @@ export class MarketConnector {
       const status = made.code === "invalid" ? 400 : 409;
       return { status, body: { code: made.code === "invalid" ? "invalid_request" : made.code, message: made.error, details: { field: made.field } } };
     }
-    return { status: 201, body: complaintJson(made.complaint, o.currency, this.deps.assetUrl) };
+    return { status: 201, body: complaintJson(made.complaint, o.currency, this.photoUrl) };
   }
 
   private async myComplaints(request: ConnectorRequest): Promise<ConnectorResult> {
@@ -620,7 +641,7 @@ export class MarketConnector {
     const perPage = intParam(request.query, "per_page", 20, 50);
     const found = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, userId: request.user.id, limit: perPage, offset: (page - 1) * perPage });
     const currency = marketCurrency(await this.settings());
-    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: found.items.map((c) => complaintJson(c, currency, this.deps.assetUrl)) } };
+    return { status: 200, body: { page, per_page: perPage, total: found.total, total_pages: Math.max(1, Math.ceil(found.total / perPage)), items: found.items.map((c) => complaintJson(c, currency, this.photoUrl)) } };
   }
 
   private async ownComplaint(request: ConnectorRequest, id: number) {
@@ -631,7 +652,7 @@ export class MarketConnector {
   private async myComplaint(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     if (!request.user) return signIn();
     const c = await this.ownComplaint(request, id);
-    return c ? { status: 200, body: complaintJson(c, marketCurrency(await this.settings()), this.deps.assetUrl) } : complaintNotFound();
+    return c ? { status: 200, body: complaintJson(c, marketCurrency(await this.settings()), this.photoUrl) } : complaintNotFound();
   }
 
   private async complaintMessage(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -644,7 +665,73 @@ export class MarketConnector {
     const patch = customerMessage(c, text, request.now);
     if (!patch) return error(409, "complaint_closed", "This complaint is closed. Open a new one from the order if you need to.");
     await this.deps.store.updateMarketComplaint(this.deps.app.id, c.id, patch);
-    return { status: 201, body: complaintJson({ ...c, ...patch }, marketCurrency(await this.settings()), this.deps.assetUrl) };
+    return { status: 201, body: complaintJson({ ...c, ...patch }, marketCurrency(await this.settings()), this.photoUrl) };
+  }
+
+  /** The complaint's photo URLs: Media library files (115.11) or assets. */
+  private photoUrl = (id: string) => (id.startsWith(MEDIA_PHOTO) ? mediaLink(this.deps.platformUrl, id.slice(MEDIA_PHOTO.length)) : this.deps.assetUrl(id));
+
+  /** Starts sending a complaint photo, in chunks as chat files are; only for someone with a complaint open. */
+  private async startPhotoUpload(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const uploads = this.deps.uploads;
+    if (!uploads) return error(503, "media_unavailable", "Photos can't be sent right now.");
+    const open = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, userId: request.user.id, statuses: ACTIVE_COMPLAINT, limit: 1, offset: 0 });
+    if (!open.total) return error(403, "no_complaint", "Photos go with a complaint that's still open.");
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    const name = typeof body.name === "string" ? body.name.trim().slice(0, 200) : "";
+    const size = typeof body.size === "number" ? body.size : Number.NaN;
+    const type = typeof body.type === "string" ? body.type : "";
+    if (!name || !type) return error(400, "invalid_request", "Send the photo's name, size and type.");
+    if (!kindOf(type, PHOTO_KINDS)) return error(400, "invalid_request", "Send a photo (JPEG, PNG or WebP).");
+    if (!Number.isFinite(size) || size <= 0) return error(400, "invalid_request", "Send the photo's name, size and type.");
+    if (size > PHOTO_MAX_BYTES) return error(413, "too_big", "Photos can be up to 8 MB.");
+    const limit = await hitRateLimit(this.deps.store, PHOTO_UPLOADS, `${this.deps.app.id}:${request.user.id}`, request.now);
+    if (!limit.allowed) return { status: 429, body: { code: "rate_limited", message: "You've sent a lot of photos in a short time. Please try again later.", retry_after_seconds: limit.retryAfter } };
+    const started = await startUpload(
+      { store: this.deps.store, storage: uploads.storage, now: request.now, limitBytes: await uploads.limitBytes(), chunkBytes: uploads.chunkBytes },
+      { appId: this.deps.app.id, name: `${request.user.name} · ${name}`.slice(0, 200), size, contentType: type },
+    );
+    if (!started.ok) {
+      if (started.code === "storage_full") return error(413, "storage_full", "Photos can't be added right now. Please try again later.");
+      if (started.code === "too_big") return error(413, "too_big", "Photos can be up to 8 MB.");
+      return error(400, "invalid_request", started.message);
+    }
+    return { status: 201, body: { id: started.file.id, kind: started.file.kind, upload_url: started.uploadUrl, chunk_bytes: started.chunkBytes, size: started.file.sizeBytes } };
+  }
+
+  private async photoUpload(request: ConnectorRequest, id: string, step: string): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const uploads = this.deps.uploads;
+    if (!uploads) return error(503, "media_unavailable", "Photos can't be sent right now.");
+    const file = /^[0-9a-f-]{36}$/.test(id) ? await this.deps.store.getMediaFile(this.deps.app.id, id) : null;
+    const mine = file && file.kind === "image" && file.source !== "chat" ? file : null;
+    if (step === "resume") {
+      if (!mine || mine.status !== "uploading") return error(404, "not_found", "Upload not found.");
+      return { status: 200, body: { id: mine.id, kind: mine.kind, upload_url: uploadUrl(uploads.storage, mine), chunk_bytes: uploads.chunkBytes, size: mine.sizeBytes } };
+    }
+    if (!mine) return error(404, "not_found", "Upload not found.");
+    if (mine.status === "ready") return { status: 204 };
+    const result = await completeUpload({ store: this.deps.store, storage: uploads.storage, now: request.now }, this.deps.app.id, mine.id);
+    if (!result.ok) return { status: 409, body: { code: "incomplete", message: result.message, ...(result.offset !== undefined ? { offset: result.offset } : {}) } };
+    return { status: 204 };
+  }
+
+  /** A sent photo joins the complaint, while it's open; at most COMPLAINT_MAX_PHOTOS. */
+  private async complaintPhoto(request: ConnectorRequest, id: number): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const c = await this.ownComplaint(request, id);
+    if (!c) return complaintNotFound();
+    if (!ACTIVE_COMPLAINT.includes(c.status)) return error(409, "complaint_closed", "This complaint is closed. Open a new one from the order if you need to.");
+    const uploadId = (request.body as { upload_id?: unknown } | null)?.upload_id;
+    const file = typeof uploadId === "string" && /^[0-9a-f-]{36}$/.test(uploadId) ? await this.deps.store.getMediaFile(this.deps.app.id, uploadId) : null;
+    if (!file || file.status !== "ready" || file.kind !== "image" || file.source === "chat") return error(400, "invalid_request", "This photo isn't ready. Send it again.");
+    const ref = `${MEDIA_PHOTO}${file.id}`;
+    if (c.photoAssetIds.includes(ref)) return { status: 201, body: complaintJson(c, marketCurrency(await this.settings()), this.photoUrl) };
+    if (c.photoAssetIds.length >= COMPLAINT_MAX_PHOTOS) return error(409, "too_many_photos", `A complaint can have up to ${COMPLAINT_MAX_PHOTOS} photos.`);
+    const patch = { photoAssetIds: [...c.photoAssetIds, ref], updatedAt: request.now };
+    await this.deps.store.updateMarketComplaint(this.deps.app.id, c.id, patch);
+    return { status: 201, body: complaintJson({ ...c, ...patch }, marketCurrency(await this.settings()), this.photoUrl) };
   }
 
   // The wallet and the club
@@ -682,8 +769,27 @@ export class MarketConnector {
     if (typeof planId !== "number" || !Number.isInteger(planId)) return error(400, "invalid_request", "Choose a plan.");
     const plan = await this.deps.store.getMarketClubPlan(this.deps.app.id, planId);
     if (!plan || !plan.active) return error(404, "not_found", "This plan isn't offered any more.");
-    // Paying the club goes through the app's gateway (115.11's wallet-pay); until it's set up, joining waits.
-    return error(503, "payments_unavailable", "Joining the club opens once the app's payments are set up.");
+    if (!marketSettingsOf(await this.settings()).club) return error(404, "not_found", "This app has no club.");
+    const current = await this.deps.store.getMarketClubMember(this.deps.app.id, request.user.id);
+    const paidUp = !!current?.paidUntil && current.paidUntil > request.now;
+    // A member whose period is paid renews nothing early, except one who cancelled and takes the same plan back.
+    if (current && paidUp && (current.status === "active" || current.planId !== plan.id)) return error(409, "already_member", "You're already a member.");
+    // A plan the owner offers for free starts at once.
+    if (plan.price <= 0) {
+      const joined = await joinClubPaid(this.deps.store, plan, request.user.id, "free", request.now);
+      return { status: 201, body: { membership: membershipJson(joined, plan, marketCurrency(await this.settings())), pay_url: null } };
+    }
+    if (!this.canTakeCards) return error(503, "payments_unavailable", "Online payments aren't available right now. Please try again later.");
+    // 115.11 Paid on the app's payment page (card, Apple Pay or Google Pay): the membership starts once the payment is confirmed.
+    const member =
+      current && paidUp
+        ? current
+        : await this.deps.store.saveMarketClubMember(
+            { appId: this.deps.app.id, userId: request.user.id, planId: plan.id, status: "pending", renews: true, startedAt: current?.startedAt ?? null, paidUntil: current?.paidUntil ?? null, paymentRef: current?.paymentRef ?? null, saved: current?.saved ?? 0 },
+            request.now,
+          );
+    const link = await this.payOrder({ userId: request.user.id, lang: request.lang ?? null, productId: CLUB_PAY_LINE(plan.id), name: plan.name, cents: plan.price, currency: plan.currency }, request.now);
+    return { status: 201, body: { membership: membershipJson(member, plan, marketCurrency(await this.settings())), pay_url: link.url } };
   }
 
   private async cancelClub(request: ConnectorRequest): Promise<ConnectorResult> {
