@@ -20,7 +20,7 @@ export const PRIVACY: LegalDefault = {
   key: "privacy",
   path: "/privacy",
   title: "Privacy policy",
-  updated: "27 October 2026",
+  updated: "4 November 2026",
   body: `## 1. Who we are
 
 Yallapp is based in Cairo, Egypt, and is the data controller for the personal data described here. We work with businesses in many countries, so we follow the data protection laws that apply to the data we handle: Egypt's Personal Data Protection Law (Law No. 151 of 2020), and, where they apply, the EU General Data Protection Regulation (GDPR) and the Turkish Personal Data Protection Law No. 6698 (KVKK). Contact: [{{contact_email}}](mailto:{{contact_email}}).
@@ -54,32 +54,42 @@ In every case you are responsible for giving your app users your own privacy not
 - To support you and keep the service secure (legitimate interests).
 - To keep accounting and tax records (legal obligation).
 - To send service emails about your account and builds (performance of a contract).
+- To email account owners news and offers about Yallapp, which you can stop at any time (legitimate interests, or your consent where the law requires it).
 
-## 5. Who we share it with
+## 5. Emails from Yallapp
+
+Besides the emails about your account, we sometimes email news, tips and offers about Yallapp to the owners of Yallapp accounts. People who work on an account as team members get them only when we choose to include them in a particular email.
+
+- **What we record:** that the email was sent to your address and when. Unless we turn it off for an email, it holds a small image that tells us when it is opened, and its links pass through a Yallapp address that tells us which one was clicked before taking you to the page. We store the time, the email it was and your address, and we use them only to see which emails people find useful and to stop sending to addresses that don't work.
+- **Addresses that don't work:** when the receiving mail server refuses an address because it doesn't exist, we no longer send these emails to it.
+- **How long:** these records are kept for 12 months, then deleted. When you unsubscribe, or an address is refused, we keep the address on a list of addresses that get none of these emails, so that we keep to your choice.
+- **How to stop:** use the unsubscribe link at the end of any of these emails or your email app's own unsubscribe button, or turn off "Emails from Yallapp" in Dashboard › Your account. Emails about your account and its security, such as sign-in codes, receipts and plan reminders, still come, because they're part of the service.
+
+## 6. Who we share it with
 
 We share data only with providers that help us run Yallapp: hosting (webek.org) for the website, the database, apps without a website and build files, WhatsApp messaging (waabek.com) for sign-in codes, the build service that compiles your apps, and Apple or Google when we publish for you or check your app's in-app purchases. We may also share data with professional advisers or authorities when the law requires it. We never sell personal data.
 
-## 6. International transfers
+## 7. International transfers
 
 We are based in Egypt and work with clients in many countries. Some of our providers are in other countries, such as the United States. When personal data moves from one country to another, we use the safeguards the law that applies requires, such as standard contractual clauses under the GDPR and the transfer rules in Article 9 of KVKK, where they apply.
 
-## 7. How long we keep it
+## 8. How long we keep it
 
-We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted. Chat messages and files are kept for a year after they're sent, or for as long as you keep their conversation.
+We keep account data while your account is active and for up to 12 months after it closes. Billing records are kept for as long as accounting and tax laws require. Signing keys are kept until you ask us to delete them after your account ends. Technical logs are kept for up to 12 months. Single usage events from your app (each app open, screen or search) are kept for 90 days. The daily totals made from them are kept for as long as your app's plan includes: by default 3 months on Starter, 1 year on Growth, 2 years on Pro and 3 years on Business, and never after your app is deleted. Chat messages and files are kept for a year after they're sent, or for as long as you keep their conversation. Records of Yallapp's news and offer emails (sent, opened, clicked) are kept for 12 months.
 
-## 8. Security
+## 9. Security
 
 All connections use HTTPS. Publishing credentials and signing keys are encrypted at rest, and only the people who need access have it.
 
-## 9. Your rights
+## 10. Your rights
 
 You can ask to access, correct or delete your data, restrict or object to how we use it, and receive a copy in a portable format. Where the GDPR or KVKK (Article 11) apply, they give you these rights, including the right to know who your data was shared with. We reply within one month. Email [{{contact_email}}](mailto:{{contact_email}}). To delete your Yallapp account and its apps' data, sign in and ask from your dashboard, or follow [Deleting your Yallapp account](/delete-account) if you can't sign in. You can also complain to the data protection authority of your country, such as the Turkish Personal Data Protection Authority (kvkk.gov.tr) or the authority in your EU country.
 
-## 10. Cookies
+## 11. Cookies
 
 We use only the cookies needed to keep you signed in, and one that remembers the site language you choose. We don’t use advertising or tracking cookies.
 
-## 11. Changes and contact
+## 12. Changes and contact
 
 We will post changes here and email you about important ones. Questions: [{{contact_email}}](mailto:{{contact_email}}) or WhatsApp [{{contact_whatsapp_egypt}}]({{contact_whatsapp_egypt_url}}) (in Egypt), [{{contact_whatsapp}}]({{contact_whatsapp_url}}) (outside Egypt).
 `,

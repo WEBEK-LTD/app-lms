@@ -4513,3 +4513,20 @@ export const mailSuppressions = mysqlTable("mail_suppressions", {
   campaignId: id("campaign_id"),
   createdAt: time("created_at").notNull(),
 });
+
+/** 114 Each sending run of a campaign: what it sent in how long (the report's pace, the slow-sending alert). */
+export const mailRuns = mysqlTable(
+  "mail_runs",
+  {
+    id: autoId("id").primaryKey(),
+    campaignId: id("campaign_id")
+      .notNull()
+      .references(() => mailCampaigns.id, { onDelete: "cascade" }),
+    startedAt: time("started_at").notNull(),
+    finishedAt: time("finished_at").notNull(),
+    sent: int("sent").notNull(),
+    failed: int("failed").notNull(),
+    attempted: int("attempted").notNull(),
+  },
+  (t) => [index("mail_runs_campaign_idx").on(t.campaignId, t.startedAt)],
+);

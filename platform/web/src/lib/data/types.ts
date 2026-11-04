@@ -4702,7 +4702,7 @@ export interface JobRun {
   error: string | null;
 }
 
-export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration";
+export type TeamAlertKind = "build_waiting" | "build_stalled" | "job_missing" | "job_failed" | "crash_spike" | "push_failed" | "health" | "integration" | "mail_slow";
 
 /**
  * 78.3 Something the team should look at (lib/watch), in the admin's bell
