@@ -2826,3 +2826,152 @@ account it belongs to.
 | [x] | 114.1 The data and sending: campaigns (draft, scheduled with the time zone it was picked in, sending, paused, sent, cancelled; archived; duplicated), their audience (account state, plan, regular or Studio, app type, language, country, sign-up dates, built an app or not, signed in lately or not, team members as an opt-in, a test list of addresses) with a live count and saved audiences, one email per language (en/ar/tr, each person gets their account's language, else the campaign's main one) written with blocks or as the admin's own HTML; the renderer (tables, inline styles, a fixed width that stacks on phones, Outlook's conditional table, the inbox preview line, dark-mode colors, right to left with mirrored alignment, columns and arrows; every email ends with why it came, the unsubscribe link and "Yallapp · Cairo, Egypt"), a sanitizer (no scripts, handlers, forms, frames or unsafe links) and merge tags with fallbacks (first name, name, email, business, app, plan, its end date, the sign-in link; a placeholder like `{{discount}}` stops sending until it's replaced); 13 English templates with their own pictures (welcome, new feature, offer with a code, renewal, we miss you, newsletter, Yallapp Studio, customer story, webinar, first app, season's greetings, survey, Yallapp Courier coming soon) and the admin's own saved designs; sending through the platform's SMTP in batches (`netlify/functions/mail-campaigns.mts` every minute, and the frequent job), each campaign at its rate, never twice to one address (a unique list, one run per row, a lost run's rows failed as "interrupted"), two retries 5 and 10 minutes later, an address refused by the server bounced and kept from later campaigns; consent: the signed unsubscribe link and page (en/ar/tr), the inbox's one-click button (`List-Unsubscribe`, `List-Unsubscribe-Post`, RFC 8058), the list of addresses never mailed (unsubscribed, bounced, complained, added by the team), Dashboard › Your account › Emails from Yallapp (account emails still come); opens (a pixel) and clicks (a signed redirect) counted per campaign when it tracks them (on by default), per link; permissions `marketing.edit` and `marketing.send` (owners and admins), every change in the audit log; migration `0111` | unit tests (`mailing.test.ts`), isolation tests (`mailing-isolation.test.ts`), the store suite on memory and MariaDB (`mailing-store.test.ts`, `mailing-mysql.test.ts`) |
 | [x] | 114.2 Admin › Email campaigns (Content › Email campaigns): the campaigns' list with their numbers and filters (drafts, scheduled, sending, sent, archived); a new campaign from the templates' gallery (13 ready-made in English with a preview, the team's own, or blank); the steps Audience (the filters with the live count, team members as an opt-in, a test group of addresses, saved audiences), Details (subject and preview line per language, the main language, sender name, reply-to, the rate, tracking), Design and Review & send; the builder (18 blocks on the left to drag onto the email or click, the email in the middle with drag to move, up, down, duplicate and delete, columns that take blocks, the chosen block's content and look on the right: colors, fonts, size, alignment from the line's start, space, corners, full width; the whole email's colors, font, width and corners; merge tags with fallbacks; pictures uploaded to Yallapp's files; undo and redo; a version per language, Arabic right to left by itself and switchable; desktop and phone previews, light and dark; the email's size against Gmail's limit; save as template), HTML mode (the code beside its live preview; from blocks one way, back to blocks dropping the HTML changes), the review (what stops it, the inbox's view, the email's preview, a test to up to five addresses, send now or schedule in a time zone, off the schedule again, delete a draft); the report (live while sending: progress, sent, opens, clicks, unsubscribes, failures and bounces, each link, each person with their status and why, pause, resume, cancel, duplicate, archive); Templates, Audiences and Never mailed (keep an address out; allow one again, never one that unsubscribed itself) | e2e `email-campaigns.spec.ts` (build with a dragged block and a changed one, undo and redo, previews, audience count, test send, schedule and off again, send, the email's one-click unsubscribe headers, its unsubscribe page, Never mailed) |
 | [x] | 114.3 The owner's decisions after the UI (4 November): the privacy policy says what campaigns do, in English, Arabic and Turkish (section 5, "Emails from Yallapp": who gets them, the open picture and the click redirect unless a campaign turns them off, what is kept (the time, the email, the address) and why, 12 months, then deleted by the daily job (`MAIL_HISTORY_MONTHS`: opens and clicks, and the per-person rows and runs of campaigns finished before then; campaigns keep their totals, and the addresses never to be mailed stay), how to stop (the link, the inbox's button, Dashboard › Your account), account and security emails still coming, refused addresses kept out); the sending pace never below 45 a minute while a campaign has emails due: a pool of 3 SMTP connections for the run, 3 emails at once, batches of 30 until the 7-second budget or the minute's quota (the scheduled function calls up to 3 times a minute); each run kept (`mail_runs`, migration `0112`) and shown on the report with the last 5 minutes' pace; below 45 a minute over 5 minutes (or the campaign's own lower rate), a team alert `mail_slow` in Admin › Watching, closed by itself when the pace is back or the campaign ends | `mailing.test.ts` (a 300 ms-an-email server: the minute's 60 in about 6 s, 3 at once, never twice; the alert opens, is counted and closes), `mailing-store-suite.ts` on memory and MariaDB (runs, 12 months' pruning), `privacy-mail.test.ts` |
+
+## Phase 115: The marketplace: many restaurants and shops in one app
+
+The owner's request (4 November): an app like Talabat or Yemeksepeti, with
+many restaurants and many supermarkets and shops, run by the app's owner
+from Yallapp's website. It's a Yallapp Studio project type that grows
+Studio's Food delivery (105.1, on 104's delivery and Yallapp Courier) into
+a marketplace, on the Studio plans' features: Studio clients turn it on
+from Studio, never from regular apps.
+
+The owner's decisions:
+
+- **Countries and currencies.** Every country and every currency: the app's
+  owner picks the app's country and currency, and nothing is fixed to Egypt
+  or Turkey.
+- **Money.** The app's owner takes the money, and how the owner and the
+  vendors settle (cash on delivery included) is between them, outside
+  Yallapp. Yallapp computes it all, per vendor and per period:
+  - the sales, and the prices before and after discounts;
+  - the discounts and coupons, and who paid for each;
+  - the vendor's commission (a percentage or a fixed amount, set by the
+    owner per vendor);
+  - the delivery fee and its share;
+  - taxes;
+  - refunds and compensations;
+  - what each side owes the other.
+
+  The statements export to CSV, Excel and PDF.
+- **The vendor's own place.** Each vendor has two:
+  - a web panel on Yallapp's site, with its own sign-in, separate from the
+    owner's dashboard;
+  - a vendor app in the app's bundle.
+
+  Vendors have no way to reach customers: no phone, chat or email is shown
+  anywhere, and every contact goes through the app's owner.
+- **Delivery, the vendor's choice.** Either:
+  - the app's couriers (Yallapp Courier, live on the map), where the owner
+    sets the courier fee (fixed, a percentage or per km) and its commission;
+  - or the vendor's own delivery, where the vendor sets its delivery fee
+    (fixed or per km), the smallest order, and the fewest and most items an
+    order may have. It's tracked by its stages without GPS, and on the map
+    when the vendor's driver uses the courier app.
+- **Joining.** The owner builds an application form in the dashboard, with
+  its fields chosen by the owner, the logo among them, and sends its link to
+  vendors. The form lives only on Yallapp's website. Applications arrive in
+  the dashboard to accept or turn down, and accepting one makes the vendor
+  and its first staff account.
+- **Complaints.** A customer opens a ticket on an order from the moment
+  it's placed until 48 hours after it arrives. The owner's support team
+  decides: a refund (full or part, to the payment, the wallet or as a
+  coupon), a compensation, or no refund with the reason the customer sees.
+  Support talks to the customer in the app, like Yemeksepeti, and is run
+  from Yallapp's dashboard.
+- **Supermarkets and shops.**
+  - Products without a limit, by department and aisle.
+  - Items sold by weight, stock and out of stock.
+  - The customer's choice when an item is missing: a similar one, a chosen
+    one, or leave it out.
+  - Imports from Excel, CSV and every other usable format.
+- **Payments.** Cash on delivery, Apple Pay and Google Pay, and cards.
+- **Also.** Coupons, orders for later, pick-up from the vendor, a delivery
+  club (free or cheaper delivery, monthly or yearly, at the owner's prices)
+  and a wallet in the app.
+- **The look.** "Advanced to the most, beautiful, not ordinary and not cut
+  short". It's close in feel to Yemeksepeti and Talabat but Yallapp's own:
+  no logo, color, name or screen of theirs.
+- **Templates.** Clients take it as it is, as ready-made Studio templates,
+  and change it freely in the Studio editor.
+- **Demo.** Studio's demos get one, like Nakhla School.
+
+**What exists and is reused.**
+
+- **Food delivery (105.1):**
+  - restaurants with menus, choices, hours and the smallest order;
+  - the cart's quote with delivery by distance;
+  - orders and their stages;
+  - the restaurant's tab in the customer app (accept with a time, turn
+    down, ready, open or busy);
+  - commission and statements per restaurant;
+  - cash or card;
+  - Studio's Restaurants, Food orders and statements pages, and its
+    templates and sections (105.1.6).
+- **Delivery (104):**
+  - couriers, their jobs, the locator and the live map;
+  - Delivery settings;
+  - Yallapp Courier (104.8) for the couriers.
+- **Chat (77):** the app owner's chat.
+- **Imports (81.4):** products from CSV or a feed.
+- **Payments (37, 96.1):** iyzico, Kashier, Fawaterk, Stripe and PayPal, and
+  refunds (47).
+- **Demos (110.5, 113):** the clock-made demos (the taxi, the school bus).
+
+**Apple Pay and Google Pay: what the gateways in the repo do.** This was
+checked from public pages on 4 November and is to be confirmed with each
+gateway before it's switched on.
+
+- **Stripe.** Checkout, its hosted page, shows Apple Pay and Google Pay by
+  itself in the countries Stripe serves. It's the way that works in most
+  countries.
+- **Kashier.** Apple Pay in Egypt, where it started in December 2024. The
+  merchant registers its own Apple Pay merchant ID, which Kashier
+  provisions.
+- **iyzico.** Its Checkout Form speaks of "digital wallets" but names
+  neither Apple Pay nor Google Pay. To be asked of iyzico.
+- **Fawaterk and PayPal.** Not confirmed.
+- **Paymob** (not in the repo): Apple Pay in Egypt. It's a candidate for a
+  new gateway.
+
+The design is one wallet-pay interface:
+
+- First, the gateway's hosted page, which needs nothing in the app.
+- Then the native Apple Pay / Google Pay sheet in the app, sending its
+  token to a gateway that takes tokens.
+
+For food and goods, Apple's rules allow Apple Pay (it isn't an in-app
+purchase).
+
+**What the app's owner sets up (never asked for or kept by us in chat):**
+
+- **Apple Pay:**
+  - an Apple Pay merchant ID in their Apple developer account;
+  - the gateway's payment processing certificate on that ID (the gateway
+    gives the request file);
+  - for a hosted page on their own domain, the domain's verification file.
+- **Google Pay:**
+  - a Google Pay & Wallet Console merchant profile, and the app's
+    production access request;
+  - the gateway's merchant ID for Google Pay.
+- **The gateway:** their own keys in Studio › Payments, like today.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 115.1 This plan | the owner's decisions written down |
+| [ ] | 115.2 Contract: the `marketplace` Studio plan feature and `Config.marketplace` (country, currency, taxes, payment ways, club, coupons, pick-up, orders for later); vendors of three kinds (`restaurant`, `grocery`, `shop`) with their cuisines or departments, ratings, delivery mode and times; the catalog (departments, aisles, products with unit or weight, stock, choices, substitutes) paged and searchable; the cart's quote with every line of the price; orders (now, later, pick-up), their stages and tracking (map or stages); coupons, the wallet, the club; complaints (open, add, read); the Vendor tag for the vendor app (orders, accept with a time, turn down, ready, handed over, open or busy, items in or out of stock); `User.roles` `vendor`; notifications `market_order_update`, `vendor_order`, `complaint_update`, `club_renewal`. Merged before the mobile agent builds the screens | redocly lint, contract tests |
+| [ ] | 115.3 Data (migrations from `0113`): vendors (105.1's restaurants become vendors of a kind; their menus stay), vendor staff with their own sign-in and roles, departments, aisles and products, the vendor's delivery settings, taxes per app and per vendor, coupons and their uses, the wallet's entries, club plans and members, complaint tickets with their messages, photos, notes and decisions, application forms and applications, each order's price lines; in MemoryStore and MySQL alike | the store suite on memory and MariaDB, isolation tests (one app's vendors, orders and complaints never reach another, one vendor's never reach another vendor) |
+| [ ] | 115.4 The money: each order's lines (each item before and after its discount, the coupon and who pays it, the club's discount, the delivery fee and its share, the vendor's commission as a percentage or fixed amount, the tax included or added, at the app's or the vendor's rate, the tip if any, the refunds and compensations later); each vendor's statement for any period (sales, discounts by who paid, commission, delivery, tax, refunds, and what each side owes, cash on delivery and online apart); every currency with its own decimals (ISO 4217), rounding per line and kept as written; exports to CSV, Excel and PDF | unit tests (each case of who pays a coupon, tax in and out, partial refunds after a statement, three-decimal and no-decimal currencies, totals that always add up) |
+| [ ] | 115.5 Delivery per vendor: the app's couriers (the owner's courier fee fixed, a percentage or per km, and its commission; 104's jobs, the live map) or the vendor's own (the vendor's fee fixed or per km, the smallest order, the fewest and most items, its own area by distance; the stages for the customer; the map when its driver signs in to Yallapp Courier as the vendor's); pick-up (no fee, a pick-up code); orders for later (times from the vendor's hours and preparation) | unit tests, e2e |
+| [ ] | 115.6 Joining: the owner's application form (fields chosen and ordered: text, long text, phone, email, number, a list, yes or no, a file, the logo, the place on the map, the hours, documents), its link on Yallapp's site only, limits against abuse; the applications in the dashboard (read, ask for more, accept, turn down with a reason, emailed); accepting makes the vendor from the answers and invites its first staff member | unit tests, e2e |
+| [ ] | 115.7 The vendor's web panel on Yallapp's site (its own sign-in, separate from the owner's dashboard; staff with roles): orders live with a sound (accept with a time, turn down, ready, handed over), the menu or catalog, stock, hours, open, busy or closed, its delivery settings when it delivers itself, its staff, its statements and their exports, the complaints about its orders to read only; no customer's phone, email or chat anywhere, only the first name and the order; en/ar/tr, right to left. ONE screenshot to the owner before it merges | unit tests, isolation tests, e2e |
+| [ ] | 115.8 Supermarkets and shops: departments and aisles, products without a limit (paged, searched, barcode and SKU), sold by unit or weight (the step, the estimated price, the weighed price after picking within a limit the customer agreed), stock and out of stock by itself, the customer's choice when something is missing (similar, a chosen one, leave it out) and the vendor's picking screen; imports from Excel (xlsx, xls), CSV, TSV, JSON and a Google Sheets link, with columns matched, a preview, each row's errors, updates by SKU or barcode, pictures by link, and imports again on a schedule (81.4's import grown) | unit tests (every format, a 50,000-row file), e2e |
+| [ ] | 115.9 Complaints: a ticket on an order from when it's placed to 48 hours after it arrives (the reason, the items, photos, words); the dashboard's queue (assignee, status, internal notes, times since opened and since the last answer, ready replies); the decision (a full or part refund to the payment through 47's refunds, to the wallet or as a coupon; a compensation; no refund, with the reason the customer sees), the customer told; talk with the customer in the app's support chat (77) beside the ticket; the vendor reads its orders' tickets and decisions; every step in the audit | unit tests, isolation tests, e2e |
+| [ ] | 115.10 Coupons, the wallet and the club: coupons (a code or automatic; paid by the owner or the vendor; a percentage, an amount or free delivery; the smallest order, first order, per vendor, per kind or department, how many uses in all and per person, dates); the wallet (refunds and credit in, paying all or part of an order with it, its history); the club (the owner's plans, monthly or yearly at the owner's prices, free or cheaper delivery above an amount, paid by card, Apple Pay or Google Pay, renewing, ending, the member's savings); Yallapp sets no prices | unit tests |
+| [ ] | 115.11 Payments: cash on delivery (a highest amount if the owner wants one; collected by the vendor or the courier, in the statements); cards, Apple Pay and Google Pay through one wallet-pay interface: the gateway's hosted page first (Stripe Checkout, Kashier's Apple Pay), the app's own Apple Pay and Google Pay sheet next with gateways that take its token; Paymob as a new gateway; the gateway per app by country and currency; what the owner sets up shown in Studio › Payments | unit tests with fake gateways |
+| [ ] | 115.12 Studio's pages (dashboard Arabic in MSA, Studio's words in Egyptian Arabic, en/ar/tr): the marketplace's overview (orders now, the live map, the day's numbers), Vendors (each one's kind, commission, tax, delivery, staff, open or closed), Applications and the form, Orders across all vendors (filters, step in), Complaints, Coupons, the Club, Wallets, Statements per vendor and period with their exports, Settings (country, currency, taxes, areas, cash on delivery, payments). ONE screenshot to the owner before it merges | e2e |
+| [ ] | 115.13 The Studio project type: the `marketplace` feature on the Studio plans and in Admin › Plans' choices; turned on from Studio's project settings, Food delivery's projects grown into it with their restaurants kept; the website's Studio page and docs | unit tests, e2e |
+| [ ] | 115.14 Ready-made Studio templates: at least three complete designs (the home's sections: a search at the top, the kinds and cuisines, offers, the club, vendors near you, best rated, fastest, the supermarket's departments; the vendor's page; the dish and product cards; colors and texts in en/ar/tr) picked when the project is made and changed freely in Studio's editor, like 105.1.6; the template data here, the Flutter rendering by the mobile agent | unit tests, the mobile agent's widget tests |
+| [ ] | 115.15 Studio's demo, made from the clock like Nakhla School (110.5, 113): restaurants and a supermarket with full menus and catalogs, offers and coupons, vendors delivering themselves and by the app's couriers, a courier moving on the map, complaints in each state, the wallet, a club member, orders for later and for pick-up, the vendors' statements; the demo number is a customer, a vendor's staff and a courier; on /demo/studio and in Admin › Demo apps › Yallapp Studio | unit tests (`marketplace-demo.test.ts`) |
+| [ ] | 115.16 The apps (the mobile agent): the customer app's screens in the advanced design, the vendor app as the bundle's third app, Yallapp Courier for vendors' own drivers, the store reviewers' notes for every role | flutter analyze, widget tests |
+| [ ] | 115.17 Words for people: the docs, the website's Studio and marketplace pages, the stores' listings; the privacy policy and terms (vendors' data, the wallet, the club's renewals, complaints) in en/ar/tr after the owner reads them | unit tests (pages and their three languages) |
