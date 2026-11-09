@@ -1,7 +1,7 @@
 import type { MarketAppSettings, PaymentProviderId } from "../data/types";
 import { currencyDecimals, fromMinor, toMinor } from "./currency";
 import type { Parsed } from "./delivery-forms";
-import { marketSettingsOf } from "./settings";
+import { marketSettingsOf, vendorCouponsOf } from "./settings";
 
 /**
  * 115.12 Studio › Marketplace settings: the form the app owner fills for
@@ -60,6 +60,14 @@ export function parseMarketSettingsForm(form: Record<string, string>, current: M
   }
   const tolerance = whole((form.weight_tolerance ?? "").trim() || "0", "weight_tolerance", 0, MAX_WEIGHT_TOLERANCE);
   if (!tolerance.ok) return tolerance;
+  // 115.18 Places' own coupons, and the largest percentage they may give.
+  const maxText = (form.vendor_coupon_max ?? "").trim();
+  let maxPercent: number | null = null;
+  if (maxText) {
+    const max = whole(maxText, "vendor_coupon_max", 1, 100);
+    if (!max.ok) return max;
+    maxPercent = max.value;
+  }
 
   return {
     ok: true,
@@ -76,6 +84,7 @@ export function parseMarketSettingsForm(form: Record<string, string>, current: M
       weightTolerancePercent: tolerance.value,
       vendorApp: form.vendor_app === "bundle" ? "bundle" : "same",
       requirePhotos: on(form.require_photos),
+      vendorCoupons: { enabled: on(form.vendor_coupons), maxPercent },
     },
   };
 }
@@ -105,5 +114,7 @@ export function marketSettingsFormValues(settings: Parameters<typeof marketSetti
     weight_tolerance: String(s.weightTolerancePercent),
     vendor_app: s.vendorApp,
     require_photos: flag(s.requirePhotos !== false),
+    vendor_coupons: flag(vendorCouponsOf(s).enabled),
+    vendor_coupon_max: vendorCouponsOf(s).maxPercent === null ? "" : String(vendorCouponsOf(s).maxPercent),
   };
 }

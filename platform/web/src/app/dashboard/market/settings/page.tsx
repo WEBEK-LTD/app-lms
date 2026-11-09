@@ -204,6 +204,14 @@ export default async function MarketSettingsPage({ searchParams }: { searchParam
             <Toggle name="require_photos" on={v.require_photos} hint={t("market.sRequirePhotosHint")}>
               {t("market.sRequirePhotos")}
             </Toggle>
+            {/* 115.18 Places' own coupons in their panel. */}
+            <Toggle name="vendor_coupons" on={v.vendor_coupons} hint={t("market.sVendorCouponsHint")}>
+              {t("market.sVendorCoupons")}
+            </Toggle>
+            <label className={label}>
+              {t("market.sVendorCouponMax")}
+              <input name="vendor_coupon_max" inputMode="numeric" maxLength={3} defaultValue={v.vendor_coupon_max} dir="ltr" className={field} />
+            </label>
           </div>
         </Section>
 

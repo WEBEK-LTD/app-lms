@@ -7,6 +7,7 @@ import { sendAppMail } from "@/lib/email/send";
 import { CODE_MINUTES, endPanelSession, finishPanelSignIn, normalEmail, panelCookie, panelStaff, startPanelSignIn } from "@/lib/market/panel";
 import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, IMPORT_MAX_BYTES, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelTab } from "@/lib/market/panel-pages";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
+import { createVendorCoupon, setVendorCoupon } from "@/lib/market/vendor-coupons";
 import { safeFetcher } from "@/lib/net/safe-fetch";
 import { hitRateLimit } from "@/lib/rate-limit";
 
@@ -156,4 +157,24 @@ export async function fetchLinksAction(appId: string): Promise<{ fetched: number
   const ctx = await withPanel(appId, "import");
   if (!ctx) return { error: "Sign in again." };
   return fetchLinksNow(ctx, safeFetcher());
+}
+
+// 115.18 The place's own offers: only its owner and managers, only its own coupons.
+
+export async function createOfferAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "offers");
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const values: Record<string, string> = {};
+  for (const [k, v] of form.entries()) if (typeof v === "string" && !k.startsWith("$")) values[k] = v;
+  const made = await createVendorCoupon({ store: ctx.store, appId: ctx.app.id, vendor: ctx.vendor, currency: ctx.currency }, values, new Date());
+  redirect(back(appId, "offers", lang, made.ok ? "&saved=1" : `&error=${encodeURIComponent(made.error)}`));
+}
+
+export async function offerStateAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "offers");
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const action = String(form.get("action") ?? "");
+  if (action !== "pause" && action !== "resume" && action !== "end") redirect(back(appId, "offers", lang));
+  const done = await setVendorCoupon({ store: ctx.store, appId: ctx.app.id, vendor: ctx.vendor, currency: ctx.currency }, Number(form.get("id")), action, new Date());
+  redirect(back(appId, "offers", lang, done.ok ? "" : `&error=${encodeURIComponent(done.error)}`));
 }

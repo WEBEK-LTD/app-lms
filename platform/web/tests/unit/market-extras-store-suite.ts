@@ -69,6 +69,21 @@ export function marketExtrasStoreSuite(store: () => DataStore) {
     expect(await s.getMarketCoupon(app.id, made.id)).toBeNull();
   });
 
+  it("115.18 keeps a place's own coupons, its products, and the owner's pause apart from its own switch", async () => {
+    const s = store();
+    const { app, vendor, coupon } = await setup(s);
+    const owners = (await s.createMarketCoupon(coupon({ code: "OWNER" })))!;
+    expect(owners).toMatchObject({ productIds: null, createdByVendorId: null, ownerPaused: false });
+    const mine = (await s.createMarketCoupon(coupon({ code: "MINE", paidBy: "vendor", vendorIds: [vendor.id], productIds: [7, 9], createdByVendorId: vendor.id })))!;
+    expect(await s.getMarketCoupon(app.id, mine.id)).toMatchObject({ productIds: [7, 9], createdByVendorId: vendor.id, ownerPaused: false });
+    expect((await s.listMarketCoupons(app.id, { createdByVendorId: vendor.id })).map((c) => c.code)).toEqual(["MINE"]);
+    expect(await s.updateMarketCoupon(app.id, mine.id, { ownerPaused: true, updatedAt: NOW })).toBe(true);
+    // Paused by the owner: not active, whatever its own switch says.
+    expect((await s.listMarketCoupons(app.id, { active: true })).map((c) => c.code)).toEqual(["OWNER"]);
+    expect((await s.listMarketCoupons(app.id, { active: false })).map((c) => c.code)).toEqual(["MINE"]);
+    expect((await s.getMarketCoupon(app.id, mine.id))!.ownerPaused).toBe(true);
+  });
+
   it("counts a coupon's uses once per order, within the limits, and gives one back", async () => {
     const s = store();
     const { app, coupon } = await setup(s);
