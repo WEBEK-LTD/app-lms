@@ -131,6 +131,8 @@ export const SCREENS = [
   "restaurants",
   "food_orders",
   "restaurant",
+  // 115 A marketplace's delivery club, with the member's benefits (its Club tab).
+  "club",
   // 105.2 Ride hailing
   "ride",
   "my_rides",

@@ -9917,6 +9917,43 @@
   "@marketClubNone": {
     "description": "115.10 The app has no delivery club."
   },
+  "tabSearch": "Search",
+  "@tabSearch": {
+    "description": "115 The marketplace's Search tab: its places, dishes and products."
+  },
+  "tabOrders": "Orders",
+  "@tabOrders": {
+    "description": "115 The marketplace's Orders tab: the customer's orders."
+  },
+  "tabClub": "Club",
+  "@tabClub": {
+    "description": "115 The marketplace's Club tab: the delivery club and the member's benefits."
+  },
+  "marketSearchStart": "Find a restaurant, a dish or something from the shops.",
+  "@marketSearchStart": {
+    "description": "115 The marketplace's search before anything is typed."
+  },
+  "marketSearchTry": "Start with",
+  "@marketSearchTry": {
+    "description": "115 Above the cuisines and departments the search can start with."
+  },
+  "marketSearchPlaces": "Places",
+  "@marketSearchPlaces": {
+    "description": "115 The places the marketplace's search found."
+  },
+  "marketSearchItems": "Dishes and products",
+  "@marketSearchItems": {
+    "description": "115 The dishes and products the marketplace's search found, each with its place."
+  },
+  "marketSearchNone": "Nothing found for “{query}”.",
+  "@marketSearchNone": {
+    "description": "115 The marketplace's search found nothing.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "marketListEmptyTitle": "Nothing here near you yet",
   "@marketListEmptyTitle": {
     "description": "115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title."

@@ -15,6 +15,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart' show signInFor;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
+import '../data/market_providers.dart' show marketConfigProvider;
 
 final marketWalletProvider = FutureProvider.autoDispose<MarketWallet>(
   (ref) => ref.watch(yallappApiProvider).getMyWallet(),
@@ -135,7 +136,9 @@ class MarketWalletScreen extends ConsumerWidget {
 
 /// 115.10 The delivery club: the owner's plans and their benefits, and the
 /// customer's membership. Joining pays on the gateway's page (card, Apple
-/// Pay or Google Pay); each period is paid on its own.
+/// Pay or Google Pay); each period is paid on its own. 115 Also a
+/// marketplace's Club tab, with the signed-in customer's wallet when the
+/// app has one.
 class MarketClubScreen extends ConsumerStatefulWidget {
   const MarketClubScreen({super.key});
 
@@ -186,9 +189,12 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
     final l10n = context.l10n;
     final club = ref.watch(marketClubProvider);
     final mine = ref.watch(myClubProvider).value;
+    final wallet =
+        (ref.watch(marketConfigProvider)?.wallet ?? false) &&
+        ref.watch(authControllerProvider).isSignedIn;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(leading: appBarBack(context)),
+      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.tabClub)),
       body: club.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(
@@ -238,6 +244,7 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
               const SizedBox(height: 12),
               _Membership(membership: mine),
             ],
+            if (wallet) ...[const SizedBox(height: 12), const _WalletRow()],
             const SizedBox(height: 12),
             for (final plan in c.plans) ...[
               Container(
@@ -307,6 +314,39 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The customer's wallet balance; a tap opens its history.
+class _WalletRow extends ConsumerWidget {
+  const _WalletRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final balance = ref.watch(marketWalletProvider).value?.balance.formatted;
+    return Material(
+      color: p.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: p.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        leading: Icon(Symbols.account_balance_wallet, color: p.primary),
+        title: Text(
+          l10n.marketWallet,
+          style: TextStyle(fontWeight: FontWeight.w800, color: p.text),
+        ),
+        subtitle: balance == null ? null : Text(l10n.marketWalletBalance),
+        trailing: Text(
+          balance ?? '',
+          style: TextStyle(fontWeight: FontWeight.w800, color: p.text),
+        ),
+        onTap: () => context.push(Paths.marketWallet),
       ),
     );
   }

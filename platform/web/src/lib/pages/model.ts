@@ -330,6 +330,7 @@ export const SCREEN_ICONS: Partial<Record<ScreenName, string>> = {
   send_parcel: "local_shipping",
   shipments: "package_2",
   courier: "two_wheeler",
+  club: "workspace_premium",
   teachers: "groups",
   school: "school",
 };

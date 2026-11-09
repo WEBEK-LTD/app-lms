@@ -9517,6 +9517,36 @@ class OverlayLocalizations extends AppLocalizations {
       overlay.text('marketClubNone') ?? base.marketClubNone;
 
   @override
+  String get tabSearch => overlay.text('tabSearch') ?? base.tabSearch;
+
+  @override
+  String get tabOrders => overlay.text('tabOrders') ?? base.tabOrders;
+
+  @override
+  String get tabClub => overlay.text('tabClub') ?? base.tabClub;
+
+  @override
+  String get marketSearchStart =>
+      overlay.text('marketSearchStart') ?? base.marketSearchStart;
+
+  @override
+  String get marketSearchTry =>
+      overlay.text('marketSearchTry') ?? base.marketSearchTry;
+
+  @override
+  String get marketSearchPlaces =>
+      overlay.text('marketSearchPlaces') ?? base.marketSearchPlaces;
+
+  @override
+  String get marketSearchItems =>
+      overlay.text('marketSearchItems') ?? base.marketSearchItems;
+
+  @override
+  String marketSearchNone(String query) =>
+      overlay.format('marketSearchNone', {'query': query}) ??
+      base.marketSearchNone(query);
+
+  @override
   String get marketListEmptyTitle =>
       overlay.text('marketListEmptyTitle') ?? base.marketListEmptyTitle;
 

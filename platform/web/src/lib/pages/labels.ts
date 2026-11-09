@@ -65,6 +65,7 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   restaurants: "Restaurants",
   food_orders: "My orders",
   restaurant: "Restaurant",
+  club: "Club",
   ride: "Ask for a ride",
   my_rides: "My rides",
   driver: "Driver",

@@ -42,6 +42,7 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
   "All courses": "Tüm kurslar",
   Wishlist: "İstek listesi",
   Orders: "Siparişler",
+  Club: "Kulüp",
   "My orders": "Siparişlerim",
   "All products": "Tüm ürünler",
   Programs: "Programlar",

@@ -8923,6 +8923,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get marketClubNone => 'Bu uygulamada henüz bir kulüp yok.';
 
   @override
+  String get tabSearch => 'Ara';
+
+  @override
+  String get tabOrders => 'Siparişler';
+
+  @override
+  String get tabClub => 'Kulüp';
+
+  @override
+  String get marketSearchStart =>
+      'Bir restoran, bir yemek ya da mağazalardan bir şey bul.';
+
+  @override
+  String get marketSearchTry => 'Şunlarla başla';
+
+  @override
+  String get marketSearchPlaces => 'Yerler';
+
+  @override
+  String get marketSearchItems => 'Yemekler ve ürünler';
+
+  @override
+  String marketSearchNone(String query) {
+    return '“$query” için bir şey bulunamadı.';
+  }
+
+  @override
   String get marketListEmptyTitle => 'Yakınında henüz bir şey yok';
 
   @override

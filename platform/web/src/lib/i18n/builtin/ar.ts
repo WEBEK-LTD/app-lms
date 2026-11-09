@@ -41,6 +41,7 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
   "All courses": "كل الدورات",
   Wishlist: "قائمة الرغبات",
   Orders: "الطلبات",
+  Club: "النادي",
   "My orders": "طلباتي",
   "All products": "كل المنتجات",
   Programs: "البرامج",

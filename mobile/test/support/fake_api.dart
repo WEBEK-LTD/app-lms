@@ -1706,6 +1706,9 @@ class FakeApi implements YallappApi {
   final marketVendors = <Map<String, dynamic>>[];
   final marketVendorPages = <int, Map<String, dynamic>>{};
   final marketProducts = <int, List<Map<String, dynamic>>>{};
+
+  /// 115 What the marketplace's search was asked, in order.
+  final marketSearches = <String>[];
   final marketOffers = <Map<String, dynamic>>[];
   final marketVendorQueries = <MarketVendorQuery>[];
 
@@ -1773,12 +1776,19 @@ class FakeApi implements YallappApi {
     double? lng,
   }) => _answer('searchMarket', () {
     final q = query.toLowerCase();
+    marketSearches.add(query);
     return MarketSearchResult.fromJson({
       'vendors': [
         for (final v in marketVendors)
           if ('${v['name']}'.toLowerCase().contains(q)) v,
       ],
-      'items': const [],
+      // A vendor's products by their name, with the vendor.
+      'items': [
+        for (final v in marketVendors)
+          for (final product in marketProducts[v['id']] ?? const [])
+            if ('${product['name']}'.toLowerCase().contains(q))
+              {'vendor': v, 'product': product},
+      ],
     });
   });
 

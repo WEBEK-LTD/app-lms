@@ -109,6 +109,9 @@ abstract final class Paths {
   static const marketWallet = '/market-wallet';
   static const marketClub = '/market-club';
 
+  /// 115 The marketplace's search: places, dishes and products.
+  static const marketSearch = '/market-search';
+
   /// 115 Vendors of a kind, a cuisine or with offers.
   static String marketList({
     String? kind,

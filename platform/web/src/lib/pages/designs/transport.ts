@@ -506,7 +506,8 @@ export const FOOD_DESIGNS: Design[] = [
   },
 ];
 
-const marketTabs = [homeTab, screenTab("restaurants", "Places", "storefront", "restaurants"), screenTab("orders", "My orders", "receipt_long", "food_orders"), accountTab];
+// 115 Every marketplace's tabs, as Studio starts it (lib/app/kinds.ts MARKETPLACE_TABS).
+const marketTabs = [homeTab, screenTab("search", "Search", "search", "search"), screenTab("orders", "Orders", "receipt_long", "food_orders"), screenTab("club", "Club", "workspace_premium", "club"), accountTab];
 
 /** 115.13 The marketplace's classic designs (Studio's own templates come with 115.14). */
 export const MARKET_DESIGNS: Design[] = [

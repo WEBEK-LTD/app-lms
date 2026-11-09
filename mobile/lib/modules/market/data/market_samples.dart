@@ -310,6 +310,25 @@ abstract final class MarketSamples {
     ],
   );
 
+  /// 115 What the search finds among the samples: places by their name,
+  /// dishes and products by theirs, each with the place that sells it.
+  static MarketSearchResults search(String query) {
+    final q = query.trim().toLowerCase();
+    bool has(String name) => q.isNotEmpty && name.toLowerCase().contains(q);
+    return MarketSearchResults(
+      places: [
+        for (final v in vendors)
+          if (has(v.name)) v,
+      ],
+      items: [
+        for (final v in vendors)
+          for (final shelf in page(v.id).shelves)
+            for (final item in shelf.items)
+              if (has(item.name)) MarketFound(vendor: v, item: item),
+      ].take(30).toList(),
+    );
+  }
+
   /// A vendor's page: a menu for a restaurant, aisles for a shop.
   static MarketVendorPage page(String id) {
     final vendor = home.vendor(id) ?? vendors.first;

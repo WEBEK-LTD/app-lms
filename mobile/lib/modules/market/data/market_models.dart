@@ -278,3 +278,22 @@ class MarketVendorPage {
   final String? address;
   final String? hours;
 }
+
+/// 115 A dish or product the search found, with the place that sells it.
+class MarketFound {
+  const MarketFound({required this.vendor, required this.item});
+
+  final MarketVendor vendor;
+  final MarketItem item;
+}
+
+/// 115 What the marketplace's search found (`GET /market/search`): the
+/// places by their name, then dishes and products by theirs.
+class MarketSearchResults {
+  const MarketSearchResults({this.places = const [], this.items = const []});
+
+  final List<MarketVendor> places;
+  final List<MarketFound> items;
+
+  bool get isEmpty => places.isEmpty && items.isEmpty;
+}

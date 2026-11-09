@@ -11,6 +11,9 @@ final List<Override> marketSampleOverrides = [
   marketVendorPageProvider.overrideWith(
     (ref, id) async => MarketSamples.page(id),
   ),
+  marketSearchProvider.overrideWith(
+    (ref, query) async => MarketSamples.search(query),
+  ),
 ];
 
 /// The marketplace home as a Studio template would make it.

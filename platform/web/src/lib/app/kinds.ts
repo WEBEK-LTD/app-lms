@@ -153,6 +153,9 @@ export interface KindInfo {
 
 const tab = (id: string, label: string, icon: string, screen: string): LayoutTab => ({ id, label, icon, target: { type: "screen", screen } as LayoutTab["target"] });
 
+/** 115 A marketplace's tabs between Home and Account: the search across its places, dishes and products, the customer's orders and the club. */
+export const MARKETPLACE_TABS: readonly LayoutTab[] = [tab("search", "Search", "search", "search"), tab("orders", "Orders", "receipt_long", "food_orders"), tab("club", "Club", "workspace_premium", "club")];
+
 const newest = (limit: number, featured = false) => ({ category_id: null, featured, sort: "newest" as const, limit, ids: [] });
 
 const NO_WEBSITE = "I don't have a website";
@@ -1157,6 +1160,9 @@ export const KINDS: readonly KindInfo[] = [
         next: "After this step, set the country, the currency and the ways to pay on the **Marketplace settings** page, add your vendors on the **Vendors** page or open your form on the **Joining** page, then add your couriers on the **Couriers** page; every order shows on the **Marketplace orders** page. Customers, vendors' staff and couriers sign in to the app with",
       },
     },
+    // The marketplace's own tabs after Home, as the approved home has them: Search (its places, dishes and products), Orders and Club.
+    tabs: [...MARKETPLACE_TABS],
+    screens: ["search", "club"],
     reviewNote:
       "This app has two roles. Customers order from the restaurants, supermarkets and shops. A vendor's staff sign in with a number the company or the vendor added and see a Vendor tab with its orders. The company's couriers work in its separate courier app, which has its own store listing and notes.",
   },
