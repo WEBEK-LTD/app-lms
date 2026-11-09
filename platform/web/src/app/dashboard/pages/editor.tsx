@@ -321,9 +321,12 @@ export function PagesEditor({
 
   // 1.1 The blocks still to fill in, kept in this browser until they're complete (the saved draft leaves them out).
   const parkedKey = `yallapp.pages.parked.${app.id}`;
+  // Kept blocks are written only once those from before are back (or there were none).
+  const parkedRead = useRef(false);
   useEffect(() => {
     // After the first render (the server's has nothing from this browser), once.
     const timer = window.setTimeout(() => {
+      parkedRead.current = true;
       let parked: unknown = null;
       try {
         parked = JSON.parse(window.localStorage.getItem(parkedKey) ?? "null");
@@ -341,7 +344,7 @@ export function PagesEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    if (status !== "saved" && status !== "invalid") return;
+    if (!parkedRead.current || (status !== "saved" && status !== "invalid")) return;
     try {
       const parked = parkedBlocks(layout, incomplete);
       if (parked.length) window.localStorage.setItem(parkedKey, JSON.stringify(parked));
