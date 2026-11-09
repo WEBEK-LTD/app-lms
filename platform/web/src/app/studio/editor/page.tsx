@@ -12,7 +12,7 @@ import { ownFontView } from "@/lib/fonts/own";
 import { kindOf } from "@/lib/app/kinds";
 import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
-import { loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
@@ -53,6 +53,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
         draft: withoutStrings(record.draft),
         savedAt: record.draftUpdatedAt.toISOString(),
         published: record.published && record.publishedAt ? { version: record.published.version, at: record.publishedAt.toISOString() } : null,
+        // Editor audit 3.3: the kept publishes, to bring one back.
+        history: await layoutHistory(store, app.id),
       }}
       app={{ name: app.appName ?? t("setup.yourApp"), brand: app.primaryColor, logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null }}
       sources={sources}

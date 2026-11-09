@@ -2,7 +2,12 @@ import { Logo } from "@/components/brand";
 import type { StudioNodeType } from "@/lib/pages/types";
 
 /** 103R What is being dragged in the editor: a new element, a ready section, or an element of the page. */
-export type DragPayload = { kind: "new"; type: StudioNodeType } | { kind: "section"; id: string } | { kind: "move"; id: string };
+export type DragPayload =
+  | { kind: "new"; type: StudioNodeType }
+  | { kind: "section"; id: string }
+  | { kind: "move"; id: string }
+  // Editor audit 3.3: a picture from the pictures panel; `share` is the project's file to make public first.
+  | { kind: "picture"; url: string; share?: string };
 
 export const DRAG_TYPE = "application/x-yallapp-studio";
 

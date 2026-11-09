@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { STUDIO_MARKET_SECTIONS } from "@/lib/pages/types";
 import Link from "next/link";
 import { deleteStudioDesignAction, deleteStudioTemplateAction, loadStudioDesignAction, saveStudioDesignAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
-import { publishLayoutAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
+import { shareMediaAction } from "@/app/actions/media";
+import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import type { DashKey } from "@/i18n/dashboard";
@@ -16,12 +18,14 @@ import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutCon
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
+import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
 import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
+import { PublishHistory } from "./publish-history";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
@@ -52,7 +56,7 @@ const AUTOSAVE_MS = 1200;
 const JOIN_MS = 1000;
 
 export interface StudioEditorProps {
-  initial: { draft: LayoutContent; savedAt: string; published: { version: string; at: string } | null };
+  initial: { draft: LayoutContent; savedAt: string; published: { version: string; at: string } | null; /** Editor audit 3.3: the kept publishes, newest first. */ history?: LayoutHistoryEntry[] };
   app: { name: string; brand: string; logoUrl: string | null };
   sources: ItemSource[];
   categorySources: ItemSource[];
@@ -98,6 +102,8 @@ export function StudioEditor(props: StudioEditorProps) {
   const [problem, setProblem] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [publishes, setPublishes] = useState<LayoutHistoryEntry[]>(props.initial.history ?? []);
+  const [restoring, setRestoring] = useState(false);
   const [myTemplates, setMyTemplates] = useState(props.myTemplates);
   const [pagesOpen, setPagesOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -143,7 +149,11 @@ export function StudioEditor(props: StudioEditorProps) {
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode"), market: Object.fromEntries(STUDIO_MARKET_SECTIONS.map((x) => [x, t(`studio.market_${x}` as DashKey)])) };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
-  const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
+  // Editor audit 3.3: the page templates (About, FAQ) come before the blank page, beside the rest.
+  const kindTemplates = useMemo(() => {
+    const list = templatesFor(props.kind);
+    return [...list.filter((x) => x.id !== "blank"), ...PAGE_TEMPLATES, ...list.filter((x) => x.id === "blank")];
+  }, [props.kind]);
   const sectionContext: SectionContext = {
     brand: app.brand,
     source,
@@ -270,10 +280,36 @@ export function StudioEditor(props: StudioEditorProps) {
     try {
       const r = await publishLayoutAction(JSON.stringify(layout));
       if (applied(r, sent) && r.ok) setNotice(props.studioOnPlan ? t("studio.published") : t("studio.publishedOff"));
+      if (r.ok && r.history) setPublishes(r.history);
     } catch {
       setProblem(t("pages.cantSave"));
     } finally {
       setPublishing(false);
+    }
+  }
+
+  /**
+   * Editor audit 3.3: an earlier publish back as the draft, as one change
+   * (undo puts back what was there). What's published stays until the next publish.
+   */
+  async function restorePublish(entry: LayoutHistoryEntry) {
+    const when = new Date(entry.at).toLocaleString(dashLang, { dateStyle: "medium", timeStyle: "short" });
+    if (!window.confirm(t("studio.restoreConfirm", { date: when }))) return;
+    setRestoring(true);
+    try {
+      const r = await restoreLayoutVersionAction(entry.number);
+      if (!r.ok) {
+        setNotice(known(r.errors[0] ?? ""));
+        return;
+      }
+      change(() => r.draft);
+      if (!r.draft.pages.some((p) => p.slug === slug && p.studio)) setSlug(r.draft.pages.find((p) => p.studio)?.slug ?? r.draft.pages[0]?.slug ?? "");
+      setSelectedId(null);
+      setNotice(t("studio.restored", { date: when }));
+    } catch {
+      setNotice(t("pages.cantSave"));
+    } finally {
+      setRestoring(false);
     }
   }
 
@@ -292,6 +328,7 @@ export function StudioEditor(props: StudioEditorProps) {
   function nodeFor(payload: DragPayload): StudioNode | null {
     if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
+    if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
     return null;
   }
 
@@ -299,6 +336,8 @@ export function StudioEditor(props: StudioEditorProps) {
     if (!studio) return;
     const node = nodeFor(payload);
     if (!node) return;
+    // A project's own picture is made public as the media picker does, so the app can show it.
+    if (payload.kind === "picture" && payload.share) void shareMediaAction({ id: payload.share }).catch(() => undefined);
     const where = at ?? placeForNew(studio);
     changePage((p) => insertNode(p, where.parentId, node, where.index));
     setSelectedId(node.id);
@@ -313,7 +352,7 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function applyTemplate(id: string) {
-    const tpl = TEMPLATES.find((x) => x.id === id);
+    const tpl = TEMPLATES.find((x) => x.id === id) ?? PAGE_TEMPLATES.find((x) => x.id === id);
     if (tpl) startWith(() => tpl.make(sectionContext));
   }
 
@@ -509,7 +548,7 @@ export function StudioEditor(props: StudioEditorProps) {
     e.dataTransfer.setData("text/plain", "");
     if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source), elementInfo(payload.type).icon);
     else if (payload.kind === "section") dragGhost(e, t(`studio.sec_${payload.id}` as DashKey), SECTIONS.find((s) => s.id === payload.id)?.icon ?? "dashboard");
-    else if (studio) {
+    else if (payload.kind === "move" && studio) {
       const node = findNode(studio.body, payload.id);
       if (node) dragGhost(e, node.name || elementLabel(t, node.type, node.source ?? source), elementInfo(node.type).icon);
     }
@@ -966,6 +1005,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.ivory : C.barMuted }}>
           <Glyph name="redo" />
         </button>
+        <PublishHistory entries={publishes} busy={restoring} onRestore={(entry) => void restorePublish(entry)} />
         <div role="status" aria-live="polite" className="flex max-w-[320px] items-center gap-1.5 text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
           <Glyph name={status === "saved" ? "cloud_done" : status === "saving" ? "cloud_sync" : status === "invalid" ? "error" : "cloud_upload"} size={16} />
           <span className="truncate" suppressHydrationWarning>
@@ -995,6 +1035,8 @@ export function StudioEditor(props: StudioEditorProps) {
           onAddElement={(type) => add({ kind: "new", type })}
           onAddSection={(id) => add({ kind: "section", id })}
           onUseTemplate={applyTemplate}
+          onAddPicture={(payload) => add(payload)}
+          onLayerChange={(id, patch) => changePage((p) => updateNode(p, id, patch))}
           onUseMyTemplate={(tpl) => startWith(() => structuredClone(tpl.page))}
           onDeleteMyTemplate={(id) => void deleteTemplate(id)}
           myTemplates={myTemplates}

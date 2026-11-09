@@ -700,6 +700,8 @@ export interface StudioNode {
   motion?: StudioMotion | null;
   /** 107.2 Kept in the editor, never shown in the app. */
   hidden?: boolean;
+  /** Editor audit 3.3: the canvas doesn't select, move or resize it (its layer still does). Apps ignore it. */
+  locked?: boolean;
   translations?: Translations;
 }
 

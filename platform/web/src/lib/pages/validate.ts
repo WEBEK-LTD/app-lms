@@ -1056,6 +1056,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   if (name) node.name = name;
   // 107.2 Hidden in the app; the page's own element always shows.
   if (v.hidden === true && depth > 0) node.hidden = true;
+  if (v.locked === true && depth > 0) node.locked = true;
 
   // Size and place.
   const width = parseSize(c, where, v.width, "the width");
