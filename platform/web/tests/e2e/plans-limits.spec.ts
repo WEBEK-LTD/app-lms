@@ -9,7 +9,7 @@ import { solidPng } from "./png";
 /**
  * Plans, limits and owner notices (roadmap 13): the pricing page shows the
  * four plans; the team changes what a plan includes; a Starter app on the
- * hosted API gets ready-made pages, one language and a users limit; the
+ * hosted API gets the simple page editor, one language and a users limit; the
  * owner sees the usage, the notices and the Upgrade buttons, changes plans
  * on License & plugin, and gets the plan-ending reminder from the daily job.
  */
@@ -158,7 +158,7 @@ test("the team changes what a plan includes, and it's logged", async ({ page }) 
   await expect(users.getByRole("cell").nth(0)).toHaveText("2");
 });
 
-test("a Starter app on the hosted API: ready-made pages, one language, usage and Upgrade", async ({ request }) => {
+test("a Starter app on the hosted API: the simple page editor, one language, usage and Upgrade", async ({ request }) => {
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
   await own.getByLabel("Email").fill(client.email);
@@ -218,12 +218,15 @@ test("a Starter app on the hosted API: ready-made pages, one language, usage and
   await expect(usage).toContainText("Push notifications");
   await expect(usage).toContainText("iOS app · Growth");
 
-  // The page editor: ready-made pages only.
+  // The simple page editor: its pages' blocks and the basic ones to add; every block, styling and more pages on Growth.
   await own.goto("/dashboard/pages");
-  await expect(own.getByRole("tab", { name: "Look" })).toHaveAttribute("aria-selected", "true");
-  await own.getByRole("tab", { name: "Pages" }).click();
-  await expect(own.getByText("Full page editor")).toBeVisible();
+  await expect(own.getByRole("tab", { name: "Pages" })).toHaveAttribute("aria-selected", "true");
+  await expect(own.getByText("More with the full page editor").first()).toBeVisible();
+  await expect(own.getByRole("link", { name: "Upgrade to Growth" }).first()).toHaveAttribute("href", /plan=growth/);
   await expect(own.getByRole("button", { name: "Add page" })).toHaveCount(0);
+  await expect(own.getByRole("button", { name: "Add Text block" })).toBeVisible();
+  await expect(own.getByRole("button", { name: "Add Web page block" })).toHaveCount(0);
+  await expect(own.getByRole("button", { name: "Add Video block" })).toHaveCount(0);
 
   // The hosted API serves the plan: no offline mode, one language.
   const config = await request.get(`${api}/config?platform=android&app_version=1.0.0`);

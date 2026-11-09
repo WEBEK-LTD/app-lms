@@ -1,0 +1,76 @@
+import { newApp } from "../app/setup";
+import type { App } from "../data/types";
+import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
+import { picture, type Design } from "../pages/designs/build";
+import type { LayoutBlock } from "../pages/types";
+import { DEMO_BRANDS } from "./content";
+import { ALL_DEMO_TYPES, demoKind, type DemoId } from "./constants";
+import { DEMO_BANNER_ART } from "./design-art";
+
+/**
+ * Templates = demos. Each demo app's pages and look are this design, so the
+ * app an owner starts from "Like our demo" is the app they tried, and the
+ * two can't drift apart (tests/unit/demo-designs.test.ts). Its pictures are
+ * the demo's own drawn pictures (public/design-pictures). The demo then only
+ * adds how to sign in to it (lib/demo/setup.ts demoLayout).
+ */
+
+/** The design id of a demo's look: `demo-<demo>`. */
+export function demoDesignId(id: DemoId): string {
+  return `demo-${id}`;
+}
+
+/** The fixed date the designs are made at; the date never reaches a page. */
+const MADE_AT = new Date("2026-01-01T00:00:00Z");
+
+/** The welcome banner and the sentence about the business, with `{app}` where the app's name goes. */
+function demoHomeBlocks(id: DemoId): { banner: LayoutBlock; welcome: string } {
+  const brand = DEMO_BRANDS[id];
+  return {
+    banner: {
+      id: "demo-banner",
+      type: "banner",
+      visibility: "everyone",
+      title: null,
+      image_url: picture(DEMO_BANNER_ART[brand.banner.picture] ?? `art-${brand.banner.picture}.png`),
+      heading: brand.banner.heading,
+      subheading: brand.banner.subheading,
+      action: null,
+    },
+    welcome: `<h2>Welcome to {app}</h2><p>${escapeHtml(brand.welcome)}</p>`,
+  };
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
+}
+
+/** The demo's design: the pages its kind starts with, the banner and welcome on its home, and the demo's look and colours. */
+export function demoDesign(id: DemoId): Design {
+  const brand = DEMO_BRANDS[id];
+  const kind = demoKind(id);
+  const app: App = { ...newApp("demo", null, MADE_AT, kind.engine, kind.vertical), appName: "{app}", brandingDoneAt: MADE_AT };
+  const base = defaultLayout(app, BUILT_IN_APP_DEFAULTS, MADE_AT);
+  const { banner, welcome } = demoHomeBlocks(id);
+  const pages = base.pages.map((p, i) => ({
+    slug: p.slug,
+    title: p.title,
+    show_title: p.show_title,
+    blocks: i === 0 ? [banner, ...p.blocks.map((b) => (b.id === "welcome" ? { ...b, html: welcome } : b))] : p.blocks,
+  }));
+  return {
+    id: demoDesignId(id),
+    kind: kind.id,
+    name: `Like our demo: ${brand.appName}`,
+    description: brand.banner.heading,
+    look: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor },
+    tabs: structuredClone(base.tabs),
+    ...(base.menu?.length ? { menu: structuredClone(base.menu) } : {}),
+    pages,
+    palettes: [{ id: "design", name: "The design's colours", primary: brand.primaryColor, secondary: brand.secondaryColor }],
+    recommended: true,
+  };
+}
+
+/** Every demo's design, in the demos' order. */
+export const DEMO_DESIGNS: readonly Design[] = ALL_DEMO_TYPES.map(demoDesign);

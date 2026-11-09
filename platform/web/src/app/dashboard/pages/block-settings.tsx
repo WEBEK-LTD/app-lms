@@ -56,6 +56,8 @@ export interface BlockContext {
   pickable: Pickable;
   /** 99.3 The app's languages, for "Shows in". */
   languages: LanguageCode[];
+  /** The simple page editor (Starter): no block styling. */
+  basic?: boolean;
 }
 
 const VISIBILITY_LABELS: Record<(typeof VISIBILITIES)[number], DashKey> = {
@@ -804,8 +806,9 @@ export function BlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ct
       {block.type === "spacer" ? <SelectInput id={`${id}-size`} label={t("pages.size")} value={block.size ?? "medium"} options={opts(SPACER_SIZES, SIZE_LABELS, t)} onChange={(size) => set({ size })} /> : null}
       <MoreBlockSettings block={block} ctx={ctx} onChange={onChange} />
       <SelectInput id={`${id}-visibility`} label={t("pages.whoSees")} value={block.visibility} options={opts(VISIBILITIES, VISIBILITY_LABELS, t)} onChange={(visibility) => set({ visibility })} />
-      {/* 82.5 The block's look within the brand. */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* 82.5 The block's look within the brand; the simple editor keeps the template's. */}
+      {ctx.basic ? <p className="m-0 text-xs text-muted">{t("pages.basicNoStyle")}</p> : null}
+      <div className={ctx.basic ? "hidden" : "grid gap-3 sm:grid-cols-2"}>
         <SelectInput
           id={`${id}-background`}
           label={t("pages.background")}
@@ -848,7 +851,7 @@ function BlockStyle({ block, ctx, onChange }: { block: LayoutBlock; ctx: BlockCo
   };
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className={ctx.basic ? "hidden" : "grid gap-3 sm:grid-cols-2"}>
         <SelectInput id={`${id}-align`} label={t("pages.textPosition")} value={look.align ?? "start"} options={opts(BLOCK_ALIGNS, ALIGN_LABELS, t)} onChange={(align) => setLook({ align })} />
         <SelectInput id={`${id}-text-size`} label={t("pages.textSize")} value={look.text_size ?? "medium"} options={opts(BLOCK_TEXT_SIZES, TEXT_SIZE_LABELS, t)} onChange={(text_size) => setLook({ text_size })} />
         <SelectInput id={`${id}-corners`} label={t("pages.corners")} value={look.corners ?? "app"} options={opts(BLOCK_CORNERS, CORNERS_LABELS, t)} onChange={(corners) => setLook({ corners })} />

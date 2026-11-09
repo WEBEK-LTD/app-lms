@@ -20,8 +20,8 @@ import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { defaultLayout } from "@/lib/pages/defaults";
 import { appDefaults } from "@/lib/pages/layout";
-import { allowedSources } from "@/lib/pages/plan";
-import { hasFeature, lowestPlanWith } from "@/lib/plans";
+import { allowedSources, BASIC_BLOCK_TYPES } from "@/lib/pages/plan";
+import { hasFeature, lowestPlanWith, pageEditorLevel } from "@/lib/plans";
 import { builtInSuggestions } from "@/lib/pages/builtin";
 import { draftPreviewSupported } from "@/lib/preview/config";
 import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
@@ -125,7 +125,8 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         sources={sources}
         categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
         screens={screenOptionsFor(app)}
-        blockTypes={blockTypesFor(app)}
+        // The simple page editor adds basic blocks only; the template's others stay editable.
+        blockTypes={plan && pageEditorLevel(plan) === "basic" ? blockTypesFor(app).filter((b) => BASIC_BLOCK_TYPES.includes(b)) : blockTypesFor(app)}
         pickable={pickable}
         versions={await appVersionsInUse(store, app.id, now)}
         sections={(await store.listSavedSections(app.clientId)).map(({ id, name, blocks }) => ({ id, name, blocks }))}
@@ -133,7 +134,8 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         plan={{
           name: plan?.name ?? "",
           // Before activation the client can try everything; the app gets what its plan allows.
-          pageEditor: plan ? hasFeature(plan, "page_editor") : true,
+          pageEditor: plan ? pageEditorLevel(plan) !== null : true,
+          basic: plan ? pageEditorLevel(plan) === "basic" : false,
           languages: plan?.limits.languages ?? null,
           upgradeEditor: plan ? lowestPlanWith(plans, (p) => hasFeature(p, "page_editor"), planId) : null,
           upgradeLanguages: plan ? lowestPlanWith(plans, (p) => p.limits.languages === null || p.limits.languages > (plan.limits.languages ?? 0), planId) : null,

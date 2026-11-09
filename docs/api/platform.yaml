@@ -1206,8 +1206,10 @@ components:
             Plan features the plugin may enable (only while the license is
             active). `push`: push notifications; `offline_downloads`: offline
             mode in the app; `auto_publish`: we publish to the stores; `ios`:
-            the iOS app; `page_editor`: the full page editor (without it the
-            app gets the ready-made pages); `card_payments`: card payments in
+            the iOS app; `page_editor`: the full page editor; `page_editor_basic`:
+            the simple page editor, with basic blocks, no block styling, no
+            custom code and at most six pages (without either, the app gets
+            the ready-made pages); `card_payments`: card payments in
             the app through Yallapp's payment page; `auto_rebuild`: new builds
             start when the app's settings change; (77) `chat`: chat with the
             business in the app; (91.4) `loyalty`: loyalty points in shops
@@ -1229,7 +1231,7 @@ components:
             `market`: food apps grown into marketplaces (the hosted API
             only). Unknown values are
             ignored.
-          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors, school, taxi, university, market] }
+          items: { type: string, enum: [push, offline_downloads, auto_publish, ios, page_editor, page_editor_basic, card_payments, auto_rebuild, chat, loyalty, store_billing, studio, delivery, courier_app, food, rides, instructors, school, taxi, university, market] }
         chat:
           type: [object, 'null']
           description: |

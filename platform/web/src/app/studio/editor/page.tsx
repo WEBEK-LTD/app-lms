@@ -21,7 +21,7 @@ import { StudioEditor } from "./editor";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await dashboardText();
-  return { title: t("studio.title") };
+  return { title: t("studio.editorPage") };
 }
 export const dynamic = "force-dynamic";
 

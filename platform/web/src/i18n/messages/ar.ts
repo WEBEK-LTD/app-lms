@@ -182,6 +182,7 @@ export const ar: Messages = {
     all: "الكل",
     unlimited: "غير محدود",
     fullEditor: "محرّر صفحات كامل",
+    basicEditor: "محرّر صفحات بسيط",
     templates: "قوالب جاهزة",
     supportEmail: "دعم عبر البريد الإلكتروني",
     supportWhatsapp: "دعم عبر WhatsApp",
