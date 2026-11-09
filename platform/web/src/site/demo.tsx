@@ -13,7 +13,7 @@ import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, d
 import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
 import { appUrl } from "@/lib/env";
 import { solution as solutionPage } from "@/lib/marketing";
-import { demoGuideFor, kindNameFor, screenAltFor, solutionFor } from "@/lib/marketing-lang";
+import { allSolutionsFor, demoGuideFor, kindNameFor, screenAltFor, solutionFor } from "@/lib/marketing-lang";
 import { siteMetadata } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
@@ -134,7 +134,10 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
   const slug = DEMO_SLUGS[type];
   const kind = demoKind(type);
   const href = `${base}/demo/download/${slug}`;
-  const solution = solutionFor(lang, kind.marketing.slug);
+  // 115.15 A kind whose own name stays off public pages has its demo's name, and its solution page by the demo's slug.
+  const label = kind.demo?.name ?? kind.name;
+  const solution = allSolutionsFor(lang).find((s) => s.demoSlug === slug && s.kind === kind.id) ?? solutionFor(lang, kind.marketing.slug);
+  const page = solution && solutionPage(solution.id) ? solution.id : solutionPage(kind.marketing.slug) ? kind.marketing.slug : null;
   return (
     <Section id={slug} tinted={tinted}>
       <div className="flex flex-wrap items-start gap-10" aria-labelledby={`h-${slug}`} role="group">
@@ -142,7 +145,7 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
           <div className="flex flex-col gap-2.5">
             <span className="flex items-center gap-2 text-[13px] font-bold tracking-[1px] text-accent uppercase">
               <Icon name={kind.marketing.icon} size={20} />
-              {kindNameFor(lang, kind.name)}
+              {kindNameFor(lang, label)}
             </span>
             <h2 id={`h-${slug}`} className="m-0 text-[28px] font-extrabold tracking-[-0.5px] sm:text-[34px]">
               {brand.appName}
@@ -185,10 +188,10 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
               <span className="text-sm text-muted">{m.onItsWay}</span>
             </div>
           )}
-          {/* Studio's project types have no solution page. */}
-          {solutionPage(kind.marketing.slug) ? (
-            <Link href={localePath(lang, `/solutions/${kind.marketing.slug}`)} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
-              {lang === "en" ? `About ${kind.name.toLowerCase()} apps` : formatMessage(lang, m.about, { apps: solution?.apps ?? kind.name })}
+          {/* Its solution page, when it has one. */}
+          {page ? (
+            <Link href={localePath(lang, `/solutions/${page}`)} className="flex items-center gap-1.5 self-start font-bold text-midnight no-underline hover:underline">
+              {lang === "en" ? `About ${label.toLowerCase()} apps` : formatMessage(lang, m.about, { apps: solution?.apps ?? label })}
               <Icon name="arrow_forward" size={20} />
             </Link>
           ) : null}

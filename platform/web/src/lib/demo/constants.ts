@@ -54,11 +54,11 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * delivery, 105.2 rides; 110.5 105.9 a live taxi app, 105.4 a school and
  * 105.3 an academy with many teachers), shown on /demo/studio only.
  */
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school"> | Extract<AppVertical, "taxi" | "instructors">;
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace">;
 export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors"];
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace"];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
   return STUDIO_DEMO_KINDS.includes(id);

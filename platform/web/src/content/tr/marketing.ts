@@ -76,6 +76,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "Services & companies": "Hizmetler ve şirketler",
     "Delivery & couriers": "Teslimat ve kurye",
     "Food delivery": "Yemek siparişi",
+    "Multi-vendor": "Çok satıcılı",
     "Ride hailing": "Yolcu taşıma",
     "Live taxi on the map": "Haritada canlı taksi",
     School: "Okul",
@@ -1576,6 +1577,15 @@ export const TR_MARKETING: MarketingTranslation = {
         "Bir restoran açın, boyutu ve ekstralarıyla bir yemek seçin ve nakit ödeyin",
         "Restoran sekmesinde siparişinizi gereken dakikalarla kabul edin, sonra hazır olarak işaretleyin",
         "Hesap › Kurye modu'nda işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
+      ],
+    },
+    marketplace: {
+      summary: "Tek uygulamada iki restoran ve bir süpermarket: her birinden sipariş verin, kampanyaları, kulübü ve cüzdanı kullanın, sonra süpermarketin siparişlerini çalışanı olarak alın ve kurye olarak teslim edin.",
+      tryThis: [
+        "Siparişlerim'i açın: biri yolda ve kuryesi haritada, biri yarın için, biri de gel-al için tezgâhta sizi bekliyor",
+        "Zad Market'ten bir sepet doldurun, bir kısmı kiloyla, marketin kendi kampanyasını ya da ZAD20 kodunu kullanın ve cüzdanınızla ödeyin",
+        "İşletmem sekmesinde siparişinizi gereken dakikalarla kabul edin, her ürünü toplayıp tartın, sonra hazır olarak işaretleyin",
+        "Hesap › Kurye modu'nda onun işini alıp teslim edin, sonra şikâyetlerinize bakın: biri açık, biri yanıtınızı bekliyor, biri cüzdanınıza iade edildi",
       ],
     },
     rides: {

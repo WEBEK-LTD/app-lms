@@ -84,6 +84,7 @@ import {
 } from "./content";
 import type { PictureName } from "./pictures";
 import { savePicture, type PictureSize } from "./picture-assets";
+import { refreshMarketplaceDemo } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
 
@@ -255,7 +256,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   if (content === "catalog") await syncProducts(deps, client.id, saved, id === "restaurant");
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
   if (content === "deliveries") await syncDelivery(deps, client.id, saved);
-  if (content === "restaurants") await syncFood(deps, client.id, saved);
+  // 115.15 Zad: two restaurants and a supermarket, offers, the club, the wallet, and the demo number's orders and complaints.
+  if (content === "restaurants" && id === "marketplace") await refreshMarketplaceDemo(store, saved, now, { force: true });
+  else if (content === "restaurants") await syncFood(deps, client.id, saved);
   if (content === "rides" && id === "taxi") await syncTaxi(deps, saved);
   else if (content === "rides") await syncRides(deps, saved);
   // 110.5 Nakhla School: its structure and people, then its school day.

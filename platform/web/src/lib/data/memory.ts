@@ -4177,6 +4177,15 @@ export class MemoryStore implements DataStore {
     return true;
   }
 
+  async deleteMarketOrders(appId: string, ids: number[]): Promise<number> {
+    const gone = new Set(ids.filter((id) => this.marketOrders.get(id)?.appId === appId));
+    for (const id of gone) this.marketOrders.delete(id);
+    for (const [id, c] of this.marketComplaints) if (c.appId === appId && gone.has(c.orderId)) this.marketComplaints.delete(id);
+    this.marketCouponUses = this.marketCouponUses.filter((u) => !(u.appId === appId && gone.has(u.orderId)));
+    this.walletEntries = this.walletEntries.filter((e) => !(e.appId === appId && e.orderId !== null && gone.has(e.orderId)));
+    return gone.size;
+  }
+
   async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
     const complaint: MarketComplaint = { ...clone(input), id: this.nextMarketComplaintId++ };
     this.marketComplaints.set(complaint.id, clone(complaint));

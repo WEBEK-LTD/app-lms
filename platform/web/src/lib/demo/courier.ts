@@ -22,8 +22,16 @@ function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }): n
   return Math.hypot(north, east);
 }
 
-/** Where the demo's courier is now with this parcel; null before it's picked up or without both places. */
-export function demoCourierPosition(shipment: Pick<Shipment, "status" | "pickup" | "dropoff" | "timeline">, now: Date): { lat: number; lng: number } | null {
+/** How long a looping demo courier waits at the door before setting off again, in minutes. */
+const AT_THE_DOOR = 2;
+
+/**
+ * Where the demo's courier is now with this parcel; null before it's picked
+ * up or without both places. 115.15 With `loop`, a seeded courier nobody
+ * drives (the multi-vendor demo's) sets off again after a little while at
+ * the door, so whoever opens the order sees them on the way.
+ */
+export function demoCourierPosition(shipment: Pick<Shipment, "status" | "pickup" | "dropoff" | "timeline">, now: Date, options: { loop?: boolean } = {}): { lat: number; lng: number } | null {
   if (shipment.status !== "picked_up" && shipment.status !== "on_the_way") return null;
   const { pickup, dropoff } = shipment;
   if (pickup.lat === null || pickup.lng === null || dropoff.lat === null || dropoff.lng === null) return null;
@@ -31,8 +39,9 @@ export function demoCourierPosition(shipment: Pick<Shipment, "status" | "pickup"
   const to = { lat: dropoff.lat, lng: dropoff.lng };
   const since = shipment.timeline.find((s) => s.status === "picked_up")?.at;
   const started = since ? new Date(since).getTime() : now.getTime();
-  const minutes = Math.max(0, (now.getTime() - started) / 60_000);
   const whole = Math.max(km(from, to), 0.1);
+  const elapsed = Math.max(0, (now.getTime() - started) / 60_000);
+  const minutes = options.loop ? elapsed % ((whole * LAST * 60) / SPEED_KMH + AT_THE_DOOR) : elapsed;
   const part = Math.min(LAST, (minutes / 60) * SPEED_KMH / whole);
   return { lat: from.lat + (to.lat - from.lat) * part, lng: from.lng + (to.lng - from.lng) * part };
 }

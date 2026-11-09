@@ -124,7 +124,11 @@ export interface KindInfo {
   /** Store categories, when they differ from the engine's. */
   categories?: { play: string; appStore: string };
   /** 21 Its own demo app on /demo (/demo/download/<slug>); the engine's default kind uses the engine's demo. */
-  demo?: { slug: string };
+  demo?: {
+    slug: string;
+    /** 115.15 What /demo calls it when its own name mustn't appear on public pages ("Multi-vendor", not "Marketplace"). */
+    name?: string;
+  };
   /** 21 The dashboard's words for its content and its app users, when they differ from the engine's. */
   wording?: {
     nav: { label: string; items: NavItem[] };
@@ -1127,6 +1131,8 @@ export const KINDS: readonly KindInfo[] = [
     icon: "storefront",
     tile: "bg-tile-4 text-[#8A4B12]",
     marketing: { slug: "marketplace", icon: "storefront" },
+    // 115.15 Its demo, on /demo/studio (no "marketplace" in public addresses).
+    demo: { slug: "multi-vendor", name: "Multi-vendor" },
     wording: {
       nav: {
         label: "Your marketplace",
