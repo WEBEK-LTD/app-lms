@@ -14128,6 +14128,7 @@ components:
         visibility: { type: string, enum: [everyone, signed_in, signed_out], default: everyone }
         motion: { $ref: '#/components/schemas/StudioMotion' }
         hidden: { type: boolean, default: false, description: "107.2 Kept in the editor but never shown: the servers leave it out with what it holds, and an app that gets one doesn't draw it." }
+        locked: { type: boolean, default: false, description: "Editor audit 3.3: kept for the editor only, where the canvas doesn't select, move or resize it. Apps ignore it." }
 
     StudioCorners:
       type: [object, 'null']
@@ -14232,6 +14233,15 @@ components:
         tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }
         free_delivery: { type: boolean, default: false }
         limit: { type: integer, minimum: 1, maximum: 40, default: 10 }
+        card:
+          type: object
+          description: Editor audit 3.4. For `vendors` and `offers`, how each place's card is drawn; missing, the usual card.
+          properties:
+            radius: { type: integer, minimum: 0, maximum: 32, description: "The card's corners; missing, the look's own." }
+            hide:
+              type: array
+              description: Facts the card leaves out; missing or empty, all shown.
+              items: { type: string, enum: [offer, rating, time, fee, min_order] }
 
     StudioMap:
       type: [object, 'null']

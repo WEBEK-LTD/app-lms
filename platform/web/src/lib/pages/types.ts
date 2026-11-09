@@ -581,6 +581,8 @@ export interface StudioForm {
 /** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
 export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
 export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list"] as const;
+/** Editor audit 3.4: facts a place's card can leave out. */
+export const STUDIO_MARKET_CARD_FACTS = ["offer", "rating", "time", "fee", "min_order"] as const;
 export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
 export const STUDIO_MARKET_SORTS = ["recommended", "fastest", "rating", "nearest", "newest"] as const;
 
@@ -596,6 +598,16 @@ export interface StudioMarket {
   free_delivery?: boolean;
   /** 1 to 40; missing, 10. */
   limit?: number;
+  /** Editor audit 3.4: how each place's card is drawn; missing, the usual card. */
+  card?: StudioMarketCard;
+}
+
+/** Editor audit 3.4: the card of a place in a `market` section of places or offers. */
+export interface StudioMarketCard {
+  /** The card's corners, 0 to 32; missing, the look's own. */
+  radius?: number;
+  /** Facts the card leaves out; missing or empty, all shown. */
+  hide?: (typeof STUDIO_MARKET_CARD_FACTS)[number][];
 }
 
 export interface StudioMap {
@@ -688,6 +700,8 @@ export interface StudioNode {
   motion?: StudioMotion | null;
   /** 107.2 Kept in the editor, never shown in the app. */
   hidden?: boolean;
+  /** Editor audit 3.3: the canvas doesn't select, move or resize it (its layer still does). Apps ignore it. */
+  locked?: boolean;
   translations?: Translations;
 }
 

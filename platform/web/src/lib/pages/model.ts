@@ -112,8 +112,93 @@ export function uniqueSlug(title: string, taken: string[]): string {
   return slug;
 }
 
-/** A block of `type` with sensible starting settings. */
-export function newBlock(type: BlockType, sources: ItemSource[], screens: readonly ScreenOption[] = []): LayoutBlock {
+/**
+ * The sample pictures a new block starts with: Yallapp's picture library
+ * (public/design-pictures) at the platform's address `base`.
+ */
+export function samplePictures(base: string): string[] {
+  const root = base.replace(/\/+$/, "");
+  return ["ocean-waves", "sand-circles", "forest-blocks"].map((name) => `${root}/design-pictures/${name}.jpg`);
+}
+
+/**
+ * A block of `type` with sensible starting settings. 1.1 With `pictures`
+ * (samplePictures), it starts with sample texts and pictures the owner
+ * replaces, so it shows in the app as it is; without them, as an empty
+ * block to fill in.
+ */
+export function newBlock(type: BlockType, sources: ItemSource[], screens: readonly ScreenOption[] = [], pictures?: readonly string[]): LayoutBlock {
+  if (pictures?.length) {
+    const sample = sampleBlock(type, sources, screens, pictures);
+    if (sample) return sample;
+  }
+  return emptyBlock(type, sources, screens);
+}
+
+/** 1.1 A new block with sample texts and pictures, or null for the blocks that need the owner's own (a video, a web page, a map). */
+function sampleBlock(type: BlockType, sources: ItemSource[], screens: readonly ScreenOption[], pictures: readonly string[]): LayoutBlock | null {
+  const empty = emptyBlock(type, sources, screens);
+  const picture = (n: number) => pictures[n % pictures.length]!;
+  switch (type) {
+    case "banner":
+      return { ...empty, image_url: picture(0), heading: "Welcome", subheading: "Tap here to see what's new" };
+    case "text":
+      return { ...empty, html: "<h2>About us</h2><p>Write a few lines here about what you offer and why people choose you.</p>" };
+    case "image":
+      return { ...empty, image_url: picture(1) };
+    case "button":
+      return { ...empty, label: "Get started" };
+    case "items":
+    case "categories":
+      return { ...empty, title: "Popular now" };
+    case "slider":
+      return {
+        ...empty,
+        slides: [
+          { image_url: picture(0), heading: "Welcome", subheading: "Tap here to see what's new", action: null },
+          { image_url: picture(1), heading: "Something new every week", subheading: null, action: null },
+        ],
+      };
+    case "testimonials":
+      return { ...empty, title: "What people say", quotes: [{ text: "Easy to use, and the team answers fast.", name: "A happy customer", role: null, photo_url: null, rating: 5 }] };
+    case "faq":
+      return { ...empty, title: "Questions and answers", questions: [{ question: "How do I get in touch?", answer: "Send us a message from the Contact page and we'll answer within a working day." }] };
+    case "countdown":
+      return { ...empty, heading: "Our next offer starts soon" };
+    case "contact":
+      return { ...empty, title: "Contact us" };
+    case "hours":
+      return { ...empty, title: "Opening hours" };
+    case "team":
+      return { ...empty, title: "Our team", people: [{ name: "Your name", role: "Founder", bio: null, photo_url: null, action: null }] };
+    case "stats":
+      return {
+        ...empty,
+        stats: [
+          { value: "10+", label: "Years" },
+          { value: "500+", label: "Customers" },
+          { value: "24/7", label: "Online" },
+        ],
+      };
+    case "notice":
+      return { ...empty, text: "Free delivery this week" };
+    case "cards":
+      return {
+        ...empty,
+        cards: [
+          { title: "What we do", text: "A line about it.", image_url: picture(0), action: null },
+          { title: "How it works", text: "A line about it.", image_url: picture(2), action: null },
+        ],
+      };
+    case "gallery":
+      return { ...empty, images: [0, 1, 2].map((n) => ({ image_url: picture(n), caption: null })) };
+    default:
+      return null;
+  }
+}
+
+/** A block of `type` with empty texts to fill in. */
+function emptyBlock(type: BlockType, sources: ItemSource[], screens: readonly ScreenOption[]): LayoutBlock {
   const id = newBlockId();
   const source = sources[0] ?? "courses";
   const base: LayoutBlock = { id, type, visibility: "everyone", title: null };

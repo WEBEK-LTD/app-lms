@@ -43,6 +43,10 @@ class MarketSectionView extends ConsumerWidget {
     final home = ref.watch(marketHomeProvider).value;
     if (home == null) return const SizedBox(height: 120);
     final accent = color ?? context.palette.primary;
+    return MarketCardLook(card: market.card, child: _section(home, accent));
+  }
+
+  Widget _section(MarketHome home, Color accent) {
     return switch (market.section) {
       StudioMarketSection.address => _Hero(
         node: node,
@@ -1047,6 +1051,9 @@ class MarketVendorCard extends StatelessWidget {
     final p = context.palette;
     final l10n = context.l10n;
     final closed = vendor.state == MarketVendorState.closed;
+    final look = MarketCardLook.of(context);
+    final radius = BorderRadius.circular(look.radius ?? 24);
+    final promo = look.shows(StudioMarketFact.offer) ? vendor.promo : null;
     return MarketPressable(
       onTap: () => _openVendor(context, vendor),
       child: Column(
@@ -1059,7 +1066,7 @@ class MarketVendorCard extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: radius,
                     child: ColorFiltered(
                       colorFilter: closed
                           ? const ColorFilter.matrix(_greyscale)
@@ -1079,7 +1086,7 @@ class MarketVendorCard extends StatelessWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.42),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: radius,
                       ),
                       child: Center(
                         child: MarketPill(
@@ -1097,7 +1104,7 @@ class MarketVendorCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (vendor.promo case final promo?)
+                if (promo != null)
                   PositionedDirectional(
                     top: 10,
                     start: 10,
@@ -1131,7 +1138,7 @@ class MarketVendorCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (vendor.etaMin != null)
+                if (vendor.etaMin != null && look.shows(StudioMarketFact.time))
                   PositionedDirectional(
                     bottom: 10,
                     end: 10,
@@ -1139,7 +1146,7 @@ class MarketVendorCard extends StatelessWidget {
                   ),
                 if (vendor.club)
                   PositionedDirectional(
-                    top: vendor.promo == null ? 10 : 42,
+                    top: promo == null ? 10 : 42,
                     start: 10,
                     child: MarketPill(
                       text: vendor.clubBenefit ?? l10n.marketClubFree,
@@ -1281,7 +1288,9 @@ class _VendorTile extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(
+                        MarketCardLook.of(context).radius ?? 22,
+                      ),
                       child: AppNetworkImage(
                         url: vendor.coverUrl,
                         seed: vendor.id.hashCode,
@@ -1359,7 +1368,9 @@ class _VendorRow extends StatelessWidget {
               width: 84,
               height: 84,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(
+                  MarketCardLook.of(context).radius ?? 20,
+                ),
                 child: AppNetworkImage(
                   url: vendor.coverUrl,
                   seed: vendor.id.hashCode,

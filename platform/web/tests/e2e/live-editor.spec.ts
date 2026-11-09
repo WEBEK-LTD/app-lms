@@ -110,10 +110,30 @@ test("82.2 a block clicked on the phone opens in the editor; one dragged onto th
   await expect(list).toHaveCount(count + 1);
   await expect(list.first()).toContainText("Notice");
   await expect(list.first().getByRole("button", { expanded: true })).toBeVisible();
-  // The new Notice needs its text before the draft can be saved.
-  await expect(own.getByText("Draft not saved: fix the problems below.")).toBeVisible({ timeout: 15_000 });
-  await list.first().getByLabel("Text", { exact: true }).fill("Free delivery this week");
+  // 1.1 The new Notice starts with a sample text, marked, and the draft is saved with it.
+  await expect(list.first().getByLabel("Text", { exact: true })).toHaveValue("Free delivery this week");
+  await expect(list.first()).toContainText("Sample");
   await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+
+  // 1.1 A video needs its address: the draft is saved without it, and the block says so.
+  await own.getByRole("button", { name: "Add Video block" }).click();
+  await expect(list).toHaveCount(count + 2);
+  await expect(own.getByText(/One block needs content before it shows in the app\.$/)).toBeVisible({ timeout: 15_000 });
+  await expect(list.last().locator("[data-needs-content]")).toContainText("Needs content");
+  // It stays in the editor when it opens again, still marked.
+  await own.reload();
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await expect(list).toHaveCount(count + 2);
+  await expect(list.last()).toContainText("Video");
+  await expect(list.last().locator("[data-needs-content]")).toBeVisible({ timeout: 15_000 });
+  // Publishing asks for it first.
+  await own.getByRole("button", { name: "Publish", exact: true }).click();
+  await expect(own.getByText("Draft not saved: fix the problems below.")).toHaveCount(0);
+  await expect(own.getByText(/add the video address/).first()).toBeVisible();
+  // Deleted, nothing is left to fill in.
+  await own.getByRole("button", { name: `Delete block ${count + 2}` }).click();
+  await expect(own.getByText(/needs content before it shows/)).toHaveCount(0, { timeout: 15_000 });
+  await expect(own.getByText(/^Draft saved/)).toBeVisible();
 });
 
 test("82.3 the app at a small phone's, a phone's or a tablet's size, as on Android or an iPhone, light and dark side by side", async () => {
