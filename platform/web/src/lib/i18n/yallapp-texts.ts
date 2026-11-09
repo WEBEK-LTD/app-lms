@@ -4,7 +4,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { applyDesign, DESIGNS } from "../pages/designs";
 import { aboutPage, contactPage } from "../pages/designs/build";
 import { SCREEN_LABELS } from "../pages/labels";
-import { newBlock } from "../pages/model";
+import { newBlock, samplePictures } from "../pages/model";
 import { blockTypesFor, itemSourcesFor, screenOptionsFor } from "../pages/sources";
 import { ENTRY_LISTS, TRANSLATABLE, TRANSLATABLE_ENTRIES, type LayoutBlock, type LayoutContent } from "../pages/types";
 
@@ -90,7 +90,8 @@ export function yallappPageTexts(): string[] {
     for (const backend of BACKENDS) {
       const app = sampleApp(appType, backend, "{app}");
       const screens = screenOptionsFor(app);
-      for (const type of blockTypesFor(app)) add(blockTexts(newBlock(type, itemSourcesFor(app), screens)));
+      // 1.1 Their sample texts too.
+      for (const type of blockTypesFor(app)) for (const pictures of [undefined, samplePictures("https://yallapp.test")]) add(blockTexts(newBlock(type, itemSourcesFor(app), screens, pictures)));
       add(screens.map((s) => s.label));
     }
   }
