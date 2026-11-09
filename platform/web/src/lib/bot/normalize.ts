@@ -1,5 +1,5 @@
 /**
- * The app-builder bot's text normalisation (no AI: plain rules). Both the
+ * The app-builder bot's text normalisation, by plain rules. Both the
  * dictionary's phrases and what the owner types go through it, so they meet
  * in one spelling:
  *
@@ -96,7 +96,11 @@ export function tokenVariants(token: string): string[] {
     for (const stem of [...stems, ...stems.flatMap(withoutPrefixes)]) {
       out.add(stem);
       for (const suffix of AR_SUFFIXES) {
-        if (stem.endsWith(suffix) && stem.length - suffix.length >= 3) out.add(stem.slice(0, -suffix.length));
+        if (!stem.endsWith(suffix) || stem.length - suffix.length < 3) continue;
+        const rest = stem.slice(0, -suffix.length);
+        out.add(rest);
+        // A ta marbuta is written ت before an ending: "مدرستنا" is "مدرسة" + نا.
+        if (rest.endsWith("\u062A")) out.add(`${rest.slice(0, -1)}\u0647`);
       }
     }
   } else {
