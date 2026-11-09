@@ -40,7 +40,7 @@ import {
   type BlockSpacing,
   type LanguageCode,
 } from "@/lib/pages/types";
-import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
+import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, NumberInput, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { MediaPicker } from "@/components/media-picker";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { richText } from "@/i18n/rich";
@@ -99,14 +99,7 @@ function QueryEditor({ id, block, ctx, onChange }: { id: string; block: LayoutBl
         {SOURCE_SORTS[source].length > 1 ? (
           <SelectInput id={`${id}-sort`} label={t("pages.order")} value={sortFor(source, query.sort)} options={opts(SOURCE_SORTS[source], SORT_LABELS, t)} onChange={(sort) => set({ sort })} />
         ) : null}
-        <TextInput
-          id={`${id}-limit`}
-          label={t("pages.howMany")}
-          type="number"
-          inputMode="numeric"
-          value={String(query.limit)}
-          onChange={(v) => set({ limit: Math.min(Math.max(Number.parseInt(v, 10) || 1, 1), LAYOUT_LIMITS.maxItems) })}
-        />
+        <NumberInput id={`${id}-limit`} label={t("pages.howMany")} value={query.limit} min={1} max={LAYOUT_LIMITS.maxItems} hint={t("pages.howManyHint", { max: LAYOUT_LIMITS.maxItems })} onChange={(limit) => set({ limit })} />
       </div>
       {source === "products" ? <Check label={t("pages.featured")} checked={query.featured} onChange={(featured) => set({ featured })} /> : null}
       {entries?.length ? (
