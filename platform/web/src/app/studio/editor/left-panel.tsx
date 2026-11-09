@@ -7,6 +7,7 @@ import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pag
 import { ELEMENTS, type ElementGroup } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
+import { PicturesPanel } from "./pictures-panel";
 import { Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
 
 /**
@@ -14,7 +15,7 @@ import { Glyph, STUDIO_COLORS as C, type DragPayload } from "./shared";
  * sections and Templates (with search), and the page's layers as a tree.
  */
 
-export type LeftTab = "elements" | "sections" | "templates";
+export type LeftTab = "elements" | "sections" | "templates" | "pictures";
 
 export interface MyTemplate {
   id: string;
@@ -39,6 +40,10 @@ export function LeftPanel(props: {
   onAddElement: (type: StudioNode["type"]) => void;
   onAddSection: (id: string) => void;
   onUseTemplate: (id: string) => void;
+  /** Editor audit 3.3: a picture from the pictures tab, added after what's selected. */
+  onAddPicture: (payload: DragPayload) => void;
+  /** Editor audit 3.3: hide an element in the app, or lock it on the canvas, from its layer. */
+  onLayerChange: (id: string, patch: Partial<StudioNode>) => void;
   onUseMyTemplate: (template: MyTemplate) => void;
   onDeleteMyTemplate: (id: string) => void;
   myTemplates: MyTemplate[];
@@ -61,6 +66,7 @@ export function LeftPanel(props: {
     { id: "elements", label: t("studio.elements") },
     { id: "sections", label: t("studio.sections") },
     { id: "templates", label: t("studio.templates") },
+    { id: "pictures", label: t("studio.pictures") },
   ];
   const matches = (label: string, keywords: string) => !q || label.toLowerCase().includes(q) || keywords.includes(q);
   const groups: { id: ElementGroup; label: string }[] = [
@@ -132,6 +138,8 @@ export function LeftPanel(props: {
             {t("studio.noResults", { query })}
           </p>
         ) : null}
+
+        {props.tab === "pictures" ? <PicturesPanel query={query} onAdd={props.onAddPicture} onDragStart={props.onDragStart} /> : null}
 
         {props.tab === "sections" ? (
           <div className="flex flex-col gap-2 px-3 pb-3">
@@ -300,6 +308,7 @@ function Layer(props: {
   onLayerDragOver: (e: DragEvent, node: StudioNode) => void;
   onLayerDrop: (e: DragEvent) => void;
   drop: { parentId: string; index: number } | null;
+  onLayerChange: (id: string, patch: Partial<StudioNode>) => void;
 }) {
   const t = useDashT();
   const { node } = props;
@@ -332,13 +341,32 @@ function Layer(props: {
           <span className="truncate" style={node.hidden ? { opacity: 0.55 } : undefined}>
             {label}
           </span>
-          {node.hidden ? (
-            <span title={t("studio.hiddenInApp")} className="flex flex-none" style={{ color: "var(--studio-muted)" }}>
-              <Glyph name="visibility_off" size={15} />
-              <span className="sr-only">{t("studio.hiddenInApp")}</span>
-            </span>
-          ) : null}
         </button>
+        {/* Editor audit 3.3: hide it in the app, or lock it on the canvas, right from its layer. */}
+        <span className="flex flex-none items-center" data-studio-layer-tools="">
+          <button
+            type="button"
+            aria-pressed={node.locked === true}
+            aria-label={`${node.locked ? t("studio.unlockLayer") : t("studio.lockLayer")}: ${label}`}
+            title={node.locked ? t("studio.unlockLayer") : t("studio.lockLayer")}
+            onClick={() => props.onLayerChange(node.id, { locked: node.locked ? undefined : true })}
+            className="flex size-6 items-center justify-center rounded-md border-0 bg-transparent p-0"
+            style={{ color: node.locked ? "inherit" : "var(--studio-muted)" }}
+          >
+            <Glyph name="lock" size={15} />
+          </button>
+          <button
+            type="button"
+            aria-pressed={node.hidden === true}
+            aria-label={`${node.hidden ? t("studio.showInApp") : t("studio.hideInApp")}: ${label}`}
+            title={node.hidden ? t("studio.hiddenInApp") : t("studio.hideInApp")}
+            onClick={() => props.onLayerChange(node.id, { hidden: node.hidden ? undefined : true })}
+            className="flex size-6 items-center justify-center rounded-md border-0 bg-transparent p-0"
+            style={{ color: node.hidden ? "inherit" : "var(--studio-muted)" }}
+          >
+            <Glyph name={node.hidden ? "visibility_off" : "visibility"} size={15} />
+          </button>
+        </span>
       </li>
       {folded ? null : kids.map((child) => <Layer key={child.id} {...props} node={child} depth={props.depth + 1} />)}
     </>

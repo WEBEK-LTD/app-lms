@@ -50,3 +50,40 @@ export function resized(start: ResizeStart, move: ResizeMove): { width?: StudioS
   if (upDown || move.keepRatio) out.height = Math.max(RESIZE_MIN, Math.round(height));
   return out;
 }
+
+/** Editor audit 3.3: sizes land on this grid while dragging (Alt: anywhere). */
+export const RESIZE_GRID = 4;
+
+export type ResizeGuide = "half" | "third" | "two_thirds";
+
+const SHARES: readonly [ResizeGuide, number][] = [
+  ["half", 1 / 2],
+  ["third", 1 / 3],
+  ["two_thirds", 2 / 3],
+];
+
+/**
+ * Editor audit 3.3: snapping while resizing. A width close to a half, a
+ * third or two thirds of what holds it takes that share (and says which, for
+ * the guide); otherwise sizes land on the 4-pixel grid. `free` (Alt held)
+ * leaves the size where the pointer put it.
+ */
+export function snapped(size: { width?: StudioSize; height?: StudioSize }, start: ResizeStart, free: boolean): { size: { width?: StudioSize; height?: StudioSize }; guide: { share: ResizeGuide; width: number } | null } {
+  if (free) return { size, guide: null };
+  const out = { ...size };
+  let guide: { share: ResizeGuide; width: number } | null = null;
+  if (typeof out.width === "number") {
+    const w = out.width;
+    const share = start.room > 0 ? SHARES.find(([, f]) => Math.abs(w - start.room * f) <= RESIZE_SNAP) : undefined;
+    if (share) {
+      out.width = Math.round(start.room * share[1]);
+      guide = { share: share[0], width: out.width };
+    } else out.width = onGrid(w);
+  }
+  if (typeof out.height === "number") out.height = onGrid(out.height);
+  return { size: out, guide };
+}
+
+function onGrid(n: number): number {
+  return Math.max(RESIZE_MIN, Math.round(n / RESIZE_GRID) * RESIZE_GRID);
+}
