@@ -48,7 +48,7 @@ function comparisonRowsFor(lang: Lang, plans: Record<Plan, PlanInfo>): Compariso
     { label: m.rowAnalyticsDaily, values: each((p) => analyticsKeepText(lang, p.limits.analyticsMonths)) },
     { label: m.rowAnalyticsEvents, values: each(() => analyticsEventsKeepText(lang)) },
     { label: m.rowPush, values: has("push") },
-    { label: m.rowPages, values: each((p) => (hasFeature(p, "page_editor") ? m.fullEditor : m.templates)) },
+    { label: m.rowPages, values: each((p) => (hasFeature(p, "page_editor") ? m.fullEditor : hasFeature(p, "page_editor_basic") ? m.basicEditor : m.templates)) },
     { label: m.rowCards, values: has("card_payments") },
     { label: m.rowOffline, values: has("offline_downloads") },
     { label: m.rowRebuilds, values: has("auto_rebuild") },

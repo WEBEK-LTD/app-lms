@@ -233,7 +233,7 @@ Q: Pick the vowels
 
 ## الباقات الأربع
 
-- **Starter**: تطبيق Android لمتاجر Google Play وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps، ومصدر محتوى واحد، وقوالب صفحات جاهزة، ولغة واحدة، وحتى 1,000 مستخدم للتطبيق. وتنشره بنفسك بأدلتنا خطوة بخطوة.
+- **Starter**: تطبيق Android لمتاجر Google Play وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps، ومصدر محتوى واحد، ومحرّر صفحات بسيط، ولغة واحدة، وحتى 1,000 مستخدم للتطبيق. وتنشره بنفسك بأدلتنا خطوة بخطوة.
 - **Growth**: تضيف تطبيق iOS لمتجر App Store، ومحرر الصفحات الكامل، وثلاث لغات، والدفع بالبطاقة في التطبيق، ووضع العمل دون اتصال، وإعادة البناء التلقائية، وحتى 10,000 مستخدم للتطبيق.
 - **Pro**: تضيف عددًا غير محدود من مستخدمي التطبيق، وكل اللغات، و«ننشره نيابةً عنك»: ننشر تطبيقك وكل تحديث على Google Play وApp Store وSamsung Galaxy Store وHuawei AppGallery وXiaomi GetApps، مع دعم ذي أولوية.
 - **Business**: كل ما في Pro، مع مدير حساب مخصّص وميزات خاصة عند الطلب.

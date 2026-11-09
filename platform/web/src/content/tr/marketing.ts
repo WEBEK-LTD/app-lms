@@ -1680,7 +1680,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "1.000 uygulama kullanıcısına kadar",
         "1 uygulama dili",
         "Anlık bildirimler",
-        "Hazır sayfa şablonları",
+        "Basit sayfa düzenleyici",
         "Adım adım yayımlama rehberleri",
         "E-posta desteği",
       ],
