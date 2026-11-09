@@ -25,10 +25,13 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stri
 /**
  * What an edit made while looking at a tablet changes on the element: sizes,
  * spacing and text go into its tablet changes (only where they differ from its
- * own), anything else changes the element itself. Leaving a text style by
- * changing the font on a tablet keeps the style on phones.
+ * own), anything else changes the element itself. Choosing a text style is
+ * for every screen; leaving one by changing the font on a tablet keeps the
+ * style on phones.
  */
 export function tabletPatch(node: StudioNode, patch: Partial<StudioNode>): Partial<StudioNode> {
+  // Choosing a text style is for the element everywhere.
+  if (patch.text_style !== undefined) return patch;
   const own: Record<string, unknown> = {};
   const tablet: Record<string, unknown> = { ...(node.tablet ?? {}) };
   let touched = false;

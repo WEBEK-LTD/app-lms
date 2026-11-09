@@ -23,6 +23,8 @@ describe("Studio tablet changes", () => {
     expect(patch).toEqual({ color: "#112233", tablet: { width: 300, font: { size: 28 } } });
     // Leaving the style by changing the font on a tablet keeps it on phones.
     expect(patch).not.toHaveProperty("text_style");
+    // Choosing a style is for every screen.
+    expect(tabletPatch(title, { text_style: "body", font: { size: 15 } })).toEqual({ text_style: "body", font: { size: 15 } });
   });
 
   it("forgets a tablet change set back to the element's own value", () => {
