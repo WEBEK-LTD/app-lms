@@ -13,6 +13,10 @@ import {
   ITEMS_SORTS,
   STUDIO_INDICATORS,
   STUDIO_ENTERS,
+  STUDIO_MARKET_KINDS,
+  STUDIO_MARKET_SECTIONS,
+  STUDIO_MARKET_SORTS,
+  STUDIO_MARKET_STYLES,
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
   STUDIO_LOOPS,
@@ -24,6 +28,7 @@ import {
   type LanguageCode,
   type LayoutTab,
   type StudioHeader,
+  type StudioMarket,
   type StudioNode,
   type StudioPage,
   type StudioSides,
@@ -578,14 +583,14 @@ function DesignTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
   const layout = holdsChildren(node);
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "bullets" || node.type === "countdown";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "bullets" || node.type === "countdown" || node.type === "market";
   const alignField = textual ? "text_align" : "self_align";
   const alignValue = textual ? (node.text_align ?? "start") : (node.self_align ?? null);
   // 107.3 A child of an accordion or tabs has a question or a tab name.
   const holder = node.id === props.page.body.id ? null : placeOf(props.page.body, node.id)?.parent;
   const titled = holder?.type === "accordion" || holder?.type === "tabs";
   // 112.4 A list of what was seen lately has its own title, hidden with it.
-  const listTitled = node.type === "items" && (node.recent || !!node.title);
+  const listTitled = (node.type === "items" && (node.recent || !!node.title)) || node.type === "market";
   return (
     <>
       {titled || listTitled ? (
@@ -593,7 +598,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           {t(listTitled && !titled ? "studio.listTitleLabel" : "studio.itemTitle")}
           <input value={titleOf(node, props.lang, props.defaultLang)} maxLength={120} onChange={(e) => onChange(withTitle(node, e.target.value, props.lang, props.defaultLang))} placeholder={props.lang === props.defaultLang ? undefined : (node.title ?? "")} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
           <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
-            {t(listTitled && !titled ? "studio.recentHint" : "studio.itemTitleHint")}
+            {t(node.type === "market" ? "studio.marketTitleHint" : listTitled && !titled ? "studio.recentHint" : "studio.itemTitleHint")}
           </span>
         </label>
       ) : null}
@@ -689,6 +694,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           {node.children?.length ? <SlidesControl node={node} onChange={onChange} /> : null}
         </div>
       ) : null}
+      {node.type === "market" ? <MarketControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -1488,6 +1494,56 @@ function PagePanel(props: Props) {
           {t("studio.keyboard")}
         </p>
       </div>
+    </div>
+  );
+}
+
+/** 115.14 A marketplace section: which one, and for the places, how many, which and in what order. */
+function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  const market: StudioMarket = node.market ?? { section: "vendors" };
+  const set = (patch: Partial<StudioMarket>) => onChange({ market: { ...market, ...patch } });
+  const places = market.section === "vendors" || market.section === "offers";
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.marketSection")}
+        <select value={market.section} onChange={(e) => onChange({ market: { section: e.target.value as StudioMarket["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+          {STUDIO_MARKET_SECTIONS.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.market_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          {t("studio.marketHint")}
+        </span>
+      </label>
+      {places ? (
+        <>
+          <Segments label={t("studio.marketStyle")} value={market.style ?? "cards"} onChange={(style) => set({ style: style === "cards" ? undefined : style })} options={STUDIO_MARKET_STYLES.map((v) => ({ value: v, label: t(`studio.marketStyle_${v}` as DashKey) }))} />
+          <Segments label={t("studio.marketKind")} value={market.kind ?? "all"} onChange={(kind) => set({ kind: kind === "all" ? undefined : kind })} options={STUDIO_MARKET_KINDS.map((v) => ({ value: v, label: t(`studio.marketKind_${v}` as DashKey) }))} />
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.marketSort")}
+            <select value={market.sort ?? "recommended"} onChange={(e) => set({ sort: e.target.value === "recommended" ? undefined : (e.target.value as StudioMarket["sort"]) })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+              {STUDIO_MARKET_SORTS.map((s) => (
+                <option key={s} value={s}>
+                  {t(`studio.marketSort_${s}` as DashKey)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 font-bold">
+            {t("studio.marketTag")}
+            <input value={market.tag ?? ""} maxLength={60} onChange={(e) => set({ tag: e.target.value.trim() ? e.target.value : undefined })} className="h-9 rounded-lg px-2.5 font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+            <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.marketTagHint")}
+            </span>
+          </label>
+          <Check label={t("studio.marketFree")} checked={market.free_delivery === true} onChange={(on) => set({ free_delivery: on ? true : undefined })} />
+          <Slider label={t("studio.marketLimit")} value={market.limit ?? 10} min={1} max={40} onChange={(limit) => set({ limit: limit === 10 ? undefined : limit })} />
+        </>
+      ) : null}
     </div>
   );
 }

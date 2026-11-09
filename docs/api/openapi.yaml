@@ -14003,7 +14003,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14080,6 +14080,7 @@ components:
           items: { $ref: '#/components/schemas/Category' }
         form: { $ref: '#/components/schemas/StudioForm' }
         map: { $ref: '#/components/schemas/StudioMap' }
+        market: { $ref: '#/components/schemas/StudioMarket' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -14171,6 +14172,28 @@ components:
         submit_label: { type: [string, 'null'] }
         success_text: { type: [string, 'null'] }
         send_to: { type: string, enum: [email, chat] }
+
+    StudioMarket:
+      type: [object, 'null']
+      description: |
+        Roadmap 115.14. For `market`, in marketplace apps (`Config.market`):
+        one marketplace section the app draws from the marketplace's own
+        data. `address` the delivery address with the search box (the
+        element's `text` is the box's hint), `kinds` the kinds of places
+        (food, market...), `offers` the running offers, `cuisines` the
+        cuisines and departments, `club` the club's card, `vendors` the
+        places, `reorder` the customer's last orders. The element's `title`
+        and `text` head the section. Apps leave out a section they don't
+        know.
+      required: [section]
+      properties:
+        section: { type: string, enum: [address, kinds, offers, cuisines, club, vendors, reorder] }
+        style: { type: string, enum: [spotlight, cards, tiles, list], default: cards, description: For `vendors` and `offers`. }
+        kind: { type: string, enum: [all, restaurant, grocery], default: all }
+        sort: { type: string, enum: [recommended, fastest, rating, nearest, newest], default: recommended }
+        tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }
+        free_delivery: { type: boolean, default: false }
+        limit: { type: integer, minimum: 1, maximum: 40, default: 10 }
 
     StudioMap:
       type: [object, 'null']
