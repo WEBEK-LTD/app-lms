@@ -9054,4 +9054,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vendorStockEmpty => 'No items found';
+
+  @override
+  String get vendorPickItems => 'Pick the items';
+
+  @override
+  String get vendorPickAgain => 'Change the picking';
+
+  @override
+  String get vendorPicked => 'Picked';
+
+  @override
+  String get vendorSubstituted => 'Swapped';
+
+  @override
+  String get vendorMissing => 'Missing';
+
+  @override
+  String get vendorPickedCount => 'How many';
+
+  @override
+  String vendorPickedWeight(String unit) {
+    return 'Weight in $unit';
+  }
+
+  @override
+  String vendorWeightTolerance(int percent) {
+    return 'Up to $percent% more than ordered';
+  }
+
+  @override
+  String get vendorIfMissingSimilar => 'If it\'s out: a similar item';
+
+  @override
+  String get vendorIfMissingChosen =>
+      'If it\'s out: the item the customer chose';
+
+  @override
+  String get vendorIfMissingRemove => 'If it\'s out: leave it out';
+
+  @override
+  String get vendorBringChosen => 'Bring the item the customer chose.';
+
+  @override
+  String get vendorChooseSubstitute => 'Choose the item';
+
+  @override
+  String get vendorChangeSubstitute => 'Change';
+
+  @override
+  String get vendorPickSave => 'Save the picking';
+
+  @override
+  String get vendorPickSaved => 'Picking saved';
+
+  @override
+  String vendorPickNeedsAmount(String item) {
+    return 'Enter what you picked of $item.';
+  }
+
+  @override
+  String vendorPickNeedsSubstitute(String item) {
+    return 'Choose what you\'re bringing instead of $item.';
+  }
+
+  @override
+  String vendorLinePicked(String amount) {
+    return 'Picked $amount';
+  }
+
+  @override
+  String vendorLineSubstituted(String item) {
+    return 'Instead: $item';
+  }
+
+  @override
+  String get vendorStatementsTitle => 'Statements';
+
+  @override
+  String get vendorPreviousMonth => 'Previous month';
+
+  @override
+  String get vendorNextMonth => 'Next month';
+
+  @override
+  String vendorStatementOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorStatementEarns => 'You earn';
+
+  @override
+  String get vendorStatementCommission => 'The app\'s commission';
+
+  @override
+  String get vendorStatementDue => 'Due to you';
+
+  @override
+  String get vendorStatementYouOwe => 'You owe the app';
+
+  @override
+  String get vendorStatementEmpty => 'No delivered orders this month';
+
+  @override
+  String get vendorStatementOrdersTitle => 'Orders';
+
+  @override
+  String vendorStatementDueEach(String amount) {
+    return '$amount to you';
+  }
+
+  @override
+  String get vendorStatementAdjustments => 'Refunds and compensations';
+
+  @override
+  String vendorAdjustmentRefund(String reference) {
+    return 'Refund on $reference';
+  }
+
+  @override
+  String vendorAdjustmentCompensation(String reference) {
+    return 'Compensation on $reference';
+  }
+
+  @override
+  String get vendorPaidByYou => 'Paid by you';
+
+  @override
+  String get vendorPaidByApp => 'Paid by the app';
+
+  @override
+  String get vendorComplaintsTitle => 'Complaints';
+
+  @override
+  String get vendorComplaintsEmptyTitle => 'No complaints';
+
+  @override
+  String get vendorComplaintsEmptyMessage =>
+      'Complaints the app\'s support shares with you show here.';
+
+  @override
+  String vendorComplaintOrder(String reference) {
+    return 'Order $reference';
+  }
 }
