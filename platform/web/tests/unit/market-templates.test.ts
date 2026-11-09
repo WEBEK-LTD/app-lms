@@ -18,14 +18,16 @@ function parse(node: StudioNode) {
 
 describe("115.14 the marketplace's Studio templates and its market element", () => {
   it("gives marketplace projects their three templates, and food delivery keeps its own", () => {
-    expect(templatesFor(MARKETPLACE).map((t) => t.id)).toEqual(["market", "market_offers", "market_grocery", "brand", "contact", "blank"]);
+    // Templates = demos: Zad's own first, then the marketplace's three.
+    expect(templatesFor(MARKETPLACE)[0]!.id).toBe("demo_marketplace");
+    expect(templatesFor(MARKETPLACE).filter((t) => !t.demo).map((t) => t.id)).toEqual(["market", "market_offers", "market_grocery", "brand", "contact", "blank"]);
     expect(templatesFor(FOOD).map((t) => t.id)).not.toContain("market");
     expect(sectionsFor(MARKETPLACE).map((s) => s.id)).toEqual(expect.arrayContaining(["m_address", "m_kinds", "m_offers", "m_club", "m_near", "m_rated", "m_fast", "m_departments"]));
     expect(sectionsFor(FOOD).map((s) => s.id)).not.toContain("m_address");
   });
 
   it("builds the full home: search on top, kinds, offers, the club, places near, best rated, fastest, departments", () => {
-    const home = templatesFor(MARKETPLACE)[0]!.make(ctx as never);
+    const home = templatesFor(MARKETPLACE).find((t) => t.id === "market")!.make(ctx as never);
     const market = allNodes(home).filter((n) => n.type === "market");
     expect(market.map((n) => n.market!.section)).toEqual(["address", "kinds", "offers", "cuisines", "club", "vendors", "vendors", "vendors", "cuisines", "reorder"]);
     expect(market[0]).toMatchObject({ text: "[mSearch]" });

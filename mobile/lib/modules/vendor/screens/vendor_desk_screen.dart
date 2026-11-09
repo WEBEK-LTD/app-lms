@@ -259,6 +259,31 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
               )
             else
               const SizedBox(height: 72),
+            // 115.16 The statements (owners and managers) and the
+            // complaints support shared (everyone but pickers).
+            if (d != null && d.answers)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                child: Wrap(
+                  spacing: 4,
+                  children: [
+                    if (d.role == VendorRole.owner ||
+                        d.role == VendorRole.manager)
+                      TextButton.icon(
+                        key: const ValueKey('vendor-statements'),
+                        onPressed: () => context.push(Paths.vendorStatements),
+                        icon: const Icon(Symbols.receipt_long),
+                        label: Text(l10n.vendorStatementsTitle),
+                      ),
+                    TextButton.icon(
+                      key: const ValueKey('vendor-complaints'),
+                      onPressed: () => context.push(Paths.vendorComplaints),
+                      icon: const Icon(Symbols.support_agent),
+                      label: Text(l10n.vendorComplaintsTitle),
+                    ),
+                  ],
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SegmentedTabs(

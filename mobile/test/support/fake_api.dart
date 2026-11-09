@@ -2184,11 +2184,24 @@ class FakeApi implements YallappApi {
   });
 
   @override
-  Future<VendorOrder> pickVendorOrder(int id, List<PickLine> lines) =>
-      _answer('pickVendorOrder', () {
-        vendorCalls.add('pick $id ${lines.length}');
-        return VendorOrder.fromJson(_vendorOrder(id));
-      });
+  Future<VendorOrder> pickVendorOrder(
+    int id,
+    List<PickLine> lines,
+  ) => _answer('pickVendorOrder', () {
+    vendorCalls.add(
+      'pick $id ${[for (final l in lines) '${l.lineId}:${l.outcome.name}:${l.quantity ?? ''}:${l.substituteProductId ?? ''}'].join(',')}',
+    );
+    final o = _vendorOrder(id)..['status'] = 'picking';
+    for (final l in lines) {
+      for (final line in (o['lines'] as List).cast<Map<String, dynamic>>()) {
+        if (line['id'] == l.lineId) {
+          line['outcome'] = l.outcome.name;
+          line['picked_quantity'] = l.quantity;
+        }
+      }
+    }
+    return VendorOrder.fromJson(o);
+  });
 
   @override
   Future<VendorOrder> readyVendorOrder(int id) =>
@@ -2238,6 +2251,32 @@ class FakeApi implements YallappApi {
         if (inStock != null) p['in_stock'] = inStock;
         return MarketProduct.fromJson(p);
       });
+
+  /// 115.16 The statements by month (`YYYY-MM`, `''` for this month) and
+  /// the complaints shared with the vendor.
+  final vendorStatements = <String, Map<String, dynamic>>{};
+  final vendorComplaints = <Map<String, dynamic>>[];
+
+  @override
+  Future<VendorStatement> getVendorStatement({String? month}) =>
+      _answer('getVendorStatement', () {
+        vendorCalls.add('statement ${month ?? 'now'}');
+        return VendorStatement.fromJson(
+          vendorStatements[month ?? ''] ??
+              {
+                'month': month ?? '2026-11',
+                'totals': {'orders': 0},
+                'orders': const [],
+                'adjustments': const [],
+              },
+        );
+      });
+
+  @override
+  Future<List<VendorComplaint>> listVendorComplaints() => _answer(
+    'listVendorComplaints',
+    () => [for (final c in vendorComplaints) VendorComplaint.fromJson(c)],
+  );
 
   @override
   Future<RestaurantDesk> getRestaurantDesk() => _answer(

@@ -91,6 +91,9 @@ abstract final class Paths {
   static const vendorDesk = '/vendor-desk';
   static const vendorStock = '/vendor-stock';
   static String vendorOrder(int id) => '/vendor-order/$id';
+  static String vendorPick(int id) => '/vendor-pick/$id';
+  static const vendorStatements = '/vendor-statements';
+  static const vendorComplaints = '/vendor-complaints';
 
   /// 115 A marketplace vendor's page: a restaurant or a shop.
   static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';

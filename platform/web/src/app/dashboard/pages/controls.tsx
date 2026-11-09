@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import { textIn, withText } from "@/lib/pages/model";
 import { actionProblem, screenName, SOURCE_NAMES, type ScreenOption } from "@/lib/pages/sources";
@@ -13,6 +13,54 @@ import { RTL_LANGUAGES, type Action, type ItemSource, type LanguageCode, type Tr
 
 /** 43 Languages Yallapp translates the texts it writes into (lib/i18n/builtin). */
 const DICTIONARY_LANGS = ["ar", "tr"];
+
+/** 1.4 A whole number from typed text, Arabic and Persian digits too; null when there's none. */
+export function wholeNumber(text: string): number | null {
+  const latin = text.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[\u06f0-\u06f9]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+  const digits = latin.replace(/[^0-9]/g, "");
+  return digits ? Number.parseInt(digits, 10) : null;
+}
+
+/**
+ * 1.4 A whole number from `min` to `max`. It can be emptied and typed into
+ * freely: each number in range counts at once; when the field is left, an
+ * empty one goes back to the number before and one out of range to the
+ * nearest it can be.
+ */
+export function NumberInput({ id, label, value, min, max, onChange, hint }: { id: string; label: ReactNode; value: number; min: number; max: number; onChange: (value: number) => void; hint?: ReactNode }) {
+  const [text, setText] = useState<string | null>(null);
+  return (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-semibold">
+        {label}
+      </label>
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        dir="ltr"
+        value={text ?? String(value)}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+        onChange={(e) => {
+          setText(e.target.value);
+          const n = wholeNumber(e.target.value);
+          if (n !== null && n >= min && n <= max) onChange(n);
+        }}
+        onBlur={() => {
+          const n = text === null ? null : wholeNumber(text);
+          if (n !== null) onChange(Math.min(Math.max(n, min), max));
+          setText(null);
+        }}
+        className="input input-sm"
+      />
+      {hint ? (
+        <span id={`${id}-hint`} className="text-xs text-muted">
+          {hint}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 export function TextInput({
   id,

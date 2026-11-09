@@ -10047,5 +10047,220 @@
   "vendorStockEmpty": "No items found",
   "@vendorStockEmpty": {
     "description": "115 The stock search found nothing."
+  },
+  "vendorPickItems": "Pick the items",
+  "@vendorPickItems": {
+    "description": "115.16 The button on a grocery's or shop's order that opens its picking, and that screen's title."
+  },
+  "vendorPickAgain": "Change the picking",
+  "@vendorPickAgain": {
+    "description": "115.16 Opens a picked order's picking again before it is ready."
+  },
+  "vendorPicked": "Picked",
+  "@vendorPicked": {
+    "description": "115.16 A line of the order was picked."
+  },
+  "vendorSubstituted": "Swapped",
+  "@vendorSubstituted": {
+    "description": "115.16 A line of the order was swapped for another item."
+  },
+  "vendorMissing": "Missing",
+  "@vendorMissing": {
+    "description": "115.16 A line of the order was not there when picked."
+  },
+  "vendorPickedCount": "How many",
+  "@vendorPickedCount": {
+    "description": "115.16 The field for how many units were picked."
+  },
+  "vendorPickedWeight": "Weight in {unit}",
+  "@vendorPickedWeight": {
+    "description": "115.16 The field for the weighed amount picked, with its unit (kg, g, l).",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorWeightTolerance": "Up to {percent}% more than ordered",
+  "@vendorWeightTolerance": {
+    "description": "115.16 Under the weight: how much more than ordered the customer agreed to.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorIfMissingSimilar": "If it's out: a similar item",
+  "@vendorIfMissingSimilar": {
+    "description": "115.16 What the customer asked for when an item is out: a similar one."
+  },
+  "vendorIfMissingChosen": "If it's out: the item the customer chose",
+  "@vendorIfMissingChosen": {
+    "description": "115.16 What the customer asked for when an item is out: the one they chose."
+  },
+  "vendorIfMissingRemove": "If it's out: leave it out",
+  "@vendorIfMissingRemove": {
+    "description": "115.16 What the customer asked for when an item is out: nothing instead."
+  },
+  "vendorBringChosen": "Bring the item the customer chose.",
+  "@vendorBringChosen": {
+    "description": "115.16 A swapped line whose substitute the customer chose."
+  },
+  "vendorChooseSubstitute": "Choose the item",
+  "@vendorChooseSubstitute": {
+    "description": "115.16 Opens the vendor's items to choose what to bring instead."
+  },
+  "vendorChangeSubstitute": "Change",
+  "@vendorChangeSubstitute": {
+    "description": "115.16 Next to the chosen substitute: choose another."
+  },
+  "vendorPickSave": "Save the picking",
+  "@vendorPickSave": {
+    "description": "115.16 Sends the picked lines."
+  },
+  "vendorPickSaved": "Picking saved",
+  "@vendorPickSaved": {
+    "description": "115.16 After the picking was sent."
+  },
+  "vendorPickNeedsAmount": "Enter what you picked of {item}.",
+  "@vendorPickNeedsAmount": {
+    "description": "115.16 A picked line without its amount.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorPickNeedsSubstitute": "Choose what you're bringing instead of {item}.",
+  "@vendorPickNeedsSubstitute": {
+    "description": "115.16 A swapped line without the item brought instead.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorLinePicked": "Picked {amount}",
+  "@vendorLinePicked": {
+    "description": "115.16 Under a line of the order: the amount picked.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorLineSubstituted": "Instead: {item}",
+  "@vendorLineSubstituted": {
+    "description": "115.16 Under a line of the order: the item brought instead.",
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorStatementsTitle": "Statements",
+  "@vendorStatementsTitle": {
+    "description": "115.16 The vendor's monthly statements: the button and the screen's title."
+  },
+  "vendorPreviousMonth": "Previous month",
+  "@vendorPreviousMonth": {
+    "description": "115.16 Shows the month before on the statements."
+  },
+  "vendorNextMonth": "Next month",
+  "@vendorNextMonth": {
+    "description": "115.16 Shows the month after on the statements."
+  },
+  "vendorStatementOrders": "{count, plural, =1{1 order} other{{count} orders}}",
+  "@vendorStatementOrders": {
+    "description": "115.16 The month's delivered orders, next to their total.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorStatementEarns": "You earn",
+  "@vendorStatementEarns": {
+    "description": "115.16 What the vendor earns on the month's orders."
+  },
+  "vendorStatementCommission": "The app's commission",
+  "@vendorStatementCommission": {
+    "description": "115.16 The app's commission on the month's orders."
+  },
+  "vendorStatementDue": "Due to you",
+  "@vendorStatementDue": {
+    "description": "115.16 What the app owes the vendor for the month, after refunds."
+  },
+  "vendorStatementYouOwe": "You owe the app",
+  "@vendorStatementYouOwe": {
+    "description": "115.16 What the vendor owes the app for the month, after refunds."
+  },
+  "vendorStatementEmpty": "No delivered orders this month",
+  "@vendorStatementEmpty": {
+    "description": "115.16 A month's statement without orders."
+  },
+  "vendorStatementOrdersTitle": "Orders",
+  "@vendorStatementOrdersTitle": {
+    "description": "115.16 The heading over the month's orders on the statement."
+  },
+  "vendorStatementDueEach": "{amount} to you",
+  "@vendorStatementDueEach": {
+    "description": "115.16 Under an order on the statement: what is due to the vendor on it.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorStatementAdjustments": "Refunds and compensations",
+  "@vendorStatementAdjustments": {
+    "description": "115.16 The heading over the month's refunds and compensations."
+  },
+  "vendorAdjustmentRefund": "Refund on {reference}",
+  "@vendorAdjustmentRefund": {
+    "description": "115.16 A refund on an order, on the statement.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorAdjustmentCompensation": "Compensation on {reference}",
+  "@vendorAdjustmentCompensation": {
+    "description": "115.16 A compensation on an order, on the statement.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorPaidByYou": "Paid by you",
+  "@vendorPaidByYou": {
+    "description": "115.16 The vendor pays a refund or a compensation."
+  },
+  "vendorPaidByApp": "Paid by the app",
+  "@vendorPaidByApp": {
+    "description": "115.16 The app pays a refund or a compensation."
+  },
+  "vendorComplaintsTitle": "Complaints",
+  "@vendorComplaintsTitle": {
+    "description": "115.16 The complaints shared with the vendor: the button and the screen's title."
+  },
+  "vendorComplaintsEmptyTitle": "No complaints",
+  "@vendorComplaintsEmptyTitle": {
+    "description": "115.16 The vendor's empty complaints list."
+  },
+  "vendorComplaintsEmptyMessage": "Complaints the app's support shares with you show here.",
+  "@vendorComplaintsEmptyMessage": {
+    "description": "115.16 Under the vendor's empty complaints list."
+  },
+  "vendorComplaintOrder": "Order {reference}",
+  "@vendorComplaintOrder": {
+    "description": "115.16 The order a complaint is about.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
   }
 }
