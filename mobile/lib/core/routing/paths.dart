@@ -87,6 +87,11 @@ abstract final class Paths {
   static String foodOrder(int id) => '/food-order/$id';
   static String restaurantOrder(int id) => '/restaurant-order/$id';
 
+  // 115 The marketplace's vendor app: its orders, an order, and stock.
+  static const vendorDesk = '/vendor-desk';
+  static const vendorStock = '/vendor-stock';
+  static String vendorOrder(int id) => '/vendor-order/$id';
+
   /// 115 A marketplace vendor's page: a restaurant or a shop.
   static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';
 
@@ -100,6 +105,22 @@ abstract final class Paths {
   /// 115.10 The customer's wallet and the delivery club.
   static const marketWallet = '/market-wallet';
   static const marketClub = '/market-club';
+
+  /// 115 Vendors of a kind, a cuisine or with offers.
+  static String marketList({
+    String? kind,
+    String? category,
+    bool offers = false,
+    String? title,
+  }) => Uri(
+    path: '/market-list',
+    queryParameters: {
+      'kind': ?kind,
+      'category': ?category,
+      if (offers) 'offers': '1',
+      'title': ?title,
+    },
+  ).toString();
 
   // 105.2 Ride hailing.
   static const ride = '/ride';
@@ -292,6 +313,8 @@ abstract final class Paths {
       location.startsWith(marketWallet) ||
       location.startsWith(restaurantDesk) ||
       location.startsWith('/restaurant-order/') ||
+      // 115 The vendor's screens.
+      location.startsWith('/vendor-') ||
       // 105.2 A ride, the rider's rides and the driver's screens.
       location.startsWith('$ride/') ||
       location.startsWith(myRides) ||

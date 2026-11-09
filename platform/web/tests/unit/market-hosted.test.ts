@@ -243,6 +243,25 @@ describe("115 the marketplace's routes", () => {
     await store.updateMarketComplaint(app.id, id, { status: "resolved" });
     const mine = await call("GET", "/me/market-orders/{order_id}", { token: customer.access_token, params: [String(order.id)] });
     expect(mine.body).toMatchObject({ can_complain: false, complaint_id: id });
+
+    // 115.16 The vendor app: the complaint only once support shares it, and never the customer or the conversation.
+    expect((await call("GET", "/vendor/complaints", { token: staff.access_token })).body).toEqual({ items: [] });
+    await store.updateMarketComplaint(app.id, id, { sharedWithVendor: true });
+    const shared = await call("GET", "/vendor/complaints", { token: staff.access_token });
+    expect(shared.body).toMatchObject({ items: [{ id, reason: "quality", status: "resolved", order_reference: expect.any(String) }] });
+    expect(JSON.stringify(shared.body)).not.toContain("Photos to follow.");
+    expect(JSON.stringify(shared.body)).not.toContain("Mona");
+    // Its statement for the month the order was completed in.
+    const completed = (await store.getMarketOrder(app.id, order.id))!.completedAt!;
+    const month = `${completed.getUTCFullYear()}-${String(completed.getUTCMonth() + 1).padStart(2, "0")}`;
+    const statement = await call("GET", "/vendor/statements", { token: staff.access_token, query: { month } });
+    expect(statement.status).toBe(200);
+    expect(statement.body).toMatchObject({ month, totals: { orders: 1, total: { amount: "115.00" } }, orders: [{ id: order.id, payment: "cash" }] });
+    // Statements are for owners and managers only.
+    await store.createRestaurantStaff({ appId: app.id, restaurantId: restaurant, name: "Adel", phone: "+201112229990", email: null, active: true, role: "picker" }, NOW);
+    const picker = await signUp("1112229990", "Adel");
+    expect((await call("GET", "/vendor/statements", { token: picker.access_token })).status).toBe(403);
+    expect((await call("GET", "/vendor/complaints", { token: picker.access_token })).status).toBe(403);
   });
 
   it("weighs a grocery's items when picked, within the agreed tolerance, and hands pick-up orders over with the code", async () => {
@@ -265,6 +284,12 @@ describe("115 the marketplace's routes", () => {
     expect((await call("POST", "/vendor/orders/{order_id}/handover", { token: staff.access_token, params: [String(order.id)], body: { to: "customer", pickup_code: "0000" === order.pickup_code ? "1111" : "0000" } })).status).toBe(400);
     expect((await call("POST", "/vendor/orders/{order_id}/handover", { token: staff.access_token, params: [String(order.id)], body: { to: "customer", pickup_code: order.pickup_code } })).body).toMatchObject({ status: "picked_up" });
     expect((await call("GET", "/me/market-orders/{order_id}", { token: customer.access_token, params: [String(order.id)] })).body).toMatchObject({ status: "picked_up", total: { amount: "66.00" } });
+
+    // The customer chose what to bring instead: a substitute without an item is that one, never more than the line.
+    const chose = await quoteAndOrder(customer.access_token, { ...cart, lines: [{ product_id: milk, quantity: 1, if_missing: "chosen", substitute_product_id: apples }] });
+    await call("POST", "/vendor/orders/{order_id}/accept", { token: staff.access_token, params: [String(chose.order.id)], body: { prep_minutes: 15 } });
+    const swapped = await call("PATCH", "/vendor/orders/{order_id}/lines", { token: staff.access_token, params: [String(chose.order.id)], body: { lines: [{ line_id: 1, outcome: "substituted" }] } });
+    expect(swapped.body).toMatchObject({ lines: [{ outcome: "substituted", substitute: { product_id: apples, name: "Apples" }, total: { amount: "30.00" } }] });
 
     // Stock: the vendor puts milk back in stock with a count; 0 is out of stock by itself.
     expect((await call("PATCH", "/vendor/products/{product_id}", { token: staff.access_token, params: [String(milk)], body: { stock: 0 } })).body).toMatchObject({ in_stock: false });

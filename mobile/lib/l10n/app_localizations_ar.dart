@@ -9203,4 +9203,107 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketClubNone => 'لا يوجد نادٍ في هذا التطبيق بعد.';
+
+  @override
+  String get marketListEmptyTitle => 'لا يوجد شيء هنا بالقرب منك بعد';
+
+  @override
+  String get marketListEmptyMessage =>
+      'جرّب عنوانًا آخر، أو تصفّح كل شيء من الرئيسية.';
+
+  @override
+  String get tabVendor => 'متجري';
+
+  @override
+  String get tabVendorStock => 'المخزون';
+
+  @override
+  String get notVendorTitle => 'لفريق عمل المتاجر';
+
+  @override
+  String get notVendorMessage =>
+      'سجّل الدخول بالرقم أو البريد الذي أضافك به صاحب التطبيق.';
+
+  @override
+  String get vendorLater => 'لاحقًا';
+
+  @override
+  String get vendorPaused => 'متوقف: لا يستقبل طلبات';
+
+  @override
+  String get vendorPauseUntilBack => 'حتى أستقبل الطلبات مرة أخرى';
+
+  @override
+  String get vendorPauseNote => 'الطلبات المجدولة تستمر في الوصول.';
+
+  @override
+  String get vendorNoOrdersMessage => 'تظهر الطلبات الجديدة هنا مع صوت تنبيه.';
+
+  @override
+  String vendorItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صنف',
+      few: '$count أصناف',
+      two: 'صنفان',
+      one: 'صنف واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorItemsTitle => 'الأصناف';
+
+  @override
+  String vendorFor(String time) {
+    return 'موعده $time';
+  }
+
+  @override
+  String vendorCollect(String amount) {
+    return 'حصّل $amount نقدًا';
+  }
+
+  @override
+  String get vendorCustomerNotes => 'ملاحظات العميل';
+
+  @override
+  String get vendorDeliverTo => 'التوصيل إلى';
+
+  @override
+  String get vendorNoContact => 'لأي شيء يخص العميل، تواصل مع دعم التطبيق.';
+
+  @override
+  String get vendorRejectOutsideArea => 'خارج منطقة التوصيل';
+
+  @override
+  String get vendorHandToDriver => 'تم التسليم لمندوبنا';
+
+  @override
+  String get vendorMarkDelivered => 'تم التوصيل';
+
+  @override
+  String get vendorHandToCustomer => 'استلمه العميل';
+
+  @override
+  String get vendorHandedOver => 'تم تحديث الطلب';
+
+  @override
+  String get vendorPickupCodeTitle => 'كود العميل';
+
+  @override
+  String get vendorPickupCode => 'كود من 4 أرقام';
+
+  @override
+  String get vendorStockSearch => 'ابحث عن صنف';
+
+  @override
+  String get vendorOutOfStockOnly => 'غير المتوفر فقط';
+
+  @override
+  String get vendorOutOfStock => 'غير متوفر';
+
+  @override
+  String get vendorStockEmpty => 'لا توجد أصناف';
 }

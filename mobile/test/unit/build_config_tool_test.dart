@@ -161,6 +161,18 @@ void main() {
     );
   });
 
+  test('115 a marketplace\'s vendor app, for food apps only', () {
+    final vendors = example()
+      ..['app_type'] = 'food'
+      ..['role'] = 'vendor';
+    expect(validateBuildConfig(vendors).isValid, isTrue);
+    expect(renderDartConfig(vendors), contains('role: AppRole.vendor,'));
+    expect(
+      validateBuildConfig(vendors..['app_type'] = 'rides').errors.single,
+      '"role" vendor is for food and marketplace apps only.',
+    );
+  });
+
   test('104.8.5 config/yallapp-courier.json is Yallapp Courier', () {
     final hub = jsonDecode(
       File('config/yallapp-courier.json').readAsStringSync(),

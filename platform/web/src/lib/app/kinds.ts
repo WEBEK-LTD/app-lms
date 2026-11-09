@@ -18,7 +18,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
  */
 
 /** 20 The verticals, as stored and sent (`Config.vertical`, build config `vertical`). */
-export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors", "taxi"] as const satisfies readonly AppVertical[];
+export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors", "taxi", "marketplace"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
 export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school">;
@@ -692,17 +692,13 @@ export const ENGINES: Record<AppType, EngineInfo> = {
           // 112.2 The couriers and their jobs on the map.
           { href: "/dashboard/delivery/live", label: "Live map", icon: "map" },
           { href: "/dashboard/food-orders", label: "Food orders", icon: "receipt_long" },
-          // 115.12 The marketplace's orders from every place, and the complaints queue.
-          { href: "/dashboard/market/orders", label: "Marketplace orders", icon: "shopping_bag" },
-          { href: "/dashboard/market/complaints", label: "Complaints", icon: "support_agent" },
-          { href: "/dashboard/market/offers", label: "Offers & club", icon: "local_offer" },
-          { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },
-          { href: "/dashboard/market/settings", label: "Marketplace settings", icon: "tune" },
           { href: "/dashboard/restaurants", label: "Restaurants", icon: "storefront" },
           { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },
           { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
           { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
           { href: "/dashboard/delivery", label: "Delivery settings", icon: "local_shipping" },
+          // 115.13 Where a food delivery project grows into a marketplace.
+          { href: "/dashboard/market/settings", label: "Marketplace settings", icon: "tune" },
         ],
       },
     },
@@ -1119,6 +1115,44 @@ export const KINDS: readonly KindInfo[] = [
     marketing: { slug: "food", icon: "restaurant" },
     reviewNote:
       "This app has two roles. Customers order food from the restaurants. A restaurant's staff sign in with a number the company added and see a Restaurant tab with its orders. The company's couriers work in its separate courier app, which has its own store listing and notes.",
+  },
+  {
+    // 115.13 A marketplace: the food engine grown into restaurants, supermarkets and shops in one app.
+    id: "marketplace",
+    engine: "food",
+    vertical: "marketplace",
+    name: "Marketplace",
+    description: "Restaurants, supermarkets and shops in one app: customers order from each, every vendor takes its own orders, and your couriers or the vendor's own deliver them.",
+    requires: "No website needed: you add your vendors, or they join by your form, and their menus and catalogs here in the dashboard · Cash to the courier, or your own iyzico, Kashier, Fawaterk, Stripe or PayPal account",
+    icon: "storefront",
+    tile: "bg-tile-4 text-[#8A4B12]",
+    marketing: { slug: "marketplace", icon: "storefront" },
+    wording: {
+      nav: {
+        label: "Your marketplace",
+        items: [
+          { href: "/dashboard/delivery/live", label: "Live map", icon: "map" },
+          { href: "/dashboard/market/orders", label: "Marketplace orders", icon: "shopping_bag" },
+          { href: "/dashboard/market/complaints", label: "Complaints", icon: "support_agent" },
+          { href: "/dashboard/restaurants", label: "Vendors", icon: "storefront" },
+          { href: "/dashboard/market/joining", label: "Joining", icon: "note_add" },
+          { href: "/dashboard/market/offers", label: "Offers & club", icon: "local_offer" },
+          { href: "/dashboard/market/statements", label: "Statements", icon: "receipt_long" },
+          { href: "/dashboard/shipments", label: "Courier jobs", icon: "package_2" },
+          { href: "/dashboard/couriers", label: "Couriers", icon: "two_wheeler" },
+          { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
+          { href: "/dashboard/delivery", label: "Delivery settings", icon: "local_shipping" },
+          { href: "/dashboard/market/settings", label: "Marketplace settings", icon: "tune" },
+        ],
+      },
+      users: "Customers",
+      ownContent: {
+        text: "Add your restaurants, supermarkets and shops, or let them join by your form, with their menus and catalogs, here in the dashboard. Customers order in the app and pay cash to the courier or online into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account.",
+        next: "After this step, set the country, the currency and the ways to pay on the **Marketplace settings** page, add your vendors on the **Vendors** page or open your form on the **Joining** page, then add your couriers on the **Couriers** page; every order shows on the **Marketplace orders** page. Customers, vendors' staff and couriers sign in to the app with",
+      },
+    },
+    reviewNote:
+      "This app has two roles. Customers order from the restaurants, supermarkets and shops. A vendor's staff sign in with a number the company or the vendor added and see a Vendor tab with its orders. The company's couriers work in its separate courier app, which has its own store listing and notes.",
   },
   {
     // 105.2 The rides engine's one kind.

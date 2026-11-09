@@ -9916,5 +9916,136 @@
   "marketClubNone": "There's no club in this app yet.",
   "@marketClubNone": {
     "description": "115.10 The app has no delivery club."
+  },
+  "marketListEmptyTitle": "Nothing here near you yet",
+  "@marketListEmptyTitle": {
+    "description": "115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title."
+  },
+  "marketListEmptyMessage": "Try another address, or look at everything on the home.",
+  "@marketListEmptyMessage": {
+    "description": "115 The same empty list: what the customer can do."
+  },
+  "tabVendor": "My store",
+  "@tabVendor": {
+    "description": "115 The vendor app's orders tab, for a restaurant's or a shop's staff."
+  },
+  "tabVendorStock": "Stock",
+  "@tabVendorStock": {
+    "description": "115 The vendor app's tab that puts items in or out of stock."
+  },
+  "notVendorTitle": "For the stores' staff",
+  "@notVendorTitle": {
+    "description": "115 The vendor's screens for someone who doesn't work for a vendor: the title."
+  },
+  "notVendorMessage": "Sign in with the number or email the app's owner added you with.",
+  "@notVendorMessage": {
+    "description": "115 The same: how staff get in."
+  },
+  "vendorLater": "Later",
+  "@vendorLater": {
+    "description": "115 The vendor's list of orders for a later time."
+  },
+  "vendorPaused": "Paused: not taking orders",
+  "@vendorPaused": {
+    "description": "115 The vendor stopped new orders until it takes them again."
+  },
+  "vendorPauseUntilBack": "Until I take orders again",
+  "@vendorPauseUntilBack": {
+    "description": "115 Pauses the vendor with no end time."
+  },
+  "vendorPauseNote": "Orders for later still come.",
+  "@vendorPauseNote": {
+    "description": "115 Under the pause choice."
+  },
+  "vendorNoOrdersMessage": "New orders show here with a sound.",
+  "@vendorNoOrdersMessage": {
+    "description": "115 The vendor's empty order list."
+  },
+  "vendorItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@vendorItems": {
+    "description": "115 How many lines an order has, in the vendor's list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorItemsTitle": "Items",
+  "@vendorItemsTitle": {
+    "description": "115 The order's items on the vendor's order screen."
+  },
+  "vendorFor": "For {time}",
+  "@vendorFor": {
+    "description": "115 When a scheduled order is for.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorCollect": "Collect {amount} in cash",
+  "@vendorCollect": {
+    "description": "115 Cash to collect from the customer.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorCustomerNotes": "The customer's notes",
+  "@vendorCustomerNotes": {
+    "description": "115 The customer's notes on the vendor's order screen."
+  },
+  "vendorDeliverTo": "Deliver to",
+  "@vendorDeliverTo": {
+    "description": "115 The drop-off, when the vendor delivers itself."
+  },
+  "vendorNoContact": "For anything about the customer, write to the app's support.",
+  "@vendorNoContact": {
+    "description": "115 Vendors never reach customers directly."
+  },
+  "vendorRejectOutsideArea": "Outside our delivery area",
+  "@vendorRejectOutsideArea": {
+    "description": "115 A reason to turn an order down."
+  },
+  "vendorHandToDriver": "Given to our driver",
+  "@vendorHandToDriver": {
+    "description": "115 The vendor's own driver took the order."
+  },
+  "vendorMarkDelivered": "Delivered",
+  "@vendorMarkDelivered": {
+    "description": "115 The vendor's driver delivered the order."
+  },
+  "vendorHandToCustomer": "Picked up by the customer",
+  "@vendorHandToCustomer": {
+    "description": "115 The customer picked the order up, with their code."
+  },
+  "vendorHandedOver": "Order updated",
+  "@vendorHandedOver": {
+    "description": "115 After handing an order over."
+  },
+  "vendorPickupCodeTitle": "The customer's code",
+  "@vendorPickupCodeTitle": {
+    "description": "115 Asking for the customer's pick-up code: the title."
+  },
+  "vendorPickupCode": "4-digit code",
+  "@vendorPickupCode": {
+    "description": "115 The pick-up code field."
+  },
+  "vendorStockSearch": "Search items",
+  "@vendorStockSearch": {
+    "description": "115 The stock screen's search field."
+  },
+  "vendorOutOfStockOnly": "Out of stock only",
+  "@vendorOutOfStockOnly": {
+    "description": "115 Shows only the items out of stock."
+  },
+  "vendorOutOfStock": "Out of stock",
+  "@vendorOutOfStock": {
+    "description": "115 An item that is out of stock."
+  },
+  "vendorStockEmpty": "No items found",
+  "@vendorStockEmpty": {
+    "description": "115 The stock search found nothing."
   }
 }

@@ -9515,4 +9515,119 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketClubNone =>
       overlay.text('marketClubNone') ?? base.marketClubNone;
+
+  @override
+  String get marketListEmptyTitle =>
+      overlay.text('marketListEmptyTitle') ?? base.marketListEmptyTitle;
+
+  @override
+  String get marketListEmptyMessage =>
+      overlay.text('marketListEmptyMessage') ?? base.marketListEmptyMessage;
+
+  @override
+  String get tabVendor => overlay.text('tabVendor') ?? base.tabVendor;
+
+  @override
+  String get tabVendorStock =>
+      overlay.text('tabVendorStock') ?? base.tabVendorStock;
+
+  @override
+  String get notVendorTitle =>
+      overlay.text('notVendorTitle') ?? base.notVendorTitle;
+
+  @override
+  String get notVendorMessage =>
+      overlay.text('notVendorMessage') ?? base.notVendorMessage;
+
+  @override
+  String get vendorLater => overlay.text('vendorLater') ?? base.vendorLater;
+
+  @override
+  String get vendorPaused => overlay.text('vendorPaused') ?? base.vendorPaused;
+
+  @override
+  String get vendorPauseUntilBack =>
+      overlay.text('vendorPauseUntilBack') ?? base.vendorPauseUntilBack;
+
+  @override
+  String get vendorPauseNote =>
+      overlay.text('vendorPauseNote') ?? base.vendorPauseNote;
+
+  @override
+  String get vendorNoOrdersMessage =>
+      overlay.text('vendorNoOrdersMessage') ?? base.vendorNoOrdersMessage;
+
+  @override
+  String vendorItems(int count) =>
+      overlay.format('vendorItems', {'count': count}) ??
+      base.vendorItems(count);
+
+  @override
+  String get vendorItemsTitle =>
+      overlay.text('vendorItemsTitle') ?? base.vendorItemsTitle;
+
+  @override
+  String vendorFor(String time) =>
+      overlay.format('vendorFor', {'time': time}) ?? base.vendorFor(time);
+
+  @override
+  String vendorCollect(String amount) =>
+      overlay.format('vendorCollect', {'amount': amount}) ??
+      base.vendorCollect(amount);
+
+  @override
+  String get vendorCustomerNotes =>
+      overlay.text('vendorCustomerNotes') ?? base.vendorCustomerNotes;
+
+  @override
+  String get vendorDeliverTo =>
+      overlay.text('vendorDeliverTo') ?? base.vendorDeliverTo;
+
+  @override
+  String get vendorNoContact =>
+      overlay.text('vendorNoContact') ?? base.vendorNoContact;
+
+  @override
+  String get vendorRejectOutsideArea =>
+      overlay.text('vendorRejectOutsideArea') ?? base.vendorRejectOutsideArea;
+
+  @override
+  String get vendorHandToDriver =>
+      overlay.text('vendorHandToDriver') ?? base.vendorHandToDriver;
+
+  @override
+  String get vendorMarkDelivered =>
+      overlay.text('vendorMarkDelivered') ?? base.vendorMarkDelivered;
+
+  @override
+  String get vendorHandToCustomer =>
+      overlay.text('vendorHandToCustomer') ?? base.vendorHandToCustomer;
+
+  @override
+  String get vendorHandedOver =>
+      overlay.text('vendorHandedOver') ?? base.vendorHandedOver;
+
+  @override
+  String get vendorPickupCodeTitle =>
+      overlay.text('vendorPickupCodeTitle') ?? base.vendorPickupCodeTitle;
+
+  @override
+  String get vendorPickupCode =>
+      overlay.text('vendorPickupCode') ?? base.vendorPickupCode;
+
+  @override
+  String get vendorStockSearch =>
+      overlay.text('vendorStockSearch') ?? base.vendorStockSearch;
+
+  @override
+  String get vendorOutOfStockOnly =>
+      overlay.text('vendorOutOfStockOnly') ?? base.vendorOutOfStockOnly;
+
+  @override
+  String get vendorOutOfStock =>
+      overlay.text('vendorOutOfStock') ?? base.vendorOutOfStock;
+
+  @override
+  String get vendorStockEmpty =>
+      overlay.text('vendorStockEmpty') ?? base.vendorStockEmpty;
 }

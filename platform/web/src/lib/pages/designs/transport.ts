@@ -352,6 +352,52 @@ export const DELIVERY_DESIGNS: Design[] = [
   },
 ];
 
+
+// 115.13 A marketplace: restaurants, supermarkets and shops in one app.
+const MARKET: Kit = {
+  steps: [card("1. Choose a place", "A restaurant, the supermarket or a shop near you."), card("2. Fill your basket", "Pay online, from your wallet or in cash at the door."), card("3. Follow it", "Watch your order on the way to you.")],
+  offer: {
+    title: "What you can order",
+    cards: [
+      card("Meals", "From the city's favourite restaurants.", "art-dish-burger.png", screen("restaurants")),
+      card("Fresh fruit and vegetables", "Weighed for you, the way you like them.", "art-item-fruit.png", screen("restaurants")),
+      card("Bread and breakfast", "From the bakery in the morning.", "art-item-bread.png", screen("restaurants")),
+      card("Coffee and tea", "Beans, leaves and cups to go.", "art-product-coffee.png", screen("restaurants")),
+    ],
+  },
+  questions: [
+    question("How do I follow my order?", "Open My orders: each stage shows with its time, and the courier on the map when one brings it."),
+    question("What if an item is missing or wrong?", "Tell us from the order within two days, with a photo if you like, and we'll refund it or put it right."),
+    question("Can I order from a restaurant and the supermarket together?", "Each place takes its own order, so you pay for each basket on its own."),
+    question("What if a weighed item comes out heavier?", "You pay only a little more than you ordered, and never more than the limit shown in the basket."),
+    question("Can I pick my order up or have it later?", "Yes, where the place offers it: choose pick-up or a time when you order."),
+    question("Can my shop join?", "Yes. Fill in the form on our Partner with us page and we'll be in touch."),
+  ],
+  quotes: [
+    quote("Dinner and the week's shopping from the same app, each at my door on time.", "Nour A.", "Customer"),
+    quote("The fruit is weighed just as I asked, and I see the price before it comes.", "Hassan M.", "Customer"),
+    quote("A bottle was missing once. The refund was in my wallet the same day.", "Elif K.", "Customer", 4),
+  ],
+  team: [who("emre", "Founder"), who("mariam", "Our places"), who("tarek", "Couriers"), who("zeynep", "Customer service")],
+  story:
+    "<p>{app} brings the city's restaurants, supermarkets and shops into one app. We work with places we buy from ourselves; some deliver with their own drivers and the rest with our couriers. You fill your basket, we follow your order from the shelf or the kitchen to your door, and if something goes wrong, a real person puts it right.</p>",
+  short: "<p>Food, groceries and more from the places near you, in three steps.</p>",
+  numbers: [stat("30 min", "To your door"), stat("60+", "Places"), stat("7 days", "A week")],
+  photos: ["art-banner-food.png", "art-item-fruit.png", "art-item-veg.png", "art-item-bread.png", "art-dish-burger.png", "art-place-shop.png"],
+  contactWords: "<p>A question about an order, or want your place in the app? Send us a message: we answer within the hour.</p>",
+  join: {
+    title: "Partner with us",
+    intro: "<p>Run a restaurant, a supermarket or a shop? Reach new customers, with our couriers or your own drivers.</p>",
+    perks: [card("More orders", "Customers across the city find your place."), card("Your way to deliver", "Our couriers, or your own drivers."), card("Clear statements", "Every order and every payment, each month.")],
+    formTitle: "Tell us about your place",
+    fields: joinFields("Your place's name"),
+    button: "Send",
+    done: "Thank you. Our team will call you within a few days.",
+  },
+  joinLabel: "Partner with us",
+  opening: hours("Delivery hours", days(WEEK, "08:00", "23:59")),
+};
+
 const foodTabs = [homeTab, screenTab("restaurants", "Restaurants", "restaurant_menu", "restaurants"), screenTab("orders", "My orders", "receipt_long", "food_orders"), accountTab];
 
 export const FOOD_DESIGNS: Design[] = [
@@ -456,6 +502,115 @@ export const FOOD_DESIGNS: Design[] = [
         ],
       },
       ...kitPages(FOOD),
+    ],
+  },
+];
+
+const marketTabs = [homeTab, screenTab("restaurants", "Places", "storefront", "restaurants"), screenTab("orders", "My orders", "receipt_long", "food_orders"), accountTab];
+
+/** 115.13 The marketplace's classic designs (Studio's own templates come with 115.14). */
+export const MARKET_DESIGNS: Design[] = [
+  {
+    id: "market-city",
+    kind: "marketplace",
+    name: "City market",
+    description: "Everything in one place: an offer, the restaurants and the supermarket near you, and how fast it comes.",
+    look: { template: "bold", corners: "round", cards: "elevated", font: "Outfit", secondary_color: "#F4A261" },
+    tabs: marketTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          slider(
+            [
+              slide("Meals, groceries and more", "From the places near you, to your door", screen("restaurants")),
+              slide("The supermarket in your pocket", "Fresh produce weighed for you", screen("restaurants")),
+              slide("Run a shop?", "Partner with us", page("join")),
+            ],
+            false,
+          ),
+          quickLinks([
+            link("storefront", "Places", screen("restaurants")),
+            link("receipt_long", "My orders", screen("food_orders")),
+            link("help", "How it works", page("how-it-works")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("restaurants", "Near you", "restaurants", "list", { seeAll: screen("restaurants") }),
+          steps(MARKET),
+          stats(MARKET.numbers),
+          ...ending(MARKET, page("join")),
+        ],
+      },
+      ...kitPages(MARKET),
+    ],
+  },
+  {
+    id: "market-everyday",
+    kind: "marketplace",
+    name: "Everyday basket",
+    description: "Shopping first: a notice, quick links to order and follow, and what you can order side by side.",
+    look: { template: "classic", corners: "soft", cards: "outlined", font: "Plus Jakarta Sans", secondary_color: "#2A9D8F" },
+    tabs: marketTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          notice("info", "Free delivery from new places this week.", "Order now", screen("restaurants")),
+          slider([
+            slide("The week's shopping in minutes", "Fruit, bread and the rest", screen("restaurants")),
+            slide("Lunch at your desk", "Delivered in half an hour", screen("restaurants")),
+            slide("Follow your order", "Each stage, with its time", screen("food_orders")),
+          ]),
+          quickLinks([
+            link("storefront", "Places", screen("restaurants")),
+            link("receipt_long", "My orders", screen("food_orders")),
+            link("notifications", "Updates", screen("notifications")),
+            link("person", "Account", screen("account")),
+          ]),
+          list("restaurants", "Order from", "restaurants", "carousel", { seeAll: screen("restaurants") }),
+          cards("offer", MARKET.offer.title, MARKET.offer.cards),
+          steps(MARKET),
+          ...ending(MARKET, page("join")),
+        ],
+      },
+      ...kitPages(MARKET),
+    ],
+  },
+  {
+    id: "market-neighbourhood",
+    kind: "marketplace",
+    name: "Neighbourhood market",
+    description: "Warm and local: a welcome, the places around you, your delivery hours and a team to talk to.",
+    look: { template: "minimal", corners: "soft", cards: "flat", font: "Manrope", secondary_color: "#E76F51" },
+    tabs: marketTabs,
+    pages: [
+      {
+        slug: "home",
+        title: "Home",
+        show_title: false,
+        blocks: [
+          text("welcome", "<h2>Your neighbourhood's market</h2><p>{app} brings you the restaurants, the grocer and the shops around you.</p>"),
+          slider(
+            [
+              slide("From the grocer on the corner", "Fresh every morning", screen("restaurants")),
+              slide("Family kitchens near you", "Home cooking, delivered", screen("restaurants")),
+              slide("Help a local shop grow", "Order from the ones you love", screen("restaurants")),
+            ],
+            false,
+          ),
+          button("order", "Start shopping", screen("restaurants")),
+          list("restaurants", "Places", "restaurants", "list", { seeAll: screen("restaurants") }),
+          steps(MARKET),
+          MARKET.opening,
+          team("Talk to us", MARKET.team),
+          ...ending(MARKET, page("join")),
+        ],
+      },
+      ...kitPages(MARKET),
     ],
   },
 ];

@@ -79,6 +79,8 @@ export function connectorFor(
     delivery?: boolean;
     /** 105.1 Food delivery apps are in the app's plan. */
     food?: boolean;
+    /** 115.13 A marketplace project on a plan with marketplaces (lib/market/plan.ts `marketplaceOn`). */
+    marketplace?: boolean;
     /** 105.2 Ride apps are in the app's plan (105.9 live taxi apps: `taxi`). */
     rides?: boolean;
     /** 91.3 A customer asked to return an order. */

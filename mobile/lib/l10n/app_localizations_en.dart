@@ -8952,4 +8952,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketClubNone => 'There\'s no club in this app yet.';
+
+  @override
+  String get marketListEmptyTitle => 'Nothing here near you yet';
+
+  @override
+  String get marketListEmptyMessage =>
+      'Try another address, or look at everything on the home.';
+
+  @override
+  String get tabVendor => 'My store';
+
+  @override
+  String get tabVendorStock => 'Stock';
+
+  @override
+  String get notVendorTitle => 'For the stores\' staff';
+
+  @override
+  String get notVendorMessage =>
+      'Sign in with the number or email the app\'s owner added you with.';
+
+  @override
+  String get vendorLater => 'Later';
+
+  @override
+  String get vendorPaused => 'Paused: not taking orders';
+
+  @override
+  String get vendorPauseUntilBack => 'Until I take orders again';
+
+  @override
+  String get vendorPauseNote => 'Orders for later still come.';
+
+  @override
+  String get vendorNoOrdersMessage => 'New orders show here with a sound.';
+
+  @override
+  String vendorItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorItemsTitle => 'Items';
+
+  @override
+  String vendorFor(String time) {
+    return 'For $time';
+  }
+
+  @override
+  String vendorCollect(String amount) {
+    return 'Collect $amount in cash';
+  }
+
+  @override
+  String get vendorCustomerNotes => 'The customer\'s notes';
+
+  @override
+  String get vendorDeliverTo => 'Deliver to';
+
+  @override
+  String get vendorNoContact =>
+      'For anything about the customer, write to the app\'s support.';
+
+  @override
+  String get vendorRejectOutsideArea => 'Outside our delivery area';
+
+  @override
+  String get vendorHandToDriver => 'Given to our driver';
+
+  @override
+  String get vendorMarkDelivered => 'Delivered';
+
+  @override
+  String get vendorHandToCustomer => 'Picked up by the customer';
+
+  @override
+  String get vendorHandedOver => 'Order updated';
+
+  @override
+  String get vendorPickupCodeTitle => 'The customer\'s code';
+
+  @override
+  String get vendorPickupCode => '4-digit code';
+
+  @override
+  String get vendorStockSearch => 'Search items';
+
+  @override
+  String get vendorOutOfStockOnly => 'Out of stock only';
+
+  @override
+  String get vendorOutOfStock => 'Out of stock';
+
+  @override
+  String get vendorStockEmpty => 'No items found';
 }

@@ -91,11 +91,12 @@ const verticals = [
   'services',
   'instructors',
   'taxi',
+  'marketplace',
 ];
 
 /// 104.6 `role`: the customers' app, or a delivery company's courier app;
-/// 105.2 a ride company's drivers' app.
-const roles = ['customer', 'courier', 'driver'];
+/// 105.2 a ride company's drivers' app; 115 a marketplace's vendor app.
+const roles = ['customer', 'courier', 'driver', 'vendor'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>
@@ -208,6 +209,8 @@ ValidationResult validateBuildConfig(Object? decoded) {
       errors.add('"role" courier is for delivery apps only.');
     } else if (c['role'] == 'driver' && c['app_type'] != 'rides') {
       errors.add('"role" driver is for ride apps only.');
+    } else if (c['role'] == 'vendor' && c['app_type'] != 'food') {
+      errors.add('"role" vendor is for food and marketplace apps only.');
     }
   }
   // 104.8.4 Yallapp Courier: Yallapp's own courier app for every company

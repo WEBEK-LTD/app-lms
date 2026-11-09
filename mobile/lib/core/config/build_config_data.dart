@@ -49,7 +49,11 @@ enum AppVertical {
   instructors,
 
   /// 105.9 A live taxi app (the rides module on the live map).
-  taxi;
+  taxi,
+
+  /// 115.13 A marketplace grown from food delivery: restaurants, shops and
+  /// supermarkets (the food module with the marketplace's screens).
+  marketplace;
 
   /// The value as the build config and `Config` send it; anything unknown
   /// (a newer platform) is none.
@@ -63,7 +67,7 @@ enum AppVertical {
 
 /// 104.6 Who the build is for (`role` in the build config): the customers'
 /// app, or a delivery company's second app for its couriers only.
-enum AppRole { customer, courier, driver }
+enum AppRole { customer, courier, driver, vendor }
 
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
@@ -125,7 +129,8 @@ class BuildConfigData {
   /// sends one.
   final AppVertical? vertical;
 
-  /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only.
+  /// 104.6 [AppRole.courier]: the courier app, with the courier's screens only;
+  /// 115 [AppRole.vendor]: a marketplace's vendor app, with the vendor's.
   final AppRole role;
 
   /// 104.8.4 Yallapp Courier (`courier_hub`): Yallapp's own courier app for
