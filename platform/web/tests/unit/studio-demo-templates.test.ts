@@ -18,7 +18,7 @@ import { PLAN_INFO } from "@/lib/plans";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import type { LayoutBlock, StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
-import { DEMO_TEMPLATES, demoStudioPage, demoTemplateId, studioDemoBlocks, studioDemoOf } from "@/lib/studio/demo-templates";
+import { DEMO_TEMPLATES, demoStudioPage, demoTemplateId, paragraphsOf, studioDemoBlocks, studioDemoOf } from "@/lib/studio/demo-templates";
 import { TEMPLATES, templatesFor, type SectionWord } from "@/lib/studio/sections";
 import { allNodes } from "@/lib/studio/tree";
 
@@ -141,6 +141,15 @@ describe("Studio templates = Studio demos", () => {
     // An owner's project on a plan without Studio still doesn't get one.
     const owner = layoutForPlan({ version: "v1", ...layout }, { ...app, demo: false }, PLAN_INFO.business, BUILT_IN_APP_DEFAULTS);
     expect(owner.pages[0]!.studio).toBeUndefined();
+  });
+
+  it("reads a text block's headings and paragraphs as plain words", () => {
+    expect(paragraphsOf("<h2>Welcome to {app}</h2><p><strong>This is a demo app.</strong> Sign in &amp; enjoy &quot;it&quot;.</p>")).toEqual([
+      { heading: true, text: "Welcome to {app}" },
+      { heading: false, text: 'This is a demo app. Sign in & enjoy "it".' },
+    ]);
+    // Words outside a heading or paragraph, and an unclosed tag, are left out.
+    expect(paragraphsOf("loose <p>kept</p> <script>x</script><p>cut")).toEqual([{ heading: false, text: "kept" }]);
   });
 
   it("draws a block Studio has no element for as nothing, never a broken element", () => {

@@ -23,13 +23,48 @@ function text(ctx: SectionContext, value: string, extra: Partial<StudioNode> = {
   return { id: idOf(ctx), type: "text", text: value, ...extra };
 }
 
-const ENTITIES: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'" };
+const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
 
-function plain(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, "")
-    .replace(/&(amp|lt|gt|quot|#39);/g, (e) => ENTITIES[e] ?? e)
-    .trim();
+/**
+ * A text block's paragraphs as plain words, read one character at a time:
+ * its headings (h1 to h6) and paragraphs (p), every other tag dropped and
+ * the few entities a demo's texts use written out. The words go into a
+ * Studio text, never back into HTML.
+ */
+export function paragraphsOf(html: string): { heading: boolean; text: string }[] {
+  const out: { heading: boolean; text: string }[] = [];
+  let current: { heading: boolean; text: string } | null = null;
+  let i = 0;
+  while (i < html.length) {
+    const c = html[i]!;
+    if (c === "<") {
+      const end = html.indexOf(">", i);
+      if (end === -1) break;
+      const tag = html.slice(i + 1, end).trim().toLowerCase();
+      const name = tag.replace("/", "").split(" ")[0] ?? "";
+      const block = name === "p" || (name.length === 2 && name[0] === "h" && name[1]! >= "1" && name[1]! <= "6");
+      if (block && !tag.startsWith("/")) current = { heading: name !== "p", text: "" };
+      else if (block && current) {
+        const words = current.text.trim();
+        if (words) out.push({ heading: current.heading, text: words });
+        current = null;
+      }
+      i = end + 1;
+      continue;
+    }
+    if (c === "&") {
+      const end = html.indexOf(";", i);
+      const name = end === -1 ? "" : html.slice(i + 1, end);
+      if (name in ENTITIES) {
+        if (current) current.text += ENTITIES[name];
+        i = end + 1;
+        continue;
+      }
+    }
+    if (current) current.text += c;
+    i += 1;
+  }
+  return out;
 }
 
 /** A picture of Yallapp's (`picture:<file>`) at the platform's address; another address as it is. */
@@ -85,9 +120,8 @@ export function studioNodeOf(ctx: SectionContext, block: LayoutBlock): StudioNod
       };
     }
     case "text": {
-      const parts = [...(block.html ?? "").matchAll(/<(h[1-6]|p)>([\s\S]*?)<\/\1>/g)];
-      const children = parts.map(([, tag, inner]) =>
-        tag!.startsWith("h") ? text(ctx, heading(ctx, plain(inner!)), { font: { size: 20, weight: 800, line_height: 1.25 } }) : text(ctx, plain(inner!), { font: { size: 15, line_height: 1.5 } }),
+      const children = paragraphsOf(block.html ?? "").map((part) =>
+        part.heading ? text(ctx, heading(ctx, part.text), { font: { size: 20, weight: 800, line_height: 1.25 } }) : text(ctx, part.text, { font: { size: 15, line_height: 1.5 } }),
       );
       if (!children.length) return null;
       return { id: idOf(ctx), type: "column", gap: 6, padding: pad(8, 16), visibility: block.visibility, children };
