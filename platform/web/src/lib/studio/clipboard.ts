@@ -37,6 +37,7 @@ export const STYLE_FIELDS = [
   "shadow",
   "opacity",
   "font",
+  "text_style",
   "text_align",
   "motion",
 ] as const satisfies readonly (keyof StudioNode)[];

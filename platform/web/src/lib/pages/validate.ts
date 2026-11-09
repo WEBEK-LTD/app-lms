@@ -57,6 +57,7 @@ import {
   STUDIO_PLATFORMS,
   STUDIO_PRESSES,
   STUDIO_SHADOWS,
+  STUDIO_TEXT_STYLES,
   STUDIO_TEXT_ALIGNS,
   STUDIO_VISIBILITY,
   STUDIO_INDICATORS,
@@ -82,6 +83,7 @@ import {
   type StudioHeader,
   type StudioMarket,
   type StudioNode,
+  type StudioFont,
   type StudioPage,
   type StudioSides,
   type StudioSize,
@@ -1017,6 +1019,59 @@ function parseSides(c: Checker, where: string, value: unknown, what: string): St
 }
 
 /** 103R One element and what it holds (`StudioNode`). `card`: inside an items element's card, where elements take `bind`. */
+/** A Studio font (an element's, or a project's text style); `bad` hears what's wrong. */
+function parseStudioFont(value: unknown, bad: (what: string) => void): StudioFont | null {
+  const L = STUDIO_LIMITS;
+  const f = record(value);
+  if (!f) {
+    bad("the font isn't valid.");
+    return null;
+  }
+  const font: StudioFont = {};
+  if (typeof f.family === "string" && f.family.trim()) {
+    if (f.family.length > 60) bad("the font's name is too long.");
+    else font.family = f.family.trim();
+  }
+  if (f.weight !== undefined) {
+    if (!(STUDIO_FONT_WEIGHTS as readonly unknown[]).includes(f.weight)) bad("choose the text's weight.");
+    else font.weight = f.weight as (typeof STUDIO_FONT_WEIGHTS)[number];
+  }
+  const size = studioNumber(f.size, L.minFont, L.maxFont);
+  if (size !== undefined && Number.isNaN(size)) bad(`the text size must be ${L.minFont} to ${L.maxFont}.`);
+  else if (size !== undefined) font.size = size;
+  const line = studioNumber(f.line_height, 0.8, 3);
+  if (line !== undefined && Number.isNaN(line)) bad("the line height must be 0.8 to 3.");
+  else if (line !== undefined) font.line_height = line;
+  const spacing = studioNumber(f.letter_spacing, -5, 20);
+  if (spacing !== undefined && Number.isNaN(spacing)) bad("the letter spacing must be -5 to 20.");
+  else if (spacing !== undefined) font.letter_spacing = spacing;
+  if (f.italic === true) font.italic = true;
+  if (f.underline === true) font.underline = true;
+  if (f.strike === true) font.strike = true;
+  if (f.uppercase === true) font.uppercase = true;
+  return font;
+}
+
+/** Editor audit 3.3: the project's text styles (Heading, Subheading, Body, Button). */
+function parseTextStyles(raw: unknown, c: { fail: (where: string, message: string) => void }): LayoutContent["text_styles"] | null {
+  const v = record(raw);
+  if (!v) {
+    c.fail("Text styles", "the text styles are missing.");
+    return null;
+  }
+  const out: NonNullable<LayoutContent["text_styles"]> = {};
+  for (const [key, value] of Object.entries(v)) {
+    if (!oneOf(STUDIO_TEXT_STYLES, key)) {
+      c.fail("Text styles", "this text style isn't available.");
+      continue;
+    }
+    if (value === undefined || value === null) continue;
+    const font = parseStudioFont(value, (what) => c.fail("Text styles", what));
+    if (font && Object.keys(font).length) out[key] = font;
+  }
+  return out;
+}
+
 function parseNode(ctx: Context, where: string, value: unknown, state: { count: number; ids: Set<string> }, depth: number, card: boolean): StudioNode | null {
   const { c } = ctx;
   const L = STUDIO_LIMITS;
@@ -1147,33 +1202,13 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
 
   // Text.
   if (v.font !== undefined && v.font !== null) {
-    const f = record(v.font);
-    if (!f) bad("the font isn't valid.");
-    else {
-      const font: NonNullable<StudioNode["font"]> = {};
-      if (typeof f.family === "string" && f.family.trim()) {
-        if (f.family.length > 60) bad("the font's name is too long.");
-        else font.family = f.family.trim();
-      }
-      if (f.weight !== undefined) {
-        if (!(STUDIO_FONT_WEIGHTS as readonly unknown[]).includes(f.weight)) bad("choose the text's weight.");
-        else font.weight = f.weight as (typeof STUDIO_FONT_WEIGHTS)[number];
-      }
-      const size = studioNumber(f.size, L.minFont, L.maxFont);
-      if (size !== undefined && Number.isNaN(size)) bad(`the text size must be ${L.minFont} to ${L.maxFont}.`);
-      else if (size !== undefined) font.size = size;
-      const line = studioNumber(f.line_height, 0.8, 3);
-      if (line !== undefined && Number.isNaN(line)) bad("the line height must be 0.8 to 3.");
-      else if (line !== undefined) font.line_height = line;
-      const spacing = studioNumber(f.letter_spacing, -5, 20);
-      if (spacing !== undefined && Number.isNaN(spacing)) bad("the letter spacing must be -5 to 20.");
-      else if (spacing !== undefined) font.letter_spacing = spacing;
-      if (f.italic === true) font.italic = true;
-      if (f.underline === true) font.underline = true;
-      if (f.strike === true) font.strike = true;
-      if (f.uppercase === true) font.uppercase = true;
-      if (Object.keys(font).length) node.font = font;
-    }
+    const font = parseStudioFont(v.font, bad);
+    if (font && Object.keys(font).length) node.font = font;
+  }
+  // Editor audit 3.3: the project's text style it follows (its font is already the style's).
+  if (v.text_style !== undefined && v.text_style !== null) {
+    if (!oneOf(STUDIO_TEXT_STYLES, v.text_style)) bad("choose the text style.");
+    else node.text_style = v.text_style;
   }
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
@@ -1541,6 +1576,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   const figma = v.figma_look === undefined || v.figma_look === null ? null : parseFigmaLook(v.figma_look, c, options.ownFonts);
   if (v.look_mode !== undefined && !oneOf(LOOK_MODES, v.look_mode)) c.fail("Look", "choose the standard look or the Figma look.");
   if (v.look_mode === "figma" && !figma) c.fail("Look", "import a Figma file before showing its look.");
+  const textStyles = v.text_styles === undefined || v.text_styles === null ? null : parseTextStyles(v.text_styles, c);
   if (c.errors.length) return { ok: false, errors: c.errors };
   return {
     ok: true,
@@ -1554,6 +1590,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
       ...(strings && Object.keys(strings).length ? { strings } : {}),
       ...(v.look_mode === "figma" ? { look_mode: "figma" as const } : {}),
       ...(figma ? { figma_look: figma } : {}),
+      ...(textStyles && Object.keys(textStyles).length ? { text_styles: textStyles } : {}),
     },
   };
 }

@@ -22,6 +22,7 @@ import {
   STUDIO_HEADER_TYPES,
   STUDIO_LOOPS,
   STUDIO_PRESSES,
+  STUDIO_TEXT_STYLES,
   LAYOUT_LIMITS,
   TAB_LABELS,
   type Action,
@@ -30,13 +31,16 @@ import {
   type LayoutTab,
   type StudioHeader,
   type StudioMarket,
+  type StudioFont,
   type StudioNode,
   type StudioPage,
   type StudioSize,
+  type StudioTextStyle,
   type TabBarStyle,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
+import { followStyle } from "@/lib/studio/text-styles";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { Glyph } from "./shared";
@@ -90,6 +94,8 @@ interface Props {
   screens: ScreenOption[];
   pickable: Pickable;
   fontLabels: { arabicOnly: string; none: string; sample: string; hint?: string };
+  /** Editor audit 3.3: the project's text styles, filled in from the defaults. */
+  textStyles: Record<StudioTextStyle, StudioFont>;
 }
 
 export function Inspector(props: Props) {
@@ -550,6 +556,8 @@ const RATIOS = [
 function DesignTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
+  // Editor audit 3.3: changing the font by hand leaves the text style.
+  const setFont = (patch: StudioFont) => onChange({ font: { ...(node.font ?? {}), ...patch }, text_style: undefined });
   const layout = holdsChildren(node);
   const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "bullets" || node.type === "countdown" || node.type === "market";
   const alignField = textual ? "text_align" : "self_align";
@@ -854,11 +862,33 @@ function DesignTab(props: Props & { node: StudioNode }) {
         <>
           <Rule />
           <Heading>{t("studio.font")}</Heading>
+          <label className="flex flex-col gap-1">
+            <span>{t("studio.textStyle")}</span>
+            <span className="relative flex">
+            <select
+              value={node.text_style ?? ""}
+              onChange={(e) => {
+                const style = e.target.value as StudioTextStyle | "";
+                onChange(style ? followStyle(style, props.textStyles) : { text_style: undefined });
+              }}
+              className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]"
+              style={{ border: "1px solid var(--studio-line)" }}
+            >
+              <option value="">{t("studio.textStyleNone")}</option>
+              {STUDIO_TEXT_STYLES.map((style) => (
+                <option key={style} value={style}>
+                  {t(`studio.ts_${style}` as DashKey)}
+                </option>
+              ))}
+            </select>
+            <Chevron />
+            </span>
+          </label>
           <div className="grid grid-cols-2 gap-2">
-            <FontPicker key={node.id} id={`font-${node.id}`} label={t("studio.font")} value={node.font?.family ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => onChange({ font: { ...(node.font ?? {}), family: family || null } })} />
+            <FontPicker key={node.id} id={`font-${node.id}`} label={t("studio.font")} value={node.font?.family ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => setFont({ family: family || null })} />
             <label className="relative flex">
               <span className="sr-only">{t("studio.weight")}</span>
-              <select value={node.font?.weight ?? ""} onChange={(e) => onChange({ font: { ...(node.font ?? {}), weight: e.target.value ? (Number(e.target.value) as 400) : undefined } })} className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]" style={{ border: "1px solid var(--studio-line)" }}>
+              <select value={node.font?.weight ?? ""} onChange={(e) => setFont({ weight: e.target.value ? (Number(e.target.value) as 400) : undefined })} className="h-[34px] w-full cursor-pointer appearance-none rounded-lg bg-white ps-2.5 pe-7 text-[13px]" style={{ border: "1px solid var(--studio-line)" }}>
                 <option value="">{t("studio.weight")}</option>
                 {[300, 400, 500, 600, 700, 800, 900].map((w) => (
                   <option key={w} value={w}>
@@ -869,16 +899,16 @@ function DesignTab(props: Props & { node: StudioNode }) {
               <Chevron />
             </label>
           </div>
-          <RangeField label={t("studio.size")} value={node.font?.size ?? 16} min={10} max={64} unit="px" fallback={16} presets={[{ value: 12 }, { value: 14 }, { value: 16 }, { value: 20 }, { value: 24 }, { value: 32 }]} onChange={(size) => onChange({ font: { ...(node.font ?? {}), size } })} />
-          <RangeField label={t("studio.lineHeight")} value={node.font?.line_height ?? 1.4} min={1} max={2.2} step={0.1} unit="×" fallback={1.4} onChange={(line_height) => onChange({ font: { ...(node.font ?? {}), line_height } })} />
-          <RangeField label={t("studio.letterSpacing")} value={node.font?.letter_spacing ?? 0} min={-2} max={8} step={0.5} unit="px" fallback={0} onChange={(letter_spacing) => onChange({ font: { ...(node.font ?? {}), letter_spacing: letter_spacing || undefined } })} />
+          <RangeField label={t("studio.size")} value={node.font?.size ?? 16} min={10} max={64} unit="px" fallback={16} presets={[{ value: 12 }, { value: 14 }, { value: 16 }, { value: 20 }, { value: 24 }, { value: 32 }]} onChange={(size) => setFont({ size })} />
+          <RangeField label={t("studio.lineHeight")} value={node.font?.line_height ?? 1.4} min={1} max={2.2} step={0.1} unit="×" fallback={1.4} onChange={(line_height) => setFont({ line_height })} />
+          <RangeField label={t("studio.letterSpacing")} value={node.font?.letter_spacing ?? 0} min={-2} max={8} step={0.5} unit="px" fallback={0} onChange={(letter_spacing) => setFont({ letter_spacing: letter_spacing || undefined })} />
           <div className="flex gap-3">
-            <Check label={t("studio.italic")} checked={Boolean(node.font?.italic)} onChange={(italic) => onChange({ font: { ...(node.font ?? {}), italic: italic || undefined } })} />
-            <Check label={t("studio.underline")} checked={Boolean(node.font?.underline)} onChange={(underline) => onChange({ font: { ...(node.font ?? {}), underline: underline || undefined } })} />
+            <Check label={t("studio.italic")} checked={Boolean(node.font?.italic)} onChange={(italic) => setFont({ italic: italic || undefined })} />
+            <Check label={t("studio.underline")} checked={Boolean(node.font?.underline)} onChange={(underline) => setFont({ underline: underline || undefined })} />
           </div>
           <div className="flex gap-3">
-            <Check label={t("studio.strike")} checked={Boolean(node.font?.strike)} onChange={(strike) => onChange({ font: { ...(node.font ?? {}), strike: strike || undefined } })} />
-            <Check label={t("studio.uppercase")} checked={Boolean(node.font?.uppercase)} onChange={(uppercase) => onChange({ font: { ...(node.font ?? {}), uppercase: uppercase || undefined } })} />
+            <Check label={t("studio.strike")} checked={Boolean(node.font?.strike)} onChange={(strike) => setFont({ strike: strike || undefined })} />
+            <Check label={t("studio.uppercase")} checked={Boolean(node.font?.uppercase)} onChange={(uppercase) => setFont({ uppercase: uppercase || undefined })} />
           </div>
           {node.type === "text" ? (
             <Box label={t("studio.maxLines")}>
