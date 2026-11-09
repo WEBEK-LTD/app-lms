@@ -21,6 +21,7 @@ import '../../modules/rides/data/rides_providers.dart';
 import '../../modules/rides/rides_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
+import '../../modules/vendor/data/vendor_providers.dart';
 import '../api/models/models.dart';
 import '../config/build_config_data.dart';
 import '../gate/app_gate.dart';
@@ -98,6 +99,9 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   if (ref.watch(courierAppProvider)) return courierAppTabs;
   // 105.2 The drivers' app: the driver's screen and the account.
   if (ref.watch(driverAppProvider)) return driverAppTabs;
+  // 115 The marketplace's vendor app: the vendor's orders, stock and the
+  // account.
+  if (ref.watch(vendorAppProvider)) return vendorAppTabs;
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
@@ -113,6 +117,9 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   final restaurant = appType == AppType.food
       ? ref.watch(isRestaurantProvider)
       : null;
+  // 115 Marketplaces that keep their vendors in the customers' app
+  // (`MarketConfig.vendor_app` same): the vendor's tab for its staff.
+  final vendor = appType == AppType.food ? ref.watch(isVendorProvider) : null;
   // 105.2 Ride apps: the Driver tab for the company's drivers; 112.3 never
   // in the riders' app, as above.
   final driver = appType == AppType.rides ? ref.watch(isDriverProvider) : null;
@@ -128,9 +135,12 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
     withClassroomTab(
       withTeacherTab(
         withDriverTab(
-          withRestaurantTab(
-            withCourierTab(withParentTab(tabs, parent), courier),
-            restaurant,
+          withVendorTab(
+            withRestaurantTab(
+              withCourierTab(withParentTab(tabs, parent), courier),
+              restaurant,
+            ),
+            vendor,
           ),
           driver,
         ),
@@ -173,6 +183,11 @@ List<ShellTab> withCourierTab(List<ShellTab> tabs, bool? courier) =>
 /// delivery app.
 List<ShellTab> withRestaurantTab(List<ShellTab> tabs, bool? restaurant) =>
     _withRoleTab(tabs, restaurantTab, restaurant);
+
+/// 115 The tabs of a marketplace: the vendor's tab added for its staff,
+/// as the Restaurant tab is for restaurants'. Null: not a food app.
+List<ShellTab> withVendorTab(List<ShellTab> tabs, bool? vendor) =>
+    _withRoleTab(tabs, vendorTab, vendor);
 
 /// 105.2 The tabs of a ride app: the Driver tab added for the company's
 /// drivers, as the Courier tab is for couriers. Null: not a ride app.
@@ -313,6 +328,9 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     ? Paths.courier
     : ref.read(driverAppProvider)
     ? Paths.driver
+    // 115 The vendor app opens on the vendor's orders.
+    : ref.read(vendorAppProvider)
+    ? Paths.vendorDesk
     // 112.1 A ride app opens on the map (its Ride tab).
     : ref.read(shellTabsProvider).firstOrNull?.location == Paths.ride
     ? Paths.ride
