@@ -8921,4 +8921,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get marketClubNone => 'Bu uygulamada henüz bir kulüp yok.';
+
+  @override
+  String get marketListEmptyTitle => 'Yakınında henüz bir şey yok';
+
+  @override
+  String get marketListEmptyMessage =>
+      'Başka bir adres dene ya da ana sayfada her şeye göz at.';
 }

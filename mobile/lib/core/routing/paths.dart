@@ -101,6 +101,22 @@ abstract final class Paths {
   static const marketWallet = '/market-wallet';
   static const marketClub = '/market-club';
 
+  /// 115 Vendors of a kind, a cuisine or with offers.
+  static String marketList({
+    String? kind,
+    String? category,
+    bool offers = false,
+    String? title,
+  }) => Uri(
+    path: '/market-list',
+    queryParameters: {
+      'kind': ?kind,
+      'category': ?category,
+      if (offers) 'offers': '1',
+      'title': ?title,
+    },
+  ).toString();
+
   // 105.2 Ride hailing.
   static const ride = '/ride';
   static const myRides = '/my-rides';
