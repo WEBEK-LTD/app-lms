@@ -14599,6 +14599,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This complaint is closed.'**
   String get marketComplaintClosed;
+
+  /// 115.10 The customer's wallet screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get marketWallet;
+
+  /// 115.10 Above the wallet's balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance'**
+  String get marketWalletBalance;
+
+  /// 115.10 Under the wallet's balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it on your next orders. It can\'t be taken out as cash.'**
+  String get marketWalletNote;
+
+  /// 115.10 The wallet with no history.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds and credit from support show here.'**
+  String get marketWalletEmpty;
+
+  /// 115.10 Joins the club on a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Join · {price}'**
+  String marketClubJoinWith(String price);
+
+  /// 115.10 A monthly club plan.
+  ///
+  /// In en, this message translates to:
+  /// **'a month'**
+  String get marketClubPerMonth;
+
+  /// 115.10 A yearly club plan.
+  ///
+  /// In en, this message translates to:
+  /// **'a year'**
+  String get marketClubPerYear;
+
+  /// 115.10 A member's paid period.
+  ///
+  /// In en, this message translates to:
+  /// **'Member until {date}'**
+  String marketClubActiveUntil(String date);
+
+  /// 115.10 What the club saved the member.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved so far: {amount}'**
+  String marketClubSaved(String amount);
+
+  /// 115.10 A membership waiting for its payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the payment. Your membership starts once it\'s confirmed.'**
+  String get marketClubWaiting;
+
+  /// 115.10 A membership whose payment failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment didn\'t go through. Try again.'**
+  String get marketClubPayAgain;
+
+  /// 115.10 The club has no automatic renewal.
+  ///
+  /// In en, this message translates to:
+  /// **'Each period is paid on its own; nothing renews by itself.'**
+  String get marketClubNoRenew;
+
+  /// 115.10 After joining the club.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to the club.'**
+  String get marketClubJoined;
+
+  /// 115.10 The app has no delivery club.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no club in this app yet.'**
+  String get marketClubNone;
 }
 
 class _AppLocalizationsDelegate

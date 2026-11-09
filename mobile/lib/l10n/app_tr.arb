@@ -2414,5 +2414,19 @@
   "marketWriteToSupport": "Desteğe yazın",
   "marketSupport": "Destek",
   "marketYou": "Siz",
-  "marketComplaintClosed": "Bu şikâyet kapatıldı."
+  "marketComplaintClosed": "Bu şikâyet kapatıldı.",
+  "marketWallet": "Cüzdan",
+  "marketWalletBalance": "Bakiyeniz",
+  "marketWalletNote": "Sonraki siparişlerinizde kullanın. Nakit olarak çekilemez.",
+  "marketWalletEmpty": "İadeler ve destekten gelen krediler burada görünür.",
+  "marketClubJoinWith": "Katıl · {price}",
+  "marketClubPerMonth": "aylık",
+  "marketClubPerYear": "yıllık",
+  "marketClubActiveUntil": "{date} tarihine kadar üye",
+  "marketClubSaved": "Şimdiye kadar tasarruf: {amount}",
+  "marketClubWaiting": "Ödeme bekleniyor. Üyeliğiniz onaylandığında başlar.",
+  "marketClubPayAgain": "Ödeme gerçekleşmedi. Tekrar deneyin.",
+  "marketClubNoRenew": "Her dönem ayrı ödenir; hiçbir şey kendiliğinden yenilenmez.",
+  "marketClubJoined": "Kulübe hoş geldiniz.",
+  "marketClubNone": "Bu uygulamada henüz bir kulüp yok."
 }

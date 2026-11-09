@@ -847,7 +847,7 @@ class _Club extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: MarketPressable(
-        onTap: () {},
+        onTap: () => context.push(Paths.marketClub),
         child: Container(
           decoration: BoxDecoration(
             color: background,
