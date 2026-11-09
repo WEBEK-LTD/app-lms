@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type { App, DemoPurgeCounts, ListingInquiry } from "../data/types";
 import { listDemoApps } from "./apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf } from "./constants";
+import { refreshMarketplaceDemo } from "./marketplace";
 import { refreshSchoolDay } from "./school";
 import { cleanDemoTeacher } from "./teachers";
 
@@ -9,7 +10,8 @@ import { cleanDemoTeacher } from "./teachers";
  * Keeping the demo apps tidy (roadmap 16). Visitors share one account in
  * each demo app, so what they add (orders, bookings, messages, favorites,
  * enrolments, progress; 110.5 a teacher's courses, follows and teacher
- * reviews, what they wrote as the school's teacher) is deleted a day later
+ * reviews, what they wrote as the school's teacher; 115.15 the multi-vendor
+ * demo's orders) is deleted a day later
  * by the daily job, and their phones are signed out after a day without use.
  */
 
@@ -33,6 +35,8 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     const id = demoIdOf(app);
     if (id === "school") report.deleted += await refreshSchoolDay(store, app, now);
     if (id === "instructors") report.deleted += await cleanDemoTeacher(store, app, now);
+    // 115.15 Zad: visitors' orders after a day; the seeded orders, complaints and refunds from today.
+    if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now);
     // The shared account goes back to its name, should anything have changed it.
     const user = await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164);
     if (user && (user.name !== DEMO_USER_NAME || user.email !== null || user.city !== null)) {

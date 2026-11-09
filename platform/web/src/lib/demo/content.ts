@@ -266,6 +266,17 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["food-restaurants", "food-menu", "food-order"],
   },
+  // 115.15 Restaurants and a supermarket in one app; the demo number is a customer, the supermarket's staff and a courier.
+  marketplace: {
+    summary: "Two restaurants and a supermarket in one app: order from each, use the offers, the club and the wallet, then take the supermarket's orders as its staff and deliver them as the courier.",
+    tryThis: [
+      "Open My orders: one is on its way with its courier on the map, one is for tomorrow and one waits at the counter for pick-up",
+      "Fill a basket at Zad Market, some of it by the kilo, take the market's own offer or the code ZAD20, and pay from your wallet",
+      "In the My store tab, accept your order with the minutes it needs, pick and weigh each item, then mark it ready",
+      "In Account › Courier mode, take its job and deliver it, then see your complaints: one open, one waiting for you, one refunded to your wallet",
+    ],
+    screens: ["food-restaurants", "food-menu", "food-order"],
+  },
   rides: {
     summary: "A ride service in Cairo: ask for a ride and see each car type's fare first, then take your own ride as the company's driver.",
     tryThis: [
@@ -536,6 +547,26 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Order from the restaurants near you and follow your food to the door.",
     fullDescription: `Sofra Eats brings food from the restaurants near you: koshary, grills, pizza and desserts.\n\nPick your dishes the way you like them, pay in cash and follow your order from the kitchen to your door.\n\n${PRIVACY_NOTE}`,
     welcome: "Three kitchens, one app. Order in a few taps.",
+  },
+  // 115.15 No photos in this demo (requirePhotos is off for it): the food demo's icon and banner.
+  marketplace: {
+    appName: "Zad",
+    shortName: "Zad",
+    primaryColor: "#1E6B52",
+    splashColor: "#E5F2EC",
+    secondaryColor: "#F2A93B",
+    template: "bold",
+    font: "Outfit",
+    corners: "round",
+    cards: "elevated",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-food",
+    banner: { picture: "banner-food", heading: "Dinner and groceries, one app", subheading: "Grills, pizza and a supermarket near you, delivered or ready for pick-up." },
+    androidPackage: "com.yallapp.demo.multivendor",
+    storeTitle: "Zad: food & groceries",
+    shortDescription: "Order from restaurants and a supermarket near you, with offers, a club and a wallet.",
+    fullDescription: `Zad brings restaurants and a supermarket near you into one app.\n\nOrder a dinner or a week's groceries, some of them by the kilo, use the offers and your club's free delivery, pay in cash or from your wallet and follow your courier on the map. Order for later, or pick it up yourself.\n\n${PRIVACY_NOTE}`,
+    welcome: "Two kitchens and a supermarket, one basket at a time.",
   },
   rides: {
     appName: "Masar Rides",

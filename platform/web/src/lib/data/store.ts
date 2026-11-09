@@ -1229,6 +1229,8 @@ export interface DataStore {
   listMarketOrders(query: MarketOrderQuery): Promise<{ items: MarketOrder[]; total: number }>;
   /** False when it isn't the app's, or (with `expect`) its status changed meanwhile. */
   updateMarketOrder(appId: string, id: number, patch: MarketOrderPatch, expect?: { statuses?: MarketOrderStatus[] }): Promise<boolean>;
+  /** 115.15 Studio's demo only: deletes these orders of the app with their complaints, coupon uses and wallet entries; returns how many orders went. */
+  deleteMarketOrders(appId: string, ids: number[]): Promise<number>;
   createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint>;
   getMarketComplaint(appId: string, id: number): Promise<MarketComplaint | null>;
   listMarketComplaints(query: MarketComplaintQuery): Promise<{ items: MarketComplaint[]; total: number }>;

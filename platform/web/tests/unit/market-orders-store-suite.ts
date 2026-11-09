@@ -130,4 +130,32 @@ export function marketOrdersStoreSuite(store: () => DataStore) {
     // The same key in another app is another entry.
     expect((await s.addWalletEntry({ ...entry(100, "complaint:1"), appId: other.app.id })).ok).toBe(true);
   });
+
+  it("115.15 deletes orders with their complaints and wallet entries, in their own app only", async () => {
+    const s = store();
+    const { app, vendor, order } = await setup(s);
+    const gone = await s.createMarketOrder(order({ status: "delivered", completedAt: NOW }));
+    const kept = await s.createMarketOrder(order({ status: "delivered", completedAt: NOW }));
+    const complaint = (orderId: number): MarketComplaintInput => ({
+      appId: app.id, orderId, vendorId: vendor.id, userId: 7, reason: "damaged", text: "Squashed", lineIds: [1], photoAssetIds: [], status: "open", assignee: null, sharedWithVendor: false,
+      messages: [], notes: [], decision: null, answeredAt: null, createdAt: NOW, updatedAt: NOW,
+    });
+    await s.createMarketComplaint(complaint(gone.id));
+    const keptComplaint = await s.createMarketComplaint(complaint(kept.id));
+    const wallet = (orderId: number | null, key: string) => ({ appId: app.id, userId: 7, kind: "refund" as const, amount: 1000, label: "Refund", orderId, complaintId: null, key, createdAt: NOW });
+    await s.addWalletEntry(wallet(gone.id, "refund:gone"));
+    await s.addWalletEntry(wallet(kept.id, "refund:kept"));
+    await s.addWalletEntry(wallet(null, "credit"));
+    const other = await setup(s);
+    const theirs = await s.createMarketOrder(other.order());
+
+    // Another app's order is never deleted from here.
+    expect(await s.deleteMarketOrders(app.id, [gone.id, theirs.id])).toBe(1);
+    expect(await s.deleteMarketOrders(app.id, [])).toBe(0);
+    expect(await s.getMarketOrder(app.id, gone.id)).toBeNull();
+    expect(await s.getMarketOrder(app.id, kept.id)).not.toBeNull();
+    expect(await s.getMarketOrder(other.app.id, theirs.id)).not.toBeNull();
+    expect((await s.listMarketComplaints({ appId: app.id, limit: 10, offset: 0 })).items.map((c) => c.id)).toEqual([keptComplaint.id]);
+    expect(await s.walletBalance(app.id, 7)).toBe(2000);
+  });
 }
