@@ -351,7 +351,7 @@ export const en = {
     choiceCourierApp: "A second app for couriers",
     choiceFood: "Food delivery",
     // 115.13
-    choiceMarketplace: "Marketplace: restaurants, supermarkets and shops",
+    choiceMarketplace: "Multi-vendor apps: restaurants, supermarkets and stores",
     choiceRides: "Ride hailing",
     choiceInstructors: "Academies with many teachers",
     choiceSchool: "Schools for students, parents and teachers",

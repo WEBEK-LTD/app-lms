@@ -788,7 +788,7 @@ export const en = {
   kindFood: "Food delivery from many restaurants",
   kindFoodText: "Restaurants and their menus, orders, and your couriers",
   // 115.13
-  kindMarketplace: "Marketplace: restaurants, supermarkets and shops",
+  kindMarketplace: "Marketplace: restaurants, supermarkets and stores",
   kindMarketplaceText: "Many vendors in one app, each with its staff, menu or catalog, commission and statements",
   kindRides: "Rides, like Uber",
   kindRidesText: "Riders ask for a ride and follow your drivers on the map",
