@@ -43,7 +43,7 @@ test("the team creates the demo apps from the admin", async () => {
   await admin.getByRole("button", { name: /Create the regular demo apps|Refresh all regular demo apps/ }).click();
   await expect(admin.getByRole("status")).toContainText("The regular apps' demos are created and up to date.", { timeout: 30_000 });
   for (const name of ["Nour Academy", "Lale Flowers", "Defne Café", "Studio Nur", "Kardelen Clinic", "Pulse Studio", "Nile Homes", "The Harbour Post", "Kuzey Culture Centre", "Bereket Food Bank"]) {
-    await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
+    await expect(admin.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
     appIds[name] = await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
   await expect(admin.getByRole("heading", { name: "Masar Rides", level: 2 })).toHaveCount(0);
@@ -53,7 +53,7 @@ test("the team creates the demo apps from the admin", async () => {
   await expect(admin.getByRole("status")).toContainText("Yallapp Studio's demos are created and up to date.", { timeout: 30_000 });
   await expect(admin).toHaveURL(/family=studio/);
   // 110.5 And the live taxi app, the school and the academy with many teachers.
-  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) {
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) {
     await expect(admin.getByRole("heading", { name, level: 2 })).toBeVisible();
     appIds[name] = await admin.locator(`form:not(:has(input[name="variant"])):has(button:has-text("Start a build of ${name}")) input[name="appId"]`).inputValue();
   }
@@ -146,7 +146,7 @@ test("the daily job cleans the demo apps and keeps what's newer than a day", asy
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });
   expect(daily.status()).toBe(200);
   const report = await daily.json();
-  expect(report.demo).toMatchObject({ apps: 16, deleted: 0 });
+  expect(report.demo).toMatchObject({ apps: 17, deleted: 0 });
   // 27 The gym demo's timetable is kept 8 weeks ahead.
   expect(report.classes.apps).toBeGreaterThanOrEqual(1);
   const orders = await (await request.get(`/api/app/${appIds["Lale Flowers"]}/me/orders`, { headers: { authorization: `Bearer ${token}` } })).json();
@@ -177,8 +177,12 @@ test("/demo/studio shows Studio's own demos apart from the regular ones", async 
   await page.goto("/demo/studio");
   await expect(page.getByTestId("demo-phone")).toHaveText(DEMO.display);
   await expect(page.getByTestId("demo-code")).toHaveText(DEMO.code);
-  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
-  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(6);
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { name, level: 2, exact: true })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(7);
+  // 115.15 The multi-vendor demo, never called a marketplace on a public page.
+  await expect(page.locator("#multi-vendor")).toContainText("In the My store tab");
+  await expect(page.locator("#multi-vendor").getByRole("link", { name: "About multi-vendor apps" })).toHaveAttribute("href", "/solutions/multi-vendor");
+  await expect(page.locator("main")).not.toContainText(/marketplace/i);
   // 110.5 What to try as each of the demo number's people.
   await expect(page.locator("#taxi")).toContainText("Account › Driver mode");
   await expect(page.locator("#school")).toContainText("In the Classroom tab");

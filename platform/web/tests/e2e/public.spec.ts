@@ -284,7 +284,7 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   await expect(page.getByRole("heading", { level: 2, name: "A café designed in Studio" })).toBeVisible();
   // Studio's own project types as demo apps, signed in to with the shared demo number.
   await expect(page.getByTestId("demo-phone")).toHaveText("+1 202 555 0123");
-  for (const name of ["Sahm Express", "Sofra Eats", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
+  for (const name of ["Sahm Express", "Sofra Eats", "Zad", "Masar Rides", "Lamha Taxi", "Nakhla School", "Rawaq Academy"]) await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { level: 2, name: "The editor behind them" })).toBeVisible();
   for (const screen of [
     "studio-cafe-home",
