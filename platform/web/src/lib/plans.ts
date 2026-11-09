@@ -71,7 +71,7 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * delivery, food, ride and taxi companies' couriers and drivers have, so every Studio plan has it unless the team
  * unticks it.
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university", "market"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "page_editor_basic", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university", "market"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 /** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
@@ -208,7 +208,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
     id: "starter",
     name: "Starter",
     tagline: "An Android app, published by you with our guides",
-    features: ["push"],
+    features: ["push", "page_editor_basic"],
     limits: { ...BASE_LIMITS, appUsers: 1000, languages: 1, sources: 1, storageGb: 2, analyticsMonths: 3 },
     highlights: [
       "Android app (APK & AAB)",
@@ -217,7 +217,7 @@ export const PLAN_INFO: Record<Plan, PlanInfo> = {
       "Up to 1,000 app users",
       "1 app language",
       "Push notifications",
-      "Ready-made page templates",
+      "Simple page editor",
       "Step-by-step publishing guides",
       "Email support",
     ],
@@ -340,6 +340,13 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Full page editor",
     description: "Build your own pages and tabs from blocks. Without it, your app uses the ready-made pages.",
     enforced: "The served layout (hosted API and the plugin's layout endpoint) and the page editor.",
+  },
+  {
+    id: "page_editor_basic",
+    label: "Simple page editor",
+    description:
+      "Change the texts, pictures, links and slides of your pages, reorder, hide and show their sections, and add basic ones. The full page editor adds every block, styling and more pages.",
+    enforced: "The page editor (basic blocks only, no styling, saved sections or new pages) and the served layout (no web page blocks, no block styling, at most the template's pages).",
   },
   {
     id: "card_payments",
@@ -496,6 +503,17 @@ export function planOffered(plan: Pick<PlanInfo, "id" | "offered">): boolean {
 
 export function hasFeature(plan: Pick<PlanInfo, "features"> | null | undefined, feature: PlanFeature): boolean {
   return Boolean(plan?.features.includes(feature));
+}
+
+/**
+ * The page editor a plan has: the full one, the simple one (texts, pictures,
+ * links and slides of the template's pages, basic blocks, no styling) or none
+ * (the ready-made pages). The full editor includes the simple one.
+ */
+export type PageEditorLevel = "full" | "basic" | null;
+export function pageEditorLevel(plan: Pick<PlanInfo, "features"> | null | undefined): PageEditorLevel {
+  if (hasFeature(plan, "page_editor")) return "full";
+  return hasFeature(plan, "page_editor_basic") ? "basic" : null;
 }
 
 /** -1, 0 or 1: whether `to` is a downgrade, the same plan or an upgrade from `from` (plans of one family). */
@@ -745,7 +763,7 @@ export function comparisonRows(plans: Record<Plan, PlanInfo>): ComparisonRow[] {
     { label: "Analytics: daily totals kept", values: each((p) => formatAnalyticsKeep(p.limits.analyticsMonths)) },
     { label: "Analytics: single events kept (each app open, screen or search)", values: each(() => `${RAW_RETENTION_DAYS} days`) },
     { label: "Push notifications", values: has("push") },
-    { label: "Pages", values: each((p) => (hasFeature(p, "page_editor") ? "Full page editor" : "Ready-made templates")) },
+    { label: "Pages", values: each((p) => (hasFeature(p, "page_editor") ? "Full page editor" : hasFeature(p, "page_editor_basic") ? "Simple page editor" : "Ready-made templates")) },
     { label: "Card payments in the app", values: has("card_payments") },
     { label: "Offline mode", values: has("offline_downloads") },
     { label: "Automatic rebuilds", values: has("auto_rebuild") },

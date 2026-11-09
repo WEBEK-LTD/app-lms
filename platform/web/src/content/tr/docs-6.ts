@@ -233,7 +233,7 @@ Uygulamanızın **Paket** sayfasındaki **Neye ödüyorsunuz** bölümü, uygula
 
 ## Dört plan
 
-- **Starter**: Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulaması, bir içerik kaynağı, hazır sayfa şablonları, bir dil ve en fazla 1.000 uygulama kullanıcısı. Uygulamayı adım adım rehberlerimizle kendiniz yayınlarsınız.
+- **Starter**: Google Play, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps için Android uygulaması, bir içerik kaynağı, basit bir sayfa düzenleyici, bir dil ve en fazla 1.000 uygulama kullanıcısı. Uygulamayı adım adım rehberlerimizle kendiniz yayınlarsınız.
 - **Growth**: App Store için iOS uygulaması, tam sayfa düzenleyici, üç dil, uygulamada kartla ödemeler, çevrimdışı mod, otomatik yeniden derlemeler ve en fazla 10.000 uygulama kullanıcısı ekler.
 - **Pro**: sınırsız uygulama kullanıcısı, tüm diller ve "Sizin için yayınlıyoruz" ekler: uygulamanızı ve her güncellemeyi Google Play, App Store, Samsung Galaxy Store, Huawei AppGallery ve Xiaomi GetApps'te öncelikli destekle biz yayınlarız.
 - **Business**: Pro'daki her şey, size özel bir hesap yöneticisi ve istek üzerine özel özelliklerle.

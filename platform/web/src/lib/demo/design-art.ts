@@ -458,9 +458,31 @@ const REUSED: PictureName[] = [
 
 const PEOPLE_FROM_DEMO = new Set<string>(["coach-selin", "coach-can", "coach-mira"]);
 
+/** The demos' welcome banners, wide like the demo's own (lib/demo/look.ts): the demo designs show the demo's pictures. */
+const BANNER_SIZE = { width: 640, height: 320 };
+const DEMO_BANNERS = [
+  "banner-academy",
+  "banner-store",
+  "banner-restaurant",
+  "banner-bookings",
+  "banner-clinic",
+  "banner-fitness",
+  "banner-realestate",
+  "banner-news",
+  "banner-events",
+  "banner-charity",
+  "banner-taxi",
+  "banner-school",
+  "banner-teachers",
+] as const satisfies readonly PictureName[];
+
+/** A demo banner's file in public/design-pictures; the three the transport designs already use keep their file. */
+export const DEMO_BANNER_ART: Partial<Record<PictureName, string>> = Object.fromEntries(DEMO_BANNERS.map((name) => [name, `art-demo-${name}.png`]));
+
 /** Every picture, by its file in public/design-pictures. */
 export const DESIGN_ART: Record<string, DesignPicture> = Object.fromEntries([
   ...Object.entries(PEOPLE).map(([name, art]) => [`art-${name}.png`, { art, ...PERSON_SIZE }] as const),
   ...Object.entries(DRAWN).map(([name, art]) => [`art-${name}.png`, { art, ...PHOTO_SIZE }] as const),
   ...REUSED.map((name) => [`art-${name}.png`, { art: PICTURES[name], ...(PEOPLE_FROM_DEMO.has(name) ? PERSON_SIZE : PHOTO_SIZE) }] as const),
+  ...DEMO_BANNERS.map((name) => [`art-demo-${name}.png`, { art: PICTURES[name], ...BANNER_SIZE }] as const),
 ]);

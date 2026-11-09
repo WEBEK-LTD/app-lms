@@ -18,6 +18,7 @@ import { addOwnFont, OWN_FONT_LIMITS, ownFontView, removeOwnFont, type OwnFontEr
 import { saveSection, type SaveSectionError } from "@/lib/pages/sections";
 import type { LayoutContent } from "@/lib/pages/types";
 import { appPlan, effectivePlans } from "@/lib/entitlements";
+import { pageEditorLevel } from "@/lib/plans";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
 import { seedForDesign } from "@/lib/samples/server";
@@ -311,14 +312,17 @@ export type SectionView = Pick<SavedSection, "id" | "name" | "blocks">;
 
 /** 84.3 Saves blocks of a page together as a section, for any page of the account's apps. */
 export async function saveSectionAction(name: string, blocksJson: string): Promise<{ ok: true; section: SectionView } | { ok: false; error: SaveSectionError; detail?: string }> {
-  const { app, user, staff } = await requireLayoutApp();
+  const { app, user, staff, license } = await requireLayoutApp();
+  const store = await getStore();
+  // The simple page editor (Starter) has no saved sections.
+  if (pageEditorLevel(await appPlan(store, license, new Date())) === "basic") return { ok: false, error: "invalid", detail: "Saved sections come with the full page editor. Upgrade your plan to save sections." };
   let blocks: unknown = null;
   try {
     blocks = JSON.parse(blocksJson);
   } catch {
     return { ok: false, error: "blocks" };
   }
-  const saved = await saveSection(await getStore(), app, { name, blocks }, (staff ?? user).email, new Date());
+  const saved = await saveSection(store, app, { name, blocks }, (staff ?? user).email, new Date());
   if (!saved.ok) return saved;
   return { ok: true, section: { id: saved.section.id, name: saved.section.name, blocks: saved.section.blocks } };
 }

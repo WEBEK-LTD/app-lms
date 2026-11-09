@@ -52,6 +52,9 @@ const DEVICES: Record<Device, { width: number; height: number; radius: number; i
 };
 const ZOOMS = [50, 75, 100, 125] as const;
 const AUTOSAVE_MS = 1200;
+/** Editor audit 3.1: a failed save is sent again after 4 s, then 8, 16, 32, and at most every minute. */
+const RETRY_MS = 4000;
+const RETRY_MAX_MS = 60_000;
 /** Changes this close together (typing in a field) are one undo step. */
 const JOIN_MS = 1000;
 
@@ -238,15 +241,23 @@ export function StudioEditor(props: StudioEditorProps) {
     [known],
   );
 
+  // Editor audit 3.1: a save that didn't reach the server is sent again on
+  // its own, sooner at first and then less often, until it goes through.
+  const [retry, setRetry] = useState(0);
+  const failures = useRef(0);
   const save = useCallback(
     async (draft: LayoutContent) => {
       const sent = edits.current;
       setStatus("saving");
       try {
         applied(await saveLayoutDraftAction(JSON.stringify(draft)), sent);
+        failures.current = 0;
       } catch {
         setStatus("unsaved");
-        setProblem(t("pages.cantSave"));
+        setProblem(t("studio.saveRetrying"));
+        failures.current += 1;
+        const wait = Math.min(RETRY_MAX_MS, RETRY_MS * 2 ** Math.min(failures.current - 1, 4));
+        setTimeout(() => setRetry((n) => n + 1), wait);
       }
     },
     [applied, t],
@@ -256,7 +267,7 @@ export function StudioEditor(props: StudioEditorProps) {
     if (!dirty.current) return;
     const timer = setTimeout(() => void save(layout), AUTOSAVE_MS);
     return () => clearTimeout(timer);
-  }, [layout, save]);
+  }, [layout, retry, save]);
 
   // "Saved 2 seconds ago" stays true as time passes.
   useEffect(() => {
@@ -1012,6 +1023,12 @@ export function StudioEditor(props: StudioEditorProps) {
             {notice ?? savedText}
           </span>
         </div>
+        {status === "unsaved" && problem ? (
+          <button type="button" onClick={() => void save(layout)} className="flex h-[30px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold" style={{ border: `1px solid ${C.barLine}`, background: "transparent", color: C.ivory }}>
+            <Glyph name="cloud_upload" size={16} />
+            {t("studio.saveNow")}
+          </button>
+        ) : null}
         <a href={props.previewHref} target="_blank" rel="noopener" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
           {t("studio.previewOnPhone")}
