@@ -888,6 +888,16 @@ abstract class YallappApi {
   });
   Future<ChatUpload> resumeMarketUpload(String uploadId);
   Future<void> completeMarketUpload(String uploadId);
+
+  // 115.10 The wallet and the delivery club.
+  Future<MarketWallet> getMyWallet({int page = 1});
+  Future<MarketClubInfo> getMarketClub();
+  Future<ClubMembership?> getMyClub();
+
+  /// The membership waiting for its payment, and the payment page (null
+  /// for a free plan, which starts at once).
+  Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId);
+  Future<ClubMembership?> cancelClub();
   Future<FoodQuote> quoteFoodOrder(FoodOrderRequest request);
 
   /// The order and, paid by card, its payment page.
@@ -3077,6 +3087,50 @@ class HttpYallappApi implements YallappApi {
     '/market/uploads/${Uri.encodeComponent(uploadId)}/complete',
     _required,
     _ignore,
+  );
+
+  @override
+  Future<MarketWallet> getMyWallet({int page = 1}) => _get(
+    '/me/wallet',
+    _required,
+    MarketWallet.fromJson,
+    query: {'page': page},
+  );
+
+  @override
+  Future<MarketClubInfo> getMarketClub() =>
+      _get('/market/club', _optional, MarketClubInfo.fromJson);
+
+  @override
+  Future<ClubMembership?> getMyClub() => _get(
+    '/me/club',
+    _required,
+    (json) => optObject(json, 'membership', ClubMembership.fromJson),
+  );
+
+  @override
+  Future<({ClubMembership? membership, String? payUrl})> joinClub(int planId) =>
+      _send(
+        'POST',
+        '/me/club',
+        _required,
+        (data) {
+          final json = asJson(data);
+          return (
+            membership: optObject(json, 'membership', ClubMembership.fromJson),
+            payUrl: optString(json, 'pay_url'),
+          );
+        },
+        body: {'plan_id': planId},
+        query: {'platform': platform.name},
+      );
+
+  @override
+  Future<ClubMembership?> cancelClub() => _send(
+    'POST',
+    '/me/club/cancel',
+    _required,
+    (data) => optObject(asJson(data), 'membership', ClubMembership.fromJson),
   );
 
   @override

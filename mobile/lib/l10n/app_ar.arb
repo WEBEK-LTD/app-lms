@@ -2414,5 +2414,19 @@
   "marketWriteToSupport": "اكتب إلى الدعم",
   "marketSupport": "الدعم",
   "marketYou": "أنت",
-  "marketComplaintClosed": "هذه الشكوى مغلقة."
+  "marketComplaintClosed": "هذه الشكوى مغلقة.",
+  "marketWallet": "المحفظة",
+  "marketWalletBalance": "رصيدك",
+  "marketWalletNote": "استخدمه في طلباتك القادمة. لا يمكن سحبه نقدًا.",
+  "marketWalletEmpty": "تظهر هنا المبالغ المستردة والرصيد المضاف من الدعم.",
+  "marketClubJoinWith": "انضم · {price}",
+  "marketClubPerMonth": "شهريًا",
+  "marketClubPerYear": "سنويًا",
+  "marketClubActiveUntil": "عضو حتى {date}",
+  "marketClubSaved": "وفّرت حتى الآن: {amount}",
+  "marketClubWaiting": "بانتظار الدفع. تبدأ عضويتك بعد تأكيده.",
+  "marketClubPayAgain": "لم يتم الدفع. حاول مرة أخرى.",
+  "marketClubNoRenew": "تُدفع كل فترة على حدة، ولا يتجدد شيء تلقائيًا.",
+  "marketClubJoined": "مرحبًا بك في النادي.",
+  "marketClubNone": "لا يوجد نادٍ في هذا التطبيق بعد."
 }

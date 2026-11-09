@@ -1087,3 +1087,112 @@ class ComplaintDecision {
   final String? couponCode;
   final String? reason;
 }
+
+/// `Wallet`: the customer's balance and its history (refunds, credit from
+/// support, paid orders), in the app's currency; it can't be withdrawn.
+class MarketWallet {
+  const MarketWallet({
+    required this.balance,
+    this.entries = const [],
+    this.page = 1,
+    this.totalPages = 1,
+  });
+
+  factory MarketWallet.fromJson(Json json) => MarketWallet(
+    balance: MarketMoney.fromJson(asJson(json['balance'], 'balance')),
+    entries: listOf(
+      json,
+      'entries',
+      (j) => (
+        kind: reqString(j, 'kind'),
+        label: reqString(j, 'label'),
+        amount: MarketMoney.fromJson(asJson(j['amount'], 'amount')),
+        orderId: optInt(j, 'order_id'),
+        at: reqDate(j, 'at'),
+      ),
+    ),
+    page: intOr(json, 'page', 1),
+    totalPages: intOr(json, 'total_pages', 1),
+  );
+
+  final MarketMoney balance;
+  final List<
+    ({String kind, String label, MarketMoney amount, int? orderId, DateTime at})
+  >
+  entries;
+  final int page;
+  final int totalPages;
+}
+
+/// `ClubPlan`: a delivery club plan, at the app owner's price.
+class ClubPlan {
+  const ClubPlan({
+    required this.id,
+    required this.name,
+    required this.yearly,
+    required this.price,
+    this.benefits = const [],
+  });
+
+  factory ClubPlan.fromJson(Json json) => ClubPlan(
+    id: reqInt(json, 'id'),
+    name: reqString(json, 'name'),
+    yearly: json['period'] == 'year',
+    price: MarketMoney.fromJson(asJson(json['price'], 'price')),
+    benefits: stringList(json, 'benefits'),
+  );
+
+  final int id;
+  final String name;
+  final bool yearly;
+  final MarketMoney price;
+  final List<String> benefits;
+}
+
+/// `GET /market/club`: the club's name, words and plans.
+class MarketClubInfo {
+  const MarketClubInfo({
+    required this.name,
+    this.description,
+    this.plans = const [],
+  });
+
+  factory MarketClubInfo.fromJson(Json json) => MarketClubInfo(
+    name: reqString(json, 'name'),
+    description: optString(json, 'description'),
+    plans: listOf(json, 'plans', ClubPlan.fromJson),
+  );
+
+  final String name;
+  final String? description;
+  final List<ClubPlan> plans;
+}
+
+/// `ClubMembership`: a member's plan and period.
+class ClubMembership {
+  const ClubMembership({
+    required this.plan,
+    required this.status,
+    required this.renews,
+    required this.saved,
+    this.periodEnd,
+  });
+
+  factory ClubMembership.fromJson(Json json) => ClubMembership(
+    plan: ClubPlan.fromJson(asJson(json['plan'], 'plan')),
+    status: reqString(json, 'status'),
+    renews: boolOr(json, 'renews', false),
+    periodEnd: optDate(json, 'current_period_end'),
+    saved: MarketMoney.fromJson(asJson(json['saved'], 'saved')),
+  );
+
+  final ClubPlan plan;
+
+  /// awaiting_payment, active, ending, ended or payment_failed.
+  final String status;
+  final bool renews;
+  final DateTime? periodEnd;
+  final MarketMoney saved;
+
+  bool get active => status == 'active' || status == 'ending';
+}
