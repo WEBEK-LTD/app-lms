@@ -4,7 +4,10 @@ import { newApp } from "@/lib/app/setup";
 import type { StudioNode } from "@/lib/pages/types";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { parseStudioPage } from "@/lib/pages/validate";
-import { applyWholeDesign, DESIGN_THEMES, designsFor, keepContent, makeDesign } from "@/lib/studio/designs";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import { studioDemoOf } from "@/lib/studio/demo-templates";
+import { applyWholeDesign, DESIGN_THEMES, designName, designsFor, keepContent, makeDesign } from "@/lib/studio/designs";
+import { TEMPLATES } from "@/lib/studio/sections";
 import type { SectionWord } from "@/lib/studio/sections";
 import { NOW } from "./helpers";
 
@@ -12,11 +15,36 @@ const words = { home: "Home", template: (id: string) => `[${id}]`, theme: (id: s
 const languages = { default: "en" as const, available: ["en" as const] };
 
 describe("108.7 whole designs", () => {
-  it("offers each project type six looks of its own pages", () => {
-    const food = designsFor({ type: "food", vertical: null });
+  it("offers each project type six looks of its own pages, each laid out its own way", () => {
+    const food = designsFor({ type: "food", vertical: null }).filter((d) => !d.demo);
     expect(food).toHaveLength(DESIGN_THEMES.length);
+    expect(food.map((d) => d.id)).toEqual(DESIGN_THEMES.map((t) => `yallapp-${t.id}`));
     expect(food[0]!.templates).toEqual(["food", "food_offers", "food_brand", "brand", "contact"]);
-    expect(designsFor(null)[0]!.templates).toEqual(["brand", "contact"]);
+    // Not only other colours: another first page, the pages in another order, lists and categories shown another way.
+    expect(new Set(food.map((d) => d.templates[0])).size).toBeGreaterThanOrEqual(3);
+    expect(new Set(DESIGN_THEMES.map((t) => JSON.stringify(t.layout))).size).toBe(DESIGN_THEMES.length);
+    expect(designsFor(null).map((d) => d.templates)).toEqual(DESIGN_THEMES.map(() => ["brand", "contact"]));
+  });
+
+  it("templates = demos: a kind with a Studio demo gets the demo first, in the demo's colour and font", () => {
+    const zad = designsFor({ type: "food", vertical: "marketplace" });
+    expect(zad[0]).toMatchObject({ id: "demo-marketplace", demo: "marketplace", templates: ["demo_marketplace", "market", "market_offers", "contact"] });
+    expect(zad[0]!.theme).toMatchObject({ accent: DEMO_BRANDS.marketplace.primaryColor, font: DEMO_BRANDS.marketplace.font, background: null });
+    expect(designName(zad[0]!, { ...words, demo: (name) => `Like our demo: ${name}` })).toBe("Like our demo: Zad");
+    for (const kind of KINDS) {
+      const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
+      const designs = designsFor({ type: kind.engine, vertical: kind.vertical });
+      expect(designs.filter((d) => d.demo).map((d) => d.demo), kind.id).toEqual(demo ? [demo] : []);
+      if (!demo) continue;
+      // The demo's design starts with the very page the demo shows, as it is.
+      const ctx = { brand: "#1F4E5F", source: null, w: (word: SectionWord) => `[${word}]`, newId: (() => { let n = 0; return () => `n${++n}`; })() };
+      const file = makeDesign(designs[0]!, ctx, words, languages);
+      const tpl = TEMPLATES.find((x) => x.id === `demo_${demo}`)!;
+      let m = 0;
+      const plain = tpl.make({ ...ctx, brand: DEMO_BRANDS[demo].primaryColor, newId: () => `n${++m}` });
+      expect(file.pages[0]!.studio.body.children!.length, kind.id).toBe(plain.body.children!.length);
+      expect(file.pages[0]!.studio.background, kind.id).toBeUndefined();
+    }
   });
 
   it("makes designs the page checker takes, for every project type and look", () => {
@@ -29,7 +57,7 @@ describe("108.7 whole designs", () => {
         for (const page of file.pages) {
           const parsed = parseStudioPage(page.studio, app, languages);
           expect(parsed.ok ? [] : parsed.errors, `${kind.id} › ${design.id} › ${page.slug}`).toEqual([]);
-          expect(page.studio.background).toBe(design.theme.background);
+          expect(page.studio.background ?? null).toBe(design.theme.background);
           if (page.studio.header) expect(page.studio.header.type).toBe(design.theme.header);
         }
       }

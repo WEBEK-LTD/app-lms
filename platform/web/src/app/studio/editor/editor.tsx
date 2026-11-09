@@ -24,7 +24,7 @@ import { findNode } from "@/lib/studio/tree";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
-import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, designName, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
@@ -815,10 +815,10 @@ export function StudioEditor(props: StudioEditorProps) {
 
   // ——— 108.7 Whole designs ———
 
-  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey) };
+  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey), demo: (name: string) => t("studio.design_demo", { name }) };
   const galleryDesigns: GalleryDesign[] = useMemo(
     () => [
-      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designWords.theme(d.theme.id), kind: "yallapp" as const, pages: d.templates.length, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designName(d, designWords), kind: "yallapp" as const, pages: d.templates.length, recommended: d.demo !== undefined, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
       ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
     ],
     // Made when the window opens, for the project as it is then.

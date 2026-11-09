@@ -20,6 +20,8 @@ export interface GalleryDesign {
   /** Yallapp's (made for the project), or the account's own. */
   kind: "yallapp" | "saved" | "imported";
   pages: number;
+  /** Templates = demos: the kind's demo, shown first and recommended. */
+  recommended?: boolean;
   /** Yallapp's are made here; the account's are opened when chosen. */
   file: DesignFile | null;
 }
@@ -147,6 +149,7 @@ export function DesignsGallery(props: {
                   <span className="flex items-center gap-1 text-xs" style={{ color: C.muted }}>
                     {t("studio.designsPages", { count: d.pages })}
                     {d.kind !== "yallapp" ? <Tag>{t(d.kind === "saved" ? "studio.designsTagMine" : "studio.designsTagImported")}</Tag> : null}
+                    {d.recommended ? <Tag>{t("studio.tplRecommended")}</Tag> : null}
                   </span>
                 </button>
               );

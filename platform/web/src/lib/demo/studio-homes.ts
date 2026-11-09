@@ -1,3 +1,4 @@
+import type { AppFont } from "../build-config/types";
 import type { ItemSource, LayoutBlock } from "../pages/types";
 import type { StudioDemoId } from "./constants";
 import type { PictureName } from "./pictures";
@@ -12,6 +13,10 @@ import type { PictureName } from "./pictures";
  */
 
 export interface StudioDemoHome {
+  /** The demo's name, main colour and font, its brand's (lib/demo/content.ts) and its whole Studio design's (lib/studio/designs.ts). */
+  appName: string;
+  primaryColor: string;
+  font: AppFont;
   /** The banner's picture, drawn in lib/demo/design-art.ts. */
   picture: PictureName;
   /** Its file in public/design-pictures. */
@@ -32,6 +37,9 @@ function list(id: string, title: string, source: ItemSource, screen: string, lay
 
 export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
   delivery: {
+    appName: "Sahm Express",
+    primaryColor: "#1F6FB2",
+    font: "Manrope",
     picture: "banner-delivery",
     file: "art-banner-delivery.png",
     heading: "Across Cairo, the same day",
@@ -40,6 +48,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("services", "Our services", "delivery_services", "send_parcel")],
   },
   food: {
+    appName: "Sofra Eats",
+    primaryColor: "#D2552B",
+    font: "Outfit",
     picture: "banner-food",
     file: "art-banner-food.png",
     heading: "Hungry? It's on its way",
@@ -48,6 +59,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("restaurants", "Restaurants", "restaurants", "restaurants")],
   },
   marketplace: {
+    appName: "Zad",
+    primaryColor: "#1E6B52",
+    font: "Outfit",
     picture: "banner-food",
     file: "art-banner-food.png",
     heading: "Dinner and groceries, one app",
@@ -56,6 +70,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("restaurants", "Restaurants", "restaurants", "restaurants")],
   },
   rides: {
+    appName: "Masar Rides",
+    primaryColor: "#14857A",
+    font: "Plus Jakarta Sans",
     picture: "banner-rides",
     file: "art-banner-rides.png",
     heading: "Where to?",
@@ -64,6 +81,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("vehicle_types", "Ride with us", "vehicle_types", "ride")],
   },
   taxi: {
+    appName: "Lamha Taxi",
+    primaryColor: "#1C2541",
+    font: "Manrope",
     picture: "banner-taxi",
     file: "art-demo-banner-taxi.png",
     heading: "Your taxi, live on the map",
@@ -72,6 +92,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("vehicle_types", "Ride with us", "vehicle_types", "ride")],
   },
   school: {
+    appName: "Nakhla School",
+    primaryColor: "#1F4E79",
+    font: "Plus Jakarta Sans",
     picture: "banner-school",
     file: "art-demo-banner-school.png",
     heading: "The school day in one app",
@@ -80,6 +103,9 @@ export const STUDIO_DEMO_HOMES: Record<StudioDemoId, StudioDemoHome> = {
     lists: [list("school_news", "School news", "school_news", "school")],
   },
   instructors: {
+    appName: "Rawaq Academy",
+    primaryColor: "#2E5E4E",
+    font: "Outfit",
     picture: "banner-teachers",
     file: "art-demo-banner-teachers.png",
     heading: "Learn from people who do it every day",
