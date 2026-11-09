@@ -31,13 +31,13 @@ import {
   type StudioMarket,
   type StudioNode,
   type StudioPage,
-  type StudioSides,
   type StudioSize,
   type TabBarStyle,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { elementLabel } from "./left-panel";
+import { RangeField, SidesField } from "./controls";
 import { Glyph } from "./shared";
 
 /**
@@ -256,21 +256,6 @@ function Segments<T extends string>({ value, options, onChange, label }: { value
   );
 }
 
-function Slider({ label, value, min, max, onChange, step = 1 }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void; step?: number }) {
-  const id = useId();
-  return (
-    <div className="flex items-center gap-2.5">
-      <label htmlFor={id} className="w-[72px] flex-none">
-        {label}
-      </label>
-      <input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="min-w-0 flex-1" style={{ accentColor: "#0E0D24" }} />
-      <span dir="ltr" className="w-8 text-end">
-        {value}
-      </span>
-    </div>
-  );
-}
-
 interface ColorChoice {
   label: string;
   value: string | null | undefined;
@@ -345,24 +330,6 @@ function SizeControl({ label, value, onChange }: { label: string; value: StudioS
           <option value="hug">{t("studio.hug")}</option>
           <option value="fixed">{typeof value === "number" ? "px" : t("studio.fixed")}</option>
         </select>
-      </span>
-    </Box>
-  );
-}
-
-function SidesControl({ label, value, onChange }: { label: string; value: StudioSides | undefined; onChange: (v: StudioSides | undefined) => void }) {
-  const t = useDashT();
-  const v = value?.top ?? 0;
-  const h = value?.start ?? 0;
-  const set = (nv: number, nh: number) => onChange(nv || nh ? { top: nv, end: nh, bottom: nv, start: nh } : undefined);
-  return (
-    <Box label={label}>
-      <span className="flex items-center" dir="ltr">
-        <NumberIn label={`${label}: ${t("studio.vertical")}`} value={v} max={400} width={20} onChange={(n) => set(n ?? 0, h)} />
-        <span aria-hidden="true" className="px-0.5">
-          ·
-        </span>
-        <NumberIn label={`${label}: ${t("studio.horizontal")}`} value={h} max={400} width={20} onChange={(n) => set(v, n ?? 0)} />
       </span>
     </Box>
   );
@@ -628,7 +595,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "bullets" ? (
         <div className="flex flex-col gap-2">
           <IconPicker id={`icon-${node.id}`} label={t("studio.bulletIcon")} value={node.icon ?? "check_circle"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
-          <Slider label={t("studio.iconSize")} value={node.icon_size ?? 20} min={8} max={60} onChange={(icon_size) => onChange({ icon_size })} />
+          <RangeField label={t("studio.iconSize")} value={node.icon_size ?? 20} min={12} max={96} step={2} unit="px" fallback={20} presets={[{ value: 16 }, { value: 24 }, { value: 32 }, { value: 48 }]} onChange={(icon_size) => onChange({ icon_size })} />
         </div>
       ) : null}
       {node.type === "image" ? (
@@ -648,7 +615,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "icon" || node.type === "button" ? (
         <div className="flex flex-col gap-2">
           <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional={node.type === "button"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
-          {node.icon ? <Slider label={t("studio.iconSize")} value={node.icon_size ?? 24} min={8} max={120} onChange={(icon_size) => onChange({ icon_size })} /> : null}
+          {node.icon ? <RangeField label={t("studio.iconSize")} value={node.icon_size ?? 24} min={12} max={96} step={2} unit="px" fallback={24} presets={[{ value: 16 }, { value: 24 }, { value: 32 }, { value: 48 }]} onChange={(icon_size) => onChange({ icon_size })} /> : null}
           {node.type === "button" && node.icon ? (
             <Segments label={t("studio.icon")} value={node.icon_position ?? "end"} onChange={(icon_position) => onChange({ icon_position })} options={[{ value: "start", label: t("studio.iconStart") }, { value: "end", label: t("studio.iconEnd") }]} />
           ) : null}
@@ -675,13 +642,18 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <input aria-label={t("studio.mapLabel")} placeholder={t("studio.mapLabel")} value={node.map?.label ?? ""} onChange={(e) => onChange({ map: { ...(node.map ?? { lat: 0, lng: 0 }), label: e.target.value || null } })} className="h-9 rounded-lg px-2.5" style={{ border: "1px solid var(--studio-line)" }} />
         </div>
       ) : null}
-      {node.type === "ratings" ? <Slider label={t("studio.stars")} value={node.rating ?? 5} min={0} max={5} step={0.1} onChange={(rating) => onChange({ rating })} /> : null}
+      {node.type === "ratings" ? <RangeField label={t("studio.stars")} value={node.rating ?? 5} min={0} max={5} step={0.5} unit="★" fallback={5} onChange={(rating) => onChange({ rating })} /> : null}
       {node.type === "form" ? <FormEditor node={node} onChange={onChange} /> : null}
       {node.type === "slider" ? (
         <div className="flex flex-col gap-2">
-          <Slider label={t("studio.perView")} value={node.per_view ?? 1} min={1} max={4} step={0.1} onChange={(per_view) => onChange({ per_view })} />
+          <Segments
+            label={t("studio.perView")}
+            value={String(node.per_view ?? 1)}
+            onChange={(v) => onChange({ per_view: Number(v) })}
+            options={["1", "1.2", "2", "2.5", "3"].map((v) => ({ value: v, label: v }))}
+          />
           <Check label={t("studio.autoplay")} checked={Boolean(node.autoplay)} onChange={(autoplay) => onChange({ autoplay: autoplay || undefined })} />
-          {node.autoplay ? <Slider label={t("studio.interval")} value={Math.round((node.interval_ms ?? 4000) / 1000)} min={2} max={20} onChange={(s) => onChange({ interval_ms: s * 1000 })} /> : null}
+          {node.autoplay ? <RangeField label={t("studio.interval")} value={node.interval_ms ?? 4000} scale={1000} min={2} max={15} unit={t("studio.unitSeconds")} fallback={4000} onChange={(interval_ms) => onChange({ interval_ms })} /> : null}
           <Check label={t("studio.dots")} checked={node.dots !== false} onChange={(dots) => onChange({ dots: dots ? undefined : false })} />
           {node.dots !== false ? (
             <Segments
@@ -709,8 +681,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <Check label={t("studio.place")} checked={!!node.place} onChange={(on) => onChange({ place: on ? { x: 50, y: 50 } : undefined })} />
           {node.place ? (
             <>
-              <Slider label={t("studio.placeX")} value={node.place.x} min={0} max={100} onChange={(x) => onChange({ place: { ...node.place!, x } })} />
-              <Slider label={t("studio.placeY")} value={node.place.y} min={0} max={100} onChange={(y) => onChange({ place: { ...node.place!, y } })} />
+              <RangeField label={t("studio.placeX")} value={node.place.x} min={0} max={100} unit="%" onChange={(x) => onChange({ place: { ...node.place!, x } })} />
+              <RangeField label={t("studio.placeY")} value={node.place.y} min={0} max={100} unit="%" onChange={(y) => onChange({ place: { ...node.place!, y } })} />
               <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
                 {t("studio.placeHint")}
               </span>
@@ -724,8 +696,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       <div className="grid grid-cols-2 gap-2">
         <SizeControl label={t("studio.width")} value={node.width} onChange={(width) => onChange({ width })} />
         <SizeControl label={t("studio.height")} value={node.height} onChange={(height) => onChange({ height })} />
-        <SidesControl label={t("studio.paddingInside")} value={node.padding} onChange={(padding) => onChange({ padding })} />
-        <SidesControl label={t("studio.marginOutside")} value={node.margin} onChange={(margin) => onChange({ margin })} />
+        <SidesField label={t("studio.paddingInside")} value={node.padding} onChange={(padding) => onChange({ padding })} />
+        <SidesField label={t("studio.marginOutside")} value={node.margin} onChange={(margin) => onChange({ margin })} />
         {layout ? (
           <Box label={t("studio.gap")}>
             <NumberIn label={t("studio.gap")} value={node.gap ?? 0} max={200} onChange={(gap) => onChange({ gap: gap || undefined })} />
@@ -854,13 +826,13 @@ function DesignTab(props: Props & { node: StudioNode }) {
               { label: "2", value: node.gradient?.to, onChange: (to) => onChange({ gradient: to && node.gradient ? { ...node.gradient, to } : undefined }) },
             ]}
           />
-          {node.gradient ? <Slider label={t("studio.angle")} value={node.gradient.angle ?? 180} min={0} max={360} onChange={(angle) => onChange({ gradient: { ...node.gradient!, angle } })} /> : null}
+          {node.gradient ? <RangeField label={t("studio.angle")} value={node.gradient.angle ?? 180} min={0} max={360} step={5} unit="°" fallback={180} presets={[{ value: 0, label: "↑" }, { value: 90, label: "→" }, { value: 180, label: "↓" }, { value: 270, label: "←" }, { value: 135, label: "↘" }]} onChange={(angle) => onChange({ gradient: { ...node.gradient!, angle } })} /> : null}
         </div>
       </details>
       {node.image_background_url || (node.type === "image" && (node.image_url || node.bind === "image")) ? (
         <div className="flex flex-col gap-2">
           <Colors palette={props.palette} rows={[{ label: t("studio.overlay"), value: node.overlay?.color, onChange: (color) => onChange({ overlay: color ? { color, opacity: node.overlay?.opacity ?? 0.4 } : undefined }) }]} />
-          {node.overlay ? <Slider label={t("studio.overlayStrength")} value={Math.round(node.overlay.opacity * 100)} min={5} max={95} onChange={(o) => onChange({ overlay: { ...node.overlay!, opacity: o / 100 } })} /> : null}
+          {node.overlay ? <RangeField label={t("studio.overlayStrength")} value={node.overlay.opacity} scale={0.01} min={5} max={95} unit="%" onChange={(opacity) => onChange({ overlay: { ...node.overlay!, opacity } })} /> : null}
         </div>
       ) : null}
       {layout || node.type === "button" ? (
@@ -896,9 +868,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
               <Chevron />
             </label>
           </div>
-          <Slider label={t("studio.size")} value={node.font?.size ?? 16} min={8} max={72} onChange={(size) => onChange({ font: { ...(node.font ?? {}), size } })} />
-          <Slider label={t("studio.lineHeight")} value={node.font?.line_height ?? 1.4} min={0.8} max={3} step={0.05} onChange={(line_height) => onChange({ font: { ...(node.font ?? {}), line_height } })} />
-          <Slider label={t("studio.letterSpacing")} value={node.font?.letter_spacing ?? 0} min={-5} max={20} step={0.5} onChange={(letter_spacing) => onChange({ font: { ...(node.font ?? {}), letter_spacing: letter_spacing || undefined } })} />
+          <RangeField label={t("studio.size")} value={node.font?.size ?? 16} min={10} max={64} unit="px" fallback={16} presets={[{ value: 12 }, { value: 14 }, { value: 16 }, { value: 20 }, { value: 24 }, { value: 32 }]} onChange={(size) => onChange({ font: { ...(node.font ?? {}), size } })} />
+          <RangeField label={t("studio.lineHeight")} value={node.font?.line_height ?? 1.4} min={1} max={2.2} step={0.1} unit="×" fallback={1.4} onChange={(line_height) => onChange({ font: { ...(node.font ?? {}), line_height } })} />
+          <RangeField label={t("studio.letterSpacing")} value={node.font?.letter_spacing ?? 0} min={-2} max={8} step={0.5} unit="px" fallback={0} onChange={(letter_spacing) => onChange({ font: { ...(node.font ?? {}), letter_spacing: letter_spacing || undefined } })} />
           <div className="flex gap-3">
             <Check label={t("studio.italic")} checked={Boolean(node.font?.italic)} onChange={(italic) => onChange({ font: { ...(node.font ?? {}), italic: italic || undefined } })} />
             <Check label={t("studio.underline")} checked={Boolean(node.font?.underline)} onChange={(underline) => onChange({ font: { ...(node.font ?? {}), underline: underline || undefined } })} />
@@ -926,7 +898,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           ))}
         </div>
       ) : (
-              <Slider label={t("studio.corners")} value={node.radius ?? 0} min={0} max={60} onChange={(radius) => onChange({ radius: radius || undefined })} />
+              <RangeField label={t("studio.corners")} value={Math.min(node.radius ?? 0, 999)} min={0} max={40} unit="px" fallback={0} presets={[{ value: 0 }, { value: 8 }, { value: 16 }, { value: 24 }, { value: 999, label: t("studio.pill") }]} onChange={(radius) => onChange({ radius: radius || undefined })} />
       )}
       <Check
         label={t("studio.eachCorner")}
@@ -936,7 +908,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
           onChange(on ? { corners: { top_start: r, top_end: r, bottom_end: r, bottom_start: r } } : { corners: undefined });
         }}
       />
-      <Slider label={t("studio.rotation")} value={node.rotation ?? 0} min={-180} max={180} onChange={(rotation) => onChange({ rotation: rotation || undefined })} />
+      <RangeField label={t("studio.rotation")} value={node.rotation ?? 0} min={-180} max={180} unit="°" fallback={0} presets={[{ value: -90 }, { value: 0 }, { value: 90 }, { value: 180 }]} onChange={(rotation) => onChange({ rotation: rotation || undefined })} />
       <div className="flex items-center justify-between gap-2">
         <span>{t("studio.shadow")}</span>
         <Segments
@@ -951,9 +923,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
           ]}
         />
       </div>
-      <Slider label={t("studio.border")} value={node.border_width ?? 0} min={0} max={20} onChange={(border_width) => onChange({ border_width: border_width || undefined, border_color: border_width ? (node.border_color ?? "#DDD8CC") : undefined })} />
+      <RangeField label={t("studio.border")} value={node.border_width ?? 0} min={0} max={8} unit="px" fallback={0} onChange={(border_width) => onChange({ border_width: border_width || undefined, border_color: border_width ? (node.border_color ?? "#DDD8CC") : undefined })} />
       {node.border_width ? <Colors palette={props.palette} rows={[{ label: t("studio.border"), value: node.border_color, onChange: (border_color) => onChange({ border_color: border_color ?? undefined }) }]} /> : null}
-      <Slider label={t("studio.opacity")} value={Math.round((node.opacity ?? 1) * 100)} min={0} max={100} onChange={(o) => onChange({ opacity: o === 100 ? undefined : o / 100 })} />
+      <RangeField label={t("studio.opacity")} value={node.opacity ?? 1} scale={0.01} min={10} max={100} unit="%" fallback={1} onChange={(o) => onChange({ opacity: o >= 1 ? undefined : o })} />
 
       {node.type !== "items" && node.type !== "categories" && node.type !== "form" && node.type !== "search" && node.bind === undefined ? (
         <>
@@ -1068,8 +1040,8 @@ function MotionTab(props: Props & { node: StudioNode }) {
       </label>
       {m.enter && m.enter !== "none" ? (
         <>
-          <Slider label={t("studio.duration")} value={m.duration_ms ?? 400} min={100} max={3000} step={50} onChange={(duration_ms) => set({ duration_ms })} />
-          <Slider label={t("studio.delay")} value={m.delay_ms ?? 0} min={0} max={5000} step={50} onChange={(delay_ms) => set({ delay_ms })} />
+          <RangeField label={t("studio.duration")} value={m.duration_ms ?? 400} scale={1000} min={0.1} max={3} step={0.1} unit={t("studio.unitSeconds")} fallback={400} onChange={(duration_ms) => set({ duration_ms: Math.round(duration_ms) })} />
+          <RangeField label={t("studio.delay")} value={m.delay_ms ?? 0} scale={1000} min={0} max={5} step={0.1} unit={t("studio.unitSeconds")} fallback={0} onChange={(delay_ms) => set({ delay_ms: Math.round(delay_ms) })} />
         </>
       ) : null}
       <div className="flex flex-col gap-1 font-bold">
@@ -1117,11 +1089,13 @@ function SlidesControl({ node, onChange }: { node: StudioNode; onChange: (patch:
         ]}
       />
       {pictured.length ? (
-        <Slider
+        <RangeField
           label={t("studio.slidesOverlay")}
           value={Math.round(dark * 100)}
           min={0}
           max={80}
+          unit="%"
+          fallback={0}
           onChange={(v) => onChange({ children: slides.map((c) => (c.image_background_url || c.overlay ? { ...c, overlay: v ? { color: c.overlay?.color ?? "#000000", opacity: v / 100 } : undefined } : c)) })}
         />
       ) : null}
@@ -1152,7 +1126,7 @@ function DataTab(props: Props & { node: StudioNode }) {
           </select>
         </label>
         <Segments label={t("studio.dataLayout")} value={node.layout ?? "grid"} onChange={(layout) => onChange({ layout })} options={[{ value: "grid", label: t("studio.layoutGrid") }, { value: "list", label: t("studio.layoutList") }, { value: "carousel", label: t("studio.layoutCarousel") }]} />
-        <Slider label={t("studio.howMany")} value={q.limit} min={1} max={30} onChange={(limit) => onChange({ query: { ...q, limit } })} />
+        <RangeField label={t("studio.howMany")} value={q.limit} min={1} max={30} unit={t("studio.unitItems")} onChange={(limit) => onChange({ query: { ...q, limit } })} />
         <label className="flex items-center justify-between gap-2">
           {t("studio.sort")}
           <select value={q.sort} onChange={(e) => onChange({ query: { ...q, sort: e.target.value as typeof q.sort } })} className="h-8 rounded-lg px-1.5" style={{ border: "1px solid var(--studio-line)" }}>
@@ -1249,7 +1223,7 @@ function DataTab(props: Props & { node: StudioNode }) {
             { value: "circles" as const, label: t("studio.catCircles") },
           ]}
         />
-        {look === "pictures" ? <Slider label={t("studio.columns")} value={node.columns ?? 2} min={1} max={4} onChange={(columns) => onChange({ columns })} /> : null}
+        {look === "pictures" ? <Segments label={t("studio.columns")} value={String(node.columns ?? 2)} onChange={(v) => onChange({ columns: Number(v) })} options={["1", "2", "3", "4"].map((v) => ({ value: v, label: v }))} /> : null}
       </>
     );
   }
@@ -1447,8 +1421,8 @@ function TabsPanel(props: Props) {
             <Colors palette={props.palette} rows={[{ label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) }]} />
           </div>
         </details>
-        <Slider label={t("studio.tabBarRadius")} value={style.radius ?? 0} min={0} max={32} onChange={(radius) => setStyle({ radius })} />
-        <Slider label={t("studio.tabBarMargin")} value={style.margin ?? 0} min={0} max={24} onChange={(margin) => setStyle({ margin })} />
+        <RangeField label={t("studio.tabBarRadius")} value={style.radius ?? 0} min={0} max={32} unit="px" fallback={0} onChange={(radius) => setStyle({ radius })} />
+        <RangeField label={t("studio.tabBarMargin")} value={style.margin ?? 0} min={0} max={24} unit="px" fallback={0} onChange={(margin) => setStyle({ margin })} />
         <FontPicker id="tab-bar-font" label={t("studio.tabBarFont")} value={style.font ?? ""} labels={props.fontLabels} compact placeholder={t("studio.appFont")} onChange={(family) => setStyle({ font: family || null })} />
         <div role="group" aria-label={t("studio.tabLabels")} className="flex flex-col gap-1.5">
           <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabLabels")}</span>
@@ -1541,7 +1515,7 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
             </span>
           </label>
           <Check label={t("studio.marketFree")} checked={market.free_delivery === true} onChange={(on) => set({ free_delivery: on ? true : undefined })} />
-          <Slider label={t("studio.marketLimit")} value={market.limit ?? 10} min={1} max={40} onChange={(limit) => set({ limit: limit === 10 ? undefined : limit })} />
+          <RangeField label={t("studio.marketLimit")} value={market.limit ?? 10} min={1} max={40} unit={t("studio.unitItems")} fallback={10} onChange={(limit) => set({ limit: limit === 10 ? undefined : limit })} />
         </>
       ) : null}
     </div>
