@@ -20,6 +20,8 @@ export interface RestaurantFormValues {
   minOrder: string;
   maxKm: string;
   commission: string;
+  commissionFixed: string;
+  taxRate: string;
   logoUrl: string | null;
   coverUrl: string | null;
 }
@@ -79,6 +81,8 @@ export function RestaurantForm({ restaurant, cuisines, currency }: { restaurant:
           <Field id={`f-min${suffix}`} label={t("food.minOrder", { currency })} name="minOrder" inputMode="decimal" defaultValue={value("minOrder")} error={state.errors?.minOrder} />
           <Field id={`f-maxkm${suffix}`} label={t("food.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("food.maxKmHint")} />
           <Field id={`f-commission${suffix}`} label={t("food.commission")} name="commission" inputMode="decimal" defaultValue={value("commission")} error={state.errors?.commission} hint={t("food.commissionHint")} />
+          <Field id={`f-commission-fixed${suffix}`} label={t("food.commissionFixed", { currency })} name="commissionFixed" inputMode="decimal" defaultValue={value("commissionFixed")} error={state.errors?.commissionFixed} hint={t("food.commissionFixedHint")} />
+          <Field id={`f-tax${suffix}`} label={t("food.taxRate")} name="taxRate" inputMode="decimal" defaultValue={value("taxRate")} error={state.errors?.taxRate} hint={t("food.taxRateHint")} />
         </div>
       </FormSection>
       <FormSection id={`f-restaurant${suffix || "-new"}-pictures`} title={t("food.formPictures")}>

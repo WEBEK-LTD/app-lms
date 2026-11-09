@@ -49,7 +49,11 @@ enum AppVertical {
   instructors,
 
   /// 105.9 A live taxi app (the rides module on the live map).
-  taxi;
+  taxi,
+
+  /// 115.13 A marketplace grown from food delivery: restaurants, shops and
+  /// supermarkets (the food module with the marketplace's screens).
+  marketplace;
 
   /// The value as the build config and `Config` send it; anything unknown
   /// (a newer platform) is none.

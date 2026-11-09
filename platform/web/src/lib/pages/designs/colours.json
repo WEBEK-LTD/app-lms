@@ -159,6 +159,18 @@
     "primary": "#344E41",
     "secondary": "#2A9D8F"
   },
+  "market-city": {
+    "primary": "#1D3557",
+    "secondary": "#F4A261"
+  },
+  "market-everyday": {
+    "primary": "#14532D",
+    "secondary": "#2A9D8F"
+  },
+  "market-neighbourhood": {
+    "primary": "#6A2C1A",
+    "secondary": "#E76F51"
+  },
   "rides-city": {
     "primary": "#1D3557",
     "secondary": "#F4D35E"

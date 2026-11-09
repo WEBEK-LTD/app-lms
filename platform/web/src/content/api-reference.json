@@ -1219,7 +1219,7 @@
     },
     {
       "name": "Market",
-      "description": "Roadmap 115. The marketplace: many restaurants, supermarkets and shops in one app (a Yallapp Studio project with the `marketplace` plan feature, growing 105.1's food delivery). Vendors are of three kinds (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and shops have departments, aisles and products, some sold by weight. The customer finds vendors (`GET /market/vendors`, `GET /market/search`), fills one vendor's cart, sees every line of the price before ordering (`POST /market/quote`: items before and after their discounts, the coupon, the club's discount, delivery, taxes, the wallet), and orders for now or for later, delivered or to pick up, paying cash, by card, with Apple Pay or Google Pay (`MarketConfig.payment`), or partly from the wallet. Each vendor chooses who delivers: the app's couriers (the order is followed on the map) or its own drivers (followed by its stages; on the map when the driver uses the courier app). Every amount is in `MarketConfig.currency`, as a decimal string with that currency's decimals (`MarketConfig.currency_decimals`), and formatted. Vendors never reach customers and customers never reach vendors: no vendor's phone, email or chat is ever shown, and support is the app's owner's (the Chat tag, and complaints here). A complaint can be opened on an order from when it is placed until 48 hours after it arrives; the owner's support team decides it.",
+      "description": "Roadmap 115. The marketplace: many restaurants, supermarkets and shops in one app (a Yallapp Studio project of the kind `marketplace`, whose plan has the `market` feature, growing 105.1's food delivery). Vendors are of three kinds (`restaurant`, `grocery`, `shop`); restaurants have menus, groceries and shops have departments, aisles and products, some sold by weight. The customer finds vendors (`GET /market/vendors`, `GET /market/search`), fills one vendor's cart, sees every line of the price before ordering (`POST /market/quote`: items before and after their discounts, the coupon, the club's discount, delivery, taxes, the wallet), and orders for now or for later, delivered or to pick up, paying cash, by card, with Apple Pay or Google Pay (`MarketConfig.payment`), or partly from the wallet. Each vendor chooses who delivers: the app's couriers (the order is followed on the map) or its own drivers (followed by its stages; on the map when the driver uses the courier app). Every amount is in `MarketConfig.currency`, as a decimal string with that currency's decimals (`MarketConfig.currency_decimals`), and formatted. Vendors never reach customers and customers never reach vendors: no vendor's phone, email or chat is ever shown, and support is the app's owner's (the Chat tag, and complaints here). A complaint can be opened on an order from when it is placed until 48 hours after it arrives; the owner's support team decides it.",
       "endpoints": [
         {
           "method": "GET",
@@ -1463,6 +1463,20 @@
           "path": "/vendor/orders/{order_id}/handover",
           "summary": "Hand the order over",
           "description": "`to` `driver`: the vendor's own driver took it (`on_the_way`); `delivered`: the vendor's driver delivered it; `customer`: picked up, with the customer's 4-digit `pickup_code` (`wrong_code` (409)). With the app's couriers, the courier's own screens move the order instead (`invalid_request` (400) here).",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/statements",
+          "summary": "The vendor's statement for a month",
+          "description": "The orders delivered or picked up in the month, the refunds and compensations decided on them, and what each side owes the other. Owners and managers only. How the owner and the vendor settle stays between them.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/complaints",
+          "summary": "Complaints the app's support shared with the vendor",
+          "description": "Read only, newest first: what was wrong and the decision. Never the customer, the conversation or the team's notes; the app's support answers customers. Owners, managers and order staff.",
           "access": "signed-in"
         },
         {
