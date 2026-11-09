@@ -347,7 +347,8 @@ test("99.4 cards, a gallery, a location, a divider and a form; the form's answer
   await cards.getByLabel("Title", { exact: true }).nth(0).fill("Swimming");
   await cards.getByLabel("Title", { exact: true }).nth(1).fill("Robotics");
   const gallery = await add("Photo gallery");
-  await gallery.getByLabel("Image address", { exact: true }).fill("https://yallapp.test/m/hall.jpg");
+  // 1.1 It starts with three sample photos; the first becomes the school's.
+  await gallery.getByLabel("Image address", { exact: true }).first().fill("https://yallapp.test/m/hall.jpg");
   const map = await add("Location");
   await map.getByLabel("Latitude").fill("41.0082");
   await map.getByLabel("Longitude").fill("28.9784");

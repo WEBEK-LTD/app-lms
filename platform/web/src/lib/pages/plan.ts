@@ -102,7 +102,8 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
       const page = { ...p, blocks: p.blocks.filter((b) => blockAllowed(b, sources)).map((b) => cleanBlock(b, sources)) };
       // 103R A Studio page only with Studio on the plan; its lists and taps within the plan's sources.
       if (!page.studio) return page;
-      if (!hasFeature(plan, "studio")) {
+      // Templates = demos: Yallapp's own Studio demos show their Studio home whatever the demos' plan has.
+      if (!hasFeature(plan, "studio") && !(app.demo && app.section === "studio")) {
         const { studio: _studio, ...rest } = page;
         void _studio;
         return rest;

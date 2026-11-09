@@ -8,7 +8,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defau
 import { applyDesign, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
 import { appUrl } from "../env";
 import { LAYOUT_LIMITS, type AppDefaultsSetting, type Appearance, type Languages, type Layout, type LayoutContent, type LayoutPage, type LayoutTab } from "./types";
-import { parseLayoutContent, type ParseResult } from "./validate";
+import { parseLayoutContent, type BlockIssue, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
 import { withBuiltInTexts } from "./builtin";
@@ -76,6 +76,40 @@ function stampPages(next: LayoutContent, previous: LayoutContent | null, now: Da
 /** 97.2 The names of the app's own fonts, which its look may use. */
 export async function ownFontNames(store: DataStore, appId: string): Promise<string[]> {
   return (await store.listOwnFonts(appId)).map((f) => f.family);
+}
+
+/**
+ * A draft saved with the blocks that still need something left out: they
+ * stay in the editor (and on that device) until they're complete, and the
+ * rest of the draft is saved meanwhile. Publishing checks everything.
+ */
+export type DraftSaveResult = { ok: true; value: AppLayoutRecord; incomplete: BlockIssue[] } | { ok: false; errors: string[]; blocks?: BlockIssue[] };
+
+/** The draft without the given blocks. */
+function withoutBlocks(input: unknown, issues: readonly BlockIssue[]): unknown {
+  if (!input || typeof input !== "object" || !Array.isArray((input as { pages?: unknown }).pages)) return input;
+  const drop = new Set(issues.map((i) => `${i.page}\u0000${i.id}`));
+  const pages = (input as { pages: unknown[] }).pages.map((page) => {
+    if (!page || typeof page !== "object" || !Array.isArray((page as { blocks?: unknown }).blocks)) return page;
+    const slug = String((page as { slug?: unknown }).slug ?? "");
+    return { ...page, blocks: (page as { blocks: unknown[] }).blocks.filter((b) => !(b && typeof b === "object" && drop.has(`${slug}\u0000${String((b as { id?: unknown }).id ?? "")}`))) };
+  });
+  return { ...(input as object), pages };
+}
+
+/**
+ * The editor's autosave: like `saveDraft`, but when only some blocks are
+ * incomplete (an empty heading, no picture yet), the rest is saved and those
+ * blocks are reported back instead of the whole draft being refused.
+ */
+export async function saveDraftKeepingIncomplete(store: DataStore, app: App, input: unknown, now: Date): Promise<DraftSaveResult> {
+  const first = await saveDraft(store, app, input, now);
+  if (first.ok) return { ...first, incomplete: [] };
+  const issues = first.blocks ?? [];
+  const onlyBlocks = issues.length > 0 && issues.reduce((n, i) => n + i.errors.length, 0) === first.errors.length;
+  if (!onlyBlocks) return first;
+  const rest = await saveDraft(store, app, withoutBlocks(input, issues), now);
+  return rest.ok ? { ...rest, incomplete: issues } : first;
 }
 
 export async function saveDraft(store: DataStore, app: App, input: unknown, now: Date): Promise<ParseResult<AppLayoutRecord>> {
