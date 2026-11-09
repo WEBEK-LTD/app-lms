@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import type { App, AppLayoutRecord, SavedSection } from "@/lib/data/types";
-import { discardDraft, hasUnpublishedChanges, isDesignMode, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, withoutStrings, type DesignMode, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import { discardDraft, hasUnpublishedChanges, isDesignMode, layoutHistory, loadLayout, publishLayout, restoreLayoutVersion, saveDesignDraft, saveDraft, saveDraftKeepingIncomplete, withoutStrings, type DesignMode, type LayoutHistoryEntry } from "@/lib/pages/layout";
+import type { BlockIssue } from "@/lib/pages/validate";
 import { getBlobStore } from "@/lib/blobs";
 import { FIGMA_IMAGE_BYTES, saveFigmaImage } from "@/lib/figma/images";
 import { FIGMA_LINK_LIMITS, figmaDeps, figmaFileKey, figmaImageFills, figmaNodeId, figmaTokenLooksRight, readFigmaFile, readFigmaNodes, renderFigmaFrames, type FigmaApiError, type FigmaFileRead } from "@/lib/figma/api";
@@ -35,8 +36,17 @@ export type LayoutSaveResult =
       message?: string;
       /** 82.4 The publish history, after a publish. */
       history?: LayoutHistoryEntry[];
+      /** Blocks the autosave left out because they still need something; the rest is saved. */
+      incomplete?: BlockIssue[];
     }
-  | { ok: false; errors: string[] };
+  | {
+      ok: false;
+      errors: string[];
+      /** 1.1 The blocks the errors are about (still to fill in). */
+      blocks?: BlockIssue[];
+      /** 1.1 Not published, but the draft is saved without those blocks. */
+      draftSaved?: true;
+    };
 
 type LayoutSaved = Extract<LayoutSaveResult, { ok: true }>;
 
@@ -215,8 +225,9 @@ function parseJson(json: string): unknown {
 /** Saves the draft; apps don't see it until it's published. */
 export async function saveLayoutDraftAction(json: string): Promise<LayoutSaveResult> {
   const { app } = await requireLayoutApp();
-  const saved = await saveDraft(await getStore(), app, parseJson(json), new Date());
-  return saved.ok ? result(saved.value) : saved;
+  const saved = await saveDraftKeepingIncomplete(await getStore(), app, parseJson(json), new Date());
+  if (!saved.ok) return saved;
+  return saved.incomplete.length ? { ...result(saved.value), incomplete: saved.incomplete } : result(saved.value);
 }
 
 export async function publishLayoutAction(json: string): Promise<LayoutSaveResult> {
@@ -224,8 +235,14 @@ export async function publishLayoutAction(json: string): Promise<LayoutSaveResul
   const store = await getStore();
   const now = new Date();
   // 13.1 The published layout keeps to the app's plan (its languages).
-  const published = await publishLayout(store, app, parseJson(json), (staff ?? user).email, now, await appPlan(store, license, now));
-  if (!published.ok) return published;
+  const input = parseJson(json);
+  const published = await publishLayout(store, app, input, (staff ?? user).email, now, await appPlan(store, license, now));
+  if (!published.ok) {
+    // 1.1 Blocks still to fill in: the draft is saved without them, as the autosave does.
+    if (!published.blocks?.length) return published;
+    const saved = await saveDraftKeepingIncomplete(store, app, input, now);
+    return saved.ok && saved.incomplete.length ? { ...published, draftSaved: true } : published;
+  }
   revalidatePath("/dashboard/pages");
   // 31 A WordPress site fetches the layout when asked, instead of within 15 minutes.
   const history = await layoutHistory(store, app.id);

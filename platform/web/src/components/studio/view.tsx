@@ -2,7 +2,7 @@
 
 import type { CSSProperties, DragEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
-import { resized } from "@/lib/studio/resize";
+import { resized, snapped } from "@/lib/studio/resize";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -53,6 +53,8 @@ interface ViewProps {
   look: StudioLook;
   pickable: Pickable;
   editing?: StudioEditing;
+  /** Editor audit 3.3: inside a locked element, which the canvas leaves alone with what it holds. */
+  lockedAbove?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string; /** 115.14 A marketplace section's name, by section. */ market?: Record<string, string> };
 }
@@ -343,13 +345,16 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 
   const selected = editing?.selectedId === node.id;
   const hovered = editing?.hoveredId === node.id && !selected;
+  // Editor audit 3.3: a locked element (or one inside it) isn't picked, moved or resized on the canvas;
+  // a click goes to what holds it. Its layer still selects it.
+  const locked = node.locked === true || props.lockedAbove === true;
   if (editing) {
     style.outline = selected ? "2px solid #3D63FF" : hovered || node.hidden ? "1.5px dashed #6C8BFF" : undefined;
     if (node.hidden) style.opacity = 0.35;
     style.outlineOffset = selected ? 3 : 2;
-    style.cursor = "pointer";
+    style.cursor = locked ? "default" : "pointer";
   }
-  const handlers = editing
+  const handlers = editing && !locked
     ? {
         onClick: (e: MouseEvent) => {
           e.stopPropagation();
@@ -368,14 +373,14 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
         },
       }
     : {};
-  const content = Content(props);
+  const content = Content(locked && !props.lockedAbove ? { ...props, lockedAbove: true } : props);
   return (
     <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} {...handlers}>
       {content}
       {selected && editing ? (
         <>
           {(["top", "bottom"] as const).flatMap((v) =>
-            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id ? undefined : editing.onResize} />),
+            (["insetInlineStart", "insetInlineEnd"] as const).map((h) => <Corner key={`${v}${h}`} v={v} h={h} rtl={lang === "ar"} id={node.id} onResize={node.id === props.page.body.id || locked ? undefined : editing.onResize} />),
           )}
           <SizeBadge id={node.id} />
           <Tag text={editing.tagOf(node)} />
@@ -448,8 +453,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
         );
       case "image":
         return n.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- any picture's link, drawn as the app draws it */}
             <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
             {overlay ? <span aria-hidden="true" data-studio-overlay="" style={{ position: "absolute", inset: 0, background: overlay }} /> : null}
           </>
@@ -754,13 +759,36 @@ function Corner({ v, h, rtl, id, onResize }: { v: "top" | "bottom"; h: "insetInl
     const drag = Date.now();
     const handle = e.currentTarget;
     handle.setPointerCapture(e.pointerId);
+    // Editor audit 3.3: a guide over what holds it while the width sits on a half or a third of it.
+    let guide: HTMLSpanElement | null = null;
+    const show = (g: { share: string; width: number } | null) => {
+      if (!holder || !g) {
+        guide?.remove();
+        guide = null;
+        return;
+      }
+      if (!guide) {
+        guide = document.createElement("span");
+        guide.setAttribute("aria-hidden", "true");
+        guide.dataset.studioGuide = "";
+        Object.assign(guide.style, { position: "absolute", top: "0", bottom: "0", borderInline: "1.5px dashed #FF4D8D", background: "rgba(255,77,141,0.06)", pointerEvents: "none", zIndex: "5" });
+        holder.appendChild(guide);
+      }
+      const pad = parseFloat(getComputedStyle(holder).paddingInlineStart) || 0;
+      guide.style.insetInlineStart = `${pad}px`;
+      guide.style.width = `${g.width}px`;
+      guide.dataset.studioGuide = g.share;
+    };
     const move = (m: globalThis.PointerEvent) => {
       const dx = ((m.clientX - start.x) / scale) * (right ? 1 : -1);
       const dy = ((m.clientY - start.y) / scale) * (v === "bottom" ? 1 : -1);
-      const size = resized(start, { dx, dy, keepRatio: m.shiftKey });
+      // Sizes land on the grid and on shares of what holds it; Alt puts them anywhere.
+      const { size, guide: g } = snapped(resized(start, { dx, dy, keepRatio: m.shiftKey }), start, m.altKey);
+      show(g);
       if (size.width !== undefined || size.height !== undefined) onResize(id, size, drag);
     };
     const up = () => {
+      show(null);
       handle.removeEventListener("pointermove", move);
       handle.removeEventListener("pointerup", up);
       handle.removeEventListener("pointercancel", up);
