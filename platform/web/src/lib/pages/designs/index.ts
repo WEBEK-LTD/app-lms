@@ -248,6 +248,8 @@ function withDrawnPictures(block: LayoutBlock, base: string | undefined): Layout
     if (!root) return null;
     return { ...block, images: block.images.map((i) => ({ ...i, image_url: url(i.image_url)! })) };
   }
+  // A demo design's welcome banner (lib/demo/look.ts): the demo's own picture, or no banner without the platform's address.
+  if ((block.type === "banner" || block.type === "image") && block.image_url?.startsWith(PICTURE)) return root ? { ...block, image_url: url(block.image_url)! } : null;
   if (block.people?.some((p) => p.photo_url?.startsWith(PICTURE))) return { ...block, people: block.people.map((p) => ({ ...p, photo_url: url(p.photo_url) })) };
   if (block.cards?.some((c) => c.image_url?.startsWith(PICTURE))) return { ...block, cards: block.cards.map((c) => ({ ...c, image_url: url(c.image_url) })) };
   return block;

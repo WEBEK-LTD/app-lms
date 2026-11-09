@@ -41,7 +41,8 @@ export interface Design {
   /** 84.2 The side menu: every design gets its About us and Contact pages there (index.ts). */
   menu?: LayoutTab[];
   /** 84.2 Colours that suit it, the first its own; the owner can pick one when choosing it. */
-  palettes?: Palette[];
+  palettes?: Palette[];  /** The design of one of Yallapp's demo apps (lib/demo/look.ts): shown first, as the one we recommend. */
+  recommended?: boolean;
 }
 
 /** 84.2 A main and a second colour that go together. */

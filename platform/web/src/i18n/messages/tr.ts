@@ -182,6 +182,7 @@ export const tr: Messages = {
     all: "Tümü",
     unlimited: "Sınırsız",
     fullEditor: "Tam sayfa düzenleyici",
+    basicEditor: "Basit sayfa düzenleyici",
     templates: "Hazır şablonlar",
     supportEmail: "E-posta desteği",
     supportWhatsapp: "WhatsApp desteği",

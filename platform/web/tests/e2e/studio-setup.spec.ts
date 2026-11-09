@@ -163,7 +163,8 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   // Branding: every design and back, each with its own thumbnail.
   await expectChosen(KEEP);
   const ids = await everyDesignAndBack();
-  expect(ids).toEqual(["academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
+  // Templates = demos: the demo's design first, then the academy's own.
+  expect(ids).toEqual(["demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
   expect(await thumbText("academy-kids")).toContain("Fun lessons for curious kids");
   expect(await thumbText(KEEP)).not.toContain("Fun lessons for curious kids");
 
