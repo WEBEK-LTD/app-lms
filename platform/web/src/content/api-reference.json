@@ -1467,6 +1467,20 @@
         },
         {
           "method": "GET",
+          "path": "/vendor/statements",
+          "summary": "The vendor's statement for a month",
+          "description": "The orders delivered or picked up in the month, the refunds and compensations decided on them, and what each side owes the other. Owners and managers only. How the owner and the vendor settle stays between them.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/vendor/complaints",
+          "summary": "Complaints the app's support shared with the vendor",
+          "description": "Read only, newest first: what was wrong and the decision. Never the customer, the conversation or the team's notes; the app's support answers customers. Owners, managers and order staff.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/vendor/products",
           "summary": "The vendor's items, for stock",
           "description": "Dishes or products, paged; `out_of_stock` keeps those out; `q` and `barcode` find them.",

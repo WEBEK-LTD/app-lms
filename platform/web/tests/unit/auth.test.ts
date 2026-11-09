@@ -25,7 +25,8 @@ describe("session tokens", () => {
     expect(await unsealSession(token, SECRET, later)).toBeNull();
     expect(await unsealSession(token, "another-secret-0123456789abcdef0123456789", NOW)).toBeNull();
     const parts = token.split(".");
-    parts[3] = parts[3]!.slice(0, -2) + (parts[3]!.endsWith("A") ? "BB" : "AA");
+    // The first character: all six of its bits are ciphertext (the last one's low bits can be padding, so changing it may change nothing).
+    parts[3] = (parts[3]!.startsWith("A") ? "B" : "A") + parts[3]!.slice(1);
     expect(await unsealSession(parts.join("."), SECRET, NOW)).toBeNull();
     expect(await unsealSession("not-a-token", SECRET, NOW)).toBeNull();
   });

@@ -45,7 +45,9 @@ import {
   priceLinesJson,
   productJson,
   vendorJson,
+  vendorComplaintJson,
   vendorOrderJson,
+  vendorStatementJson,
   vendorSummaryJson,
   walletJson,
   type Tracking,
@@ -55,6 +57,7 @@ import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemC
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
 import { photosRequired } from "../../market/photos";
+import { monthBounds, vendorStatement, type PanelContext } from "../../market/panel-pages";
 import { parseAnyPhone } from "../phone";
 import { hostedSettings } from "../service";
 import { error, intParam } from "./common";
@@ -200,6 +203,9 @@ export class MarketConnector {
         if (m === "POST" && p.length === 4 && p[3] === "handover") return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.handover(s, oid, request));
       }
     }
+    // 115.16 The vendor app's statements and the complaints support shared with the vendor (read only).
+    if (p[1] === "statements" && m === "GET" && p.length === 2) return this.withVendor(request, ["owner", "manager"], (s) => this.vendorStatementOf(s, request));
+    if (p[1] === "complaints" && m === "GET" && p.length === 2) return this.withVendor(request, ["owner", "manager", "orders"], (s) => this.vendorComplaintsOf(s));
     if (p[1] === "products") {
       if (m === "GET" && p.length === 2) return this.withVendor(request, null, (s) => this.vendorProducts(s, request));
       const pid = id(2);
@@ -843,6 +849,26 @@ export class MarketConnector {
     return then(staffed);
   }
 
+  private async panelOf(s: Staffed): Promise<PanelContext> {
+    const delivery = await this.settings();
+    return { store: this.deps.store, app: this.deps.app, staff: s.staff, vendor: s.vendor, currency: marketCurrency(delivery), timezone: marketTimezone(delivery), photosRequired: photosRequired(marketSettingsOf(delivery)) };
+  }
+
+  /** 115.16 The vendor's statement for a month (`?month=2026-10`, this month by default). */
+  private async vendorStatementOf(s: Staffed, request: ConnectorRequest): Promise<ConnectorResult> {
+    const ctx = await this.panelOf(s);
+    const { from, to, month } = monthBounds(request.query.get("month"), request.now);
+    return { status: 200, body: vendorStatementJson(await vendorStatement(ctx, from, to), month) };
+  }
+
+  /** 115.16 The complaints support shared with this vendor, newest first. */
+  private async vendorComplaintsOf(s: Staffed): Promise<ConnectorResult> {
+    const ctx = await this.panelOf(s);
+    const found = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, vendorId: s.vendor.id, limit: 100, offset: 0 });
+    const items = found.items.filter((c) => c.sharedWithVendor).map((c) => vendorComplaintJson(c, ctx.currency, this.deps.assetUrl));
+    return { status: 200, body: { items } };
+  }
+
   /** One of this vendor's orders, never another's. */
   private async vendorsOrder(s: Staffed, id: number): Promise<MarketOrder | null> {
     const o = await this.deps.store.getMarketOrder(this.deps.app.id, id);
@@ -943,7 +969,9 @@ export class MarketConnector {
       const l = (r && typeof r === "object" ? r : {}) as Record<string, unknown>;
       if (typeof l.line_id !== "number" || !["picked", "substituted", "missing"].includes(l.outcome as string)) return error(400, "invalid_request", "One of the lines isn't valid.");
       const quantity = typeof l.quantity === "number" && l.quantity > 0 ? l.quantity : null;
-      const sub = typeof l.substitute_product_id === "number" ? l.substitute_product_id : null;
+      // Left out for a substitute: the item the customer chose, when they chose one.
+      const chosen = l.outcome === "substituted" ? (o.lines.find((x) => x.id === l.line_id)?.substituteProductId ?? null) : null;
+      const sub = typeof l.substitute_product_id === "number" ? l.substitute_product_id : chosen;
       picked.push({ lineId: l.line_id, outcome: l.outcome as PickedLine["outcome"], pickedQuantity: quantity, substitute: sub !== null ? { productId: sub, quantity: quantity ?? 1 } : null });
     }
     const settings = marketSettingsOf(await this.settings());
