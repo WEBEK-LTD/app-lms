@@ -349,12 +349,13 @@ describe("20 app kinds registry", () => {
       // SEO: Studio's delivery companies, after the regular kinds.
       ["solution-delivery", "Solutions: Delivery", "/solutions/delivery"],
       ["solution-food", "Solutions: Food delivery", "/solutions/food"],
+      ["solution-multi-vendor", "Solutions: Multi-vendor", "/solutions/multi-vendor"],
       ["solution-rides", "Solutions: Ride and taxi", "/solutions/rides"],
       ["solution-school", "Solutions: School", "/solutions/school"],
       ["solution-university", "Solutions: University", "/solutions/university"],
       ["solution-instructors", "Solutions: Academy with many teachers", "/solutions/instructors"],
     ]);
-    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Services & company apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps", "Delivery apps", "Food delivery apps", "Ride hailing and taxi apps", "School apps", "University apps", "Apps for academies with many teachers"]);
+    expect(headers.map((p) => p.defaults.eyebrow)).toEqual(["Academy apps", "Store apps", "Restaurant & café apps", "Bookings apps", "Clinic apps", "Gym & fitness apps", "Services & company apps", "Real estate apps", "News & blog apps", "Events & tickets apps", "Charity & donation apps", "Delivery apps", "Food delivery apps", "Multi-vendor apps", "Ride hailing and taxi apps", "School apps", "University apps", "Apps for academies with many teachers"]);
     const names = new Set(KINDS.map((k) => k.name));
     for (const group of INTEGRATION_GROUPS) for (const item of group.items) for (const t of item.types) expect(names, `${item.name}: ${t}`).toContain(t);
   });

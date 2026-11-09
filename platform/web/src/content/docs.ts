@@ -1434,6 +1434,76 @@ A courier deletes their Yallapp Courier account in the app, from **Account**. Yo
 
   // -------------------------------------------------------------------------
   doc({
+    // 115.13 Public pages never call it a marketplace (phase 72).
+    slug: "multi-vendor",
+    section: "Your app",
+    title: "Multi-vendor apps",
+    description: "Set up one delivery app for many restaurants, supermarkets and shops: joining, each place's panel, delivery, payments, offers, complaints and statements.",
+    steps: true,
+    body: `A multi-vendor app puts many restaurants, supermarkets and shops in one delivery app under your name. Customers order from each place, every place takes its own orders in its own panel, and your couriers or the place's own deliver them. It is a [Yallapp Studio](/docs/yallapp-studio) project, on Studio's own plans.
+
+## Creating the project
+
+1. In Yallapp Studio, create a project and choose the multi-vendor kind. A food delivery project can also become one from its settings, and keeps its restaurants and orders.
+2. Pick one of the ready-made designs for the home, then change its sections, colours and texts in the Studio editor as you like.
+3. Open the project's settings and choose how customers pay and the delivery options you offer: pick-up, orders for later, the wallet and the club.
+
+## Payments
+
+Customers pay in cash to the courier, by card on your payment provider's page, or with Apple Pay or Google Pay when your provider offers them there. The money goes to your own payment account: Yallapp never takes it. How you settle with each place is between you and the place, and the statements work out each one's share.
+
+## Adding places
+
+- **By your joining form**: build a form with the fields you want, the logo included, and send its link. Each place fills it in, and you approve or decline it. Approving adds the place.
+- **Yourself**: add a place with its details, hours, delivery and staff.
+
+For each place you set its commission, as a percentage or a fixed amount, and its tax rate.
+
+## Each place's panel
+
+A place's staff sign in to their panel on the web with a code sent to their email. There they:
+
+- take new orders, which arrive with a sound: accept with a time, turn down, prepare and mark ready;
+- set the place busy for a while, or pause orders;
+- keep the menu or catalog and the stock up to date, and add each product's photo;
+- import a catalog from Excel, CSV, TSV, JSON or a Google Sheets export, up to 5 MB a file;
+- pick supermarket orders line by line: picked with its weight, replaced with another product the customer allowed, or missing;
+- add their own coupons, paid by the place, if you allow it;
+- see their statements and the complaints you share with them.
+
+Each staff member has a role: the owner and managers see everything, and order takers and pickers see only what they need. Places never see customers' phone numbers or emails.
+
+## Delivery
+
+Each place chooses who delivers:
+
+- **Your couriers**: you set what a delivery costs, fixed, as a percentage or by the kilometre, and the customer follows the courier on the map.
+- **Its own delivery**: the place sets its own fee, fixed or by the kilometre, its smallest order, and the fewest and most items in an order. The customer follows the order by its steps.
+
+Customers can also pick their order up, or order for later.
+
+## Offers, the wallet and the club
+
+- **Coupons and automatic offers**: a percentage, an amount or free delivery, with a smallest order, limits, dates, and the places or products they apply to. Each says who pays for the discount, you or the place.
+- **The wallet**: credit customers spend on their next orders, for example from a refund.
+- **The delivery club**: plans with free or cheaper delivery, at the prices you set, paid on your payment page.
+
+## Complaints and support
+
+Customers talk to your support in the app. They can complain about an order from the moment it's placed until 48 hours after it arrives, with the reason, the items and photos. Your team picks each complaint up in the complaints queue and decides: a full or partial refund to the card, to the wallet or as a coupon, compensation, or a reply that declines it. The customer sees the decision and its reason.
+
+## Statements
+
+For every place and every period: sales before and after discounts, who paid each discount, the place's commission and tax, delivery, refunds and compensation, and what is owed each way. Export them as Excel, CSV or PDF.
+
+## Product photos
+
+By default a product without a photo isn't shown to customers. Places add photos one by one, as a ZIP of pictures named after each product's SKU or barcode, or as picture links in their import. You can turn this off in the project's settings.
+`,
+  }),
+
+  // -------------------------------------------------------------------------
+  doc({
     slug: "developer-accounts",
     section: "Publishing",
     title: "Developer accounts",

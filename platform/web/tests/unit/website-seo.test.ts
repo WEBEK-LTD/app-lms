@@ -579,7 +579,7 @@ describe("SEO pages for Studio's kinds of business", () => {
   it("gives each of Studio's kinds a page with its own questions and answers, in every language", async () => {
     const { STUDIO_SOLUTIONS } = await import("@/lib/marketing");
     const { solutionFor } = await import("@/lib/marketing-lang");
-    expect(STUDIO_SOLUTIONS.map((s) => s.id)).toEqual(["delivery", "food", "rides", "school", "university", "instructors"]);
+    expect(STUDIO_SOLUTIONS.map((s) => s.id)).toEqual(["delivery", "food", "multi-vendor", "rides", "school", "university", "instructors"]);
     for (const lang of LANGS) for (const studio of STUDIO_SOLUTIONS) {
       const s = solutionFor(lang, studio.id)!;
       expect(s, lang).toBeDefined();
