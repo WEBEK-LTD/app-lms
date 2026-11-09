@@ -895,6 +895,95 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     ],
   },
   {
+    // 115.13 The multi-vendor project (the marketplace kind). Public pages never call it a marketplace (phase 72).
+    kind: "marketplace",
+    slug: "multi-vendor",
+    pageName: "Multi-vendor",
+    summary: "Restaurants, supermarkets and shops in one delivery app, each with its own panel, under your name.",
+    audience: "Companies that run a delivery app for many restaurants, supermarkets and shops, in any country and currency.",
+    screens: ["food-restaurants", "food-menu", "food-order"],
+    sources: ["No website: places, menus, catalogs, couriers and orders managed in Yallapp Studio and the places' own panel"],
+    highlights: [
+      {
+        icon: "storefront",
+        title: "Restaurants, supermarkets and shops",
+        text: "Each place with its hours, its menu or catalog, and its delivery. Supermarkets sell by the piece or by weight, with departments, aisles and substitutes.",
+      },
+      {
+        icon: "inventory_2",
+        title: "A panel for every place",
+        text: "Each place signs in to its own panel on the web: live orders with a sound, the menu and stock, imports from Excel or CSV, photos, staff, statements and its own offers.",
+      },
+      {
+        icon: "two_wheeler",
+        title: "Your couriers or the place's own",
+        text: "Each place chooses: your couriers, followed live on the map, or its own delivery with its own fee, fixed or by the kilometre. Pick-up and orders for later too.",
+      },
+      {
+        icon: "support_agent",
+        title: "Support and complaints are yours",
+        text: "Places never get the customers' contact details. Customers talk to your support in the app and can complain about an order until 48 hours after it arrives. Your team decides each case.",
+      },
+      {
+        icon: "receipt_long",
+        title: "Every place's account, worked out",
+        text: "Sales before and after discounts, who paid each discount, each place's commission and tax, delivery and refunds, in statements you export as Excel, CSV or PDF.",
+      },
+      {
+        icon: "local_offer",
+        title: "Coupons, a wallet and a delivery club",
+        text: "Your coupons and the places' own, credit in the customer's wallet, and a club with free or cheaper delivery, at the prices you set.",
+      },
+    ],
+    inTheApp: [
+      "Browse restaurants, supermarkets and shops, with offers and filters",
+      "Order dishes with their options, or groceries by the piece or by weight",
+      "Choose delivery or pick-up, now or for later",
+      "Pay in cash, by card, or with Apple Pay or Google Pay where your payment provider offers them",
+      "Follow the order on the map or by its steps",
+      "Use coupons, the wallet and the delivery club",
+      "Talk to your support and complain about an order",
+    ],
+    forYou: [
+      "Places: approve them from your joining form, then set each one's commission and tax",
+      "All orders across your places, and every place's statement",
+      "The complaints queue, with refunds to the card, the wallet or a coupon",
+      "Coupons, automatic offers and the delivery club's plans",
+      "Couriers, delivery fees and how customers pay",
+      "Whether every product needs a photo before customers see it",
+    ],
+    docs: [
+      { href: "/docs/multi-vendor", label: "Multi-vendor apps" },
+      { href: "/docs/yallapp-studio", label: "Yallapp Studio" },
+    ],
+    faq: [
+      {
+        q: "Can each restaurant or shop manage its own orders?",
+        a: "Yes. Each place has its own panel on the web: new orders arrive with a sound, it accepts them with a time, prepares them and marks them ready, and keeps its menu, stock and offers up to date.",
+      },
+      {
+        q: "Can customers contact a restaurant directly?",
+        a: "No. Places never see the customers' phone numbers or emails. Customers reach your support in the app, and your team handles every complaint.",
+      },
+      {
+        q: "Who delivers the orders?",
+        a: "Each place chooses: your couriers, whom the customer follows on the map, or its own delivery with its own fee. Customers can also pick up.",
+      },
+      {
+        q: "How do restaurants and shops join?",
+        a: "You build a joining form and send its link. Places fill it in with their details and logo, and you approve or decline each one.",
+      },
+      {
+        q: "Who receives the customers' payments?",
+        a: "You do, in your own payment account or as cash to the courier. How you settle with each place is between you. The statements work out each place's share for you.",
+      },
+      {
+        q: "Is a multi-vendor app a Yallapp Studio project?",
+        a: "Yes. It is made in Yallapp Studio and has Studio's own plans.",
+      },
+    ],
+  },
+  {
     kind: "rides",
     pageName: "Ride and taxi",
     summary: "Riders ask for a ride on the map, drivers take it, and both follow it live.",

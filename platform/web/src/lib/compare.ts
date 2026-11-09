@@ -143,7 +143,7 @@ const part = (note?: L): Cell => ({ mark: "part", ...(note ? { note } : {}) });
 const nl: Cell = { mark: "notListed" };
 const no: Cell = { mark: "no" };
 const y = (note: L): Cell => ({ mark: "yes", note });
-/** 115 The food and grocery marketplace: its server and vendor panel are live, its app screens are being released. */
+/** A feature that is being released. */
 const soon: Cell = { mark: "soon" };
 
 export interface Row {
@@ -300,11 +300,11 @@ export const STUDIO_TABLE: Category[] = [
       },
       {
         id: "marketplace",
-        label: { en: "Food and grocery marketplace: many restaurants and supermarkets", ar: "سوق للطعام والبقالة: مطاعم وسوبر ماركتات كثيرة", tr: "Yemek ve market pazaryeri: birçok restoran ve süpermarket" },
-        yallapp: soon,
+        label: { en: "Multi-vendor app: many restaurants, supermarkets and shops", ar: "تطبيق متعدد المتاجر: مطاعم وسوبر ماركتات ومتاجر كثيرة", tr: "Çok satıcılı uygulama: birçok restoran, süpermarket ve dükkân" },
+        yallapp: yes,
         them: { appypie: part({ en: "Food court template", ar: "قالب ساحة طعام", tr: "Yemek alanı şablonu" }) },
       },
-      { id: "vendor-panel", label: { en: "A panel for each restaurant or shop, with no contact with customers", ar: "لوحة لكل مطعم أو متجر، دون تواصل مع العملاء", tr: "Her restoran veya mağaza için müşteriyle iletişimsiz panel" }, yallapp: soon, them: {} },
+      { id: "vendor-panel", label: { en: "A panel for each restaurant or shop, with no contact with customers", ar: "لوحة لكل مطعم أو متجر، دون تواصل مع العملاء", tr: "Her restoran veya mağaza için müşteriyle iletişimsiz panel" }, yallapp: yes, them: {} },
       { id: "taxi", label: { en: "Rides and taxis on a live map", ar: "رحلات وتاكسي على خريطة حيّة", tr: "Canlı haritada yolculuk ve taksi" }, yallapp: yes, them: { appypie: yes } },
       { id: "school", label: { en: "School: classes, homework, grades, attendance, fees", ar: "مدرسة: فصول وواجبات ودرجات وحضور ومصروفات", tr: "Okul: sınıflar, ödevler, notlar, devam, ücretler" }, yallapp: yes, them: {} },
       { id: "bus", label: { en: "School bus live on the parents' map", ar: "باص المدرسة حيًّا على خريطة أولياء الأمور", tr: "Velilerin haritasında canlı okul servisi" }, yallapp: yes, them: {} },
@@ -316,14 +316,14 @@ export const STUDIO_TABLE: Category[] = [
   },
   {
     id: "money",
-    title: { en: "Money in the marketplace", ar: "الأموال في السوق", tr: "Pazaryerinde para" },
+    title: { en: "Money in multi-vendor apps", ar: "الأموال في التطبيقات متعددة المتاجر", tr: "Çok satıcılı uygulamalarda para" },
     rows: [
-      { id: "commission", label: { en: "Commission, tax and statements per vendor (CSV, Excel, PDF)", ar: "العمولة والضريبة وكشف حساب لكل بائع (CSV وExcel وPDF)", tr: "Satıcı başına komisyon, vergi ve ekstre (CSV, Excel, PDF)" }, yallapp: soon, them: {} },
+      { id: "commission", label: { en: "Commission, tax and statements per vendor (CSV, Excel, PDF)", ar: "العمولة والضريبة وكشف حساب لكل بائع (CSV وExcel وPDF)", tr: "Satıcı başına komisyon, vergi ve ekstre (CSV, Excel, PDF)" }, yallapp: yes, them: {} },
       { id: "cod", label: { en: "Cash on delivery, cards, Apple Pay and Google Pay", ar: "الدفع عند الاستلام والبطاقات وApple Pay وGoogle Pay", tr: "Kapıda ödeme, kart, Apple Pay ve Google Pay" }, yallapp: yes, them: { appypie: yes } },
-      { id: "coupons", label: { en: "Coupons, wallet and a delivery club", ar: "كوبونات ومحفظة ونادي توصيل", tr: "Kuponlar, cüzdan ve teslimat kulübü" }, yallapp: soon, them: { appypie: part({ en: "Coupons and wallet", ar: "كوبونات ومحفظة", tr: "Kupon ve cüzdan" }) } },
-      { id: "complaints", label: { en: "Complaints center with refunds and compensation", ar: "مركز شكاوى بالاسترداد والتعويض", tr: "İade ve tazminatlı şikâyet merkezi" }, yallapp: soon, them: {} },
-      { id: "delivery-modes", label: { en: "Each vendor chooses: your couriers or its own delivery", ar: "كل بائع يختار: مناديبك أو توصيله الخاص", tr: "Her satıcı seçer: kuryeleriniz veya kendi teslimatı" }, yallapp: soon, them: {} },
-      { id: "grocery", label: { en: "Groceries by weight, stock and substitutes", ar: "بقالة بالوزن ومخزون وبدائل", tr: "Gramajlı market, stok ve muadiller" }, yallapp: soon, them: {} },
+      { id: "coupons", label: { en: "Coupons, wallet and a delivery club", ar: "كوبونات ومحفظة ونادي توصيل", tr: "Kuponlar, cüzdan ve teslimat kulübü" }, yallapp: yes, them: { appypie: part({ en: "Coupons and wallet", ar: "كوبونات ومحفظة", tr: "Kupon ve cüzdan" }) } },
+      { id: "complaints", label: { en: "Complaints center with refunds and compensation", ar: "مركز شكاوى بالاسترداد والتعويض", tr: "İade ve tazminatlı şikâyet merkezi" }, yallapp: yes, them: {} },
+      { id: "delivery-modes", label: { en: "Each vendor chooses: your couriers or its own delivery", ar: "كل بائع يختار: مناديبك أو توصيله الخاص", tr: "Her satıcı seçer: kuryeleriniz veya kendi teslimatı" }, yallapp: yes, them: {} },
+      { id: "grocery", label: { en: "Groceries by weight, stock and substitutes", ar: "بقالة بالوزن ومخزون وبدائل", tr: "Gramajlı market, stok ve muadiller" }, yallapp: yes, them: {} },
     ],
   },
   {
@@ -433,7 +433,7 @@ export const COMPARE_TEXT: Record<Lang, CompareText> = {
     regular: "Regular apps",
     regularText: "Apps for a business, from its website, a platform or no website at all.",
     studio: "Yallapp Studio projects",
-    studioText: "Bigger apps designed freely: delivery with a courier app, food and grocery marketplaces, taxis, schools and universities.",
+    studioText: "Bigger apps designed freely: delivery with a courier app, multi-vendor apps for restaurants and supermarkets, taxis, schools and universities.",
     feature: "Feature",
     yes: "Yes",
     part: "With limits",
@@ -552,7 +552,7 @@ export const DUO_TABLE: { id: string; title: L; rows: DuoRow[] }[] = [
         id: "for",
         label: t("Made for", "مصمَّم لـ", "Kimin için yapıldı"),
         regular: y(t("A business that wants its own app fast: a shop, academy, restaurant, clinic, gym or charity", "نشاط يريد تطبيقه بسرعة: متجر أو أكاديمية أو مطعم أو عيادة أو صالة رياضية أو جمعية", "Hızla kendi uygulamasını isteyen işletme: mağaza, akademi, restoran, klinik, spor salonu veya yardım kuruluşu")),
-        studio: y(t("A company running a bigger service: deliveries, a marketplace, taxis, a school or a university", "شركة تدير خدمة أكبر: توصيل أو سوق أو تاكسي أو مدرسة أو جامعة", "Daha büyük bir hizmet yöneten şirket: teslimat, pazaryeri, taksi, okul veya üniversite")),
+        studio: y(t("A company running a bigger service: deliveries, a multi-vendor app, taxis, a school or a university", "شركة تدير خدمة أكبر: توصيل أو تطبيق متعدد المتاجر أو تاكسي أو مدرسة أو جامعة", "Daha büyük bir hizmet yöneten şirket: teslimat, çok satıcılı uygulama, taksi, okul veya üniversite")),
       },
       {
         id: "setup",
@@ -572,7 +572,7 @@ export const DUO_TABLE: { id: string; title: L; rows: DuoRow[] }[] = [
       { id: "other", label: t("Real estate, news, events and charities", "عقارات وأخبار وفعاليات وجمعيات", "Emlak, haber, etkinlik ve yardım kuruluşları"), regular: yes, studio: yes },
       { id: "delivery", label: t("Delivery company with couriers", "شركة توصيل بمناديب", "Kuryeli teslimat şirketi"), regular: no, studio: yes },
       { id: "food", label: t("Food delivery from many restaurants", "توصيل طعام من مطاعم كثيرة", "Birçok restorandan yemek teslimatı"), regular: no, studio: yes },
-      { id: "market", label: t("Food and grocery marketplace with vendor panels", "سوق طعام وبقالة بلوحات للبائعين", "Satıcı panelli yemek ve market pazaryeri"), regular: no, studio: soon },
+      { id: "market", label: t("Multi-vendor apps for restaurants and supermarkets, with a panel for each", "تطبيقات متعددة المتاجر للمطاعم والسوبر ماركت، بلوحة لكلٍّ منها", "Her birine panelli, restoran ve süpermarketler için çok satıcılı uygulamalar"), regular: no, studio: yes },
       { id: "rides", label: t("Rides and taxis", "رحلات وتاكسي", "Yolculuk ve taksi"), regular: no, studio: yes },
       { id: "school", label: t("Schools and universities", "مدارس وجامعات", "Okullar ve üniversiteler"), regular: no, studio: yes },
     ],
@@ -623,8 +623,8 @@ export const DUO_TABLE: { id: string; title: L; rows: DuoRow[] }[] = [
       { id: "cards", label: t("Card payments and in-app purchases", "الدفع بالبطاقة والشراء داخل التطبيق", "Kartla ödeme ve uygulama içi satın alma"), regular: yes, studio: yes },
       { id: "cod", label: t("Cash on delivery", "الدفع عند الاستلام", "Kapıda ödeme"), regular: no, studio: yes },
       { id: "loyalty", label: t("Loyalty and coupons", "الولاء والكوبونات", "Sadakat ve kuponlar"), regular: yes, studio: yes },
-      { id: "commission", label: t("Commission, tax and statements per vendor", "العمولة والضريبة وكشف حساب لكل بائع", "Satıcı başına komisyon, vergi ve ekstre"), regular: no, studio: soon },
-      { id: "complaints", label: t("Complaints center with refunds", "مركز شكاوى بالاسترداد", "İadeli şikâyet merkezi"), regular: no, studio: soon },
+      { id: "commission", label: t("Commission, tax and statements per vendor", "العمولة والضريبة وكشف حساب لكل بائع", "Satıcı başına komisyon, vergi ve ekstre"), regular: no, studio: yes },
+      { id: "complaints", label: t("Complaints center with refunds", "مركز شكاوى بالاسترداد", "İadeli şikâyet merkezi"), regular: no, studio: yes },
     ],
   },
   {
@@ -651,7 +651,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "Rolling out",
     pick: "Which one to pick",
     pickRegular: "Pick a regular app when your business is one of the kinds on the list and you want it in the stores soon, with your content and a ready template.",
-    pickStudio: "Pick Studio when you run deliveries, a marketplace, taxis, a school or a university, need extra apps for couriers or vendors, or want to design every page.",
+    pickStudio: "Pick Studio when you run deliveries, a multi-vendor app, taxis, a school or a university, need extra apps for couriers or vendors, or want to design every page.",
   },
   ar: {
     title: "تطبيقات Yallapp العادية أم Yallapp Studio؟",
@@ -663,7 +663,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "قيد الإطلاق",
     pick: "أيّهما تختار",
     pickRegular: "اختر تطبيقًا عاديًا إذا كان نشاطك من الأنواع الموجودة وتريده على المتاجر قريبًا، بمحتواك وقالب جاهز.",
-    pickStudio: "اختر Studio إذا كنت تدير توصيلًا أو سوقًا أو تاكسي أو مدرسة أو جامعة، أو تحتاج تطبيقات للمناديب أو البائعين، أو تريد تصميم كل صفحة.",
+    pickStudio: "اختر Studio إذا كنت تدير توصيلًا أو تطبيقًا متعدد المتاجر أو تاكسي أو مدرسة أو جامعة، أو تحتاج تطبيقات للمناديب أو البائعين، أو تريد تصميم كل صفحة.",
   },
   tr: {
     title: "Yallapp normal uygulama mı, Yallapp Studio mu?",
@@ -675,7 +675,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "Yayına alınıyor",
     pick: "Hangisini seçmeli",
     pickRegular: "İşletmeniz listedeki türlerdense ve içeriğiniz ile hazır bir şablonla yakında mağazalarda olmak istiyorsanız normal uygulamayı seçin.",
-    pickStudio: "Teslimat, pazaryeri, taksi, okul veya üniversite işletiyorsanız, kurye veya satıcı uygulamaları gerekiyorsa ya da her sayfayı tasarlamak istiyorsanız Studio'yu seçin.",
+    pickStudio: "Teslimat, çok satıcılı uygulama, taksi, okul veya üniversite işletiyorsanız, kurye veya satıcı uygulamaları gerekiyorsa ya da her sayfayı tasarlamak istiyorsanız Studio'yu seçin.",
   },
 };
 
