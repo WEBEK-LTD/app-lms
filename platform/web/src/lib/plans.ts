@@ -416,7 +416,7 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
   // 115.13 Not `marketplace`: 9.5's removed feature had that ID, and saved plans or switches may still name it.
   {
     id: "market",
-    label: "Marketplace: restaurants, supermarkets and shops",
+    label: "Marketplace: restaurants, supermarkets and stores",
     description: "A food delivery app grown into a marketplace: restaurants, supermarkets and shops in one app, each with its own staff, commission and statements; vendors join by your form; offers, coupons, the wallet and the club; your couriers or the vendor's own.",
     enforced: "The hosted API's /market, /vendor, /me/market-orders, /me/complaints, /me/wallet and /me/club endpoints of marketplace projects, and their Marketplace pages.",
   },
