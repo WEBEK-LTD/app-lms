@@ -1,6 +1,7 @@
 import { addDays, utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { newest } from "./rows";
 import type { SchoolPeople } from "./school";
 
 /**
@@ -34,32 +35,52 @@ const LOANS: { code: string; student: string; daysAgo: number; dueIn: number }[]
 
 export async function syncSchoolBusAndLibrary(store: DataStore, app: Pick<App, "id">, people: SchoolPeople, now: Date): Promise<void> {
   const person = (role: string, name: string) => people.byName.get(`${role}:${name}`) ?? null;
-  for (const route of await store.listSchoolBusRoutes(app.id)) await store.deleteSchoolBusRoute(app.id, route.id);
+  await store.deleteSchoolRows(app.id, "busRoutes", (await store.listSchoolBusRoutes(app.id)).map((r) => r.id));
   const route = await store.saveSchoolBusRoute(
     { id: null, appId: app.id, name: "Route 1, Maadi", plate: "ن ق ص 2741", capacity: 24, driverId: person("teacher", "Mona Saleh")?.id ?? null, supervisorId: person("teacher", "Heba Mansour")?.id ?? null, active: true },
     now,
   );
   if (route) {
-    for (const s of STOPS) {
-      const stop = await store.saveSchoolBusStop({ id: null, appId: app.id, routeId: route.id, name: s.name, lat: s.lat, lng: s.lng, morningMinute: s.morning, afternoonMinute: s.afternoon });
-      if (!stop) continue;
-      const riders = s.riders.map((name) => person("student", name)).filter((p) => p !== null);
-      await store.setSchoolBusRiders(app.id, riders.flatMap((p) => (["morning", "afternoon"] as const).map((trip) => ({ studentId: p.id, trip, stop }))));
-    }
+    // The new route's stops in order, then everyone's stop.
+    await store.saveSchoolRows(
+      "busStops",
+      STOPS.map((s, i) => ({ appId: app.id, routeId: route.id, name: s.name, lat: s.lat, lng: s.lng, morningMinute: s.morning, afternoonMinute: s.afternoon, position: i + 1 })),
+    );
+    const stops = await store.listSchoolBusStops(app.id, { routeId: route.id });
+    const riders = STOPS.flatMap((s) => {
+      const stop = newest(stops, (x) => x.name === s.name);
+      if (!stop) return [];
+      return s.riders.map((name) => person("student", name)).filter((p) => p !== null).flatMap((p) => (["morning", "afternoon"] as const).map((trip) => ({ studentId: p.id, trip, stop })));
+    });
+    await store.setSchoolBusRiders(app.id, riders);
   }
-  for (const book of await store.listSchoolBooks(app.id)) await store.deleteSchoolBook(app.id, book.id);
+  await store.deleteSchoolRows(app.id, "books", (await store.listSchoolBooks(app.id)).map((b) => b.id));
   const lina = person("student", "Lina Haddad");
   const today = utcToLocal(now, "Africa/Cairo").date;
+  await store.saveSchoolRows(
+    "books",
+    BOOKS.map((b) => ({ appId: app.id, title: b.title, author: b.author, isbn: b.isbn, coverAssetId: null, shelf: b.shelf, category: b.category, language: b.language, description: null, file: null, createdAt: now, updatedAt: now })),
+  );
+  const books = await store.listSchoolBooks(app.id);
+  const bookOf = (title: string) => newest(books, (x) => x.title === title);
+  await store.saveSchoolRows(
+    "bookCopies",
+    BOOKS.flatMap((b) => {
+      const book = bookOf(b.title);
+      return book ? b.codes.map((code) => ({ appId: app.id, bookId: book.id, code, note: null, createdAt: now })) : [];
+    }),
+  );
+  const copies = await store.listSchoolBookCopies(app.id, { bookIds: books.map((b) => b.id) });
   for (const b of BOOKS) {
-    const book = await store.createSchoolBook({ appId: app.id, title: b.title, author: b.author, isbn: b.isbn, coverAssetId: null, shelf: b.shelf, category: b.category, language: b.language, description: null, file: null, createdAt: now, updatedAt: now });
+    const book = bookOf(b.title);
+    if (!book) continue;
     for (const code of b.codes) {
-      const made = await store.createSchoolBookCopy({ appId: app.id, bookId: book.id, code, note: null, createdAt: now });
-      if (!made.ok) continue;
+      const copy = newest(copies, (c) => c.bookId === book.id && c.code === code);
       // Lina has the first copy of Charlotte's Web, due in a week; Adam is two days late with Kalila wa Dimna; Omar has the atlas, which Lina is waiting for.
       const loan = LOANS.find((l) => l.code === code);
       const reader = loan ? person("student", loan.student) : null;
-      if (loan && reader) {
-        await store.createSchoolBookLoan({ appId: app.id, bookId: book.id, copyId: made.copy.id, personId: reader.id, lentAt: new Date(now.getTime() - loan.daysAgo * 86_400_000), dueOn: addDays(today, loan.dueIn), returnedAt: null, dueToldOn: null, overdueToldOn: null });
+      if (copy && loan && reader) {
+        await store.createSchoolBookLoan({ appId: app.id, bookId: book.id, copyId: copy.id, personId: reader.id, lentAt: new Date(now.getTime() - loan.daysAgo * 86_400_000), dueOn: addDays(today, loan.dueIn), returnedAt: null, dueToldOn: null, overdueToldOn: null });
       }
     }
     if (b.title === "Atlas of Egypt" && lina) {

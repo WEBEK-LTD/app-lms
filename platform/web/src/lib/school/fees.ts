@@ -61,11 +61,16 @@ export async function feePayLink(
   return { url: payUrlFor(platformUrl, token), expiresAt: new Date(now.getTime() + PAY_LINK_MINUTES * 60_000), order };
 }
 
+/** What a fee paid (by card or at the office) has: when, how, and its receipt. */
+export function paidFeePatch(how: "card" | "office", now: Date, orderId: number | null = null) {
+  return { status: "paid" as const, paidAt: now, paidBy: how, receiptCode: randomToken(24), updatedAt: now, ...(orderId !== null ? { orderId } : {}) };
+}
+
 /** Marks a fee paid (by card or at the office) with its receipt; false when it was already paid or cancelled. */
 export async function markFeePaid(store: DataStore, app: Pick<App, "id">, fee: SchoolFee, how: "card" | "office", now: Date, orderId: number | null = null): Promise<SchoolFee | null> {
-  const receiptCode = randomToken(24);
-  const changed = await store.updateSchoolFee(app.id, fee.id, { status: "paid", paidAt: now, paidBy: how, receiptCode, updatedAt: now, ...(orderId !== null ? { orderId } : {}) }, { statuses: ["due"] });
-  return changed ? { ...fee, status: "paid", paidAt: now, paidBy: how, receiptCode, updatedAt: now, ...(orderId !== null ? { orderId } : {}) } : null;
+  const patch = paidFeePatch(how, now, orderId);
+  const changed = await store.updateSchoolFee(app.id, fee.id, patch, { statuses: ["due"] });
+  return changed ? { ...fee, ...patch } : null;
 }
 
 /**

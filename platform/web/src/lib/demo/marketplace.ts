@@ -9,6 +9,7 @@ import type {
   MarketComplaint,
   MarketCouponInput,
   MarketOrder,
+  MarketOrderInput,
   MarketOrderStage,
   MarketOrderStatus,
   MarketProductInput,
@@ -32,6 +33,7 @@ import { marketOrderReference } from "../market/json";
 import { DEFAULT_MARKET_SETTINGS } from "../market/settings";
 import { createVendorCoupon } from "../market/vendor-coupons";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME } from "./constants";
+import { readOnce, unchanged } from "./rows";
 
 /**
  * 115.15 Zad, Studio's multi-vendor demo: two restaurants (one delivers
@@ -593,7 +595,7 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
     }
     const found = existing.find((r) => r.name === v.name);
     if (found) {
-      await store.updateRestaurant(app.id, found.id, { ...input, busyUntil: null }, now);
+      if (!unchanged(found, { ...input, busyUntil: null })) await store.updateRestaurant(app.id, found.id, { ...input, busyUntil: null }, now);
       if (v.menu) await store.saveRestaurantMenu(app.id, found.id, menu, now);
     } else {
       await store.createRestaurant(input, menu, now);
@@ -610,16 +612,22 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
 /** Zad Market's departments, aisles and products; what a visitor added or changed in its panel goes back to the demo's. */
 async function syncCatalog(store: DataStore, appId: string, market: Restaurant, now: Date, making: MarketMaking = AS_THE_DEMO): Promise<void> {
   const departments = await store.listMarketDepartments(appId, market.id);
+  // Every aisle of the place in one list; a department or aisle already as the demo has it isn't saved again.
+  const allAisles = await store.listMarketAisles(appId, market.id);
   const keepDepartments = new Set<number>();
   const rows: Omit<MarketProductInput, "appId" | "vendorId">[] = [];
   for (const [d, department] of MARKET_CATALOG.entries()) {
-    const savedDepartment = await store.saveMarketDepartment({ id: departments.find((x) => x.name === department.name)?.id ?? null, appId, vendorId: market.id, name: department.name, imageAssetId: null, position: d + 1 });
+    const wantedDepartment = { appId, vendorId: market.id, name: department.name, imageAssetId: null, position: d + 1 };
+    const foundDepartment = departments.find((x) => x.name === department.name);
+    const savedDepartment = foundDepartment && unchanged(foundDepartment, wantedDepartment) ? foundDepartment : await store.saveMarketDepartment({ id: foundDepartment?.id ?? null, ...wantedDepartment });
     if (!savedDepartment) throw new Error(`The department ${department.name} couldn't be saved.`);
     keepDepartments.add(savedDepartment.id);
-    const aisles = await store.listMarketAisles(appId, market.id, savedDepartment.id);
+    const aisles = allAisles.filter((x) => x.departmentId === savedDepartment.id);
     const keepAisles = new Set<number>();
     for (const [a, aisle] of department.aisles.entries()) {
-      const savedAisle = await store.saveMarketAisle({ id: aisles.find((x) => x.name === aisle.name)?.id ?? null, appId, vendorId: market.id, departmentId: savedDepartment.id, name: aisle.name, position: a + 1 });
+      const wantedAisle = { appId, vendorId: market.id, departmentId: savedDepartment.id, name: aisle.name, position: a + 1 };
+      const foundAisle = aisles.find((x) => x.name === aisle.name);
+      const savedAisle = foundAisle && unchanged(foundAisle, wantedAisle) ? foundAisle : await store.saveMarketAisle({ id: foundAisle?.id ?? null, ...wantedAisle });
       if (!savedAisle) throw new Error(`The aisle ${aisle.name} couldn't be saved.`);
       keepAisles.add(savedAisle.id);
       for (const p of aisle.products) {
@@ -650,10 +658,16 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
     for (const aisle of aisles) if (!keepAisles.has(aisle.id)) await store.deleteMarketAisle(appId, market.id, aisle.id);
   }
   for (const department of departments) if (!keepDepartments.has(department.id)) await store.deleteMarketDepartment(appId, market.id, department.id);
-  await store.upsertMarketProducts(appId, market.id, rows, now);
-  if (making.sample) return;
+  if (making.sample) {
+    await store.upsertMarketProducts(appId, market.id, rows, now);
+    return;
+  }
+  // Only the products not as the demo has them are saved; the ones it doesn't have (a visitor's) go.
+  const products = await allProducts(store, appId, market.id);
+  const changed = rows.filter((row) => !products.some((p) => p.sku === row.sku && unchanged(p, row)));
+  if (changed.length) await store.upsertMarketProducts(appId, market.id, changed, now);
   const skus = new Set(rows.map((r) => r.sku));
-  for (const p of await allProducts(store, appId, market.id)) if (!p.sku || !skus.has(p.sku)) await store.deleteMarketProduct(appId, p.id);
+  for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteMarketProduct(appId, p.id);
 }
 
 async function allProducts(store: DataStore, appId: string, vendorId: number) {
@@ -673,7 +687,7 @@ async function syncStaff(store: DataStore, appId: string, vendors: Map<VendorKey
     const vendor = vendors.get(s.vendor)!;
     const found = staff.find((x) => x.phone === s.phone);
     if (found && found.restaurantId === vendor.id && (found.role ?? "manager") === s.role) {
-      await store.updateRestaurantStaff(appId, found.id, { name: s.name, email: null, active: true }, now);
+      if (!unchanged(found, { name: s.name, email: null, active: true })) await store.updateRestaurantStaff(appId, found.id, { name: s.name, email: null, active: true }, now);
       continue;
     }
     if (found) await store.deleteRestaurantStaff(appId, found.id);
@@ -818,13 +832,24 @@ function stagesOf(seed: SeedOrder, vendor: Restaurant, placed: Date, now: Date):
   return [...stages, { status: "delivered", at: at(3 + prep + 22), by }];
 }
 
+/** The reads of pricing an order that the seeded orders, complaints and refunds don't change. */
+const PRICING_READS = ["getRestaurant", "getRestaurantMenu", "getMarketProduct", "listMarketCoupons", "findMarketCouponByCode", "countMarketCouponUses", "getMarketClubMember", "getMarketClubPlan", "listMarketOrders", "walletBalance"] as const;
+
 /** The seeded orders, complaints and refunds, from the clock. */
-async function seedOrders(store: DataStore, app: Pick<App, "id">, vendors: Map<VendorKey, Restaurant>, user: HostedUser, now: Date): Promise<number> {
+async function seedOrders(saved: DataStore, app: Pick<App, "id">, vendors: Map<VendorKey, Restaurant>, user: HostedUser, now: Date): Promise<number> {
+  // What pricing reads and seeding doesn't change (the places, their menus and products, the offers and the club) is read once.
+  const store = readOnce(saved, PRICING_READS, {
+    // Whether it's the demo number's first order: until it has one delivered or picked up.
+    createMarketOrder: (order: MarketOrderInput) => (order.userId !== null && (order.status === "delivered" || order.status === "picked_up") ? ["listMarketOrders"] : []),
+    addWalletEntry: () => ["walletBalance"],
+  });
   const delivery = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const today = utcToLocal(now, MARKET_TIMEZONE).date;
   // Prices are checked with the places open: at the very end of the day (23:59), a minute earlier.
   const pricedAt = utcToLocal(now, MARKET_TIMEZONE).time >= "23:59" ? new Date(now.getTime() - 120_000) : now;
-  const products = new Map((await allProducts(store, app.id, vendors.get("market")!.id)).map((p) => [p.name, p.id]));
+  const catalog = await allProducts(store, app.id, vendors.get("market")!.id);
+  for (const p of catalog) store.remember("getMarketProduct", [app.id, p.id], p);
+  const products = new Map(catalog.map((p) => [p.name, p.id]));
   const courier = await seededCourier(store, app.id, now);
   let made = 0;
   for (const seed of SEED_ORDERS) {

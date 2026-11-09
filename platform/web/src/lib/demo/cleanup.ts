@@ -28,9 +28,10 @@ const total = (counts: DemoPurgeCounts) => Object.values(counts).reduce((sum, n)
 export async function cleanDemoActivity(store: DataStore, now: Date): Promise<DemoCleanupReport> {
   const before = new Date(now.getTime() - DEMO_RETENTION_HOURS * 3_600_000);
   const report: DemoCleanupReport = { apps: 0, deleted: 0 };
-  for (const app of await listDemoApps(store, { fresh: true })) {
-    if (app.demo !== true) continue;
-    report.deleted += total(await store.purgeDemoActivity(app.id, before));
+  const apps = (await listDemoApps(store, { fresh: true })).filter((app) => app.demo === true);
+  // Every demo app's in one go: a query per kind of row, not one per kind and app.
+  report.deleted += total(await store.purgeDemoActivity(apps.map((app) => app.id), before));
+  for (const app of apps) {
     // 110.5 What the visitor made as the school's teacher and as the academy's demo teacher; the school day dated from today.
     const id = demoIdOf(app);
     if (id === "school") report.deleted += await refreshSchoolDay(store, app, now);

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { buildDemoAction, setDemoDownloadAction, setupDemosAction } from "@/app/actions/admin-demos";
+import { buildDemoAction, setDemoDownloadAction } from "@/app/actions/admin-demos";
 import { manageClientAction } from "@/app/actions/admin";
 import { BuildBadge } from "@/components/build-status";
 import { SubmitButton } from "@/components/form";
-import { Icon } from "@/components/icon";
 import { Card, Notice, formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
@@ -14,22 +13,18 @@ import { DEMO_BRANDS } from "@/lib/demo/content";
 import { courierAppNameOf, hasCourierJobs } from "@/lib/delivery/courier-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appUrl } from "@/lib/env";
+import { RefreshAllDemos, RefreshDemoButton } from "./refresh";
 
 export const metadata: Metadata = { title: "Demo apps" };
 export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
-  all: "The demo apps are created and up to date.",
-  regular: "The regular apps' demos are created and up to date.",
-  studio: "Yallapp Studio's demos are created and up to date.",
-  ...Object.fromEntries(ALL_DEMO_TYPES.map((type) => [type, `The ${demoKind(type).name} demo is up to date.`])),
   build: "The build is queued. It shows here, and on the build queue, as it runs.",
   download: "The /demo page now offers this build for download.",
   no_download: "The /demo page shows \"Coming soon\" for this app again.",
 };
 
 const ERROR: Record<string, string> = {
-  setup: `The demo apps couldn't be set up. If ${DEMO_ACCOUNT.email} already has an account that isn't the demo account, remove it first; otherwise try again, one app at a time.`,
   unknown_type: "Choose one of the app types.",
   not_demo: "That isn't a demo app.",
   not_downloadable: "Only a ready build with an Android APK can be the download.",
@@ -118,21 +113,19 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
           demo app never asks for a card.
         </p>
         {may ? (
-          <form action={setupDemosAction} className="flex flex-wrap items-center gap-3">
-            <input type="hidden" name="type" value={family} />
-            <input type="hidden" name="family" value={family} />
-            <SubmitButton className="h-11" pendingText="Setting up the demo apps…">
-              <Icon name="refresh" size={20} />
-              {family === "studio"
+          <RefreshAllDemos
+            demos={rows.map((r) => ({ type: r.type, name: DEMO_BRANDS[r.type].appName }))}
+            label={
+              family === "studio"
                 ? rows.some((r) => r.app)
                   ? "Refresh all of Studio's demo apps"
                   : "Create Studio's demo apps"
                 : rows.some((r) => r.app)
                   ? "Refresh all regular demo apps"
-                  : "Create the regular demo apps"}
-            </SubmitButton>
-            <span className="text-sm text-muted">Safe to run again: it updates the apps and their content, never duplicates them.</span>
-          </form>
+                  : "Create the regular demo apps"
+            }
+            doneText={family === "studio" ? "Yallapp Studio's demos are created and up to date." : "The regular apps' demos are created and up to date."}
+          />
         ) : null}
       </Card>
 
@@ -153,15 +146,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
 
                 {app ? (
                   <div className="flex flex-wrap gap-2.5">
-                    {may ? (
-                      <form action={setupDemosAction}>
-                        <input type="hidden" name="family" value={family} />
-                        <input type="hidden" name="type" value={type} />
-                        <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Refreshing…">
-                          Refresh<span className="sr-only"> {DEMO_BRANDS[type].appName}</span>
-                        </SubmitButton>
-                      </form>
-                    ) : null}
+                    {may ? <RefreshDemoButton demo={{ type, name: DEMO_BRANDS[type].appName }} /> : null}
                     {may ? (
                       <form action={buildDemoAction}>
                         <input type="hidden" name="family" value={family} />
