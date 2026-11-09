@@ -5,6 +5,7 @@ import { DEMO_BRANDS } from "@/lib/demo/content";
 import { DEMO_DESIGNS, demoDesign, demoDesignId } from "@/lib/demo/look";
 import { demoLayout } from "@/lib/demo/setup";
 import { designsForApp } from "@/lib/pages/designs/catalog";
+import { withBuiltInTexts } from "@/lib/pages/builtin";
 import { designLayout } from "@/lib/pages/layout";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import { MemoryStore } from "@/lib/data/memory";
@@ -67,5 +68,22 @@ describe("templates = demos", () => {
     // The built-in designs are all still there.
     const school = await designsForApp(store, demoApp("school"));
     expect(school.length).toBeGreaterThan(1);
+  });
+});
+
+describe("templates = demos: a demo's home in Arabic and Turkish", () => {
+  it.each(ALL_DEMO_TYPES.filter((id) => !isStudioDemo(id)))("the %s design's banner and welcome come in the app's other languages", (id) => {
+    const app: App = { ...newApp("c1", null, NOW, demoKind(id).engine, demoKind(id).vertical), appName: "Nour", brandingDoneAt: NOW };
+    const layout = designLayout(app, demoDesign(id), { appearance: { template: "classic", theme_mode: "system", user_can_change_mode: true, secondary_color: null, font: "Outfit", corners: "soft", cards: "flat" }, languages: { default: "en", available: ["en", "ar", "tr"] } }, NOW);
+    const served = withBuiltInTexts({ version: "v1", ...layout, languages: { default: "en", available: ["en", "ar", "tr"] } });
+    const [banner, ...rest] = served.pages[0]!.blocks;
+    expect(banner!.heading).toBe(DEMO_BRANDS[id].banner.heading);
+    expect(banner!.translations?.ar?.heading, id).toMatch(/[؀-ۿ]/);
+    expect(banner!.translations?.ar?.subheading, id).toMatch(/[؀-ۿ]/);
+    expect(banner!.translations?.tr?.heading, id).toBeTruthy();
+    expect(banner!.translations?.tr?.heading, id).not.toBe(banner!.heading);
+    const welcome = rest.find((b) => b.id === "welcome")!;
+    expect(welcome.translations?.ar?.html, id).toContain("مرحبًا بك في Nour");
+    expect(welcome.translations?.tr?.html, id).toContain("Nour uygulamasına hoş geldiniz");
   });
 });

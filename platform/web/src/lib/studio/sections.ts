@@ -170,6 +170,8 @@ export interface SectionContext {
   entries?: readonly { id: string }[];
   /** The app's name, for a demo's template that writes it. */
   app?: string;
+  /** The language `w` writes in (the dashboard's): a demo's template writes its own texts in it, with the others as translations. */
+  lang?: "en" | "ar" | "tr";
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */

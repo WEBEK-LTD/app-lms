@@ -114,10 +114,27 @@ class Rich_Blocks {
 		if ( ! $slides ) {
 			return null;
 		}
-		return array(
+		$block = array(
 			'auto_advance' => false !== ( $raw['auto_advance'] ?? true ),
 			'slides'       => $slides,
 		);
+		// 1.6 How long each slide shows, the slides' shape and how it shows where it is.
+		$interval = $raw['interval_ms'] ?? null;
+		if ( is_int( $interval ) && $interval >= 2000 && $interval <= 10000 ) {
+			$block['interval_ms'] = $interval;
+		}
+		$ratio = $raw['aspect_ratio'] ?? null;
+		if ( is_int( $ratio ) || is_float( $ratio ) ) {
+			$ratio = round( (float) $ratio, 2 );
+			if ( in_array( $ratio, array( 1.78, 1.33, 1.0 ), true ) ) {
+				$block['aspect_ratio'] = $ratio;
+			}
+		}
+		$indicator = self::choice( $raw['indicator'] ?? null, array( 'progress', 'count' ), null );
+		if ( null !== $indicator ) {
+			$block['indicator'] = $indicator;
+		}
+		return $block;
 	}
 
 	/**

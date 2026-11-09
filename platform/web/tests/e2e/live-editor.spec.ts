@@ -88,6 +88,30 @@ test("the quick view is one click away", async () => {
   await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
 });
 
+test("1.2 a block pressed in the app preview opens in the editor", async () => {
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
+  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  expect(await list.count()).toBeGreaterThan(1);
+  const second = list.nth(1);
+  const blockId = (await second.getAttribute("id"))!.replace(/^block-/, "");
+  const slug = (await own.locator("section[data-page-slug]").getAttribute("data-page-slug"))!;
+  // What the app in the frame posts when a block in it is pressed (mobile/lib/core/preview).
+  const app = own.frames().find((f) => f.url().includes("/preview-app/"))!;
+  const tap = (page: string, block: string) => app.evaluate(([page, block]) => window.parent.postMessage({ yallappPreview: "block-tapped", page, block }, window.location.origin), [page, block] as const);
+  // A page or block the editor doesn't have changes nothing.
+  await tap(slug, "no-such-block");
+  await expect(list.getByRole("button", { expanded: true })).toHaveCount(0);
+  // The same message from the dashboard itself, not the frame, is ignored.
+  await own.evaluate(([page, block]) => window.postMessage({ yallappPreview: "block-tapped", page, block }, window.location.origin), [slug, blockId] as const);
+  await expect(list.getByRole("button", { expanded: true })).toHaveCount(0);
+  await tap(slug, blockId);
+  await expect(second.getByRole("button", { expanded: true })).toBeVisible();
+  await expect(list.nth(0).getByRole("button", { expanded: true })).toHaveCount(0);
+  await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
+  await second.getByRole("button", { expanded: true }).click();
+});
+
 test("82.2 a block clicked on the phone opens in the editor; one dragged onto the phone goes where it's dropped", async () => {
   await own.getByRole("tab", { name: "Pages" }).click();
   await own.getByRole("button", { name: "Quick view", exact: true }).click();
@@ -347,4 +371,41 @@ test("84.4 the team adds a design from an app's draft and hides a built-in one; 
   await designs.getByText("Show designs").click();
   await expect(designs.getByRole("button", { name: "Use the Olive market design" })).toBeVisible();
   await expect(designs.getByRole("button", { name: `Use the ${hiddenName} design` })).toHaveCount(0);
+});
+
+test("1.6 a slider's time, shape and indicator are saved, and the quick view draws them", async () => {
+  await own.goto("/dashboard/pages");
+  await own.getByRole("tab", { name: "Pages" }).click();
+  const page = own.getByRole("region", { name: /^Page: / });
+  const blocks = page.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const before = await blocks.count();
+  await page.getByRole("button", { name: "Add Slider block" }).click();
+  const slider = page.getByRole("group", { name: `Block ${before + 1} settings` });
+  // It starts with sample slides, every 5 seconds, as the design, with dots.
+  await expect(slider.getByLabel("Each slide shows for")).toHaveValue("5");
+  await expect(slider.getByLabel("Shape")).toHaveValue("");
+  await expect(slider.getByLabel("Where you are")).toHaveValue("dots");
+  await slider.getByLabel("Each slide shows for").selectOption({ label: "3 seconds" });
+  await slider.getByLabel("Shape").selectOption({ label: "Square" });
+  await slider.getByLabel("Where you are").selectOption({ label: "2 / 5 in the corner" });
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+  // Kept after a reload.
+  await own.reload();
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await blocks.nth(before).getByRole("button", { expanded: false }).first().click();
+  const again = page.getByRole("group", { name: `Block ${before + 1} settings` });
+  await expect(again.getByLabel("Each slide shows for")).toHaveValue("3");
+  await expect(again.getByLabel("Shape")).toHaveValue("1");
+  await expect(again.getByLabel("Where you are")).toHaveValue("count");
+  // Not moving on its own: no time to choose.
+  await again.getByLabel("Move to the next slide on its own").uncheck();
+  await expect(again.getByLabel("Each slide shows for")).toHaveCount(0);
+  // The quick view draws it square, with "1 / 2" in its corner.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  const drawn = own.getByRole("figure", { name: "Phone preview" }).locator("[data-slider-indicator=count]").last();
+  await expect(drawn).toContainText("1 / 2");
+  await own.getByRole("button", { name: "The app", exact: true }).click();
+  await page.getByRole("button", { name: `Delete block ${before + 1}` }).click();
+  await expect(blocks).toHaveCount(before);
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
 });

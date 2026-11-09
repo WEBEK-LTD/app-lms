@@ -8,7 +8,7 @@ import { DEMO_BRANDS } from "@/lib/demo/content";
 import { DEMO_BANNER_ART } from "@/lib/demo/design-art";
 import { demoDesign, demoStudioContext } from "@/lib/demo/look";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
-import { STUDIO_DEMO_HOMES } from "@/lib/demo/studio-homes";
+import { STUDIO_DEMO_HOMES, STUDIO_DEMO_WORDS, studioDemoTexts } from "@/lib/demo/studio-homes";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
 import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
@@ -156,5 +156,54 @@ describe("Studio templates = Studio demos", () => {
     const blocks: LayoutBlock[] = [{ id: "continue", type: "continue_learning", visibility: "signed_in", title: "Continue learning" }];
     const page = demoStudioPage("instructors", { brand: "#000000", source: null, w: (w) => w }, blocks);
     expect(allNodes(page).some((n) => n.text === "Continue learning")).toBe(false);
+  });
+});
+
+describe("templates = demos: the demos' first pages in Arabic and Turkish", () => {
+  const studioAr = { heroTitle: "أهلًا بيك في {app}", seeAll: "شوف الكل" };
+
+  it("has every text of each demo's first page in Arabic and Turkish", () => {
+    for (const id of STUDIO_DEMO_TYPES) {
+      for (const en of studioDemoTexts(id)) {
+        const ar = STUDIO_DEMO_WORDS[id].ar[en];
+        const tr = STUDIO_DEMO_WORDS[id].tr[en];
+        expect(ar, `${id} ar: ${en}`).toMatch(/[؀-ۿ]/);
+        expect(tr?.trim(), `${id} tr: ${en}`).toBeTruthy();
+        expect(tr, `${id} tr: ${en}`).not.toMatch(/[؀-ۿ]/);
+        expect(tr, `${id} tr: ${en}`).not.toBe(en);
+      }
+      // Nothing left over that the page doesn't show.
+      const texts = new Set(studioDemoTexts(id));
+      expect(Object.keys(STUDIO_DEMO_WORDS[id].ar).filter((en) => !texts.has(en)), id).toEqual([]);
+      expect(Object.keys(STUDIO_DEMO_WORDS[id].tr).sort(), id).toEqual(Object.keys(STUDIO_DEMO_WORDS[id].ar).sort());
+    }
+  });
+
+  it("writes them in the dashboard's language, the others kept as translations the page checker takes", () => {
+    const languages = { default: "ar" as const, available: ["ar" as const, "en" as const, "tr" as const] };
+    for (const id of STUDIO_DEMO_TYPES) {
+      const app = demoApp(id);
+      const ctx = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar" as const, w: (word: SectionWord) => (word in studioAr ? studioAr[word as keyof typeof studioAr].replace("{app}", "Nour") : `[${word}]`) };
+      const page = demoStudioPage(id, ctx);
+      const texts = allNodes(page).filter((n) => (n.type === "text" || n.type === "button" || n.type === "search") && n.text);
+      const banner = texts.find((n) => n.translations?.en?.text === STUDIO_DEMO_HOMES[id].heading)!;
+      expect(banner.text, id).toBe(STUDIO_DEMO_WORDS[id].ar[STUDIO_DEMO_HOMES[id].heading]);
+      expect(banner.translations?.tr?.text, id).toBe(STUDIO_DEMO_WORDS[id].tr[STUDIO_DEMO_HOMES[id].heading]);
+      const welcome = texts.find((n) => n.text === "أهلًا بيك في Nour")!;
+      expect(welcome.translations, id).toEqual({ en: { text: "Welcome to Nour" }, tr: { text: "Nour'e hoş geldiniz" } });
+      // No English left on the Arabic page.
+      for (const n of texts) expect(n.text, `${id}: ${n.text}`).toMatch(/[؀-ۿ]|^Nour$/);
+      const parsed = parseStudioPage(page, app, languages);
+      expect(parsed.ok ? [] : parsed.errors, id).toEqual([]);
+      if (parsed.ok) expect(allNodes(parsed.value).find((n) => n.text === banner.text)?.translations?.en?.text, id).toBe(STUDIO_DEMO_HOMES[id].heading);
+    }
+  });
+
+  it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
+    for (const id of STUDIO_DEMO_TYPES) {
+      const page = demoStudioPage(id, demoStudioContext(id, appUrl()));
+      const banner = allNodes(page).find((n) => n.text === STUDIO_DEMO_HOMES[id].heading)!;
+      expect(banner.translations, id).toEqual({ ar: { text: STUDIO_DEMO_WORDS[id].ar[banner.text!] }, tr: { text: STUDIO_DEMO_WORDS[id].tr[banner.text!] } });
+    }
   });
 });

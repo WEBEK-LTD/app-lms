@@ -1,6 +1,7 @@
 import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
-import { STUDIO_DEMO_HOMES } from "../demo/studio-homes";
+import { STUDIO_DEMO_HOMES, STUDIO_DEMO_WORDS } from "../demo/studio-homes";
+import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
 import { newNodeId } from "./elements";
 import type { SectionContext, TemplateInfo } from "./sections";
 
@@ -187,7 +188,40 @@ export function demoTemplateId(id: StudioDemoId): string {
 /** The demo's first page in Studio; the demo itself adds how to sign in to it after the banner (`afterBanner`). */
 export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterBanner: readonly LayoutBlock[] = []): StudioPage {
   const [banner, ...rest] = studioDemoBlocks(id);
-  return studioPageOf(ctx, [banner!, ...afterBanner, ...rest], DEMO_HEADER);
+  const page = studioPageOf(ctx, [banner!, ...afterBanner, ...rest], DEMO_HEADER);
+  return { ...page, body: localised(id, ctx, page.body) };
+}
+
+type DemoLang = "en" | "ar" | "tr";
+const DEMO_LANGS: readonly DemoLang[] = ["en", "ar", "tr"];
+const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
+
+/**
+ * The demo's texts in the language the template is made in (the
+ * dashboard's), with English, Arabic and Turkish as translations: its
+ * banner, its sentence, its lists' titles, the welcome and "See all".
+ */
+function localised(id: StudioDemoId, ctx: SectionContext, body: StudioNode): StudioNode {
+  const lang: DemoLang = ctx.lang ?? "en";
+  const words = STUDIO_DEMO_WORDS[id];
+  const demo = (en: string): Record<DemoLang, string> | null => (words.ar[en] && words.tr[en] ? { en, ar: words.ar[en], tr: words.tr[en] } : null);
+  const own = (key: "w_heroTitle" | "w_seeAll"): Record<DemoLang, string> => Object.fromEntries(DEMO_LANGS.map((l) => [l, String(STUDIO_WORDS[l][key]).replaceAll("{app}", ctx.app ?? "")])) as Record<DemoLang, string>;
+  const welcome = ctx.w("heroTitle");
+  const seeAll = ctx.w("seeAll");
+  const walk = (node: StudioNode): StudioNode => {
+    const out: StudioNode = { ...node };
+    if ((node.type === "text" || node.type === "button" || node.type === "search") && node.text) {
+      const all = demo(node.text) ?? (node.text === welcome ? own("w_heroTitle") : node.text === seeAll ? own("w_seeAll") : null);
+      if (all) {
+        out.text = all[lang];
+        out.translations = Object.fromEntries(DEMO_LANGS.filter((l) => l !== lang).map((l) => [l, { text: all[l] }])) as StudioNode["translations"];
+      }
+    }
+    if (node.name) out.name = demo(node.name)?.[lang] ?? node.name;
+    if (node.children) out.children = node.children.map(walk);
+    return out;
+  };
+  return walk(body);
 }
 
 /** Each Studio demo's first page as a template. */

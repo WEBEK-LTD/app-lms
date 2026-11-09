@@ -90,7 +90,7 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   await store.createApp(app);
   await chooseApp(app.id);
   // The home page starts as a Studio page from the chosen template, in the dashboard's language.
-  const { t } = await dashboardText();
+  const { t, lang } = await dashboardText();
   const ready = defaultLayout(app, await appDefaults(store), now);
   // The demo's pages and look; its home is the demo's Studio page.
   const layout = demo ? designLayout(app, demoDesign(demo), ready, now) : ready;
@@ -99,6 +99,7 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
     source: itemSourcesFor(app)[0] ?? null,
     app: name,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }),
+    lang,
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
   });

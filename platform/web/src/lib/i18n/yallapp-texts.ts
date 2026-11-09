@@ -1,6 +1,7 @@
 import { APP_TYPES, KINDS } from "../app/kinds";
 import type { App, AppBackend } from "../data/types";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
+import { DEMO_DESIGNS } from "../demo/look";
 import { applyDesign, DESIGNS } from "../pages/designs";
 import { aboutPage, contactPage } from "../pages/designs/build";
 import { SCREEN_LABELS } from "../pages/labels";
@@ -66,7 +67,8 @@ export function yallappPageTexts(): string[] {
       }
     }
   }
-  for (const design of DESIGNS) {
+  // Templates = demos: each demo's own design (its banner and its sentence) too.
+  for (const design of [...DEMO_DESIGNS, ...DESIGNS]) {
     // 110 With the pictures (and the welcome heading the banner repeats taken out), and without them as apps that chose a design before have it.
     for (const [name, pictureBase] of [["{app}", "https://yallapp.test"], [null, "https://yallapp.test"], ["{app}", undefined], [null, undefined]] as const) {
       const layout = applyDesign(design, {
