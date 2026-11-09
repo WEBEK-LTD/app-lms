@@ -2,6 +2,7 @@ import type { DataStore } from "../data/store";
 import type {
   App,
   ComplaintReason,
+  Cuisine,
   DeliverySettings,
   Dish,
   HostedUser,
@@ -503,7 +504,7 @@ export function marketplaceDeliverySettings(saved: DeliverySettings): DeliverySe
   };
 }
 
-function menuOf(vendor: DemoVendor): RestaurantMenu {
+function menuOf(vendor: DemoVendor, money: (cents: number) => number = (c) => c): RestaurantMenu {
   let next = 1;
   const id = () => next++;
   const sections: MenuSection[] = (vendor.menu ?? []).map((section) => ({
@@ -515,11 +516,11 @@ function menuOf(vendor: DemoVendor): RestaurantMenu {
         name: dish.name,
         description: dish.description,
         imageAssetId: null,
-        priceCents: dish.price,
+        priceCents: money(dish.price),
         available: true,
         popular: dish.popular ?? false,
         choiceGroups: dish.choices
-          ? [{ id: id(), name: dish.choices.name, min: dish.choices.min, max: dish.choices.max, choices: dish.choices.options.map(([name, extraCents]) => ({ id: id(), name, extraCents, available: true })) }]
+          ? [{ id: id(), name: dish.choices.name, min: dish.choices.min, max: dish.choices.max, choices: dish.choices.options.map(([name, extraCents]) => ({ id: id(), name, extraCents: money(extraCents), available: true })) }]
           : [],
       }),
     ),
@@ -536,10 +537,31 @@ async function demoUser(store: DataStore, appId: string, now: Date): Promise<Hos
   return user;
 }
 
+/**
+ * How Zad's places and products are made: as the demo has them, or
+ * (templates = demos) as samples of an app started from Zad, each place
+ * marked `sample`, after the app's own, with prices in its currency and the
+ * cuisines it has under its own IDs. Nothing of the owner's is changed.
+ */
+export interface MarketMaking {
+  sample: boolean;
+  money: (cents: number) => number;
+  cuisines: Map<string, string>;
+}
+
+const AS_THE_DEMO: MarketMaking = { sample: false, money: (c) => c, cuisines: new Map() };
+
+/** Zad's cuisines (the marketplace's settings). */
+export function marketCuisines(): Cuisine[] {
+  return marketplaceDeliverySettings(deliverySettingsOf(null)).cuisines ?? [];
+}
+
 /** The three places, as the demo has them (a place a visitor paused or set busy opens again). */
-async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date): Promise<Map<VendorKey, Restaurant>> {
+async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, making: MarketMaking = AS_THE_DEMO): Promise<Map<VendorKey, Restaurant>> {
   const existing = await store.listRestaurants(app.id);
   const vendors = new Map<VendorKey, Restaurant>();
+  const after = making.sample ? Math.max(0, ...existing.map((r) => r.position)) : 0;
+  const { money } = making;
   for (const [position, v] of MARKET_VENDORS.entries()) {
     const input: RestaurantInput = {
       appId: app.id,
@@ -547,24 +569,28 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date): P
       description: v.description,
       logoAssetId: null,
       coverAssetId: null,
-      cuisines: [...v.cuisines],
+      cuisines: v.cuisines.map((c) => making.cuisines.get(c) ?? c),
       address: { ...v.address },
       phone: null,
       hours: ALL_DAY,
       prepMinutes: v.prepMinutes,
-      minOrderCents: v.minOrder,
+      minOrderCents: money(v.minOrder),
       maxKm: v.maxKm,
       commissionBp: v.commissionBp,
       active: true,
-      position: position + 1,
+      position: after + position + 1,
       kind: v.kind,
-      delivery: { ...v.delivery },
+      delivery: { ...v.delivery, fee: money(v.delivery.fee), perKm: money(v.delivery.perKm), freeOver: v.delivery.freeOver === null ? null : money(v.delivery.freeOver) },
       commissionFixed: null,
       taxRateBp: null,
       paused: false,
       area: v.area,
     };
-    const menu = menuOf(v);
+    const menu = menuOf(v, money);
+    if (making.sample) {
+      vendors.set(v.key, await store.createRestaurant({ ...input, sample: true }, menu, now));
+      continue;
+    }
     const found = existing.find((r) => r.name === v.name);
     if (found) {
       await store.updateRestaurant(app.id, found.id, { ...input, busyUntil: null }, now);
@@ -573,6 +599,7 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date): P
       await store.createRestaurant(input, menu, now);
     }
   }
+  if (making.sample) return vendors;
   for (const r of await store.listRestaurants(app.id)) {
     const v = MARKET_VENDORS.find((x) => x.name === r.name);
     if (v) vendors.set(v.key, r);
@@ -581,7 +608,7 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date): P
 }
 
 /** Zad Market's departments, aisles and products; what a visitor added or changed in its panel goes back to the demo's. */
-async function syncCatalog(store: DataStore, appId: string, market: Restaurant, now: Date): Promise<void> {
+async function syncCatalog(store: DataStore, appId: string, market: Restaurant, now: Date, making: MarketMaking = AS_THE_DEMO): Promise<void> {
   const departments = await store.listMarketDepartments(appId, market.id);
   const keepDepartments = new Set<number>();
   const rows: Omit<MarketProductInput, "appId" | "vendorId">[] = [];
@@ -608,8 +635,8 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
           imageUrl: null,
           galleryAssetIds: null,
           photoError: null,
-          price: p.price,
-          wasPrice: p.wasPrice ?? null,
+          price: making.money(p.price),
+          wasPrice: p.wasPrice === undefined ? null : making.money(p.wasPrice),
           unit: p.unit ?? "item",
           step: p.step ?? 1,
           maxQuantity: null,
@@ -624,6 +651,7 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
   }
   for (const department of departments) if (!keepDepartments.has(department.id)) await store.deleteMarketDepartment(appId, market.id, department.id);
   await store.upsertMarketProducts(appId, market.id, rows, now);
+  if (making.sample) return;
   const skus = new Set(rows.map((r) => r.sku));
   for (const p of await allProducts(store, appId, market.id)) if (!p.sku || !skus.has(p.sku)) await store.deleteMarketProduct(appId, p.id);
 }
@@ -1006,4 +1034,17 @@ export async function refreshMarketplaceDemo(store: DataStore, app: Pick<App, "i
   await store.deleteMarketOrders(app.id, seeded.map((o) => o.id));
   await seedOrders(store, app, vendors, user, now);
   return deleted;
+}
+
+/**
+ * Templates = demos: Zad's three places, their menus and Zad Market's
+ * departments, aisles and products, as samples of an app started from Zad
+ * (lib/samples/demo.ts). Without the demo number, its orders, offers, club,
+ * wallet and the daily refresh.
+ */
+export async function marketplaceSamples(store: DataStore, app: Pick<App, "id">, now: Date, making: Omit<MarketMaking, "sample">): Promise<number> {
+  const vendors = await syncVendors(store, app, now, { ...making, sample: true });
+  const market = vendors.get("market");
+  if (market) await syncCatalog(store, app.id, market, now, { ...making, sample: true });
+  return vendors.size;
 }

@@ -8,7 +8,7 @@ import { getBlobStore } from "@/lib/blobs";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { isSampleList, LIST_PAGE, type SampleList } from "@/lib/samples/lists";
-import { removeSamples } from "@/lib/samples/remove";
+import { removeAllSamples, removeSamples } from "@/lib/samples/remove";
 import { seedSamples } from "@/lib/samples/seed";
 
 /** 110.2 Sample entries: removing a list's samples, and Studio's editor asking for them after a whole design. */
@@ -38,6 +38,18 @@ export async function removeSamplesAction(formData: FormData): Promise<void> {
   revalidatePath("/dashboard", "layout");
   revalidatePath("/studio", "layout");
   redirect(`${backTo(formData.get("back"), list)}?samplesRemoved=${list}.${removed}`);
+}
+
+/** Templates = demos: "Remove all sample data", every list's at once, back to the page the button was on. */
+export async function removeAllSamplesAction(formData: FormData): Promise<void> {
+  const context = await requireApp();
+  const blobs = getBlobStore();
+  const removed = await removeAllSamples({ store: await getStore(), deleteBlob: (key) => blobs.delete(key), now: new Date() }, context.app.id);
+  if (removed > 0) await recordStaffChange(context, `Removed all sample data (${removed} ${removed === 1 ? "entry" : "entries"})`);
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/studio", "layout");
+  const back = String(formData.get("back") ?? "");
+  redirect(`${back === "/studio/project" ? back : "/dashboard"}?samplesRemoved=all.${removed}`);
 }
 
 /** 108.7 Studio's editor took a whole design: the empty lists its pages show get samples. */

@@ -11,6 +11,7 @@ import { hasReviewSignIn } from "@/lib/publishing/review-account";
 import { deliveryOverview, studioProjectCard } from "@/lib/studio/projects";
 import { isStudioProject } from "@/lib/studio/section";
 import { Icon } from "@/components/icon";
+import { AllSamples } from "@/components/samples";
 import type { IconName } from "@/components/icon-names";
 import { Stat, StatRow } from "@/components/page-kit";
 import { Badge, ProgressBar, Section, btn } from "@/components/ui";
@@ -23,13 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export const dynamic = "force-dynamic";
 
 /** 103R.3 A Studio project's overview: the project, what's left before publishing, and its numbers. */
-export default async function StudioProjectPage() {
+export default async function StudioProjectPage({ searchParams }: PageProps<"/studio/project">) {
   const context = await requireClient();
   const { app, license } = context;
   if (!app || !isStudioProject(app)) redirect("/studio");
   const { t, k, lang } = await dashboardText();
   const store = await getStore();
   const now = new Date();
+  const query = await searchParams;
   const card = await studioProjectCard(store, app, license, await effectivePlans(store), now);
   const source =
     card.source.key === "platform"
@@ -85,6 +87,9 @@ export default async function StudioProjectPage() {
           </div>
         </div>
       </section>
+
+      {/* Templates = demos: the demo's entries a project started from it has, removed in one click. */}
+      <AllSamples app={app} back="/studio/project" removed={query.samplesRemoved} />
 
       <StatRow label={t("studio.numbersLabel")}>
         {stats.map((stat) => (

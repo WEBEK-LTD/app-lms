@@ -1,6 +1,6 @@
 import { addDays, utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
-import type { App, SchoolAssessmentKind, SchoolAttendanceStatus, SchoolPerson, SchoolSettings } from "../data/types";
+import type { App, SchoolAssessmentKind, SchoolAttendanceStatus, SchoolPerson, SchoolSample, SchoolSettings } from "../data/types";
 import { SAMPLE_SCHOOL_NEWS } from "../samples/content";
 import { markFeePaid } from "../school/fees";
 import { isoWeekday } from "../school/service";
@@ -235,38 +235,50 @@ export interface SchoolPeople {
   byName: Map<string, SchoolPerson>;
   classes: Map<string, number>;
   subjects: Map<string, number>;
+  /** As samples: what was added (lib/samples/demo.ts). */
+  made?: SchoolSample;
 }
 
 /**
  * The school's structure, matched by name so a refresh keeps its IDs: the
  * subjects, classes, teachers, students and the parent, the parent's
  * children and the timetable. People the demo no longer has are removed.
+ * Templates = demos: with `sample`, the same school is added to a school
+ * started from the demo, without the demo number and its accounts, nothing
+ * of the school's own changed, and what was added returned as `made`.
  */
-export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">, now: Date): Promise<SchoolPeople> {
+export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">, now: Date, options: { sample?: boolean } = {}): Promise<SchoolPeople> {
+  const sample = options.sample === true;
+  const made: SchoolSample = { classIds: [], subjectIds: [], personIds: [] };
   const subjects = new Map<string, number>();
   const savedSubjects = await store.listSchoolSubjects(app.id);
   for (const name of SCHOOL_SUBJECTS) {
     const found = savedSubjects.find((s) => s.name === name);
     if (found) subjects.set(name, found.id);
     else {
-      const made = await store.saveSchoolSubject({ appId: app.id, id: null, name }, now);
-      if (made.ok) subjects.set(name, made.subject.id);
+      const saved = await store.saveSchoolSubject({ appId: app.id, id: null, name }, now);
+      if (saved.ok) {
+        subjects.set(name, saved.subject.id);
+        made.subjectIds.push(saved.subject.id);
+      }
     }
   }
-  for (const s of savedSubjects) if (!SCHOOL_SUBJECTS.includes(s.name)) await store.deleteSchoolSubject(app.id, s.id);
+  if (!sample) for (const s of savedSubjects) if (!SCHOOL_SUBJECTS.includes(s.name)) await store.deleteSchoolSubject(app.id, s.id);
 
   const byName = new Map<string, SchoolPerson>();
   const people = await store.listSchoolPeople(app.id);
   const person = async (role: SchoolPerson["role"], name: string, fields: Partial<Pick<SchoolPerson, "phone" | "classId" | "code" | "jobTitle" | "department">>): Promise<SchoolPerson> => {
-    const input = { phone: fields.phone ?? null, email: null, classId: fields.classId ?? null, code: fields.code ?? null, photoAssetId: null, active: true, jobTitle: fields.jobTitle ?? null, department: fields.department ?? null };
-    const found = people.find((p) => p.role === role && p.name === name);
+    // Templates = demos: the school's people as samples have no phone, so nobody signs in as one.
+    const input = { phone: sample ? null : (fields.phone ?? null), email: null, classId: fields.classId ?? null, code: fields.code ?? null, photoAssetId: null, active: true, jobTitle: fields.jobTitle ?? null, department: fields.department ?? null };
+    const found = sample ? undefined : people.find((p) => p.role === role && p.name === name);
     if (found) {
       await store.updateSchoolPerson(app.id, found.id, { name, ...input }, now);
       return { ...found, ...input };
     }
-    const made = await store.createSchoolPerson({ appId: app.id, role, name, ...input }, now);
-    if (!made.ok) throw new Error(`Couldn't add ${name} to the demo school.`);
-    return made.person;
+    const saved = await store.createSchoolPerson({ appId: app.id, role, name, ...input }, now);
+    if (!saved.ok) throw new Error(`Couldn't add ${name} to the demo school.`);
+    made.personIds.push(saved.person.id);
+    return saved.person;
   };
   const key = (role: string, name: string) => `${role}:${name}`;
   for (const name of SCHOOL_TEACHERS) byName.set(key("teacher", name), await person("teacher", name, { phone: name === DEMO_TEACHER ? DEMO_SIGN_IN.e164 : null, ...JOBS[name] }));
@@ -275,11 +287,12 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
   const classes = new Map<string, number>();
   const savedClasses = await store.listSchoolClasses(app.id);
   for (const klass of SCHOOL_CLASSES) {
-    const found = savedClasses.find((c) => c.name === klass.name);
+    const found = sample ? undefined : savedClasses.find((c) => c.name === klass.name);
     const saved = await store.saveSchoolClass({ appId: app.id, id: found?.id ?? null, name: klass.name, grade: klass.grade, homeroomTeacherId: byName.get(key("teacher", klass.homeroom))!.id }, now);
     classes.set(klass.name, saved!.id);
+    if (!found) made.classIds.push(saved!.id);
   }
-  for (const c of savedClasses) if (!SCHOOL_CLASSES.some((k) => k.name === c.name)) await store.deleteSchoolClass(app.id, c.id);
+  if (!sample) for (const c of savedClasses) if (!SCHOOL_CLASSES.some((k) => k.name === c.name)) await store.deleteSchoolClass(app.id, c.id);
 
   let code = 1000;
   for (const klass of SCHOOL_CLASSES) {
@@ -294,6 +307,12 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
   const other = await person("parent", OTHER_PARENT.name, {});
   byName.set(key("parent", OTHER_PARENT.name), other);
   await store.setSchoolChildren(app.id, other.id, OTHER_PARENT.children.map((name) => byName.get(key("student", name))!.id));
+
+  if (sample) {
+    // No demo number, no accounts of the demo's, nothing of the owner's removed: only the timetable is added.
+    await timetable(store, app, classes, subjects, byName);
+    return { byName, classes, subjects, made };
+  }
 
   // The demo number's account is Lina, Rania and Ms. Mona; Ms. Nadia and Omar's father have accounts too, to write in the demo's conversations.
   const demoUser = (await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)) ?? (await store.createHostedUser({ appId: app.id, phone: DEMO_SIGN_IN.e164, name: DEMO_USER_NAME, email: null, city: null, now }));
@@ -316,13 +335,18 @@ export async function syncSchoolStructure(store: DataStore, app: Pick<App, "id">
 
   // The timetable, made again: nothing points at a lesson.
   for (const period of await store.listSchoolPeriods(app.id)) await store.deleteSchoolPeriod(app.id, period.id);
+  await timetable(store, app, classes, subjects, byName);
+  return { byName, classes, subjects };
+}
+
+/** The classes' weekly lessons. */
+async function timetable(store: DataStore, app: Pick<App, "id">, classes: Map<string, number>, subjects: Map<string, number>, byName: Map<string, SchoolPerson>): Promise<void> {
   for (const [index, klass] of SCHOOL_CLASSES.entries()) {
     for (const [weekday, lesson, subject, teacher, room] of classWeek(index)) {
       const [startMinute, endMinute] = SCHOOL_LESSONS[lesson]!;
-      await store.saveSchoolPeriod({ id: null, appId: app.id, classId: classes.get(klass.name)!, subjectId: subjects.get(subject)!, teacherId: byName.get(key("teacher", teacher))!.id, weekday, startMinute, endMinute, room });
+      await store.saveSchoolPeriod({ id: null, appId: app.id, classId: classes.get(klass.name)!, subjectId: subjects.get(subject)!, teacherId: byName.get(`teacher:${teacher}`)!.id, weekday, startMinute, endMinute, room });
     }
   }
-  return { byName, classes, subjects };
 }
 
 async function schoolPeopleOf(store: DataStore, appId: string): Promise<SchoolPeople> {

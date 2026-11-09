@@ -9,7 +9,7 @@ import type { ItemSource } from "../pages/types";
  * products, a salon's services, its team, …).
  */
 
-export const SAMPLE_LISTS = ["teachers", "courses", "products", "services", "staff", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school_news"] as const;
+export const SAMPLE_LISTS = ["teachers", "courses", "products", "services", "staff", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school", "school_news"] as const;
 export type SampleList = (typeof SAMPLE_LISTS)[number];
 
 export function isSampleList(value: unknown): value is SampleList {
@@ -28,7 +28,8 @@ const LISTS_OF_SOURCE: Partial<Record<ItemSource, SampleList[]>> = {
   delivery_services: ["delivery_services"],
   restaurants: ["restaurants"],
   vehicle_types: ["vehicle_types"],
-  school_news: ["school_news"],
+  // Templates = demos: a school started from the school demo gets its classes, subjects and people too (lib/samples/demo.ts).
+  school_news: ["school", "school_news"],
 };
 
 /** The dashboard page of each list, where its banner shows. */
@@ -45,6 +46,7 @@ export const LIST_PAGE: Record<SampleList, string> = {
   delivery_services: "/dashboard/delivery",
   restaurants: "/dashboard/restaurants",
   vehicle_types: "/dashboard/vehicle-types",
+  school: "/dashboard/school/people",
   school_news: "/dashboard/school/news",
 };
 
@@ -127,6 +129,13 @@ export async function countList(store: DataStore, app: App, list: SampleList): P
       return counted(await store.listRestaurants(app.id));
     case "vehicle_types":
       return counted(await store.listVehicleTypes(app.id));
+    case "school": {
+      // The sample school's people (its classes and subjects go with them).
+      const marked = new Set((await store.getSchoolSettings(app.id))?.sampleSchool?.personIds ?? []);
+      const people = await store.listSchoolPeople(app.id);
+      const samples = people.filter((p) => marked.has(p.id)).length;
+      return { samples, own: people.length - samples };
+    }
     case "school_news":
       return counted(await store.listSchoolAnnouncements(app.id));
   }
