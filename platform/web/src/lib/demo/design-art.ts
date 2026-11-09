@@ -458,7 +458,7 @@ const REUSED: PictureName[] = [
 
 const PEOPLE_FROM_DEMO = new Set<string>(["coach-selin", "coach-can", "coach-mira"]);
 
-/** The demos' welcome banners, wide like the demo's own (lib/demo/look.ts): the demo designs show the demo's pictures. */
+/** The demos' welcome banners, wide like the demo's own (lib/demo/look.ts): the demo designs show the demo's pictures. A Studio demo's home is its kind's designed page, with no banner made for it. */
 const BANNER_SIZE = { width: 640, height: 320 };
 const DEMO_BANNERS = [
   "banner-academy",
@@ -471,9 +471,6 @@ const DEMO_BANNERS = [
   "banner-news",
   "banner-events",
   "banner-charity",
-  "banner-taxi",
-  "banner-school",
-  "banner-teachers",
 ] as const satisfies readonly PictureName[];
 
 /** A demo banner's file in public/design-pictures; the three the transport designs already use keep their file. */

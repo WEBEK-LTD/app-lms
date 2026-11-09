@@ -1,5 +1,6 @@
-import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, getTableColumns, gt, gte, inArray, isNotNull, isNull, like, lt, lte, ne, not, or, sql, type SQL } from "drizzle-orm";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
+import type { AnyMySqlColumn, MySqlTable } from "drizzle-orm/mysql-core";
 import mysql from "mysql2/promise";
 import type { DatabaseConfig } from "../env";
 import { newId } from "../crypto/tokens";
@@ -85,6 +86,8 @@ import type {
   SetupRequestRow,
   SigningKeyColumn,
   SigningKeysPatch,
+  SchoolRowKind,
+  SchoolRows,
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
@@ -277,6 +280,25 @@ function errorCode(error: unknown): string | undefined {
   }
   return undefined;
 }
+
+/** The tables of DataStore.deleteSchoolRows. */
+const SCHOOL_ROW_TABLES = {
+  periods: schema.schoolPeriods,
+  homework: schema.schoolHomework,
+  assessments: schema.schoolAssessments,
+  announcements: schema.schoolAnnouncements,
+  fees: schema.schoolFees,
+  behaviour: schema.schoolBehaviour,
+  behaviourCategories: schema.schoolBehaviourCategories,
+  events: schema.schoolEvents,
+  exams: schema.schoolExams,
+  syllabusUnits: schema.schoolSyllabusUnits,
+  reports: schema.schoolReports,
+  reportTemplates: schema.schoolReportTemplates,
+  busRoutes: schema.schoolBusRoutes,
+  books: schema.schoolBooks,
+  slips: schema.schoolSlips,
+} satisfies Record<SchoolRowKind, unknown>;
 
 export class MysqlStore implements DataStore {
   private db: Db;
@@ -4017,6 +4039,14 @@ export class MysqlStore implements DataStore {
     const t = schema.schoolBusRiders;
     const people = new Set((await this.listSchoolPeople(appId, { ids: [...new Set(rows.map((r) => r.studentId))] })).map((p) => p.id));
     const stops = new Map((await this.listSchoolBusStops(appId)).map((x) => [x.id, x]));
+    if (rows.every((row) => row.stop)) {
+      // Everyone on a stop: in one query (a student's later row wins, as one by one).
+      const values = rows.flatMap((row) => {
+        const stop = stops.get(row.stop!.id);
+        return people.has(row.studentId) && stop ? [{ appId, studentId: row.studentId, trip: row.trip, routeId: stop.routeId, stopId: stop.id }] : [];
+      });
+      return this.insertRows(t, values, ["routeId", "stopId"]);
+    }
     await this.run((db) =>
       db.transaction(async (tx) => {
         for (const row of rows) {
@@ -4120,6 +4150,113 @@ export class MysqlStore implements DataStore {
         .values(mark)
         .onDuplicateKeyUpdate({ set: { status, boardedAt, offAt, markedBy, updatedAt } }),
     );
+  }
+
+  /**
+   * Rows a few hundred to a query, in this order; with `update`, a row whose
+   * key is there already has these columns saved over instead.
+   */
+  private async insertRows<T extends MySqlTable>(table: T, rows: T["$inferInsert"][], update?: (keyof T["$inferInsert"] & string)[]): Promise<void> {
+    const columns = table as unknown as Record<string, AnyMySqlColumn>;
+    const set = update ? Object.fromEntries(update.map((key) => [key, sql`values(${columns[key]})`])) : null;
+    for (let start = 0; start < rows.length; start += 200) {
+      const chunk = rows.slice(start, start + 200);
+      await this.run((db) => {
+        const insert = db.insert(table).values(chunk as never);
+        return set ? insert.onDuplicateKeyUpdate({ set: set as never }) : insert;
+      });
+    }
+  }
+
+  /** Of these IDs, the ones `table` has for the school (where `extra` holds). */
+  private async idsOfSchool(table: typeof schema.schoolPeople | typeof schema.schoolBusRuns | typeof schema.schoolSlips, appId: string, ids: number[], extra?: SQL): Promise<Set<number>> {
+    const wanted = [...new Set(ids)];
+    if (wanted.length === 0) return new Set();
+    const rows = await this.run((db) => db.select({ id: table.id }).from(table).where(and(eq(table.appId, appId), inArray(table.id, wanted), extra)));
+    return new Set(rows.map((r) => r.id));
+  }
+
+  async saveSchoolRows<K extends keyof SchoolRows>(kind: K, rows: SchoolRows[K][]): Promise<void> {
+    if (rows.length === 0) return;
+    // Only a person, a teacher or staff member, or a trip of the same school, as their own save checks.
+    const ofSchool = async <R extends { appId: string }>(list: R[], table: typeof schema.schoolPeople | typeof schema.schoolBusRuns | typeof schema.schoolSlips, idOf: (row: R) => number, extra?: SQL) => {
+      const kept: R[] = [];
+      for (const appId of new Set(list.map((r) => r.appId))) {
+        const mine = list.filter((r) => r.appId === appId);
+        const ids = await this.idsOfSchool(table, appId, mine.map(idOf), extra);
+        kept.push(...mine.filter((r) => ids.has(idOf(r))));
+      }
+      return list.filter((r) => kept.includes(r));
+    };
+    switch (kind) {
+      case "people":
+        return this.insertRows(schema.schoolPeople, rows as SchoolRows["people"][]);
+      case "periods":
+        return this.insertRows(schema.schoolPeriods, rows as SchoolRows["periods"][]);
+      case "homework":
+        return this.insertRows(schema.schoolHomework, rows as SchoolRows["homework"][]);
+      case "assessments":
+        return this.insertRows(schema.schoolAssessments, rows as SchoolRows["assessments"][]);
+      case "announcements":
+        return this.insertRows(schema.schoolAnnouncements, rows as SchoolRows["announcements"][]);
+      case "fees":
+        return this.insertRows(schema.schoolFees, rows as SchoolRows["fees"][]);
+      case "behaviourCategories":
+        return this.insertRows(schema.schoolBehaviourCategories, rows as SchoolRows["behaviourCategories"][]);
+      case "behaviour":
+        return this.insertRows(schema.schoolBehaviour, rows as SchoolRows["behaviour"][]);
+      case "events":
+        return this.insertRows(schema.schoolEvents, rows as SchoolRows["events"][]);
+      case "exams":
+        return this.insertRows(schema.schoolExams, rows as SchoolRows["exams"][]);
+      case "syllabusUnits":
+        return this.insertRows(schema.schoolSyllabusUnits, rows as SchoolRows["syllabusUnits"][]);
+      case "syllabusTopics":
+        return this.insertRows(schema.schoolSyllabusTopics, rows as SchoolRows["syllabusTopics"][]);
+      case "reports":
+        return this.insertRows(schema.schoolReports, rows as SchoolRows["reports"][]);
+      case "books":
+        return this.insertRows(schema.schoolBooks, rows as SchoolRows["books"][]);
+      case "bookCopies":
+        return this.insertRows(schema.schoolBookCopies, rows as SchoolRows["bookCopies"][]);
+      case "busStops":
+        return this.insertRows(schema.schoolBusStops, rows as SchoolRows["busStops"][]);
+      case "busRuns":
+        return this.insertRows(schema.schoolBusRuns, rows as SchoolRows["busRuns"][]);
+      case "submissions":
+        return this.insertRows(schema.schoolSubmissions, rows as SchoolRows["submissions"][], ["text", "file", "submittedAt", "late", "mark", "feedback", "markedAt"]);
+      case "scores":
+        return this.insertRows(schema.schoolScores, rows as SchoolRows["scores"][], ["score", "note", "updatedAt"]);
+      case "topicProgress":
+        return this.insertRows(schema.schoolTopicProgress, rows as SchoolRows["topicProgress"][], ["coveredOn", "note", "teacherId", "updatedAt"]);
+      case "checkins": {
+        const kept = await ofSchool(rows as SchoolRows["checkins"][], schema.schoolPeople, (r) => r.personId);
+        return this.insertRows(schema.schoolCheckins, kept, ["role", "inAt", "inMethod", "outAt", "outMethod", "late", "leftEarly", "mark", "corrections", "updatedAt"]);
+      }
+      case "salaries": {
+        const kept = await ofSchool(rows as SchoolRows["salaries"][], schema.schoolPeople, (r) => r.personId, inArray(schema.schoolPeople.role, ["teacher", "staff"]));
+        return this.insertRows(schema.schoolSalaries, kept, ["monthlyCents", "currency", "allowances", "note", "updatedBy", "updatedAt"]);
+      }
+      case "busMarks": {
+        const kept = await ofSchool(rows as SchoolRows["busMarks"][], schema.schoolBusRuns, (r) => r.runId);
+        return this.insertRows(schema.schoolBusMarks, kept, ["status", "boardedAt", "offAt", "markedBy", "updatedAt"]);
+      }
+      case "slipAnswers": {
+        const slips = await ofSchool(rows as SchoolRows["slipAnswers"][], schema.schoolSlips, (r) => r.slipId);
+        const kept = await ofSchool(slips, schema.schoolPeople, (r) => r.studentId);
+        return this.insertRows(schema.schoolSlipAnswers, kept, ["answer", "signedName", "parentId", "answeredAt"]);
+      }
+    }
+  }
+
+  async deleteSchoolRows(appId: string, kind: SchoolRowKind, ids: number[]): Promise<void> {
+    // What goes with each goes by the foreign keys, as with their own delete.
+    const t = SCHOOL_ROW_TABLES[kind];
+    const wanted = [...new Set(ids)];
+    for (let start = 0; start < wanted.length; start += 500) {
+      const chunk = wanted.slice(start, start + 500);
+      await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), inArray(t.id, chunk))));
+    }
   }
 
   // 113.11 The library
@@ -6817,40 +6954,42 @@ export class MysqlStore implements DataStore {
   }
 
   // 16 Demo apps
-  async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
+  async purgeDemoActivity(appId: string | readonly string[], before: Date): Promise<DemoPurgeCounts> {
     const s = schema;
-    // Each statement is limited to the one app; messages and refresh tokens cascade.
+    // Each statement is limited to these apps (all the demo apps at once: one query per table); messages and refresh tokens cascade.
+    const ids = typeof appId === "string" ? [appId] : [...new Set(appId)];
+    if (ids.length === 0) return { teacherFollows: 0, teacherReviews: 0, shipments: 0, foodOrders: 0, rides: 0, questions: 0, reviews: 0, donations: 0, orders: 0, appointments: 0, inquiries: 0, favorites: 0, enrollments: 0, progress: 0, devices: 0, notifications: 0, classBookings: 0, memberships: 0, tickets: 0 };
     // 28 Tickets first: a ticket of a deleted order goes with it.
-    const [tickets] = await this.run((db) => db.delete(s.eventTickets).where(and(eq(s.eventTickets.appId, appId), lt(s.eventTickets.createdAt, before))));
-    const [orders] = await this.run((db) => db.delete(s.catalogOrders).where(and(eq(s.catalogOrders.appId, appId), lt(s.catalogOrders.createdAt, before))));
+    const [tickets] = await this.run((db) => db.delete(s.eventTickets).where(and(inArray(s.eventTickets.appId, ids), lt(s.eventTickets.createdAt, before))));
+    const [orders] = await this.run((db) => db.delete(s.catalogOrders).where(and(inArray(s.catalogOrders.appId, ids), lt(s.catalogOrders.createdAt, before))));
     const [appointments] = await this.run((db) =>
-      db.delete(s.bookingAppointments).where(and(eq(s.bookingAppointments.appId, appId), lt(s.bookingAppointments.createdAt, before))),
+      db.delete(s.bookingAppointments).where(and(inArray(s.bookingAppointments.appId, ids), lt(s.bookingAppointments.createdAt, before))),
     );
     const [inquiries] = await this.run((db) =>
-      db.delete(s.listingInquiries).where(and(eq(s.listingInquiries.appId, appId), lt(s.listingInquiries.createdAt, before))),
+      db.delete(s.listingInquiries).where(and(inArray(s.listingInquiries.appId, ids), lt(s.listingInquiries.createdAt, before))),
     );
     const [favorites] = await this.run((db) =>
-      db.delete(s.listingFavorites).where(and(eq(s.listingFavorites.appId, appId), lt(s.listingFavorites.createdAt, before))),
+      db.delete(s.listingFavorites).where(and(inArray(s.listingFavorites.appId, ids), lt(s.listingFavorites.createdAt, before))),
     );
     const [enrollments] = await this.run((db) =>
-      db.delete(s.courseEnrollments).where(and(eq(s.courseEnrollments.appId, appId), lt(s.courseEnrollments.enrolledAt, before))),
+      db.delete(s.courseEnrollments).where(and(inArray(s.courseEnrollments.appId, ids), lt(s.courseEnrollments.enrolledAt, before))),
     );
     const [progress] = await this.run((db) =>
-      db.delete(s.lessonProgress).where(and(eq(s.lessonProgress.appId, appId), lt(s.lessonProgress.updatedAt, before))),
+      db.delete(s.lessonProgress).where(and(inArray(s.lessonProgress.appId, ids), lt(s.lessonProgress.updatedAt, before))),
     );
     // 90.1 Quiz attempts count with the progress.
-    const [attempts] = await this.run((db) => db.delete(s.quizAttempts).where(and(eq(s.quizAttempts.appId, appId), lt(s.quizAttempts.startedAt, before))));
+    const [attempts] = await this.run((db) => db.delete(s.quizAttempts).where(and(inArray(s.quizAttempts.appId, ids), lt(s.quizAttempts.startedAt, before))));
     const [notifications] = await this.run((db) =>
       db
         .delete(s.hostedNotifications)
-        .where(and(eq(s.hostedNotifications.appId, appId), isNotNull(s.hostedNotifications.userId), lt(s.hostedNotifications.createdAt, before))),
+        .where(and(inArray(s.hostedNotifications.appId, ids), isNotNull(s.hostedNotifications.userId), lt(s.hostedNotifications.createdAt, before))),
     );
     const [devices] = await this.run((db) =>
-      db.delete(s.hostedDevices).where(and(eq(s.hostedDevices.appId, appId), lt(s.hostedDevices.lastSeenAt, before))),
+      db.delete(s.hostedDevices).where(and(inArray(s.hostedDevices.appId, ids), lt(s.hostedDevices.lastSeenAt, before))),
     );
     // 27 Spots taken more than a day ago are freed (the classes count what's left); memberships bought then are gone.
     const [classBookings] = await this.run((db) =>
-      db.delete(s.classBookings).where(and(eq(s.classBookings.appId, appId), lt(s.classBookings.updatedAt, before))),
+      db.delete(s.classBookings).where(and(inArray(s.classBookings.appId, ids), lt(s.classBookings.updatedAt, before))),
     );
     if (classBookings.affectedRows > 0) {
       await this.run((db) =>
@@ -6859,21 +6998,21 @@ export class MysqlStore implements DataStore {
           .set({
             bookedCount: sql`(select count(*) from ${s.classBookings} where ${s.classBookings.sessionId} = ${s.classSessions.id} and ${s.classBookings.status} = 'booked')`,
           })
-          .where(eq(s.classSessions.appId, appId)),
+          .where(inArray(s.classSessions.appId, ids)),
       );
     }
-    const [memberships] = await this.run((db) => db.delete(s.memberships).where(and(eq(s.memberships.appId, appId), lt(s.memberships.createdAt, before))));
-    const [donations] = await this.run((db) => db.delete(s.donations).where(and(eq(s.donations.appId, appId), lt(s.donations.createdAt, before))));
+    const [memberships] = await this.run((db) => db.delete(s.memberships).where(and(inArray(s.memberships.appId, ids), lt(s.memberships.createdAt, before))));
+    const [donations] = await this.run((db) => db.delete(s.donations).where(and(inArray(s.donations.appId, ids), lt(s.donations.createdAt, before))));
     // 63 Visitors' questions (their answers cascade) and reviews of demo academies.
-    const [questions] = await this.run((db) => db.delete(s.courseQuestions).where(and(eq(s.courseQuestions.appId, appId), lt(s.courseQuestions.createdAt, before))));
-    const [reviews] = await this.run((db) => db.delete(s.courseReviews).where(and(eq(s.courseReviews.appId, appId), lt(s.courseReviews.createdAt, before))));
+    const [questions] = await this.run((db) => db.delete(s.courseQuestions).where(and(inArray(s.courseQuestions.appId, ids), lt(s.courseQuestions.createdAt, before))));
+    const [reviews] = await this.run((db) => db.delete(s.courseReviews).where(and(inArray(s.courseReviews.appId, ids), lt(s.courseReviews.createdAt, before))));
     // Studio's demos: what visitors sent, ordered and rode.
-    const [shipments] = await this.run((db) => db.delete(s.shipments).where(and(eq(s.shipments.appId, appId), lt(s.shipments.createdAt, before))));
-    const [foodOrders] = await this.run((db) => db.delete(s.foodOrders).where(and(eq(s.foodOrders.appId, appId), lt(s.foodOrders.createdAt, before))));
-    const [rides] = await this.run((db) => db.delete(s.rides).where(and(eq(s.rides.appId, appId), lt(s.rides.createdAt, before))));
+    const [shipments] = await this.run((db) => db.delete(s.shipments).where(and(inArray(s.shipments.appId, ids), lt(s.shipments.createdAt, before))));
+    const [foodOrders] = await this.run((db) => db.delete(s.foodOrders).where(and(inArray(s.foodOrders.appId, ids), lt(s.foodOrders.createdAt, before))));
+    const [rides] = await this.run((db) => db.delete(s.rides).where(and(inArray(s.rides.appId, ids), lt(s.rides.createdAt, before))));
     // 110.5 Teachers visitors followed and rated.
-    const [teacherFollows] = await this.run((db) => db.delete(s.teacherFollows).where(and(eq(s.teacherFollows.appId, appId), lt(s.teacherFollows.createdAt, before))));
-    const [teacherReviews] = await this.run((db) => db.delete(s.teacherReviews).where(and(eq(s.teacherReviews.appId, appId), lt(s.teacherReviews.createdAt, before))));
+    const [teacherFollows] = await this.run((db) => db.delete(s.teacherFollows).where(and(inArray(s.teacherFollows.appId, ids), lt(s.teacherFollows.createdAt, before))));
+    const [teacherReviews] = await this.run((db) => db.delete(s.teacherReviews).where(and(inArray(s.teacherReviews.appId, ids), lt(s.teacherReviews.createdAt, before))));
     return {
       teacherFollows: teacherFollows.affectedRows,
       teacherReviews: teacherReviews.affectedRows,

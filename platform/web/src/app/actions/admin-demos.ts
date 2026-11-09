@@ -13,14 +13,15 @@ import { suggestedVersion } from "@/lib/builds/view";
 import { getContact } from "@/lib/contact";
 import { getStore } from "@/lib/data";
 import { isDemoApp, isDownloadableBuild } from "@/lib/demo/apps";
-import { ALL_DEMO_TYPES, demoKind, isStudioDemo, type DemoId } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DemoSetupError, setupDemoApps } from "@/lib/demo/setup";
 import { appUrl, encryptionKey } from "@/lib/env";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 
 /**
- * Admin › Demo apps (roadmap 16): create or refresh the demo apps, start a
- * build of one, and choose which ready build /demo offers for download.
+ * Admin › Demo apps (roadmap 16): create or refresh the demo apps (one per
+ * request), start a build of one, and choose which ready build /demo offers
+ * for download.
  * Permission `demos.manage`; every change is in the audit log.
  */
 
@@ -34,48 +35,57 @@ function refresh(): void {
   revalidatePath("/demo/studio");
 }
 
-export async function setupDemosAction(formData: FormData): Promise<void> {
+/** What refreshing one demo app came to, for the page to show. */
+export type DemoRefreshOutcome = { ok: true; created: boolean } | { ok: false; error: string };
+
+/**
+ * Creates or refreshes one demo app. "Refresh all" on Admin › Demo apps
+ * asks for one demo per request, in order (app/admin/demos/refresh.tsx),
+ * so no request has to do them all; the page's own data is brought up to
+ * date once at the end (demosRefreshedAction). A demo that fails says why.
+ */
+export async function refreshDemoAction(type: string): Promise<DemoRefreshOutcome> {
   const admin = await requireAdmin("demos.manage");
-  const which = String(formData.get("type") ?? "all");
-  // All of them, the regular apps' (on /demo) or Studio's (on /demo/studio), or one.
-  const types =
-    which === "all"
-      ? ALL_DEMO_TYPES
-      : which === "regular" || which === "studio"
-        ? ALL_DEMO_TYPES.filter((type) => isStudioDemo(type) === (which === "studio"))
-        : (ALL_DEMO_TYPES as readonly string[]).includes(which)
-          ? [which as DemoId]
-          : null;
-  if (!types) redirect(back("error=unknown_type", formData));
-  const store = await getStore();
-  const contact = await getContact();
-  let result;
+  if (!(ALL_DEMO_TYPES as readonly string[]).includes(type)) return { ok: false, error: "That isn't one of the demo app types." };
   try {
-    result = await setupDemoApps({
-      store,
-      encryptionKey: encryptionKey(),
-      putBlob: (key, data, contentType) => getBlobStore().put(key, data, contentType),
-      assetUrl,
-      platformUrl: appUrl(),
-      contact: { whatsapp: contact.whatsappDisplay, email: contact.email },
-      actorEmail: admin.email,
-      now: new Date(),
-    }, types);
+    const store = await getStore();
+    const contact = await getContact();
+    const result = await setupDemoApps(
+      {
+        store,
+        encryptionKey: encryptionKey(),
+        putBlob: (key, data, contentType) => getBlobStore().put(key, data, contentType),
+        assetUrl,
+        platformUrl: appUrl(),
+        contact: { whatsapp: contact.whatsappDisplay, email: contact.email },
+        actorEmail: admin.email,
+        now: new Date(),
+      },
+      [type as DemoId],
+    );
+    clearPlatformSettingsCache();
+    const app = result.apps[0];
+    const name = `${demoKind(type as DemoId).name}${app?.created ? " (new)" : ""}`;
+    await recordAudit({
+      actor: admin,
+      action: "demo.setup",
+      target: { type: "client", id: result.clientId },
+      clientId: result.clientId,
+      summary: `${result.accountCreated ? "Created the demo account and" : "Refreshed"} the demo apps: ${name}`,
+    });
+    return { ok: true, created: app?.created ?? false };
   } catch (error) {
-    if (!(error instanceof DemoSetupError)) throw error;
-    console.error("[demo]", error.message);
-    redirect(back("error=setup", formData));
+    console.error(`[demo] ${type}:`, error);
+    if (error instanceof DemoSetupError) return { ok: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, error: `It stopped with an error: ${message.length > 300 ? `${message.slice(0, 300)}…` : message}` };
   }
-  const names = result.apps.map((a) => `${demoKind(a.type).name}${a.created ? " (new)" : ""}`).join(", ");
-  await recordAudit({
-    actor: admin,
-    action: "demo.setup",
-    target: { type: "client", id: result.clientId },
-    clientId: result.clientId,
-    summary: `${result.accountCreated ? "Created the demo account and" : "Refreshed"} the demo apps: ${names}`,
-  });
+}
+
+/** After the demos were refreshed: the demo pages and this page show what they are now. */
+export async function demosRefreshedAction(): Promise<void> {
+  await requireAdmin("demos.manage");
   refresh();
-  redirect(back(`done=${which}`, formData));
 }
 
 /** Starts a build of a demo app through the normal pipeline; 112.3 `variant` courier: a Studio demo's couriers' or drivers' app. */

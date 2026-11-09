@@ -9,7 +9,8 @@ import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { isSampleList, LIST_PAGE, type SampleList } from "@/lib/samples/lists";
 import { removeAllSamples, removeSamples } from "@/lib/samples/remove";
-import { seedSamples } from "@/lib/samples/seed";
+import { seedSamplesFor } from "@/lib/samples/demo";
+import type { SampleDeps } from "@/lib/samples/seed";
 
 /** 110.2 Sample entries: removing a list's samples, and Studio's editor asking for them after a whole design. */
 
@@ -52,12 +53,17 @@ export async function removeAllSamplesAction(formData: FormData): Promise<void> 
   redirect(`${back === "/studio/project" ? back : "/dashboard"}?samplesRemoved=all.${removed}`);
 }
 
-/** 108.7 Studio's editor took a whole design: the empty lists its pages show get samples. */
-export async function seedSamplesAction(sources: string[]): Promise<{ ok: boolean; lists: SampleList[] }> {
+/**
+ * 108.7 Studio's editor took a whole design: the empty lists its pages show
+ * get samples; (templates = demos) the demo's own entries when it is the
+ * project's kind's demo's design, as "Start from demo" brings them.
+ */
+export async function seedSamplesAction(sources: string[], demo: string | null = null): Promise<{ ok: boolean; lists: SampleList[] }> {
   const { app } = await requireApp();
   if (!Array.isArray(sources) || sources.some((s) => typeof s !== "string")) return { ok: false, lists: [] };
   const blobs = getBlobStore();
-  const lists = await seedSamples({ store: await getStore(), putBlob: (key, data, type) => blobs.put(key, data, type), now: new Date() }, app.id, { sources: sources.slice(0, 20) });
+  const deps: SampleDeps = { store: await getStore(), putBlob: (key, data, type) => blobs.put(key, data, type), now: new Date() };
+  const lists = await seedSamplesFor(deps, app, sources.slice(0, 20), demo);
   if (lists.length) revalidatePath("/dashboard", "layout");
   return { ok: true, lists };
 }

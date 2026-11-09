@@ -1,7 +1,7 @@
 import type { AppType, AppVertical } from "../data/types";
-import type { Action, ItemSource, StudioMarket, StudioNode, StudioPage } from "../pages/types";
+import type { Action, ItemSource, LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
-import { DEMO_TEMPLATES, studioDemoOf } from "./demo-templates";
+import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, marketHome, studioDemoOf, studioTextOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
@@ -152,7 +152,16 @@ export type SectionWord =
   | "mFastText"
   | "mGrocery"
   | "mFree"
-  | "mReorder";
+  | "mReorder"
+  | "mHungry"
+  | "mFastNear"
+  | "mFastNearText"
+  | "mMood"
+  | "mClubFree"
+  | "mClubFreeText"
+  | "mShops"
+  | "mShopsText"
+  | "mAll";
 
 export interface SectionContext {
   brand: string;
@@ -894,8 +903,32 @@ const SCHOOL_STEPS: SectionContext["steps"] = ["schoolStepOne", "schoolStepTwo",
 const STORE: Fits = { types: ["store"] };
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
+/**
+ * Templates = demos: a Studio demo's home, made from its kind's own designed
+ * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; Zad's the approved
+ * marketplace home), with its texts in Studio's other languages too. The
+ * demo app adds how to sign in after its first element (`afterFirst`).
+ */
+export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterFirst: readonly LayoutBlock[] = []): StudioPage {
+  const { ctx: words, translate } = translating(ctx);
+  const own = DEMO_HOME_TEMPLATES[id];
+  const page = own === "market_home" ? marketHome(words) : TEMPLATES.find((t) => t.id === own)!.make(words);
+  const notes = afterFirst.map((b) => studioTextOf(ctx, b)).filter((n): n is StudioNode => n !== null);
+  const [first, ...rest] = translate(page.body).children ?? [];
+  return { ...page, body: { ...page.body, children: first ? [first, ...notes, ...rest] : notes } };
+}
+
+/** Each Studio demo's home as a template, offered first and recommended for its kind. */
+const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as StudioDemoId[]).map((id) => ({
+  id: demoTemplateId(id),
+  icon: DEMO_ICONS[id],
+  demo: id,
+  recommended: true,
+  make: (ctx: SectionContext) => demoStudioPage(id, ctx),
+}));
+
 export const TEMPLATES: readonly TemplateInfo[] = [
-  // Templates = demos: each Studio demo's first page, offered first for its kind.
+  // Templates = demos: each Studio demo's home, offered first for its kind.
   ...DEMO_TEMPLATES,
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.

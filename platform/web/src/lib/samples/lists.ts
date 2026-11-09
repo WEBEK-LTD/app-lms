@@ -77,11 +77,16 @@ export function listsForSources(app: Pick<App, "appType" | "backend" | "connecto
   return sampleListsOf(app).filter((list) => SAMPLE_LISTS.includes(list) && Object.entries(LISTS_OF_SOURCE).some(([source, lists]) => used.has(source) && lists.includes(list)));
 }
 
-/** Every item source named in a layout, its pages' blocks and Studio pages alike (`source` anywhere in it). */
+/**
+ * Every item source named in a layout, its pages' blocks and Studio pages
+ * alike (`source` anywhere in it). 115.14 A marketplace's `market` element
+ * shows its places: the restaurants' list (Zad's places and Zad Market).
+ */
 export function sourcesIn(value: unknown, found = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
     for (const item of value) sourcesIn(item, found);
   } else if (value && typeof value === "object") {
+    if ((value as { type?: unknown }).type === "market") found.add("restaurants");
     for (const [key, item] of Object.entries(value)) {
       if (key === "source" && typeof item === "string") found.add(item);
       else sourcesIn(item, found);

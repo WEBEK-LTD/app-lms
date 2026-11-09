@@ -1,6 +1,6 @@
-import type { ITEMS_LAYOUTS, Languages, LayoutContent, LayoutPage, STUDIO_CATEGORY_STYLES, StudioHeaderType, StudioNode, StudioPage } from "../pages/types";
+import type { Appearance, ITEMS_LAYOUTS, Languages, LayoutContent, LayoutPage, LayoutTab, STUDIO_CATEGORY_STYLES, StudioHeaderType, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
-import { STUDIO_DEMO_HOMES } from "../demo/studio-homes";
+import { DEMO_BRANDS } from "../demo/content";
 import { demoTemplateId, studioDemoOf } from "./demo-templates";
 import { DESIGN_FILE_FORMAT, DESIGN_FILE_VERSION, type DesignFile } from "./design-file";
 import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "./sections";
@@ -14,8 +14,9 @@ import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "
  * project's own designs (saved or imported) are kept by the account
  * (lib/studio/own-designs.ts).
  *
- * Templates = demos: a kind with a Studio demo gets the demo first, as the
- * demo looks (its first page, its colour and font), marked recommended.
+ * Templates = demos: a kind with a Studio demo gets the demo first, marked
+ * recommended: the demo's own pages as the demo shows them, its colours,
+ * font, corners and cards, and its tabs, nothing added.
  */
 
 /** How a design lays its pages out: which of the kind's templates is its first page, and how its lists and categories show. */
@@ -36,7 +37,8 @@ export interface DesignTheme {
   background: string | null;
   /** A free font that draws Arabic, or the demo's. */
   font: string;
-  header: StudioHeaderType;
+  /** The pages' header; missing, each page's own (a demo's). */
+  header?: StudioHeaderType;
   /** How round the corners are, against the templates' own. */
   round: number;
   /** Left out: the templates as they are (a demo's). */
@@ -53,10 +55,19 @@ export const DESIGN_THEMES: readonly DesignTheme[] = [
   { id: "rose", accent: "#BE185D", background: "#FFF1F2", font: "Readex Pro", header: "logo_center", round: 1.3, layout: { home: 1, items: "grid", across: 2, categories: "circles" } },
 ];
 
-/** A Studio demo's look: its colour and font, its header, the templates' own corners and background. */
+/** A Studio demo's look: its colour and font, its pages' own header, corners and background. */
 export function demoTheme(demo: StudioDemoId): DesignTheme {
-  const home = STUDIO_DEMO_HOMES[demo];
-  return { id: "demo", accent: home.primaryColor, background: null, font: home.font, header: "logo_actions", round: 1 };
+  const brand = DEMO_BRANDS[demo];
+  return { id: "demo", accent: brand.primaryColor, background: null, font: brand.font, round: 1 };
+}
+
+/**
+ * What a Studio demo's whole design sets besides its pages, as the demo
+ * app has it (lib/demo/setup.ts demoLayout): its look and its tabs.
+ */
+export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[]): { appearance: Partial<Appearance>; tabs: LayoutTab[] } {
+  const brand = DEMO_BRANDS[demo];
+  return { appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor }, tabs: structuredClone([...tabs]) };
 }
 
 export interface WholeDesign {
@@ -87,7 +98,8 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
     .slice(0, 3)
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);
-  const first: WholeDesign[] = demo ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo), ...own.slice(0, 2), "contact"], demo }] : [];
+  // The demo's pages only: its home (the only page the demo has), nothing generated around it.
+  const first: WholeDesign[] = demo ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo }] : [];
   return [...first, ...DESIGN_THEMES.map((theme) => ({ id: `yallapp-${theme.id}`, theme, templates: pagesFor(own, theme.layout) }))];
 }
 
@@ -124,7 +136,7 @@ export function themedPage(page: StudioPage, theme: DesignTheme): StudioPage {
   return {
     ...page,
     ...(theme.background ? { background: theme.background } : {}),
-    ...(page.header ? { header: { ...page.header, type: theme.header } } : {}),
+    ...(page.header && theme.header ? { header: { ...page.header, type: theme.header } } : {}),
     body: theme.layout ? laidOut(body, theme.layout) : body,
   };
 }
@@ -142,7 +154,7 @@ export interface DesignWords {
 
 /** A whole design's name: its look's, or the demo's. */
 export function designName(design: WholeDesign, words: DesignWords): string {
-  return design.demo && words.demo ? words.demo(STUDIO_DEMO_HOMES[design.demo].appName) : words.theme(design.theme.id);
+  return design.demo && words.demo ? words.demo(DEMO_BRANDS[design.demo].appName) : words.theme(design.theme.id);
 }
 
 /** A whole design made for this project, as a design file (its pages with the project's name and lists). */
@@ -159,9 +171,10 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
     made_at: "",
     languages,
     pages,
-    look: { font: design.theme.font, secondary_color: design.theme.accent },
+    look: { font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent },
     pictures: {},
     fonts: [],
+    ...(design.demo ? { demo: design.demo } : {}),
   };
 }
 
@@ -209,6 +222,8 @@ export interface ApplyOptions {
   /** The project's texts and pictures go into the new design. */
   keep: boolean;
   now: string;
+  /** Templates = demos: a demo's whole design for the project also sets the demo's look and tabs (demoProjectLook). */
+  demo?: { appearance: Partial<Appearance>; tabs: LayoutTab[] };
 }
 
 /**
@@ -239,9 +254,16 @@ export function applyWholeDesign(current: LayoutContent, fitted: LayoutPage[], l
     return { ...p, studio: { ...studio, body: relink(studio.body, slugs) }, updated_at: opts.now };
   });
   const added = fitted.slice(studioPages.length).map((p) => ({ ...p, studio: { ...p.studio!, body: relink(p.studio!.body, slugs) } }));
+  const appearance = { ...current.appearance, ...(look?.font ? { font_family: look.font } : {}), ...(look?.secondary_color !== undefined ? { secondary_color: look.secondary_color } : {}) };
+  if (opts.demo) {
+    // The demo's look as the demo app has it: one of the app's own fonts, none to download.
+    Object.assign(appearance, opts.demo.appearance);
+    if (opts.demo.appearance.font) delete appearance.font_family;
+  }
   return {
     ...current,
     pages: [...pages, ...added],
-    appearance: { ...current.appearance, ...(look?.font ? { font_family: look.font } : {}), ...(look?.secondary_color !== undefined ? { secondary_color: look.secondary_color } : {}) },
+    appearance,
+    ...(opts.demo ? { tabs: structuredClone(opts.demo.tabs) } : {}),
   };
 }

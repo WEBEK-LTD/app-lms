@@ -20,6 +20,8 @@ import type {
   SetupRequestRow,
   SigningKeyColumn,
   SigningKeysPatch,
+  SchoolRowKind,
+  SchoolRows,
   UserPatch,
 } from "./store";
 import { BuildRunningError, DuplicateEmailError } from "./store";
@@ -3248,6 +3250,91 @@ export class MemoryStore implements DataStore {
     this.schoolBusMarks.set(`${mark.runId}:${mark.studentId}`, clone(mark));
   }
 
+  async saveSchoolRows<K extends keyof SchoolRows>(kind: K, rows: SchoolRows[K][]): Promise<void> {
+    // New rows: as their own create makes them, in this order.
+    const add = <T extends { id: number }>(map: Map<number, T>) => {
+      for (const row of rows) {
+        const made = { ...clone(row), id: this.nextSchoolId++ } as unknown as T;
+        map.set(made.id, made);
+      }
+    };
+    // Rows kept one per key: their own save, one by one.
+    const each = async <R,>(save: (row: R) => Promise<unknown>) => {
+      for (const row of rows as unknown as R[]) await save(row);
+    };
+    switch (kind) {
+      case "people":
+        return add(this.schoolPeople);
+      case "periods":
+        return add(this.schoolPeriods);
+      case "homework":
+        return add(this.schoolHomework);
+      case "assessments":
+        return add(this.schoolAssessments);
+      case "announcements":
+        return add(this.schoolAnnouncements);
+      case "fees":
+        return add(this.schoolFees);
+      case "behaviourCategories":
+        return add(this.schoolBehaviourCategories);
+      case "behaviour":
+        return add(this.schoolBehaviour);
+      case "events":
+        return add(this.schoolEvents);
+      case "exams":
+        return add(this.schoolExams);
+      case "syllabusUnits":
+        return add(this.schoolSyllabusUnits);
+      case "syllabusTopics":
+        return add(this.schoolSyllabusTopics);
+      case "reports":
+        return add(this.schoolReports);
+      case "books":
+        return add(this.schoolBooks);
+      case "bookCopies":
+        return add(this.schoolBookCopies);
+      case "busStops":
+        return add(this.schoolBusStops);
+      case "busRuns":
+        return add(this.schoolBusRuns);
+      case "submissions":
+        return each<SchoolRows["submissions"]>((row) => this.saveSchoolSubmission(row));
+      case "scores":
+        return each<SchoolRows["scores"]>((row) => this.saveSchoolScores(row.appId, row.assessmentId, [row], row.updatedAt));
+      case "topicProgress":
+        return each<SchoolRows["topicProgress"]>((row) => this.saveSchoolTopicProgress(row));
+      case "checkins":
+        return each<SchoolRows["checkins"]>((row) => this.saveSchoolCheckin(row));
+      case "salaries":
+        return each<SchoolRows["salaries"]>((row) => this.saveSchoolSalary(row));
+      case "busMarks":
+        return each<SchoolRows["busMarks"]>((row) => this.saveSchoolBusMark(row));
+      case "slipAnswers":
+        return each<SchoolRows["slipAnswers"]>((row) => this.saveSchoolSlipAnswer(row));
+    }
+  }
+
+  async deleteSchoolRows(appId: string, kind: SchoolRowKind, ids: number[]): Promise<void> {
+    const one: Record<SchoolRowKind, (id: number) => Promise<void>> = {
+      periods: (id) => this.deleteSchoolPeriod(appId, id),
+      homework: (id) => this.deleteSchoolHomework(appId, id),
+      assessments: (id) => this.deleteSchoolAssessment(appId, id),
+      announcements: (id) => this.deleteSchoolAnnouncement(appId, id),
+      fees: (id) => this.deleteSchoolFee(appId, id),
+      behaviour: (id) => this.deleteSchoolBehaviour(appId, id),
+      behaviourCategories: (id) => this.deleteSchoolBehaviourCategory(appId, id),
+      events: (id) => this.deleteSchoolEvent(appId, id),
+      exams: (id) => this.deleteSchoolExam(appId, id),
+      syllabusUnits: (id) => this.deleteSchoolSyllabusUnit(appId, id),
+      reports: (id) => this.deleteSchoolReport(appId, id),
+      reportTemplates: (id) => this.deleteSchoolReportTemplate(appId, id),
+      busRoutes: (id) => this.deleteSchoolBusRoute(appId, id),
+      books: (id) => this.deleteSchoolBook(appId, id),
+      slips: (id) => this.deleteSchoolSlip(appId, id),
+    };
+    for (const id of new Set(ids)) await one[kind](id);
+  }
+
   // 113.11 The library
 
   private schoolBooks = new Map<number, SchoolBook>();
@@ -5486,7 +5573,18 @@ export class MemoryStore implements DataStore {
   }
 
   // 16 Demo apps
-  async purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts> {
+  async purgeDemoActivity(appId: string | readonly string[], before: Date): Promise<DemoPurgeCounts> {
+    if (typeof appId === "string") return this.purgeOneDemo(appId, before);
+    // Each app's, added up (from nothing: no app has an empty ID).
+    const total = await this.purgeOneDemo("", new Date(0));
+    for (const id of new Set(appId)) {
+      const counts = await this.purgeOneDemo(id, before);
+      for (const key of Object.keys(total) as (keyof DemoPurgeCounts)[]) total[key] += counts[key];
+    }
+    return total;
+  }
+
+  private async purgeOneDemo(appId: string, before: Date): Promise<DemoPurgeCounts> {
     const old = (date: Date) => date.getTime() < before.getTime();
     const counts: DemoPurgeCounts = {
       orders: 0,

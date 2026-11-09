@@ -1,17 +1,20 @@
-import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
+import type { LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
-import { STUDIO_DEMO_HOMES, STUDIO_DEMO_WORDS } from "../demo/studio-homes";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
 import { newNodeId } from "./elements";
-import type { SectionContext, TemplateInfo } from "./sections";
+import type { SectionContext, SectionWord } from "./sections";
 
 /**
- * Templates = demos, for Yallapp Studio. Each Studio demo's first page as a
- * Studio template, the one shown first and recommended when a project of
- * its kind starts. The demo's own first page is this template made with
- * the demo's name (lib/demo/setup.ts), so the two are the same page; the
- * old templates stay after it. tests/unit/studio-demo-templates.test.ts
- * fails when they drift apart.
+ * Templates = demos, for Yallapp Studio. Each Studio demo is made from its
+ * kind's own designed page (lib/studio/sections.ts `demoStudioPage`), never
+ * from a page generated for it: Zad's home is the marketplace home approved
+ * in 115.14 (`marketHome`), the others their kind's first template (the
+ * delivery company's, the restaurants', the ride company's, the school's,
+ * the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
+ * project starts from and the "Like our demo" whole design
+ * (lib/studio/designs.ts) are that one page, so a client gets what the demo
+ * shows. tests/unit/studio-demo-templates.test.ts fails when they drift
+ * apart.
  */
 
 const pad = (v: number, h: number) => ({ top: v, end: h, bottom: v, start: h });
@@ -20,8 +23,55 @@ function idOf(ctx: SectionContext): string {
   return (ctx.newId ?? newNodeId)();
 }
 
-function text(ctx: SectionContext, value: string, extra: Partial<StudioNode> = {}): StudioNode {
-  return { id: idOf(ctx), type: "text", text: value, ...extra };
+/** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES); Zad's is the approved marketplace home. */
+export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string | "market_home"> = {
+  delivery: "delivery",
+  food: "food",
+  marketplace: "market_home",
+  rides: "ride",
+  taxi: "ride",
+  school: "school",
+  instructors: "teachers",
+};
+
+/**
+ * 115.14 The marketplace's home as it was approved (the market-home picture
+ * of mobile/test/screenshots/market_screenshots_test.dart, from
+ * mobile/test/support/market_fixtures.dart `homePage`): the address and
+ * search on top under "Hungry? Order in minutes.", the kinds, today's
+ * offers, the fastest places near you, the cuisines, the club, the
+ * supermarkets and shops, ordering again and every restaurant. Each a
+ * `market` element the app draws from the marketplace's data; the page
+ * draws its own top, so it has no header.
+ */
+export function marketHome(ctx: SectionContext): StudioPage {
+  const market = (section: StudioMarket, title: SectionWord | null, words: SectionWord | null = null, top = 26): StudioNode => ({
+    id: idOf(ctx),
+    type: "market",
+    market: section,
+    ...(title ? { title: ctx.w(title) } : {}),
+    ...(words ? { text: ctx.w(words) } : {}),
+    margin: { top, end: 0, bottom: 0, start: 0 },
+  });
+  return {
+    background: "#F6F3EE",
+    dark_background: "#0F0E1A",
+    body: {
+      id: idOf(ctx),
+      type: "column",
+      children: [
+        market({ section: "address" }, "mHungry", null, 0),
+        market({ section: "kinds" }, null, null, 14),
+        market({ section: "offers" }, "mOffers"),
+        market({ section: "vendors", style: "spotlight", kind: "restaurant", sort: "fastest", limit: 6 }, "mFastNear", "mFastNearText"),
+        market({ section: "cuisines" }, "mMood"),
+        market({ section: "club" }, "mClubFree", "mClubFreeText"),
+        market({ section: "vendors", style: "tiles", kind: "grocery", limit: 6 }, "mShops", "mShopsText"),
+        market({ section: "reorder" }, "mReorder"),
+        market({ section: "vendors", style: "list", kind: "restaurant" }, "mAll"),
+      ],
+    },
+  };
 }
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
@@ -68,109 +118,65 @@ export function paragraphsOf(html: string): { heading: boolean; text: string }[]
   return out;
 }
 
-/** A picture of Yallapp's (`picture:<file>`) at the platform's address; another address as it is. */
-function pictureOf(ctx: SectionContext, address: string | null | undefined): string | null {
-  if (!address) return null;
-  return address.startsWith("picture:") ? (ctx.picture?.(address.slice("picture:".length)) ?? null) : address;
+/** A text block (the demo's note on how to sign in) as a Studio element, shown to the same people. */
+export function studioTextOf(ctx: SectionContext, block: LayoutBlock): StudioNode | null {
+  if (block.type !== "text") return null;
+  const children = paragraphsOf(block.html ?? "").map(
+    (part): StudioNode => ({ id: idOf(ctx), type: "text", text: part.text, font: part.heading ? { size: 20, weight: 800, line_height: 1.25 } : { size: 15, line_height: 1.5 } }),
+  );
+  if (!children.length) return null;
+  return { id: idOf(ctx), type: "column", gap: 6, padding: pad(8, 16), margin: pad(4, 0), visibility: block.visibility, children };
 }
 
-/** A heading's words: "Welcome to {app}" in the language being edited, any other with the app's name. */
-function heading(ctx: SectionContext, words: string): string {
-  return words === "Welcome to {app}" ? ctx.w("heroTitle") : words.replaceAll("{app}", ctx.app ?? "");
-}
-
-/** A list's title, with "See all" opening the rest when the block had it. */
-function titled(ctx: SectionContext, block: LayoutBlock, body: StudioNode): StudioNode {
-  const title = block.title ? text(ctx, block.title, { font: { size: 18, weight: 800 } }) : null;
-  const more: StudioNode | null =
-    block.see_all && title
-      ? { id: idOf(ctx), type: "button", text: ctx.w("seeAll"), width: "hug", height: 32, radius: 10, padding: pad(0, 10), background: "#FFFFFF", color: ctx.brand, font: { size: 13, weight: 700 }, action: block.see_all }
-      : null;
-  const top: StudioNode[] = title ? [more ? { id: idOf(ctx), type: "row", align: "between", cross: "center", gap: 8, children: [title, more] } : title] : [];
-  return { id: idOf(ctx), type: "column", ...(block.title ? { name: block.title } : {}), gap: 10, padding: pad(8, 12), visibility: block.visibility, children: [...top, body] };
-}
+type DemoLang = "en" | "ar" | "tr";
+const DEMO_LANGS: readonly DemoLang[] = ["en", "ar", "tr"];
+const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
 
 /**
- * One block of a regular page as Studio elements, drawn like the block: a
- * banner as a picture with its words at the bottom, a text as its heading
- * and paragraphs, a list with its title. A block Studio has no element for
- * (the courses being followed) is left out.
+ * A context that remembers the words it wrote, and the page those words
+ * made with the other languages as translations: the template is made in
+ * the dashboard's language (`ctx.lang`) and keeps Studio's own English,
+ * Arabic and Turkish for its texts, so the demo shows in each of its
+ * languages and so does a project started from it.
  */
-export function studioNodeOf(ctx: SectionContext, block: LayoutBlock): StudioNode | null {
-  switch (block.type) {
-    case "banner": {
-      const url = pictureOf(ctx, block.image_url);
-      return {
-        id: idOf(ctx),
-        type: "column",
-        name: block.heading ?? null,
-        min_height: 190,
-        align: "end",
-        gap: 6,
-        padding: pad(18, 18),
-        margin: pad(12, 12),
-        radius: 18,
-        background: ctx.brand,
-        ...(url ? { image_background_url: url, overlay: { color: "#000000", opacity: 0.35 } } : {}),
-        color: "#FFFFFF",
-        visibility: block.visibility,
-        children: [
-          ...(block.heading ? [text(ctx, block.heading, { font: { size: 24, weight: 800, line_height: 1.2 } })] : []),
-          ...(block.subheading ? [text(ctx, block.subheading, { font: { size: 14 }, opacity: 0.9 })] : []),
-        ],
-      };
-    }
-    case "text": {
-      const children = paragraphsOf(block.html ?? "").map((part) =>
-        part.heading ? text(ctx, heading(ctx, part.text), { font: { size: 20, weight: 800, line_height: 1.25 } }) : text(ctx, part.text, { font: { size: 15, line_height: 1.5 } }),
-      );
-      if (!children.length) return null;
-      return { id: idOf(ctx), type: "column", gap: 6, padding: pad(8, 16), visibility: block.visibility, children };
-    }
-    case "search":
-      return { id: idOf(ctx), type: "search", text: block.placeholder ?? "", radius: 12, margin: pad(8, 12), background: "#FFFFFF", dark_background: "#22203A", visibility: block.visibility };
-    case "items":
-      return titled(ctx, block, {
-        id: idOf(ctx),
-        type: "items",
-        source: block.source ?? ctx.source ?? undefined,
-        layout: block.layout ?? "list",
-        ...(block.layout === "grid" ? { columns: 2 } : {}),
-        gap: 10,
-        query: structuredClone(block.query ?? { category_id: null, featured: false, sort: "newest", limit: 10, ids: [] }),
-      });
-    case "categories":
-      return titled(ctx, block, { id: idOf(ctx), type: "categories", source: block.source ?? ctx.source ?? undefined, style: block.style === "tiles" ? "tiles" : "chips" });
-    default:
-      return null;
-  }
-}
-
-/** A regular page's blocks as a Studio page. */
-export function studioPageOf(ctx: SectionContext, blocks: readonly LayoutBlock[], header: StudioPage["header"]): StudioPage {
-  return {
-    header,
-    body: { id: idOf(ctx), type: "column", gap: 4, padding: { bottom: 16 }, children: blocks.map((b) => studioNodeOf(ctx, b)).filter((n): n is StudioNode => n !== null) },
+export function translating(ctx: SectionContext): { ctx: SectionContext; translate: (body: StudioNode) => StudioNode } {
+  const written = new Map<string, SectionWord>();
+  const w = (word: SectionWord) => {
+    const value = ctx.w(word);
+    written.set(value, word);
+    return value;
   };
+  const lang: DemoLang = ctx.lang ?? "en";
+  const others = DEMO_LANGS.filter((l) => l !== lang);
+  const all = (value: string | null | undefined): Record<string, string> | null => {
+    const word = value ? written.get(value) : undefined;
+    if (!word) return null;
+    const out: Record<string, string> = {};
+    for (const l of others) {
+      const text = String(STUDIO_WORDS[l][`w_${word}`]);
+      // A word with the app's name in it needs the name.
+      if (text.includes("{app}") && !ctx.app) return null;
+      out[l] = text.replaceAll("{app}", ctx.app ?? "");
+    }
+    return out;
+  };
+  const translate = (node: StudioNode): StudioNode => {
+    const out: StudioNode = { ...node };
+    const texts = all(node.text);
+    const titles = node.type === "market" ? all(node.title) : null;
+    if (texts || titles) {
+      const translations: Record<string, Record<string, string>> = {};
+      for (const l of others) translations[l] = { ...(texts ? { text: texts[l]! } : {}), ...(titles ? { title: titles[l]! } : {}) };
+      out.translations = translations as StudioNode["translations"];
+    }
+    if (node.children) out.children = node.children.map(translate);
+    if (node.card) out.card = translate(node.card);
+    return out;
+  };
+  return { ctx: { ...ctx, w }, translate };
 }
 
-/** The demo's first page as blocks: its banner, "Welcome to {app}" and its sentence, then its lists. */
-export function studioDemoBlocks(id: StudioDemoId): LayoutBlock[] {
-  const home = STUDIO_DEMO_HOMES[id];
-  return [
-    { id: "demo-banner", type: "banner", visibility: "everyone", title: null, image_url: `picture:${home.file}`, heading: home.heading, subheading: home.subheading, action: null },
-    { id: "welcome", type: "text", visibility: "everyone", title: null, html: `<h2>Welcome to {app}</h2><p>${escapeHtml(home.welcome)}</p>` },
-    ...home.lists,
-  ];
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
-}
-
-const DEMO_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "account"] };
-
-const DEMO_ICONS: Record<StudioDemoId, string> = {
+export const DEMO_ICONS: Record<StudioDemoId, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
   marketplace: "storefront",
@@ -184,54 +190,6 @@ const DEMO_ICONS: Record<StudioDemoId, string> = {
 export function demoTemplateId(id: StudioDemoId): string {
   return `demo_${id}`;
 }
-
-/** The demo's first page in Studio; the demo itself adds how to sign in to it after the banner (`afterBanner`). */
-export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterBanner: readonly LayoutBlock[] = []): StudioPage {
-  const [banner, ...rest] = studioDemoBlocks(id);
-  const page = studioPageOf(ctx, [banner!, ...afterBanner, ...rest], DEMO_HEADER);
-  return { ...page, body: localised(id, ctx, page.body) };
-}
-
-type DemoLang = "en" | "ar" | "tr";
-const DEMO_LANGS: readonly DemoLang[] = ["en", "ar", "tr"];
-const STUDIO_WORDS = { en: studioEn, ar: studioAr, tr: studioTr };
-
-/**
- * The demo's texts in the language the template is made in (the
- * dashboard's), with English, Arabic and Turkish as translations: its
- * banner, its sentence, its lists' titles, the welcome and "See all".
- */
-function localised(id: StudioDemoId, ctx: SectionContext, body: StudioNode): StudioNode {
-  const lang: DemoLang = ctx.lang ?? "en";
-  const words = STUDIO_DEMO_WORDS[id];
-  const demo = (en: string): Record<DemoLang, string> | null => (words.ar[en] && words.tr[en] ? { en, ar: words.ar[en], tr: words.tr[en] } : null);
-  const own = (key: "w_heroTitle" | "w_seeAll"): Record<DemoLang, string> => Object.fromEntries(DEMO_LANGS.map((l) => [l, String(STUDIO_WORDS[l][key]).replaceAll("{app}", ctx.app ?? "")])) as Record<DemoLang, string>;
-  const welcome = ctx.w("heroTitle");
-  const seeAll = ctx.w("seeAll");
-  const walk = (node: StudioNode): StudioNode => {
-    const out: StudioNode = { ...node };
-    if ((node.type === "text" || node.type === "button" || node.type === "search") && node.text) {
-      const all = demo(node.text) ?? (node.text === welcome ? own("w_heroTitle") : node.text === seeAll ? own("w_seeAll") : null);
-      if (all) {
-        out.text = all[lang];
-        out.translations = Object.fromEntries(DEMO_LANGS.filter((l) => l !== lang).map((l) => [l, { text: all[l] }])) as StudioNode["translations"];
-      }
-    }
-    if (node.name) out.name = demo(node.name)?.[lang] ?? node.name;
-    if (node.children) out.children = node.children.map(walk);
-    return out;
-  };
-  return walk(body);
-}
-
-/** Each Studio demo's first page as a template. */
-export const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as StudioDemoId[]).map((id) => ({
-  id: demoTemplateId(id),
-  icon: DEMO_ICONS[id],
-  demo: id,
-  recommended: true,
-  make: (ctx: SectionContext) => demoStudioPage(id, ctx),
-}));
 
 const DEMO_VERTICALS: readonly string[] = ["taxi", "instructors", "marketplace"];
 const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school"];
