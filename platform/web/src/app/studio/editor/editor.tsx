@@ -14,7 +14,7 @@ import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
 import { moreLabel } from "@/lib/pages/tab-bar";
-import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
+import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
@@ -24,7 +24,7 @@ import { findNode } from "@/lib/studio/tree";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
-import { applyWholeDesign, designName, designsFor, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, demoProjectLook, designName, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
@@ -75,6 +75,8 @@ export interface StudioEditorProps {
   studioOnPlan: boolean;
   /** 103R.7 The project's type: its own templates and sections come first. */
   kind: ProjectKind;
+  /** Templates = demos: the tabs of the kind's Studio demo, set with its whole design; null without a demo. */
+  demoTabs: LayoutTab[] | null;
   /** 108.2 The project's own fonts, with their files (exported with a design). */
   ownFonts: OwnFontFiles[];
   /** 108.7 The account's own whole designs, and the project type's name for the designs window. */
@@ -168,6 +170,7 @@ export function StudioEditor(props: StudioEditorProps) {
     brand: app.brand,
     source,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
+    app: app.name,
     lang: dashLang,
     // 112.4 Yallapp's pictures, and the products a look's spots open.
     picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
@@ -839,10 +842,12 @@ export function StudioEditor(props: StudioEditorProps) {
     const pictures = new Map<string, string>();
     for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
-    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString() });
+    // Templates = demos: the demo's whole design is the demo, its look and tabs too.
+    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs) : undefined;
+    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo });
     change(() => next);
-    // 110.2 The empty lists the design's pages show get sample entries.
-    if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)]).catch(() => null);
+    // 110.2 The empty lists the design's pages show get sample entries; a demo's design, the demo's own (as "Start from demo" does).
+    if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)], file.demo ?? null).catch(() => null);
     if (mode === "project" && !current.pages.some((p) => p.slug === slug && p.studio)) setSlug(next.pages.find((p) => p.studio)?.slug ?? slug);
     setSelectedId(null);
     setDesignsOpen(false);

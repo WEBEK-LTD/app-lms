@@ -11,12 +11,12 @@ import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoDesign } from "@/lib/demo/look";
 import { appUrl } from "@/lib/env";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { defaultLayout } from "@/lib/pages/defaults";
-import { appDefaults, designLayout, saveDraft } from "@/lib/pages/layout";
+import { appDefaults, saveDraft } from "@/lib/pages/layout";
+import { startLayout } from "@/lib/studio/start";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
@@ -93,8 +93,7 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   const { t, lang } = await dashboardText();
   const ready = defaultLayout(app, await appDefaults(store), now);
   // The demo's pages and look; its home is the demo's Studio page.
-  const layout = demo ? designLayout(app, demoDesign(demo), ready, now) : ready;
-  const home = template.make({
+  const layout = startLayout(app, template, ready, now, {
     brand: app.primaryColor,
     source: itemSourcesFor(app)[0] ?? null,
     app: name,
@@ -103,10 +102,7 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
   });
-  const pages = layout.pages.some((p) => p.slug === "home")
-    ? layout.pages.map((p) => (p.slug === "home" ? { ...p, blocks: [], studio: home } : p))
-    : [{ slug: "home", title: "Home", show_title: false, updated_at: now.toISOString(), blocks: [], studio: home }, ...layout.pages];
-  const saved = await saveDraft(store, app, { ...layout, pages }, now);
+  const saved = await saveDraft(store, app, layout, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
   // 110.2 Content kept in Yallapp: the empty lists its pages show get sample entries, a demo's own when it starts from the demo.

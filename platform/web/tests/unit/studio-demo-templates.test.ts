@@ -1,57 +1,97 @@
-import { existsSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
+import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
 import { demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { DEMO_BANNER_ART } from "@/lib/demo/design-art";
-import { demoDesign, demoStudioContext } from "@/lib/demo/look";
+import { demoStudioContext } from "@/lib/demo/look";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
-import { STUDIO_DEMO_HOMES, STUDIO_DEMO_WORDS, studioDemoTexts } from "@/lib/demo/studio-homes";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
-import { BUILT_IN_APP_DEFAULTS } from "@/lib/pages/defaults";
-import { designLayout } from "@/lib/pages/layout";
+import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { layoutForPlan } from "@/lib/pages/plan";
 import { PLAN_INFO } from "@/lib/plans";
-import { itemSourcesFor } from "@/lib/pages/sources";
-import type { LayoutBlock, StudioNode, StudioPage } from "@/lib/pages/types";
+import { itemSourcesFor, screenOptionsFor, categorySourcesFor } from "@/lib/pages/sources";
+import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
-import { DEMO_TEMPLATES, demoStudioPage, demoTemplateId, paragraphsOf, studioDemoBlocks, studioDemoOf } from "@/lib/studio/demo-templates";
-import { TEMPLATES, templatesFor, type SectionWord } from "@/lib/studio/sections";
+import { sourcesIn } from "@/lib/samples/lists";
+import { designPages } from "@/lib/studio/design-file";
+import { DEMO_HOME_TEMPLATES, demoTemplateId, marketHome, paragraphsOf, studioDemoOf } from "@/lib/studio/demo-templates";
+import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
+import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
+import { startLayout } from "@/lib/studio/start";
 import { allNodes } from "@/lib/studio/tree";
 
 /**
- * Templates = demos, for Yallapp Studio: each Studio demo's home is its
- * kind's first template, made with the demo's name. These fail when the
- * demo and the template a project starts from drift apart.
+ * Templates = demos, for Yallapp Studio. A Studio demo is its kind's own
+ * designed page (Zad's the marketplace home approved in 115.14), never a
+ * page generated for it, and the template a project starts from and the
+ * "Like our demo" whole design are the whole demo: its pages, tabs and look.
+ * These fail the moment the demo and either drift apart (ids, the demo's
+ * note on how to sign in and its accounts aside).
  */
 
 const NOW = new Date("2026-11-09T10:00:00Z");
+const LANGS = { default: "en" as const, available: ["en" as const, "ar" as const, "tr" as const] };
 
 function demoApp(id: StudioDemoId): App {
   const kind = demoKind(id);
   return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW };
 }
 
-const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });
-
-/** A Studio page without its elements' ids, which differ each time a template is made. */
-function withoutIds(page: StudioPage): unknown {
-  const strip = (n: StudioNode): unknown => {
-    const { id: _id, children, card, ...rest } = n;
-    void _id;
-    return { ...rest, ...(children ? { children: children.map(strip) } : {}), ...(card ? { card: strip(card) } : {}) };
-  };
-  return { ...page, body: strip(page.body) };
+/** A client's new Studio project of the demo's kind, named as the demo so the two can be compared. */
+function projectApp(id: StudioDemoId): App {
+  const kind = demoKind(id);
+  return { ...newApp("client", null, NOW, kind.engine, kind.vertical), section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor };
 }
 
-const texts = (page: StudioPage) => allNodes(page).flatMap((n) => (n.text ? [n.text] : []));
+const kindOf = (id: StudioDemoId) => ({ type: demoKind(id).engine, vertical: demoKind(id).vertical });
+
+/** The dashboard's words in English, as a project made in English gets them (createStudioProjectAction). */
+function englishContext(app: App): SectionContext {
+  return { brand: app.primaryColor, source: itemSourcesFor(app)[0] ?? null, app: app.appName!, lang: "en", w: (word: SectionWord) => String(studioEn[`w_${word}`]).replaceAll("{app}", app.appName!), picture: (f) => `${appUrl()}/design-pictures/${f}` };
+}
+
+/** A Studio element without its id, which differs each time a page is made. */
+function stripNode(n: StudioNode): unknown {
+  const { id: _id, children, card, ...rest } = n;
+  void _id;
+  return { ...rest, ...(children ? { children: children.map(stripNode) } : {}), ...(card ? { card: stripNode(card) } : {}) };
+}
+
+const withoutIds = (page: StudioPage): unknown => ({ ...page, body: stripNode(page.body) });
+
+/** A Studio page without the demo's note on how to sign in. */
+function withoutNote(page: StudioPage): StudioPage {
+  return { ...page, body: { ...page.body, children: (page.body.children ?? []).filter((n) => n.visibility !== "signed_out") } };
+}
+
+/** A page without its translations, to compare with a template made in one language. */
+function untranslated(node: StudioNode): StudioNode {
+  const { translations: _t, children, ...rest } = node;
+  void _t;
+  return { ...rest, ...(children ? { children: children.map(untranslated) } : {}) } as StudioNode;
+}
+
+/** What a client gets: pages (their Studio pages without ids and the demo's note), tabs, menu and look. */
+function whole(layout: Pick<LayoutContent, "pages" | "tabs" | "menu" | "appearance">) {
+  return {
+    pages: layout.pages.map((p: LayoutPage) => ({ slug: p.slug, title: p.title, show_title: p.show_title, blocks: p.blocks, studio: p.studio ? withoutIds(withoutNote(p.studio)) : null })),
+    tabs: layout.tabs,
+    menu: layout.menu ?? [],
+    look: { template: layout.appearance.template, font: layout.appearance.font, font_family: layout.appearance.font_family ?? null, corners: layout.appearance.corners, cards: layout.appearance.cards, secondary_color: layout.appearance.secondary_color },
+  };
+}
+
+const demoOf = async (id: StudioDemoId) => demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
+
+const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
 describe("Studio templates = Studio demos", () => {
   it("has a template for every Studio demo, and none for another kind", () => {
-    expect(DEMO_TEMPLATES.map((t) => t.demo).sort()).toEqual([...STUDIO_DEMO_TYPES].sort());
+    expect(TEMPLATES.filter((t) => t.demo).map((t) => t.demo).sort()).toEqual([...STUDIO_DEMO_TYPES].sort());
     for (const id of STUDIO_DEMO_TYPES) expect(studioDemoOf(kindOf(id))).toBe(id);
     for (const kind of KINDS) {
       const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
@@ -62,80 +102,84 @@ describe("Studio templates = Studio demos", () => {
   it.each(STUDIO_DEMO_TYPES)("offers the %s demo's template first, recommended, and keeps every template it had", (id) => {
     const list = templatesFor(kindOf(id));
     expect(list[0]).toMatchObject({ id: demoTemplateId(id), demo: id, recommended: true });
-    // Only its own demo.
     expect(list.filter((t) => t.demo).map((t) => t.id)).toEqual([demoTemplateId(id)]);
-    // The templates it had before, in their order, after it.
+    // The templates it had before, in their order, after it: none removed.
     const others = TEMPLATES.filter((t) => !t.demo);
     const own = others.filter((t) => t.fits && (!t.fits.types || t.fits.types.includes(kindOf(id).type)) && (!t.fits.verticals || (kindOf(id).vertical !== null && t.fits.verticals.includes(kindOf(id).vertical!))));
     const best = own.some((t) => t.fits?.verticals) ? own.filter((t) => t.fits?.verticals) : own;
     expect(list.slice(1).map((t) => t.id)).toEqual([...best, ...others.filter((t) => !t.fits)].map((t) => t.id));
+    for (const old of ["market", "market_offers", "market_grocery", "delivery", "food", "ride", "teachers", "school", "university", "brand", "contact", "blank"]) expect(TEMPLATES.some((t) => t.id === old), old).toBe(true);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s demo's home is its template, with only how to sign in added", async (id) => {
-    const app = demoApp(id);
-    const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset");
+  it.each(STUDIO_DEMO_TYPES)("the %s demo's home is its kind's designed page, with only how to sign in added", async (id) => {
+    const layout = await demoOf(id);
     const home = layout.pages[0]!;
-    expect(home.studio).toBeTruthy();
     expect(home.blocks).toEqual([]);
-    expect(home.studio).toEqual(demoStudioPage(id, demoStudioContext(id, appUrl()), [demoSignInBlock()]));
-    // Without the sign-in note it's exactly the template an owner starts from.
-    const template = DEMO_TEMPLATES.find((t) => t.demo === id)!;
-    const made = template.make(demoStudioContext(id, appUrl()));
-    const children = home.studio!.body.children!;
-    const withoutNote = { ...home.studio!, body: { ...home.studio!.body, children: children.filter((n) => n.visibility !== "signed_out") } };
-    expect(withoutIds(withoutNote)).toEqual(withoutIds(made));
-  });
-
-  it.each(STUDIO_DEMO_TYPES)("the %s demo's Studio home says and lists what its blocks do", async (id) => {
-    const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
-    const home = layout.pages[0]!;
-    const words = texts(home.studio!);
-    const home0 = STUDIO_DEMO_HOMES[id];
-    expect(words).toEqual(expect.arrayContaining([home0.heading, home0.subheading, home0.welcome, `Welcome to ${DEMO_BRANDS[id].appName}`]));
-    expect(words.some((w) => w.startsWith("This is a demo app."))).toBe(true);
-    for (const block of studioDemoBlocks(id)) {
-      if (block.type === "items" || block.type === "categories") {
-        expect(words, block.id).toContain(block.title);
-        expect(allNodes(home.studio!).some((n) => n.type === block.type && n.source === block.source), block.id).toBe(true);
-      }
-    }
-    // The banner shows the demo's own picture.
-    const banner = home.studio!.body.children![0]!;
-    expect(banner.image_background_url).toBe(`${appUrl()}/design-pictures/${home0.file}`);
-    // The whole demo layout, Studio page and all, is one the platform takes.
+    const source = itemSourcesFor(demoApp(id))[0] ?? null;
+    expect(home.studio).toEqual(demoStudioPage(id, demoStudioContext(id, appUrl(), source), [demoSignInBlock()]));
+    // The note, for people not signed in, right after the page's first element.
+    const note = home.studio!.body.children![1]!;
+    expect(note.visibility).toBe("signed_out");
+    expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
+    // Without it: the kind's own template (Zad's the approved marketplace home), as it is.
+    const ctx = demoStudioContext(id, appUrl(), source);
+    const own = DEMO_HOME_TEMPLATES[id];
+    const designed = own === "market_home" ? marketHome(ctx) : TEMPLATES.find((t) => t.id === own)!.make(ctx);
+    const page = withoutNote(home.studio!);
+    expect(withoutIds({ ...page, body: untranslated(page.body) })).toEqual(withoutIds(designed));
+    // Nothing generated for the demo: no banner of the brand's words, no welcome over one list.
+    expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].banner.heading);
+    expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].welcome);
+    // The whole demo layout is one the platform takes.
     const checked = parseLayoutContent(layout, { app: demoApp(id), now: NOW });
     expect(checked.ok ? [] : checked.errors).toEqual([]);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s demo's blocks are its design's, and its banner picture is drawn", (id) => {
-    expect(demoDesign(id).pages[0]!.blocks).toEqual(studioDemoBlocks(id));
-    const home = STUDIO_DEMO_HOMES[id];
-    expect(home.file).toBe(DEMO_BANNER_ART[home.picture] ?? `art-${home.picture}.png`);
-    expect(existsSync(join(process.cwd(), "public", "design-pictures", home.file))).toBe(true);
-    // The brand the demo is set up with reads the same banner.
-    expect(DEMO_BRANDS[id].banner).toEqual({ picture: home.picture, heading: home.heading, subheading: home.subheading });
-    expect(DEMO_BRANDS[id].welcome).toBe(home.welcome);
+  it.each(STUDIO_DEMO_TYPES)("the %s template is the whole demo: a project started from it has the demo's pages, tabs and look", async (id) => {
+    const demo = await demoOf(id);
+    const app = projectApp(id);
+    const template = templatesFor(kindOf(id))[0]!;
+    const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
+    const project = startLayout(app, template, ready, NOW, englishContext(app));
+    expect(whole(project)).toEqual(whole(demo));
+    // The demo's own colour, and its look as the demo app has it.
+    expect(app.primaryColor).toBe(DEMO_BRANDS[id].primaryColor);
+    expect(project.appearance).toMatchObject({ template: DEMO_BRANDS[id].template, font: DEMO_BRANDS[id].font, corners: DEMO_BRANDS[id].corners, cards: DEMO_BRANDS[id].cards, secondary_color: DEMO_BRANDS[id].secondaryColor });
+    const checked = parseLayoutContent(project, { app, now: NOW });
+    expect(checked.ok ? [] : checked.errors).toEqual([]);
+  });
+
+  it.each(STUDIO_DEMO_TYPES)("\"Like our demo\" (the %s demo's whole design) makes a project the demo, nothing added", async (id) => {
+    const demo = await demoOf(id);
+    const app = projectApp(id);
+    const design = designsFor(kindOf(id))[0]!;
+    expect(design).toMatchObject({ demo: id, templates: [demoTemplateId(id)] });
+    // A project that started blank, with other tabs and look.
+    const blank = startLayout(app, TEMPLATES.find((t) => t.id === "blank")!, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, englishContext(app));
+    const current: LayoutContent = { ...blank, languages: LANGS, tabs: blank.tabs.slice(0, 2), appearance: { ...blank.appearance, template: "classic", corners: "sharp", cards: "flat", font_family: "Cairo", secondary_color: "#000000" } };
+    const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS);
+    expect(file.demo).toBe(id);
+    let n = 0;
+    const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures: new Map(), now: NOW.toISOString() });
+    const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demo.tabs) });
+    expect(whole(applied).pages.map((p) => p.studio)).toEqual(whole(demo).pages.map((p) => p.studio));
+    expect(applied.tabs).toEqual(demo.tabs);
+    expect(whole(applied).look).toEqual(whole(demo).look);
   });
 
   it.each(STUDIO_DEMO_TYPES)("the %s template, taken by an owner, is a page the platform takes, with their name", (id) => {
     const kind = demoKind(id);
     const app = { ...newApp("c1", null, NOW, kind.engine, kind.vertical), backend: "hosted" as const, appName: "Corner Bakery" };
-    const ctx = { brand: "#1F4E5F", source: itemSourcesFor(app)[0] ?? null, app: "Corner Bakery", w: (word: SectionWord) => (word === "heroTitle" ? "Welcome to Corner Bakery" : `[${word}]`), picture: (f: string) => `${appUrl()}/design-pictures/${f}` };
-    const page = DEMO_TEMPLATES.find((t) => t.demo === id)!.make(ctx);
-    const parsed = parseStudioPage(page, app, { default: "en", available: ["en"] });
+    const page = TEMPLATES.find((t) => t.demo === id)!.make({ ...englishContext({ ...app, primaryColor: "#1F4E5F" }), app: "Corner Bakery" });
+    const parsed = parseStudioPage(page, app, LANGS);
     expect(parsed.ok ? [] : parsed.errors).toEqual([]);
-    expect(texts(page)).toContain("Welcome to Corner Bakery");
     expect(JSON.stringify(page)).not.toContain("{app}");
-    // The design an owner of a regular page gets from the same demo is valid too.
-    const layout = designLayout(app, demoDesign(id), { appearance: { template: "classic", theme_mode: "system", user_can_change_mode: true, secondary_color: null, font: "Outfit", corners: "soft", cards: "flat" }, languages: { default: "en", available: ["en"] } }, NOW);
-    const withStudio = { ...layout, pages: layout.pages.map((p, i) => (i === 0 ? { ...p, blocks: [], studio: page } : p)) };
-    const checked = parseLayoutContent(withStudio, { app, now: NOW });
-    expect(checked.ok ? [] : checked.errors).toEqual([]);
+    expect(JSON.stringify(page)).not.toContain(DEMO_BRANDS[id].appName);
   });
 
   it.each(STUDIO_DEMO_TYPES)("the %s demo's phone gets its Studio home on the demos' Business plan, lists and all", async (id) => {
     const app = demoApp(id);
-    const layout = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset");
+    const layout = await demoOf(id);
     const served = layoutForPlan({ version: "v1", ...layout }, app, PLAN_INFO.business, BUILT_IN_APP_DEFAULTS);
     expect(served.pages[0]!.studio).toEqual(layout.pages[0]!.studio);
     // An owner's project on a plan without Studio still doesn't get one.
@@ -148,62 +192,82 @@ describe("Studio templates = Studio demos", () => {
       { heading: true, text: "Welcome to {app}" },
       { heading: false, text: 'This is a demo app. Sign in & enjoy "it".' },
     ]);
-    // Words outside a heading or paragraph, and an unclosed tag, are left out.
     expect(paragraphsOf("loose <p>kept</p> <script>x</script><p>cut")).toEqual([{ heading: false, text: "kept" }]);
-  });
-
-  it("draws a block Studio has no element for as nothing, never a broken element", () => {
-    const blocks: LayoutBlock[] = [{ id: "continue", type: "continue_learning", visibility: "signed_in", title: "Continue learning" }];
-    const page = demoStudioPage("instructors", { brand: "#000000", source: null, w: (w) => w }, blocks);
-    expect(allNodes(page).some((n) => n.text === "Continue learning")).toBe(false);
   });
 });
 
-describe("templates = demos: the demos' first pages in Arabic and Turkish", () => {
-  const studioAr = { heroTitle: "أهلًا بيك في {app}", seeAll: "شوف الكل" };
+describe("Zad: the approved marketplace home", () => {
+  /** The approved picture (mobile/test/screenshots/market_screenshots_test.dart), top to bottom. */
+  const APPROVED = [
+    { market: { section: "address" }, title: "Hungry? Order in minutes." },
+    { market: { section: "kinds" } },
+    { market: { section: "offers" }, title: "Today's offers" },
+    { market: { section: "vendors", style: "spotlight", kind: "restaurant", sort: "fastest", limit: 6 }, title: "Fastest near you", text: "Hot food at your door in under 30 min" },
+    { market: { section: "cuisines" }, title: "What's your mood?" },
+    { market: { section: "club" }, title: "Free delivery on every order", text: "Join the club for free delivery and members' offers." },
+    { market: { section: "vendors", style: "tiles", kind: "grocery", limit: 6 }, title: "Supermarkets & shops", text: "Groceries in about 20 minutes" },
+    { market: { section: "reorder" }, title: "Order again" },
+    { market: { section: "vendors", style: "list", kind: "restaurant" }, title: "All restaurants" },
+  ];
 
-  it("has every text of each demo's first page in Arabic and Turkish", () => {
-    for (const id of STUDIO_DEMO_TYPES) {
-      for (const en of studioDemoTexts(id)) {
-        const ar = STUDIO_DEMO_WORDS[id].ar[en];
-        const tr = STUDIO_DEMO_WORDS[id].tr[en];
-        expect(ar, `${id} ar: ${en}`).toMatch(/[؀-ۿ]/);
-        expect(tr?.trim(), `${id} tr: ${en}`).toBeTruthy();
-        expect(tr, `${id} tr: ${en}`).not.toMatch(/[؀-ۿ]/);
-        expect(tr, `${id} tr: ${en}`).not.toBe(en);
-      }
-      // Nothing left over that the page doesn't show.
-      const texts = new Set(studioDemoTexts(id));
-      expect(Object.keys(STUDIO_DEMO_WORDS[id].ar).filter((en) => !texts.has(en)), id).toEqual([]);
-      expect(Object.keys(STUDIO_DEMO_WORDS[id].tr).sort(), id).toEqual(Object.keys(STUDIO_DEMO_WORDS[id].ar).sort());
-    }
+  it("shows every part of the approved home, in its order, in Zad's colour and font, with the demo's tabs", async () => {
+    const layout = await demoOf("marketplace");
+    const page = layout.pages[0]!.studio!;
+    expect(page.header ?? null).toBeNull();
+    expect(page).toMatchObject({ background: "#F6F3EE", dark_background: "#0F0E1A" });
+    const markets = page.body.children!.filter((n) => n.type === "market");
+    expect(markets.map((n) => ({ market: n.market, ...(n.title ? { title: n.title } : {}), ...(n.text ? { text: n.text } : {}) }))).toEqual(APPROVED);
+    // Only the note on how to sign in besides them, under the top.
+    expect(page.body.children!.map((n) => n.type)).toEqual(["market", "column", ...APPROVED.slice(1).map(() => "market")]);
+    expect(page.body.children![1]!.visibility).toBe("signed_out");
+    expect(layout.appearance).toMatchObject({ font: DEMO_BRANDS.marketplace.font, template: DEMO_BRANDS.marketplace.template, secondary_color: DEMO_BRANDS.marketplace.secondaryColor });
+    expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
+    expect(layout.tabs.map((t) => t.target.type === "page" ? t.target.page_slug : t.target.screen)).toEqual(["home", "restaurants", "food_orders", "account"]);
+    // Its titles in Arabic and Turkish as well.
+    const hungry = markets[0]!;
+    expect(hungry.translations).toEqual({ ar: { title: studioAr.w_mHungry }, tr: { title: studioTr.w_mHungry } });
+    // Its places are the restaurants' list: a project started from it gets Zad's places as samples.
+    expect(sourcesIn(page).has("restaurants")).toBe(true);
   });
 
+  it("is the page the app's widget test draws (mobile/test/support/zad_demo_home.json)", async () => {
+    const layout = await demoOf("marketplace");
+    const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "zad_demo_home.json");
+    const page = `${JSON.stringify(layout.pages[0]!.studio, null, 2)}\n`;
+    if (process.env.YALLAPP_WRITE_ZAD_HOME) writeFileSync(file, page);
+    expect(readFileSync(file, "utf8")).toBe(page);
+  });
+});
+
+describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("writes them in the dashboard's language, the others kept as translations the page checker takes", () => {
     const languages = { default: "ar" as const, available: ["ar" as const, "en" as const, "tr" as const] };
     for (const id of STUDIO_DEMO_TYPES) {
-      const app = demoApp(id);
-      const ctx = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar" as const, w: (word: SectionWord) => (word in studioAr ? studioAr[word as keyof typeof studioAr].replace("{app}", "Nour") : `[${word}]`) };
+      const app = { ...demoApp(id), appName: "Nour" };
+      const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(studioAr[`w_${word}`]).replaceAll("{app}", "Nour") };
       const page = demoStudioPage(id, ctx);
-      const texts = allNodes(page).filter((n) => (n.type === "text" || n.type === "button" || n.type === "search") && n.text);
-      const banner = texts.find((n) => n.translations?.en?.text === STUDIO_DEMO_HOMES[id].heading)!;
-      expect(banner.text, id).toBe(STUDIO_DEMO_WORDS[id].ar[STUDIO_DEMO_HOMES[id].heading]);
-      expect(banner.translations?.tr?.text, id).toBe(STUDIO_DEMO_WORDS[id].tr[STUDIO_DEMO_HOMES[id].heading]);
-      const welcome = texts.find((n) => n.text === "أهلًا بيك في Nour")!;
-      expect(welcome.translations, id).toEqual({ en: { text: "Welcome to Nour" }, tr: { text: "Nour'e hoş geldiniz" } });
-      // No English left on the Arabic page.
-      for (const n of texts) expect(n.text, `${id}: ${n.text}`).toMatch(/[؀-ۿ]|^Nour$/);
+      const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items");
+      expect(written.length, id).toBeGreaterThan(0);
+      for (const n of written) {
+        // Arabic on the Arabic page, with English and Turkish kept.
+        for (const value of [n.text, n.title].filter(Boolean)) expect(value, `${id}: ${value}`).toMatch(/[؀-ۿ]|^\d+$/);
+        if (/^\d+$/.test(n.text ?? "")) continue;
+        expect(Object.keys(n.translations ?? {}).sort(), `${id}: ${n.text ?? n.title}`).toEqual(["en", "tr"]);
+      }
       const parsed = parseStudioPage(page, app, languages);
       expect(parsed.ok ? [] : parsed.errors, id).toEqual([]);
-      if (parsed.ok) expect(allNodes(parsed.value).find((n) => n.text === banner.text)?.translations?.en?.text, id).toBe(STUDIO_DEMO_HOMES[id].heading);
     }
   });
 
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
-      const page = demoStudioPage(id, demoStudioContext(id, appUrl()));
-      const banner = allNodes(page).find((n) => n.text === STUDIO_DEMO_HOMES[id].heading)!;
-      expect(banner.translations, id).toEqual({ ar: { text: STUDIO_DEMO_WORDS[id].ar[banner.text!] }, tr: { text: STUDIO_DEMO_WORDS[id].tr[banner.text!] } });
+      const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
+      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text)) || (n.type === "market" && n.title));
+      for (const n of titled) {
+        expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
+        expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);
+        expect(n.translations?.tr, `${id}: ${n.text ?? n.title}`).toBeTruthy();
+      }
     }
   });
 });

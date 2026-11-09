@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ENGINES } from "@/lib/app/kinds";
+import { ownContentSetup } from "@/lib/app/own-content";
 import { newApp } from "@/lib/app/setup";
+import { MARKET_VENDORS } from "@/lib/demo/marketplace";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 import { countList } from "@/lib/samples/lists";
@@ -103,5 +106,26 @@ describe("110.2 sample entries in the dashboard's actions", () => {
     expect(state.blobs.size).toBe(0);
     // A list it doesn't know is refused.
     expect(await redirectOf(() => removeSamplesAction(form({ list: "orders" })))).toBe("/dashboard");
+  });
+
+  it("Studio's editor taking \"Like our demo\" brings the demo's own entries, as Start from demo does; another demo named is not taken", async () => {
+    const { seedSamplesAction } = await import("@/app/actions/samples");
+    const zad = async () => {
+      const base: App = { ...newApp(state.app!.clientId, null, NOW, "food", "marketplace"), section: "studio", backend: "hosted", siteUrl: null, appName: "Nour" };
+      const app: App = { ...base, ...ownContentSetup(ENGINES.food.ownContent.kind, base), websiteDoneAt: NOW };
+      await state.store.createApp(app);
+      state.app = app;
+      return app;
+    };
+    const places = async (app: App) => (await state.store.listRestaurants(app.id)).map((r) => r.name);
+    const demo = await zad();
+    expect(await seedSamplesAction(["restaurants"], "marketplace")).toEqual({ ok: true, lists: ["restaurants"] });
+    expect(await places(demo)).toEqual(expect.arrayContaining(MARKET_VENDORS.map((v) => v.name)));
+    // A demo that isn't the project's kind's gets 110.2's samples, as no demo does.
+    for (const other of ["food", null]) {
+      const app = await zad();
+      expect((await seedSamplesAction(["restaurants"], other)).lists).toEqual(["restaurants"]);
+      expect((await places(app)).some((name) => MARKET_VENDORS.some((v) => v.name === name)), String(other)).toBe(false);
+    }
   });
 });

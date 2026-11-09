@@ -2,12 +2,11 @@ import { newApp } from "../app/setup";
 import type { App } from "../data/types";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { picture, type Design } from "../pages/designs/build";
-import type { LayoutBlock } from "../pages/types";
+import type { ItemSource, LayoutBlock } from "../pages/types";
 import { DEMO_BRANDS } from "./content";
 import { ALL_DEMO_TYPES, demoKind, isStudioDemo, type DemoId, type StudioDemoId } from "./constants";
 import { DEMO_BANNER_ART } from "./design-art";
 import { en as studioWords } from "../../i18n/dashboard/studio";
-import { studioDemoBlocks } from "../studio/demo-templates";
 import type { SectionContext, SectionWord } from "../studio/sections";
 
 /**
@@ -15,7 +14,10 @@ import type { SectionContext, SectionWord } from "../studio/sections";
  * app an owner starts from "Like our demo" is the app they tried, and the
  * two can't drift apart (tests/unit/demo-designs.test.ts). Its pictures are
  * the demo's own drawn pictures (public/design-pictures). The demo then only
- * adds how to sign in to it (lib/demo/setup.ts demoLayout).
+ * adds how to sign in to it (lib/demo/setup.ts demoLayout). A Studio demo's
+ * home is a Studio page instead, its kind's own designed page
+ * (lib/studio/sections.ts demoStudioPage), which the demo and a project
+ * started from it both make: its design's home has no blocks.
  */
 
 /** The design id of a demo's look: `demo-<demo>`. */
@@ -55,9 +57,8 @@ export function demoDesign(id: DemoId): Design {
   const app: App = { ...newApp("demo", null, MADE_AT, kind.engine, kind.vertical), appName: "{app}", brandingDoneAt: MADE_AT };
   const base = defaultLayout(app, BUILT_IN_APP_DEFAULTS, MADE_AT);
   const { banner, welcome } = demoHomeBlocks(id);
-  // A Studio demo's home is its Studio template's (lib/studio/demo-templates.ts).
-  const home = (blocks: LayoutBlock[]): LayoutBlock[] =>
-    isStudioDemo(id) ? structuredClone(studioDemoBlocks(id)) : [banner, ...blocks.map((b) => (b.id === "welcome" ? { ...b, html: welcome } : b))];
+  // A Studio demo's home is its Studio page (lib/studio/sections.ts demoStudioPage), never blocks made for it.
+  const home = (blocks: LayoutBlock[]): LayoutBlock[] => (isStudioDemo(id) ? [] : [banner, ...blocks.map((b) => (b.id === "welcome" ? { ...b, html: welcome } : b))]);
   const pages = base.pages.map((p, i) => ({
     slug: p.slug,
     title: p.title,
@@ -88,17 +89,19 @@ export function demoOfDesign(designId: string | null | undefined): DemoId | null
 
 /**
  * How a Studio demo's template is made for the demo itself: its brand's
- * colour and name, the template's words in English (the demos' language)
- * and Yallapp's pictures at `pictureBase`. Its elements' ids are numbered,
- * so the demo's page is the same each time it's made.
+ * colour and name, its main list (`source`, as a project's), the
+ * template's words in English (the demos' language) and Yallapp's pictures
+ * at `pictureBase`. Its elements' ids are numbered, so the demo's page is
+ * the same each time it's made.
  */
-export function demoStudioContext(id: StudioDemoId, pictureBase: string): SectionContext {
+export function demoStudioContext(id: StudioDemoId, pictureBase: string, source: ItemSource | null = null): SectionContext {
   const brand = DEMO_BRANDS[id];
   let n = 0;
   return {
     brand: brand.primaryColor,
-    source: null,
+    source,
     app: brand.appName,
+    lang: "en",
     w: (word: SectionWord) => String(studioWords[`w_${word}`]).replaceAll("{app}", brand.appName),
     picture: (file: string) => `${pictureBase}/design-pictures/${file}`,
     newId: () => `demo-${++n}`,

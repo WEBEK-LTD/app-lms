@@ -26,9 +26,10 @@ describe("108.7 whole designs", () => {
     expect(designsFor(null).map((d) => d.templates)).toEqual(DESIGN_THEMES.map(() => ["brand", "contact"]));
   });
 
-  it("templates = demos: a kind with a Studio demo gets the demo first, in the demo's colour and font", () => {
+  it("templates = demos: a kind with a Studio demo gets the demo first, the demo's own page only, in the demo's colour and font", () => {
     const zad = designsFor({ type: "food", vertical: "marketplace" });
-    expect(zad[0]).toMatchObject({ id: "demo-marketplace", demo: "marketplace", templates: ["demo_marketplace", "market", "market_offers", "contact"] });
+    // Nothing added around the demo: the one page the demo has.
+    expect(zad[0]).toMatchObject({ id: "demo-marketplace", demo: "marketplace", templates: ["demo_marketplace"] });
     expect(zad[0]!.theme).toMatchObject({ accent: DEMO_BRANDS.marketplace.primaryColor, font: DEMO_BRANDS.marketplace.font, background: null });
     expect(designName(zad[0]!, { ...words, demo: (name) => `Like our demo: ${name}` })).toBe("Like our demo: Zad");
     for (const kind of KINDS) {
@@ -42,8 +43,10 @@ describe("108.7 whole designs", () => {
       const tpl = TEMPLATES.find((x) => x.id === `demo_${demo}`)!;
       let m = 0;
       const plain = tpl.make({ ...ctx, brand: DEMO_BRANDS[demo].primaryColor, newId: () => `n${++m}` });
-      expect(file.pages[0]!.studio.body.children!.length, kind.id).toBe(plain.body.children!.length);
-      expect(file.pages[0]!.studio.background, kind.id).toBeUndefined();
+      // As it is: its own header, background and corners.
+      expect(file.pages.map((p) => p.studio), kind.id).toEqual([plain]);
+      expect(file.demo, kind.id).toBe(demo);
+      expect(file.look, kind.id).toEqual({ font: DEMO_BRANDS[demo].font, secondary_color: DEMO_BRANDS[demo].secondaryColor });
     }
   });
 
@@ -53,12 +56,13 @@ describe("108.7 whole designs", () => {
       const ctx = { brand: "#1F4E5F", source: itemSourcesFor(app)[0] ?? null, w: (word: SectionWord) => `[${word}]` };
       for (const design of designsFor({ type: kind.engine, vertical: kind.vertical })) {
         const file = makeDesign(design, ctx, words, languages);
-        expect(file.look).toEqual({ font: design.theme.font, secondary_color: design.theme.accent });
+        expect(file.look).toEqual({ font: design.theme.font, secondary_color: design.demo ? DEMO_BRANDS[design.demo].secondaryColor : design.theme.accent });
         for (const page of file.pages) {
           const parsed = parseStudioPage(page.studio, app, languages);
           expect(parsed.ok ? [] : parsed.errors, `${kind.id} › ${design.id} › ${page.slug}`).toEqual([]);
-          expect(page.studio.background ?? null).toBe(design.theme.background);
-          if (page.studio.header) expect(page.studio.header.type).toBe(design.theme.header);
+          // A demo's page keeps its own background.
+          if (!design.demo) expect(page.studio.background ?? null).toBe(design.theme.background);
+          if (page.studio.header && design.theme.header) expect(page.studio.header.type).toBe(design.theme.header);
         }
       }
     }
