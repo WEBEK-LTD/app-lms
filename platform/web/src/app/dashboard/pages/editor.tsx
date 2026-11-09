@@ -686,6 +686,9 @@ export function PagesEditor({
   const [sections, setSections] = useState(savedSections);
   const [sectionPick, setSectionPick] = useState<string[]>([]);
   const [sectionName, setSectionName] = useState("");
+  // 1.7 Saving blocks for later is a button by the blocks, and what's saved a tab of Add a block.
+  const [savingBlocks, setSavingBlocks] = useState(false);
+  const [addFrom, setAddFrom] = useState<"all" | "saved">("all");
   const SECTION_ERRORS = { name: "pages.sectionErrName", blocks: "pages.sectionErrBlocks", too_many_blocks: "pages.sectionErrTooMany", limit: "pages.sectionErrLimit", invalid: "pages.sectionErrInvalid" } as const;
 
   async function saveSectionNow() {
@@ -700,6 +703,9 @@ export function PagesEditor({
         setSections((list) => [r.section, ...list]);
         setSectionPick([]);
         setSectionName("");
+        // 1.7 Shown where it's added from.
+        setSavingBlocks(false);
+        setAddFrom("saved");
         setMessage({ text: t("pages.sectionSaved"), ok: true });
       } else {
         setMessage({ text: r.error === "invalid" && r.detail ? known(r.detail) : t(SECTION_ERRORS[r.error]), ok: false });
@@ -1307,63 +1313,87 @@ export function PagesEditor({
                   )}
                 </div>
 
-                {/* 84.3 Blocks of this page saved together, for any page of the account's apps. */}
+                {/* 84.3 Blocks of this page saved together, for any page of the account's apps; 1.7 in plain sight. */}
                 {page.blocks.length && !basic ? (
-                  <details className="rounded-xl border border-line p-3">
-                    <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.saveSection")}</summary>
-                    <div className="mt-3 flex flex-col gap-3">
-                      <p className="m-0 text-sm text-ink-4">{t("pages.saveSectionText")}</p>
-                      <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
-                        <legend className="sr-only">{t("pages.blocks")}</legend>
-                        {page.blocks.map((block) => (
-                          <Check
-                            key={block.id}
-                            label={`${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`}
-                            checked={sectionPick.includes(block.id)}
-                            onChange={(on) => setSectionPick((list) => (on ? [...list, block.id] : list.filter((id) => id !== block.id)))}
-                          />
-                        ))}
-                      </fieldset>
-                      <TextInput id="section-name" label={t("pages.sectionName")} value={sectionName} max={60} onChange={setSectionName} />
-                      <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
-                        {t("pages.saveSectionButton")}
-                      </button>
-                      {/* 99.3 Or the blocks picked, copied to another page of this app. */}
-                      {layout.pages.length > 1 ? (
-                        <CopyTo id="copy-section" pages={otherPages(page.slug)} disabled={!sectionPick.length} onCopy={(to) => copyBlocks(page.blocks.filter((b) => sectionPick.includes(b.id)), to)} />
-                      ) : null}
-                    </div>
-                  </details>
+                  <>
+                    <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} aria-expanded={savingBlocks} aria-controls="save-blocks" onClick={() => setSavingBlocks((on) => !on)}>
+                      <IconGlyph name="bookmark" size={18} />
+                      {t("pages.saveSection")}
+                    </button>
+                    {savingBlocks ? (
+                      <div id="save-blocks" role="group" aria-label={t("pages.saveSection")} className="flex flex-col gap-3 rounded-xl border border-line p-3">
+                        <p className="m-0 text-sm text-ink-4">{t("pages.saveSectionText")}</p>
+                        <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
+                          <legend className="sr-only">{t("pages.blocks")}</legend>
+                          {page.blocks.map((block) => (
+                            <Check
+                              key={block.id}
+                              label={`${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`}
+                              checked={sectionPick.includes(block.id)}
+                              onChange={(on) => setSectionPick((list) => (on ? [...list, block.id] : list.filter((id) => id !== block.id)))}
+                            />
+                          ))}
+                        </fieldset>
+                        <TextInput id="section-name" label={t("pages.sectionName")} value={sectionName} max={60} onChange={setSectionName} />
+                        <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
+                          {t("pages.saveSectionButton")}
+                        </button>
+                        {/* 99.3 Or the blocks picked, copied to another page of this app. */}
+                        {layout.pages.length > 1 ? (
+                          <CopyTo id="copy-section" pages={otherPages(page.slug)} disabled={!sectionPick.length} onCopy={(to) => copyBlocks(page.blocks.filter((b) => sectionPick.includes(b.id)), to)} />
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </>
                 ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.addBlock")}</h3>
                 {basic ? fullEditorHint : null}
-                {sections.length && !basic ? (
+                {/* 1.7 Every block, or the ones saved for later. */}
+                {!basic ? (
+                  <div role="group" aria-label={t("pages.addFrom")} className="flex self-start rounded-[10px] border border-line-strong bg-white p-0.5">
+                    {(["all", "saved"] as const).map((from) => (
+                      <button
+                        key={from}
+                        type="button"
+                        aria-pressed={addFrom === from}
+                        onClick={() => setAddFrom(from)}
+                        className={`h-9 cursor-pointer rounded-lg px-3 text-sm font-semibold ${addFrom === from ? "bg-midnight text-white" : "text-midnight hover:bg-ivory"}`}
+                      >
+                        {from === "all" ? t("pages.allBlocks") : t("pages.savedTab", { count: sections.length })}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                {addFrom === "saved" && !basic ? (
                   <div className="flex flex-col gap-2">
-                    <h4 className="m-0 text-xs font-bold tracking-[0.5px] text-muted uppercase">{t("pages.yourSections")}</h4>
                     <p className="m-0 text-xs text-muted">{t("pages.yourSectionsText")}</p>
-                    <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("pages.yourSections")}>
-                      {sections.map((section) => (
-                        <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
-                          <span className="flex min-w-0 flex-col">
-                            <span className="truncate text-[15px] font-semibold">{section.name}</span>
-                            <span className="text-xs text-muted">{t("pages.sectionCount", { count: section.blocks.length })}</span>
-                          </span>
-                          <span className="flex gap-2">
-                            <button type="button" className={smallBtn} aria-label={t("pages.addSection", { name: section.name })} onClick={() => addSection(section)}>
-                              {t("common.add")}
-                            </button>
-                            <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteSection", { name: section.name })} onClick={() => void removeSection(section)}>
-                              {t("common.delete")}
-                            </button>
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                    {sections.length ? (
+                      <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("pages.yourSections")}>
+                        {sections.map((section) => (
+                          <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
+                            <span className="flex min-w-0 flex-col">
+                              <span className="truncate text-[15px] font-semibold">{section.name}</span>
+                              <span className="text-xs text-muted">{t("pages.sectionCount", { count: section.blocks.length })}</span>
+                            </span>
+                            <span className="flex gap-2">
+                              <button type="button" className={smallBtn} aria-label={t("pages.addSection", { name: section.name })} onClick={() => addSection(section)}>
+                                {t("common.add")}
+                              </button>
+                              <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteSection", { name: section.name })} onClick={() => void removeSection(section)}>
+                                {t("common.delete")}
+                              </button>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="m-0 text-sm text-muted">{t("pages.noSavedBlocks")}</p>
+                    )}
                   </div>
                 ) : null}
                 {/* 33 In groups, each block with its icon and what it's for. */}
-                {BLOCK_GROUPS.map((group) => {
+                {(addFrom === "saved" && !basic ? [] : BLOCK_GROUPS).map((group) => {
                   const types = group.types.filter((type) => blockTypes.includes(type));
                   if (!types.length) return null;
                   return (
