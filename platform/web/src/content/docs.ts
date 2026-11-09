@@ -2634,7 +2634,7 @@ The app takes one-off donations. Monthly donations need a card saved for a subsc
 
 ## The four plans
 
-- **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, ready-made page templates, one language and up to 1,000 app users. You publish it with our step-by-step guides.
+- **Starter**: the Android app for Google Play, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, one content source, a simple page editor, one language and up to 1,000 app users. You publish it with our step-by-step guides.
 - **Growth**: adds the iOS app for the App Store, the full page editor, three languages, card payments in the app, offline mode, automatic rebuilds and up to 10,000 app users.
 - **Pro**: adds unlimited app users, every language and "We publish for you": we publish your app and every update on Google Play, the App Store, Samsung Galaxy Store, Huawei AppGallery and Xiaomi GetApps, with priority support.
 - **Business**: everything in Pro, with a dedicated account manager and custom features on request.

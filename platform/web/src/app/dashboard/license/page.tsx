@@ -74,7 +74,7 @@ function planLines(plan: PlanInfo, { t, num, lang }: DashboardText): string[] {
     analyticsMonths === null
       ? t("license.lineAnalyticsForever", { days: analyticsEventsKeepText(lang) })
       : t("license.lineAnalytics", { kept: analyticsKeepText(lang, analyticsMonths), days: analyticsEventsKeepText(lang) }),
-    hasFeature(plan, "page_editor") ? t("license.lineEditor") : t("license.lineTemplates"),
+    hasFeature(plan, "page_editor") ? t("license.lineEditor") : hasFeature(plan, "page_editor_basic") ? t("license.lineEditorBasic") : t("license.lineTemplates"),
     hasFeature(plan, "auto_publish") ? t("license.lineWePublish") : t("license.lineYouPublish"),
     // 77
     ...(hasFeature(plan, "chat") ? [t("license.lineChat")] : []),
