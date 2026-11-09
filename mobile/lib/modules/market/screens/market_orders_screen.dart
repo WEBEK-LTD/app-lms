@@ -52,6 +52,13 @@ class MarketOrdersScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: appBarBack(context),
         title: Text(l10n.marketMyOrders),
+        actions: [
+          IconButton(
+            tooltip: l10n.marketWallet,
+            icon: const Icon(Symbols.account_balance_wallet),
+            onPressed: () => context.push(Paths.marketWallet),
+          ),
+        ],
       ),
       body: orders.when(
         loading: () => const SkeletonList(),

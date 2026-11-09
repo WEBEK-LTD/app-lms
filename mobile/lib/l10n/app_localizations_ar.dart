@@ -9152,4 +9152,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketComplaintClosed => 'هذه الشكوى مغلقة.';
+
+  @override
+  String get marketWallet => 'المحفظة';
+
+  @override
+  String get marketWalletBalance => 'رصيدك';
+
+  @override
+  String get marketWalletNote =>
+      'استخدمه في طلباتك القادمة. لا يمكن سحبه نقدًا.';
+
+  @override
+  String get marketWalletEmpty =>
+      'تظهر هنا المبالغ المستردة والرصيد المضاف من الدعم.';
+
+  @override
+  String marketClubJoinWith(String price) {
+    return 'انضم · $price';
+  }
+
+  @override
+  String get marketClubPerMonth => 'شهريًا';
+
+  @override
+  String get marketClubPerYear => 'سنويًا';
+
+  @override
+  String marketClubActiveUntil(String date) {
+    return 'عضو حتى $date';
+  }
+
+  @override
+  String marketClubSaved(String amount) {
+    return 'وفّرت حتى الآن: $amount';
+  }
+
+  @override
+  String get marketClubWaiting => 'بانتظار الدفع. تبدأ عضويتك بعد تأكيده.';
+
+  @override
+  String get marketClubPayAgain => 'لم يتم الدفع. حاول مرة أخرى.';
+
+  @override
+  String get marketClubNoRenew =>
+      'تُدفع كل فترة على حدة، ولا يتجدد شيء تلقائيًا.';
+
+  @override
+  String get marketClubJoined => 'مرحبًا بك في النادي.';
+
+  @override
+  String get marketClubNone => 'لا يوجد نادٍ في هذا التطبيق بعد.';
 }
