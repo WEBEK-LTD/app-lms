@@ -1,5 +1,4 @@
-import 'delivery_models.dart'
-    show CourierApp, DeliveryConfig, DeliveryTracking;
+import 'delivery_models.dart' show CourierApp, DeliveryConfig, DeliveryTracking;
 import 'food_models.dart' show DishChoiceGroup;
 import 'json.dart';
 
