@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
-import { ALL_DEMO_TYPES, demoKind } from "@/lib/demo/constants";
+import { ALL_DEMO_TYPES, demoKind, isStudioDemo } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { DEMO_DESIGNS, demoDesign, demoDesignId } from "@/lib/demo/look";
 import { demoLayout } from "@/lib/demo/setup";
@@ -38,7 +38,9 @@ describe("templates = demos", () => {
     const demo = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset");
     const design = designLayout(app, demoDesign(id), demo, NOW);
     const withoutSignIn = { ...demo, pages: demo.pages.map((p, i) => (i === 0 ? { ...p, blocks: p.blocks.filter((b) => b.id !== "demo-sign-in") } : p)) };
-    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(design));
+    // A Studio demo's home is its Studio template instead (tests/unit/studio-demo-templates.test.ts).
+    const blocksOf = (layout: typeof design) => (isStudioDemo(id) ? { ...layout, pages: layout.pages.map((p, i) => (i === 0 ? { ...p, blocks: [] } : p)) } : layout);
+    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(blocksOf(design)));
     // The demo's look is the design's.
     const look = demoDesign(id).look;
     expect(demo.appearance).toMatchObject({ template: look.template, font: look.font, corners: look.corners, cards: look.cards, secondary_color: look.secondary_color });

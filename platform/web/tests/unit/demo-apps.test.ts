@@ -91,7 +91,10 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       const license = await store.getLicenseForApp(client.id, app.id);
       expect(license).toMatchObject({ plan: "business", expiresAt: DEMO_LICENSE_UNTIL });
       const layout = await store.getAppLayout(app.id);
-      expect(layout?.published?.pages[0]?.blocks.map((b) => b.id)).toContain("demo-banner");
+      // A Studio demo's home is its Studio template, its banner first (tests/unit/studio-demo-templates.test.ts).
+      const home = layout?.published?.pages[0];
+      if (app.section === "studio") expect(home?.studio?.body.children?.[0]?.image_background_url).toContain("/design-pictures/");
+      else expect(home?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }
     const [lms, shop, cafe, bookings, clinic, gym, homes, news, events, charity, parcels, food, , rides, taxi, school, academy] = apps as [App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App];

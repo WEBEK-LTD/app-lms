@@ -10,11 +10,13 @@ import { newApp } from "@/lib/app/setup";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import { demoDesign } from "@/lib/demo/look";
 import { appUrl } from "@/lib/env";
 import { getStore } from "@/lib/data";
 import type { App } from "@/lib/data/types";
 import { defaultLayout } from "@/lib/pages/defaults";
-import { appDefaults, saveDraft } from "@/lib/pages/layout";
+import { appDefaults, designLayout, saveDraft } from "@/lib/pages/layout";
 import { itemSourcesFor } from "@/lib/pages/sources";
 import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
@@ -77,7 +79,10 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   // 103R.7 One of the project type's templates (or the ones for every project).
   const template = templatesFor({ type: kind.engine, vertical: kind.vertical }).find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
   const now = new Date();
-  const base: App = { ...newApp(context.client.id, null, now, kind.engine, kind.vertical), section: "studio", appName: name };
+  // Templates = demos: a demo's template starts the project in the demo's colour and look too.
+  const demo = template.demo ?? null;
+  const fresh = newApp(context.client.id, null, now, kind.engine, kind.vertical);
+  const base: App = { ...fresh, section: "studio", appName: name, ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : {}) };
   const app: App =
     source === "catalog"
       ? { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base), websiteDoneAt: now }
@@ -86,10 +91,13 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   await chooseApp(app.id);
   // The home page starts as a Studio page from the chosen template, in the dashboard's language.
   const { t } = await dashboardText();
-  const layout = defaultLayout(app, await appDefaults(store), now);
+  const ready = defaultLayout(app, await appDefaults(store), now);
+  // The demo's pages and look; its home is the demo's Studio page.
+  const layout = demo ? designLayout(app, demoDesign(demo), ready, now) : ready;
   const home = template.make({
     brand: app.primaryColor,
     source: itemSourcesFor(app)[0] ?? null,
+    app: name,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }),
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,

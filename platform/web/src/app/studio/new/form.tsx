@@ -39,7 +39,8 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
     const info = kindById(kindId);
     return templatesFor(info ? { type: info.engine, vertical: info.vertical } : null);
   }, [kindId]);
-  const pick = template && kindTemplates.some((x) => x.id === template) ? template : null;
+  // Templates = demos: the kind's demo is chosen unless another is.
+  const pick = template && kindTemplates.some((x) => x.id === template) ? template : (kindTemplates.find((x) => x.recommended)?.id ?? null);
   const [name, setName] = useState("");
   const [step, setStep] = useState(1);
   const go = (to: number) => {
@@ -58,7 +59,15 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
       Object.fromEntries(
         kindTemplates.filter((x) => x.id !== "blank").map((x) => [
           x.id,
-          x.make({ brand: "#0E0D24", source: null, w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name.trim() || t("studio.untitledProject") }), newId: () => `t${x.id}` }),
+          x.make({
+            brand: "#0E0D24",
+            source: null,
+            app: name.trim() || t("studio.untitledProject"),
+            w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name.trim() || t("studio.untitledProject") }),
+            newId: () => `t${x.id}`,
+            // The demo's own pictures, as in the demo.
+            picture: (file: string) => `/design-pictures/${file}`,
+          }),
         ]),
       ),
     [t, name, kindTemplates],
@@ -249,7 +258,17 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
                         />
                       </span>
                     </span>
+                    {x.recommended ? (
+                      <span className="self-start rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: C.ink, color: "#FFFFFF" }}>
+                        {t("studio.tplRecommended")}
+                      </span>
+                    ) : null}
                     <span className="text-[13px] font-bold">{templateName(x.id)}</span>
+                    {x.recommended ? (
+                      <span className="text-[11px]" style={{ color: C.muted }}>
+                        {t("studio.tplDemoText")}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
