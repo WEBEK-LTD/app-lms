@@ -31,6 +31,8 @@ export function LeftPanel(props: {
   tab: LeftTab;
   onTab: (tab: LeftTab) => void;
   source: ItemSource | null;
+  /** 115.14 A marketplace project: its own sections are offered too. */
+  marketplace?: boolean;
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -97,7 +99,7 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
+              const items = ELEMENTS.filter((e) => (!e.only || props.marketplace) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
               if (!items.length) return null;
               return (
                 <div key={group.id}>
@@ -125,7 +127,7 @@ export function LeftPanel(props: {
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => (!e.only || props.marketplace) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>
