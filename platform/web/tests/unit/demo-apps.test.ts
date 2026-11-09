@@ -48,7 +48,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with sixteen apps, their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with seventeen apps, their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -66,6 +66,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["donations", true],
       ["delivery", true],
       ["food", true],
+      ["marketplace", true],
       ["rides", true],
       ["taxi", true],
       ["school", true],
@@ -77,11 +78,11 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "rides", "rides", "school", "lms"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, null, "taxi", null, "instructors"]);
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(16);
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors"]);
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(17);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -93,7 +94,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       expect(layout?.published?.pages[0]?.blocks.map((b) => b.id)).toContain("demo-banner");
       expect(await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164)).toMatchObject({ name: DEMO_USER_NAME });
     }
-    const [lms, shop, cafe, bookings, clinic, gym, homes, news, events, charity, parcels, food, rides, taxi, school, academy] = apps as [App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App];
+    const [lms, shop, cafe, bookings, clinic, gym, homes, news, events, charity, parcels, food, , rides, taxi, school, academy] = apps as [App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App, App];
     expect(lms.courseSetup?.courses).toHaveLength(DEMO_COURSES.length);
     expect(lms.courseSetup?.courses.some((c) => c.priceCents === 0)).toBe(true);
     expect(await store.listCatalogProducts(shop.id)).toHaveLength(DEMO_PRODUCTS.length);
@@ -215,8 +216,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(16);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(16);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(17);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(17);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
@@ -273,7 +274,7 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(demoTypeOfSlug("school")).toBe("school");
     expect(demoTypeOfSlug("teachers")).toBe("instructors");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "rides", "taxi", "school", "instructors"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors"]);
     expect(demoTypeOfSlug("nope")).toBeNull();
   });
 });
@@ -659,8 +660,9 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(16);
-    expect(report.demo.deleted).toBe(4); // an order, a conversation, a favorite, a device
+    expect(report.demo.apps).toBe(17);
+    // An order, a conversation, a favorite, a device; 115.15 and Zad's courier job of yesterday (made again with its day).
+    expect(report.demo.deleted).toBe(5);
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });
     expect(left.items.map((o) => o.id)).toEqual([fresh.id]);
     expect(await store.getCatalogOrder(other.id, kept.id)).not.toBeNull();
