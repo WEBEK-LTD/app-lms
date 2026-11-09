@@ -12,7 +12,7 @@ import { NOW } from "./helpers";
 /** Editor audit 3.3: the page templates beside the others, and an element locked in the editor. */
 describe("Studio page templates (About, FAQ) and locked elements", () => {
   it("adds About and FAQ beside the templates there were, changing none of them", () => {
-    expect(PAGE_TEMPLATES.map((t) => t.id)).toEqual(["about", "faq"]);
+    expect(PAGE_TEMPLATES.map((t) => t.id)).toEqual(["about", "faq", "reviews", "how", "join"]);
     // The ids don't clash with a template there already was (Contact stays as it was).
     expect(TEMPLATES.map((t) => t.id).filter((id) => PAGE_TEMPLATES.some((p) => p.id === id))).toEqual([]);
     expect(TEMPLATES.map((t) => t.id)).toContain("contact");
