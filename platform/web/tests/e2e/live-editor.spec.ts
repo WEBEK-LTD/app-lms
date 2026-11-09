@@ -372,3 +372,40 @@ test("84.4 the team adds a design from an app's draft and hides a built-in one; 
   await expect(designs.getByRole("button", { name: "Use the Olive market design" })).toBeVisible();
   await expect(designs.getByRole("button", { name: `Use the ${hiddenName} design` })).toHaveCount(0);
 });
+
+test("1.6 a slider's time, shape and indicator are saved, and the quick view draws them", async () => {
+  await own.goto("/dashboard/pages");
+  await own.getByRole("tab", { name: "Pages" }).click();
+  const page = own.getByRole("region", { name: /^Page: / });
+  const blocks = page.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const before = await blocks.count();
+  await page.getByRole("button", { name: "Add Slider block" }).click();
+  const slider = page.getByRole("group", { name: `Block ${before + 1} settings` });
+  // It starts with sample slides, every 5 seconds, as the design, with dots.
+  await expect(slider.getByLabel("Each slide shows for")).toHaveValue("5");
+  await expect(slider.getByLabel("Shape")).toHaveValue("");
+  await expect(slider.getByLabel("Where you are")).toHaveValue("dots");
+  await slider.getByLabel("Each slide shows for").selectOption({ label: "3 seconds" });
+  await slider.getByLabel("Shape").selectOption({ label: "Square" });
+  await slider.getByLabel("Where you are").selectOption({ label: "2 / 5 in the corner" });
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+  // Kept after a reload.
+  await own.reload();
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await blocks.nth(before).getByRole("button", { expanded: false }).first().click();
+  const again = page.getByRole("group", { name: `Block ${before + 1} settings` });
+  await expect(again.getByLabel("Each slide shows for")).toHaveValue("3");
+  await expect(again.getByLabel("Shape")).toHaveValue("1");
+  await expect(again.getByLabel("Where you are")).toHaveValue("count");
+  // Not moving on its own: no time to choose.
+  await again.getByLabel("Move to the next slide on its own").uncheck();
+  await expect(again.getByLabel("Each slide shows for")).toHaveCount(0);
+  // The quick view draws it square, with "1 / 2" in its corner.
+  await own.getByRole("button", { name: "Quick view", exact: true }).click();
+  const drawn = own.getByRole("figure", { name: "Phone preview" }).locator("[data-slider-indicator=count]").last();
+  await expect(drawn).toContainText("1 / 2");
+  await own.getByRole("button", { name: "The app", exact: true }).click();
+  await page.getByRole("button", { name: `Delete block ${before + 1}` }).click();
+  await expect(blocks).toHaveCount(before);
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+});

@@ -147,6 +147,10 @@ export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as c
 export const BUTTON_STYLES = ["filled", "outlined", "text"] as const;
 export const CATEGORY_STYLES = ["chips", "tiles"] as const;
 export const SPACER_SIZES = ["small", "medium", "large"] as const;
+/** 1.6 A slider's shapes (width over height): 16:9, 4:3 and square; missing, the design's own. */
+export const SLIDER_RATIOS = [1.78, 1.33, 1] as const;
+/** 1.6 Seconds a slider waits before it moves on: from 2 to 10, 5 when not chosen. */
+export const SLIDER_SECONDS = { min: 2, max: 10, default: 5 } as const;
 // 33
 export const QUICK_LINK_STYLES = ["grid", "row"] as const;
 export const NOTICE_TONES = ["info", "success", "warning"] as const;
@@ -464,9 +468,13 @@ export interface LayoutBlock {
   placeholder?: string;
   // spacer
   size?: (typeof SPACER_SIZES)[number];
-  // 33 slider
+  // 33 slider (and `aspect_ratio`: one of SLIDER_RATIOS)
   slides?: Slide[];
   auto_advance?: boolean;
+  /** 1.6 How long each slide shows when it moves on its own, in ms (SLIDER_SECONDS); missing, 5 seconds. */
+  interval_ms?: number;
+  /** 1.6 How it shows where it is: dots under it, lines filling over it, or "2 / 5"; missing, dots. */
+  indicator?: (typeof STUDIO_INDICATORS)[number];
   // quick_links (and `style`: grid or row)
   links?: QuickLink[];
   // testimonials

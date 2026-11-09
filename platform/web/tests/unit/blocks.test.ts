@@ -52,6 +52,9 @@ const b = (type: string, fields: Record<string, unknown>) => ({ id: type.replace
 const ALL_NEW: Record<string, unknown>[] = [
   b("slider", {
     auto_advance: false,
+    interval_ms: 3000,
+    aspect_ratio: 1.33,
+    indicator: "progress",
     slides: [
       { image_url: "https://cdn.test/1.jpg", heading: "Autumn sale", subheading: "Up to 30% off", action: { type: "screen", screen: "courses" }, translations: { ar: { heading: "تخفيضات الخريف" } } },
       { heading: "New courses", action: null },
@@ -318,5 +321,24 @@ describe("33 new blocks on the hosted API", () => {
     // After the end the countdown goes.
     now = new Date("2026-12-02T00:00:00Z");
     expect((await home()).body.blocks.filter((x) => x.type === "countdown").map((x) => x.id)).toEqual(["over"]);
+  });
+});
+
+describe("1.6 a slider's time, shape and indicator", () => {
+  const slides = [{ heading: "One" }, { heading: "Two" }];
+  it("keeps what was chosen, and leaves out the usual ones", () => {
+    expect(first([b("slider", { slides, interval_ms: 3000, aspect_ratio: 1, indicator: "count" })])).toMatchObject({ interval_ms: 3000, aspect_ratio: 1, indicator: "count" });
+    // 5 seconds and dots are what the app does anyway.
+    const plain = first([b("slider", { slides, interval_ms: 5000, indicator: "dots", aspect_ratio: null })]);
+    expect(plain).not.toHaveProperty("interval_ms");
+    expect(plain).not.toHaveProperty("indicator");
+    expect(plain.aspect_ratio ?? null).toBeNull();
+    // Whole seconds; 16:9 sent as 16 / 9.
+    expect(first([b("slider", { slides, interval_ms: 3400, aspect_ratio: 16 / 9 })])).toMatchObject({ interval_ms: 3000, aspect_ratio: 1.78 });
+  });
+  it("refuses times, shapes and indicators it doesn't offer", () => {
+    expect(errorsOf([b("slider", { slides, interval_ms: 60000 })])).toEqual(['Page "Home", block 1 (Slider): choose 2 to 10 seconds for each slide.']);
+    expect(errorsOf([b("slider", { slides, aspect_ratio: 2.5 })])).toEqual(['Page "Home", block 1 (Slider): choose the slides\' shape: 16:9, 4:3 or square.']);
+    expect(errorsOf([b("slider", { slides, indicator: "stars" })])).toEqual(['Page "Home", block 1 (Slider): choose how the slider shows where it is.']);
   });
 });

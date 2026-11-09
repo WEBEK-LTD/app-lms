@@ -61,6 +61,8 @@ import {
   STUDIO_TABLET_FIELDS,
   STUDIO_TEXT_ALIGNS,
   STUDIO_VISIBILITY,
+  SLIDER_RATIOS,
+  SLIDER_SECONDS,
   STUDIO_INDICATORS,
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
@@ -459,6 +461,22 @@ function parseMoreBlock(ctx: Context, at: string, type: string, v: Record<string
         return { ...slide, ...entryTranslations(ctx, where, "slides", s.translations) };
       });
       block.auto_advance = v.auto_advance !== false;
+      // 1.6 How long each slide shows, its shape and how it shows where it is.
+      if (v.interval_ms !== undefined && v.interval_ms !== null) {
+        const ms = v.interval_ms;
+        if (typeof ms !== "number" || !Number.isFinite(ms) || ms < SLIDER_SECONDS.min * 1000 || ms > SLIDER_SECONDS.max * 1000) {
+          c.fail(at, `choose ${SLIDER_SECONDS.min} to ${SLIDER_SECONDS.max} seconds for each slide.`);
+        } else if (Math.round(ms / 1000) !== SLIDER_SECONDS.default) block.interval_ms = Math.round(ms / 1000) * 1000;
+      }
+      if (v.aspect_ratio !== undefined && v.aspect_ratio !== null) {
+        const ratio = typeof v.aspect_ratio === "number" ? Math.round(v.aspect_ratio * 100) / 100 : NaN;
+        if ((SLIDER_RATIOS as readonly number[]).includes(ratio)) block.aspect_ratio = ratio;
+        else c.fail(at, "choose the slides' shape: 16:9, 4:3 or square.");
+      }
+      if (v.indicator !== undefined && v.indicator !== null) {
+        if (!oneOf(STUDIO_INDICATORS, v.indicator)) c.fail(at, "choose how the slider shows where it is.");
+        else if (v.indicator !== "dots") block.indicator = v.indicator;
+      }
       return true;
     case "quick_links":
       block.style = oneOf(QUICK_LINK_STYLES, v.style) ? v.style : "grid";

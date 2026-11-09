@@ -1466,7 +1466,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
                       start: 16,
                       end: 16 + node.gap,
                       bottom: 12,
-                      child: _SliderLines(
+                      child: SliderLines(
                         key: ValueKey('studio-lines-${node.id}'),
                         count: kids.length,
                         page: _page,
@@ -1484,7 +1484,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
                     PositionedDirectional(
                       top: 10,
                       end: 10 + node.gap,
-                      child: _SliderCount(
+                      child: SliderCount(
                         key: ValueKey('studio-count-${node.id}'),
                         page: _page,
                         count: kids.length,
@@ -1538,8 +1538,8 @@ class _SliderDots extends StatelessWidget {
 
 /// 112.4 A line per slide over the slides: the ones seen full, the open one
 /// filling while it waits (full when the slider doesn't move by itself).
-class _SliderLines extends StatelessWidget {
-  const _SliderLines({
+class SliderLines extends StatelessWidget {
+  const SliderLines({
     super.key,
     required this.count,
     required this.page,
@@ -1594,8 +1594,8 @@ class _SliderLines extends StatelessWidget {
 }
 
 /// 112.4 "2 / 5" over the slides' corner.
-class _SliderCount extends StatelessWidget {
-  const _SliderCount({super.key, required this.page, required this.count});
+class SliderCount extends StatelessWidget {
+  const SliderCount({super.key, required this.page, required this.count});
 
   final int page;
   final int count;
