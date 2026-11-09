@@ -61,6 +61,30 @@ final marketHomeProvider = FutureProvider.autoDispose<MarketHome>((ref) async {
   );
 });
 
+/// 115 The search across the marketplace's places, dishes and products
+/// (`GET /market/search`, at least 2 letters), near the customer's place.
+/// Tests and screenshots override it with the samples (market_samples.dart).
+final marketSearchProvider = FutureProvider.autoDispose
+    .family<MarketSearchResults, String>((ref, query) async {
+      final config = ref.watch(marketConfigProvider);
+      final place = ref.watch(marketPlaceProvider);
+      final found = await ref.contentApi.searchMarket(
+        query,
+        lat: place?.lat,
+        lng: place?.lng,
+      );
+      return MarketSearchResults(
+        places: [for (final v in found.vendors) marketVendorFrom(v, config)],
+        items: [
+          for (final f in found.items)
+            MarketFound(
+              vendor: marketVendorFrom(f.vendor, config),
+              item: marketItemFrom(f.product),
+            ),
+        ],
+      );
+    });
+
 /// 115 The customer's last finished orders, one per vendor, to order again
 /// from the home (`GET /me/market-orders`). The home shows without them
 /// when they can't be read.

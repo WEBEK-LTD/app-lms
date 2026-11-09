@@ -14684,6 +14684,54 @@ abstract class AppLocalizations {
   /// **'There\'s no club in this app yet.'**
   String get marketClubNone;
 
+  /// 115 The marketplace's Search tab: its places, dishes and products.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get tabSearch;
+
+  /// 115 The marketplace's Orders tab: the customer's orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get tabOrders;
+
+  /// 115 The marketplace's Club tab: the delivery club and the member's benefits.
+  ///
+  /// In en, this message translates to:
+  /// **'Club'**
+  String get tabClub;
+
+  /// 115 The marketplace's search before anything is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a restaurant, a dish or something from the shops.'**
+  String get marketSearchStart;
+
+  /// 115 Above the cuisines and departments the search can start with.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with'**
+  String get marketSearchTry;
+
+  /// 115 The places the marketplace's search found.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get marketSearchPlaces;
+
+  /// 115 The dishes and products the marketplace's search found, each with its place.
+  ///
+  /// In en, this message translates to:
+  /// **'Dishes and products'**
+  String get marketSearchItems;
+
+  /// 115 The marketplace's search found nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found for “{query}”.'**
+  String marketSearchNone(String query);
+
   /// 115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title.
   ///
   /// In en, this message translates to:

@@ -9205,6 +9205,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get marketClubNone => 'لا يوجد نادٍ في هذا التطبيق بعد.';
 
   @override
+  String get tabSearch => 'بحث';
+
+  @override
+  String get tabOrders => 'الطلبات';
+
+  @override
+  String get tabClub => 'النادي';
+
+  @override
+  String get marketSearchStart => 'ابحث عن مطعم أو طبق أو منتج من المتاجر.';
+
+  @override
+  String get marketSearchTry => 'ابدأ بـ';
+
+  @override
+  String get marketSearchPlaces => 'الأماكن';
+
+  @override
+  String get marketSearchItems => 'الأطباق والمنتجات';
+
+  @override
+  String marketSearchNone(String query) {
+    return 'لم نجد شيئًا لـ «$query».';
+  }
+
+  @override
   String get marketListEmptyTitle => 'لا يوجد شيء هنا بالقرب منك بعد';
 
   @override
