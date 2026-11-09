@@ -1,5 +1,5 @@
 import type { AppType, AppVertical } from "../data/types";
-import type { Action, ItemSource, StudioNode, StudioPage } from "../pages/types";
+import type { Action, ItemSource, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
@@ -127,7 +127,22 @@ export type SectionWord =
   | "trustHelpText"
   | "couponKicker"
   | "couponTitle"
-  | "recentTitle";
+  | "recentTitle"
+  // 115.14 The marketplace's sections.
+  | "mSearch"
+  | "mKinds"
+  | "mOffers"
+  | "mOffersText"
+  | "mCuisines"
+  | "mDepartments"
+  | "mClub"
+  | "mNear"
+  | "mRated"
+  | "mFast"
+  | "mFastText"
+  | "mGrocery"
+  | "mFree"
+  | "mReorder";
 
 export interface SectionContext {
   brand: string;
@@ -172,6 +187,31 @@ const pad = (v: number, h: number) => ({ top: v, end: h, bottom: v, start: h });
 
 function text(ctx: SectionContext, value: string, extra: Partial<StudioNode> = {}): StudioNode {
   return { id: (ctx.newId ?? newNodeId)(), type: "text", text: value, ...extra };
+}
+
+/** 115.14 A marketplace section: a `market` element with its own title and text, for marketplace projects. */
+const MARKETPLACE: Fits = { types: ["food"], verticals: ["marketplace"] };
+function marketSection(
+  id: string,
+  icon: string,
+  section: StudioMarket["section"],
+  title: SectionWord | null,
+  textWord: SectionWord | null = null,
+  extra: { market?: Omit<StudioMarket, "section">; top?: number } = {},
+): SectionInfo {
+  return {
+    id,
+    icon,
+    fits: MARKETPLACE,
+    make: (ctx) => ({
+      id: (ctx.newId ?? newNodeId)(),
+      type: "market",
+      market: { section, ...(extra.market ?? {}) },
+      ...(title ? { title: ctx.w(title) } : {}),
+      ...(textWord ? { text: ctx.w(textWord) } : {}),
+      margin: pad(extra.top ?? 10, 0),
+    }),
+  };
 }
 
 export const SECTIONS: readonly SectionInfo[] = [
@@ -525,6 +565,19 @@ export const SECTIONS: readonly SectionInfo[] = [
       ],
     }),
   },
+  // 115.14 The marketplace's sections: one `market` element each, drawn by the app from the marketplace's data.
+  marketSection("m_address", "location_on", "address", null, "mSearch", { top: 8 }),
+  marketSection("m_kinds", "category", "kinds", "mKinds"),
+  marketSection("m_offers", "local_offer", "offers", "mOffers", "mOffersText", { market: { style: "spotlight" } }),
+  marketSection("m_cuisines", "restaurant_menu", "cuisines", "mCuisines"),
+  marketSection("m_departments", "grocery", "cuisines", "mDepartments", null, { market: { kind: "grocery" } }),
+  marketSection("m_club", "workspace_premium", "club", "mClub"),
+  marketSection("m_near", "near_me", "vendors", "mNear", null, { market: { sort: "nearest" } }),
+  marketSection("m_rated", "star", "vendors", "mRated", null, { market: { sort: "rating", style: "tiles" } }),
+  marketSection("m_fast", "bolt", "vendors", "mFast", "mFastText", { market: { sort: "fastest", style: "list", limit: 6 } }),
+  marketSection("m_grocery", "shopping_cart", "vendors", "mGrocery", null, { market: { kind: "grocery", style: "spotlight" } }),
+  marketSection("m_free", "two_wheeler", "vendors", "mFree", null, { market: { free_delivery: true } }),
+  marketSection("m_reorder", "refresh", "reorder", "mReorder"),
   {
     // 105.1.6 A food delivery company's welcome: order from the restaurants near you, or follow an order.
     id: "food",
@@ -840,6 +893,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
   typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
+  // 115.14 Three ready-made designs for a marketplace: the search on top, the kinds, offers, the club and the places.
+  typed("market", "storefront", MARKETPLACE, ["m_address", "m_kinds", "m_offers", "m_cuisines", "m_club", "m_near", "m_rated", "m_fast", "m_departments", "m_reorder"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }),
+  typed("market_offers", "local_offer", MARKETPLACE, ["m_address", "m_offers", "m_free", "m_club", "m_kinds", "m_rated", "m_reorder"], { type: "logo_center", buttons: ["menu", "notifications"] }),
+  typed("market_grocery", "shopping_cart", MARKETPLACE, ["m_address", "m_kinds", "m_grocery", "m_departments", "m_fast", "m_offers", "m_reorder"], { type: "title_search", buttons: ["notifications", "account"] }),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

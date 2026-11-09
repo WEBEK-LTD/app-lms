@@ -61,6 +61,10 @@ import {
   STUDIO_VISIBILITY,
   STUDIO_INDICATORS,
   STUDIO_CATEGORY_STYLES,
+  STUDIO_MARKET_KINDS,
+  STUDIO_MARKET_SECTIONS,
+  STUDIO_MARKET_SORTS,
+  STUDIO_MARKET_STYLES,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -75,6 +79,7 @@ import {
   type EntryList,
   type HeaderIcon,
   type StudioHeader,
+  type StudioMarket,
   type StudioNode,
   type StudioPage,
   type StudioSides,
@@ -1170,7 +1175,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   }
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets";
+  // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1331,6 +1337,31 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         const label = c.optionalText(where, m?.label, 120, "The place's name");
         if (label) node.map.label = label;
       }
+      break;
+    }
+    case "market": {
+      // 115.14 One marketplace section, drawn by the app from the marketplace's data.
+      const m = record(v.market);
+      if (!m || !oneOf(STUDIO_MARKET_SECTIONS, m.section)) {
+        bad("choose which marketplace section it is.");
+        break;
+      }
+      const market: StudioMarket = { section: m.section };
+      const choose = <T extends string>(key: string, list: readonly T[], fallback: T, what: string) => {
+        if (m[key] === undefined || m[key] === null) return;
+        if (!oneOf(list, m[key])) bad(what);
+        else if (m[key] !== fallback) (market as unknown as Record<string, unknown>)[key] = m[key];
+      };
+      choose("style", STUDIO_MARKET_STYLES, "cards", "choose how the places are drawn.");
+      choose("kind", STUDIO_MARKET_KINDS, "all", "choose which places it shows.");
+      choose("sort", STUDIO_MARKET_SORTS, "recommended", "choose how the places are sorted.");
+      const tag = c.optionalText(where, m.tag, 60, "The tag");
+      if (tag) market.tag = tag;
+      if (m.free_delivery === true) market.free_delivery = true;
+      const limit = studioNumber(m.limit, 1, 40);
+      if (limit !== undefined && Number.isNaN(limit)) bad("how many it shows must be 1 to 40.");
+      else if (limit !== undefined && Math.round(limit) !== 10) market.limit = Math.round(limit);
+      node.market = market;
       break;
     }
     case "ratings": {

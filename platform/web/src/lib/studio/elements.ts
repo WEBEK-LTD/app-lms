@@ -15,6 +15,8 @@ export interface ElementInfo {
   icon: string;
   /** Words people search for, besides its name, in English. */
   keywords: string;
+  /** 115.14 Offered only in projects of this kind (a marketplace's sections). */
+  only?: "marketplace";
 }
 
 export const ELEMENTS: readonly ElementInfo[] = [
@@ -40,6 +42,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "bullets", group: "content", icon: "list", keywords: "list bullets points features checklist" },
   // 112.4 A code people copy with one tap.
   { type: "coupon", group: "content", icon: "confirmation_number", keywords: "coupon code discount promo voucher copy offer" },
+  // 115.14 One marketplace section from the marketplace's data: the address, kinds, offers, cuisines, the club, places, order again.
+  { type: "market", group: "content", icon: "storefront", keywords: "marketplace vendors restaurants supermarket shops offers club cuisines address reorder", only: "marketplace" },
   { type: "icon", group: "more", icon: "emoji_symbols", keywords: "icon symbol" },
   { type: "categories", group: "more", icon: "label", keywords: "categories chips tags filter" },
   { type: "search", group: "more", icon: "search", keywords: "search field" },
@@ -135,5 +139,7 @@ export function newNode(type: StudioNodeType, options: { source: ItemSource | nu
       return { id, type, text: options.text("bullets"), icon: "check_circle", icon_size: 20, gap: 8, padding: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "coupon":
       return { id, type, code: "SAVE10", radius: 10, color: options.brand, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    case "market":
+      return { id, type, market: { section: "vendors" }, margin: { top: 8, end: 0, bottom: 8, start: 0 } };
   }
 }
