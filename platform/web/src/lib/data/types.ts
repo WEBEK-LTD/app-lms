@@ -186,7 +186,7 @@ export interface ScreenshotFrame {
 export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
-export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors" | "taxi";
+export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors" | "taxi" | "marketplace";
 
 /**
  * Where the app's content comes from: the Yallapp plugin on the client's

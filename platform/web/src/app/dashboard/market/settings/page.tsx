@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
 import { btn, Notice, PageHeader, Section } from "@/components/ui";
-import { saveCourierTermsAction, saveMarketSettingsAction } from "@/app/actions/market";
+import { saveCourierTermsAction, saveMarketSettingsAction, setMarketplaceAction } from "@/app/actions/market";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { appPlan } from "@/lib/entitlements";
+import { isMarketplaceApp, marketplaceInPlan } from "@/lib/market/plan";
+import { richText } from "@/i18n/rich";
+import Link from "next/link";
 import { courierTermsFormValues } from "@/lib/market/delivery-forms";
 import { paymentSetupPlan, type PaymentSetupStep } from "@/lib/market/payments";
 import { marketCurrency, marketSettingsOf, paymentSettingsOf } from "@/lib/market/settings";
@@ -37,11 +41,15 @@ function Toggle({ name, on, children, hint }: { name: string; on: string | undef
 
 /** 115.12 Studio › Marketplace settings: the marketplace as a whole, and what the app's couriers cost. */
 export default async function MarketSettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
-  const { app } = await requireClient("settings");
+  const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isFood(app)) return <NotMarket title={t("market.settings")} t={t} />;
   const { error, saved } = await searchParams;
-  const settings = deliverySettingsOf(await (await getStore()).getDeliverySettings(app.id));
+  const store = await getStore();
+  const [stored, planInfo] = await Promise.all([store.getDeliverySettings(app.id), appPlan(store, license, new Date())]);
+  const settings = deliverySettingsOf(stored);
+  const grown = isMarketplaceApp(app);
+  const inPlan = marketplaceInPlan(app, planInfo);
   const currency = marketCurrency(settings);
   const v = marketSettingsFormValues(settings, settings.currency);
   const c = courierTermsFormValues(settings.market, currency);
@@ -57,9 +65,29 @@ export default async function MarketSettingsPage({ searchParams }: { searchParam
         </Notice>
       ) : saved ? (
         <Notice tone="success" icon="check_circle">
-          {t(saved === "couriers" ? "market.savedCouriers" : "market.savedMarket")}
+          {t(saved === "couriers" ? "market.savedCouriers" : saved === "grown" ? "market.savedGrown" : saved === "food" ? "market.savedFood" : "market.savedMarket")}
         </Notice>
       ) : null}
+
+      {/* 115.13 A food delivery project grows into a marketplace, keeping its restaurants. */}
+      <Section titleId="h-kind" title={t("market.kindTitle")}>
+        <form action={setMarketplaceAction} className="flex flex-col gap-3">
+          <p className="m-0 text-[14px] leading-relaxed text-ink-4">{t("market.kindIntro")}</p>
+          <Toggle name="marketplace" on={grown ? "on" : undefined} hint={t("market.kindHint")}>
+            {t("market.kindSwitch")}
+          </Toggle>
+          {grown && !inPlan ? (
+            <p role="note" className="m-0 rounded-xl bg-peach-soft px-4 py-3 text-[14px] leading-relaxed">
+              {richText(t("market.notOnPlan"), { link: (chunk) => <Link href="/dashboard/license">{chunk}</Link> })}
+            </p>
+          ) : null}
+          <div>
+            <button type="submit" className={`${btn.main} h-11`}>
+              {t("market.kindSave")}
+            </button>
+          </div>
+        </form>
+      </Section>
 
       <form action={saveMarketSettingsAction} className="flex flex-col gap-6">
         <Section titleId="h-region" title={t("market.sRegion")}>

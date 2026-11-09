@@ -31,6 +31,7 @@ const OWN_PAGES: Record<string, string[]> = {
   charity: ["work", "volunteer"],
   delivery: ["how-it-works", "join"],
   food: ["how-it-works", "join"],
+  marketplace: ["how-it-works", "join"],
   rides: ["how-it-works", "join"],
   taxi: ["how-it-works", "join"],
   school: ["admissions"],

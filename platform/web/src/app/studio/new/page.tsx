@@ -49,6 +49,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   // 104 Kinds only Studio offers; the ones still being made show as soon.
   const delivery = kindById("delivery");
   const food = kindById("food");
+  const marketplace = kindById("marketplace");
   const ridesKind = kindById("rides");
   const taxi = kindById("taxi");
   const instructors = kindById("instructors");
@@ -60,6 +61,10 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     food && offered.includes(food)
       ? { ...choiceOf(food), name: t("studio.kindFood"), icon: "delivery_dining", text: t("studio.kindFoodText"), soon: false }
       : { id: "food", name: t("studio.kindFood"), icon: "delivery_dining", sources: [], text: t("studio.soon"), soon: true },
+    // 115.13
+    marketplace && offered.includes(marketplace)
+      ? { ...choiceOf(marketplace), name: t("studio.kindMarketplace"), icon: "storefront", text: t("studio.kindMarketplaceText"), soon: false }
+      : { id: "marketplace", name: t("studio.kindMarketplace"), icon: "storefront", sources: [], text: t("studio.soon"), soon: true },
     // 105.2
     ridesKind && offered.includes(ridesKind)
       ? { ...choiceOf(ridesKind), name: t("studio.kindRides"), icon: "local_taxi", text: t("studio.kindRidesText"), soon: false }

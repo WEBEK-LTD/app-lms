@@ -218,6 +218,26 @@ async function settingsContext() {
   return { context: context as ClientContext & { app: App }, app, store, settings };
 }
 
+/**
+ * 115.13 A food delivery project grows into a marketplace, or goes back:
+ * only its kind changes (the vertical `marketplace`), so its restaurants,
+ * menus, couriers and orders stay. The app opens the marketplace once the
+ * plan has `market` (lib/market/plan.ts).
+ */
+export async function setMarketplaceAction(formData: FormData): Promise<void> {
+  const { context, app, store } = await settingsContext();
+  const on = formData.get("marketplace") === "on";
+  const vertical = on ? "marketplace" : null;
+  if ((app.vertical ?? null) !== vertical) {
+    const now = new Date();
+    await recordStaffChange(context, on ? "Grew the food delivery app into a marketplace" : "Made the marketplace a food delivery app again", { vertical: app.vertical ?? null }, { vertical });
+    await store.updateApp(app.id, { vertical }, now);
+  }
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/studio/project", "layout");
+  backToSettings(undefined, on ? "grown" : "food");
+}
+
 /** The marketplace as a whole: country, currency, taxes, the ways to pay, pick-up, orders for later, the club, the wallet, photos. */
 export async function saveMarketSettingsAction(formData: FormData): Promise<void> {
   const { context, app, store, settings } = await settingsContext();
