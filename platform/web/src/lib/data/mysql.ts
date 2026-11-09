@@ -5302,7 +5302,8 @@ export class MysqlStore implements DataStore {
   // 115.3 (part 3) Coupons, the club, joining forms and the vendors' web sign-in
 
   async createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null> {
-    const values = { ...input, code: input.code === null ? null : input.code.toUpperCase() };
+    // 115.18 The vendor's fields as the database keeps them when left out.
+    const values = { productIds: null, createdByVendorId: null, ownerPaused: false, ...input, code: input.code === null ? null : input.code.toUpperCase() };
     try {
       const [result] = await this.run((db) => db.insert(schema.marketCoupons).values(values));
       return { id: Number(result.insertId), ...values };
@@ -5324,7 +5325,7 @@ export class MysqlStore implements DataStore {
     return row ?? null;
   }
 
-  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean } = {}): Promise<MarketCoupon[]> {
+  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean; createdByVendorId?: number } = {}): Promise<MarketCoupon[]> {
     const t = schema.marketCoupons;
     return this.run((db) =>
       db
@@ -5333,8 +5334,10 @@ export class MysqlStore implements DataStore {
         .where(
           and(
             eq(t.appId, appId),
-            query.active !== undefined ? eq(t.active, query.active) : undefined,
+            // 115.18 What the owner paused isn't active, whatever its own switch says.
+            query.active === undefined ? undefined : query.active ? and(eq(t.active, true), eq(t.ownerPaused, false)) : or(eq(t.active, false), eq(t.ownerPaused, true)),
             query.automatic === undefined ? undefined : query.automatic ? isNull(t.code) : isNotNull(t.code),
+            query.createdByVendorId === undefined ? undefined : eq(t.createdByVendorId, query.createdByVendorId),
           ),
         )
         .orderBy(desc(t.createdAt), desc(t.id)),

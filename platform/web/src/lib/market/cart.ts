@@ -151,7 +151,8 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
     const menu = (await store.getRestaurantMenu(appId, vendor.id)) ?? EMPTY_MENU;
     for (const [i, l] of cart.lines.entries()) {
       const field = `lines[${i}]`;
-      const dish = menu.sections.flatMap((s) => s.dishes).find((d) => d.id === l.productId);
+      const section = menu.sections.find((s) => s.dishes.some((d) => d.id === l.productId));
+      const dish = section?.dishes.find((d) => d.id === l.productId);
       // 115 A dish without its photo isn't shown to customers while photos are required, so it can't be ordered either.
       if (!dish || (needPhoto && !dish.imageAssetId)) return refuse(409, "invalid_request", "One of the dishes isn't on the menu any more. Refresh the menu.", field);
       if (!dish.available) return refuse(409, "unavailable_item", `${dish.name} is sold out for now.`, field);
@@ -176,7 +177,8 @@ async function priceLines(store: DataStore, appId: string, vendor: Restaurant, c
         id: i + 1, productId: dish.id, name: dish.name, imageUrl: dish.imageAssetId ? assetUrl(dish.imageAssetId) : null, quantity: l.quantity, unit: "item", choices: names, note: l.note, unitPrice: unit, wasUnitPrice: null,
         total: Math.round(unit * l.quantity), ifMissing: "remove", substituteProductId: null, outcome: null, pickedQuantity: null, substitute: null,
       });
-      departments.push(null);
+      // 115.18 A dish's menu section stands for its department (a vendor's coupon on a section).
+      departments.push(section?.id ?? null);
     }
     return { ok: true, lines, departments, weighed };
   }
@@ -242,11 +244,9 @@ export async function priceMarketCart(
     return { ok: false, refusal: { status, code, error: quote.error, field: quote.field } };
   }
 
-  // The coupon typed, or else the best automatic offer.
-  const byDepartment = new Map<number | null, number>();
-  lined.lines.forEach((l, i) => byDepartment.set(lined.departments[i] ?? null, (byDepartment.get(lined.departments[i] ?? null) ?? 0) + l.total));
+  // The coupon typed, or else the best automatic offer; each line with its department (a dish's menu section) and product.
   const firstOrder = userId === null ? false : (await store.listMarketOrders({ appId, userId, statuses: ["delivered", "picked_up"], limit: 1, offset: 0 })).total === 0;
-  const ctx = { now, vendorId: vendor.id, vendorKind: vendor.kind ?? "restaurant", lines: [...byDepartment].map(([departmentId, total]) => ({ departmentId, total })), userId, firstOrder } as const;
+  const ctx = { now, vendorId: vendor.id, vendorKind: vendor.kind ?? "restaurant", lines: lined.lines.map((l, i) => ({ departmentId: lined.departments[i] ?? null, productId: l.productId, total: l.total })), userId, firstOrder } as const;
   let coupon: PricedCart["coupon"] = null;
   let couponCheck: Extract<CouponCheck, { ok: true }> | null = null;
   let couponRefused: string | null = null;

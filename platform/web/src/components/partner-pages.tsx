@@ -4,7 +4,7 @@ import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { BulkPhotos, PhotoDrop } from "./partner-photo";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
-import type { RestaurantStaff } from "@/lib/data/types";
+import type { MarketCoupon, RestaurantStaff } from "@/lib/data/types";
 import { formatMinor, fromMinor, currencyDecimals } from "@/lib/market/currency";
 import type { CatalogItem, ImportResult, PanelTab } from "@/lib/market/panel-pages";
 import { fill, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
@@ -19,6 +19,7 @@ const TAB_ICONS: Record<PanelTab, IconName> = {
   orders: "notifications",
   catalog: "inventory_2",
   import: "package_2",
+  offers: "local_offer",
   delivery: "delivery_dining",
   staff: "person",
   statements: "receipt_long",
@@ -26,7 +27,7 @@ const TAB_ICONS: Record<PanelTab, IconName> = {
 };
 
 export function PanelTabs({ tabs, current, base, lang, w }: { tabs: PanelTab[]; current: PanelTab; base: string; lang: PanelLang; w: PanelWords }) {
-  const label: Record<PanelTab, string> = { orders: w.tabOrders, catalog: w.tabCatalog, import: w.tabImport, delivery: w.tabDelivery, staff: w.tabStaff, statements: w.tabStatements, complaints: w.tabComplaints };
+  const label: Record<PanelTab, string> = { orders: w.tabOrders, catalog: w.tabCatalog, import: w.tabImport, delivery: w.tabDelivery, offers: w.tabOffers, staff: w.tabStaff, statements: w.tabStatements, complaints: w.tabComplaints };
   return (
     <nav aria-label={w.title} className="-mx-1 flex gap-1 overflow-x-auto pb-1">
       {tabs.map((t) => (
@@ -504,5 +505,132 @@ export function ComplaintsSection({ w, lang, items, currency }: { w: PanelWords;
         </ul>
       )}
     </Card>
+  );
+}
+
+/** 115.18 The place's own coupons and automatic offers: made here, paid by the place, for its own items only. */
+export function OffersSection(props: {
+  w: PanelWords;
+  lang: PanelLang;
+  currency: string;
+  coupons: MarketCoupon[];
+  catalog: { groups: { id: number; name: string }[]; products: { id: number; name: string }[] };
+  rules: { enabled: boolean; maxPercent: number | null };
+  ownDelivery: boolean;
+  now: Date;
+  error: string | null;
+  saved: boolean;
+  create: (f: FormData) => Promise<void>;
+  act: (f: FormData) => Promise<void>;
+}) {
+  const { w, lang, currency, coupons, catalog, rules, ownDelivery, now } = props;
+  const row = (label: string, child: ReactNode, hint?: string) => (
+    <label className="flex flex-col gap-1.5 text-sm font-bold text-ink-2">
+      {label}
+      {child}
+      {hint ? <span className="text-xs font-normal text-faint">{hint}</span> : null}
+    </label>
+  );
+  const status = (c: MarketCoupon) => (c.ownerPaused ? w.offerOwnerPaused : c.endsAt && c.endsAt <= now ? w.offerEnded : c.active ? w.offerActive : w.offerPaused);
+  const worth = (c: MarketCoupon) => (c.kind === "percent" ? `${c.value}%` : c.kind === "free_delivery" ? w.offerFree : formatMinor(c.value, currency, lang));
+  return (
+    <div className="flex flex-col gap-6">
+      <Card title={w.offersTitle} text={w.offersText}>
+        {props.error ? <p className="mb-4 rounded-xl bg-danger-bg px-4 py-3 text-sm font-semibold text-danger">{props.error}</p> : null}
+        {props.saved ? <p className="mb-4 rounded-xl bg-success-bg px-4 py-3 text-sm font-semibold text-success">{w.offerSaved}</p> : null}
+        {coupons.length === 0 ? (
+          <p className="m-0 text-[15px] text-muted">{w.offersNone}</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {coupons.map((c) => {
+              const ended = !!c.endsAt && c.endsAt <= now;
+              return (
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-sand px-4 py-3">
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-[15px] font-bold text-ink">
+                      {c.title} · {worth(c)}
+                    </span>
+                    <span className="text-[13px] text-muted" dir="auto">
+                      {c.code ?? w.offerAuto} · {status(c)}
+                    </span>
+                  </span>
+                  {ended ? null : (
+                    <form action={props.act} className="flex gap-2">
+                      <input type="hidden" name="id" value={c.id} />
+                      {c.active && !c.ownerPaused ? (
+                        <button name="action" value="pause" className="h-9 rounded-lg border border-line bg-white px-3 text-sm font-bold text-ink">
+                          {w.offerPause}
+                        </button>
+                      ) : !c.ownerPaused && rules.enabled ? (
+                        <button name="action" value="resume" className="h-9 rounded-lg border border-line bg-white px-3 text-sm font-bold text-ink">
+                          {w.offerResume}
+                        </button>
+                      ) : null}
+                      <button name="action" value="end" className="h-9 rounded-lg border border-line bg-white px-3 text-sm font-bold text-danger">
+                        {w.offerEnd}
+                      </button>
+                    </form>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
+      <Card title={w.offerNew} text={rules.enabled ? (rules.maxPercent !== null ? fill(w.offersMax, { max: String(rules.maxPercent) }) : undefined) : w.offersOff}>
+        {rules.enabled ? (
+          <form action={props.create} className="grid gap-5 md:grid-cols-2">
+            {row(w.offerName, <input name="title" required maxLength={80} className={field} />)}
+            {row(w.offerCode, <input name="code" maxLength={24} dir="ltr" className={`${field} uppercase`} />, w.offerCodeHint)}
+            {row(
+              w.offerKind,
+              <select name="kind" defaultValue="percent" className={field}>
+                <option value="percent">{w.offerPercent}</option>
+                <option value="amount">{w.offerAmount}</option>
+                {ownDelivery ? <option value="free_delivery">{w.offerFree}</option> : null}
+              </select>,
+              ownDelivery ? undefined : w.offerFreeNote,
+            )}
+            {row(w.offerValue, <input name="value" inputMode="decimal" dir="ltr" className={field} />)}
+            {row(w.offerMaxDiscount, <input name="max_discount" inputMode="decimal" dir="ltr" className={field} />)}
+            {row(w.offerMinOrder, <input name="min_order" inputMode="decimal" dir="ltr" className={field} />)}
+            {row(w.offerUses, <input name="uses_limit" inputMode="numeric" dir="ltr" className={field} />)}
+            {row(w.offerPerPerson, <input name="per_user_limit" inputMode="numeric" dir="ltr" className={field} />)}
+            {row(w.offerStarts, <input name="starts" type="date" dir="ltr" className={field} />)}
+            {row(w.offerEnds, <input name="ends" type="date" dir="ltr" className={field} />)}
+            <label className="flex items-center gap-3 text-[15px] font-semibold text-ink md:col-span-2">
+              <input type="checkbox" name="first_order" value="1" className="h-5 w-5 accent-[var(--color-ember)]" />
+              {w.offerFirst}
+            </label>
+            {catalog.groups.length || catalog.products.length ? (
+              <fieldset className="m-0 flex flex-col gap-3 border-0 p-0 md:col-span-2">
+                <legend className="mb-1 text-sm font-bold text-ink-2">{w.offerOnly}</legend>
+                {[
+                  { title: w.offerGroups, prefix: "group_", items: catalog.groups },
+                  { title: w.offerProducts, prefix: "product_", items: catalog.products },
+                ].map((g) =>
+                  g.items.length ? (
+                    <details key={g.prefix} className="rounded-2xl border border-line bg-sand px-4 py-3">
+                      <summary className="cursor-pointer text-sm font-bold text-ink">{g.title}</summary>
+                      <div className="mt-3 grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
+                        {g.items.map((item) => (
+                          <label key={item.id} className="flex items-center gap-2 text-[14px] text-ink">
+                            <input type="checkbox" name={`${g.prefix}${item.id}`} value="1" className="h-4 w-4 accent-[var(--color-ember)]" />
+                            {item.name}
+                          </label>
+                        ))}
+                      </div>
+                    </details>
+                  ) : null,
+                )}
+              </fieldset>
+            ) : null}
+            <div className="md:col-span-2">
+              <button className={primary}>{w.offerCreate}</button>
+            </div>
+          </form>
+        ) : null}
+      </Card>
+    </div>
   );
 }
