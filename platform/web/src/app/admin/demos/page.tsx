@@ -39,6 +39,7 @@ const ERROR: Record<string, string> = {
   version_too_low: "The version is lower than the last build's.",
   invalid_config: "The build config isn't valid. Refresh the demo app and try again.",
   courier_app_off: "This demo has no couriers' or drivers' app.",
+  vendor_app_off: "This demo has no vendor app.",
 };
 
 /**
