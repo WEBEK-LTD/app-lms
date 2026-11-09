@@ -27,3 +27,15 @@ Stream<void> draftSavedMessages(String platformOrigin) {
   );
   return controller.stream;
 }
+
+/// 1.2 A block pressed in the app preview inside the Pages & look editor:
+/// `{yallappPreview: "block-tapped", page, block}` to the page that holds
+/// this frame, at the platform's own origin only, so the editor opens it.
+void postBlockTapped(String platformOrigin, String page, String block) {
+  final parent = web.window.parent;
+  if (parent == null || parent.strictEquals(web.window).toDart) return;
+  parent.postMessage(
+    {'yallappPreview': 'block-tapped', 'page': page, 'block': block}.jsify(),
+    platformOrigin.toJS,
+  );
+}

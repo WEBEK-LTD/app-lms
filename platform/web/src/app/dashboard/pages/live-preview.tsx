@@ -169,3 +169,29 @@ export function notifyDraftSaved(frames: HTMLElement | null): void {
     frame.contentWindow?.postMessage({ yallappPreview: "draft-saved" }, window.location.origin);
   }
 }
+
+/**
+ * 1.2 A block pressed in the app preview: the app in one of the frames posts
+ * `{yallappPreview: "block-tapped", page, block}` (mobile/lib/core/preview).
+ * Only from those frames, at this origin.
+ */
+export function useBlockTaps(frames: RefObject<HTMLElement | null>, onTap: (page: string, block: string) => void): void {
+  const latest = useRef(onTap);
+  useEffect(() => {
+    latest.current = onTap;
+  });
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const fromFrame = [...(frames.current?.querySelectorAll("iframe") ?? [])].some((frame) => frame.contentWindow === event.source);
+      if (!fromFrame) return;
+      const data: unknown = event.data;
+      if (!data || typeof data !== "object") return;
+      const { yallappPreview, page, block } = data as Record<string, unknown>;
+      if (yallappPreview !== "block-tapped" || typeof page !== "string" || typeof block !== "string") return;
+      latest.current(page, block);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [frames]);
+}

@@ -88,6 +88,30 @@ test("the quick view is one click away", async () => {
   await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
 });
 
+test("1.2 a block pressed in the app preview opens in the editor", async () => {
+  await own.getByRole("tab", { name: "Pages" }).click();
+  await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
+  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  expect(await list.count()).toBeGreaterThan(1);
+  const second = list.nth(1);
+  const blockId = (await second.getAttribute("id"))!.replace(/^block-/, "");
+  const slug = (await own.locator("section[data-page-slug]").getAttribute("data-page-slug"))!;
+  // What the app in the frame posts when a block in it is pressed (mobile/lib/core/preview).
+  const app = own.frames().find((f) => f.url().includes("/preview-app/"))!;
+  const tap = (page: string, block: string) => app.evaluate(([page, block]) => window.parent.postMessage({ yallappPreview: "block-tapped", page, block }, window.location.origin), [page, block] as const);
+  // A page or block the editor doesn't have changes nothing.
+  await tap(slug, "no-such-block");
+  await expect(list.getByRole("button", { expanded: true })).toHaveCount(0);
+  // The same message from the dashboard itself, not the frame, is ignored.
+  await own.evaluate(([page, block]) => window.postMessage({ yallappPreview: "block-tapped", page, block }, window.location.origin), [slug, blockId] as const);
+  await expect(list.getByRole("button", { expanded: true })).toHaveCount(0);
+  await tap(slug, blockId);
+  await expect(second.getByRole("button", { expanded: true })).toBeVisible();
+  await expect(list.nth(0).getByRole("button", { expanded: true })).toHaveCount(0);
+  await expect(own.locator("iframe[data-testid=editor-preview]")).toHaveCount(1);
+  await second.getByRole("button", { expanded: true }).click();
+});
+
 test("82.2 a block clicked on the phone opens in the editor; one dragged onto the phone goes where it's dropped", async () => {
   await own.getByRole("tab", { name: "Pages" }).click();
   await own.getByRole("button", { name: "Quick view", exact: true }).click();

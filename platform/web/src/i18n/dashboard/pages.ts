@@ -19,7 +19,7 @@ export const en = {
   previewChoice: "Preview",
   previewTheApp: "The app",
   previewSketch: "Quick view",
-  previewLiveNote: "The real app, with your draft: it changes as your edits are saved.",
+  previewLiveNote: "The real app, with your draft: it changes as your edits are saved. Press a block in it to edit that block.",
   previewReload: "Reload the app",
   previewFrame: "{app} with your draft",
   // 82.3 Sizes, systems, light and dark.
@@ -707,7 +707,7 @@ export const ar: Messages = {
   previewChoice: "المعاينة",
   previewTheApp: "التطبيق",
   previewSketch: "عرض سريع",
-  previewLiveNote: "التطبيق الحقيقي بمسودتك: يتغيّر كلما حُفظت تعديلاتك.",
+  previewLiveNote: "التطبيق الحقيقي بمسودتك: يتغيّر كلما حُفظت تعديلاتك. اضغط على أي كتلة فيه لتعديلها.",
   previewReload: "أعد تحميل التطبيق",
   previewFrame: "{app} بمسودتك",
   // 82.3 Sizes, systems, light and dark.
@@ -1385,7 +1385,7 @@ export const tr: Messages = {
   previewChoice: "Önizleme",
   previewTheApp: "Uygulama",
   previewSketch: "Hızlı görünüm",
-  previewLiveNote: "Taslağınızla gerçek uygulama: düzenlemeleriniz kaydedildikçe değişir.",
+  previewLiveNote: "Taslağınızla gerçek uygulama: düzenlemeleriniz kaydedildikçe değişir. Düzenlemek için içindeki bir bloğa basın.",
   previewReload: "Uygulamayı yeniden yükle",
   previewFrame: "Taslağınızla {app}",
   // 82.3 Sizes, systems, light and dark.

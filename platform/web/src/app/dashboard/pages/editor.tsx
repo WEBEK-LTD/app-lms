@@ -46,7 +46,7 @@ import { BlockSettings, type BlockContext } from "./block-settings";
 import { MediaPicker } from "@/components/media-picker";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { BLOCK_DRAG_TYPE, DesignThumb, HEADER_ICON_GLYPHS, PhonePreview } from "./preview";
-import { LivePreview, notifyDraftSaved } from "./live-preview";
+import { LivePreview, notifyDraftSaved, useBlockTaps } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { FontPicker } from "@/components/font-picker";
 import type { OwnFontView } from "@/lib/fonts/own";
@@ -735,6 +735,15 @@ export function PagesEditor({
     requestAnimationFrame(() => document.getElementById(`block-${id}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
   }
 
+  // 1.2 A block pressed in the app preview opens here too, on its page.
+  useBlockTaps(frames, (slug, id) => {
+    if (!plan.pageEditor) return;
+    const target = layout.pages.find((p) => p.slug === slug);
+    if (!target?.blocks.some((b) => b.id === id)) return;
+    setPageSlug(slug);
+    selectBlock(id);
+  });
+
   function onDrop(event: DragEvent, to: number) {
     event.preventDefault();
     if (page && dragFrom !== null) updateBlocks(page.slug, (blocks) => moveItem(blocks, dragFrom, to));
@@ -1026,7 +1035,7 @@ export function PagesEditor({
             </section>
 
             {page ? (
-              <section aria-labelledby="h-page" className={sectionClass}>
+              <section aria-labelledby="h-page" data-page-slug={page.slug} className={sectionClass}>
                 <h2 id="h-page" className="m-0 text-lg font-bold">
                   {t("pages.pageHeading", { name: translated(page, lang.edit, def).title || page.slug })}
                 </h2>

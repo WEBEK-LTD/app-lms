@@ -117,6 +117,47 @@ void main() {
     expect(count(app.api, 'getPages'), pagesBefore);
   });
 
+  testWidgets('1.2 a block pressed in the editor\'s preview opens it there', (
+    tester,
+  ) async {
+    final taps = <(String, String)>[];
+    final app = TestApp(
+      api: api(),
+      preview: session(draft: true),
+      signedIn: true,
+      overrides: [
+        draftSavedProvider.overrideWithValue(const Stream.empty()),
+        blockTappedProvider.overrideWithValue(
+          (page, block) => taps.add((page, block)),
+        ),
+      ],
+    );
+    await app.pump(tester);
+    final text = find.textContaining('First draft', findRichText: true);
+    expect(text, findsOneWidget);
+    await tester.tap(text);
+    await tester.pump();
+    expect(taps, [('home', 'b1')]);
+    // A scroll is not a press.
+    await tester.drag(text, const Offset(0, -80));
+    await tester.pump();
+    expect(taps, hasLength(1));
+  });
+
+  testWidgets('1.2 outside the editor nothing reports presses', (tester) async {
+    final app = TestApp(api: api(), preview: session(draft: false));
+    await app.pump(tester);
+    expect(app.container.read(blockTappedProvider), isNull);
+    expect(find.byType(Listener), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(BlockTapReporter),
+        matching: find.byType(Listener),
+      ),
+      findsNothing,
+    );
+  });
+
   test('82.3 the preview link asks for Android or an iPhone', () {
     PreviewLaunch? launch(String query) => PreviewLaunch.fromUri(
       Uri.parse('https://yallapp.com.tr/preview-app/index.html?$query'),
