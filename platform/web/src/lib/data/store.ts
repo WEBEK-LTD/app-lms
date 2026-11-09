@@ -275,6 +275,64 @@ export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVer
 export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
+
+/**
+ * Many of a school's rows at once (DataStore.saveSchoolRows), for the demo
+ * apps' refresh (lib/demo): new rows as they are saved, and the rows a
+ * school keeps one of per key (a student's submission, a day's check-in…).
+ */
+export interface SchoolRows {
+  people: Omit<SchoolPerson, "id">;
+  periods: Omit<SchoolPeriod, "id">;
+  homework: Omit<SchoolHomework, "id">;
+  /** One per homework and student. */
+  submissions: SchoolSubmission;
+  assessments: Omit<SchoolAssessment, "id">;
+  /** One per assessment and student. */
+  scores: SchoolScore;
+  announcements: Omit<SchoolAnnouncement, "id">;
+  fees: Omit<SchoolFee, "id">;
+  behaviourCategories: Omit<SchoolBehaviourCategory, "id">;
+  behaviour: Omit<SchoolBehaviourNote, "id">;
+  events: Omit<SchoolEvent, "id">;
+  exams: Omit<SchoolExam, "id">;
+  syllabusUnits: Omit<SchoolSyllabusUnit, "id">;
+  syllabusTopics: Omit<SchoolSyllabusTopic, "id">;
+  /** One per class and topic. */
+  topicProgress: SchoolTopicProgress;
+  reports: Omit<SchoolReport, "id">;
+  /** One per person and day; only for a person of the same school. */
+  checkins: SchoolCheckin;
+  /** One per person; only for a teacher or staff member of the same school. */
+  salaries: SchoolSalary;
+  books: Omit<SchoolBook, "id">;
+  bookCopies: Omit<SchoolBookCopy, "id">;
+  busStops: Omit<SchoolBusStop, "id">;
+  /** At most one per route, day and trip. */
+  busRuns: Omit<SchoolBusRun, "id">;
+  /** One per trip and student; only on a trip of the same school. */
+  busMarks: SchoolBusMark;
+  /** One per slip and student; only for a slip and a student of the same school. */
+  slipAnswers: SchoolSlipAnswer;
+}
+
+/** The school's rows DataStore.deleteSchoolRows deletes by ID, as their own delete does (with what goes with them). */
+export type SchoolRowKind =
+  | "periods"
+  | "homework"
+  | "assessments"
+  | "announcements"
+  | "fees"
+  | "behaviour"
+  | "behaviourCategories"
+  | "events"
+  | "exams"
+  | "syllabusUnits"
+  | "reports"
+  | "reportTemplates"
+  | "busRoutes"
+  | "books"
+  | "slips";
 /** Signing keys created by the build pipeline. Written only through `saveSigningKeys`, which never replaces one. */
 export type SigningKeyColumn = "androidUploadKeyEncrypted" | "iosDistributionEncrypted";
 export type SigningKeysPatch = Partial<Record<SigningKeyColumn, string>>;
@@ -1096,6 +1154,15 @@ export interface DataStore {
   listSchoolBusMarks(appId: string, filter: { runId?: number; runIds?: number[]; studentId?: number }): Promise<SchoolBusMark[]>;
   /** One per trip and student. */
   saveSchoolBusMark(mark: SchoolBusMark): Promise<void>;
+  /**
+   * Many rows at once, in this order: one query where a row at a time
+   * would be one each (the demo apps' refresh). New rows are added as given;
+   * rows kept one per key are added or saved over, as their own save does,
+   * and left out when they aren't of the same school.
+   */
+  saveSchoolRows<K extends keyof SchoolRows>(kind: K, rows: SchoolRows[K][]): Promise<void>;
+  /** Deletes these of the school's rows, and what goes with each, as their own delete does. */
+  deleteSchoolRows(appId: string, kind: SchoolRowKind, ids: number[]): Promise<void>;
 
   // 113.11 The library
   /** By title; `q` matches the title, the author or the ISBN. */
@@ -1539,13 +1606,14 @@ export interface DataStore {
 
   // 16 Demo apps
   /**
-   * Deletes what app users did in one app before `before`: orders, appointments,
+   * Deletes what app users did in one app (or in each of these, at once)
+   * before `before`: orders, appointments,
    * conversations with the office (and their messages), favorites, enrolments,
    * lesson progress, notifications to one user, and devices not seen since
    * (signed out). Users, products, courses and listings stay. Only ever called
    * for demo apps (lib/demo/cleanup.ts checks).
    */
-  purgeDemoActivity(appId: string, before: Date): Promise<DemoPurgeCounts>;
+  purgeDemoActivity(appId: string | readonly string[], before: Date): Promise<DemoPurgeCounts>;
 
   // 44 Analytics for app owners (lib/analytics). Days are UTC, YYYY-MM-DD.
   insertAnalyticsEvents(events: AnalyticsEventRow[]): Promise<void>;

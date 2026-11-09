@@ -1,6 +1,7 @@
 import { addDays, utcToLocal } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { sameRows, unchanged } from "./rows";
 import type { SchoolPeople } from "./school";
 
 /**
@@ -15,7 +16,7 @@ export async function syncSchoolParentArea(store: DataStore, app: Pick<App, "id"
   const lina = people.byName.get("student:Lina Haddad") ?? null;
   const adam = people.byName.get("student:Adam Haddad") ?? null;
   const rania = people.byName.get("parent:Rania Haddad") ?? null;
-  for (const slip of await store.listSchoolSlips(app.id)) await store.deleteSchoolSlip(app.id, slip.id);
+  await store.deleteSchoolRows(app.id, "slips", (await store.listSchoolSlips(app.id)).map((slip) => slip.id));
   const grade5 = people.classes.get("Grade 5 A") ?? null;
   if (grade5 !== null) {
     await store.saveSchoolSlip(
@@ -28,12 +29,20 @@ export async function syncSchoolParentArea(store: DataStore, app: Pick<App, "id"
     now,
   );
   if (school && rania) {
-    for (const child of [lina, adam]) if (child) await store.saveSchoolSlipAnswer({ appId: app.id, slipId: school.id, studentId: child.id, answer: "yes", signedName: "Rania Haddad", parentId: rania.id, answeredAt: new Date(now.getTime() - 20 * 3_600_000) });
+    await store.saveSchoolRows(
+      "slipAnswers",
+      [lina, adam].flatMap((child) => (child ? [{ appId: app.id, slipId: school.id, studentId: child.id, answer: "yes" as const, signedName: "Rania Haddad", parentId: rania.id, answeredAt: new Date(now.getTime() - 20 * 3_600_000) }] : [])),
+    );
   }
   if (lina) {
-    for (const note of await store.listSchoolPickupNotes(app.id, { studentId: lina.id })) await store.deleteSchoolPickupNote(app.id, lina.id, note.date);
-    await store.saveSchoolPickupNote({ appId: app.id, studentId: lina.id, date: today, name: "Samir Haddad", relation: "Grandfather", phone: "+20 122 555 0101", note: "I have a meeting until 15:00.", writtenBy: "Rania Haddad", createdAt: now });
-    await store.saveSchoolPickup({
+    // Today's note and the list, saved again only when they aren't so already.
+    const note = { appId: app.id, studentId: lina.id, date: today, name: "Samir Haddad", relation: "Grandfather", phone: "+20 122 555 0101", note: "I have a meeting until 15:00.", writtenBy: "Rania Haddad" };
+    const notes = await store.listSchoolPickupNotes(app.id, { studentId: lina.id });
+    if (!sameRows(notes, [note])) {
+      for (const old of notes) await store.deleteSchoolPickupNote(app.id, lina.id, old.date);
+      await store.saveSchoolPickupNote({ ...note, createdAt: now });
+    }
+    const pickup = {
       appId: app.id,
       studentId: lina.id,
       people: [
@@ -41,8 +50,9 @@ export async function syncSchoolParentArea(store: DataStore, app: Pick<App, "id"
         { name: "Samir Haddad", relation: "Grandfather", phone: "+20 122 555 0101", photo: null },
       ],
       updatedBy: "Rania Haddad",
-      updatedAt: now,
-    });
+    };
+    const saved = await store.getSchoolPickup(app.id, lina.id);
+    if (!saved || !unchanged(saved, pickup)) await store.saveSchoolPickup({ ...pickup, updatedAt: now });
   }
   if (adam) {
     const reason = "A cold: he stayed at home on the doctor's advice.";
