@@ -9,7 +9,7 @@ import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } f
 import { aboutPage, contactPage, page, PALETTES, PICTURE, tab, type Design, type Palette } from "./build";
 import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
 import { SCHOOL_DESIGNS } from "./school";
-import { DELIVERY_DESIGNS, FOOD_DESIGNS, RIDES_DESIGNS, TAXI_DESIGNS } from "./transport";
+import { DELIVERY_DESIGNS, FOOD_DESIGNS, MARKET_DESIGNS, RIDES_DESIGNS, TAXI_DESIGNS } from "./transport";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
 export type { Design } from "./build";
@@ -66,6 +66,7 @@ export const DESIGNS: readonly Design[] = [
   ...CHARITY_DESIGNS,
   ...DELIVERY_DESIGNS,
   ...FOOD_DESIGNS,
+  ...MARKET_DESIGNS,
   ...RIDES_DESIGNS,
   ...TAXI_DESIGNS,
   ...INSTRUCTORS_DESIGNS,
