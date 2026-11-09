@@ -3,6 +3,8 @@
 import type { CSSProperties, DragEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
+import { forTablet } from "@/lib/studio/tablet";
+import { mapTree } from "@/lib/studio/tree";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
@@ -55,6 +57,8 @@ interface ViewProps {
   editing?: StudioEditing;
   /** Editor audit 3.3: inside a locked element, which the canvas leaves alone with what it holds. */
   lockedAbove?: boolean;
+  /** Editor audit 3.3: shown on a tablet, with each element's tablet changes. */
+  tablet?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string; /** 115.14 A marketplace section's name, by section. */ market?: Record<string, string> };
 }
@@ -114,7 +118,8 @@ function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", paren
   return {};
 }
 
-export function StudioView(props: ViewProps) {
+export function StudioView(viewProps: ViewProps) {
+  const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";

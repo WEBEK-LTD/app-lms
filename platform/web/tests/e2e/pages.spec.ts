@@ -241,6 +241,51 @@ test("the client builds a page, reorders it and publishes", async () => {
   await expect(own.getByText(/Published version 20\d\d-.*\.1,/)).toBeVisible();
 });
 
+test("1.3 on a wide screen the chosen block's settings stay in a panel beside the list", async () => {
+  const size = own.viewportSize()!;
+  await own.setViewportSize({ width: 1680, height: 1000 });
+  try {
+    await own.getByRole("tab", { name: "Pages" }).click();
+    const page = own.getByRole("region", { name: /^Page: / });
+    const list = page.getByRole("list", { name: "Blocks" });
+    const blocks = list.locator(":scope > li");
+    const panel = page.locator("#block-panel");
+    await expect(panel).toBeVisible();
+    // Nothing chosen yet: the panel says how to choose.
+    if (await panel.getByRole("group").count()) await panel.getByRole("button", { name: "Close the block's settings" }).click();
+    await expect(panel).toContainText("Choose a block in the list or in the app to edit it here.");
+
+    // The second block opens in the panel, not in the list, which stays short.
+    await blocks.nth(1).getByRole("button", { expanded: false }).first().click();
+    const settings = panel.getByRole("group", { name: "Block 2 settings" });
+    await expect(settings).toBeVisible();
+    await expect(blocks.nth(1).getByRole("button", { expanded: true })).toHaveAttribute("aria-controls", "block-panel");
+    await expect(list.getByRole("group")).toHaveCount(0);
+    // Beside the list, and kept in view while the page scrolls.
+    const listBox = (await list.boundingBox())!;
+    const panelBox = (await panel.boundingBox())!;
+    expect(panelBox.x).toBeGreaterThan(listBox.x + listBox.width - 1);
+    await own.mouse.wheel(0, 600);
+    await expect(settings).toBeInViewport();
+
+    // A new block opens in the panel at once; an edit there is saved.
+    const before = await blocks.count();
+    await page.getByRole("button", { name: "Add Text block" }).click();
+    const text = panel.getByRole("group", { name: `Block ${before + 1} settings` });
+    // Added from below the list, its settings come into view.
+    await expect(text.getByLabel("Text", { exact: true })).toBeInViewport();
+    await text.getByLabel("Text", { exact: true }).fill("<p>From the side panel</p>");
+    await expect(blocks.last()).toContainText("Text: From the side panel");
+    await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("button", { name: `Delete block ${before + 1}` }).click();
+    await expect(blocks).toHaveCount(before);
+    await expect(panel).toContainText("Choose a block in the list or in the app to edit it here.");
+    await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+  } finally {
+    await own.setViewportSize(size);
+  }
+});
+
 test("1.4 How many can be emptied and typed into, also in Arabic digits", async () => {
   const page = own.getByRole("region", { name: /^Page: / });
   const blocks = page.getByRole("list", { name: "Blocks" }).getByRole("listitem");
