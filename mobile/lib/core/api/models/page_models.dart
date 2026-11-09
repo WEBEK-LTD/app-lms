@@ -1678,6 +1678,7 @@ class StudioPage {
     this.background,
     this.darkBackground,
     this.showTabs = true,
+    this.tabletBody,
   });
 
   /// Null when it is missing or its body can't be read.
@@ -1686,8 +1687,14 @@ class StudioPage {
     final json = asJson(value);
     final body = StudioNode.tryParse(json['body']);
     if (body == null) return null;
+    // Editor audit 3.3: read a second time with the tablet changes, only
+    // when some element has them.
+    final tablet = _hasTablet(json['body'])
+        ? StudioNode.tryParse(json['body'], tablet: true)
+        : null;
     return StudioPage(
       body: body,
+      tabletBody: tablet,
       header: StudioHeader.tryParse(json['header']),
       background: optString(json, 'background'),
       darkBackground: optString(json, 'dark_background'),
@@ -1696,10 +1703,28 @@ class StudioPage {
   }
 
   final StudioNode body;
+
+  /// Editor audit 3.3: the body with each element's tablet changes, for
+  /// screens at least 600 wide on their short side; null without any.
+  final StudioNode? tabletBody;
   final StudioHeader? header;
   final String? background;
   final String? darkBackground;
   final bool showTabs;
+
+  /// The body for a screen whose short side is this wide.
+  StudioNode bodyFor(double shortestSide) =>
+      shortestSide >= 600 ? (tabletBody ?? body) : body;
+
+  static bool _hasTablet(Object? node, [int depth = 0]) {
+    if (node is! Map || depth > 16) return false;
+    if (node['tablet'] is Map) return true;
+    final children = node['children'];
+    if (children is List && children.any((c) => _hasTablet(c, depth + 1))) {
+      return true;
+    }
+    return _hasTablet(node['card'], depth + 1);
+  }
 }
 
 enum StudioHeaderType { logoCenter, titleSearch, logoActions, transparent }
@@ -2219,10 +2244,14 @@ class StudioNode {
 
   /// Null for a type this app doesn't know (left out with what it holds),
   /// or one it can't read.
-  static StudioNode? tryParse(Object? value, {int depth = 0}) {
+  static StudioNode? tryParse(
+    Object? value, {
+    int depth = 0,
+    bool tablet = false,
+  }) {
     if (value is! Map || depth > 16) return null;
     try {
-      final json = asJson(value);
+      final json = tablet ? _onTablet(asJson(value)) : asJson(value);
       final id = reqString(json, 'id');
       final type = enumOrNull(StudioNodeType.values, json['type']);
       if (type == null) return null;
@@ -2236,7 +2265,7 @@ class StudioNode {
         type: type,
         children: [
           for (final child in rawChildren is List ? rawChildren : const [])
-            ?StudioNode.tryParse(child, depth: depth + 1),
+            ?StudioNode.tryParse(child, depth: depth + 1, tablet: tablet),
         ],
         width: StudioSize.tryParse(json['width']),
         height: StudioSize.tryParse(json['height']),
@@ -2304,7 +2333,11 @@ class StudioNode {
         scroll: boolOr(json, 'scroll', false),
         source: enumOrNull(ItemSource.values, json['source']),
         layout: enumFrom(ItemsLayout.values, json['layout'], ItemsLayout.grid),
-        card: StudioNode.tryParse(json['card'], depth: depth + 1),
+        card: StudioNode.tryParse(
+          json['card'],
+          depth: depth + 1,
+          tablet: tablet,
+        ),
         bind: enumOrNull(StudioBind.values, json['bind']),
         items: _entries(json, 'items', _itemOrNull),
         categories: _entries(json, 'categories', _categoryOrNull),
@@ -2332,6 +2365,22 @@ class StudioNode {
     } on FormatException {
       return null;
     }
+  }
+
+  /// Editor audit 3.3: the element with its tablet changes (`tablet`) put
+  /// over it; its font's fields one by one.
+  static Map<String, dynamic> _onTablet(Map<String, dynamic> json) {
+    final raw = json['tablet'];
+    if (raw is! Map) return json;
+    final changes = asJson(raw);
+    final font = json['font'];
+    final tabletFont = changes['font'];
+    return {
+      ...json,
+      ...changes,
+      if (font is Map && tabletFont is Map)
+        'font': {...asJson(font), ...asJson(tabletFont)},
+    };
   }
 
   final String id;

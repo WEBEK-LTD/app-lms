@@ -58,7 +58,7 @@ class StudioPageView extends ConsumerWidget {
     final header = page.header;
     final overlay = header?.type == StudioHeaderType.transparent;
     // Elements pinned at the top or bottom of the page's own column.
-    final body = page.body;
+    final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
     bool pinned(StudioNode n) => n.pin != StudioPin.none;
     final pinnedTop = [
       for (final n in body.children)

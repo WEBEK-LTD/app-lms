@@ -58,6 +58,7 @@ import {
   STUDIO_PRESSES,
   STUDIO_SHADOWS,
   STUDIO_TEXT_STYLES,
+  STUDIO_TABLET_FIELDS,
   STUDIO_TEXT_ALIGNS,
   STUDIO_VISIBILITY,
   STUDIO_INDICATORS,
@@ -1501,6 +1502,31 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       // 112.4 A place is for what lies on a stack.
       .map((child) => (child.place && node.type !== "stack" ? (({ place: _p, ...rest }) => (void _p, rest))(child) : child));
   } else if (Array.isArray(v.children) && v.children.length) bad("only rows, columns and other layouts hold elements.");
+
+  // Editor audit 3.3: its sizes, spacing and text on tablets, checked as the element would be with them.
+  if (v.tablet !== undefined && v.tablet !== null) {
+    const changes = record(v.tablet);
+    if (!changes) bad("the tablet changes aren't valid.");
+    else {
+      const keys = Object.keys(changes).filter((k) => changes[k] !== undefined && changes[k] !== null);
+      if (keys.some((k) => !(STUDIO_TABLET_FIELDS as readonly string[]).includes(k))) bad("only sizes, spacing and text can change on tablets.");
+      const fields = keys.filter((k): k is (typeof STUDIO_TABLET_FIELDS)[number] => (STUDIO_TABLET_FIELDS as readonly string[]).includes(k));
+      if (fields.length) {
+        const sub = new Checker();
+        const own = Object.fromEntries(Object.entries(v).filter(([k]) => k !== "children" && k !== "card" && k !== "tablet"));
+        const onTablet = parseNode({ ...ctx, c: sub }, `${where} on tablets`, { ...own, ...Object.fromEntries(fields.map((k) => [k, changes[k]])) }, { count: 0, ids: new Set() }, depth, card);
+        const before = new Set(c.errors);
+        for (const error of sub.errors) if (!before.has(error) && !before.has(error.replace(`${where} on tablets`, where))) c.errors.push(error);
+        if (onTablet && !sub.errors.length) {
+          const tablet: Record<string, unknown> = {};
+          // A value the element's own check leaves out (the usual one, as `start`) is kept: it differs on tablets.
+          for (const k of fields) tablet[k] = onTablet[k] ?? (typeof changes[k] === "object" ? undefined : changes[k]);
+          for (const k of Object.keys(tablet)) if (tablet[k] === undefined) delete tablet[k];
+          if (Object.keys(tablet).length) node.tablet = tablet as StudioNode["tablet"];
+        }
+      }
+    }
+  }
   return node;
 }
 
