@@ -69,6 +69,7 @@ final schoolModule = AppModule(
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||
     BuiltInScreen.restaurants ||
+    BuiltInScreen.club ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.ride ||

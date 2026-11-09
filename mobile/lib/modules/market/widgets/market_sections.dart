@@ -9,6 +9,7 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/app_router.dart' show openLocation;
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
@@ -230,7 +231,15 @@ class _Hero extends StatelessWidget {
                         ),
                       ),
                     const SizedBox(height: 16),
-                    _SearchField(hint: node.text ?? l10n.marketSearchHint),
+                    // 115 Opens the Search tab, or the search on top.
+                    GestureDetector(
+                      key: const ValueKey('market-hero-search'),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => openLocation(context, Paths.marketSearch),
+                      child: _SearchField(
+                        hint: node.text ?? l10n.marketSearchHint,
+                      ),
+                    ),
                   ],
                 ),
               ),

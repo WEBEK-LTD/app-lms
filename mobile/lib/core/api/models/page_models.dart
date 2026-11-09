@@ -358,6 +358,9 @@ enum BuiltInScreen {
   foodOrders,
   restaurant,
 
+  /// 115 A marketplace's delivery club, with the member's benefits.
+  club,
+
   /// 105.2 Ride hailing.
   ride,
   myRides,

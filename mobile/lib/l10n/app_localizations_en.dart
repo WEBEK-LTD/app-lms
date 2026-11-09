@@ -8954,6 +8954,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketClubNone => 'There\'s no club in this app yet.';
 
   @override
+  String get tabSearch => 'Search';
+
+  @override
+  String get tabOrders => 'Orders';
+
+  @override
+  String get tabClub => 'Club';
+
+  @override
+  String get marketSearchStart =>
+      'Find a restaurant, a dish or something from the shops.';
+
+  @override
+  String get marketSearchTry => 'Start with';
+
+  @override
+  String get marketSearchPlaces => 'Places';
+
+  @override
+  String get marketSearchItems => 'Dishes and products';
+
+  @override
+  String marketSearchNone(String query) {
+    return 'Nothing found for “$query”.';
+  }
+
+  @override
   String get marketListEmptyTitle => 'Nothing here near you yet';
 
   @override

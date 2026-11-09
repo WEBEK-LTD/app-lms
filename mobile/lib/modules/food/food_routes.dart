@@ -13,6 +13,7 @@ import '../market/screens/market_complaint_screens.dart';
 import '../market/screens/market_list_screen.dart';
 import '../market/screens/market_order_screen.dart';
 import '../market/screens/market_orders_screen.dart';
+import '../market/screens/market_search_screen.dart';
 import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
@@ -39,6 +40,9 @@ final foodModule = AppModule(
   tabPaths: {
     Paths.restaurants,
     Paths.foodOrders,
+    // 115 A marketplace's Search and Club tabs.
+    Paths.marketSearch,
+    Paths.marketClub,
     Paths.restaurantDesk,
     Paths.courier,
     Paths.vendorDesk,
@@ -46,10 +50,15 @@ final foodModule = AppModule(
     Paths.account,
   },
   screens: _screens,
-  defaultTabs: (_) => _defaultTabs,
+  defaultTabs: (config) =>
+      config?.market != null ? marketDefaultTabs : _defaultTabs,
   screenLocation: (screen, config) => switch (screen) {
     BuiltInScreen.restaurants => Paths.restaurants,
     BuiltInScreen.foodOrders || BuiltInScreen.orders => Paths.foodOrders,
+    // 115 A marketplace's search across its places, dishes and products,
+    // and its club; a food delivery app has neither.
+    BuiltInScreen.search => config?.market != null ? Paths.marketSearch : null,
+    BuiltInScreen.club => config?.market != null ? Paths.marketClub : null,
     BuiltInScreen.restaurant => Paths.restaurantDesk,
     BuiltInScreen.courier => Paths.courier,
     BuiltInScreen.account => Paths.account,
@@ -57,7 +66,6 @@ final foodModule = AppModule(
     BuiltInScreen.notifications => Paths.notifications,
     BuiltInScreen.courses ||
     BuiltInScreen.myCourses ||
-    BuiltInScreen.search ||
     BuiltInScreen.favorites ||
     BuiltInScreen.messages ||
     BuiltInScreen.cart ||
@@ -117,6 +125,28 @@ final vendorStockTab = ShellTab(
 /// 115 The vendor app's tabs: the orders, stock and the account.
 final vendorAppTabs = [vendorTab, vendorStockTab, _defaultTabs.last];
 
+/// 115 A marketplace's tabs when it hasn't published its own, after its
+/// home: Search, Orders, Club and Account, as Studio starts every
+/// marketplace with them (lib/app/kinds.ts on the platform).
+final marketDefaultTabs = [
+  ShellTab(
+    icon: AppIcons.search,
+    label: (c) => c.l10n.tabSearch,
+    location: Paths.marketSearch,
+  ),
+  ShellTab(
+    icon: AppIcons.orders,
+    label: (c) => c.l10n.tabOrders,
+    location: Paths.foodOrders,
+  ),
+  ShellTab(
+    icon: AppIcons.certificate,
+    label: (c) => c.l10n.tabClub,
+    location: Paths.marketClub,
+  ),
+  _defaultTabs.last,
+];
+
 /// 105.1 The Restaurant tab, for the restaurants' staff only.
 final restaurantTab = ShellTab(
   icon: AppIcons.restaurant,
@@ -131,6 +161,9 @@ List<TabScreen> _screens() => [
   TabScreen(Paths.courier, (state) => const CourierScreen()),
   TabScreen(Paths.vendorDesk, (state) => const VendorDeskScreen()),
   TabScreen(Paths.vendorStock, (state) => const VendorStockScreen()),
+  // 115 A marketplace's search and club: tabs, or pages on top.
+  TabScreen(Paths.marketSearch, (state) => const MarketSearchScreen()),
+  TabScreen(Paths.marketClub, (state) => const MarketClubScreen()),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
@@ -199,10 +232,6 @@ List<RouteBase> _pushedRoutes() => [
   GoRoute(
     path: Paths.marketWallet,
     pageBuilder: (context, state) => appPage(state, const MarketWalletScreen()),
-  ),
-  GoRoute(
-    path: Paths.marketClub,
-    pageBuilder: (context, state) => appPage(state, const MarketClubScreen()),
   ),
   _byId('/market-complain/:id', (id) => MarketNewComplaintScreen(orderId: id)),
   _byId(

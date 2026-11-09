@@ -222,7 +222,7 @@ describe("Zad: the approved marketplace home", () => {
     expect(page.body.children![1]!.visibility).toBe("signed_out");
     expect(layout.appearance).toMatchObject({ font: DEMO_BRANDS.marketplace.font, template: DEMO_BRANDS.marketplace.template, secondary_color: DEMO_BRANDS.marketplace.secondaryColor });
     expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
-    expect(layout.tabs.map((t) => t.target.type === "page" ? t.target.page_slug : t.target.screen)).toEqual(["home", "restaurants", "food_orders", "account"]);
+    expect(layout.tabs.map((t) => t.target.type === "page" ? t.target.page_slug : t.target.screen)).toEqual(["home", "search", "food_orders", "club", "account"]);
     // Its titles in Arabic and Turkish as well.
     const hungry = markets[0]!;
     expect(hungry.translations).toEqual({ ar: { title: studioAr.w_mHungry }, tr: { title: studioTr.w_mHungry } });

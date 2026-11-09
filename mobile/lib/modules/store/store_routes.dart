@@ -58,6 +58,7 @@ final storeModule = AppModule(
     BuiltInScreen.teacher ||
     BuiltInScreen.school ||
     BuiltInScreen.classroom ||
+    BuiltInScreen.club ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||

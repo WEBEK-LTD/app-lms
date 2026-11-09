@@ -77,6 +77,7 @@ final lmsModule = AppModule(
     BuiltInScreen.ride ||
     BuiltInScreen.myRides ||
     BuiltInScreen.driver ||
+    BuiltInScreen.club ||
     BuiltInScreen.foodOrders ||
     BuiltInScreen.restaurant ||
     BuiltInScreen.campaigns ||
