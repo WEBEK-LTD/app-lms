@@ -4,6 +4,9 @@ import type { Strings } from "../types";
 export const en = {
   title: "Yallapp Studio",
   editorTitle: "{app} · Studio",
+  editorPage: "Editor",
+  saveRetrying: "Not saved yet, trying again…",
+  saveNow: "Save now",
   page: "Page: {page}",
   pagePicker: "Page",
   newPage: "New page",
@@ -890,6 +893,9 @@ type Messages = Strings<typeof en>;
 export const ar: Messages = {
   title: "Yallapp Studio",
   editorTitle: "{app} · Studio",
+  editorPage: "المحرر",
+  saveRetrying: "لسه ما اتحفظش، بنحاول تاني…",
+  saveNow: "احفظ دلوقتي",
   page: "الصفحة: {page}",
   pagePicker: "الصفحة",
   newPage: "صفحة جديدة",
@@ -1758,6 +1764,9 @@ export const ar: Messages = {
 export const tr: Messages = {
   title: "Yallapp Studio",
   editorTitle: "{app} · Studio",
+  editorPage: "Düzenleyici",
+  saveRetrying: "Henüz kaydedilmedi, yeniden deneniyor…",
+  saveNow: "Şimdi kaydet",
   page: "Sayfa: {page}",
   pagePicker: "Sayfa",
   newPage: "Yeni sayfa",
