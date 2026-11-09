@@ -167,6 +167,7 @@ export function StudioEditor(props: StudioEditorProps) {
     brand: app.brand,
     source,
     w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.name }),
+    lang: dashLang,
     // 112.4 Yallapp's pictures, and the products a look's spots open.
     picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
     entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,

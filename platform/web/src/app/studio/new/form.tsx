@@ -65,12 +65,13 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
             app: name.trim() || t("studio.untitledProject"),
             w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name.trim() || t("studio.untitledProject") }),
             newId: () => `t${x.id}`,
+            lang,
             // The demo's own pictures, as in the demo.
             picture: (file: string) => `/design-pictures/${file}`,
           }),
         ]),
       ),
-    [t, name, kindTemplates],
+    [t, lang, name, kindTemplates],
   );
 
   return (
