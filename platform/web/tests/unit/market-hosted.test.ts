@@ -258,9 +258,10 @@ describe("115 the marketplace's routes", () => {
     expect(statement.status).toBe(200);
     expect(statement.body).toMatchObject({ month, totals: { orders: 1, total: { amount: "115.00" } }, orders: [{ id: order.id, payment: "cash" }] });
     // Statements are for owners and managers only.
-    await store.updateRestaurantStaff(app.id, (await store.listRestaurantStaff(app.id, restaurant))[0]!.id, { role: "picker" }, NOW);
-    expect((await call("GET", "/vendor/statements", { token: staff.access_token })).status).toBe(403);
-    expect((await call("GET", "/vendor/complaints", { token: staff.access_token })).status).toBe(403);
+    await store.createRestaurantStaff({ appId: app.id, restaurantId: restaurant, name: "Adel", phone: "+201112229990", email: null, active: true, role: "picker" }, NOW);
+    const picker = await signUp("1112229990", "Adel");
+    expect((await call("GET", "/vendor/statements", { token: picker.access_token })).status).toBe(403);
+    expect((await call("GET", "/vendor/complaints", { token: picker.access_token })).status).toBe(403);
   });
 
   it("weighs a grocery's items when picked, within the agreed tolerance, and hands pick-up orders over with the code", async () => {
