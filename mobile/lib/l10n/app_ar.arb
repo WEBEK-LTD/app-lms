@@ -2428,5 +2428,7 @@
   "marketClubPayAgain": "لم يتم الدفع. حاول مرة أخرى.",
   "marketClubNoRenew": "تُدفع كل فترة على حدة، ولا يتجدد شيء تلقائيًا.",
   "marketClubJoined": "مرحبًا بك في النادي.",
-  "marketClubNone": "لا يوجد نادٍ في هذا التطبيق بعد."
+  "marketClubNone": "لا يوجد نادٍ في هذا التطبيق بعد.",
+  "marketListEmptyTitle": "لا يوجد شيء هنا بالقرب منك بعد",
+  "marketListEmptyMessage": "جرّب عنوانًا آخر، أو تصفّح كل شيء من الرئيسية."
 }

@@ -147,8 +147,12 @@ class MarketReorder {
     required this.summary,
     required this.total,
     required this.when,
+    this.orderId,
   });
 
+  /// The past order, to fill the basket from; null in the samples, where
+  /// the card opens the vendor.
+  final int? orderId;
   final String vendorId;
   final String summary;
   final String total;

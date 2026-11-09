@@ -9916,5 +9916,13 @@
   "marketClubNone": "There's no club in this app yet.",
   "@marketClubNone": {
     "description": "115.10 The app has no delivery club."
+  },
+  "marketListEmptyTitle": "Nothing here near you yet",
+  "@marketListEmptyTitle": {
+    "description": "115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title."
+  },
+  "marketListEmptyMessage": "Try another address, or look at everything on the home.",
+  "@marketListEmptyMessage": {
+    "description": "115 The same empty list: what the customer can do."
   }
 }

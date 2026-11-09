@@ -7,6 +7,8 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/common.dart';
+import '../../market/data/market_providers.dart';
+import '../../market/screens/market_orders_screen.dart';
 import '../../real_estate/widgets/listing_widgets.dart'
     show SignInPrompt, TabHeader;
 import '../data/food_providers.dart';
@@ -20,16 +22,21 @@ class FoodOrdersScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final signedIn = ref.watch(authControllerProvider).isSignedIn;
+    // 115 A marketplace's orders are its vendors' orders.
+    final market = ref.watch(marketConfigProvider) != null;
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TabHeader(title: l10n.tabFoodOrders),
+            TabHeader(
+              title: l10n.tabFoodOrders,
+              trailing: market && signedIn ? const MarketWalletButton() : null,
+            ),
             Expanded(
               child: signedIn
-                  ? const _OrderList()
+                  ? (market ? const MarketOrderList() : const _OrderList())
                   : SignInPrompt(
                       icon: AppIcons.orders,
                       title: l10n.foodOrdersSignInTitle,

@@ -3601,6 +3601,8 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "115 An order the vendor delivers: stages only, no map.": { ar: "طلب يوصّله البائع بنفسه: مراحل فقط بدون خريطة.", tr: "Satıcının kendisinin teslim ettiği sipariş: harita yok, yalnızca aşamalar." },
   "115 When the order should arrive.": { ar: "الوقت المتوقع لوصول الطلب.", tr: "Siparişin varması beklenen zaman." },
   "115 When a pick-up order should be ready.": { ar: "الوقت المتوقع لتجهيز طلب الاستلام.", tr: "Gel-al siparişinin hazır olması beklenen zaman." },
+  "115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title.": { ar: "قائمة مطاعم ومحلات مفلترة (نوع أو مطبخ أو عروض) بدون أماكن قريبة من العميل: العنوان.", tr: "Müşterinin yakınında yer olmayan filtrelenmiş restoran ve mağaza listesi (tür, mutfak ya da kampanyalar): başlık." },
+  "115 The same empty list: what the customer can do.": { ar: "نفس القائمة الفارغة: ما يمكن للعميل فعله.", tr: "Aynı boş liste: müşterinin yapabilecekleri." },
   "115.10 A member's paid period.": { ar: "الفترة المدفوعة للعضو.", tr: "Üyenin ödenmiş dönemi." },
   "115.10 A membership waiting for its payment.": { ar: "عضوية في انتظار الدفع.", tr: "Ödemesini bekleyen üyelik." },
   "115.10 A membership whose payment failed.": { ar: "عضوية فشل دفعها.", tr: "Ödemesi başarısız olan üyelik." },
