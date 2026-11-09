@@ -41,6 +41,11 @@ export const TR_SITE: SiteContentTranslation = {
     title: "Teslimat yaptığınız tüm restoranlar, tek uygulamada",
     intro: "Müşteriler restoranlarınızdan sipariş verir ve kuryeyi haritada takip eder; her restoran siparişlerini kendi sekmesinden yönetir, hepsi Yallapp Studio'dan.",
   },
+  "solution-multi-vendor": {
+    eyebrow: "Çok satıcılı uygulamalar",
+    title: "Restoranlar, süpermarketler ve dükkânlar, tek bir uygulamanızda",
+    intro: "Müşteriler her işletmeden sipariş verir ve siparişini canlı takip eder; her işletme siparişlerini, menüsünü ve stokunu kendi panelinden yönetir, destek sizde kalır, hepsi Yallapp Studio'dan.",
+  },
   "solution-rides": {
     eyebrow: "Yolculuk ve taksi uygulamaları",
     title: "Yolculuklarınız ve taksileriniz, yolcularınızın haritasında",

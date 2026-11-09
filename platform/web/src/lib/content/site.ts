@@ -106,6 +106,12 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     intro:
       "Customers order from your restaurants and follow the courier on the map; each restaurant runs its orders from its own tab, all managed in Yallapp Studio.",
   },
+  "multi-vendor": {
+    eyebrow: "Multi-vendor apps",
+    title: "Restaurants, supermarkets and shops, in one app of yours",
+    intro:
+      "Customers order from every place and follow their order live; each place runs its orders, menu and stock from its own panel, and support stays with you, all managed in Yallapp Studio.",
+  },
   rides: {
     eyebrow: "Ride hailing and taxi apps",
     title: "Your rides and taxis, on your riders' map",

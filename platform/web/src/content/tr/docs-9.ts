@@ -97,4 +97,68 @@ Yallapp Courier'da birkaç şirkete teslimat yapan biri bir kez giriş yapar ve 
 Kurye, Yallapp Courier hesabını uygulamada **Hesap**'tan siler. Kurye listeniz ve gönderilerinizin kayıtları olduğu gibi kalır. [Yallapp hesabınızı silme](/delete-account) sayfasına bakın.
 `,
   },
+  "multi-vendor": {
+    title: "Çok satıcılı uygulamalar",
+    description: "Birçok restoran, süpermarket ve dükkân için tek bir teslimat uygulaması kurun: katılım, her işletmenin paneli, teslimat, ödemeler, kampanyalar, şikâyetler ve dökümler.",
+    body: `Çok satıcılı bir uygulama, birçok restoranı, süpermarketi ve dükkânı sizin adınızla tek bir teslimat uygulamasında toplar. Müşteriler her işletmeden sipariş verir, her işletme siparişlerini kendi panelinde alır ve bunları sizin kuryeleriniz ya da işletmenin kendi kuryeleri teslim eder. Bu bir [Yallapp Studio](/docs/yallapp-studio) projesidir ve Studio'nun kendi planlarındadır.
+
+## Projeyi oluşturma
+
+1. Yallapp Studio'da bir proje oluşturun ve çok satıcılı türü seçin. Bir yemek teslimatı projesi de ayarlarından bu türe geçebilir; restoranlarını ve siparişlerini korur.
+2. Ana sayfa için hazır tasarımlardan birini seçin, sonra bölümlerini, renklerini ve metinlerini Studio düzenleyicisinde dilediğiniz gibi değiştirin.
+3. Projenin ayarlarını açın ve müşterilerin nasıl ödeyeceğini ve sunduğunuz teslimat seçeneklerini belirleyin: gel-al, ileri tarihli siparişler, cüzdan ve kulüp.
+
+## Ödemeler
+
+Müşteriler kuryeye nakit, ödeme sağlayıcınızın sayfasında kartla ya da sağlayıcınız orada sunuyorsa Apple Pay veya Google Pay ile öder. Para sizin ödeme hesabınıza gider; Yallapp asla almaz. Her işletmeyle nasıl hesaplaşacağınız sizinle işletme arasındadır ve dökümler her birinin payını hesaplar.
+
+## İşletme ekleme
+
+- **Katılım formunuzla**: logo dahil istediğiniz alanlarla bir form oluşturun ve bağlantısını gönderin. Her işletme formu doldurur, siz de onaylar ya da reddedersiniz. Onay, işletmeyi ekler.
+- **Kendiniz**: işletmeyi bilgileri, saatleri, teslimatı ve personeliyle ekleyin.
+
+Her işletme için yüzde ya da sabit tutar olarak komisyonunu ve vergi oranını belirlersiniz.
+
+## Her işletmenin paneli
+
+İşletmenin personeli web'deki panele e-postalarına gelen bir kodla girer. Orada:
+
+- sesli bildirimle gelen yeni siparişleri alır: süre belirterek kabul eder ya da reddeder, hazırlar ve hazır olarak işaretler;
+- işletmeyi bir süreliğine yoğun yapar ya da siparişleri durdurur;
+- menüyü ya da kataloğu ve stoku güncel tutar, her ürünün fotoğrafını ekler;
+- kataloğu Excel, CSV, TSV, JSON ya da Google Sheets dışa aktarımından, dosya başına 5 MB'a kadar aktarır;
+- süpermarket siparişlerini satır satır hazırlar: ağırlığıyla hazırlandı, müşterinin izin verdiği başka bir ürünle değiştirildi ya da yok;
+- izin verirseniz, işletmenin karşıladığı kendi kuponlarını ekler;
+- dökümlerini ve sizin paylaştığınız şikâyetleri görür.
+
+Her personelin bir rolü vardır: sahip ve yöneticiler her şeyi görür, sipariş alanlar ve hazırlayanlar yalnızca ihtiyaç duyduklarını görür. İşletmeler müşterilerin telefon numaralarını ya da e-postalarını asla görmez.
+
+## Teslimat
+
+Her işletme kimin teslim edeceğini seçer:
+
+- **Sizin kuryeleriniz**: teslimatın maliyetini sabit, yüzde ya da kilometre başına belirlersiniz; müşteri kuryeyi haritada izler.
+- **Kendi teslimatı**: işletme kendi ücretini sabit ya da kilometre başına, en düşük sipariş tutarını ve bir siparişteki en az ve en çok ürün sayısını belirler. Müşteri siparişi adımlarıyla izler.
+
+Müşteriler siparişlerini kendileri de alabilir ya da daha sonrası için sipariş verebilir.
+
+## Kampanyalar, cüzdan ve kulüp
+
+- **Kuponlar ve otomatik kampanyalar**: yüzde, tutar ya da ücretsiz teslimat; en düşük sipariş tutarı, kullanım sınırları, tarihler ve geçerli olduğu işletmeler ya da ürünlerle. Her biri indirimi kimin karşılayacağını belirtir: siz ya da işletme.
+- **Cüzdan**: müşterilerin sonraki siparişlerinde harcadığı bakiye, örneğin bir iadeden.
+- **Teslimat kulübü**: sizin belirlediğiniz fiyatlarla ücretsiz ya da daha ucuz teslimatlı, ödeme sayfanızda ödenen planlar.
+
+## Şikâyetler ve destek
+
+Müşteriler uygulamada sizin desteğinizle konuşur. Siparişi verdikleri andan ulaştıktan 48 saat sonrasına kadar, nedeni, ürünleri ve fotoğraflarıyla şikâyette bulunabilirler. Ekibiniz her şikâyeti şikâyet sırasında üstlenir ve karar verir: karta, cüzdana ya da kupon olarak tam ya da kısmi iade, tazminat ya da reddeden bir yanıt. Müşteri kararı ve nedenini görür.
+
+## Dökümler
+
+Her işletme ve her dönem için: indirimlerden önce ve sonra satışlar, her indirimi kimin karşıladığı, işletmenin komisyonu ve vergisi, teslimat, iadeler ve tazminatlar ve her iki tarafın alacağı. Excel, CSV ya da PDF olarak dışa aktarın.
+
+## Ürün fotoğrafları
+
+Varsayılan olarak fotoğrafı olmayan ürün müşterilere gösterilmez. İşletmeler fotoğrafları tek tek, her ürünün SKU'su ya da barkoduyla adlandırılmış resimlerden oluşan bir ZIP olarak ya da aktarım dosyasında resim bağlantıları olarak ekler. Bunu projenin ayarlarından kapatabilirsiniz.
+`,
+  },
 };
