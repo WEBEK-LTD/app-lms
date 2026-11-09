@@ -14236,7 +14236,7 @@ components:
           type: object
           description: Editor audit 3.4. For `vendors` and `offers`, how each place's card is drawn; missing, the usual card.
           properties:
-            radius: { type: integer, minimum: 0, maximum: 32, description: The card's corners; missing, the look's own. }
+            radius: { type: integer, minimum: 0, maximum: 32, description: "The card's corners; missing, the look's own." }
             hide:
               type: array
               description: Facts the card leaves out; missing or empty, all shown.
