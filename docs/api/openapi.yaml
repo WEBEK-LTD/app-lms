@@ -6471,7 +6471,7 @@ paths:
                       line_id: { type: integer }
                       outcome: { type: string, enum: [picked, substituted, missing] }
                       quantity: { type: [number, 'null'], exclusiveMinimum: 0, description: 'For `picked`: units, or the weighed amount in the product''s unit (kg, g, l).' }
-                      substitute_product_id: { type: [integer, 'null'], description: 'For `substituted`.' }
+                      substitute_product_id: { type: [integer, 'null'], description: 'For `substituted`. Left out, the item the customer chose (`if_missing: chosen`).' }
       responses:
         '200':
           description: The order

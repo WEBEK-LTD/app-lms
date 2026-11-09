@@ -969,7 +969,9 @@ export class MarketConnector {
       const l = (r && typeof r === "object" ? r : {}) as Record<string, unknown>;
       if (typeof l.line_id !== "number" || !["picked", "substituted", "missing"].includes(l.outcome as string)) return error(400, "invalid_request", "One of the lines isn't valid.");
       const quantity = typeof l.quantity === "number" && l.quantity > 0 ? l.quantity : null;
-      const sub = typeof l.substitute_product_id === "number" ? l.substitute_product_id : null;
+      // Left out for a substitute: the item the customer chose, when they chose one.
+      const chosen = l.outcome === "substituted" ? (o.lines.find((x) => x.id === l.line_id)?.substituteProductId ?? null) : null;
+      const sub = typeof l.substitute_product_id === "number" ? l.substitute_product_id : chosen;
       picked.push({ lineId: l.line_id, outcome: l.outcome as PickedLine["outcome"], pickedQuantity: quantity, substitute: sub !== null ? { productId: sub, quantity: quantity ?? 1 } : null });
     }
     const settings = marketSettingsOf(await this.settings());
