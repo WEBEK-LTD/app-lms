@@ -7,6 +7,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/api/models/page_models.dart';
 import '../data/market_models.dart';
 
 /// 115 What the marketplace's screens share: money, tints, a vendor's
@@ -103,6 +104,9 @@ class MarketRating extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    if (!MarketCardLook.of(context).shows(StudioMarketFact.rating)) {
+      return const SizedBox.shrink();
+    }
     final rating = vendor.rating;
     if (rating == null) {
       return MarketPill(
@@ -183,9 +187,13 @@ class MarketVendorFacts extends StatelessWidget {
       ],
     );
     final minutes = marketEtaText(context, vendor);
+    final look = MarketCardLook.of(context);
     final facts = [
-      if (eta && minutes != null) fact(Symbols.schedule_rounded, minutes),
-      if (vendor.freeDelivery)
+      if (eta && minutes != null && look.shows(StudioMarketFact.time))
+        fact(Symbols.schedule_rounded, minutes),
+      if (!look.shows(StudioMarketFact.fee))
+        ...const <Widget>[]
+      else if (vendor.freeDelivery)
         fact(
           Symbols.two_wheeler_rounded,
           l10n.marketFreeDelivery,
@@ -193,7 +201,8 @@ class MarketVendorFacts extends StatelessWidget {
         )
       else if (vendor.deliveryFee case final fee?)
         fact(Symbols.two_wheeler_rounded, l10n.marketDeliveryFee(ltrRun(fee))),
-      if (vendor.minOrder case final min?)
+      if (vendor.minOrder case final min?
+          when look.shows(StudioMarketFact.minOrder))
         fact(Symbols.shopping_bag_rounded, l10n.marketMinOrder(ltrRun(min))),
     ];
     if (!wrap) {
@@ -377,4 +386,20 @@ class _MarketPressableState extends State<MarketPressable> {
       child: widget.child,
     ),
   );
+}
+
+/// Editor audit 3.4: the card look the owner chose for a section of places
+/// (`StudioMarket.card`). Outside a section (a vendor's own page), the
+/// usual card with every fact.
+class MarketCardLook extends InheritedWidget {
+  const MarketCardLook({super.key, required this.card, required super.child});
+
+  final StudioMarketCard card;
+
+  static StudioMarketCard of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<MarketCardLook>()?.card ??
+      const StudioMarketCard();
+
+  @override
+  bool updateShouldNotify(MarketCardLook oldWidget) => oldWidget.card != card;
 }
