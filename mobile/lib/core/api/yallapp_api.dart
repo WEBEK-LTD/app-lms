@@ -934,6 +934,41 @@ abstract class YallappApi {
   });
   Future<RestaurantOrder> readyRestaurantOrder(int id);
 
+  // 115 The vendor app (the Vendor tag).
+  Future<VendorDesk> getVendorDesk();
+
+  /// [busyMinutes] stops new orders for that long; [endBusy] takes them
+  /// again; [paused] stops them until set false.
+  Future<VendorDesk> updateVendorDesk({
+    int? busyMinutes,
+    bool endBusy = false,
+    bool? paused,
+  });
+  Future<Paged<VendorOrder>> listVendorOrders(
+    VendorOrderScope scope, {
+    int page = 1,
+  });
+  Future<VendorOrder> getVendorOrder(int id);
+  Future<VendorOrder> acceptVendorOrder(int id, int prepMinutes);
+  Future<VendorOrder> rejectVendorOrder(
+    int id,
+    VendorRejection reason, {
+    String? note,
+  });
+  Future<VendorOrder> pickVendorOrder(int id, List<PickLine> lines);
+  Future<VendorOrder> readyVendorOrder(int id);
+  Future<VendorOrder> handOverVendorOrder(
+    int id,
+    VendorHandover to, {
+    String? pickupCode,
+  });
+  Future<Paged<MarketProduct>> listVendorProducts({
+    int page = 1,
+    String? query,
+    bool outOfStock = false,
+  });
+  Future<MarketProduct> updateVendorProductStock(int id, {bool? inStock});
+
   // 105.2 Ride hailing.
   Future<RideEstimate> estimateRide(RideRequest request);
   Future<Ride> requestRide(RideRequest request);
@@ -3267,6 +3302,122 @@ class HttpYallappApi implements YallappApi {
     _required,
     (data) => RestaurantOrder.fromJson(asJson(data)),
   );
+
+  @override
+  Future<VendorDesk> getVendorDesk() =>
+      _get('/vendor/me', _required, VendorDesk.fromJson);
+
+  @override
+  Future<VendorDesk> updateVendorDesk({
+    int? busyMinutes,
+    bool endBusy = false,
+    bool? paused,
+  }) => _send(
+    'PATCH',
+    '/vendor/me',
+    _required,
+    (data) => VendorDesk.fromJson(asJson(data)),
+    body: {
+      if (busyMinutes != null || endBusy) 'busy_minutes': busyMinutes,
+      'paused': ?paused,
+    },
+  );
+
+  @override
+  Future<Paged<VendorOrder>> listVendorOrders(
+    VendorOrderScope scope, {
+    int page = 1,
+  }) => _get(
+    '/vendor/orders',
+    _required,
+    (json) => Paged.fromJson(json, VendorOrder.fromJson),
+    query: {'status': scope.wire, 'page': page, 'per_page': 20},
+  );
+
+  @override
+  Future<VendorOrder> getVendorOrder(int id) =>
+      _get('/vendor/orders/$id', _required, VendorOrder.fromJson);
+
+  @override
+  Future<VendorOrder> acceptVendorOrder(int id, int prepMinutes) => _send(
+    'POST',
+    '/vendor/orders/$id/accept',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+    body: {'prep_minutes': prepMinutes},
+  );
+
+  @override
+  Future<VendorOrder> rejectVendorOrder(
+    int id,
+    VendorRejection reason, {
+    String? note,
+  }) => _send(
+    'POST',
+    '/vendor/orders/$id/reject',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+    body: {'reason': snake(reason), 'note': ?note},
+  );
+
+  @override
+  Future<VendorOrder> pickVendorOrder(int id, List<PickLine> lines) => _send(
+    'PATCH',
+    '/vendor/orders/$id/lines',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+    body: {
+      'lines': [for (final l in lines) l.toJson()],
+    },
+  );
+
+  @override
+  Future<VendorOrder> readyVendorOrder(int id) => _send(
+    'POST',
+    '/vendor/orders/$id/ready',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+  );
+
+  @override
+  Future<VendorOrder> handOverVendorOrder(
+    int id,
+    VendorHandover to, {
+    String? pickupCode,
+  }) => _send(
+    'POST',
+    '/vendor/orders/$id/handover',
+    _required,
+    (data) => VendorOrder.fromJson(asJson(data)),
+    body: {'to': to.name, 'pickup_code': ?pickupCode},
+  );
+
+  @override
+  Future<Paged<MarketProduct>> listVendorProducts({
+    int page = 1,
+    String? query,
+    bool outOfStock = false,
+  }) => _get(
+    '/vendor/products',
+    _required,
+    (json) => Paged.fromJson(json, MarketProduct.fromJson),
+    query: {
+      'page': page,
+      'per_page': 40,
+      'q': ?query,
+      if (outOfStock) 'out_of_stock': true,
+    },
+  );
+
+  @override
+  Future<MarketProduct> updateVendorProductStock(int id, {bool? inStock}) =>
+      _send(
+        'PATCH',
+        '/vendor/products/$id',
+        _required,
+        (data) => MarketProduct.fromJson(asJson(data)),
+        body: {'in_stock': ?inStock},
+      );
 
   // 105.2 Ride hailing.
 

@@ -8928,4 +8928,100 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get marketListEmptyMessage =>
       'Başka bir adres dene ya da ana sayfada her şeye göz at.';
+
+  @override
+  String get tabVendor => 'İşletmem';
+
+  @override
+  String get tabVendorStock => 'Stok';
+
+  @override
+  String get notVendorTitle => 'İşletme çalışanları için';
+
+  @override
+  String get notVendorMessage =>
+      'Uygulama sahibinin seni eklediği numara ya da e-postayla giriş yap.';
+
+  @override
+  String get vendorLater => 'Sonra';
+
+  @override
+  String get vendorPaused => 'Duraklatıldı: sipariş almıyor';
+
+  @override
+  String get vendorPauseUntilBack => 'Tekrar sipariş alana kadar';
+
+  @override
+  String get vendorPauseNote => 'İleri tarihli siparişler yine gelir.';
+
+  @override
+  String get vendorNoOrdersMessage =>
+      'Yeni siparişler burada sesli uyarıyla görünür.';
+
+  @override
+  String vendorItems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ürün',
+      one: '1 ürün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorItemsTitle => 'Ürünler';
+
+  @override
+  String vendorFor(String time) {
+    return '$time için';
+  }
+
+  @override
+  String vendorCollect(String amount) {
+    return '$amount nakit tahsil edin';
+  }
+
+  @override
+  String get vendorCustomerNotes => 'Müşterinin notları';
+
+  @override
+  String get vendorDeliverTo => 'Teslimat adresi';
+
+  @override
+  String get vendorNoContact =>
+      'Müşteriyle ilgili her şey için uygulamanın destek ekibine yaz.';
+
+  @override
+  String get vendorRejectOutsideArea => 'Teslimat bölgemizin dışında';
+
+  @override
+  String get vendorHandToDriver => 'Kendi kuryemize verildi';
+
+  @override
+  String get vendorMarkDelivered => 'Teslim edildi';
+
+  @override
+  String get vendorHandToCustomer => 'Müşteri teslim aldı';
+
+  @override
+  String get vendorHandedOver => 'Sipariş güncellendi';
+
+  @override
+  String get vendorPickupCodeTitle => 'Müşterinin kodu';
+
+  @override
+  String get vendorPickupCode => '4 haneli kod';
+
+  @override
+  String get vendorStockSearch => 'Ürün ara';
+
+  @override
+  String get vendorOutOfStockOnly => 'Yalnızca stokta olmayanlar';
+
+  @override
+  String get vendorOutOfStock => 'Stokta yok';
+
+  @override
+  String get vendorStockEmpty => 'Ürün bulunamadı';
 }

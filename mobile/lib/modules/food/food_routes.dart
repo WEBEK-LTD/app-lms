@@ -17,6 +17,9 @@ import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
+import '../vendor/screens/vendor_desk_screen.dart';
+import '../vendor/screens/vendor_order_screen.dart';
+import '../vendor/screens/vendor_stock_screen.dart';
 import 'screens/food_cart_screen.dart';
 import 'screens/food_order_screen.dart';
 import 'screens/food_orders_screen.dart';
@@ -36,6 +39,8 @@ final foodModule = AppModule(
     Paths.foodOrders,
     Paths.restaurantDesk,
     Paths.courier,
+    Paths.vendorDesk,
+    Paths.vendorStock,
     Paths.account,
   },
   screens: _screens,
@@ -95,6 +100,21 @@ final _defaultTabs = [
   ),
 ];
 
+/// 115 The vendor's tabs: its orders and its stock.
+final vendorTab = ShellTab(
+  icon: AppIcons.restaurant,
+  label: (c) => c.l10n.tabVendor,
+  location: Paths.vendorDesk,
+);
+final vendorStockTab = ShellTab(
+  icon: AppIcons.orders,
+  label: (c) => c.l10n.tabVendorStock,
+  location: Paths.vendorStock,
+);
+
+/// 115 The vendor app's tabs: the orders, stock and the account.
+final vendorAppTabs = [vendorTab, vendorStockTab, _defaultTabs.last];
+
 /// 105.1 The Restaurant tab, for the restaurants' staff only.
 final restaurantTab = ShellTab(
   icon: AppIcons.restaurant,
@@ -107,6 +127,8 @@ List<TabScreen> _screens() => [
   TabScreen(Paths.foodOrders, (state) => const FoodOrdersScreen()),
   TabScreen(Paths.restaurantDesk, (state) => const RestaurantDeskScreen()),
   TabScreen(Paths.courier, (state) => const CourierScreen()),
+  TabScreen(Paths.vendorDesk, (state) => const VendorDeskScreen()),
+  TabScreen(Paths.vendorStock, (state) => const VendorStockScreen()),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),
@@ -130,6 +152,7 @@ List<RouteBase> _pushedRoutes() => [
   _byId('/food-order/:id', (id) => FoodOrderScreen(orderId: id)),
   _byId('/restaurant-order/:id', (id) => RestaurantOrderScreen(orderId: id)),
   _byId('/courier-job/:id', (id) => CourierJobScreen(jobId: id)),
+  _byId('/vendor-order/:id', (id) => VendorOrderScreen(orderId: id)),
   // 115 The marketplace's basket, an order and the customer's orders.
   GoRoute(
     path: Paths.marketCheckout,

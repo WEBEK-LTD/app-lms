@@ -2097,6 +2097,148 @@ class FakeApi implements YallappApi {
     });
   }
 
+  // 115 The vendor app: what the tests put here is what the server says.
+  Map<String, dynamic> vendorDesk = {
+    'id': 7,
+    'kind': 'restaurant',
+    'name': 'Nile Grill House',
+    'logo_url': null,
+    'open': true,
+    'busy_until': null,
+    'paused': false,
+    'accepting': true,
+    'delivery_by': 'app',
+    'role': 'manager',
+    'today': {
+      'orders': 3,
+      'sales': {'amount': '780.00', 'formatted': 'EGP 780.00'},
+      'new_orders': 1,
+    },
+  };
+  final vendorOrders = <String, List<Map<String, dynamic>>>{};
+  final vendorCalls = <String>[];
+  final vendorProducts = <Map<String, dynamic>>[];
+
+  Map<String, dynamic> _vendorOrder(int id) =>
+      vendorOrders.values.expand((l) => l).firstWhere((o) => o['id'] == id);
+
+  /// Moves an order to [status] in place, as the server would.
+  VendorOrder _moveVendorOrder(int id, String status) {
+    final o = _vendorOrder(id)..['status'] = status;
+    return VendorOrder.fromJson(o);
+  }
+
+  @override
+  Future<VendorDesk> getVendorDesk() =>
+      _answer('getVendorDesk', () => VendorDesk.fromJson(vendorDesk));
+
+  @override
+  Future<VendorDesk> updateVendorDesk({
+    int? busyMinutes,
+    bool endBusy = false,
+    bool? paused,
+  }) => _answer('updateVendorDesk', () {
+    vendorCalls.add('desk busy=$busyMinutes end=$endBusy paused=$paused');
+    if (paused != null) vendorDesk['paused'] = paused;
+    if (busyMinutes != null) {
+      vendorDesk['busy_until'] = '2026-11-04T15:00:00Z';
+    }
+    if (endBusy) vendorDesk['busy_until'] = null;
+    vendorDesk['accepting'] =
+        vendorDesk['paused'] != true && vendorDesk['busy_until'] == null;
+    return VendorDesk.fromJson(vendorDesk);
+  });
+
+  @override
+  Future<Paged<VendorOrder>> listVendorOrders(
+    VendorOrderScope scope, {
+    int page = 1,
+  }) => _answer(
+    'listVendorOrders',
+    () => Paged.fromJson(
+      pageJson(vendorOrders[scope.wire] ?? const []),
+      VendorOrder.fromJson,
+    ),
+  );
+
+  @override
+  Future<VendorOrder> getVendorOrder(int id) =>
+      _answer('getVendorOrder', () => VendorOrder.fromJson(_vendorOrder(id)));
+
+  @override
+  Future<VendorOrder> acceptVendorOrder(int id, int prepMinutes) =>
+      _answer('acceptVendorOrder', () {
+        vendorCalls.add('accept $id $prepMinutes');
+        _vendorOrder(id)['prep_minutes'] = prepMinutes;
+        return _moveVendorOrder(id, 'accepted');
+      });
+
+  @override
+  Future<VendorOrder> rejectVendorOrder(
+    int id,
+    VendorRejection reason, {
+    String? note,
+  }) => _answer('rejectVendorOrder', () {
+    vendorCalls.add('reject $id ${reason.name}');
+    return _moveVendorOrder(id, 'rejected');
+  });
+
+  @override
+  Future<VendorOrder> pickVendorOrder(int id, List<PickLine> lines) =>
+      _answer('pickVendorOrder', () {
+        vendorCalls.add('pick $id ${lines.length}');
+        return VendorOrder.fromJson(_vendorOrder(id));
+      });
+
+  @override
+  Future<VendorOrder> readyVendorOrder(int id) =>
+      _answer('readyVendorOrder', () {
+        vendorCalls.add('ready $id');
+        return _moveVendorOrder(id, 'ready');
+      });
+
+  @override
+  Future<VendorOrder> handOverVendorOrder(
+    int id,
+    VendorHandover to, {
+    String? pickupCode,
+  }) => _answer('handOverVendorOrder', () {
+    vendorCalls.add('handover $id ${to.name} $pickupCode');
+    return _moveVendorOrder(id, switch (to) {
+      VendorHandover.driver => 'on_the_way',
+      VendorHandover.delivered => 'delivered',
+      VendorHandover.customer => 'picked_up',
+    });
+  });
+
+  @override
+  Future<Paged<MarketProduct>> listVendorProducts({
+    int page = 1,
+    String? query,
+    bool outOfStock = false,
+  }) => _answer(
+    'listVendorProducts',
+    () => Paged.fromJson(
+      pageJson([
+        for (final p in vendorProducts)
+          if ((!outOfStock || p['in_stock'] == false) &&
+              (query == null ||
+                  '${p['name']}'.toLowerCase().contains(query.toLowerCase())))
+            p,
+      ]),
+      MarketProduct.fromJson,
+    ),
+  );
+
+  @override
+  Future<MarketProduct> updateVendorProductStock(int id, {bool? inStock}) =>
+      _answer('updateVendorProductStock', () {
+        vendorCalls.add('stock $id $inStock');
+        final p = vendorProducts.firstWhere((p) => p['id'] == id);
+        if (inStock != null) p['in_stock'] = inStock;
+        return MarketProduct.fromJson(p);
+      });
+
   @override
   Future<RestaurantDesk> getRestaurantDesk() => _answer(
     'getRestaurantDesk',
