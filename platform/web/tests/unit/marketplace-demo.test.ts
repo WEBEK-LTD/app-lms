@@ -11,6 +11,8 @@ import { connectorFor } from "@/lib/hosted/connectors";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { marketSettingsOf } from "@/lib/market/settings";
+import { allSolutionsFor } from "@/lib/marketing-lang";
+import { demoKind, DEMO_SLUGS } from "@/lib/demo/constants";
 import { PLAN_INFO } from "@/lib/plans";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
 import { expectContract } from "./contract";
@@ -79,6 +81,16 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
   }
 
   type Order = { id: number; status: string; fulfilment: string; pickup_code: string | null; tracking: { mode: string; position: { lat: number; lng: number } | null } | null; scheduled_for: string | null };
+
+  it("is \"Multi-vendor\" on /demo, with the multi-vendor apps page, never \"Marketplace\"", () => {
+    expect(DEMO_SLUGS.marketplace).toBe("multi-vendor");
+    expect(demoKind("marketplace").demo?.name).toBe("Multi-vendor");
+    for (const lang of ["en", "ar", "tr"] as const) {
+      const page = allSolutionsFor(lang).find((s) => s.demoSlug === "multi-vendor" && s.kind === "marketplace");
+      expect(page?.id).toBe("multi-vendor");
+      expect(JSON.stringify(page)).not.toMatch(/marketplace apps|Marketplace/);
+    }
+  });
 
   it("has two restaurants and a supermarket with its departments and products, no photos needed", async () => {
     const { app, ok } = await zad();
