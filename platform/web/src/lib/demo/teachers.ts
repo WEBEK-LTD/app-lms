@@ -99,12 +99,13 @@ export const ACADEMY_CATEGORIES = Object.keys(SAMPLE_COURSES.categories);
  * place; the demo teacher with the demo number. Teachers no longer in the
  * demo are removed. Returns the teachers' IDs by name.
  */
-export async function syncAcademyTeachers(store: DataStore, app: Pick<App, "id">, photos: Map<string, string>, now: Date): Promise<Map<string, number>> {
+export async function syncAcademyTeachers(store: DataStore, app: Pick<App, "id">, photos: Map<string, string>, now: Date, options: { sample?: boolean } = {}): Promise<Map<string, number>> {
   const saved = await store.listTeachers(app.id);
   const ids = new Map<string, number>();
   for (const t of ACADEMY_TEACHERS) {
-    const fields = { name: t.name, phone: null, email: null, photoAssetId: photos.get(t.name) ?? null, bio: t.bio, subjects: [...t.subjects], status: "active" as const, shareBp: ACADEMY_SHARE_BP, featured: t.featured };
-    const found = saved.find((x) => x.name === t.name && x.phone === null);
+    const fields = { name: t.name, phone: null, email: null, photoAssetId: photos.get(t.name) ?? null, bio: t.bio, subjects: [...t.subjects], status: "active" as const, shareBp: ACADEMY_SHARE_BP, featured: t.featured, ...(options.sample ? { sample: true } : {}) };
+    // Templates = demos: an app started from the academy gets them as sample teachers, after its own.
+    const found = options.sample ? undefined : saved.find((x) => x.name === t.name && x.phone === null);
     if (found) {
       await store.updateTeacher(app.id, found.id, fields, now);
       ids.set(t.name, found.id);
@@ -113,6 +114,8 @@ export async function syncAcademyTeachers(store: DataStore, app: Pick<App, "id">
       if (made.ok) ids.set(t.name, made.teacher.id);
     }
   }
+  // Nobody signs in as a sample teacher: no demo teacher, and the owner's teachers stay.
+  if (options.sample) return ids;
   const demo = await resetDemoTeacher(store, app, now);
   const kept = new Set([...ids.values(), demo.id]);
   for (const x of saved) if (!kept.has(x.id)) await store.deleteTeacher(app.id, x.id);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SampleEntries, type SampleQuery } from "@/components/samples";
 import Link from "next/link";
 import { deleteSchoolPersonAction, importSchoolPeopleAction, saveSchoolPersonAction } from "@/app/actions/school";
 import { Field } from "@/components/form";
@@ -34,7 +35,7 @@ const PER_PAGE = 50;
  * app with a number (or email) on this list is that person; a parent sees
  * their children.
  */
-export default async function SchoolPeoplePage({ searchParams }: { searchParams: Promise<{ role?: string; q?: string; page?: string }> }) {
+export default async function SchoolPeoplePage({ searchParams }: { searchParams: Promise<{ role?: string; q?: string; page?: string } & SampleQuery> }) {
   const { app, license } = await requireClient("settings");
   const { t } = await dashboardText();
   if (!isSchool(app)) return <NotSchool title={t("school.people")} t={t} />;
@@ -104,6 +105,8 @@ export default async function SchoolPeoplePage({ searchParams }: { searchParams:
         }
       />
       <SchoolPlanNotice plan={plan} demo={app.demo === true} t={t} />
+      {/* Templates = demos: the school demo's classes, subjects and people as samples. */}
+      <SampleEntries app={app} list="school" query={params} />
       {classes.length === 0 ? <FirstNote text={t("school.classesFirst")} href="/dashboard/school/classes" /> : null}
 
       {people.length ? (

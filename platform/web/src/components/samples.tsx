@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { removeSamplesAction } from "@/app/actions/samples";
+import { removeAllSamplesAction, removeSamplesAction } from "@/app/actions/samples";
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, btn } from "@/components/ui";
 import { getStore } from "@/lib/data";
@@ -87,6 +87,49 @@ export async function SamplesStoreNotice({ app }: { app: App }) {
     <div data-samples-guard="">
       <Notice tone="warn" icon="warning" role="status">
         {richText(t("samples.stores", { count }), { link: (chunk) => <Link href={LIST_PAGE[left[0]!.list]}>{chunk}</Link> })}
+      </Notice>
+    </div>
+  );
+}
+
+/**
+ * Templates = demos: on the app's overview while it has sample entries (an
+ * app started from a demo has the demo's in many lists): how many, where to
+ * see them and "Remove all sample data" in one click; after removing
+ * (`?samplesRemoved=all.<n>`), what went.
+ */
+export async function AllSamples({ app, back, removed }: { app: App; back: "/dashboard" | "/studio/project"; removed?: string | string[] }) {
+  const { t } = await dashboardText();
+  const left = await samplesLeft(await getStore(), app);
+  const [list, count] = (typeof removed === "string" ? removed : "").split(".");
+  const gone = list === "all" && count ? Number(count) : null;
+  const done =
+    gone !== null && Number.isSafeInteger(gone) ? (
+      <Notice tone="success" icon="check_circle" role="status">
+        {t("samples.removed", { count: gone })}
+      </Notice>
+    ) : null;
+  if (!left.length) return done;
+  const total = left.reduce((sum, l) => sum + l.count, 0);
+  // A Studio project's pages are the dashboard's, in the project's own frame.
+  const page = back === "/studio/project" ? LIST_PAGE[left[0]!.list].replace(/^\/dashboard/, "/studio/project") : LIST_PAGE[left[0]!.list];
+  return (
+    <div data-samples="all" className="flex flex-col gap-3">
+      {done}
+      <Notice tone="info" icon="info">
+        <p className="m-0 font-bold">{t("samples.allTitle", { count: total })}</p>
+        <p className="m-0">{t("samples.allText")}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <form action={removeAllSamplesAction}>
+            <input type="hidden" name="back" value={back} />
+            <SubmitButton variant="secondary" className="h-10 px-4 text-sm">
+              {t("samples.removeEverything")}
+            </SubmitButton>
+          </form>
+          <Link href={page} className={`${btn.secondary} h-10 px-4 text-sm`}>
+            {t("samples.seeThem")}
+          </Link>
+        </div>
       </Notice>
     </div>
   );

@@ -3,7 +3,7 @@ import { courseSetup } from "../courses/setup";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
-import type { SampleList } from "./lists";
+import { sampleListsOf, type SampleList } from "./lists";
 
 /**
  * 110.2 "Remove all samples": a list's sample entries go, with the sample
@@ -25,6 +25,20 @@ export async function removeSamples(deps: RemoveDeps, appId: string, list: Sampl
   if (!app) return 0;
   const { removed, assets } = await REMOVERS[list](deps, app);
   if (removed > 0) await deleteUnusedAssets(deps, app, assets);
+  return removed;
+}
+
+/**
+ * Templates = demos: "Remove all sample data", every list's samples at
+ * once (an app started from a demo has them in many lists). Returns how
+ * many went.
+ */
+export async function removeAllSamples(deps: RemoveDeps, appId: string): Promise<number> {
+  const app = await deps.store.getAppById(appId);
+  if (!app) return 0;
+  let removed = 0;
+  // The team before the services, the courses before their teachers: what points at a sample goes first.
+  for (const list of [...sampleListsOf(app)].reverse()) removed += await removeSamples(deps, appId, list);
   return removed;
 }
 
@@ -156,6 +170,25 @@ const REMOVERS: Record<SampleList, (deps: RemoveDeps, app: App) => Promise<Remov
     const samples = (await store.listVehicleTypes(app.id)).filter((t) => t.sample);
     for (const t of samples) await store.deleteVehicleType(app.id, t.id, now);
     return { removed: samples.length, assets: samples.map((t) => t.imageAssetId).filter((id): id is string => !!id) };
+  },
+
+  async school({ store, now }, app) {
+    const settings = await store.getSchoolSettings(app.id);
+    const made = settings?.sampleSchool;
+    if (!settings || !made) return { removed: 0, assets: [] };
+    const marked = new Set(made.personIds);
+    const people = await store.listSchoolPeople(app.id);
+    const samples = people.filter((p) => marked.has(p.id));
+    for (const p of samples) await store.deleteSchoolPerson(app.id, p.id);
+    // A sample class the owner put their own people in is theirs now, and so is a subject one of the classes left still has lessons of.
+    const kept = new Set(people.filter((p) => !marked.has(p.id) && p.classId !== null).map((p) => p.classId));
+    for (const id of made.classIds) if (!kept.has(id)) await store.deleteSchoolClass(app.id, id);
+    const used = new Set((await store.listSchoolPeriods(app.id)).map((p) => p.subjectId));
+    for (const id of made.subjectIds) if (!used.has(id)) await store.deleteSchoolSubject(app.id, id);
+    const rest = { ...settings };
+    delete rest.sampleSchool;
+    await store.saveSchoolSettings(app.id, rest, now);
+    return { removed: samples.length, assets: [] };
   },
 
   async school_news({ store }, app) {

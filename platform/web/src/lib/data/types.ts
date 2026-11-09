@@ -5402,6 +5402,15 @@ export interface SchoolSettings {
   behaviourAlerts?: SchoolBehaviourAlerts;
   /** 113.8 The school saved its behaviour categories once: the suggested ones aren't added again. */
   behaviourCategoriesSet?: boolean;
+  /** Templates = demos: the sample school a project started from the school demo got (lib/samples/demo.ts); missing: none. */
+  sampleSchool?: SchoolSample;
+}
+
+/** The classes, subjects and people added as a sample school, removed together with "Remove all samples". */
+export interface SchoolSample {
+  classIds: number[];
+  subjectIds: number[];
+  personIds: number[];
 }
 
 /** 113.2 How people check in: the gate's QR code, inside the school's area, either one, or both at once. */

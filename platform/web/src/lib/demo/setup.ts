@@ -3,25 +3,7 @@ import { syncClassSessions } from "../bookings/classes";
 import { ENGINES } from "../app/kinds";
 import { newApp } from "../app/setup";
 import type { AppPatch, DataStore } from "../data/store";
-import type {
-  App,
-  AssetKind,
-  BookingService,
-  BookingSetup,
-  BookingStaff,
-  Client,
-  ContactSetting,
-  Course,
-  CourseSetup,
-  EventInput,
-  HostedSettings,
-  ListingInput,
-  Dish,
-  MenuSection,
-  OpeningPeriod,
-  RestaurantMenu,
-  RidesSettings,
-} from "../data/types";
+import type { App, AssetKind, BookingSetup, Client, ContactSetting, CourseSetup, HostedSettings, RidesSettings } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
 import { DEFAULT_RIDES_SETTINGS, EMPTY_DRIVER } from "../rides/settings";
 import { DEFAULT_TAXI_SETTINGS } from "../taxi/settings";
@@ -33,63 +15,34 @@ import { demoStudioPage } from "../studio/demo-templates";
 import { demoDesign, demoStudioContext } from "./look";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
 import {
-  ARTICLE_CATEGORIES,
   BOOKING_RULES,
-  CLINIC_CATEGORIES,
-  CLINIC_DOCTORS,
-  CLINIC_HOURS,
   CLINIC_INTAKE,
   CLINIC_RULES,
-  CLINIC_SERVICES,
-  COURSE_CATEGORIES,
   COURSE_CURRENCY,
-  DEMO_ARTICLES,
-  DEMO_CAMPAIGNS,
   DEMO_BRANDS,
-  DEMO_EVENTS,
   EVENT_SETTINGS,
   DONATION_CURRENCY,
-  DEMO_COURSES,
-  DEMO_DELIVERY_SERVICES,
-  DEMO_RESTAURANTS,
   DELIVERY_DEMO_SETTINGS,
   FOOD_CUISINES,
   FOOD_DEMO_SETTINGS,
   RIDES_DEMO_DRIVERS,
-  RIDES_DEMO_TYPES,
   TAXI_DEMO_DRIVERS,
-  TAXI_DEMO_TYPES,
-  type DemoRestaurant,
-  DEMO_DISHES,
-  DEMO_LISTINGS,
-  DEMO_PRODUCTS,
-  DEMO_SERVICES,
-  DEMO_STAFF,
-  FITNESS_CATEGORIES,
-  FITNESS_COACHES,
-  FITNESS_HOURS,
   FITNESS_PLANS,
   FITNESS_RULES,
-  FITNESS_SERVICES,
-  FITNESS_TIMETABLE,
   LISTING_SETTINGS,
-  MENU_CATEGORIES,
-  PRODUCT_CATEGORIES,
   RESTAURANT_FULFILMENT,
-  SERVICE_CATEGORIES,
   STORE_CURRENCY,
   STORE_FREE_SHIPPING_OVER_CENTS,
   STORE_SHIPPING_CENTS,
-  STUDIO_HOURS,
 } from "./content";
 import type { PictureName } from "./pictures";
+import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
-import { ACADEMY_CATEGORIES, ACADEMY_COURSES, ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
+import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
 
 /**
  * Creates or refreshes the demo apps (roadmap 16, the admin's Demo apps
@@ -262,8 +215,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   // 115.15 Zad: two restaurants and a supermarket, offers, the club, the wallet, and the demo number's orders and complaints.
   if (content === "restaurants" && id === "marketplace") await refreshMarketplaceDemo(store, saved, now, { force: true });
   else if (content === "restaurants") await syncFood(deps, client.id, saved);
-  if (content === "rides" && id === "taxi") await syncTaxi(deps, saved);
-  else if (content === "rides") await syncRides(deps, saved);
+  if (content === "rides" && id === "taxi") await syncTaxi(deps, client.id, saved);
+  else if (content === "rides") await syncRides(deps, client.id, saved);
   // 110.5 Nakhla School: its structure and people, then its school day.
   if (content === "school") await refreshSchoolDay(store, saved, now, { force: true, people: await syncSchoolStructure(store, saved, now) });
   if (content === "listings") await syncListings(deps, client.id, saved);
@@ -281,32 +234,15 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   return { app: saved, created: !existing };
 }
 
+/** The demo's entries, made by the generators an app started from the demo gets its samples from (lib/demo/entries.ts). */
+function entryDeps(deps: DemoSetupDeps, clientId: string): EntryDeps {
+  return { store: deps.store, now: deps.now, picture: (name, size) => picture(deps, clientId, name, size, "product_image"), sample: false };
+}
+
 /** Courses with fixed IDs, so enrolments and progress keep pointing at the same course and lesson. */
 async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: CourseSetup | null): Promise<CourseSetup> {
-  let next = 1;
-  const categories = COURSE_CATEGORIES.map((name) => ({ id: next++, name }));
-  const courses: Course[] = [];
-  for (const seed of DEMO_COURSES) {
-    const id = next++;
-    courses.push({
-      id,
-      title: seed.title,
-      description: seed.description,
-      imageAssetId: await picture(deps, clientId, seed.picture, "course", "product_image"),
-      priceCents: seed.priceCents,
-      categoryIds: categories.filter((c) => c.name === seed.category).map((c) => c.id),
-      instructorName: seed.instructor,
-      level: seed.level,
-      active: true,
-      createdAt: previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString(),
-      topics: seed.topics.map((topic) => ({
-        id: next++,
-        title: topic.title,
-        lessons: topic.lessons.map((lesson) => ({ id: next++, title: lesson.title, videoUrl: null, text: lesson.text, durationMinutes: lesson.minutes, preview: lesson.preview === true })),
-      })),
-    });
-  }
-  return { currency: COURSE_CURRENCY, categories, courses, nextId: next };
+  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: COURSE_CURRENCY }, false, null, (id) => previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString());
+  return { currency: COURSE_CURRENCY, categories: made.categories, courses: made.courses, nextId: made.nextId };
 }
 
 /**
@@ -318,75 +254,24 @@ async function academySetupFor(deps: DemoSetupDeps, clientId: string, app: App):
   const photos = new Map<string, string>();
   for (const t of ACADEMY_TEACHERS) photos.set(t.name, await picture(deps, clientId, t.picture, "avatar", "product_image"));
   const teachers = await syncAcademyTeachers(deps.store, app, photos, deps.now);
-  let next = 1;
-  const categories = ACADEMY_CATEGORIES.map((name) => ({ id: next++, name }));
-  const courses: Course[] = [];
-  for (const seed of ACADEMY_COURSES) {
-    const id = next++;
-    courses.push({
-      id,
-      title: seed.title,
-      description: seed.description,
-      imageAssetId: await picture(deps, clientId, seed.picture, "course", "product_image"),
-      priceCents: seed.priceCents,
-      categoryIds: categories.filter((c) => c.name === seed.category).map((c) => c.id),
-      instructorName: seed.teacher,
-      level: seed.level,
-      active: true,
-      teacherId: teachers.get(seed.teacher) ?? null,
-      teacherStage: null,
-      createdAt: app.courseSetup?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString(),
-      topics: seed.topics.map((topic) => ({
-        id: next++,
-        title: topic.title,
-        lessons: topic.lessons.map((lesson) => ({ id: next++, title: lesson.title, videoUrl: null, text: lesson.text, durationMinutes: lesson.minutes, preview: lesson.preview === true })),
-      })),
-    });
-  }
+  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: TEACHERS_CURRENCY }, true, teachers, (id) => app.courseSetup?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString());
+  const courses = made.courses;
+  let next = made.nextId;
   // The visitor's own courses (as the demo teacher) after the demo's, with new IDs; the daily job deletes them after a day.
   const seeded = new Set(teachers.values());
   for (const own of app.courseSetup?.courses.filter((c) => c.teacherId && !seeded.has(c.teacherId) && c.teacherStage) ?? []) {
     courses.push({ ...own, id: next++, topics: own.topics.map((t) => ({ ...t, id: next++, lessons: t.lessons.map((l) => ({ ...l, id: next++ })) })) });
   }
-  return { currency: TEACHERS_CURRENCY, categories, courses, nextId: next, teachersApply: true };
+  return { currency: TEACHERS_CURRENCY, categories: made.categories, courses, nextId: next, teachersApply: true };
 }
 
 /** The studio's services and team, or (21) the clinic's, with its doctors' profiles and intake form. */
 async function bookingSetupFor(deps: DemoSetupDeps, clientId: string, clinic: boolean): Promise<BookingSetup> {
-  let next = 1;
-  const categories = (clinic ? CLINIC_CATEGORIES : SERVICE_CATEGORIES).map((name) => ({ id: next++, name }));
-  const services = [];
-  for (const seed of clinic ? CLINIC_SERVICES : DEMO_SERVICES) {
-    services.push({
-      id: next++,
-      categoryId: categories.find((c) => c.name === seed.category)?.id ?? null,
-      name: seed.name,
-      description: seed.description,
-      durationMinutes: seed.minutes,
-      priceCents: seed.priceCents,
-      imageAssetId: await picture(deps, clientId, seed.picture, "product", "product_image"),
-      color: seed.color,
-      active: true,
-    });
-  }
-  const staff = [];
-  for (const seed of clinic ? CLINIC_DOCTORS : DEMO_STAFF) {
-    staff.push({
-      id: next++,
-      name: seed.name,
-      title: seed.title,
-      imageAssetId: await picture(deps, clientId, seed.picture, "avatar", "product_image"),
-      serviceIds: services.filter((s) => seed.services.includes(s.name)).map((s) => s.id),
-      hours: (clinic ? CLINIC_HOURS : STUDIO_HOURS).map((ranges) => ranges.map((r) => ({ ...r }))),
-      daysOff: [],
-      active: true,
-      ...(seed.specialties ? { specialties: [...seed.specialties], languages: [...(seed.languages ?? [])], bio: seed.bio ?? null } : {}),
-    });
-  }
+  const { categories, services, staff, nextId } = await demoBookingEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: BOOKING_RULES.currency }, clinic ? "clinic" : "salon");
   if (clinic) {
-    return { rules: { ...CLINIC_RULES }, categories, services, staff, nextId: next, intakeFields: CLINIC_INTAKE.map((f) => ({ ...f, options: [...f.options] })) };
+    return { rules: { ...CLINIC_RULES }, categories, services, staff, nextId, intakeFields: CLINIC_INTAKE.map((f) => ({ ...f, options: [...f.options] })) };
   }
-  return { rules: { ...BOOKING_RULES }, categories, services, staff, nextId: next };
+  return { rules: { ...BOOKING_RULES }, categories, services, staff, nextId };
 }
 
 /**
@@ -395,165 +280,27 @@ async function bookingSetupFor(deps: DemoSetupDeps, clientId: string, clinic: bo
  * plans. Fixed IDs, so a refresh keeps the classes and memberships made.
  */
 async function fitnessSetupFor(deps: DemoSetupDeps, clientId: string): Promise<BookingSetup> {
-  let next = 1;
-  const categories = FITNESS_CATEGORIES.map((name) => ({ id: next++, name }));
-  const services: BookingService[] = [];
-  for (const seed of FITNESS_SERVICES) {
-    services.push({
-      id: next++,
-      categoryId: categories.find((c) => c.name === seed.category)?.id ?? null,
-      name: seed.name,
-      description: seed.description,
-      durationMinutes: seed.minutes,
-      priceCents: seed.priceCents,
-      imageAssetId: await picture(deps, clientId, seed.picture, "product", "product_image"),
-      color: seed.color,
-      // Classes are booked on the timetable; only personal training is booked as an appointment.
-      active: seed.category !== "Classes",
-    });
-  }
-  const staff: BookingStaff[] = [];
-  for (const seed of FITNESS_COACHES) {
-    staff.push({
-      id: next++,
-      name: seed.name,
-      title: seed.title,
-      imageAssetId: await picture(deps, clientId, seed.picture, "avatar", "product_image"),
-      serviceIds: services.filter((s) => seed.services.includes(s.name)).map((s) => s.id),
-      hours: FITNESS_HOURS.map((ranges) => ranges.map((r) => ({ ...r }))),
-      daysOff: [],
-      active: true,
-    });
-  }
-  const classTemplates = FITNESS_TIMETABLE.map(([name, coach, weekday, time, capacity]) => {
-    const service = services.find((s) => s.name === name)!;
-    return { id: next++, serviceId: service.id, staffId: staff.find((s) => s.name === coach)!.id, weekday, time, durationMinutes: service.durationMinutes, capacity, active: true };
-  });
+  const made = await demoBookingEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: FITNESS_RULES.currency }, "fitness");
+  let next = made.nextId;
   const membershipPlans = FITNESS_PLANS.map((p) => ({ id: next++, ...p, active: true }));
-  return { rules: { ...FITNESS_RULES }, categories, services, staff, nextId: next, classTemplates, membershipPlans, membershipRequired: true };
+  return { rules: { ...FITNESS_RULES }, categories: made.categories, services: made.services, staff: made.staff, nextId: next, classTemplates: made.classTemplates, membershipPlans, membershipRequired: true };
 }
 
 /** Products by SKU and categories by name: updated in place; ones no longer in the demo are removed. 26 The café's dishes, with their options. */
 async function syncProducts(deps: DemoSetupDeps, clientId: string, app: App, menu: boolean): Promise<void> {
-  const { store, now } = deps;
-  const names = menu ? MENU_CATEGORIES : PRODUCT_CATEGORIES;
-  const seeds = menu ? DEMO_DISHES : DEMO_PRODUCTS;
-  const categories = await store.listCatalogCategories(app.id);
-  const categoryIds = new Map<string, number>();
-  for (const name of names) {
-    const found = categories.find((c) => c.name === name);
-    categoryIds.set(name, found ? found.id : (await store.createCatalogCategory({ appId: app.id, name, now })).id);
-  }
-  for (const c of categories) if (!names.includes(c.name)) await store.deleteCatalogCategory(app.id, c.id, now);
-  const products = await store.listCatalogProducts(app.id);
-  // Created last to first, so the newest-first lists show them in the demo's order.
-  for (const seed of [...seeds].reverse()) {
-    const input = {
-      appId: app.id,
-      name: seed.name,
-      description: seed.description,
-      priceCents: seed.priceCents,
-      salePriceCents: seed.salePriceCents,
-      categoryIds: [categoryIds.get(seed.category)!],
-      imageAssetIds: [await picture(deps, clientId, seed.picture, "product", "product_image")],
-      stock: null,
-      digital: false,
-      featured: seed.featured,
-      active: true,
-      sku: seed.sku,
-      optionGroups: seed.optionGroups ? structuredClone(seed.optionGroups) : null,
-    };
-    const found = products.find((p) => p.sku === seed.sku);
-    if (found) await store.updateCatalogProduct(app.id, found.id, input, now);
-    else await store.createCatalogProduct(input, now);
-  }
-  const skus = new Set(seeds.map((p) => p.sku));
-  for (const p of products) if (!p.sku || !skus.has(p.sku)) await store.deleteCatalogProduct(app.id, p.id);
+  await demoProducts(entryDeps(deps, clientId), app, menu);
 }
 
 /** Listings by reference: updated in place; ones no longer in the demo are archived. */
 async function syncListings(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
-  const { store, now } = deps;
-  await store.saveListingSettings(app.id, { ...LISTING_SETTINGS, contactName: DEMO_BRANDS.real_estate.appName }, now);
-  const listings = await store.listListings(app.id);
-  for (const seed of [...DEMO_LISTINGS].reverse()) {
-    const imageAssetIds: string[] = [];
-    for (const name of seed.pictures) imageAssetIds.push(await picture(deps, clientId, name, "home", "product_image"));
-    const found = listings.find((l) => l.reference === seed.reference);
-    const input: ListingInput = {
-      appId: app.id,
-      reference: seed.reference,
-      title: seed.title,
-      description: seed.description,
-      purpose: seed.purpose,
-      type: seed.type,
-      priceCents: seed.priceCents,
-      currency: LISTING_SETTINGS.currency,
-      pricePeriod: seed.pricePeriod,
-      negotiable: seed.negotiable,
-      city: seed.city,
-      district: seed.district,
-      address: null,
-      latitude: seed.latitude,
-      longitude: seed.longitude,
-      area: seed.area,
-      bedrooms: seed.bedrooms,
-      bathrooms: seed.bathrooms,
-      floor: seed.floor,
-      yearBuilt: seed.yearBuilt,
-      furnished: seed.furnished,
-      features: seed.features,
-      imageAssetIds,
-      videoUrl: null,
-      featured: seed.featured,
-      status: "published",
-      publishedAt: found?.publishedAt ?? now,
-    };
-    if (found) await store.updateListing(app.id, found.id, input, now);
-    else await store.createListing(input, now);
-  }
-  const references = new Set(DEMO_LISTINGS.map((l) => l.reference));
-  for (const l of listings) if ((!l.reference || !references.has(l.reference)) && l.status !== "archived") await store.updateListing(app.id, l.id, { status: "archived" }, now);
+  await deps.store.saveListingSettings(app.id, { ...LISTING_SETTINGS, contactName: DEMO_BRANDS.real_estate.appName }, deps.now);
+  await demoListings(entryDeps(deps, clientId), app, LISTING_SETTINGS.currency);
 }
 
 /** 23 Sections by name and articles by title: updated in place; ones no longer in the demo are unpublished. */
 async function syncArticles(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
-  const { store, now } = deps;
-  await store.saveNewsSettings(app.id, { showAuthor: true, showDates: true }, now);
-  const categories = await store.listArticleCategories(app.id);
-  const categoryIds = new Map<string, number>();
-  for (const [position, name] of ARTICLE_CATEGORIES.entries()) {
-    const found = categories.find((c) => c.name === name);
-    if (found) {
-      if (found.position !== position) await store.updateArticleCategory(app.id, found.id, { position });
-      categoryIds.set(name, found.id);
-    } else {
-      categoryIds.set(name, (await store.createArticleCategory({ appId: app.id, name, position, createdAt: now })).id);
-    }
-  }
-  for (const c of categories) if (!ARTICLE_CATEGORIES.includes(c.name)) await store.deleteArticleCategory(app.id, c.id);
-  const articles = await store.listArticles(app.id);
-  // Created oldest first, so the newest-first lists show them in the demo's order.
-  for (const seed of [...DEMO_ARTICLES].reverse()) {
-    const input = {
-      appId: app.id,
-      title: seed.title,
-      excerpt: seed.excerpt,
-      body: seed.body,
-      imageAssetId: await picture(deps, clientId, seed.picture, "course", "product_image"),
-      author: seed.author,
-      categoryIds: [categoryIds.get(seed.category)!],
-      featured: seed.featured,
-      status: "published" as const,
-      // Dated before the refresh, the way a news site's articles are.
-      publishedAt: new Date(now.getTime() - seed.hoursAgo * 3_600_000),
-    };
-    const found = articles.find((a) => a.title === seed.title);
-    if (found) await store.updateArticle(app.id, found.id, input, now);
-    else await store.createArticle(input, now);
-  }
-  const titles = new Set(DEMO_ARTICLES.map((a) => a.title));
-  for (const a of articles) if (!titles.has(a.title) && a.status !== "draft") await store.updateArticle(app.id, a.id, { status: "draft" }, now);
+  await deps.store.saveNewsSettings(app.id, { showAuthor: true, showDates: true }, deps.now);
+  await demoArticles(entryDeps(deps, clientId), app);
 }
 
 /**
@@ -562,77 +309,14 @@ async function syncArticles(deps: DemoSetupDeps, clientId: string, app: App): Pr
  * to drafts.
  */
 async function syncEvents(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
-  const { store, now } = deps;
-  await store.saveEventSettings(app.id, { ...EVENT_SETTINGS }, now);
-  const events = await store.listEvents(app.id);
-  const today = utcToLocal(now, EVENT_SETTINGS.timeZone).date;
-  for (const seed of DEMO_EVENTS) {
-    const startAt = localToUtc(addDays(today, seed.daysAhead), seed.start, EVENT_SETTINGS.timeZone);
-    const input: EventInput = {
-      appId: app.id,
-      title: seed.title,
-      description: seed.description,
-      category: seed.category,
-      imageAssetIds: [await picture(deps, clientId, seed.picture, "course", "product_image")],
-      startAt,
-      endAt: new Date(startAt.getTime() + seed.minutes * 60_000),
-      venueName: seed.venue?.name ?? null,
-      venueAddress: seed.venue?.address ?? null,
-      latitude: seed.venue?.latitude ?? null,
-      longitude: seed.venue?.longitude ?? null,
-      onlineUrl: seed.onlineUrl,
-      organiser: DEMO_BRANDS.events.appName,
-      capacity: seed.capacity,
-      status: "published",
-      publishedAt: now,
-    };
-    const found = events.find((e) => e.title === seed.title);
-    const event = found ?? (await store.createEvent(input, now));
-    if (found) await store.updateEvent(app.id, found.id, input, now);
-    const types = await store.listTicketTypes(app.id, event.id);
-    for (const [position, t] of seed.ticketTypes.entries()) {
-      const fields = { name: t.name, priceCents: t.priceCents, capacity: t.capacity, saleEndsAt: null, maxPerOrder: t.maxPerOrder, position };
-      const existing = types.find((x) => x.name === t.name);
-      if (existing) await store.updateTicketType(app.id, existing.id, fields);
-      else await store.createTicketType({ ...fields, appId: app.id, eventId: event.id }, now);
-    }
-    const names = new Set(seed.ticketTypes.map((t) => t.name));
-    for (const t of types) if (!names.has(t.name)) await store.deleteTicketType(app.id, t.id);
-  }
-  const titles = new Set(DEMO_EVENTS.map((e) => e.title));
-  for (const e of events) if (!titles.has(e.title) && e.status !== "draft") await store.updateEvent(app.id, e.id, { status: "draft" }, now);
+  await deps.store.saveEventSettings(app.id, { ...EVENT_SETTINGS }, deps.now);
+  await demoEvents(entryDeps(deps, clientId), app, EVENT_SETTINGS, DEMO_BRANDS.events.appName);
 }
 
 /** 29 Campaigns by title: updated in place with the demo's totals; ones no longer in the demo go back to drafts. */
 async function syncCampaigns(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
-  const { store, now } = deps;
-  await store.saveDonationSettings(app.id, { currency: DONATION_CURRENCY, iosMode: "browser" }, now);
-  const campaigns = await store.listCampaigns(app.id);
-  // Created last first, so the newest-first lists show them in the demo's order.
-  for (const [i, seed] of DEMO_CAMPAIGNS.map((c, at) => [at, c] as const).reverse()) {
-    const imageAssetIds: string[] = [];
-    for (const name of seed.pictures) imageAssetIds.push(await picture(deps, clientId, name, "course", "product_image"));
-    const input = {
-      appId: app.id,
-      title: seed.title,
-      summary: seed.summary,
-      story: seed.story,
-      imageAssetIds,
-      goalCents: seed.goalCents,
-      presetCents: seed.presetCents,
-      allowCustomAmount: true,
-      minCents: seed.minCents,
-      endsAt: new Date(now.getTime() + seed.endsInDays * 86_400_000),
-      status: "open" as const,
-      featured: seed.featured,
-      publishedAt: new Date(now.getTime() - (i + 1) * 7 * 86_400_000),
-    };
-    const found = campaigns.find((c) => c.title === seed.title);
-    const id = found ? (await store.updateCampaign(app.id, found.id, input, now), found.id) : (await store.createCampaign(input, now)).id;
-    await store.setCampaignTotals(app.id, id, { raisedCents: seed.raisedCents, donorCount: seed.donorCount });
-  }
-  const titles = new Set(DEMO_CAMPAIGNS.map((c) => c.title));
-  for (const c of campaigns) if (!titles.has(c.title) && c.status !== "draft") await store.updateCampaign(app.id, c.id, { status: "draft" }, now);
+  await deps.store.saveDonationSettings(app.id, { currency: DONATION_CURRENCY, iosMode: "browser" }, deps.now);
+  await demoCampaigns(entryDeps(deps, clientId), app, DONATION_CURRENCY);
 }
 
 /** Sahm Express: prices by distance, its services, live tracking, couriers in the same app. */
@@ -640,37 +324,7 @@ async function syncDelivery(deps: DemoSetupDeps, clientId: string, app: App): Pr
   const { store, now } = deps;
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   await store.saveDeliverySettings(app.id, { ...saved, ...DELIVERY_DEMO_SETTINGS, zones: [], cash: true, card: false, tracking: "live", assignment: "open", courierApp: "same" }, now);
-  const services = await store.listDeliveryServices(app.id);
-  for (const [position, service] of DEMO_DELIVERY_SERVICES.entries()) {
-    const imageAssetId = await picture(deps, clientId, service.picture, "product", "product_image");
-    const input = { appId: app.id, name: service.name, description: service.description, imageAssetId, extraCents: service.extraCents, eta: service.eta, position: position + 1, active: true };
-    const found = services.find((s) => s.name === service.name);
-    if (found) await store.updateDeliveryService(app.id, found.id, input, now);
-    else await store.createDeliveryService(input, now);
-  }
-}
-
-/** A restaurant's menu with fixed IDs, so carts and orders keep pointing at the same dishes. */
-function demoMenu(restaurant: DemoRestaurant, pictureIds: Map<PictureName, string>): RestaurantMenu {
-  let next = 1;
-  const id = () => next++;
-  const sections: MenuSection[] = restaurant.sections.map((section) => ({
-    id: id(),
-    name: section.name,
-    dishes: section.dishes.map((dish): Dish => ({
-      id: id(),
-      name: dish.name,
-      description: dish.description,
-      imageAssetId: pictureIds.get(dish.picture) ?? null,
-      priceCents: dish.priceCents,
-      available: true,
-      popular: dish.popular ?? false,
-      choiceGroups: dish.choices
-        ? [{ id: id(), name: dish.choices.name, min: dish.choices.min, max: dish.choices.max, choices: dish.choices.options.map(([name, extraCents]) => ({ id: id(), name, extraCents, available: true })) }]
-        : [],
-    })),
-  }));
-  return { sections, nextId: next };
+  await demoDeliveryServices(entryDeps(deps, clientId), app, DELIVERY_DEMO_SETTINGS.currency);
 }
 
 /** Sofra Eats: one delivery price, its cuisines, three restaurants open all day with their menus. */
@@ -682,56 +336,16 @@ async function syncFood(deps: DemoSetupDeps, clientId: string, app: App): Promis
     { ...saved, ...FOOD_DEMO_SETTINGS, zones: [], maxKm: null, cash: true, card: false, tracking: "live", assignment: "open", courierApp: "same", cuisines: FOOD_CUISINES.map((c) => ({ ...c })), foodCourierJob: "accepted", timezone: "Africa/Cairo" },
     now,
   );
-  const restaurants = await store.listRestaurants(app.id);
-  const allDay: OpeningPeriod[] = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
-  for (const [position, restaurant] of DEMO_RESTAURANTS.entries()) {
-    const pictureIds = new Map<PictureName, string>();
-    for (const dish of restaurant.sections.flatMap((s) => s.dishes)) {
-      if (!pictureIds.has(dish.picture)) pictureIds.set(dish.picture, await picture(deps, clientId, dish.picture, "product", "product_image"));
-    }
-    const logoAssetId = await picture(deps, clientId, restaurant.logo, "avatar", "product_image");
-    const input = {
-      appId: app.id,
-      name: restaurant.name,
-      description: restaurant.description,
-      logoAssetId,
-      coverAssetId: null,
-      cuisines: [...restaurant.cuisines],
-      address: { address: restaurant.address, details: null, lat: null, lng: null },
-      phone: null,
-      hours: allDay,
-      prepMinutes: restaurant.prepMinutes,
-      minOrderCents: restaurant.minOrderCents,
-      maxKm: null,
-      commissionBp: 1000,
-      active: true,
-      position: position + 1,
-    };
-    const menu = demoMenu(restaurant, pictureIds);
-    const found = restaurants.find((r) => r.name === restaurant.name);
-    if (found) {
-      await store.updateRestaurant(app.id, found.id, input, now);
-      await store.saveRestaurantMenu(app.id, found.id, menu, now);
-    } else {
-      await store.createRestaurant(input, menu, now);
-    }
-  }
+  await demoRestaurants(entryDeps(deps, clientId), app, FOOD_DEMO_SETTINGS.currency);
 }
 
 /** Masar Rides: upfront fares, three vehicle types, the rider's code to start, booking for later. */
-async function syncRides(deps: DemoSetupDeps, app: App): Promise<void> {
+async function syncRides(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
   const { store, now } = deps;
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const rides: RidesSettings = { ...DEFAULT_RIDES_SETTINGS, ...(saved.rides ?? {}), fareMode: "upfront", scheduling: true, pin: true, cancelFreeMinutes: 2, cancelFeeCents: 0, areas: [], promos: [] };
   await store.saveDeliverySettings(app.id, { ...saved, currency: "EGP", cash: true, card: false, courierApp: "same", timezone: "Africa/Cairo", rides }, now);
-  const types = await store.listVehicleTypes(app.id);
-  const typeIds = new Map<string, number>();
-  for (const [position, type] of RIDES_DEMO_TYPES.entries()) {
-    const input = { appId: app.id, ...type, imageAssetId: null, position: position + 1, active: true };
-    const found = types.find((t) => t.name === type.name);
-    if (found) await store.updateVehicleType(app.id, found.id, input, now);
-    typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);
-  }
+  const typeIds = await demoVehicleTypes(entryDeps(deps, clientId), app, false, "EGP");
   // 112.1 Its cars on the rider's map, as Lamha Taxi's.
   await syncDemoDrivers(deps, app, RIDES_DEMO_DRIVERS, typeIds);
 }
@@ -762,19 +376,12 @@ async function syncDemoDrivers(deps: DemoSetupDeps, app: App, seeds: readonly (t
  * map is Admin › Settings › Maps (lib/taxi/service.ts); without a live
  * database the app asks Yallapp every few seconds.
  */
-async function syncTaxi(deps: DemoSetupDeps, app: App): Promise<void> {
+async function syncTaxi(deps: DemoSetupDeps, clientId: string, app: App): Promise<void> {
   const { store, now } = deps;
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const rides: RidesSettings = { ...DEFAULT_RIDES_SETTINGS, ...(saved.rides ?? {}), fareMode: "upfront", scheduling: false, pin: true, cancelFreeMinutes: 2, cancelFeeCents: 0, areas: [], promos: [] };
   await store.saveDeliverySettings(app.id, { ...saved, currency: "EGP", cash: true, card: false, courierApp: "same", timezone: "Africa/Cairo", rides, taxi: { ...DEFAULT_TAXI_SETTINGS } }, now);
-  const types = await store.listVehicleTypes(app.id);
-  const typeIds = new Map<string, number>();
-  for (const [position, type] of TAXI_DEMO_TYPES.entries()) {
-    const input = { appId: app.id, ...type, imageAssetId: null, position: position + 1, active: true };
-    const found = types.find((t) => t.name === type.name);
-    if (found) await store.updateVehicleType(app.id, found.id, input, now);
-    typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);
-  }
+  const typeIds = await demoVehicleTypes(entryDeps(deps, clientId), app, true, "EGP");
   await syncDemoDrivers(deps, app, TAXI_DEMO_DRIVERS, typeIds);
 }
 

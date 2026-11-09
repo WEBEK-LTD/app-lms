@@ -55,8 +55,13 @@ const EXPECTED: Record<SampleList, [number, number]> = {
   delivery_services: [3, 3],
   restaurants: [6, 6],
   vehicle_types: [3, 3],
+  // Templates = demos: a sample school comes only from the school demo (tests/unit/demo-samples.test.ts).
+  school: [0, 0],
   school_news: [6, 6],
 };
+
+/** The lists 110.2's samples fill: all but the school demo's own. */
+const GENERIC = (lists: SampleList[]) => lists.filter((list) => list !== "school");
 
 /** Every text of the sample content, by where it is. */
 function tris(value: unknown, at = "", found: [string, Tri][] = []): [string, Tri][] {
@@ -119,7 +124,7 @@ describe("110.2 seeding sample entries", () => {
     for (const kind of KINDS) {
       const app = await hostedApp(store, client.id, kind);
       const lists = await seedSamples(deps, app.id);
-      expect(lists, kind.id).toEqual(sampleListsOf(app));
+      expect(lists, kind.id).toEqual(GENERIC(sampleListsOf(app)));
       expect(lists.length, kind.id).toBeGreaterThan(0);
       const saved = (await store.getAppById(app.id))!;
       for (const list of lists) {
@@ -134,7 +139,7 @@ describe("110.2 seeding sample entries", () => {
       expect(await seedSamples(deps, app.id), kind.id).toEqual([]);
     }
     // Every list a design shows has samples.
-    expect([...seen].sort()).toEqual(Object.keys(EXPECTED).sort());
+    expect([...seen].sort()).toEqual(GENERIC(Object.keys(EXPECTED) as SampleList[]).sort());
   });
 
   it("gives entries pictures, prices and three or four categories", async () => {

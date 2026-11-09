@@ -108,8 +108,8 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   const saved = await saveDraft(store, app, { ...layout, pages }, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
-  // 110.2 Content kept in Yallapp: the empty lists its first page shows get sample entries.
-  else await seedForDesign(store, app.id, saved.value.draft.pages, now);
+  // 110.2 Content kept in Yallapp: the empty lists its pages show get sample entries, a demo's own when it starts from the demo.
+  else await seedForDesign(store, app.id, saved.value.draft.pages, now, demo);
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");
   // Content kept in Yallapp is ready; a website, platform or API is connected next.
