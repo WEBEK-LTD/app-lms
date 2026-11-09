@@ -236,6 +236,27 @@ export function PagesEditor({
   const [editLang, setEditLang] = useState<LanguageCode>(initial.draft.languages.default);
   const [pageSlug, setPageSlug] = useState<string | null>(initial.draft.pages[0]?.slug ?? null);
   const [openBlock, setOpenBlock] = useState<string | null>(null);
+  // 1.3 With room for both (the blocks area at least 600px wide), the blocks are a short list
+  // with the chosen one's settings in a panel beside it, by the app; else each opens in the list.
+  const [sidePanel, setSidePanel] = useState(false);
+  const areaObserver = useRef<ResizeObserver | null>(null);
+  const blocksArea = useCallback((el: HTMLDivElement | null) => {
+    areaObserver.current?.disconnect();
+    areaObserver.current = null;
+    if (!el) return;
+    areaObserver.current = new ResizeObserver(([entry]) => setSidePanel(entry!.contentRect.width >= 600));
+    areaObserver.current.observe(el);
+  }, []);
+  // A block chosen below the panel's top (a new one, or from the app) brings the panel into view.
+  useEffect(() => {
+    if (!sidePanel || !openBlock) return;
+    const frame = requestAnimationFrame(() => {
+      const panel = document.getElementById("block-panel");
+      const top = panel?.getBoundingClientRect().top;
+      if (panel && top !== undefined && (top < 0 || top > window.innerHeight * 0.6)) panel.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [sidePanel, openBlock]);
   const [newTitle, setNewTitle] = useState("");
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [samples, setSamples] = useState(initial.samples);
@@ -729,6 +750,21 @@ export function PagesEditor({
   }
 
   /** 82.2 A block clicked on the phone: open in the list, in view. */
+  function blockName(block: LayoutBlock): string {
+    const about = summary(translated(block, lang.edit, def));
+    return `${known(BLOCK_LABELS[block.type])}${about ? `: ${about}` : ""}`;
+  }
+
+  /** A block's settings, in the list or in the side panel (1.3). */
+  function settingsOf(page: LayoutPage, block: LayoutBlock) {
+    return (
+      <>
+        <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? rebased(block, next, x) : x)))} />
+        {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
+      </>
+    );
+  }
+
   function selectBlock(id: string) {
     setPanel("pages");
     setOpenBlock(id);
@@ -1074,93 +1110,202 @@ export function PagesEditor({
                 ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.blocks")}</h3>
-                {page.blocks.length ? (
-                  <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
-                    {page.blocks.map((block, i) => {
-                      const open = openBlock === block.id;
-                      const name = `${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
-                      const problem = blockProblem(block, screens, sources);
-                      const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
-                      return (
-                        <li
-                          key={block.id}
-                          id={`block-${block.id}`}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => onDrop(e, i)}
-                          className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
-                        >
-                          <div
-                            draggable
-                            onDragStart={(e) => {
-                              setDragFrom(i);
-                              e.dataTransfer.effectAllowed = "move";
-                              e.dataTransfer.setData("text/plain", block.id);
-                            }}
-                            onDragEnd={() => setDragFrom(null)}
-                            className="flex items-center gap-2 px-2 py-2"
-                          >
-                            <span className="cursor-grab text-muted" title={t("pages.drag")}>
-                              <IconGlyph name="drag_indicator" />
-                            </span>
-                            <button
-                              type="button"
-                              aria-expanded={open}
-                              onClick={() => setOpenBlock(open ? null : block.id)}
-                              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                <div ref={blocksArea}>
+                  {page.blocks.length ? (
+                    sidePanel ? (
+                      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-4">
+                      <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
+                        {page.blocks.map((block, i) => {
+                          const open = openBlock === block.id;
+                          const name = blockName(block);
+                          const problem = blockProblem(block, screens, sources);
+                          const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
+                          return (
+                            <li
+                              key={block.id}
+                              id={`block-${block.id}`}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => onDrop(e, i)}
+                              className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
                             >
-                              <span className="truncate">{name}</span>
-                              {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
-                              {problem ? (
-                                <span title={known(problem)}>
-                                  <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  setDragFrom(i);
+                                  e.dataTransfer.effectAllowed = "move";
+                                  e.dataTransfer.setData("text/plain", block.id);
+                                }}
+                                onDragEnd={() => setDragFrom(null)}
+                                className="flex items-center gap-2 px-2 py-2"
+                              >
+                                <span className="cursor-grab text-muted" title={t("pages.drag")}>
+                                  <IconGlyph name="drag_indicator" />
                                 </span>
+                                <button
+                                  type="button"
+                                  aria-expanded={open}
+                                  aria-controls={open && sidePanel ? "block-panel" : undefined}
+                                  onClick={() => setOpenBlock(open ? null : block.id)}
+                                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                                >
+                                  <span className="truncate">{name}</span>
+                                  {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
+                                  {problem ? (
+                                    <span title={known(problem)}>
+                                      <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {/* 1.1 Not in the app until it's filled in. */}
+                                  {missing ? (
+                                    <span title={missing.errors.map(known).join(" ")} data-needs-content="">
+                                      <Badge tone="warn">{t("pages.needsContent")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {devicesWithout(block.type, versions) ? (
+                                    <span title={t("pages.behindTitle")}>
+                                      <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
+                                    <span title={t("pages.sampleTitle")}>
+                                      <Badge tone="neutral">{t("pages.sample")}</Badge>
+                                    </span>
+                                  ) : null}
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
+                                  <IconGlyph name="arrow_upward" size={20} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={iconBtn}
+                                  aria-label={t("pages.blockDown", { n: i + 1 })}
+                                  disabled={i === page.blocks.length - 1}
+                                  onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                                >
+                                  <IconGlyph name="arrow_downward" size={20} />
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
+                                  <IconGlyph name="delete" size={20} />
+                                </button>
+                              </div>
+                              {open && !sidePanel ? (
+                                <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
+                                  {settingsOf(page, block)}
+                                </div>
                               ) : null}
-                              {/* 1.1 Not in the app until it's filled in. */}
-                              {missing ? (
-                                <span title={missing.errors.map(known).join(" ")} data-needs-content="">
-                                  <Badge tone="warn">{t("pages.needsContent")}</Badge>
-                                </span>
-                              ) : null}
-                              {devicesWithout(block.type, versions) ? (
-                                <span title={t("pages.behindTitle")}>
-                                  <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
-                                </span>
-                              ) : null}
-                              {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
-                                <span title={t("pages.sampleTitle")}>
-                                  <Badge tone="neutral">{t("pages.sample")}</Badge>
-                                </span>
-                              ) : null}
-                            </button>
-                            <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
-                              <IconGlyph name="arrow_upward" size={20} />
-                            </button>
-                            <button
-                              type="button"
-                              className={iconBtn}
-                              aria-label={t("pages.blockDown", { n: i + 1 })}
-                              disabled={i === page.blocks.length - 1}
-                              onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                            </li>
+                          );
+                        })}
+                      </ol>
+                        {/* 1.3 The chosen block's settings, kept in view beside the list and the app. */}
+                        <div id="block-panel" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-3 self-start overflow-y-auto rounded-xl border border-line bg-white p-3">
+                          {(() => {
+                            const at = page.blocks.findIndex((b) => b.id === openBlock);
+                            const chosen = page.blocks[at];
+                            if (!chosen) return <p className="m-0 text-sm text-muted">{t("pages.pickBlock")}</p>;
+                            return (
+                              <div role="group" aria-label={t("pages.blockSettings", { n: at + 1 })} className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-2 border-b border-line-soft pb-2">
+                                  <h4 className="m-0 truncate text-[15px] font-bold">{blockName(chosen)}</h4>
+                                  <button type="button" className={iconBtn} aria-label={t("pages.closeBlock")} onClick={() => setOpenBlock(null)}>
+                                    <IconGlyph name="close" size={20} />
+                                  </button>
+                                </div>
+                                {settingsOf(page, chosen)}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    ) : (
+                      <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
+                        {page.blocks.map((block, i) => {
+                          const open = openBlock === block.id;
+                          const name = blockName(block);
+                          const problem = blockProblem(block, screens, sources);
+                          const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
+                          return (
+                            <li
+                              key={block.id}
+                              id={`block-${block.id}`}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => onDrop(e, i)}
+                              className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
                             >
-                              <IconGlyph name="arrow_downward" size={20} />
-                            </button>
-                            <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
-                              <IconGlyph name="delete" size={20} />
-                            </button>
-                          </div>
-                          {open ? (
-                            <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
-                              <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? rebased(block, next, x) : x)))} />
-                              {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
-                            </div>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ol>
-                ) : (
-                  <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
-                )}
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  setDragFrom(i);
+                                  e.dataTransfer.effectAllowed = "move";
+                                  e.dataTransfer.setData("text/plain", block.id);
+                                }}
+                                onDragEnd={() => setDragFrom(null)}
+                                className="flex items-center gap-2 px-2 py-2"
+                              >
+                                <span className="cursor-grab text-muted" title={t("pages.drag")}>
+                                  <IconGlyph name="drag_indicator" />
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-expanded={open}
+                                  aria-controls={open && sidePanel ? "block-panel" : undefined}
+                                  onClick={() => setOpenBlock(open ? null : block.id)}
+                                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                                >
+                                  <span className="truncate">{name}</span>
+                                  {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
+                                  {problem ? (
+                                    <span title={known(problem)}>
+                                      <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {/* 1.1 Not in the app until it's filled in. */}
+                                  {missing ? (
+                                    <span title={missing.errors.map(known).join(" ")} data-needs-content="">
+                                      <Badge tone="warn">{t("pages.needsContent")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {devicesWithout(block.type, versions) ? (
+                                    <span title={t("pages.behindTitle")}>
+                                      <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
+                                    <span title={t("pages.sampleTitle")}>
+                                      <Badge tone="neutral">{t("pages.sample")}</Badge>
+                                    </span>
+                                  ) : null}
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
+                                  <IconGlyph name="arrow_upward" size={20} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={iconBtn}
+                                  aria-label={t("pages.blockDown", { n: i + 1 })}
+                                  disabled={i === page.blocks.length - 1}
+                                  onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                                >
+                                  <IconGlyph name="arrow_downward" size={20} />
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
+                                  <IconGlyph name="delete" size={20} />
+                                </button>
+                              </div>
+                              {open && !sidePanel ? (
+                                <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
+                                  {settingsOf(page, block)}
+                                </div>
+                              ) : null}
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    )
+                  ) : (
+                    <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
+                  )}
+                </div>
 
                 {/* 84.3 Blocks of this page saved together, for any page of the account's apps. */}
                 {page.blocks.length && !basic ? (
