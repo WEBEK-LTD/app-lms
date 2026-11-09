@@ -708,8 +708,14 @@ export interface StudioNode {
   locked?: boolean;
   /** Editor audit 3.3: the project's text style it follows; changing the style changes its font. Apps ignore it. */
   text_style?: StudioTextStyle;
+  /** Editor audit 3.3: its sizes, spacing and text on tablets (a screen at least 600 wide on its short side); the font field by field. */
+  tablet?: StudioTablet;
   translations?: Translations;
 }
+
+/** Editor audit 3.3: what can be different on tablets. */
+export const STUDIO_TABLET_FIELDS = ["width", "height", "min_height", "padding", "margin", "gap", "columns", "per_view", "font", "text_align"] as const;
+export type StudioTablet = Partial<Pick<StudioNode, (typeof STUDIO_TABLET_FIELDS)[number]>>;
 
 /** 103R The bar at the top of a Studio page (`StudioHeader`). */
 export interface StudioHeader {

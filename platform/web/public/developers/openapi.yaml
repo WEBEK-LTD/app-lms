@@ -14130,6 +14130,25 @@ components:
         hidden: { type: boolean, default: false, description: "107.2 Kept in the editor but never shown: the servers leave it out with what it holds, and an app that gets one doesn't draw it." }
         locked: { type: boolean, default: false, description: "Editor audit 3.3: kept for the editor only, where the canvas doesn't select, move or resize it. Apps ignore it." }
         text_style: { type: string, enum: [heading, subheading, body, button], description: "Editor audit 3.3: the project's text style it follows, kept for the editor; `font` already holds the style's font. Apps ignore it." }
+        tablet:
+          type: object
+          description: |
+            Editor audit 3.3: the element's sizes, spacing and text on tablets
+            (a screen at least 600 wide on its short side), put over its own
+            fields; `font` field by field. Only these fields; an app that
+            doesn't know it shows the element as it is.
+          properties:
+            width: { $ref: '#/components/schemas/StudioSize' }
+            height: { $ref: '#/components/schemas/StudioSize' }
+            min_height: { type: number, minimum: 0 }
+            padding: { $ref: '#/components/schemas/StudioSides' }
+            margin: { $ref: '#/components/schemas/StudioSides' }
+            gap: { type: number, minimum: 0, maximum: 200 }
+            columns: { type: integer, minimum: 1, maximum: 6 }
+            per_view: { type: number, minimum: 1, maximum: 4 }
+            font: { $ref: '#/components/schemas/StudioFont' }
+            text_align: { type: string, enum: [start, center, end] }
+          additionalProperties: false
 
     StudioCorners:
       type: [object, 'null']

@@ -96,6 +96,8 @@ interface Props {
   fontLabels: { arabicOnly: string; none: string; sample: string; hint?: string };
   /** Editor audit 3.3: the project's text styles, filled in from the defaults. */
   textStyles: Record<StudioTextStyle, StudioFont>;
+  /** Editor audit 3.3: editing while the canvas shows a tablet; `changed` when the element has tablet changes. */
+  tablet?: { changed: boolean; onReset: () => void };
 }
 
 export function Inspector(props: Props) {
@@ -569,6 +571,20 @@ function DesignTab(props: Props & { node: StudioNode }) {
   const listTitled = (node.type === "items" && (node.recent || !!node.title)) || node.type === "market";
   return (
     <>
+      {props.tablet ? (
+        <div role="note" className="flex flex-col gap-1.5 rounded-lg p-2.5 text-xs" style={{ background: "#EEF1FF", color: "var(--studio-ink)" }}>
+          <span className="flex items-center gap-1.5 font-bold">
+            <Glyph name="tablet" size={16} />
+            {t("studio.tabletEditing")}
+          </span>
+          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabletHint")}</span>
+          {props.tablet.changed ? (
+            <button type="button" onClick={props.tablet.onReset} className="h-7 self-start rounded-md bg-white px-2 font-semibold" style={{ border: "1px solid var(--studio-line)" }}>
+              {t("studio.tabletReset")}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {titled || listTitled ? (
         <label className="flex flex-col gap-1 font-bold">
           {t(listTitled && !titled ? "studio.listTitleLabel" : "studio.itemTitle")}
