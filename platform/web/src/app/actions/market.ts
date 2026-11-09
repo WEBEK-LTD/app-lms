@@ -12,8 +12,10 @@ import { complaintDecisionDeps } from "@/lib/market/decisions";
 import { complaintReference } from "@/lib/market/json";
 import { currencyDecimals, toMinor } from "@/lib/market/currency";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { parseCourierTermsForm } from "@/lib/market/delivery-forms";
 import { parseClubPlanForm, parseCouponForm } from "@/lib/market/offer-forms";
-import { marketCurrency } from "@/lib/market/settings";
+import { marketCurrency, marketSettingsOf } from "@/lib/market/settings";
+import { parseMarketSettingsForm } from "@/lib/market/settings-form";
 
 /**
  * 115.12 The app owner's complaint queue: replies the customer reads, the
@@ -194,4 +196,44 @@ export async function clubPlanActiveAction(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (Number.isInteger(id) && id > 0) await store.updateMarketClubPlan(context.app.id, id, { active: formData.get("active") === "1", updatedAt: new Date() });
   backToOffers();
+}
+
+// 115.12 Studio › Marketplace settings
+
+function backToSettings(message?: string, saved?: string): never {
+  revalidatePath("/dashboard/market/settings");
+  revalidatePath("/studio/project/market/settings");
+  const q = message ? `?error=${encodeURIComponent(message)}` : saved ? `?saved=${saved}` : "";
+  redirect(`/dashboard/market/settings${q}`);
+}
+
+async function settingsContext() {
+  const context = await clientFor("settings");
+  if (!context) redirect("/sign-in");
+  if (!mayUseDashboard(context)) redirect("/pending");
+  if (!context.app || context.app.connector?.kind !== "restaurants") redirect("/dashboard");
+  const app = context.app;
+  const store = await getStore();
+  const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  return { context: context as ClientContext & { app: App }, app, store, settings };
+}
+
+/** The marketplace as a whole: country, currency, taxes, the ways to pay, pick-up, orders for later, the club, the wallet, photos. */
+export async function saveMarketSettingsAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const parsed = parseMarketSettingsForm(formOf(formData), marketSettingsOf(settings), settings.currency);
+  if (!parsed.ok) backToSettings(parsed.error);
+  await store.saveDeliverySettings(app.id, { ...settings, marketApp: parsed.value }, new Date());
+  await recordStaffChange(context, "Changed the marketplace settings");
+  backToSettings(undefined, "market");
+}
+
+/** What the app's couriers cost customers and the places that use them. */
+export async function saveCourierTermsAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const parsed = parseCourierTermsForm(formOf(formData), marketCurrency(settings));
+  if (!parsed.ok) backToSettings(parsed.error);
+  await store.saveDeliverySettings(app.id, { ...settings, market: parsed.value }, new Date());
+  await recordStaffChange(context, "Changed the app's couriers' terms");
+  backToSettings(undefined, "couriers");
 }

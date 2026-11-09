@@ -245,6 +245,8 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                   minOrder: restaurant.minOrderCents > 0 ? centsToDecimal(restaurant.minOrderCents) : "",
                   maxKm: restaurant.maxKm === null ? "" : String(restaurant.maxKm),
                   commission: percentOf(restaurant.commissionBp),
+                  commissionFixed: restaurant.commissionFixed ? centsToDecimal(restaurant.commissionFixed) : "",
+                  taxRate: restaurant.taxRateBp === null || restaurant.taxRateBp === undefined ? "" : percentOf(restaurant.taxRateBp),
                   logoUrl: restaurant.logoAssetId ? assetUrl(restaurant.logoAssetId) : null,
                   coverUrl: restaurant.coverAssetId ? assetUrl(restaurant.coverAssetId) : null,
                 }}

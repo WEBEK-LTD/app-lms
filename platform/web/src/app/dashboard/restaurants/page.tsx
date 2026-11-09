@@ -93,7 +93,7 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
         <RestaurantForm
           currency={settings.currency}
           cuisines={cuisines}
-          restaurant={{ id: null, name: "", description: "", phone: "", address: "", details: "", map: "", cuisines: [], prepMinutes: "20", minOrder: "", maxKm: "", commission: "", logoUrl: null, coverUrl: null }}
+          restaurant={{ id: null, name: "", description: "", phone: "", address: "", details: "", map: "", cuisines: [], prepMinutes: "20", minOrder: "", maxKm: "", commission: "", commissionFixed: "", taxRate: "", logoUrl: null, coverUrl: null }}
         />
       </Sheet>
 
