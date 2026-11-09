@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
+import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, OffersSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
 import { assetUrl } from "@/lib/assets";
 import { catalogPage, waitingLinks, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
@@ -10,7 +10,9 @@ import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
 import { fill, PANEL_WORDS, panelLang, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
-import { addStaffAction, bulkPhotosAction, fetchLinksAction, importAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
+import { addStaffAction, bulkPhotosAction, createOfferAction, fetchLinksAction, importAction, offerStateAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
+import { vendorDelivery } from "@/lib/market/delivery";
+import { listVendorCoupons, vendorCatalogChoices, vendorCouponRules } from "@/lib/market/vendor-coupons";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Partner panel", robots: { index: false, follow: false } };
@@ -86,6 +88,26 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
       );
     } else if (tab === "delivery") {
       body = <DeliverySection w={w} values={deliveryValues(ctx)} currency={ctx.currency} error={text(search.error) || null} saved={search.saved === "1"} save={saveDeliveryAction.bind(null, appId, lang)} />;
+    } else if (tab === "offers") {
+      // 115.18 The place's own coupons and automatic offers.
+      const scope = { store, appId: app.id, vendor: ctx.vendor, currency: ctx.currency };
+      const [coupons, catalog, rules] = await Promise.all([listVendorCoupons(scope), vendorCatalogChoices(scope), vendorCouponRules(store, app.id)]);
+      body = (
+        <OffersSection
+          w={w}
+          lang={lang}
+          currency={ctx.currency}
+          coupons={coupons}
+          catalog={catalog}
+          rules={rules}
+          ownDelivery={vendorDelivery(ctx.vendor).by === "vendor"}
+          now={new Date()}
+          error={text(search.error) || null}
+          saved={search.saved === "1"}
+          create={createOfferAction.bind(null, appId, lang)}
+          act={offerStateAction.bind(null, appId, lang)}
+        />
+      );
     } else if (tab === "staff") {
       body = <StaffSection w={w} staff={await staffList(ctx)} me={staff.id} error={text(search.error) || null} add={addStaffAction.bind(null, appId, lang)} toggle={toggleStaffAction.bind(null, appId, lang)} />;
     } else if (tab === "statements") {

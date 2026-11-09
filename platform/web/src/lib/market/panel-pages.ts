@@ -21,11 +21,12 @@ import { buildStatement, type Statement } from "./statement";
  * picking only (picker).
  */
 
-export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "staff" | "statements" | "complaints";
+export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "offers" | "staff" | "statements" | "complaints";
 
 const ROLE_TABS: Record<VendorRole, PanelTab[]> = {
-  owner: ["orders", "catalog", "import", "delivery", "staff", "statements", "complaints"],
-  manager: ["orders", "catalog", "import", "delivery", "statements", "complaints"],
+  // 115.18 Offers: the place's own coupons, made by its owner and managers only.
+  owner: ["orders", "catalog", "import", "delivery", "offers", "staff", "statements", "complaints"],
+  manager: ["orders", "catalog", "import", "delivery", "offers", "statements", "complaints"],
   orders: ["orders", "catalog", "complaints"],
   picker: ["orders"],
 };
