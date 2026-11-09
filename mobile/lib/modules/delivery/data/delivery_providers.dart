@@ -19,6 +19,8 @@ final deliveryConfigProvider = Provider<DeliveryConfig>((ref) {
   return gate is GateReady
       ? (gate.config.delivery ??
             gate.config.food?.mapConfig ??
+            // 115 A marketplace: its map, for the tracking and the couriers.
+            gate.config.market?.mapConfig ??
             const DeliveryConfig())
       : const DeliveryConfig();
 });

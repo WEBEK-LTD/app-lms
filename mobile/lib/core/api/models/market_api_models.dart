@@ -1,3 +1,4 @@
+import 'delivery_models.dart' show CourierApp, DeliveryConfig, DeliveryTracking;
 import 'food_models.dart' show DishChoiceGroup;
 import 'json.dart';
 
@@ -108,11 +109,17 @@ class MarketConfig {
     this.wallet = false,
     this.weightTolerancePercent = 0,
     this.vendorAppBundled = false,
+    this.courierApp = CourierApp.same,
+    this.tilesUrl,
+    this.attribution,
+    this.search = false,
+    this.routes = false,
   });
 
   factory MarketConfig.fromJson(Json json) {
     final tax = optObject(json, 'tax', (j) => j);
     final scheduling = optObject(json, 'scheduling', (j) => j);
+    final map = optObject(json, 'map', (j) => j);
     final kinds = json['kinds'];
     return MarketConfig(
       country: optString(json, 'country'),
@@ -138,6 +145,15 @@ class MarketConfig {
       wallet: boolOr(json, 'wallet', false),
       weightTolerancePercent: intOr(json, 'weight_tolerance_percent', 0),
       vendorAppBundled: json['vendor_app'] == 'bundle',
+      courierApp: enumFromSnake(
+        CourierApp.values,
+        json['courier_app'],
+        CourierApp.same,
+      ),
+      tilesUrl: map == null ? null : optString(map, 'tiles_url'),
+      attribution: map == null ? null : optString(map, 'attribution'),
+      search: map != null && boolOr(map, 'search', false),
+      routes: map != null && boolOr(map, 'routes', false),
     );
   }
 
@@ -161,6 +177,27 @@ class MarketConfig {
 
   /// Vendors have their own app in the bundle: no Vendor tab here.
   final bool vendorAppBundled;
+
+  /// 115 Who the app's couriers work in (as `DeliveryConfig.courier_app`),
+  /// and the map the order's tracking and the couriers' screens draw.
+  final CourierApp courierApp;
+  final String? tilesUrl;
+  final String? attribution;
+  final bool search;
+  final bool routes;
+
+  /// What the delivery screens' map, place picker and courier screens read.
+  DeliveryConfig get mapConfig => DeliveryConfig(
+    currency: currency,
+    cash: payment.cash,
+    card: payment.card || payment.applePay || payment.googlePay,
+    tracking: DeliveryTracking.live,
+    courierApp: courierApp,
+    tilesUrl: tilesUrl,
+    attribution: attribution,
+    search: search,
+    routes: routes,
+  );
 
   MarketCategory? category(String id) {
     for (final c in categories) {
