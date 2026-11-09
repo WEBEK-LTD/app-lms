@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element -- the app icon is a small uploaded PNG served by our own route. */
+import { AllSamples } from "@/components/samples";
 import { plansIn } from "@/lib/marketing-lang";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -391,6 +392,9 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
           {site.suggestion ? ` ${k(site.suggestion)}` : ""} <Link href="/dashboard/app-type">{t("overview.changeType")}</Link>
         </Notice>
       ) : null}
+
+      {/* Templates = demos: the sample entries an app started from a demo has, removed in one click. */}
+      <AllSamples app={app} back="/dashboard" removed={query.samplesRemoved} />
 
       {/* The app at a glance: what it is, its state and plan, and the next thing to do. */}
       <section aria-labelledby="h-app" className="flex flex-wrap items-center gap-x-6 gap-y-4 rounded-2xl border border-line bg-white p-5 sm:p-6">

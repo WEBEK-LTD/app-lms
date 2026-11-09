@@ -81,6 +81,11 @@ export function demoDesign(id: DemoId): Design {
 /** Every demo's design, in the demos' order. */
 export const DEMO_DESIGNS: readonly Design[] = ALL_DEMO_TYPES.map(demoDesign);
 
+/** The demo whose design this is (`demo-<demo>`), for its sample entries (lib/samples/demo.ts); null for any other design. */
+export function demoOfDesign(designId: string | null | undefined): DemoId | null {
+  return ALL_DEMO_TYPES.find((id) => demoDesignId(id) === designId) ?? null;
+}
+
 /**
  * How a Studio demo's template is made for the demo itself: its brand's
  * colour and name, the template's words in English (the demos' language)

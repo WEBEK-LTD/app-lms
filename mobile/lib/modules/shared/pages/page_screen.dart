@@ -12,6 +12,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'app_header.dart';
+import 'draft_reload.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
 import 'side_menu.dart';
@@ -142,10 +143,14 @@ class AppPageView extends ConsumerWidget {
                 BlockLookBox(
                   look: looks[block.id],
                   gap: style.gap,
-                  child: PageBlockView(
-                    key: ValueKey('block-${block.id}'),
-                    block: block,
+                  child: BlockTapReporter(
                     pageSlug: page.slug,
+                    blockId: block.id,
+                    child: PageBlockView(
+                      key: ValueKey('block-${block.id}'),
+                      block: block,
+                      pageSlug: page.slug,
+                    ),
                   ),
                 ),
               ],

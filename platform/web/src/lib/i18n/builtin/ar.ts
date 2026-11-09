@@ -1,3 +1,4 @@
+import { DEMO_TEXTS_AR } from "./demos";
 import { DESIGN_TEXTS_AR } from "./designs-ar";
 
 /**
@@ -11,6 +12,8 @@ import { DESIGN_TEXTS_AR } from "./designs-ar";
 export const PAGE_TEXTS_AR: Record<string, string> = {
   // 110.3 The ready-made designs' pages.
   ...DESIGN_TEXTS_AR,
+  // Templates = demos: each demo's banner and welcome.
+  ...DEMO_TEXTS_AR,
   "our app": "تطبيقنا",
   // Tabs and screens
   Home: "الرئيسية",

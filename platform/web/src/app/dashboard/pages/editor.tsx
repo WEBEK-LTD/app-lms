@@ -46,7 +46,7 @@ import { BlockSettings, type BlockContext } from "./block-settings";
 import { MediaPicker } from "@/components/media-picker";
 import { ActionEditor, Check, firstScreen, IconGlyph, IconPicker, LangText, OwnIcon, SelectInput, TextInput, type Lang } from "./controls";
 import { BLOCK_DRAG_TYPE, DesignThumb, HEADER_ICON_GLYPHS, PhonePreview } from "./preview";
-import { LivePreview, notifyDraftSaved } from "./live-preview";
+import { LivePreview, notifyDraftSaved, useBlockTaps } from "./live-preview";
 import { UpgradeHint } from "@/components/upgrade";
 import { FontPicker } from "@/components/font-picker";
 import type { OwnFontView } from "@/lib/fonts/own";
@@ -236,6 +236,27 @@ export function PagesEditor({
   const [editLang, setEditLang] = useState<LanguageCode>(initial.draft.languages.default);
   const [pageSlug, setPageSlug] = useState<string | null>(initial.draft.pages[0]?.slug ?? null);
   const [openBlock, setOpenBlock] = useState<string | null>(null);
+  // 1.3 With room for both (the blocks area at least 600px wide), the blocks are a short list
+  // with the chosen one's settings in a panel beside it, by the app; else each opens in the list.
+  const [sidePanel, setSidePanel] = useState(false);
+  const areaObserver = useRef<ResizeObserver | null>(null);
+  const blocksArea = useCallback((el: HTMLDivElement | null) => {
+    areaObserver.current?.disconnect();
+    areaObserver.current = null;
+    if (!el) return;
+    areaObserver.current = new ResizeObserver(([entry]) => setSidePanel(entry!.contentRect.width >= 600));
+    areaObserver.current.observe(el);
+  }, []);
+  // A block chosen below the panel's top (a new one, or from the app) brings the panel into view.
+  useEffect(() => {
+    if (!sidePanel || !openBlock) return;
+    const frame = requestAnimationFrame(() => {
+      const panel = document.getElementById("block-panel");
+      const top = panel?.getBoundingClientRect().top;
+      if (panel && top !== undefined && (top < 0 || top > window.innerHeight * 0.6)) panel.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [sidePanel, openBlock]);
   const [newTitle, setNewTitle] = useState("");
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [samples, setSamples] = useState(initial.samples);
@@ -665,6 +686,9 @@ export function PagesEditor({
   const [sections, setSections] = useState(savedSections);
   const [sectionPick, setSectionPick] = useState<string[]>([]);
   const [sectionName, setSectionName] = useState("");
+  // 1.7 Saving blocks for later is a button by the blocks, and what's saved a tab of Add a block.
+  const [savingBlocks, setSavingBlocks] = useState(false);
+  const [addFrom, setAddFrom] = useState<"all" | "saved">("all");
   const SECTION_ERRORS = { name: "pages.sectionErrName", blocks: "pages.sectionErrBlocks", too_many_blocks: "pages.sectionErrTooMany", limit: "pages.sectionErrLimit", invalid: "pages.sectionErrInvalid" } as const;
 
   async function saveSectionNow() {
@@ -679,6 +703,9 @@ export function PagesEditor({
         setSections((list) => [r.section, ...list]);
         setSectionPick([]);
         setSectionName("");
+        // 1.7 Shown where it's added from.
+        setSavingBlocks(false);
+        setAddFrom("saved");
         setMessage({ text: t("pages.sectionSaved"), ok: true });
       } else {
         setMessage({ text: r.error === "invalid" && r.detail ? known(r.detail) : t(SECTION_ERRORS[r.error]), ok: false });
@@ -729,11 +756,35 @@ export function PagesEditor({
   }
 
   /** 82.2 A block clicked on the phone: open in the list, in view. */
+  function blockName(block: LayoutBlock): string {
+    const about = summary(translated(block, lang.edit, def));
+    return `${known(BLOCK_LABELS[block.type])}${about ? `: ${about}` : ""}`;
+  }
+
+  /** A block's settings, in the list or in the side panel (1.3). */
+  function settingsOf(page: LayoutPage, block: LayoutBlock) {
+    return (
+      <>
+        <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? rebased(block, next, x) : x)))} />
+        {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
+      </>
+    );
+  }
+
   function selectBlock(id: string) {
     setPanel("pages");
     setOpenBlock(id);
     requestAnimationFrame(() => document.getElementById(`block-${id}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
   }
+
+  // 1.2 A block pressed in the app preview opens here too, on its page.
+  useBlockTaps(frames, (slug, id) => {
+    if (!plan.pageEditor) return;
+    const target = layout.pages.find((p) => p.slug === slug);
+    if (!target?.blocks.some((b) => b.id === id)) return;
+    setPageSlug(slug);
+    selectBlock(id);
+  });
 
   function onDrop(event: DragEvent, to: number) {
     event.preventDefault();
@@ -1026,7 +1077,7 @@ export function PagesEditor({
             </section>
 
             {page ? (
-              <section aria-labelledby="h-page" className={sectionClass}>
+              <section aria-labelledby="h-page" data-page-slug={page.slug} className={sectionClass}>
                 <h2 id="h-page" className="m-0 text-lg font-bold">
                   {t("pages.pageHeading", { name: translated(page, lang.edit, def).title || page.slug })}
                 </h2>
@@ -1074,151 +1125,284 @@ export function PagesEditor({
                 ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.blocks")}</h3>
-                {page.blocks.length ? (
-                  <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
-                    {page.blocks.map((block, i) => {
-                      const open = openBlock === block.id;
-                      const name = `${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
-                      const problem = blockProblem(block, screens, sources);
-                      const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
-                      return (
-                        <li
-                          key={block.id}
-                          id={`block-${block.id}`}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => onDrop(e, i)}
-                          className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
-                        >
-                          <div
-                            draggable
-                            onDragStart={(e) => {
-                              setDragFrom(i);
-                              e.dataTransfer.effectAllowed = "move";
-                              e.dataTransfer.setData("text/plain", block.id);
-                            }}
-                            onDragEnd={() => setDragFrom(null)}
-                            className="flex items-center gap-2 px-2 py-2"
-                          >
-                            <span className="cursor-grab text-muted" title={t("pages.drag")}>
-                              <IconGlyph name="drag_indicator" />
-                            </span>
-                            <button
-                              type="button"
-                              aria-expanded={open}
-                              onClick={() => setOpenBlock(open ? null : block.id)}
-                              className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                <div ref={blocksArea}>
+                  {page.blocks.length ? (
+                    sidePanel ? (
+                      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-4">
+                      <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
+                        {page.blocks.map((block, i) => {
+                          const open = openBlock === block.id;
+                          const name = blockName(block);
+                          const problem = blockProblem(block, screens, sources);
+                          const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
+                          return (
+                            <li
+                              key={block.id}
+                              id={`block-${block.id}`}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => onDrop(e, i)}
+                              className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
                             >
-                              <span className="truncate">{name}</span>
-                              {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
-                              {problem ? (
-                                <span title={known(problem)}>
-                                  <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  setDragFrom(i);
+                                  e.dataTransfer.effectAllowed = "move";
+                                  e.dataTransfer.setData("text/plain", block.id);
+                                }}
+                                onDragEnd={() => setDragFrom(null)}
+                                className="flex items-center gap-2 px-2 py-2"
+                              >
+                                <span className="cursor-grab text-muted" title={t("pages.drag")}>
+                                  <IconGlyph name="drag_indicator" />
                                 </span>
+                                <button
+                                  type="button"
+                                  aria-expanded={open}
+                                  aria-controls={open && sidePanel ? "block-panel" : undefined}
+                                  onClick={() => setOpenBlock(open ? null : block.id)}
+                                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                                >
+                                  <span className="truncate">{name}</span>
+                                  {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
+                                  {problem ? (
+                                    <span title={known(problem)}>
+                                      <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {/* 1.1 Not in the app until it's filled in. */}
+                                  {missing ? (
+                                    <span title={missing.errors.map(known).join(" ")} data-needs-content="">
+                                      <Badge tone="warn">{t("pages.needsContent")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {devicesWithout(block.type, versions) ? (
+                                    <span title={t("pages.behindTitle")}>
+                                      <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
+                                    <span title={t("pages.sampleTitle")}>
+                                      <Badge tone="neutral">{t("pages.sample")}</Badge>
+                                    </span>
+                                  ) : null}
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
+                                  <IconGlyph name="arrow_upward" size={20} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={iconBtn}
+                                  aria-label={t("pages.blockDown", { n: i + 1 })}
+                                  disabled={i === page.blocks.length - 1}
+                                  onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                                >
+                                  <IconGlyph name="arrow_downward" size={20} />
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
+                                  <IconGlyph name="delete" size={20} />
+                                </button>
+                              </div>
+                              {open && !sidePanel ? (
+                                <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
+                                  {settingsOf(page, block)}
+                                </div>
                               ) : null}
-                              {/* 1.1 Not in the app until it's filled in. */}
-                              {missing ? (
-                                <span title={missing.errors.map(known).join(" ")} data-needs-content="">
-                                  <Badge tone="warn">{t("pages.needsContent")}</Badge>
-                                </span>
-                              ) : null}
-                              {devicesWithout(block.type, versions) ? (
-                                <span title={t("pages.behindTitle")}>
-                                  <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
-                                </span>
-                              ) : null}
-                              {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
-                                <span title={t("pages.sampleTitle")}>
-                                  <Badge tone="neutral">{t("pages.sample")}</Badge>
-                                </span>
-                              ) : null}
-                            </button>
-                            <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
-                              <IconGlyph name="arrow_upward" size={20} />
-                            </button>
-                            <button
-                              type="button"
-                              className={iconBtn}
-                              aria-label={t("pages.blockDown", { n: i + 1 })}
-                              disabled={i === page.blocks.length - 1}
-                              onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                            </li>
+                          );
+                        })}
+                      </ol>
+                        {/* 1.3 The chosen block's settings, kept in view beside the list and the app. */}
+                        <div id="block-panel" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-3 self-start overflow-y-auto rounded-xl border border-line bg-white p-3">
+                          {(() => {
+                            const at = page.blocks.findIndex((b) => b.id === openBlock);
+                            const chosen = page.blocks[at];
+                            if (!chosen) return <p className="m-0 text-sm text-muted">{t("pages.pickBlock")}</p>;
+                            return (
+                              <div role="group" aria-label={t("pages.blockSettings", { n: at + 1 })} className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-2 border-b border-line-soft pb-2">
+                                  <h4 className="m-0 truncate text-[15px] font-bold">{blockName(chosen)}</h4>
+                                  <button type="button" className={iconBtn} aria-label={t("pages.closeBlock")} onClick={() => setOpenBlock(null)}>
+                                    <IconGlyph name="close" size={20} />
+                                  </button>
+                                </div>
+                                {settingsOf(page, chosen)}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    ) : (
+                      <ol aria-label={t("pages.blocks")} className="m-0 flex list-none flex-col gap-2 p-0">
+                        {page.blocks.map((block, i) => {
+                          const open = openBlock === block.id;
+                          const name = blockName(block);
+                          const problem = blockProblem(block, screens, sources);
+                          const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
+                          return (
+                            <li
+                              key={block.id}
+                              id={`block-${block.id}`}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => onDrop(e, i)}
+                              className={`rounded-xl border ${dragFrom === i ? "border-dashed border-midnight opacity-60" : "border-line"} bg-white`}
                             >
-                              <IconGlyph name="arrow_downward" size={20} />
-                            </button>
-                            <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
-                              <IconGlyph name="delete" size={20} />
-                            </button>
-                          </div>
-                          {open ? (
-                            <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
-                              <BlockSettings block={block} ctx={blockCtx} onChange={(next) => updateBlocks(page.slug, (b) => b.map((x) => (x.id === block.id ? rebased(block, next, x) : x)))} />
-                              {layout.pages.length > 1 ? <CopyTo id={`copy-${block.id}`} pages={otherPages(page.slug)} onCopy={(to) => copyBlocks([block], to)} /> : null}
-                            </div>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ol>
-                ) : (
-                  <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
-                )}
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  setDragFrom(i);
+                                  e.dataTransfer.effectAllowed = "move";
+                                  e.dataTransfer.setData("text/plain", block.id);
+                                }}
+                                onDragEnd={() => setDragFrom(null)}
+                                className="flex items-center gap-2 px-2 py-2"
+                              >
+                                <span className="cursor-grab text-muted" title={t("pages.drag")}>
+                                  <IconGlyph name="drag_indicator" />
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-expanded={open}
+                                  aria-controls={open && sidePanel ? "block-panel" : undefined}
+                                  onClick={() => setOpenBlock(open ? null : block.id)}
+                                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-midnight"
+                                >
+                                  <span className="truncate">{name}</span>
+                                  {block.visibility !== "everyone" ? <Badge tone="neutral">{block.visibility === "signed_in" ? t("pages.signedIn") : t("pages.signedOut")}</Badge> : null}
+                                  {problem ? (
+                                    <span title={known(problem)}>
+                                      <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {/* 1.1 Not in the app until it's filled in. */}
+                                  {missing ? (
+                                    <span title={missing.errors.map(known).join(" ")} data-needs-content="">
+                                      <Badge tone="warn">{t("pages.needsContent")}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {devicesWithout(block.type, versions) ? (
+                                    <span title={t("pages.behindTitle")}>
+                                      <Badge tone="warn">{t("pages.behind", { count: devicesWithout(block.type, versions) })}</Badge>
+                                    </span>
+                                  ) : null}
+                                  {samples[`${page.slug}/${block.id}`] === blockTexts(block) ? (
+                                    <span title={t("pages.sampleTitle")}>
+                                      <Badge tone="neutral">{t("pages.sample")}</Badge>
+                                    </span>
+                                  ) : null}
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockUp", { n: i + 1 })} disabled={i === 0} onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, -1))}>
+                                  <IconGlyph name="arrow_upward" size={20} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={iconBtn}
+                                  aria-label={t("pages.blockDown", { n: i + 1 })}
+                                  disabled={i === page.blocks.length - 1}
+                                  onClick={() => updateBlocks(page.slug, (b) => moveById(b, block.id, 1))}
+                                >
+                                  <IconGlyph name="arrow_downward" size={20} />
+                                </button>
+                                <button type="button" className={iconBtn} aria-label={t("pages.blockDelete", { n: i + 1 })} onClick={() => updateBlocks(page.slug, (b) => b.filter((x) => x.id !== block.id))}>
+                                  <IconGlyph name="delete" size={20} />
+                                </button>
+                              </div>
+                              {open && !sidePanel ? (
+                                <div className="border-t border-line-soft p-3" role="group" aria-label={t("pages.blockSettings", { n: i + 1 })}>
+                                  {settingsOf(page, block)}
+                                </div>
+                              ) : null}
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    )
+                  ) : (
+                    <p className="m-0 text-[15px] text-muted">{t("pages.noBlocks")}</p>
+                  )}
+                </div>
 
-                {/* 84.3 Blocks of this page saved together, for any page of the account's apps. */}
+                {/* 84.3 Blocks of this page saved together, for any page of the account's apps; 1.7 in plain sight. */}
                 {page.blocks.length && !basic ? (
-                  <details className="rounded-xl border border-line p-3">
-                    <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.saveSection")}</summary>
-                    <div className="mt-3 flex flex-col gap-3">
-                      <p className="m-0 text-sm text-ink-4">{t("pages.saveSectionText")}</p>
-                      <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
-                        <legend className="sr-only">{t("pages.blocks")}</legend>
-                        {page.blocks.map((block) => (
-                          <Check
-                            key={block.id}
-                            label={`${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`}
-                            checked={sectionPick.includes(block.id)}
-                            onChange={(on) => setSectionPick((list) => (on ? [...list, block.id] : list.filter((id) => id !== block.id)))}
-                          />
-                        ))}
-                      </fieldset>
-                      <TextInput id="section-name" label={t("pages.sectionName")} value={sectionName} max={60} onChange={setSectionName} />
-                      <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
-                        {t("pages.saveSectionButton")}
-                      </button>
-                      {/* 99.3 Or the blocks picked, copied to another page of this app. */}
-                      {layout.pages.length > 1 ? (
-                        <CopyTo id="copy-section" pages={otherPages(page.slug)} disabled={!sectionPick.length} onCopy={(to) => copyBlocks(page.blocks.filter((b) => sectionPick.includes(b.id)), to)} />
-                      ) : null}
-                    </div>
-                  </details>
+                  <>
+                    <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} aria-expanded={savingBlocks} aria-controls="save-blocks" onClick={() => setSavingBlocks((on) => !on)}>
+                      <IconGlyph name="bookmark" size={18} />
+                      {t("pages.saveSection")}
+                    </button>
+                    {savingBlocks ? (
+                      <div id="save-blocks" role="group" aria-label={t("pages.saveSection")} className="flex flex-col gap-3 rounded-xl border border-line p-3">
+                        <p className="m-0 text-sm text-ink-4">{t("pages.saveSectionText")}</p>
+                        <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
+                          <legend className="sr-only">{t("pages.blocks")}</legend>
+                          {page.blocks.map((block) => (
+                            <Check
+                              key={block.id}
+                              label={`${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`}
+                              checked={sectionPick.includes(block.id)}
+                              onChange={(on) => setSectionPick((list) => (on ? [...list, block.id] : list.filter((id) => id !== block.id)))}
+                            />
+                          ))}
+                        </fieldset>
+                        <TextInput id="section-name" label={t("pages.sectionName")} value={sectionName} max={60} onChange={setSectionName} />
+                        <button type="button" className={`${btn.secondary} h-9 self-start px-3 text-sm`} disabled={busy} onClick={() => void saveSectionNow()}>
+                          {t("pages.saveSectionButton")}
+                        </button>
+                        {/* 99.3 Or the blocks picked, copied to another page of this app. */}
+                        {layout.pages.length > 1 ? (
+                          <CopyTo id="copy-section" pages={otherPages(page.slug)} disabled={!sectionPick.length} onCopy={(to) => copyBlocks(page.blocks.filter((b) => sectionPick.includes(b.id)), to)} />
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </>
                 ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.addBlock")}</h3>
                 {basic ? fullEditorHint : null}
-                {sections.length && !basic ? (
+                {/* 1.7 Every block, or the ones saved for later. */}
+                {!basic ? (
+                  <div role="group" aria-label={t("pages.addFrom")} className="flex self-start rounded-[10px] border border-line-strong bg-white p-0.5">
+                    {(["all", "saved"] as const).map((from) => (
+                      <button
+                        key={from}
+                        type="button"
+                        aria-pressed={addFrom === from}
+                        onClick={() => setAddFrom(from)}
+                        className={`h-9 cursor-pointer rounded-lg px-3 text-sm font-semibold ${addFrom === from ? "bg-midnight text-white" : "text-midnight hover:bg-ivory"}`}
+                      >
+                        {from === "all" ? t("pages.allBlocks") : t("pages.savedTab", { count: sections.length })}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                {addFrom === "saved" && !basic ? (
                   <div className="flex flex-col gap-2">
-                    <h4 className="m-0 text-xs font-bold tracking-[0.5px] text-muted uppercase">{t("pages.yourSections")}</h4>
                     <p className="m-0 text-xs text-muted">{t("pages.yourSectionsText")}</p>
-                    <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("pages.yourSections")}>
-                      {sections.map((section) => (
-                        <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
-                          <span className="flex min-w-0 flex-col">
-                            <span className="truncate text-[15px] font-semibold">{section.name}</span>
-                            <span className="text-xs text-muted">{t("pages.sectionCount", { count: section.blocks.length })}</span>
-                          </span>
-                          <span className="flex gap-2">
-                            <button type="button" className={smallBtn} aria-label={t("pages.addSection", { name: section.name })} onClick={() => addSection(section)}>
-                              {t("common.add")}
-                            </button>
-                            <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteSection", { name: section.name })} onClick={() => void removeSection(section)}>
-                              {t("common.delete")}
-                            </button>
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                    {sections.length ? (
+                      <ul className="m-0 flex list-none flex-col gap-2 p-0" aria-label={t("pages.yourSections")}>
+                        {sections.map((section) => (
+                          <li key={section.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
+                            <span className="flex min-w-0 flex-col">
+                              <span className="truncate text-[15px] font-semibold">{section.name}</span>
+                              <span className="text-xs text-muted">{t("pages.sectionCount", { count: section.blocks.length })}</span>
+                            </span>
+                            <span className="flex gap-2">
+                              <button type="button" className={smallBtn} aria-label={t("pages.addSection", { name: section.name })} onClick={() => addSection(section)}>
+                                {t("common.add")}
+                              </button>
+                              <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteSection", { name: section.name })} onClick={() => void removeSection(section)}>
+                                {t("common.delete")}
+                              </button>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="m-0 text-sm text-muted">{t("pages.noSavedBlocks")}</p>
+                    )}
                   </div>
                 ) : null}
                 {/* 33 In groups, each block with its icon and what it's for. */}
-                {BLOCK_GROUPS.map((group) => {
+                {(addFrom === "saved" && !basic ? [] : BLOCK_GROUPS).map((group) => {
                   const types = group.types.filter((type) => blockTypes.includes(type));
                   if (!types.length) return null;
                   return (

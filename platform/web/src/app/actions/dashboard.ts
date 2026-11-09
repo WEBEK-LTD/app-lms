@@ -65,6 +65,7 @@ import { siteImages, siteScanDeps } from "@/lib/scan/start";
 import { appStoreKeySchema, brandingSchema, googlePlayKeySchema, listingSchema, startBuildSchema, websiteSchema } from "@/lib/validation";
 import { noteMilestones } from "@/lib/milestones/record";
 import { designFitsApp, findDesign } from "@/lib/pages/designs/catalog";
+import { demoOfDesign } from "@/lib/demo/look";
 import { seedForDesign } from "@/lib/samples/server";
 import { samplesBlockedMessage } from "@/lib/samples/lists";
 
@@ -616,7 +617,7 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
     const saved = await saveDesignDraft(store, { ...context.app, ...patch }, design, now, { template: parsed.data.template, ...lookFont(parsed.data.font) }, { mode });
     if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
     // 110.2 The empty lists the design shows get sample entries.
-    if (mode === "all") await seedForDesign(store, context.app.id, saved.value.record.draft.pages, now);
+    if (mode === "all") await seedForDesign(store, context.app.id, saved.value.record.draft.pages, now, demoOfDesign(design.id));
     revalidatePath("/dashboard/pages");
   }
   return afterStep(context, "branding");

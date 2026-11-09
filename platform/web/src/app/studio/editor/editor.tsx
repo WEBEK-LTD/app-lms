@@ -22,8 +22,9 @@ import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
+import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
-import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, designName, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
@@ -814,10 +815,10 @@ export function StudioEditor(props: StudioEditorProps) {
 
   // ——— 108.7 Whole designs ———
 
-  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey) };
+  const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey), demo: (name: string) => t("studio.design_demo", { name }) };
   const galleryDesigns: GalleryDesign[] = useMemo(
     () => [
-      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designWords.theme(d.theme.id), kind: "yallapp" as const, pages: d.templates.length, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designName(d, designWords), kind: "yallapp" as const, pages: d.templates.length, recommended: d.demo !== undefined, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
       ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
     ],
     // Made when the window opens, for the project as it is then.
@@ -898,7 +899,7 @@ export function StudioEditor(props: StudioEditorProps) {
     dropLabel: t("studio.dropHere"),
     tagOf,
     // 108.1 One drag of a corner is one undo step.
-    onResize: (id, size, drag) => changePage((p) => updateNode(p, id, size), `resize:${id}:${drag}`),
+    onResize: (id, size, drag) => changePage((p) => updateNode(p, id, device === "tablet" ? tabletPatch(findNode(p.body, id) ?? { id, type: "column" }, size) : size), `resize:${id}:${device}:${drag}`),
   };
 
   const savedText = (() => {
@@ -1139,7 +1140,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} editing={editing} words={words} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} editing={editing} words={words} tablet={device === "tablet"} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}
@@ -1177,7 +1178,8 @@ export function StudioEditor(props: StudioEditorProps) {
         {studio ? (
           <Inspector
             page={studio}
-            node={selected}
+            node={selected && device === "tablet" ? forTablet(selected) : selected}
+            tablet={device === "tablet" && selected ? { changed: Boolean(selected.tablet), onReset: () => changePage((p) => updateNode(p, selected.id, { tablet: undefined })) } : undefined}
             headerSelected={selectedId === "header"}
             tabsSelected={selectedId === "tabs"}
             tabs={layout.tabs}
@@ -1204,7 +1206,7 @@ export function StudioEditor(props: StudioEditorProps) {
             parentLabel={parentLabel}
             tab={inspectorTab}
             onTab={setInspectorTab}
-            onChange={(patch) => selected && changePage((p) => updateNode(p, selected.id, patch), `${selected.id}:${Object.keys(patch).join(",")}`)}
+            onChange={(patch) => selected && changePage((p) => updateNode(p, selected.id, device === "tablet" ? tabletPatch(findNode(p.body, selected.id) ?? selected, patch) : patch), `${selected.id}:${device}:${Object.keys(patch).join(",")}`)}
             onHeader={(header) => {
               changePage((p) => ({ ...p, header }), header ? "header" : "");
               if (!header) setSelectedId(null);

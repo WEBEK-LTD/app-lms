@@ -111,6 +111,8 @@ const SEEDERS: Record<SampleList, (s: Seeding) => Promise<boolean>> = {
   delivery_services: seedDeliveryServices,
   restaurants: seedRestaurants,
   vehicle_types: seedVehicleTypes,
+  // A sample school (its classes, subjects and people) comes only from the school demo (lib/samples/demo.ts).
+  school: async () => false,
   school_news: seedSchoolNews,
 };
 
