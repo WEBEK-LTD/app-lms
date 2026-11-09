@@ -4252,7 +4252,8 @@ export class MemoryStore implements DataStore {
   async createMarketCoupon(input: MarketCouponInput): Promise<MarketCoupon | null> {
     const code = input.code === null ? null : input.code.toUpperCase();
     if (this.couponCodeTaken(input.appId, code, null)) return null;
-    const coupon: MarketCoupon = { ...clone(input), code, id: this.nextMarketCouponId++ };
+    // 115.18 The vendor's fields as the database keeps them when left out.
+    const coupon: MarketCoupon = { productIds: null, createdByVendorId: null, ownerPaused: false, ...clone(input), code, id: this.nextMarketCouponId++ };
     this.marketCoupons.set(coupon.id, clone(coupon));
     return coupon;
   }
@@ -4268,9 +4269,16 @@ export class MemoryStore implements DataStore {
     return coupon ? clone(coupon) : null;
   }
 
-  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean } = {}): Promise<MarketCoupon[]> {
+  async listMarketCoupons(appId: string, query: { active?: boolean; automatic?: boolean; createdByVendorId?: number } = {}): Promise<MarketCoupon[]> {
     return [...this.marketCoupons.values()]
-      .filter((c) => c.appId === appId && (query.active === undefined || c.active === query.active) && (query.automatic === undefined || (c.code === null) === query.automatic))
+      .filter(
+        (c) =>
+          c.appId === appId &&
+          // 115.18 What the owner paused isn't active, whatever its own switch says.
+          (query.active === undefined || (c.active && !c.ownerPaused) === query.active) &&
+          (query.automatic === undefined || (c.code === null) === query.automatic) &&
+          (query.createdByVendorId === undefined || c.createdByVendorId === query.createdByVendorId),
+      )
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
       .map(clone);
   }
