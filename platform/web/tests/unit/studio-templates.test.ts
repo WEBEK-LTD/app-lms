@@ -7,6 +7,9 @@ import { parseStudioPage } from "@/lib/pages/validate";
 import { sectionsFor, templatesFor, type SectionWord } from "@/lib/studio/sections";
 import { NOW } from "./helpers";
 
+/** The templates a kind had before its demo's was put first (tests/unit/studio-demo-templates.test.ts). */
+const ownTemplates = (kind: ReturnType<typeof kindOf>) => templatesFor(kind).filter((t) => !t.demo);
+
 const kindOf = (id: string) => {
   const kind = KINDS.find((k) => k.id === id)!;
   return { type: kind.engine, vertical: kind.vertical };
@@ -14,17 +17,21 @@ const kindOf = (id: string) => {
 
 describe("103R.7 Studio's templates and sections for each project type", () => {
   it("offers each type its own templates first, then the ones for every project", () => {
+    // Templates = demos: a kind with a Studio demo starts with its demo's template.
+    expect(templatesFor(kindOf("delivery"))[0]!.id).toBe("demo_delivery");
+    expect(templatesFor(kindOf("taxi"))[0]!.id).toBe("demo_taxi");
+    expect(templatesFor(kindOf("store")).some((t) => t.demo)).toBe(false);
     // 112.4 A store's three.
-    expect(templatesFor(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);
     // A restaurant gets its menu, not the shop.
-    expect(templatesFor(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
-    expect(templatesFor(kindOf("academy"))[0]!.id).toBe("courses");
-    expect(templatesFor(kindOf("bookings"))[0]!.id).toBe("services");
-    expect(templatesFor(kindOf("clinic"))[0]!.id).toBe("services");
-    expect(templatesFor(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("academy"))[0]!.id).toBe("courses");
+    expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
+    expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
+    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
-    expect(templatesFor(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("food")).map((t) => t.id)).toEqual(["food", "food_offers", "food_brand", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("food"))[0]!.id).toBe("food");
     expect(sectionsFor(kindOf("delivery")).map((s) => s.id)).not.toContain("food");
     // The delivery company's sections come first, and only for it.
@@ -52,7 +59,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("sends the delivery company's customers to send a parcel and to their shipments", () => {
-    const page = templatesFor(kindOf("delivery"))[0]!.make({ brand: "#1F4E5F", source: "delivery_services", w: (word) => word });
+    const page = ownTemplates(kindOf("delivery"))[0]!.make({ brand: "#1F4E5F", source: "delivery_services", w: (word) => word });
     const screens = allNodes(page)
       .map((n) => n.action?.screen)
       .filter(Boolean);
@@ -61,7 +68,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("105.1.6 sends a food delivery company's customers to the restaurants and their orders", () => {
-    for (const template of templatesFor(kindOf("food")).filter((t) => t.id.startsWith("food"))) {
+    for (const template of ownTemplates(kindOf("food")).filter((t) => t.id.startsWith("food"))) {
       const page = template.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
       const nodes = allNodes(page);
       expect(nodes.some((n) => n.type === "items" && n.source === "restaurants"), template.id).toBe(true);
@@ -71,35 +78,40 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
       if (words.includes("stepsTitle")) expect(words, template.id).toEqual(expect.arrayContaining(["foodStepOne", "foodStepTwo", "foodStepThree"]));
       expect(words, template.id).not.toContain("stepOne");
     }
-    const welcome = templatesFor(kindOf("food"))[0]!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
+    const welcome = ownTemplates(kindOf("food"))[0]!.make({ brand: "#1F4E5F", source: "restaurants", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["restaurants", "food_orders", "restaurants"]);
   });
 
   it("105.2 gives a ride company three designs that ask for a ride, its welcome section first", () => {
-    expect(templatesFor(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("rides"))[0]!.id).toBe("ride");
     expect(sectionsFor(kindOf("food")).map((s) => s.id)).not.toContain("ride");
-    for (const template of templatesFor(kindOf("rides")).filter((t) => t.id.startsWith("ride"))) {
+    for (const template of ownTemplates(kindOf("rides")).filter((t) => t.id.startsWith("ride"))) {
       const nodes = allNodes(template.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word }));
       expect(nodes.map((n) => n.action?.screen).filter(Boolean), template.id).toContain("ride");
       const words = nodes.map((n) => n.text).filter(Boolean);
       if (words.includes("stepsTitle")) expect(words, template.id).toEqual(expect.arrayContaining(["rideStepOne", "rideStepTwo", "rideStepThree"]));
       expect(words, template.id).not.toContain("stepOne");
     }
-    const welcome = templatesFor(kindOf("rides"))[0]!.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word });
+    const welcome = ownTemplates(kindOf("rides"))[0]!.make({ brand: "#1F4E5F", source: "vehicle_types", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["ride", "my_rides", "ride"]);
   });
 
   it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first", () => {
-    expect(templatesFor(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
-    expect(templatesFor(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
+    expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
     // 105.4 A school's own three, with its welcome first.
-    expect(templatesFor(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "university", "brand", "contact", "blank"]);
+    // A university's own template: its welcome in a university's words, its steps too.
+    const uni = ownTemplates(kindOf("school")).find((t) => t.id === "university")!.make({ brand: "#1F4E5F", source: "school_news", w: (word) => word });
+    const uniWords = allNodes(uni).map((n) => n.text).filter(Boolean);
+    expect(uniWords).toEqual(expect.arrayContaining(["uniTitle", "uniText", "uniButton", "uniStepOne", "uniStepTwo", "uniStepThree"]));
+    expect(uniWords).not.toContain("schoolTitle");
     expect(sectionsFor(kindOf("school"))[0]!.id).toBe("school");
     expect(sectionsFor(kindOf("academy")).map((s) => s.id)).not.toContain("teachers");
-    const welcome = templatesFor(kindOf("instructors"))[0]!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
+    const welcome = ownTemplates(kindOf("instructors"))[0]!.make({ brand: "#1F4E5F", source: "courses", w: (word) => word });
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["teachers", "courses", "teachers"]);
     const words = allNodes(welcome).map((n) => n.text).filter(Boolean);
     expect(words).toEqual(expect.arrayContaining(["teachersStepOne", "teachersStepTwo", "teachersStepThree"]));

@@ -81,7 +81,6 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     school && offered.includes(school)
       ? { ...choiceOf(school), name: t("studio.kindSchool"), icon: "school", text: t("studio.kindSchoolText"), soon: false }
       : { id: "school", name: t("studio.kindSchool"), icon: "school", sources: [], text: t("studio.soon"), soon: true },
-    { id: "cars", name: t("studio.kindCars"), icon: "directions_car", sources: [], text: t("studio.soon"), soon: true },
   ];
   const problem = typeof query.error === "string" ? query.error : null;
   const error = problem === "name" ? k("Give the project a name of up to 30 characters.") : problem && ERRORS[problem] ? t(ERRORS[problem]) : null;
