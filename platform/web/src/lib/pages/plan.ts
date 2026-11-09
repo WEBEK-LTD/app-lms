@@ -2,11 +2,11 @@ import { mapTree } from "../studio/tree";
 import { sha256Hex } from "../crypto/tokens";
 import type { App } from "../data/types";
 import { appSwitches } from "../app/switches";
-import { hasFeature, type PlanInfo } from "../plans";
+import { hasFeature, pageEditorLevel, type PlanInfo } from "../plans";
 import { blockActions, mapBlockActions } from "./block-actions";
 import { defaultLayout } from "./defaults";
 import { itemSourcesFor } from "./sources";
-import type { Action, AppDefaultsSetting, ItemSource, Languages, Layout, LayoutBlock, LayoutContent } from "./types";
+import type { Action, AppDefaultsSetting, BlockType, ItemSource, Languages, Layout, LayoutBlock, LayoutContent } from "./types";
 
 /**
  * 13.1 What an app's plan allows of its pages, look and languages. The
@@ -14,6 +14,25 @@ import type { Action, AppDefaultsSetting, ItemSource, Languages, Layout, LayoutB
  * `layoutForPlan`, so a feature the plan lacks disappears from the app
  * quietly, also after a downgrade; the page editor uses the same limits.
  */
+
+/**
+ * The simple page editor (Starter): the blocks it can add. The blocks its
+ * template's pages came with stay editable; web pages (custom code), block
+ * styling, saved sections and more pages need the full editor.
+ */
+export const BASIC_BLOCK_TYPES: readonly BlockType[] = ["text", "image", "banner", "slider", "items", "button", "contact", "spacer"];
+/** The blocks the simple editor's app never shows: custom code. */
+export const BASIC_BLOCKED_TYPES: readonly BlockType[] = ["embed"];
+/** The most pages an app on the simple editor has: its template's (the designs have 4 to 6). */
+export const BASIC_MAX_PAGES = 6;
+
+/** A block as the simple editor's app shows it: without its own styling. */
+function plainBlock(block: LayoutBlock): LayoutBlock {
+  if (block.look === undefined) return block;
+  const { look: _look, ...rest } = block;
+  void _look;
+  return rest;
+}
 
 /** The content sources the plan lets the pages list: the app's main one first. */
 export function allowedSources(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>, plan: Pick<PlanInfo, "limits"> | null): ItemSource[] {
@@ -57,10 +76,19 @@ export function layoutForPlan(layout: Layout, app: App, plan: PlanInfo | null, d
   if (!plan) return withSwitches(layout, app, { appearance: layout.appearance, languages: layout.languages, tabs: layout.tabs, ...tabBarOf(layout), ...menuOf(layout), pages: layout.pages });
   const sources = allowedSources(app, plan);
   let content: LayoutContent = { appearance: layout.appearance, languages: languagesForPlan(layout.languages, plan), tabs: layout.tabs, ...tabBarOf(layout), ...menuOf(layout), pages: layout.pages };
-  if (!hasFeature(plan, "page_editor")) {
+  const level = pageEditorLevel(plan);
+  if (level === null) {
     // The ready-made pages, without a side menu; 109 the tab bar keeps its look.
     const ready = defaultLayout(app, defaults, app.createdAt);
     content = { appearance: content.appearance, languages: content.languages, tabs: ready.tabs, ...tabBarOf(content), pages: ready.pages };
+  } else if (level === "basic") {
+    // The simple editor: its pages up to the templates' number, no custom code, no block styling.
+    const pages = content.pages.slice(0, BASIC_MAX_PAGES).map((p) => ({ ...p, blocks: p.blocks.filter((b) => !BASIC_BLOCKED_TYPES.includes(b.type)).map(plainBlock) }));
+    const kept = new Set(pages.map((p) => p.slug));
+    const opens = (t: { target: Action }) => t.target.type !== "page" || !t.target.page_slug || kept.has(t.target.page_slug);
+    const tabs = content.tabs.filter(opens);
+    const menu = (content.menu ?? []).filter(opens);
+    content = { appearance: content.appearance, languages: content.languages, tabs, ...tabBarOf({ tabs, tab_bar: content.tab_bar }), ...menuOf({ menu }), pages };
   }
   const menu = (content.menu ?? []).filter((t) => actionAllowed(t.target, sources));
   const tabs = content.tabs.filter((t) => actionAllowed(t.target, sources));
@@ -151,6 +179,13 @@ export function planLayoutErrors(content: LayoutContent, plan: PlanInfo | null):
   const limit = plan.limits.languages;
   if (limit !== null && content.languages.available.length > limit) {
     errors.push(`Your ${plan.name} plan includes ${limit} app language${limit === 1 ? "" : "s"}. Turn off the others, or upgrade your plan.`);
+  }
+  // The simple page editor: the template's pages, no custom code, no block styling.
+  if (pageEditorLevel(plan) === "basic") {
+    if (content.pages.length > BASIC_MAX_PAGES) errors.push(`Your ${plan.name} plan includes up to ${BASIC_MAX_PAGES} pages. Remove the others, or upgrade your plan for the full page editor.`);
+    const blocks = content.pages.flatMap((p) => p.blocks);
+    if (blocks.some((b) => BASIC_BLOCKED_TYPES.includes(b.type))) errors.push(`Web page blocks need the full page editor. Remove them, or upgrade your plan.`);
+    if (blocks.some((b) => b.look !== undefined)) errors.push(`Block styling needs the full page editor. Reset the blocks' look, or upgrade your plan.`);
   }
   // 103R Studio pages per project, on a Studio plan.
   const pages = plan.limits.studioPages;

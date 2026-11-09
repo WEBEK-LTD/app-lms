@@ -15,7 +15,7 @@ import { checkAppUserNotices, daysLeft, reminderFor, remindLicense, runDailyNoti
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
 import { allowedSources, languagesForPlan, layoutForPlan, planLayoutErrors } from "@/lib/pages/plan";
 import type { Layout } from "@/lib/pages/types";
-import { comparisonRows, lowestPlanWith, PLAN_INFO, planSettingOf, plansWith, type PlanInfo } from "@/lib/plans";
+import { comparisonRows, lowestPlanWith, PLAN_INFO, pageEditorLevel, planSettingOf, plansWith, type PlanInfo } from "@/lib/plans";
 import { expectContract } from "./contract";
 import { days, KEY, NOW, setupClient } from "./helpers";
 
@@ -25,7 +25,7 @@ describe("13.1 plans", () => {
   it("has four tiers, each a step up", () => {
     // 103R.3 Then Yallapp Studio's own plans.
     expect(Object.keys(PLAN_INFO)).toEqual(["starter", "growth", "pro", "business", "studio_1", "studio_2", "studio_3", "studio_4", "studio_5", "studio_6", "studio_7", "studio_8"]);
-    expect(PLAN_INFO.starter.features).toEqual(["push"]);
+    expect(PLAN_INFO.starter.features).toEqual(["push", "page_editor_basic"]);
     expect(PLAN_INFO.starter.limits).toMatchObject({ appUsers: 1000, languages: 1, sources: 1 });
     expect(PLAN_INFO.growth.limits).toMatchObject({ appUsers: 10000, languages: 3 });
     expect(PLAN_INFO.growth.features).toContain("ios");
@@ -57,7 +57,7 @@ describe("13.1 plans", () => {
     const rows = comparisonRows(PLAN_INFO);
     expect(rows.find((r) => r.label === "iOS app")?.values).toEqual({ starter: false, growth: true, pro: true, business: true });
     expect(rows.find((r) => r.label === "App users")?.values).toEqual({ starter: "1,000", growth: "10,000", pro: "Unlimited", business: "Unlimited" });
-    expect(rows.find((r) => r.label === "Pages")?.values.starter).toBe("Ready-made templates");
+    expect(rows.find((r) => r.label === "Pages")?.values.starter).toBe("Simple page editor");
   });
 
   it("applies switches to what apps may use", async () => {
@@ -167,7 +167,8 @@ describe("13.1 pages, looks and languages per plan", () => {
   it("gives a plan without the page editor the ready-made pages, with one language and one source", () => {
     expect(allowedSources(app, PLAN_INFO.starter)).toEqual(["courses"]);
     expect(allowedSources(app, PLAN_INFO.growth)).toEqual(["courses", "posts"]);
-    const served = layoutForPlan(custom, app, PLAN_INFO.starter, BUILT_IN_APP_DEFAULTS);
+    const templates: PlanInfo = { ...PLAN_INFO.starter, features: ["push"] };
+    const served = layoutForPlan(custom, app, templates, BUILT_IN_APP_DEFAULTS);
     expect(served.version).not.toBe(custom.version);
     expect(served.languages).toEqual({ default: "en", available: ["en"] });
     expect(served.pages).toEqual(defaultLayout(app, BUILT_IN_APP_DEFAULTS, app.createdAt).pages.map((p) => ({ ...p, blocks: p.blocks.filter((b) => !b.source || b.source === "courses") })));
@@ -185,6 +186,58 @@ describe("13.1 pages, looks and languages per plan", () => {
     expect(planLayoutErrors(custom, PLAN_INFO.starter)).toEqual(["Your Starter plan includes 1 app language. Turn off the others, or upgrade your plan."]);
     expect(planLayoutErrors(custom, PLAN_INFO.pro)).toEqual([]);
   });
+
+  it("gives Starter the simple page editor: its own pages, no custom code, no block styling, at most six pages", () => {
+    expect(pageEditorLevel(PLAN_INFO.starter)).toBe("basic");
+    expect(pageEditorLevel(PLAN_INFO.growth)).toBe("full");
+    expect(pageEditorLevel({ ...PLAN_INFO.starter, features: ["push"] })).toBeNull();
+    const page = (slug: string) => ({ slug, title: slug, show_title: true, updated_at: NOW.toISOString(), blocks: [] });
+    const own: Layout = {
+      ...custom,
+      languages: { default: "en", available: ["en"] },
+      tabs: [...custom.tabs, { id: "t-extra", label: "Extra", icon: "info", target: { type: "page", page_slug: "p7" } }],
+      menu: [
+        { id: "m-p2", label: "Two", icon: "info", target: { type: "page", page_slug: "p2" } },
+        { id: "m-p7", label: "Seven", icon: "info", target: { type: "page", page_slug: "p7" } },
+      ],
+      pages: [
+        {
+          ...custom.pages[0]!,
+          blocks: [
+            { id: "b1", type: "text", visibility: "everyone", html: "<p>Hello</p>", look: { background: "primary", spacing: "medium" } },
+            { id: "b4", type: "embed", visibility: "everyone", url: "https://academy.test/widget" },
+            { id: "b3", type: "items", visibility: "everyone", source: "courses", layout: "list" },
+          ],
+        },
+        ...["p2", "p3", "p4", "p5", "p6", "p7"].map(page),
+      ],
+    };
+    const served = layoutForPlan(own, app, PLAN_INFO.starter, BUILT_IN_APP_DEFAULTS);
+    expect(served.version).not.toBe(own.version);
+    expect(served.pages.map((p) => p.slug)).toEqual(["home", "p2", "p3", "p4", "p5", "p6"]);
+    expect(served.pages[0]!.blocks).toEqual([
+      { id: "b1", type: "text", visibility: "everyone", html: "<p>Hello</p>" },
+      { id: "b3", type: "items", visibility: "everyone", source: "courses", layout: "list" },
+    ]);
+    expect(served.tabs.some((t) => t.id === "t-extra")).toBe(false);
+    expect(served.menu?.map((t) => t.id)).toEqual(["m-p2"]);
+    expect(planLayoutErrors(own, PLAN_INFO.starter)).toEqual([
+      "Your Starter plan includes up to 6 pages. Remove the others, or upgrade your plan for the full page editor.",
+      "Web page blocks need the full page editor. Remove them, or upgrade your plan.",
+      "Block styling needs the full page editor. Reset the blocks' look, or upgrade your plan.",
+    ]);
+    expect(planLayoutErrors(own, PLAN_INFO.growth)).toEqual([]);
+  });
+
+  it("gives a Starter plan the team saved before the simple editor the simple editor, without rewriting the saved plan", () => {
+    const before = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat"];
+    // The Starter plan as the admin saved it before (its features then: push only).
+    const setting = { ...planSettingOf(PLAN_INFO.starter), features: ["push" as const], knownFeatures: before };
+    expect(pageEditorLevel(plansWith({ starter: setting }).starter)).toBe("basic");
+    expect(setting.features).toEqual(["push"]);
+    // Saved again with the simple editor unticked: the templates only.
+    expect(pageEditorLevel(plansWith({ starter: { ...setting, knownFeatures: [...before, "page_editor_basic"] } }).starter)).toBeNull();
+  });
 });
 
 describe("13.1 license API", () => {
@@ -194,7 +247,7 @@ describe("13.1 license API", () => {
     const site = { licenseKey: licenseKey!, siteUrlRaw: "https://academy.test", siteUrl: "academy.test", pluginVersion: "0.4.0", wpVersion: "7.1", lms: "tutor", store: null, bookings: null };
     await activateLicense(store, site, NOW);
     const result = await checkLicense(store, site, NOW);
-    expect(result.status === 200 && result.body).toMatchObject({ plan: "starter", features: ["push"], limits: { app_users: 1000, languages: 1, sources: 1 } });
+    expect(result.status === 200 && result.body).toMatchObject({ plan: "starter", features: ["push", "page_editor_basic"], limits: { app_users: 1000, languages: 1, sources: 1 } });
   });
 });
 
