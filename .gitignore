@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 vendor/
+# 115 The app's vendor module is code, not dependencies.
+!mobile/lib/modules/vendor/
 
 # Environment and secrets: never commit these
 .env

@@ -27,6 +27,11 @@ export const DEFAULT_MARKET_SETTINGS: MarketAppSettings = {
   requirePhotos: true,
 };
 
+/** 115.18 Places' own coupons: on unless the owner turned them off, with no largest percentage unless set. */
+export function vendorCouponsOf(settings: Pick<MarketAppSettings, "vendorCoupons">): { enabled: boolean; maxPercent: number | null } {
+  return { enabled: settings.vendorCoupons?.enabled !== false, maxPercent: settings.vendorCoupons?.maxPercent ?? null };
+}
+
 export function marketSettingsOf(settings: Pick<DeliverySettings, "marketApp">): MarketAppSettings {
   const s = settings.marketApp;
   if (!s) return DEFAULT_MARKET_SETTINGS;

@@ -21,11 +21,12 @@ import { buildStatement, type Statement } from "./statement";
  * picking only (picker).
  */
 
-export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "staff" | "statements" | "complaints";
+export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "offers" | "staff" | "statements" | "complaints";
 
 const ROLE_TABS: Record<VendorRole, PanelTab[]> = {
-  owner: ["orders", "catalog", "import", "delivery", "staff", "statements", "complaints"],
-  manager: ["orders", "catalog", "import", "delivery", "statements", "complaints"],
+  // 115.18 Offers: the place's own coupons, made by its owner and managers only.
+  owner: ["orders", "catalog", "import", "delivery", "offers", "staff", "statements", "complaints"],
+  manager: ["orders", "catalog", "import", "delivery", "offers", "statements", "complaints"],
   orders: ["orders", "catalog", "complaints"],
   picker: ["orders"],
 };
@@ -238,7 +239,8 @@ export async function setStaffActive(ctx: PanelContext, staffId: number, active:
 // Statements
 
 /** The vendor's statement for [from, to): its delivered and picked-up orders, the refunds and compensations decided on them. */
-export async function vendorStatement(ctx: PanelContext, from: Date, to: Date): Promise<Statement> {
+/** A vendor's statement for [from, to): for its panel, or for the app owner (115.12 Studio › Statements). */
+export async function vendorStatement(ctx: Pick<PanelContext, "store" | "app" | "vendor" | "currency">, from: Date, to: Date): Promise<Statement> {
   const orders = [];
   for (let offset = 0; ; offset += 500) {
     const page = await ctx.store.listMarketOrders({ appId: ctx.app.id, vendorId: ctx.vendor.id, completedSince: from, completedUntil: to, order: "oldest", limit: 500, offset });

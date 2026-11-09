@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui";
 import type { DashKey, DashT } from "@/i18n/dashboard";
-import type { ComplaintStatus, MarketOrderStatus } from "@/lib/data/types";
+import type { ComplaintStatus, MarketApplicationStatus, MarketOrderStatus } from "@/lib/data/types";
 import { waitParts } from "@/lib/market/support";
 
 /** 115.12 What the marketplace's pages share: the statuses' words and colours, waits said shortly. */
@@ -36,6 +36,9 @@ const COMPLAINT_TONES: Record<ComplaintStatus, Tone> = {
 export function ComplaintStatusBadge({ status, t }: { status: ComplaintStatus; t: DashT }) {
   return <Badge tone={COMPLAINT_TONES[status]}>{t(`market.cs_${status}` as DashKey)}</Badge>;
 }
+
+/** 115.12 An application's status colour. */
+export const APPLICATION_TONES: Record<MarketApplicationStatus, "warn" | "info" | "success" | "neutral"> = { new: "warn", more_info: "info", accepted: "success", rejected: "neutral" };
 
 export function waitText(minutes: number, t: DashT): string {
   const { unit, count } = waitParts(minutes);

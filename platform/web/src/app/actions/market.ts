@@ -12,8 +12,11 @@ import { complaintDecisionDeps } from "@/lib/market/decisions";
 import { complaintReference } from "@/lib/market/json";
 import { currencyDecimals, toMinor } from "@/lib/market/currency";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { parseCourierTermsForm } from "@/lib/market/delivery-forms";
 import { parseClubPlanForm, parseCouponForm } from "@/lib/market/offer-forms";
-import { marketCurrency } from "@/lib/market/settings";
+import { marketCurrency, marketSettingsOf } from "@/lib/market/settings";
+import { parseMarketSettingsForm } from "@/lib/market/settings-form";
+import { ownerPauseVendorCoupon } from "@/lib/market/vendor-coupons";
 
 /**
  * 115.12 The app owner's complaint queue: replies the customer reads, the
@@ -169,6 +172,16 @@ export async function couponActiveAction(formData: FormData): Promise<void> {
   backToOffers();
 }
 
+/** 115.18 Pause a coupon a place made, or allow it again; the place can't undo the owner's pause. */
+export async function ownerPauseCouponAction(formData: FormData): Promise<void> {
+  const { context, store } = await offerContext();
+  const paused = formData.get("paused") === "1";
+  if (await ownerPauseVendorCoupon(store, context.app.id, Number(formData.get("id")), paused, new Date())) {
+    await recordStaffChange(context, paused ? "Paused a place's offer" : "Allowed a place's offer again");
+  }
+  backToOffers();
+}
+
 export async function deleteCouponAction(formData: FormData): Promise<void> {
   const { context, store } = await offerContext();
   const id = Number(formData.get("id"));
@@ -194,4 +207,64 @@ export async function clubPlanActiveAction(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   if (Number.isInteger(id) && id > 0) await store.updateMarketClubPlan(context.app.id, id, { active: formData.get("active") === "1", updatedAt: new Date() });
   backToOffers();
+}
+
+// 115.12 Studio › Marketplace settings
+
+function backToSettings(message?: string, saved?: string): never {
+  revalidatePath("/dashboard/market/settings");
+  revalidatePath("/studio/project/market/settings");
+  const q = message ? `?error=${encodeURIComponent(message)}` : saved ? `?saved=${saved}` : "";
+  redirect(`/dashboard/market/settings${q}`);
+}
+
+async function settingsContext() {
+  const context = await clientFor("settings");
+  if (!context) redirect("/sign-in");
+  if (!mayUseDashboard(context)) redirect("/pending");
+  if (!context.app || context.app.connector?.kind !== "restaurants") redirect("/dashboard");
+  const app = context.app;
+  const store = await getStore();
+  const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
+  return { context: context as ClientContext & { app: App }, app, store, settings };
+}
+
+/**
+ * 115.13 A food delivery project grows into a marketplace, or goes back:
+ * only its kind changes (the vertical `marketplace`), so its restaurants,
+ * menus, couriers and orders stay. The app opens the marketplace once the
+ * plan has `market` (lib/market/plan.ts).
+ */
+export async function setMarketplaceAction(formData: FormData): Promise<void> {
+  const { context, app, store } = await settingsContext();
+  const on = formData.get("marketplace") === "on";
+  const vertical = on ? "marketplace" : null;
+  if ((app.vertical ?? null) !== vertical) {
+    const now = new Date();
+    await recordStaffChange(context, on ? "Grew the food delivery app into a marketplace" : "Made the marketplace a food delivery app again", { vertical: app.vertical ?? null }, { vertical });
+    await store.updateApp(app.id, { vertical }, now);
+  }
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/studio/project", "layout");
+  backToSettings(undefined, on ? "grown" : "food");
+}
+
+/** The marketplace as a whole: country, currency, taxes, the ways to pay, pick-up, orders for later, the club, the wallet, photos. */
+export async function saveMarketSettingsAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const parsed = parseMarketSettingsForm(formOf(formData), marketSettingsOf(settings), settings.currency);
+  if (!parsed.ok) backToSettings(parsed.error);
+  await store.saveDeliverySettings(app.id, { ...settings, marketApp: parsed.value }, new Date());
+  await recordStaffChange(context, "Changed the marketplace settings");
+  backToSettings(undefined, "market");
+}
+
+/** What the app's couriers cost customers and the places that use them. */
+export async function saveCourierTermsAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const parsed = parseCourierTermsForm(formOf(formData), marketCurrency(settings));
+  if (!parsed.ok) backToSettings(parsed.error);
+  await store.saveDeliverySettings(app.id, { ...settings, market: parsed.value }, new Date());
+  await recordStaffChange(context, "Changed the app's couriers' terms");
+  backToSettings(undefined, "couriers");
 }

@@ -91,6 +91,7 @@ const verticals = [
   'services',
   'instructors',
   'taxi',
+  'marketplace',
 ];
 
 /// 104.6 `role`: the customers' app, or a delivery company's courier app;

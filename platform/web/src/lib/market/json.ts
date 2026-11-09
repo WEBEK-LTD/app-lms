@@ -18,6 +18,7 @@ import { currencyDecimals, formatMinor, fromMinor } from "./currency";
 import { vendorDelivery } from "./delivery";
 import { productPhotos } from "./photos";
 import type { OrderMoney, PriceLineKind } from "./money";
+import type { Statement } from "./statement";
 
 /**
  * 115 The marketplace's JSON, as the contract writes it (docs/api/openapi.yaml,
@@ -392,3 +393,37 @@ export function deskJson(
 
 /** The delivery settings' currency for a marketplace, for callers that only have them. */
 export type MarketDelivery = Pick<DeliverySettings, "currency" | "marketApp">;
+
+/** 115.16 A vendor's statement for its app: every total as `Money`, its orders and the refunds and compensations after them. */
+export function vendorStatementJson(s: Statement, month: string) {
+  const c = s.currency;
+  const totals = Object.fromEntries(
+    Object.entries(s.totals).map(([key, value]) => [key.replace(/[A-Z]/g, (ch) => `_${ch.toLowerCase()}`), key === "orders" ? value : money(value, c)]),
+  );
+  return {
+    month,
+    from: s.from.toISOString(),
+    to: s.to.toISOString(),
+    currency: c,
+    totals,
+    orders: s.orders.map((o) => ({ id: o.id, reference: o.reference, at: o.at.toISOString(), payment: o.payment, total: money(o.money.total, c), vendor_earns: money(o.money.split.vendorEarns, c), commission: money(o.money.split.commission, c), due_to_vendor: money(o.money.split.dueToVendor, c) })),
+    adjustments: s.adjustments.map((a) => ({ order_id: a.orderId, reference: a.reference, at: a.at.toISOString(), kind: a.kind, amount: money(a.amount, c), funder: a.funder })),
+  };
+}
+
+/** 115.16 A complaint as the vendor reads it: what was wrong and the decision, never anyone's contact, the conversation or the team's notes. */
+export function vendorComplaintJson(c: MarketComplaint, currency: string, assetUrl: AssetUrl) {
+  return {
+    id: c.id,
+    reference: complaintReference(c),
+    order_id: c.orderId,
+    order_reference: marketOrderReference({ id: c.orderId }),
+    reason: c.reason,
+    status: c.status,
+    text: c.text,
+    line_ids: c.lineIds,
+    photos: c.photoAssetIds.map((id, i) => ({ id: i + 1, url: assetUrl(id) })),
+    decision: c.decision ? { outcome: c.decision.outcome, amount: moneyOrNull(c.decision.amount, currency), funder: c.decision.funder, at: c.decision.at.toISOString() } : null,
+    created_at: c.createdAt.toISOString(),
+  };
+}

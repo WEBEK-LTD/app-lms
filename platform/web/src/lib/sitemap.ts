@@ -28,6 +28,8 @@ export const PRIVATE_PATHS = [
   "/unsubscribe/",
   // 115.7 The vendors' web panel.
   "/partner/",
+  // 115.12 A marketplace's joining forms: shared by the owner, never listed.
+  "/join/",
 ];
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];

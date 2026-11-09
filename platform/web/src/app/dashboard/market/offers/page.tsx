@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
 import { Badge, btn, EmptyState, Notice, PageHeader, Section } from "@/components/ui";
 import { ItemList, ItemRow, Thumb } from "@/components/page-kit";
-import { clubPlanActiveAction, couponActiveAction, createClubPlanAction, createCouponAction, deleteCouponAction } from "@/app/actions/market";
+import { clubPlanActiveAction, couponActiveAction, createClubPlanAction, createCouponAction, deleteCouponAction, ownerPauseCouponAction } from "@/app/actions/market";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
@@ -27,7 +27,9 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
   if (!isFood(app)) return <NotMarket title={t("market.offers")} t={t} />;
   const error = (await searchParams).error;
   const store = await getStore();
-  const [settings, coupons, plans] = await Promise.all([store.getDeliverySettings(app.id).then(deliverySettingsOf), store.listMarketCoupons(app.id), store.listMarketClubPlans(app.id)]);
+  const [settings, coupons, plans, vendors] = await Promise.all([store.getDeliverySettings(app.id).then(deliverySettingsOf), store.listMarketCoupons(app.id), store.listMarketClubPlans(app.id), store.listRestaurants(app.id)]);
+  // 115.18 Coupons places made in their panel, with the place's name.
+  const placeOf = (c: (typeof coupons)[number]) => (c.createdByVendorId ? (vendors.find((v) => v.id === c.createdByVendorId)?.name ?? "") : null);
   const currency = marketCurrency(settings);
   const money = (minor: number, c = currency) => formatMinor(minor, c, lang);
   const worth = (c: MarketCoupon) => (c.kind === "percent" ? `${c.value}%` : c.kind === "amount" ? money(c.value, c.currency) : t("market.k_free_delivery"));
@@ -58,13 +60,23 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
                 extra={
                   <>
                     <span>{t(c.paidBy === "vendor" ? "market.f_vendor" : "market.f_owner")}</span>
+                    {placeOf(c) !== null ? <span>{t("market.byPlace", { place: placeOf(c)! })}</span> : null}
                     {c.firstOrderOnly ? <span>{t("market.firstOrder")}</span> : null}
                     {c.endsAt ? <span dir="ltr">→ {c.endsAt.toISOString().slice(0, 10)}</span> : null}
                   </>
                 }
-                aside={<Badge tone={c.active ? "success" : "neutral"}>{t(c.active ? "market.activeOffer" : "market.pausedOffer")}</Badge>}
+                aside={<Badge tone={c.active && !c.ownerPaused ? "success" : "neutral"}>{t(c.ownerPaused ? "market.pausedByYou" : c.active ? "market.activeOffer" : "market.pausedOffer")}</Badge>}
                 actions={
                   <span className="flex gap-2">
+                    {placeOf(c) !== null ? (
+                      <form action={ownerPauseCouponAction}>
+                        <input type="hidden" name="id" value={c.id} />
+                        <input type="hidden" name="paused" value={c.ownerPaused ? "0" : "1"} />
+                        <button type="submit" className={`${btn.secondary} h-9 px-3 text-sm`}>
+                          {t(c.ownerPaused ? "market.allowIt" : "market.pauseIt")}
+                        </button>
+                      </form>
+                    ) : (
                     <form action={couponActiveAction}>
                       <input type="hidden" name="id" value={c.id} />
                       <input type="hidden" name="active" value={c.active ? "0" : "1"} />
@@ -72,6 +84,7 @@ export default async function OffersPage({ searchParams }: { searchParams: Promi
                         {t(c.active ? "market.pauseIt" : "market.turnOn")}
                       </button>
                     </form>
+                    )}
                     <form action={deleteCouponAction}>
                       <input type="hidden" name="id" value={c.id} />
                       <button type="submit" className={`${btn.secondary} h-9 px-3 text-sm`}>
