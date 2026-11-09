@@ -14,6 +14,8 @@ import { blockTexts } from "@/lib/pages/designs/texts";
 import { BLOCK_GROUPS, BLOCK_HINTS, BLOCK_ICONS, BLOCK_LABELS, CARD_LABELS, CORNER_LABELS, TEMPLATE_LABELS, THEME_MODE_LABELS } from "@/lib/pages/labels";
 import { duplicatePage, moveById, moveItem, newBlock, pageLinks, rebased, renamePageLinks, switchDefaultLanguage, uniqueSlug } from "@/lib/pages/model";
 import { DraftSaves } from "@/lib/pages/draft-saves";
+import { parkedBlocks, withParked } from "@/lib/pages/parked";
+import type { BlockIssue } from "@/lib/pages/validate";
 import { actionProblem, blockProblem, type ScreenOption } from "@/lib/pages/sources";
 import { translated } from "@/lib/pages/translate";
 import {
@@ -173,6 +175,7 @@ export function PagesEditor({
   builtin,
   live,
   ownFonts,
+  samplePictures,
 }: {
   initial: {
     draft: LayoutContent;
@@ -185,7 +188,9 @@ export function PagesEditor({
     /** 82.4 The app's last publishes, newest first. */
     history: LayoutHistoryEntry[];
   };
-  app: { appType: string; name: string; primaryColor: string; logoUrl: string | null; fontCount: number };
+  app: { id: string; appType: string; name: string; primaryColor: string; logoUrl: string | null; fontCount: number };
+  /** 1.1 The sample pictures new blocks start with (lib/pages/model.ts samplePictures). */
+  samplePictures: string[];
   sources: ItemSource[];
   categorySources: ItemSource[];
   /** 31 The screens this app's type opens. */
@@ -232,6 +237,8 @@ export function PagesEditor({
   const [newTitle, setNewTitle] = useState("");
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [samples, setSamples] = useState(initial.samples);
+  /** 1.1 Blocks still to fill in: the draft is saved without them, the editor keeps them (and this browser, PARKED_KEY). */
+  const [incomplete, setIncomplete] = useState<BlockIssue[]>([]);
   const [currentDesign, setCurrentDesign] = useState(initial.design);
   // Open for an app that hasn't started from a design yet.
   const [designsOpen, setDesignsOpen] = useState(initial.design === null && !initial.published);
@@ -261,13 +268,17 @@ export function PagesEditor({
     const answer = saves.current.answer(sent, r.ok);
     if (answer === "behind") return;
     if (!r.ok) {
-      if (answer === "last") setStatus("invalid");
+      // 1.1 Not published, the draft saved without the blocks still to fill in.
+      if (answer === "last") setStatus(r.draftSaved ? "saved" : "invalid");
       setErrors(r.errors);
+      if (r.blocks) setIncomplete(r.blocks);
       return;
     }
     setPublished(r.published);
     setSavedAt(r.savedAt);
     setErrors([]);
+    if (!replace) setIncomplete(r.incomplete ?? []);
+    else setIncomplete([]);
     notifyDraftSaved(frames.current);
     if (replace) {
       saves.current.replaced();
@@ -307,6 +318,38 @@ export function PagesEditor({
     const timer = setTimeout(() => void save(layout), AUTOSAVE_MS);
     return () => clearTimeout(timer);
   }, [layout, retry, save]);
+
+  // 1.1 The blocks still to fill in, kept in this browser until they're complete (the saved draft leaves them out).
+  const parkedKey = `yallapp.pages.parked.${app.id}`;
+  useEffect(() => {
+    // After the first render (the server's has nothing from this browser), once.
+    const timer = window.setTimeout(() => {
+      let parked: unknown = null;
+      try {
+        parked = JSON.parse(window.localStorage.getItem(parkedKey) ?? "null");
+      } catch {
+        return;
+      }
+      const back = withParked(initial.draft, parked);
+      if (!back) return;
+      saves.current.change();
+      setStatus("unsaved");
+      setDoc((d) => (d.layout === initial.draft ? { ...d, layout: back } : d));
+    }, 0);
+    return () => window.clearTimeout(timer);
+    // Only when the editor opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (status !== "saved" && status !== "invalid") return;
+    try {
+      const parked = parkedBlocks(layout, incomplete);
+      if (parked.length) window.localStorage.setItem(parkedKey, JSON.stringify(parked));
+      else window.localStorage.removeItem(parkedKey);
+    } catch {
+      // The browser keeps nothing: the blocks stay in the editor until it closes.
+    }
+  }, [incomplete, status, layout, parkedKey]);
 
   function update(change: (current: LayoutContent) => LayoutContent) {
     // 82.4 Typing in a field is one step: changes less than a second apart join the one before.
@@ -598,7 +641,9 @@ export function PagesEditor({
       setMessage({ text: t("pages.maxBlocks", { max: LAYOUT_LIMITS.maxBlocks }), ok: false });
       return;
     }
-    const block = newBlock(type, sources, screens);
+    // 1.1 With sample texts and pictures, marked "Sample" until the owner changes them.
+    const block = newBlock(type, sources, screens, samplePictures);
+    setSamples((s) => ({ ...s, [`${page.slug}/${block.id}`]: blockTexts(block) }));
     updateBlocks(page.slug, (blocks) => (at === undefined ? [...blocks, block] : [...blocks.slice(0, at), block, ...blocks.slice(at)]));
     setOpenBlock(block.id);
   }
@@ -731,7 +776,9 @@ export function PagesEditor({
         ? t("pages.unsaved")
         : status === "invalid"
           ? t("pages.invalid")
-          : t("pages.savedAt", { date: formatDateTime(new Date(savedAt), dashLang) });
+          : incomplete.length
+            ? t("pages.savedIncomplete", { date: formatDateTime(new Date(savedAt), dashLang), count: incomplete.length })
+            : t("pages.savedAt", { date: formatDateTime(new Date(savedAt), dashLang) });
   // 31 What a List block can show in this app: "Courses or blog posts".
   const listHint = sources.length ? formatList(dashLang, sources.map((s) => known(SOURCE_NAMES[s])), "disjunction") : t("pages.entriesFrom");
 
@@ -1015,6 +1062,7 @@ export function PagesEditor({
                       const open = openBlock === block.id;
                       const name = `${known(BLOCK_LABELS[block.type])}${summary(translated(block, lang.edit, def)) ? `: ${summary(translated(block, lang.edit, def))}` : ""}`;
                       const problem = blockProblem(block, screens, sources);
+                      const missing = incomplete.find((x) => x.page === page.slug && x.id === block.id);
                       return (
                         <li
                           key={block.id}
@@ -1047,6 +1095,12 @@ export function PagesEditor({
                               {problem ? (
                                 <span title={known(problem)}>
                                   <Badge tone="warn">{t("pages.needsFix")}</Badge>
+                                </span>
+                              ) : null}
+                              {/* 1.1 Not in the app until it's filled in. */}
+                              {missing ? (
+                                <span title={missing.errors.map(known).join(" ")} data-needs-content="">
+                                  <Badge tone="warn">{t("pages.needsContent")}</Badge>
                                 </span>
                               ) : null}
                               {devicesWithout(block.type, versions) ? (

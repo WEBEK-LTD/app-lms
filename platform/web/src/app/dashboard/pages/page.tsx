@@ -19,6 +19,7 @@ import { PagesEditor } from "./editor";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { defaultLayout } from "@/lib/pages/defaults";
+import { samplePictures } from "@/lib/pages/model";
 import { appDefaults } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { hasFeature, lowestPlanWith } from "@/lib/plans";
@@ -115,6 +116,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
         }}
         designs={(await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now), palettes: d.palettes ?? [] }))}
         app={{
+          id: app.id,
           appType: app.appType,
           name: app.appName ?? t("setup.yourApp"),
           primaryColor: app.primaryColor,
@@ -122,6 +124,7 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           fontCount: FREE_FONT_COUNT,
         }}
         ownFonts={(await store.listOwnFonts(app.id)).map(ownFontView)}
+        samplePictures={samplePictures(appUrl())}
         sources={sources}
         categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
         screens={screenOptionsFor(app)}

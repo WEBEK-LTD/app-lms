@@ -38,7 +38,14 @@ export type LayoutSaveResult =
       /** Blocks the autosave left out because they still need something; the rest is saved. */
       incomplete?: BlockIssue[];
     }
-  | { ok: false; errors: string[]; blocks?: BlockIssue[] };
+  | {
+      ok: false;
+      errors: string[];
+      /** 1.1 The blocks the errors are about (still to fill in). */
+      blocks?: BlockIssue[];
+      /** 1.1 Not published, but the draft is saved without those blocks. */
+      draftSaved?: true;
+    };
 
 type LayoutSaved = Extract<LayoutSaveResult, { ok: true }>;
 
@@ -227,8 +234,14 @@ export async function publishLayoutAction(json: string): Promise<LayoutSaveResul
   const store = await getStore();
   const now = new Date();
   // 13.1 The published layout keeps to the app's plan (its languages).
-  const published = await publishLayout(store, app, parseJson(json), (staff ?? user).email, now, await appPlan(store, license, now));
-  if (!published.ok) return published;
+  const input = parseJson(json);
+  const published = await publishLayout(store, app, input, (staff ?? user).email, now, await appPlan(store, license, now));
+  if (!published.ok) {
+    // 1.1 Blocks still to fill in: the draft is saved without them, as the autosave does.
+    if (!published.blocks?.length) return published;
+    const saved = await saveDraftKeepingIncomplete(store, app, input, now);
+    return saved.ok && saved.incomplete.length ? { ...published, draftSaved: true } : published;
+  }
   revalidatePath("/dashboard/pages");
   // 31 A WordPress site fetches the layout when asked, instead of within 15 minutes.
   const history = await layoutHistory(store, app.id);
