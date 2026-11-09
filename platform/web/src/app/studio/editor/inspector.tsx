@@ -17,6 +17,7 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
+  STUDIO_MARKET_CARD_FACTS,
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
   STUDIO_LOOPS,
@@ -1477,6 +1478,12 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
   const t = useDashT();
   const market: StudioMarket = node.market ?? { section: "vendors" };
   const set = (patch: Partial<StudioMarket>) => onChange({ market: { ...market, ...patch } });
+  const setCard = (patch: Partial<NonNullable<StudioMarket["card"]>>) => {
+    const card = { ...(market.card ?? {}), ...patch };
+    if (card.radius === undefined) delete card.radius;
+    if (!card.hide?.length) delete card.hide;
+    set({ card: card.radius !== undefined || card.hide ? card : undefined });
+  };
   const places = market.section === "vendors" || market.section === "offers";
   return (
     <div className="flex flex-col gap-2">
@@ -1516,6 +1523,31 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
           </label>
           <Check label={t("studio.marketFree")} checked={market.free_delivery === true} onChange={(on) => set({ free_delivery: on ? true : undefined })} />
           <RangeField label={t("studio.marketLimit")} value={market.limit ?? 10} min={1} max={40} unit={t("studio.unitItems")} fallback={10} onChange={(limit) => set({ limit: limit === 10 ? undefined : limit })} />
+          {/* Editor audit 3.4: each place's card, its corners and the facts it shows. */}
+          <span className="mt-1 font-bold">{t("studio.marketCard")}</span>
+          <RangeField
+            label={t("studio.corners")}
+            value={market.card?.radius ?? 24}
+            min={0}
+            max={32}
+            unit="px"
+            fallback={24}
+            presets={[{ value: 0 }, { value: 12 }, { value: 24 }, { value: 32 }]}
+            onChange={(radius) => setCard({ radius: radius === 24 ? undefined : radius })}
+          />
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {STUDIO_MARKET_CARD_FACTS.map((fact) => (
+              <Check
+                key={fact}
+                label={t(`studio.marketFact_${fact}` as DashKey)}
+                checked={!(market.card?.hide ?? []).includes(fact)}
+                onChange={(on) => {
+                  const hide = (market.card?.hide ?? []).filter((f) => f !== fact);
+                  setCard({ hide: on ? (hide.length ? hide : undefined) : [...hide, fact] });
+                }}
+              />
+            ))}
+          </div>
         </>
       ) : null}
     </div>

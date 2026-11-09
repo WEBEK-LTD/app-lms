@@ -27,7 +27,8 @@ import { DEFAULT_RIDES_SETTINGS, EMPTY_DRIVER } from "../rides/settings";
 import { DEFAULT_TAXI_SETTINGS } from "../taxi/settings";
 import { effectivePlans } from "../entitlements";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
-import { publishLayout } from "../pages/layout";
+import { designLayout, publishLayout } from "../pages/layout";
+import { demoDesign } from "./look";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
@@ -779,29 +780,27 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
 
-/** The demo's pages and look: the usual pages for its type, with a banner, a welcome and how to sign in. */
+/**
+ * The demo's pages and look: its design (lib/demo/look.ts), the same an
+ * owner starts from with "Like our demo", with how to sign in to the demo.
+ */
 export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, app: App, bannerAssetId: string): Promise<LayoutContent> {
+  void bannerAssetId;
   const brand = DEMO_BRANDS[demoIdOf(app)];
   const base = defaultLayout({ ...app, brandingDoneAt: deps.now }, BUILT_IN_APP_DEFAULTS, deps.now);
-  const home = base.pages[0]!;
-  const bannerUrl = deps.assetUrl(bannerAssetId);
-  const extra: LayoutBlock[] = [];
-  // Pages only take https pictures (local runs are on http).
-  if (bannerUrl.startsWith("https://")) {
-    extra.push({ id: "demo-banner", type: "banner", visibility: "everyone", title: null, image_url: bannerUrl, heading: brand.banner.heading, subheading: brand.banner.subheading, action: null });
-  }
-  extra.push({
+  const designed = designLayout({ ...app, appName: brand.appName }, demoDesign(demoIdOf(app)), base, deps.now);
+  const signIn: LayoutBlock = {
     id: "demo-sign-in",
     type: "text",
     visibility: "signed_out",
     title: null,
     html: `<p><strong>This is a demo app.</strong> Sign in with ${escapeHtml(DEMO_SIGN_IN.display)} and the code ${DEMO_SIGN_IN.code}. Anything you add is deleted after a day.</p>`,
-  });
-  const blocks = home.blocks.map((block) =>
-    block.id === "welcome" ? { ...block, html: `<h2>Welcome to ${escapeHtml(brand.appName)}</h2><p>${escapeHtml(brand.welcome)}</p>` } : block,
-  );
+  };
+  const [home, ...rest] = designed.pages;
+  // After the welcome banner, as before.
+  const blocks = home!.blocks[0]?.id === "demo-banner" ? [home!.blocks[0], signIn, ...home!.blocks.slice(1)] : [signIn, ...home!.blocks];
   return {
-    ...base,
+    ...designed,
     appearance: {
       template: brand.template,
       theme_mode: "system",
@@ -812,7 +811,7 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
       cards: brand.cards,
     },
     languages: { default: "en", available: [...brand.languages] },
-    pages: [{ ...home, blocks: [...extra, ...blocks] }, ...base.pages.slice(1)],
+    pages: [{ ...home!, blocks }, ...rest],
   };
 }
 

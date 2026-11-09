@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { artPng } from "@/lib/demo/art";
 import { DESIGN_ART } from "@/lib/demo/design-art";
+import { DEMO_DESIGNS } from "@/lib/demo/look";
 import { DESIGNS } from "@/lib/pages/designs";
 import { PICTURE } from "@/lib/pages/designs/build";
 
@@ -22,7 +23,8 @@ function named(): Set<string> {
     else if (Array.isArray(value)) value.forEach(walk);
     else if (value && typeof value === "object") Object.values(value).forEach(walk);
   };
-  walk(DESIGNS.map((d) => d.pages));
+  // The demos' own designs (lib/demo/look.ts) show the demos' pictures.
+  walk([...DESIGNS, ...DEMO_DESIGNS].map((d) => d.pages));
   return out;
 }
 

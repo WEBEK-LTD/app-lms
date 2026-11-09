@@ -80,6 +80,7 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   await expect(plans.locator('[data-plan="starter"]')).toContainText("Up to 1,000 users");
   await expect(plans.locator('[data-plan="growth"]')).toContainText("Android and iOS");
   await expect(plans.locator('[data-plan="growth"]')).toContainText("Full page editor");
+  await expect(plans.locator('[data-plan="starter"]')).toContainText("Simple page editor");
   await expect(page.getByRole("link", { name: "Compare all features" })).toHaveAttribute("href", "/pricing");
   // Equal heights side by side on a wide screen.
   const heights = await plans.locator("[data-plan]").evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));

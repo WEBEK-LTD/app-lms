@@ -2,6 +2,7 @@ import { isAppType, kindOf } from "../../app/kinds";
 import type { DataStore } from "../../data/store";
 import type { App, AppVertical, DesignsSetting } from "../../data/types";
 import { platformSetting } from "../../settings/platform";
+import { DEMO_DESIGNS } from "../../demo/look";
 import { DESIGNS, withCompanyPages } from "./index";
 import type { Design } from "./build";
 
@@ -21,7 +22,8 @@ export async function designsSetting(store: DataStore, options: { fresh?: boolea
 /** Every design owners can choose, built-in first. */
 export async function designCatalog(store: DataStore, options: { fresh?: boolean } = {}): Promise<Design[]> {
   const setting = await designsSetting(store, options);
-  return [...DESIGNS.filter((d) => !setting.hidden.includes(d.id)), ...setting.custom.map((d, i) => withCompanyPages(d, DESIGNS.length + i))];
+  // The demos' own designs first: the app an owner starts from looks like the demo they tried.
+  return [...[...DEMO_DESIGNS, ...DESIGNS].filter((d) => !setting.hidden.includes(d.id)), ...setting.custom.map((d, i) => withCompanyPages(d, DESIGNS.length + i))];
 }
 
 export async function findDesign(store: DataStore, id: unknown): Promise<Design | null> {
