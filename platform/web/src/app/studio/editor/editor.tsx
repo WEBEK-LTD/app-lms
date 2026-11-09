@@ -21,11 +21,13 @@ import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type 
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode } from "@/lib/studio/tree";
+import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
 import { applyWholeDesign, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
+import { TextStylesPanel } from "./text-styles-panel";
 import { download, fileName, fromBase64, readFont, readPicture, type OwnFontFiles } from "./design-io";
 import { fontUpload, ImportDialog, type ImportChoice } from "./import-dialog";
 import { Inspector, type InspectorTab } from "./inspector";
@@ -83,12 +85,16 @@ export interface StudioEditorProps {
 
 export function StudioEditor(props: StudioEditorProps) {
   const t = useDashT();
+  const fontLabels = { arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: props.fontCount }) };
   const known = useKnownText();
   const dashLang = useDashLang();
   const { app } = props;
 
   const [history, setHistory] = useState<History<LayoutContent>>(() => historyOf(props.initial.draft));
   const layout = history.present;
+  // Editor audit 3.3: the project's text styles and how many elements follow each.
+  const textStyles = useMemo(() => textStylesOf(layout), [layout]);
+  const textStyleCount = useMemo(() => textStyleUse(layout), [layout]);
   const [slug, setSlug] = useState(() => layout.pages.find((p) => p.slug === props.startSlug)?.slug ?? layout.pages.find((p) => p.studio)?.slug ?? layout.pages[0]?.slug ?? "");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -1016,6 +1022,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <button type="button" aria-label={t("studio.redo")} title={t("studio.redo")} disabled={!history.future.length} onClick={() => step(false)} className="flex size-9 items-center justify-center rounded-lg border-0 bg-transparent" style={{ color: history.future.length ? C.ivory : C.barMuted }}>
           <Glyph name="redo" />
         </button>
+        <TextStylesPanel styles={textStyles} use={textStyleCount} fontLabels={fontLabels} onChange={(style, font) => change((l) => applyTextStyle(l, style, font), `text_style:${style}`)} />
         <PublishHistory entries={publishes} busy={restoring} onRestore={(entry) => void restorePublish(entry)} />
         <div role="status" aria-live="polite" className="flex max-w-[320px] items-center gap-1.5 text-[13px]" style={{ color: status === "invalid" ? "#FFB49A" : C.barMuted }}>
           <Glyph name={status === "saved" ? "cloud_done" : status === "saving" ? "cloud_sync" : status === "invalid" ? "error" : "cloud_upload"} size={16} />
@@ -1233,7 +1240,8 @@ export function StudioEditor(props: StudioEditorProps) {
             categorySources={props.categorySources}
             screens={props.screens}
             pickable={props.pickable}
-            fontLabels={{ arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: props.fontCount }) }}
+            fontLabels={fontLabels}
+            textStyles={textStyles}
           />
         ) : null}
       </div>
