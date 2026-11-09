@@ -63,6 +63,8 @@ import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatu
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
+import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
+import type { MatchedStep } from "../bot/intents";
 import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
@@ -9519,6 +9521,65 @@ export class MysqlStore implements DataStore {
       runs += u.affectedRows;
     }
     return { events: events.affectedRows, recipients, runs };
+  }
+
+  // The app-builder bot
+  async listBotPhrases(): Promise<BotPhrase[]> {
+    const t = schema.botPhrases;
+    return this.run((db) => db.select().from(t).orderBy(asc(t.createdAt), asc(t.id)));
+  }
+
+  async saveBotPhrase(phrase: BotPhrase): Promise<void> {
+    const { id, ...rest } = phrase;
+    void id;
+    await this.run((db) => db.insert(schema.botPhrases).values(phrase).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteBotPhrase(id: string): Promise<boolean> {
+    const [result] = await this.run((db) => db.delete(schema.botPhrases).where(eq(schema.botPhrases.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async addBotUnmatched(row: Omit<BotUnmatched, "id">): Promise<number> {
+    const [result] = await this.run((db) => db.insert(schema.botUnmatched).values(row));
+    return Number(result.insertId);
+  }
+
+  async getBotUnmatched(id: number): Promise<BotUnmatched | null> {
+    const [row] = await this.run((db) => db.select().from(schema.botUnmatched).where(eq(schema.botUnmatched.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async setBotUnmatchedChoice(id: number, intent: string): Promise<boolean> {
+    const t = schema.botUnmatched;
+    const [result] = await this.run((db) => db.update(t).set({ chosenIntent: intent }).where(and(eq(t.id, id), eq(t.status, "open"), isNull(t.chosenIntent))));
+    return result.affectedRows === 1;
+  }
+
+  async listBotUnmatched(filter: { status?: BotUnmatchedStatus; step?: MatchedStep; offset: number; limit: number }): Promise<{ items: BotUnmatched[]; total: number }> {
+    const t = schema.botUnmatched;
+    const where = and(filter.status ? eq(t.status, filter.status) : undefined, filter.step ? eq(t.step, filter.step) : undefined);
+    const [items, total] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.createdAt), desc(t.id)).limit(filter.limit).offset(filter.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(total[0]?.n ?? 0) };
+  }
+
+  async resolveBotUnmatched(input: { step: MatchedStep; normalized: string; status: Exclude<BotUnmatchedStatus, "open">; mappedIntent: string | null; resolvedBy: string; resolvedAt: Date }): Promise<number> {
+    const t = schema.botUnmatched;
+    const [result] = await this.run((db) =>
+      db
+        .update(t)
+        .set({ status: input.status, mappedIntent: input.mappedIntent, resolvedBy: input.resolvedBy, resolvedAt: input.resolvedAt })
+        .where(and(eq(t.status, "open"), eq(t.step, input.step), eq(t.normalized, input.normalized))),
+    );
+    return result.affectedRows;
+  }
+
+  async deleteBotUnmatchedBefore(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.botUnmatched).where(lt(schema.botUnmatched.createdAt, before)));
+    return result.affectedRows;
   }
 
 

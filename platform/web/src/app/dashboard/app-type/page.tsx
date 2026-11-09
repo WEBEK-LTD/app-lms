@@ -79,6 +79,20 @@ export default async function AppTypePage({ searchParams }: PageProps<"/dashboar
 
       <AppDeletedNotice context={context} id={typeof query.deleted === "string" ? query.deleted : null} />
 
+      {/* The app-builder bot, for a new app: a few questions, and an app made like the kind's demo. */}
+      {fromSite ? (
+      <div className="flex max-w-[620px] flex-col gap-3 rounded-[20px] border border-line bg-white p-[26px]">
+        <h2 className="m-0 flex items-center gap-2 text-xl font-extrabold">
+          <Icon name="forum" size={24} />
+          {t("bot.entryTitle")}
+        </h2>
+        <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("bot.entryText")}</p>
+        <Link href="/dashboard/builder" className={`${btn.primary} h-12 self-start px-6`}>
+          {t("bot.entryButton")}
+        </Link>
+      </div>
+      ) : null}
+
       {fromSite ? (
         <form action={startFromWebsiteAction} aria-labelledby="from-site-title" className="flex max-w-[620px] flex-col gap-3 rounded-[20px] border border-line bg-white p-[26px]">
           {adding ? <input type="hidden" name="new" value="1" /> : null}
