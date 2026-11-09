@@ -8,7 +8,9 @@ import '../../core/routing/paths.dart';
 import '../../core/theme/app_icons.dart';
 import '../delivery/screens/courier_job_screen.dart';
 import '../market/screens/market_checkout_screen.dart';
+import '../market/screens/market_club_screens.dart';
 import '../market/screens/market_complaint_screens.dart';
+import '../market/screens/market_list_screen.dart';
 import '../market/screens/market_order_screen.dart';
 import '../market/screens/market_orders_screen.dart';
 import '../market/screens/market_vendor_screen.dart';
@@ -139,6 +141,32 @@ List<RouteBase> _pushedRoutes() => [
     pageBuilder: (context, state) => appPage(state, const MarketOrdersScreen()),
   ),
   _byId('/market-order/:id', (id) => MarketOrderScreen(orderId: id)),
+  // 115 The vendors of a kind, a cuisine or with offers.
+  GoRoute(
+    path: '/market-list',
+    pageBuilder: (context, state) {
+      final q = state.uri.queryParameters;
+      return appPage(
+        state,
+        MarketListScreen(
+          filter: (
+            kind: q['kind'],
+            category: q['category'],
+            offers: q['offers'] == '1',
+          ),
+          title: q['title'],
+        ),
+      );
+    },
+  ),
+  GoRoute(
+    path: Paths.marketWallet,
+    pageBuilder: (context, state) => appPage(state, const MarketWalletScreen()),
+  ),
+  GoRoute(
+    path: Paths.marketClub,
+    pageBuilder: (context, state) => appPage(state, const MarketClubScreen()),
+  ),
   _byId('/market-complain/:id', (id) => MarketNewComplaintScreen(orderId: id)),
   _byId(
     '/market-complaint/:id',

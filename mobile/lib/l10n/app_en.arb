@@ -9845,5 +9845,84 @@
   "marketComplaintClosed": "This complaint is closed.",
   "@marketComplaintClosed": {
     "description": "115.9 A closed complaint, no more messages."
+  },
+  "marketWallet": "Wallet",
+  "@marketWallet": {
+    "description": "115.10 The customer's wallet screen."
+  },
+  "marketWalletBalance": "Your balance",
+  "@marketWalletBalance": {
+    "description": "115.10 Above the wallet's balance."
+  },
+  "marketWalletNote": "Use it on your next orders. It can't be taken out as cash.",
+  "@marketWalletNote": {
+    "description": "115.10 Under the wallet's balance."
+  },
+  "marketWalletEmpty": "Refunds and credit from support show here.",
+  "@marketWalletEmpty": {
+    "description": "115.10 The wallet with no history."
+  },
+  "marketClubJoinWith": "Join · {price}",
+  "@marketClubJoinWith": {
+    "description": "115.10 Joins the club on a plan.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubPerMonth": "a month",
+  "@marketClubPerMonth": {
+    "description": "115.10 A monthly club plan."
+  },
+  "marketClubPerYear": "a year",
+  "@marketClubPerYear": {
+    "description": "115.10 A yearly club plan."
+  },
+  "marketClubActiveUntil": "Member until {date}",
+  "@marketClubActiveUntil": {
+    "description": "115.10 A member's paid period.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubSaved": "Saved so far: {amount}",
+  "@marketClubSaved": {
+    "description": "115.10 What the club saved the member.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketClubWaiting": "Waiting for the payment. Your membership starts once it's confirmed.",
+  "@marketClubWaiting": {
+    "description": "115.10 A membership waiting for its payment."
+  },
+  "marketClubPayAgain": "The payment didn't go through. Try again.",
+  "@marketClubPayAgain": {
+    "description": "115.10 A membership whose payment failed."
+  },
+  "marketClubNoRenew": "Each period is paid on its own; nothing renews by itself.",
+  "@marketClubNoRenew": {
+    "description": "115.10 The club has no automatic renewal."
+  },
+  "marketClubJoined": "Welcome to the club.",
+  "@marketClubJoined": {
+    "description": "115.10 After joining the club."
+  },
+  "marketClubNone": "There's no club in this app yet.",
+  "@marketClubNone": {
+    "description": "115.10 The app has no delivery club."
+  },
+  "marketListEmptyTitle": "Nothing here near you yet",
+  "@marketListEmptyTitle": {
+    "description": "115 A filtered list of restaurants and shops (a kind, a cuisine or offers) with no places near the customer: the title."
+  },
+  "marketListEmptyMessage": "Try another address, or look at everything on the home.",
+  "@marketListEmptyMessage": {
+    "description": "115 The same empty list: what the customer can do."
   }
 }

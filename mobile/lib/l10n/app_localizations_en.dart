@@ -8901,4 +8901,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketComplaintClosed => 'This complaint is closed.';
+
+  @override
+  String get marketWallet => 'Wallet';
+
+  @override
+  String get marketWalletBalance => 'Your balance';
+
+  @override
+  String get marketWalletNote =>
+      'Use it on your next orders. It can\'t be taken out as cash.';
+
+  @override
+  String get marketWalletEmpty => 'Refunds and credit from support show here.';
+
+  @override
+  String marketClubJoinWith(String price) {
+    return 'Join · $price';
+  }
+
+  @override
+  String get marketClubPerMonth => 'a month';
+
+  @override
+  String get marketClubPerYear => 'a year';
+
+  @override
+  String marketClubActiveUntil(String date) {
+    return 'Member until $date';
+  }
+
+  @override
+  String marketClubSaved(String amount) {
+    return 'Saved so far: $amount';
+  }
+
+  @override
+  String get marketClubWaiting =>
+      'Waiting for the payment. Your membership starts once it\'s confirmed.';
+
+  @override
+  String get marketClubPayAgain => 'The payment didn\'t go through. Try again.';
+
+  @override
+  String get marketClubNoRenew =>
+      'Each period is paid on its own; nothing renews by itself.';
+
+  @override
+  String get marketClubJoined => 'Welcome to the club.';
+
+  @override
+  String get marketClubNone => 'There\'s no club in this app yet.';
+
+  @override
+  String get marketListEmptyTitle => 'Nothing here near you yet';
+
+  @override
+  String get marketListEmptyMessage =>
+      'Try another address, or look at everything on the home.';
 }
