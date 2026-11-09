@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { DashKey } from "@/i18n/dashboard";
+import { STUDIO_MARKET_SECTIONS } from "@/lib/pages/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireClient } from "@/lib/auth/session";
@@ -55,7 +57,7 @@ export default async function StudioProjectPage() {
         { label: t("studio.statLanguages"), value: number(card.languages), icon: "translate" },
       ];
   const done = steps.filter((step) => step.done).length;
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode"), market: Object.fromEntries(STUDIO_MARKET_SECTIONS.map((x) => [x, t(`studio.market_${x}` as DashKey)])) };
   return (
     <div className="flex flex-col gap-6">
       {/* The page kit: the project and its one main action, the numbers, then what's left before publishing. */}

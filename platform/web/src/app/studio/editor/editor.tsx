@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type MouseEvent, type ReactNode } from "react";
+import { STUDIO_MARKET_SECTIONS } from "@/lib/pages/types";
 import Link from "next/link";
 import { deleteStudioDesignAction, deleteStudioTemplateAction, loadStudioDesignAction, saveStudioDesignAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
 import { publishLayoutAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
@@ -140,7 +141,7 @@ export function StudioEditor(props: StudioEditorProps) {
     moreLabel: moreLabel(editLang),
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode"), market: Object.fromEntries(STUDIO_MARKET_SECTIONS.map((x) => [x, t(`studio.market_${x}` as DashKey)])) };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   const kindTemplates = useMemo(() => templatesFor(props.kind), [props.kind]);
   const sectionContext: SectionContext = {
@@ -987,6 +988,7 @@ export function StudioEditor(props: StudioEditorProps) {
           tab={leftTab}
           onTab={setLeftTab}
           source={source}
+          marketplace={props.kind.vertical === "marketplace"}
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}

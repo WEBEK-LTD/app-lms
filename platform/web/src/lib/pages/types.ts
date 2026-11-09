@@ -18,7 +18,7 @@ export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
@@ -578,6 +578,26 @@ export interface StudioForm {
   send_to: (typeof FORM_SEND_TO)[number];
 }
 
+/** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
+export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
+export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list"] as const;
+export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
+export const STUDIO_MARKET_SORTS = ["recommended", "fastest", "rating", "nearest", "newest"] as const;
+
+export interface StudioMarket {
+  section: (typeof STUDIO_MARKET_SECTIONS)[number];
+  /** For `vendors` (and `offers`): how they're drawn; missing, cards. */
+  style?: (typeof STUDIO_MARKET_STYLES)[number];
+  /** Only restaurants or only groceries; missing, all. */
+  kind?: (typeof STUDIO_MARKET_KINDS)[number];
+  sort?: (typeof STUDIO_MARKET_SORTS)[number];
+  /** Only the vendors with this tag (a cuisine or a department). */
+  tag?: string | null;
+  free_delivery?: boolean;
+  /** 1 to 40; missing, 10. */
+  limit?: number;
+}
+
 export interface StudioMap {
   lat: number;
   lng: number;
@@ -659,6 +679,8 @@ export interface StudioNode {
   bind?: StudioBind | null;
   form?: StudioForm | null;
   map?: StudioMap | null;
+  /** 115.14 For `market`: the marketplace section (its title and text are the element's own). */
+  market?: StudioMarket | null;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
