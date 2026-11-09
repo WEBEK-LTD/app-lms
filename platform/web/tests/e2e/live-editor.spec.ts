@@ -270,22 +270,37 @@ test("83.3 the team switches the side menu off for this app; the app reads it at
   await admin.context().close();
 });
 
-test("84.3 blocks saved as a section are added to another page", async () => {
+test("84.3 blocks saved for later are added to another page; 1.7 in plain sight, as Saved blocks", async () => {
   await own.goto("/dashboard/pages");
   await own.getByRole("tab", { name: "Pages" }).click();
-  const list = own.getByRole("list", { name: "Blocks" }).locator(":scope > li");
+  const list = own.getByRole("list", { name: "Blocks", exact: true }).locator(":scope > li");
   const home = await list.count();
   expect(home).toBeGreaterThan(1);
 
-  // The first two blocks of the home page, saved together.
-  await own.getByText("Save blocks as a section").click();
-  const boxes = own.getByRole("group", { name: "Blocks" }).getByRole("checkbox");
+  // 1.7 Add a block has a tab for them, which says how to save some while there are none.
+  const tabs = own.getByRole("group", { name: "Add from" });
+  await expect(tabs.getByRole("button", { name: "All blocks" })).toHaveAttribute("aria-pressed", "true");
+  await tabs.getByRole("button", { name: "Saved blocks (0)" }).click();
+  await expect(own.getByText(/^Nothing saved yet\./)).toBeVisible();
+  await expect(own.getByRole("button", { name: "Add Text block" })).toHaveCount(0);
+  await tabs.getByRole("button", { name: "All blocks" }).click();
+  await expect(own.getByRole("button", { name: "Add Text block" })).toBeVisible();
+
+  // The first two blocks of the home page, saved together, from a button by the blocks.
+  const save = own.getByRole("button", { name: "Save blocks for later" });
+  await expect(save).toHaveAttribute("aria-expanded", "false");
+  await save.click();
+  const form = own.getByRole("group", { name: "Save blocks for later" });
+  const boxes = form.getByRole("group", { name: "Blocks" }).getByRole("checkbox");
   await boxes.nth(0).check();
   await boxes.nth(1).check();
-  await own.getByLabel("Section name").fill("Welcome strip");
-  await own.getByRole("button", { name: "Save the section" }).click();
-  await expect(own.getByText("Section saved. Add it from Your sections, in this app or another.")).toBeVisible();
-  const sections = own.getByRole("list", { name: "Your sections" });
+  await form.getByLabel("Name for these blocks").fill("Welcome strip");
+  await form.getByRole("button", { name: "Save these blocks" }).click();
+  await expect(own.getByText("Saved. Add them from Saved blocks, in this app or another.")).toBeVisible();
+  // The form closes and the saved ones show where they're added from.
+  await expect(form).toHaveCount(0);
+  await expect(tabs.getByRole("button", { name: "Saved blocks (1)" })).toHaveAttribute("aria-pressed", "true");
+  const sections = own.getByRole("list", { name: "Saved blocks", exact: true });
   await expect(sections.getByText("Welcome strip")).toBeVisible();
   await expect(sections.getByText("2 blocks")).toBeVisible();
 
@@ -293,8 +308,8 @@ test("84.3 blocks saved as a section are added to another page", async () => {
   await own.getByLabel("New page title").fill("Spring");
   await own.getByRole("button", { name: "Add page" }).click();
   await expect(list).toHaveCount(0);
-  await own.getByRole("button", { name: "Add the Welcome strip section" }).click();
-  await expect(own.getByText("Section added at the end of the page.")).toBeVisible();
+  await own.getByRole("button", { name: "Add the saved blocks Welcome strip" }).click();
+  await expect(own.getByText("Saved blocks added at the end of the page.")).toBeVisible();
   await expect(list).toHaveCount(2);
   await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
 });
