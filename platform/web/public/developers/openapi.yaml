@@ -14531,11 +14531,14 @@ components:
       allOf:
         - $ref: '#/components/schemas/BlockBase'
         - type: object
-          description: Banner slides the user swipes through, with dots under them.
+          description: Banner slides the user swipes through, with dots under them unless `indicator` says otherwise.
           required: [slides]
           properties:
             type: { const: slider }
             auto_advance: { type: boolean, default: true, description: Moves to the next slide every few seconds until the user touches it. }
+            interval_ms: { type: integer, minimum: 2000, maximum: 10000, default: 5000, description: "1.6 How long each slide shows when it moves on its own, in whole seconds. Missing: 5 seconds." }
+            aspect_ratio: { type: number, enum: [1.78, 1.33, 1], description: "1.6 The slides' shape, width over height: 16:9, 4:3 or square. Missing: the template's own." }
+            indicator: { type: string, enum: [dots, progress, count], default: dots, description: "1.6 How it shows where it is: dots under it, lines filling over it, or \"2 / 5\" in its corner." }
             slides:
               type: array
               minItems: 1

@@ -25,7 +25,10 @@ import {
   NOTICE_TONES,
   QUICK_LINK_STYLES,
   SOCIAL_NETWORKS,
+  SLIDER_RATIOS,
+  SLIDER_SECONDS,
   SPACER_SIZES,
+  STUDIO_INDICATORS,
   VISIBILITIES,
   WEEKDAYS,
   type ItemSource,
@@ -234,6 +237,41 @@ function MoreBlockSettings({ block, ctx, onChange }: { block: LayoutBlock; ctx: 
       return (
         <>
           <Check label={t("pages.autoAdvance")} checked={block.auto_advance !== false} onChange={(auto_advance) => set({ auto_advance })} />
+          {/* 1.6 How long each slide shows, the slides' shape and how it shows where it is. */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            {block.auto_advance !== false ? (
+              <SelectInput
+                id={`${id}-seconds`}
+                label={t("pages.slideSeconds")}
+                value={String(Math.round((block.interval_ms ?? SLIDER_SECONDS.default * 1000) / 1000))}
+                options={Array.from({ length: SLIDER_SECONDS.max - SLIDER_SECONDS.min + 1 }, (_, n) => {
+                  const seconds = SLIDER_SECONDS.min + n;
+                  return { value: String(seconds), label: t("pages.seconds", { count: seconds }) };
+                })}
+                onChange={(v) => {
+                  const seconds = Number(v);
+                  set({ interval_ms: seconds === SLIDER_SECONDS.default ? undefined : seconds * 1000 });
+                }}
+              />
+            ) : null}
+            <SelectInput
+              id={`${id}-shape`}
+              label={t("pages.slideShape")}
+              value={block.aspect_ratio ? String(block.aspect_ratio) : ""}
+              options={[
+                { value: "", label: t("pages.shapeDesign") },
+                ...SLIDER_RATIOS.map((ratio) => ({ value: String(ratio), label: t(ratio === 1.78 ? "pages.shapeWide" : ratio === 1.33 ? "pages.shapeStandard" : "pages.shapeSquare") })),
+              ]}
+              onChange={(v) => set({ aspect_ratio: v ? Number(v) : null })}
+            />
+            <SelectInput
+              id={`${id}-indicator`}
+              label={t("pages.sliderIndicator")}
+              value={block.indicator ?? "dots"}
+              options={STUDIO_INDICATORS.map((value) => ({ value, label: t(value === "dots" ? "pages.indicatorDots" : value === "progress" ? "pages.indicatorLines" : "pages.indicatorCount") }))}
+              onChange={(indicator) => set({ indicator: indicator === "dots" ? undefined : indicator })}
+            />
+          </div>
           <Entries id={`${id}-slides`} name={{ one: "pages.slide", add: "pages.addSlide" }} items={block.slides ?? []} max={blockListLimits("slider", "slides").max} make={emptySlide} onChange={(slides) => set({ slides })}>
             {(s, setSlide, i) => (
               <>

@@ -100,6 +100,37 @@ class RichBlocksTest extends TestCase {
 		$this->assertFalse( $this->fields( 'slider', array( 'auto_advance' => false, 'slides' => array( array( 'heading' => 'x' ) ) ) )['auto_advance'] );
 	}
 
+	public function test_slider_passes_on_its_time_shape_and_indicator() {
+		$one    = array( array( 'heading' => 'x' ) );
+		$fields = $this->fields(
+			'slider',
+			array(
+				'slides'       => $one,
+				'interval_ms'  => 3000,
+				'aspect_ratio' => 1.33,
+				'indicator'    => 'count',
+			)
+		);
+		$this->assertSame( 3000, $fields['interval_ms'] );
+		$this->assertSame( 1.33, $fields['aspect_ratio'] );
+		$this->assertSame( 'count', $fields['indicator'] );
+		// Square comes as a whole number.
+		$this->assertSame( 1.0, $this->fields( 'slider', array( 'slides' => $one, 'aspect_ratio' => 1 ) )['aspect_ratio'] );
+		// Anything else is left out, and the app uses its own.
+		$odd = $this->fields(
+			'slider',
+			array(
+				'slides'       => $one,
+				'interval_ms'  => 60000,
+				'aspect_ratio' => 2.5,
+				'indicator'    => 'stars',
+			)
+		);
+		$this->assertArrayNotHasKey( 'interval_ms', $odd );
+		$this->assertArrayNotHasKey( 'aspect_ratio', $odd );
+		$this->assertArrayNotHasKey( 'indicator', $odd );
+	}
+
 	public function test_quick_links_drop_tiles_the_site_cannot_open() {
 		$fields = $this->fields(
 			'quick_links',

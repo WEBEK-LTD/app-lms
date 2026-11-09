@@ -357,12 +357,16 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
   switch (b.type) {
     case "slider": {
       const first = b.slides?.[0];
+      const count = b.slides?.length ?? 0;
+      // 1.6 Its shape (else the design's: 16:10 bold, 16:9 others) and how it shows where it is.
+      const indicator = count > 1 ? (b.indicator ?? "dots") : null;
       return (
-        <div>
+        <div data-slider-indicator={indicator ?? undefined}>
           <div
             style={{
+              position: "relative",
               borderRadius: theme.radius,
-              minHeight: bold ? 130 : 110,
+              aspectRatio: String(b.aspect_ratio ?? (bold ? 1.6 : 1.78)),
               background: first?.image_url ? `center / ${theme.fit ?? "cover"} no-repeat url("${encodeURI(first.image_url)}"), ${theme.primary}` : `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
               color: "#fff",
               display: "flex",
@@ -371,14 +375,28 @@ function MoreBlockPreview({ block: b, theme, bold }: { block: LayoutBlock; theme
               padding: 12,
             }}
           >
+            {indicator === "progress" ? (
+              <div style={{ position: "absolute", insetInline: 12, top: 10, display: "flex", gap: 3 }}>
+                {Array.from({ length: count }, (_, i) => (
+                  <span key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i === 0 ? "#fff" : "rgba(255,255,255,.45)" }} />
+                ))}
+              </div>
+            ) : null}
+            {indicator === "count" ? (
+              <span dir="ltr" style={{ position: "absolute", insetInlineEnd: 10, top: 10, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: "rgba(14,13,36,.55)" }}>
+                1 / {count}
+              </span>
+            ) : null}
             <div style={{ fontSize: bold ? 18 : 15, fontWeight: 800, textShadow: "0 1px 3px rgba(0,0,0,.35)" }}>{first?.heading || "Slide"}</div>
             {first?.subheading ? <div style={{ fontSize: 11, textShadow: "0 1px 3px rgba(0,0,0,.35)" }}>{first.subheading}</div> : null}
           </div>
-          <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
-            {(b.slides ?? []).map((_, i) => (
-              <span key={i} style={{ width: i === 0 ? 14 : 6, height: 6, borderRadius: 3, background: i === 0 ? theme.primary : theme.line }} />
-            ))}
-          </div>
+          {indicator === "dots" ? (
+            <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6 }}>
+              {(b.slides ?? []).map((_, i) => (
+                <span key={i} style={{ width: i === 0 ? 14 : 6, height: 6, borderRadius: 3, background: i === 0 ? theme.primary : theme.line }} />
+              ))}
+            </div>
+          ) : null}
         </div>
       );
     }

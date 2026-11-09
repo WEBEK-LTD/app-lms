@@ -20,6 +20,7 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/own_icon.dart';
 import 'page_actions.dart';
 import 'page_blocks.dart';
+import 'studio_page.dart' show SliderCount, SliderLines;
 
 /// 33 The blocks whose content the owner writes in the dashboard: slider,
 /// quick links, testimonials, questions, countdown, contact, opening hours,
@@ -48,6 +49,8 @@ class _SliderViewState extends ConsumerState<SliderView> {
   Timer? _timer;
   var _stopped = false;
   var _index = 0;
+  // 1.6 Counts the moves, so the line of the open slide fills again.
+  var _turn = 0;
 
   @override
   void didChangeDependencies() {
@@ -59,7 +62,10 @@ class _SliderViewState extends ConsumerState<SliderView> {
         !still &&
         widget.block.autoAdvance &&
         widget.block.slides.length > 1) {
-      _timer = Timer.periodic(const Duration(seconds: 5), (_) => _next());
+      _timer = Timer.periodic(
+        Duration(milliseconds: widget.block.intervalMs),
+        (_) => _next(),
+      );
     }
   }
 
@@ -75,8 +81,10 @@ class _SliderViewState extends ConsumerState<SliderView> {
 
   /// The user took over: the slider stops moving on its own.
   void _stop() {
+    if (_stopped) return;
     _timer?.cancel();
-    _stopped = true;
+    // The lines stop filling too.
+    setState(() => _stopped = true);
   }
 
   @override
@@ -89,8 +97,25 @@ class _SliderViewState extends ConsumerState<SliderView> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final slides = widget.block.slides;
+    final block = widget.block;
+    final slides = block.slides;
     final radius = blockRadius(context, widget.style.bannerRadius);
+    // 1.6 How it shows where it is; none for a single slide.
+    final indicator = slides.length > 1 ? block.indicator : null;
+    final pages = PageView.builder(
+      controller: _controller,
+      itemCount: slides.length,
+      onPageChanged: (i) => setState(() {
+        _index = i;
+        _turn++;
+      }),
+      itemBuilder: (context, i) => _SlideView(
+        slide: slides[i],
+        seed: block.id.hashCode + i,
+        style: widget.style,
+        label: context.l10n.slideOf(i + 1, slides.length),
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -99,24 +124,51 @@ class _SliderViewState extends ConsumerState<SliderView> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(radius),
             child: AspectRatio(
-              aspectRatio: widget.style.template == AppTemplate.bold
-                  ? 16 / 10
-                  : 16 / 9,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: slides.length,
-                onPageChanged: (i) => setState(() => _index = i),
-                itemBuilder: (context, i) => _SlideView(
-                  slide: slides[i],
-                  seed: widget.block.id.hashCode + i,
-                  style: widget.style,
-                  label: context.l10n.slideOf(i + 1, slides.length),
+              aspectRatio:
+                  block.aspectRatio ??
+                  (widget.style.template == AppTemplate.bold
+                      ? 16 / 10
+                      : 16 / 9),
+              child: switch (indicator) {
+                StudioIndicator.progress => Stack(
+                  children: [
+                    Positioned.fill(child: pages),
+                    PositionedDirectional(
+                      start: 16,
+                      end: 16,
+                      top: 12,
+                      child: SliderLines(
+                        key: ValueKey('slider-lines-${block.id}'),
+                        count: slides.length,
+                        page: _index,
+                        turn: _turn,
+                        wait: _timer != null && !_stopped
+                            ? Duration(milliseconds: block.intervalMs)
+                            : null,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+                StudioIndicator.count => Stack(
+                  children: [
+                    Positioned.fill(child: pages),
+                    PositionedDirectional(
+                      top: 10,
+                      end: 10,
+                      child: SliderCount(
+                        key: ValueKey('slider-count-${block.id}'),
+                        page: _index,
+                        count: slides.length,
+                      ),
+                    ),
+                  ],
+                ),
+                _ => pages,
+              },
             ),
           ),
         ),
-        if (slides.length > 1) ...[
+        if (indicator == StudioIndicator.dots) ...[
           const SizedBox(height: 10),
           ExcludeSemantics(
             child: Row(

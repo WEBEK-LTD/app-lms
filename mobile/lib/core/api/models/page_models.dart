@@ -617,6 +617,16 @@ sealed class PageBlock {
           id: id,
           title: title,
           autoAdvance: boolOr(json, 'auto_advance', true),
+          intervalMs: intOr(json, 'interval_ms', 5000).clamp(2000, 10000),
+          aspectRatio: switch (optDouble(json, 'aspect_ratio')) {
+            final r? when r > 0.2 && r < 5 => r,
+            _ => null,
+          },
+          indicator: enumFrom(
+            StudioIndicator.values,
+            json['indicator'],
+            StudioIndicator.dots,
+          ),
           slides: _entries(json, 'slides', Slide.tryParse),
         ).orNull,
         'quick_links' => QuickLinksBlock(
@@ -933,12 +943,24 @@ class SliderBlock extends PageBlock {
     super.title,
     required this.slides,
     this.autoAdvance = true,
+    this.intervalMs = 5000,
+    this.aspectRatio,
+    this.indicator = StudioIndicator.dots,
   });
 
   final List<Slide> slides;
 
   /// Moves to the next slide every few seconds until the user touches it.
   final bool autoAdvance;
+
+  /// 1.6 How long each slide shows when it moves on its own (2 to 10 s).
+  final int intervalMs;
+
+  /// 1.6 The slides' shape, width over height; null: the template's own.
+  final double? aspectRatio;
+
+  /// 1.6 How it shows where it is: dots under it, lines over it, or "2 / 5".
+  final StudioIndicator indicator;
 
   @override
   bool get hasContent => slides.isNotEmpty;
