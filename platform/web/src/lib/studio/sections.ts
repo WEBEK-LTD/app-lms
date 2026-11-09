@@ -1,5 +1,7 @@
 import type { AppType, AppVertical } from "../data/types";
 import type { Action, ItemSource, StudioMarket, StudioNode, StudioPage } from "../pages/types";
+import type { StudioDemoId } from "../demo/constants";
+import { DEMO_TEMPLATES, studioDemoOf } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
@@ -11,6 +13,14 @@ import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
 export type SectionWord =
   | "heroTitle"
+  | "seeAll"
+  | "uniTitle"
+  | "uniText"
+  | "uniButton"
+  | "uniUpdates"
+  | "uniStepOne"
+  | "uniStepTwo"
+  | "uniStepThree"
   | "heroText"
   | "heroButton"
   | "offerKicker"
@@ -158,6 +168,8 @@ export interface SectionContext {
   picture?: (file: string) => string | null;
   /** 112.4 The first entries of the app's main list (a look's spots open them). */
   entries?: readonly { id: string }[];
+  /** The app's name, for a demo's template that writes it. */
+  app?: string;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -211,6 +223,61 @@ function marketSection(
       ...(textWord ? { text: ctx.w(textWord) } : {}),
       margin: pad(extra.top ?? 10, 0),
     }),
+  };
+}
+
+/** 105.4 A school's welcome in its words: a button to the school and one to what's new. */
+function schoolWelcome(ctx: SectionContext, words: { title: SectionWord; text: SectionWord; button: SectionWord; updates: SectionWord }, icon: string): StudioNode {
+  return {
+    id: (ctx.newId ?? newNodeId)(),
+    type: "column",
+    name: ctx.w(words.title),
+    gap: 10,
+    padding: pad(22, 18),
+    margin: pad(12, 10),
+    radius: 18,
+    background: ctx.brand,
+    color: "#FFFFFF",
+    children: [
+      { id: (ctx.newId ?? newNodeId)(), type: "icon", icon, icon_size: 34, color: "#FFFFFF" },
+      text(ctx, ctx.w(words.title), { font: { size: 24, weight: 800, line_height: 1.25 } }),
+      text(ctx, ctx.w(words.text), { font: { size: 14 }, opacity: 0.9 }),
+      {
+        id: (ctx.newId ?? newNodeId)(),
+        type: "row",
+        gap: 8,
+        children: [
+          {
+            id: (ctx.newId ?? newNodeId)(),
+            type: "button",
+            text: ctx.w(words.button),
+            width: "hug",
+            height: 42,
+            radius: 12,
+            background: "#FFFFFF",
+            color: ctx.brand,
+            font: { weight: 800, size: 14 },
+            padding: pad(0, 18),
+            action: screen("school"),
+            motion: { press: "shrink" },
+          },
+          // As before the welcome was shared (the border as the other sections draw it).
+          {
+            id: (ctx.newId ?? newNodeId)(),
+            type: "button",
+            text: ctx.w(words.updates),
+            width: "hug",
+            height: 42,
+            radius: 12,
+            border: { width: 1.5, color: "#FFFFFF" },
+            color: "#FFFFFF",
+            font: { weight: 700, size: 14 },
+            padding: pad(0, 16),
+            action: screen("notifications"),
+          } as StudioNode,
+        ],
+      },
+    ],
   };
 }
 
@@ -751,56 +818,14 @@ export const SECTIONS: readonly SectionInfo[] = [
     id: "school",
     icon: "school",
     fits: { types: ["school"] },
-    make: (ctx) => ({
-      id: (ctx.newId ?? newNodeId)(),
-      type: "column",
-      name: ctx.w("schoolTitle"),
-      gap: 10,
-      padding: pad(22, 18),
-      margin: pad(12, 10),
-      radius: 18,
-      background: ctx.brand,
-      color: "#FFFFFF",
-      children: [
-        { id: (ctx.newId ?? newNodeId)(), type: "icon", icon: "school", icon_size: 34, color: "#FFFFFF" },
-        text(ctx, ctx.w("schoolTitle"), { font: { size: 24, weight: 800, line_height: 1.25 } }),
-        text(ctx, ctx.w("schoolText"), { font: { size: 14 }, opacity: 0.9 }),
-        {
-          id: (ctx.newId ?? newNodeId)(),
-          type: "row",
-          gap: 8,
-          children: [
-            {
-              id: (ctx.newId ?? newNodeId)(),
-              type: "button",
-              text: ctx.w("schoolButton"),
-              width: "hug",
-              height: 42,
-              radius: 12,
-              background: "#FFFFFF",
-              color: ctx.brand,
-              font: { weight: 800, size: 14 },
-              padding: pad(0, 18),
-              action: screen("school"),
-              motion: { press: "shrink" },
-            },
-            {
-              id: (ctx.newId ?? newNodeId)(),
-              type: "button",
-              text: ctx.w("schoolUpdates"),
-              width: "hug",
-              height: 42,
-              radius: 12,
-              border: { width: 1.5, color: "#FFFFFF" },
-              color: "#FFFFFF",
-              font: { weight: 700, size: 14 },
-              padding: pad(0, 16),
-              action: screen("notifications"),
-            },
-          ],
-        },
-      ],
-    }),
+    make: (ctx) => schoolWelcome(ctx, { title: "schoolTitle", text: "schoolText", button: "schoolButton", updates: "schoolUpdates" }, "school"),
+  },
+  // A school in university mode: the same welcome in a university's words.
+  {
+    id: "university",
+    icon: "apartment",
+    fits: { types: ["school"] },
+    make: (ctx) => schoolWelcome(ctx, { title: "uniTitle", text: "uniText", button: "uniButton", updates: "uniUpdates" }, "apartment"),
   },
   // 112.4 A store's own sections, then the sliders.
   ...STORE_SECTIONS,
@@ -826,6 +851,10 @@ export interface TemplateInfo {
   icon: string;
   make: (ctx: SectionContext) => StudioPage;
   fits?: Fits;
+  /** Templates = demos: the Studio demo whose first page this is (lib/studio/demo-templates.ts), shown first for its kind. */
+  demo?: StudioDemoId;
+  /** Shown as the recommended start. */
+  recommended?: boolean;
 }
 
 function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {
@@ -864,6 +893,8 @@ const STORE: Fits = { types: ["store"] };
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
 export const TEMPLATES: readonly TemplateInfo[] = [
+  // Templates = demos: each Studio demo's first page, offered first for its kind.
+  ...DEMO_TEMPLATES,
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
   typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
@@ -893,6 +924,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
   typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
+  // A university's own: its welcome, its news and how students follow it.
+  typed("university", "apartment", SCHOOL, ["university", "products", "steps", "contact"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, ["uniStepOne", "uniStepTwo", "uniStepThree"]),
   // 115.14 Three ready-made designs for a marketplace: the search on top, the kinds, offers, the club and the places.
   typed("market", "storefront", MARKETPLACE, ["m_address", "m_kinds", "m_offers", "m_cuisines", "m_club", "m_near", "m_rated", "m_fast", "m_departments", "m_reorder"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }),
   typed("market_offers", "local_offer", MARKETPLACE, ["m_address", "m_offers", "m_free", "m_club", "m_kinds", "m_rated", "m_reorder"], { type: "logo_center", buttons: ["menu", "notifications"] }),
@@ -908,7 +941,10 @@ export const TEMPLATES: readonly TemplateInfo[] = [
  * for every project. A restaurant gets its menu, not the shop's.
  */
 export function templatesFor(kind: ProjectKind | null): TemplateInfo[] {
-  const own = TEMPLATES.filter((tpl) => tpl.fits && fitsKind(tpl.fits, kind));
+  // Templates = demos: the kind's demo first, recommended; then its own templates as before.
+  const demo = studioDemoOf(kind);
+  const others = TEMPLATES.filter((tpl) => !tpl.demo);
+  const own = others.filter((tpl) => tpl.fits && fitsKind(tpl.fits, kind));
   const best = own.some((tpl) => tpl.fits?.verticals) ? own.filter((tpl) => tpl.fits?.verticals) : own;
-  return [...best, ...TEMPLATES.filter((tpl) => !tpl.fits)];
+  return [...TEMPLATES.filter((tpl) => tpl.demo && tpl.demo === demo), ...best, ...others.filter((tpl) => !tpl.fits)];
 }

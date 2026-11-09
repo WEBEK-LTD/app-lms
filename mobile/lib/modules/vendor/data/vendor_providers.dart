@@ -50,6 +50,19 @@ final vendorOrderProvider = FutureProvider.autoDispose.family<VendorOrder, int>(
   (ref, id) => ref.watch(yallappApiProvider).getVendorOrder(id),
 );
 
+/// 115.16 A month's statement (`YYYY-MM`, this month when null).
+final vendorStatementProvider = FutureProvider.autoDispose
+    .family<VendorStatement, String?>(
+      (ref, month) =>
+          ref.watch(yallappApiProvider).getVendorStatement(month: month),
+    );
+
+/// 115.16 The complaints the app's support shared with the vendor.
+final vendorComplaintsProvider =
+    FutureProvider.autoDispose<List<VendorComplaint>>(
+      (ref) => ref.watch(yallappApiProvider).listVendorComplaints(),
+    );
+
 /// Reloads every list and the desk after an order changed.
 void reloadVendor(WidgetRef ref, [int? orderId]) {
   for (final s in VendorOrderScope.values) {

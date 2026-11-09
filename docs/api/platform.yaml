@@ -1470,6 +1470,9 @@ components:
         tab_bar:
           type: [object, 'null']
           description: 109 How the bottom tabs look (`TabBar` in the app API), passed on as it is. Missing, the app's usual bar.
+        text_styles:
+          type: object
+          description: "Editor audit 3.3: the Studio editor's text styles (`heading`, `subheading`, `body`, `button`), each a `StudioFont`. Kept for the editor: the elements following a style already carry its font, so apps ignore it."
         menu:
           type: array
           maxItems: 12

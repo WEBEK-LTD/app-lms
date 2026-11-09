@@ -529,6 +529,10 @@ export interface StudioSides {
   start?: number;
 }
 
+/** Editor audit 3.3: the project's text styles; an element following one keeps the style's font (apps read the font). */
+export const STUDIO_TEXT_STYLES = ["heading", "subheading", "body", "button"] as const;
+export type StudioTextStyle = (typeof STUDIO_TEXT_STYLES)[number];
+
 export interface StudioFont {
   family?: string | null;
   weight?: StudioFontWeight;
@@ -702,6 +706,8 @@ export interface StudioNode {
   hidden?: boolean;
   /** Editor audit 3.3: the canvas doesn't select, move or resize it (its layer still does). Apps ignore it. */
   locked?: boolean;
+  /** Editor audit 3.3: the project's text style it follows; changing the style changes its font. Apps ignore it. */
+  text_style?: StudioTextStyle;
   translations?: Translations;
 }
 
@@ -778,6 +784,8 @@ export interface LayoutContent {
   look_mode?: LookMode;
   /** 97.3 The look made from a Figma file, kept even while the standard look is shown. */
   figma_look?: FigmaLook;
+  /** Editor audit 3.3: Studio text styles; missing ones are the editor's defaults. Apps ignore them. */
+  text_styles?: Partial<Record<StudioTextStyle, StudioFont>>;
 }
 
 /** `Layout` in docs/api/platform.yaml: a published layout. */

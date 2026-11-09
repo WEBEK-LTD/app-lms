@@ -969,6 +969,13 @@ abstract class YallappApi {
   });
   Future<MarketProduct> updateVendorProductStock(int id, {bool? inStock});
 
+  /// 115.16 A month's statement (`YYYY-MM`, this month when null): owners
+  /// and managers.
+  Future<VendorStatement> getVendorStatement({String? month});
+
+  /// 115.16 The complaints the app's support shared with the vendor.
+  Future<List<VendorComplaint>> listVendorComplaints();
+
   // 105.2 Ride hailing.
   Future<RideEstimate> estimateRide(RideRequest request);
   Future<Ride> requestRide(RideRequest request);
@@ -3418,6 +3425,21 @@ class HttpYallappApi implements YallappApi {
         (data) => MarketProduct.fromJson(asJson(data)),
         body: {'in_stock': ?inStock},
       );
+
+  @override
+  Future<VendorStatement> getVendorStatement({String? month}) => _get(
+    '/vendor/statements',
+    _required,
+    VendorStatement.fromJson,
+    query: {'month': ?month},
+  );
+
+  @override
+  Future<List<VendorComplaint>> listVendorComplaints() => _get(
+    '/vendor/complaints',
+    _required,
+    (json) => reqListOf(json, 'items', VendorComplaint.fromJson),
+  );
 
   // 105.2 Ride hailing.
 

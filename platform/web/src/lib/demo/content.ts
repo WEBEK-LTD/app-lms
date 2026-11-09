@@ -4,6 +4,7 @@ import type { AppFont } from "../build-config/types";
 import type { CardStyle, Corners, LanguageCode } from "../pages/types";
 import type { PictureName } from "./pictures";
 import type { AppScreen } from "../marketing";
+import { STUDIO_DEMO_HOMES, studioDemoBanner } from "./studio-homes";
 
 /**
  * What the demo apps contain (roadmap 16): made-up businesses (21 five, 23 six, 26 seven, 27 eight, 28 nine) with
@@ -522,12 +523,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-delivery",
-    banner: { picture: "banner-delivery", heading: "Across Cairo, the same day", subheading: "Picked up from your door, delivered to theirs. Follow it all the way." },
+    banner: studioDemoBanner("delivery"),
     androidPackage: "com.yallapp.demo.delivery",
     storeTitle: "Sahm Express",
     shortDescription: "Send parcels across Cairo and follow them to the door.",
     fullDescription: `Sahm Express picks up your parcel and brings it across Cairo the same day.\n\nChoose a service, set the pickup and the drop-off, see the price before you send and follow every stage in the app.\n\n${PRIVACY_NOTE}`,
-    welcome: "Same-day, express and documents, anywhere in Cairo and Giza.",
+    welcome: STUDIO_DEMO_HOMES.delivery.welcome,
   },
   food: {
     appName: "Sofra Eats",
@@ -541,12 +542,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-food",
-    banner: { picture: "banner-food", heading: "Hungry? It's on its way", subheading: "Koshary, grills and pizza from restaurants near you." },
+    banner: studioDemoBanner("food"),
     androidPackage: "com.yallapp.demo.food",
     storeTitle: "Sofra Eats",
     shortDescription: "Order from the restaurants near you and follow your food to the door.",
     fullDescription: `Sofra Eats brings food from the restaurants near you: koshary, grills, pizza and desserts.\n\nPick your dishes the way you like them, pay in cash and follow your order from the kitchen to your door.\n\n${PRIVACY_NOTE}`,
-    welcome: "Three kitchens, one app. Order in a few taps.",
+    welcome: STUDIO_DEMO_HOMES.food.welcome,
   },
   // 115.15 No photos in this demo (requirePhotos is off for it): the food demo's icon and banner.
   marketplace: {
@@ -561,12 +562,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-food",
-    banner: { picture: "banner-food", heading: "Dinner and groceries, one app", subheading: "Grills, pizza and a supermarket near you, delivered or ready for pick-up." },
+    banner: studioDemoBanner("marketplace"),
     androidPackage: "com.yallapp.demo.multivendor",
     storeTitle: "Zad: food & groceries",
     shortDescription: "Order from restaurants and a supermarket near you, with offers, a club and a wallet.",
     fullDescription: `Zad brings restaurants and a supermarket near you into one app.\n\nOrder a dinner or a week's groceries, some of them by the kilo, use the offers and your club's free delivery, pay in cash or from your wallet and follow your courier on the map. Order for later, or pick it up yourself.\n\n${PRIVACY_NOTE}`,
-    welcome: "Two kitchens and a supermarket, one basket at a time.",
+    welcome: STUDIO_DEMO_HOMES.marketplace.welcome,
   },
   rides: {
     appName: "Masar Rides",
@@ -580,12 +581,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-rides",
-    banner: { picture: "banner-rides", heading: "Where to?", subheading: "See the fare first, follow your driver and share your ride." },
+    banner: studioDemoBanner("rides"),
     androidPackage: "com.yallapp.demo.rides",
     storeTitle: "Masar Rides",
     shortDescription: "Rides across Cairo: see the fare first and follow your driver.",
     fullDescription: `Masar Rides takes you across Cairo: Economy, Comfort or a Van for the family.\n\nSee each fare before you ask, follow your driver on the way, share your ride and rate your driver at the end.\n\n${PRIVACY_NOTE}`,
-    welcome: "Economy, Comfort and Van, day and night.",
+    welcome: STUDIO_DEMO_HOMES.rides.welcome,
   },
   taxi: {
     appName: "Lamha Taxi",
@@ -599,12 +600,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-taxi",
-    banner: { picture: "banner-taxi", heading: "Your taxi, live on the map", subheading: "See the free taxis around you and follow yours to the door." },
+    banner: studioDemoBanner("taxi"),
     androidPackage: "com.yallapp.demo.taxi",
     storeTitle: "Lamha Taxi",
     shortDescription: "Taxis across Cairo, live on the map: see them around you and follow yours.",
     fullDescription: `Lamha Taxi shows the free taxis around you moving on the map, second by second.\n\nSet where you are going, see each fare before you ask, follow your driver all the way to you and pay the driver in cash.\n\n${PRIVACY_NOTE}`,
-    welcome: "Taxi, Comfort and XL across Cairo, day and night.",
+    welcome: STUDIO_DEMO_HOMES.taxi.welcome,
   },
   school: {
     appName: "Nakhla School",
@@ -618,12 +619,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "outlined",
     languages: ["en", "ar", "tr"],
     icon: "icon-school",
-    banner: { picture: "banner-school", heading: "The school day in one app", subheading: "Timetable, homework, grades and news for students, parents and teachers." },
+    banner: studioDemoBanner("school"),
     androidPackage: "com.yallapp.demo.school",
     storeTitle: "Nakhla School",
     shortDescription: "Timetable, homework, grades and news for Nakhla School's families.",
     fullDescription: `Nakhla School's app brings the school day to students, parents and teachers.\n\nStudents see their timetable, homework and grades. Parents follow each of their children, see their attendance and pay fees. Teachers take attendance, give homework and enter scores.\n\n${PRIVACY_NOTE}`,
-    welcome: "A primary school in Heliopolis, from Grade 1 to Grade 6.",
+    welcome: STUDIO_DEMO_HOMES.school.welcome,
   },
   instructors: {
     appName: "Rawaq Academy",
@@ -637,12 +638,12 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "outlined",
     languages: ["en", "ar", "tr"],
     icon: "icon-teachers",
-    banner: { picture: "banner-teachers", heading: "Learn from people who do it every day", subheading: "Seven teachers and their courses in design, business, languages and code." },
+    banner: studioDemoBanner("instructors"),
     androidPackage: "com.yallapp.demo.teachers",
     storeTitle: "Rawaq Academy",
     shortDescription: "Courses from seven teachers: design, business, languages and code.",
     fullDescription: `Rawaq Academy brings together teachers who each publish their own courses.\n\nBrowse the teachers, read about them, follow the ones you like and learn at your own pace. Every course is reviewed by the academy before it is published.\n\n${PRIVACY_NOTE}`,
-    welcome: "Seven teachers, each with their own courses. Start with a free one.",
+    welcome: STUDIO_DEMO_HOMES.instructors.welcome,
   },
 };
 
