@@ -5,7 +5,6 @@ import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import { STUDIO_HEADER_TYPES, type StudioPage } from "@/lib/pages/types";
 import type { DesignFile } from "@/lib/studio/design-file";
-import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { Glyph, STUDIO_COLORS as C } from "./shared";
 
 /**

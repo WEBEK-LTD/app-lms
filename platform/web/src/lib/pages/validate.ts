@@ -65,6 +65,7 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
+  STUDIO_MARKET_CARD_FACTS,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -115,7 +116,14 @@ import {
  * other messages and say where the problem is.
  */
 
-export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: string[] };
+export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: string[]; blocks?: BlockIssue[] };
+
+/** A page block that still needs something: which page, which block and what it needs. */
+export interface BlockIssue {
+  page: string;
+  id: string;
+  errors: string[];
+}
 
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ID = /^[A-Za-z0-9_-]{1,40}$/;
@@ -323,6 +331,8 @@ interface Context {
   categorySources: ItemSource[];
   slugs: Set<string>;
   languages: Languages;
+  /** The blocks that still need something, each with its own errors. */
+  blockIssues: BlockIssue[];
 }
 
 function parseAction(ctx: Context, where: string, value: unknown, required: boolean): Action | null {
@@ -859,7 +869,10 @@ function parsePage(ctx: Context, index: number, value: unknown, allowedBlocks: s
   const blocks: LayoutBlock[] = [];
   const ids = new Set<string>();
   blocksIn.slice(0, LAYOUT_LIMITS.maxBlocks).forEach((raw, i) => {
+    const before = c.errors.length;
     const block = parseBlock(ctx, `${where}, block ${i + 1}`, raw, allowedBlocks);
+    const id = typeof record(raw)?.id === "string" ? String(record(raw)!.id) : "";
+    if (c.errors.length > before && ID.test(id)) ctx.blockIssues.push({ page: slug, id, errors: c.errors.slice(before) });
     if (!block) return;
     if (ids.has(block.id)) c.fail(`${where}, block ${i + 1}`, "two blocks have the same ID.");
     ids.add(block.id);
@@ -907,6 +920,7 @@ export function parseStudioPage(value: unknown, app: Pick<App, "appType" | "back
     categorySources: categorySourcesFor(app),
     slugs: new Set(),
     languages,
+    blockIssues: [],
   };
   const page = parseStudio(ctx, "The page", value);
   const errors = c.errors;
@@ -1055,6 +1069,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   if (name) node.name = name;
   // 107.2 Hidden in the app; the page's own element always shows.
   if (v.hidden === true && depth > 0) node.hidden = true;
+  if (v.locked === true && depth > 0) node.locked = true;
 
   // Size and place.
   const width = parseSize(c, where, v.width, "the width");
@@ -1361,6 +1376,20 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       const limit = studioNumber(m.limit, 1, 40);
       if (limit !== undefined && Number.isNaN(limit)) bad("how many it shows must be 1 to 40.");
       else if (limit !== undefined && Math.round(limit) !== 10) market.limit = Math.round(limit);
+      // Editor audit 3.4: the card's corners and the facts it leaves out.
+      const card = record(m.card);
+      if (m.card !== undefined && m.card !== null && !card) bad("the card must be an object.");
+      if (card) {
+        const out: NonNullable<StudioMarket["card"]> = {};
+        const radius = studioNumber(card.radius, 0, 32);
+        if (radius !== undefined && Number.isNaN(radius)) bad("the card's corners must be 0 to 32.");
+        else if (radius !== undefined) out.radius = Math.round(radius);
+        if (card.hide !== undefined && card.hide !== null) {
+          if (!Array.isArray(card.hide) || !card.hide.every((f) => oneOf(STUDIO_MARKET_CARD_FACTS, f))) bad("choose which facts the card leaves out.");
+          else if (card.hide.length) out.hide = [...new Set(card.hide)] as NonNullable<typeof out.hide>;
+        }
+        if (out.radius !== undefined || out.hide) market.card = out;
+      }
       node.market = market;
       break;
     }
@@ -1486,6 +1515,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     categorySources: categorySourcesFor(options.app),
     slugs,
     languages,
+    blockIssues: [],
   };
   const allowedBlocks = blockTypesFor(options.app);
   const pages = pagesIn
@@ -1525,7 +1555,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   const figma = v.figma_look === undefined || v.figma_look === null ? null : parseFigmaLook(v.figma_look, c, options.ownFonts);
   if (v.look_mode !== undefined && !oneOf(LOOK_MODES, v.look_mode)) c.fail("Look", "choose the standard look or the Figma look.");
   if (v.look_mode === "figma" && !figma) c.fail("Look", "import a Figma file before showing its look.");
-  if (c.errors.length) return { ok: false, errors: c.errors };
+  if (c.errors.length) return { ok: false, errors: c.errors, ...(ctx.blockIssues.length ? { blocks: ctx.blockIssues } : {}) };
   return {
     ok: true,
     value: {
