@@ -241,6 +241,37 @@ test("the client builds a page, reorders it and publishes", async () => {
   await expect(own.getByText(/Published version 20\d\d-.*\.1,/)).toBeVisible();
 });
 
+test("1.4 How many can be emptied and typed into, also in Arabic digits", async () => {
+  const page = own.getByRole("region", { name: /^Page: / });
+  const blocks = page.getByRole("list", { name: "Blocks" }).getByRole("listitem");
+  const before = await blocks.count();
+  await page.getByRole("button", { name: "Add List block" }).click();
+  const list = page.getByRole("group", { name: `Block ${before + 1} settings` });
+  const count = list.getByLabel("How many");
+  await expect(count).toHaveValue("10");
+  // Emptied, it stays empty while typing; the new number counts.
+  await count.fill("");
+  await expect(count).toHaveValue("");
+  await count.pressSequentially("12");
+  await expect(count).toHaveValue("12");
+  await count.blur();
+  await expect(count).toHaveValue("12");
+  // Arabic digits are numbers too.
+  await count.fill("٣");
+  await count.blur();
+  await expect(count).toHaveValue("3");
+  // Out of range: the most it can be; left empty: the number before.
+  await count.fill("999");
+  await count.blur();
+  await expect(count).toHaveValue("30");
+  await count.fill("");
+  await count.blur();
+  await expect(count).toHaveValue("30");
+  await page.getByRole("button", { name: `Delete block ${before + 1}` }).click();
+  await expect(blocks).toHaveCount(before);
+  await expect(own.getByText(/^Draft saved/)).toBeVisible({ timeout: 15_000 });
+});
+
 test("the hosted API serves the published page", async ({ request }) => {
   // The look and languages the app started with, now published.
   const config = await (await request.get(`${api}/config?platform=android&app_version=1.0.0`)).json();
