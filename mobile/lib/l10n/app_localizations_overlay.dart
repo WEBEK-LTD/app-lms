@@ -9515,4 +9515,12 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get marketClubNone =>
       overlay.text('marketClubNone') ?? base.marketClubNone;
+
+  @override
+  String get marketListEmptyTitle =>
+      overlay.text('marketListEmptyTitle') ?? base.marketListEmptyTitle;
+
+  @override
+  String get marketListEmptyMessage =>
+      overlay.text('marketListEmptyMessage') ?? base.marketListEmptyMessage;
 }

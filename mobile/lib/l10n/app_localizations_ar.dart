@@ -9203,4 +9203,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get marketClubNone => 'لا يوجد نادٍ في هذا التطبيق بعد.';
+
+  @override
+  String get marketListEmptyTitle => 'لا يوجد شيء هنا بالقرب منك بعد';
+
+  @override
+  String get marketListEmptyMessage =>
+      'جرّب عنوانًا آخر، أو تصفّح كل شيء من الرئيسية.';
 }
