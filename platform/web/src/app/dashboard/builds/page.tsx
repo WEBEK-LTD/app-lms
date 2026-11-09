@@ -6,7 +6,7 @@ import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-sta
 import { Icon } from "@/components/icon";
 import { LinkCards, PageGroup } from "@/components/page-kit";
 import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
-import { firebaseListsCourierApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
+import { firebaseListsCourierApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
@@ -46,6 +46,7 @@ import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { SamplesStoreNotice } from "@/components/samples";
 import { TwoApps } from "@/components/two-apps";
 import { twoAppsOf } from "@/lib/delivery/two-apps";
+import { hasVendorApp, vendorAppNameOf, vendorBundleIdOf, vendorPackageOf } from "@/lib/market/vendor-app";
 import { isStudioProject, studioPathFor } from "@/lib/studio/section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -200,6 +201,27 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
           role: secondAppRoleOf(app),
         }
       : null;
+  // 115.16 A marketplace's vendor app, when the owner put its places in an app of their own.
+  const vendorApp =
+    delivery && hasVendorApp(app, delivery)
+      ? {
+          name: vendorAppNameOf(app),
+          android: app.androidPackage ? vendorPackageOf(app.androidPackage) : "—",
+          ios: app.iosBundleId ? vendorBundleIdOf(app.iosBundleId) : "—",
+          onPlan: currentPlan ? hasFeature(currentPlan, "food") : false,
+          firebaseAndroid: await firebaseListsVendorApp(app, preflightDeps(store)),
+          builds: await store.listBuildsByApp(app.id, 20, "vendor"),
+        }
+      : null;
+  const vendorCurrent = vendorApp?.builds[0] ?? null;
+  const vendorReady = vendorApp?.builds.find((b) => b.status === "ready") ?? null;
+  const vendorStalled = vendorCurrent !== null && isStalled(vendorCurrent, now);
+  const vendorFileRow = (kind: ArtifactKind) => {
+    const url = vendorReady?.artifacts.find((a) => a.kind === kind)?.url;
+    const link = url ? fileLink(url, now) : null;
+    const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    return { href: unavailable === null && vendorReady ? dashboardFileHref(vendorReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
+  };
   const courierCurrent = courier?.builds[0] ?? null;
   const courierReady = courier?.builds.find((b) => b.status === "ready") ?? null;
   /** The second app's words: the couriers' (104.6) or 105.2 the drivers'. */
@@ -461,6 +483,61 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                 <ul className="m-0 list-none p-0">
                   {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
                     <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...courierFileRow(kind)} />
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </Section>
+      ) : null}
+
+      {vendorApp ? (
+        <Section id="vendor-app" titleId="h-vendor-app" title={t("builds.vendorTitle")} description={t("builds.vendorText", { name: vendorApp.name, android: vendorApp.android, ios: vendorApp.ios })}>
+          <div className="flex flex-col gap-4">
+            {!vendorApp.onPlan ? (
+              <Notice tone="warn" icon="info">
+                {t("builds.vendorOff")}
+              </Notice>
+            ) : null}
+            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+              <li className="flex items-start gap-2" data-vendor-firebase="android">
+                <Icon name={vendorApp.firebaseAndroid ? "check_circle" : "info"} size={20} className={vendorApp.firebaseAndroid ? "text-success" : "text-ink-4"} />
+                <span>{vendorApp.firebaseAndroid ? t("builds.vendorFirebaseAndroidOk") : t("builds.vendorFirebaseAndroidMissing", { android: vendorApp.android })}</span>
+              </li>
+              <li className="flex items-start gap-2" data-vendor-firebase="ios">
+                <Icon name="info" size={20} className="text-ink-4" />
+                <span>{t("builds.vendorIos")}</span>
+              </li>
+            </ul>
+            <StartBuildForm vendor suggestedVersion={suggestedVersion(vendorCurrent)} disabledReason={disabledReason ?? (!vendorApp.onPlan ? t("builds.vendorOff") : null)} />
+            {vendorCurrent ? (
+              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-vendor-build>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-sm font-semibold text-muted">{t("builds.vendorLatest")}</span>
+                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: vendorCurrent.number, version: vendorCurrent.versionName })}</h3>
+                  </div>
+                  <BuildBadge status={vendorCurrent.status} lang={lang} />
+                </div>
+                <Times build={vendorCurrent} now={now} text={text} />
+                <BuildStages stages={vendorCurrent.stages} lang={lang} />
+                {vendorCurrent.status === "queued" || vendorCurrent.status === "building" ? <p className="m-0 text-sm text-muted">{k(statusExplanation(vendorCurrent, now))}</p> : null}
+                {vendorCurrent.status === "failed" ? (
+                  <Notice tone="danger" icon="error">
+                    {richText(t("builds.failedNotice", { reason: k(failureReason(vendorCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                  </Notice>
+                ) : null}
+                {(vendorCurrent.status === "failed" || vendorStalled) && !licenseProblem && setupDone && vendorApp.onPlan ? <RetryBuildForm vendor versionName={vendorCurrent.versionName} /> : null}
+              </div>
+            ) : (
+              <p className="m-0 text-sm text-muted">{t("builds.vendorNone")}</p>
+            )}
+            {vendorReady ? (
+              <div className="overflow-hidden rounded-xl border border-line">
+                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.vendorFiles")}</h3>
+                <ul className="m-0 list-none p-0">
+                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
+                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...vendorFileRow(kind)} />
                   ))}
                 </ul>
               </div>

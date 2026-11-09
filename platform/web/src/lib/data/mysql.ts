@@ -5227,6 +5227,23 @@ export class MysqlStore implements DataStore {
     return result.affectedRows === 1;
   }
 
+  async deleteMarketOrders(appId: string, ids: number[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const o = schema.marketOrders;
+    const c = schema.marketComplaints;
+    const u = schema.marketCouponUses;
+    const w = schema.walletEntries;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        await tx.delete(c).where(and(eq(c.appId, appId), inArray(c.orderId, ids)));
+        await tx.delete(u).where(and(eq(u.appId, appId), inArray(u.orderId, ids)));
+        await tx.delete(w).where(and(eq(w.appId, appId), inArray(w.orderId, ids)));
+        const [result] = await tx.delete(o).where(and(eq(o.appId, appId), inArray(o.id, ids)));
+        return result.affectedRows;
+      }),
+    );
+  }
+
   async createMarketComplaint(input: MarketComplaintInput): Promise<MarketComplaint> {
     const [result] = await this.run((db) => db.insert(schema.marketComplaints).values(input));
     return { id: Number(result.insertId), ...input };

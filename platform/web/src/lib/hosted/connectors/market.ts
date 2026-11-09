@@ -2,6 +2,8 @@ import { randomToken, sha256Hex } from "../../crypto/tokens";
 import { paymentsSetUp } from "../../catalog/settings";
 import { payUrlFor } from "../../delivery/payment";
 import { courierWho } from "../../delivery/service";
+import { isReviewCourier } from "../../delivery/review";
+import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
 import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantStaff, VendorRole } from "../../data/types";
@@ -546,11 +548,13 @@ export class MarketConnector {
     if (o.status === "on_the_way" || (o.deliveryBy === "app" && job && ["assigned", "picked_up", "on_the_way"].includes(job.status))) {
       const courier = job?.courierId ? await this.deps.store.getCourier(this.deps.app.id, job.courierId) : null;
       const located = courier && courier.lat !== null && courier.lng !== null;
+      // 115.15 Studio's demo: without a position, its courier drives the way from the clock (the seeded one, nobody's phone, again and again).
+      const demo = !located && this.deps.app.demo && job && courier ? demoCourierPosition(job, now, { loop: !isReviewCourier(this.deps.app, courier) }) : null;
       tracking = {
-        mode: located ? "map" : "stages",
+        mode: located || demo ? "map" : "stages",
         courier: courier ? { name: courier.name.split(/\s+/)[0] ?? courier.name, photoUrl: null, vehicle: courier.vehicle } : null,
-        position: located ? { lat: courier!.lat!, lng: courier!.lng! } : null,
-        updatedAt: located ? courier!.locatedAt : null,
+        position: located ? { lat: courier!.lat!, lng: courier!.lng! } : demo,
+        updatedAt: located ? courier!.locatedAt : demo ? now : null,
       };
     }
     const complaints = await this.deps.store.listMarketComplaints({ appId: this.deps.app.id, orderId: o.id, limit: 1, offset: 0 });
