@@ -1244,7 +1244,8 @@ export interface DataStore {
   getMarketCoupon(appId: string, id: number): Promise<MarketCoupon | null>;
   /** Any case; the code is kept uppercase. */
   findMarketCouponByCode(appId: string, code: string): Promise<MarketCoupon | null>;
-  listMarketCoupons(appId: string, query?: { active?: boolean; automatic?: boolean }): Promise<MarketCoupon[]>;
+  /** 115.18 `createdByVendorId`: only the coupons that vendor made in its panel. */
+  listMarketCoupons(appId: string, query?: { active?: boolean; automatic?: boolean; createdByVendorId?: number }): Promise<MarketCoupon[]>;
   /** False when it isn't the app's or the new code is taken. */
   updateMarketCoupon(appId: string, id: number, patch: MarketCouponPatch): Promise<boolean>;
   deleteMarketCoupon(appId: string, id: number): Promise<boolean>;

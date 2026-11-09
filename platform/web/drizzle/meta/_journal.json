@@ -820,6 +820,13 @@
       "when": 1793780592058,
       "tag": "0116_market_product_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "5",
+      "when": 1794218605872,
+      "tag": "0117_vendor_coupons",
+      "breakpoints": true
     }
   ]
 }

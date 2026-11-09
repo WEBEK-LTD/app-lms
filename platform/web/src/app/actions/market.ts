@@ -16,6 +16,7 @@ import { parseCourierTermsForm } from "@/lib/market/delivery-forms";
 import { parseClubPlanForm, parseCouponForm } from "@/lib/market/offer-forms";
 import { marketCurrency, marketSettingsOf } from "@/lib/market/settings";
 import { parseMarketSettingsForm } from "@/lib/market/settings-form";
+import { ownerPauseVendorCoupon } from "@/lib/market/vendor-coupons";
 
 /**
  * 115.12 The app owner's complaint queue: replies the customer reads, the
@@ -168,6 +169,16 @@ export async function couponActiveAction(formData: FormData): Promise<void> {
   const { context, store } = await offerContext();
   const id = Number(formData.get("id"));
   if (Number.isInteger(id) && id > 0) await store.updateMarketCoupon(context.app.id, id, { active: formData.get("active") === "1", updatedAt: new Date() });
+  backToOffers();
+}
+
+/** 115.18 Pause a coupon a place made, or allow it again; the place can't undo the owner's pause. */
+export async function ownerPauseCouponAction(formData: FormData): Promise<void> {
+  const { context, store } = await offerContext();
+  const paused = formData.get("paused") === "1";
+  if (await ownerPauseVendorCoupon(store, context.app.id, Number(formData.get("id")), paused, new Date())) {
+    await recordStaffChange(context, paused ? "Paused a place's offer" : "Allowed a place's offer again");
+  }
   backToOffers();
 }
 

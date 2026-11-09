@@ -17,8 +17,8 @@ export interface CouponContext {
   now: Date;
   vendorId: number;
   vendorKind: VendorKind;
-  /** The items after the vendor's discounts, per department (null: none). */
-  lines: { departmentId: number | null; total: number }[];
+  /** The items after the vendor's discounts, each with its department (a restaurant's: its menu section; null: none) and 115.18 its product. */
+  lines: { departmentId: number | null; productId?: number | null; total: number }[];
   userId: number | null;
   /** The customer has no earlier completed order in this app. */
   firstOrder: boolean;
@@ -49,7 +49,8 @@ const refuse = (refusal: CouponRefusal): CouponCheck => ({ ok: false, refusal, e
 
 /** Whether the coupon applies to this order, and as what for the money engine. */
 export function checkCoupon(c: MarketCoupon, ctx: CouponContext): CouponCheck {
-  if (!c.active) return refuse("inactive");
+  // 115.18 The owner's pause holds whatever the vendor does.
+  if (!c.active || c.ownerPaused) return refuse("inactive");
   if (c.startsAt && ctx.now < c.startsAt) return refuse("not_started");
   if (c.endsAt && ctx.now >= c.endsAt) return refuse("ended");
   if (c.vendorIds.length && !c.vendorIds.includes(ctx.vendorId)) return refuse("wrong_vendor");
@@ -60,9 +61,13 @@ export function checkCoupon(c: MarketCoupon, ctx: CouponContext): CouponCheck {
   if (c.perUserLimit !== null && ctx.userUses >= c.perUserLimit) return refuse("user_limit");
   const items = ctx.lines.reduce((sum, l) => sum + l.total, 0);
   if (items < c.minOrder) return refuse("min_order");
-  // Limited to departments: the discount is on those items only.
-  const base = c.departmentIds.length ? ctx.lines.filter((l) => l.departmentId !== null && c.departmentIds.includes(l.departmentId)).reduce((sum, l) => sum + l.total, 0) : items;
-  if (c.departmentIds.length && base === 0) return refuse("wrong_department");
+  // Limited to departments (115.18 or products): the discount is on those items only.
+  const products = c.productIds ?? [];
+  const limited = c.departmentIds.length > 0 || products.length > 0;
+  const eligible = (l: CouponContext["lines"][number]) =>
+    (l.departmentId !== null && c.departmentIds.includes(l.departmentId)) || (l.productId !== null && l.productId !== undefined && products.includes(l.productId));
+  const base = limited ? ctx.lines.filter(eligible).reduce((sum, l) => sum + l.total, 0) : items;
+  if (limited && base === 0) return refuse("wrong_department");
   if (c.kind === "free_delivery") return { ok: true, coupon: { kind: "free_delivery", value: 0, funder: c.paidBy, code: c.code }, discountBase: base };
   if (c.kind === "percent") {
     let off = percentOf(base, c.value);

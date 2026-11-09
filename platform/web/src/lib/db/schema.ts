@@ -1754,6 +1754,10 @@ export const marketCoupons = mysqlTable(
     vendorIds: jsonText<number[]>("vendor_ids").notNull(),
     vendorKinds: jsonText<VendorKind[]>("vendor_kinds").notNull(),
     departmentIds: jsonText<number[]>("department_ids").notNull(),
+    // 115.18 Vendors' own coupons.
+    productIds: jsonText<number[]>("product_ids"),
+    createdByVendorId: bigint("created_by_vendor_id", { mode: "number", unsigned: true }),
+    ownerPaused: boolean("owner_paused").notNull().default(false),
     usesLimit: int("uses_limit"),
     perUserLimit: int("per_user_limit"),
     startsAt: time("starts_at"),
@@ -1762,7 +1766,7 @@ export const marketCoupons = mysqlTable(
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
-  (t) => [uniqueIndex("market_coupons_app_code_unique").on(t.appId, t.code), index("market_coupons_app_idx").on(t.appId, t.active)],
+  (t) => [uniqueIndex("market_coupons_app_code_unique").on(t.appId, t.code), index("market_coupons_app_idx").on(t.appId, t.active), index("market_coupons_vendor_idx").on(t.appId, t.createdByVendorId)],
 );
 
 export const marketCouponUses = mysqlTable(
