@@ -237,3 +237,116 @@ class PickLine {
       'substitute_product_id': substituteProductId,
   };
 }
+
+/// One month's statement for the vendor (`GET /vendor/statements`): the
+/// orders delivered that month, what the vendor earns on each and the
+/// app's commission, the refunds and compensations decided on them, and
+/// what is due between the vendor and the app.
+class VendorStatement {
+  const VendorStatement({
+    required this.month,
+    required this.orderCount,
+    required this.total,
+    required this.commission,
+    required this.vendorEarns,
+    required this.net,
+    this.orders = const [],
+    this.adjustments = const [],
+  });
+
+  factory VendorStatement.fromJson(Json json) {
+    final totals = asJson(json['totals'], 'totals');
+    MarketMoney money(String key) =>
+        optObject(totals, key, MarketMoney.fromJson) ??
+        const MarketMoney(amount: '0', formatted: '');
+    return VendorStatement(
+      month: reqString(json, 'month'),
+      orderCount: intOr(totals, 'orders', 0),
+      total: money('total'),
+      commission: money('commission'),
+      vendorEarns: money('vendor_earns'),
+      net: money('net'),
+      orders: listOf(
+        json,
+        'orders',
+        (o) => (
+          id: reqInt(o, 'id'),
+          reference: reqString(o, 'reference'),
+          at: reqDate(o, 'at'),
+          total: MarketMoney.fromJson(asJson(o['total'], 'total')),
+          dueToVendor: MarketMoney.fromJson(
+            asJson(o['due_to_vendor'], 'due_to_vendor'),
+          ),
+        ),
+      ),
+      adjustments: listOf(
+        json,
+        'adjustments',
+        (a) => (
+          reference: reqString(a, 'reference'),
+          at: reqDate(a, 'at'),
+          refund: a['kind'] == 'refund',
+          amount: MarketMoney.fromJson(asJson(a['amount'], 'amount')),
+          byVendor: a['funder'] == 'vendor',
+        ),
+      ),
+    );
+  }
+
+  /// `YYYY-MM`.
+  final String month;
+  final int orderCount;
+  final MarketMoney total;
+  final MarketMoney commission;
+  final MarketMoney vendorEarns;
+
+  /// What the app owes the vendor (positive) or the vendor owes the app
+  /// (negative) after refunds.
+  final MarketMoney net;
+  final List<
+    ({
+      int id,
+      String reference,
+      DateTime at,
+      MarketMoney total,
+      MarketMoney dueToVendor,
+    })
+  >
+  orders;
+  final List<
+    ({
+      String reference,
+      DateTime at,
+      bool refund,
+      MarketMoney amount,
+      bool byVendor,
+    })
+  >
+  adjustments;
+}
+
+/// A complaint the app's support shared with the vendor
+/// (`GET /vendor/complaints`), read only: what was wrong and the
+/// decision, never the customer or the conversation.
+class VendorComplaint {
+  const VendorComplaint({
+    required this.complaint,
+    required this.orderReference,
+    this.byVendor = false,
+  });
+
+  factory VendorComplaint.fromJson(Json json) {
+    final decision = optObject(json, 'decision', (j) => j);
+    return VendorComplaint(
+      complaint: MarketComplaint.fromJson(json),
+      orderReference: reqString(json, 'order_reference'),
+      byVendor: decision != null && decision['funder'] == 'vendor',
+    );
+  }
+
+  final MarketComplaint complaint;
+  final String orderReference;
+
+  /// The vendor pays the decision's refund or compensation.
+  final bool byVendor;
+}

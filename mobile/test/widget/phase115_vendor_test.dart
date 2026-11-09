@@ -9,6 +9,8 @@ import '../support/fixtures.dart';
 import '../support/market_order_fixtures.dart';
 import '../support/test_app.dart';
 
+import 'package:yallapp/modules/vendor/screens/vendor_books_screens.dart';
+
 /// 115 The vendor app: the orders with their answers, being busy, and
 /// stock.
 void main() {
@@ -177,5 +179,208 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('vendor-stock-5')));
     await TestApp.settle(tester, 20);
     expect(api.vendorCalls, contains('stock 5 false'));
+  });
+
+  Map<String, dynamic> money(String amount) => {
+    'amount': amount,
+    'formatted': 'EGP $amount',
+  };
+
+  testWidgets('a grocery order is picked line by line, then ready', (
+    tester,
+  ) async {
+    phone(tester);
+    final api = vendorApi();
+    api.vendorDesk['kind'] = 'grocery';
+    api.vendorProducts.add({
+      'id': 5,
+      'name': 'Oat milk',
+      'price': money('32.00'),
+      'in_stock': true,
+    });
+    api.vendorOrders['active'] = [
+      vendorOrder(status: 'picking')
+        ..['lines'] = [
+          marketOrderLineJson(name: 'Apples', quantity: 1.5, unit: 'kg'),
+          marketOrderLineJson(productId: 2, name: 'Milk', quantity: 2)
+            ..['if_missing'] = 'similar',
+          marketOrderLineJson(productId: 3, name: 'Bread')
+            ..['if_missing'] = 'remove',
+        ],
+    ];
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    app.container.read(appRouterProvider).push(Paths.vendorOrder(901));
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('vendor-ready')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('vendor-pick')));
+    await TestApp.settle(tester, 20);
+    expect(find.text('If it\'s out: a similar item'), findsOneWidget);
+    // Bread can't be swapped: the customer asked to leave it out.
+    expect(
+      find.byKey(const ValueKey('vendor-pick-30-substituted')),
+      findsNothing,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('vendor-pick-10-amount')),
+      '1.8',
+    );
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-20-substituted')));
+    await TestApp.settle(tester, 5);
+    // A swap needs the item brought instead.
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-save')));
+    await TestApp.settle(tester, 5);
+    expect(find.textContaining('instead of Milk'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-20-choose')));
+    await TestApp.settle(tester, 20);
+    await tester.tap(find.byKey(const ValueKey('vendor-substitute-5')));
+    await TestApp.settle(tester, 10);
+    expect(find.text('Oat milk'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-30-missing')));
+    await TestApp.settle(tester, 5);
+    await tester.tap(find.byKey(const ValueKey('vendor-pick-save')));
+    await TestApp.settle(tester, 20);
+    expect(
+      api.vendorCalls,
+      contains('pick 901 10:picked:1.8:,20:substituted:2.0:5,30:missing::'),
+    );
+
+    // Back on the order: how each line was picked, and ready.
+    expect(find.byKey(const ValueKey('vendor-line-10-picked')), findsOneWidget);
+    expect(find.text('Missing'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-ready')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('ready 901'));
+  });
+
+  testWidgets('a picker picks, but sees no statements or complaints', (
+    tester,
+  ) async {
+    phone(tester);
+    final api = vendorApi();
+    api.vendorDesk
+      ..['kind'] = 'grocery'
+      ..['role'] = 'picker';
+    api.vendorOrders['active'] = [vendorOrder(status: 'picking')];
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('vendor-statements')), findsNothing);
+    expect(find.byKey(const ValueKey('vendor-complaints')), findsNothing);
+    app.container.read(appRouterProvider).push(Paths.vendorOrder(901));
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('vendor-pick')), findsOneWidget);
+  });
+
+  testWidgets('the month\'s statement, and the months before', (tester) async {
+    phone(tester);
+    final api = vendorApi();
+    final now = vendorMonthOf(DateTime.now());
+    final before = vendorMonthShift(now, -1);
+    api.vendorStatements[''] = {
+      'month': now,
+      'totals': {
+        'orders': 2,
+        'total': money('530.00'),
+        'commission': money('79.50'),
+        'vendor_earns': money('450.50'),
+        'net': money('400.50'),
+      },
+      'orders': [
+        {
+          'id': 901,
+          'reference': 'M-901',
+          'at': '2026-11-04T12:00:00Z',
+          'payment': 'card',
+          'total': money('265.00'),
+          'vendor_earns': money('225.25'),
+          'commission': money('39.75'),
+          'due_to_vendor': money('225.25'),
+        },
+      ],
+      'adjustments': [
+        {
+          'order_id': 901,
+          'reference': 'M-901',
+          'at': '2026-11-05T12:00:00Z',
+          'kind': 'refund',
+          'amount': money('50.00'),
+          'funder': 'vendor',
+        },
+      ],
+    };
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    await tester.tap(find.byKey(const ValueKey('vendor-statements')));
+    await TestApp.settle(tester, 20);
+    expect(find.text('2 orders'), findsOneWidget);
+    expect(find.text('EGP 400.50'), findsOneWidget);
+    expect(find.text('Refund on M-901'), findsOneWidget);
+    expect(find.textContaining('Paid by you'), findsOneWidget);
+    // Nothing after this month.
+    final next = tester.widget<IconButton>(
+      find.byKey(const ValueKey('vendor-month-next')),
+    );
+    expect(next.onPressed, isNull);
+    await tester.tap(find.byKey(const ValueKey('vendor-month-previous')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('statement $before'));
+    expect(find.text('No delivered orders this month'), findsOneWidget);
+  });
+
+  testWidgets('the complaints support shared, read only', (tester) async {
+    phone(tester);
+    final api = vendorApi();
+    api.vendorComplaints.add({
+      'id': 4,
+      'reference': 'C-4',
+      'order_id': 901,
+      'order_reference': 'M-901',
+      'reason': 'missing_items',
+      'status': 'resolved',
+      'text': 'The bread was missing',
+      'line_ids': [10],
+      'photos': const [],
+      'decision': {
+        'outcome': 'partial_refund',
+        'amount': money('20.00'),
+        'funder': 'vendor',
+        'at': '2026-11-05T12:00:00Z',
+      },
+      'created_at': '2026-11-04T18:00:00Z',
+    });
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    await tester.tap(find.byKey(const ValueKey('vendor-complaints')));
+    await TestApp.settle(tester, 20);
+    expect(find.textContaining('C-4 · Order M-901'), findsOneWidget);
+    expect(find.text('The bread was missing'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('vendor-complaint-decision-4')),
+      findsOneWidget,
+    );
+    expect(find.text('Paid by you'), findsOneWidget);
   });
 }

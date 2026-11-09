@@ -9024,4 +9024,153 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get vendorStockEmpty => 'Ürün bulunamadı';
+
+  @override
+  String get vendorPickItems => 'Ürünleri topla';
+
+  @override
+  String get vendorPickAgain => 'Toplamayı değiştir';
+
+  @override
+  String get vendorPicked => 'Toplandı';
+
+  @override
+  String get vendorSubstituted => 'Değiştirildi';
+
+  @override
+  String get vendorMissing => 'Yok';
+
+  @override
+  String get vendorPickedCount => 'Adet';
+
+  @override
+  String vendorPickedWeight(String unit) {
+    return 'Ağırlık ($unit)';
+  }
+
+  @override
+  String vendorWeightTolerance(int percent) {
+    return 'Siparişten en fazla %$percent fazla';
+  }
+
+  @override
+  String get vendorIfMissingSimilar => 'Yoksa: benzer bir ürün';
+
+  @override
+  String get vendorIfMissingChosen => 'Yoksa: müşterinin seçtiği ürün';
+
+  @override
+  String get vendorIfMissingRemove => 'Yoksa: çıkarılsın';
+
+  @override
+  String get vendorBringChosen => 'Müşterinin seçtiği ürünü getirin.';
+
+  @override
+  String get vendorChooseSubstitute => 'Ürün seçin';
+
+  @override
+  String get vendorChangeSubstitute => 'Değiştir';
+
+  @override
+  String get vendorPickSave => 'Toplamayı kaydet';
+
+  @override
+  String get vendorPickSaved => 'Toplama kaydedildi';
+
+  @override
+  String vendorPickNeedsAmount(String item) {
+    return '$item için topladığınız miktarı girin.';
+  }
+
+  @override
+  String vendorPickNeedsSubstitute(String item) {
+    return '$item yerine getireceğiniz ürünü seçin.';
+  }
+
+  @override
+  String vendorLinePicked(String amount) {
+    return 'Toplanan: $amount';
+  }
+
+  @override
+  String vendorLineSubstituted(String item) {
+    return 'Yerine: $item';
+  }
+
+  @override
+  String get vendorStatementsTitle => 'Hesap özetleri';
+
+  @override
+  String get vendorPreviousMonth => 'Önceki ay';
+
+  @override
+  String get vendorNextMonth => 'Sonraki ay';
+
+  @override
+  String vendorStatementOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sipariş',
+      one: '1 sipariş',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorStatementEarns => 'Kazancınız';
+
+  @override
+  String get vendorStatementCommission => 'Uygulamanın komisyonu';
+
+  @override
+  String get vendorStatementDue => 'Size ödenecek';
+
+  @override
+  String get vendorStatementYouOwe => 'Uygulamaya borcunuz';
+
+  @override
+  String get vendorStatementEmpty => 'Bu ay teslim edilen sipariş yok';
+
+  @override
+  String get vendorStatementOrdersTitle => 'Siparişler';
+
+  @override
+  String vendorStatementDueEach(String amount) {
+    return 'Size $amount';
+  }
+
+  @override
+  String get vendorStatementAdjustments => 'İadeler ve tazminatlar';
+
+  @override
+  String vendorAdjustmentRefund(String reference) {
+    return '$reference iadesi';
+  }
+
+  @override
+  String vendorAdjustmentCompensation(String reference) {
+    return '$reference tazminatı';
+  }
+
+  @override
+  String get vendorPaidByYou => 'Sizin ödediğiniz';
+
+  @override
+  String get vendorPaidByApp => 'Uygulamanın ödediği';
+
+  @override
+  String get vendorComplaintsTitle => 'Şikayetler';
+
+  @override
+  String get vendorComplaintsEmptyTitle => 'Şikayet yok';
+
+  @override
+  String get vendorComplaintsEmptyMessage =>
+      'Uygulama desteğinin sizinle paylaştığı şikayetler burada görünür.';
+
+  @override
+  String vendorComplaintOrder(String reference) {
+    return 'Sipariş $reference';
+  }
 }

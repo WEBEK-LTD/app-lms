@@ -14857,6 +14857,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No items found'**
   String get vendorStockEmpty;
+
+  /// 115.16 The button on a grocery's or shop's order that opens its picking, and that screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the items'**
+  String get vendorPickItems;
+
+  /// 115.16 Opens a picked order's picking again before it is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the picking'**
+  String get vendorPickAgain;
+
+  /// 115.16 A line of the order was picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked'**
+  String get vendorPicked;
+
+  /// 115.16 A line of the order was swapped for another item.
+  ///
+  /// In en, this message translates to:
+  /// **'Swapped'**
+  String get vendorSubstituted;
+
+  /// 115.16 A line of the order was not there when picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get vendorMissing;
+
+  /// 115.16 The field for how many units were picked.
+  ///
+  /// In en, this message translates to:
+  /// **'How many'**
+  String get vendorPickedCount;
+
+  /// 115.16 The field for the weighed amount picked, with its unit (kg, g, l).
+  ///
+  /// In en, this message translates to:
+  /// **'Weight in {unit}'**
+  String vendorPickedWeight(String unit);
+
+  /// 115.16 Under the weight: how much more than ordered the customer agreed to.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {percent}% more than ordered'**
+  String vendorWeightTolerance(int percent);
+
+  /// 115.16 What the customer asked for when an item is out: a similar one.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s out: a similar item'**
+  String get vendorIfMissingSimilar;
+
+  /// 115.16 What the customer asked for when an item is out: the one they chose.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s out: the item the customer chose'**
+  String get vendorIfMissingChosen;
+
+  /// 115.16 What the customer asked for when an item is out: nothing instead.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s out: leave it out'**
+  String get vendorIfMissingRemove;
+
+  /// 115.16 A swapped line whose substitute the customer chose.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring the item the customer chose.'**
+  String get vendorBringChosen;
+
+  /// 115.16 Opens the vendor's items to choose what to bring instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the item'**
+  String get vendorChooseSubstitute;
+
+  /// 115.16 Next to the chosen substitute: choose another.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get vendorChangeSubstitute;
+
+  /// 115.16 Sends the picked lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the picking'**
+  String get vendorPickSave;
+
+  /// 115.16 After the picking was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Picking saved'**
+  String get vendorPickSaved;
+
+  /// 115.16 A picked line without its amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what you picked of {item}.'**
+  String vendorPickNeedsAmount(String item);
+
+  /// 115.16 A swapped line without the item brought instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you\'re bringing instead of {item}.'**
+  String vendorPickNeedsSubstitute(String item);
+
+  /// 115.16 Under a line of the order: the amount picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked {amount}'**
+  String vendorLinePicked(String amount);
+
+  /// 115.16 Under a line of the order: the item brought instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead: {item}'**
+  String vendorLineSubstituted(String item);
+
+  /// 115.16 The vendor's monthly statements: the button and the screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Statements'**
+  String get vendorStatementsTitle;
+
+  /// 115.16 Shows the month before on the statements.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get vendorPreviousMonth;
+
+  /// 115.16 Shows the month after on the statements.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get vendorNextMonth;
+
+  /// 115.16 The month's delivered orders, next to their total.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 order} other{{count} orders}}'**
+  String vendorStatementOrders(int count);
+
+  /// 115.16 What the vendor earns on the month's orders.
+  ///
+  /// In en, this message translates to:
+  /// **'You earn'**
+  String get vendorStatementEarns;
+
+  /// 115.16 The app's commission on the month's orders.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s commission'**
+  String get vendorStatementCommission;
+
+  /// 115.16 What the app owes the vendor for the month, after refunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Due to you'**
+  String get vendorStatementDue;
+
+  /// 115.16 What the vendor owes the app for the month, after refunds.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe the app'**
+  String get vendorStatementYouOwe;
+
+  /// 115.16 A month's statement without orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivered orders this month'**
+  String get vendorStatementEmpty;
+
+  /// 115.16 The heading over the month's orders on the statement.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get vendorStatementOrdersTitle;
+
+  /// 115.16 Under an order on the statement: what is due to the vendor on it.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to you'**
+  String vendorStatementDueEach(String amount);
+
+  /// 115.16 The heading over the month's refunds and compensations.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunds and compensations'**
+  String get vendorStatementAdjustments;
+
+  /// 115.16 A refund on an order, on the statement.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund on {reference}'**
+  String vendorAdjustmentRefund(String reference);
+
+  /// 115.16 A compensation on an order, on the statement.
+  ///
+  /// In en, this message translates to:
+  /// **'Compensation on {reference}'**
+  String vendorAdjustmentCompensation(String reference);
+
+  /// 115.16 The vendor pays a refund or a compensation.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by you'**
+  String get vendorPaidByYou;
+
+  /// 115.16 The app pays a refund or a compensation.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by the app'**
+  String get vendorPaidByApp;
+
+  /// 115.16 The complaints shared with the vendor: the button and the screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get vendorComplaintsTitle;
+
+  /// 115.16 The vendor's empty complaints list.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints'**
+  String get vendorComplaintsEmptyTitle;
+
+  /// 115.16 Under the vendor's empty complaints list.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints the app\'s support shares with you show here.'**
+  String get vendorComplaintsEmptyMessage;
+
+  /// 115.16 The order a complaint is about.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {reference}'**
+  String vendorComplaintOrder(String reference);
 }
 
 class _AppLocalizationsDelegate
