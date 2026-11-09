@@ -38,7 +38,7 @@ import { isMarketPath, MarketConnector } from "./market";
 export interface FoodDeps extends Omit<DeliveryDeps, "delivery"> {
   /** The plan has food delivery apps (default true). */
   food?: boolean;
-  /** 115 The marketplace's routes (default: with food; 115.13 gives them their own plan feature). */
+  /** 115 The marketplace's routes; 115.13 on for marketplace projects whose plan has them (lib/market/plan.ts `marketplaceOn`), left out: on with food. */
   marketplace?: boolean;
 }
 

@@ -339,6 +339,8 @@ export const ar: Messages = {
     choiceDelivery: "التوصيل والمناديب",
     choiceCourierApp: "تطبيق ثانٍ للمناديب",
     choiceFood: "توصيل الطعام",
+    // 115.13
+    choiceMarketplace: "سوق إلكتروني: مطاعم وسوبرماركت ومتاجر",
     choiceRides: "توصيل الركاب",
     choiceInstructors: "أكاديميات بمدرسين كثيرين",
     choiceSchool: "مدارس للطلاب وأولياء الأمور والمعلّمين",

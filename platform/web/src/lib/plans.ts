@@ -71,11 +71,11 @@ export const PLAN_RANK: Record<Plan, number> = { starter: 0, growth: 1, pro: 2, 
  * delivery, food, ride and taxi companies' couriers and drivers have, so every Studio plan has it unless the team
  * unticks it.
  */
-export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university"] as const;
+export const PLAN_FEATURE_IDS = ["ios", "push", "offline_downloads", "page_editor", "card_payments", "auto_rebuild", "auto_publish", "chat", "loyalty", "store_billing", "studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university", "market"] as const;
 export type PlanFeature = (typeof PLAN_FEATURE_IDS)[number];
 
 /** 103R Features only Studio plans have, so the regular plans' editor leaves them out (104 delivery companies are Studio projects). */
-export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university"];
+export const STUDIO_ONLY_FEATURES: readonly PlanFeature[] = ["studio", "studio_motion", "studio_templates", "delivery", "courier_app", "food", "market", "rides", "instructors", "school", "taxi", "university"];
 
 /**
  * 103R What every Studio plan includes, besides what the team ticks in
@@ -91,10 +91,10 @@ export const STUDIO_BASE_FEATURES: readonly PlanFeature[] = ["studio", "push", "
 export const STUDIO_DEFAULT_FEATURES: readonly PlanFeature[] = [...STUDIO_BASE_FEATURES, "courier_app"];
 
 /** 112.3 The project kinds whose couriers or drivers work in the second app (`courier_app`). */
-export const SECOND_APP_KINDS: readonly PlanFeature[] = ["delivery", "food", "rides", "taxi"];
+export const SECOND_APP_KINDS: readonly PlanFeature[] = ["delivery", "food", "market", "rides", "taxi"];
 
 /** 103R The features the team ticks for each Studio plan, as the admin's design lists them. */
-export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "rides", "instructors", "school", "taxi", "university", "studio_motion", "studio_templates"];
+export const STUDIO_PLAN_CHOICES: readonly PlanFeature[] = ["ios", "auto_publish", "delivery", "courier_app", "food", "market", "rides", "instructors", "school", "taxi", "university", "studio_motion", "studio_templates"];
 
 export type SupportLevel = "email" | "whatsapp" | "priority" | "dedicated";
 export const SUPPORT_LEVELS: SupportLevel[] = ["email", "whatsapp", "priority", "dedicated"];
@@ -412,6 +412,13 @@ export const PLAN_FEATURES: PlanFeatureDef[] = [
     label: "Food delivery from many restaurants",
     description: "Customers order from your restaurants; each restaurant takes its orders and your couriers deliver them.",
     enforced: "The hosted API's /food, /me/food-orders and /restaurant endpoints, and the Restaurants and Food orders pages.",
+  },
+  // 115.13 Not `marketplace`: 9.5's removed feature had that ID, and saved plans or switches may still name it.
+  {
+    id: "market",
+    label: "Marketplace: restaurants, supermarkets and stores",
+    description: "A food delivery app grown into a marketplace: restaurants, supermarkets and shops in one app, each with its own staff, commission and statements; vendors join by your form; offers, coupons, the wallet and the club; your couriers or the vendor's own.",
+    enforced: "The hosted API's /market, /vendor, /me/market-orders, /me/complaints, /me/wallet and /me/club endpoints of marketplace projects, and their Marketplace pages.",
   },
   {
     id: "rides",
