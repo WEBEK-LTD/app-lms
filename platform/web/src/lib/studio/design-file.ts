@@ -1,5 +1,6 @@
 import type { Action, Languages, LanguageCode, LayoutPage, LayoutTab, StudioNode, StudioPage, Translations } from "../pages/types";
 import { uniqueSlug } from "../pages/model";
+import type { StudioDemoId } from "../demo/constants";
 import { forPaste, type PasteContext } from "./clipboard";
 
 /**
@@ -71,6 +72,8 @@ export interface DesignFile {
   /** By the address the design uses for it. */
   pictures: Record<string, DesignFilePicture>;
   fonts: DesignFileFont[];
+  /** Templates = demos: made here (never read from a file) when it is a Studio demo's whole design, for the demo's look, tabs and sample entries. */
+  demo?: StudioDemoId;
 }
 
 export type DesignFileError = "not_ours" | "too_new" | "broken" | "empty" | "too_big";

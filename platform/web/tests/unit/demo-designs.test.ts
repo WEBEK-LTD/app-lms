@@ -37,17 +37,21 @@ describe("templates = demos", () => {
   it.each(ALL_DEMO_TYPES)("the %s demo is exactly its design, with only how to sign in added", async (id) => {
     const app = demoApp(id);
     const demo = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset");
-    const design = designLayout(app, demoDesign(id), demo, NOW);
+    // "Like our demo" taken by an app that had another look and other pages.
+    const other = { appearance: { template: "classic" as const, theme_mode: "system" as const, user_can_change_mode: true, secondary_color: null, font: "Bricolage Grotesque" as const, corners: "sharp" as const, cards: "flat" as const }, languages: { default: "en" as const, available: ["en" as const] } };
+    const design = designLayout(app, demoDesign(id), other, NOW);
     const withoutSignIn = { ...demo, pages: demo.pages.map((p, i) => (i === 0 ? { ...p, blocks: p.blocks.filter((b) => b.id !== "demo-sign-in") } : p)) };
-    // A Studio demo's home is its Studio template instead (tests/unit/studio-demo-templates.test.ts).
-    const blocksOf = (layout: typeof design) => (isStudioDemo(id) ? { ...layout, pages: layout.pages.map((p, i) => (i === 0 ? { ...p, blocks: [] } : p)) } : layout);
-    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(blocksOf(design)));
+    // Every page with its blocks (a Studio demo's home has none: it is its kind's designed Studio page, tests/unit/studio-demo-templates.test.ts), the tabs and the side menu.
+    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(design));
+    expect(demo.menu ?? []).toEqual(design.menu ?? []);
     // The demo's look is the design's.
     const look = demoDesign(id).look;
-    expect(demo.appearance).toMatchObject({ template: look.template, font: look.font, corners: look.corners, cards: look.cards, secondary_color: look.secondary_color });
+    const lookOf = (l: typeof demo) => ({ template: l.appearance.template, font: l.appearance.font, corners: l.appearance.corners, cards: l.appearance.cards, secondary_color: l.appearance.secondary_color });
+    expect(lookOf(demo)).toEqual({ template: look.template, font: look.font, corners: look.corners, cards: look.cards, secondary_color: look.secondary_color });
+    expect(lookOf(design)).toEqual(lookOf(demo));
   });
 
-  it.each(ALL_DEMO_TYPES)("the %s design, taken by an owner, is a valid layout with their name and the demo's banner", (id) => {
+  it.each(ALL_DEMO_TYPES.filter((id) => !isStudioDemo(id)))("the %s design, taken by an owner, is a valid layout with their name and the demo's banner", (id) => {
     const app = { ...demoApp(id), appName: "Corner Bakery", demo: false };
     const layout = designLayout(app, demoDesign(id), { appearance: { template: "classic", theme_mode: "system", user_can_change_mode: true, secondary_color: null, font: "Outfit", corners: "soft", cards: "flat" }, languages: { default: "en", available: ["en"] } }, NOW);
     const home = layout.pages[0]!;

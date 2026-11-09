@@ -1,0 +1,246 @@
+{
+  "background": "#F6F3EE",
+  "dark_background": "#0F0E1A",
+  "body": {
+    "id": "demo-1",
+    "type": "column",
+    "children": [
+      {
+        "id": "demo-2",
+        "type": "market",
+        "market": {
+          "section": "address"
+        },
+        "title": "Hungry? Order in minutes.",
+        "margin": {
+          "top": 0,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "title": "جعان؟ اطلب في دقايق."
+          },
+          "tr": {
+            "title": "Acıktınız mı? Dakikalar içinde sipariş verin."
+          }
+        }
+      },
+      {
+        "id": "demo-12",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+          "top": 8,
+          "end": 16,
+          "bottom": 8,
+          "start": 16
+        },
+        "margin": {
+          "top": 4,
+          "end": 0,
+          "bottom": 4,
+          "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+          {
+            "id": "demo-11",
+            "type": "text",
+            "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+            "font": {
+              "size": 15,
+              "line_height": 1.5
+            }
+          }
+        ]
+      },
+      {
+        "id": "demo-3",
+        "type": "market",
+        "market": {
+          "section": "kinds"
+        },
+        "margin": {
+          "top": 14,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        }
+      },
+      {
+        "id": "demo-4",
+        "type": "market",
+        "market": {
+          "section": "offers"
+        },
+        "title": "Today's offers",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "title": "عروض النهارده"
+          },
+          "tr": {
+            "title": "Bugünün kampanyaları"
+          }
+        }
+      },
+      {
+        "id": "demo-5",
+        "type": "market",
+        "market": {
+          "section": "vendors",
+          "style": "spotlight",
+          "kind": "restaurant",
+          "sort": "fastest",
+          "limit": 6
+        },
+        "title": "Fastest near you",
+        "text": "Hot food at your door in under 30 min",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "text": "أكل سخن لحد بابك في أقل من ٣٠ دقيقة",
+            "title": "الأسرع جنبك"
+          },
+          "tr": {
+            "text": "30 dakikadan kısa sürede kapınızda sıcak yemek",
+            "title": "Yakınınızdaki en hızlılar"
+          }
+        }
+      },
+      {
+        "id": "demo-6",
+        "type": "market",
+        "market": {
+          "section": "cuisines"
+        },
+        "title": "What's your mood?",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "title": "نفسك في إيه النهارده؟"
+          },
+          "tr": {
+            "title": "Canınız ne çekiyor?"
+          }
+        }
+      },
+      {
+        "id": "demo-7",
+        "type": "market",
+        "market": {
+          "section": "club"
+        },
+        "title": "Free delivery on every order",
+        "text": "Join the club for free delivery and members' offers.",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "text": "اشترك في النادي وخد توصيل ببلاش وعروض للأعضاء.",
+            "title": "توصيل ببلاش على كل طلب"
+          },
+          "tr": {
+            "text": "Ücretsiz teslimat ve üyelere özel kampanyalar için kulübe katılın.",
+            "title": "Her siparişte ücretsiz teslimat"
+          }
+        }
+      },
+      {
+        "id": "demo-8",
+        "type": "market",
+        "market": {
+          "section": "vendors",
+          "style": "tiles",
+          "kind": "grocery",
+          "limit": 6
+        },
+        "title": "Supermarkets & shops",
+        "text": "Groceries in about 20 minutes",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "text": "البقالة عندك في حوالي ٢٠ دقيقة",
+            "title": "سوبرماركت ومحلات"
+          },
+          "tr": {
+            "text": "Yaklaşık 20 dakikada market alışverişi",
+            "title": "Süpermarketler ve mağazalar"
+          }
+        }
+      },
+      {
+        "id": "demo-9",
+        "type": "market",
+        "market": {
+          "section": "reorder"
+        },
+        "title": "Order again",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "title": "اطلب تاني"
+          },
+          "tr": {
+            "title": "Tekrar sipariş verin"
+          }
+        }
+      },
+      {
+        "id": "demo-10",
+        "type": "market",
+        "market": {
+          "section": "vendors",
+          "style": "list",
+          "kind": "restaurant"
+        },
+        "title": "All restaurants",
+        "margin": {
+          "top": 26,
+          "end": 0,
+          "bottom": 0,
+          "start": 0
+        },
+        "translations": {
+          "ar": {
+            "title": "كل المطاعم"
+          },
+          "tr": {
+            "title": "Tüm restoranlar"
+          }
+        }
+      }
+    ]
+  }
+}

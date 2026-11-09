@@ -12,11 +12,13 @@ import { ownFontView } from "@/lib/fonts/own";
 import { kindOf } from "@/lib/app/kinds";
 import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
-import { layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
+import { designLayout, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
 import { isStudioProject } from "@/lib/studio/section";
+import { studioDemoOf } from "@/lib/studio/demo-templates";
+import { demoDesign } from "@/lib/demo/look";
 import { StudioEditor } from "./editor";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,6 +39,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
   const planId = license ? currentPlanId(license, now) : null;
   const plan = planId ? plans[planId] : null;
   const record = await loadLayout(store, app, now);
+  const demo = studioDemoOf({ type: app.appType, vertical: app.vertical ?? null });
   const sources = plan ? allowedSources(app, plan) : itemSourcesFor(app);
   const query = await searchParams;
   // 108.2 The project's own fonts, with their files: a design exported takes the ones it uses.
@@ -69,6 +72,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       // Designing works on any plan; the app gets the design with Studio on the plan (before activation, everything).
       studioOnPlan={plan ? hasFeature(plan, "studio") : true}
       kind={{ type: app.appType, vertical: app.vertical ?? null }}
+      // Templates = demos: the tabs the kind's demo has, which "Like our demo" sets.
+      demoTabs={demo ? designLayout(app, demoDesign(demo), record.draft, now).tabs : null}
       ownFonts={ownFonts}
       ownDesigns={(await store.listStudioDesigns(app.clientId)).map(ownDesignView)}
       kindName={k(kindOf(app).name)}

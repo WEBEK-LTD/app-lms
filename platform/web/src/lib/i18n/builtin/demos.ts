@@ -1,7 +1,9 @@
 /**
  * Templates = demos: Yallapp's Arabic and Turkish for the texts each demo's
  * design writes on its home (lib/demo/look.ts): its banner's heading and
- * subheading and the welcome with its sentence. Part of PAGE_TEXTS_AR and
+ * subheading and the welcome with its sentence. A Studio demo's home is its
+ * kind's designed Studio page instead, with Studio's own words in each
+ * language (lib/studio/demo-templates.ts). Part of PAGE_TEXTS_AR and
  * PAGE_TEXTS_TR (./ar.ts, ./tr.ts); keys are the English texts exactly, so
  * an app started from a demo shows the demo's home in each of its languages.
  */
@@ -106,70 +108,6 @@ const DEMOS: readonly { banner: readonly [Texts, Texts]; welcome: Texts }[] = [
       "يجهّز المتطوعون كل سلة، وتُوزَّع في مراكزنا الثلاثة.",
       "Her koli gönüllüler tarafından hazırlanır ve üç merkezimizde dağıtılır.",
     ],
-  },
-  {
-    // delivery
-    banner: [
-      ["Across Cairo, the same day", "في أنحاء القاهرة، في اليوم نفسه", "Kahire'nin her yerine, aynı gün"],
-      ["Picked up from your door, delivered to theirs. Follow it all the way.", "نستلمها من بابك ونسلّمها إلى بابهم، وتتابعها طوال الطريق.", "Kapınızdan alınır, onların kapısına teslim edilir. Yol boyunca takip edin."],
-    ],
-    welcome: ["Same-day, express and documents, anywhere in Cairo and Giza.", "توصيل في اليوم نفسه وسريع ومستندات، إلى أي مكان في القاهرة والجيزة.", "Aynı gün, ekspres ve evrak teslimatı; Kahire ve Giza'nın her yerine."],
-  },
-  {
-    // food
-    banner: [
-      ["Hungry? It's on its way", "جائع؟ طعامك في الطريق", "Acıktınız mı? Yemeğiniz yolda"],
-      ["Koshary, grills and pizza from restaurants near you.", "كشري ومشويات وبيتزا من مطاعم قريبة منك.", "Yakınınızdaki restoranlardan koşari, ızgara ve pizza."],
-    ],
-    welcome: ["Three kitchens, one app. Order in a few taps.", "ثلاثة مطابخ في تطبيق واحد. اطلب بلمسات قليلة.", "Üç mutfak, tek uygulama. Birkaç dokunuşla sipariş verin."],
-  },
-  {
-    // marketplace
-    banner: [
-      ["Dinner and groceries, one app", "العشاء والبقالة في تطبيق واحد", "Akşam yemeği ve market alışverişi tek uygulamada"],
-      [
-        "Grills, pizza and a supermarket near you, delivered or ready for pick-up.",
-        "مشويات وبيتزا وسوبر ماركت قريب منك، بالتوصيل أو جاهزة للاستلام.",
-        "Yakınınızda ızgara, pizza ve bir süpermarket; kapınıza gelsin ya da gelip alın.",
-      ],
-    ],
-    welcome: ["Two kitchens and a supermarket, one basket at a time.", "مطبخان وسوبر ماركت، وكل طلب في سلة واحدة.", "İki mutfak ve bir süpermarket, her seferinde tek sepet."],
-  },
-  {
-    // rides ("Where to?" is in ./ar.ts and ./tr.ts already)
-    banner: [
-      ["Where to?", "إلى أين؟", "Nereye?"],
-      ["See the fare first, follow your driver and share your ride.", "اعرف الأجرة أولًا، وتابع سائقك، وشارك رحلتك.", "Ücreti önceden görün, sürücünüzü takip edin ve yolculuğunuzu paylaşın."],
-    ],
-    welcome: ["Economy, Comfort and Van, day and night.", "اقتصادي ومريح وفان، ليلًا ونهارًا.", "Ekonomi, Konfor ve Van; gece gündüz."],
-  },
-  {
-    // taxi
-    banner: [
-      ["Your taxi, live on the map", "سيارة الأجرة على الخريطة لحظة بلحظة", "Taksiniz haritada, canlı"],
-      ["See the free taxis around you and follow yours to the door.", "شاهد سيارات الأجرة المتاحة حولك، وتابع سيارتك حتى الباب.", "Çevrenizdeki boş taksileri görün, sizinkini kapıya kadar takip edin."],
-    ],
-    welcome: ["Taxi, Comfort and XL across Cairo, day and night.", "تاكسي ومريح وXL في أنحاء القاهرة، ليلًا ونهارًا.", "Kahire'nin her yerinde Taksi, Konfor ve XL; gece gündüz."],
-  },
-  {
-    // school
-    banner: [
-      ["The school day in one app", "اليوم الدراسي في تطبيق واحد", "Okul günü tek uygulamada"],
-      [
-        "Timetable, homework, grades and news for students, parents and teachers.",
-        "الجدول والواجبات والدرجات والأخبار، للطلاب وأولياء الأمور والمعلمين.",
-        "Öğrenciler, veliler ve öğretmenler için ders programı, ödevler, notlar ve haberler.",
-      ],
-    ],
-    welcome: ["A primary school in Heliopolis, from Grade 1 to Grade 6.", "مدرسة ابتدائية في مصر الجديدة، من الصف الأول إلى الصف السادس.", "Heliopolis'te 1. sınıftan 6. sınıfa bir ilkokul."],
-  },
-  {
-    // instructors
-    banner: [
-      ["Learn from people who do it every day", "تعلّم من أناس يمارسون ذلك كل يوم", "Bu işi her gün yapanlardan öğrenin"],
-      ["Seven teachers and their courses in design, business, languages and code.", "سبعة معلمين ودوراتهم في التصميم والأعمال واللغات والبرمجة.", "Yedi öğretmen ve tasarım, iş, dil ve kodlama kursları."],
-    ],
-    welcome: ["Seven teachers, each with their own courses. Start with a free one.", "سبعة معلمين، لكل منهم دوراته. ابدأ بدورة مجانية.", "Yedi öğretmen, her birinin kendi kursları var. Ücretsiz bir kursla başlayın."],
   },
 ];
 

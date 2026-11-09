@@ -2,7 +2,8 @@ import { bookingSetup } from "../bookings/setup";
 import { courseSetup } from "../courses/setup";
 import type { App } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
-import type { DemoId } from "../demo/constants";
+import { isStudioDemo, type DemoId } from "../demo/constants";
+import { studioDemoOf } from "../studio/demo-templates";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
@@ -166,4 +167,16 @@ export async function seedDemoSamples(deps: SampleDeps, appId: string, demo: Dem
   }
   const rest = await seedSamples(deps, appId, sources ? { sources } : {});
   return [...filled, ...rest.filter((list) => !filled.includes(list))];
+}
+
+/**
+ * Studio's editor took a whole design: the empty lists these sources show
+ * get samples, the demo's own entries when `demo` is the project's kind's
+ * Studio demo (its "Like our demo" design), else 110.2's. Any other demo
+ * named is not taken.
+ */
+export async function seedSamplesFor(deps: SampleDeps, app: Pick<App, "id" | "appType" | "vertical">, sources: readonly string[], demo: string | null): Promise<SampleList[]> {
+  const own = studioDemoOf({ type: app.appType, vertical: app.vertical ?? null });
+  if (demo && own === demo && isStudioDemo(own)) return seedDemoSamples(deps, app.id, own, { sources });
+  return seedSamples(deps, app.id, { sources });
 }

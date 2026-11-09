@@ -11,7 +11,8 @@ import { effectivePlans } from "../entitlements";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { designLayout, publishLayout } from "../pages/layout";
 import { appUrl } from "../env";
-import { demoStudioPage } from "../studio/demo-templates";
+import { itemSourcesFor } from "../pages/sources";
+import { demoStudioPage } from "../studio/sections";
 import { demoDesign, demoStudioContext } from "./look";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
@@ -413,9 +414,9 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const [home, ...rest] = designed.pages;
   // After the welcome banner, as before.
   const blocks = home!.blocks[0]?.id === "demo-banner" ? [home!.blocks[0], signIn, ...home!.blocks.slice(1)] : [signIn, ...home!.blocks];
-  // Templates = demos: a Studio demo's home is its Studio template, the same page its kind starts from (a Studio page has no blocks).
+  // Templates = demos: a Studio demo's home is its kind's designed page, the same its template starts a project with (a Studio page has no blocks).
   const id = demoIdOf(app);
-  const studio = isStudioDemo(id) ? demoStudioPage(id, demoStudioContext(id, appUrl()), [signIn]) : null;
+  const studio = isStudioDemo(id) ? demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(app)[0] ?? null), [signIn]) : null;
   return {
     ...designed,
     appearance: {
