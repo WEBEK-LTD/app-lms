@@ -900,6 +900,7 @@ async function startBuild(
       version_too_low: "Use the same or a higher app version than your last build.",
       invalid_config: "Some app details aren't valid. Check the app setup and try again.",
       courier_app_off: "The second app for your couriers or drivers isn't in this app's plan.",
+      vendor_app_off: "The vendor app is off: choose \"Their own app\" for the vendors in Marketplace settings, on a plan with food delivery.",
     } as const;
     // 110.2 Sample entries left: nothing goes to the stores.
     if (result.reason === "samples") return { ok: false, message: samplesBlockedMessage(result.samples), versionTooLow: false };
@@ -908,9 +909,15 @@ async function startBuild(
   // 87.4 The automatic build that was waiting is this one now.
   if (variant === "app" && context.app.autoBuildDueAt) await store.updateApp(context.app.id, { autoBuildDueAt: null }, new Date());
   await startPipeline();
-  await recordStaffChange(context, `Started ${variant === "courier" ? "courier app " : ""}build #${result.build.number} (${result.build.versionName})`);
+  await recordStaffChange(context, `Started ${variant === "courier" ? "courier app " : variant === "vendor" ? "vendor app " : ""}build #${result.build.number} (${result.build.versionName})`);
   revalidatePath("/dashboard", "layout");
   return { ok: true, number: result.build.number, versionName: result.build.versionName };
+}
+
+/** The build's app: the customers' (default), 104.6 the couriers' or drivers', or 115.16 the vendors'. */
+function buildVariantOf(formData: FormData): "app" | "courier" | "vendor" {
+  const v = formData.get("variant");
+  return v === "courier" || v === "vendor" ? v : "app";
 }
 
 export async function startBuildAction(_: FormState, formData: FormData): Promise<FormState> {
@@ -918,7 +925,7 @@ export async function startBuildAction(_: FormState, formData: FormData): Promis
   const values = formValues(formData);
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
-  const result = await startBuild(context, parsed.data.versionName, formData.get("variant") === "courier" ? "courier" : "app");
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData));
   if (!result.ok) return { message: result.message, errors: result.versionTooLow ? { versionName: result.message } : undefined, values };
   return { ok: true, message: `Build #${result.number} is queued.`, values: { versionName: bumpPatch(result.versionName) } };
 }
@@ -931,7 +938,7 @@ export async function retryBuildAction(_: FormState, formData: FormData): Promis
   const context = await requireApp("settings");
   const parsed = startBuildSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { message: "This build can't be started again. Use Start new build." };
-  const result = await startBuild(context, parsed.data.versionName, formData.get("variant") === "courier" ? "courier" : "app");
+  const result = await startBuild(context, parsed.data.versionName, buildVariantOf(formData));
   if (!result.ok) return { message: result.message };
   redirect(`/dashboard/builds?queued=${result.number}`);
 }

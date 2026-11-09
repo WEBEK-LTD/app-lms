@@ -658,7 +658,7 @@ export interface Artifact {
 }
 
 /** 104.6 Which of the app's builds: the customers' app, or a delivery company's courier app. */
-export type BuildVariant = "app" | "courier";
+export type BuildVariant = "app" | "courier" | "vendor";
 
 export interface Build {
   id: string;
