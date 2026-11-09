@@ -66,8 +66,10 @@ import type { Plan } from "@/lib/plans";
 /** 13.1 What the app's plan allows in the editor. */
 export interface EditorPlan {
   name: string;
-  /** The full page editor; without it the app gets the ready-made pages and tabs (`ready`). */
+  /** A page editor; without one the app gets the ready-made pages and tabs (`ready`). */
   pageEditor: boolean;
+  /** The simple page editor (Starter): its template's pages, basic blocks, no styling or saved sections. */
+  basic?: boolean;
   /** App languages, English included (null: all). */
   languages: number | null;
   upgradeEditor: { id: Plan; name: string } | null;
@@ -259,7 +261,14 @@ export function PagesEditor({
   const lang: Lang = { edit: layout.languages.available.includes(editLang) ? editLang : def, default: def };
   const page = layout.pages.find((p) => p.slug === pageSlug) ?? layout.pages[0] ?? null;
   const pages = layout.pages.map((p) => ({ slug: p.slug, title: p.title }));
-  const blockCtx: BlockContext = { lang, pages, sources, categorySources, screens, pickable, languages: layout.languages.available };
+  const basic = plan.basic === true;
+  const blockCtx: BlockContext = { lang, pages, sources, categorySources, screens, pickable, languages: layout.languages.available, basic };
+  /** The simple editor's note: what the full editor adds, with the plan to upgrade to. */
+  const fullEditorHint = (
+    <UpgradeHint title={t("pages.basicMore")} to={plan.upgradeEditor} cta={plan.upgradeEditor ? t("overview.upgradeTo", { plan: plan.upgradeEditor.name }) : undefined}>
+      {t("pages.basicMoreText", { plan: plan.upgradeEditor?.name ?? "" })}
+    </UpgradeHint>
+  );
   // 99.3 The pages blocks can be copied to.
   const otherPages = (slug: string) => layout.pages.filter((p) => p.slug !== slug).map((p) => ({ slug: p.slug, title: translated(p, lang.edit, def).title || p.slug }));
 
@@ -989,9 +998,11 @@ export function PagesEditor({
                         <span className="text-xs text-muted">{t("pages.pageInfo", { slug: p.slug, count: p.blocks.length })}</span>
                       </button>
                       <span className="flex gap-2">
-                        <button type="button" className={smallBtn} aria-label={t("pages.duplicateNamed", { name: title })} onClick={() => duplicate(p)}>
-                          {t("pages.duplicate")}
-                        </button>
+                        {basic ? null : (
+                          <button type="button" className={smallBtn} aria-label={t("pages.duplicateNamed", { name: title })} onClick={() => duplicate(p)}>
+                            {t("pages.duplicate")}
+                          </button>
+                        )}
                         <button type="button" className={`${btn.danger} h-9 px-3 text-sm`} aria-label={t("pages.deleteNamed", { name: title })} onClick={() => deletePage(p)}>
                           {t("common.delete")}
                         </button>
@@ -1000,14 +1011,18 @@ export function PagesEditor({
                   );
                 })}
               </ul>
-              <div className="flex flex-wrap items-end gap-2">
-                <div className="min-w-[200px] flex-1">
-                  <TextInput id="new-page-title" label={t("pages.newPage")} value={newTitle} onChange={setNewTitle} />
+              {basic ? (
+                fullEditorHint
+              ) : (
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-[200px] flex-1">
+                    <TextInput id="new-page-title" label={t("pages.newPage")} value={newTitle} onChange={setNewTitle} />
+                  </div>
+                  <button type="button" className={`${btn.primary} h-11 px-4 text-sm`} disabled={!newTitle.trim()} onClick={addPage}>
+                    {t("pages.addPage")}
+                  </button>
                 </div>
-                <button type="button" className={`${btn.primary} h-11 px-4 text-sm`} disabled={!newTitle.trim()} onClick={addPage}>
-                  {t("pages.addPage")}
-                </button>
-              </div>
+              )}
             </section>
 
             {page ? (
@@ -1148,7 +1163,7 @@ export function PagesEditor({
                 )}
 
                 {/* 84.3 Blocks of this page saved together, for any page of the account's apps. */}
-                {page.blocks.length ? (
+                {page.blocks.length && !basic ? (
                   <details className="rounded-xl border border-line p-3">
                     <summary className="cursor-pointer text-[15px] font-semibold">{t("pages.saveSection")}</summary>
                     <div className="mt-3 flex flex-col gap-3">
@@ -1177,7 +1192,8 @@ export function PagesEditor({
                 ) : null}
 
                 <h3 className="m-0 text-base font-bold">{t("pages.addBlock")}</h3>
-                {sections.length ? (
+                {basic ? fullEditorHint : null}
+                {sections.length && !basic ? (
                   <div className="flex flex-col gap-2">
                     <h4 className="m-0 text-xs font-bold tracking-[0.5px] text-muted uppercase">{t("pages.yourSections")}</h4>
                     <p className="m-0 text-xs text-muted">{t("pages.yourSectionsText")}</p>

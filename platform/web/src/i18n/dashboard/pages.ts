@@ -186,6 +186,9 @@ export const en = {
   readyMade: "On the {plan} plan your app uses ready-made pages and tabs for its type, filled with your content. Choose its template, colors and fonts under Look.",
   fullEditor: "Full page editor",
   fullEditorText: "Build your own pages and tabs from blocks: banners, lists, buttons, videos and more.",
+  basicMore: "More with the full page editor",
+  basicMoreText: "Your plan has the simple page editor: change your pages' texts, pictures, links and slides, reorder and hide sections, and add basic ones. Every block, block styling, saved sections and more pages come with {plan} and up.",
+  basicNoStyle: "The block keeps your design's look. Block styling comes with the full page editor.",
   startDesign: "Start from a design",
   hideDesigns: "Hide designs",
   showDesigns: "Show designs",
@@ -530,6 +533,11 @@ export const en = {
   known: {
     // 82.4
     restoredMessage: "Your draft is now as you published it then. Check it, then publish to bring it back.",
+    // lib/pages/plan.ts and app/actions/pages.ts: the simple page editor
+    basicPagesLimit: "Your {plan} plan includes up to {max} pages. Remove the others, or upgrade your plan for the full page editor.",
+    basicNoEmbed: "Web page blocks need the full page editor. Remove them, or upgrade your plan.",
+    basicNoLook: "Block styling needs the full page editor. Reset the blocks' look, or upgrade your plan.",
+    basicNoSections: "Saved sections come with the full page editor. Upgrade your plan to save sections.",
     notKept: "This publish isn't kept anymore. Choose another one.",
     // lib/pages/labels.ts
     tClassic: "Classic",
@@ -864,6 +872,9 @@ export const ar: Messages = {
   readyMade: "في باقة {plan} يستخدم تطبيقك صفحات وعلامات تبويب جاهزة لنوعه، تملؤها بمحتواك. اختر القالب والألوان والخطوط من «المظهر».",
   fullEditor: "محرّر صفحات كامل",
   fullEditorText: "أنشئ صفحاتك وعلامات التبويب الخاصة بك من الكتل: لافتات وقوائم وأزرار وفيديوهات والمزيد.",
+  basicMore: "المزيد مع محرّر الصفحات الكامل",
+  basicMoreText: "تتضمّن باقتك محرّر الصفحات البسيط: غيّر نصوص صفحاتك وصورها وروابطها وشرائح العرض، ورتّب الأقسام وأخفِها، وأضف الأقسام الأساسية. أمّا كل أنواع الأقسام وتنسيقها والأقسام المحفوظة والمزيد من الصفحات فتأتي مع {plan} وما فوقها.",
+  basicNoStyle: "يحتفظ القسم بمظهر تصميمك. يأتي تنسيق الأقسام مع محرّر الصفحات الكامل.",
   startDesign: "ابدأ من تصميم",
   hideDesigns: "إخفاء التصاميم",
   showDesigns: "عرض التصاميم",
@@ -1204,6 +1215,11 @@ export const ar: Messages = {
   known: {
     // 82.4
     restoredMessage: "أصبحت مسودتك كما نشرتها حينها. راجعها، ثم انشر لإعادتها.",
+    // lib/pages/plan.ts and app/actions/pages.ts: the simple page editor
+    basicPagesLimit: "تتضمّن باقة {plan} حتى {max} صفحات. احذف الصفحات الأخرى، أو رقِّ باقتك للحصول على محرّر الصفحات الكامل.",
+    basicNoEmbed: "تحتاج أقسام صفحات الويب إلى محرّر الصفحات الكامل. احذفها، أو رقِّ باقتك.",
+    basicNoLook: "يحتاج تنسيق الأقسام إلى محرّر الصفحات الكامل. أعِد مظهر الأقسام إلى الأصل، أو رقِّ باقتك.",
+    basicNoSections: "تأتي الأقسام المحفوظة مع محرّر الصفحات الكامل. رقِّ باقتك لحفظ الأقسام.",
     notKept: "لم يعد هذا النشر محفوظًا. اختر نشرًا آخر.",
     tClassic: "كلاسيكي",
     tBold: "جريء",
@@ -1534,6 +1550,9 @@ export const tr: Messages = {
   readyMade: "{plan} paketinde uygulamanız, türüne uygun ve içeriğinizle dolan hazır sayfalar ve sekmeler kullanır. Şablonunu, renklerini ve yazı tiplerini Görünüm'den seçin.",
   fullEditor: "Tam sayfa düzenleyici",
   fullEditorText: "Bloklardan kendi sayfalarınızı ve sekmelerinizi oluşturun: afişler, listeler, düğmeler, videolar ve daha fazlası.",
+  basicMore: "Tam sayfa düzenleyiciyle daha fazlası",
+  basicMoreText: "Planınızda basit sayfa düzenleyici var: sayfalarınızın metinlerini, resimlerini, bağlantılarını ve slaytlarını değiştirin, bölümleri sıralayın ve gizleyin, temel bölümler ekleyin. Tüm bloklar, blok stili, kayıtlı bölümler ve daha fazla sayfa {plan} ve üstü planlarla gelir.",
+  basicNoStyle: "Blok, tasarımınızın görünümünü korur. Blok stili tam sayfa düzenleyiciyle gelir.",
   startDesign: "Bir tasarımla başlayın",
   hideDesigns: "Tasarımları gizle",
   showDesigns: "Tasarımları göster",
@@ -1874,6 +1893,11 @@ export const tr: Messages = {
   known: {
     // 82.4
     restoredMessage: "Taslağınız artık o zaman yayınladığınız gibi. Kontrol edin, sonra geri getirmek için yayınlayın.",
+    // lib/pages/plan.ts and app/actions/pages.ts: the simple page editor
+    basicPagesLimit: "{plan} planınız en fazla {max} sayfa içerir. Diğerlerini kaldırın veya tam sayfa düzenleyici için planınızı yükseltin.",
+    basicNoEmbed: "Web sayfası blokları tam sayfa düzenleyiciyi gerektirir. Onları kaldırın veya planınızı yükseltin.",
+    basicNoLook: "Blok stili tam sayfa düzenleyiciyi gerektirir. Blokların görünümünü sıfırlayın veya planınızı yükseltin.",
+    basicNoSections: "Kaydedilen bölümler tam sayfa düzenleyiciyle gelir. Bölüm kaydetmek için planınızı yükseltin.",
     notKept: "Bu yayın artık saklanmıyor. Başka birini seçin.",
     tClassic: "Klasik",
     tBold: "Cesur",

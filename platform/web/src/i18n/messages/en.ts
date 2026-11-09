@@ -190,6 +190,7 @@ export const en = {
     all: "All",
     unlimited: "Unlimited",
     fullEditor: "Full page editor",
+    basicEditor: "Simple page editor",
     templates: "Ready-made templates",
     supportEmail: "Email support",
     supportWhatsapp: "WhatsApp support",
