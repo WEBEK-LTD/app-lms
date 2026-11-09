@@ -1813,6 +1813,7 @@ class StudioMarket {
     this.tag,
     this.freeDelivery = false,
     this.limit = 10,
+    this.card = const StudioMarketCard(),
   });
 
   static StudioMarket? tryParse(Object? value) {
@@ -1840,6 +1841,7 @@ class StudioMarket {
       tag: optString(json, 'tag'),
       freeDelivery: boolOr(json, 'free_delivery', false),
       limit: intOr(json, 'limit', 10).clamp(1, 40),
+      card: StudioMarketCard.tryParse(json['card']),
     );
   }
 
@@ -1852,6 +1854,55 @@ class StudioMarket {
   final String? tag;
   final bool freeDelivery;
   final int limit;
+
+  /// Editor audit 3.4: how each place's card is drawn.
+  final StudioMarketCard card;
+}
+
+/// Facts a place's card can leave out.
+enum StudioMarketFact { offer, rating, time, fee, minOrder }
+
+/// Editor audit 3.4: `StudioMarket.card`, the corners of each place's card
+/// and the facts it leaves out. Missing, the usual card.
+class StudioMarketCard {
+  const StudioMarketCard({this.radius, this.hide = const {}});
+
+  static StudioMarketCard tryParse(Object? value) {
+    if (value is! Map) return const StudioMarketCard();
+    final radius = value['radius'];
+    final hide = value['hide'];
+    return StudioMarketCard(
+      radius: radius is num ? radius.toDouble().clamp(0, 32) : null,
+      hide: {
+        if (hide is List)
+          for (final f in hide) ?_facts[f],
+      },
+    );
+  }
+
+  static const _facts = {
+    'offer': StudioMarketFact.offer,
+    'rating': StudioMarketFact.rating,
+    'time': StudioMarketFact.time,
+    'fee': StudioMarketFact.fee,
+    'min_order': StudioMarketFact.minOrder,
+  };
+
+  /// The corners; null keeps each look's own.
+  final double? radius;
+  final Set<StudioMarketFact> hide;
+
+  bool shows(StudioMarketFact fact) => !hide.contains(fact);
+
+  @override
+  bool operator ==(Object other) =>
+      other is StudioMarketCard &&
+      other.radius == radius &&
+      other.hide.length == hide.length &&
+      other.hide.containsAll(hide);
+
+  @override
+  int get hashCode => Object.hash(radius, Object.hashAllUnordered(hide));
 }
 
 /// 112.4 How a slider shows where it is: dots under it, a line per slide

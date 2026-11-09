@@ -65,6 +65,7 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
+  STUDIO_MARKET_CARD_FACTS,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -1361,6 +1362,20 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       const limit = studioNumber(m.limit, 1, 40);
       if (limit !== undefined && Number.isNaN(limit)) bad("how many it shows must be 1 to 40.");
       else if (limit !== undefined && Math.round(limit) !== 10) market.limit = Math.round(limit);
+      // Editor audit 3.4: the card's corners and the facts it leaves out.
+      const card = record(m.card);
+      if (m.card !== undefined && m.card !== null && !card) bad("the card must be an object.");
+      if (card) {
+        const out: NonNullable<StudioMarket["card"]> = {};
+        const radius = studioNumber(card.radius, 0, 32);
+        if (radius !== undefined && Number.isNaN(radius)) bad("the card's corners must be 0 to 32.");
+        else if (radius !== undefined) out.radius = Math.round(radius);
+        if (card.hide !== undefined && card.hide !== null) {
+          if (!Array.isArray(card.hide) || !card.hide.every((f) => oneOf(STUDIO_MARKET_CARD_FACTS, f))) bad("choose which facts the card leaves out.");
+          else if (card.hide.length) out.hide = [...new Set(card.hide)] as NonNullable<typeof out.hide>;
+        }
+        if (out.radius !== undefined || out.hide) market.card = out;
+      }
       node.market = market;
       break;
     }
