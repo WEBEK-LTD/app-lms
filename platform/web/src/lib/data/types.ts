@@ -3354,6 +3354,12 @@ export interface MarketAppSettings {
    * hidden from customers. On unless the owner turns it off (lib/market/photos.ts `photosRequired`).
    */
   requirePhotos?: boolean;
+  /**
+   * 115.18 Places make their own coupons and offers in their panel, paid by
+   * them and for their own items only; on unless the owner turns it off,
+   * with the largest percentage they may give (null: up to 100).
+   */
+  vendorCoupons?: { enabled: boolean; maxPercent: number | null };
 }
 
 /**
@@ -4026,8 +4032,14 @@ export interface MarketCoupon {
   vendorIds: number[];
   /** Empty: every kind. */
   vendorKinds: VendorKind[];
-  /** Empty: every department (groceries and shops). */
+  /** Empty: every department (groceries and shops); a vendor's own coupon may name its menu's sections here. */
   departmentIds: number[];
+  /** 115.18 Only these products or dishes of the vendor's (empty or missing: every one). */
+  productIds?: number[] | null;
+  /** 115.18 Made by this vendor in its panel: always for it alone and paid by it. */
+  createdByVendorId?: number | null;
+  /** 115.18 Paused by the app's owner: off until the owner allows it again, whatever the vendor does. */
+  ownerPaused?: boolean;
   /** Uses in all and per person; null: no limit. */
   usesLimit: number | null;
   perUserLimit: number | null;
