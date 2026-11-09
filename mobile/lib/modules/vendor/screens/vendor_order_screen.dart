@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/api_exception.dart';
@@ -8,12 +9,14 @@ import '../../../core/api/yallapp_api.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/paths.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../food/widgets/food_widgets.dart' show AmountRow;
 import '../../market/screens/market_orders_screen.dart' show marketStatusText;
 import '../data/vendor_providers.dart';
+import 'vendor_pick_screen.dart' show pickAmountText;
 
 /// The minutes a vendor may say an order takes.
 const vendorPrepChoices = [10, 15, 20, 30, 45, 60, 90];
@@ -144,12 +147,15 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
 
   List<Widget> _actions(VendorOrder o, VendorDesk? desk) {
     final l10n = context.l10n;
-    if (desk != null &&
-        !desk.answers &&
-        o.status != MarketOrderStatus.accepted) {
-      return const [];
-    }
+    final working =
+        o.status == MarketOrderStatus.accepted ||
+        o.status == MarketOrderStatus.picking;
+    if (desk != null && !desk.answers && !working) return const [];
     final ownDriver = desk?.deliveryBy == VendorDelivery.vendor;
+    // 115.16 A grocery's or shop's order is picked line by line before
+    // it is ready.
+    final picks = desk != null && desk.kind != VendorKind.restaurant;
+    final unpicked = picks && o.lines.any((l) => l.outcome == null);
     return switch (o.status) {
       MarketOrderStatus.placed => [
         PrimaryButton(
@@ -166,7 +172,27 @@ class _VendorOrderScreenState extends ConsumerState<VendorOrderScreen> {
           child: Text(l10n.deskReject),
         ),
       ],
+      MarketOrderStatus.accepted || MarketOrderStatus.picking when unpicked => [
+        PrimaryButton(
+          key: const ValueKey('vendor-pick'),
+          label: l10n.vendorPickItems,
+          icon: Symbols.checklist,
+          onPressed: _busy
+              ? null
+              : () => context.push(Paths.vendorPick(widget.orderId)),
+        ),
+      ],
       MarketOrderStatus.accepted || MarketOrderStatus.picking => [
+        if (picks) ...[
+          TextButton(
+            key: const ValueKey('vendor-pick-again'),
+            onPressed: _busy
+                ? null
+                : () => context.push(Paths.vendorPick(widget.orderId)),
+            child: Text(l10n.vendorPickAgain),
+          ),
+          const SizedBox(height: 8),
+        ],
         PrimaryButton(
           key: const ValueKey('vendor-ready'),
           label: l10n.deskMarkReady,
@@ -348,6 +374,33 @@ class _OrderView extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: p.textSecondary,
+                                ),
+                              ),
+                            // 115.16 How it was picked.
+                            if (switch (line.outcome) {
+                                  'picked' when line.pickedQuantity != null =>
+                                    l10n.vendorLinePicked(
+                                      pickAmountText(
+                                        line.pickedQuantity!,
+                                        line.unit,
+                                      ),
+                                    ),
+                                  'substituted' => l10n.vendorLineSubstituted(
+                                    line.substituteName ?? '',
+                                  ),
+                                  'missing' => l10n.vendorMissing,
+                                  _ => null,
+                                }
+                                case final picked?)
+                              Text(
+                                picked,
+                                key: ValueKey('vendor-line-${line.id}-picked'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: line.outcome == 'missing'
+                                      ? p.danger
+                                      : p.success,
                                 ),
                               ),
                           ],

@@ -17,8 +17,10 @@ import '../market/screens/market_vendor_screen.dart';
 import '../delivery/screens/courier_screen.dart';
 import '../shared/account/profile_screen.dart';
 import '../shared/shared_routes.dart';
+import '../vendor/screens/vendor_books_screens.dart';
 import '../vendor/screens/vendor_desk_screen.dart';
 import '../vendor/screens/vendor_order_screen.dart';
+import '../vendor/screens/vendor_pick_screen.dart';
 import '../vendor/screens/vendor_stock_screen.dart';
 import 'screens/food_cart_screen.dart';
 import 'screens/food_order_screen.dart';
@@ -153,6 +155,18 @@ List<RouteBase> _pushedRoutes() => [
   _byId('/restaurant-order/:id', (id) => RestaurantOrderScreen(orderId: id)),
   _byId('/courier-job/:id', (id) => CourierJobScreen(jobId: id)),
   _byId('/vendor-order/:id', (id) => VendorOrderScreen(orderId: id)),
+  _byId('/vendor-pick/:id', (id) => VendorPickScreen(orderId: id)),
+  // 115.16 The vendor's statements and the complaints shared with it.
+  GoRoute(
+    path: Paths.vendorStatements,
+    pageBuilder: (context, state) =>
+        appPage(state, const VendorStatementsScreen()),
+  ),
+  GoRoute(
+    path: Paths.vendorComplaints,
+    pageBuilder: (context, state) =>
+        appPage(state, const VendorComplaintsScreen()),
+  ),
   // 115 The marketplace's basket, an order and the customer's orders.
   GoRoute(
     path: Paths.marketCheckout,

@@ -92,6 +92,9 @@ test("signed in, the website's header says Dashboard instead of Sign in and Get 
 test("62 a session that ended on the server stops the header saying Dashboard", async ({ page }) => {
   const header = page.getByRole("banner");
   await signIn(page, client.email, client.password);
+  // The dashboard has loaded with the session: changing its cookie before then would end the sign-in's own
+  // navigation on /api/session/ended, which removes the readable cookie the next step expects.
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
   // The session ends on the server (signed out elsewhere, a new password): its cookie no longer opens anything.
   const context = page.context();
   const session = (await context.cookies()).find((c) => c.name === "yallapp_session")!;

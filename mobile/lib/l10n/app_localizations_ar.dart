@@ -9306,4 +9306,156 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vendorStockEmpty => 'لا توجد أصناف';
+
+  @override
+  String get vendorPickItems => 'تجهيز الأصناف';
+
+  @override
+  String get vendorPickAgain => 'تعديل التجهيز';
+
+  @override
+  String get vendorPicked => 'متوفر';
+
+  @override
+  String get vendorSubstituted => 'بديل';
+
+  @override
+  String get vendorMissing => 'غير متوفر';
+
+  @override
+  String get vendorPickedCount => 'العدد';
+
+  @override
+  String vendorPickedWeight(String unit) {
+    return 'الوزن ($unit)';
+  }
+
+  @override
+  String vendorWeightTolerance(int percent) {
+    return 'حتى $percent% أكثر من المطلوب';
+  }
+
+  @override
+  String get vendorIfMissingSimilar => 'إن لم يتوفر: صنف مشابه';
+
+  @override
+  String get vendorIfMissingChosen => 'إن لم يتوفر: الصنف الذي اختاره العميل';
+
+  @override
+  String get vendorIfMissingRemove => 'إن لم يتوفر: يُحذف من الطلب';
+
+  @override
+  String get vendorBringChosen => 'أحضر الصنف الذي اختاره العميل.';
+
+  @override
+  String get vendorChooseSubstitute => 'اختر الصنف';
+
+  @override
+  String get vendorChangeSubstitute => 'تغيير';
+
+  @override
+  String get vendorPickSave => 'حفظ التجهيز';
+
+  @override
+  String get vendorPickSaved => 'تم حفظ التجهيز';
+
+  @override
+  String vendorPickNeedsAmount(String item) {
+    return 'أدخل الكمية التي جهّزتها من $item.';
+  }
+
+  @override
+  String vendorPickNeedsSubstitute(String item) {
+    return 'اختر ما ستحضره بدلًا من $item.';
+  }
+
+  @override
+  String vendorLinePicked(String amount) {
+    return 'جُهّز $amount';
+  }
+
+  @override
+  String vendorLineSubstituted(String item) {
+    return 'البديل: $item';
+  }
+
+  @override
+  String get vendorStatementsTitle => 'كشوف الحساب';
+
+  @override
+  String get vendorPreviousMonth => 'الشهر السابق';
+
+  @override
+  String get vendorNextMonth => 'الشهر التالي';
+
+  @override
+  String vendorStatementOrders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طلب',
+      few: '$count طلبات',
+      two: 'طلبان',
+      one: 'طلب واحد',
+      zero: 'لا طلبات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorStatementEarns => 'أرباحك';
+
+  @override
+  String get vendorStatementCommission => 'عمولة التطبيق';
+
+  @override
+  String get vendorStatementDue => 'المستحق لك';
+
+  @override
+  String get vendorStatementYouOwe => 'المستحق عليك للتطبيق';
+
+  @override
+  String get vendorStatementEmpty => 'لا طلبات مُسلّمة في هذا الشهر';
+
+  @override
+  String get vendorStatementOrdersTitle => 'الطلبات';
+
+  @override
+  String vendorStatementDueEach(String amount) {
+    return '$amount لك';
+  }
+
+  @override
+  String get vendorStatementAdjustments => 'الاستردادات والتعويضات';
+
+  @override
+  String vendorAdjustmentRefund(String reference) {
+    return 'استرداد على $reference';
+  }
+
+  @override
+  String vendorAdjustmentCompensation(String reference) {
+    return 'تعويض على $reference';
+  }
+
+  @override
+  String get vendorPaidByYou => 'على حسابك';
+
+  @override
+  String get vendorPaidByApp => 'على حساب التطبيق';
+
+  @override
+  String get vendorComplaintsTitle => 'الشكاوى';
+
+  @override
+  String get vendorComplaintsEmptyTitle => 'لا شكاوى';
+
+  @override
+  String get vendorComplaintsEmptyMessage =>
+      'تظهر هنا الشكاوى التي يشاركها معك دعم التطبيق.';
+
+  @override
+  String vendorComplaintOrder(String reference) {
+    return 'الطلب $reference';
+  }
 }

@@ -14129,6 +14129,7 @@ components:
         motion: { $ref: '#/components/schemas/StudioMotion' }
         hidden: { type: boolean, default: false, description: "107.2 Kept in the editor but never shown: the servers leave it out with what it holds, and an app that gets one doesn't draw it." }
         locked: { type: boolean, default: false, description: "Editor audit 3.3: kept for the editor only, where the canvas doesn't select, move or resize it. Apps ignore it." }
+        text_style: { type: string, enum: [heading, subheading, body, button], description: "Editor audit 3.3: the project's text style it follows, kept for the editor; `font` already holds the style's font. Apps ignore it." }
 
     StudioCorners:
       type: [object, 'null']

@@ -20,7 +20,13 @@ type PageWord =
   | "faqFiveQ"
   | "faqFiveA"
   | "faqSixQ"
-  | "faqSixA";
+  | "faqSixA"
+  | "reviewsTitle"
+  | "reviewsText"
+  | "howTitle"
+  | "howText"
+  | "joinTitle"
+  | "joinText";
 
 /** The editor's words come from `studio.w_<word>`, so these are looked up like the sections' own. */
 function word(ctx: SectionContext, w: PageWord): string {
@@ -93,6 +99,33 @@ export const PAGE_TEMPLATES: readonly TemplateInfo[] = [
     make: (ctx) => ({
       header: { type: "logo_center", buttons: ["menu"] },
       body: body(ctx, [intro(ctx, "helpTitle", "helpText"), section(ctx, "faq"), questions(ctx), section(ctx, "contact")]),
+    }),
+  },
+  // What people say: reviews, the numbers behind them and a way to start.
+  {
+    id: "reviews",
+    icon: "star",
+    make: (ctx) => ({
+      header: { type: "logo_center", buttons: ["menu"] },
+      body: body(ctx, [intro(ctx, "reviewsTitle", "reviewsText"), section(ctx, "review"), section(ctx, "stats"), section(ctx, "cta")]),
+    }),
+  },
+  // How it works: the steps, what you get and a way to start.
+  {
+    id: "how",
+    icon: "route",
+    make: (ctx) => ({
+      header: { type: "logo_center", buttons: ["menu"] },
+      body: body(ctx, [intro(ctx, "howTitle", "howText"), section(ctx, "steps"), section(ctx, "features"), section(ctx, "cta")]),
+    }),
+  },
+  // Get in touch: a form people send, and the ways to reach you.
+  {
+    id: "join",
+    icon: "mail",
+    make: (ctx) => ({
+      header: { type: "logo_center", buttons: ["menu"] },
+      body: body(ctx, [intro(ctx, "joinTitle", "joinText"), section(ctx, "form"), section(ctx, "contact")]),
     }),
   },
 ];

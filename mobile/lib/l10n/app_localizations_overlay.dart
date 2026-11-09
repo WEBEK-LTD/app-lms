@@ -9630,4 +9630,181 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get vendorStockEmpty =>
       overlay.text('vendorStockEmpty') ?? base.vendorStockEmpty;
+
+  @override
+  String get vendorPickItems =>
+      overlay.text('vendorPickItems') ?? base.vendorPickItems;
+
+  @override
+  String get vendorPickAgain =>
+      overlay.text('vendorPickAgain') ?? base.vendorPickAgain;
+
+  @override
+  String get vendorPicked => overlay.text('vendorPicked') ?? base.vendorPicked;
+
+  @override
+  String get vendorSubstituted =>
+      overlay.text('vendorSubstituted') ?? base.vendorSubstituted;
+
+  @override
+  String get vendorMissing =>
+      overlay.text('vendorMissing') ?? base.vendorMissing;
+
+  @override
+  String get vendorPickedCount =>
+      overlay.text('vendorPickedCount') ?? base.vendorPickedCount;
+
+  @override
+  String vendorPickedWeight(String unit) =>
+      overlay.format('vendorPickedWeight', {'unit': unit}) ??
+      base.vendorPickedWeight(unit);
+
+  @override
+  String vendorWeightTolerance(int percent) =>
+      overlay.format('vendorWeightTolerance', {'percent': percent}) ??
+      base.vendorWeightTolerance(percent);
+
+  @override
+  String get vendorIfMissingSimilar =>
+      overlay.text('vendorIfMissingSimilar') ?? base.vendorIfMissingSimilar;
+
+  @override
+  String get vendorIfMissingChosen =>
+      overlay.text('vendorIfMissingChosen') ?? base.vendorIfMissingChosen;
+
+  @override
+  String get vendorIfMissingRemove =>
+      overlay.text('vendorIfMissingRemove') ?? base.vendorIfMissingRemove;
+
+  @override
+  String get vendorBringChosen =>
+      overlay.text('vendorBringChosen') ?? base.vendorBringChosen;
+
+  @override
+  String get vendorChooseSubstitute =>
+      overlay.text('vendorChooseSubstitute') ?? base.vendorChooseSubstitute;
+
+  @override
+  String get vendorChangeSubstitute =>
+      overlay.text('vendorChangeSubstitute') ?? base.vendorChangeSubstitute;
+
+  @override
+  String get vendorPickSave =>
+      overlay.text('vendorPickSave') ?? base.vendorPickSave;
+
+  @override
+  String get vendorPickSaved =>
+      overlay.text('vendorPickSaved') ?? base.vendorPickSaved;
+
+  @override
+  String vendorPickNeedsAmount(String item) =>
+      overlay.format('vendorPickNeedsAmount', {'item': item}) ??
+      base.vendorPickNeedsAmount(item);
+
+  @override
+  String vendorPickNeedsSubstitute(String item) =>
+      overlay.format('vendorPickNeedsSubstitute', {'item': item}) ??
+      base.vendorPickNeedsSubstitute(item);
+
+  @override
+  String vendorLinePicked(String amount) =>
+      overlay.format('vendorLinePicked', {'amount': amount}) ??
+      base.vendorLinePicked(amount);
+
+  @override
+  String vendorLineSubstituted(String item) =>
+      overlay.format('vendorLineSubstituted', {'item': item}) ??
+      base.vendorLineSubstituted(item);
+
+  @override
+  String get vendorStatementsTitle =>
+      overlay.text('vendorStatementsTitle') ?? base.vendorStatementsTitle;
+
+  @override
+  String get vendorPreviousMonth =>
+      overlay.text('vendorPreviousMonth') ?? base.vendorPreviousMonth;
+
+  @override
+  String get vendorNextMonth =>
+      overlay.text('vendorNextMonth') ?? base.vendorNextMonth;
+
+  @override
+  String vendorStatementOrders(int count) =>
+      overlay.format('vendorStatementOrders', {'count': count}) ??
+      base.vendorStatementOrders(count);
+
+  @override
+  String get vendorStatementEarns =>
+      overlay.text('vendorStatementEarns') ?? base.vendorStatementEarns;
+
+  @override
+  String get vendorStatementCommission =>
+      overlay.text('vendorStatementCommission') ??
+      base.vendorStatementCommission;
+
+  @override
+  String get vendorStatementDue =>
+      overlay.text('vendorStatementDue') ?? base.vendorStatementDue;
+
+  @override
+  String get vendorStatementYouOwe =>
+      overlay.text('vendorStatementYouOwe') ?? base.vendorStatementYouOwe;
+
+  @override
+  String get vendorStatementEmpty =>
+      overlay.text('vendorStatementEmpty') ?? base.vendorStatementEmpty;
+
+  @override
+  String get vendorStatementOrdersTitle =>
+      overlay.text('vendorStatementOrdersTitle') ??
+      base.vendorStatementOrdersTitle;
+
+  @override
+  String vendorStatementDueEach(String amount) =>
+      overlay.format('vendorStatementDueEach', {'amount': amount}) ??
+      base.vendorStatementDueEach(amount);
+
+  @override
+  String get vendorStatementAdjustments =>
+      overlay.text('vendorStatementAdjustments') ??
+      base.vendorStatementAdjustments;
+
+  @override
+  String vendorAdjustmentRefund(String reference) =>
+      overlay.format('vendorAdjustmentRefund', {'reference': reference}) ??
+      base.vendorAdjustmentRefund(reference);
+
+  @override
+  String vendorAdjustmentCompensation(String reference) =>
+      overlay.format('vendorAdjustmentCompensation', {
+        'reference': reference,
+      }) ??
+      base.vendorAdjustmentCompensation(reference);
+
+  @override
+  String get vendorPaidByYou =>
+      overlay.text('vendorPaidByYou') ?? base.vendorPaidByYou;
+
+  @override
+  String get vendorPaidByApp =>
+      overlay.text('vendorPaidByApp') ?? base.vendorPaidByApp;
+
+  @override
+  String get vendorComplaintsTitle =>
+      overlay.text('vendorComplaintsTitle') ?? base.vendorComplaintsTitle;
+
+  @override
+  String get vendorComplaintsEmptyTitle =>
+      overlay.text('vendorComplaintsEmptyTitle') ??
+      base.vendorComplaintsEmptyTitle;
+
+  @override
+  String get vendorComplaintsEmptyMessage =>
+      overlay.text('vendorComplaintsEmptyMessage') ??
+      base.vendorComplaintsEmptyMessage;
+
+  @override
+  String vendorComplaintOrder(String reference) =>
+      overlay.format('vendorComplaintOrder', {'reference': reference}) ??
+      base.vendorComplaintOrder(reference);
 }
