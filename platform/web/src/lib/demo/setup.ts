@@ -28,7 +28,9 @@ import { DEFAULT_TAXI_SETTINGS } from "../taxi/settings";
 import { effectivePlans } from "../entitlements";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { designLayout, publishLayout } from "../pages/layout";
-import { demoDesign } from "./look";
+import { appUrl } from "../env";
+import { demoStudioPage } from "../studio/demo-templates";
+import { demoDesign, demoStudioContext } from "./look";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
@@ -780,6 +782,17 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
 
+/** How to sign in to a demo, shown to people not signed in, after the welcome banner. */
+export function demoSignInBlock(): LayoutBlock {
+  return {
+    id: "demo-sign-in",
+    type: "text",
+    visibility: "signed_out",
+    title: null,
+    html: `<p><strong>This is a demo app.</strong> Sign in with ${escapeHtml(DEMO_SIGN_IN.display)} and the code ${DEMO_SIGN_IN.code}. Anything you add is deleted after a day.</p>`,
+  };
+}
+
 /**
  * The demo's pages and look: its design (lib/demo/look.ts), the same an
  * owner starts from with "Like our demo", with how to sign in to the demo.
@@ -789,16 +802,13 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const brand = DEMO_BRANDS[demoIdOf(app)];
   const base = defaultLayout({ ...app, brandingDoneAt: deps.now }, BUILT_IN_APP_DEFAULTS, deps.now);
   const designed = designLayout({ ...app, appName: brand.appName }, demoDesign(demoIdOf(app)), base, deps.now);
-  const signIn: LayoutBlock = {
-    id: "demo-sign-in",
-    type: "text",
-    visibility: "signed_out",
-    title: null,
-    html: `<p><strong>This is a demo app.</strong> Sign in with ${escapeHtml(DEMO_SIGN_IN.display)} and the code ${DEMO_SIGN_IN.code}. Anything you add is deleted after a day.</p>`,
-  };
+  const signIn = demoSignInBlock();
   const [home, ...rest] = designed.pages;
   // After the welcome banner, as before.
   const blocks = home!.blocks[0]?.id === "demo-banner" ? [home!.blocks[0], signIn, ...home!.blocks.slice(1)] : [signIn, ...home!.blocks];
+  // Templates = demos: a Studio demo's home is its Studio template, the same page its kind starts from (a Studio page has no blocks).
+  const id = demoIdOf(app);
+  const studio = isStudioDemo(id) ? demoStudioPage(id, demoStudioContext(id, appUrl()), [signIn]) : null;
   return {
     ...designed,
     appearance: {
@@ -811,7 +821,7 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
       cards: brand.cards,
     },
     languages: { default: "en", available: [...brand.languages] },
-    pages: [{ ...home!, blocks }, ...rest],
+    pages: [studio ? { ...home!, blocks: [], studio } : { ...home!, blocks }, ...rest],
   };
 }
 
