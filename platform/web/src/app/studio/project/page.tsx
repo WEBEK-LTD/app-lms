@@ -1,3 +1,4 @@
+import { sampleEntries } from "@/lib/studio/sample-entries";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -62,7 +63,7 @@ export default async function StudioProjectPage({ searchParams }: PageProps<"/st
     <div className="flex flex-col gap-6">
       {/* The page kit: the project and its one main action, the numbers, then what's left before publishing. */}
       <section aria-labelledby="h-project" className="flex flex-wrap items-center gap-6 rounded-[18px] border border-line bg-white p-5 sm:p-6">
-        <ProjectPhone home={card.home} size="whole" words={words} />
+        <ProjectPhone home={card.home} size="whole" words={words} samples={sampleEntries(now)} />
         <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 id="h-project" className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">

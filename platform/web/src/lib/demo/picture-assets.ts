@@ -1,7 +1,7 @@
 import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { AssetKind } from "../data/types";
-import { artPng } from "./art";
+import { artPng, type Art } from "./art";
 import { PICTURES, type PictureName } from "./pictures";
 
 /**
@@ -42,15 +42,32 @@ export interface PictureDeps {
  * so removing an app's samples never takes another app's pictures.
  */
 export async function savePicture(deps: PictureDeps, owner: { clientId: string; appId?: string }, name: PictureName, size: PictureSize, kind: AssetKind): Promise<string> {
+  return saveArt(deps, owner, PICTURES[name], size, kind);
+}
+
+function artId(owner: { clientId: string; appId?: string }, art: Art, size: PictureSize): string {
   const { clientId, appId } = owner;
   const [width, height] = PICTURE_SIZES[size];
-  const id = idFrom(JSON.stringify(appId ? { v: 1, clientId, appId, art: PICTURES[name], width, height } : { v: 1, clientId, art: PICTURES[name], width, height }));
+  return idFrom(JSON.stringify(appId ? { v: 1, clientId, appId, art, width, height } : { v: 1, clientId, art, width, height }));
+}
+
+/** Any drawn picture (a demo's, or one of the designs' in lib/demo/design-art.ts) saved as `savePicture` saves them. */
+export async function saveArt(deps: PictureDeps, owner: { clientId: string; appId?: string }, art: Art, size: PictureSize, kind: AssetKind): Promise<string> {
+  const { clientId } = owner;
+  const [width, height] = PICTURE_SIZES[size];
+  const id = artId(owner, art, size);
   if (await deps.store.getAsset(id)) return id;
-  const drawn = `${name}:${width}x${height}`;
-  const png = rendered.get(drawn) ?? artPng(PICTURES[name], width, height);
+  const drawn = JSON.stringify({ art, width, height });
+  const png = rendered.get(drawn) ?? artPng(art, width, height);
   rendered.set(drawn, png);
   const blobKey = `assets/${clientId}/${id}.png`;
   await deps.putBlob(blobKey, png, "image/png");
   await deps.store.createAsset({ id, clientId, kind, blobKey, contentType: "image/png", size: png.length, createdAt: deps.now });
   return id;
+}
+
+/** The asset of a drawn picture already saved, or null: for the daily job, which keeps pictures without drawing any. */
+export async function savedArt(store: DataStore, owner: { clientId: string; appId?: string }, art: Art, size: PictureSize): Promise<string | null> {
+  const id = artId(owner, art, size);
+  return (await store.getAsset(id)) ? id : null;
 }

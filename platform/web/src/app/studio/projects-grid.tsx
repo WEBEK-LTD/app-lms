@@ -24,7 +24,7 @@ export interface ProjectCardView {
 type Filter = "all" | "published" | "draft";
 
 /** 103R.3 Studio's home: finding a project, the projects' cards and a new one. */
-export function ProjectsGrid({ cards, words }: { cards: ProjectCardView[]; words: Parameters<typeof ProjectPhone>[0]["words"] }) {
+export function ProjectsGrid({ cards, words, samples }: { cards: ProjectCardView[]; words: Parameters<typeof ProjectPhone>[0]["words"]; samples?: Parameters<typeof ProjectPhone>[0]["samples"] }) {
   const t = useDashT();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -76,7 +76,7 @@ export function ProjectsGrid({ cards, words }: { cards: ProjectCardView[]; words
         {shown.map((card) => (
           <article key={card.id} className="flex flex-col overflow-hidden rounded-[18px] bg-white" style={{ border: `1px solid ${C.line}` }}>
             <div className="flex h-[190px] items-end justify-center" style={{ background: C.board, backgroundImage: `radial-gradient(${C.dot} 1px, transparent 1px)`, backgroundSize: "14px 14px" }}>
-              <ProjectPhone home={card.home} size="card" words={words} />
+              <ProjectPhone home={card.home} size="card" words={words} samples={samples} />
             </div>
             <div className="flex flex-col gap-2 px-4 pt-3.5 pb-4">
               <div className="flex items-center justify-between gap-2">

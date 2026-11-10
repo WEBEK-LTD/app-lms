@@ -53,8 +53,8 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
 
   async function zad() {
     const app = (await listDemoApps(store, { fresh: true })).find((a) => demoIdOf(a) === "marketplace")!;
-    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test" }) ?? undefined;
-    const context = (): HostedContext => ({ store, app, active: true, now, ip: "203.0.113.30", secret: "test-hosted-secret", sender: new LogSender(), push: false, assetUrl: (id) => id, platformUrl: "https://yallapp.test", connector, plan: PLAN_INFO.business, chat: { storage: null, chunkBytes: 1024, onMessage: async () => undefined } });
+    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test" }) ?? undefined;
+    const context = (): HostedContext => ({ store, app, active: true, now, ip: "203.0.113.30", secret: "test-hosted-secret", sender: new LogSender(), push: false, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test", connector, plan: PLAN_INFO.business, chat: { storage: null, chunkBytes: 1024, onMessage: async () => undefined } });
     const call = async (method: string, route: string, options: { params?: string[]; token?: string; body?: unknown; query?: Record<string, string> } = {}): Promise<HostedResult> => {
       let concrete = route;
       for (const param of options.params ?? []) concrete = concrete.replace(/\{[^}]+\}/, param);
@@ -92,7 +92,7 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     }
   });
 
-  it("has two restaurants and a supermarket with its departments and products, no photos needed", async () => {
+  it("has two restaurants and a supermarket with its departments and products, with the drawn pictures that fit", async () => {
     const { app, ok } = await zad();
     expect(app.appName).toBe(DEMO_BRANDS.marketplace.appName);
     expect(app.vertical).toBe("marketplace");
@@ -114,9 +114,16 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     expect(products.total).toBe(MARKET_CATALOG.flatMap((d) => d.aisles.flatMap((a) => a.products)).length);
     expect(products.total).toBeGreaterThanOrEqual(30);
     expect(products.items.filter((p) => p.unit === "kg").length).toBeGreaterThanOrEqual(8);
-    // No photos anywhere in this demo.
-    expect(products.items.every((p) => !p.image_url)).toBe(true);
-    expect((await store.listRestaurants(app.id)).every((r) => r.logoAssetId === null && r.coverAssetId === null)).toBe(true);
+    // The drawn pictures the app's samples use, where one fits (no photos, nothing generated); the rest without, so photos aren't required.
+    const pictured = (name: string) => products.items.find((p) => p.name === name)!.image_url;
+    for (const name of ["Bananas", "Tomatoes", "Eggs, 30", "Baladi bread, 5 loaves", "Black tea, 250 g", "Orange juice, 1 l"]) expect(pictured(name), name).toMatch(/^https:\/\/yallapp\.test\/api\/v1\/assets\//);
+    for (const name of ["Full-cream milk, 1 l", "Egyptian rice, 1 kg", "Dish soap, 750 ml"]) expect(pictured(name), name).toBeNull();
+    const places = await store.listRestaurants(app.id);
+    expect(places.every((r) => r.logoAssetId === null && r.coverAssetId !== null)).toBe(true);
+    const sandwiches = (await store.getRestaurantMenu(app.id, places.find((r) => r.name === "Bab El Sharq Grill")!.id))!.sections.find((s) => s.name === "Sandwiches")!;
+    expect(sandwiches.dishes.every((d) => d.imageAssetId !== null)).toBe(true);
+    // Every picture is one of the account's drawn PNGs.
+    for (const r of places) expect((await store.getAsset(r.coverAssetId!))?.contentType).toBe("image/png");
   });
 
   it("has the owner's code, an automatic offer, the places' own offers, the club and the wallet", async () => {
@@ -242,6 +249,9 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     expect((await store.findMarketCouponByCode(app.id, MARKET_COUPON))!.active).toBe(true);
     expect((await store.getRestaurant(app.id, market.id))!.paused).toBe(false);
     expect((await store.listMarketProducts({ appId: app.id, vendorId: market.id, q: "Visitor", page: 1, perPage: 10 })).total).toBe(0);
+    // The daily job keeps the drawn pictures (it draws none).
+    expect((await store.getRestaurant(app.id, market.id))!.coverAssetId).toBe(market.coverAssetId);
+    expect((await store.listMarketProducts({ appId: app.id, vendorId: market.id, q: "Bananas", page: 1, perPage: 10 })).items[0]!.imageAssetId).not.toBeNull();
     // The wallet: the welcome credit once, and the refund of today's complaint (yesterday's went with its order).
     const user = (await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164))!;
     expect(await store.walletBalance(app.id, user.id)).toBe(118_00);

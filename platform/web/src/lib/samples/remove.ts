@@ -156,6 +156,13 @@ const REMOVERS: Record<SampleList, (deps: RemoveDeps, app: App) => Promise<Remov
       for (const dish of menu?.sections.flatMap((s) => s.dishes) ?? []) if (dish.imageAssetId) assets.push(dish.imageAssetId);
       if (r.logoAssetId) assets.push(r.logoAssetId);
       if (r.coverAssetId) assets.push(r.coverAssetId);
+      // 115 A shop's departments' and products' pictures (Zad Market's drawings).
+      for (const d of await store.listMarketDepartments(app.id, r.id)) if (d.imageAssetId) assets.push(d.imageAssetId);
+      for (let page = 1; ; page++) {
+        const found = await store.listMarketProducts({ appId: app.id, vendorId: r.id, page, perPage: 200 });
+        for (const p of found.items) if (p.imageAssetId) assets.push(p.imageAssetId);
+        if (found.items.length < 200) break;
+      }
       await store.deleteRestaurant(app.id, r.id);
     }
     // The sample cuisines no restaurant left is filed under.

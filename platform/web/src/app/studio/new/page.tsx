@@ -9,6 +9,7 @@ import { STUDIO_ONLY_KINDS, studioSourcesFor } from "@/lib/studio/section";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { StudioScreen } from "../chrome";
 import { NewProjectForm, type KindChoice } from "./form";
+import { sampleEntries } from "@/lib/studio/sample-entries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await dashboardText();
@@ -87,6 +88,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   return (
     <StudioScreen dir={dir} lang={lang}>
       <NewProjectForm
+        samples={sampleEntries(new Date())}
         studioKinds={studioKinds}
         kinds={offered.filter((kind) => !STUDIO_ONLY_KINDS.has(kind.id)).map(choiceOf)}
         error={error}
