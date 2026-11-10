@@ -55,10 +55,14 @@ function ReviewCard({ review, index, words, lang }: { review: PublicReview; inde
   return (
     <article dir={LANG_INFO[lang].dir} data-review-card={review.sample ? "sample" : "real"} className="rv-card flex w-[290px] flex-none flex-col gap-3.5 rounded-[22px] p-[18px] sm:w-[360px] sm:p-5">
       <div className="flex items-center justify-between gap-3">
-        {/* A sample card has no rating: its stars are drawn empty. */}
-        <span className="inline-flex gap-[3px]" {...(review.sample ? { "aria-hidden": true } : { role: "img", "aria-label": formatMessage(lang, words.stars, { rating: review.rating }) })}>
-          <Stars on={review.sample ? 0 : review.rating} size={16} />
-        </span>
+        {/* A sample card has no rating, so no stars. */}
+        {review.sample ? (
+          <span />
+        ) : (
+          <span className="inline-flex gap-[3px]" role="img" aria-label={formatMessage(lang, words.stars, { rating: review.rating })}>
+            <Stars on={review.rating} size={16} />
+          </span>
+        )}
         {review.about ? <span className="rv-chip rounded-lg px-2.5 py-1 text-xs font-semibold">{review.about}</span> : null}
       </div>
       <blockquote lang={review.textLang} dir="auto" className="m-0 text-[15.5px] leading-[1.75]">
@@ -69,12 +73,12 @@ function ReviewCard({ review, index, words, lang }: { review: PublicReview; inde
           // eslint-disable-next-line @next/next/no-img-element -- The customer's own photo, from our files store.
           <img src={review.photoUrl} alt="" width={42} height={42} loading="lazy" className="h-[42px] w-[42px] flex-none rounded-full object-cover" />
         ) : (
-          <span aria-hidden="true" className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-full text-[15px] font-extrabold text-white ${review.sample ? "bg-white/10" : `rv-av-${index % 6}`}`}>
+          <span aria-hidden="true" className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-full text-[15px] font-extrabold ${review.sample ? "rv-av-sample" : `rv-av rv-av-${index % 6}`}`}>
             {review.sample ? <Icon name="person" size={20} /> : review.initial}
           </span>
         )}
         <span className="flex min-w-0 flex-col">
-          <b className="text-sm">
+          <b className="rv-name text-sm">
             <bdi>{review.name}</bdi>
             {review.sample ? <span className="rv-sample ms-1.5 inline-block rounded-[5px] px-1.5 text-[10.5px] font-bold">{words.sampleLabel}</span> : null}
           </b>
@@ -143,7 +147,7 @@ export function ReviewsSection({ view, words, lang }: { view: ReviewsView; words
           </h2>
           <p className="rv-muted m-0 max-w-[46ch] leading-[1.7]">{words.text}</p>
           {view.kind === "samples" ? (
-            <p data-reviews-samples-note="" className="m-0 max-w-[60ch] rounded-xl border border-ember/35 bg-ember/10 px-3.5 py-2.5 text-[13.5px] leading-[1.7] text-peach">
+            <p data-reviews-samples-note="" className="rv-note m-0 max-w-[60ch] rounded-xl px-3.5 py-2.5 text-[13.5px] leading-[1.7]">
               {words.samplesNote}
             </p>
           ) : null}

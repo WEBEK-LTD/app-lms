@@ -129,6 +129,24 @@
   color: #9a3412;
   background: #ffede4;
 }
+/* The band is dark in both themes, so its colours are its own, not the site's theme tokens (which swap in dark mode). */
+.rv-band h2,
+.rv-name {
+  color: #f6f3ee;
+}
+.rv-note {
+  color: #ffede4;
+  background: rgba(255, 90, 31, 0.12);
+  border: 1px solid rgba(255, 90, 31, 0.4);
+}
+.rv-av {
+  color: #ffffff;
+}
+.rv-av-sample {
+  color: #f6f3ee;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
 .rv-meta {
   border-top: 1px solid var(--rv-line);
 }
@@ -140,8 +158,8 @@
 .rv-av-5 { background: #0f766e; }
 @media (max-width: 760px) {
   .rv-quote {
-    font-size: 110px;
-    height: 60px;
+    font-size: 84px;
+    height: 40px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
