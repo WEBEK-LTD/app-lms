@@ -16,6 +16,46 @@ enum ProductUnit { item, kg, g, l }
 
 enum MarketCouponKind { percent, amount, freeDelivery }
 
+/// 115.20 Why a vendor runs late: high demand, few couriers, the weather,
+/// or its own words.
+enum MarketDelayReason { demand, couriers, weather, other }
+
+/// 115.20 `VendorDelay`: a vendor running late, still taking orders. Its
+/// minutes are in the vendor's `delivery_minutes` already.
+class MarketVendorDelay {
+  const MarketVendorDelay({
+    required this.minutes,
+    required this.reason,
+    this.note,
+    this.until,
+    this.setAt,
+  });
+
+  factory MarketVendorDelay.fromJson(Json json) => MarketVendorDelay(
+    minutes: intOr(json, 'minutes', 0),
+    reason: enumFrom(
+      MarketDelayReason.values,
+      json['reason'],
+      MarketDelayReason.demand,
+    ),
+    note: optString(json, 'note'),
+    until: optDate(json, 'until'),
+    setAt: optDate(json, 'set_at'),
+  );
+
+  final int minutes;
+  final MarketDelayReason reason;
+
+  /// The vendor's own words, with [MarketDelayReason.other].
+  final String? note;
+
+  /// When it ends by itself; null: when the vendor ends it.
+  final DateTime? until;
+
+  /// When it was set (the vendor's desk only).
+  final DateTime? setAt;
+}
+
 enum MarketVendorSort {
   recommended,
   distance,
@@ -233,6 +273,7 @@ class MarketVendorSummary {
     this.scheduling = false,
     this.offer,
     this.clubBenefit,
+    this.delay,
   });
 
   factory MarketVendorSummary.fromJson(Json json) {
@@ -270,6 +311,7 @@ class MarketVendorSummary {
       scheduling: boolOr(json, 'scheduling', false),
       offer: optString(json, 'offer'),
       clubBenefit: optString(json, 'club_benefit'),
+      delay: optObject(json, 'delay', MarketVendorDelay.fromJson),
     );
   }
 
@@ -307,6 +349,9 @@ class MarketVendorSummary {
 
   /// The club's benefit here ("Free delivery").
   final String? clubBenefit;
+
+  /// 115.20 Running late; its minutes are in [deliveryMinutes] already.
+  final MarketVendorDelay? delay;
 
   bool get freeDelivery => deliveryFee?.isZero ?? false;
 }

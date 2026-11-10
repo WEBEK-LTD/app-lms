@@ -95,6 +95,9 @@ abstract final class Paths {
   static const vendorStatements = '/vendor-statements';
   static const vendorComplaints = '/vendor-complaints';
 
+  /// 115.20 The vendor's own hours, days off and preparation time.
+  static const vendorHours = '/vendor-hours';
+
   /// 115 A marketplace vendor's page: a restaurant or a shop.
   static String marketVendor(String id) => '/market/${Uri.encodeComponent(id)}';
 

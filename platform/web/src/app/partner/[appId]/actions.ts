@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { getStore } from "@/lib/data";
 import { sendAppMail } from "@/lib/email/send";
 import { CODE_MINUTES, endPanelSession, finishPanelSignIn, normalEmail, panelCookie, panelStaff, startPanelSignIn } from "@/lib/market/panel";
-import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, IMPORT_MAX_BYTES, importCatalog, panelContext, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelTab } from "@/lib/market/panel-pages";
+import { addStaff, bulkPhotos, can, deletePhoto, fetchLinksNow, hoursFormBody, IMPORT_MAX_BYTES, importCatalog, panelContext, placeHoursValues, saveDelivery, setStaffActive, setStock, uploadPhoto, type PanelContext, type PanelTab } from "@/lib/market/panel-pages";
+import { boardAction } from "@/lib/market/panel-board";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
 import { createVendorCoupon, setVendorCoupon } from "@/lib/market/vendor-coupons";
 import { safeFetcher } from "@/lib/net/safe-fetch";
@@ -107,6 +108,47 @@ export async function saveDeliveryAction(appId: string, lang: string, form: Form
   for (const [k, v] of form.entries()) if (typeof v === "string" && !k.startsWith("$")) values[k] = v;
   const saved = await saveDelivery(ctx, values, new Date());
   redirect(back(appId, "delivery", lang, saved.ok ? "&saved=1" : `&error=${encodeURIComponent(saved.error)}`));
+}
+
+// 115.20 The place's own hours, days off and preparation time: through the vendor routes, which check the role and keep the values before for the owner's Undo.
+
+async function deskChange(ctx: PanelContext, body: Record<string, unknown>): Promise<string | null> {
+  const done = await boardAction(ctx.store, ctx.app, ctx.staff, { action: "desk", ...body });
+  return done.status === 200 ? null : ((done.body as { message?: string }).message ?? "Something went wrong.");
+}
+
+const formOf = (form: FormData) => {
+  const values: Record<string, string> = {};
+  for (const [k, v] of form.entries()) if (typeof v === "string" && !k.startsWith("$")) values[k] = v;
+  return values;
+};
+
+export async function saveHoursAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "hours");
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const read = hoursFormBody(formOf(form));
+  const error = read.ok ? await deskChange(ctx, read.body) : read.error;
+  redirect(back(appId, "hours", lang, error ? `&error=${encodeURIComponent(error)}` : "&saved=1"));
+}
+
+export async function addDaysOffAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "hours");
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const from = String(form.get("from") ?? "").trim();
+  const to = String(form.get("to") ?? "").trim() || from;
+  const { closed } = placeHoursValues(ctx, new Date());
+  const error = from ? await deskChange(ctx, { closed_dates: [...closed, { from, to }] }) : "Choose the first day off.";
+  redirect(back(appId, "hours", lang, error ? `&error=${encodeURIComponent(error)}` : "&saved=1"));
+}
+
+export async function removeDaysOffAction(appId: string, lang: string, form: FormData): Promise<void> {
+  const ctx = await withPanel(appId, "hours");
+  if (!ctx) redirect(back(appId, "orders", lang));
+  const { closed } = placeHoursValues(ctx, new Date());
+  const from = String(form.get("from") ?? "");
+  const to = String(form.get("to") ?? "");
+  const error = await deskChange(ctx, { closed_dates: closed.filter((c) => !(c.from === from && c.to === to)) });
+  redirect(back(appId, "hours", lang, error ? `&error=${encodeURIComponent(error)}` : "&saved=1"));
 }
 
 export async function addStaffAction(appId: string, lang: string, form: FormData): Promise<void> {

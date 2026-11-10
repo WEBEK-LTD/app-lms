@@ -3741,6 +3741,201 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "116 In the school's staff app, under the title for someone who isn't on the school's staff.": { ar: "في تطبيق العاملين بالمدرسة، تحت العنوان الموجّه لمن ليس من موظفي المدرسة.", tr: "Okulun personel uygulamasında, okul personelinden olmayan biri için başlığın altında." },
   "116 Someone who isn't one of the academy's teachers opens its staff app.": { ar: "شخص ليس من معلمي الأكاديمية يفتح تطبيق العاملين الخاص بها.", tr: "Akademinin öğretmenlerinden olmayan biri akademinin personel uygulamasını açar." },
   "116 Under the title for someone who isn't one of the academy's teachers, in its staff app.": { ar: "تحت العنوان الموجّه لمن ليس من معلمي الأكاديمية، في تطبيق العاملين الخاص بها.", tr: "Akademinin personel uygulamasında, öğretmenlerinden olmayan biri için başlığın altında." },
+  "115.20 On a vendor's card: it runs late, still taking orders (its delivery time includes the minutes).": {
+    en: "On a place's card: it runs late but still takes orders; its delivery time includes these minutes.",
+    ar: "على بطاقة المكان: لديه تأخير لكنه ما زال يستقبل الطلبات؛ ومدة التوصيل تشمل هذه الدقائق.",
+    tr: "Bir işletmenin kartında: gecikiyor ama sipariş almaya devam ediyor; teslimat süresi bu dakikaları içerir.",
+  },
+  "115.20 A banner on a vendor's page, and the vendor's own desk, while it runs late; `reason` is one of the marketLate reasons or the vendor's own words.": {
+    en: "A banner on a place's page, and on its own orders screen, while it runs late; the reason is one of the reasons below or the place's own words.",
+    ar: "شريط في صفحة المكان وفي شاشة طلباته أثناء التأخير؛ والسبب أحد الأسباب التالية أو كلمات المكان نفسه.",
+    tr: "Gecikme sürerken işletmenin sayfasındaki ve kendi sipariş ekranındaki şerit; neden aşağıdakilerden biri veya işletmenin kendi sözleridir.",
+  },
+  "115.20 Under the running-late banner on a vendor's page.": {
+    en: "Under the running-late banner on a place's page.",
+    ar: "تحت شريط التأخير في صفحة المكان.",
+    tr: "İşletmenin sayfasındaki gecikme şeridinin altında.",
+  },
+  "115.20 Why a vendor runs late, after a colon in marketLateBanner.": {
+    en: "Why a place runs late: many orders.",
+    ar: "سبب تأخير المكان: طلبات كثيرة.",
+    tr: "İşletmenin gecikme nedeni: çok sipariş.",
+  },
+  "115.20 Why a vendor runs late (few couriers), after a colon in marketLateBanner.": {
+    en: "Why a place runs late: few couriers.",
+    ar: "سبب تأخير المكان: قلة المندوبين.",
+    tr: "İşletmenin gecikme nedeni: az kurye.",
+  },
+  "115.20 Why a vendor runs late (the weather), after a colon in marketLateBanner.": {
+    en: "Why a place runs late: the weather.",
+    ar: "سبب تأخير المكان: الطقس.",
+    tr: "İşletmenin gecikme nedeni: hava durumu.",
+  },
+  "115.20 The vendor desk's button to tell customers it runs late while still taking orders.": {
+    en: "The button on a place's orders screen to tell customers it runs late while still taking orders.",
+    ar: "الزر في شاشة طلبات المكان لإبلاغ العملاء بالتأخير مع الاستمرار في استقبال الطلبات.",
+    tr: "İşletmenin sipariş ekranında, sipariş almaya devam ederken müşterilere geciktiğini söyleyen düğme.",
+  },
+  "115.20 The title of the running-late sheet.": {
+    en: "The title of the running-late choices.",
+    ar: "عنوان خيارات التأخير.",
+    tr: "Gecikme seçeneklerinin başlığı.",
+  },
+  "115.20 Under the running-late sheet's title.": {
+    en: "Under the title of the running-late choices.",
+    ar: "تحت عنوان خيارات التأخير.",
+    tr: "Gecikme seçeneklerinin başlığının altında.",
+  },
+  "115.20 The running-late sheet: how many minutes more.": {
+    en: "The running-late choices: how many minutes more.",
+    ar: "خيارات التأخير: كم دقيقة إضافية.",
+    tr: "Gecikme seçenekleri: kaç dakika daha.",
+  },
+  "115.20 One of the extra-minute choices on the running-late sheet.": {
+    en: "One of the extra-minute choices when running late.",
+    ar: "أحد خيارات الدقائق الإضافية عند التأخير.",
+    tr: "Gecikirken ek dakika seçeneklerinden biri.",
+  },
+  "115.20 The running-late sheet: the reason customers see.": {
+    en: "The running-late choices: the reason customers see.",
+    ar: "خيارات التأخير: السبب الذي يراه العملاء.",
+    tr: "Gecikme seçenekleri: müşterilerin gördüğü neden.",
+  },
+  "115.20 A reason on the running-late sheet.": {
+    en: "A reason for running late: many orders.",
+    ar: "سبب للتأخير: طلبات كثيرة.",
+    tr: "Gecikme nedeni: çok sipariş.",
+  },
+  "115.20 A reason on the running-late sheet (few couriers).": {
+    en: "A reason for running late: few couriers.",
+    ar: "سبب للتأخير: قلة المندوبين.",
+    tr: "Gecikme nedeni: az kurye.",
+  },
+  "115.20 A reason on the running-late sheet (the weather).": {
+    en: "A reason for running late: the weather.",
+    ar: "سبب للتأخير: الطقس.",
+    tr: "Gecikme nedeni: hava durumu.",
+  },
+  "115.20 A reason on the running-late sheet: the vendor writes its own.": {
+    en: "A reason for running late: the place writes its own.",
+    ar: "سبب للتأخير: يكتب المكان سببه بنفسه.",
+    tr: "Gecikme nedeni: işletme kendisi yazar.",
+  },
+  "115.20 The field for the vendor's own reason, up to 80 characters.": {
+    en: "The field for the place's own reason for running late, up to 80 characters.",
+    ar: "خانة سبب التأخير بكلمات المكان، حتى 80 حرفًا.",
+    tr: "İşletmenin kendi gecikme nedeni alanı, en fazla 80 karakter.",
+  },
+  "115.20 The running-late sheet: how long it lasts.": {
+    en: "The running-late choices: how long it lasts.",
+    ar: "خيارات التأخير: كم يستمر.",
+    tr: "Gecikme seçenekleri: ne kadar süreceği.",
+  },
+  "115.20 How long running late lasts, in minutes.": {
+    en: "How long running late lasts, in minutes.",
+    ar: "مدة التأخير بالدقائق.",
+    tr: "Gecikmenin süresi, dakika olarak.",
+  },
+  "115.20 How long running late lasts, in hours.": {
+    en: "How long running late lasts, in hours.",
+    ar: "مدة التأخير بالساعات.",
+    tr: "Gecikmenin süresi, saat olarak.",
+  },
+  "115.20 Running late with no end time.": {
+    en: "Running late with no end time: until the place ends it.",
+    ar: "تأخير بلا موعد انتهاء: حتى ينهيه المكان.",
+    tr: "Bitiş saati olmadan gecikme: işletme bitirene kadar.",
+  },
+  "115.20 Sets the running-late notice.": {
+    en: "Shows the running-late notice to customers.",
+    ar: "يُظهر إشعار التأخير للعملاء.",
+    tr: "Gecikme bildirimini müşterilere gösterir.",
+  },
+  "115.20 Ends the running-late notice: times go back to normal.": {
+    en: "Ends the running-late notice: times go back to normal.",
+    ar: "ينهي إشعار التأخير: تعود المواعيد إلى طبيعتها.",
+    tr: "Gecikme bildirimini bitirir: süreler normale döner.",
+  },
+  "115.20 When running late ends by itself.": {
+    en: "When running late ends by itself.",
+    ar: "متى ينتهي التأخير من تلقاء نفسه.",
+    tr: "Gecikmenin kendiliğinden bittiği saat.",
+  },
+  "115.20 The vendor's own opening hours, days off and preparation time (its owners and managers).": {
+    en: "The place's own opening hours, days off and preparation time (for its owners and managers).",
+    ar: "مواعيد عمل المكان وإجازاته ومدة التحضير (لمالكيه ومديريه).",
+    tr: "İşletmenin kendi çalışma saatleri, tatil günleri ve hazırlama süresi (sahipleri ve yöneticileri için).",
+  },
+  "115.20 At the top of the vendor's hours screen.": {
+    en: "At the top of the place's hours screen.",
+    ar: "أعلى شاشة مواعيد المكان.",
+    tr: "İşletmenin saatler ekranının üstünde.",
+  },
+  "115.20 The weekly opening hours.": {
+    en: "The heading of the weekly opening hours.",
+    ar: "عنوان مواعيد العمل الأسبوعية.",
+    tr: "Haftalık çalışma saatlerinin başlığı.",
+  },
+  "115.20 Under the weekly hours.": {
+    en: "Under the weekly opening hours.",
+    ar: "تحت مواعيد العمل الأسبوعية.",
+    tr: "Haftalık çalışma saatlerinin altında.",
+  },
+  "115.20 A day without opening hours.": {
+    en: "A day without opening hours.",
+    ar: "يوم بلا مواعيد عمل.",
+    tr: "Çalışma saati olmayan bir gün.",
+  },
+  "115.20 Adds an opening period to a day.": {
+    en: "Adds an opening period to a day.",
+    ar: "يضيف فترة عمل إلى يوم.",
+    tr: "Bir güne çalışma dönemi ekler.",
+  },
+  "115.20 Removes an opening period or days off.": {
+    en: "Removes an opening period or days off.",
+    ar: "يزيل فترة عمل أو إجازة.",
+    tr: "Bir çalışma dönemini veya tatili kaldırır.",
+  },
+  "115.20 How long an order usually takes at the vendor.": {
+    en: "How long an order usually takes at the place.",
+    ar: "المدة المعتادة لتحضير الطلب في المكان.",
+    tr: "İşletmede bir siparişin genellikle ne kadar sürdüğü.",
+  },
+  "115.20 Under the preparation time.": {
+    en: "Under the preparation time.",
+    ar: "تحت مدة التحضير.",
+    tr: "Hazırlama süresinin altında.",
+  },
+  "115.20 The vendor's days off, like holidays.": {
+    en: "The place's days off, like holidays.",
+    ar: "إجازات المكان، مثل العطلات.",
+    tr: "İşletmenin tatil günleri, örneğin bayramlar.",
+  },
+  "115.20 Under the days off.": {
+    en: "Under the days off.",
+    ar: "تحت الإجازات.",
+    tr: "Tatil günlerinin altında.",
+  },
+  "115.20 No days off set.": {
+    en: "No days off set.",
+    ar: "لا توجد إجازات محددة.",
+    tr: "Belirlenmiş tatil günü yok.",
+  },
+  "115.20 Opens the calendar to choose days off (the first and the last).": {
+    en: "Opens the calendar to choose days off (the first and the last).",
+    ar: "يفتح التقويم لاختيار الإجازة (أول يوم وآخره).",
+    tr: "Tatil günlerini (ilk ve son gün) seçmek için takvimi açar.",
+  },
+  "115.20 Saves the vendor's hours and preparation time.": {
+    en: "Saves the place's hours and preparation time.",
+    ar: "يحفظ مواعيد المكان ومدة التحضير.",
+    tr: "İşletmenin saatlerini ve hazırlama süresini kaydeder.",
+  },
+  "115.20 After the vendor saved its hours or days off.": {
+    en: "After the place saved its hours or days off.",
+    ar: "بعد أن يحفظ المكان مواعيده أو إجازاته.",
+    tr: "İşletme saatlerini veya tatillerini kaydettikten sonra.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

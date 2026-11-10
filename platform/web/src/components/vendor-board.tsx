@@ -61,6 +61,8 @@ export interface BoardDesk {
   delivery_by: "app" | "vendor";
   role: string;
   today: { orders: number; sales: Money; new_orders: number };
+  /** 115.20 Running late (still taking orders). */
+  delay?: { minutes: number; reason: "demand" | "couriers" | "weather" | "other"; note: string | null; until: string | null } | null;
 }
 
 export interface BoardData {
@@ -71,6 +73,73 @@ export interface BoardData {
 }
 
 const PREP_CHOICES = [10, 15, 20, 30, 45];
+// 115.20 Running late: the extra minutes, why, and for how long (null: until the place ends it).
+const DELAY_MINUTES = [10, 15, 20, 30, 45, 60];
+const DELAY_REASONS = ["demand", "couriers", "weather", "other"] as const;
+const DELAY_FOR = [30, 60, 120, null] as const;
+
+/** 115.20 Set how late the place runs: the minutes, the reason customers read, and for how long. */
+function LateForm({ w, busy, onSet, onCancel }: { w: PanelWords; busy: boolean; onSet: (delay: Record<string, unknown>) => void; onCancel: () => void }) {
+  const [minutes, setMinutes] = useState(20);
+  const [reason, setReason] = useState<(typeof DELAY_REASONS)[number]>("demand");
+  const [note, setNote] = useState("");
+  const [span, setSpan] = useState<(typeof DELAY_FOR)[number]>(60);
+  const pill = (on: boolean) => `rounded-xl px-3 py-2 text-sm font-bold ring-1 ${on ? "bg-white text-midnight ring-white" : "bg-white/10 ring-white/15 hover:bg-white/20"}`;
+  const forLabel = { 30: w.delayFor30, 60: w.delayFor60, 120: w.delayFor120 } as const;
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSet({ minutes, reason, note: reason === "other" ? note : null, for_minutes: span });
+      }}
+      className="flex flex-col gap-4 rounded-2xl bg-white/5 p-5 ring-1 ring-white/15"
+    >
+      <div>
+        <p className="m-0 text-lg font-extrabold">{w.delayTitle}</p>
+        <p className="m-0 mt-1 max-w-2xl text-sm text-night-text">{w.delayText}</p>
+      </div>
+      <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
+        <legend className="mb-2 text-xs font-bold tracking-[1px] text-night-muted uppercase">{w.delayMinutes}</legend>
+        {DELAY_MINUTES.map((m) => (
+          <button key={m} type="button" aria-pressed={minutes === m} onClick={() => setMinutes(m)} className={pill(minutes === m)}>
+            +{fill(w.minutes, { n: m })}
+          </button>
+        ))}
+      </fieldset>
+      <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
+        <legend className="mb-2 text-xs font-bold tracking-[1px] text-night-muted uppercase">{w.delayReason}</legend>
+        {DELAY_REASONS.map((r) => (
+          <button key={r} type="button" aria-pressed={reason === r} onClick={() => setReason(r)} className={pill(reason === r)}>
+            {w[`delay_${r}`]}
+          </button>
+        ))}
+      </fieldset>
+      {reason === "other" ? (
+        <label className="flex max-w-md flex-col gap-1.5 text-sm font-bold">
+          {w.delayNote}
+          <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={80} required className="h-11 rounded-xl border border-white/20 bg-white px-3.5 text-[15px] text-ink" />
+        </label>
+      ) : null}
+      <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
+        <legend className="mb-2 text-xs font-bold tracking-[1px] text-night-muted uppercase">{w.delayFor}</legend>
+        {DELAY_FOR.map((f) => (
+          <button key={String(f)} type="button" aria-pressed={span === f} onClick={() => setSpan(f)} className={pill(span === f)}>
+            {f === null ? w.delayForEver : forLabel[f]}
+          </button>
+        ))}
+      </fieldset>
+      <div className="flex flex-wrap gap-2">
+        <button disabled={busy || (reason === "other" && !note.trim())} className="inline-flex items-center gap-1.5 rounded-xl bg-ember px-4 py-2.5 text-sm font-extrabold text-white disabled:opacity-40">
+          <Icon name="schedule" size={18} />
+          {w.delaySet}
+        </button>
+        <button type="button" onClick={onCancel} className="rounded-xl px-3.5 py-2.5 text-sm font-bold text-night-muted hover:text-white">
+          {w.delayCancel}
+        </button>
+      </div>
+    </form>
+  );
+}
 const REASONS = ["too_busy", "items_unavailable", "closing", "outside_area", "other"] as const;
 
 function minutesSince(iso: string, now: number): number {
@@ -367,6 +436,7 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction, 
   const [now, setNow] = useState(() => Date.now());
   const [sound, setSound] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [late, setLate] = useState(false);
   const seen = useRef(new Set(initial.fresh.map((o) => o.id)));
 
   const refresh = useCallback(async () => {
@@ -407,6 +477,7 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction, 
   const ready = useMemo(() => data.active.filter((o) => ["ready", "on_the_way"].includes(o.status)), [data.active]);
   const d = data.desk;
   const busyUntil = d.busy_until && Date.parse(d.busy_until) > now ? d.busy_until : null;
+  const delay = d.delay && (!d.delay.until || Date.parse(d.delay.until) > now) ? d.delay : null;
   const state = d.paused ? { text: w.notAccepting, dot: "bg-danger", tone: "text-danger" } : !d.open ? { text: w.closedHours, dot: "bg-faint", tone: "text-night-muted" } : busyUntil ? { text: fill(w.busyUntil, { time: timeOf(busyUntil, lang) }), dot: "bg-warn", tone: "text-[#ffcf9e]" } : { text: w.accepting, dot: "bg-[#35d07f]", tone: "text-[#8ef0b9]" };
   const card = (o: BoardOrder, lane: "new" | "preparing" | "ready" | "scheduled") => (
     <OrderCard
@@ -464,6 +535,22 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction, 
                   </button>
                 ))
               )}
+              {/* 115.20 Running late: still taking orders. Not for pickers. */}
+              {d.role === "picker" ? null : delay ? (
+                <span className="inline-flex flex-wrap items-center gap-2 rounded-xl bg-white/10 px-3 py-1.5 text-sm font-bold text-[#ffcf9e] ring-1 ring-[#ffcf9e]/40">
+                  <Icon name="schedule" size={18} />
+                  {`+${fill(w.minutes, { n: delay.minutes })} · ${delay.reason === "other" ? (delay.note ?? "") : w[`delay_${delay.reason}`]}`}
+                  {delay.until ? <span className="font-semibold text-night-text">{fill(w.delayUntil, { time: timeOf(delay.until, lang) })}</span> : null}
+                  <button disabled={busy} onClick={() => void act(null, "desk", { delay: null })} className="rounded-lg bg-white/10 px-2.5 py-1 text-[13px] font-bold text-white ring-1 ring-white/20">
+                    {w.delayEnd}
+                  </button>
+                </span>
+              ) : (
+                <button disabled={busy || d.paused} onClick={() => setLate(!late)} aria-expanded={late} className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-2.5 text-sm font-bold ring-1 ring-white/15 hover:bg-white/20 disabled:opacity-40">
+                  <Icon name="schedule" size={18} />
+                  {w.delayButton}
+                </button>
+              )}
               <button disabled={busy} onClick={() => void act(null, "desk", { paused: !d.paused })} className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-extrabold ${d.paused ? "bg-[#35d07f] text-midnight" : "bg-ember text-white"}`}>
                 <Icon name={d.paused ? "play_circle" : "pause_circle"} size={18} />
                 {d.paused ? w.resume : w.pause}
@@ -478,6 +565,17 @@ export function VendorBoard({ initial, words: w, lang, endpoint, signOutAction, 
               ) : null}
             </div>
           </div>
+          {late && !delay && d.role !== "picker" ? (
+            <LateForm
+              w={w}
+              busy={busy}
+              onCancel={() => setLate(false)}
+              onSet={(value) => {
+                setLate(false);
+                void act(null, "desk", { delay: value });
+              }}
+            />
+          ) : null}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {[
               { label: w.newNow, value: String(data.fresh.length), icon: "notifications" as IconName, accent: true },

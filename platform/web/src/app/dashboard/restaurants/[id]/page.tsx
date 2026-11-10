@@ -5,15 +5,19 @@ import {
   deleteRestaurantAction,
   deleteSectionAction,
   deleteStaffAction,
+  endDelayAction,
+  keepPlaceChangeAction,
   moveMenuItemAction,
   openRestaurantAction,
+  removeClosedDatesAction,
+  undoPlaceChangeAction,
   setDishAvailableAction,
   setRestaurantActiveAction,
   setStaffActiveAction,
 } from "@/app/actions/food";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
-import { Badge, btn, EmptyState, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
+import { Badge, btn, EmptyState, formatDate, formatDateTime, Notice, PageHeader, Section } from "@/components/ui";
 import { DetailLayout, Thumb } from "@/components/page-kit";
 import { SideCard } from "@/components/page-kit-b";
 import { assetUrl } from "@/lib/assets";
@@ -30,7 +34,9 @@ import { ConfirmButton } from "../../chat/forms";
 import { isFood } from "../../shipments/parts";
 import { isMarketplaceApp } from "@/lib/market/plan";
 import { serviceAreasOf, vendorAreaFormValues, vendorAreaWarning } from "@/lib/market/areas";
-import { DishForm, HoursForm, RestaurantForm, SectionForm, StaffForm } from "../forms";
+import { activeDelay, upcomingClosedDates } from "@/lib/market/vendor-controls";
+import { utcToLocal } from "@/lib/bookings/time";
+import { DaysOffForm, DishForm, HoursForm, RestaurantForm, SectionForm, StaffForm } from "../forms";
 import { NotFood, percentOf } from "../parts";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -71,7 +77,14 @@ export default async function RestaurantPage({ params, searchParams }: { params:
     store.getDeliverySettings(app.id).then(deliverySettingsOf),
   ]);
   const timezone = settings.timezone ?? DEFAULT_FOOD_TIMEZONE;
-  const state = restaurantState(restaurant, timezone, new Date());
+  const now = new Date();
+  const state = restaurantState(restaurant, timezone, now);
+  // 115.20 What the place set itself: running late, its days off, and what it changed.
+  const delay = activeDelay(restaurant, now);
+  const today = utcToLocal(now, timezone).date;
+  const daysOff = upcomingClosedDates(restaurant.closedDates, today);
+  const edit = restaurant.vendorEdit ?? null;
+  const dayText = (date: string) => formatDate(new Date(`${date}T00:00:00Z`), lang);
   const rating = restaurantRating(restaurant);
   const methods = hostedSignInMethods(app);
   const emailOnly = methods.length === 1 && methods[0] === "email";
@@ -95,6 +108,7 @@ export default async function RestaurantPage({ params, searchParams }: { params:
   ) : (
     <Badge tone={state.inHours ? "success" : "neutral"}>{t(state.inHours ? "food.openNow" : "food.closedNow")}</Badge>
   );
+  const lateBadge = delay ? <Badge tone="warn">{t("food.runningLateBadge")}</Badge> : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -105,6 +119,7 @@ export default async function RestaurantPage({ params, searchParams }: { params:
         description={
           <span className="flex flex-wrap items-center gap-2">
             {stateBadge}
+            {lateBadge}
             {rating !== null ? <span className="text-sm text-muted">{t("food.rating", { rating: String(rating), count: restaurant.ratingCount })}</span> : null}
             <span className="text-sm text-muted">{a.address}</span>
           </span>
@@ -113,6 +128,34 @@ export default async function RestaurantPage({ params, searchParams }: { params:
       {added ? (
         <Notice tone="success" icon="check_circle" role="status">
           <span className="font-semibold">{t("food.added")}</span>
+        </Notice>
+      ) : null}
+      {edit ? (
+        <Notice tone="warn" icon="schedule">
+          <div className="flex flex-col gap-2">
+            <span className="font-semibold">{edit.by ? t("food.placeChangedBy", { name: edit.by, date: formatDateTime(edit.at, lang) }) : t("food.placeChanged", { date: formatDateTime(edit.at, lang) })}</span>
+            <ul className="m-0 list-disc ps-5 text-[15px]">
+              {edit.fields.includes("hours") ? <li>{t("food.changedHours")}</li> : null}
+              {edit.fields.includes("closed_dates") ? <li>{t("food.changedClosedDates")}</li> : null}
+              {edit.fields.includes("prep_minutes") ? <li>{t("food.changedPrep", { before: edit.previous.prepMinutes, after: restaurant.prepMinutes })}</li> : null}
+            </ul>
+            <span className="text-sm text-muted">{t("food.placeChangedHint")}</span>
+            <div className="flex flex-wrap gap-2">
+              <form action={undoPlaceChangeAction}>
+                <input type="hidden" name="restaurant" value={restaurant.id} />
+                <SubmitButton className="h-9">
+                  <Icon name="undo" size={18} />
+                  {t("food.undoPlaceChange")}
+                </SubmitButton>
+              </form>
+              <form action={keepPlaceChangeAction}>
+                <input type="hidden" name="restaurant" value={restaurant.id} />
+                <SubmitButton variant="secondary" className="h-9">
+                  {t("food.keepPlaceChange")}
+                </SubmitButton>
+              </form>
+            </div>
+          </div>
         </Notice>
       ) : null}
 
@@ -228,6 +271,29 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                 </Notice>
               ) : null}
               <HoursForm restaurant={restaurant.id} hours={{ values: hours, days: WEEK_DAYS.map((d) => ({ id: d, label: t(`food.day_${d}`) })) }} />
+              {/* 115.20 Days off: closed all day on these dates. */}
+              <div className="flex flex-col gap-3 border-t border-line-soft pt-4">
+                <h3 className="m-0 text-[17px] font-bold">{t("food.daysOff")}</h3>
+                <p className="m-0 text-sm text-muted">{t("food.daysOffIntro")}</p>
+                {daysOff.length === 0 ? <p className="m-0 text-[15px] text-muted">{t("food.noDaysOff")}</p> : null}
+                <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                  {daysOff.map((c) => (
+                    <li key={`${c.from}-${c.to}`} className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white px-3 py-2">
+                      <Icon name="event_busy" size={18} className="text-muted" />
+                      <span className="flex-1 text-[15px] font-semibold">{c.from === c.to ? dayText(c.from) : `${dayText(c.from)} – ${dayText(c.to)}`}</span>
+                      <form action={removeClosedDatesAction}>
+                        <input type="hidden" name="restaurant" value={restaurant.id} />
+                        <input type="hidden" name="from" value={c.from} />
+                        <input type="hidden" name="to" value={c.to} />
+                        <SubmitButton variant="secondary" className="h-9">
+                          {t("food.removeDayOff")}
+                        </SubmitButton>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+                <DaysOffForm restaurant={restaurant.id} today={today} />
+              </div>
             </Section>
 
             <Section titleId="h-details" title={t("food.details")}>
@@ -277,6 +343,24 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                     <input type="hidden" name="restaurant" value={restaurant.id} />
                     <SubmitButton variant="secondary" className="h-9">
                       {t("food.openAgain")}
+                    </SubmitButton>
+                  </form>
+                </div>
+              ) : null}
+              {delay ? (
+                <div className="flex flex-wrap items-center gap-3 border-t border-line-soft pt-3">
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[15px] font-semibold">
+                      {t("food.runningLate", { minutes: delay.minutes, reason: delay.reason === "other" ? (delay.note ?? "") : t(`food.delay_${delay.reason}`) })}
+                    </span>
+                    <span className="text-[13px] text-muted">
+                      {delay.until ? t("food.runningLateUntil", { time: formatDateTime(delay.until, lang) }) : t("food.runningLateOpen")} {t("food.runningLateHint")}
+                    </span>
+                  </span>
+                  <form action={endDelayAction}>
+                    <input type="hidden" name="restaurant" value={restaurant.id} />
+                    <SubmitButton variant="secondary" className="h-9">
+                      {t("food.endDelay")}
                     </SubmitButton>
                   </form>
                 </div>

@@ -644,7 +644,7 @@ export function marketCuisines(): Cuisine[] {
   return marketplaceDeliverySettings(deliverySettingsOf(null)).cuisines ?? [];
 }
 
-/** The three places, as the demo has them (a place a visitor paused or set busy opens again). */
+/** The three places, as the demo has them (a place a visitor paused, set busy or late, or whose hours they changed, goes back). */
 async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, making: MarketMaking = AS_THE_DEMO): Promise<Map<VendorKey, Restaurant>> {
   const existing = await store.listRestaurants(app.id);
   const vendors = new Map<VendorKey, Restaurant>();
@@ -677,6 +677,10 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
       taxRateBp: null,
       paused: false,
       area: v.area,
+      // 115.20 No place is running late, has days off or changed its own hours: what a visitor set goes back each day.
+      delay: null,
+      closedDates: null,
+      vendorEdit: null,
     };
     const dishPictures = new Map<string, string | null>();
     // Without a way to have the pictures (the daily job), the dishes keep theirs.

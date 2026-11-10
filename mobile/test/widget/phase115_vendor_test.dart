@@ -282,6 +282,100 @@ void main() {
     expect(find.byKey(const ValueKey('vendor-pick')), findsOneWidget);
   });
 
+  testWidgets('115.20 running late: still taking orders, until it ends', (
+    tester,
+  ) async {
+    phone(tester);
+    final api = vendorApi();
+    api.vendorDesk['role'] = 'orders';
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    // Not the place's hours: those are for its owners and managers.
+    expect(find.byKey(const ValueKey('vendor-hours')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('vendor-late')));
+    await TestApp.settle(tester, 10);
+    expect(find.text('Running late?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('vendor-late-30')));
+    await tester.tap(find.byKey(const ValueKey('vendor-late-other')));
+    await TestApp.settle(tester, 5);
+    await tester.enterText(
+      find.byKey(const ValueKey('vendor-late-note')),
+      'Oven being fixed',
+    );
+    await tester.tap(find.byKey(const ValueKey('vendor-late-for-120')));
+    await TestApp.settle(tester, 5);
+    await tester.tap(find.byKey(const ValueKey('vendor-late-set')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('delay 30 other Oven being fixed 120'));
+    expect(
+      find.textContaining('Running about 30 min late: Oven being fixed'),
+      findsOneWidget,
+    );
+    // Still taking orders.
+    expect(find.text('Taking orders'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('vendor-late-end')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('delay end'));
+    expect(find.byKey(const ValueKey('vendor-late-state')), findsNothing);
+  });
+
+  testWidgets('115.20 a manager changes the preparation time and days off', (
+    tester,
+  ) async {
+    phone(tester);
+    final api = vendorApi();
+    api.vendorDesk
+      ..['can_edit_place'] = true
+      ..['prep_minutes'] = 20
+      ..['hours'] = [
+        {'day': 'mon', 'opens': '09:00', 'closes': '23:00'},
+      ]
+      ..['closed_dates'] = [
+        {'from': '2026-12-31', 'to': '2027-01-01'},
+      ];
+    final app = TestApp(
+      api: api,
+      appType: AppType.food,
+      build: (b) => b.copyWith(role: AppRole.vendor),
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 20);
+    await tester.tap(find.byKey(const ValueKey('vendor-hours')));
+    await TestApp.settle(tester, 20);
+    expect(find.text('Hours & days off'), findsWidgets);
+    expect(find.text('09:00'), findsOneWidget);
+    expect(find.text('Closed'), findsNWidgets(6));
+    await tester.ensureVisible(find.byKey(const ValueKey('vendor-prep-more')));
+    await TestApp.settle(tester, 5);
+    await tester.tap(find.byKey(const ValueKey('vendor-prep-more')));
+    await TestApp.settle(tester, 5);
+    expect(find.text('25 min'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('vendor-hours-save')));
+    await TestApp.settle(tester, 5);
+    await tester.tap(find.byKey(const ValueKey('vendor-hours-save')));
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('place hours=null closed=null prep=25'));
+    // Removing the days off.
+    await tester.ensureVisible(find.byKey(const ValueKey('vendor-off-add')));
+    await TestApp.settle(tester, 5);
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('vendor-off-2026-12-31')),
+        matching: find.byType(IconButton),
+      ),
+    );
+    await TestApp.settle(tester, 20);
+    expect(api.vendorCalls, contains('place hours=null closed= prep=null'));
+    expect(find.text('No days off coming up.'), findsOneWidget);
+  });
+
   testWidgets('the month\'s statement, and the months before', (tester) async {
     phone(tester);
     final api = vendorApi();

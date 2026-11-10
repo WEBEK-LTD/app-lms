@@ -240,6 +240,21 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     expect((await store.getShipment(app.id, job))!.courierId).not.toBe(karim.id);
   });
 
+  it("115.20 starts with no place running late; Zad Market's owner can run late and change its hours, and it goes back the next day", async () => {
+    const { app, ok, token } = await zad();
+    const cards = await ok<{ items: { name: string; delay: unknown }[] }>("GET", "/market/vendors", { query: { lat: String(DEMO_HOME.lat), lng: String(DEMO_HOME.lng) } });
+    expect(cards.items.length).toBeGreaterThan(0);
+    expect(cards.items.every((v) => v.delay === null)).toBe(true);
+    const desk = await ok<{ name: string; delay: unknown; can_edit_place: boolean }>("GET", "/vendor/me", { token });
+    expect(desk).toMatchObject({ name: "Zad Market", delay: null, can_edit_place: true });
+    await ok("PATCH", "/vendor/me", { token, body: { delay: { minutes: 20, reason: "demand", for_minutes: null }, prep_minutes: 40, closed_dates: [{ from: "2026-12-31", to: "2026-12-31" }] } });
+    const market = (await store.listRestaurants(app.id)).find((r) => r.name === "Zad Market")!;
+    expect(market).toMatchObject({ prepMinutes: 40, delay: { minutes: 20 }, vendorEdit: { fields: ["closed_dates", "prep_minutes"] } });
+    await cleanDemoActivity(store, new Date(NOW.getTime() + 25 * 60 * MINUTE));
+    expect(await store.getRestaurant(app.id, market.id)).toMatchObject({ delay: null, closedDates: null, vendorEdit: null });
+    expect((await store.getRestaurant(app.id, market.id))!.prepMinutes).not.toBe(40);
+  });
+
   it("makes its day again: visitors' orders go after a day, the seeded ones come back from the clock", async () => {
     const { app, ok, token } = await zad();
     const market = (await store.listRestaurants(app.id)).find((r) => r.name === "Zad Market")!;

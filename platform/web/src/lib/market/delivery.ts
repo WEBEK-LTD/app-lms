@@ -4,6 +4,7 @@ import type { DeliverySettings, MarketCourierTerms, Restaurant, ShipmentPlace, V
 import { distanceKm } from "../delivery/pricing";
 import { deliveryMinutes, deliveryQuote, DEFAULT_FOOD_TIMEZONE, openings, restaurantState } from "../food/service";
 import { checkDeliveryArea } from "./areas";
+import { prepWithDelay } from "./vendor-controls";
 import { percentOf } from "./currency";
 
 /**
@@ -18,7 +19,7 @@ import { percentOf } from "./currency";
  */
 
 export type MarketVendor = Pick<Restaurant, "address" | "maxKm" | "minOrderCents" | "prepMinutes" | "hours" | "busyUntil" | "active"> &
-  Partial<Pick<Restaurant, "delivery" | "paused" | "deliveryAreas">>;
+  Partial<Pick<Restaurant, "delivery" | "paused" | "deliveryAreas" | "delay" | "closedDates">>;
 
 /** 105.1's restaurants and vendors without terms yet: the app's couriers, no pick-up, no orders for later. */
 export const APP_COURIERS: VendorDelivery = { by: "app", feeKind: "fixed", fee: 0, perKm: 0, freeOver: null, minItems: null, maxItems: null, pickup: false, scheduling: false };
@@ -112,7 +113,8 @@ export function quoteMarketDelivery(settings: DeliverySettings, vendor: MarketVe
 
   if (request.fulfilment === "pickup") {
     if (!terms.pickup) return { ok: false, refusal: "no_pickup", error: "This place doesn't do pick-up.", field: "fulfilment" };
-    return { ok: true, fulfilment: "pickup", by: null, fee: 0, courierCharge: 0, distanceKm: null, minutes: vendor.prepMinutes, liveMap: "never" };
+    // 115.20 Running late counts for pick-up too.
+    return { ok: true, fulfilment: "pickup", by: null, fee: 0, courierCharge: 0, distanceKm: null, minutes: prepWithDelay(vendor, now), liveMap: "never" };
   }
 
   // 115 Only where the marketplace and the vendor deliver: their areas need the address on the map.
@@ -122,7 +124,7 @@ export function quoteMarketDelivery(settings: DeliverySettings, vendor: MarketVe
 
   if (terms.by === "vendor") {
     const km = located(vendor.address) ? distanceKm(vendor.address, request.dropoff) : null;
-    return { ok: true, fulfilment: "delivery", by: "vendor", fee: ownDeliveryFee(terms, km, request.items), courierCharge: 0, distanceKm: km, minutes: deliveryMinutes(vendor.prepMinutes, km), liveMap: "if_driver_signs_in" };
+    return { ok: true, fulfilment: "delivery", by: "vendor", fee: ownDeliveryFee(terms, km, request.items), courierCharge: 0, distanceKm: km, minutes: deliveryMinutes(prepWithDelay(vendor, now), km), liveMap: "if_driver_signs_in" };
   }
 
   // The app's couriers: the owner's prices and area.
@@ -143,7 +145,7 @@ export function quoteMarketDelivery(settings: DeliverySettings, vendor: MarketVe
     fee,
     courierCharge: vendorCourierCharge(market, request.items, base.distanceKm),
     distanceKm: base.distanceKm,
-    minutes: deliveryMinutes(vendor.prepMinutes, base.distanceKm),
+    minutes: deliveryMinutes(prepWithDelay(vendor, now), base.distanceKm),
     liveMap: "always",
   };
 }
@@ -153,6 +155,8 @@ export function pickupCode(): string {
   return String(randomInt(0, 10000)).padStart(4, "0");
 }
 
+type SlotVendor = Pick<Restaurant, "hours" | "prepMinutes"> & Partial<Pick<Restaurant, "delay" | "closedDates">>;
+
 export interface Slot {
   start: Date;
   end: Date;
@@ -161,16 +165,17 @@ export interface Slot {
 /**
  * The times a customer may order for, over the next `days` days: windows of
  * `stepMinutes` within the vendor's hours, starting no sooner than its
- * preparation (plus `leadMinutes`, e.g. the ride) from now.
+ * preparation (plus `leadMinutes`, e.g. the ride) from now. 115.20 Not on its
+ * days off, and its preparation counts the delay in force.
  */
-export function orderSlots(vendor: Pick<Restaurant, "hours" | "prepMinutes">, timezone: string, now: Date, options: { days?: number; stepMinutes?: number; leadMinutes?: number } = {}): Slot[] {
+export function orderSlots(vendor: SlotVendor, timezone: string, now: Date, options: { days?: number; stepMinutes?: number; leadMinutes?: number } = {}): Slot[] {
   const step = Math.max(5, options.stepMinutes ?? 30) * 60_000;
-  const earliest = now.getTime() + (vendor.prepMinutes + (options.leadMinutes ?? 0)) * 60_000;
+  const earliest = now.getTime() + (prepWithDelay(vendor, now) + (options.leadMinutes ?? 0)) * 60_000;
   const days = Math.max(1, options.days ?? 3);
   const today = utcToLocal(now, timezone).date;
   const lastDay = addDays(today, days);
   const starts = new Set<number>();
-  for (const o of openings(vendor.hours, timezone, today, days)) {
+  for (const o of openings(vendor.hours, timezone, today, days, vendor.closedDates ?? [])) {
     for (let t = o.start.getTime(); t + step <= o.end.getTime(); t += step) {
       if (t >= earliest && utcToLocal(new Date(t), timezone).date < lastDay) starts.add(t);
     }
@@ -179,6 +184,6 @@ export function orderSlots(vendor: Pick<Restaurant, "hours" | "prepMinutes">, ti
 }
 
 /** Whether an order for later at `at` falls in one of the vendor's slots. */
-export function isSlotOpen(vendor: Pick<Restaurant, "hours" | "prepMinutes">, timezone: string, at: Date, now: Date): boolean {
+export function isSlotOpen(vendor: SlotVendor, timezone: string, at: Date, now: Date): boolean {
   return orderSlots(vendor, timezone, now, { days: 7, stepMinutes: 5 }).some((s) => at >= s.start && at < s.end);
 }

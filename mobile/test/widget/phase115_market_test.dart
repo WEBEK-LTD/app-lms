@@ -338,6 +338,156 @@ void main() {
     });
   });
 
+  group('115.20 running late', () {
+    test('the delay is read from the vendor\'s JSON', () {
+      final vendor = marketVendorFrom(
+        MarketVendorSummary.fromJson({
+          'id': 9,
+          'kind': 'restaurant',
+          'name': 'Busy Grill',
+          'categories': [],
+          'open': true,
+          'busy': false,
+          'delivery_by': 'app',
+          'delivery_minutes': {'min': 45, 'max': 60},
+          'delivers': true,
+          'delay': {
+            'minutes': 20,
+            'reason': 'demand',
+            'note': null,
+            'until': '2026-11-10T15:00:00Z',
+          },
+        }),
+        null,
+      );
+      expect(vendor.late?.minutes, 20);
+      expect(vendor.late?.reason, MarketLateReason.demand);
+      expect(vendor.etaMin, 45);
+      final none = marketVendorFrom(
+        MarketVendorSummary.fromJson({
+          'id': 9,
+          'kind': 'restaurant',
+          'name': 'Calm Grill',
+          'delay': null,
+        }),
+        null,
+      );
+      expect(none.late, isNull);
+    });
+
+    const busy = MarketVendor(
+      id: 'busy',
+      kind: MarketVendorKind.restaurant,
+      name: 'Busy Grill',
+      coverUrl: '',
+      logoUrl: '',
+      tags: ['Grill'],
+      etaMin: 45,
+      etaMax: 60,
+      deliveryFee: 'EGP 15.00',
+      delivers: true,
+      late: MarketLate(minutes: 20, reason: MarketLateReason.demand),
+    );
+    Widget vendorPage(String lang, MarketVendor v) => ProviderScope(
+      overrides: [
+        marketVendorPageProvider.overrideWith(
+          (ref, id) async =>
+              MarketVendorPage(vendor: v, shelves: [], currency: 'EGP'),
+        ),
+      ],
+      child: MaterialApp(
+        theme: buildAppTheme(
+          primary: const Color(0xFF0E7C66),
+          secondary: const Color(0xFFF2994A),
+          brightness: Brightness.light,
+          template: AppTemplate.bold,
+          fontFamily: 'Plus Jakarta Sans',
+        ),
+        locale: Locale(lang),
+        supportedLocales: const [Locale('en'), Locale('ar'), Locale('tr')],
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        home: MarketVendorScreen(vendorId: v.id),
+      ),
+    );
+
+    testWidgets('the vendor page shows a banner, and the longer time', (
+      tester,
+    ) async {
+      phone(tester);
+      await tester.pumpWidget(vendorPage('en', busy));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.takeException(), isNull);
+      expect(
+        find.text('Running about 20 min late: high demand'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Delivery and pick-up times include it.'),
+        findsOneWidget,
+      );
+      expect(find.text('45–60 min'), findsOneWidget);
+    });
+
+    testWidgets('in Arabic, with the place\'s own words', (tester) async {
+      phone(tester);
+      await tester.pumpWidget(
+        vendorPage(
+          'ar',
+          const MarketVendor(
+            id: 'own',
+            kind: MarketVendorKind.restaurant,
+            name: 'Own Words',
+            coverUrl: '',
+            logoUrl: '',
+            tags: [],
+            late: MarketLate(
+              minutes: 15,
+              reason: MarketLateReason.other,
+              note: 'صيانة الفرن',
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.takeException(), isNull);
+      expect(find.text('تأخير نحو 15 دقيقة: صيانة الفرن'), findsOneWidget);
+    });
+
+    testWidgets('no banner without a delay', (tester) async {
+      phone(tester);
+      await tester.pumpWidget(
+        vendorPage(
+          'en',
+          const MarketVendor(
+            id: 'calm',
+            kind: MarketVendorKind.restaurant,
+            name: 'Calm Grill',
+            coverUrl: '',
+            logoUrl: '',
+            tags: [],
+            etaMin: 25,
+            etaMax: 40,
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const ValueKey('market-late-banner')), findsNothing);
+    });
+
+    testWidgets('the card\'s note', (tester) async {
+      await tester.pumpWidget(app(const MarketVendorFacts(vendor: busy)));
+      await tester.pump();
+      expect(find.text('~20 min late'), findsOneWidget);
+      expect(find.text('45–60 min'), findsOneWidget);
+      // On one line, the note comes first.
+      await tester.pumpWidget(
+        app(const MarketVendorFacts(vendor: busy, wrap: false, eta: false)),
+      );
+      await tester.pump();
+      expect(find.text('~20 min late'), findsOneWidget);
+    });
+  });
+
   testWidgets('a shop: aisles and items by weight', (tester) async {
     phone(tester);
     await tester.pumpWidget(

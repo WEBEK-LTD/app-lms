@@ -2147,7 +2147,42 @@ class FakeApi implements YallappApi {
     int? busyMinutes,
     bool endBusy = false,
     bool? paused,
+    VendorDelaySet? delay,
+    bool endDelay = false,
+    List<MarketHours>? hours,
+    List<VendorClosedDates>? closedDates,
+    int? prepMinutes,
   }) => _answer('updateVendorDesk', () {
+    if (delay != null || endDelay) {
+      vendorCalls.add(
+        'delay ${delay == null ? 'end' : '${delay.minutes} ${delay.reason.name} ${delay.note ?? ''} ${delay.forMinutes}'}',
+      );
+      vendorDesk['delay'] = delay == null
+          ? null
+          : {
+              ...delay.toJson(),
+              'until': delay.forMinutes == null ? null : '2026-11-04T15:00:00Z',
+              'set_at': '2026-11-04T14:00:00Z',
+            };
+      return VendorDesk.fromJson(vendorDesk);
+    }
+    if (hours != null || closedDates != null || prepMinutes != null) {
+      vendorCalls.add(
+        'place hours=${hours?.map((h) => '${h.day} ${h.opens}-${h.closes}').join(',')} '
+        'closed=${closedDates?.map((c) => '${c.from}..${c.to}').join(',')} prep=$prepMinutes',
+      );
+      if (hours != null) {
+        vendorDesk['hours'] = [
+          for (final h in hours)
+            {'day': h.day, 'opens': h.opens, 'closes': h.closes},
+        ];
+      }
+      if (closedDates != null) {
+        vendorDesk['closed_dates'] = [for (final c in closedDates) c.toJson()];
+      }
+      if (prepMinutes != null) vendorDesk['prep_minutes'] = prepMinutes;
+      return VendorDesk.fromJson(vendorDesk);
+    }
     vendorCalls.add('desk busy=$busyMinutes end=$endBusy paused=$paused');
     if (paused != null) vendorDesk['paused'] = paused;
     if (busyMinutes != null) {

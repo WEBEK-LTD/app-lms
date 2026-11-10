@@ -40,6 +40,11 @@ class VendorDesk {
     required this.newOrders,
     this.logoUrl,
     this.busyUntil,
+    this.delay,
+    this.prepMinutes = 20,
+    this.hours = const [],
+    this.closedDates = const [],
+    this.canEditPlace = false,
   });
 
   factory VendorDesk.fromJson(Json json) {
@@ -64,6 +69,11 @@ class VendorDesk {
           optObject(today, 'sales', MarketMoney.fromJson) ??
           const MarketMoney(amount: '0', formatted: ''),
       newOrders: intOr(today, 'new_orders', 0),
+      delay: optObject(json, 'delay', MarketVendorDelay.fromJson),
+      prepMinutes: intOr(json, 'prep_minutes', 20),
+      hours: listOf(json, 'hours', MarketHours.fromJson),
+      closedDates: listOf(json, 'closed_dates', VendorClosedDates.fromJson),
+      canEditPlace: boolOr(json, 'can_edit_place', false),
     );
   }
 
@@ -85,9 +95,64 @@ class VendorDesk {
   final MarketMoney todaySales;
   final int newOrders;
 
+  /// 115.20 Running late (still taking orders); null otherwise.
+  final MarketVendorDelay? delay;
+
+  /// How long an order usually takes, in minutes.
+  final int prepMinutes;
+
+  /// The weekly hours: up to two periods a day; a day left out is closed.
+  final List<MarketHours> hours;
+
+  /// The days off from today on, soonest first.
+  final List<VendorClosedDates> closedDates;
+
+  /// The signed-in person may change the hours, days off and preparation
+  /// time (the place's owner and managers).
+  final bool canEditPlace;
+
   /// A picker only picks; the others also answer orders and set the
-  /// vendor busy.
+  /// vendor busy or running late.
   bool get answers => role != VendorRole.picker;
+}
+
+/// 115.20 Days off: closed all day from [from] to [to] (`YYYY-MM-DD`, both
+/// included), in the app's time zone.
+class VendorClosedDates {
+  const VendorClosedDates({required this.from, required this.to});
+
+  factory VendorClosedDates.fromJson(Json json) => VendorClosedDates(
+    from: reqString(json, 'from'),
+    to: optString(json, 'to') ?? reqString(json, 'from'),
+  );
+
+  final String from;
+  final String to;
+
+  Json toJson() => {'from': from, 'to': to};
+}
+
+/// 115.20 What the vendor sets when it runs late: [forMinutes] null lasts
+/// until it ends it.
+class VendorDelaySet {
+  const VendorDelaySet({
+    required this.minutes,
+    required this.reason,
+    this.note,
+    this.forMinutes,
+  });
+
+  final int minutes;
+  final MarketDelayReason reason;
+  final String? note;
+  final int? forMinutes;
+
+  Json toJson() => {
+    'minutes': minutes,
+    'reason': reason.name,
+    if (reason == MarketDelayReason.other) 'note': note,
+    'for_minutes': forMinutes,
+  };
 }
 
 /// Where the vendor's own driver takes the order.
