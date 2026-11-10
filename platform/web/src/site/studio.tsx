@@ -53,8 +53,8 @@ export async function studioPlans(lang: Lang) {
  * with many teachers, schools and universities),
  * how it differs from regular apps, and its own plans.
  */
-/** The team's film at the top of the Studio page, in the page's language (Arabic has its own; until then the English one). */
-const STUDIO_VIDEOS: Record<Lang, string> = { en: "studio-hero-en", tr: "studio-hero-en", ar: "studio-hero-en" };
+/** The team's film at the top of the Studio page: the Arabic one on the Arabic page, the English one in English and Turkish. */
+const STUDIO_VIDEOS: Record<Lang, string> = { en: "studio-hero-en", tr: "studio-hero-en", ar: "studio-hero-ar" };
 
 function studioVideo(lang: Lang): { src: string; poster: string } {
   const name = STUDIO_VIDEOS[lang];

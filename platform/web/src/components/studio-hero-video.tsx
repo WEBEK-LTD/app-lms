@@ -5,9 +5,12 @@ import { PhoneFrame } from "./device-frame";
 
 /**
  * Yallapp Studio's page: the team's own short film in the phone frame at
- * the top. It plays muted and loops; the button turns its sound on and off.
- * With "reduce motion" it doesn't start by itself (the button plays it), and
- * until it loads, or without video, the poster frame shows.
+ * the top. Browsers only let a film start by itself without sound, so it
+ * starts muted and its sound comes on at the visitor's first tap, click or
+ * key press anywhere on the page; the "Turn the sound on" button does it
+ * too, and then turns it off and on. With "reduce motion" it doesn't start
+ * by itself (the play button starts it, with sound), and until it loads the
+ * poster frame shows.
  */
 export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }: { src: string; poster: string; label: string; soundOn: string; soundOff: string; play: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -17,8 +20,22 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    video.play().catch(() => setPaused(true));
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) video.play().catch(() => setPaused(true));
+    // The sound comes on with the visitor's first gesture on the page (unless they used the film's own buttons).
+    const onFirst = (event: Event) => {
+      remove();
+      if (event.target instanceof Element && event.target.closest("[data-studio-video-control]")) return;
+      video.muted = false;
+      setMuted(false);
+      if (video.paused && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) void video.play().catch(() => undefined);
+    };
+    const remove = () => {
+      document.removeEventListener("pointerdown", onFirst, true);
+      document.removeEventListener("keydown", onFirst, true);
+    };
+    document.addEventListener("pointerdown", onFirst, true);
+    document.addEventListener("keydown", onFirst, true);
+    return remove;
   }, []);
 
   const toggleSound = () => {
@@ -28,7 +45,13 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
     setMuted(video.muted);
     if (video.paused) void video.play().catch(() => undefined);
   };
-  const start = () => void ref.current?.play().catch(() => undefined);
+  const start = () => {
+    const video = ref.current;
+    if (!video) return;
+    video.muted = false;
+    setMuted(false);
+    void video.play().catch(() => undefined);
+  };
 
   return (
     <figure className="m-0 flex max-w-full flex-none flex-col items-center">
@@ -47,7 +70,7 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
           className="absolute inset-0 h-full w-full object-cover"
         />
         {paused ? (
-          <button type="button" onClick={start} aria-label={play} className="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-black/20">
+          <button type="button" onClick={start} aria-label={play} data-studio-video-control="" className="absolute inset-0 grid cursor-pointer place-items-center border-0 bg-black/20">
             <span className="grid h-14 w-14 place-items-center rounded-full bg-white/90 text-[#0e0d24] shadow-lg">
               <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="currentColor">
                 <path d="M8 5.5v13l11-6.5z" />
@@ -60,7 +83,8 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
           onClick={toggleSound}
           aria-label={muted ? soundOn : soundOff}
           aria-pressed={!muted}
-          className="absolute end-3 bottom-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-full border-0 bg-black/55 text-white backdrop-blur focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          data-studio-video-control=""
+          className={`absolute end-3 bottom-3 z-10 flex h-10 cursor-pointer items-center gap-2 rounded-full border-0 bg-black/60 text-white backdrop-blur focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${muted ? "ps-3 pe-3.5 text-[13px] font-bold" : "w-10 justify-center"}`}
         >
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">
             <path d="M4 9.5h3.5L12 5v14l-4.5-4.5H4z" />
@@ -70,6 +94,7 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
               <path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
             )}
           </svg>
+          {muted ? <span aria-hidden="true">{soundOn}</span> : null}
         </button>
       </PhoneFrame>
     </figure>
