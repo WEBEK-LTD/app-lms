@@ -5,12 +5,13 @@ import { PhoneFrame } from "./device-frame";
 
 /**
  * Yallapp Studio's page: the team's own short film in the phone frame at
- * the top. Browsers only let a film start by itself without sound, so it
- * starts muted and its sound comes on at the visitor's first tap, click or
- * key press anywhere on the page; the "Turn the sound on" button does it
- * too, and then turns it off and on. With "reduce motion" it doesn't start
- * by itself (the play button starts it, with sound), and until it loads the
- * poster frame shows.
+ * the top. It starts by itself as soon as the page opens. It first tries
+ * with sound; most browsers only let a film start by itself without
+ * sound, so then it plays muted and its sound comes on at the visitor's
+ * first tap, click or key press anywhere on the page. The "Turn the sound
+ * on" button does it too, and then turns it off and on. Until it loads the
+ * poster frame shows; if a browser blocks starting by itself entirely
+ * (some battery savers do), the first tap starts it with sound.
  */
 export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }: { src: string; poster: string; label: string; soundOn: string; soundOff: string; play: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -20,14 +21,13 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) video.play().catch(() => setPaused(true));
     // The sound comes on with the visitor's first gesture on the page (unless they used the film's own buttons).
     const onFirst = (event: Event) => {
       remove();
       if (event.target instanceof Element && event.target.closest("[data-studio-video-control]")) return;
       video.muted = false;
       setMuted(false);
-      if (video.paused && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) void video.play().catch(() => undefined);
+      if (video.paused) void video.play().catch(() => undefined);
     };
     const remove = () => {
       document.removeEventListener("pointerdown", onFirst, true);
@@ -35,6 +35,19 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
     };
     document.addEventListener("pointerdown", onFirst, true);
     document.addEventListener("keydown", onFirst, true);
+    // Try with sound first; when the browser refuses, play muted.
+    video.muted = false;
+    video
+      .play()
+      .then(() => {
+        setMuted(false);
+        remove();
+      })
+      .catch(() => {
+        video.muted = true;
+        setMuted(true);
+        return video.play().catch(() => setPaused(true));
+      });
     return remove;
   }, []);
 
@@ -63,7 +76,7 @@ export function StudioHeroVideo({ src, poster, label, soundOn, soundOff, play }:
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-label={label}
           onPlay={() => setPaused(false)}
           onPause={() => setPaused(true)}
