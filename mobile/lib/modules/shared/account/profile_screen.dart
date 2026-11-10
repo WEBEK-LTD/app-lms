@@ -89,9 +89,7 @@ class ProfileScreen extends ConsumerWidget {
     final rides = env.build.appType == AppType.rides && !secondApp;
     // 105.3 Academies with many teachers: their teachers' pages, applying
     // to teach, and the teacher's screens for the teachers.
-    final instructors = staffApp
-        ? null
-        : ref.watch(instructorsConfigProvider);
+    final instructors = staffApp ? null : ref.watch(instructorsConfigProvider);
     final teacher = ref.watch(isTeacherProvider) && !staffApp;
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
