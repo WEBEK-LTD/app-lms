@@ -9,6 +9,7 @@ export const AR_SITE: SiteContentTranslation = {
   home: {
     badge: "تطبيقات Android وiOS لـ {kinds} نوعًا من الأنشطة التجارية",
     title: "نشاطك التجاري، في تطبيق جوّال خاص بك.",
+    titleWords: "متجرك، مدرستك، مطعمك، شركة التاكسي، الشحن، أكاديميتك",
     intro:
       "يبني Yallapp تطبيقات Android وiOS تحمل علامتك التجارية من موقعك الحالي، أو من Shopify ومنصات أخرى، أو من دون موقع على الإطلاق. باسمك وألوانك وصفحاتك، وتُنشر بحسابات المتاجر الخاصة بك.",
     primaryCta: "ابدأ عبر WhatsApp",

@@ -102,6 +102,15 @@ export const ar: Messages = {
     builds: "<b>كل إصدار جاهز للتنزيل.</b> ملف APK وApp Bundle وإصدار iOS ومفتاح التوقيع وملفات المتجر.",
     howInDetail: "طريقة العمل بالتفصيل",
     compareFeatures: "قارن جميع المزايا",
+    kindsLabel: "أنواع التطبيقات",
+    notices: {
+      zad: "طلبك في الطريق، يصل بعد 12 دقيقة",
+      school: "الحافلة على بُعد 5 دقائق من المنزل",
+      taxi: "هاني في الطريق إليك · TX 4821",
+      yourStore: "متجرك",
+      store: "طلب جديد #1042 · ₺640",
+      academy: "درس جديد في دورتك",
+    },
   },
   comparison: {
     label: "مقارنة بين منصة تطبيقات تقليدية وYallapp",

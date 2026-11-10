@@ -731,3 +731,439 @@ html {
     stroke-dashoffset: 0 !important;
   }
 }
+
+/*
+ * The home page's hero (src/site/home.tsx, home-motion.tsx): a Midnight
+ * stage with a slow Ember glow, a fine grid and a little grain; the title's
+ * coloured word that takes turns; a fan of real screens that assembles on
+ * load and leans with the pointer; two notices; the kinds running under it.
+ * Everything rests in its final place: the motion only leads there, and
+ * "reduce motion" leaves it still.
+ */
+.hero {
+  --hero-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-glow {
+  position: absolute;
+  z-index: -2;
+  inset-inline-end: -220px;
+  top: -180px;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.36), rgba(255, 90, 31, 0.1) 55%, transparent 72%);
+  animation: hero-breathe 9s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 70% 40%, #000 20%, transparent 75%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.hero-grid:dir(rtl) {
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 40%, #000 20%, transparent 75%);
+}
+/* Film grain: noise drawn once by the browser, very light. */
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 220px;
+  pointer-events: none;
+}
+@keyframes hero-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+@media (max-width: 899.98px) {
+  .hero-glow {
+    top: auto;
+    bottom: -160px;
+    inset-inline-end: -320px;
+  }
+  .hero-grid,
+  .hero-grid:dir(rtl) {
+    mask-image: radial-gradient(ellipse 90% 50% at 50% 70%, #000 20%, transparent 75%);
+  }
+}
+
+/* The badge's dot, with a ring that keeps pinging outwards. */
+.hero-ping::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--color-ember);
+  border-radius: 50%;
+  opacity: 0;
+  animation: hero-ping 2.4s ease-out infinite;
+}
+@keyframes hero-ping {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/*
+ * The title. Its size follows its column and its longest coloured word
+ * (`--hero-chars`, set by the page), so that word always fits on a line.
+ */
+.hero-copy {
+  container-type: inline-size;
+}
+.hero-title {
+  font-size: clamp(32px, min(100cqi / (var(--hero-chars, 12) * 0.53), 6.4vw + 12px), 78px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+.hero-title .block {
+  text-wrap: balance;
+}
+:lang(ar) .hero-title {
+  font-size: clamp(32px, min(100cqi / (var(--hero-chars, 12) * 0.53), 6.4vw + 12px), 68px);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: 0;
+}
+.hero-word {
+  position: relative;
+  display: inline-grid;
+  color: var(--color-ember);
+  white-space: nowrap;
+}
+/* As wide as the longest word, drawn invisibly, so nothing moves when the word changes. */
+.hero-word::before {
+  content: attr(data-sizer);
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.hero-word-item {
+  position: relative;
+  grid-area: 1 / 1;
+  justify-self: start;
+}
+/* The underline, drawn from the start of the word. */
+.hero-word-item::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.02em;
+  height: 0.08em;
+  border-radius: 99px;
+  background: currentColor;
+  transform-origin: left;
+  animation: hero-underline 0.7s var(--hero-ease) 0.7s both;
+}
+.hero-word-item:dir(rtl)::after {
+  transform-origin: right;
+}
+.hero-word-item[data-entering] {
+  animation: hero-word-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
+}
+.hero-word-item[data-entering]::after {
+  animation-delay: 0.55s;
+}
+.hero-word-item[data-leaving] {
+  animation: hero-word-out 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.hero-word-item[data-leaving]::after {
+  animation: hero-underline-out 0.3s ease-in both;
+}
+@keyframes hero-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+}
+@keyframes hero-word-out {
+  to {
+    opacity: 0;
+    transform: translateY(-40%);
+  }
+}
+@keyframes hero-underline {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes hero-underline-out {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* The WhatsApp button: a light sweeps across it every few seconds. */
+.hero-cta {
+  position: relative;
+  overflow: hidden;
+}
+.hero-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: hero-sweep 4.5s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+.hero-cta:dir(rtl)::before {
+  animation-name: hero-sweep-rtl;
+}
+@keyframes hero-sweep {
+  0%,
+  70% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+@keyframes hero-sweep-rtl {
+  0%,
+  70% {
+    transform: translateX(120%);
+  }
+  100% {
+    transform: translateX(-120%);
+  }
+}
+
+/*
+ * The fan of real screens: in place from the first paint, assembled on load.
+ * The phones' size follows the stage's width (it is their container), and
+ * where each one sits is in phone widths (`--x`, `--y`, `--z`), so the fan
+ * keeps its shape at every size. Beside the copy, the fan sits a little
+ * towards the outer edge (`--shift`) so it never reaches the text.
+ */
+.hero-stage {
+  container-type: inline-size;
+  min-width: 0;
+}
+.hero-scene {
+  --phone-w: clamp(150px, 43cqi, 236px);
+  --shift: 0px;
+  position: relative;
+  height: calc(var(--phone-w) * 2.62);
+  perspective: 1400px;
+}
+@media (min-width: 900px) {
+  .hero-scene {
+    --shift: calc(var(--phone-w) * 0.24);
+  }
+  .hero-scene:dir(rtl) {
+    --shift: calc(var(--phone-w) * -0.24);
+  }
+}
+.hero-fan {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.hero-phone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--phone-w);
+  transform: translate(-50%, -50%) translate3d(calc(var(--x) * var(--phone-w) + var(--shift)), calc(var(--y) * var(--phone-w)), calc(var(--z) * var(--phone-w))) rotateZ(var(--r));
+  animation: hero-assemble 1.2s var(--hero-ease) calc(0.12s + var(--i, 0) * 0.08s) backwards;
+}
+.hero-phone[data-centre] {
+  animation-name: hero-assemble-centre;
+}
+.hero-phone .phone {
+  width: 100%;
+}
+.hero-phone .phone-body {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    inset 0 0 0 1.5px var(--color-phone-edge),
+    inset 0 0 0 2.5px #0a0a0c,
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 40px 80px -30px rgba(0, 0, 0, 0.9);
+}
+/* A soft glare across the glass. */
+.hero-phone .phone-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.16), transparent 32%, transparent 70%, rgba(255, 255, 255, 0.06));
+  pointer-events: none;
+}
+@keyframes hero-assemble {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate3d(var(--shift), 60px, -200px);
+  }
+}
+@keyframes hero-assemble-centre {
+  from {
+    transform: translate(-50%, -50%) translate3d(var(--shift), 36px, -80px);
+  }
+}
+
+/* Two notices from the apps, taking turns. */
+.hero-notice {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 270px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(28, 27, 58, 0.8);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s var(--hero-ease);
+  animation: hero-notice-in 0.7s var(--hero-ease) 0.9s backwards;
+}
+.hero-notice[data-slot="0"] {
+  top: 8%;
+  inset-inline-end: 2%;
+}
+.hero-notice[data-slot="1"] {
+  bottom: 14%;
+  inset-inline-start: -4%;
+  animation-delay: 1.25s;
+}
+.hero-notice[data-off] {
+  opacity: 0;
+  transform: translateY(14px) scale(0.97);
+}
+.hero-notice-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  font-size: 15px;
+  font-weight: 800;
+}
+@keyframes hero-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+@media (max-width: 899.98px) {
+  .hero-notice[data-slot="0"] {
+    top: 2%;
+  }
+  .hero-notice[data-slot="1"] {
+    bottom: 4%;
+    inset-inline-start: 0;
+  }
+}
+@media (max-width: 480px) {
+  .hero-notice {
+    width: 230px;
+  }
+}
+
+/* The kinds of apps, running under the hero (the Works with strip's marquee). */
+.hero-ticker {
+  border-block: 1px solid rgba(255, 255, 255, 0.1);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.hero-kinds {
+  gap: 42px;
+  padding-block: 18px;
+  padding-inline: 0 42px;
+}
+.hero-kinds li {
+  display: inline-flex;
+  align-items: center;
+  gap: 42px;
+  color: var(--color-ivory);
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+.hero-kinds li::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-ember);
+}
+
+/*
+ * The rest of the home page: each block fades and rises in as it scrolls
+ * into view, tied to the scroll itself, and only while it crosses the
+ * bottom of the screen: before and after that it rests in place, visible.
+ * No script, so nothing is ever left hidden: without JavaScript, in
+ * browsers without scroll-driven animations and in a screenshot of the
+ * whole page it simply shows. Cards in a `[data-reveal-group]` come in one
+ * by one; the looks' phones float.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-home] main > section:not([data-hero]) > div > :not([data-reveal-group]),
+    [data-home] [data-reveal-group] > * {
+      animation: home-reveal linear;
+      animation-timeline: view();
+      animation-range: entry 0% entry 200px;
+    }
+  }
+}
+@keyframes home-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+.home-looks > :nth-child(2n) {
+  animation-delay: -2.4s;
+}
+.home-looks > :nth-child(3n) {
+  animation-delay: -4.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow,
+  .hero-ping::after,
+  .hero-word-item,
+  .hero-word-item::after,
+  .hero-cta::before,
+  .hero-phone,
+  .hero-notice {
+    animation: none !important;
+  }
+  .hero-fan,
+  .hero-notice {
+    transition: none !important;
+  }
+  .hero-cta::before {
+    display: none;
+  }
+  [data-home] [data-parallax] {
+    translate: none !important;
+  }
+}

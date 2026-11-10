@@ -109,6 +109,15 @@ export const en = {
     builds: "<b>Every build, ready to download.</b> APK, App Bundle, iOS build, signing key and store assets.",
     howInDetail: "How it works in detail",
     compareFeatures: "Compare all features",
+    kindsLabel: "Kinds of apps",
+    notices: {
+      zad: "Your order is on its way, 12 min",
+      school: "The bus is 5 minutes from home",
+      taxi: "Hany is on his way · TX 4821",
+      yourStore: "Your store",
+      store: "New order #1042 · ₺640",
+      academy: "A new lesson in your course",
+    },
   },
   comparison: {
     label: "A typical app builder compared with Yallapp",

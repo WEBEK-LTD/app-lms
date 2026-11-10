@@ -9,6 +9,7 @@ export const TR_SITE: SiteContentTranslation = {
   home: {
     badge: "{kinds} farklı işletme türü için Android ve iOS uygulamaları",
     title: "İşletmeniz, kendi mobil uygulamanız olarak.",
+    titleWords: "mağazanız, okulunuz, restoranınız, taksi şirketiniz, teslimatlarınız, akademiniz",
     intro:
       "Yallapp, zaten işlettiğiniz web sitesinden, Shopify ve diğer platformlardan ya da hiç web sitesi olmadan markanızı taşıyan Android ve iOS uygulamaları oluşturur. Adınız, renkleriniz, sayfalarınız; kendi mağaza hesaplarınızla yayımlanır.",
     primaryCta: "WhatsApp'tan başlayın",

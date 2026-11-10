@@ -102,6 +102,15 @@ export const tr: Messages = {
     builds: "<b>Her derleme indirmeye hazır.</b> APK, App Bundle, iOS derlemesi, imzalama anahtarı ve mağaza görselleri.",
     howInDetail: "Ayrıntılı olarak nasıl çalışır",
     compareFeatures: "Tüm özellikleri karşılaştırın",
+    kindsLabel: "Uygulama türleri",
+    notices: {
+      zad: "Siparişiniz yolda, 12 dk",
+      school: "Servis eve 5 dakika uzaklıkta",
+      taxi: "Hany size doğru geliyor · TX 4821",
+      yourStore: "Mağazanız",
+      store: "Yeni sipariş #1042 · ₺640",
+      academy: "Kursunuzda yeni bir ders",
+    },
   },
   comparison: {
     label: "Sıradan bir uygulama oluşturucu ile Yallapp'in karşılaştırması",
