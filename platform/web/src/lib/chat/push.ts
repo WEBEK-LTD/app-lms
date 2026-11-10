@@ -5,12 +5,14 @@ import { isPrivateAddress, resolveHost } from "../app/api-check";
 import { httpsSiteAddress } from "../app/wordpress-ready";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { App, ChatConversation, ChatMember, ChatMessage, MediaKind } from "../data/types";
+import type { App, ChatConversation, ChatMember, ChatMessage, MediaKind, PushAudience } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX, serviceAccountOf } from "../hosted/notify";
 import { pushTarget, sendPush } from "../hosted/push";
 import { normalizeLicenseKey } from "../license/key";
 import { pinnedFetch } from "../net/safe-fetch";
 import { pushToOwner, type OwnerPushDeps } from "../owner/push";
+import { personUser } from "../school/notify";
+import { hasStaffApp, staffPushAudience } from "../school/staff-app";
 import { noteAppError } from "../watch/app-errors";
 
 /**
@@ -117,7 +119,15 @@ export async function pushChatMessage(
     const recipients = await recipientsOf(deps.store, conversation, message);
     const hosted = recipients.filter((m) => m.source === "hosted");
     const site = recipients.filter((m) => m.source === "wordpress");
-    if (hosted.length) outcome.hosted = await pushHosted(deps, app, hosted, { title, body, conversationId: conversation.id });
+    if (hosted.length) {
+      // 116 A family's message to a teacher goes to the staff app's phones when the school has one; the teacher's to the family's main app.
+      const teacher = school && hasStaffApp(app) && conversation.schoolTeacherId ? await deps.store.getSchoolPerson(app.id, conversation.schoolTeacherId) : null;
+      const teacherUser = teacher ? await personUser(deps.store, teacher) : null;
+      const toTeacher = hosted.filter((m) => teacherUser !== null && m.externalId === String(teacherUser.id));
+      const toFamily = hosted.filter((m) => !toTeacher.includes(m));
+      const text = { title, body, conversationId: conversation.id };
+      outcome.hosted = (toFamily.length ? await pushHosted(deps, app, toFamily, text) : 0) + (toTeacher.length ? await pushHosted(deps, app, toTeacher, text, staffPushAudience(app)) : 0);
+    }
     if (site.length) outcome.site = await notifySite(deps, app, site, { title, body, conversationId: conversation.id });
     if (sender && deps.owner && !app.demo && !school) {
       outcome.owner = await pushToOwner(
@@ -137,11 +147,11 @@ export async function pushChatMessage(
   return outcome;
 }
 
-async function pushHosted(deps: ChatPushDeps, app: App, members: ChatMember[], text: { title: string; body: string; conversationId: string }): Promise<number> {
+async function pushHosted(deps: ChatPushDeps, app: App, members: ChatMember[], text: { title: string; body: string; conversationId: string }, audience: PushAudience = "customers"): Promise<number> {
   const account = serviceAccountOf(app, deps.key);
   if (!account) return 0;
   const userIds = members.map((m) => Number(m.externalId)).filter((id) => Number.isSafeInteger(id) && id > 0);
-  const targets = (await deps.store.listHostedPushDevices(app.id, userIds)).map(pushTarget);
+  const targets = (await deps.store.listHostedPushDevices(app.id, userIds, audience)).map(pushTarget);
   if (targets.length === 0) return 0;
   const result = await (deps.send ?? sendPush)(
     account,

@@ -827,6 +827,13 @@
       "when": 1794218605872,
       "tag": "0117_vendor_coupons",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "5",
+      "when": 1794269575947,
+      "tag": "0118_staff_app",
+      "breakpoints": true
     }
   ]
 }

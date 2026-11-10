@@ -1,6 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
-import type { Course, CourseQuestion, HostedUser, Teacher } from "../data/types";
+import type { Course, CourseQuestion, HostedUser, PushAudience, Teacher } from "../data/types";
+import { staffPushAudience } from "../school/staff-app";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 
 /**
@@ -47,8 +48,8 @@ async function teacherUser(deps: DeliveryNotifyDeps, teacher: Teacher): Promise<
   return teacher.email ? store.getHostedEmailUser(app.id, teacher.email) : null;
 }
 
-async function langOf(deps: DeliveryNotifyDeps, userId: number): Promise<Lang> {
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [userId]);
+async function langOf(deps: DeliveryNotifyDeps, userId: number, audience: PushAudience = "customers"): Promise<Lang> {
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [userId], audience);
   return asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
 }
 
@@ -66,7 +67,7 @@ export async function tellFollowers(deps: DeliveryNotifyDeps, teacher: Teacher, 
 export async function tellTeacherReviewed(deps: DeliveryNotifyDeps, teacher: Teacher, course: Pick<Course, "id" | "title" | "reviewNote">, outcome: "published" | "returned"): Promise<number> {
   const user = await teacherUser(deps, teacher);
   if (!user) return 0;
-  const words = REVIEWED[outcome][await langOf(deps, user.id)](course.title, course.reviewNote ?? "");
+  const words = REVIEWED[outcome][await langOf(deps, user.id, staffPushAudience(deps.app))](course.title, course.reviewNote ?? "");
   return deliver(deps, user.id, words, { type: "teacher_course", course_id: String(course.id) }, false);
 }
 
@@ -74,7 +75,7 @@ export async function tellTeacherReviewed(deps: DeliveryNotifyDeps, teacher: Tea
 export async function tellTeacherQuestion(deps: DeliveryNotifyDeps, teacher: Teacher, course: Pick<Course, "id" | "title">, question: Pick<CourseQuestion, "id">, text: string): Promise<number> {
   const user = await teacherUser(deps, teacher);
   if (!user) return 0;
-  const words = QUESTION[await langOf(deps, user.id)](course.title, text);
+  const words = QUESTION[await langOf(deps, user.id, staffPushAudience(deps.app))](course.title, text);
   return deliver(deps, user.id, words, { type: "teacher_question", course_id: String(course.id), question_id: String(question.id) }, false);
 }
 

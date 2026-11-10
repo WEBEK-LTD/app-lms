@@ -4,6 +4,7 @@ import type { DataStore } from "../data/store";
 import type { App, Courier, HostedDevice, PushAudience, Shipment, ShipmentStatus } from "../data/types";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "../hosted/notify";
 import { pushTarget, sendPush, type PushMessage, type ServiceAccount } from "../hosted/push";
+import { staffPushAudience } from "../school/staff-app";
 import { shipmentReference } from "./service";
 
 /**
@@ -84,17 +85,29 @@ export const asLang = (code: string | null | undefined): Lang | null => (code ==
 /** 112.3 The pushes for the couriers' and drivers' own app only; every other one is the customers' app's. */
 export const SECOND_APP_PUSHES: readonly string[] = ["courier_job", "ride_offer"];
 
-/** 112.3 Whose app a push of this type is for. */
-export const pushAudienceOf = (type: string | undefined): PushAudience => (type && SECOND_APP_PUSHES.includes(type) ? "second" : "customers");
+/** 116 The pushes to a school's or academy's teachers and staff: the staff app's when the project has one (lib/school/staff-app.ts). */
+export const STAFF_PUSHES: readonly string[] = ["school_staff", "school_leave", "school_report", "uni_advisee", "teacher_course", "teacher_question"];
 
-export async function deliver(deps: DeliveryNotifyDeps, userId: number, words: Words, data: Record<string, string>, onlyOrders: boolean): Promise<number> {
+/** 112.3 Whose app a push of this type is for; 116 the staff's pushes go to the staff app of a project with one. */
+export const pushAudienceOf = (type: string | undefined, app?: Pick<App, "appType" | "vertical" | "staffApp">): PushAudience =>
+  type && SECOND_APP_PUSHES.includes(type) ? "second" : type && app && STAFF_PUSHES.includes(type) ? staffPushAudience(app) : "customers";
+
+export async function deliver(
+  deps: DeliveryNotifyDeps,
+  userId: number,
+  words: Words,
+  data: Record<string, string>,
+  onlyOrders: boolean,
+  /** 116 Whose phones, when not the push type's own (a teacher's library loan goes to the staff app). */
+  audience: PushAudience = pushAudienceOf(data.type, deps.app),
+): Promise<number> {
   const { store, app, now } = deps;
   const title = words.title.slice(0, NOTIFICATION_TITLE_MAX);
   const body = words.body.slice(0, NOTIFICATION_BODY_MAX);
   const notification = await store.createHostedNotification({ appId: app.id, userId, title, body, data, createdAt: now });
   if (!deps.account && !deps.courierAccount) return 0;
   // 112.3 A courier's job or a driver's offer goes to the second app's phones, the customers' updates to the customers' app's.
-  const devices = (await store.listHostedPushDevices(app.id, [userId], pushAudienceOf(data.type))).filter((d) => !onlyOrders || d.pushPreferences?.orders !== false);
+  const devices = (await store.listHostedPushDevices(app.id, [userId], audience)).filter((d) => !onlyOrders || d.pushPreferences?.orders !== false);
   const message = { title, body, data: { ...data, notification_id: String(notification.id) } };
   // 104.8.2 Phones on Yallapp Courier get it from Yallapp Courier's Firebase project, with the company it is from.
   const own = devices.filter((d) => !d.courierDeviceId);

@@ -30,6 +30,7 @@ import type {
   PushPreferences,
   PushProvider,
   HostedAppRole,
+  StaffAppPlace,
   OwnerPushPreferences,
   ScheduledNotificationStatus,
   CourseQuestionStatus,
@@ -367,6 +368,8 @@ export const apps = mysqlTable(
     autoBuildDueAt: time("auto_build_due_at"),
     // 93.1 The overview's guide through the first app, hidden by the owner.
     guideHiddenAt: time("guide_hidden_at"),
+    // 116 Where a school's or academy's staff work: "bundle" (their own app) or "same" (the main app); null: a project made before, "same".
+    staffApp: varchar("staff_app", { length: 8 }).$type<StaffAppPlace>(),
     // 88.2 The listing in more languages, tablet and iPad screenshots, framed screenshots.
     listingLanguage: varchar("listing_language", { length: 10 }),
     listingTranslations: jsonText<ListingTranslation[]>("listing_translations"),
