@@ -92,7 +92,7 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     }
   });
 
-  it("has two restaurants and a supermarket with its departments and products, with the drawn pictures that fit", async () => {
+  it("has two restaurants and a supermarket with its departments and products, with their real photos", async () => {
     const { app, ok } = await zad();
     expect(app.appName).toBe(DEMO_BRANDS.marketplace.appName);
     expect(app.vertical).toBe("marketplace");
@@ -114,16 +114,14 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     expect(products.total).toBe(MARKET_CATALOG.flatMap((d) => d.aisles.flatMap((a) => a.products)).length);
     expect(products.total).toBeGreaterThanOrEqual(30);
     expect(products.items.filter((p) => p.unit === "kg").length).toBeGreaterThanOrEqual(8);
-    // The drawn pictures the app's samples use, where one fits (no photos, nothing generated); the rest without, so photos aren't required.
-    const pictured = (name: string) => products.items.find((p) => p.name === name)!.image_url;
-    for (const name of ["Bananas", "Tomatoes", "Eggs, 30", "Baladi bread, 5 loaves", "Black tea, 250 g", "Orange juice, 1 l"]) expect(pictured(name), name).toMatch(/^https:\/\/yallapp\.test\/api\/v1\/assets\//);
-    for (const name of ["Full-cream milk, 1 l", "Egyptian rice, 1 kg", "Dish soap, 750 ml"]) expect(pictured(name), name).toBeNull();
+    // Every product with its real photo (lib/demo/zad-photos.ts), nothing generated.
+    for (const p of products.items) expect(p.image_url, p.name).toMatch(/^https:\/\/yallapp\.test\/api\/v1\/assets\//);
     const places = await store.listRestaurants(app.id);
     expect(places.every((r) => r.logoAssetId === null && r.coverAssetId !== null)).toBe(true);
     const sandwiches = (await store.getRestaurantMenu(app.id, places.find((r) => r.name === "Bab El Sharq Grill")!.id))!.sections.find((s) => s.name === "Sandwiches")!;
     expect(sandwiches.dishes.every((d) => d.imageAssetId !== null)).toBe(true);
-    // Every picture is one of the account's drawn PNGs.
-    for (const r of places) expect((await store.getAsset(r.coverAssetId!))?.contentType).toBe("image/png");
+    // Every cover is one of the account's photos, a JPEG as it is.
+    for (const r of places) expect((await store.getAsset(r.coverAssetId!))?.contentType).toBe("image/jpeg");
   });
 
   it("has a delivery area for every place: near the demo's home they deliver in a sensible time, far away none does", async () => {

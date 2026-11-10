@@ -84,10 +84,9 @@ describe("templates = demos: the demo's own sample entries", () => {
     const products = await store.listMarketProducts({ appId: zad.id, vendorId: market.id, page: 1, perPage: 500 });
     expect(products.total).toBe(MARKET_CATALOG.flatMap((d) => d.aisles.flatMap((a) => a.products)).length);
     expect(names(await store.listMarketDepartments(zad.id, market.id))).toEqual(names(MARKET_CATALOG));
-    // Zad's drawn pictures, as the app's own: every place's cover, and the products a drawing fits.
+    // Zad's photos, as the app's own: every place's cover and every product's.
     expect(vendors.every((v) => v.coverAssetId !== null)).toBe(true);
-    expect(products.items.find((p) => p.name === "Bananas")!.imageAssetId).not.toBeNull();
-    expect(products.items.find((p) => p.name === "Dish soap, 750 ml")!.imageAssetId).toBeNull();
+    expect(products.items.every((p) => p.imageAssetId !== null)).toBe(true);
     // Their cuisines are added to the company's, as samples.
     expect((deliverySettingsOf(await store.getDeliverySettings(zad.id)).cuisines ?? []).every((c) => c.sample === true)).toBe(true);
 
