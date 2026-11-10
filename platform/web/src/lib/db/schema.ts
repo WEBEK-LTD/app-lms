@@ -123,7 +123,10 @@ import type {
   MarketOrderStatus,
   MarketOrder,
   MarketComplaint,
+  VendorClosedDates,
+  VendorDelay,
   VendorDelivery,
+  VendorEdit,
   VendorKind,
   VendorRole,
   ApplicationField,
@@ -181,6 +184,19 @@ const jsonText = <T>(name: string) =>
     dataType: () => "longtext",
     toDriver: (value) => JSON.stringify(value),
     fromDriver: (value) => JSON.parse(value) as T,
+  })(name);
+
+/** JSON whose times are written as ISO strings and read back as dates (`at` keys named here). */
+const jsonDated = <T>(name: string, dates: readonly string[]) =>
+  customType<{ data: T; driverData: string }>({
+    dataType: () => "longtext",
+    toDriver: (value) => JSON.stringify(value),
+    fromDriver: (value) => {
+      const parsed = JSON.parse(value) as Record<string, unknown> | null;
+      if (!parsed || typeof parsed !== "object") return parsed as T;
+      for (const key of dates) if (typeof parsed[key] === "string") parsed[key] = new Date(parsed[key]);
+      return parsed as T;
+    },
   })(name);
 
 const id = (name: string) => varchar(name, { length: 36 });
@@ -1524,6 +1540,10 @@ export const restaurants = mysqlTable(
     area: varchar("area", { length: 80 }),
     // 115 Where it delivers by area: the marketplace's service areas it chose; null: by distance (max_km).
     deliveryAreas: jsonText<string[] | null>("delivery_areas"),
+    // 115.20 Running late (extra minutes and why), its days off, and what the place itself last changed (for the owner's Undo).
+    delay: jsonDated<VendorDelay | null>("delay", ["until", "setAt"]),
+    closedDates: jsonText<VendorClosedDates[] | null>("closed_dates"),
+    vendorEdit: jsonDated<VendorEdit | null>("vendor_edit", ["at"]),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },

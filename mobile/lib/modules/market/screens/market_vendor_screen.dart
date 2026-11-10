@@ -393,6 +393,9 @@ class _Info extends StatelessWidget {
           if (v.outsideArea) ...[
             const SizedBox(height: 12),
             const _OutsideAreaBanner(),
+          ] else if (v.late case final late?) ...[
+            const SizedBox(height: 12),
+            MarketLateBanner(late: late),
           ],
           if (v.promo case final promo?) ...[
             const SizedBox(height: 12),
@@ -446,6 +449,52 @@ class _Info extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 115.20 The vendor runs late but still takes orders: how late and why;
+/// the times shown include it.
+class MarketLateBanner extends StatelessWidget {
+  const MarketLateBanner({super.key, required this.late});
+
+  final MarketLate late;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Container(
+      key: const ValueKey('market-late-banner'),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: marketTint(p, p.accent, 0.14),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          AppIcon(Symbols.hourglass_top_rounded, size: 20, color: p.accent),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  marketLateText(context, late),
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: p.text,
+                  ),
+                ),
+                Text(
+                  context.l10n.marketLateIncluded,
+                  style: TextStyle(fontSize: 12, color: p.textSecondary),
+                ),
+              ],
+            ),
           ),
         ],
       ),

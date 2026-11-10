@@ -15,6 +15,22 @@ enum MarketDeliveredBy { app, vendor }
 
 enum MarketVendorState { open, busy, closed }
 
+/// 115.20 Why a vendor runs late: high demand, few couriers, the weather,
+/// or its own words.
+enum MarketLateReason { demand, couriers, weather, other }
+
+/// 115.20 A vendor running late, still taking orders: its delivery time
+/// includes [minutes] already.
+class MarketLate {
+  const MarketLate({required this.minutes, required this.reason, this.note});
+
+  final int minutes;
+  final MarketLateReason reason;
+
+  /// The vendor's own words, with [MarketLateReason.other].
+  final String? note;
+}
+
 /// A restaurant or a shop as its card shows it.
 class MarketVendor {
   const MarketVendor({
@@ -40,6 +56,7 @@ class MarketVendor {
     this.opensAt,
     this.favorited = false,
     this.delivers,
+    this.late,
   });
 
   final String id;
@@ -82,6 +99,9 @@ class MarketVendor {
 
   /// Whether it delivers to the customer's address; null without one.
   final bool? delivers;
+
+  /// 115.20 Running late (still taking orders); null otherwise.
+  final MarketLate? late;
 
   /// Outside the vendor's (or the marketplace's) delivery area: no time
   /// and no fee, and no delivery from it (pick-up may still work).

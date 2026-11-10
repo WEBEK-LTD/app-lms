@@ -10331,5 +10331,194 @@
   "teacherAppOnlyMessage": "This app is for the academy's teachers. Students learn in the academy's main app.",
   "@teacherAppOnlyMessage": {
     "description": "116 Under the title for someone who isn't one of the academy's teachers, in its staff app."
+  },
+  "marketLateShort": "~{minutes} min late",
+  "@marketLateShort": {
+    "description": "115.20 On a vendor's card: it runs late, still taking orders (its delivery time includes the minutes).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "marketLateBanner": "Running about {minutes} min late: {reason}",
+  "@marketLateBanner": {
+    "description": "115.20 A banner on a vendor's page, and the vendor's own desk, while it runs late; `reason` is one of the marketLate reasons or the vendor's own words.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "marketLateIncluded": "Delivery and pick-up times include it.",
+  "@marketLateIncluded": {
+    "description": "115.20 Under the running-late banner on a vendor's page."
+  },
+  "marketLateDemand": "high demand",
+  "@marketLateDemand": {
+    "description": "115.20 Why a vendor runs late, after a colon in marketLateBanner."
+  },
+  "marketLateCouriers": "few couriers",
+  "@marketLateCouriers": {
+    "description": "115.20 Why a vendor runs late (few couriers), after a colon in marketLateBanner."
+  },
+  "marketLateWeather": "the weather",
+  "@marketLateWeather": {
+    "description": "115.20 Why a vendor runs late (the weather), after a colon in marketLateBanner."
+  },
+  "vendorLate": "Running late",
+  "@vendorLate": {
+    "description": "115.20 The vendor desk's button to tell customers it runs late while still taking orders."
+  },
+  "vendorLateTitle": "Running late?",
+  "@vendorLateTitle": {
+    "description": "115.20 The title of the running-late sheet."
+  },
+  "vendorLateText": "Keep taking orders and tell customers it takes longer. Their delivery and pick-up times include the extra minutes.",
+  "@vendorLateText": {
+    "description": "115.20 Under the running-late sheet's title."
+  },
+  "vendorLateMinutes": "Extra time",
+  "@vendorLateMinutes": {
+    "description": "115.20 The running-late sheet: how many minutes more."
+  },
+  "vendorLateExtra": "+{minutes} min",
+  "@vendorLateExtra": {
+    "description": "115.20 One of the extra-minute choices on the running-late sheet.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorLateReason": "Why",
+  "@vendorLateReason": {
+    "description": "115.20 The running-late sheet: the reason customers see."
+  },
+  "vendorLateDemand": "High demand",
+  "@vendorLateDemand": {
+    "description": "115.20 A reason on the running-late sheet."
+  },
+  "vendorLateCouriers": "Few couriers",
+  "@vendorLateCouriers": {
+    "description": "115.20 A reason on the running-late sheet (few couriers)."
+  },
+  "vendorLateWeather": "Weather",
+  "@vendorLateWeather": {
+    "description": "115.20 A reason on the running-late sheet (the weather)."
+  },
+  "vendorLateOther": "Something else",
+  "@vendorLateOther": {
+    "description": "115.20 A reason on the running-late sheet: the vendor writes its own."
+  },
+  "vendorLateNote": "Your words (customers see them)",
+  "@vendorLateNote": {
+    "description": "115.20 The field for the vendor's own reason, up to 80 characters."
+  },
+  "vendorLateFor": "For",
+  "@vendorLateFor": {
+    "description": "115.20 The running-late sheet: how long it lasts."
+  },
+  "vendorLateForMinutes": "{minutes} min",
+  "@vendorLateForMinutes": {
+    "description": "115.20 How long running late lasts, in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorLateForHours": "{hours, plural, =1{1 hour} other{{hours} hours}}",
+  "@vendorLateForHours": {
+    "description": "115.20 How long running late lasts, in hours.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "vendorLateUntilEnd": "Until I end it",
+  "@vendorLateUntilEnd": {
+    "description": "115.20 Running late with no end time."
+  },
+  "vendorLateSet": "Tell customers",
+  "@vendorLateSet": {
+    "description": "115.20 Sets the running-late notice."
+  },
+  "vendorLateEnd": "End the delay",
+  "@vendorLateEnd": {
+    "description": "115.20 Ends the running-late notice: times go back to normal."
+  },
+  "vendorLateUntil": "Until {time}",
+  "@vendorLateUntil": {
+    "description": "115.20 When running late ends by itself.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorHoursTitle": "Hours & days off",
+  "@vendorHoursTitle": {
+    "description": "115.20 The vendor's own opening hours, days off and preparation time (its owners and managers)."
+  },
+  "vendorHoursNote": "Changes show in the app at once. The app's team sees what you changed and can put it back.",
+  "@vendorHoursNote": {
+    "description": "115.20 At the top of the vendor's hours screen."
+  },
+  "vendorHoursWeek": "Every week",
+  "@vendorHoursWeek": {
+    "description": "115.20 The weekly opening hours."
+  },
+  "vendorHoursHint": "Up to two periods a day. A day without hours is closed; a time that closes before it opens runs past midnight.",
+  "@vendorHoursHint": {
+    "description": "115.20 Under the weekly hours."
+  },
+  "vendorHoursClosed": "Closed",
+  "@vendorHoursClosed": {
+    "description": "115.20 A day without opening hours."
+  },
+  "vendorHoursAdd": "Add hours",
+  "@vendorHoursAdd": {
+    "description": "115.20 Adds an opening period to a day."
+  },
+  "vendorHoursRemove": "Remove",
+  "@vendorHoursRemove": {
+    "description": "115.20 Removes an opening period or days off."
+  },
+  "vendorPrepTitle": "Preparation time",
+  "@vendorPrepTitle": {
+    "description": "115.20 How long an order usually takes at the vendor."
+  },
+  "vendorPrepHint": "How long an order usually takes. Customers' delivery and pick-up times start from it.",
+  "@vendorPrepHint": {
+    "description": "115.20 Under the preparation time."
+  },
+  "vendorDaysOff": "Days off",
+  "@vendorDaysOff": {
+    "description": "115.20 The vendor's days off, like holidays."
+  },
+  "vendorDaysOffHint": "Holidays and other days you're closed all day. Customers see you closed, and when you open again.",
+  "@vendorDaysOffHint": {
+    "description": "115.20 Under the days off."
+  },
+  "vendorDaysOffNone": "No days off coming up.",
+  "@vendorDaysOffNone": {
+    "description": "115.20 No days off set."
+  },
+  "vendorDaysOffAdd": "Add days off",
+  "@vendorDaysOffAdd": {
+    "description": "115.20 Opens the calendar to choose days off (the first and the last)."
+  },
+  "vendorHoursSave": "Save",
+  "@vendorHoursSave": {
+    "description": "115.20 Saves the vendor's hours and preparation time."
+  },
+  "vendorHoursSaved": "Saved. Customers see it now.",
+  "@vendorHoursSaved": {
+    "description": "115.20 After the vendor saved its hours or days off."
   }
 }

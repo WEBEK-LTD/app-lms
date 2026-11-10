@@ -93,7 +93,8 @@ String whenLabel(DateTime time, {DateTime? now}) {
   return '${shortDayLabel(day)} $clock';
 }
 
-/// 26 "09:00" today, else "Tue 09:00": when a closed kitchen opens.
+/// 26 "09:00" today, else "Tue 09:00": when a closed kitchen opens. 115.20
+/// A week or more away (after days off): "Mon 12 Oct 09:00".
 String opensLabel(DateTime time, {DateTime? now}) {
   final local = time.toLocal();
   final today = (now ?? DateTime.now()).toLocal();
@@ -101,8 +102,14 @@ String opensLabel(DateTime time, {DateTime? now}) {
       local.year == today.year &&
       local.month == today.month &&
       local.day == today.day;
-  return sameDay
-      ? clockTime(local)
+  if (sameDay) return clockTime(local);
+  final days = DateTime(
+    local.year,
+    local.month,
+    local.day,
+  ).difference(DateTime(today.year, today.month, today.day)).inDays;
+  return days >= 6
+      ? '${shortDayLabel(local)} ${clockTime(local)}'
       : '${shortWeekday(local)} ${clockTime(local)}';
 }
 

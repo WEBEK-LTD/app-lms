@@ -6,7 +6,7 @@ import { isReviewCourier } from "../../delivery/review";
 import { demoCourierPosition } from "../../demo/courier";
 import { deliverySettingsOf } from "../../delivery/settings";
 import type { DataStore } from "../../data/store";
-import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantStaff, VendorRole } from "../../data/types";
+import type { App, DeliverySettings, HostedUser, MarketOrder, MarketOrderStatus, Restaurant, RestaurantMenu, RestaurantPatch, RestaurantStaff, VendorRole } from "../../data/types";
 import { EMPTY_MENU } from "../../food/menu";
 import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
@@ -60,6 +60,8 @@ import { cancelClub as endClub, joinClub as joinClubPaid, payFromWallet, redeemC
 import { paymentChoices } from "../../market/payments";
 import { marketConfigJson, marketCurrency, marketSettingsOf, marketTimezone, paymentSettingsOf } from "../../market/settings";
 import { photosRequired } from "../../market/photos";
+import { delayJson, mayEditPlace, parseClosedDates, parseDelay, parseHoursList, parsePrepMinutes, placeChangePatch, type PlaceChange } from "../../market/vendor-controls";
+import { utcToLocal } from "../../bookings/time";
 import { monthBounds, vendorStatement, type PanelContext } from "../../market/panel-pages";
 import { parseAnyPhone } from "../phone";
 import { hostedSettings } from "../service";
@@ -248,7 +250,7 @@ export class MarketConnector {
       const own = quoteMarketDelivery(settings, { ...v, busyUntil: null, active: true }, { fulfilment: "delivery", dropoff: { address: "", details: null, lat: at.lat, lng: at.lng }, items: 0, itemCount: 1 }, now);
       if (own.ok) fee = own.fee;
     }
-    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club };
+    return { open, opensAt: state.opensAt, busy: state.busy, distanceKm: km, delivers, deliveryFee: fee, minutes, offer, clubBenefit: club, delay: delayJson(v, now) };
   }
 
   private async offerWords(currency: string): Promise<Map<number | null, string>> {
@@ -899,7 +901,18 @@ export class MarketConnector {
     const fresh = today.items.filter((o) => o.status === "placed").length;
     const body = deskJson(
       s.vendor,
-      { role: s.role, inHours: state.inHours, busy: state.busy, accepting: state.open && !s.vendor.paused, orders: counted.length, sales: counted.reduce((sum, o) => sum + o.money.items, 0), newOrders: fresh, currency: marketCurrency(settings) },
+      {
+        role: s.role,
+        inHours: state.inHours,
+        busy: state.busy,
+        accepting: state.open && !s.vendor.paused,
+        orders: counted.length,
+        sales: counted.reduce((sum, o) => sum + o.money.items, 0),
+        newOrders: fresh,
+        currency: marketCurrency(settings),
+        now,
+        today: utcToLocal(now, timezone).date,
+      },
       this.deps.assetUrl,
     );
     return { status: 200, body };
@@ -907,7 +920,7 @@ export class MarketConnector {
 
   private async updateDesk(s: Staffed, request: ConnectorRequest): Promise<ConnectorResult> {
     const b = (request.body && typeof request.body === "object" ? request.body : {}) as Record<string, unknown>;
-    const patch: { busyUntil?: Date | null; paused?: boolean } = {};
+    const patch: RestaurantPatch = {};
     if ("busy_minutes" in b) {
       if (b.busy_minutes === null) patch.busyUntil = null;
       else if (typeof b.busy_minutes === "number" && Number.isInteger(b.busy_minutes) && b.busy_minutes >= 5 && b.busy_minutes <= 240) patch.busyUntil = new Date(request.now.getTime() + b.busy_minutes * 60_000);
@@ -916,6 +929,34 @@ export class MarketConnector {
     if ("paused" in b) {
       if (typeof b.paused !== "boolean") return error(400, "invalid_request", "Say whether you're taking orders.");
       patch.paused = b.paused;
+    }
+    // 115.20 Running late: still taking orders, with more minutes and why.
+    if ("delay" in b) {
+      const delay = parseDelay(b.delay, request.now);
+      if (!delay.ok) return { status: 400, body: { code: "invalid_request", message: delay.error, details: { field: delay.field } } };
+      patch.delay = delay.value;
+    }
+    // 115.20 Its hours, days off and preparation time: the place's owner and managers, applied at once; the app's owner can undo it.
+    const change: PlaceChange = {};
+    if ("hours" in b || "closed_dates" in b || "prep_minutes" in b) {
+      if (!mayEditPlace(s.role)) return error(403, "not_allowed", "Only the place's owner and managers can change its hours, days off and preparation time.");
+      const today = utcToLocal(request.now, marketTimezone(await this.settings())).date;
+      if ("hours" in b) {
+        const hours = parseHoursList(b.hours);
+        if (!hours.ok) return { status: 400, body: { code: "invalid_request", message: hours.error, details: { field: hours.field } } };
+        change.hours = hours.value;
+      }
+      if ("closed_dates" in b) {
+        const closed = parseClosedDates(b.closed_dates, today);
+        if (!closed.ok) return { status: 400, body: { code: "invalid_request", message: closed.error, details: { field: closed.field } } };
+        change.closedDates = closed.value;
+      }
+      if ("prep_minutes" in b) {
+        const prep = parsePrepMinutes(b.prep_minutes);
+        if (!prep.ok) return { status: 400, body: { code: "invalid_request", message: prep.error, details: { field: prep.field } } };
+        change.prepMinutes = prep.value;
+      }
+      Object.assign(patch, placeChangePatch(s.vendor, change, s.staff.name, request.now) ?? {});
     }
     await this.deps.store.updateRestaurant(this.deps.app.id, s.vendor.id, patch, request.now);
     return this.desk({ ...s, vendor: { ...s.vendor, ...patch } }, request.now);

@@ -71,6 +71,34 @@ export function marketCatalogStoreSuite(store: () => DataStore) {
     expect(plain.ok && (await s.listRestaurantStaff(app.id, old.id))[0]!.role).toBe("manager");
   });
 
+  it("115.20 keeps a vendor's delay, days off and its own last change, with their times as dates", async () => {
+    const s = store();
+    const { app, vendorInput } = await setup(s);
+    const v = await s.createRestaurant(vendorInput(), { sections: [], nextId: 1 }, NOW);
+    expect(await s.getRestaurant(app.id, v.id)).toMatchObject({ delay: null, closedDates: null, vendorEdit: null });
+    const until = new Date(NOW.getTime() + 3_600_000);
+    const hours = [{ day: "mon" as const, opens: "10:00", closes: "22:00" }];
+    await s.updateRestaurant(
+      app.id,
+      v.id,
+      {
+        delay: { minutes: 20, reason: "other", note: "Oven being fixed", until, setAt: NOW },
+        closedDates: [{ from: "2026-12-31", to: "2027-01-01" }],
+        prepMinutes: 30,
+        vendorEdit: { at: NOW, by: "Hany", fields: ["closed_dates", "prep_minutes"], previous: { hours, closedDates: [], prepMinutes: 15 } },
+      },
+      NOW,
+    );
+    const saved = (await s.getRestaurant(app.id, v.id))!;
+    expect(saved.delay).toEqual({ minutes: 20, reason: "other", note: "Oven being fixed", until, setAt: NOW });
+    expect(saved.delay!.until).toBeInstanceOf(Date);
+    expect(saved.closedDates).toEqual([{ from: "2026-12-31", to: "2027-01-01" }]);
+    expect(saved.vendorEdit).toEqual({ at: NOW, by: "Hany", fields: ["closed_dates", "prep_minutes"], previous: { hours, closedDates: [], prepMinutes: 15 } });
+    expect((await s.listRestaurants(app.id)).find((r) => r.id === v.id)!.vendorEdit!.at).toBeInstanceOf(Date);
+    await s.updateRestaurant(app.id, v.id, { delay: null, closedDates: null, vendorEdit: null }, NOW);
+    expect(await s.getRestaurant(app.id, v.id)).toMatchObject({ delay: null, closedDates: null, vendorEdit: null });
+  });
+
   it("keeps departments and aisles in order, only the vendor's own", async () => {
     const s = store();
     const { app, vendorInput } = await setup(s);

@@ -15193,6 +15193,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This app is for the academy\'s teachers. Students learn in the academy\'s main app.'**
   String get teacherAppOnlyMessage;
+
+  /// 115.20 On a vendor's card: it runs late, still taking orders (its delivery time includes the minutes).
+  ///
+  /// In en, this message translates to:
+  /// **'~{minutes} min late'**
+  String marketLateShort(int minutes);
+
+  /// 115.20 A banner on a vendor's page, and the vendor's own desk, while it runs late; `reason` is one of the marketLate reasons or the vendor's own words.
+  ///
+  /// In en, this message translates to:
+  /// **'Running about {minutes} min late: {reason}'**
+  String marketLateBanner(int minutes, String reason);
+
+  /// 115.20 Under the running-late banner on a vendor's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery and pick-up times include it.'**
+  String get marketLateIncluded;
+
+  /// 115.20 Why a vendor runs late, after a colon in marketLateBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'high demand'**
+  String get marketLateDemand;
+
+  /// 115.20 Why a vendor runs late (few couriers), after a colon in marketLateBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'few couriers'**
+  String get marketLateCouriers;
+
+  /// 115.20 Why a vendor runs late (the weather), after a colon in marketLateBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'the weather'**
+  String get marketLateWeather;
+
+  /// 115.20 The vendor desk's button to tell customers it runs late while still taking orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Running late'**
+  String get vendorLate;
+
+  /// 115.20 The title of the running-late sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Running late?'**
+  String get vendorLateTitle;
+
+  /// 115.20 Under the running-late sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep taking orders and tell customers it takes longer. Their delivery and pick-up times include the extra minutes.'**
+  String get vendorLateText;
+
+  /// 115.20 The running-late sheet: how many minutes more.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra time'**
+  String get vendorLateMinutes;
+
+  /// 115.20 One of the extra-minute choices on the running-late sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'+{minutes} min'**
+  String vendorLateExtra(int minutes);
+
+  /// 115.20 The running-late sheet: the reason customers see.
+  ///
+  /// In en, this message translates to:
+  /// **'Why'**
+  String get vendorLateReason;
+
+  /// 115.20 A reason on the running-late sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'High demand'**
+  String get vendorLateDemand;
+
+  /// 115.20 A reason on the running-late sheet (few couriers).
+  ///
+  /// In en, this message translates to:
+  /// **'Few couriers'**
+  String get vendorLateCouriers;
+
+  /// 115.20 A reason on the running-late sheet (the weather).
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get vendorLateWeather;
+
+  /// 115.20 A reason on the running-late sheet: the vendor writes its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get vendorLateOther;
+
+  /// 115.20 The field for the vendor's own reason, up to 80 characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Your words (customers see them)'**
+  String get vendorLateNote;
+
+  /// 115.20 The running-late sheet: how long it lasts.
+  ///
+  /// In en, this message translates to:
+  /// **'For'**
+  String get vendorLateFor;
+
+  /// 115.20 How long running late lasts, in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String vendorLateForMinutes(int minutes);
+
+  /// 115.20 How long running late lasts, in hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour} other{{hours} hours}}'**
+  String vendorLateForHours(int hours);
+
+  /// 115.20 Running late with no end time.
+  ///
+  /// In en, this message translates to:
+  /// **'Until I end it'**
+  String get vendorLateUntilEnd;
+
+  /// 115.20 Sets the running-late notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell customers'**
+  String get vendorLateSet;
+
+  /// 115.20 Ends the running-late notice: times go back to normal.
+  ///
+  /// In en, this message translates to:
+  /// **'End the delay'**
+  String get vendorLateEnd;
+
+  /// 115.20 When running late ends by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {time}'**
+  String vendorLateUntil(String time);
+
+  /// 115.20 The vendor's own opening hours, days off and preparation time (its owners and managers).
+  ///
+  /// In en, this message translates to:
+  /// **'Hours & days off'**
+  String get vendorHoursTitle;
+
+  /// 115.20 At the top of the vendor's hours screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes show in the app at once. The app\'s team sees what you changed and can put it back.'**
+  String get vendorHoursNote;
+
+  /// 115.20 The weekly opening hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get vendorHoursWeek;
+
+  /// 115.20 Under the weekly hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to two periods a day. A day without hours is closed; a time that closes before it opens runs past midnight.'**
+  String get vendorHoursHint;
+
+  /// 115.20 A day without opening hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get vendorHoursClosed;
+
+  /// 115.20 Adds an opening period to a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Add hours'**
+  String get vendorHoursAdd;
+
+  /// 115.20 Removes an opening period or days off.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get vendorHoursRemove;
+
+  /// 115.20 How long an order usually takes at the vendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparation time'**
+  String get vendorPrepTitle;
+
+  /// 115.20 Under the preparation time.
+  ///
+  /// In en, this message translates to:
+  /// **'How long an order usually takes. Customers\' delivery and pick-up times start from it.'**
+  String get vendorPrepHint;
+
+  /// 115.20 The vendor's days off, like holidays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days off'**
+  String get vendorDaysOff;
+
+  /// 115.20 Under the days off.
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays and other days you\'re closed all day. Customers see you closed, and when you open again.'**
+  String get vendorDaysOffHint;
+
+  /// 115.20 No days off set.
+  ///
+  /// In en, this message translates to:
+  /// **'No days off coming up.'**
+  String get vendorDaysOffNone;
+
+  /// 115.20 Opens the calendar to choose days off (the first and the last).
+  ///
+  /// In en, this message translates to:
+  /// **'Add days off'**
+  String get vendorDaysOffAdd;
+
+  /// 115.20 Saves the vendor's hours and preparation time.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get vendorHoursSave;
+
+  /// 115.20 After the vendor saved its hours or days off.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Customers see it now.'**
+  String get vendorHoursSaved;
 }
 
 class _AppLocalizationsDelegate

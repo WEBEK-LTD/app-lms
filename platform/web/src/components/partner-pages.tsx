@@ -23,13 +23,14 @@ const TAB_ICONS: Record<PanelTab, IconName> = {
   import: "package_2",
   offers: "local_offer",
   delivery: "delivery_dining",
+  hours: "schedule",
   staff: "person",
   statements: "receipt_long",
   complaints: "block",
 };
 
 export function PanelTabs({ tabs, current, base, lang, w }: { tabs: PanelTab[]; current: PanelTab; base: string; lang: PanelLang; w: PanelWords }) {
-  const label: Record<PanelTab, string> = { orders: w.tabOrders, catalog: w.tabCatalog, import: w.tabImport, delivery: w.tabDelivery, offers: w.tabOffers, staff: w.tabStaff, statements: w.tabStatements, complaints: w.tabComplaints };
+  const label: Record<PanelTab, string> = { orders: w.tabOrders, catalog: w.tabCatalog, import: w.tabImport, delivery: w.tabDelivery, hours: w.tabHours, offers: w.tabOffers, staff: w.tabStaff, statements: w.tabStatements, complaints: w.tabComplaints };
   return (
     <nav aria-label={w.title} className="-mx-1 flex gap-1 overflow-x-auto pb-1">
       {tabs.map((t) => (
@@ -299,6 +300,114 @@ export function ImportSection({ w, restaurant, result, check, photos }: {
     <Card title={w.photosTitle} text={w.photosText}>
       <BulkPhotos upload={photos.upload} fetchLinks={photos.fetchLinks} waiting={photos.waiting} w={w} />
     </Card>
+    </div>
+  );
+}
+
+// 115.20 Hours, days off and preparation time
+
+const WEEK = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+
+/** Readable dates in the panel's language: "Thu 1 Jan 2026". */
+function dayText(date: string, lang: PanelLang): string {
+  return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : lang, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
+}
+
+export function HoursSection({
+  w,
+  lang,
+  values,
+  closed,
+  today,
+  error,
+  saved,
+  save,
+  addDaysOff,
+  removeDaysOff,
+}: {
+  w: PanelWords;
+  lang: PanelLang;
+  values: Record<string, string>;
+  closed: { from: string; to: string }[];
+  today: string;
+  error: string | null;
+  saved: boolean;
+  save: (f: FormData) => Promise<void>;
+  addDaysOff: (f: FormData) => Promise<void>;
+  removeDaysOff: (f: FormData) => Promise<void>;
+}) {
+  const time = "h-10 w-[118px] rounded-xl border border-line bg-white px-2.5 text-[15px] text-ink";
+  return (
+    <div className="flex flex-col gap-6">
+      <Card title={w.hoursTitle} text={w.hoursText}>
+        {error ? <p className="mb-4 rounded-xl bg-danger-bg px-4 py-3 text-sm font-semibold text-danger">{error}</p> : null}
+        {saved ? <p className="mb-4 rounded-xl bg-success-bg px-4 py-3 text-sm font-semibold text-success">{w.saved}</p> : null}
+        <form action={save} className="flex flex-col gap-5">
+          <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+            <legend className="mb-1 text-sm font-bold text-ink-2">{w.weekTitle}</legend>
+            <p className="m-0 mb-2 text-[13px] text-muted">{w.weekHint}</p>
+            {WEEK.map((day) => (
+              <div key={day} className="flex flex-wrap items-center gap-2 border-t border-line-soft py-2 first-of-type:border-t-0">
+                <span className="w-28 text-[15px] font-bold text-ink">{w[`day_${day}`]}</span>
+                {(["", "2"] as const).map((n) => (
+                  <span key={n} className="flex items-center gap-1.5">
+                    {n ? <span className="text-sm text-muted">{w.andThen}</span> : null}
+                    <input type="time" name={`${day}-opens${n}`} aria-label={`${w[`day_${day}`]} ${w.opens}`} defaultValue={values[`${day}-opens${n}`] ?? ""} className={time} dir="ltr" />
+                    <span aria-hidden="true">–</span>
+                    <input type="time" name={`${day}-closes${n}`} aria-label={`${w[`day_${day}`]} ${w.closes}`} defaultValue={values[`${day}-closes${n}`] ?? ""} className={time} dir="ltr" />
+                  </span>
+                ))}
+              </div>
+            ))}
+          </fieldset>
+          <label className="flex max-w-xs flex-col gap-1.5 text-sm font-bold text-ink-2">
+            {w.prepTitle}
+            <input name="prep" inputMode="numeric" defaultValue={values.prep} className={field} dir="ltr" />
+            <span className="text-[13px] font-normal text-muted">{w.prepHint}</span>
+          </label>
+          <div>
+            <button className={primary}>{w.saveHours}</button>
+          </div>
+        </form>
+      </Card>
+      <Card title={w.daysOffTitle} text={w.daysOffHint}>
+        {closed.length ? (
+          <ul className="m-0 mb-5 flex list-none flex-col gap-2 p-0">
+            {closed.map((c) => (
+              <li key={`${c.from}-${c.to}`} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-sand px-4 py-3">
+                <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
+                  <Icon name="event_busy" size={20} />
+                  {c.from === c.to ? dayText(c.from, lang) : `${dayText(c.from, lang)} – ${dayText(c.to, lang)}`}
+                </span>
+                <form action={removeDaysOff}>
+                  <input type="hidden" name="from" value={c.from} />
+                  <input type="hidden" name="to" value={c.to} />
+                  <button className={quiet}>
+                    <Icon name="delete" size={17} />
+                    {w.dayOffRemove}
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 mb-5 text-[15px] text-muted">{w.daysOffNone}</p>
+        )}
+        <form action={addDaysOff} className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1.5 text-sm font-bold text-ink-2">
+            {w.dayOffFrom}
+            <input type="date" name="from" min={today} required className={field} dir="ltr" />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-bold text-ink-2">
+            {w.dayOffTo}
+            <input type="date" name="to" min={today} className={field} dir="ltr" />
+          </label>
+          <button className={primary}>
+            <Icon name="add" size={18} />
+            {w.dayOffAdd}
+          </button>
+        </form>
+      </Card>
     </div>
   );
 }

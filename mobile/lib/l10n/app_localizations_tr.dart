@@ -9233,4 +9233,138 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get teacherAppOnlyMessage =>
       'Bu uygulama akademinin öğretmenleri içindir. Öğrenciler akademinin ana uygulamasında öğrenir.';
+
+  @override
+  String marketLateShort(int minutes) {
+    return '~$minutes dk gecikme';
+  }
+
+  @override
+  String marketLateBanner(int minutes, String reason) {
+    return 'Yaklaşık $minutes dk gecikme: $reason';
+  }
+
+  @override
+  String get marketLateIncluded => 'Teslimat ve gel-al süreleri bunu içerir.';
+
+  @override
+  String get marketLateDemand => 'yoğun talep';
+
+  @override
+  String get marketLateCouriers => 'az kurye';
+
+  @override
+  String get marketLateWeather => 'hava durumu';
+
+  @override
+  String get vendorLate => 'Gecikme';
+
+  @override
+  String get vendorLateTitle => 'Gecikiyor musunuz?';
+
+  @override
+  String get vendorLateText =>
+      'Sipariş almaya devam edin ve müşterilere daha uzun süreceğini söyleyin. Teslimat ve gel-al sürelerine ek dakikalar eklenir.';
+
+  @override
+  String get vendorLateMinutes => 'Ek süre';
+
+  @override
+  String vendorLateExtra(int minutes) {
+    return '+$minutes dk';
+  }
+
+  @override
+  String get vendorLateReason => 'Neden';
+
+  @override
+  String get vendorLateDemand => 'Yoğun talep';
+
+  @override
+  String get vendorLateCouriers => 'Az kurye';
+
+  @override
+  String get vendorLateWeather => 'Hava durumu';
+
+  @override
+  String get vendorLateOther => 'Başka bir neden';
+
+  @override
+  String get vendorLateNote => 'Kendi sözleriniz (müşteriler görür)';
+
+  @override
+  String get vendorLateFor => 'Süre';
+
+  @override
+  String vendorLateForMinutes(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String vendorLateForHours(int hours) {
+    return '$hours saat';
+  }
+
+  @override
+  String get vendorLateUntilEnd => 'Ben bitirene kadar';
+
+  @override
+  String get vendorLateSet => 'Müşterilere bildir';
+
+  @override
+  String get vendorLateEnd => 'Gecikmeyi bitir';
+
+  @override
+  String vendorLateUntil(String time) {
+    return '$time saatine kadar';
+  }
+
+  @override
+  String get vendorHoursTitle => 'Saatler ve tatiller';
+
+  @override
+  String get vendorHoursNote =>
+      'Değişiklikler uygulamada hemen görünür. Uygulamanın ekibi neyi değiştirdiğinizi görür ve eski haline getirebilir.';
+
+  @override
+  String get vendorHoursWeek => 'Her hafta';
+
+  @override
+  String get vendorHoursHint =>
+      'Günde en fazla iki dönem. Saati olmayan gün kapalıdır; açılmadan önce kapanan bir saat gece yarısını geçer.';
+
+  @override
+  String get vendorHoursClosed => 'Kapalı';
+
+  @override
+  String get vendorHoursAdd => 'Saat ekle';
+
+  @override
+  String get vendorHoursRemove => 'Kaldır';
+
+  @override
+  String get vendorPrepTitle => 'Hazırlama süresi';
+
+  @override
+  String get vendorPrepHint =>
+      'Bir siparişin genellikle ne kadar sürdüğü. Müşterilerin teslimat ve gel-al süreleri buradan başlar.';
+
+  @override
+  String get vendorDaysOff => 'Tatil günleri';
+
+  @override
+  String get vendorDaysOffHint =>
+      'Bayramlar ve gün boyu kapalı olduğunuz diğer günler. Müşteriler sizi kapalı ve ne zaman yeniden açılacağınızı görür.';
+
+  @override
+  String get vendorDaysOffNone => 'Yaklaşan tatil günü yok.';
+
+  @override
+  String get vendorDaysOffAdd => 'Tatil ekle';
+
+  @override
+  String get vendorHoursSave => 'Kaydet';
+
+  @override
+  String get vendorHoursSaved => 'Kaydedildi. Müşteriler artık görüyor.';
 }

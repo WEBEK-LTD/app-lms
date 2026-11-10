@@ -15,6 +15,7 @@ import { DEFAULT_FOOD_TIMEZONE, restaurantState } from "@/lib/food/service";
 import { isFood, PlanNotice } from "../shipments/parts";
 import { isMarketplaceApp } from "@/lib/market/plan";
 import { serviceAreasOf } from "@/lib/market/areas";
+import { activeDelay } from "@/lib/market/vendor-controls";
 import { RestaurantForm } from "./forms";
 import { NotFood, percentOf } from "./parts";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
@@ -130,7 +131,14 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
                     href={`/dashboard/restaurants/${r.id}`}
                     media={<Thumb src={r.logoAssetId ? assetUrl(r.logoAssetId) : null} icon="storefront" shape="square" tint={i} />}
                     title={r.name}
-                    badges={<SampleBadge sample={r.sample} />}
+                    badges={
+                      <>
+                        <SampleBadge sample={r.sample} />
+                        {/* 115.20 Running late, or its hours changed by the place itself. */}
+                        {activeDelay(r, now) ? <Badge tone="warn">{t("food.runningLateBadge")}</Badge> : null}
+                        {r.vendorEdit ? <Badge tone="info">{t("food.placeChangedBadge")}</Badge> : null}
+                      </>
+                    }
                     meta={[kinds, t("food.dishCount", { count: dishes }), t("food.staffCount", { count: people }), t("food.shareLine", { percent: percentOf(r.commissionBp) })].filter(Boolean).join(" · ")}
                     extra={
                       <span className="flex min-w-0 items-center gap-1">
