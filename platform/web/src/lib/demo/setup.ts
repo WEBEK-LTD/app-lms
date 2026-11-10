@@ -44,6 +44,7 @@ import { savePicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
+import { staffAppKindOf } from "../school/staff-app";
 
 /**
  * Creates or refreshes the demo apps (roadmap 16, the admin's Demo apps
@@ -166,6 +167,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     publishingDoneAt: app.publishingDoneAt ?? now,
     // Our own apps: the team publishes them, when it wants to.
     publishingMode: "managed",
+    // 116 Nakhla School's and Rawaq Academy's teachers and staff work in their staff app (Admin › Demo apps builds it).
+    ...(staffAppKindOf({ appType: type, vertical }) ? { staffApp: "bundle" as const } : {}),
   };
   if (content === "courses" && id === "instructors") {
     // 110.5 Rawaq Academy: seven teachers' courses, and the demo teacher's Teacher tab.

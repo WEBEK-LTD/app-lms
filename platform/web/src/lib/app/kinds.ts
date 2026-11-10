@@ -1230,7 +1230,7 @@ export const KINDS: readonly KindInfo[] = [
     tile: "bg-tile-1 text-[#1F4E79]",
     marketing: { slug: "school", icon: "school" },
     reviewNote:
-      "This app has three roles. Students see their timetable, homework, grades, attendance and the school's news. Parents see the same for each of their children and pay fees. Teachers of the school sign in with a number the school added and see a Classroom tab where they take attendance, give homework and enter scores.",
+      "This app has three roles. Students see their timetable, homework, grades, attendance and the school's news. Parents see the same for each of their children and pay fees. Teachers of the school sign in with a number the school added and see a Classroom tab where they take attendance, give homework and enter scores. When the school has its staff app, its teachers and staff work in that separate app, which has its own store listing, and this app shows only the students' and parents' screens.",
   },
   {
     // 105.3 An academy with many teachers: the courses engine, each course possibly a teacher's.
@@ -1267,7 +1267,7 @@ export const KINDS: readonly KindInfo[] = [
       },
     },
     reviewNote:
-      "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher.",
+      "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher. When the academy has its staff app, its teachers work in that separate app, which has its own store listing, and this app has no Teacher tab.",
     screens: ["teachers", "teacher"],
   },
 ];

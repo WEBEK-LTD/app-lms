@@ -149,6 +149,23 @@ export const DEMO_SECOND_APP_STEP: Partial<Record<DemoId, { index: number; text:
       tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla giriş yapın, çevrimiçi olun ve geri sayım bitmeden yolculuğunuzu kabul edin",
     },
   },
+  // 116 The school's and the academy's staff app.
+  school: {
+    index: 2,
+    text: {
+      en: "Download {app} below and sign in with the same number as Ms. Mona: take Grade 5 A's attendance, give homework and enter scores, then see them on Lina's screens",
+      ar: "نزّل {app} من الأسفل وسجّل الدخول بالرقم نفسه بصفتك الأستاذة منى: سجّل حضور الصف الخامس أ وأعطِ واجبًا وأدخل الدرجات، ثم شاهدها في شاشات لينا",
+      tr: "Aşağıdan {app} uygulamasını indirin ve aynı numarayla Mona Hanım olarak giriş yapın: 5 A sınıfının yoklamasını alın, ödev verin ve notları girin, sonra bunları Lina'nın ekranlarında görün",
+    },
+  },
+  instructors: {
+    index: 2,
+    text: {
+      en: "Download {app} below, sign in with the same number as one of the academy's teachers, make a course with a lesson and send it to the academy for review",
+      ar: "نزّل {app} من الأسفل، وسجّل الدخول بالرقم نفسه كأحد مدرّسي الأكاديمية، وأنشئ دورة فيها درس وأرسلها إلى الأكاديمية لمراجعتها",
+      tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla akademinin öğretmenlerinden biri olarak giriş yapın, dersi olan bir kurs oluşturup inceleme için akademiye gönderin",
+    },
+  },
 };
 
 export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {

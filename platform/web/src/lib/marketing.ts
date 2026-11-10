@@ -1067,8 +1067,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
     highlights: [
       {
         icon: "groups",
-        title: "Every role in one app",
-        text: "Students, parents, teachers and staff each see their own tabs. Parents switch between their children with one account.",
+        title: "An app for families, an app for staff",
+        text: "Students and parents use your school's app; teachers, office staff and bus crews work in its staff app, in the same bundle, signing in with the number you added. Parents switch between their children with one account.",
       },
       {
         icon: "qr_code_2",
@@ -1224,8 +1224,8 @@ const STUDIO_SOLUTION_COPY: SolutionCopy[] = [
       },
       {
         icon: "edit",
-        title: "A Teacher tab",
-        text: "Teachers build their courses in the app: sections and lessons with a video link, an uploaded video or PDF, or text. They send them for review and answer students' questions.",
+        title: "A teachers' app",
+        text: "Teachers build their courses in their own staff app, in the same bundle: sections and lessons with a video link, an uploaded video or PDF, or text. They send them for review and answer students' questions.",
       },
       {
         icon: "assignment",
@@ -1901,7 +1901,7 @@ export const FAQ: FaqGroup[] = [
       },
       {
         q: "Which kinds of projects does Studio make?",
-        a: "Every kind of app Yallapp makes, and the project types only Studio offers: delivery companies with their couriers, food delivery from many restaurants, rides and live taxis, academies with many teachers, schools for students, parents and teachers, and universities. See [Yallapp Studio](/yallapp-studio).",
+        a: "Every kind of app Yallapp makes, and the project types only Studio offers: delivery companies with their couriers, food delivery from many restaurants, rides and live taxis, academies with many teachers, schools for students, parents and teachers, and universities; a school's or academy's teachers and staff get a staff app of their own in the same bundle. See [Yallapp Studio](/yallapp-studio).",
       },
       {
         q: "What is Yallapp Courier?",

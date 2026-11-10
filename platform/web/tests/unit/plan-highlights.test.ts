@@ -37,6 +37,12 @@ describe("planHighlights", () => {
     ]);
   });
 
+  it("116 names the staff app of schools and academies, with the couriers' app on one line", () => {
+    expect(planHighlights("en", plan(["school"]))).toContain("Second apps for couriers and for staff");
+    expect(planHighlights("en", { ...plan(["instructors"]), features: plan(["instructors"]).features.filter((f) => f !== "courier_app") })).toContain("A staff app for schools and academies");
+    expect(planHighlights("en", plan(["delivery"]))).toContain("A second app for couriers");
+  });
+
   it("writes Arabic and Turkish too, with Arabic counts", () => {
     const numbers = plan(["school"], { studioPages: 5, storageGb: 20, appUsers: 500, languages: 12 });
     expect(planHighlights("ar", numbers).slice(0, 5)).toEqual(["حتى 5 صفحات لكل مشروع", "20 جيجابايت لمساحة الوسائط", "حتى 500 مستخدم للتطبيق", "12 لغة للتطبيق", "المشاريع: المدارس"]);

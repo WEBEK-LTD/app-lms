@@ -11,6 +11,7 @@ import { getStore } from "@/lib/data";
 import { demoDownloadBuild, demoSecondAppBuild, listDemoApps } from "@/lib/demo/apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
+import { staffAppNameOf } from "@/lib/school/staff-app";
 import { appUrl } from "@/lib/env";
 import { solution as solutionPage } from "@/lib/marketing";
 import { allSolutionsFor, demoGuideFor, kindNameFor, screenAltFor, solutionFor } from "@/lib/marketing-lang";
@@ -125,9 +126,10 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
   const m = messagesFor(lang).demo;
   const alt = screenAltFor(lang);
   const own = demoGuideFor(lang, type);
-  // 112.3 A Studio demo's couriers' or drivers' own app, once it can be downloaded: its step and its download.
+  // 112.3 A Studio demo's couriers' or drivers' own app (116 or its staff app), once it can be downloaded: its step and its download.
   const step = DEMO_SECOND_APP_STEP[type];
-  const secondName = step ? `${DEMO_BRANDS[type].appName} ${type === "rides" || type === "taxi" ? "Driver" : "Courier"}` : null;
+  const staff = type === "school" || type === "instructors";
+  const secondName = step ? (staff ? staffAppNameOf({ appName: DEMO_BRANDS[type].appName }) : `${DEMO_BRANDS[type].appName} ${type === "rides" || type === "taxi" ? "Driver" : "Courier"}`) : null;
   const second = step && secondName && secondReady && ready ? secondName : null;
   const guide = second && step ? { ...own, tryThis: own.tryThis.map((line, i) => (i === step.index ? formatMessage(lang, step.text[lang], { app: second }) : line)) } : own;
   const brand = DEMO_BRANDS[type];
@@ -170,7 +172,7 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
                 <span className="max-w-[300px] text-sm text-muted">{m.scan}</span>
                 {second ? (
                   <a href={`/demo/download/${slug}?app=second`} className="flex items-center gap-2 self-start font-bold text-midnight" data-second-download="">
-                    <Icon name={type === "rides" || type === "taxi" ? "local_taxi" : "two_wheeler"} size={20} />
+                    <Icon name={staff ? "groups" : type === "rides" || type === "taxi" ? "local_taxi" : "two_wheeler"} size={20} />
                     {formatMessage(lang, m.downloadSecond, { app: second })}
                   </a>
                 ) : null}

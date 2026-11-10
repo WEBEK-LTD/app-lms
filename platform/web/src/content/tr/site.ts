@@ -54,7 +54,7 @@ export const TR_SITE: SiteContentTranslation = {
   "solution-school": {
     eyebrow: "Okul uygulamaları",
     title: "Okulunuzun günü, her ailenin cebinde",
-    intro: "Öğrenciler, veliler, öğretmenler ve personel tek uygulamada: ders programı, ödevler, kapıda giriş, servis, kütüphane ve veli alanı, hepsi Yallapp Studio'dan yönetilir.",
+    intro: "Öğrenciler ve veliler okulunuzun uygulamasında, öğretmenler ve personel personel uygulamasında: ders programı, ödevler, kapıda giriş, servis, kütüphane ve veli alanı, hepsi Yallapp Studio'dan yönetilir.",
   },
   "solution-university": {
     eyebrow: "Üniversite uygulamaları",

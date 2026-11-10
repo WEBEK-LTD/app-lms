@@ -1,6 +1,7 @@
 import type { DataStore } from "../data/store";
 import type { App, Build, Client } from "../data/types";
 import { hasCourierJobs } from "../delivery/courier-app";
+import { hasStaffApp } from "../school/staff-app";
 import { platformSetting } from "../settings/platform";
 import { ALL_DEMO_TYPES, demoIdOf, type DemoId } from "./constants";
 
@@ -53,15 +54,22 @@ export function isDownloadableBuild(app: Pick<App, "id">, build: Pick<Build, "ap
   return Boolean(build && build.appId === app.id && build.status === "ready" && build.artifacts.some((a) => a.kind === "apk"));
 }
 
+/** 112.3 Which builds are a Studio demo's second app: its couriers' or drivers' app, 116 its staff app; null for a demo without one. */
+export function demoSecondAppVariant(app: Pick<App, "appType" | "vertical" | "staffApp">): "courier" | "staff" | null {
+  if (hasCourierJobs(app)) return "courier";
+  return hasStaffApp(app) ? "staff" : null;
+}
+
 /**
  * 112.3 The second app /demo/studio offers for a Studio demo whose couriers
  * or drivers have their own app (Sahm Express, Sofra Eats, Masar Rides,
- * Lamha Taxi): its newest build that can be downloaded, made from Admin ›
- * Demo apps.
+ * Lamha Taxi), 116 or whose staff do (Nakhla School, Rawaq Academy): its
+ * newest build that can be downloaded, made from Admin › Demo apps.
  */
 export async function demoSecondAppBuild(store: DataStore, app: App): Promise<Build | null> {
-  if (!app.demo || !hasCourierJobs(app)) return null;
-  return (await store.listBuildsByApp(app.id, 10, "courier")).find((b) => isDownloadableBuild(app, b)) ?? null;
+  const variant = app.demo ? demoSecondAppVariant(app) : null;
+  if (!variant) return null;
+  return (await store.listBuildsByApp(app.id, 10, variant)).find((b) => isDownloadableBuild(app, b)) ?? null;
 }
 
 /** The build /demo offers for an app, when it still can be downloaded. */

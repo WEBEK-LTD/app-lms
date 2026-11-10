@@ -122,7 +122,7 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     eyebrow: "School apps",
     title: "Your school's day, in every family's pocket",
     intro:
-      "Students, parents, teachers and staff in one app: the timetable, homework, check-in at the gate, the bus, the library and the parents' area, all managed in Yallapp Studio.",
+      "Students and parents in your school's app, teachers and staff in its staff app: the timetable, homework, check-in at the gate, the bus, the library and the parents' area, all managed in Yallapp Studio.",
   },
   university: {
     eyebrow: "University apps",
@@ -134,7 +134,7 @@ const SOLUTION_HEADERS: Record<string, { eyebrow: string; title: string; intro: 
     eyebrow: "Apps for academies with many teachers",
     title: "Many teachers, one academy app",
     intro:
-      "Each teacher with their page, courses and students; teachers build courses in the app and you review them, with shares and statements, all managed in Yallapp Studio.",
+      "Each teacher with their page, courses and students; teachers build courses in their own staff app and you review them, with shares and statements, all managed in Yallapp Studio.",
   },
   // SEO: Studio's delivery companies.
   delivery: {
