@@ -10,7 +10,7 @@ import { PICTURES, type PictureName } from "./pictures";
  */
 
 /** A UUID-shaped ID made from a hash, so the same picture of the same account is saved once. */
-function idFrom(text: string): string {
+export function idFrom(text: string): string {
   const h = sha256Hex(text);
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-${((Number.parseInt(h[16]!, 16) & 3) | 8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }

@@ -36,8 +36,10 @@ import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME } from "./constants"
 import { readOnce, unchanged } from "./rows";
 import type { Art } from "./art";
 import { DESIGN_ART } from "./design-art";
-import type { PictureSize } from "./picture-assets";
+import { saveArt, savedArt, type PictureDeps, type PictureSize } from "./picture-assets";
 import { PICTURES } from "./pictures";
+import { isZadPhoto, saveZadPhoto, savedZadPhoto, type ZadPhoto } from "./zad-photos";
+import type { AssetKind } from "../data/types";
 
 /**
  * 115.15 Zad, Studio's multi-vendor demo: two restaurants (one delivers
@@ -77,11 +79,24 @@ interface DemoChoice {
  * (public/design-pictures/art-<name>.png, lib/demo/design-art.ts), saved as
  * the account's files like every demo's. No photos, nothing generated.
  */
-export type ZadPicture = "dish-wrap" | "dish-soup" | "dish-cheesecake" | "dish-breakfast" | "item-fruit" | "item-veg" | "item-bread" | "product-tea" | "drink-juice";
+export type ZadDrawing = "dish-wrap" | "dish-soup" | "dish-cheesecake" | "dish-breakfast" | "item-fruit" | "item-veg" | "item-bread" | "product-tea" | "drink-juice";
+
+/** A Zad picture: one of its photos (lib/demo/zad-photos.ts), else one of its drawings. */
+export type ZadPicture = ZadDrawing | ZadPhoto;
 
 /** A Zad picture's drawing. */
-export function zadArt(name: ZadPicture): Art {
+export function zadArt(name: ZadDrawing): Art {
   return (PICTURES as Record<string, Art>)[name] ?? DESIGN_ART[`art-${name}.png`]!.art;
+}
+
+/** Saves Zad's pictures as `owner`'s files: a photo as it is, a drawing drawn at `size`. */
+export function savingZadPictures(deps: PictureDeps, owner: { clientId: string; appId?: string }, kind: AssetKind): (name: ZadPicture, size: PictureSize) => Promise<string> {
+  return (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, owner, name, kind) : saveArt(deps, owner, zadArt(name), size, kind));
+}
+
+/** Zad's pictures `owner` already has, saving none: for the daily job. */
+export function savedZadPictures(store: DataStore, owner: { clientId: string; appId?: string }): (name: ZadPicture, size: PictureSize) => Promise<string | null> {
+  return (name, size) => (isZadPhoto(name) ? savedZadPhoto(store, owner, name) : savedArt(store, owner, zadArt(name), size));
 }
 
 interface DemoMenuDish {
