@@ -77,6 +77,18 @@ BuildConfigData _named(BuildConfigData b, String name) => BuildConfigData(
   sitePaths: b.sitePaths,
 );
 
+/// 112.3 The company's second app: the drivers' or the couriers' screens
+/// are in it only.
+BuildConfigData _driverApp(BuildConfigData b) =>
+    b.copyWith(role: AppRole.driver);
+BuildConfigData _courierApp(BuildConfigData b) =>
+    b.copyWith(role: AppRole.courier);
+
+/// The Sahm Express parcel's trip, Nasr City to Maadi: its middle, and its
+/// ends.
+const _sahmTrip = (lat: 30.0082, lng: 31.2935);
+const _sahmEnds = [(lat: 30.0561, lng: 31.3301), (lat: 29.9602, lng: 31.2569)];
+
 /// 110.5 The rider at Tahrir Square, for the live taxi screens.
 class _TahrirLocator implements Locator {
   const _TahrirLocator();
@@ -109,6 +121,8 @@ class Shot {
     this.mapCenter,
     this.designPictures = false,
     this.appName,
+    this.mapAround = const [],
+    this.shadows = false,
   });
 
   final String name;
@@ -150,6 +164,14 @@ class Shot {
   /// taxi map's name over the map).
   final String? appName;
 
+  /// More places the drawn map's tiles are made around: a trip across the
+  /// city, whose ends the map shows close up too.
+  final List<({double lat, double lng})> mapAround;
+
+  /// Real shadows for raised cards (tests draw them as outlines): the
+  /// "elevated" card style.
+  final bool shadows;
+
   /// Opens the app as the shot says; returns it, for [close].
   Future<TestApp> render(WidgetTester tester) async {
     final lightIcons = ValueNotifier(dark);
@@ -160,6 +182,9 @@ class Shot {
     if (mapTiles) {
       final at = mapCenter;
       at == null ? seedMapTiles() : seedMapTiles(lat: at.lat, lng: at.lng);
+      for (final place in mapAround) {
+        seedMapTiles(lat: place.lat, lng: place.lng);
+      }
     }
     final app = TestApp(
       api: api(),
@@ -537,6 +562,41 @@ final websiteShots = <Shot>[
     appType: AppType.delivery,
     after: (tester, router) async => router.go('/courier'),
   ),
+  // The website's delivery story, as Studio's delivery demo (Sahm Express):
+  // sending, the parcel on the map, and the job waiting for Karim.
+  Shot(
+    'sahm-send',
+    api: DemoApi.sahm,
+    appName: 'Sahm Express',
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    shadows: true,
+  ),
+  Shot(
+    'sahm-shipment',
+    api: DemoApi.sahm,
+    appName: 'Sahm Express',
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    location: '/shipment/1',
+    mapTiles: true,
+    mapCenter: _sahmTrip,
+    mapAround: _sahmEnds,
+    shadows: true,
+  ),
+  Shot(
+    'sahm-courier',
+    api: () => DemoApi.sahm(courier: true),
+    appName: 'Sahm Express Courier',
+    build: _courierApp,
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    location: '/courier-job/1',
+    mapTiles: true,
+    mapCenter: _sahmTrip,
+    mapAround: _sahmEnds,
+    shadows: true,
+  ),
   // Yallapp Studio's demos: food delivery (Sofra Eats) and rides (Masar).
   Shot('food-restaurants', api: DemoApi.food, appType: AppType.food),
   Shot(
@@ -630,6 +690,41 @@ final websiteShots = <Shot>[
     overrides: _atTahrir,
     mapTiles: true,
     after: (tester, router) async => router.go('/driver'),
+  ),
+  // The website's rides story: Ahmed on board, sharing the ride, and
+  // Hany's week.
+  Shot(
+    'taxi-on-ride',
+    api: () => DemoApi.taxi(onBoard: true),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    location: '/ride/1',
+    overrides: _atTahrir,
+    mapTiles: true,
+  ),
+  Shot(
+    'taxi-earnings',
+    api: () => DemoApi.taxi(driver: true, earnings: true),
+    appName: 'Lamha Taxi Driver',
+    build: _driverApp,
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    overrides: _atTahrir,
+    mapTiles: true,
+    after: (tester, router) async {
+      router.go('/driver');
+      await TestApp.settle(tester, 20);
+      await tester.tap(find.text('Earnings'));
+      await TestApp.settle(tester, 20);
+      await tester.tap(find.text('This week'));
+      await TestApp.settle(tester, 20);
+      // The sheet up, for the week's days.
+      await tester.drag(
+        find.byKey(const ValueKey('driver-earnings')),
+        const Offset(0, -290),
+      );
+    },
   ),
   Shot('school-today', api: DemoApi.school, appType: AppType.school),
   Shot(

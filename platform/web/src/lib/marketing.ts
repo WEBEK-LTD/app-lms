@@ -89,6 +89,12 @@ export const APP_SCREENS = [
   "zad-grill",
   "zad-market",
   "zad-tracking",
+  // The rides story: on board, and the driver's week (Lamha Taxi); the delivery story as Sahm Express.
+  "taxi-on-ride",
+  "taxi-earnings",
+  "sahm-send",
+  "sahm-shipment",
+  "sahm-courier",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -157,6 +163,11 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "zad-grill": "A restaurant's page in a multi-vendor app: its delivery time and fee, its own delivery, an offer and its menu",
   "zad-market": "A supermarket's page in a multi-vendor app, with free delivery, an offer and its aisles",
   "zad-tracking": "An order on its way: the courier on the map and each step, from sent to on the way",
+  "taxi-on-ride": "A taxi ride on board: the car on the map to the drop-off, the driver and the car, sharing the ride and the emergency button",
+  "taxi-earnings": "A taxi driver's earnings for the week: rides, fares, cash, the company's share and each day",
+  "sahm-send": "A courier company's app to send a parcel: its services with their prices, and the pickup",
+  "sahm-shipment": "A parcel on its way: the courier on the map from the pickup to the drop-off, and who is bringing it",
+  "sahm-courier": "A job waiting in the courier app: the cash to collect, the way on the map, and the button to take it",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

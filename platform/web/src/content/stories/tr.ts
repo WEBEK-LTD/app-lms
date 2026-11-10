@@ -423,8 +423,8 @@ export const STORIES_TR: StoryCopy = {
       summary: "Müşteri uygulaması, adınızla kurye uygulaması ve sevk için Studio.",
       eyebrow: "Yallapp Studio · Teslimat paketi",
       title: "Hany'nin rafından bir yabancının kapısına",
-      intro: "Hany mutfak büyüklüğünde bir dükkânda el yapımı deri ürünler satıyor. Bu sabah gece boyunca on iki sipariş gelmiş. Kerim iki sokak ötedeki kurye şirketinde çalışıyor. Öğlene kadar her kutu kapısında olacak ve Hany tek bir telefon görüşmesi yapmayacak.",
-      cast: "Dükkân Hany'nin. Kurye Kerim. Ekranlar teslimat demomuz Sahm Express'in gerçek uygulamalarından.",
+      intro: "Hany mutfak büyüklüğünde bir dükkânda el yapımı deri ürünler satıyor. Bu sabah gece boyunca on iki sipariş gelmiş. Karim iki sokak ötedeki kurye şirketinde çalışıyor. Öğlene kadar her kutu kapısında olacak ve Hany tek bir telefon görüşmesi yapmayacak.",
+      cast: "Dükkân Hany'nin. Kurye Karim. Ekranlar teslimat demomuz Sahm Express'in gerçek uygulamalarından.",
       chapters: [
         {
           time: "09:10",
@@ -441,29 +441,29 @@ export const STORIES_TR: StoryCopy = {
         },
         {
           time: "09:31",
-          kicker: "Kerim",
+          kicker: "Karim",
           title: "İlk kabul eden alır",
-          text: "Kerim görevde. İş, alış noktası ve tahsil edilecek nakitle telefonunda belirir ve herkesten önce alır. Şirket işleri tek tek kendisi de dağıtabilirdi. Kerim, üzerinde şirketin kendi adı olan kurye uygulamasında çalışıyor.",
+          text: "Karim görevde. İş, alış noktası ve tahsil edilecek nakitle telefonunda belirir ve herkesten önce alır. Şirket işleri tek tek kendisi de dağıtabilirdi. Karim, üzerinde şirketin kendi adı olan kurye uygulamasında çalışıyor.",
           push: { app: "Sahm Express Courier", title: "Yeni bir iş bekliyor", body: "Hany's Leather, Nasr City adresinden S-1001. Uygulamadan alın." },
         },
         {
           time: "10:05",
           kicker: "Yolda",
           title: "Köprüden geçen bir nokta",
-          text: "Müşteri paketi aşama aşama izler; yolda olduğu ve Kerim işi açık tuttuğu sürece haritada da. Uygulaması kapalıyken hiçbir şey paylaşılmaz ve son konum on dakika sonra kaybolur.",
+          text: "Müşteri paketi aşama aşama izler; yolda olduğu ve Karim işi açık tuttuğu sürece haritada da. Uygulaması kapalıyken hiçbir şey paylaşılmaz ve son konum on dakika sonra kaybolur.",
           push: { app: "Sahm Express", title: "Paketiniz yolda", body: "S-1001 teslimat adresine gidiyor." },
         },
         {
           time: "10:32",
           kicker: "Kapı",
           title: "İki el, bir kutu",
-          text: "Kerim zili çalar, kutuyu teslim eder ve teslim edildi olarak işaretler. Evde kimse olmasaydı, sebebiyle \"teslim edilemedi\" olarak işaretlerdi ve şirket hemen bilirdi.",
+          text: "Karim zili çalar, kutuyu teslim eder ve teslim edildi olarak işaretler. Evde kimse olmasaydı, sebebiyle \"teslim edilemedi\" olarak işaretlerdi ve şirket hemen bilirdi.",
           push: { app: "Sahm Express", title: "Teslim edildi", body: "S-1001 teslim edildi. Bizi tercih ettiğiniz için teşekkürler." },
         },
       ],
       interlude: {
         quote: "On iki paket. Hiç telefon yok.",
-        text: "Hany yarının siparişlerini paketliyor. Kerim üç iş ileride. Şirketin paneli hepsini olduğu anda gösteriyor.",
+        text: "Hany yarının siparişlerini paketliyor. Karim üç iş ileride. Şirketin paneli hepsini olduğu anda gösteriyor.",
       },
       statsTitle: "Şirketin kendi kuralları üzerine kurulu",
       stats: [
@@ -537,7 +537,7 @@ export const STORIES_TR: StoryCopy = {
       compareText: "Teslimat yazılımı ve kurye uygulaması satan şirketler, kendi sitelerinin anlattığı gibi; Yallapp'in ve bir ajansa yaptırmanın yanında.",
       finale: {
         title: "Yarın, on iki tane daha",
-        text: "Hany cüzdanı çok seven bir müşteriye yanıt yazıyor. Kerim bir sonraki işinde. Şirketin günü tek sayfada.",
+        text: "Hany cüzdanı çok seven bir müşteriye yanıt yazıyor. Karim bir sonraki işinde. Şirketin günü tek sayfada.",
       },
       photos: {
         "delivery-rider": "Teslimat kutusuyla motosikletinin üzerinde oturan bir kurye",
@@ -579,8 +579,8 @@ export const STORIES_TR: StoryCopy = {
         {
           time: "13:40",
           kicker: "Yolda",
-          title: "Kerim, şehrin öbür ucundan",
-          text: "Kuryelerden Kerim alışverişi getiriyor. Fathy Hanım motosikletini haritada izliyor. Izgara siparişini kendi şoförüyle getiriyor; onu da aşamalarıyla izliyor. Her işletme teslimatı kimin yapacağını kendisi seçer.",
+          title: "Karim, şehrin öbür ucundan",
+          text: "Kuryelerden Karim alışverişi getiriyor. Fathy Hanım motosikletini haritada izliyor. Izgara siparişini kendi şoförüyle getiriyor; onu da aşamalarıyla izliyor. Her işletme teslimatı kimin yapacağını kendisi seçer.",
           push: { app: "Zad", title: "Siparişiniz yolda", body: "Z-1207 size doğru yolda." },
         },
         {

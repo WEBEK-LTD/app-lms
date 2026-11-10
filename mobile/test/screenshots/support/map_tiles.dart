@@ -90,7 +90,13 @@ ui.Image _draw(int z, int x, int y) {
     const Rect.fromLTWH(0, 0, _tile, _tile),
     Paint()..color = const Color(0xFFF2EFE9),
   );
-  final step = _street * world;
+  // Far out (below zoom 13, a trip across the city), a block is several
+  // streets, so the avenues and parks stay apart instead of a texture.
+  final street = _street * world;
+  final every = street >= 16
+      ? 1
+      : 1 << (math.log(16 / street) / math.ln2).ceil();
+  final step = street * every;
   final firstCol = (left / step).floor() - 1;
   final lastCol = ((left + _tile) / step).ceil() + 1;
   final firstRow = (top / step).floor() - 1;
@@ -107,7 +113,7 @@ ui.Image _draw(int z, int x, int y) {
     }
   }
   final scale = (step / 64).clamp(0.25, 2.0);
-  void street(bool across, int index, bool avenue) {
+  void line(bool across, int index, bool avenue) {
     if (!avenue && step < 22) return;
     final at = index * step - (across ? top : left);
     final width = (avenue ? 9.0 : 5.0) * scale;
@@ -127,10 +133,10 @@ ui.Image _draw(int z, int x, int y) {
   }
 
   for (var col = firstCol; col <= lastCol; col++) {
-    street(false, col, col % 4 == 0);
+    line(false, col, col % 4 == 0);
   }
   for (var row = firstRow; row <= lastRow; row++) {
-    street(true, row, row % 4 == 0);
+    line(true, row, row % 4 == 0);
   }
   // The river over the streets, with its bridges over it.
   final river = Paint()..color = const Color(0xFFAAD3DF);
