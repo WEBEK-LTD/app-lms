@@ -100,6 +100,8 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   ["/dashboard/license", "billing"],
   ["/dashboard/invoices", "billing"],
   ["/dashboard/app-type", "apps"],
+  // The app-builder guide makes a new app, like the app type step.
+  ["/dashboard/builder", "apps"],
   ["/dashboard/setup", "settings"],
   ["/dashboard/pages", "settings"],
   ["/dashboard/languages", "settings"],

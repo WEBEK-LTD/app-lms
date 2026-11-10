@@ -68,6 +68,8 @@ import type { BuildFailure, BuildRelease, BuildVariant, ListingTranslation, Revi
 import type { ApiWebhookData, OwnFontFile, StorePurchaseEventKind, StoreAccountSource, StoreBillingItem, StoreBillingSettings, StorePlatform, StoreProductKind, StoreProductSync } from "../data/types";
 import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, CouponDiscount, CouponRedemption } from "../data/types";
 import type { Plan } from "../plans";
+import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
+import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
@@ -4923,4 +4925,40 @@ export const mailRuns = mysqlTable(
     attempted: int("attempted").notNull(),
   },
   (t) => [index("mail_runs_campaign_idx").on(t.campaignId, t.startedAt)],
+);
+
+/** The app-builder bot: the team's changes to its dictionary (lib/bot/dictionary.ts). */
+export const botPhrases = mysqlTable(
+  "bot_phrases",
+  {
+    id: id("id").primaryKey(),
+    intent: varchar("intent", { length: 40 }).notNull(),
+    lang: varchar("lang", { length: 12 }).notNull().$type<PhraseLang>(),
+    text: varchar("text", { length: 80 }).notNull(),
+    normalized: varchar("normalized", { length: 160 }).notNull(),
+    kind: varchar("kind", { length: 8 }).notNull().$type<"added" | "off">(),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("bot_phrases_intent_idx").on(t.intent)],
+);
+
+/** The app-builder bot: what owners typed that it didn't understand, and the button they chose next (no one's id is kept). */
+export const botUnmatched = mysqlTable(
+  "bot_unmatched",
+  {
+    id: autoId("id").primaryKey(),
+    step: varchar("step", { length: 12 }).notNull().$type<MatchedStep>(),
+    text: varchar("text", { length: 200 }).notNull(),
+    normalized: varchar("normalized", { length: 200 }).notNull(),
+    dashLang: varchar("dash_lang", { length: 2 }).notNull().$type<"en" | "ar" | "tr">(),
+    dialect: varchar("dialect", { length: 12 }).$type<ArabicTag>(),
+    chosenIntent: varchar("chosen_intent", { length: 40 }),
+    status: varchar("status", { length: 8 }).notNull().$type<BotUnmatchedStatus>(),
+    mappedIntent: varchar("mapped_intent", { length: 40 }),
+    createdAt: time("created_at").notNull(),
+    resolvedAt: time("resolved_at"),
+    resolvedBy: varchar("resolved_by", { length: 191 }),
+  },
+  (t) => [index("bot_unmatched_open_idx").on(t.status, t.step, t.normalized), index("bot_unmatched_created_idx").on(t.createdAt)],
 );

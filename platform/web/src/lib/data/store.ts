@@ -207,6 +207,9 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 // 114 Email campaigns
 import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+// The app-builder bot
+import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
+import type { MatchedStep } from "../bot/intents";
 // 104.8.2 Yallapp Courier
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 60 Team members for clients
@@ -2169,4 +2172,23 @@ export interface DataStore {
    * their totals; the addresses never to be mailed stay too.
    */
   pruneMailHistory(before: Date): Promise<{ events: number; recipients: number; runs: number }>;
+
+  // The app-builder bot (lib/bot): the team's changes to its dictionary, and what owners typed that it didn't understand
+  /** The team's added and switched-off phrases, oldest first. */
+  listBotPhrases(): Promise<BotPhrase[]>;
+  /** Adds or replaces it. */
+  saveBotPhrase(phrase: BotPhrase): Promise<void>;
+  /** False when it wasn't there. */
+  deleteBotPhrase(id: string): Promise<boolean>;
+  /** Its id. */
+  addBotUnmatched(row: Omit<BotUnmatched, "id">): Promise<number>;
+  getBotUnmatched(id: number): Promise<BotUnmatched | null>;
+  /** The button the owner chose next, only once and while the row is open. False otherwise. */
+  setBotUnmatchedChoice(id: number, intent: string): Promise<boolean>;
+  /** The latest first. */
+  listBotUnmatched(filter: { status?: BotUnmatchedStatus; step?: MatchedStep; offset: number; limit: number }): Promise<{ items: BotUnmatched[]; total: number }>;
+  /** Every open row of this question with this normalised text: mapped to an intent, or ignored. How many. */
+  resolveBotUnmatched(input: { step: MatchedStep; normalized: string; status: Exclude<BotUnmatchedStatus, "open">; mappedIntent: string | null; resolvedBy: string; resolvedAt: Date }): Promise<number>;
+  /** Rows from before then go (BOT_UNMATCHED_DAYS). How many. */
+  deleteBotUnmatchedBefore(before: Date): Promise<number>;
 }

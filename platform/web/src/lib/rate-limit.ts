@@ -53,6 +53,8 @@ export const RATE_LIMITS = {
   apiCheck: { name: "api-check:client", limit: 10, windowSeconds: 10 * 60 },
   // 81.3 Apps started from a website: each reads someone's site.
   siteScan: { name: "site-scan:client", limit: 10, windowSeconds: 60 * 60 },
+  // The app-builder bot: what an owner types to it (each answer is matched and may be logged).
+  botText: { name: "bot-text:client", limit: 120, windowSeconds: 60 * 60 },
   // 81.4 Imports: each check and each import reads a file or a link.
   importRead: { name: "import:client", limit: 30, windowSeconds: 60 * 60 },
   // 97.4 Figma files read from a link, and their frames brought in.

@@ -3,26 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordStaffChange } from "@/lib/admin/audit";
-import { ENGINES, kindById } from "@/lib/app/kinds";
+import { kindById } from "@/lib/app/kinds";
 import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
-import { ownContentSetup } from "@/lib/app/own-content";
-import { newApp } from "@/lib/app/setup";
 import { chooseApp, clientFor, mayUseDashboard } from "@/lib/auth/session";
 import type { DashKey } from "@/i18n/dashboard";
 import { dashboardText } from "@/lib/dashboard-lang";
-import { DEMO_BRANDS } from "@/lib/demo/content";
-import { appUrl } from "@/lib/env";
 import { getStore } from "@/lib/data";
-import type { App } from "@/lib/data/types";
-import { defaultLayout } from "@/lib/pages/defaults";
-import { appDefaults, saveDraft } from "@/lib/pages/layout";
-import { startLayout } from "@/lib/studio/start";
-import { itemSourcesFor } from "@/lib/pages/sources";
+import { makeStudioProject } from "@/lib/studio/new-project";
 import { templatesFor, TEMPLATES, type SectionWord } from "@/lib/studio/sections";
 import { studioSourcesFor, type StudioSource } from "@/lib/studio/section";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import type { TeamPermission } from "@/lib/team/permissions";
-import { seedForDesign } from "@/lib/samples/server";
 
 /** 103R.3 Yallapp Studio's own section: opening and making its projects. */
 
@@ -79,34 +70,10 @@ export async function createStudioProjectAction(formData: FormData): Promise<voi
   // 103R.7 One of the project type's templates (or the ones for every project).
   const template = templatesFor({ type: kind.engine, vertical: kind.vertical }).find((x) => x.id === formData.get("template")) ?? TEMPLATES.find((x) => x.id === "blank")!;
   const now = new Date();
-  // Templates = demos: a demo's template starts the project in the demo's colour and look too.
-  const demo = template.demo ?? null;
-  const fresh = newApp(context.client.id, null, now, kind.engine, kind.vertical);
-  const base: App = { ...fresh, section: "studio", appName: name, ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : {}) };
-  const app: App =
-    source === "catalog"
-      ? { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base), websiteDoneAt: now }
-      : base;
-  await store.createApp(app);
-  await chooseApp(app.id);
   // The home page starts as a Studio page from the chosen template, in the dashboard's language.
   const { t, lang } = await dashboardText();
-  const ready = defaultLayout(app, await appDefaults(store), now);
-  // The demo's pages and look; its home is the demo's Studio page.
-  const layout = startLayout(app, template, ready, now, {
-    brand: app.primaryColor,
-    source: itemSourcesFor(app)[0] ?? null,
-    app: name,
-    w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }),
-    lang,
-    // 112.4 Yallapp's pictures in the template's sliders and sections.
-    picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
-  });
-  const saved = await saveDraft(store, app, layout, now);
-  // The ready-made pages then; the project is made all the same.
-  if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
-  // 110.2 Content kept in Yallapp: the empty lists its pages show get sample entries, a demo's own when it starts from the demo.
-  else await seedForDesign(store, app.id, saved.value.draft.pages, now, demo);
+  const app = await makeStudioProject(store, { clientId: context.client.id, name, kind, source, template, words: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: name }), lang }, now);
+  await chooseApp(app.id);
   await recordStaffChange({ ...context, app }, `Added a Studio project: ${kind.name}`, { appType: null }, { appType: kind.engine, vertical: kind.vertical, section: "studio" });
   revalidatePath("/studio", "layout");
   // Content kept in Yallapp is ready; a website, platform or API is connected next.

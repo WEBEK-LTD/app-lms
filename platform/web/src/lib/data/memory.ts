@@ -208,6 +208,8 @@ import { candidatesIn, needsRekey } from "../crypto/rekey";
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
+import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
+import type { MatchedStep } from "../bot/intents";
 import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import { mailEventStatsOf } from "../mailing/stats";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
@@ -7864,6 +7866,69 @@ export class MemoryStore implements DataStore {
     const runs = this.mailRuns.length;
     this.mailRuns = this.mailRuns.filter((r) => !old.has(r.campaignId));
     return { events: events - this.mailEvents.length, recipients, runs: runs - this.mailRuns.length };
+  }
+
+  // The app-builder bot
+  private botPhrases = new Map<string, BotPhrase>();
+  private botUnmatched = new Map<number, BotUnmatched>();
+  private botUnmatchedNext = 1;
+
+  async listBotPhrases(): Promise<BotPhrase[]> {
+    return [...this.botPhrases.values()].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id)).map(clone);
+  }
+
+  async saveBotPhrase(phrase: BotPhrase): Promise<void> {
+    this.botPhrases.set(phrase.id, clone(phrase));
+  }
+
+  async deleteBotPhrase(id: string): Promise<boolean> {
+    return this.botPhrases.delete(id);
+  }
+
+  async addBotUnmatched(row: Omit<BotUnmatched, "id">): Promise<number> {
+    const id = this.botUnmatchedNext++;
+    this.botUnmatched.set(id, { ...clone(row), id });
+    return id;
+  }
+
+  async getBotUnmatched(id: number): Promise<BotUnmatched | null> {
+    const row = this.botUnmatched.get(id);
+    return row ? clone(row) : null;
+  }
+
+  async setBotUnmatchedChoice(id: number, intent: string): Promise<boolean> {
+    const row = this.botUnmatched.get(id);
+    if (!row || row.status !== "open" || row.chosenIntent !== null) return false;
+    row.chosenIntent = intent;
+    return true;
+  }
+
+  async listBotUnmatched(filter: { status?: BotUnmatchedStatus; step?: MatchedStep; offset: number; limit: number }): Promise<{ items: BotUnmatched[]; total: number }> {
+    const rows = [...this.botUnmatched.values()]
+      .filter((r) => (!filter.status || r.status === filter.status) && (!filter.step || r.step === filter.step))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    return { items: rows.slice(filter.offset, filter.offset + filter.limit).map(clone), total: rows.length };
+  }
+
+  async resolveBotUnmatched(input: { step: MatchedStep; normalized: string; status: Exclude<BotUnmatchedStatus, "open">; mappedIntent: string | null; resolvedBy: string; resolvedAt: Date }): Promise<number> {
+    let n = 0;
+    for (const row of this.botUnmatched.values()) {
+      if (row.status !== "open" || row.step !== input.step || row.normalized !== input.normalized) continue;
+      Object.assign(row, { status: input.status, mappedIntent: input.mappedIntent, resolvedBy: input.resolvedBy, resolvedAt: new Date(input.resolvedAt) });
+      n += 1;
+    }
+    return n;
+  }
+
+  async deleteBotUnmatchedBefore(before: Date): Promise<number> {
+    let n = 0;
+    for (const [id, row] of this.botUnmatched) {
+      if (row.createdAt.getTime() < before.getTime()) {
+        this.botUnmatched.delete(id);
+        n += 1;
+      }
+    }
+    return n;
   }
 
 }
