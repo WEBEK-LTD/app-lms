@@ -69,8 +69,7 @@ void _phone(WidgetTester tester) {
 List<String?> _tabs(TestApp app) =>
     app.container.read(shellTabsProvider).map((t) => t.path).toList();
 
-String _at(TestApp app) =>
-    app.container.read(appRouterProvider).state.uri.path;
+String _at(TestApp app) => app.container.read(appRouterProvider).state.uri.path;
 
 void main() {
   test('116 the config says where the staff work', () {
@@ -162,8 +161,9 @@ void main() {
       expect(_tabs(app), contains(Paths.parent));
     });
 
-    testWidgets('a teacher with no child there is sent to the staff app',
-        (tester) async {
+    testWidgets('a teacher with no child there is sent to the staff app', (
+      tester,
+    ) async {
       _phone(tester);
       final app = _app(
         _school(roles: ['teacher'], staffApp: 'bundle'),
