@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import { describeAccess } from "@/lib/team/service";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, unstable_rethrow } from "next/navigation";
 import {
   manageClientAction,
   regenerateKeyAction,
@@ -16,7 +18,7 @@ import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
 import { auditActionLabel } from "@/lib/admin/audit-actions";
-import { revealLicenseKey } from "@/lib/admin/clients";
+import { shownLicenseKey } from "@/lib/admin/clients";
 import { contentSource } from "@/lib/admin/labels";
 import { can, type AdminPermission } from "@/lib/admin/permissions";
 import { appLabel, usesPlugin } from "@/lib/app/label";
@@ -25,13 +27,13 @@ import { requireAdmin } from "@/lib/auth/session";
 import { formatAmount } from "@/lib/billing/prices";
 import { paymentWhat } from "@/lib/billing/receipt";
 import { getStore } from "@/lib/data";
-import type { App, Client, License } from "@/lib/data/types";
+import type { App, Build, Client, License } from "@/lib/data/types";
 import { encryptionKey } from "@/lib/env";
 import { adminFileHref, artifactLinks, FILES_NOT_CONFIGURED } from "@/lib/files";
 import { NOTIFICATION_BODY_MAX, NOTIFICATION_TITLE_MAX } from "@/lib/hosted/notify";
 import { signInCodesSentToday } from "@/lib/license/sign-in-codes";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
-import { formatLimit, planName, planNamesOf, plansShown, type Plan, type PlanInfo } from "@/lib/plans";
+import { formatLimit, planName, planNamesOf, plansShown, plansWith, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { getPlans } from "@/lib/settings/platform";
@@ -140,6 +142,56 @@ function Facts({ rows }: { rows: [string, React.ReactNode][] }) {
   );
 }
 
+/**
+ * What a panel of the page reads, asked for before the panel waits for it:
+ * marked as handled now, so a read that fails before its panel waits isn't
+ * an unhandled rejection; the panel gets the failure when it waits.
+ */
+function settled<T>(load: Promise<T>): Promise<T> {
+  load.catch(() => undefined);
+  return load;
+}
+
+/** Logs what failed on the page, with a short reference the panel shows, to find it in the server's log. */
+function logFailure(what: string, clientId: string, error: unknown): string {
+  const reference = randomUUID().slice(0, 8);
+  console.error(`[admin/client] ${what} failed for client ${clientId} (ref ${reference}):`, error);
+  return reference;
+}
+
+/**
+ * One panel of the page, made on its own: when what it reads or works out
+ * fails, the panel says so in place and the rest of the page still shows,
+ * rather than the site's error page for the whole client. Next's own
+ * signals (not found, redirects, dynamic rendering) go through.
+ */
+async function panel(clientId: string, card: { id: string; title: string; level?: 2 | 3 }, make: () => React.ReactNode | Promise<React.ReactNode>): Promise<React.ReactNode> {
+  try {
+    return await make();
+  } catch (error) {
+    unstable_rethrow(error);
+    const reference = logFailure(card.title, clientId, error);
+    return (
+      <Card id={card.id} title={card.title} level={card.level}>
+        <Notice tone="danger" icon="error" role="alert">
+          This part of the page couldn&apos;t load. The rest of the client&apos;s page is shown. The server log has the error under reference {reference}.
+        </Notice>
+      </Card>
+    );
+  }
+}
+
+/** A setting the page reads, else its default when it can't be read (logged). */
+async function orElse<T>(what: string, clientId: string, load: () => Promise<T>, fallback: () => T): Promise<T> {
+  try {
+    return await load();
+  } catch (error) {
+    unstable_rethrow(error);
+    logFailure(what, clientId, error);
+    return fallback();
+  }
+}
+
 /** One app of the client with its own license, or the license given before their first app (app null). */
 interface Entry {
   key: string;
@@ -159,16 +211,13 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
   const user = client ? await store.getUserById(client.userId) : null;
   if (!client || !user) notFound();
   const now = new Date();
-  const [apps, licenses, payments, plans, switches, audit] = await Promise.all([
-    store.listAppsByClient(client.id),
-    store.listLicensesByClient(client.id),
-    store.listPlanPayments({ clientId: client.id, limit: 50 }),
-    getPlans(store),
-    getSwitches(store),
-    store.listAuditEntries({ clientId: client.id, offset: 0, limit: 20 }),
+  // The account and its apps make the page; without them it can't be shown.
+  const [apps, licenses] = await Promise.all([store.listAppsByClient(client.id), store.listLicensesByClient(client.id)]);
+  // The team's plan and switch settings, else the built-in ones: a setting that can't be read doesn't hide the client.
+  const [plans, switches] = await Promise.all([
+    orElse("plans", client.id, () => getPlans(store), () => plansWith(null)),
+    orElse("switches", client.id, () => getSwitches(store), () => null),
   ]);
-  // 60 The people who work with the client, read-only.
-  const [team, invitations] = await Promise.all([store.listTeamMembers(client.id), store.listOpenTeamInvitations(client.id)]);
   const account = clientAccountState(client, licenses, now);
   const entries: Entry[] = apps.map((app) => ({ key: app.id, app, license: licenses.find((l) => l.appId === app.id) ?? null }));
   const unassigned = licenses.find((l) => l.appId === null);
@@ -178,15 +227,32 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
   const rerunFailed = typeof query.rerun === "string" ? RERUN_FAILED[query.rerun] : undefined;
   const appNames = new Map(apps.map((a) => [a.id, appLabel(a)]));
   const usersApp = typeof query.app === "string" ? query.app : null;
-  // 78.4 What went wrong for the client's apps, and everything in one timeline.
-  const [errors, notices, milestones, builds, publishing] = await Promise.all([
-    store.listAppErrors({ clientId: client.id, limit: 50 }),
-    store.listOwnerNotices({ clientId: client.id, limit: 50 }),
-    store.listClientMilestones(client.id),
-    Promise.all(apps.map((a) => store.listBuildsByApp(a.id, 20, "all"))).then((lists) => lists.flat()),
-    Promise.all(apps.map(async (a) => ({ appId: a.id, events: await store.listPublishingEvents(a.id) }))),
-  ]);
-  const timeline = buildTimeline({ appNames, builds, errors, notices, payments, milestones, publishing, audit: audit.items });
+  // What the panels below read, asked for at once; each panel waits for its own, so one that fails says so and the others show.
+  const buildsOf = new Map(apps.map((a) => [a.id, settled(store.listBuildsByApp(a.id, 20, "all"))]));
+  const loads = {
+    payments: settled(store.listPlanPayments({ clientId: client.id, limit: 50 })),
+    audit: settled(store.listAuditEntries({ clientId: client.id, offset: 0, limit: 20 })),
+    // 60 The people who work with the client, read-only.
+    team: settled(store.listTeamMembers(client.id)),
+    invitations: settled(store.listOpenTeamInvitations(client.id)),
+    // 78.4 What went wrong for the client's apps, and everything in one timeline.
+    errors: settled(store.listAppErrors({ clientId: client.id, limit: 50 })),
+    notices: settled(store.listOwnerNotices({ clientId: client.id, limit: 50 })),
+    milestones: settled(store.listClientMilestones(client.id)),
+    publishing: settled(Promise.all(apps.map(async (a) => ({ appId: a.id, events: await store.listPublishingEvents(a.id) })))),
+  };
+  const loadTimeline = async () => {
+    const [builds, errors, notices, payments, milestones, publishing, audit] = await Promise.all([
+      Promise.all([...buildsOf.values()]).then((lists) => lists.flat()),
+      loads.errors,
+      loads.notices,
+      loads.payments,
+      loads.milestones,
+      loads.publishing,
+      loads.audit,
+    ]);
+    return buildTimeline({ appNames, builds, errors, notices, payments, milestones, publishing, audit: audit.items });
+  };
 
   return (
     <>
@@ -216,259 +282,296 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
       ) : null}
 
       <div className="grid items-start gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
-        <Card id="h-profile" title="Profile and contact">
-          <Facts
-            rows={[
-              ["Email", <a key="e" href={`mailto:${user.email}`}>{user.email}</a>],
-              ["WhatsApp", <a key="w" href={`https://wa.me/${client.whatsapp.replace(/\D/g, "")}`}>{client.whatsapp}</a>],
-              ["Website", client.siteUrl],
-              ["Signed up", formatDate(client.createdAt)],
-              ["Last sign-in", formatDateTime(user.lastSignInAt)],
-              ["Password", user.passwordHash ? "Set" : "Not set yet"],
-            ]}
-          />
-          {may("clients.edit") ? (
-            <details className="border-t border-line-soft pt-3.5">
-              <summary className="cursor-pointer text-sm font-semibold">Edit details</summary>
-              <div className="pt-3">
-                <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} country={client.country ?? null} countries={countryOptions("en")} />
+        {await panel(client.id, { id: "h-profile", title: "Profile and contact" }, () => (
+          <Card id="h-profile" title="Profile and contact">
+            <Facts
+              rows={[
+                ["Email", <a key="e" href={`mailto:${user.email}`}>{user.email}</a>],
+                ["WhatsApp", <a key="w" href={`https://wa.me/${client.whatsapp.replace(/\D/g, "")}`}>{client.whatsapp}</a>],
+                ["Website", client.siteUrl],
+                ["Signed up", formatDate(client.createdAt)],
+                ["Last sign-in", formatDateTime(user.lastSignInAt)],
+                ["Password", user.passwordHash ? "Set" : "Not set yet"],
+              ]}
+            />
+            {may("clients.edit") ? (
+              <details className="border-t border-line-soft pt-3.5">
+                <summary className="cursor-pointer text-sm font-semibold">Edit details</summary>
+                <div className="pt-3">
+                  <ClientDetailsForm clientId={client.id} name={user.name} whatsapp={client.whatsapp} siteUrl={client.siteUrl} country={client.country ?? null} countries={countryOptions("en")} />
+                </div>
+              </details>
+            ) : null}
+            {may("clients.email") ? (
+              <div className="flex flex-wrap gap-2 border-t border-line-soft pt-3.5">
+                <form action={sendPasswordLinkAction}>
+                  <input type="hidden" name="clientId" value={client.id} />
+                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                    Email a password link
+                  </SubmitButton>
+                </form>
               </div>
-            </details>
-          ) : null}
-          {may("clients.email") ? (
-            <div className="flex flex-wrap gap-2 border-t border-line-soft pt-3.5">
-              <form action={sendPasswordLinkAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                  Email a password link
-                </SubmitButton>
-              </form>
-            </div>
-          ) : null}
-        </Card>
+            ) : null}
+          </Card>
+        ))}
 
-        <Card id="h-account" title="Account">
-          <Facts
-            rows={[
-              ["State", ACCOUNT_STATE_LABEL[account]],
-              [
-                "Apps",
-                apps.length ? (
-                  <ul key="a" className="m-0 flex list-none flex-col gap-1 p-0">
-                    {entries
-                      .filter((e) => e.app)
-                      .map((e) => {
-                        const state = appState(client, e.license, now);
-                        return (
-                          <li key={e.key} className="flex flex-wrap items-center gap-2">
-                            <a href={`#app-${e.key}`} className="font-semibold">
-                              {appLabel(e.app)}
-                            </a>
-                            <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
-                            <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
-                          </li>
-                        );
-                      })}
-                  </ul>
-                ) : (
-                  "None yet: the client hasn't chosen an app type."
-                ),
-              ],
-            ]}
-          />
-          {client.paymentNote ? (
-            <div className="flex flex-col gap-1 border-t border-line-soft pt-3.5">
-              <span className="text-sm font-semibold">Payment notes</span>
-              <p className="m-0 text-[13px] leading-relaxed whitespace-pre-wrap text-ink-4">{client.paymentNote}</p>
-            </div>
-          ) : null}
-          {account !== "pending" && may("clients.suspend") ? (
-            <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3.5">
-              <form action={client.status === "suspended" ? reinstateClientAction : suspendClientAction}>
-                <input type="hidden" name="clientId" value={client.id} />
-                <input type="hidden" name="from" value="client" />
-                <SubmitButton variant={client.status === "suspended" ? "secondary" : "danger"} className="h-9 px-3 text-sm">
-                  {client.status === "suspended" ? "Reinstate" : "Suspend"}
-                </SubmitButton>
-              </form>
-              <span className="text-xs text-muted">Suspending pauses every app of the account and its plugin connections.</span>
-            </div>
-          ) : null}
-        </Card>
+        {await panel(client.id, { id: "h-account", title: "Account" }, () => (
+          <Card id="h-account" title="Account">
+            <Facts
+              rows={[
+                ["State", ACCOUNT_STATE_LABEL[account]],
+                [
+                  "Apps",
+                  apps.length ? (
+                    <ul key="a" className="m-0 flex list-none flex-col gap-1 p-0">
+                      {entries
+                        .filter((e) => e.app)
+                        .map((e) => {
+                          const state = appState(client, e.license, now);
+                          return (
+                            <li key={e.key} className="flex flex-wrap items-center gap-2">
+                              <a href={`#app-${e.key}`} className="font-semibold">
+                                {appLabel(e.app)}
+                              </a>
+                              <Badge tone={stateTone(state)}>{ACCOUNT_STATE_LABEL[state]}</Badge>
+                              <span className="text-muted">{e.license ? `${planName(e.license.plan, plans)} until ${formatDate(e.license.expiresAt)}` : "No plan yet"}</span>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  ) : (
+                    "None yet: the client hasn't chosen an app type."
+                  ),
+                ],
+              ]}
+            />
+            {client.paymentNote ? (
+              <div className="flex flex-col gap-1 border-t border-line-soft pt-3.5">
+                <span className="text-sm font-semibold">Payment notes</span>
+                <p className="m-0 text-[13px] leading-relaxed whitespace-pre-wrap text-ink-4">{client.paymentNote}</p>
+              </div>
+            ) : null}
+            {account !== "pending" && may("clients.suspend") ? (
+              <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3.5">
+                <form action={client.status === "suspended" ? reinstateClientAction : suspendClientAction}>
+                  <input type="hidden" name="clientId" value={client.id} />
+                  <input type="hidden" name="from" value="client" />
+                  <SubmitButton variant={client.status === "suspended" ? "secondary" : "danger"} className="h-9 px-3 text-sm">
+                    {client.status === "suspended" ? "Reinstate" : "Suspend"}
+                  </SubmitButton>
+                </form>
+                <span className="text-xs text-muted">Suspending pauses every app of the account and its plugin connections.</span>
+              </div>
+            ) : null}
+          </Card>
+        ))}
       </div>
 
-      {entries.map((entry) => (
-        <AppEntry
-          key={entry.key}
-          client={client}
-          entry={entry}
-          several={apps.length > 1}
-          now={now}
-          plans={plans}
-          switches={switches}
-          usersQuery={usersApp === null || usersApp === entry.key ? (typeof query.users === "string" ? query.users.slice(0, 100) : "") : ""}
-          usersPage={usersApp === null || usersApp === entry.key ? Math.max(1, Number(query.page) || 1) : 1}
-          may={{ license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage"), switches: may("switches.edit") }}
-        />
-      ))}
+      {await Promise.all(
+        entries.map(async (entry) => (
+          <Fragment key={entry.key}>
+            {await panel(client.id, { id: `h-app-${entry.key}`, title: entry.app ? appLabel(entry.app) : "No app yet" }, () =>
+              AppEntry({
+                client,
+                entry,
+                builds: entry.app ? (buildsOf.get(entry.app.id) ?? Promise.resolve([])) : Promise.resolve([]),
+                several: apps.length > 1,
+                now,
+                plans,
+                switches,
+                usersQuery: usersApp === null || usersApp === entry.key ? (typeof query.users === "string" ? query.users.slice(0, 100) : "") : "",
+                usersPage: usersApp === null || usersApp === entry.key ? Math.max(1, Number(query.page) || 1) : 1,
+                may: { license: may("clients.license"), edit: may("clients.edit"), email: may("clients.email"), builds: may("builds.manage"), switches: may("switches.edit") },
+              }),
+            )}
+          </Fragment>
+        )),
+      )}
 
       <div className="grid items-start gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
-        <Card id="h-payments" title="Payments">
-          {payments.length === 0 ? (
-            <p className="m-0 text-sm text-muted">No payments.</p>
-          ) : (
-            <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[13px]">
-              {payments.map((p) => (
-                <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
-                  <span>
-                    {formatAmount(p.amountCents, p.currency)} · {paymentWhat(p, planName(p.plan, plans))} ·{" "}
-                    {formatDateTime(p.paidAt ?? p.createdAt)}
-                    {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
-                    {/* 95.2 Recorded by the team. */}
-                    {p.method === "bank_transfer" ? ` · Bank transfer${p.bankReference ? ` (${p.bankReference})` : ""}` : ""}
-                  </span>
-                  {/* 71 The receipt the client got, as a PDF. */}
-                  {p.status === "paid" ? (
-                    <a href={`/admin/payments/${p.id}/pdf`} download className="inline-flex items-center gap-1 font-semibold">
-                      <Icon name="download" size={16} />
-                      Receipt PDF
-                    </a>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+        {await panel(client.id, { id: "h-payments", title: "Payments" }, async () => {
+          const payments = await loads.payments;
+          return (
+            <Card id="h-payments" title="Payments">
+              {payments.length === 0 ? (
+                <p className="m-0 text-sm text-muted">No payments.</p>
+              ) : (
+                <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-[13px]">
+                  {payments.map((p) => (
+                    <li key={p.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <Badge tone={PAYMENT_TONE[p.status]}>{PAYMENT_STATUS[p.status]}</Badge>
+                      <span>
+                        {formatAmount(p.amountCents, p.currency)} · {paymentWhat(p, planName(p.plan, plans))} ·{" "}
+                        {formatDateTime(p.paidAt ?? p.createdAt)}
+                        {apps.length > 1 ? ` · ${p.appId ? (appNames.get(p.appId) ?? "Deleted app") : "Before the first app"}` : ""}
+                        {/* 95.2 Recorded by the team. */}
+                        {p.method === "bank_transfer" ? ` · Bank transfer${p.bankReference ? ` (${p.bankReference})` : ""}` : ""}
+                      </span>
+                      {/* 71 The receipt the client got, as a PDF. */}
+                      {p.status === "paid" ? (
+                        <a href={`/admin/payments/${p.id}/pdf`} download className="inline-flex items-center gap-1 font-semibold">
+                          <Icon name="download" size={16} />
+                          Receipt PDF
+                        </a>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          );
+        })}
 
-        <Card id="h-setup-request" title="Set-up requests">
-          {apps.some((a) => a.setupRequestedAt) ? (
-            <div className="flex flex-col gap-3">
-              {apps
-                .filter((a) => a.setupRequestedAt)
-                .map((a) => (
-                  <Facts
-                    key={a.id}
-                    rows={[
-                      ...(apps.length > 1 ? ([["App", appLabel(a)]] as [string, React.ReactNode][]) : []),
-                      ["Asked", formatDate(a.setupRequestedAt)],
-                      ["Waiting", a.backend === "setup_requested" ? "Yes: the client waits for their WordPress site" : "No: they chose a website since"],
-                      ["Note", a.setupNote || "None"],
-                    ]}
-                  />
-                ))}
-            </div>
-          ) : (
-            <p className="m-0 text-sm text-muted">No WordPress set-up requests.</p>
-          )}
-        </Card>
+        {await panel(client.id, { id: "h-setup-request", title: "Set-up requests" }, () => (
+          <Card id="h-setup-request" title="Set-up requests">
+            {apps.some((a) => a.setupRequestedAt) ? (
+              <div className="flex flex-col gap-3">
+                {apps
+                  .filter((a) => a.setupRequestedAt)
+                  .map((a) => (
+                    <Facts
+                      key={a.id}
+                      rows={[
+                        ...(apps.length > 1 ? ([["App", appLabel(a)]] as [string, React.ReactNode][]) : []),
+                        ["Asked", formatDate(a.setupRequestedAt)],
+                        ["Waiting", a.backend === "setup_requested" ? "Yes: the client waits for their WordPress site" : "No: they chose a website since"],
+                        ["Note", a.setupNote || "None"],
+                      ]}
+                    />
+                  ))}
+              </div>
+            ) : (
+              <p className="m-0 text-sm text-muted">No WordPress set-up requests.</p>
+            )}
+          </Card>
+        ))}
       </div>
 
-      <Card id="h-client-team" title="The client's team">
-        {team.length === 0 && invitations.length === 0 ? (
-          <p className="m-0 text-sm text-muted">Only the owner works on this account.</p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm" data-testid="client-team">
-            {team.map(({ member, user: person }) => (
-              <li key={person.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
-                <span className="font-semibold">{person.name}</span>
-                <span className="text-muted">{person.email}</span>
-                <span>{describeAccess(member, apps)}</span>
-                <span className="text-muted">
-                  joined {formatDate(member.createdAt)} · {person.lastSignInAt ? `last signed in ${formatDate(person.lastSignInAt)}` : "hasn't signed in"}
-                </span>
-              </li>
-            ))}
-            {invitations.map((i) => (
-              <li key={i.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
-                <span className="font-semibold">{i.name}</span>
-                <span className="text-muted">{i.email}</span>
-                <span>{describeAccess(i, apps)}</span>
-                <span className="text-muted">
-                  invited {formatDate(i.sentAt)} · {i.expiresAt.getTime() <= now.getTime() ? "expired" : `link works until ${formatDate(i.expiresAt)}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-
-      <Card id="h-errors" title={errors.length ? `Errors (${errors.length})` : "Errors"}>
-        {errors.length === 0 ? (
-          <p className="m-0 text-sm text-muted">Nothing failed for this client&apos;s apps in the last {APP_ERROR_DAYS} days.</p>
-        ) : (
-          <div className="relative overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
-              <caption className="sr-only">Errors of the client&apos;s apps</caption>
-              <thead>
-                <tr className="text-left text-muted">
-                  <th scope="col" className="py-2 pe-3 font-semibold">What</th>
-                  <th scope="col" className="py-2 pe-3 font-semibold">App</th>
-                  <th scope="col" className="py-2 pe-3 text-right font-semibold">Times</th>
-                  <th scope="col" className="py-2 font-semibold">Last seen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {errors.map((e) => (
-                  <tr key={e.id} className="border-t border-line-soft align-top">
-                    <th scope="row" className="py-2 pe-3 text-left font-normal">
-                      <span className="font-semibold">
-                        {APP_ERROR_SOURCE_LABEL[e.source]}: {e.code}
-                      </span>
-                      <span className="block text-muted">{e.message}</span>
-                    </th>
-                    <td className="py-2 pe-3">{e.appId ? (appNames.get(e.appId) ?? "A deleted app") : "The account"}</td>
-                    <td className="py-2 pe-3 text-right tabular-nums">{e.count}</td>
-                    <td className="py-2 tabular-nums">{formatDateTime(e.lastAt)}</td>
-                  </tr>
+      {await panel(client.id, { id: "h-client-team", title: "The client's team" }, async () => {
+        const [team, invitations] = await Promise.all([loads.team, loads.invitations]);
+        return (
+          <Card id="h-client-team" title="The client's team">
+            {team.length === 0 && invitations.length === 0 ? (
+              <p className="m-0 text-sm text-muted">Only the owner works on this account.</p>
+            ) : (
+              <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm" data-testid="client-team">
+                {team.map(({ member, user: person }) => (
+                  <li key={person.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
+                    <span className="font-semibold">{person.name}</span>
+                    <span className="text-muted">{person.email}</span>
+                    <span>{describeAccess(member, apps)}</span>
+                    <span className="text-muted">
+                      joined {formatDate(member.createdAt)} · {person.lastSignInAt ? `last signed in ${formatDate(person.lastSignInAt)}` : "hasn't signed in"}
+                    </span>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                {invitations.map((i) => (
+                  <li key={i.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-line-soft pb-2 last:border-b-0">
+                    <span className="font-semibold">{i.name}</span>
+                    <span className="text-muted">{i.email}</span>
+                    <span>{describeAccess(i, apps)}</span>
+                    <span className="text-muted">
+                      invited {formatDate(i.sentAt)} · {i.expiresAt.getTime() <= now.getTime() ? "expired" : `link works until ${formatDate(i.expiresAt)}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        );
+      })}
 
-      <Card id="h-timeline" title="Timeline">
-        {timeline.length === 0 ? (
-          <p className="m-0 text-sm text-muted">Nothing yet.</p>
-        ) : (
-          <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-            {timeline.map((t, i) => (
-              <li key={`${t.kind}-${t.at.getTime()}-${i}`} className="flex flex-wrap gap-x-3 gap-y-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
-                <span className="text-muted tabular-nums">{formatDateTime(t.at)}</span>
-                <span className={`font-semibold ${t.tone === "bad" ? "text-danger" : t.tone === "good" ? "text-success" : ""}`}>{t.title}</span>
-                {t.app ? <span className="text-muted">{t.app}</span> : null}
-                {t.detail ? <span className="basis-full">{t.detail}</span> : null}
-              </li>
-            ))}
-          </ol>
-        )}
-      </Card>
+      {await panel(client.id, { id: "h-errors", title: "Errors" }, async () => {
+        const errors = await loads.errors;
+        return (
+          <Card id="h-errors" title={errors.length ? `Errors (${errors.length})` : "Errors"}>
+            {errors.length === 0 ? (
+              <p className="m-0 text-sm text-muted">Nothing failed for this client&apos;s apps in the last {APP_ERROR_DAYS} days.</p>
+            ) : (
+              <div className="relative overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-sm">
+                  <caption className="sr-only">Errors of the client&apos;s apps</caption>
+                  <thead>
+                    <tr className="text-left text-muted">
+                      <th scope="col" className="py-2 pe-3 font-semibold">What</th>
+                      <th scope="col" className="py-2 pe-3 font-semibold">App</th>
+                      <th scope="col" className="py-2 pe-3 text-right font-semibold">Times</th>
+                      <th scope="col" className="py-2 font-semibold">Last seen</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {errors.map((e) => (
+                      <tr key={e.id} className="border-t border-line-soft align-top">
+                        <th scope="row" className="py-2 pe-3 text-left font-normal">
+                          <span className="font-semibold">
+                            {APP_ERROR_SOURCE_LABEL[e.source]}: {e.code}
+                          </span>
+                          <span className="block text-muted">{e.message}</span>
+                        </th>
+                        <td className="py-2 pe-3">{e.appId ? (appNames.get(e.appId) ?? "A deleted app") : "The account"}</td>
+                        <td className="py-2 pe-3 text-right tabular-nums">{e.count}</td>
+                        <td className="py-2 tabular-nums">{formatDateTime(e.lastAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        );
+      })}
 
-      <Card
-        id="h-audit"
-        title="Changes by the team"
-        aside={
-          <Link href={`/admin/audit?client=${client.id}`} className="text-sm font-semibold">
-            All of this client&apos;s changes
-          </Link>
-        }
-      >
-        {audit.items.length === 0 ? (
-          <p className="m-0 text-sm text-muted">No changes logged yet.</p>
-        ) : (
-          <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-            {audit.items.map((e) => (
-              <li key={e.id} className="flex flex-wrap gap-x-3 gap-y-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
-                <span className="text-muted">{formatDateTime(e.at)}</span>
-                <span className="font-semibold">{auditActionLabel(e.action)}</span>
-                <span>{e.summary}</span>
-                <span className="text-muted">by {e.actorEmail}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+      {await panel(client.id, { id: "h-timeline", title: "Timeline" }, async () => {
+        const timeline = await loadTimeline();
+        return (
+          <Card id="h-timeline" title="Timeline">
+            {timeline.length === 0 ? (
+              <p className="m-0 text-sm text-muted">Nothing yet.</p>
+            ) : (
+              <ol className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+                {timeline.map((t, i) => (
+                  <li key={`${t.kind}-${t.at.getTime()}-${i}`} className="flex flex-wrap gap-x-3 gap-y-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                    <span className="text-muted tabular-nums">{formatDateTime(t.at)}</span>
+                    <span className={`font-semibold ${t.tone === "bad" ? "text-danger" : t.tone === "good" ? "text-success" : ""}`}>{t.title}</span>
+                    {t.app ? <span className="text-muted">{t.app}</span> : null}
+                    {t.detail ? <span className="basis-full">{t.detail}</span> : null}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Card>
+        );
+      })}
+
+      {await panel(client.id, { id: "h-audit", title: "Changes by the team" }, async () => {
+        const audit = await loads.audit;
+        return (
+          <Card
+            id="h-audit"
+            title="Changes by the team"
+            aside={
+              <Link href={`/admin/audit?client=${client.id}`} className="text-sm font-semibold">
+                All of this client&apos;s changes
+              </Link>
+            }
+          >
+            {audit.items.length === 0 ? (
+              <p className="m-0 text-sm text-muted">No changes logged yet.</p>
+            ) : (
+              <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+                {audit.items.map((e) => (
+                  <li key={e.id} className="flex flex-wrap gap-x-3 gap-y-0.5 border-t border-line-soft pt-2 first:border-t-0 first:pt-0">
+                    <span className="text-muted">{formatDateTime(e.at)}</span>
+                    <span className="font-semibold">{auditActionLabel(e.action)}</span>
+                    <span>{e.summary}</span>
+                    <span className="text-muted">by {e.actorEmail}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        );
+      })}
     </>
   );
 }
@@ -477,6 +580,7 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
 async function AppEntry({
   client,
   entry,
+  builds: buildsLoad,
   several,
   now,
   plans,
@@ -487,6 +591,8 @@ async function AppEntry({
 }: {
   client: Client;
   entry: Entry;
+  /** The app's builds, asked for with the page's other reads (the timeline shows them too). */
+  builds: Promise<Build[]>;
   several: boolean;
   now: Date;
   plans: Record<Plan, PlanInfo>;
@@ -497,25 +603,9 @@ async function AppEntry({
 }) {
   const store = await getStore();
   const { app, license } = entry;
-  const [activation, builds] = await Promise.all([
-    license ? store.getActivation(license.id) : Promise.resolve(null),
-    app ? store.listBuildsByApp(app.id, 20, "all") : Promise.resolve([]),
-  ]);
+  // Each card of the app waits for what it shows, so one that fails says so and the others show.
+  const activationLoad = settled(license ? store.getActivation(license.id) : Promise.resolve(null));
   const state = appState(client, license, now);
-  // 13.2 App users against the plan's limit (hosted apps; WordPress sites keep their own users).
-  const effective = await effectivePlans(store);
-  const currentPlan = license ? effective[currentPlanId(license, now)] : null;
-  const scheduled = scheduledPlan(license, now);
-  const appUsers = app?.backend === "hosted" ? await store.countHostedUsers(app.id) : null;
-  // 18 Sign-in codes the plugin had Yallapp send today: an aggregate count, nothing about who.
-  const codesToday = license && activation ? await signInCodesSentToday(store, license.id, now) : null;
-  // 30 What the site runs, when its plugin reports it, and whether the app's type fits it.
-  const site = activation && app ? siteMatch(app, activation) : null;
-  const userLimit = currentPlan?.limits.appUsers ?? null;
-  const base = license && license.expiresAt > now ? license.expiresAt : now;
-  const nextYear = new Date(base);
-  nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
-  const steps = stepStatus(app, license?.plan ?? null);
   const headingId = `h-app-${entry.key}`;
   const appField = app ? <input type="hidden" name="appId" value={app.id} /> : null;
   const typeName = app ? appTypeName(app) : null;
@@ -533,217 +623,252 @@ async function AppEntry({
       </div>
 
       <div className="grid items-start gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))]">
-        <Card id={`h-plan-${entry.key}`} title="Plan and license" level={3}>
-          <Facts
-            rows={[
-              [
-                "Plan",
-                license
-                  ? `${currentPlan?.name ?? planName(license.plan, plans)} until ${formatDate(license.expiresAt)}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
-                  : "Not activated",
-              ],
-              [
-                "App users",
-                appUsers === null ? (
-                  "On their website (no limit)"
-                ) : (
-                  <span key="u" data-usage="" className={userLimit !== null && appUsers >= userLimit ? "font-bold text-danger" : undefined}>
-                    {formatLimit(appUsers)}
-                    {userLimit === null ? " (no limit)" : ` / ${formatLimit(userLimit)}`}
-                  </span>
-                ),
-              ],
-              ...(codesToday === null ? [] : [["Sign-in codes sent today", `${codesToday} by Yallapp (UTC day)`] as [string, string]]),
-              // 84.4 To make a design from its draft (Admin › Designs).
-              ...(app ? [["App ID", <span key="i" className="font-mono text-[13px] break-all" data-app-id="">{app.id}</span>] as [string, React.ReactNode]] : []),
-              ["License", license ? <span key="k" className="font-mono text-[13px] break-all">{revealLicenseKey(license, encryptionKey())}</span> : "None yet"],
-              [
-                "Plugin",
-                activation
-                  ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}`
-                  : "Not activated on a website",
-              ],
-              // 83.4 The hosted API's connector and its version.
-              ...(app && connectorOfApp(app)
-                ? [["Connector", `${connectorOfApp(app)!.name} · connector ${connectorOfApp(app)!.version} · ${connectorOfApp(app)!.api}`] as [string, string]]
-                : []),
-              // 30 What the site runs beside the plugin, when the plugin reports it.
-              ...(site?.reported
-                ? [
-                    [
-                      "Website runs",
-                      `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}${adapterVersions(app)}`,
-                    ] as [string, string],
-                  ]
-                : []),
-            ]}
-          />
-          {state !== "suspended" && may.license ? (
-            <div className="border-t border-line-soft pt-3.5">
-              <ActivateForm
-                clientId={client.id}
-                appId={app?.id ?? null}
-                plan={license?.plan ?? (app?.section === "studio" ? "studio_1" : "pro")}
-                activeUntil={isoDate(nextYear)}
-                pending={!license}
-                planNames={planNamesOf(plans)}
-                from="client"
-                family={app?.section === "studio" ? "studio" : "regular"}
-                shown={plansShown(app?.section === "studio" ? "studio" : "regular", (await platformSetting(store, "plans"))?.value, license?.plan)}
+        {await panel(client.id, { id: `h-plan-${entry.key}`, title: "Plan and license", level: 3 }, async () => {
+          const activation = await activationLoad;
+          // 13.2 App users against the plan's limit (hosted apps; WordPress sites keep their own users).
+          const effective = await effectivePlans(store);
+          const currentPlan = license ? effective[currentPlanId(license, now)] : null;
+          const scheduled = scheduledPlan(license, now);
+          const appUsers = app?.backend === "hosted" ? await store.countHostedUsers(app.id) : null;
+          // 18 Sign-in codes the plugin had Yallapp send today: an aggregate count, nothing about who.
+          const codesToday = license && activation ? await signInCodesSentToday(store, license.id, now) : null;
+          // 30 What the site runs, when its plugin reports it, and whether the app's type fits it.
+          const site = activation && app ? siteMatch(app, activation) : null;
+          const userLimit = currentPlan?.limits.appUsers ?? null;
+          const base = license && license.expiresAt > now ? license.expiresAt : now;
+          const nextYear = new Date(base);
+          nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
+          const shownPlans = (await platformSetting(store, "plans"))?.value;
+          return (
+            <Card id={`h-plan-${entry.key}`} title="Plan and license" level={3}>
+              <Facts
+                rows={[
+                  [
+                    "Plan",
+                    license
+                      ? `${currentPlan?.name ?? planName(license.plan, plans)} until ${formatDate(license.expiresAt)}${scheduled ? `, then ${effective[scheduled.plan].name}` : ""}`
+                      : "Not activated",
+                  ],
+                  [
+                    "App users",
+                    appUsers === null ? (
+                      "On their website (no limit)"
+                    ) : (
+                      <span key="u" data-usage="" className={userLimit !== null && appUsers >= userLimit ? "font-bold text-danger" : undefined}>
+                        {formatLimit(appUsers)}
+                        {userLimit === null ? " (no limit)" : ` / ${formatLimit(userLimit)}`}
+                      </span>
+                    ),
+                  ],
+                  ...(codesToday === null ? [] : [["Sign-in codes sent today", `${codesToday} by Yallapp (UTC day)`] as [string, string]]),
+                  // 84.4 To make a design from its draft (Admin › Designs).
+                  ...(app ? [["App ID", <span key="i" className="font-mono text-[13px] break-all" data-app-id="">{app.id}</span>] as [string, React.ReactNode]] : []),
+                  ["License", license ? <span key="k" className="font-mono text-[13px] break-all">{shownLicenseKey(license, encryptionKey()) ?? "Can't be shown: make a new license key to replace it."}</span> : "None yet"],
+                  [
+                    "Plugin",
+                    activation
+                      ? `${activation.siteUrl} · plugin ${activation.pluginVersion} · checked ${formatDateTime(activation.lastCheckedAt)}`
+                      : "Not activated on a website",
+                  ],
+                  // 83.4 The hosted API's connector and its version.
+                  ...(app && connectorOfApp(app)
+                    ? [["Connector", `${connectorOfApp(app)!.name} · connector ${connectorOfApp(app)!.version} · ${connectorOfApp(app)!.api}`] as [string, string]]
+                    : []),
+                  // 30 What the site runs beside the plugin, when the plugin reports it.
+                  ...(site?.reported
+                    ? [
+                        [
+                          "Website runs",
+                          `${site.runs.join(", ") || "No course, shop or booking plugin"}${site.warning && app ? ` · doesn't fit the app type (${appTypeName(app)})` : ""}${adapterVersions(app)}`,
+                        ] as [string, string],
+                      ]
+                    : []),
+                ]}
               />
-            </div>
-          ) : null}
-          {(activation && may.license) || (license && (may.license || may.email)) ? (
-            <div className="flex flex-wrap gap-2 border-t border-line-soft pt-3.5">
-              {activation && may.license ? (
-                <form action={releaseClientSiteAction}>
-                  <input type="hidden" name="clientId" value={client.id} />
-                  {appField}
-                  <input type="hidden" name="from" value="client" />
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    Release website
-                  </SubmitButton>
-                </form>
+              {state !== "suspended" && may.license ? (
+                <div className="border-t border-line-soft pt-3.5">
+                  <ActivateForm
+                    clientId={client.id}
+                    appId={app?.id ?? null}
+                    plan={license?.plan ?? (app?.section === "studio" ? "studio_1" : "pro")}
+                    activeUntil={isoDate(nextYear)}
+                    pending={!license}
+                    planNames={planNamesOf(plans)}
+                    from="client"
+                    family={app?.section === "studio" ? "studio" : "regular"}
+                    shown={plansShown(app?.section === "studio" ? "studio" : "regular", shownPlans, license?.plan)}
+                  />
+                </div>
               ) : null}
-              {license && may.license ? (
-                <form action={regenerateKeyAction}>
-                  <input type="hidden" name="clientId" value={client.id} />
-                  {appField}
-                  <input type="hidden" name="from" value="client" />
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    New license key
-                  </SubmitButton>
-                </form>
+              {(activation && may.license) || (license && (may.license || may.email)) ? (
+                <div className="flex flex-wrap gap-2 border-t border-line-soft pt-3.5">
+                  {activation && may.license ? (
+                    <form action={releaseClientSiteAction}>
+                      <input type="hidden" name="clientId" value={client.id} />
+                      {appField}
+                      <input type="hidden" name="from" value="client" />
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        Release website
+                      </SubmitButton>
+                    </form>
+                  ) : null}
+                  {license && may.license ? (
+                    <form action={regenerateKeyAction}>
+                      <input type="hidden" name="clientId" value={client.id} />
+                      {appField}
+                      <input type="hidden" name="from" value="client" />
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        New license key
+                      </SubmitButton>
+                    </form>
+                  ) : null}
+                  {license && may.email ? (
+                    <form action={resendLicenseEmailAction}>
+                      <input type="hidden" name="clientId" value={client.id} />
+                      {appField}
+                      <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
+                        {/* 75 An app without WordPress gets its activation email without the key. */}
+                        {usesPlugin(app) ? "Email the license key again" : "Email the activation again"}
+                      </SubmitButton>
+                    </form>
+                  ) : null}
+                </div>
               ) : null}
-              {license && may.email ? (
-                <form action={resendLicenseEmailAction}>
-                  <input type="hidden" name="clientId" value={client.id} />
-                  {appField}
-                  <SubmitButton variant="secondary" className="h-9 px-3 text-sm">
-                    {/* 75 An app without WordPress gets its activation email without the key. */}
-                    {usesPlugin(app) ? "Email the license key again" : "Email the activation again"}
-                  </SubmitButton>
-                </form>
-              ) : null}
-            </div>
-          ) : null}
-        </Card>
+            </Card>
+          );
+        })}
 
-        <AppCard
-          clientId={client.id}
-          app={app}
-          cardId={`h-appinfo-${entry.key}`}
-          stepsDone={SETUP_STEPS.filter((s) => steps[s]).length}
-          websiteSwitchedOff={app ? !websiteOn(switches, websiteOf(app), license?.plan ?? null) : false}
-          activatedSite={activation?.siteUrl ?? null}
-          several={several}
-          may={{ edit: may.edit }}
-        />
+        {await panel(client.id, { id: `h-appinfo-${entry.key}`, title: "App", level: 3 }, async () => {
+          const steps = stepStatus(app, license?.plan ?? null);
+          return AppCard({
+            clientId: client.id,
+            app,
+            cardId: `h-appinfo-${entry.key}`,
+            stepsDone: SETUP_STEPS.filter((s) => steps[s]).length,
+            websiteSwitchedOff: app ? !websiteOn(switches, websiteOf(app), license?.plan ?? null) : false,
+            activatedSite: (await activationLoad)?.siteUrl ?? null,
+            several,
+            may: { edit: may.edit },
+          });
+        })}
       </div>
 
-      {app ? (
-        <Card id={`h-builds-${entry.key}`} title="Builds" level={3}>
-          {builds.length === 0 ? (
-            <p className="m-0 text-sm text-muted">No builds yet.</p>
-          ) : (
-            <div className="relative overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-sm">
-                <thead>
-                  <tr className="bg-sand text-left text-muted">
-                    <th scope="col" className="px-3 py-2.5 font-semibold">Build</th>
-                    <th scope="col" className="px-3 py-2.5 font-semibold">Queued</th>
-                    <th scope="col" className="px-3 py-2.5 font-semibold">Status</th>
-                    <th scope="col" className="px-3 py-2.5 font-semibold">Files</th>
-                    <th scope="col" className="px-3 py-2.5 font-semibold">
-                      <span className="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {builds.map((build, i) => {
-                    const links = artifactLinks(build.artifacts, now);
-                    return (
-                      <tr key={build.id} className="border-t border-line-soft">
-                        <td className="px-3 py-2.5">
-                          #{build.number} · {build.versionName} ({build.versionCode}){build.autoPublish ? " · auto-publish" : ""}
-                        </td>
-                        <td className="px-3 py-2.5">{formatDateTime(build.createdAt)}</td>
-                        <td className="px-3 py-2.5">
-                          <BuildBadge status={build.status} />
-                          {build.message ? <span className="mt-1 block text-xs text-muted">{build.message}</span> : null}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {links.length === 0 ? (
-                            <span className="text-muted">None</span>
-                          ) : (
-                            <span className="flex flex-col gap-0.5">
-                              {links.map((link, n) =>
-                                link.href ? (
-                                  <a key={`${link.kind}-${n}`} href={adminFileHref(build.id, link.kind)}>
-                                    {link.label}
-                                  </a>
+      {app
+        ? await panel(client.id, { id: `h-builds-${entry.key}`, title: "Builds", level: 3 }, async () => {
+            const builds = await buildsLoad;
+            return (
+              <Card id={`h-builds-${entry.key}`} title="Builds" level={3}>
+                {builds.length === 0 ? (
+                  <p className="m-0 text-sm text-muted">No builds yet.</p>
+                ) : (
+                  <div className="relative overflow-x-auto">
+                    <table className="w-full min-w-[640px] border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-sand text-left text-muted">
+                          <th scope="col" className="px-3 py-2.5 font-semibold">Build</th>
+                          <th scope="col" className="px-3 py-2.5 font-semibold">Queued</th>
+                          <th scope="col" className="px-3 py-2.5 font-semibold">Status</th>
+                          <th scope="col" className="px-3 py-2.5 font-semibold">Files</th>
+                          <th scope="col" className="px-3 py-2.5 font-semibold">
+                            <span className="sr-only">Actions</span>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {builds.map((build, i) => {
+                          const links = artifactLinks(build.artifacts, now);
+                          return (
+                            <tr key={build.id} className="border-t border-line-soft">
+                              <td className="px-3 py-2.5">
+                                #{build.number} · {build.versionName} ({build.versionCode}){build.autoPublish ? " · auto-publish" : ""}
+                              </td>
+                              <td className="px-3 py-2.5">{formatDateTime(build.createdAt)}</td>
+                              <td className="px-3 py-2.5">
+                                <BuildBadge status={build.status} />
+                                {build.message ? <span className="mt-1 block text-xs text-muted">{build.message}</span> : null}
+                              </td>
+                              <td className="px-3 py-2.5">
+                                {links.length === 0 ? (
+                                  <span className="text-muted">None</span>
                                 ) : (
-                                  <span key={`${link.kind}-${n}`} className="text-muted" title={FILES_NOT_CONFIGURED}>
-                                    {link.label}
+                                  <span className="flex flex-col gap-0.5">
+                                    {links.map((link, n) =>
+                                      link.href ? (
+                                        <a key={`${link.kind}-${n}`} href={adminFileHref(build.id, link.kind)}>
+                                          {link.label}
+                                        </a>
+                                      ) : (
+                                        <span key={`${link.kind}-${n}`} className="text-muted" title={FILES_NOT_CONFIGURED}>
+                                          {link.label}
+                                        </span>
+                                      ),
+                                    )}
                                   </span>
-                                ),
-                              )}
-                            </span>
-                          )}
-                          {build.logUrl ? (
-                            <a href={build.logUrl} className="block text-xs">
-                              Build log
-                            </a>
-                          ) : null}
-                        </td>
-                        <td className="px-3 py-2.5">
-                          {i === 0 && (build.status === "failed" || build.status === "ready") && may.builds ? (
-                            <form action={rerunBuildAction}>
-                              <input type="hidden" name="clientId" value={client.id} />
-                              {appField}
-                              <input type="hidden" name="buildId" value={build.id} />
-                              <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]" pendingText="Queuing…">
-                                Run again
-                              </SubmitButton>
-                            </form>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
-      ) : null}
+                                )}
+                                {build.logUrl ? (
+                                  <a href={build.logUrl} className="block text-xs">
+                                    Build log
+                                  </a>
+                                ) : null}
+                              </td>
+                              <td className="px-3 py-2.5">
+                                {i === 0 && (build.status === "failed" || build.status === "ready") && may.builds ? (
+                                  <form action={rerunBuildAction}>
+                                    <input type="hidden" name="clientId" value={client.id} />
+                                    {appField}
+                                    <input type="hidden" name="buildId" value={build.id} />
+                                    <SubmitButton variant="secondary" className="h-8 px-3 text-[13px]" pendingText="Queuing…">
+                                      Run again
+                                    </SubmitButton>
+                                  </form>
+                                ) : null}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Card>
+            );
+          })
+        : null}
 
-      {app ? <AnalyticsCard app={app} now={now} /> : null}
-      {app ? (
-        <Card id={`h-switches-${entry.key}`} title="App switches" level={3}>
-          <p className="m-0 text-sm text-muted">Modules and new features for this app only, without a new build. Everything is on unless switched off here.</p>
-          {may.switches ? (
-            <AppSwitchesForm
-              clientId={client.id}
-              appId={app.id}
-              switches={APP_SWITCHES.map((name) => ({ name, ...SWITCH_INFO[name], on: appSwitches(app)[name] }))}
-            />
-          ) : (
-            <ul className="m-0 pl-5 text-sm">
-              {APP_SWITCHES.map((name) => (
-                <li key={name}>
-                  {SWITCH_INFO[name].label}: {appSwitches(app)[name] ? "on" : "off"}
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      ) : null}
-      {app ? <StorageCard clientId={client.id} app={app} until={license?.expiresAt ?? null} now={now} may={{ edit: may.license }} /> : null}
+      {app ? await panel(client.id, { id: `h-analytics-${app.id}`, title: "Analytics, last 30 days", level: 3 }, () => AnalyticsCard({ app, now })) : null}
+      {app
+        ? await panel(client.id, { id: `h-switches-${entry.key}`, title: "App switches", level: 3 }, () => (
+            <Card id={`h-switches-${entry.key}`} title="App switches" level={3}>
+              <p className="m-0 text-sm text-muted">Modules and new features for this app only, without a new build. Everything is on unless switched off here.</p>
+              {may.switches ? (
+                <AppSwitchesForm
+                  clientId={client.id}
+                  appId={app.id}
+                  switches={APP_SWITCHES.map((name) => ({ name, ...SWITCH_INFO[name], on: appSwitches(app)[name] }))}
+                />
+              ) : (
+                <ul className="m-0 pl-5 text-sm">
+                  {APP_SWITCHES.map((name) => (
+                    <li key={name}>
+                      {SWITCH_INFO[name].label}: {appSwitches(app)[name] ? "on" : "off"}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          ))
+        : null}
+      {app
+        ? await panel(client.id, { id: `h-storage-${app.id}`, title: "Media storage", level: 3 }, () =>
+            StorageCard({ clientId: client.id, app, until: license?.expiresAt ?? null, now, may: { edit: may.license } }),
+          )
+        : null}
 
-      {app?.backend === "hosted" ? (
-        <HostedSection clientId={client.id} app={app} q={usersQuery} page={usersPage} may={{ edit: may.edit }} />
-      ) : null}
+      {app?.backend === "hosted"
+        ? await panel(client.id, { id: `h-app-users-${app.id}`, title: "App users and notifications", level: 3 }, () =>
+            HostedSection({ clientId: client.id, app, q: usersQuery, page: usersPage, may: { edit: may.edit } }),
+          )
+        : null}
     </section>
   );
 }
