@@ -1,6 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
-import type { HostedUser, SchoolPerson } from "../data/types";
+import type { HostedUser, PushAudience, SchoolPerson } from "../data/types";
+import { staffPushAudience } from "../school/staff-app";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 import { familyUsers, personUser } from "../school/notify";
 
@@ -12,8 +13,8 @@ import { familyUsers, personUser } from "../school/notify";
  * and what an advisor is told: a registration waits for them.
  */
 
-async function langOf(deps: DeliveryNotifyDeps, user: HostedUser): Promise<Lang> {
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+async function langOf(deps: DeliveryNotifyDeps, user: HostedUser, audience: PushAudience = "customers"): Promise<Lang> {
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], audience);
   return asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
 }
 
@@ -72,5 +73,5 @@ const WAITING: Record<Lang, (name: string, term: string) => Words> = {
 export async function tellAdvisor(deps: DeliveryNotifyDeps, advisor: SchoolPerson, student: SchoolPerson, term: { id: number; name: string }): Promise<number> {
   const user = await personUser(deps.store, advisor);
   if (!user) return 0;
-  return deliver(deps, user.id, WAITING[await langOf(deps, user)](student.name, term.name), { type: "uni_advisee", student_id: String(student.id), term_id: String(term.id) }, false);
+  return deliver(deps, user.id, WAITING[await langOf(deps, user, staffPushAudience(deps.app))](student.name, term.name), { type: "uni_advisee", student_id: String(student.id), term_id: String(term.id) }, false);
 }

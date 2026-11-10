@@ -1,7 +1,8 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { HostedUser, SchoolAttendanceStatus, SchoolPerson } from "../data/types";
+import type { HostedUser, PushAudience, SchoolAttendanceStatus, SchoolPerson } from "../data/types";
+import { staffPushAudience } from "./staff-app";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 import { loadUniSettings } from "../university/settings";
 
@@ -38,8 +39,8 @@ export async function familyUsers(store: DataStore, student: SchoolPerson): Prom
   return out;
 }
 
-async function langOf(deps: DeliveryNotifyDeps, user: HostedUser): Promise<Lang> {
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+async function langOf(deps: DeliveryNotifyDeps, user: HostedUser, audience: PushAudience = "customers"): Promise<Lang> {
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], audience);
   return asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
 }
 
@@ -215,7 +216,7 @@ const LEAVE: Record<"approved" | "refused", Record<Lang, (from: string, to: stri
 export async function tellLeave(deps: DeliveryNotifyDeps, person: SchoolPerson, status: "approved" | "refused", from: string, to: string): Promise<number> {
   const user = await personUser(deps.store, person);
   if (!user) return 0;
-  return deliver(deps, user.id, LEAVE[status][await langOf(deps, user)](from, to), { type: "school_leave" }, false);
+  return deliver(deps, user.id, LEAVE[status][await langOf(deps, user, staffPushAudience(deps.app))](from, to), { type: "school_leave" }, false);
 }
 
 // 113.8 Exams and behaviour

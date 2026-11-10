@@ -555,6 +555,14 @@ export interface App {
   autoBuildDueAt?: Date | null;
   /** 93.1 When the owner hid the guide through the first app on the overview; null or missing: shown. */
   guideHiddenAt?: Date | null;
+  /**
+   * 116 Where a school's (a university's) or an academy's teachers and staff
+   * work: their own app in the bundle (`bundle`, every new project), or the
+   * main app with the students and parents (`same`). Null or missing: a
+   * project made before the staff app, which stays `same` until the owner
+   * switches (lib/school/staff-app.ts).
+   */
+  staffApp?: StaffAppPlace | null;
   appTypeDoneAt: Date | null;
   websiteDoneAt: Date | null;
   brandingDoneAt: Date | null;
@@ -657,8 +665,11 @@ export interface Artifact {
   sha256?: string;
 }
 
-/** 104.6 Which of the app's builds: the customers' app, or a delivery company's courier app. */
-export type BuildVariant = "app" | "courier" | "vendor";
+/** 104.6 Which of the app's builds: the customers' app, or a delivery company's courier app; 115.16 a marketplace's vendor app; 116 a school's or academy's staff app. */
+export type BuildVariant = "app" | "courier" | "vendor" | "staff";
+
+/** 116 Where a school's or an academy's staff work (`App.staffApp`). */
+export type StaffAppPlace = "bundle" | "same";
 
 export interface Build {
   id: string;
@@ -801,14 +812,15 @@ export interface HostedDevice {
   lastSeenAt: Date;
 }
 
-/** 112.3 The build's role (build config `role`) a device registered from. */
-export const HOSTED_APP_ROLES = ["customer", "courier", "driver"] as const;
+/** 112.3 The build's role (build config `role`) a device registered from; 115.16 the vendor app's, 116 the staff app's. */
+export const HOSTED_APP_ROLES = ["customer", "courier", "driver", "vendor", "staff"] as const;
 export type HostedAppRole = (typeof HOSTED_APP_ROLES)[number];
 
 /**
  * 112.3 Whose pushes: the customers' (every push but the couriers' and
- * drivers'), or the second app's (`courier_job`, `ride_offer`). A device
- * with no role (an app built before) gets both.
+ * drivers'), or the second app's (`courier_job`, `ride_offer`; 116 the
+ * staff's pushes of a project with the staff app). A device with no role
+ * (an app built before) gets both.
  */
 export type PushAudience = "customers" | "second";
 

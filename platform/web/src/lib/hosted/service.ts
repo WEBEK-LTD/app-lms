@@ -23,6 +23,7 @@ import { toVertical } from "../app/kinds";
 import { hmacSha256, newId, randomToken, safeEqual, sha256Hex } from "../crypto/tokens";
 import { appAreas } from "../app/areas";
 import { yallappLinkBase } from "../links/table";
+import { staffAppPlaceOf } from "../school/staff-app";
 import type { DataStore } from "../data/store";
 import {
   DEFAULT_HOSTED_SETTINGS,
@@ -598,7 +599,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     // 105.9 Live taxi on the map
     ...(extra.taxi ? { taxi: extra.taxi } : {}),
     // 105.3 Academies with many teachers
-    ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app) } } : {}),
+    // 116 `staff_app`: the teachers work in the staff app of the bundle, or in this app.
+    ...(teachersOn(app, ctx.plan) ? { instructors: { applications: courseSetup(app).teachersApply === true, timezone: await appZone(ctx.store, app), staff_app: staffAppPlaceOf(app) } } : {}),
     // 105.4 Schools
     ...(schoolOn(app, ctx.plan) ? { school: await schoolConfigOf(ctx) } : {}),
     // 10.6 Looks and languages (17: the draft's, in a draft preview)
@@ -615,7 +617,8 @@ async function schoolConfigOf(ctx: HostedContext) {
   const settings = schoolSettingsOf(await ctx.store.getSchoolSettings(ctx.app.id), ctx.app);
   // 113.10 and 113.11 The bus and the library; 113.9 whether the school is a university: the app shows its university screens.
   const university = universityOn(ctx.app, ctx.plan, await loadUniSettings(ctx.store, ctx.app.id));
-  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)), university };
+  // 116 Where the teachers and staff work: the staff app of the bundle, or this app.
+  return { ...schoolConfig(settings, feesByCardReady(ctx.app, ctx.plan, settings)), ...(await schoolPartsConfig(ctx.store, ctx.app.id)), university, staff_app: staffAppPlaceOf(ctx.app) };
 }
 
 /** `Config.auth`: the owner's sign-in choices. */
@@ -1227,7 +1230,7 @@ async function setPushToken(ctx: HostedContext, s: Session, body: Record<string,
   // 85.1 The app's language on the phone (its first part: "ar" of "ar-EG"), for campaigns' audiences.
   const language = typeof body.language === "string" && LANGUAGE_TAG.test(body.language) ? body.language.split("-")[0]!.toLowerCase() : undefined;
   // 112.3 Which of the company's apps this is (the build's role): each gets its own pushes. Apps built before send none.
-  if (body.role !== undefined && !(HOSTED_APP_ROLES as readonly unknown[]).includes(body.role)) return badRequest("The app's role must be customer, courier or driver.");
+  if (body.role !== undefined && !(HOSTED_APP_ROLES as readonly unknown[]).includes(body.role)) return badRequest("The app's role must be customer, courier, driver, vendor or staff.");
   const appRole = body.role as HostedAppRole | undefined;
   // A token moves with the install: forget it on any other device first.
   await ctx.store.clearHostedPushToken(ctx.app.id, token);
