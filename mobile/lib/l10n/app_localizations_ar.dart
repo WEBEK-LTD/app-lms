@@ -9484,4 +9484,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String vendorComplaintOrder(String reference) {
     return 'الطلب $reference';
   }
+
+  @override
+  String get schoolInStaffAppTitle => 'عملك في تطبيق العاملين';
+
+  @override
+  String get schoolInStaffAppMessage =>
+      'يستخدم معلمو المدرسة وموظفوها تطبيق العاملين الخاص بها. سجّل الدخول إليه بالرقم نفسه.';
+
+  @override
+  String get staffAppOnlyMessage =>
+      'هذا التطبيق لمعلمي المدرسة وموظفيها. ويستخدم الطلاب وأولياء الأمور التطبيق الرئيسي للمدرسة.';
+
+  @override
+  String get teacherAppOnly => 'لمعلمي الأكاديمية';
+
+  @override
+  String get teacherAppOnlyMessage =>
+      'هذا التطبيق لمعلمي الأكاديمية. ويتعلم الطلاب في التطبيق الرئيسي للأكاديمية.';
 }

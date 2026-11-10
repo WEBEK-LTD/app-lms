@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/config/build_config_data.dart';
 import '../../../core/providers.dart';
 import '../../delivery/data/delivery_providers.dart' show locatorProvider;
+import '../../shared/staff_app.dart';
 
 /// 113.10 The school bus (a family's view, the crew's trips) and 113.11 the
 /// library (its books, a book, the loans and holds of whoever the person
@@ -19,7 +20,10 @@ final isBusCrewProvider = Provider<bool>((ref) {
   if (ref.watch(appEnvironmentProvider).build.appType != AppType.school) {
     return false;
   }
-  return ref.watch(authControllerProvider).user?.isBusCrew ?? false;
+  // 116 The crew's screens are the staff's: in the staff app when the
+  // school has one.
+  return (ref.watch(authControllerProvider).user?.isBusCrew ?? false) &&
+      ref.watch(staffScreensHereProvider);
 });
 
 final studentBusProvider = FutureProvider.autoDispose

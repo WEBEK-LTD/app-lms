@@ -12,16 +12,22 @@ class InstructorsConfig {
   const InstructorsConfig({
     this.applications = false,
     this.timezone = 'Africa/Cairo',
+    this.staffAppBundled = false,
   });
 
   factory InstructorsConfig.fromJson(Json json) => InstructorsConfig(
     applications: boolOr(json, 'applications', false),
     timezone: optString(json, 'timezone') ?? 'Africa/Cairo',
+    staffAppBundled: json['staff_app'] == 'bundle',
   );
 
   /// People may apply to teach from the app.
   final bool applications;
   final String timezone;
+
+  /// 116 The teachers work in the academy's staff app (`staff_app`
+  /// bundle): this app has no Teacher tab. Older servers and `same`: here.
+  final bool staffAppBundled;
 }
 
 /// A teacher in lists (`TeacherSummary`).

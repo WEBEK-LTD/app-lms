@@ -9231,4 +9231,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String vendorComplaintOrder(String reference) {
     return 'Order $reference';
   }
+
+  @override
+  String get schoolInStaffAppTitle => 'Your work is in the staff app';
+
+  @override
+  String get schoolInStaffAppMessage =>
+      'The school\'s teachers and staff use its staff app. Sign in to it with this same number.';
+
+  @override
+  String get staffAppOnlyMessage =>
+      'This app is for the school\'s teachers and staff. Students and parents use the school\'s main app.';
+
+  @override
+  String get teacherAppOnly => 'For the academy\'s teachers';
+
+  @override
+  String get teacherAppOnlyMessage =>
+      'This app is for the academy\'s teachers. Students learn in the academy\'s main app.';
 }

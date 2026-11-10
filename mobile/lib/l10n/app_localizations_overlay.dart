@@ -9837,4 +9837,24 @@ class OverlayLocalizations extends AppLocalizations {
   String vendorComplaintOrder(String reference) =>
       overlay.format('vendorComplaintOrder', {'reference': reference}) ??
       base.vendorComplaintOrder(reference);
+
+  @override
+  String get schoolInStaffAppTitle =>
+      overlay.text('schoolInStaffAppTitle') ?? base.schoolInStaffAppTitle;
+
+  @override
+  String get schoolInStaffAppMessage =>
+      overlay.text('schoolInStaffAppMessage') ?? base.schoolInStaffAppMessage;
+
+  @override
+  String get staffAppOnlyMessage =>
+      overlay.text('staffAppOnlyMessage') ?? base.staffAppOnlyMessage;
+
+  @override
+  String get teacherAppOnly =>
+      overlay.text('teacherAppOnly') ?? base.teacherAppOnly;
+
+  @override
+  String get teacherAppOnlyMessage =>
+      overlay.text('teacherAppOnlyMessage') ?? base.teacherAppOnlyMessage;
 }

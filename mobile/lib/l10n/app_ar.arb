@@ -2505,5 +2505,10 @@
   "vendorComplaintsTitle": "الشكاوى",
   "vendorComplaintsEmptyTitle": "لا شكاوى",
   "vendorComplaintsEmptyMessage": "تظهر هنا الشكاوى التي يشاركها معك دعم التطبيق.",
-  "vendorComplaintOrder": "الطلب {reference}"
+  "vendorComplaintOrder": "الطلب {reference}",
+  "schoolInStaffAppTitle": "عملك في تطبيق العاملين",
+  "schoolInStaffAppMessage": "يستخدم معلمو المدرسة وموظفوها تطبيق العاملين الخاص بها. سجّل الدخول إليه بالرقم نفسه.",
+  "staffAppOnlyMessage": "هذا التطبيق لمعلمي المدرسة وموظفيها. ويستخدم الطلاب وأولياء الأمور التطبيق الرئيسي للمدرسة.",
+  "teacherAppOnly": "لمعلمي الأكاديمية",
+  "teacherAppOnlyMessage": "هذا التطبيق لمعلمي الأكاديمية. ويتعلم الطلاب في التطبيق الرئيسي للأكاديمية."
 }

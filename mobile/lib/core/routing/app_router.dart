@@ -21,6 +21,7 @@ import '../../modules/rides/data/rides_providers.dart';
 import '../../modules/rides/rides_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
+import '../../modules/shared/staff_app.dart';
 import '../../modules/vendor/data/vendor_providers.dart';
 import '../api/models/models.dart';
 import '../config/build_config_data.dart';
@@ -28,6 +29,8 @@ import '../gate/app_gate.dart';
 import '../providers.dart';
 import '../auth/auth_controller.dart';
 import '../storage/local_settings.dart';
+import '../l10n/l10n.dart';
+import '../theme/app_icons.dart';
 import '../theme/symbol_names.dart';
 import '../services/analytics_providers.dart';
 import 'app_links.dart';
@@ -102,6 +105,8 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   // 115 The marketplace's vendor app: the vendor's orders, stock and the
   // account.
   if (ref.watch(vendorAppProvider)) return vendorAppTabs;
+  // 116 A school's or academy's staff app: the staff's tabs and the account.
+  if (ref.watch(staffAppProvider)) return staffAppTabs(ref);
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
   final navigation = gate is GateReady ? gate.navigation : null;
@@ -162,6 +167,24 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
   }
   return withRoles(mapFirst(withChatTab(module.defaultTabs(config), config)));
 });
+
+/// 116 The staff app's tabs. A school's: the Classroom tab for its teachers,
+/// the Staff tab for its staff (and, with a note that the app is for the
+/// staff, for anyone else who signs in), and Account. An academy's: the
+/// Teacher tab and Account.
+List<ShellTab> staffAppTabs(Ref ref) {
+  final account = ShellTab(
+    icon: AppIcons.account,
+    label: (c) => c.l10n.tabAccount,
+    location: Paths.account,
+  );
+  if (ref.watch(appEnvironmentProvider).build.appType == AppType.lms) {
+    return [teacherTab, account];
+  }
+  final teacher = ref.watch(isSchoolTeacherProvider) ?? false;
+  final staff = ref.watch(isSchoolStaffProvider) ?? false;
+  return [if (teacher) classroomTab, if (staff || !teacher) staffTab, account];
+}
 
 /// 112.1 A ride app's tabs with the Ride tab (the map) first, where the app
 /// opens; the others keep their order. Without a Ride tab, as they are.
@@ -331,6 +354,9 @@ String _startAt(Ref ref) => ref.read(courierAppProvider)
     // 115 The vendor app opens on the vendor's orders.
     : ref.read(vendorAppProvider)
     ? Paths.vendorDesk
+    // 116 The staff app opens on the staff's first tab.
+    : ref.read(staffAppProvider)
+    ? (ref.read(shellTabsProvider).first.location ?? Paths.account)
     // 112.1 A ride app opens on the map (its Ride tab).
     : ref.read(shellTabsProvider).firstOrNull?.location == Paths.ride
     ? Paths.ride

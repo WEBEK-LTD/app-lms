@@ -8,6 +8,7 @@ import '../../../core/data/paged_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
 import '../../chat/data/chat_api.dart';
+import '../../shared/staff_app.dart';
 
 /// 105.4 Schools: who the signed-in person is at the school, the student a
 /// parent is looking at, and each screen's data.
@@ -22,12 +23,14 @@ final schoolConfigProvider = Provider<SchoolConfig?>((ref) {
 });
 
 /// The signed-in person is one of the school's teachers: the Classroom tab
-/// is theirs only. Null: not a school app.
+/// is theirs only. Null: not a school app. 116 Only where the staff's
+/// screens are: the staff app, or the main app while they work in it.
 final isSchoolTeacherProvider = Provider<bool?>((ref) {
   if (ref.watch(appEnvironmentProvider).build.appType != AppType.school) {
     return null;
   }
-  return ref.watch(authControllerProvider).user?.isTeacher ?? false;
+  return (ref.watch(authControllerProvider).user?.isTeacher ?? false) &&
+      ref.watch(staffScreensHereProvider);
 });
 
 /// The person and the students they see; refetched when they sign in or out.
@@ -273,8 +276,9 @@ final isSchoolStaffProvider = Provider<bool?>((ref) {
   if (ref.watch(appEnvironmentProvider).build.appType != AppType.school) {
     return null;
   }
-  return ref.watch(authControllerProvider).user?.roles.contains('staff') ??
-      false;
+  return (ref.watch(authControllerProvider).user?.roles.contains('staff') ??
+          false) &&
+      ref.watch(staffScreensHereProvider);
 });
 
 /// 113.3 Someone who only works at the school without teaching (no class,

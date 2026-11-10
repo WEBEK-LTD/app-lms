@@ -11,6 +11,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../shared/staff_app.dart';
 import '../data/school_providers.dart';
 import '../../../core/format/bidi.dart';
 
@@ -58,6 +59,14 @@ class StudentGate extends ConsumerWidget {
             Expanded(child: builder(context, me, student)),
           ],
         ),
+        // 116 Their part is in the school's staff app: nothing to open here.
+        null when _worksHereOnly(me) && !ref.watch(staffScreensHereProvider) =>
+          MessageView(
+            key: const ValueKey('school-in-staff-app'),
+            icon: AppIcons.staffBadge,
+            title: l10n.schoolInStaffAppTitle,
+            message: l10n.schoolInStaffAppMessage,
+          ),
         // 113.3 Someone who works at the school and has no student there:
         // their part is the Staff (or Classroom) tab, not "No student yet".
         null when _worksHereOnly(me) => MessageView(

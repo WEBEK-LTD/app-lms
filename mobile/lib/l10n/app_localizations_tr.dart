@@ -9200,4 +9200,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String vendorComplaintOrder(String reference) {
     return 'Sipariş $reference';
   }
+
+  @override
+  String get schoolInStaffAppTitle => 'İşiniz personel uygulamasında';
+
+  @override
+  String get schoolInStaffAppMessage =>
+      'Okulun öğretmenleri ve personeli okulun personel uygulamasını kullanır. Ona aynı numarayla giriş yapın.';
+
+  @override
+  String get staffAppOnlyMessage =>
+      'Bu uygulama okulun öğretmenleri ve personeli içindir. Öğrenciler ve veliler okulun ana uygulamasını kullanır.';
+
+  @override
+  String get teacherAppOnly => 'Akademinin öğretmenleri için';
+
+  @override
+  String get teacherAppOnlyMessage =>
+      'Bu uygulama akademinin öğretmenleri içindir. Öğrenciler akademinin ana uygulamasında öğrenir.';
 }

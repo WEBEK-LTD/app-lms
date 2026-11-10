@@ -16,6 +16,7 @@ import '../../chat/data/chat_api.dart';
 import '../../chat/data/chat_media.dart';
 import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
+import '../../shared/staff_app.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart';
@@ -47,7 +48,11 @@ class StaffScreen extends ConsumerWidget {
                   ? MessageView(
                       icon: AppIcons.staffBadge,
                       title: l10n.staffNotStaff,
-                      message: l10n.staffNotStaffMessage,
+                      // 116 The staff app: students and parents have the
+                      // main app.
+                      message: ref.watch(staffAppProvider)
+                          ? l10n.staffAppOnlyMessage
+                          : l10n.staffNotStaffMessage,
                     )
                   : RefreshIndicator(
                       onRefresh: () async => ref
@@ -160,12 +165,13 @@ class StaffWorkCard extends ConsumerWidget {
 }
 
 /// Leave requests, the staff's news and 113.12 the person's payslips, on the
-/// Staff and Classroom tabs.
-class StaffTiles extends StatelessWidget {
+/// Staff and Classroom tabs; 116 in the staff app the school's news too,
+/// which families read on the main app's School tab.
+class StaffTiles extends ConsumerWidget {
   const StaffTiles({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return SettingsGroup(
       title: l10n.tabStaff,
@@ -182,6 +188,13 @@ class StaffTiles extends StatelessWidget {
           title: l10n.staffNews,
           onTap: () => context.push(Paths.staffNews),
         ),
+        if (ref.watch(staffAppProvider))
+          SettingsTile(
+            key: const ValueKey('staff-school-news'),
+            icon: AppIcons.campaignUpdate,
+            title: l10n.schoolNews,
+            onTap: () => context.push(Paths.schoolPart('news')),
+          ),
         // 113.12 Their own payslips.
         SettingsTile(
           key: const ValueKey('staff-payslips'),

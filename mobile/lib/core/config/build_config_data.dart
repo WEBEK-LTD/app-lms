@@ -66,8 +66,10 @@ enum AppVertical {
 }
 
 /// 104.6 Who the build is for (`role` in the build config): the customers'
-/// app, or a delivery company's second app for its couriers only.
-enum AppRole { customer, courier, driver, vendor }
+/// app, or a delivery company's second app for its couriers only; 105.2 a
+/// ride company's for its drivers; 115 a marketplace's for its vendors; 116
+/// a school's or academy's for its teachers and staff.
+enum AppRole { customer, courier, driver, vendor, staff }
 
 /// Firebase settings read from the client's google-services.json or
 /// GoogleService-Info.plist by `tool/apply_config.dart`.
