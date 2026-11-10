@@ -75,6 +75,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 { href: "/admin/announcements", label: "Announcements", icon: "campaign" },
                 { href: "/admin/demos", label: "Demo apps", icon: "smartphone" },
                 { href: "/admin/designs", label: "Designs", icon: "palette" },
+                // The app-builder bot's words, and what owners typed that it didn't understand.
+                { href: "/admin/bot", label: "Bot dictionary", icon: "forum" },
                 { href: "/admin/releases", label: "App & plugin versions", icon: "upgrade" },
               ],
             },
