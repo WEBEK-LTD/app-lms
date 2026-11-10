@@ -15145,6 +15145,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order {reference}'**
   String vendorComplaintOrder(String reference);
+
+  /// 116 A teacher or member of staff with no child at the school opens the main app's School tab once the school has its staff app.
+  ///
+  /// In en, this message translates to:
+  /// **'Your work is in the staff app'**
+  String get schoolInStaffAppTitle;
+
+  /// 116 Under the title that sends a teacher or member of staff to the school's staff app.
+  ///
+  /// In en, this message translates to:
+  /// **'The school\'s teachers and staff use its staff app. Sign in to it with this same number.'**
+  String get schoolInStaffAppMessage;
+
+  /// 116 In the school's staff app, under the title for someone who isn't on the school's staff.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is for the school\'s teachers and staff. Students and parents use the school\'s main app.'**
+  String get staffAppOnlyMessage;
+
+  /// 116 Someone who isn't one of the academy's teachers opens its staff app.
+  ///
+  /// In en, this message translates to:
+  /// **'For the academy\'s teachers'**
+  String get teacherAppOnly;
+
+  /// 116 Under the title for someone who isn't one of the academy's teachers, in its staff app.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is for the academy\'s teachers. Students learn in the academy\'s main app.'**
+  String get teacherAppOnlyMessage;
 }
 
 class _AppLocalizationsDelegate

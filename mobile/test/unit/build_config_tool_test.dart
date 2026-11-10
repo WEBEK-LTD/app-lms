@@ -173,6 +173,23 @@ void main() {
     );
   });
 
+  test('116 a school\'s or academy\'s staff app, for those only', () {
+    final school = example()
+      ..['app_type'] = 'school'
+      ..['role'] = 'staff';
+    expect(validateBuildConfig(school).isValid, isTrue);
+    expect(renderDartConfig(school), contains('role: AppRole.staff,'));
+    final academy = example()
+      ..['app_type'] = 'lms'
+      ..['vertical'] = 'instructors'
+      ..['role'] = 'staff';
+    expect(validateBuildConfig(academy).isValid, isTrue);
+    expect(
+      validateBuildConfig(academy..remove('vertical')).errors.single,
+      '"role" staff is for schools and academies with many teachers only.',
+    );
+  });
+
   test('104.8.5 config/yallapp-courier.json is Yallapp Courier', () {
     final hub = jsonDecode(
       File('config/yallapp-courier.json').readAsStringSync(),

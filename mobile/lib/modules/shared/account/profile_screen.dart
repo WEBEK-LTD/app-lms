@@ -23,6 +23,7 @@ import '../../food/data/food_providers.dart';
 import '../../lms/teachers/teachers_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../vendor/data/vendor_providers.dart';
+import '../staff_app.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -55,7 +56,10 @@ class ProfileScreen extends ConsumerWidget {
     final support = config.site.supportWhatsapp;
     final env = ref.watch(appEnvironmentProvider);
     final store = env.build.appType == AppType.store;
-    final lms = env.build.appType == AppType.lms;
+    // 116 A school's or academy's staff app: the staff's tabs and this
+    // account, none of the students' lists.
+    final staffApp = ref.watch(staffAppProvider);
+    final lms = env.build.appType == AppType.lms && !staffApp;
     // The iOS Academy app doesn't sell courses, so it doesn't show orders
     // either. Store apps sell physical goods on both platforms. Bookings
     // apps have appointments instead.
@@ -85,8 +89,8 @@ class ProfileScreen extends ConsumerWidget {
     final rides = env.build.appType == AppType.rides && !secondApp;
     // 105.3 Academies with many teachers: their teachers' pages, applying
     // to teach, and the teacher's screens for the teachers.
-    final instructors = ref.watch(instructorsConfigProvider);
-    final teacher = ref.watch(isTeacherProvider);
+    final instructors = staffApp ? null : ref.watch(instructorsConfigProvider);
+    final teacher = ref.watch(isTeacherProvider) && !staffApp;
     // 45 Academy apps whose students can save lessons on this phone.
     final downloads = lms && downloadsOffered(ref);
     final savedBytes = downloads

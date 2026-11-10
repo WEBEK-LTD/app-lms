@@ -17,6 +17,7 @@ import '../widgets/course_cards.dart' show RatingLabel;
 import 'teacher_widgets.dart';
 import 'teacher_grading.dart';
 import 'teachers_providers.dart';
+import '../../shared/staff_app.dart';
 
 /// 105.3 The Teacher tab, for the academy's teachers only: their courses
 /// (made here, sent to the academy for review), their students' questions
@@ -37,7 +38,12 @@ class _TeacherDeskScreenState extends ConsumerState<TeacherDeskScreen> {
     final header = TabHeader(title: l10n.tabTeacher);
     if (!ref.watch(isTeacherProvider)) {
       // Nothing is asked of the server for someone who isn't a teacher.
-      final apply = ref.watch(instructorsConfigProvider)?.applications ?? false;
+      // 116 The staff app is for the academy's teachers only: applying to
+      // teach is in the main app.
+      final staffApp = ref.watch(staffAppProvider);
+      final apply =
+          !staffApp &&
+          (ref.watch(instructorsConfigProvider)?.applications ?? false);
       return Scaffold(
         body: SafeArea(
           bottom: false,
@@ -48,8 +54,12 @@ class _TeacherDeskScreenState extends ConsumerState<TeacherDeskScreen> {
               Expanded(
                 child: MessageView(
                   icon: AppIcons.teacher,
-                  title: l10n.teachHere,
-                  message: apply ? l10n.teachIntro : null,
+                  title: staffApp ? l10n.teacherAppOnly : l10n.teachHere,
+                  message: staffApp
+                      ? l10n.teacherAppOnlyMessage
+                      : apply
+                      ? l10n.teachIntro
+                      : null,
                   actionLabel: apply ? l10n.teachSend : null,
                   onAction: () => context.push(Paths.teachApply),
                 ),

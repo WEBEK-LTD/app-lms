@@ -95,8 +95,9 @@ const verticals = [
 ];
 
 /// 104.6 `role`: the customers' app, or a delivery company's courier app;
-/// 105.2 a ride company's drivers' app; 115 a marketplace's vendor app.
-const roles = ['customer', 'courier', 'driver', 'vendor'];
+/// 105.2 a ride company's drivers' app; 115 a marketplace's vendor app; 116
+/// a school's or academy's staff app.
+const roles = ['customer', 'courier', 'driver', 'vendor', 'staff'];
 
 /// The Dart `AppType` value for a schema `app_type`.
 String dartAppType(String wire) =>
@@ -211,6 +212,12 @@ ValidationResult validateBuildConfig(Object? decoded) {
       errors.add('"role" driver is for ride apps only.');
     } else if (c['role'] == 'vendor' && c['app_type'] != 'food') {
       errors.add('"role" vendor is for food and marketplace apps only.');
+    } else if (c['role'] == 'staff' &&
+        c['app_type'] != 'school' &&
+        !(c['app_type'] == 'lms' && c['vertical'] == 'instructors')) {
+      errors.add(
+        '"role" staff is for schools and academies with many teachers only.',
+      );
     }
   }
   // 104.8.4 Yallapp Courier: Yallapp's own courier app for every company

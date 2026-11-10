@@ -6,6 +6,7 @@ import '../../../core/config/build_config_data.dart';
 import '../../../core/data/paged_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
+import '../../shared/staff_app.dart';
 
 /// 105.3 How the academy works with its teachers (`Config.instructors`):
 /// null when it has none (any other academy).
@@ -23,10 +24,13 @@ final teachersOnProvider = Provider<bool>(
 );
 
 /// The signed-in person is one of the academy's teachers: the Teacher tab
-/// is theirs only.
+/// is theirs only. 116 Only where the teachers' screens are: the staff app,
+/// or the main app while they teach from it.
 final isTeacherProvider = Provider<bool>((ref) {
   final user = ref.watch(authControllerProvider).user;
-  return (user?.isTeacher ?? false) && ref.watch(teachersOnProvider);
+  return (user?.isTeacher ?? false) &&
+      ref.watch(teachersOnProvider) &&
+      ref.watch(staffScreensHereProvider);
 });
 
 /// What the teachers' list shows: a search and a subject.

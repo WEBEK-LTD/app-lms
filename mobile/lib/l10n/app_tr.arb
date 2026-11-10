@@ -2505,5 +2505,10 @@
   "vendorComplaintsTitle": "Şikayetler",
   "vendorComplaintsEmptyTitle": "Şikayet yok",
   "vendorComplaintsEmptyMessage": "Uygulama desteğinin sizinle paylaştığı şikayetler burada görünür.",
-  "vendorComplaintOrder": "Sipariş {reference}"
+  "vendorComplaintOrder": "Sipariş {reference}",
+  "schoolInStaffAppTitle": "İşiniz personel uygulamasında",
+  "schoolInStaffAppMessage": "Okulun öğretmenleri ve personeli okulun personel uygulamasını kullanır. Ona aynı numarayla giriş yapın.",
+  "staffAppOnlyMessage": "Bu uygulama okulun öğretmenleri ve personeli içindir. Öğrenciler ve veliler okulun ana uygulamasını kullanır.",
+  "teacherAppOnly": "Akademinin öğretmenleri için",
+  "teacherAppOnlyMessage": "Bu uygulama akademinin öğretmenleri içindir. Öğrenciler akademinin ana uygulamasında öğrenir."
 }

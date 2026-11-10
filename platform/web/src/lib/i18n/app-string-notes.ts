@@ -3717,6 +3717,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
   "115.9 The order's lines a complaint is about.": { ar: "أصناف الطلب التي تخصها الشكوى.", tr: "Şikâyetin ilgili olduğu sipariş kalemleri." },
   "115.9 Where the refund went.": { ar: "إلى أين ذهب المبلغ المسترد.", tr: "İadenin nereye yapıldığı." },
   "115.9 Where the refund went: a coupon code.": { ar: "إلى أين ذهب المبلغ المسترد: كود خصم.", tr: "İadenin nereye yapıldığı: bir kupon kodu." },
+  "116 A teacher or member of staff with no child at the school opens the main app's School tab once the school has its staff app.": { ar: "معلم أو موظف ليس له ابن في المدرسة يفتح تبويب المدرسة في التطبيق الرئيسي بعد أن أصبح للمدرسة تطبيق للعاملين.", tr: "Okulda çocuğu olmayan bir öğretmen veya personel, okulun personel uygulaması olduktan sonra ana uygulamanın Okul sekmesini açar." },
+  "116 Under the title that sends a teacher or member of staff to the school's staff app.": { ar: "تحت العنوان الذي يوجّه المعلم أو الموظف إلى تطبيق العاملين في المدرسة.", tr: "Öğretmeni veya personeli okulun personel uygulamasına yönlendiren başlığın altında." },
+  "116 In the school's staff app, under the title for someone who isn't on the school's staff.": { ar: "في تطبيق العاملين بالمدرسة، تحت العنوان الموجّه لمن ليس من موظفي المدرسة.", tr: "Okulun personel uygulamasında, okul personelinden olmayan biri için başlığın altında." },
+  "116 Someone who isn't one of the academy's teachers opens its staff app.": { ar: "شخص ليس من معلمي الأكاديمية يفتح تطبيق العاملين الخاص بها.", tr: "Akademinin öğretmenlerinden olmayan biri akademinin personel uygulamasını açar." },
+  "116 Under the title for someone who isn't one of the academy's teachers, in its staff app.": { ar: "تحت العنوان الموجّه لمن ليس من معلمي الأكاديمية، في تطبيق العاملين الخاص بها.", tr: "Akademinin personel uygulamasında, öğretmenlerinden olmayan biri için başlığın altında." },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

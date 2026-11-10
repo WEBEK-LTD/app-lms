@@ -19,6 +19,7 @@ class SchoolConfig {
     this.tilesUrl,
     this.attribution,
     this.university = false,
+    this.staffAppBundled = false,
   });
 
   factory SchoolConfig.fromJson(Json json) {
@@ -34,6 +35,7 @@ class SchoolConfig {
       bus: boolOr(json, 'bus', false),
       library: boolOr(json, 'library', false),
       university: boolOr(json, 'university', false),
+      staffAppBundled: json['staff_app'] == 'bundle',
       tilesUrl: optString(map, 'tiles_url'),
       attribution: optString(map, 'attribution'),
       checkin:
@@ -65,6 +67,11 @@ class SchoolConfig {
 
   /// 113.9 The school is a university: its screens instead of classes'.
   final bool university;
+
+  /// 116 The teachers and staff work in the school's staff app
+  /// (`staff_app` bundle): this app is for students and parents only.
+  /// Older servers and `same`: their tabs here.
+  final bool staffAppBundled;
 }
 
 class SchoolTerm {
