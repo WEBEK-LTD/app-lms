@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { STORY_IDS, storyPath } from "@/site/story/types";
 import { STUDIO_ONLY_KINDS } from "@/lib/studio/section";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -172,7 +173,8 @@ describe("32 search engines", () => {
     }
     for (const s of ALL_SOLUTIONS) expect(urls).toContain(`${BASE}/solutions/${s.id}`);
     for (const d of DOCS) expect(urls).toContain(`${BASE}/docs/${d.slug}`);
-    expect(urls).toHaveLength(18 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length);
+    for (const id of STORY_IDS) expect(urls).toContain(`${BASE}${storyPath(id)}`);
+    expect(urls).toHaveLength(18 + compareParams().length + ALL_SOLUTIONS.length + DOCS.length + STORY_IDS.length);
     expect(new Set(urls).size).toBe(urls.length);
     for (const url of urls) {
       expect(url.startsWith(BASE)).toBe(true);
@@ -442,6 +444,7 @@ describe("67 Google: the favicon, and every public page indexed", () => {
       if (r === "/solutions/[id]") return ALL_SOLUTIONS.map((s) => `/solutions/${s.id}`);
       if (r === "/docs/[slug]") return DOCS.map((d) => `/docs/${d.slug}`);
       if (r === "/compare/[name]") return compareParams().map((c) => `/compare/${c.name}`);
+      if (r === "/yallapp-studio/[story]") return STORY_IDS.map(storyPath);
       expect(r, `${r}: list its pages here and in lib/sitemap.ts`).not.toMatch(/\[/);
       return [r];
     });

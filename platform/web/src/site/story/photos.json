@@ -1,0 +1,270 @@
+{
+  "school": [
+    {
+      "slot": "school-dawn",
+      "src": "/stories/school/school-dawn.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Julia Maudlin from Lake Oswego, Oregon, USA",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Big_brother_holding_little_brother%27s_hand_walking_home_from_school,_Shiraz,_Iran_(15515926721).jpg",
+        "title": "Big brother holding little brother's hand walking home from school, Shiraz, Iran (15515926721)"
+      }
+    },
+    {
+      "slot": "school-gate",
+      "src": "/stories/school/school-gate.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "OpusDEI",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Son_with_mother_walks_to_the_school_first_time_in_the_morning,_Tbilisi,_Georgia.jpg",
+        "title": "Son with mother walks to the school first time in the morning, Tbilisi, Georgia"
+      }
+    },
+    {
+      "slot": "school-graduation-1",
+      "src": "/stories/school/school-graduation-1.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Baim Hanif baim",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Malacca_graduates_(Unsplash).jpg",
+        "title": "Malacca graduates (Unsplash)"
+      }
+    },
+    {
+      "slot": "school-office",
+      "src": "/stories/school/school-office.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Douglas P. Perkins",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Hitane_Elementary_School_staff_room_2.jpg",
+        "title": "Hitane Elementary School staff room 2"
+      }
+    },
+    {
+      "slot": "school-teacher",
+      "src": "/stories/school/school-teacher.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "David Stroble",
+        "license": "Public Domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:STUDENTS_AND_TEACHER_IN_A_CLASSROOM_AT_CATHEDRAL_HIGH_SCHOOL_IN_NEW_ULM,_MINNESOTA._THE_TOWN_IS_A_COUNTY_SEAT_TRADING..._-_NARA_-_558214.jpg",
+        "title": "STUDENTS AND TEACHER IN A CLASSROOM AT CATHEDRAL HIGH SCHOOL IN NEW ULM, MINNESOTA. THE TOWN IS A COUNTY SEAT TRADING... - NARA - 558214"
+      }
+    }
+  ],
+  "rides": [
+    {
+      "slot": "rides-arrive-home",
+      "src": "/stories/rides/rides-arrive-home.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Deansfa",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:235_East_73rd_Street_by_night_(entrance,_awning),_Lenox_Hill,_Upper_East_Side,_Manhattan.jpg",
+        "title": "235 East 73rd Street by night (entrance, awning), Lenox Hill, Upper East Side, Manhattan"
+      }
+    },
+    {
+      "slot": "rides-backseat",
+      "src": "/stories/rides/rides-backseat.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "João Silas joaosilas",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Looking_Out_The_Car_Window_(Unsplash).jpg",
+        "title": "Looking Out The Car Window (Unsplash)"
+      }
+    },
+    {
+      "slot": "rides-driver",
+      "src": "/stories/rides/rides-driver.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Nino Ubezio eastplane",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Watch_your_street_(Unsplash).jpg",
+        "title": "Watch your street (Unsplash)"
+      }
+    },
+    {
+      "slot": "rides-night-city",
+      "src": "/stories/rides/rides-night-city.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Original uploader was Mo7amedsalim at ar.wikipedia",
+        "license": "Public Domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:AbasElAkaad_Night.jpg",
+        "title": "AbasElAkaad Night"
+      }
+    },
+    {
+      "slot": "rides-waiting",
+      "src": "/stories/rides/rides-waiting.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "James Sutton jamessutton_photography",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Hooded_man_on_bench_(Unsplash).jpg",
+        "title": "Hooded man on bench (Unsplash)"
+      }
+    }
+  ],
+  "delivery": [
+    {
+      "slot": "delivery-boxes",
+      "src": "/stories/delivery/delivery-boxes.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "maique madeira maique",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Pushing_It_(Unsplash).jpg",
+        "title": "Pushing It (Unsplash)"
+      }
+    },
+    {
+      "slot": "delivery-handover",
+      "src": "/stories/delivery/delivery-handover.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Meanwell Packaging",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Handing_a_package_over_for_delivery.jpg",
+        "title": "Handing a package over for delivery"
+      }
+    },
+    {
+      "slot": "delivery-map",
+      "src": "/stories/delivery/delivery-map.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Jorge Láscar from Melbourne, Australia",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Cairo_skyline_(14609334379).jpg",
+        "title": "Cairo skyline (14609334379)"
+      }
+    },
+    {
+      "slot": "delivery-rider",
+      "src": "/stories/delivery/delivery-rider.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Gsalamander",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Hatfield_Deliveryman.jpg",
+        "title": "Hatfield Deliveryman"
+      }
+    },
+    {
+      "slot": "delivery-shop-owner",
+      "src": "/stories/delivery/delivery-shop-owner.jpg",
+      "width": 1000,
+      "height": 1000,
+      "credit": {
+        "creator": "Bench Accounting benchaccounting",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Ships_out_today_(Unsplash).jpg",
+        "title": "Ships out today (Unsplash)"
+      }
+    }
+  ],
+  "multi-vendor": [
+    {
+      "slot": "zad-cafe",
+      "src": "/stories/multi-vendor/zad-cafe.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Nathan Dumlao nate_dumlao",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Passion_Pour_(Unsplash).jpg",
+        "title": "Passion Pour (Unsplash)"
+      }
+    },
+    {
+      "slot": "zad-friday",
+      "src": "/stories/multi-vendor/zad-friday.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Kwameghana",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Group_of_friends_eating_together.jpg",
+        "title": "Group of friends eating together"
+      }
+    },
+    {
+      "slot": "zad-grill",
+      "src": "/stories/multi-vendor/zad-grill.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "N509FZ",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Lamb_kebabs_on_grill_at_Ancient_City_of_Kashi_(20230923224509).jpg",
+        "title": "Lamb kebabs on grill at Ancient City of Kashi (20230923224509)"
+      }
+    },
+    {
+      "slot": "zad-kitchen-rush",
+      "src": "/stories/multi-vendor/zad-kitchen-rush.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Matthias Ripp",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Cooking,_2015.jpg",
+        "title": "Cooking, 2015"
+      }
+    },
+    {
+      "slot": "zad-market-aisle",
+      "src": "/stories/multi-vendor/zad-market-aisle.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Igor Ovsyannykov igorovsyannykov",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Street_Fruit_Seller_at_work_(Unsplash).jpg",
+        "title": "Street Fruit Seller at work (Unsplash)"
+      }
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import { localePath } from "@/i18n/paths";
 import { COMPANY } from "./company";
 import { STUDIO_SOLUTIONS } from "./marketing";
 import { allSolutionsFor } from "./marketing-lang";
+import { storyCopyFor } from "@/content/stories";
+import { STORY_IDS, storyPath } from "@/site/story/types";
 
 /**
  * /llms.txt (and /ar/llms.txt): a plain Markdown summary of Yallapp for the
@@ -152,6 +154,11 @@ export function llmsText(lang: LlmsLang, base: string): string {
     `## ${copy.sections.studio}`,
     "",
     ...solutions.filter((s) => studioIds.has(s.id)).map(solutionItem),
+    // The Studio story pages: a day with each bundle, every part explained.
+    ...STORY_IDS.map((id) => {
+      const story = storyCopyFor(lang).stories[id];
+      return item(`${story.navName}: ${story.title}`, url(storyPath(id)), story.summary);
+    }),
     "",
     `## ${copy.sections.docs}`,
     "",

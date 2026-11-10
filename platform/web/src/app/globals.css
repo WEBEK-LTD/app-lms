@@ -488,3 +488,246 @@ html {
 .icon-flip:dir(rtl) {
   transform: scaleX(-1);
 }
+
+/*
+ * The Studio story pages (src/site/story): scenes that rise into view, the
+ * day's line that fills as it is scrolled, notifications that slide in, a
+ * route that draws itself, and gentle drift. Nothing is hidden without the
+ * page's script (`data-motion` is set by it), and "reduce motion" shows
+ * everything at once, still.
+ */
+[data-story] {
+  --story-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-story][data-motion="on"] [data-reveal]:not([data-shown]) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+[data-story][data-motion="on"] [data-reveal="push"]:not([data-shown]) {
+  transform: translateY(-18px) scale(0.96);
+}
+[data-story][data-motion="on"] [data-reveal="pop"]:not([data-shown]) {
+  transform: translateY(16px) scale(0.94);
+}
+[data-story][data-motion="on"] [data-reveal="rise"]:not([data-shown]) {
+  transform: translateY(70px) rotate(-2deg);
+}
+[data-story][data-motion="on"] [data-reveal] {
+  transition:
+    opacity 0.9s var(--story-ease),
+    transform 1s var(--story-ease);
+}
+[data-story][data-motion="on"] [data-reveal="push"] {
+  transition-delay: 0.35s;
+}
+[data-story][data-motion="on"] [data-reveal="rise"] {
+  transition-delay: 0.15s;
+}
+/* Rows of a drawn card, one after another. */
+[data-story][data-motion="on"] [data-reveal]:not([data-shown]) .story-stagger {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+[data-story][data-motion="on"] .story-stagger {
+  transition:
+    opacity 0.6s var(--story-ease),
+    transform 0.6s var(--story-ease);
+  transition-delay: calc(0.35s + var(--i, 0) * 0.18s);
+}
+/* A photo slot without its photo: a deep, warm gradient in the story's colour. */
+.story-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 60% at 75% 20%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 70%),
+    radial-gradient(60% 70% at 10% 90%, color-mix(in srgb, var(--accent) 22%, #3b2a7a), transparent 70%),
+    linear-gradient(160deg, #1b1846, #0b0a1f 70%);
+}
+.story-fallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+.story-hero-shade {
+  background:
+    linear-gradient(90deg, rgba(11, 10, 31, 0.92) 0%, rgba(11, 10, 31, 0.7) 45%, rgba(11, 10, 31, 0.25) 100%),
+    linear-gradient(0deg, rgba(11, 10, 31, 0.95), transparent 40%);
+}
+.story-hero-shade:dir(rtl) {
+  background:
+    linear-gradient(270deg, rgba(11, 10, 31, 0.92) 0%, rgba(11, 10, 31, 0.7) 45%, rgba(11, 10, 31, 0.25) 100%),
+    linear-gradient(0deg, rgba(11, 10, 31, 0.95), transparent 40%);
+}
+@media (max-width: 767px) {
+  .story-hero-shade,
+  .story-hero-shade:dir(rtl) {
+    background: linear-gradient(0deg, rgba(11, 10, 31, 0.96) 15%, rgba(11, 10, 31, 0.6) 60%, rgba(11, 10, 31, 0.4));
+  }
+}
+/* The day's line, filled as far as the reader has scrolled. */
+.story-line {
+  background: rgba(255, 255, 255, 0.1);
+}
+.story-line-fill {
+  height: calc(var(--fill, 0) * 100%);
+  background: linear-gradient(180deg, transparent, var(--accent) 12%);
+  box-shadow: 0 0 18px var(--accent);
+}
+.story-dot[data-shown] {
+  background: var(--accent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.story-dot {
+  transition:
+    background 0.5s,
+    box-shadow 0.5s;
+}
+/* The bundle's links, with a pulse travelling along them. */
+.story-link {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+  position: relative;
+  overflow: hidden;
+}
+.story-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: story-pulse-x 2.6s linear infinite;
+}
+@media (max-width: 767px) {
+  .story-link::after {
+    background: linear-gradient(180deg, transparent, var(--accent), transparent);
+    animation-name: story-pulse-y;
+  }
+}
+@keyframes story-pulse-x {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes story-pulse-y {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+.story-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse at 50% 40%, black, transparent 75%);
+}
+/* The route draws itself once seen; the vehicle waits at the pickup until then. */
+.story-route-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+[data-story][data-motion="on"] .story-route:not([data-shown]) .story-route-line {
+  stroke-dashoffset: 1;
+}
+[data-story][data-motion="on"] .story-route .story-route-line {
+  transition: stroke-dashoffset 5.5s cubic-bezier(0.45, 0, 0.25, 1);
+}
+.story-route-vehicle {
+  transform: translate(352px, 54px);
+}
+[data-story][data-motion="on"] .story-route-vehicle {
+  transform: none;
+}
+.story-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6);
+  animation: story-live 1.8s ease-out infinite;
+}
+@keyframes story-live {
+  to {
+    box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+  }
+}
+.story-gate-bar {
+  width: 100%;
+  transform-origin: left;
+  animation: story-gate 30s linear infinite;
+}
+.story-gate-bar:dir(rtl) {
+  transform-origin: right;
+}
+@keyframes story-gate {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.story-countdown {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+[data-story][data-motion="on"] [data-shown] .story-countdown {
+  animation: story-countdown 20s linear forwards;
+}
+@keyframes story-countdown {
+  to {
+    stroke-dashoffset: 1;
+  }
+}
+.story-hourglass {
+  animation: story-turn 3s var(--story-ease, ease) infinite;
+}
+@keyframes story-turn {
+  0%,
+  70% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+.story-float {
+  animation: story-float 7s ease-in-out infinite;
+}
+@keyframes story-float {
+  50% {
+    transform: translateY(-12px);
+  }
+}
+.story-scroll {
+  animation: story-float 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-story] [data-reveal],
+  [data-story] .story-stagger {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  [data-story] [data-parallax] {
+    translate: none !important;
+  }
+  .story-link::after,
+  .story-live-dot,
+  .story-gate-bar,
+  .story-countdown,
+  .story-hourglass,
+  .story-float,
+  .story-scroll {
+    animation: none !important;
+  }
+  .story-route-line {
+    stroke-dashoffset: 0 !important;
+  }
+}

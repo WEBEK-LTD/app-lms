@@ -15,6 +15,7 @@ import 'demo_api.dart';
 import 'demo_images.dart';
 import 'map_tiles.dart';
 import 'shot.dart';
+import 'zad.dart';
 
 export 'shot.dart';
 
@@ -105,6 +106,8 @@ class Shot {
     this.build,
     this.overrides = const [],
     this.mapTiles = false,
+    this.mapCenter,
+    this.designPictures = false,
     this.appName,
   });
 
@@ -136,6 +139,13 @@ class Shot {
   /// 110.5 The drawn street map's tiles, for the live taxi screens.
   final bool mapTiles;
 
+  /// Where the drawn map's tiles are made, when not central Cairo (the
+  /// school bus in Maadi).
+  final ({double lat, double lng})? mapCenter;
+
+  /// The designs' drawn pictures in the image cache (Zad's places).
+  final bool designPictures;
+
   /// 110.5 The app's name in the build, where a screen shows it (the live
   /// taxi map's name over the map).
   final String? appName;
@@ -146,7 +156,11 @@ class Shot {
     addTearDown(lightIcons.dispose);
     usePhone(tester, size: size);
     seedDemoImages();
-    if (mapTiles) seedMapTiles();
+    if (designPictures) await seedDesignPictures(tester);
+    if (mapTiles) {
+      final at = mapCenter;
+      at == null ? seedMapTiles() : seedMapTiles(lat: at.lat, lng: at.lng);
+    }
     final app = TestApp(
       api: api(),
       appType: appType,
@@ -629,6 +643,79 @@ final websiteShots = <Shot>[
     api: DemoApi.school,
     appType: AppType.school,
     location: '/classroom/class/2/attendance',
+  ),
+  // The website's school story: the parent's area, the bus coming, the
+  // fees, a teacher's payslip and the library (Nakhla School).
+  Shot(
+    'school-parent',
+    api: DemoApi.school,
+    appType: AppType.school,
+    after: (tester, router) async => router.go('/parent'),
+  ),
+  Shot(
+    'school-bus',
+    api: () => DemoApi.school(map: true),
+    appType: AppType.school,
+    location: '/school/bus?student=11',
+    mapTiles: true,
+    mapCenter: (lat: 29.9641, lng: 31.2531),
+  ),
+  Shot(
+    'school-fees',
+    api: DemoApi.school,
+    appType: AppType.school,
+    location: '/school/fees?student=11',
+  ),
+  Shot(
+    'school-payslip',
+    api: DemoApi.school,
+    appType: AppType.school,
+    location: '/staff/payslip/42',
+  ),
+  Shot(
+    'school-library',
+    api: DemoApi.school,
+    appType: AppType.school,
+    location: '/school/library',
+  ),
+  // The website's multi-vendor story: Zad's home, Bab El Sharq Grill's
+  // menu, Zad Market's aisles by the kilo, and the groceries on their way.
+  Shot(
+    'zad-home',
+    api: DemoApi.zad,
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    overrides: Zad.overrides,
+    designPictures: true,
+  ),
+  Shot(
+    'zad-grill',
+    api: DemoApi.zad,
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    location: '/market/1',
+    overrides: Zad.overrides,
+    designPictures: true,
+  ),
+  Shot(
+    'zad-market',
+    api: DemoApi.zad,
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    location: '/market/3',
+    overrides: Zad.overrides,
+    designPictures: true,
+  ),
+  Shot(
+    'zad-tracking',
+    api: DemoApi.zad,
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    location: '/market-order/1207',
+    overrides: Zad.overrides,
+    designPictures: true,
+    mapTiles: true,
+    mapCenter: (lat: 30.0548, lng: 31.2195),
   ),
   Shot(
     'teachers-list',

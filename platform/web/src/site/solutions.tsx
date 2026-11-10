@@ -11,6 +11,10 @@ import { comparisonFor, screenAltFor, solutionFor, solutionsFor } from "@/lib/ma
 import { breadcrumbLd, faqLd, siteMetadata, siteUrl } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { localePath } from "@/i18n/paths";
+import { storyCopyFor } from "@/content/stories";
+import { storyOfSolution } from "@/site/story/links";
+import { STORIES } from "@/site/story/stories";
+import { storyPath } from "@/site/story/types";
 
 export function solutionsMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).meta;
@@ -81,6 +85,9 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
   const lp = (path: string) => localePath(lang, path);
   // SEO: Studio's kinds are tried in Studio's demo apps and made in Yallapp Studio.
   const studio = STUDIO_SOLUTIONS.some((o) => o.id === s.id);
+  // The Studio story page that tells this kind's day, if there is one.
+  const storyId = storyOfSolution(s.id);
+  const story = storyId ? storyCopyFor(lang) : null;
   return (
     <MarketingPage
       current="solutions"
@@ -101,6 +108,31 @@ export async function SolutionPage({ lang, id }: { lang: Lang; id: string }) {
         )}
       />
       {s.faq ? <JsonLdScript data={faqLd(s.faq.map((f) => ({ question: f.q, answer: f.a })), lang === "en" ? undefined : lang)} /> : null}
+      {storyId && story ? (
+        <section className="on-dark bg-midnight text-white" aria-labelledby="h-story">
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-6 px-4 py-10 sm:px-6">
+            <div className="flex max-w-[680px] items-start gap-4">
+              <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-white/10">
+                <Icon name={STORIES[storyId].icon} size={26} className="text-ember" />
+              </span>
+              <span className="flex flex-col gap-1">
+                <span className="text-[13px] font-bold tracking-[0.8px] text-white/70 uppercase">{story.ui.storyOfThis}</span>
+                <span id="h-story" className="text-[22px] leading-tight font-extrabold">
+                  {story.stories[storyId].title}
+                </span>
+                <span className="text-[15px] text-white/75">{story.stories[storyId].summary}</span>
+              </span>
+            </div>
+            <Link
+              href={lp(storyPath(storyId))}
+              className="flex h-[50px] items-center gap-2 rounded-xl bg-ivory px-[22px] text-base font-bold text-midnight no-underline hover:bg-white hover:text-midnight"
+            >
+              {story.ui.readStory}
+              <Icon name="arrow_forward" size={20} className="icon-flip" />
+            </Link>
+          </div>
+        </section>
+      ) : null}
       <Section>
         <SectionTitle title={lang === "en" ? `What makes a great ${s.name.toLowerCase()} app` : formatMessage(lang, t.great, { app: s.app })} text={s.audience} />
         <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))]">

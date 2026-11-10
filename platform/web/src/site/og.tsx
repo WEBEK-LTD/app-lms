@@ -4,6 +4,8 @@ import { docBySlug } from "@/content/docs";
 import { getSiteContent } from "@/lib/content/get";
 import { solutionFor } from "@/lib/marketing-lang";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
+import { storyCopyFor } from "@/content/stories";
+import { isStoryId } from "@/site/story/types";
 
 /** 32 The share images, 55 in every language: the text on them is the page's language. */
 
@@ -47,4 +49,11 @@ export function featuresOgImage(lang: Lang) {
 export function faqOgImage(lang: Lang) {
   const m = messagesFor(lang);
   return ogImage({ eyebrow: m.meta.faqTitle, title: m.og.faqTitle, text: m.og.faqText, lang });
+}
+
+/** The Studio story pages' share images: the story's title and its one line. */
+export function storyOgImage(lang: Lang, id: string) {
+  if (!isStoryId(id)) return studioOgImage(lang);
+  const t = storyCopyFor(lang).stories[id];
+  return ogImage({ eyebrow: t.navName, title: t.title, text: t.summary, lang });
 }
