@@ -17,6 +17,7 @@ import '../../../core/widgets/common.dart';
 import '../../market/screens/market_orders_screen.dart' show marketStatusText;
 import '../../real_estate/widgets/listing_widgets.dart' show TabHeader;
 import '../data/vendor_providers.dart';
+import 'vendor_place_screens.dart';
 
 /// How often the new orders are asked about while the orders are open.
 const vendorRefreshEvery = Duration(seconds: 20);
@@ -68,7 +69,13 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
     });
   }
 
-  Future<void> _set({int? busyMinutes, bool? paused, bool open = false}) async {
+  Future<void> _set({
+    int? busyMinutes,
+    bool? paused,
+    bool open = false,
+    VendorDelaySet? delay,
+    bool endDelay = false,
+  }) async {
     setState(() => _switching = true);
     try {
       await ref
@@ -77,6 +84,8 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
             busyMinutes: busyMinutes,
             paused: paused,
             endBusy: open,
+            delay: delay,
+            endDelay: endDelay,
           );
       ref.invalidate(vendorDeskProvider);
     } on ApiException catch (e) {
@@ -126,6 +135,13 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
     );
     if (picked == null || !mounted) return;
     await (picked == 0 ? _set(paused: true) : _set(busyMinutes: picked));
+  }
+
+  /// 115.20 Running late: still taking orders, with more minutes and why.
+  Future<void> _late() async {
+    final delay = await askVendorLate(context);
+    if (delay == null || !mounted) return;
+    await _set(delay: delay);
   }
 
   @override
@@ -225,6 +241,21 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                                 color: p.textSecondary,
                               ),
                             ),
+                            // 115.20 Running late, as customers read it.
+                            if (d.delay case final delay?)
+                              Text(
+                                [
+                                  vendorLateText(l10n, delay),
+                                  if (delay.until case final until?)
+                                    l10n.vendorLateUntil(clockTime(until)),
+                                ].join(' · '),
+                                key: const ValueKey('vendor-late-state'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: p.accent,
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -267,6 +298,30 @@ class _VendorDeskScreenState extends ConsumerState<VendorDeskScreen> {
                 child: Wrap(
                   spacing: 4,
                   children: [
+                    // 115.20 Running late, or ending it.
+                    if (d.delay != null)
+                      TextButton.icon(
+                        key: const ValueKey('vendor-late-end'),
+                        onPressed: _switching
+                            ? null
+                            : () => _set(endDelay: true),
+                        icon: const Icon(Symbols.hourglass_disabled),
+                        label: Text(l10n.vendorLateEnd),
+                      )
+                    else if (!d.paused)
+                      TextButton.icon(
+                        key: const ValueKey('vendor-late'),
+                        onPressed: _switching ? null : _late,
+                        icon: const Icon(Symbols.hourglass_top),
+                        label: Text(l10n.vendorLate),
+                      ),
+                    if (d.canEditPlace)
+                      TextButton.icon(
+                        key: const ValueKey('vendor-hours'),
+                        onPressed: () => context.push(Paths.vendorHours),
+                        icon: const Icon(Symbols.schedule),
+                        label: Text(l10n.vendorHoursTitle),
+                      ),
                     if (d.role == VendorRole.owner ||
                         d.role == VendorRole.manager)
                       TextButton.icon(

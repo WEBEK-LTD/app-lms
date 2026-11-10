@@ -10,6 +10,7 @@ import type {
   Restaurant,
   RestaurantMenu,
   ShipmentPlace,
+  VendorClosedDates,
 } from "../data/types";
 import { distanceKm, quoteShipment } from "../delivery/pricing";
 import { findChoice, findDish } from "./menu";
@@ -58,11 +59,17 @@ export function foodStage(status: FoodOrderStatus, now: Date, by: FoodOrderStage
 
 const WEEK: OpeningPeriod["day"][] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-/** Each opening from `fromDate` for `days` days, as instants, soonest first; a period past midnight ends the next day. */
-export function openings(hours: OpeningPeriod[], timezone: string, fromDate: string, days: number): { start: Date; end: Date }[] {
+/**
+ * Each opening from `fromDate` for `days` days, as instants, soonest first; a
+ * period past midnight ends the next day. 115.20 None on the days off
+ * (`closed`, local dates): a period that starts the evening before one still
+ * runs to its end.
+ */
+export function openings(hours: OpeningPeriod[], timezone: string, fromDate: string, days: number, closed: readonly VendorClosedDates[] = []): { start: Date; end: Date }[] {
   const out: { start: Date; end: Date }[] = [];
   for (let d = -1; d < days; d += 1) {
     const date = addDays(fromDate, d);
+    if (closed.some((c) => date >= c.from && date <= c.to)) continue;
     const day = WEEK[new Date(`${date}T00:00:00Z`).getUTCDay()]!;
     for (const period of hours.filter((p) => p.day === day)) {
       const opens = minutesOf(period.opens);
@@ -87,10 +94,30 @@ export interface RestaurantState {
   opensAt: Date | null;
 }
 
-/** Whether the restaurant takes orders at `now`, in the company's time zone. */
-export function restaurantState(restaurant: Pick<Restaurant, "hours" | "busyUntil" | "active">, timezone: string, now: Date): RestaurantState {
+/**
+ * How many days ahead to look for the next opening: a week, and (115.20) a
+ * week past the days off that fall in it, up to a year.
+ */
+export function daysToLook(closed: readonly VendorClosedDates[] | null | undefined, today: string): number {
+  const dayOf = (date: string) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000);
+  let look = 8;
+  for (let changed = true; changed && look < 370; ) {
+    changed = false;
+    for (const c of closed ?? []) {
+      const [from, to] = [dayOf(c.from), dayOf(c.to)];
+      if (from < look && to >= 0 && to + 8 > look) {
+        look = Math.min(370, to + 8);
+        changed = true;
+      }
+    }
+  }
+  return look;
+}
+
+/** Whether the restaurant takes orders at `now`, in the company's time zone; (115.20) closed on its days off. */
+export function restaurantState(restaurant: Pick<Restaurant, "hours" | "busyUntil" | "active"> & Partial<Pick<Restaurant, "closedDates">>, timezone: string, now: Date): RestaurantState {
   const today = utcToLocal(now, timezone).date;
-  const all = openings(restaurant.hours, timezone, today, 8);
+  const all = openings(restaurant.hours, timezone, today, daysToLook(restaurant.closedDates, today), restaurant.closedDates ?? []);
   const inHours = all.some((o) => now >= o.start && now < o.end);
   const busy = restaurant.busyUntil !== null && restaurant.busyUntil > now;
   const next = inHours ? null : (all.find((o) => o.start > now)?.start ?? null);

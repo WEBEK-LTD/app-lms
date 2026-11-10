@@ -37,8 +37,10 @@ import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME } from "./constants"
 import { readOnce, unchanged } from "./rows";
 import type { Art } from "./art";
 import { DESIGN_ART } from "./design-art";
-import type { PictureSize } from "./picture-assets";
+import { saveArt, savedArt, type PictureDeps, type PictureSize } from "./picture-assets";
 import { PICTURES } from "./pictures";
+import { isZadPhoto, saveZadPhoto, savedZadPhoto, type ZadPhoto } from "./zad-photos";
+import type { AssetKind } from "../data/types";
 
 /**
  * 115.15 Zad, Studio's multi-vendor demo: two restaurants (one delivers
@@ -50,10 +52,10 @@ import { PICTURES } from "./pictures";
  * for pick-up) and complaints in every state, the supermarket's owner in its
  * My store tab, and a courier (the store review courier, 104.7).
  *
- * Its places, and the dishes and products a drawing fits, show the drawn
- * pictures the app's marketplace samples use (`ZadPicture`); nothing here is
- * a photo or a generated picture. Milk, rice, oil or soap have no drawing,
- * so the demo doesn't require photos (`requirePhotos` off).
+ * Its places, dishes, products, departments and aisles show real photos
+ * with free licences (`ZadPicture`, lib/demo/zad-photos.ts; their authors
+ * and licences in public/demo-photos/CREDITS.md), nothing generated. The
+ * demo still doesn't require photos (`requirePhotos` off).
  *
  * Its activity is made again every day (the daily job, like Nakhla School's
  * day): the seeded orders, their complaints and refunds are deleted and made
@@ -74,15 +76,29 @@ interface DemoChoice {
 }
 
 /**
- * Zad's pictures: the drawn ones the app's marketplace samples show
- * (public/design-pictures/art-<name>.png, lib/demo/design-art.ts), saved as
- * the account's files like every demo's. No photos, nothing generated.
+ * Zad's pictures: its real photos (lib/demo/zad-photos.ts), and the drawn
+ * ones the app's marketplace samples used before them (public/design-pictures/
+ * art-<name>.png, lib/demo/design-art.ts), saved as the account's files like
+ * every demo's. Nothing generated.
  */
-export type ZadPicture = "dish-wrap" | "dish-soup" | "dish-cheesecake" | "dish-breakfast" | "item-fruit" | "item-veg" | "item-bread" | "product-tea" | "drink-juice";
+export type ZadDrawing = "dish-wrap" | "dish-soup" | "dish-cheesecake" | "dish-breakfast" | "item-fruit" | "item-veg" | "item-bread" | "product-tea" | "drink-juice";
+
+/** A Zad picture: one of its photos (lib/demo/zad-photos.ts), else one of its drawings. */
+export type ZadPicture = ZadDrawing | ZadPhoto;
 
 /** A Zad picture's drawing. */
-export function zadArt(name: ZadPicture): Art {
+export function zadArt(name: ZadDrawing): Art {
   return (PICTURES as Record<string, Art>)[name] ?? DESIGN_ART[`art-${name}.png`]!.art;
+}
+
+/** Saves Zad's pictures as `owner`'s files: a photo as it is, a drawing drawn at `size`. */
+export function savingZadPictures(deps: PictureDeps, owner: { clientId: string; appId?: string }, kind: AssetKind): (name: ZadPicture, size: PictureSize) => Promise<string> {
+  return (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, owner, name, kind) : saveArt(deps, owner, zadArt(name), size, kind));
+}
+
+/** Zad's pictures `owner` already has, saving none: for the daily job. */
+export function savedZadPictures(store: DataStore, owner: { clientId: string; appId?: string }): (name: ZadPicture, size: PictureSize) => Promise<string | null> {
+  return (name, size) => (isZadPhoto(name) ? savedZadPhoto(store, owner, name) : savedArt(store, owner, zadArt(name), size));
 }
 
 interface DemoMenuDish {
@@ -120,7 +136,7 @@ const SIZES: DemoChoice = { name: "Size", min: 1, max: 1, options: [["Regular", 
 export const MARKET_VENDORS: DemoVendor[] = [
   {
     key: "grill",
-    cover: "dish-wrap",
+    cover: "cover-grill",
     name: "Bab El Sharq Grill",
     kind: "restaurant",
     description: "Charcoal grills, kofta and fresh mezze from Zamalek. Our own drivers bring them hot.",
@@ -137,31 +153,31 @@ export const MARKET_VENDORS: DemoVendor[] = [
       {
         name: "Grills",
         dishes: [
-          { name: "Mixed grill", description: "Kofta, shish tawook and lamb chops with rice, tahini and salad.", price: 320_00, popular: true, choices: { name: "For", min: 1, max: 1, options: [["One", 0], ["Two", 290_00]] } },
-          { name: "Kofta", description: "Half a kilo of charcoal kofta with grilled tomatoes and onions.", price: 190_00, choices: { name: "Weight", min: 1, max: 1, options: [["Half a kilo", 0], ["A kilo", 170_00]] } },
-          { name: "Shish tawook", description: "Marinated chicken skewers with garlic sauce and fries.", price: 170_00 },
+          { name: "Mixed grill", description: "Kofta, shish tawook and lamb chops with rice, tahini and salad.", price: 320_00, popular: true, choices: { name: "For", min: 1, max: 1, options: [["One", 0], ["Two", 290_00]] }, picture: "mixed-grill" },
+          { name: "Kofta", description: "Half a kilo of charcoal kofta with grilled tomatoes and onions.", price: 190_00, choices: { name: "Weight", min: 1, max: 1, options: [["Half a kilo", 0], ["A kilo", 170_00]] }, picture: "kofta" },
+          { name: "Shish tawook", description: "Marinated chicken skewers with garlic sauce and fries.", price: 170_00, picture: "shish-tawook" },
         ],
       },
       {
         name: "Sandwiches",
         dishes: [
-          { name: "Kofta sandwich", description: "In baladi bread with tahini and pickles.", price: 75_00, popular: true, picture: "dish-wrap" },
-          { name: "Alexandrian liver", description: "Spicy liver with green peppers in a soft roll.", price: 60_00, picture: "dish-wrap" },
+          { name: "Kofta sandwich", description: "In baladi bread with tahini and pickles.", price: 75_00, popular: true, picture: "kofta" },
+          { name: "Alexandrian liver", description: "Spicy liver with green peppers in a soft roll.", price: 60_00, picture: "alexandrian-liver" },
         ],
       },
       {
         name: "Mezze",
         dishes: [
-          { name: "Tahini", description: "With lemon and cumin.", price: 25_00 },
-          { name: "Baba ghanoush", description: "Smoked aubergine with olive oil.", price: 35_00 },
-          { name: "Vermicelli rice", description: "Egyptian rice with toasted vermicelli.", price: 30_00 },
+          { name: "Tahini", description: "With lemon and cumin.", price: 25_00, picture: "tahini" },
+          { name: "Baba ghanoush", description: "Smoked aubergine with olive oil.", price: 35_00, picture: "baba-ghanoush" },
+          { name: "Vermicelli rice", description: "Egyptian rice with toasted vermicelli.", price: 30_00, picture: "vermicelli-rice" },
         ],
       },
     ],
   },
   {
     key: "pizza",
-    cover: "dish-soup",
+    cover: "cover-pizza",
     name: "Nile Pizza Co.",
     kind: "restaurant",
     description: "Stone-baked pizza and pasta from Dokki, delivered by Zad's couriers.",
@@ -177,24 +193,24 @@ export const MARKET_VENDORS: DemoVendor[] = [
       {
         name: "Pizza",
         dishes: [
-          { name: "Margherita", description: "Tomato, mozzarella and basil.", price: 150_00, popular: true, choices: SIZES },
-          { name: "Pepperoni", description: "Beef pepperoni and mozzarella.", price: 190_00, choices: SIZES },
-          { name: "Garden vegetables", description: "Peppers, olives, mushrooms and onions.", price: 165_00, choices: SIZES },
+          { name: "Margherita", description: "Tomato, mozzarella and basil.", price: 150_00, popular: true, choices: SIZES, picture: "margherita" },
+          { name: "Pepperoni", description: "Beef pepperoni and mozzarella.", price: 190_00, choices: SIZES, picture: "pepperoni-pizza" },
+          { name: "Garden vegetables", description: "Peppers, olives, mushrooms and onions.", price: 165_00, choices: SIZES, picture: "vegetable-pizza" },
         ],
       },
       {
         name: "Pasta",
         dishes: [
-          { name: "Penne arrabbiata", description: "Spicy tomato sauce and parmesan.", price: 120_00 },
-          { name: "Chicken alfredo", description: "Fettuccine in a creamy sauce with grilled chicken.", price: 145_00 },
+          { name: "Penne arrabbiata", description: "Spicy tomato sauce and parmesan.", price: 120_00, picture: "penne-arrabbiata" },
+          { name: "Chicken alfredo", description: "Fettuccine in a creamy sauce with grilled chicken.", price: 145_00, picture: "chicken-alfredo" },
         ],
       },
-      { name: "Desserts", dishes: [{ name: "Chocolate brownie", description: "Warm, with a scoop of vanilla.", price: 65_00, picture: "dish-cheesecake" }] },
+      { name: "Desserts", dishes: [{ name: "Chocolate brownie", description: "Warm, with a scoop of vanilla.", price: 65_00, picture: "chocolate-brownie" }] },
     ],
   },
   {
     key: "market",
-    cover: "item-fruit",
+    cover: "cover-market",
     name: "Zad Market",
     kind: "grocery",
     description: "The neighbourhood supermarket in Mohandessin: fruit and vegetables by the kilo, dairy, bread, pantry and home.",
@@ -230,113 +246,120 @@ interface DemoProduct {
 export const MARKET_CATALOG: { name: string; picture?: ZadPicture; aisles: { name: string; picture?: ZadPicture; products: DemoProduct[] }[] }[] = [
   {
     name: "Fruit & vegetables",
-    picture: "item-fruit",
+    picture: "fruit",
     aisles: [
       {
         name: "Fresh fruit",
-        picture: "item-fruit",
+        picture: "fruit",
         products: [
-          { sku: "FRT-BAN", name: "Bananas", price: 35_00, unit: "kg", step: 0.5 },
-          { sku: "FRT-ORA", name: "Oranges", price: 25_00, unit: "kg", step: 0.5 },
-          { sku: "FRT-APL", name: "Red apples", price: 90_00, wasPrice: 110_00, unit: "kg", step: 0.5, tags: ["Offer"] },
-          { sku: "FRT-MNG", name: "Mangoes", price: 70_00, unit: "kg", step: 0.5, inStock: false },
+          { sku: "FRT-BAN", name: "Bananas", price: 35_00, unit: "kg", step: 0.5, picture: "bananas" },
+          { sku: "FRT-ORA", name: "Oranges", price: 25_00, unit: "kg", step: 0.5, picture: "oranges" },
+          { sku: "FRT-APL", name: "Red apples", price: 90_00, wasPrice: 110_00, unit: "kg", step: 0.5, tags: ["Offer"], picture: "red-apples" },
+          { sku: "FRT-MNG", name: "Mangoes", price: 70_00, unit: "kg", step: 0.5, inStock: false, picture: "mangoes" },
         ],
       },
       {
         name: "Vegetables",
-        picture: "item-veg",
+        picture: "vegetables",
         products: [
-          { sku: "VEG-TOM", name: "Tomatoes", price: 18_00, unit: "kg", step: 0.5 },
-          { sku: "VEG-CUC", name: "Cucumbers", price: 20_00, unit: "kg", step: 0.5 },
-          { sku: "VEG-POT", name: "Potatoes", price: 15_00, unit: "kg", step: 0.5 },
-          { sku: "VEG-ONI", name: "Onions", price: 14_00, unit: "kg", step: 0.5 },
-          { sku: "VEG-LEM", name: "Lemons", price: 40_00, unit: "kg", step: 0.25 },
+          { sku: "VEG-TOM", name: "Tomatoes", price: 18_00, unit: "kg", step: 0.5, picture: "tomatoes" },
+          { sku: "VEG-CUC", name: "Cucumbers", price: 20_00, unit: "kg", step: 0.5, picture: "cucumbers" },
+          { sku: "VEG-POT", name: "Potatoes", price: 15_00, unit: "kg", step: 0.5, picture: "potatoes" },
+          { sku: "VEG-ONI", name: "Onions", price: 14_00, unit: "kg", step: 0.5, picture: "onions" },
+          { sku: "VEG-LEM", name: "Lemons", price: 40_00, unit: "kg", step: 0.25, picture: "lemons" },
         ],
       },
     ],
   },
   {
     name: "Dairy & eggs",
-    picture: "dish-breakfast",
+    picture: "dairy",
     aisles: [
       {
         name: "Milk & yoghurt",
+        picture: "dairy",
         products: [
-          { sku: "DAI-MLK", name: "Full-cream milk, 1 l", price: 45_00 },
-          { sku: "DAI-YOG", name: "Plain yoghurt, 4 cups", price: 38_00 },
-          { sku: "DAI-RAY", name: "Laban rayeb, 1 l", price: 40_00 },
+          { sku: "DAI-MLK", name: "Full-cream milk, 1 l", price: 45_00, picture: "milk" },
+          { sku: "DAI-YOG", name: "Plain yoghurt, 4 cups", price: 38_00, picture: "yoghurt" },
+          { sku: "DAI-RAY", name: "Laban rayeb, 1 l", price: 40_00, picture: "laban-rayeb" },
         ],
       },
       {
         name: "Cheese & eggs",
-        picture: "dish-breakfast",
+        picture: "cheese",
         products: [
-          { sku: "DAI-WCH", name: "White cheese", price: 160_00, unit: "kg", step: 0.25 },
-          { sku: "DAI-RCH", name: "Roumi cheese", price: 380_00, unit: "kg", step: 0.25 },
-          { sku: "DAI-EGG", name: "Eggs, 30", price: 165_00, stock: 40 },
+          { sku: "DAI-WCH", name: "White cheese", price: 160_00, unit: "kg", step: 0.25, picture: "white-cheese" },
+          { sku: "DAI-RCH", name: "Roumi cheese", price: 380_00, unit: "kg", step: 0.25, picture: "roumi-cheese" },
+          { sku: "DAI-EGG", name: "Eggs, 30", price: 165_00, stock: 40, picture: "eggs" },
         ],
       },
     ],
   },
   {
     name: "Bakery",
-    picture: "item-bread",
+    picture: "bakery",
     aisles: [
       {
         name: "Bread",
-        picture: "item-bread",
+        picture: "bakery",
         products: [
-          { sku: "BAK-BAL", name: "Baladi bread, 5 loaves", price: 10_00 },
-          { sku: "BAK-TST", name: "Toast bread", price: 30_00 },
-          { sku: "BAK-CRS", name: "Butter croissants, 4", price: 55_00, wasPrice: 65_00, tags: ["Offer"] },
+          { sku: "BAK-BAL", name: "Baladi bread, 5 loaves", price: 10_00, picture: "baladi-bread" },
+          { sku: "BAK-TST", name: "Toast bread", price: 30_00, picture: "toast-bread" },
+          { sku: "BAK-CRS", name: "Butter croissants, 4", price: 55_00, wasPrice: 65_00, tags: ["Offer"], picture: "croissants" },
         ],
       },
     ],
   },
   {
     name: "Pantry",
+    picture: "pantry",
     aisles: [
       {
         name: "Rice, pasta & pulses",
+        picture: "pantry",
         products: [
-          { sku: "PAN-RIC", name: "Egyptian rice, 1 kg", price: 38_00 },
-          { sku: "PAN-PST", name: "Penne pasta, 400 g", price: 18_00 },
-          { sku: "PAN-LEN", name: "Yellow lentils, 1 kg", price: 55_00 },
+          { sku: "PAN-RIC", name: "Egyptian rice, 1 kg", price: 38_00, picture: "egyptian-rice" },
+          { sku: "PAN-PST", name: "Penne pasta, 400 g", price: 18_00, picture: "penne-pasta" },
+          { sku: "PAN-LEN", name: "Yellow lentils, 1 kg", price: 55_00, picture: "yellow-lentils" },
         ],
       },
       {
         name: "Oil, tea & spices",
+        picture: "oil-tea-spices",
         products: [
-          { sku: "PAN-OIL", name: "Sunflower oil, 1.5 l", price: 95_00 },
-          { sku: "PAN-TEA", name: "Black tea, 250 g", price: 60_00, picture: "product-tea" },
-          { sku: "PAN-CUM", name: "Ground cumin, 100 g", price: 25_00 },
+          { sku: "PAN-OIL", name: "Sunflower oil, 1.5 l", price: 95_00, picture: "sunflower-oil" },
+          { sku: "PAN-TEA", name: "Black tea, 250 g", price: 60_00, picture: "black-tea" },
+          { sku: "PAN-CUM", name: "Ground cumin, 100 g", price: 25_00, picture: "ground-cumin" },
         ],
       },
     ],
   },
   {
     name: "Drinks",
-    picture: "drink-juice",
+    picture: "drinks",
     aisles: [
       {
         name: "Water & juice",
+        picture: "drinks",
         products: [
-          { sku: "DRK-WAT", name: "Mineral water, 1.5 l", price: 8_00 },
-          { sku: "DRK-ORJ", name: "Orange juice, 1 l", price: 50_00, picture: "drink-juice" },
-          { sku: "DRK-SPK", name: "Sparkling water, 6 bottles", price: 75_00 },
+          { sku: "DRK-WAT", name: "Mineral water, 1.5 l", price: 8_00, picture: "mineral-water" },
+          { sku: "DRK-ORJ", name: "Orange juice, 1 l", price: 50_00, picture: "orange-juice" },
+          { sku: "DRK-SPK", name: "Sparkling water, 6 bottles", price: 75_00, picture: "sparkling-water" },
         ],
       },
     ],
   },
   {
     name: "Home",
+    picture: "home",
     aisles: [
       {
         name: "Cleaning",
+        picture: "home",
         products: [
-          { sku: "HOM-DSH", name: "Dish soap, 750 ml", price: 45_00 },
-          { sku: "HOM-LAU", name: "Laundry powder, 2.5 kg", price: 210_00 },
-          { sku: "HOM-TWL", name: "Kitchen towels, 2 rolls", price: 40_00 },
+          { sku: "HOM-DSH", name: "Dish soap, 750 ml", price: 45_00, picture: "dish-soap" },
+          { sku: "HOM-LAU", name: "Laundry powder, 2.5 kg", price: 210_00, picture: "laundry-powder" },
+          { sku: "HOM-TWL", name: "Kitchen towels, 2 rolls", price: 40_00, picture: "kitchen-towels" },
         ],
       },
     ],
@@ -548,7 +571,7 @@ export function marketplaceDeliverySettings(saved: DeliverySettings): DeliverySe
       wallet: true,
       weightTolerancePercent: 10,
       vendorApp: "same",
-      // 115.15 Not every product has a drawing (milk, rice, soap): those show without a picture.
+      // 115.15 Every product has its photo, but photos aren't required: a product added in the demo shows at once.
       requirePhotos: false,
       vendorCoupons: { enabled: true, maxPercent: 30 },
       serviceAreas: ZAD_AREAS.map((a) => ({ ...a })),
@@ -621,7 +644,7 @@ export function marketCuisines(): Cuisine[] {
   return marketplaceDeliverySettings(deliverySettingsOf(null)).cuisines ?? [];
 }
 
-/** The three places, as the demo has them (a place a visitor paused or set busy opens again). */
+/** The three places, as the demo has them (a place a visitor paused, set busy or late, or whose hours they changed, goes back). */
 async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, making: MarketMaking = AS_THE_DEMO): Promise<Map<VendorKey, Restaurant>> {
   const existing = await store.listRestaurants(app.id);
   const vendors = new Map<VendorKey, Restaurant>();
@@ -654,6 +677,10 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
       taxRateBp: null,
       paused: false,
       area: v.area,
+      // 115.20 No place is running late, has days off or changed its own hours: what a visitor set goes back each day.
+      delay: null,
+      closedDates: null,
+      vendorEdit: null,
     };
     const dishPictures = new Map<string, string | null>();
     // Without a way to have the pictures (the daily job), the dishes keep theirs.

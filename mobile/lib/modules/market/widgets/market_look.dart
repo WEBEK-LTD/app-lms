@@ -195,6 +195,13 @@ class MarketVendorFacts extends StatelessWidget {
           Symbols.location_off_rounded,
           l10n.marketOutsideArea,
           color: p.danger,
+        )
+      // 115.20 Running late: the time below includes it already.
+      else if (vendor.late case final late?)
+        fact(
+          Symbols.hourglass_top_rounded,
+          l10n.marketLateShort(late.minutes),
+          color: p.accent,
         ),
       if (eta && minutes != null && look.shows(StudioMarketFact.time))
         fact(Symbols.schedule_rounded, minutes),
@@ -240,6 +247,19 @@ String? marketEtaText(BuildContext context, MarketVendor vendor) {
   final max = vendor.etaMax;
   if (min == null || max == null) return null;
   return context.l10n.marketEta(min, max);
+}
+
+/// 115.20 "Running about 20 min late: high demand", or the vendor's own
+/// words.
+String marketLateText(BuildContext context, MarketLate late) {
+  final l10n = context.l10n;
+  final reason = switch (late.reason) {
+    MarketLateReason.demand => l10n.marketLateDemand,
+    MarketLateReason.couriers => l10n.marketLateCouriers,
+    MarketLateReason.weather => l10n.marketLateWeather,
+    MarketLateReason.other => late.note ?? '',
+  };
+  return l10n.marketLateBanner(late.minutes, reason);
 }
 
 /// A small coloured label: an offer, Club, Busy.

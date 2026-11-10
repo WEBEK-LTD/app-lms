@@ -848,6 +848,13 @@
       "when": 1794305886143,
       "tag": "0120_delivery_areas",
       "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "5",
+      "when": 1794311611532,
+      "tag": "0121_vendor_delay",
+      "breakpoints": true
     }
   ]
 }

@@ -1412,8 +1412,8 @@
         {
           "method": "PATCH",
           "path": "/vendor/me",
-          "summary": "Set the vendor busy, paused or taking orders",
-          "description": "`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again. Staff with the `orders` role or more.",
+          "summary": "Set the vendor busy, paused, running late or taking orders, and its hours",
+          "description": "`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again; `delay` keeps taking orders with more minutes on every delivery and pick-up time and a reason customers see, and ends by itself. Staff with the `orders` role or more. `hours`, `closed_dates` and `prep_minutes` change the vendor's weekly hours, days off and preparation time at once, for its `owner` and `manager` only (403 otherwise); the app's owner sees the change and can undo it.",
           "access": "signed-in"
         },
         {

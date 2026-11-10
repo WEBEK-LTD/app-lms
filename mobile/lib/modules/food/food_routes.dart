@@ -22,6 +22,7 @@ import '../vendor/screens/vendor_books_screens.dart';
 import '../vendor/screens/vendor_desk_screen.dart';
 import '../vendor/screens/vendor_order_screen.dart';
 import '../vendor/screens/vendor_pick_screen.dart';
+import '../vendor/screens/vendor_place_screens.dart';
 import '../vendor/screens/vendor_stock_screen.dart';
 import 'screens/food_cart_screen.dart';
 import 'screens/food_order_screen.dart';
@@ -207,6 +208,11 @@ List<RouteBase> _pushedRoutes() => [
     path: Paths.vendorComplaints,
     pageBuilder: (context, state) =>
         appPage(state, const VendorComplaintsScreen()),
+  ),
+  // 115.20 The vendor's own hours, days off and preparation time.
+  GoRoute(
+    path: Paths.vendorHours,
+    pageBuilder: (context, state) => appPage(state, const VendorHoursScreen()),
   ),
   // 115 The marketplace's basket, an order and the customer's orders.
   GoRoute(

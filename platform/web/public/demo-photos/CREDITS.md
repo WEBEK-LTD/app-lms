@@ -1,0 +1,59 @@
+# Photo credits
+
+All photos come from Wikimedia Commons and were resized and cropped. Licence terms are on each file's Commons page.
+
+- **alexandrian-liver.jpg**: "Kebda eskandarani.jpg" by Turnopoems, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Kebda_eskandarani.jpg
+- **baba-ghanoush.jpg**: "Baba Gonoush.JPG" by Miansari66, CC0. https://commons.wikimedia.org/wiki/File:Baba_Gonoush.JPG
+- **bakery.jpg**: "Bread Assortment (8672481209).png" by Mike65444, CC BY-SA 2.0. https://commons.wikimedia.org/wiki/File:Bread_Assortment_(8672481209).png
+- **baladi-bread.jpg**: "Bread22.JPG" by Mohanad5ayman, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Bread22.JPG
+- **bananas.jpg**: "Bunch of bananas on sale.jpg" by Wilfredor, CC0. https://commons.wikimedia.org/wiki/File:Bunch_of_bananas_on_sale.jpg
+- **black-tea.jpg**: "Ceylon black tea leaves.jpg" by Patrick Kolencherry, CC BY-SA 3.0. https://commons.wikimedia.org/wiki/File:Ceylon_black_tea_leaves.jpg
+- **cheese.jpg**: "Two eggs with blue cheese on a plate.jpg" by TudorTulok, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Two_eggs_with_blue_cheese_on_a_plate.jpg
+- **chicken-alfredo.jpg**: "Fettuccine Alfredo.jpg" by Robert Banh, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Fettuccine_Alfredo.jpg
+- **chocolate-brownie.jpg**: "Chocolate brownie in detail.jpg" by Tristan Ferne, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Chocolate_brownie_in_detail.jpg
+- **cover-grill.jpg**: "Lamb kebabs on grill at Ancient City of Kashi (20230923224509).jpg" by N509FZ, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Lamb_kebabs_on_grill_at_Ancient_City_of_Kashi_(20230923224509).jpg
+- **cover-market.jpg**: "Fresh Vegetables display in Iloilo Terminal Public Market 12.jpg" by OnlyJanz, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Fresh_Vegetables_display_in_Iloilo_Terminal_Public_Market_12.jpg
+- **cover-pizza.jpg**: "Neapolitan pizza at Trappica (48701940197).jpg" by Bex Walton from London, England, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Neapolitan_pizza_at_Trappica_(48701940197).jpg
+- **croissants.jpg**: "Croissants au beurre (18953292873).jpg" by Herry Wibisono (herryway), CC0. https://commons.wikimedia.org/wiki/File:Croissants_au_beurre_(18953292873).jpg
+- **cucumbers.jpg**: "Fresh cucumbers.jpg" by Halima Waziri, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Fresh_cucumbers.jpg
+- **dairy.jpg**: "Random milk products.jpg" by Jiafei Slay Queen, CC0. https://commons.wikimedia.org/wiki/File:Random_milk_products.jpg
+- **dish-soap.jpg**: "Dishwashing sink at Tulppion Majat.jpg" by JIP, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Dishwashing_sink_at_Tulppion_Majat.jpg
+- **drinks.jpg**: "Juices - Pho, Brighton 2026-08-14.jpg" by Andy Li, CC0. https://commons.wikimedia.org/wiki/File:Juices_-_Pho,_Brighton_2026-08-14.jpg
+- **eggs.jpg**: "Eggs Chicken.jpg" by safaritravelplus, CC0. https://commons.wikimedia.org/wiki/File:Eggs_Chicken.jpg
+- **egyptian-rice.jpg**: "Short-grain rice (japonica).jpg" by ch1310, CC0. https://commons.wikimedia.org/wiki/File:Short-grain_rice_(japonica).jpg
+- **fruit.jpg**: "Fresh fruits arranged on a wooden surface showcasing vibrant colors and textures.jpg" by Shixart1985, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Fresh_fruits_arranged_on_a_wooden_surface_showcasing_vibrant_colors_and_textures.jpg
+- **ground-cumin.jpg**: "Cumin powder.JPG" by Zeynel Cebeci, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Cumin_powder.JPG
+- **home.jpg**: "Cleaning product refills in Kindly.jpg" by Andy Li, CC0. https://commons.wikimedia.org/wiki/File:Cleaning_product_refills_in_Kindly.jpg
+- **kitchen-towels.jpg**: "Roll of Paper Towels.jpg" by MrBeastRapper, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Roll_of_Paper_Towels.jpg
+- **kofta.jpg**: "Kafta shish kebab and grilled vegetables on salad - Cambridge, MA.jpg" by Daderot, CC0. https://commons.wikimedia.org/wiki/File:Kafta_shish_kebab_and_grilled_vegetables_on_salad_-_Cambridge,_MA.jpg
+- **laban-rayeb.jpg**: "Buttermilk glass (cropped).jpg" by Dr. Satish Upalkar, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Buttermilk_glass_(cropped).jpg
+- **laundry-powder.jpg**: "Pralni prašek.JPG" by Uncy at Slovenian Wikipedia, Public domain. https://commons.wikimedia.org/wiki/File:Pralni_pra%C5%A1ek.JPG
+- **lemons.jpg**: "Lemons - Flickr - Muffet (1).jpg" by liz west from Boxborough, MA, USA, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Lemons_-_Flickr_-_Muffet_(1).jpg
+- **mangoes.jpg**: "Mangoes (6005560620).jpg" by Upendra Kanda, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Mangoes_(6005560620).jpg
+- **margherita.jpg**: "Punch Neapolitan Pizza Margherita.jpg" by Punch Pizza, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Punch_Neapolitan_Pizza_Margherita.jpg
+- **milk.jpg**: "Glass of Milk (33657535532).jpg" by NIAID, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Glass_of_Milk_(33657535532).jpg
+- **mineral-water.jpg**: "Glass of Water (50838445027).jpg" by Alabama Extension, CC0. https://commons.wikimedia.org/wiki/File:Glass_of_Water_(50838445027).jpg
+- **mixed-grill.jpg**: "14th June 2014 Badar's Mix Platter.jpg" by Murcotipton, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:14th_June_2014_Badar%27s_Mix_Platter.jpg
+- **oil-tea-spices.jpg**: "Spices on Spice Bazaar in Istanbul 02.jpg" by Miomir Magdevski, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Spices_on_Spice_Bazaar_in_Istanbul_02.jpg
+- **onions.jpg**: "Mixed onions.jpg" by Colin, CC BY-SA 3.0. https://commons.wikimedia.org/wiki/File:Mixed_onions.jpg
+- **orange-juice.jpg**: "Orange Juice (13638538444).jpg" by Yuri Samoilov, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Orange_Juice_(13638538444).jpg
+- **oranges.jpg**: "Orange Fruit (Unsplash).jpg" by Keilidh Ewan keilidhewan, CC0. https://commons.wikimedia.org/wiki/File:Orange_Fruit_(Unsplash).jpg
+- **pantry.jpg**: "Mixture of beans (small red, cannellini, pinto, roman, red kidney, black), peas (blackeye, yellow split), and pardina lentils 3.jpg" by Bean appreciator, CC0. https://commons.wikimedia.org/wiki/File:Mixture_of_beans_(small_red,_cannellini,_pinto,_roman,_red_kidney,_black),_peas_(blackeye,_yellow_split),_and_pardina_lentils_3.jpg
+- **penne-arrabbiata.jpg**: "Penne all'arrabbiata - Pizzeria Bella Italia (Crépieux-la-Pape) - 2.jpg" by Benoît Prieur, CC0. https://commons.wikimedia.org/wiki/File:Penne_all%27arrabbiata_-_Pizzeria_Bella_Italia_(Cr%C3%A9pieux-la-Pape)_-_2.jpg
+- **penne-pasta.jpg**: "Whole wheat penne, cooked and uncooked.jpg" by Ragesoss, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Whole_wheat_penne,_cooked_and_uncooked.jpg
+- **pepperoni-pizza.jpg**: "Pepperoni Pizza from Fellini’s Pizza.jpg" by BullDawg2021, CC BY 4.0. https://commons.wikimedia.org/wiki/File:Pepperoni_Pizza_from_Fellini%E2%80%99s_Pizza.jpg
+- **potatoes.jpg**: "Patates.jpg" by Scott Bauer, USDA ARS, Public domain. https://commons.wikimedia.org/wiki/File:Patates.jpg
+- **red-apples.jpg**: "Simply red apples 20250703 194640.jpg" by Prosperosity, CC BY 4.0. https://commons.wikimedia.org/wiki/File:Simply_red_apples_20250703_194640.jpg
+- **roumi-cheese.jpg**: "Kefalotyri.jpg" by J.P.Lon, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Kefalotyri.jpg
+- **shish-tawook.jpg**: "California Kabob Kitchen (Los Angeles) Chicken kabob.jpg" by Benoît Prieur, CC0. https://commons.wikimedia.org/wiki/File:California_Kabob_Kitchen_(Los_Angeles)_Chicken_kabob.jpg
+- **sparkling-water.jpg**: "Sparkling water - Massachusetts.jpg" by Daderot, CC0. https://commons.wikimedia.org/wiki/File:Sparkling_water_-_Massachusetts.jpg
+- **sunflower-oil.jpg**: "Sunflower oil and sunflower.jpg" by torange, CC BY 4.0. https://commons.wikimedia.org/wiki/File:Sunflower_oil_and_sunflower.jpg
+- **tahini.jpg**: "Tahini Sauce.JPG" by Miansari66, CC0. https://commons.wikimedia.org/wiki/File:Tahini_Sauce.JPG
+- **toast-bread.jpg**: "Bread slices.jpg" by Saral Shots, CC0. https://commons.wikimedia.org/wiki/File:Bread_slices.jpg
+- **tomatoes.jpg**: "Tomatoes for sale.jpg" by Jeffery Martin, CC0. https://commons.wikimedia.org/wiki/File:Tomatoes_for_sale.jpg
+- **vegetable-pizza.jpg**: "Pizza vegetariana on a wooden rustic table with raw vegetables (49255585361).jpg" by Nenad Stojkovic from Srbija, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Pizza_vegetariana_on_a_wooden_rustic_table_with_raw_vegetables_(49255585361).jpg
+- **vegetables.jpg**: "Fresh vegetables from Morocco.jpg" by مصطفى ملو, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Fresh_vegetables_from_Morocco.jpg
+- **vermicelli-rice.jpg**: "Lebanese style rice.jpg" by El Mono Español, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Lebanese_style_rice.jpg
+- **white-cheese.jpg**: "Greek feta.jpg" by Jon Sullivan, Public domain. https://commons.wikimedia.org/wiki/File:Greek_feta.jpg
+- **yellow-lentils.jpg**: "Red lentils (1).jpg" by Fumikas Sagisavas, CC0. https://commons.wikimedia.org/wiki/File:Red_lentils_(1).jpg
+- **yoghurt.jpg**: "Yoghurt in bowl 011715.jpg" by Susan Slater, CC BY-SA 4.0. https://commons.wikimedia.org/wiki/File:Yoghurt_in_bowl_011715.jpg

@@ -938,11 +938,18 @@ abstract class YallappApi {
   Future<VendorDesk> getVendorDesk();
 
   /// [busyMinutes] stops new orders for that long; [endBusy] takes them
-  /// again; [paused] stops them until set false.
+  /// again; [paused] stops them until set false. 115.20 [delay] keeps taking
+  /// them, running late; [endDelay] ends it. [hours], [closedDates] and
+  /// [prepMinutes] change the place itself (its owner and managers).
   Future<VendorDesk> updateVendorDesk({
     int? busyMinutes,
     bool endBusy = false,
     bool? paused,
+    VendorDelaySet? delay,
+    bool endDelay = false,
+    List<MarketHours>? hours,
+    List<VendorClosedDates>? closedDates,
+    int? prepMinutes,
   });
   Future<Paged<VendorOrder>> listVendorOrders(
     VendorOrderScope scope, {
@@ -3319,6 +3326,11 @@ class HttpYallappApi implements YallappApi {
     int? busyMinutes,
     bool endBusy = false,
     bool? paused,
+    VendorDelaySet? delay,
+    bool endDelay = false,
+    List<MarketHours>? hours,
+    List<VendorClosedDates>? closedDates,
+    int? prepMinutes,
   }) => _send(
     'PATCH',
     '/vendor/me',
@@ -3327,6 +3339,15 @@ class HttpYallappApi implements YallappApi {
     body: {
       if (busyMinutes != null || endBusy) 'busy_minutes': busyMinutes,
       'paused': ?paused,
+      if (delay != null || endDelay) 'delay': delay?.toJson(),
+      if (hours != null)
+        'hours': [
+          for (final h in hours)
+            {'day': h.day, 'opens': h.opens, 'closes': h.closes},
+        ],
+      if (closedDates != null)
+        'closed_dates': [for (final c in closedDates) c.toJson()],
+      'prep_minutes': ?prepMinutes,
     },
   );
 

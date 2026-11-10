@@ -1,6 +1,9 @@
 import type { DataStore } from "../data/store";
-import type { App, MarketProduct, MarketServiceArea, Restaurant, RestaurantStaff, VendorRole } from "../data/types";
+import type { App, MarketProduct, MarketServiceArea, OpeningPeriod, Restaurant, RestaurantStaff, VendorClosedDates, VendorRole } from "../data/types";
 import { EMPTY_MENU } from "../food/menu";
+import { parseHoursForm, WEEK_DAYS } from "../food/forms";
+import { utcToLocal } from "../bookings/time";
+import { upcomingClosedDates } from "./vendor-controls";
 import { deliverySettingsOf } from "../delivery/settings";
 import { parseVendorAreaForm, serviceAreasOf, vendorAreaFormValues, vendorAreaWarning } from "./areas";
 import { planCatalogImport, suggestMapping, vendorProducts, applyCatalogImport, type CatalogPlan } from "./catalog-import";
@@ -22,12 +25,13 @@ import { buildStatement, type Statement } from "./statement";
  * picking only (picker).
  */
 
-export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "offers" | "staff" | "statements" | "complaints";
+export type PanelTab = "orders" | "catalog" | "import" | "delivery" | "hours" | "offers" | "staff" | "statements" | "complaints";
 
 const ROLE_TABS: Record<VendorRole, PanelTab[]> = {
   // 115.18 Offers: the place's own coupons, made by its owner and managers only.
-  owner: ["orders", "catalog", "import", "delivery", "offers", "staff", "statements", "complaints"],
-  manager: ["orders", "catalog", "import", "delivery", "offers", "statements", "complaints"],
+  // 115.20 Hours: its weekly hours, days off and preparation time, by its owner and managers only (lib/market/vendor-controls.ts).
+  owner: ["orders", "catalog", "import", "delivery", "hours", "offers", "staff", "statements", "complaints"],
+  manager: ["orders", "catalog", "import", "delivery", "hours", "offers", "statements", "complaints"],
   orders: ["orders", "catalog", "complaints"],
   picker: ["orders"],
 };
@@ -195,6 +199,32 @@ export async function importCatalog(ctx: PanelContext, file: { bytes: Uint8Array
   if (!apply) return { ok: true, applied: false, plan: { counts: plan.counts, departments: plan.departments }, errors };
   const saved = await applyCatalogImport(ctx.store, ctx.app.id, ctx.vendor.id, plan, now);
   return { ok: true, applied: true, plan: { counts: plan.counts, departments: plan.departments }, errors, saved };
+}
+
+// 115.20 Hours, days off and preparation time
+
+/** The hours form's values (`<day>-opens`, `<day>-closes`, `<day>-opens2`, `<day>-closes2`, `prep`), the days off from today, and today. */
+export function placeHoursValues(ctx: PanelContext, now: Date): { values: Record<string, string>; closed: VendorClosedDates[]; today: string } {
+  const values: Record<string, string> = { prep: String(ctx.vendor.prepMinutes) };
+  for (const day of WEEK_DAYS) {
+    ctx.vendor.hours
+      .filter((h) => h.day === day)
+      .slice(0, 2)
+      .forEach((h, i) => {
+        values[`${day}-opens${i ? "2" : ""}`] = h.opens;
+        values[`${day}-closes${i ? "2" : ""}`] = h.closes;
+      });
+  }
+  const today = utcToLocal(now, ctx.timezone).date;
+  return { values, closed: upcomingClosedDates(ctx.vendor.closedDates, today), today };
+}
+
+/** The hours form as the vendor routes take it (PATCH /vendor/me): `hours` and `prep_minutes`, or the first thing to fix. */
+export function hoursFormBody(form: Record<string, string>): { ok: true; body: { hours: OpeningPeriod[]; prep_minutes: number } } | { ok: false; error: string } {
+  const hours = parseHoursForm(form);
+  if (!hours.ok) return { ok: false, error: Object.values(hours.errors)[0] ?? "Check the hours." };
+  const prep = Number((form.prep ?? "").trim());
+  return { ok: true, body: { hours: hours.value, prep_minutes: Number.isInteger(prep) ? prep : -1 } };
 }
 
 // Delivery
