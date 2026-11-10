@@ -230,6 +230,13 @@ export const CONTENT_PAGES: ContentPage[] = [
     fields: [
       { name: "badge", label: "Label above the title", kind: "line", max: 60 },
       { name: "title", label: "Title", kind: "line", max: 120 },
+      {
+        name: "titleWords",
+        label: "Title: words that take turns",
+        kind: "line",
+        max: 200,
+        hint: "Separated by commas. Shown in colour one after another, after the title's first part (up to its first comma). They turn only with the title they were written for: the default title, or a title you edit together with these words. Screen readers and search engines read the title as it is.",
+      },
       { name: "intro", label: "Introduction", kind: "text", max: 400 },
       { name: "primaryCta", label: "WhatsApp button", kind: "line", max: 40 },
       { name: "secondaryCta", label: "Second button", kind: "line", max: 40, hint: "Opens How it works." },
@@ -250,6 +257,7 @@ export const CONTENT_PAGES: ContentPage[] = [
     defaults: {
       badge: `Android and iOS apps for ${KIND_COUNT} kinds of business`,
       title: "Your business, as your own mobile app.",
+      titleWords: "your store, your school, your restaurant, your taxi company, your deliveries, your academy",
       intro:
         "Yallapp builds branded Android and iOS apps from the website you already run, from Shopify and other platforms, or with no website at all. Your name, your colors, your pages, published under your own store accounts.",
       primaryCta: "Get started on WhatsApp",
@@ -365,6 +373,23 @@ export function contentWith(page: ContentPage, saved: Record<string, string> | n
     if (typeof value === "string" && value.trim() !== "") fields[field.name] = value;
   }
   return fields;
+}
+
+/**
+ * The home page's title with its words that take turns: the title up to its
+ * first comma (Arabic "،" too), the words, and the rest. Null when the title
+ * has no comma or there are no words: the title then shows still, as it is.
+ */
+export function titleWithWords(title: string, words: string): { lead: string; words: string[]; rest: string } | null {
+  const list = words
+    .split(/[,،]/)
+    .map((w) => w.trim())
+    .filter(Boolean);
+  const at = title.search(/[,،]/);
+  if (at < 0 || list.length === 0) return null;
+  const lead = title.slice(0, at + 1).trim();
+  const rest = title.slice(at + 1).trim();
+  return lead && rest ? { lead, words: list, rest } : null;
 }
 
 export interface FaqEntry {
