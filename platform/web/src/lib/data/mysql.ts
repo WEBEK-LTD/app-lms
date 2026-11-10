@@ -64,6 +64,8 @@ import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types"
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
+import type { DemoVisit, LiveActivityEntry } from "../live-activity/types";
+import type { SiteReview } from "../reviews/types";
 import type { MatchedStep } from "../bot/intents";
 import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
@@ -9580,6 +9582,65 @@ export class MysqlStore implements DataStore {
   async deleteBotUnmatchedBefore(before: Date): Promise<number> {
     const [result] = await this.run((db) => db.delete(schema.botUnmatched).where(lt(schema.botUnmatched.createdAt, before)));
     return result.affectedRows;
+  }
+
+  // The website's live activity card
+  async listLiveActivityEntries(): Promise<LiveActivityEntry[]> {
+    const t = schema.liveActivityEntries;
+    return this.run((db) => db.select().from(t).orderBy(desc(t.agreedAt), desc(t.createdAt), asc(t.id)));
+  }
+
+  async getLiveActivityEntry(id: string): Promise<LiveActivityEntry | null> {
+    const [row] = await this.run((db) => db.select().from(schema.liveActivityEntries).where(eq(schema.liveActivityEntries.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async saveLiveActivityEntry(entry: LiveActivityEntry): Promise<void> {
+    const { id, ...rest } = entry;
+    void id;
+    await this.run((db) => db.insert(schema.liveActivityEntries).values(entry).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteLiveActivityEntry(id: string): Promise<boolean> {
+    const [result] = await this.run((db) => db.delete(schema.liveActivityEntries).where(eq(schema.liveActivityEntries.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async addDemoVisit(visit: Omit<DemoVisit, "id">): Promise<number> {
+    const [result] = await this.run((db) => db.insert(schema.demoVisits).values(visit));
+    return Number(result.insertId);
+  }
+
+  async listDemoVisitsSince(since: Date, limit: number): Promise<DemoVisit[]> {
+    const t = schema.demoVisits;
+    return this.run((db) => db.select().from(t).where(gte(t.at, since)).orderBy(desc(t.at), desc(t.id)).limit(limit));
+  }
+
+  async deleteDemoVisitsBefore(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.demoVisits).where(lt(schema.demoVisits.at, before)));
+    return result.affectedRows;
+  }
+
+  // Customer reviews on the home page
+  async listSiteReviews(): Promise<SiteReview[]> {
+    const t = schema.siteReviews;
+    return this.run((db) => db.select().from(t).orderBy(asc(t.position), asc(t.createdAt), asc(t.id)));
+  }
+
+  async getSiteReview(id: string): Promise<SiteReview | null> {
+    const [row] = await this.run((db) => db.select().from(schema.siteReviews).where(eq(schema.siteReviews.id, id)).limit(1));
+    return row ?? null;
+  }
+
+  async saveSiteReview(review: SiteReview): Promise<void> {
+    const { id, ...rest } = review;
+    void id;
+    await this.run((db) => db.insert(schema.siteReviews).values(review).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async deleteSiteReview(id: string): Promise<boolean> {
+    const [result] = await this.run((db) => db.delete(schema.siteReviews).where(eq(schema.siteReviews.id, id)));
+    return result.affectedRows > 0;
   }
 
 

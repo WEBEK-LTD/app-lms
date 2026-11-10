@@ -209,6 +209,8 @@ import type { OwnerDevice, OwnerDevicePatch } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
+import type { DemoVisit, LiveActivityEntry } from "../live-activity/types";
+import type { SiteReview } from "../reviews/types";
 import type { MatchedStep } from "../bot/intents";
 import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import { mailEventStatsOf } from "../mailing/stats";
@@ -7929,6 +7931,71 @@ export class MemoryStore implements DataStore {
       }
     }
     return n;
+  }
+
+  // The website's live activity card
+  private liveEntries = new Map<string, LiveActivityEntry>();
+  private demoVisits: DemoVisit[] = [];
+  private demoVisitNext = 1;
+
+  async listLiveActivityEntries(): Promise<LiveActivityEntry[]> {
+    return [...this.liveEntries.values()]
+      .sort((a, b) => b.agreedAt.getTime() - a.agreedAt.getTime() || b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id))
+      .map(clone);
+  }
+
+  async getLiveActivityEntry(id: string): Promise<LiveActivityEntry | null> {
+    const entry = this.liveEntries.get(id);
+    return entry ? clone(entry) : null;
+  }
+
+  async saveLiveActivityEntry(entry: LiveActivityEntry): Promise<void> {
+    this.liveEntries.set(entry.id, clone(entry));
+  }
+
+  async deleteLiveActivityEntry(id: string): Promise<boolean> {
+    return this.liveEntries.delete(id);
+  }
+
+  async addDemoVisit(visit: Omit<DemoVisit, "id">): Promise<number> {
+    const id = this.demoVisitNext++;
+    this.demoVisits.push({ ...clone(visit), id });
+    return id;
+  }
+
+  async listDemoVisitsSince(since: Date, limit: number): Promise<DemoVisit[]> {
+    return this.demoVisits
+      .filter((v) => v.at.getTime() >= since.getTime())
+      .sort((a, b) => b.at.getTime() - a.at.getTime() || b.id - a.id)
+      .slice(0, limit)
+      .map(clone);
+  }
+
+  async deleteDemoVisitsBefore(before: Date): Promise<number> {
+    const kept = this.demoVisits.filter((v) => v.at.getTime() >= before.getTime());
+    const n = this.demoVisits.length - kept.length;
+    this.demoVisits = kept;
+    return n;
+  }
+
+  // Customer reviews on the home page
+  private siteReviews = new Map<string, SiteReview>();
+
+  async listSiteReviews(): Promise<SiteReview[]> {
+    return [...this.siteReviews.values()].sort((a, b) => a.position - b.position || a.createdAt.getTime() - b.createdAt.getTime() || a.id.localeCompare(b.id)).map(clone);
+  }
+
+  async getSiteReview(id: string): Promise<SiteReview | null> {
+    const review = this.siteReviews.get(id);
+    return review ? clone(review) : null;
+  }
+
+  async saveSiteReview(review: SiteReview): Promise<void> {
+    this.siteReviews.set(review.id, clone(review));
+  }
+
+  async deleteSiteReview(id: string): Promise<boolean> {
+    return this.siteReviews.delete(id);
   }
 
 }

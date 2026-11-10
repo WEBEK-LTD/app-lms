@@ -48,6 +48,7 @@ import type { OtpSender } from "./otp-sender";
 import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
 import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
+import { recordDemoVisit } from "../live-activity/demo";
 import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
@@ -767,6 +768,8 @@ async function demoSession(ctx: HostedContext, rawDevice: Record<string, unknown
     (await ctx.store.createHostedUser({ appId: ctx.app.id, phone: DEMO_SIGN_IN.e164, name: DEMO_USER_NAME, email: null, city: null, now: ctx.now })) ??
     (await ctx.store.getHostedUserByPhone(ctx.app.id, DEMO_SIGN_IN.e164));
   if (!user) return error(409, "account_exists", "Please try again.");
+  // The website's live activity card: "Someone from <country> is trying the <demo> demo" (the demo and the country only).
+  await recordDemoVisit(ctx.store, ctx.app, ctx.country, ctx.now);
   return session(ctx, user, rawDevice);
 }
 

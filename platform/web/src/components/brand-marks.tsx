@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { STORES, TRADEMARK_NOTE, WHATSAPP_MARK, WORKS_WITH_ROWS, type Brand, type BrandMark } from "@/lib/brands";
+import { REVIEW_SOURCE_BRANDS, STORES, TRADEMARK_NOTE, WHATSAPP_MARK, WORKS_WITH_ROWS, type Brand, type BrandMark, type ReviewSource } from "@/lib/brands";
 import type { AppStore } from "@/lib/stores";
 import { DEFAULT_LANG, messagesFor, type Lang } from "@/i18n";
 
@@ -151,6 +151,22 @@ export function StoreName({ id, size = 18 }: { id: AppStore; size?: number }) {
     <span className="store-mark inline-flex items-center gap-2.5 text-ink-3" style={brandColors(store.mark!)}>
       <MarkSvg mark={store.mark!} height={size} />
       <span className="text-midnight">{store.name}</span>
+    </span>
+  );
+}
+
+/**
+ * Where a review on the home page was first written (components/reviews-section.tsx):
+ * the site's mark, grey until its badge is hovered, then in the brand's color. Decorative:
+ * the badge's text names the site.
+ */
+export function ReviewSourceMark({ source, size = 16 }: { source: Exclude<ReviewSource, "direct">; size?: number }) {
+  const { mark } = REVIEW_SOURCE_BRANDS[source];
+  return (
+    <span style={brandColors(mark)} className="flex-none text-current transition-colors group-hover:text-(--brand-dark)" data-review-source-mark="">
+      <svg aria-hidden="true" focusable="false" viewBox={mark.viewBox} width={size} height={size} fill="currentColor">
+        <path d={mark.path} />
+      </svg>
     </span>
   );
 }

@@ -278,6 +278,9 @@ test environment:
   `PUT /enrollments/{id}` with `expiry_date`) and its `one-time` payment
   type.
 - Restore purchases on an iPhone, and phones without Google Play.
+- 117 The website's live activity feed (`/api/live-activity`) is cached a
+  minute by `Cache-Control: s-maxage=60`; that Netlify's CDN keeps it per
+  `?lang=` is not checked on Netlify yet.
 
 ## Known gaps
 
@@ -300,6 +303,11 @@ test environment:
   videos and PDFs, homework handed in with a photo) stay in the demo app's
   Media library: the daily job doesn't remove them. Lamha Taxi shows its
   live map only once Admin › Settings › Maps has tiles.
+- 117 The live activity card names a paid subscription's country from the
+  account (billing cities aren't kept), shows apps gone live only through
+  "We publish for you" (the store from Publishing's events), and its demo
+  cards start with sign-ins after this release. The privacy policy doesn't
+  mention the card's consent box or demo sign-ins yet.
 
 ## Deployment
 

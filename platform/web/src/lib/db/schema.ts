@@ -73,6 +73,9 @@ import type { BotUnmatchedStatus } from "../bot/types";
 import type { MailAudience, MailCampaignStatus, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
+import type { DemoId } from "../demo/constants";
+import type { ReviewRating } from "../reviews/types";
+import type { ReviewSource } from "../brands";
 import {
   type AnyMySqlColumn,
   bigint,
@@ -828,6 +831,8 @@ export const planPayments = mysqlTable(
     method: varchar("method", { length: 16 }).$type<PlanPaymentMethod>(),
     bankReference: varchar("bank_reference", { length: 100 }),
     recordedBy: varchar("recorded_by", { length: 191 }),
+    // The website's live activity card: the client allowed their first name and plan on the website (null: not allowed).
+    showOnSite: boolean("show_on_site"),
   },
   (t) => [
     uniqueIndex("plan_payments_token_unique").on(t.tokenHash),
@@ -4983,4 +4988,64 @@ export const botUnmatched = mysqlTable(
     resolvedBy: varchar("resolved_by", { length: 191 }),
   },
   (t) => [index("bot_unmatched_open_idx").on(t.status, t.step, t.normalized), index("bot_unmatched_created_idx").on(t.createdAt)],
+);
+
+/** The website's live activity card: customers the team added by hand, with their agreement (lib/live-activity). Only the last name's initial is kept. */
+export const liveActivityEntries = mysqlTable(
+  "live_activity_entries",
+  {
+    id: id("id").primaryKey(),
+    firstName: varchar("first_name", { length: 40 }).notNull(),
+    lastInitial: varchar("last_initial", { length: 4 }),
+    plan: varchar("plan", { length: 16 }).notNull().$type<Plan>(),
+    city: varchar("city", { length: 60 }),
+    country: varchar("country", { length: 2 }),
+    agreedAt: time("agreed_at").notNull(),
+    clientId: id("client_id").references(() => clients.id, { onDelete: "set null" }),
+    consent: boolean("consent").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("live_activity_entries_agreed_idx").on(t.agreedAt)],
+);
+
+/** The website's live activity card: demo sign-ins, with the demo and the request's country only, kept 7 days. */
+export const demoVisits = mysqlTable(
+  "demo_visits",
+  {
+    id: autoId("id").primaryKey(),
+    demo: varchar("demo", { length: 20 }).notNull().$type<DemoId>(),
+    country: varchar("country", { length: 2 }),
+    at: time("at").notNull(),
+  },
+  (t) => [index("demo_visits_at_idx").on(t.at)],
+);
+
+/** Customer reviews on the website's home page (Admin › Reviews, lib/reviews): real reviews the customers agreed to show. */
+export const siteReviews = mysqlTable(
+  "site_reviews",
+  {
+    id: id("id").primaryKey(),
+    name: varchar("name", { length: 80 }).notNull(),
+    role: varchar("role", { length: 80 }),
+    city: varchar("city", { length: 60 }),
+    appName: varchar("app_name", { length: 80 }),
+    plan: varchar("plan", { length: 16 }).$type<Plan>(),
+    clientId: id("client_id").references(() => clients.id, { onDelete: "set null" }),
+    rating: tinyint("rating").notNull().$type<ReviewRating>(),
+    lang: varchar("lang", { length: 2 }).notNull().$type<"en" | "ar" | "tr">(),
+    text: text("text").notNull(),
+    translations: jsonText<Partial<Record<"en" | "ar" | "tr", string>>>("translations").notNull(),
+    photo: varchar("photo", { length: 64 }),
+    source: varchar("source", { length: 16 }).notNull().default("direct").$type<ReviewSource>(),
+    sourceUrl: varchar("source_url", { length: 500 }),
+    reviewedAt: time("reviewed_at").notNull(),
+    consent: boolean("consent").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    position: int("position").notNull(),
+    createdBy: varchar("created_by", { length: 191 }).notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [index("site_reviews_position_idx").on(t.position)],
 );

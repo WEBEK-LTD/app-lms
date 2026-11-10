@@ -137,6 +137,9 @@ export const en = {
   activateCoupon: "Activate with the coupon",
   couponCovers: "The coupon covers the whole price, so there's no card payment.",
   cardOn: "You enter your card on {provider}'s secure page. Your plan starts as soon as the payment is confirmed.",
+  // The website's live activity card.
+  showOnSite: "Show my first name and plan on Yallapp's website",
+  showOnSiteHint: "Only your first name, the initial of your last name, the plan and your country, for a few weeks. Never your email or phone.",
   // The receipt.
   receiptTitle: "Receipt {number}",
   receiptText: "Keep it for your records: download it as a PDF, or print it from your browser.",
@@ -345,6 +348,8 @@ export const ar: Messages = {
   activateCoupon: "التفعيل بالقسيمة",
   couponCovers: "تغطي القسيمة السعر كاملًا، فلا حاجة إلى الدفع بالبطاقة.",
   cardOn: "تُدخل بيانات بطاقتك في صفحة {provider} الآمنة. تبدأ باقتك فور تأكيد الدفع.",
+  showOnSite: "اعرض اسمي الأول وباقتي على موقع Yallapp",
+  showOnSiteHint: "اسمك الأول والحرف الأول من اسم عائلتك والباقة وبلدك فقط، لبضعة أسابيع. لا نعرض بريدك الإلكتروني أو رقم هاتفك أبدًا.",
   receiptTitle: "الإيصال {number}",
   receiptText: "احتفظ به في سجلاتك: نزّله بصيغة PDF، أو اطبعه من متصفحك.",
   downloadPdf: "تنزيل PDF",
@@ -549,6 +554,8 @@ export const tr: Messages = {
   activateCoupon: "Kuponla etkinleştir",
   couponCovers: "Kupon tüm fiyatı karşılıyor, bu yüzden kartla ödeme yok.",
   cardOn: "Kartınızı {provider} güvenli sayfasında girersiniz. Ödeme onaylanır onaylanmaz paketiniz başlar.",
+  showOnSite: "Adımı ve paketimi Yallapp'ın web sitesinde göster",
+  showOnSiteHint: "Yalnızca adınız, soyadınızın baş harfi, paket ve ülkeniz, birkaç hafta boyunca. E-postanız veya telefonunuz asla gösterilmez.",
   receiptTitle: "Makbuz {number}",
   receiptText: "Kayıtlarınız için saklayın: PDF olarak indirin ya da tarayıcınızdan yazdırın.",
   downloadPdf: "PDF indir",

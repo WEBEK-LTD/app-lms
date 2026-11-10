@@ -90,8 +90,8 @@ function NoticeCard({ notice, off, slot }: { notice: HeroNotice; off: boolean; s
         {typeof notice.mark === "string" ? notice.mark : <Icon name={notice.mark.icon} size={20} />}
       </span>
       <span className="min-w-0">
-        <b className="block truncate text-[13.5px] font-bold text-ivory">{notice.app}</b>
-        <small className="mt-0.5 block text-[12.5px] leading-snug text-night-text">{notice.text}</small>
+        <b className="block truncate text-[13.5px] font-bold text-midnight">{notice.app}</b>
+        <small className="mt-0.5 block text-[12.5px] leading-snug text-ink-4">{notice.text}</small>
       </span>
     </div>
   );

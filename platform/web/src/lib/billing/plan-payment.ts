@@ -86,6 +86,8 @@ export async function startPlanPayment(
     offer: Pick<Offer, "charged" | "shown">;
     /** 51 Storage packs renewed with the plan (lib/media/packs.ts › renewablePacks), added to the price; the coupon is for the plan only. */
     storagePacks?: StorageRenewal | null;
+    /** The client ticked "Show my first name and plan on Yallapp's website" (off by default). */
+    showOnSite?: boolean;
   },
 ): Promise<string> {
   const { client, user, plan, coupon, account, offer } = deps;
@@ -114,6 +116,8 @@ export async function startPlanPayment(
     ...shownOf(total),
     purpose: "plan",
     storagePacks: packs.length ? packs : null,
+    // The website's live activity card: only with the client's consent.
+    showOnSite: deps.showOnSite === true ? true : null,
   };
   const name = `Yallapp ${plan.name} (${plan.billingMonths === 1 ? "1 month" : "1 year"})`;
   const planCents = offer.charged.cents;
@@ -284,6 +288,8 @@ export async function activateWithFreeCoupon(deps: {
   charged: Money;
   encryptionKey: Buffer;
   now: Date;
+  /** The client ticked "Show my first name and plan on Yallapp's website" (off by default). */
+  showOnSite?: boolean;
 }): Promise<Extract<PlanPaymentOutcome, { kind: "paid" }>> {
   const { store, client, plan, coupon, now, charged } = deps;
   if (coupon.amountCents !== 0) throw new Error("This coupon doesn't take the whole price");
@@ -301,6 +307,7 @@ export async function activateWithFreeCoupon(deps: {
     paymentId: null,
     createdAt: now,
     paidAt: now,
+    showOnSite: deps.showOnSite === true ? true : null,
   };
   // 70 Recorded only with its use, while the coupon's limits still allow one (atomic): nothing is activated otherwise.
   if (!(await store.claimCouponRedemption(redemptionOf(coupon, payment, "redeemed", now), couponClaimLimits(coupon.coupon, now), payment))) {

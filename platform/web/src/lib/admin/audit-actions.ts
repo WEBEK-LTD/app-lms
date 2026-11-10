@@ -102,6 +102,15 @@ export const AUDIT_ACTIONS = {
   "bot.phrase_switch": "Built-in bot phrase switched off or on",
   "bot.unmatched_map": "Unmatched phrase added to the bot's dictionary",
   "bot.unmatched_ignore": "Unmatched phrase ignored",
+  // The website's live activity card
+  "live.entry_add": "Live activity entry added",
+  "live.entry_hide": "Live activity entry hidden or shown",
+  "live.entry_delete": "Live activity entry deleted",
+  // Customer reviews on the home page
+  "review.add": "Review added",
+  "review.hide": "Review hidden or shown",
+  "review.move": "Review moved",
+  "review.delete": "Review deleted",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -131,6 +140,8 @@ export const AUDIT_TARGETS = {
   mail_address: "Email address",
   bot_phrase: "Bot phrase",
   bot_unmatched: "Unmatched bot phrase",
+  live_entry: "Live activity entry",
+  review: "Customer review",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

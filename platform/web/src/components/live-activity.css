@@ -1,0 +1,14 @@
+/* The live activity card (live-activity.tsx): its ember line shrinks while a card shows; with reduced motion it stays still. */
+@keyframes live-shrink {
+  to {
+    transform: scaleX(0);
+  }
+}
+.live-bar {
+  animation: live-shrink 6s linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-bar {
+    animation: none;
+  }
+}

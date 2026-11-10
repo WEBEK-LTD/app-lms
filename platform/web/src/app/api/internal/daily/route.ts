@@ -26,6 +26,7 @@ import { dispatchSet, teamMail } from "@/lib/watch/env";
 import type { DataStore } from "@/lib/data/store";
 import { APP_ERROR_DAYS } from "@/lib/watch/app-errors";
 import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
+import { pruneDemoVisits } from "@/lib/live-activity/demo";
 
 /**
  * POST /api/internal/daily (roadmap 13.4): the daily job. Netlify's scheduled
@@ -49,7 +50,8 @@ import { MAIL_HISTORY_MONTHS } from "@/lib/mailing/types";
  * snapshot for Admin › Product (lib/admin/product-days.ts). 86.4 On Mondays
  * (to Wednesday), each active app's weekly summary goes to its owner. 78.3 Each run is
  * recorded; job runs older than 30 days go, and the watch checks that the
- * frequent job runs (lib/watch). Safe to call again.
+ * frequent job runs (lib/watch). Demo sign-ins kept for the website's live
+ * activity card go after 7 days (lib/live-activity/demo.ts). Safe to call again.
  */
 export async function POST(request: Request): Promise<Response> {
   if (!hasBearerToken(request, internalJobSecret())) {
@@ -124,11 +126,16 @@ async function runDaily(store: DataStore, now: Date) {
     console.error(`[daily] bot phrases: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
+  // The website's live activity card: demo sign-ins kept 7 days.
+  const demoVisitsPurged = await pruneDemoVisits(store, now).catch((e: unknown) => {
+    console.error(`[daily] demo visits: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 115 Marketplaces: the club's memberships that ended or renew, the vendors' old web sign-ins, orders for later due.
   const marketplace = await runMarketDaily(store, now).catch((e: unknown) => {
     console.error(`[daily] marketplace: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, watch };
+  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, demoVisitsPurged, watch };
 }
