@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { AccountLink } from "./account-link";
 import { StoreMarks } from "./brand-marks";
 import { Icon } from "./icon";
@@ -65,6 +66,23 @@ export function planPriceFor(lang: Lang, plan: PlanInfo, view: PriceView): { pri
 }
 
 /**
+ * A line's first number, marked so the home page counts up to it as the
+ * plans come into view (src/site/story/effects.tsx `data-count`). The text
+ * reads the same everywhere, and stays as it is on pages without the effect.
+ */
+function counted(text: string): ReactNode {
+  const match = /\d[\d.,]*\d|\d/.exec(text);
+  if (!match) return text;
+  return (
+    <>
+      {text.slice(0, match.index)}
+      <span data-count={match[0].replace(/[.,]/g, "")}>{match[0]}</span>
+      {text.slice(match.index + match[0].length)}
+    </>
+  );
+}
+
+/**
  * 32 The plans side by side, as on the pricing page and the home page: name,
  * price, key limits, the stores (41), highlights and a button. Four columns
  * on wide screens, two on tablets, and a row to swipe through on phones.
@@ -115,7 +133,7 @@ export function PlanCards({ plans, view, headingLevel = 2, lang = DEFAULT_LANG }
               {planLimitLinesFor(lang, plan).map((line) => (
                 <li key={line.icon} className="flex items-center gap-2.5">
                   <Icon name={line.icon} size={20} className="text-ink-4" />
-                  {line.text}
+                  {counted(line.text)}
                 </li>
               ))}
             </ul>
