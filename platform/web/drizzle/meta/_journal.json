@@ -857,9 +857,16 @@
       "breakpoints": true
     },
     {
+      "idx": 122,
+      "version": "5",
+      "when": 1794341179946,
+      "tag": "0122_live_activity",
+      "breakpoints": true
+    },
+    {
       "idx": 123,
       "version": "5",
-      "when": 1794341548240,
+      "when": 1794349253864,
       "tag": "0123_mail_contacts",
       "breakpoints": true
     }

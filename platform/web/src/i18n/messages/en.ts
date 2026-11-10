@@ -109,6 +109,15 @@ export const en = {
     builds: "<b>Every build, ready to download.</b> APK, App Bundle, iOS build, signing key and store assets.",
     howInDetail: "How it works in detail",
     compareFeatures: "Compare all features",
+    kindsLabel: "Kinds of apps",
+    notices: {
+      zad: "Your order is on its way, 12 min",
+      school: "The bus is 5 minutes from home",
+      taxi: "Hany is on his way · TX 4821",
+      yourStore: "Your store",
+      store: "New order #1042 · ₺640",
+      academy: "A new lesson in your course",
+    },
   },
   comparison: {
     label: "A typical app builder compared with Yallapp",
@@ -567,6 +576,42 @@ export const en = {
     codeExpiredText: "Your sign-in waited too long for its code. Enter your email and password again.",
   },
   /** Errors and messages of the sign-in, sign-up and password forms (server actions); the English is matched to translate them. */
+  /** The live activity card in the bottom start corner of the marketing pages (components/live-activity.tsx, lib/live-activity). `<em>` is drawn in ember. */
+  live: {
+    region: "Recent activity on Yallapp",
+    close: "Close",
+    brand: "Yallapp",
+    subscribed: "{name} subscribed to <em>{plan}</em>",
+    trying: "Someone from {place} is trying the <em>{demo} demo</em>",
+    tryingNowhere: "Someone is trying the <em>{demo} demo</em>",
+    published: "A new app went live on <em>{store}</em>",
+    publishedKind: "{kind} app",
+    account: "A new account from <em>{place}</em>",
+    accountNowhere: "A new account on <em>Yallapp</em>",
+    factKinds: "<em>{count} kinds of app</em> ready to start from today",
+    factStores: "Your app on <em>{count} app stores</em>, from one dashboard",
+  },
+  /** The home page's customer reviews (components/reviews-section.tsx): real reviews from Admin › Reviews; until one is shown, the labelled sample cards below if the team leaves them on. `<em>` is drawn in ember. */
+  reviews: {
+    eyebrow: "Reviews",
+    title: "What our <em>customers</em> say",
+    text: "From business owners who built their apps with Yallapp.",
+    stars: "{rating} out of 5 stars",
+    average: "Average rating: {average} out of 5",
+    count: "{count, plural, one{from the review below} other{from the {count} reviews below}}",
+    reviewOn: "Review on {source}",
+    /** Sample cards: never a real review, always labelled. */
+    sampleLabel: "Sample review",
+    samplesNote: "These are sample cards to show the layout, not real reviews. Our customers' reviews will appear here.",
+    samples: {
+      s1: { who: "Sample: store owner, Cairo", app: "Store app", text: "Our app went live under our own name on both stores in under a week, and mobile orders now beat the website." },
+      s2: { who: "Sample: school principal, Alexandria", app: "School bundle", text: "Parents follow the bus and homework themselves instead of calling us all day." },
+      s3: { who: "Sample: taxi company owner, Istanbul", app: "Taxi app", text: "Our drivers work on our own app, and we set our own commission." },
+      s4: { who: "Sample: restaurant owner, Giza", app: "Restaurant app", text: "The running-late button saved our busy nights instead of closing orders." },
+      s5: { who: "Sample: online coach, Dubai", app: "Academy app", text: "Students watch the courses in the app and get a notification with every new lesson." },
+      s6: { who: "Sample: courier company owner, Mansoura", app: "Delivery app", text: "Couriers take jobs in their own app and customers follow them on the map." },
+    },
+  },
   formErrors: {
     tooMany: "Too many attempts. Please wait a few minutes and try again.",
     adminEmail: "This email can't be used for a client account.",

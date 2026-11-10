@@ -158,14 +158,15 @@ test("the team edits the Turkish home page, and the English one stays", async ({
   await page.goto("/tr");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Akademiniz, öğrencilerinizin cebinde.");
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your business, as your own mobile app.");
+  // The title as it is, read by assistive technology; its coloured words take turns only on screen.
+  await expect(page.getByRole("heading", { level: 1, name: "Your business, as your own mobile app." })).toBeVisible();
 
   // Back to the built-in translation, as the other checks expect it.
   await admin.goto("/admin/content/home?lang=tr");
   await admin.getByRole("button", { name: "Back to the default text" }).click();
   await expect(admin.getByText("Back to the default text. The website shows it now.")).toBeVisible();
   await page.goto("/tr");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(TR_SITE.home!.title!);
+  await expect(page.getByRole("heading", { level: 1, name: TR_SITE.home!.title! })).toBeVisible();
   await admin.close();
 });
 

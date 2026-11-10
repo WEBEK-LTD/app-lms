@@ -9,27 +9,33 @@ import { useEffect } from "react";
  * - `[data-reveal]` fades and rises into view once (notifications slide in);
  * - `[data-timeline]` fills its line as the day is scrolled (`--fill`);
  * - `[data-parallax]` drifts a little with the scroll (`--py`);
- * - `[data-count]` counts up to its number once seen;
+ * - `[data-count]` counts up to its number once seen (inside a `[data-reveal]`);
  * - `[data-route]` draws its route and starts the vehicle on it;
  * - `[data-gate]` shows a new six-digit code every 30 seconds, as the gate does.
  *
  * With "reduce motion" on, everything is shown at once and nothing moves.
+ * The home page uses it too (`root="[data-home]"`) for its drifting frames
+ * and its numbers; its scroll reveals are CSS alone (globals.css).
  */
-export function StoryEffects() {
+export function StoryEffects({ root: selector = "[data-story]" }: { root?: string }) {
   useEffect(() => {
-    const root = document.querySelector<HTMLElement>("[data-story]");
+    const root = document.querySelector<HTMLElement>(selector);
     if (!root) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     root.dataset.motion = reduce ? "reduced" : "on";
     const timers: number[] = [];
 
+    // Counts in the number's own style ("1,000", "10.000") and ends on the text exactly as written.
     const count = (el: HTMLElement) => {
       const to = Number(el.dataset.count);
       if (!Number.isFinite(to) || reduce || to === 0) return;
+      const written = el.textContent ?? String(to);
+      const group = /\d([,.])\d{3}/.exec(written)?.[1];
+      const format = (n: number) => (group ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, group) : String(n));
       const start = performance.now();
       const step = (now: number) => {
         const t = Math.min(1, (now - start) / 1400);
-        el.textContent = String(Math.round(to * (1 - Math.pow(1 - t, 3))));
+        el.textContent = t < 1 ? format(Math.round(to * (1 - Math.pow(1 - t, 3)))) : written;
         if (t < 1) requestAnimationFrame(step);
       };
       el.textContent = "0";
@@ -112,6 +118,6 @@ export function StoryEffects() {
       window.removeEventListener("resize", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [selector]);
   return null;
 }

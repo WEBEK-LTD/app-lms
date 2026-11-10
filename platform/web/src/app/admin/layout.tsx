@@ -69,6 +69,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               label: "Content",
               items: [
                 { href: "/admin/content", label: "Website content", icon: "web" },
+                // The website's live activity card: its settings and the customers added by hand.
+                { href: "/admin/live-activity", label: "Live activity", icon: "bolt" },
+                // Real customers' reviews on the home page.
+                { href: "/admin/reviews", label: "Reviews", icon: "star" },
                 { href: "/admin/emails", label: "Emails", icon: "mail" },
                 // 114 Emails to the people on Yallapp.
                 { href: "/admin/email-campaigns", label: "Email campaigns", icon: "send" },

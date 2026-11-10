@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { planOffered, REGULAR_PLANS, STUDIO_PLANS } from "@/lib/plans";
 import { StudioPlans } from "@/components/studio-marketing";
@@ -9,6 +10,7 @@ import { StoreMarks, WhatsAppMark, WorksWithStrip } from "@/components/brand-mar
 import { Chip, Comparison, ContactBand, FeatureIcon, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { currencyNote, PlanCards } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { HomeReviews } from "@/components/home-reviews";
 import { APP_STORES } from "@/lib/stores";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
@@ -16,11 +18,46 @@ import { visitorPriceView } from "@/lib/billing/display";
 import { getVisitorContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getSiteContent } from "@/lib/content/get";
-import { comparisonFor, featureGroupsFor, integrationGroupsFor, numberWordFor, planFor, screenAltFor, solutionsFor, stepsFor } from "@/lib/marketing-lang";
+import { contentPage, titleWithWords } from "@/lib/content/site";
+import { translatedDefaults } from "@/lib/content/site-lang";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import type { AppScreen } from "@/lib/marketing";
+import { allSolutionsFor, comparisonFor, featureGroupsFor, integrationGroupsFor, numberWordFor, planFor, screenAltFor, solutionsFor, stepsFor } from "@/lib/marketing-lang";
 import { DEFAULT_DESCRIPTION, organizationLd, siteMetadata, siteUrl, softwareLd, websiteLd } from "@/lib/seo";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
+import { LANG_INFO } from "@/i18n/config";
 import { localePath } from "@/i18n/paths";
 import { richText } from "@/i18n/rich";
+import { StoryEffects } from "./story/effects";
+import { HeroStage, RotatingWord, type HeroNotice } from "./home-motion";
+
+/**
+ * The hero's fan of real screens, from the start side to the end side: where
+ * each phone sits (px, for a 236 px phone: the fan scales with its phones'
+ * size, globals.css) and leans (deg).
+ */
+const FAN_PHONE = 236;
+const fanUnit = (px: number) => Number((px / FAN_PHONE).toFixed(4));
+const FAN: { screen: AppScreen; x: number; y: number; z: number; r: number }[] = [
+  { screen: "taxi-map", x: -230, y: 40, z: -160, r: -11 },
+  { screen: "school-today", x: -115, y: 10, z: -60, r: -5 },
+  { screen: "zad-home", x: 0, y: -14, z: 60, r: 0 },
+  { screen: "store-home", x: 115, y: 10, z: -60, r: 5 },
+  { screen: "academy-home", x: 230, y: 40, z: -160, r: 11 },
+];
+
+/** The notices the hero's cards take turns showing: the demos' own apps (their names and colours), and "your store". */
+function heroNotices(lang: Lang): HeroNotice[] {
+  const n = messagesFor(lang).home.notices;
+  const { marketplace: zad, school, taxi, instructors: rawaq } = DEMO_BRANDS;
+  return [
+    { app: zad.appName, text: n.zad, color: "var(--color-peach)", ink: "var(--color-accent)", mark: zad.appName.charAt(0) },
+    { app: school.appName, text: n.school, color: "var(--color-peach)", ink: "var(--color-accent)", mark: school.appName.charAt(0) },
+    { app: taxi.appName, text: n.taxi, color: "var(--color-peach)", ink: "var(--color-accent)", mark: taxi.appName.charAt(0) },
+    { app: n.yourStore, text: n.store, color: "var(--color-peach)", ink: "var(--color-accent)", mark: { icon: "storefront" } },
+    { app: rawaq.appName, text: n.academy, color: "var(--color-peach)", ink: "var(--color-accent)", mark: rawaq.appName.charAt(0) },
+  ];
+}
 
 export function homeMetadata(lang: Lang): Metadata {
   return siteMetadata(lang, { description: lang === "en" ? DEFAULT_DESCRIPTION : messagesFor(lang).meta.defaultDescription, path: "/" });
@@ -38,6 +75,13 @@ export async function HomePage({ lang }: { lang: Lang }) {
   const studioPlans = STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan));
   const base = siteUrl();
   const text = await getSiteContent("home", lang);
+  // The words take turns only in the title they were written for: the default title, or one edited with its words.
+  const page = contentPage("home")!;
+  const defaults = lang === "en" ? page.defaults : { ...page.defaults, ...translatedDefaults(page, lang) };
+  const titleParts = text.title === defaults.title || text.titleWords !== defaults.titleWords ? titleWithWords(text.title!, text.titleWords ?? "") : null;
+  const notices = heroNotices(lang);
+  const kinds = allSolutionsFor(lang).map((kind) => kind.name);
+  const side = LANG_INFO[lang].dir === "rtl" ? -1 : 1;
   const m = messagesFor(lang);
   const h = m.home;
   const s = m.studio;
@@ -56,7 +100,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
   ] as const;
   const bold = { b: (chunk: string) => <b className="text-midnight">{chunk}</b> };
   return (
-    <div className="bg-white">
+    <div className="bg-white" data-home="">
       <SiteHeader current="home" lang={lang} />
       <JsonLdScript
         data={[
@@ -66,29 +110,47 @@ export async function HomePage({ lang }: { lang: Lang }) {
         ]}
       />
       <main>
-        <section className="overflow-hidden bg-ivory">
-          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-12 gap-y-14 px-4 pt-12 pb-16 sm:px-6 sm:pt-[72px] sm:pb-24">
-            <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-6">
-              <span className="flex min-h-[32px] items-center gap-2 self-start rounded-full border border-line bg-white py-1 ps-1.5 pe-3.5 text-[13px] font-bold">
-                <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-peach">
-                  <Icon name="smartphone" size={15} />
-                </span>
+        {/* The hero: a stage in the site's theme (Ivory light, Midnight dark), the title with its turning word, and a fan of real app screens (home-motion.tsx, globals.css). */}
+        <section aria-labelledby="hero-title" className="hero relative isolate overflow-clip bg-ivory text-midnight" data-hero="">
+          <span aria-hidden="true" className="hero-glow" />
+          <span aria-hidden="true" className="hero-grid" />
+          <span aria-hidden="true" className="hero-grain" />
+          <div className="mx-auto grid max-w-[1200px] items-center gap-x-10 gap-y-6 px-4 pt-14 sm:px-6 sm:pt-[88px] min-[900px]:grid-cols-[1.02fr_1fr]">
+            <div className="hero-copy flex min-w-0 flex-col gap-[22px]">
+              <span className="flex min-h-[34px] items-center gap-2.5 self-start rounded-full border border-line bg-white py-1.5 ps-1.5 pe-3.5 text-[13px] font-semibold text-midnight">
+                <span aria-hidden="true" className="hero-ping relative h-[22px] w-[22px] flex-none rounded-full bg-ember" />
                 {text.badge}
               </span>
-              <h1 className="m-0 text-[40px] leading-[1.04] font-extrabold tracking-[-1.5px] text-balance sm:text-[60px] sm:tracking-[-2px]">{text.title}</h1>
-              <p className="m-0 max-w-[540px] text-lg leading-relaxed text-ink-4 sm:text-[19px]">{text.intro}</p>
+              <h1
+                id="hero-title"
+                className="hero-title m-0 font-extrabold text-balance text-midnight"
+                style={titleParts ? ({ "--hero-chars": Math.max(...titleParts.words.map((w) => w.length), 10) } as CSSProperties) : undefined}
+              >
+                {titleParts ? (
+                  <>
+                    <span className="sr-only">{text.title}</span>
+                    <span aria-hidden="true">
+                      {titleParts.lead} <RotatingWord words={titleParts.words} />
+                      <span className="block">{titleParts.rest}</span>
+                    </span>
+                  </>
+                ) : (
+                  text.title
+                )}
+              </h1>
+              <p className="m-0 max-w-[34em] text-[17px] leading-[1.7] text-ink-4 sm:text-[19px]">{text.intro}</p>
               <div className="flex flex-wrap gap-3">
                 <WhatsAppLink
                   lines={contact.lines}
                   country={contact.country}
-                  className="flex h-[54px] items-center gap-2.5 rounded-xl bg-midnight px-6 text-base font-bold text-white no-underline shadow-[0_12px_24px_-14px_rgba(14,13,36,0.6)] transition-colors hover:bg-ink-3 hover:text-white"
+                  className="hero-cta flex h-[54px] items-center gap-2.5 rounded-[14px] bg-ember px-6 text-base font-bold text-midnight no-underline shadow-[0_18px_40px_-16px_rgba(255,90,31,0.8)] transition-transform hover:-translate-y-px hover:text-midnight"
                 >
                   <WhatsAppMark size={20} />
                   {text.primaryCta}
                 </WhatsAppLink>
                 <Link
                   href={lp("/how-it-works")}
-                  className="flex h-[54px] items-center gap-2 rounded-xl border border-line-button bg-white px-6 text-base font-semibold text-midnight no-underline transition-colors hover:border-midnight hover:text-midnight"
+                  className="flex h-[54px] items-center gap-2 rounded-[14px] border border-line-button bg-white px-6 text-base font-semibold text-midnight no-underline transition-[translate,border-color] hover:-translate-y-px hover:border-midnight hover:text-midnight"
                 >
                   {text.secondaryCta}
                   <Icon name="arrow_forward" size={20} />
@@ -99,13 +161,33 @@ export async function HomePage({ lang }: { lang: Lang }) {
                 <span className="text-sm font-semibold text-muted">{h.publishTo}</span>
                 <StoreMarks stores={[...APP_STORES]} label={m.footer.storesLabel} size={18} />
               </div>
-              <MoreLink href={lp("/demo")}>{h.tryDemo}</MoreLink>
             </div>
-            <div className="relative flex min-w-0 flex-[1_1_520px] items-end justify-center gap-4" aria-label={h.appsGroup} role="group">
-              <span aria-hidden="true" className="absolute inset-x-[6%] top-[14%] bottom-[-6%] rounded-[40px] bg-peach" />
-              <DeviceFrame screen="store-home" size="xs" alt={alt["store-home"]} className="relative hidden translate-y-6 md:flex" />
-              <DeviceFrame screen="academy-home" size="md" alt={alt["academy-home"]} priority className="relative" />
-              <DeviceFrame screen="bookings-services" size="xs" alt={alt["bookings-services"]} className="relative hidden translate-y-6 md:flex" />
+            <HeroStage notices={notices} label={h.appsGroup}>
+              {FAN.map((phone, index) => (
+                <div
+                  key={phone.screen}
+                  className="hero-phone"
+                  data-centre={phone.x === 0 ? "" : undefined}
+                  style={{ "--x": fanUnit(phone.x * side), "--y": fanUnit(phone.y), "--z": fanUnit(phone.z), "--r": `${phone.r * side}deg`, "--i": index } as CSSProperties}
+                >
+                  <DeviceFrame screen={phone.screen} alt={alt[phone.screen]} priority={phone.x === 0} />
+                </div>
+              ))}
+            </HeroStage>
+          </div>
+          {/* The kinds of apps, running under the hero (55 the other way in Arabic; still and wrapped with less motion). */}
+          <div className="hero-ticker marquee mt-10 sm:mt-14" style={{ "--marquee-duration": `${kinds.length * 3}s` } as CSSProperties}>
+            <div className="marquee-track">
+              <ul aria-label={h.kindsLabel} className="marquee-list hero-kinds">
+                {kinds.map((kind) => (
+                  <li key={kind}>{kind}</li>
+                ))}
+              </ul>
+              <ul aria-hidden="true" className="marquee-list hero-kinds">
+                {kinds.map((kind) => (
+                  <li key={kind}>{kind}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
@@ -119,7 +201,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
 
         <Section tinted id="solutions">
           <SectionTitle title={text.solutionsTitle!} text={text.solutionsText} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))]">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))]" data-reveal-group="">
             {solutions.map((s) => (
               <Link
                 key={s.id}
@@ -143,7 +225,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
         </Section>
 
         {/* 103R Yallapp Studio, apart from the regular apps, with its own page, demo and plans. */}
-        <section aria-labelledby="studio-title" className="on-dark overflow-hidden bg-night-2 text-white" data-home-studio="">
+        <section aria-labelledby="studio-title" className="on-dark overflow-clip bg-night-2 text-white" data-home-studio="">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center gap-x-12 gap-y-12 px-4 py-16 sm:px-6 sm:py-24">
             <div className="flex min-w-0 flex-[1_1_400px] flex-col gap-5">
               <span className="flex items-center gap-2 self-start rounded-full bg-ember px-3 py-1 text-[12px] font-bold tracking-[0.5px] text-white uppercase">
@@ -171,15 +253,19 @@ export async function HomePage({ lang }: { lang: Lang }) {
               </div>
             </div>
             <div className="relative flex min-w-0 flex-[1_1_520px] items-end justify-center">
-              <BrowserFrame screen="studio-editor" path={DASHBOARD_PATHS["studio-editor"]} alt={alt["studio-editor"]} className="w-full" />
-              <DeviceFrame screen="studio-cafe-home" size="xs" alt={alt["studio-cafe-home"]} className="absolute -bottom-6 end-[-8px] hidden sm:flex" />
+              <div className="w-full" data-parallax="0.025" style={{ translate: "0 var(--py, 0px)" }}>
+                <BrowserFrame screen="studio-editor" path={DASHBOARD_PATHS["studio-editor"]} alt={alt["studio-editor"]} className="w-full" />
+              </div>
+              <div className="absolute -bottom-6 end-[-8px] hidden sm:flex" data-parallax="-0.05" style={{ translate: "0 var(--py, 0px)" }}>
+                <DeviceFrame screen="studio-cafe-home" size="xs" alt={alt["studio-cafe-home"]} className="story-float" />
+              </div>
             </div>
           </div>
         </section>
 
         <Section>
           <SectionTitle title={text.featuresTitle!} text={text.featuresText} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]" data-reveal-group="">
             {features.map((feature) => (
               <div key={feature.title} className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 transition-colors duration-200 hover:border-line-strong">
                 <FeatureIcon name={feature.icon} />
@@ -190,9 +276,9 @@ export async function HomePage({ lang }: { lang: Lang }) {
           </div>
           <div className="flex flex-col gap-5 rounded-[20px] bg-sand p-4 sm:p-8">
             <h3 className="m-0 text-xl font-bold">{h.looksTitle}</h3>
-            <div className="flex flex-wrap justify-center gap-x-5 gap-y-8">
+            <div className="home-looks flex flex-wrap justify-center gap-x-5 gap-y-8">
               {looks.map((look) => (
-                <DeviceFrame key={look.screen} screen={look.screen} size="xs" caption={look.caption} alt={alt[look.screen]} />
+                <DeviceFrame key={look.screen} screen={look.screen} size="xs" caption={look.caption} alt={alt[look.screen]} className="story-float" />
               ))}
             </div>
           </div>
@@ -201,7 +287,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
 
         <Section tinted>
           <SectionTitle title={text.integrationsTitle!} text={text.integrationsText} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]" data-reveal-group="">
             {integrationGroupsFor(lang)
               .slice(0, 3)
               .map((group) => (
@@ -226,7 +312,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
         <Section>
           <SectionTitle title={text.dashboardTitle!} text={text.dashboardText} />
           <BrowserFrame screen="dashboard-pages" path={DASHBOARD_PATHS["dashboard-pages"]} alt={alt["dashboard-pages"]} />
-          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))]" data-reveal-group="">
             <div className="flex flex-col gap-3">
               <BrowserFrame screen="dashboard-setup" path={DASHBOARD_PATHS["dashboard-setup"]} alt={alt["dashboard-setup"]} />
               <p className="m-0 text-[15px] text-ink-4">{richText(h.setup, bold)}</p>
@@ -276,7 +362,10 @@ export async function HomePage({ lang }: { lang: Lang }) {
 
         <Section tinted id="plans">
           <SectionTitle title={text.plansTitle!} text={text.plansText} />
-          <PlanCards plans={plans} view={view} headingLevel={3} lang={lang} />
+          {/* The plans' limits count up as they come into view (StoryEffects). */}
+          <div data-reveal="">
+            <PlanCards plans={plans} view={view} headingLevel={3} lang={lang} />
+          </div>
           <p data-currency-note="" className="m-0 text-[15px] text-ink-4">
             {currencyNote(view, lang)}
           </p>
@@ -289,9 +378,13 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
         </Section>
 
+        {/* Customer reviews, only real ones from Admin › Reviews; nothing without any. */}
+        <HomeReviews lang={lang} />
+
         <ContactBand lang={lang} />
       </main>
       <SiteFooter full lang={lang} />
+      <StoryEffects root="[data-home]" />
     </div>
   );
 }

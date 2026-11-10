@@ -143,6 +143,14 @@ export function PlanPaymentForm({
           </p>
         ) : null}
       </div>
+      {/* The website's live activity card: off unless the client ticks it. */}
+      <label className="flex cursor-pointer items-start gap-2 text-[15px]">
+        <input type="checkbox" name="showOnSite" defaultChecked={state.values?.showOnSite === "on"} className="mt-1 h-4 w-4 accent-midnight" />
+        <span className="flex flex-col gap-0.5">
+          {t("license.showOnSite")}
+          <span className="text-[13px] text-muted">{t("license.showOnSiteHint")}</span>
+        </span>
+      </label>
       {charge ? (
         <p data-charge-line="" className="m-0 flex items-start gap-2 rounded-xl bg-ivory px-4 py-3 text-sm font-semibold text-ink-2">
           {charge}

@@ -13,6 +13,7 @@ import { StoreMarks, WhatsAppMark } from "./brand-marks";
 import { WhatsAppLink } from "./whatsapp-link";
 import { LanguageList } from "./language-switcher";
 import { SiteNav } from "./site-nav";
+import { LiveActivity } from "./live-activity";
 
 export type { SitePage };
 
@@ -63,13 +64,15 @@ function productLinks(lang: Lang, m: Messages): { id: string; href: string; labe
   ].map((l) => ({ ...l, href: localePath(lang, l.href) }));
 }
 
-/** The dark footer. `full` (marketing pages) adds the WhatsApp button and a contact column. */
+/** The dark footer. `full` (marketing pages) adds the WhatsApp button and a contact column, and the live activity card (outside the dark band, so it takes the page's light or dark colors). */
 export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?: boolean; lang?: Lang }) {
   const contact = await getContact();
   const m = messagesFor(lang);
   const f = m.footer;
   const lp = (path: string) => localePath(lang, path);
   return (
+    // The live activity card goes after the footer, outside its dark band; the footer keeps its indentation.
+    <>
     <footer className="on-dark bg-midnight text-night-text">
       <div className={`mx-auto flex max-w-[1160px] flex-col px-4 sm:px-6 ${full ? "gap-12 pt-16 pb-8" : "gap-10 pt-14 pb-8"}`}>
         <div className="flex flex-wrap gap-x-16 gap-y-10">
@@ -159,6 +162,8 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
         </div>
       </div>
     </footer>
+    {full ? <LiveActivity lang={lang} /> : null}
+    </>
   );
 }
 

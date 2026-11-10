@@ -4,7 +4,8 @@ import path from "node:path";
 import { DOCS, GUIDE_REDIRECTS, docBySlug } from "@/content/docs";
 import { PRIVACY } from "@/content/legal";
 import { fillValues, headingId, inlineText, markdownToHtml, parseInline, parseMarkdown, safeHref } from "@/lib/content/markdown";
-import { CONTENT_PAGES, contentPage, contentWith, faqMarkdown, parseFaq, parseGuide, readContentForm } from "@/lib/content/site";
+import { CONTENT_PAGES, contentPage, contentWith, faqMarkdown, parseFaq, parseGuide, readContentForm, titleWithWords } from "@/lib/content/site";
+import { LOCALIZED } from "@/content/localized";
 import { MemoryStore } from "@/lib/data/memory";
 import { APP_SCREENS, COMPARISON, DASHBOARD_SCREENS, FAQ, FEATURE_GROUPS, INTEGRATION_GROUPS, SOLUTIONS } from "@/lib/marketing";
 import { NOW } from "./helpers";
@@ -75,6 +76,27 @@ describe("website content pages", () => {
     const home = contentPage("home")!;
     expect(contentWith(home, null)).toEqual(home.defaults);
     expect(contentWith(home, { title: "Apps for academies", intro: "  ", unknown: "x" })).toEqual({ ...home.defaults, title: "Apps for academies" });
+  });
+
+  it("splits the home title around its coloured words that take turns, in every language", () => {
+    const home = contentPage("home")!.defaults;
+    expect(titleWithWords(home.title!, home.titleWords!)).toEqual({
+      lead: "Your business,",
+      words: ["your store", "your school", "your restaurant", "your taxi company", "your deliveries", "your academy"],
+      rest: "as your own mobile app.",
+    });
+    const ar = LOCALIZED.ar.site.home!;
+    expect(titleWithWords(ar.title!, ar.titleWords!)).toEqual({
+      lead: "نشاطك التجاري،",
+      words: ["متجرك", "مدرستك", "مطعمك", "شركة التاكسي", "الشحن", "أكاديميتك"],
+      rest: "في تطبيق جوّال خاص بك.",
+    });
+    const tr = LOCALIZED.tr.site.home!;
+    expect(titleWithWords(tr.title!, tr.titleWords!)).toMatchObject({ lead: "İşletmeniz,", rest: "kendi mobil uygulamanız olarak." });
+    expect(titleWithWords(tr.title!, tr.titleWords!)!.words).toHaveLength(6);
+    // A title without a comma, or no words: the title shows still.
+    expect(titleWithWords("Apps for academies", home.titleWords!)).toBeNull();
+    expect(titleWithWords(home.title!, " , ")).toBeNull();
   });
 
   it("turns the FAQ in code into Markdown and back into the same questions", () => {

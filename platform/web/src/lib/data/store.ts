@@ -207,6 +207,9 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 // 114 Email campaigns
 import type { MailCampaign, MailCampaignStatus, MailContact, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+// The website's live activity card
+import type { DemoVisit, LiveActivityEntry } from "../live-activity/types";
+import type { SiteReview } from "../reviews/types";
 // The app-builder bot
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
 import type { MatchedStep } from "../bot/intents";
@@ -2210,4 +2213,28 @@ export interface DataStore {
   resolveBotUnmatched(input: { step: MatchedStep; normalized: string; status: Exclude<BotUnmatchedStatus, "open">; mappedIntent: string | null; resolvedBy: string; resolvedAt: Date }): Promise<number>;
   /** Rows from before then go (BOT_UNMATCHED_DAYS). How many. */
   deleteBotUnmatchedBefore(before: Date): Promise<number>;
+
+  // The website's live activity card (lib/live-activity)
+  /** The customers the team added by hand, the latest agreement first. */
+  listLiveActivityEntries(): Promise<LiveActivityEntry[]>;
+  getLiveActivityEntry(id: string): Promise<LiveActivityEntry | null>;
+  /** Adds or replaces it. */
+  saveLiveActivityEntry(entry: LiveActivityEntry): Promise<void>;
+  /** False when it wasn't there. */
+  deleteLiveActivityEntry(id: string): Promise<boolean>;
+  /** A visitor signed in to a demo app. Its id. */
+  addDemoVisit(visit: Omit<DemoVisit, "id">): Promise<number>;
+  /** Demo sign-ins at or after `since`, the latest first. */
+  listDemoVisitsSince(since: Date, limit: number): Promise<DemoVisit[]>;
+  /** Demo sign-ins from before then go (DEMO_VISIT_DAYS). How many. */
+  deleteDemoVisitsBefore(before: Date): Promise<number>;
+
+  // Customer reviews on the home page (lib/reviews)
+  /** Every review, in the page's order (position, then oldest first). */
+  listSiteReviews(): Promise<SiteReview[]>;
+  getSiteReview(id: string): Promise<SiteReview | null>;
+  /** Adds or replaces it. */
+  saveSiteReview(review: SiteReview): Promise<void>;
+  /** False when it wasn't there. */
+  deleteSiteReview(id: string): Promise<boolean>;
 }
