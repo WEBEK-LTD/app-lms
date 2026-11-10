@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import type { DashKey } from "@/i18n/dashboard";
-import { STUDIO_MARKET_SECTIONS } from "@/lib/pages/types";
 import Link from "next/link";
 import { openRegularAppsAction } from "@/app/actions/studio-projects";
 import { localePath } from "@/i18n/paths";
@@ -47,7 +45,7 @@ export default async function StudioHomePage() {
     }),
   );
   const current = context.app && isStudioProject(context.app) ? context.app : null;
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode"), market: Object.fromEntries(STUDIO_MARKET_SECTIONS.map((x) => [x, t(`studio.market_${x}` as DashKey)])) };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
   return (
     <StudioScreen dir={dir} lang={lang}>
       <StudioBar>
