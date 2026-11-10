@@ -118,20 +118,20 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { screen: "rides-where", icon: "payments", art: "price" },
       { screen: "taxi-driver", icon: "timer", art: "offer" },
       { screen: "taxi-ride", icon: "route", art: "route" },
-      { photo: "rides-backseat", screen: "taxi-ride", icon: "shield" },
-      { photo: "rides-arrive-home", screen: "taxi-driver", icon: "home" },
+      { photo: "rides-backseat", screen: "taxi-on-ride", icon: "shield" },
+      { photo: "rides-arrive-home", screen: "taxi-earnings", icon: "home" },
     ],
     interlude: { photo: "rides-night-city" },
     stats: [{ value: 4 }, { value: 2 }, { value: 15, suffix: " min" }, { value: 0, suffix: "%" }],
     systems: [
       {
         icon: "person",
-        screens: ["taxi-map", "rides-where", "taxi-ride"],
+        screens: ["taxi-map", "rides-where", "taxi-on-ride"],
         features: ["map", "my_location", "schedule", "directions_car", "near_me", "key", "share", "shield", "cancel", "payments", "star", "receipt_long"],
       },
       {
         icon: "directions_car",
-        screens: ["taxi-driver"],
+        screens: ["taxi-driver", "taxi-earnings"],
         features: ["bolt", "timer", "directions", "key", "route", "payments", "monitoring", "smartphone"],
       },
       {
@@ -154,25 +154,25 @@ export const STORIES: Record<StoryId, StoryShape> = {
     accent: "#FF7A3D",
     demos: ["delivery"],
     solutions: ["delivery"],
-    hero: { photo: "delivery-rider", screens: ["delivery-send", "delivery-shipment"] },
+    hero: { photo: "delivery-rider", screens: ["sahm-send", "sahm-shipment"] },
     chapters: [
-      { photo: "delivery-shop-owner", screen: "delivery-send", icon: "storefront" },
-      { photo: "delivery-boxes", screen: "delivery-send", icon: "package_2", art: "price" },
-      { screen: "delivery-courier", icon: "two_wheeler" },
-      { screen: "delivery-shipment", icon: "route", art: "route" },
-      { photo: "delivery-handover", screen: "delivery-shipment", icon: "task_alt" },
+      { photo: "delivery-shop-owner", screen: "sahm-send", icon: "storefront" },
+      { photo: "delivery-boxes", screen: "sahm-send", icon: "package_2", art: "price" },
+      { screen: "sahm-courier", icon: "two_wheeler" },
+      { screen: "sahm-shipment", icon: "route", art: "route" },
+      { photo: "delivery-handover", screen: "sahm-shipment", icon: "task_alt" },
     ],
     interlude: { photo: "delivery-van" },
     stats: [{ value: 3 }, { value: 2 }, { value: 10, suffix: " min" }, { value: 0, suffix: "%" }],
     systems: [
       {
         icon: "person",
-        screens: ["delivery-send", "delivery-shipment"],
+        screens: ["sahm-send", "sahm-shipment"],
         features: ["package_2", "my_location", "sell", "credit_card", "route", "list_alt", "notifications"],
       },
       {
         icon: "two_wheeler",
-        screens: ["delivery-courier"],
+        screens: ["sahm-courier"],
         features: ["bolt", "inventory_2", "task_alt", "payments", "directions", "near_me", "smartphone", "hub"],
       },
       {
@@ -182,7 +182,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "delivery-map", screen: "delivery-shipment" },
+    finale: { photo: "delivery-map", screen: "sahm-shipment" },
   },
   "multi-vendor": {
     id: "multi-vendor",

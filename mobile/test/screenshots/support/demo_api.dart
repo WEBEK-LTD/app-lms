@@ -752,6 +752,160 @@ class DemoApi extends FakeApi {
     return api;
   }
 
+  /// The website's delivery story: Studio's delivery demo, Sahm Express
+  /// (lib/demo/content.ts), with its look, its three services, prices by
+  /// distance (E£30 and E£6 a km), cash only and live tracking. Hany's
+  /// Leather in Nasr City sends S-1001 to Maadi (12.8 km, E£106.80), and
+  /// Karim's motorbike is halfway. With [courier], Karim's courier app with
+  /// the job waiting for a courier.
+  factory DemoApi.sahm({bool courier = false}) {
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Sahm Express'),
+        'branding': {'logo_url': null, 'primary_color': '#1F6FB2'},
+        'appearance': {
+          'template': 'bold',
+          'theme_mode': 'system',
+          'user_can_change_mode': true,
+          'secondary_color': '#F2B544',
+          'font': 'Manrope',
+          'corners': 'round',
+          'cards': 'elevated',
+        },
+        'delivery': {
+          ...deliveryConfigJson(card: false),
+          'zones': const [],
+          'max_distance_km': 60,
+          'map': {'tiles_url': demoTilesUrl, 'attribution': null},
+        },
+      },
+    );
+    Map<String, dynamic> service(
+      int id,
+      String name,
+      String description,
+      String eta,
+      String? extra,
+    ) => {
+      'id': id,
+      'name': name,
+      'description': description,
+      'image_url': null,
+      'extra_formatted': extra,
+      'eta': eta,
+    };
+    api.deliveryServices = [
+      service(
+        1,
+        'Same day',
+        'Picked up within the hour, delivered before 10 pm.',
+        'Within 6 hours',
+        null,
+      ),
+      service(
+        2,
+        'Express',
+        'Straight from the pickup to the drop-off, no other stops.',
+        'Within 2 hours',
+        '+E£45.00',
+      ),
+      service(
+        3,
+        'Documents',
+        'Papers and envelopes, signed for at the door.',
+        'Within 4 hours',
+        '+E£15.00',
+      ),
+    ];
+    const pickup = {
+      'address': 'Abbas El Akkad St, Nasr City',
+      'details': "Hany's Leather, ground floor",
+      'lat': 30.0561,
+      'lng': 31.3301,
+    };
+    const dropoff = {
+      'address': 'Road 9, Maadi',
+      'details': 'Building 14, apartment 6',
+      'lat': 29.9602,
+      'lng': 31.2569,
+    };
+    const package = {'size': 'small', 'description': 'Leather wallet'};
+    // The story's times: sent at 09:25, taken at 09:31, on the way at
+    // 10:05 (UTC+3 on 28 October, Cairo's and the screenshots' time zone).
+    api.shipments = [
+      {
+        ...shipmentJson(status: 'on_the_way'),
+        'service': {'id': 1, 'name': 'Same day'},
+        'pickup': pickup,
+        'dropoff': dropoff,
+        'recipient': {'name': 'Nour Samir', 'phone': '+201001234567'},
+        'package': package,
+        'distance_km': 12.8,
+        'price_formatted': 'E£106.80',
+        'courier_location': {
+          'lat': 30.0034,
+          'lng': 31.2898,
+          'updated_at': '2026-10-28T07:18:00.000Z',
+        },
+        'timeline': [
+          {'status': 'pending', 'at': '2026-10-28T06:25:00.000Z', 'note': null},
+          {
+            'status': 'assigned',
+            'at': '2026-10-28T06:31:00.000Z',
+            'note': null,
+          },
+          {
+            'status': 'picked_up',
+            'at': '2026-10-28T07:02:00.000Z',
+            'note': null,
+          },
+          {
+            'status': 'on_the_way',
+            'at': '2026-10-28T07:05:00.000Z',
+            'note': null,
+          },
+        ],
+        'created_at': '2026-10-28T06:25:00.000Z',
+      },
+    ];
+    if (courier) {
+      api.me = {
+        ...userJson(),
+        'roles': ['courier'],
+      };
+      api.courierJobs = {
+        'active': [],
+        'available': [
+          {
+            ...courierJobJson(
+              status: 'pending',
+              collect: 'E£106.80',
+              mine: false,
+            ),
+            'service': 'Same day',
+            'pickup': pickup,
+            'dropoff': dropoff,
+            'sender': {'name': "Hany's Leather", 'phone': null},
+            'recipient': {'name': 'Nour Samir', 'phone': null},
+            'package': package,
+            'distance_km': 12.8,
+            'timeline': [
+              {
+                'status': 'pending',
+                'at': '2026-10-28T06:25:00.000Z',
+                'note': null,
+              },
+            ],
+            'created_at': '2026-10-28T06:25:00.000Z',
+          },
+        ],
+        'done': [],
+      };
+    }
+    return api;
+  }
+
   /// Yallapp Studio's food delivery demo (Sofra Eats, as on /demo/studio):
   /// three restaurants, a menu, and an order on its way.
   factory DemoApi.food() {
@@ -1002,7 +1156,16 @@ class DemoApi extends FakeApi {
   /// 110.5 Yallapp Studio's live taxi demo (Lamha Taxi): the map with the
   /// free taxis around the rider, a taxi on its way, and a driver online on
   /// the map with an offer. The map's tiles are drawn (map_tiles.dart).
-  factory DemoApi.taxi({bool driver = false, bool ride = true}) {
+  /// The website's rides story also shows the ride on board ([onBoard]:
+  /// on the way to Cairo Tower, which the rider can share, with the
+  /// emergency button) and the driver's week ([earnings]: no offer, and
+  /// no share for the company, as the demo has none).
+  factory DemoApi.taxi({
+    bool driver = false,
+    bool ride = true,
+    bool onBoard = false,
+    bool earnings = false,
+  }) {
     final types = [
       vehicleTypeJson(name: 'Taxi', icon: 'local_taxi'),
       vehicleTypeJson(id: 2, name: 'Comfort', icon: 'directions_car'),
@@ -1070,11 +1233,24 @@ class DemoApi extends FakeApi {
         option(3, '160.00', 7),
       ],
     };
-    final accepted = rideJson(status: 'accepted');
+    final accepted = rideJson(status: onBoard ? 'in_progress' : 'accepted');
+    final now = DateTime.now();
+    String ago(int minutes) =>
+        now.subtract(Duration(minutes: minutes)).toUtc().toIso8601String();
     api.rides = [
       if (ride)
         {
           ...accepted,
+          // On board: picked up at Tahrir Square, on the bridge to Zamalek.
+          if (onBoard) ...{
+            'created_at': ago(12),
+            'timeline': [
+              {'status': 'searching', 'at': ago(12), 'note': null},
+              {'status': 'accepted', 'at': ago(12), 'note': null},
+              {'status': 'arrived', 'at': ago(8), 'note': null},
+              {'status': 'in_progress', 'at': ago(6), 'note': null},
+            ],
+          },
           'vehicle_type': {'id': 1, 'name': 'Taxi', 'icon': 'local_taxi'},
           'pickup': {
             'address': 'Tahrir Square',
@@ -1101,12 +1277,12 @@ class DemoApi extends FakeApi {
             },
           },
           'driver_location': {
-            'lat': 30.0479,
-            'lng': 31.2398,
-            'heading': 200,
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
+            'lat': onBoard ? 30.0444 : 30.0479,
+            'lng': onBoard ? 31.2300 : 31.2398,
+            'heading': onBoard ? 280 : 200,
+            'updated_at': now.toUtc().toIso8601String(),
           },
-          'pickup_minutes': 3,
+          'pickup_minutes': onBoard ? null : 3,
         },
     ];
     api.taxiRoute = {
@@ -1129,7 +1305,32 @@ class DemoApi extends FakeApi {
         'name': 'Hany Saeed',
         'vehicle_type': {'id': 1, 'name': 'Taxi'},
         'car': {'model': 'Compact sedan', 'color': 'White', 'plate': 'TX 4821'},
+        if (earnings) 'today': {'rides': 9, 'earned_formatted': 'E£812.00'},
       };
+      if (earnings) {
+        // Cash only, and the demo company takes no share of the fares.
+        const days = [
+          ('2026-10-28', 9, '812.00'),
+          ('2026-10-27', 11, '968.00'),
+          ('2026-10-26', 8, '705.00'),
+          ('2026-10-25', 12, '1,094.00'),
+          ('2026-10-24', 10, '890.00'),
+          ('2026-10-23', 7, '618.00'),
+          ('2026-10-22', 9, '779.00'),
+        ];
+        api.driverEarnings = {
+          'rides': 66,
+          'fares_formatted': 'E£5,866.00',
+          'cash_formatted': 'E£5,866.00',
+          'company_share_formatted': 'E£0.00',
+          'earned_formatted': 'E£5,866.00',
+          'days': [
+            for (final (date, rides, earned) in days)
+              {'date': date, 'rides': rides, 'earned_formatted': 'E£$earned'},
+          ],
+        };
+        return api;
+      }
       final offer = driverRideJson(
         id: 7,
         status: 'searching',
@@ -2068,6 +2269,19 @@ class DemoApi extends FakeApi {
         'total_pages': 1,
       }, SchoolAnnouncement.fromJson),
     );
+  }
+
+  /// The taxi demo's driver's week, whatever period is asked.
+  Map<String, dynamic>? driverEarnings;
+
+  @override
+  Future<DriverEarnings> getDriverEarnings(EarningsPeriod period) {
+    final e = driverEarnings;
+    return e == null
+        ? super.getDriverEarnings(period)
+        : Future.value(
+            DriverEarnings.fromJson({...e, 'period': snake(period)}),
+          );
   }
 
   @override

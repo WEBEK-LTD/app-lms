@@ -22,6 +22,7 @@ void main() {
 
   for (final shot in websiteShots) {
     testWidgets(shot.name, skip: !_enabled, (tester) async {
+      if (shot.shadows) debugDisableShadows = false;
       final app = await shot.render(tester);
       // Captured at the phone's 3x, so the file is 1080 x 2340.
       final boundary = tester.renderObject<RenderRepaintBoundary>(
@@ -42,6 +43,7 @@ void main() {
         }
       });
       if (shot.mapTiles) await Shot.close(app, tester);
+      debugDisableShadows = true;
     });
   }
 }
