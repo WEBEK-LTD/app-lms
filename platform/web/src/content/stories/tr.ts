@@ -579,8 +579,8 @@ export const STORIES_TR: StoryCopy = {
         {
           time: "13:40",
           kicker: "Yolda",
-          title: "Kerim, şehrin öbür ucundan",
-          text: "Kuryelerden Kerim alışverişi getiriyor. Fathy Hanım motosikletini haritada izliyor. Izgara siparişini kendi şoförüyle getiriyor; onu da aşamalarıyla izliyor. Her işletme teslimatı kimin yapacağını kendisi seçer.",
+          title: "Karim, şehrin öbür ucundan",
+          text: "Kuryelerden Karim alışverişi getiriyor. Fathy Hanım motosikletini haritada izliyor. Izgara siparişini kendi şoförüyle getiriyor; onu da aşamalarıyla izliyor. Her işletme teslimatı kimin yapacağını kendisi seçer.",
           push: { app: "Zad", title: "Siparişiniz yolda", body: "Z-1207 size doğru yolda." },
         },
         {
