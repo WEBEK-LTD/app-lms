@@ -1,0 +1,348 @@
+{
+  "school": [
+    {
+      "slot": "school-bus",
+      "src": "/stories/school/school-bus.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-dawn",
+      "src": "/stories/school/school-dawn.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-gate",
+      "src": "/stories/school/school-gate.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-graduation-1",
+      "src": "/stories/school/school-graduation-1.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-graduation-2",
+      "src": "/stories/school/school-graduation-2.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-homework",
+      "src": "/stories/school/school-homework.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-library",
+      "src": "/stories/school/school-library.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "school-office",
+      "src": "/stories/school/school-office.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    }
+  ],
+  "rides": [
+    {
+      "slot": "rides-arrive-home",
+      "src": "/stories/rides/rides-arrive-home.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "rides-backseat",
+      "src": "/stories/rides/rides-backseat.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "rides-driver",
+      "src": "/stories/rides/rides-driver.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "rides-night-city",
+      "src": "/stories/rides/rides-night-city.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "rides-waiting",
+      "src": "/stories/rides/rides-waiting.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    }
+  ],
+  "delivery": [
+    {
+      "slot": "delivery-boxes",
+      "src": "/stories/delivery/delivery-boxes.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "delivery-handover",
+      "src": "/stories/delivery/delivery-handover.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "delivery-map",
+      "src": "/stories/delivery/delivery-map.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "delivery-rider",
+      "src": "/stories/delivery/delivery-rider.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "delivery-shop-owner",
+      "src": "/stories/delivery/delivery-shop-owner.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "delivery-van",
+      "src": "/stories/delivery/delivery-van.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    }
+  ],
+  "multi-vendor": [
+    {
+      "slot": "zad-cafe",
+      "src": "/stories/multi-vendor/zad-cafe.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-family-meal",
+      "src": "/stories/multi-vendor/zad-family-meal.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-friday",
+      "src": "/stories/multi-vendor/zad-friday.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-grill",
+      "src": "/stories/multi-vendor/zad-grill.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-kitchen-rush",
+      "src": "/stories/multi-vendor/zad-kitchen-rush.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-market-aisle",
+      "src": "/stories/multi-vendor/zad-market-aisle.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    },
+    {
+      "slot": "zad-rider-food",
+      "src": "/stories/multi-vendor/zad-rider-food.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "PREVIEW",
+        "license": "PREVIEW",
+        "licenseUrl": null,
+        "source": null,
+        "title": null
+      }
+    }
+  ]
+}

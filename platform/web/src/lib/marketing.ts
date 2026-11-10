@@ -79,6 +79,16 @@ export const APP_SCREENS = [
   "teachers-list",
   "teachers-teacher",
   "teachers-desk",
+  // The Studio story pages: Nakhla School's parent, bus, fees, payslip and library; Zad's home, a restaurant, the supermarket and an order on its way.
+  "school-parent",
+  "school-bus",
+  "school-fees",
+  "school-payslip",
+  "school-library",
+  "zad-home",
+  "zad-grill",
+  "zad-market",
+  "zad-tracking",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -138,6 +148,15 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "teachers-list": "An academy's teachers, with their subjects and the featured ones first",
   "teachers-teacher": "A teacher's page with their profile, courses and followers",
   "teachers-desk": "A teacher's own tab: their courses with their stage, questions and earnings",
+  "school-parent": "A parent's tab in a school app: a child's check-in at the gate, who picks her up today and her lessons",
+  "school-bus": "The school bus on the map, with the stops it passed and how many minutes it is from the child's stop",
+  "school-fees": "A child's school fees: a trip still due with a button to pay, and the term's fees paid",
+  "school-payslip": "A teacher's payslip in the staff app: the salary, an allowance, a bonus, an advance taken back and the net pay",
+  "school-library": "The school library in the app: books to search, those on the shelf, those out, and an e-book",
+  "zad-home": "A multi-vendor app's home: the delivery address, food and the supermarket, and today's offers",
+  "zad-grill": "A restaurant's page in a multi-vendor app: its delivery time and fee, its own delivery, an offer and its menu",
+  "zad-market": "A supermarket's page in a multi-vendor app, with free delivery, an offer and its aisles",
+  "zad-tracking": "An order on its way: the courier on the map and each step, from sent to on the way",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

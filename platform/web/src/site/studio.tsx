@@ -22,6 +22,8 @@ import { Notice } from "@/components/ui";
 import { STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DemoAppSection, DemoSignIn, demoDownloads, demoSecondDownloads } from "@/site/demo";
 import { localePath } from "@/i18n/paths";
+import { storyCopyFor } from "@/content/stories";
+import { storyLinks } from "@/site/story/links";
 
 export function studioMetadata(lang: Lang): Metadata {
   const m = messagesFor(lang).studio;
@@ -37,7 +39,7 @@ const primary = "flex h-[50px] items-center gap-2.5 rounded-xl bg-midnight px-[2
 const secondary = "flex h-[50px] items-center gap-2 rounded-xl border border-line-button bg-white px-[22px] text-base font-semibold text-midnight no-underline hover:border-midnight hover:text-midnight";
 
 /** The Studio plans the team offers, in the page's language, and the visitor's price view. */
-async function studioPlans(lang: Lang) {
+export async function studioPlans(lang: Lang) {
   const store = await getStore();
   const [all, view] = await Promise.all([effectivePlans(store), visitorPriceView(store)]);
   return { plans: STUDIO_PLANS.map((id) => all[id]).filter(planOffered).map((plan) => planFor(lang, plan)), view };
@@ -157,7 +159,34 @@ export async function StudioPage({ lang }: { lang: Lang }) {
         </div>
       </Section>
 
-      <Section tinted id="differences">
+      {/* The Studio story pages: a day with each bundle. */}
+      <Section tinted id="stories">
+        <SectionTitle title={storyCopyFor(lang).ui.fromStudioTitle} text={storyCopyFor(lang).ui.fromStudioText} />
+        <ul className="m-0 grid list-none gap-4 p-0 [grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))]">
+          {storyLinks(lang).map((story) => (
+            <li key={story.id}>
+              <Link
+                href={story.href}
+                className="group flex h-full flex-col gap-3 rounded-[22px] bg-midnight p-6 text-white no-underline hover:bg-ink-3 hover:text-white"
+                data-story-link={story.id}
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
+                  <Icon name={story.icon} size={24} className="text-ember" />
+                </span>
+                <span className="text-[13px] font-bold tracking-[0.8px] text-white/70 uppercase">{story.name}</span>
+                <span className="text-xl leading-tight font-extrabold">{story.title}</span>
+                <span className="text-[15px] text-white/75">{story.summary}</span>
+                <span className="mt-auto flex items-center gap-1.5 pt-2 text-[15px] font-bold">
+                  {storyCopyFor(lang).ui.readStory}
+                  <Icon name="arrow_forward" size={18} className="icon-flip" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section id="differences">
         <SectionTitle title={m.diffTitle} text={m.diffText} />
         <StudioDifferences lang={lang} />
       </Section>
