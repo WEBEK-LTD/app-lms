@@ -189,7 +189,13 @@ export function reviewsView(reviews: SiteReview[], setting: ReviewsSetting, lang
 
 /** The home page's reviews section in `lang`. */
 export async function homeReviews(store: DataStore, lang: Lang): Promise<ReviewsView> {
-  const [reviews, setting] = await Promise.all([store.listSiteReviews(), reviewsSetting(store)]);
+  // Where the reviews can't be read (a deploy preview runs on a database the
+  // new tables haven't reached yet), there are none to show: the setting
+  // decides on the samples, and its own default when it can't be read either.
+  const [reviews, setting] = await Promise.all([
+    store.listSiteReviews().catch(() => [] as SiteReview[]),
+    reviewsSetting(store).catch(() => ({ ...REVIEWS_DEFAULTS })),
+  ]);
   return reviewsView(reviews, setting, lang);
 }
 

@@ -193,3 +193,17 @@ describe("order", () => {
     expect("client" in made).toBe(false);
   });
 });
+
+describe("the home page's reviews where the reviews can't be read", () => {
+  it("shows the labelled samples (a preview on a database without the reviews table yet)", async () => {
+    const { MemoryStore } = await import("@/lib/data/memory");
+    const { homeReviews } = await import("@/lib/reviews/reviews");
+    const store = new MemoryStore();
+    store.listSiteReviews = async () => {
+      throw new Error("Table 'site_reviews' doesn't exist");
+    };
+    const view = await homeReviews(store, "ar");
+    expect(view?.kind).toBe("samples");
+    expect(view?.reviews.every((r) => r.sample)).toBe(true);
+  });
+});

@@ -309,3 +309,19 @@ describe("the card's words", () => {
     }
   });
 });
+
+describe("the live feed where a source can't be read", () => {
+  it("leaves out that source and falls back to the facts", async () => {
+    const { MemoryStore } = await import("@/lib/data/memory");
+    const { collectLiveEvents } = await import("@/lib/live-activity/feed");
+    const { normalizeLiveSetting } = await import("@/lib/live-activity/settings");
+    const store = new MemoryStore();
+    for (const name of ["listDemoVisits", "listLiveActivityEntries"] as const) {
+      if (name in store) (store as unknown as Record<string, unknown>)[name] = async () => {
+        throw new Error("Table doesn't exist");
+      };
+    }
+    const events = await collectLiveEvents(store, normalizeLiveSetting(undefined), new Date());
+    expect(events.length).toBeGreaterThan(0);
+  });
+});

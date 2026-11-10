@@ -147,11 +147,14 @@ export async function collectLiveEvents(store: DataStore, setting: LiveActivityS
   const since = new Date(now.getTime() - LIVE_FEED_DAYS * DAY_MS);
   const demoId = await demoClientId(store);
   const wants = (kind: LiveKind) => setting.kinds.includes(kind);
+  // One source that can't be read (a deploy preview on a database the new
+  // tables haven't reached yet) leaves the others, and then the facts.
+  const none = (): LiveEvent[] => [];
   const lists = await Promise.all([
-    wants("subscription") ? subscriptions(store, since, demoId) : [],
-    wants("demo") ? demos(store, now) : [],
-    wants("published") ? published(store, since, demoId) : [],
-    wants("account") ? accounts(store, since, demoId) : [],
+    wants("subscription") ? subscriptions(store, since, demoId).catch(none) : [],
+    wants("demo") ? demos(store, now).catch(none) : [],
+    wants("published") ? published(store, since, demoId).catch(none) : [],
+    wants("account") ? accounts(store, since, demoId).catch(none) : [],
   ]);
   const events = lists
     .flatMap((list) => list.filter((e) => e.at && e.at.getTime() <= now.getTime() + 60_000).slice(0, LIVE_PER_KIND_MAX))
