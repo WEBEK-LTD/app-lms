@@ -462,7 +462,7 @@ describe("114 sending", () => {
     const { store, c } = await setup(3);
     await startMailCampaign(store, c, NOW);
     const rows = (await resolveAudience(store, {}, { now: NOW, baseUrl: BASE })).people.map((p) => ({
-      campaignId: c.id, email: p.email, userId: p.userId, clientId: p.clientId, name: p.name, lang: p.lang, status: "queued" as const, attempts: 0, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: null, team: false,
+      campaignId: c.id, email: p.email, userId: p.userId, clientId: p.clientId, name: p.name, lang: p.lang, status: "queued" as const, attempts: 0, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: null, team: false, contactId: null,
     }));
     expect(await store.addMailRecipients(rows)).toBe(3);
     expect(await store.addMailRecipients(rows)).toBe(0);
@@ -481,7 +481,7 @@ describe("114 sending", () => {
     await startMailCampaign(store, second, NOW);
     await runMailCampaigns({ ...deps(store, mailer, { now: NOW }), budgetMs: 0 });
     const rows = (await resolveAudience(store, {}, { now: NOW, baseUrl: BASE })).people.map((p) => ({
-      campaignId: second.id, email: p.email, userId: p.userId, clientId: p.clientId, name: p.name, lang: p.lang, status: "queued" as const, attempts: 0, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: null, team: false,
+      campaignId: second.id, email: p.email, userId: p.userId, clientId: p.clientId, name: p.name, lang: p.lang, status: "queued" as const, attempts: 0, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: null, team: false, contactId: null,
     }));
     await store.addMailRecipients(rows);
     await store.setMailCampaignStatus(second.id, ["sending"], { status: "sending", recipients: 3 });
@@ -652,7 +652,7 @@ describe("114 consent", () => {
     await people(store, [{ email: "a@a.test" }]);
     const c = campaign();
     await store.saveMailCampaign(c);
-    await store.addMailRecipients([{ campaignId: c.id, email: "a@a.test", userId: null, clientId: null, name: "A", lang: "tr", status: "sent", attempts: 1, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: NOW, team: false }]);
+    await store.addMailRecipients([{ campaignId: c.id, email: "a@a.test", userId: null, clientId: null, name: "A", lang: "tr", status: "sent", attempts: 1, error: null, nextAttemptAt: null, claim: null, leaseUntil: null, sentAt: NOW, team: false, contactId: null }]);
     const row = (await store.listMailRecipients(c.id, { offset: 0, limit: 1 })).items[0]!;
     const found = await recipientOfToken(store, recipientToken(row.id, SECRET), SECRET);
     expect(found!.lang).toBe("tr");

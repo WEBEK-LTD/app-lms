@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { expect, it } from "vitest";
 import { emptyContent } from "@/lib/mailing/blocks";
 import type { DataStore } from "@/lib/data/store";
-import type { MailCampaign, MailRecipient } from "@/lib/mailing/types";
+import type { MailCampaign, MailContact, MailRecipient } from "@/lib/mailing/types";
 import { NOW } from "./helpers";
 
 /** 114 Email campaigns' storage, the same on every store (MemoryStore, and MySQL or MariaDB with migration 0111). */
@@ -45,6 +45,7 @@ export function mailingStoreSuite(store: () => DataStore) {
     leaseUntil: null,
     sentAt: null,
     team: false,
+    contactId: null,
   });
 
   it("saves, lists and moves a campaign only from the statuses given", async () => {
@@ -172,5 +173,82 @@ export function mailingStoreSuite(store: () => DataStore) {
     expect((await s.getMailCampaign(old.id))!.status).toBe("sent");
     await s.deleteMailCampaign(old.id);
     await s.deleteMailCampaign(recent.id);
+  });
+
+  it("keeps a recipient's contact", async () => {
+    const s = store();
+    const c = campaign();
+    await s.saveMailCampaign(c);
+    const contactId = randomUUID();
+    await s.addMailRecipients([{ ...row(c.id, "contact-row@suite.test"), contactId }]);
+    const [r] = (await s.listMailRecipients(c.id, { offset: 0, limit: 5 })).items;
+    expect(r).toMatchObject({ email: "contact-row@suite.test", userId: null, contactId });
+    expect(await s.getMailRecipient(r!.id)).toMatchObject({ contactId });
+    await s.deleteMailCampaign(c.id);
+  });
+
+  it("keeps the admin's contacts: one per address, found, searched, tagged, changed, unsubscribed and deleted", async () => {
+    const s = store();
+    const run = randomUUID().slice(0, 8);
+    const tag = `suite-${run}`;
+    const mk = (email: string, patch: Partial<MailContact> = {}): MailContact => ({
+      id: randomUUID(),
+      email,
+      name: "",
+      company: null,
+      lang: "en",
+      country: null,
+      tags: [],
+      source: "customer",
+      sourceNote: null,
+      addedBy: "admin@yallapp.test",
+      addedAt: NOW,
+      updatedAt: NOW,
+      unsubscribedAt: null,
+      ...patch,
+    });
+    const layla = mk(`layla-${run}@suite.test`, { name: "ليلى سعد", company: "Saad_Trading 100%", lang: "ar", country: "EG", tags: [tag, "عملاء"], source: "event", sourceNote: "Expo 2026", addedAt: new Date(NOW.getTime() + 2000) });
+    const kemal = mk(`kemal-${run}@suite.test`, { name: "Kemal Öz", lang: "tr", tags: [`${tag}-x`], addedAt: new Date(NOW.getTime() + 1000) });
+    expect(await s.addMailContacts([layla, kemal, mk(`LAYLA-${run}@suite.test`)])).toBe(2);
+    // Again, by address: nothing new.
+    expect(await s.addMailContacts([mk(`kemal-${run}@suite.test`)])).toBe(0);
+    expect(await s.getMailContact(layla.id)).toEqual(layla);
+    expect((await s.findMailContacts([`KEMAL-${run}@suite.test`, `nobody-${run}@suite.test`])).map((c) => c.id)).toEqual([kemal.id]);
+    expect((await s.allMailContacts()).filter((c) => c.email.endsWith(`${run}@suite.test`)).map((c) => c.id)).toEqual([layla.id, kemal.id]);
+    // A tag matches whole: "suite-x" isn't "suite".
+    expect((await s.listMailContacts({ tag, offset: 0, limit: 10 })).items.map((c) => c.id)).toEqual([layla.id]);
+    expect((await s.listMailContacts({ tag: "عملاء", offset: 0, limit: 100 })).items.map((c) => c.id)).toContain(layla.id);
+    expect((await s.listMailContacts({ query: run, offset: 0, limit: 10 })).total).toBe(2);
+    expect((await s.listMailContacts({ query: "ليلى", offset: 0, limit: 100 })).items.map((c) => c.id)).toContain(layla.id);
+    // % and _ are themselves in a search.
+    expect((await s.listMailContacts({ query: "saad_trading 100%", offset: 0, limit: 100 })).items.map((c) => c.id)).toEqual([layla.id]);
+    expect((await s.listMailContacts({ query: `${run}`, tag, offset: 0, limit: 10 })).items.map((c) => c.id)).toEqual([layla.id]);
+    expect((await s.listMailContacts({ query: run, offset: 1, limit: 1 })).items.map((c) => c.id)).toEqual([kemal.id]);
+    const tags = await s.listMailContactTags();
+    expect(tags.find((t) => t.tag === tag)).toEqual({ tag, count: 1 });
+    expect(await s.updateMailContact(kemal.id, { email: layla.email })).toBe("duplicate");
+    expect(await s.updateMailContact(randomUUID(), { name: "x" })).toBe("missing");
+    expect(await s.updateMailContact(kemal.id, { email: `KEMAL2-${run}@suite.test`, name: "Kemal Öztürk", tags: [tag], country: "TR", updatedAt: new Date(NOW.getTime() + 5000) })).toBe("ok");
+    expect(await s.getMailContact(kemal.id)).toMatchObject({ email: `kemal2-${run}@suite.test`, name: "Kemal Öztürk", tags: [tag], country: "TR", addedBy: "admin@yallapp.test" });
+    expect((await s.listMailContacts({ tag, offset: 0, limit: 10 })).total).toBe(2);
+    await s.setMailContactUnsubscribed(layla.email.toUpperCase(), NOW);
+    expect((await s.getMailContact(layla.id))!.unsubscribedAt).toEqual(NOW);
+    await s.setMailContactUnsubscribed(layla.email, null);
+    expect((await s.getMailContact(layla.id))!.unsubscribedAt).toBeNull();
+    await s.suppressMail({ email: layla.email, reason: "unsubscribed", campaignId: null, createdAt: NOW });
+    expect(await s.deleteMailContact(layla.id)).toBe(true);
+    expect(await s.deleteMailContact(layla.id)).toBe(false);
+    expect(await s.getMailContact(layla.id)).toBeNull();
+    expect(await s.getMailSuppression(layla.email)).toMatchObject({ reason: "unsubscribed" });
+    await s.unsuppressMail(layla.email);
+    await s.deleteMailContact(kemal.id);
+  });
+
+  it("says which addresses have a Yallapp account", async () => {
+    const s = store();
+    const email = `account-${randomUUID().slice(0, 8)}@suite.test`;
+    await s.createUser({ email, name: "Account", passwordHash: null, now: NOW });
+    expect(await s.listAccountEmails([email.toUpperCase(), "no-account@suite.test"])).toEqual([email]);
+    expect(await s.listAccountEmails([])).toEqual([]);
   });
 }

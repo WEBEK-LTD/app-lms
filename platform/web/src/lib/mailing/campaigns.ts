@@ -19,7 +19,7 @@ import { closeAlerts, raiseAlert, type TeamMail } from "../watch/alerts";
 import type { Plan, PlanInfo } from "../plans";
 import { resolveAudience } from "./audience";
 import { validDoc } from "./blocks";
-import { applyMergeTags, exampleMergeValues, unknownMergeTags, type MergeValues } from "./merge";
+import { applyMergeTags, exampleMergeValues, firstNameOf, unknownMergeTags, type MergeValues } from "./merge";
 import { htmlSizeKb, renderContent } from "./render";
 import { htmlToText } from "./sanitize";
 import { addOpenPixel, mailLinks, recipientToken, trackLinks } from "./tokens";
@@ -223,6 +223,7 @@ async function listRecipients(deps: MailRunDeps, campaign: MailCampaign): Promis
       leaseUntil: null,
       sentAt: null,
       team: p.team,
+      contactId: p.contactId,
     })),
   );
   const counts = await deps.store.countMailRecipients(campaign.id);
@@ -320,7 +321,7 @@ export async function runMailCampaigns(deps: MailRunDeps): Promise<MailRunReport
             report.skipped += 1;
             return;
           }
-          const built = buildRecipientMail(fresh, row, values.get(row.email) ?? { name: row.name, first_name: row.name.split(/\s+/)[0] ?? "" }, deps, cache);
+          const built = buildRecipientMail(fresh, row, values.get(row.email) ?? { name: row.name, first_name: firstNameOf(row.name) }, deps, cache);
           if (!built) {
             await store.finishMailRecipient(row.id, claim, { status: "failed", error: "No email in a language for this person", nextAttemptAt: null, sentAt: null, attempts: row.attempts });
             report.failed += 1;

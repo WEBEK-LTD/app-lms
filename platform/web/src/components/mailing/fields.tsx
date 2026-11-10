@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, useTransition, type ReactNode } from "react";
 import { uploadMailImageAction } from "@/app/actions/admin-mail";
 import { Icon } from "@/components/icon";
-import { MERGE_TAGS } from "@/lib/mailing/merge";
+import { ACCOUNT_ONLY_TAGS, MERGE_TAGS } from "@/lib/mailing/merge";
 import { sanitizeHtml } from "@/lib/mailing/sanitize";
 
 /** 114 The builder's small form parts: a label and its field, colors, numbers, choices, pictures, rich text and merge tags. */
@@ -65,10 +65,43 @@ export function MergeTagMenu({ onPick }: { onPick: (tag: string) => void }) {
       <option value="">+ Merge tag</option>
       {MERGE_TAGS.filter((t) => t.tag !== "unsubscribe_link").map((t) => (
         <option key={t.tag} value={t.tag}>
-          {t.label} ({`{{${t.tag}}}`})
+          {t.label} ({`{{${t.tag}}}`}){ACCOUNT_ONLY_TAGS.includes(t.tag) ? " · accounts only" : ""}
         </option>
       ))}
     </select>
+  );
+}
+
+/** What each merge tag becomes for an account and for a contact (the editor's tag help). */
+export function MergeTagHelp() {
+  return (
+    <details className="rounded-[14px] border border-line bg-sand/60 px-4 py-3 text-[13px] text-ink-3" data-testid="merge-tag-help">
+      <summary className="cursor-pointer font-semibold text-midnight">How merge tags fill in</summary>
+      <p className="mt-2 mb-2">
+        Write <code dir="ltr">{"{{first_name}}"}</code> to put in each person&apos;s value, or <code dir="ltr">{"{{first_name|there}}"}</code> to write &ldquo;there&rdquo; when they have none.
+        Contacts have no Yallapp account, so the tags marked &ldquo;accounts only&rdquo; are empty for them: give those a default, or leave them out of emails that go to contacts.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-start text-[12.5px]">
+          <thead>
+            <tr className="text-ink-3">
+              <th className="py-1 pe-3 text-start font-semibold">Tag</th>
+              <th className="py-1 pe-3 text-start font-semibold">Accounts</th>
+              <th className="py-1 text-start font-semibold">Contacts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MERGE_TAGS.map((t) => (
+              <tr key={t.tag} className="border-t border-line-soft align-top">
+                <td className="py-1 pe-3 font-mono whitespace-nowrap" dir="ltr">{`{{${t.tag}}}`}</td>
+                <td className="py-1 pe-3">{t.label}</td>
+                <td className="py-1">{t.contact ?? <span className="text-muted">Empty (accounts only): the default after | shows</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
 

@@ -26,7 +26,8 @@ import { getPlans } from "@/lib/settings/platform";
  * 114 Admin › Email campaigns. Writing campaigns, templates and audiences
  * and sending tests needs "marketing.edit"; sending, scheduling, pausing,
  * cancelling and the list of addresses never mailed need "marketing.send".
- * Every change is in the audit log.
+ * Every change is in the audit log. The admin's own contacts are
+ * admin-mail-contacts.ts.
  */
 
 export type MailActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string; problems?: CampaignProblem[] };
@@ -98,12 +99,12 @@ export async function saveMailCampaignAction(input: CampaignInput): Promise<Mail
 }
 
 /** How many people the audience reaches now (the live count), and how many of them said no to marketing emails. */
-export async function countMailAudienceAction(audience: MailAudience): Promise<{ count: number; suppressed: number; team: number; everyone: boolean }> {
+export async function countMailAudienceAction(audience: MailAudience): Promise<{ count: number; suppressed: number; team: number; contacts: number; everyone: boolean }> {
   await requireAdmin("view");
   const store = await getStore();
   const clean = cleanAudience(audience);
   const { people, suppressed } = await resolveAudience(store, clean, { now: new Date(), baseUrl: appUrl() });
-  return { count: people.length, suppressed, team: people.filter((p) => p.team).length, everyone: audienceIsEveryone(clean) };
+  return { count: people.length, suppressed, team: people.filter((p) => p.team).length, contacts: people.filter((p) => p.contactId).length, everyone: audienceIsEveryone(clean) };
 }
 
 /** The problems that stop it from going, for the review step. */

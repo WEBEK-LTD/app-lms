@@ -4,15 +4,60 @@ import { useEffect, useState, useTransition } from "react";
 import { countMailAudienceAction, deleteMailSegmentAction, saveMailSegmentAction } from "@/app/actions/admin-mail";
 import { Icon } from "@/components/icon";
 import { Notice } from "@/components/ui";
-import type { MailAccountState, MailAudience, MailLang, MailSegment } from "@/lib/mailing/types";
+import type { MailAccountState, MailAudience, MailAudiencePeople, MailLang, MailSegment } from "@/lib/mailing/types";
 import { Field, inputClass, Toggle } from "./fields";
 
-/** 114 Who a campaign goes to: filters, the live count, saved audiences. */
+/** 114 Who a campaign goes to: accounts, contacts or both, their filters, the live count, saved audiences. */
 
 export interface AudienceOptions {
   plans: { id: string; name: string }[];
   appTypes: { id: string; label: string }[];
   countries: { code: string; name: string }[];
+  /** The contacts' tags and how many have each. */
+  contactTags: { tag: string; count: number }[];
+}
+
+const PEOPLE: { value: MailAudiencePeople; label: string; hint: string }[] = [
+  { value: "accounts", label: "Accounts", hint: "People registered on Yallapp" },
+  { value: "contacts", label: "Contacts", hint: "Your customers and leads without an account" },
+  { value: "both", label: "Both", hint: "An address in both gets one email" },
+];
+
+function CountryPicker({ label, value, onChange, countries }: { label: string; value: string[] | undefined; onChange: (v: string[]) => void; countries: { code: string; name: string }[] }) {
+  const [country, setCountry] = useState("");
+  const chosen = value ?? [];
+  const countryName = (code: string) => countries.find((c) => c.code === code)?.name ?? code;
+  return (
+    <Field label={label}>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2">
+          {chosen.map((c) => (
+            <button key={c} type="button" onClick={() => onChange(chosen.filter((x) => x !== c))} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-midnight bg-midnight px-3 text-[12.5px] font-bold text-ivory" aria-label={`Remove ${countryName(c)}`}>
+              {countryName(c)}
+              <Icon name="close" size={15} />
+            </button>
+          ))}
+        </div>
+        <select
+          value={country}
+          onChange={(e) => {
+            const code = e.target.value;
+            setCountry("");
+            if (code && !chosen.includes(code)) onChange([...chosen, code]);
+          }}
+          className={`${inputClass} max-w-[320px] cursor-pointer`}
+          aria-label={`${label}: add a country`}
+        >
+          <option value="">{chosen.length ? "Add another country" : "Any country (add one to narrow)"}</option>
+          {countries.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </Field>
+  );
 }
 
 const STATES: { value: MailAccountState; label: string }[] = [
@@ -56,11 +101,10 @@ function Chips<T extends string>({ label, options, value, onChange, testId }: { 
 }
 
 export function AudienceStep({ audience, onChange, segments: initialSegments, segmentId, setSegmentId, options, editable }: { audience: MailAudience; onChange: (a: MailAudience) => void; segments: MailSegment[]; segmentId: string | null; setSegmentId: (id: string | null) => void; options: AudienceOptions; editable: boolean }) {
-  const [count, setCount] = useState<{ count: number; suppressed: number; team: number; everyone: boolean } | null>(null);
+  const [count, setCount] = useState<{ count: number; suppressed: number; team: number; contacts: number; everyone: boolean } | null>(null);
   const [counting, startCount] = useTransition();
   const [segments, setSegments] = useState(initialSegments);
   const [saving, startSave] = useTransition();
-  const [country, setCountry] = useState("");
   const put = (patch: Partial<MailAudience>) => {
     setSegmentId(null);
     onChange({ ...audience, ...patch });
@@ -71,7 +115,7 @@ export function AudienceStep({ audience, onChange, segments: initialSegments, se
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Counted again when the audience changes.
   }, [key]);
-  const countryName = (code: string) => options.countries.find((c) => c.code === code)?.name ?? code;
+  const people: MailAudiencePeople = audience.people === "contacts" || audience.people === "both" ? audience.people : "accounts";
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="flex min-w-0 flex-col gap-6 rounded-[20px] border border-line bg-white p-5 sm:p-7">
@@ -79,82 +123,88 @@ export function AudienceStep({ audience, onChange, segments: initialSegments, se
           <h2 className="m-0 text-[20px] font-extrabold text-midnight">Who gets it</h2>
           <p className="m-0 text-[14px] text-muted">Each filter narrows it down. Nothing chosen in a filter means anyone. Addresses that unsubscribed or bounced are always left out.</p>
         </div>
-        <Chips label="Account" options={STATES} value={audience.states} onChange={(states) => put({ states })} testId="filter-states" />
-        <Chips label="Plan" options={options.plans.map((p) => ({ value: p.id, label: p.name }))} value={audience.plans} onChange={(plans) => put({ plans })} />
-        <Chips label="Kind of app" options={[{ value: "regular" as const, label: "Regular apps" }, { value: "studio" as const, label: "Yallapp Studio" }]} value={audience.sections} onChange={(sections) => put({ sections })} />
-        <Chips label="App type" options={options.appTypes.map((t) => ({ value: t.id, label: t.label }))} value={audience.appTypes} onChange={(appTypes) => put({ appTypes })} />
-        <Chips label="Language of their account" options={LANGS} value={audience.langs} onChange={(langs) => put({ langs })} testId="filter-langs" />
-        <Field label="Country">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-              {(audience.countries ?? []).map((c) => (
-                <button key={c} type="button" onClick={() => put({ countries: (audience.countries ?? []).filter((x) => x !== c) })} className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-midnight bg-midnight px-3 text-[12.5px] font-bold text-ivory" aria-label={`Remove ${countryName(c)}`}>
-                  {countryName(c)}
-                  <Icon name="close" size={15} />
-                </button>
-              ))}
-            </div>
-            <select
-              value={country}
-              onChange={(e) => {
-                const code = e.target.value;
-                setCountry("");
-                if (code && !(audience.countries ?? []).includes(code)) put({ countries: [...(audience.countries ?? []), code] });
-              }}
-              className={`${inputClass} max-w-[320px] cursor-pointer`}
-              aria-label="Add a country"
-            >
-              <option value="">{audience.countries?.length ? "Add another country" : "Any country (add one to narrow)"}</option>
-              {options.countries.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0" data-testid="audience-people">
+          <legend className="mb-2 text-[13px] font-semibold text-ink-3">Send to</legend>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {PEOPLE.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                aria-pressed={people === p.value}
+                onClick={() => put({ people: p.value === "accounts" ? undefined : p.value })}
+                className={`flex cursor-pointer flex-col items-start gap-0.5 rounded-[14px] border px-4 py-3 text-start ${people === p.value ? "border-midnight bg-midnight text-ivory" : "border-line bg-white text-midnight hover:border-line-strong"}`}
+              >
+                <span className="text-[14px] font-bold">{p.label}</span>
+                <span className={`text-[12.5px] ${people === p.value ? "text-night-muted" : "text-muted"}`}>{p.hint}</span>
+              </button>
+            ))}
           </div>
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Signed up from">
-            <input type="date" value={audience.signedUpFrom ?? ""} onChange={(e) => put({ signedUpFrom: e.target.value || null })} className={inputClass} />
-          </Field>
-          <Field label="Signed up until">
-            <input type="date" value={audience.signedUpTo ?? ""} onChange={(e) => put({ signedUpTo: e.target.value || null })} className={inputClass} />
-          </Field>
-          <Field label="Built an app">
-            <select value={audience.published ?? ""} onChange={(e) => put({ published: (e.target.value || null) as MailAudience["published"] })} className={`${inputClass} cursor-pointer`}>
-              <option value="">Either</option>
-              <option value="yes">Yes, at least one ready build</option>
-              <option value="no">Not yet</option>
-            </select>
-          </Field>
-          <Field label="Last signed in">
-            <select
-              value={audience.activeWithinDays ? `in:${audience.activeWithinDays}` : audience.inactiveForDays ? `out:${audience.inactiveForDays}` : ""}
-              onChange={(e) => {
-                const [kind, days] = e.target.value.split(":");
-                put({ activeWithinDays: kind === "in" ? Number(days) : null, inactiveForDays: kind === "out" ? Number(days) : null });
-              }}
-              className={`${inputClass} cursor-pointer`}
-            >
-              <option value="">Any time</option>
-              <option value="in:7">In the last 7 days</option>
-              <option value="in:30">In the last 30 days</option>
-              <option value="in:90">In the last 90 days</option>
-              <option value="out:30">Not in the last 30 days</option>
-              <option value="out:90">Not in the last 90 days</option>
-              <option value="out:180">Not in the last 6 months</option>
-            </select>
-          </Field>
-        </div>
-        <div className="rounded-[14px] border border-line bg-sand/60 p-4">
-          <Toggle
-            label="Also their team members"
-            checked={!!audience.includeTeam}
-            onChange={(includeTeam) => put({ includeTeam })}
-            testId="include-team"
-            hint="People an account invited to its team. They didn't sign up to Yallapp themselves, so include them only when the email is for them too. Off: account owners only."
-          />
-        </div>
+        </fieldset>
+        {people !== "accounts" ? (
+          <div className="flex flex-col gap-5 rounded-[16px] border border-line p-4" data-testid="contact-filters">
+            <h3 className="m-0 text-[15px] font-extrabold text-midnight">Contacts</h3>
+            {options.contactTags.length ? (
+              <Chips label="Tags" options={options.contactTags.map((t) => ({ value: t.tag, label: `${t.tag} (${t.count})` }))} value={audience.contactTags} onChange={(contactTags) => put({ contactTags })} testId="filter-contact-tags" />
+            ) : (
+              <p className="m-0 text-[13px] text-muted">No contact has a tag yet: all contacts match. Add tags in Contacts to send to some of them.</p>
+            )}
+            <Chips label="Language of their emails" options={LANGS} value={audience.contactLangs} onChange={(contactLangs) => put({ contactLangs })} testId="filter-contact-langs" />
+            <CountryPicker label="Country" value={audience.contactCountries} onChange={(contactCountries) => put({ contactCountries })} countries={options.countries} />
+          </div>
+        ) : null}
+        {people !== "contacts" ? (
+          <div className="flex flex-col gap-6">
+            {people === "both" ? <h3 className="m-0 text-[15px] font-extrabold text-midnight">Accounts</h3> : null}
+            <Chips label="Account" options={STATES} value={audience.states} onChange={(states) => put({ states })} testId="filter-states" />
+            <Chips label="Plan" options={options.plans.map((p) => ({ value: p.id, label: p.name }))} value={audience.plans} onChange={(plans) => put({ plans })} />
+            <Chips label="Kind of app" options={[{ value: "regular" as const, label: "Regular apps" }, { value: "studio" as const, label: "Yallapp Studio" }]} value={audience.sections} onChange={(sections) => put({ sections })} />
+            <Chips label="App type" options={options.appTypes.map((t) => ({ value: t.id, label: t.label }))} value={audience.appTypes} onChange={(appTypes) => put({ appTypes })} />
+            <Chips label="Language of their account" options={LANGS} value={audience.langs} onChange={(langs) => put({ langs })} testId="filter-langs" />
+            <CountryPicker label="Country" value={audience.countries} onChange={(countries) => put({ countries })} countries={options.countries} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Signed up from">
+                <input type="date" value={audience.signedUpFrom ?? ""} onChange={(e) => put({ signedUpFrom: e.target.value || null })} className={inputClass} />
+              </Field>
+              <Field label="Signed up until">
+                <input type="date" value={audience.signedUpTo ?? ""} onChange={(e) => put({ signedUpTo: e.target.value || null })} className={inputClass} />
+              </Field>
+              <Field label="Built an app">
+                <select value={audience.published ?? ""} onChange={(e) => put({ published: (e.target.value || null) as MailAudience["published"] })} className={`${inputClass} cursor-pointer`}>
+                  <option value="">Either</option>
+                  <option value="yes">Yes, at least one ready build</option>
+                  <option value="no">Not yet</option>
+                </select>
+              </Field>
+              <Field label="Last signed in">
+                <select
+                  value={audience.activeWithinDays ? `in:${audience.activeWithinDays}` : audience.inactiveForDays ? `out:${audience.inactiveForDays}` : ""}
+                  onChange={(e) => {
+                    const [kind, days] = e.target.value.split(":");
+                    put({ activeWithinDays: kind === "in" ? Number(days) : null, inactiveForDays: kind === "out" ? Number(days) : null });
+                  }}
+                  className={`${inputClass} cursor-pointer`}
+                >
+                  <option value="">Any time</option>
+                  <option value="in:7">In the last 7 days</option>
+                  <option value="in:30">In the last 30 days</option>
+                  <option value="in:90">In the last 90 days</option>
+                  <option value="out:30">Not in the last 30 days</option>
+                  <option value="out:90">Not in the last 90 days</option>
+                  <option value="out:180">Not in the last 6 months</option>
+                </select>
+              </Field>
+            </div>
+            <div className="rounded-[14px] border border-line bg-sand/60 p-4">
+              <Toggle
+                label="Also their team members"
+                checked={!!audience.includeTeam}
+                onChange={(includeTeam) => put({ includeTeam })}
+                testId="include-team"
+                hint="People an account invited to its team. They didn't sign up to Yallapp themselves, so include them only when the email is for them too. Off: account owners only."
+              />
+            </div>
+          </div>
+        ) : null}
         <Field label="Only these addresses (a test group)" hint="One per line or separated by commas. Leave empty for everyone the filters match; when set, only the addresses here that also match get it.">
           <textarea
             rows={2}
@@ -181,8 +231,9 @@ export function AudienceStep({ audience, onChange, segments: initialSegments, se
           </span>
           {count ? (
             <span className="text-[13px] text-night-muted">
-              {count.everyone ? "Everyone on Yallapp" : "Matching the filters"}
+              {count.everyone ? (people === "contacts" ? "Every contact" : people === "both" ? "Everyone on Yallapp and every contact" : "Everyone on Yallapp") : "Matching the filters"}
               {count.team ? ` · ${count.team} team members` : ""}
+              {people !== "accounts" ? <span data-testid="audience-contacts">{` · ${count.contacts.toLocaleString("en")} ${count.contacts === 1 ? "contact" : "contacts"}`}</span> : null}
               {count.suppressed ? ` · ${count.suppressed} left out (unsubscribed or bounced)` : ""}
             </span>
           ) : null}

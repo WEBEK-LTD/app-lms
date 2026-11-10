@@ -1,26 +1,65 @@
 /**
  * 114 Who a campaign goes to: the accounts (and, when the admin asks, their
- * team members) that match its audience, each with their language and the
- * values of the merge tags. Addresses never to be mailed (unsubscribed,
- * bounced, complained) are left out, also when they belong to another
- * account: an unsubscribe is the address's, everywhere.
+ * team members) that match its audience, the admin's contacts that do, or
+ * both, each with their language and the values of the merge tags. An
+ * address is listed once: one that's an account and a contact gets one email
+ * (as the account, when the campaign goes to accounts). Addresses never to be
+ * mailed (unsubscribed, bounced, complained) are left out, also when they
+ * belong to another account or are a contact: an unsubscribe is the
+ * address's, everywhere.
  */
 
 import type { ClientRow, DataStore } from "../data/store";
 import { accountState } from "../license/status";
 import { planName, type Plan, type PlanInfo } from "../plans";
+import { cleanTags } from "./contacts";
 import { firstNameOf, type MergeValues } from "./merge";
-import type { MailAudience, MailLang } from "./types";
+import type { MailAudience, MailAudiencePeople, MailContact, MailLang } from "./types";
 
 export interface AudiencePerson {
   email: string;
   name: string;
-  userId: string;
-  clientId: string;
+  /** Null for a contact. */
+  userId: string | null;
+  clientId: string | null;
+  /** One of the admin's contacts (not an account). */
+  contactId: string | null;
   lang: MailLang;
   /** A team member, not the account's owner. */
   team: boolean;
   values: MergeValues;
+}
+
+/** Who the audience is: accounts (campaigns from before contacts), contacts, or both. */
+export function audiencePeople(audience: Pick<MailAudience, "people">): MailAudiencePeople {
+  return audience.people === "contacts" || audience.people === "both" ? audience.people : "accounts";
+}
+
+/** Whether the contact matches the audience's contact filters (tags, language, country). */
+export function contactMatches(contact: MailContact, audience: MailAudience): boolean {
+  if (audience.contactTags?.length && !contact.tags.some((t) => audience.contactTags!.includes(t))) return false;
+  if (audience.contactLangs?.length && !audience.contactLangs.includes(contact.lang)) return false;
+  if (audience.contactCountries?.length && !audience.contactCountries.includes((contact.country ?? "").toUpperCase())) return false;
+  return true;
+}
+
+/**
+ * The merge tags' values for a contact: the name, first name and address are
+ * theirs; the business name is their company. They have no app, plan or plan
+ * end date, so those are empty (the tag's own default, {{plan|…}}, shows
+ * instead); the sign-in link goes to sign-up, since they have no account yet.
+ */
+export function contactValues(contact: Pick<MailContact, "name" | "email" | "company">, signUpUrl: string): MergeValues {
+  return {
+    first_name: firstNameOf(contact.name),
+    name: contact.name.includes("@") ? "" : contact.name,
+    email: contact.email,
+    business_name: contact.company ?? "",
+    app_name: "",
+    plan: "",
+    expiry_date: "",
+    sign_in_link: signUpUrl,
+  };
 }
 
 export function mailLangOf(language: string | null | undefined): MailLang {
@@ -91,21 +130,33 @@ export interface ResolvedAudience {
 }
 
 export async function resolveAudience(store: DataStore, audience: MailAudience, options: ResolveOptions): Promise<ResolvedAudience> {
-  const signIn = `${options.baseUrl.replace(/\/+$/, "")}/sign-in`;
-  const rows = await store.listClients({ filter: "all", now: options.now });
+  const base = options.baseUrl.replace(/\/+$/, "");
+  const signIn = `${base}/sign-in`;
+  const who = audiencePeople(audience);
   const only = audience.emails?.length ? new Set(audience.emails.map((e) => e.trim().toLowerCase())) : null;
   const byEmail = new Map<string, AudiencePerson>();
-  for (const row of rows) {
-    if (!accountMatches(row, audience, options.now)) continue;
-    const add = (person: { id: string; email: string; name: string; language?: string | null }, team: boolean) => {
-      const email = person.email.trim().toLowerCase();
-      if (!email.includes("@") || byEmail.has(email) || (only && !only.has(email))) return;
-      const lang = mailLangOf(person.language);
-      byEmail.set(email, { email, name: person.name, userId: person.id, clientId: row.client.id, lang, team, values: accountValues(row, person, lang, signIn, options.plans) });
-    };
-    add(row.user, false);
-    if (audience.includeTeam) {
-      for (const member of await store.listTeamMembers(row.client.id)) add(member.user, true);
+  if (who !== "contacts") {
+    const rows = await store.listClients({ filter: "all", now: options.now });
+    for (const row of rows) {
+      if (!accountMatches(row, audience, options.now)) continue;
+      const add = (person: { id: string; email: string; name: string; language?: string | null }, team: boolean) => {
+        const email = person.email.trim().toLowerCase();
+        if (!email.includes("@") || byEmail.has(email) || (only && !only.has(email))) return;
+        const lang = mailLangOf(person.language);
+        byEmail.set(email, { email, name: person.name, userId: person.id, clientId: row.client.id, contactId: null, lang, team, values: accountValues(row, person, lang, signIn, options.plans) });
+      };
+      add(row.user, false);
+      if (audience.includeTeam) {
+        for (const member of await store.listTeamMembers(row.client.id)) add(member.user, true);
+      }
+    }
+  }
+  if (who !== "accounts") {
+    for (const contact of await store.allMailContacts()) {
+      const email = contact.email.trim().toLowerCase();
+      // An address that's an account too is listed once, as the account.
+      if (!email.includes("@") || byEmail.has(email) || (only && !only.has(email)) || !contactMatches(contact, audience)) continue;
+      byEmail.set(email, { email, name: contact.name, userId: null, clientId: null, contactId: contact.id, lang: contact.lang, team: false, values: contactValues(contact, `${base}/sign-up`) });
     }
   }
   const people = [...byEmail.values()];
@@ -137,14 +188,26 @@ export function cleanAudience(input: unknown): MailAudience {
     inactiveForDays: days(a.inactiveForDays),
     includeTeam: a.includeTeam === true,
   };
+  const people = audiencePeople({ people: a.people as MailAudiencePeople });
+  if (people !== "accounts") {
+    out.people = people;
+    out.contactTags = cleanTags(list(a.contactTags));
+    out.contactLangs = list(a.contactLangs, ["en", "ar", "tr"]) as MailAudience["contactLangs"];
+    out.contactCountries = list(a.contactCountries, undefined, 250).map((c) => c.toUpperCase()).filter((c) => /^[A-Z]{2}$/.test(c));
+  }
   const emails = Array.isArray(a.emails) ? a.emails.filter((e): e is string => typeof e === "string").map((e) => e.trim().toLowerCase()).filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e.length <= 191) : [];
   if (emails.length) out.emails = [...new Set(emails)].slice(0, 500);
   return out;
 }
 
-/** "Everyone" when no filter is set. */
+/** "Everyone" when no filter is set (of the accounts, the contacts, or both, whichever the audience is). */
 export function audienceIsEveryone(audience: MailAudience): boolean {
-  const { includeTeam: _team, ...rest } = audience;
+  const { includeTeam: _team, people: _people, ...rest } = audience;
   void _team;
-  return Object.values(rest).every((v) => v === null || v === undefined || (Array.isArray(v) && v.length === 0));
+  void _people;
+  const who = audiencePeople(audience);
+  const contactKeys = ["contactTags", "contactLangs", "contactCountries"];
+  return Object.entries(rest)
+    .filter(([key]) => (who === "accounts" ? !contactKeys.includes(key) : who === "contacts" ? contactKeys.includes(key) || key === "emails" : true))
+    .every(([, v]) => v === null || v === undefined || (Array.isArray(v) && v.length === 0));
 }

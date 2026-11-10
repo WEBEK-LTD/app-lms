@@ -24,7 +24,7 @@ export default async function CampaignPage({ params, searchParams }: PageProps<"
   const campaign = await store.getMailCampaign(id);
   if (!campaign) notFound();
   if (campaign.status !== "draft" && campaign.status !== "scheduled") redirect(`/admin/email-campaigns/${id}/report`);
-  const [segments, plans] = await Promise.all([store.listMailSegments(), getPlans(store)]);
+  const [segments, plans, contactTags] = await Promise.all([store.listMailSegments(), getPlans(store), store.listMailContactTags()]);
   const step = STEPS.find((s) => s === query.step) ?? "audience";
   return (
     <CampaignEditor
@@ -44,7 +44,7 @@ export default async function CampaignPage({ params, searchParams }: PageProps<"
         timeZone: campaign.timeZone,
       }}
       segments={segments}
-      options={{ plans: PLANS.map((p) => ({ id: p, name: plans[p].name })), appTypes: APP_TYPE_SWITCHES, countries: countryOptions("en") }}
+      options={{ plans: PLANS.map((p) => ({ id: p, name: plans[p].name })), appTypes: APP_TYPE_SWITCHES, countries: countryOptions("en"), contactTags }}
       assetBase={appUrl()}
       canEdit={can(admin.adminRole, "marketing.edit")}
       canSend={can(admin.adminRole, "marketing.send")}

@@ -6,7 +6,7 @@ import { can } from "@/lib/admin/permissions";
 import { requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { appUrl } from "@/lib/env";
-import { audienceIsEveryone, resolveAudience } from "@/lib/mailing/audience";
+import { audienceIsEveryone, audiencePeople, resolveAudience } from "@/lib/mailing/audience";
 import type { MailAudience } from "@/lib/mailing/types";
 import { MailTabs } from "../shared";
 
@@ -14,8 +14,24 @@ export const metadata: Metadata = { title: "Audiences" };
 export const dynamic = "force-dynamic";
 
 function describe(a: MailAudience): string {
-  if (audienceIsEveryone(a)) return a.includeTeam ? "Everyone, with team members" : "Every account owner";
+  const who = audiencePeople(a);
+  if (audienceIsEveryone(a)) {
+    const accounts = a.includeTeam ? "Everyone, with team members" : "Every account owner";
+    return who === "contacts" ? "Every contact" : who === "both" ? `${accounts}, and every contact` : accounts;
+  }
   const parts: string[] = [];
+  if (who !== "accounts") {
+    const contact: string[] = [];
+    if (a.contactTags?.length) contact.push(`tagged ${a.contactTags.join(" or ")}`);
+    if (a.contactLangs?.length) contact.push(a.contactLangs.map((l) => l.toUpperCase()).join(" or "));
+    if (a.contactCountries?.length) contact.push(a.contactCountries.join(", "));
+    parts.push(`Contacts${contact.length ? ` ${contact.join(", ")}` : ""}`);
+    if (who === "contacts") {
+      if (a.emails?.length) parts.push(`${a.emails.length} chosen addresses`);
+      return parts.join(" · ");
+    }
+    parts.push("accounts:");
+  }
   if (a.states?.length) parts.push(a.states.join(" or "));
   if (a.plans?.length) parts.push(`plan ${a.plans.join(" or ")}`);
   if (a.sections?.length) parts.push(a.sections.join(" or "));

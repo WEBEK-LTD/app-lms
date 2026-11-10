@@ -196,7 +196,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/a
                         </b>
                         <span className="text-[13px] text-muted" dir="ltr">
                           {r.email}
-                          {r.team ? " · team member" : ""}
+                          {r.team ? " · team member" : r.contactId ? " · contact" : ""}
                         </span>
                       </span>
                     </td>

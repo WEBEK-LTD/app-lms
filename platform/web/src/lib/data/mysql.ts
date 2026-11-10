@@ -67,7 +67,7 @@ import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
 import type { DemoVisit, LiveActivityEntry } from "../live-activity/types";
 import type { SiteReview } from "../reviews/types";
 import type { MatchedStep } from "../bot/intents";
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailContact, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import type { ChatConversation, ChatConversationKind, ChatConversationPatch, ChatMember, ChatMemberSource, ChatMessage, ChatParticipant, ChatReport, ChatReportOutcome, ChatSession, ChatUploadInfo } from "./types";
 import type { AppError, ClientMilestone, JobRun, MilestoneKind, ProductDay, RekeyCell, TeamAlert, TeamAlertKind, WatchedJob } from "./types";
 import { candidatesIn, needsRekey } from "../crypto/rekey";
@@ -9523,6 +9523,96 @@ export class MysqlStore implements DataStore {
       runs += u.affectedRows;
     }
     return { events: events.affectedRows, recipients, runs };
+  }
+
+  async listMailContacts(filter: { query?: string; tag?: string; offset: number; limit: number }): Promise<{ items: MailContact[]; total: number }> {
+    const t = schema.mailContacts;
+    const escape = (value: string) => value.replace(/[\\%_]/g, (c) => `\\${c}`);
+    const query = filter.query?.trim().toLowerCase();
+    const pattern = query ? `%${escape(query)}%` : null;
+    // Tags are lower-case words without quotes, kept as a JSON list: '"tag"' matches the whole tag.
+    const tag = filter.tag ? `%${escape(JSON.stringify(filter.tag))}%` : null;
+    const where = and(pattern ? or(like(t.email, pattern), like(t.name, pattern), like(t.company, pattern)) : undefined, tag ? like(t.tags, tag) : undefined);
+    const [items, total] = await Promise.all([
+      this.run((db) => db.select().from(t).where(where).orderBy(desc(t.addedAt), asc(t.email)).limit(filter.limit).offset(filter.offset)),
+      this.run((db) => db.select({ n: count() }).from(t).where(where)),
+    ]);
+    return { items, total: Number(total[0]?.n ?? 0) };
+  }
+
+  async allMailContacts(): Promise<MailContact[]> {
+    const t = schema.mailContacts;
+    return this.run((db) => db.select().from(t).orderBy(desc(t.addedAt), asc(t.email)));
+  }
+
+  async getMailContact(id: string): Promise<MailContact | null> {
+    const rows = await this.run((db) => db.select().from(schema.mailContacts).where(eq(schema.mailContacts.id, id)).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async findMailContacts(emails: string[]): Promise<MailContact[]> {
+    const t = schema.mailContacts;
+    const wanted = [...new Set(emails.map((e) => e.toLowerCase()))];
+    const found: MailContact[] = [];
+    for (let i = 0; i < wanted.length; i += 1000) {
+      const batch = wanted.slice(i, i + 1000);
+      found.push(...(await this.run((db) => db.select().from(t).where(inArray(t.email, batch)))));
+    }
+    return found;
+  }
+
+  async addMailContacts(contacts: MailContact[]): Promise<number> {
+    let added = 0;
+    const rows = contacts.map((c) => ({ ...c, email: c.email.toLowerCase() }));
+    for (let i = 0; i < rows.length; i += 500) {
+      const batch = rows.slice(i, i + 500);
+      // INSERT IGNORE: an address that's a contact already stays as it is (the unique key).
+      const [result] = await this.run((db) => db.insert(schema.mailContacts).ignore().values(batch));
+      added += result.affectedRows;
+    }
+    return added;
+  }
+
+  async updateMailContact(id: string, patch: Partial<Pick<MailContact, "email" | "name" | "company" | "lang" | "country" | "tags" | "source" | "sourceNote" | "updatedAt">>): Promise<"ok" | "missing" | "duplicate"> {
+    const t = schema.mailContacts;
+    const existing = await this.getMailContact(id);
+    if (!existing) return "missing";
+    if (Object.keys(patch).length === 0) return "ok";
+    try {
+      await this.run((db) => db.update(t).set(patch.email ? { ...patch, email: patch.email.toLowerCase() } : patch).where(eq(t.id, id)));
+      return "ok";
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return "duplicate";
+      throw error;
+    }
+  }
+
+  async deleteMailContact(id: string): Promise<boolean> {
+    const [result] = await this.run((db) => db.delete(schema.mailContacts).where(eq(schema.mailContacts.id, id)));
+    return result.affectedRows > 0;
+  }
+
+  async listMailContactTags(): Promise<{ tag: string; count: number }[]> {
+    const rows = await this.run((db) => db.select({ tags: schema.mailContacts.tags }).from(schema.mailContacts));
+    const counts = new Map<string, number>();
+    for (const row of rows) for (const tag of row.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    return [...counts].map(([tag, n]) => ({ tag, count: n })).sort((a, b) => a.tag.localeCompare(b.tag));
+  }
+
+  async setMailContactUnsubscribed(email: string, at: Date | null): Promise<void> {
+    const t = schema.mailContacts;
+    await this.run((db) => db.update(t).set({ unsubscribedAt: at }).where(eq(t.email, email.toLowerCase())));
+  }
+
+  async listAccountEmails(emails: string[]): Promise<string[]> {
+    const wanted = [...new Set(emails.map((e) => e.toLowerCase()))];
+    const found: string[] = [];
+    for (let i = 0; i < wanted.length; i += 1000) {
+      const batch = wanted.slice(i, i + 1000);
+      const rows = await this.run((db) => db.select({ email: schema.users.email }).from(schema.users).where(inArray(schema.users.email, batch)));
+      found.push(...rows.map((r) => r.email.toLowerCase()));
+    }
+    return [...new Set(found)];
   }
 
   // The app-builder bot
