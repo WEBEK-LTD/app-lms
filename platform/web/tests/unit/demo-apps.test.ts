@@ -203,8 +203,11 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(academy.courseSetup?.courses).toHaveLength(ACADEMY_COURSES.length);
     expect(academy.courseSetup?.courses.every((c) => c.teacherId && teachers.find((t) => t.id === c.teacherId)?.name === c.instructorName && c.active)).toBe(true);
     expect(academy.courseSetup?.teachersApply).toBe(true);
-    // Every picture is a PNG we drew.
-    for (const data of blobs.values()) expect(readPngInfo(data)).toMatchObject({ hasTransparency: false });
+    // Every picture is a PNG we drew, or one of Zad's photos (a JPEG as it is).
+    for (const [key, data] of blobs) {
+      if (key.endsWith(".jpg")) expect(data.subarray(0, 3).toString("hex")).toBe("ffd8ff");
+      else expect(readPngInfo(data)).toMatchObject({ hasTransparency: false });
+    }
   });
 
   it("updates instead of duplicating when run again", async () => {
