@@ -51,11 +51,11 @@ function heroNotices(lang: Lang): HeroNotice[] {
   const n = messagesFor(lang).home.notices;
   const { marketplace: zad, school, taxi, instructors: rawaq } = DEMO_BRANDS;
   return [
-    { app: zad.appName, text: n.zad, color: zad.primaryColor, ink: "#ffffff", mark: zad.appName.charAt(0) },
-    { app: school.appName, text: n.school, color: school.primaryColor, ink: "#ffffff", mark: school.appName.charAt(0) },
-    { app: taxi.appName, text: n.taxi, color: taxi.secondaryColor, ink: taxi.primaryColor, mark: taxi.appName.charAt(0) },
-    { app: n.yourStore, text: n.store, color: "var(--color-ember)", ink: "var(--color-midnight)", mark: { icon: "storefront" } },
-    { app: rawaq.appName, text: n.academy, color: rawaq.primaryColor, ink: "#ffffff", mark: rawaq.appName.charAt(0) },
+    { app: zad.appName, text: n.zad, color: "var(--color-peach)", ink: "var(--color-accent)", mark: zad.appName.charAt(0) },
+    { app: school.appName, text: n.school, color: "var(--color-peach)", ink: "var(--color-accent)", mark: school.appName.charAt(0) },
+    { app: taxi.appName, text: n.taxi, color: "var(--color-peach)", ink: "var(--color-accent)", mark: taxi.appName.charAt(0) },
+    { app: n.yourStore, text: n.store, color: "var(--color-peach)", ink: "var(--color-accent)", mark: { icon: "storefront" } },
+    { app: rawaq.appName, text: n.academy, color: "var(--color-peach)", ink: "var(--color-accent)", mark: rawaq.appName.charAt(0) },
   ];
 }
 
@@ -110,20 +110,20 @@ export async function HomePage({ lang }: { lang: Lang }) {
         ]}
       />
       <main>
-        {/* The hero: a dark stage, the title with its turning word, and a fan of real app screens (home-motion.tsx, globals.css). */}
-        <section aria-labelledby="hero-title" className="hero on-dark relative isolate overflow-clip bg-midnight text-ivory" data-hero="">
+        {/* The hero: a stage in the site's theme (Ivory light, Midnight dark), the title with its turning word, and a fan of real app screens (home-motion.tsx, globals.css). */}
+        <section aria-labelledby="hero-title" className="hero relative isolate overflow-clip bg-ivory text-midnight" data-hero="">
           <span aria-hidden="true" className="hero-glow" />
           <span aria-hidden="true" className="hero-grid" />
           <span aria-hidden="true" className="hero-grain" />
           <div className="mx-auto grid max-w-[1200px] items-center gap-x-10 gap-y-6 px-4 pt-14 sm:px-6 sm:pt-[88px] min-[900px]:grid-cols-[1.02fr_1fr]">
             <div className="hero-copy flex min-w-0 flex-col gap-[22px]">
-              <span className="flex min-h-[34px] items-center gap-2.5 self-start rounded-full border border-white/10 bg-white/6 py-1.5 ps-1.5 pe-3.5 text-[13px] font-semibold text-ivory">
+              <span className="flex min-h-[34px] items-center gap-2.5 self-start rounded-full border border-line bg-white py-1.5 ps-1.5 pe-3.5 text-[13px] font-semibold text-midnight">
                 <span aria-hidden="true" className="hero-ping relative h-[22px] w-[22px] flex-none rounded-full bg-ember" />
                 {text.badge}
               </span>
               <h1
                 id="hero-title"
-                className="hero-title m-0 font-extrabold text-balance text-ivory"
+                className="hero-title m-0 font-extrabold text-balance text-midnight"
                 style={titleParts ? ({ "--hero-chars": Math.max(...titleParts.words.map((w) => w.length), 10) } as CSSProperties) : undefined}
               >
                 {titleParts ? (
@@ -138,7 +138,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
                   text.title
                 )}
               </h1>
-              <p className="m-0 max-w-[34em] text-[17px] leading-[1.7] text-night-text sm:text-[19px]">{text.intro}</p>
+              <p className="m-0 max-w-[34em] text-[17px] leading-[1.7] text-ink-4 sm:text-[19px]">{text.intro}</p>
               <div className="flex flex-wrap gap-3">
                 <WhatsAppLink
                   lines={contact.lines}
@@ -150,7 +150,7 @@ export async function HomePage({ lang }: { lang: Lang }) {
                 </WhatsAppLink>
                 <Link
                   href={lp("/how-it-works")}
-                  className="flex h-[54px] items-center gap-2 rounded-[14px] border border-white/15 bg-white/6 px-6 text-base font-semibold text-white no-underline transition-[translate,border-color] hover:-translate-y-px hover:border-white/40 hover:text-white"
+                  className="flex h-[54px] items-center gap-2 rounded-[14px] border border-line-button bg-white px-6 text-base font-semibold text-midnight no-underline transition-[translate,border-color] hover:-translate-y-px hover:border-midnight hover:text-midnight"
                 >
                   {text.secondaryCta}
                   <Icon name="arrow_forward" size={20} />
@@ -158,8 +158,8 @@ export async function HomePage({ lang }: { lang: Lang }) {
               </div>
               {/* 41 The five stores, as marks. */}
               <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2.5 pt-1">
-                <span className="text-sm font-semibold text-night-text">{h.publishTo}</span>
-                <StoreMarks stores={[...APP_STORES]} label={m.footer.storesLabel} size={18} tone="dark" />
+                <span className="text-sm font-semibold text-muted">{h.publishTo}</span>
+                <StoreMarks stores={[...APP_STORES]} label={m.footer.storesLabel} size={18} />
               </div>
             </div>
             <HeroStage notices={notices} label={h.appsGroup}>

@@ -733,8 +733,8 @@ html {
 }
 
 /*
- * The home page's hero (src/site/home.tsx, home-motion.tsx): a Midnight
- * stage with a slow Ember glow, a fine grid and a little grain; the title's
+ * The home page's hero (src/site/home.tsx, home-motion.tsx): a stage in the site's theme (Ivory light, Midnight dark)
+ * with a slow Ember glow, a fine grid and a little grain; the title's
  * coloured word that takes turns; a fan of real screens that assembles on
  * load and leans with the pointer; two notices; the kinds running under it.
  * Everything rests in its final place: the motion only leads there, and
@@ -760,8 +760,8 @@ html {
   inset: 0;
   z-index: -1;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 70% 60% at 70% 40%, #000 20%, transparent 75%);
   opacity: 0.45;
@@ -1033,11 +1033,11 @@ html {
   gap: 10px;
   width: 270px;
   padding: 11px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-line);
   border-radius: 16px;
-  background: rgba(28, 27, 58, 0.8);
+  background: color-mix(in srgb, var(--color-white) 88%, transparent);
   backdrop-filter: blur(14px);
-  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 40px -22px rgba(14, 13, 36, 0.45);
   transition:
     opacity 0.5s ease,
     transform 0.6s var(--hero-ease);
@@ -1088,7 +1088,7 @@ html {
 
 /* The kinds of apps, running under the hero (the Works with strip's marquee). */
 .hero-ticker {
-  border-block: 1px solid rgba(255, 255, 255, 0.1);
+  border-block: 1px solid var(--color-line);
   mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
 }
 .hero-kinds {
@@ -1100,7 +1100,7 @@ html {
   display: inline-flex;
   align-items: center;
   gap: 42px;
-  color: var(--color-ivory);
+  color: var(--color-midnight);
   font-size: clamp(18px, 2vw, 24px);
   font-weight: 700;
   white-space: nowrap;
