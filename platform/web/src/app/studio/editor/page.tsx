@@ -12,6 +12,7 @@ import { ownFontView } from "@/lib/fonts/own";
 import { kindOf } from "@/lib/app/kinds";
 import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
+import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
 import { designLayout, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
@@ -78,6 +79,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       ownDesigns={(await store.listStudioDesigns(app.clientId)).map(ownDesignView)}
       kindName={k(kindOf(app).name)}
       pictureBase={appUrl()}
+      // 115.14 What a marketplace's sections show on the canvas, read as the app reads it.
+      market={await marketCanvasOf(app, { store, assetUrl, platformUrl: appUrl() }, now)}
     />
   );
 }

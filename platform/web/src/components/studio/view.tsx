@@ -8,6 +8,8 @@ import { mapTree } from "@/lib/studio/tree";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
+import type { MarketCanvas } from "@/lib/studio/market-canvas";
+import { MarketSection } from "./market";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -28,6 +30,8 @@ export interface StudioLook {
   tabBar?: TabBarStyle;
   /** 109 The More tab's name, with more than five tabs. */
   moreLabel?: string;
+  /** The app's second colour (`secondary_color`), for its accents; missing, Ember. */
+  accent?: string | null;
 }
 
 export interface StudioEditing {
@@ -60,7 +64,9 @@ interface ViewProps {
   /** Editor audit 3.3: shown on a tablet, with each element's tablet changes. */
   tablet?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
-  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string; /** 115.14 A marketplace section's name, by section. */ market?: Record<string, string> };
+  words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
+  /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
+  market?: MarketCanvas | null;
 }
 
 const SHADOWS: Record<string, string> = {
@@ -418,23 +424,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
             </span>
           </span>
         );
-      case "market": {
-        // 115.14 The app draws the section from the marketplace's data; the editor shows what it is, with its title and text.
-        const section = n.market?.section ?? "vendors";
-        const name = p.words.market?.[section] ?? section;
-        return (
-          <span data-studio-market={section} style={{ display: "flex", flexDirection: "column", gap: 4, padding: "12px 14px", borderRadius: "inherit", border: `1.5px dashed ${dark ? "rgba(255,255,255,0.25)" : "#D8D2C4"}`, background: dark ? "rgba(255,255,255,0.04)" : "#FBF8F2" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: color ?? look.brand }}>
-              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
-                storefront
-              </span>
-              {name}
-            </span>
-            {n.title ? <span style={{ fontWeight: 800, fontSize: 16 }}>{n.title}</span> : null}
-            {text ? <span style={{ fontSize: 13, opacity: 0.7 }}>{text}</span> : null}
-          </span>
-        );
-      }
+      case "market":
+        // 115.14 The section as the app draws it, from the project's marketplace (the app's samples where it has none).
+        return <MarketSection node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} color={color} data={p.market} />;
       case "spacer":
         return null;
       case "text":

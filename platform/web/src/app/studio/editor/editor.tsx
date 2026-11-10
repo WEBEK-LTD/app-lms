@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type MouseEvent, type ReactNode } from "react";
-import { STUDIO_MARKET_SECTIONS } from "@/lib/pages/types";
 import Link from "next/link";
 import { deleteStudioDesignAction, deleteStudioTemplateAction, loadStudioDesignAction, saveStudioDesignAction, saveStudioTemplateAction, uploadDesignPictureAction } from "@/app/actions/studio";
 import { publishLayoutAction, restoreLayoutVersionAction, saveLayoutDraftAction, uploadOwnFontAction, type LayoutSaveResult } from "@/app/actions/pages";
@@ -11,6 +10,7 @@ import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n
 import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import type { DashKey } from "@/i18n/dashboard";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
+import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import type { ScreenOption } from "@/lib/pages/sources";
 import { uniqueSlug } from "@/lib/pages/model";
 import { moreLabel } from "@/lib/pages/tab-bar";
@@ -84,6 +84,8 @@ export interface StudioEditorProps {
   kindName: string;
   /** 112.4 The platform's address, for Yallapp's pictures in ready sections. */
   pictureBase: string;
+  /** 115.14 A marketplace's places, offers, cuisines and orders, drawn by its `market` elements; null for other projects. */
+  market?: MarketCanvas | null;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -157,9 +159,10 @@ export function StudioEditor(props: StudioEditorProps) {
     // 109 The bar's look, and More in the language being edited.
     tabBar: layout.tab_bar,
     moreLabel: moreLabel(editLang),
+    accent: layout.appearance.secondary_color,
   };
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
-  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode"), market: Object.fromEntries(STUDIO_MARKET_SECTIONS.map((x) => [x, t(`studio.market_${x}` as DashKey)])) };
+  const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   // Editor audit 3.3: the page templates (About, FAQ) come before the blank page, beside the rest.
   const kindTemplates = useMemo(() => {
@@ -1146,7 +1149,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} editing={editing} words={words} tablet={device === "tablet"} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} tablet={device === "tablet"} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}
@@ -1257,7 +1260,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <DesignsGallery
           kindName={props.kindName}
           designs={galleryDesigns}
-          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} words={words} />}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} />}
           load={loadOwnDesign}
           onApply={applyDesign}
           onImport={() => {
@@ -1274,7 +1277,7 @@ export function StudioEditor(props: StudioEditorProps) {
         <ImportDialog
           onClose={() => setImportOpen(false)}
           onImport={(choice) => void runImport(choice)}
-          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} words={words} />}
+          preview={(p) => <StudioView page={p} lang={editLang} defaultLang={def} dark={false} look={look} pickable={props.pickable} market={props.market} words={words} />}
           ownFonts={ownFonts}
           onFontsAdded={(families) => setOwnFonts((list) => [...list, ...families.filter((f) => !list.some((x) => x.family === f)).map((family) => ({ family, previewUrl: "", files: [] }))])}
           hasOpenPage={!!studio}
