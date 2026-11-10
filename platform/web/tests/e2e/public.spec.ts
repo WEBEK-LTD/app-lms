@@ -195,8 +195,12 @@ test("the phones on the landing page have thin bezels that scale with their size
 test("every menu link opens its own page and marks it", async ({ page }) => {
   const pages = [
     { group: null, name: "Home", path: "/" },
-    // 103R Studio has its own link on the bar, with "New"; it's first in Product's list too.
-    { group: null, name: "Studio", path: "/yallapp-studio" },
+    // 103R Studio has its own list on the bar, with "New": its page, the apps made in it and its demo.
+    { group: "Studio", name: "Yallapp Studio", path: "/yallapp-studio" },
+    { group: "Studio", name: "School app", path: "/yallapp-studio/school" },
+    { group: "Studio", name: "Ride-hailing app", path: "/yallapp-studio/rides" },
+    { group: "Studio", name: "Delivery & shipping app", path: "/yallapp-studio/delivery" },
+    { group: "Studio", name: "Multi-vendor app", path: "/yallapp-studio/multi-vendor" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -228,9 +232,15 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
   await page.goto("/pricing");
   await expect(page.getByRole("heading", { name: "Compare plans" })).toBeVisible();
   const nav = page.getByRole("navigation", { name: "Main" });
-  await expect(nav.getByRole("link", { name: "Studio New" })).toHaveAttribute("href", "/yallapp-studio");
+  const studio = nav.getByRole("button", { name: "Studio New" });
+  await studio.click();
+  const list = page.locator(`#${await studio.getAttribute("aria-controls")}`);
+  await expect(list.getByText("Apps made in Studio")).toBeVisible();
+  await expect(list.getByRole("link", { name: /^Studio demo/ })).toHaveAttribute("href", "/demo/studio");
+  // Product's list keeps the regular apps' pages.
   await nav.getByRole("button", { name: "Product" }).click();
-  await expect(nav.getByRole("link", { name: /^Yallapp Studio/ })).toHaveAttribute("href", "/yallapp-studio");
+  await expect(nav.getByRole("link", { name: /^Solutions/ })).toHaveAttribute("href", "/solutions");
+  await expect(nav.getByRole("link", { name: /^Yallapp Studio/ })).toHaveCount(0);
 });
 
 test("Yallapp Studio's Arabic page plays the Arabic film", async ({ page }) => {
@@ -354,6 +364,11 @@ test("103R pricing keeps the regular plans and Studio's own plans apart, with th
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByRole("link", { name: "Yallapp Studio", exact: true })).toHaveAttribute("href", "/yallapp-studio");
   await expect(footer.getByRole("link", { name: "Studio demo", exact: true })).toHaveAttribute("href", "/demo/studio");
+  // The footer's own column for the apps made in Studio.
+  const apps = footer.getByRole("navigation", { name: "Apps made in Studio" });
+  await expect(apps.getByRole("link", { name: "School app" })).toHaveAttribute("href", "/yallapp-studio/school");
+  await expect(apps.getByRole("link", { name: "Multi-vendor app" })).toHaveAttribute("href", "/yallapp-studio/multi-vendor");
+  await expect(apps.getByRole("link")).toHaveCount(4);
 });
 
 test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {
@@ -372,9 +387,9 @@ test("the menu's lists open with the keyboard and close on Escape or a click out
   await expect(product).toBeFocused();
   // Arrow down opens the list on its first link; arrows move between links.
   await page.keyboard.press("ArrowDown");
-  await expect(list.getByRole("link", { name: /^Yallapp Studio/ })).toBeFocused();
-  await page.keyboard.press("ArrowDown");
   await expect(list.getByRole("link", { name: /^Solutions/ })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(list.getByRole("link", { name: /^Features/ })).toBeFocused();
   // One list at a time.
   await nav.getByRole("button", { name: "Resources" }).click();
   await expect(product).toHaveAttribute("aria-expanded", "false");

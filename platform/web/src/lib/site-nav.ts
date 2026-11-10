@@ -2,10 +2,12 @@ import type { IconName } from "@/components/icon-names";
 import type { Lang } from "@/i18n/config";
 import type { Messages } from "@/i18n/messages/en";
 import { localePath } from "@/i18n/paths";
+import { STORY_IDS, storyPath, type StoryId } from "@/site/story/types";
 
 /**
- * 32 The public website's main menu: Product and Resources open a short list,
- * the others are links. Every page says which one it is (`SitePage`), so the
+ * 32 The public website's main menu: Product, Studio and Resources open a
+ * short list, the others are links. Studio's list has Yallapp Studio, the
+ * apps made in it (their story pages) and its demo. Every page says which one it is (`SitePage`), so the
  * header can mark the page and the section it's in.
  */
 
@@ -21,7 +23,9 @@ export type SitePage =
   | "docs"
   | "faq"
   | "developers"
-  | "contact";
+  | "contact"
+  | "studio-demo"
+  | `story-${StoryId}`;
 
 export interface SiteLink {
   id: SitePage;
@@ -36,12 +40,16 @@ export interface SiteLink {
   desktopOnly?: boolean;
   /** On the top bar only from extra-large screens; the footer has it at every size. */
   wideOnly?: boolean;
+  /** A small heading above this link in its list (Studio's "Apps made in Studio"). */
+  heading?: string;
 }
 
 export interface SiteGroup {
-  id: "product" | "resources";
+  id: "product" | "studio" | "resources";
   label: string;
   items: SiteLink[];
+  /** A short word beside the list's name on the top bar ("New"). */
+  badge?: string;
 }
 
 export type SiteNavEntry = ({ kind: "link" } & SiteLink) | ({ kind: "group" } & SiteGroup);
@@ -55,6 +63,24 @@ export const PRODUCT_LINKS: SiteLink[] = [
   { id: "how", href: "/how-it-works", label: "How it works", description: "From sign-up to the app stores", icon: "task_alt" },
 ];
 
+const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront" };
+const STORY_LABELS: Record<StoryId, [string, string]> = {
+  school: ["School app", "Students, parents, teachers and staff"],
+  rides: ["Ride-hailing app", "Riders, drivers and the live map"],
+  delivery: ["Delivery & shipping app", "Parcels, couriers and live tracking"],
+  "multi-vendor": ["Multi-vendor app", "Restaurants, supermarkets and delivery"],
+};
+
+/** The Studio story pages, for the Studio menu and the footer. */
+export const STORY_LINKS: SiteLink[] = STORY_IDS.map((id) => ({ id: `story-${id}` as const, href: storyPath(id), label: STORY_LABELS[id][0], description: STORY_LABELS[id][1], icon: STORY_ICONS[id] }));
+
+/** Studio's list: its page, the apps made in it, its demo. */
+export const STUDIO_LINKS: SiteLink[] = [
+  PRODUCT_LINKS[0]!,
+  ...STORY_LINKS.map((link, i) => (i === 0 ? { ...link, heading: "Apps made in Studio" } : link)),
+  { id: "studio-demo", href: "/demo/studio", label: "Studio demo", description: "Try Studio's apps on your phone", icon: "play_circle" },
+];
+
 export const RESOURCE_LINKS: SiteLink[] = [
   { id: "docs", href: "/docs", label: "Docs", description: "Step-by-step guides", icon: "menu_book" },
   { id: "faq", href: "/faq", label: "FAQ", description: "Questions, answered", icon: "help" },
@@ -63,9 +89,9 @@ export const RESOURCE_LINKS: SiteLink[] = [
 
 export const SITE_NAV: SiteNavEntry[] = [
   { kind: "link", id: "home", href: "/", label: "Home" },
-  { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS },
-  // 103R Yallapp Studio also on the bar itself, with "New", while it is new.
-  { kind: "link", id: "studio", href: "/yallapp-studio", label: "Studio", badge: "New", desktopOnly: true },
+  // Yallapp Studio has its own list on the bar (so not in Product's), with "New" while it is new; the footer has it under Product.
+  { kind: "group", id: "product", label: "Product", items: PRODUCT_LINKS.filter((link) => link.id !== "studio") },
+  { kind: "group", id: "studio", label: "Studio", items: STUDIO_LINKS, badge: "New" },
   { kind: "link", id: "pricing", href: "/pricing", label: "Pricing" },
   { kind: "link", id: "demo", href: "/demo", label: "Demo" },
   { kind: "group", id: "resources", label: "Resources", items: RESOURCE_LINKS },
@@ -86,6 +112,11 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     home: [m.home],
     product: [m.product],
     studio: [m.studio, m.studioText],
+    "studio-demo": [m.studioDemo, m.studioDemoText],
+    "story-school": [m.storySchool, m.storySchoolText],
+    "story-rides": [m.storyRides, m.storyRidesText],
+    "story-delivery": [m.storyDelivery, m.storyDeliveryText],
+    "story-multi-vendor": [m.storyMultiVendor, m.storyMultiVendorText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],
@@ -98,10 +129,22 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     faq: [m.faq, m.faqText],
     developers: [m.developers, m.developersText],
   };
-  const link = (item: SiteLink): SiteLink => ({ ...item, href: localePath(lang, item.href), label: label[item.id]![0], description: item.description && label[item.id]![1] });
+  const link = (item: SiteLink): SiteLink => ({
+    ...item,
+    href: localePath(lang, item.href),
+    label: label[item.id]![0],
+    description: item.description && label[item.id]![1],
+    ...(item.heading ? { heading: m.studioApps } : {}),
+  });
   return SITE_NAV.map((entry) =>
     entry.kind === "group"
-      ? { ...entry, label: label[entry.id]![0], items: entry.items.map(link) }
-      : { kind: "link" as const, ...link(entry), ...(entry.id === "studio" ? { label: m.studioShort } : {}), ...(entry.badge ? { badge: m.newBadge } : {}) },
+      ? { ...entry, label: entry.id === "studio" ? m.studioShort : label[entry.id]![0], items: entry.items.map(link), ...(entry.badge ? { badge: m.newBadge } : {}) }
+      : { kind: "link" as const, ...link(entry), ...(entry.badge ? { badge: m.newBadge } : {}) },
   );
+}
+
+/** The footer's Studio column in a language: the apps made in Studio. */
+export function storyLinksFor(lang: Lang, m: Messages["nav"]): { id: string; href: string; label: string }[] {
+  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor };
+  return STORY_IDS.map((id) => ({ id: `story-${id}`, href: localePath(lang, storyPath(id)), label: label[id] }));
 }

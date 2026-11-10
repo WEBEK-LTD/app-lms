@@ -150,13 +150,18 @@ describe("55 addresses in each language", () => {
     expect(isLocalizedPath("/studio")).toBe(false);
     expect(localePath("ar", "/studio")).toBe("/studio");
     const nav = siteNavFor("tr", messagesFor("tr").nav);
-    const product = nav.find((e) => e.id === "product");
-    expect(product?.kind === "group" && product.items[0]).toMatchObject({ id: "studio", href: "/tr/yallapp-studio", label: "Yallapp Studio", description: "Uygulamanı özgürce tasarla" });
+    const studio = nav.find((e) => e.id === "studio");
+    expect(studio?.kind === "group" && studio.items[0]).toMatchObject({ id: "studio", href: "/tr/yallapp-studio", label: "Yallapp Studio", description: "Uygulamanı özgürce tasarla" });
+    expect(studio?.kind === "group" && studio.items[1]).toMatchObject({ id: "story-school", href: "/tr/yallapp-studio/school", label: "Okul uygulaması", heading: "Studio'da yapılan uygulamalar" });
   });
 
   it("build the menu in each language with its links", () => {
     const nav = siteNavFor("ar", messagesFor("ar").nav);
     expect(nav.map((e) => e.label)).toEqual(["الرئيسية", "المنتج", "Studio", "الأسعار", "تجربة", "المصادر", "تواصل معنا"]);
+    const studio = nav.find((e) => e.id === "studio");
+    expect(studio?.kind === "group" && studio.badge).toBe("جديد");
+    expect(studio?.kind === "group" && studio.items.map((i) => i.label)).toEqual(["Yallapp Studio", "تطبيق المدرسة", "تطبيق توصيل الركاب", "تطبيق التوصيل والشحن", "تطبيق متعدد المتاجر", "عرض Studio"]);
+    expect(studio?.kind === "group" && studio.items[4]?.href).toBe("/ar/yallapp-studio/multi-vendor");
     expect(nav.flatMap((e) => (e.kind === "group" ? e.items.map((i) => i.href) : [e.href]))).toContain("/ar/how-it-works");
   });
 

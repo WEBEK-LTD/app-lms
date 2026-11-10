@@ -41,19 +41,32 @@ import nextConfig from "../../next.config";
 const BASE = "https://yallapp.test";
 
 describe("32 the website's menu", () => {
-  it("has Home, Product and Resources lists, then Studio, Pricing, Demo and Contact", () => {
-    // 103R Studio also on the bar itself, with "New".
+  it("has Home, Product, Studio and Resources lists, then Pricing, Demo and Contact", () => {
+    // 103R Studio has its own list on the bar, with "New".
     expect(SITE_NAV.map((e) => e.label)).toEqual(["Home", "Product", "Studio", "Pricing", "Demo", "Resources", "Contact"]);
+    expect(SITE_NAV.map((e) => e.kind)).toEqual(["link", "group", "group", "link", "link", "group", "link"]);
     const hrefs = (id: string) => SITE_NAV.flatMap((e) => (e.kind === "group" && e.id === id ? e.items.map((i) => i.href) : []));
-    // 103R Yallapp Studio first: its own page, apart from the regular apps.
-    expect(hrefs("product")).toEqual(["/yallapp-studio", "/solutions", "/features", "/integrations", "/how-it-works"]);
+    expect(hrefs("product")).toEqual(["/solutions", "/features", "/integrations", "/how-it-works"]);
+    // Studio's list: its page, the apps made in it (their story pages, under a heading) and its demo.
+    expect(hrefs("studio")).toEqual([
+      "/yallapp-studio",
+      "/yallapp-studio/school",
+      "/yallapp-studio/rides",
+      "/yallapp-studio/delivery",
+      "/yallapp-studio/multi-vendor",
+      "/demo/studio",
+    ]);
+    const studio = SITE_NAV.find((e) => e.id === "studio");
+    expect(studio?.kind === "group" && studio.items.filter((i) => i.heading).map((i) => i.id)).toEqual(["story-school"]);
     expect(hrefs("resources")).toEqual(["/docs", "/faq", "/developers"]);
   });
 
   it("marks the page's own link, or the list it's in", () => {
     expect(activeEntry("pricing")).toBe("pricing");
-    // Studio's page marks its own link on the bar, before the Product list it's also in.
+    // Studio's page, its story pages and its demo mark the Studio list.
     expect(activeEntry("studio")).toBe("studio");
+    expect(activeEntry("story-rides")).toBe("studio");
+    expect(activeEntry("studio-demo")).toBe("studio");
     expect(activeEntry("features")).toBe("product");
     expect(activeEntry("how")).toBe("product");
     expect(activeEntry("developers")).toBe("resources");

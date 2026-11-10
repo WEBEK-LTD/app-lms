@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Icon } from "./icon";
 import { getContact } from "@/lib/contact";
 import { legalLine } from "@/lib/company";
-import { PRODUCT_LINKS, siteNavFor, type SitePage } from "@/lib/site-nav";
+import { PRODUCT_LINKS, siteNavFor, storyLinksFor, type SitePage } from "@/lib/site-nav";
 import { COMPARE_TEXT } from "@/lib/compare";
 import { APP_STORES } from "@/lib/stores";
 import { DEFAULT_LANG, formatMessage, messagesFor, type Lang, type Messages } from "@/i18n";
@@ -96,6 +96,14 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
           <nav aria-label={m.nav.product} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>{f.product}</FooterHeading>
             {productLinks(lang, m).map((page) => (
+              <Link key={page.id} href={page.href} className={footerLink}>
+                {page.label}
+              </Link>
+            ))}
+          </nav>
+          <nav aria-label={m.nav.studioApps} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
+            <FooterHeading>{f.studioApps}</FooterHeading>
+            {storyLinksFor(lang, m.nav).map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}
               </Link>
