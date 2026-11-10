@@ -6,6 +6,7 @@ import { createStudioProjectAction } from "@/app/actions/studio-projects";
 import { SubmitButton } from "@/components/form";
 import { useDashLang, useDashT } from "@/components/dashboard-i18n";
 import { StudioView } from "@/components/studio/view";
+import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { DashKey } from "@/i18n/dashboard";
 import { kindById } from "@/lib/app/kinds";
 import { templatesFor, type SectionWord } from "@/lib/studio/sections";
@@ -24,7 +25,7 @@ type StudioKind = KindChoice & { text: string; soon: boolean };
 const ARABIC_DIGITS = ["١", "٢", "٣"];
 
 /** 103R.3 The new project's three steps, with its summary beside them. */
-export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null }) {
+export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioKinds: StudioKind[]; kinds: KindChoice[]; error: string | null; /** The samples the templates' lists show (lib/studio/sample-entries.ts). */ samples?: Pickable["samples"] }) {
   const t = useDashT();
   const lang = useDashLang();
   const all = [...studioKinds.filter((k) => !k.soon), ...kinds];
@@ -253,7 +254,7 @@ export function NewProjectForm({ studioKinds, kinds, error }: { studioKinds: Stu
                           defaultLang={lang}
                           dark={false}
                           look={{ name: name.trim() || t("studio.untitledProject"), logoUrl: null, brand: "#0E0D24", font: "Cairo", tabs: [], activeTab: null }}
-                          pickable={{ items: {}, categories: {} }}
+                          pickable={{ items: {}, categories: {}, samples }}
                           words={words}
                         />
                       </span>

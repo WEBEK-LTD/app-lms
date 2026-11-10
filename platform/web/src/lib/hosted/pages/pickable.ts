@@ -5,12 +5,49 @@ import type { App } from "../../data/types";
 import type { ItemSource } from "../../pages/types";
 import { offeredTypes } from "../../rides/settings";
 import { connectorFor } from "../connectors";
+import { itemResolver } from "./items";
+import "./sources";
 import type { Connector } from "../connectors/types";
+
+/** An entry as the app's list card shows it: its picture, its line under the title, its price and its badge (`Item`). */
+export interface PickableEntry {
+  id: string;
+  title: string;
+  subtitle?: string | null;
+  imageUrl?: string | null;
+  price?: string | null;
+  badge?: string | null;
+}
 
 /** Entries and categories the page editor offers to pick from. */
 export interface Pickable {
-  items: Partial<Record<ItemSource, { id: string; title: string }[]>>;
+  items: Partial<Record<ItemSource, PickableEntry[]>>;
   categories: Partial<Record<ItemSource, { id: string; name: string }[]>>;
+  /** Studio's canvas: the samples a list shows while it has no entries of its own, by language (lib/studio/sample-entries.ts); never offered to pick. */
+  samples?: Partial<Record<string, Partial<Record<ItemSource, PickableEntry[]>>>>;
+}
+
+/** 110 The cards the app shows for a source the platform fills (lib/hosted/pages/sources.ts), by entry. */
+async function cardsOf(app: App, source: ItemSource, store: DataStore, now: Date): Promise<Map<string, PickableEntry>> {
+  const resolver = itemResolver(source);
+  if (!resolver) return new Map();
+  try {
+    const cards = await resolver({ appId: app.id, userId: null, lang: "en", store, now }, { limit: 50, category_id: null, featured: false, sort: "newest", ids: [] });
+    return new Map(cards.map((c) => [c.id, { id: c.id, title: c.title, subtitle: c.subtitle ?? null, imageUrl: c.image_url ?? null, price: c.price_label ?? null, badge: c.badge ?? null }]));
+  } catch {
+    return new Map();
+  }
+}
+
+/** A card's facts from the app API's JSON (a course's picture, price and teacher). */
+function cardFacts(x: Record<string, unknown>): Omit<PickableEntry, "id" | "title"> {
+  const text = (v: unknown) => (typeof v === "string" && v ? v : null);
+  const price = (x.price ?? null) as { formatted?: unknown } | string | null;
+  return {
+    imageUrl: text(x.image_url) ?? text(x.cover_url) ?? (Array.isArray(x.images) ? text(x.images[0]) : null),
+    price: typeof price === "string" ? text(price) : text(price?.formatted),
+    subtitle: text((x.instructor as { name?: unknown } | undefined)?.name) ?? text(x.subtitle),
+  };
 }
 
 async function items(connector: Connector, path: string[], now: Date): Promise<Record<string, unknown>[]> {
@@ -77,12 +114,22 @@ export async function pickableContent(
     if (engine.source === "vehicle_types") {
       out.items.vehicle_types = offeredTypes(await deps.store.listVehicleTypes(app.id)).map((t) => ({ id: String(t.id), title: t.name }));
     }
+    // 105.4 A school's news to the whole school.
+    if (engine.source === "school_news") {
+      out.items.school_news = (await deps.store.listSchoolAnnouncements(app.id)).filter((a) => a.audience === "school").slice(0, 200).map((a) => ({ id: String(a.id), title: a.title }));
+    }
+    // Studio's canvas draws each entry as the app's card: its picture, line, price and badge.
+    const list = out.items[engine.source];
+    if (list?.length) {
+      const cards = await cardsOf(app, engine.source, deps.store, now);
+      out.items[engine.source] = list.map((e) => ({ ...cards.get(e.id), ...e }));
+    }
     return out;
   }
   const connector = connectorFor(app, deps.key, { store: deps.store, assetUrl: deps.assetUrl, platformUrl: deps.platformUrl });
   if (!connector) return out;
   const { read, source } = engine;
-  out.items[source] = (await items(connector, read.items.split("/"), now)).map((x) => ({ id: String(x.id), title: String(x[read.title] ?? "") }));
+  out.items[source] = (await items(connector, read.items.split("/"), now)).map((x) => ({ id: String(x.id), title: String(x[read.title] ?? ""), ...cardFacts(x) }));
   out.categories[source] = (await items(connector, read.categories.split("/"), now)).map((c) => ({ id: String(c.id), name: String(c.name ?? "") }));
   return out;
 }

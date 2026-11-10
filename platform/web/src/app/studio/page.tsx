@@ -1,3 +1,4 @@
+import { sampleEntries } from "@/lib/studio/sample-entries";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { openRegularAppsAction } from "@/app/actions/studio-projects";
@@ -88,7 +89,7 @@ export default async function StudioHomePage() {
           </Link>
         </div>
 
-        <ProjectsGrid cards={cards} words={words} />
+        <ProjectsGrid cards={cards} words={words} samples={sampleEntries(now)} />
 
         <section aria-labelledby="h-studio-plans" className="flex flex-wrap items-center gap-4 rounded-[18px] px-6 py-5" style={{ background: C.ink, color: C.ivory }}>
           <Glyph name="workspace_premium" size={32} className="text-[#FF5A1F]" />

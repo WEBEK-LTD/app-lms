@@ -5,7 +5,7 @@ import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
 import { mapTree } from "@/lib/studio/tree";
-import type { Pickable } from "@/lib/hosted/pages/pickable";
+import type { Pickable, PickableEntry } from "@/lib/hosted/pages/pickable";
 import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, StudioSize, TabBarStyle } from "@/lib/pages/types";
 import { splitTabs } from "@/lib/pages/tab-bar";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
@@ -655,9 +655,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 
   function Items(p: ViewProps & { node: StudioNode }) {
     const n = p.node;
-    const entries = (n.source ? p.pickable.items[n.source] : undefined) ?? [];
+    // The project's entries; while it has none, the samples its kind gets (never a numbered box when there are some).
+    const own = (n.source ? p.pickable.items[n.source] : undefined) ?? [];
+    const entries = own.length ? own : ((n.source ? (p.pickable.samples?.[lang] ?? p.pickable.samples?.en)?.[n.source] : undefined) ?? []);
     const count = Math.max(1, Math.min(n.query?.limit ?? 4, 6));
-    const shown = (entries.length ? entries.slice(0, count) : Array.from({ length: count }, (_, i) => ({ id: String(i), title: `[${i + 1}]` }))).map((e) => ({ ...e, price: p.words.price }));
+    const shown: PickableEntry[] = entries.length ? entries.slice(0, count) : Array.from({ length: count }, (_, i) => ({ id: String(i), title: `[${i + 1}]`, price: p.words.price }));
     const layout = n.layout ?? "grid";
     const wrap: CSSProperties =
       layout === "grid"
@@ -665,19 +667,30 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
         : layout === "carousel"
           ? { display: "flex", gap: n.gap ?? 10, overflow: "hidden" }
           : { display: "flex", flexDirection: "column", gap: n.gap ?? 10 };
+    const shades = dark ? ["#3A3020", "#1E3A2E", "#2A2840", "#3A2434"] : ["#F2E3C9", "#D7EBE2", "#E6E3EF", "#EEDDE8"];
     const list = (
       <span style={wrap}>
-        {shown.map((entry) =>
+        {shown.map((entry, i) =>
           n.card ? (
             <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
-              <CardOf {...p} node={n.card} entry={entry} />
+              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "" }} />
             </span>
           ) : (
-            <span key={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
-              <span style={{ display: "block", height: layout === "list" ? 56 : 74, width: layout === "list" ? 56 : "auto", flex: "none", borderRadius: 10, background: dark ? "#2A2742" : "#F3E3C3" }} />
-              <span style={{ display: "block" }}>
-                <span style={{ display: "block", fontSize: 12, fontWeight: 700, marginTop: 6 }}>{entry.title}</span>
-                <span style={{ display: "block", fontSize: 11, opacity: 0.7 }}>{entry.price}</span>
+            <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
+              <span style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", height: layout === "list" ? 56 : 74, width: layout === "list" ? 56 : "auto", flex: "none", borderRadius: 10, overflow: "hidden", background: shades[i % shades.length] }}>
+                {entry.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- the entry's own picture, as the app's card shows it
+                  <img src={entry.imageUrl} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                ) : entries.length ? (
+                  <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 24, color: dark ? "rgba(185,181,202,0.45)" : "rgba(94,91,112,0.45)" }}>
+                    image
+                  </span>
+                ) : null}
+                {entry.badge && layout !== "list" ? <span style={{ position: "absolute", top: 6, insetInlineStart: 6, maxWidth: "calc(100% - 12px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: look.brand, color: "#FFFFFF", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999 }}>{entry.badge}</span> : null}
+              </span>
+              <span style={{ display: "block", minWidth: 0 }}>
+                <span style={{ display: "block", fontSize: 12, fontWeight: 700, marginTop: layout === "list" ? 0 : 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.title}</span>
+                {entry.price || entry.subtitle ? <span style={{ display: "block", fontSize: 11, opacity: 0.7, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.price || entry.subtitle}</span> : null}
               </span>
             </span>
           ),
@@ -698,12 +711,15 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 }
 
 /** An items element's card for one entry: its bound elements show the entry. */
-function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string } }) {
+function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string } }) {
+  const { entry } = props;
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
-    ...(node.bind === "title" ? { text: props.entry.title, translations: undefined } : {}),
-    ...(node.bind === "price" ? { text: props.entry.price, translations: undefined } : {}),
-    ...(node.bind === "subtitle" ? { text: "", translations: undefined } : {}),
+    ...(node.bind === "title" ? { text: entry.title, translations: undefined } : {}),
+    ...(node.bind === "price" ? { text: entry.price, translations: undefined } : {}),
+    ...(node.bind === "subtitle" ? { text: entry.subtitle, translations: undefined } : {}),
+    ...(node.bind === "badge" ? { text: entry.badge, translations: undefined } : {}),
+    ...(node.bind === "image" && entry.imageUrl ? { image_url: entry.imageUrl } : {}),
     ...(node.children ? { children: node.children.map(fill) } : {}),
   });
   return <StudioView {...props} page={{ body: fill(props.node), show_tabs: false, background: "transparent" }} editing={undefined} />;

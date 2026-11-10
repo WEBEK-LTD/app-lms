@@ -202,8 +202,10 @@ describe("listings on the hosted API", () => {
     const pickable = await pickableContent(app, { store, key: KEY, assetUrl: (id) => id, platformUrl: "https://yallapp.test" }, NOW);
     const listed = await store.listListings(app.id);
     const published = listed.filter((l) => l.status === "published");
-    expect(pickable.items.listings).toEqual(published.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title })));
-    expect(pickable.items.listings).toContainEqual({ id: String(ids.nile), title: "Bright apartment with a Nile view (NH-1042)" });
+    // Studio's canvas also gets each listing's card (its picture, line and price).
+    const picked = pickable.items.listings!.map(({ id, title }) => ({ id, title }));
+    expect(picked).toEqual(published.map((l) => ({ id: String(l.id), title: l.reference ? `${l.title} (${l.reference})` : l.title })));
+    expect(picked).toContainEqual({ id: String(ids.nile), title: "Bright apartment with a Nile view (NH-1042)" });
     expect(pickable.items.listings!.map((l) => l.id)).not.toContain(String(ids.draft));
     expect(pickable.items.listings!.map((l) => l.id)).not.toContain(String(ids.archived));
     expect(pickable.categories).toEqual({});

@@ -13,6 +13,7 @@ import { kindOf } from "@/lib/app/kinds";
 import { ownDesignView } from "@/lib/studio/own-designs";
 import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
+import { sampleEntries } from "@/lib/studio/sample-entries";
 import { designLayout, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
 import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
@@ -64,7 +65,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       sources={sources}
       categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
       screens={screenOptionsFor(app)}
-      pickable={await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)}
+      // Studio's canvas: the samples a list shows while the project has none (never offered to pick).
+      pickable={{ ...(await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)), samples: sampleEntries(now) }}
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}
       // 17 The real app with the saved draft on the hosted API, else with what's published.
       previewHref={app.backend === "hosted" ? "/studio/project/preview?pages=draft" : "/studio/project/preview"}
