@@ -12,6 +12,21 @@ export function revealLicenseKey(license: License, encryptionKey: Buffer): strin
   return decrypt(license.keyEncrypted, encryptionKey, keyContext(license.id));
 }
 
+/**
+ * The key as the admin pages show it, or null when it can't be decrypted
+ * here (encrypted with a key this server doesn't have, or damaged), logged
+ * once per page: the page shows the rest of the client, and a new key
+ * replaces the old one.
+ */
+export function shownLicenseKey(license: License, encryptionKey: Buffer): string | null {
+  try {
+    return revealLicenseKey(license, encryptionKey);
+  } catch (error) {
+    console.error(`[admin] license ${license.id} of client ${license.clientId}: the key can't be shown: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
 /** End of the chosen day in UTC: a plan "active until 31 March" works all of 31 March. */
 export function endOfDayUtc(date: string): Date {
   return new Date(`${date}T23:59:59.999Z`);

@@ -12,7 +12,7 @@ import { BuildStatusText } from "@/components/build-status";
 import { SubmitButton } from "@/components/form";
 import { Icon } from "@/components/icon";
 import { Badge, Notice, btn, formatDate, formatDateTime } from "@/components/ui";
-import { revealLicenseKey } from "@/lib/admin/clients";
+import { shownLicenseKey } from "@/lib/admin/clients";
 import { contentSource } from "@/lib/admin/labels";
 import { can, type AdminPermission } from "@/lib/admin/permissions";
 import { appTypeName } from "@/lib/app/kinds";
@@ -320,7 +320,7 @@ async function ClientPanel({ row, now, may }: { row: ClientRow; now: Date; may: 
   const base = license && license.expiresAt > now ? license.expiresAt : now;
   const nextYear = new Date(base);
   nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
-  const key = license ? revealLicenseKey(license, encryptionKey()) : null;
+  const key = license ? (shownLicenseKey(license, encryptionKey()) ?? "Can't be shown: make a new license key to replace it.") : null;
   const accountWide = rowState(row, now);
   const title = accountWide === "pending" ? "Activate" : accountWide === "expired" ? "Renew" : "Manage";
 
