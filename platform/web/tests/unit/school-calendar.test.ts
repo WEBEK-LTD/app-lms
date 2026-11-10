@@ -334,6 +334,11 @@ describe("113.8 the school's calendar, exams and behaviour on the hosted API", (
     expect(notes).toContain("As a teacher:");
     expect(notes).toContain("As a member of staff:");
     expect(notes).toContain("Staff tab");
+    // 116 A new school has its staff app: the teacher's and staff's parts are in it.
+    expect(notes).toContain("in Nile School Staff, the school's separate staff app");
+    const same = schoolReviewNotes({ ...(await store.getAppById(app.id))!, staffApp: "same" })!;
+    expect(same).toContain("As a teacher: the Classroom tab shows the class");
+    expect(same).not.toContain("staff app");
     expect(schoolReviewNotes({ ...app, hostedSettings: { ...app.hostedSettings!, reviewCode: null } })).toBeNull();
   });
 });

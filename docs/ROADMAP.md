@@ -2977,3 +2977,32 @@ purchase).
 | [ ] | 115.16 The apps (the mobile agent): the customer app's screens in the advanced design, the vendor app as the bundle's third app, Yallapp Courier for vendors' own drivers, the store reviewers' notes for every role | flutter analyze, widget tests |
 | [ ] | 115.17 Words for people: the docs, the website's Studio and marketplace pages, the stores' listings; the privacy policy and terms (vendors' data, the wallet, the club's renewals, complaints) in en/ar/tr after the owner reads them | unit tests (pages and their three languages) |
 | [x] | 115.18 Places' own offers (asked by the owner): an Offers tab in the vendors' web panel (its owner and managers; not order takers or pickers) where a place makes, pauses and ends coupons and automatic offers for itself only, always paid by it: a percentage, an amount, or free delivery when it delivers itself; the smallest order, uses in all and per person, first order, dates, and its own menu sections, departments, dishes or products (lib/market/vendor-coupons.ts on offers.ts and offer-forms.ts; `market_coupons.product_ids`, `created_by_vendor_id`, `owner_paused`, migration 0117). The owner's controls in Marketplace settings (let places make their own, on by default; the largest percentage) and in Offers & club (pause any place's coupon; the place can't undo it). Statements put them on the place's side | unit tests (`market-vendor-coupons.test.ts`: isolation, roles, items, statements), the store suites on memory and MariaDB |
+
+## Phase 116: The staff app in the bundle for schools and academies
+
+The owner's request (10 November): every Studio project is one paid,
+connected system, a bundle of apps under one license. Delivery, food, rides
+and taxi already have their couriers' or drivers' app (112.3), and the
+marketplace its vendors' app (115.16). A school (a university too) and an
+academy with many teachers get the same: "<app> Staff", for the teachers,
+the office staff (the principal, the office) and the bus crews, next to the
+students' and parents' app.
+
+- **Where staff work.** Studio › Settings: "In the staff app (in your
+  bundle)" or "In the main app". New projects start in the bundle;
+  projects made before keep their staff in the main app until the owner
+  switches.
+- **The main app.** Once the staff app is in the bundle, the main app is for
+  students and parents only. Builds made before keep the staff's tabs for
+  the people who haven't updated.
+- **Sign-in.** The staff sign in with the number the school added them with,
+  as they always did.
+- **Pushes.** The staff's pushes go to the staff app (112.3's rule).
+- **Prices.** No price changes.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 116.1 Platform and contract: `apps.staff_app` (migration 0119, `bundle` for new projects, none saved meaning the main app), lib/school/staff-app.ts on lib/market/vendor-app.ts (`<package>.staff`, build config `role` `staff`, Android Firebase when google-services.json lists it, an Unlisted listing), builds `variant` `staff` (`staff_app_off` without it or its kind on the plan), Studio › Settings "Where your staff work", Builds' staff app section, `school.staff_app` and `instructors.staff_app`, device roles `vendor` and `staff`, the staff's pushes (`STAFF_PUSHES`, library loans, a family's message to a teacher) to the staff app's phones | unit tests (`staff-app.test.ts`), the MySQL suites |
+| [x] | 116.2 The app: `AppRole.staff`; the staff app's tabs (a school's Classroom for teachers, Staff for its staff and as a note for anyone else, Account; an academy's Teacher and Account), opening on the first; the main app without the staff's tabs and Account entries when `staff_app` is bundle, with a note on the School tab for staff without a child there; the school's news in the staff app | `phase116_staff_app_test.dart`, `build_config_tool_test.dart` |
+| [x] | 116.3 Demos and words: Nakhla School and Rawaq Academy in the bundle, their staff apps in Admin › Demo apps with a Build button and on /demo/studio next to the main app (the demo number signs in to both); the reviewers' notes, the plans' highlights, the comparison's "Apps in the bundle", the school and academy solution pages and the FAQ | `demo-apps.test.ts`, `plan-highlights.test.ts`, `school-calendar.test.ts` |
+| [ ] | 116.4 Later: the staff app's own iPhone Firebase file and icon, as the couriers' app has (pushes on iPhone until then: the inbox only), and its own reviewers' notes and screenshots | — |

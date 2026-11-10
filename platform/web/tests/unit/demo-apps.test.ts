@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { withoutDemo } from "@/lib/admin/overview";
 import { isSetupComplete, newApp, queueBuild } from "@/lib/app/setup";
 import { GET as DOWNLOAD } from "@/app/demo/download/[slug]/route";
-import { demoSecondAppBuild } from "@/lib/demo/apps";
+import { demoSecondAppBuild, demoSecondAppVariant } from "@/lib/demo/apps";
 import { checkoutAccount } from "@/lib/catalog/settings";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App, CatalogOrder } from "@/lib/data/types";
@@ -12,7 +12,7 @@ import { demoDownloadBuild, isDemoApp, listDemoApps, withDemoChecked } from "@/l
 import { EMPTY_DRIVER } from "@/lib/rides/settings";
 import { placeDemoOrder } from "@/lib/demo/checkout";
 import { cleanDemoActivity, demoOfficeReply } from "@/lib/demo/cleanup";
-import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_LIMITS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, DEMO_USER_NAME, demoIdOf, demoTypeOfSlug, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { ARTICLE_CATEGORIES, CLINIC_DOCTORS, CLINIC_INTAKE, CLINIC_SERVICES, DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_RESTAURANTS, DEMO_PRODUCTS, DEMO_SERVICES, DEMO_STAFF, RESTAURANT_FULFILMENT, FITNESS_PLANS, FITNESS_TIMETABLE, RIDES_DEMO_DRIVERS, TAXI_DEMO_DRIVERS, TAXI_DEMO_TYPES } from "@/lib/demo/content";
 import { PICTURES } from "@/lib/demo/pictures";
 import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
@@ -777,6 +777,32 @@ describe("building a demo app and its public download", () => {
     // The customers' app's download is still the one the team chose: none yet.
     const customers = await DOWNLOAD(new Request("https://yallapp.com.tr/demo/download/delivery"), { params: Promise.resolve({ slug: "delivery" }) });
     expect(customers.headers.get("location")).toContain("download=unavailable");
+  });
+
+  it("116 builds Nakhla School's and Rawaq Academy's staff apps, offered on /demo/studio next to them", async () => {
+    vi.stubEnv("APP_URL", "https://yallapp.com.tr");
+    vi.stubEnv("FILES_BASE_URL", "https://files.yallapp.com.tr");
+    vi.stubEnv("FILES_SIGNING_SECRET", "unit-files-signing-secret-0123456789abcdef");
+    const store = new MemoryStore();
+    (globalThis as { __yallappStore?: unknown }).__yallappStore = Promise.resolve(store);
+    const assets = (id: string) => `https://yallapp.com.tr/api/v1/assets/${id}`;
+    const result = await setupDemoApps({ ...deps(store), assetUrl: assets, platformUrl: "https://yallapp.com.tr" }, ["school", "instructors"]);
+    for (const [type, slug] of [["school", DEMO_SLUGS.school], ["instructors", DEMO_SLUGS.instructors]] as const) {
+      const app = (await store.getAppById(result.apps.find((a) => a.type === type)!.appId))!;
+      // The demos' teachers and staff work in their staff app.
+      expect(app.staffApp).toBe("bundle");
+      expect(demoSecondAppVariant(app)).toBe("staff");
+      const client = (await store.getClientById(app.clientId))!;
+      const license = await store.getLicenseForApp(client.id, app.id);
+      const queued = await queueBuild(store, { client, app, license, versionName: "1.0.0", variant: "staff" }, NOW, assets);
+      if (!queued.ok) throw new Error(`not queued: ${queued.reason}`);
+      expect(queued.build.config).toMatchObject({ role: "staff", app_name: `${app.appName} Staff`, android_package: `${app.androidPackage}.staff` });
+      expect(await demoSecondAppBuild(store, app)).toBeNull();
+      await store.updateBuild(queued.build.id, { status: "ready", artifacts: [{ kind: "apk", url: `https://files.yallapp.com.tr/demo/${slug}-staff.apk` }] }, NOW);
+      expect((await demoSecondAppBuild(store, app))?.id).toBe(queued.build.id);
+      const download = await DOWNLOAD(new Request(`https://yallapp.com.tr/demo/download/${slug}?app=second`), { params: Promise.resolve({ slug }) });
+      expect(download.headers.get("location")).toContain(`/demo/${slug}-staff.apk?expires=`);
+    }
   });
 });
 

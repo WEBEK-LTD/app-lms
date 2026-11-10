@@ -6,6 +6,7 @@ import { behaviourCategories, signedPoints } from "./behaviour";
 import { markFeePaid } from "./fees";
 import { schoolToday } from "./service";
 import { schoolCurrency, schoolSettingsOf } from "./settings";
+import { hasStaffApp, staffAppNameOf } from "./staff-app";
 
 /**
  * 105.4.7b The store reviewers sign in to a school app with the app's review
@@ -185,18 +186,21 @@ async function sampleSchoolDay(
  * The notes for the stores' reviewers of a school app, in English as they
  * read them: one sign-in, and where each role is in the app.
  */
-export function schoolReviewNotes(app: Pick<App, "appName" | "hostedSettings">, options: { university?: boolean } = {}): string | null {
+export function schoolReviewNotes(app: Pick<App, "appName" | "hostedSettings"> & Partial<Pick<App, "appType" | "vertical" | "staffApp">>, options: { university?: boolean } = {}): string | null {
   const settings = app.hostedSettings;
   if (!settings?.reviewCode || (!settings.reviewPhone && !settings.reviewEmail)) return null;
   const login = settings.reviewPhone ? `the phone number ${settings.reviewPhone}` : `the email ${settings.reviewEmail}`;
   const school = (app.appName ?? "").trim() || "the school";
   const staff = reviewRoles().includes("staff" as SchoolRole);
+  // 116 With the staff app, the teacher's and staff's parts are in it: the same account signs in there.
+  const staffApp = app.appType && hasStaffApp({ appType: app.appType, vertical: app.vertical ?? null, staffApp: app.staffApp }) ? staffAppNameOf(app) : null;
+  const where = (tab: string) => (staffApp ? `in ${staffApp}, the school's separate staff app (its own store listing; sign in there with the same number and code), the ${tab} tab` : `the ${tab} tab`);
   return [
     `${school} is a school's app for its students, their parents${staff ? ", its teachers and its staff" : " and its teachers"}. Sign in with ${login} and the code ${settings.reviewCode} (no message is sent to it). The school has put this one account on its list as each role at once, in a class of samples ("${REVIEW_CLASS_NAME}"), so every role can be tried without signing out:`,
     `As a student: the School tab shows today's lessons, homework (open "Sample homework: exercises 1 to 5" and hand in a text or a photo), grades and the report card, attendance, the calendar (month or list, with Add to calendar), the exams' timetable, behaviour (merits, notes and points), and the news.`,
     `As a parent: the same account is the parent of that student, so the app has a Parent tab, which only parents see: the child's day (lessons, homework due, the latest grades, behaviour), fees with a receipt, a permission slip to sign ("Class trip (sample slip)", yes or no with a name), an absence to excuse, and who picks the child up; the parent is told of new homework, scores, exams and behaviour notes.`,
-    `As a teacher: the Classroom tab shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar; My payslips lists the teacher's final payslips (this account has a sample one for last month, for nothing) with its PDF.`,
-    staff ? `As a member of staff: the same account is on the school's staff list too, so the app has a Staff tab, as the school's staff who don't teach have: checking in and out, their job and hours, leave requests (ask for a day off and withdraw it), the staff's news, My payslips, the school's calendar with the staff's own events, and the library when the school has books.` : null,
+    `As a teacher: ${where("Classroom")} shows the class; take attendance, give homework, mark it, enter scores, write a merit or a note in Behaviour, and see the exams and the calendar; My payslips lists the teacher's final payslips (this account has a sample one for last month, for nothing) with its PDF.`,
+    staff ? `As a member of staff: the same account is on the school's staff list too, so ${staffApp ? `${where("Staff")} is there` : "the app has a Staff tab"}, as the school's staff who don't teach have: checking in and out, their job and hours, leave requests (ask for a day off and withdraw it), the staff's news, My payslips, the school's calendar with the staff's own events, and the library when the school has books.` : null,
     // 113.9 A school in university mode shows its university screens instead of the class's.
     options.university ? `The school is a university: as a student, the School tab shows the program and GPA, the term's course registration, the week's lectures, results by term, the transcript and the study plan (empty for this account until the university puts it in a program); as a parent, the Parent tab has the same pages, read only; as a teacher, the Classroom tab shows the lecturer's sections and the students they advise.` : null,
     `Real students, parents and teachers of the school never see this class or what is written in it.`,

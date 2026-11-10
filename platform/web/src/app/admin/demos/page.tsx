@@ -7,10 +7,11 @@ import { SubmitButton } from "@/components/form";
 import { Card, Notice, formatDateTime } from "@/components/ui";
 import { adminCan, requireAdmin } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
-import { demoClient, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
+import { demoClient, demoSecondAppVariant, isDownloadableBuild, listDemoApps } from "@/lib/demo/apps";
 import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, demoIdOf, demoKind, isStudioDemo } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { courierAppNameOf, hasCourierJobs } from "@/lib/delivery/courier-app";
+import { courierAppNameOf } from "@/lib/delivery/courier-app";
+import { staffAppNameOf } from "@/lib/school/staff-app";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { appUrl } from "@/lib/env";
 import { RefreshAllDemos, RefreshDemoButton } from "./refresh";
@@ -35,6 +36,7 @@ const ERROR: Record<string, string> = {
   invalid_config: "The build config isn't valid. Refresh the demo app and try again.",
   courier_app_off: "This demo has no couriers' or drivers' app.",
   vendor_app_off: "This demo has no vendor app.",
+  staff_app_off: "This demo has no staff app. Refresh it first.",
 };
 
 /**
@@ -55,8 +57,16 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
     ALL_DEMO_TYPES.filter((type) => isStudioDemo(type) === (family === "studio")).map(async (type) => {
       const app = apps.find((a) => demoIdOf(a) === type) ?? null;
       const builds = app ? await store.listBuildsByApp(app.id, 8) : [];
-      // 112.3 A Studio demo's couriers' or drivers' own app, offered on /demo/studio as soon as a build of it is ready.
-      const second = app && hasCourierJobs(app) ? { name: courierAppNameOf(app, deliverySettingsOf(await store.getDeliverySettings(app.id))), builds: await store.listBuildsByApp(app.id, 4, "courier") } : null;
+      // 112.3 A Studio demo's couriers' or drivers' own app, 116 or its staff app, offered on /demo/studio as soon as a build of it is ready.
+      const variant = app ? demoSecondAppVariant(app) : null;
+      const second =
+        app && variant
+          ? {
+              variant,
+              name: variant === "staff" ? staffAppNameOf(app) : courierAppNameOf(app, deliverySettingsOf(await store.getDeliverySettings(app.id))),
+              builds: await store.listBuildsByApp(app.id, 4, variant),
+            }
+          : null;
       return { type, app, builds, second, download: app ? (builds.find((b) => b.id === app.demoBuildId) ?? (app.demoBuildId ? await store.getBuild(app.demoBuildId) : null)) : null };
     }),
   );
@@ -194,8 +204,9 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                   <div className="flex flex-col gap-2" data-second-app="">
                     <h3 className="m-0 text-[15px] font-bold">{second.name}</h3>
                     <span className="text-sm text-muted">
-                      The couriers&apos; or drivers&apos; own app: the customers&apos; app built since 112.3 has no Courier or Driver mode, so offer both. Its newest ready
-                      build is offered next to the app, at{" "}
+                      {second.variant === "staff"
+                        ? "The teachers' and staff's own app: the main app built since 116 is for students and parents only, so offer both. The demo number signs in to both. Its newest ready build is offered next to the app, at "
+                        : "The couriers' or drivers' own app: the customers' app built since 112.3 has no Courier or Driver mode, so offer both. Its newest ready build is offered next to the app, at "}
                       {appUrl()}/demo/download/{DEMO_SLUGS[type]}?app=second
                     </span>
                     {second.builds.length ? (
@@ -215,7 +226,7 @@ export default async function DemoAppsPage({ searchParams }: PageProps<"/admin/d
                       <form action={buildDemoAction}>
                         <input type="hidden" name="family" value={family} />
                         <input type="hidden" name="appId" value={app.id} />
-                        <input type="hidden" name="variant" value="courier" />
+                        <input type="hidden" name="variant" value={second.variant} />
                         <SubmitButton variant="secondary" className="h-10 px-4 text-sm" pendingText="Queueing…">
                           Start a build of {second.name}
                         </SubmitButton>

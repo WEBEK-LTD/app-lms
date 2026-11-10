@@ -300,7 +300,7 @@ export const en = {
     kindsText: "Every kind of app Yallapp makes, and project types only Studio offers.",
     onlyStudio: "Only in Studio",
     deliveryTitle: "Delivery & couriers",
-    deliveryText: "Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers get a Courier tab in the same app, a second app of their own, or Yallapp Courier, Yallapp's app for couriers, where they sign in once for every company they deliver for.",
+    deliveryText: "Customers send a parcel with its pickup and drop-off, see the price as they type, pay in cash or by card through your own payment account, and follow it stage by stage or on a live map. Your couriers work in a second app of their own in your bundle, or in Yallapp Courier, Yallapp's app for couriers, where they sign in once for every company they deliver for.",
     foodTitle: "Food delivery from many restaurants",
     foodText: "Customers order from the restaurants you work with and follow their food; each restaurant takes its orders in the app and your couriers deliver them. You agree each restaurant's share with it.",
     // Studio's other project types, as built (105.2, 105.3, 105.4, 105.9, 113).
@@ -309,7 +309,7 @@ export const en = {
     academyTitle: "Academies with many teachers",
     academyText: "Teachers publish their own courses once you've reviewed them, students follow and rate them, and you set each teacher's share, with statements for any period. Sell several courses together as a bundle.",
     schoolTitle: "Schools",
-    schoolText: "Students, parents and teachers in one app: the timetable, homework, grades, attendance, exams, the calendar and announcements. Parents follow each of their children and see the fees. Teachers and staff check in at the gate and ask for leave; the bus, the library, messages when the school allows them, reports between the administration and the teachers, and salaries recorded by hand as paid in cash or by bank transfer.",
+    schoolText: "Students and parents in your school's app, teachers and staff in its staff app: the timetable, homework, grades, attendance, exams, the calendar and announcements. Parents follow each of their children and see the fees. Teachers and staff check in at the gate and ask for leave; the bus, the library, messages when the school allows them, reports between the administration and the teachers, and salaries recorded by hand as paid in cash or by bank transfer.",
     universityTitle: "Universities",
     universityText: "A school project in university mode: faculties, departments and programs, course registration each term, and results with the GPA, next to the school's people, fees and news.",
     everyKind: "And every regular kind of app",

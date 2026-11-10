@@ -143,8 +143,6 @@ const part = (note?: L): Cell => ({ mark: "part", ...(note ? { note } : {}) });
 const nl: Cell = { mark: "notListed" };
 const no: Cell = { mark: "no" };
 const y = (note: L): Cell => ({ mark: "yes", note });
-/** A feature that is being released. */
-const soon: Cell = { mark: "soon" };
 
 export interface Row {
   id: string;
@@ -433,7 +431,7 @@ export const COMPARE_TEXT: Record<Lang, CompareText> = {
     regular: "Regular apps",
     regularText: "Apps for a business, from its website, a platform or no website at all.",
     studio: "Yallapp Studio projects",
-    studioText: "Bigger apps designed freely: delivery with a courier app, multi-vendor apps for restaurants and supermarkets, taxis, schools and universities.",
+    studioText: "Bigger apps designed freely: delivery with a courier app, multi-vendor apps for restaurants and supermarkets, taxis, schools and universities with a staff app.",
     feature: "Feature",
     yes: "Yes",
     part: "With limits",
@@ -470,7 +468,7 @@ export const COMPARE_TEXT: Record<Lang, CompareText> = {
     regular: "التطبيقات العادية",
     regularText: "تطبيقات لنشاط تجاري، من موقعه أو منصة أو بلا موقع.",
     studio: "مشاريع Yallapp Studio",
-    studioText: "تطبيقات أكبر بتصميم حر: توصيل مع تطبيق للمناديب، وأسواق طعام وبقالة، وتاكسي، ومدارس وجامعات.",
+    studioText: "تطبيقات أكبر بتصميم حر: توصيل مع تطبيق للمناديب، وأسواق طعام وبقالة، وتاكسي، ومدارس وجامعات مع تطبيق للعاملين.",
     feature: "الميزة",
     yes: "نعم",
     part: "بحدود",
@@ -507,7 +505,7 @@ export const COMPARE_TEXT: Record<Lang, CompareText> = {
     regular: "Normal uygulamalar",
     regularText: "Bir işletme için; web sitesinden, bir platformdan ya da sitesiz uygulamalar.",
     studio: "Yallapp Studio projeleri",
-    studioText: "Özgürce tasarlanan büyük uygulamalar: kurye uygulamalı teslimat, yemek ve market pazaryerleri, taksi, okul ve üniversiteler.",
+    studioText: "Özgürce tasarlanan büyük uygulamalar: kurye uygulamalı teslimat, yemek ve market pazaryerleri, taksi, personel uygulamalı okul ve üniversiteler.",
     feature: "Özellik",
     yes: "Evet",
     part: "Sınırlı",
@@ -604,7 +602,9 @@ export const DUO_TABLE: { id: string; title: L; rows: DuoRow[] }[] = [
       { id: "customer", label: t("Your customers' app", "تطبيق عملائك", "Müşterilerinizin uygulaması"), regular: yes, studio: yes },
       { id: "business", label: t("Yallapp Business for you and your team", "Yallapp Business لك ولفريقك", "Siz ve ekibiniz için Yallapp Business"), regular: yes, studio: yes },
       { id: "courier", label: t("A courier app (Yallapp Courier, or your own branded one)", "تطبيق للمناديب (Yallapp Courier أو تطبيق باسمك)", "Kurye uygulaması (Yallapp Courier veya kendi markanızla)"), regular: no, studio: yes },
-      { id: "vendor", label: t("A vendor app and web panel for each restaurant or shop", "تطبيق ولوحة ويب لكل مطعم أو متجر", "Her restoran veya mağaza için satıcı uygulaması ve web paneli"), regular: no, studio: soon },
+      { id: "vendor", label: t("A vendor app and web panel for each restaurant or shop", "تطبيق ولوحة ويب لكل مطعم أو متجر", "Her restoran veya mağaza için satıcı uygulaması ve web paneli"), regular: no, studio: yes },
+      // 116 Schools', universities' and academies' teachers and staff in their own app.
+      { id: "staff", label: t("A staff app for a school's or academy's teachers and staff", "تطبيق للعاملين لمعلمي المدرسة أو الأكاديمية وموظفيها", "Okul veya akademinin öğretmenleri ve personeli için personel uygulaması"), regular: no, studio: yes },
     ],
   },
   {
@@ -651,7 +651,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "Rolling out",
     pick: "Which one to pick",
     pickRegular: "Pick a regular app when your business is one of the kinds on the list and you want it in the stores soon, with your content and a ready template.",
-    pickStudio: "Pick Studio when you run deliveries, a multi-vendor app, taxis, a school or a university, need extra apps for couriers or vendors, or want to design every page.",
+    pickStudio: "Pick Studio when you run deliveries, a multi-vendor app, taxis, a school or a university, need extra apps for couriers, vendors or staff, or want to design every page.",
   },
   ar: {
     title: "تطبيقات Yallapp العادية أم Yallapp Studio؟",
@@ -663,7 +663,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "قيد الإطلاق",
     pick: "أيّهما تختار",
     pickRegular: "اختر تطبيقًا عاديًا إذا كان نشاطك من الأنواع الموجودة وتريده على المتاجر قريبًا، بمحتواك وقالب جاهز.",
-    pickStudio: "اختر Studio إذا كنت تدير توصيلًا أو تطبيقًا متعدد المتاجر أو تاكسي أو مدرسة أو جامعة، أو تحتاج تطبيقات للمناديب أو البائعين، أو تريد تصميم كل صفحة.",
+    pickStudio: "اختر Studio إذا كنت تدير توصيلًا أو تطبيقًا متعدد المتاجر أو تاكسي أو مدرسة أو جامعة، أو تحتاج تطبيقات للمناديب أو البائعين أو العاملين، أو تريد تصميم كل صفحة.",
   },
   tr: {
     title: "Yallapp normal uygulama mı, Yallapp Studio mu?",
@@ -675,7 +675,7 @@ export const DUO_TEXT: Record<Lang, { title: string; intro: string; metaTitle: s
     soon: "Yayına alınıyor",
     pick: "Hangisini seçmeli",
     pickRegular: "İşletmeniz listedeki türlerdense ve içeriğiniz ile hazır bir şablonla yakında mağazalarda olmak istiyorsanız normal uygulamayı seçin.",
-    pickStudio: "Teslimat, çok satıcılı uygulama, taksi, okul veya üniversite işletiyorsanız, kurye veya satıcı uygulamaları gerekiyorsa ya da her sayfayı tasarlamak istiyorsanız Studio'yu seçin.",
+    pickStudio: "Teslimat, çok satıcılı uygulama, taksi, okul veya üniversite işletiyorsanız, kurye, satıcı veya personel uygulamaları gerekiyorsa ya da her sayfayı tasarlamak istiyorsanız Studio'yu seçin.",
   },
 };
 

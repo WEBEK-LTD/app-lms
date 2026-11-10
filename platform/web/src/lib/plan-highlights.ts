@@ -25,6 +25,9 @@ const WORDS: Record<
     ios: string;
     android: string;
     courier: string;
+    /** 116 The staff app of schools and academies, alone or with the couriers' app. */
+    staff: string;
+    courierStaff: string;
     motion: string;
     templates: string;
     publish: string;
@@ -43,6 +46,8 @@ const WORDS: Record<
     ios: "Android and iOS apps",
     android: "An Android app",
     courier: "A second app for couriers",
+    staff: "A staff app for schools and academies",
+    courierStaff: "Second apps for couriers and for staff",
     motion: "Motion in the editor",
     templates: "Pages saved as your own templates",
     publish: "We publish to the stores for you",
@@ -60,6 +65,8 @@ const WORDS: Record<
     ios: "تطبيق أندرويد وiOS",
     android: "تطبيق أندرويد",
     courier: "تطبيق ثانٍ للمندوبين",
+    staff: "تطبيق للعاملين في المدارس والأكاديميات",
+    courierStaff: "تطبيقات ثانية للمندوبين وللعاملين",
     motion: "الحركة في المحرر",
     templates: "حفظ الصفحات كقوالب خاصة بك",
     publish: "ننشر التطبيق في المتاجر نيابةً عنك",
@@ -77,6 +84,8 @@ const WORDS: Record<
     ios: "Android ve iOS uygulaması",
     android: "Android uygulaması",
     courier: "Kuryeler için ikinci bir uygulama",
+    staff: "Okullar ve akademiler için personel uygulaması",
+    courierStaff: "Kuryeler ve personel için ikinci uygulamalar",
     motion: "Editörde hareket",
     templates: "Sayfaları kendi şablonunuz olarak kaydetme",
     publish: "Mağazalarda sizin için yayınlıyoruz",
@@ -118,7 +127,8 @@ export function planHighlights(lang: HighlightLang, plan: { features: readonly P
     w.languages(plan.limits.languages),
     ...kindLines,
     has("ios") ? w.ios : w.android,
-    has("courier_app") ? w.courier : null,
+    // 116 Schools' and academies' staff app comes with their kind.
+    has("courier_app") && (has("school") || has("instructors")) ? w.courierStaff : has("courier_app") ? w.courier : has("school") || has("instructors") ? w.staff : null,
     has("auto_publish") ? w.publish : null,
     has("studio_motion") ? w.motion : null,
     has("studio_templates") ? w.templates : null,

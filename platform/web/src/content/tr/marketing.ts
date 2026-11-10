@@ -227,7 +227,7 @@ export const TR_MARKETING: MarketingTranslation = {
       audience: "Öğrencileri, velileri, öğretmenleri ve personeliyle okullar için.",
       sources: ["Web sitesi olmadan: sınıflar, kişiler ve okul günü Yallapp Studio'da yönetilir"],
       highlights: [
-        { title: "Tüm roller tek uygulamada", text: "Öğrenciler, veliler, öğretmenler ve personel kendi sekmelerini görür. Veliler tek hesapla çocukları arasında geçiş yapar." },
+        { title: "Aileler için bir uygulama, personel için bir uygulama", text: "Öğrenciler ve veliler okulunuzun uygulamasını kullanır; öğretmenler, idari personel ve servis ekipleri aynı paketteki personel uygulamasında, eklediğiniz numarayla giriş yaparak çalışır. Veliler tek hesapla çocukları arasında geçiş yapar." },
         { title: "Kapıda giriş", text: "Öğrenciler, öğretmenler ve personel her 30 saniyede bir değişen kapı koduyla giriş ve çıkış yapar; eski bir fotoğrafı işe yaramaz." },
         { title: "Veli alanı", text: "Her çocuğun günü bir bakışta: giriş saatleri, dersler, teslim edilecek ödevler, son notlar, servis ve kütüphane kitapları, okul izin verdiğinde öğretmenlerle mesajlar." },
         { title: "Servis ve kütüphane", text: "Veliler okul servisini haritada takip eder ve yaklaştığında haber alır. Kitaplar uygulamadan ayrılır, e-kitaplar uygulamada okunur." },
@@ -315,7 +315,7 @@ export const TR_MARKETING: MarketingTranslation = {
       sources: ["Web sitesi olmadan: öğretmenler, kurslar ve payları Yallapp Studio'da yönetilir"],
       highlights: [
         { title: "Her öğretmen için bir sayfa", text: "Öğretmen hakkında bilgi, kursları, öğrencileri, takipçileri ve değerlendirmeleri. Öğrenciler öğretmenleri takip eder ve kurslarından birinde değerlendirir." },
-        { title: "Bir Öğretmen sekmesi", text: "Öğretmenler kurslarını uygulamada oluşturur: video bağlantısı, yüklenmiş bir video ya da PDF veya metinle bölümler ve dersler. Onaya gönderir ve öğrencilerin sorularını yanıtlarlar." },
+        { title: "Öğretmenler için bir uygulama", text: "Öğretmenler kurslarını aynı paketteki kendi personel uygulamalarında oluşturur: video bağlantısı, yüklenmiş bir video ya da PDF veya metinle bölümler ve dersler. Onaya gönderir ve öğrencilerin sorularını yanıtlarlar." },
         { title: "Önce incelenen kurslar", text: "Bir öğretmenin kursu siz yayınladığınızda yayına girer ya da notunuzla geri döner." },
         { title: "Paylar ve hesap dökümleri", text: "Her öğretmenin payı sizin belirlediğiniz bir yüzdedir; hesap dökümü kuponlar ve iadelerden sonra ödenmiş siparişlerden, istediğiniz dönem için çıkar." },
         { title: "Gerçek bir kurs oluşturucu", text: "Sınavlar, uygulamadan teslim edilen ödevler, canlı dersler, kurs paketleri, puan ve rozetli öğrenme yolları ve sertifikalar." },
@@ -1317,7 +1317,7 @@ export const TR_MARKETING: MarketingTranslation = {
         },
         {
           q: "Studio hangi proje türlerini yapar?",
-          a: "Yallapp'ın yaptığı her uygulama türünü ve yalnızca Studio'nun sunduğu proje türlerini: kuryeleriyle teslimat şirketleri, birçok restorandan yemek teslimatı, yolcu taşıma ve canlı taksiler, çok öğretmenli akademiler, öğrenciler, veliler ve öğretmenler için okullar ve üniversiteler. [Yallapp Studio](/yallapp-studio) sayfasına bakın.",
+          a: "Yallapp'ın yaptığı her uygulama türünü ve yalnızca Studio'nun sunduğu proje türlerini: kuryeleriyle teslimat şirketleri, birçok restorandan yemek teslimatı, yolcu taşıma ve canlı taksiler, çok öğretmenli akademiler, öğrenciler, veliler ve öğretmenler için okullar ve üniversiteler; okulun veya akademinin öğretmenleri ve personeli aynı pakette kendi personel uygulamasına sahip olur. [Yallapp Studio](/yallapp-studio) sayfasına bakın.",
         },
         {
           q: "Yallapp Courier nedir?",
