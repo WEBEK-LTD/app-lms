@@ -34,6 +34,10 @@ import { DEFAULT_MARKET_SETTINGS } from "../market/settings";
 import { createVendorCoupon } from "../market/vendor-coupons";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME } from "./constants";
 import { readOnce, unchanged } from "./rows";
+import type { Art } from "./art";
+import { DESIGN_ART } from "./design-art";
+import type { PictureSize } from "./picture-assets";
+import { PICTURES } from "./pictures";
 
 /**
  * 115.15 Zad, Studio's multi-vendor demo: two restaurants (one delivers
@@ -45,8 +49,10 @@ import { readOnce, unchanged } from "./rows";
  * for pick-up) and complaints in every state, the supermarket's owner in its
  * My store tab, and a courier (the store review courier, 104.7).
  *
- * No photos: the demo app doesn't require them (`requirePhotos` off), and
- * nothing here is a generated picture.
+ * Its places, and the dishes and products a drawing fits, show the drawn
+ * pictures the app's marketplace samples use (`ZadPicture`); nothing here is
+ * a photo or a generated picture. Milk, rice, oil or soap have no drawing,
+ * so the demo doesn't require photos (`requirePhotos` off).
  *
  * Its activity is made again every day (the daily job, like Nakhla School's
  * day): the seeded orders, their complaints and refunds are deleted and made
@@ -66,12 +72,25 @@ interface DemoChoice {
   options: [name: string, extra: number][];
 }
 
+/**
+ * Zad's pictures: the drawn ones the app's marketplace samples show
+ * (public/design-pictures/art-<name>.png, lib/demo/design-art.ts), saved as
+ * the account's files like every demo's. No photos, nothing generated.
+ */
+export type ZadPicture = "dish-wrap" | "dish-soup" | "dish-cheesecake" | "dish-breakfast" | "item-fruit" | "item-veg" | "item-bread" | "product-tea" | "drink-juice";
+
+/** A Zad picture's drawing. */
+export function zadArt(name: ZadPicture): Art {
+  return (PICTURES as Record<string, Art>)[name] ?? DESIGN_ART[`art-${name}.png`]!.art;
+}
+
 interface DemoMenuDish {
   name: string;
   description: string;
   price: number;
   popular?: boolean;
   choices?: DemoChoice;
+  picture?: ZadPicture;
 }
 
 interface DemoVendor {
@@ -87,6 +106,8 @@ interface DemoVendor {
   maxKm: number | null;
   commissionBp: number;
   delivery: VendorDelivery;
+  /** Its cover picture. */
+  cover: ZadPicture;
   menu?: { name: string; dishes: DemoMenuDish[] }[];
 }
 
@@ -95,6 +116,7 @@ const SIZES: DemoChoice = { name: "Size", min: 1, max: 1, options: [["Regular", 
 export const MARKET_VENDORS: DemoVendor[] = [
   {
     key: "grill",
+    cover: "dish-wrap",
     name: "Bab El Sharq Grill",
     kind: "restaurant",
     description: "Charcoal grills, kofta and fresh mezze from Zamalek. Our own drivers bring them hot.",
@@ -119,8 +141,8 @@ export const MARKET_VENDORS: DemoVendor[] = [
       {
         name: "Sandwiches",
         dishes: [
-          { name: "Kofta sandwich", description: "In baladi bread with tahini and pickles.", price: 75_00, popular: true },
-          { name: "Alexandrian liver", description: "Spicy liver with green peppers in a soft roll.", price: 60_00 },
+          { name: "Kofta sandwich", description: "In baladi bread with tahini and pickles.", price: 75_00, popular: true, picture: "dish-wrap" },
+          { name: "Alexandrian liver", description: "Spicy liver with green peppers in a soft roll.", price: 60_00, picture: "dish-wrap" },
         ],
       },
       {
@@ -135,6 +157,7 @@ export const MARKET_VENDORS: DemoVendor[] = [
   },
   {
     key: "pizza",
+    cover: "dish-soup",
     name: "Nile Pizza Co.",
     kind: "restaurant",
     description: "Stone-baked pizza and pasta from Dokki, delivered by Zad's couriers.",
@@ -162,11 +185,12 @@ export const MARKET_VENDORS: DemoVendor[] = [
           { name: "Chicken alfredo", description: "Fettuccine in a creamy sauce with grilled chicken.", price: 145_00 },
         ],
       },
-      { name: "Desserts", dishes: [{ name: "Chocolate brownie", description: "Warm, with a scoop of vanilla.", price: 65_00 }] },
+      { name: "Desserts", dishes: [{ name: "Chocolate brownie", description: "Warm, with a scoop of vanilla.", price: 65_00, picture: "dish-cheesecake" }] },
     ],
   },
   {
     key: "market",
+    cover: "item-fruit",
     name: "Zad Market",
     kind: "grocery",
     description: "The neighbourhood supermarket in Mohandessin: fruit and vegetables by the kilo, dairy, bread, pantry and home.",
@@ -191,15 +215,20 @@ interface DemoProduct {
   inStock?: boolean;
   stock?: number;
   tags?: string[];
+  /** Its own picture, over its aisle's. */
+  picture?: ZadPicture;
 }
 
 /** Zad Market's departments, their aisles and their products (prices a kilo for those sold by weight). */
-export const MARKET_CATALOG: { name: string; aisles: { name: string; products: DemoProduct[] }[] }[] = [
+/** Departments and aisles with a drawing that fits show it on their products; the others stay without (no drawing of milk, rice or soap). */
+export const MARKET_CATALOG: { name: string; picture?: ZadPicture; aisles: { name: string; picture?: ZadPicture; products: DemoProduct[] }[] }[] = [
   {
     name: "Fruit & vegetables",
+    picture: "item-fruit",
     aisles: [
       {
         name: "Fresh fruit",
+        picture: "item-fruit",
         products: [
           { sku: "FRT-BAN", name: "Bananas", price: 35_00, unit: "kg", step: 0.5 },
           { sku: "FRT-ORA", name: "Oranges", price: 25_00, unit: "kg", step: 0.5 },
@@ -209,6 +238,7 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
       },
       {
         name: "Vegetables",
+        picture: "item-veg",
         products: [
           { sku: "VEG-TOM", name: "Tomatoes", price: 18_00, unit: "kg", step: 0.5 },
           { sku: "VEG-CUC", name: "Cucumbers", price: 20_00, unit: "kg", step: 0.5 },
@@ -221,6 +251,7 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
   },
   {
     name: "Dairy & eggs",
+    picture: "dish-breakfast",
     aisles: [
       {
         name: "Milk & yoghurt",
@@ -232,6 +263,7 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
       },
       {
         name: "Cheese & eggs",
+        picture: "dish-breakfast",
         products: [
           { sku: "DAI-WCH", name: "White cheese", price: 160_00, unit: "kg", step: 0.25 },
           { sku: "DAI-RCH", name: "Roumi cheese", price: 380_00, unit: "kg", step: 0.25 },
@@ -242,9 +274,11 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
   },
   {
     name: "Bakery",
+    picture: "item-bread",
     aisles: [
       {
         name: "Bread",
+        picture: "item-bread",
         products: [
           { sku: "BAK-BAL", name: "Baladi bread, 5 loaves", price: 10_00 },
           { sku: "BAK-TST", name: "Toast bread", price: 30_00 },
@@ -268,7 +302,7 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
         name: "Oil, tea & spices",
         products: [
           { sku: "PAN-OIL", name: "Sunflower oil, 1.5 l", price: 95_00 },
-          { sku: "PAN-TEA", name: "Black tea, 250 g", price: 60_00 },
+          { sku: "PAN-TEA", name: "Black tea, 250 g", price: 60_00, picture: "product-tea" },
           { sku: "PAN-CUM", name: "Ground cumin, 100 g", price: 25_00 },
         ],
       },
@@ -276,12 +310,13 @@ export const MARKET_CATALOG: { name: string; aisles: { name: string; products: D
   },
   {
     name: "Drinks",
+    picture: "drink-juice",
     aisles: [
       {
         name: "Water & juice",
         products: [
           { sku: "DRK-WAT", name: "Mineral water, 1.5 l", price: 8_00 },
-          { sku: "DRK-ORJ", name: "Orange juice, 1 l", price: 50_00 },
+          { sku: "DRK-ORJ", name: "Orange juice, 1 l", price: 50_00, picture: "drink-juice" },
           { sku: "DRK-SPK", name: "Sparkling water, 6 bottles", price: 75_00 },
         ],
       },
@@ -499,14 +534,14 @@ export function marketplaceDeliverySettings(saved: DeliverySettings): DeliverySe
       wallet: true,
       weightTolerancePercent: 10,
       vendorApp: "same",
-      // 115.15 The demo has no photos: products and dishes show without them.
+      // 115.15 Not every product has a drawing (milk, rice, soap): those show without a picture.
       requirePhotos: false,
       vendorCoupons: { enabled: true, maxPercent: 30 },
     },
   };
 }
 
-function menuOf(vendor: DemoVendor, money: (cents: number) => number = (c) => c): RestaurantMenu {
+function menuOf(vendor: DemoVendor, money: (cents: number) => number = (c) => c, pictures: ReadonlyMap<string, string | null> = new Map()): RestaurantMenu {
   let next = 1;
   const id = () => next++;
   const sections: MenuSection[] = (vendor.menu ?? []).map((section) => ({
@@ -517,7 +552,7 @@ function menuOf(vendor: DemoVendor, money: (cents: number) => number = (c) => c)
         id: id(),
         name: dish.name,
         description: dish.description,
-        imageAssetId: null,
+        imageAssetId: pictures.get(dish.name) ?? null,
         priceCents: money(dish.price),
         available: true,
         popular: dish.popular ?? false,
@@ -549,9 +584,22 @@ export interface MarketMaking {
   sample: boolean;
   money: (cents: number) => number;
   cuisines: Map<string, string>;
+  /** A Zad picture's asset; null (or missing) when it can't be had, and the entries keep the pictures they have. */
+  picture?: (name: ZadPicture, size: PictureSize) => Promise<string | null>;
 }
 
 const AS_THE_DEMO: MarketMaking = { sample: false, money: (c) => c, cuisines: new Map() };
+
+/** Each picture looked up once a run, however many products show it. */
+function once(picture: MarketMaking["picture"]): MarketMaking["picture"] {
+  if (!picture) return undefined;
+  const seen = new Map<string, Promise<string | null>>();
+  return (name, size) => {
+    const key = `${name}:${size}`;
+    if (!seen.has(key)) seen.set(key, picture(name, size));
+    return seen.get(key)!;
+  };
+}
 
 /** Zad's cuisines (the marketplace's settings). */
 export function marketCuisines(): Cuisine[] {
@@ -564,13 +612,15 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
   const vendors = new Map<VendorKey, Restaurant>();
   const after = making.sample ? Math.max(0, ...existing.map((r) => r.position)) : 0;
   const { money } = making;
+  const picture = async (name: ZadPicture | undefined, size: PictureSize, had: string | null | undefined): Promise<string | null> => (name && making.picture ? ((await making.picture(name, size)) ?? had ?? null) : (had ?? null));
   for (const [position, v] of MARKET_VENDORS.entries()) {
+    const found = making.sample ? undefined : existing.find((r) => r.name === v.name);
     const input: RestaurantInput = {
       appId: app.id,
       name: v.name,
       description: v.description,
       logoAssetId: null,
-      coverAssetId: null,
+      coverAssetId: await picture(v.cover, "home", found?.coverAssetId),
       cuisines: v.cuisines.map((c) => making.cuisines.get(c) ?? c),
       address: { ...v.address },
       phone: null,
@@ -588,12 +638,18 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
       paused: false,
       area: v.area,
     };
-    const menu = menuOf(v, money);
+    const dishPictures = new Map<string, string | null>();
+    // Without a way to have the pictures (the daily job), the dishes keep theirs.
+    const had = found && v.menu && !making.picture ? await store.getRestaurantMenu(app.id, found.id) : null;
+    for (const dish of (v.menu ?? []).flatMap((m) => m.dishes)) {
+      const before = had?.sections.flatMap((m) => m.dishes).find((d) => d.name === dish.name)?.imageAssetId;
+      dishPictures.set(dish.name, await picture(dish.picture, "product", before));
+    }
+    const menu = menuOf(v, money, dishPictures);
     if (making.sample) {
       vendors.set(v.key, await store.createRestaurant({ ...input, sample: true }, menu, now));
       continue;
     }
-    const found = existing.find((r) => r.name === v.name);
     if (found) {
       if (!unchanged(found, { ...input, busyUntil: null })) await store.updateRestaurant(app.id, found.id, { ...input, busyUntil: null }, now);
       if (v.menu) await store.saveRestaurantMenu(app.id, found.id, menu, now);
@@ -616,9 +672,12 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
   const allAisles = await store.listMarketAisles(appId, market.id);
   const keepDepartments = new Set<number>();
   const rows: Omit<MarketProductInput, "appId" | "vendorId">[] = [];
+  // The pictures they have stay when no picture can be had (the daily job draws none).
+  const before = making.sample ? [] : await allProducts(store, appId, market.id);
+  const picture = async (name: ZadPicture | undefined, had: string | null | undefined): Promise<string | null> => (name && making.picture ? ((await making.picture(name, "product")) ?? had ?? null) : (had ?? null));
   for (const [d, department] of MARKET_CATALOG.entries()) {
-    const wantedDepartment = { appId, vendorId: market.id, name: department.name, imageAssetId: null, position: d + 1 };
     const foundDepartment = departments.find((x) => x.name === department.name);
+    const wantedDepartment = { appId, vendorId: market.id, name: department.name, imageAssetId: await picture(department.picture, foundDepartment?.imageAssetId), position: d + 1 };
     const savedDepartment = foundDepartment && unchanged(foundDepartment, wantedDepartment) ? foundDepartment : await store.saveMarketDepartment({ id: foundDepartment?.id ?? null, ...wantedDepartment });
     if (!savedDepartment) throw new Error(`The department ${department.name} couldn't be saved.`);
     keepDepartments.add(savedDepartment.id);
@@ -631,6 +690,7 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
       if (!savedAisle) throw new Error(`The aisle ${aisle.name} couldn't be saved.`);
       keepAisles.add(savedAisle.id);
       for (const p of aisle.products) {
+        const imageAssetId = await picture(p.picture ?? aisle.picture, before.find((x) => x.sku === p.sku)?.imageAssetId);
         rows.push({
           departmentId: savedDepartment.id,
           aisleId: savedAisle.id,
@@ -639,7 +699,7 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
           brand: null,
           sku: p.sku,
           barcode: null,
-          imageAssetId: null,
+          imageAssetId,
           imageUrl: null,
           galleryAssetIds: null,
           photoError: null,
@@ -663,7 +723,7 @@ async function syncCatalog(store: DataStore, appId: string, market: Restaurant, 
     return;
   }
   // Only the products not as the demo has them are saved; the ones it doesn't have (a visitor's) go.
-  const products = await allProducts(store, appId, market.id);
+  const products = before;
   const changed = rows.filter((row) => !products.some((p) => p.sku === row.sku && unchanged(p, row)));
   if (changed.length) await store.upsertMarketProducts(appId, market.id, changed, now);
   const skus = new Set(rows.map((r) => r.sku));
@@ -1030,13 +1090,14 @@ async function allOrders(store: DataStore, appId: string): Promise<MarketOrder[]
  * complaints and refunds are made again from the clock when they are from
  * another day (or always, with `force`, when the demo is set up).
  */
-export async function refreshMarketplaceDemo(store: DataStore, app: Pick<App, "id">, now: Date, options: { force?: boolean } = {}): Promise<number> {
+export async function refreshMarketplaceDemo(store: DataStore, app: Pick<App, "id">, now: Date, options: { force?: boolean; picture?: MarketMaking["picture"] } = {}): Promise<number> {
   const before = now.getTime() - DEMO_RETENTION_HOURS * 3_600_000;
   const saved = deliverySettingsOf(await store.getDeliverySettings(app.id));
   await store.saveDeliverySettings(app.id, marketplaceDeliverySettings(saved), now);
   const user = await demoUser(store, app.id, now);
-  const vendors = await syncVendors(store, app, now);
-  await syncCatalog(store, app.id, vendors.get("market")!, now);
+  const making: MarketMaking = { ...AS_THE_DEMO, picture: once(options.picture) };
+  const vendors = await syncVendors(store, app, now, making);
+  await syncCatalog(store, app.id, vendors.get("market")!, now, making);
   await syncStaff(store, app.id, vendors, now);
   await syncOffers(store, app.id, vendors, now);
   await syncClub(store, app.id, user, now);
@@ -1068,8 +1129,9 @@ export async function refreshMarketplaceDemo(store: DataStore, app: Pick<App, "i
  * wallet and the daily refresh.
  */
 export async function marketplaceSamples(store: DataStore, app: Pick<App, "id">, now: Date, making: Omit<MarketMaking, "sample">): Promise<number> {
-  const vendors = await syncVendors(store, app, now, { ...making, sample: true });
+  const sample: MarketMaking = { ...making, sample: true, picture: once(making.picture) };
+  const vendors = await syncVendors(store, app, now, sample);
   const market = vendors.get("market");
-  if (market) await syncCatalog(store, app.id, market, now, { ...making, sample: true });
+  if (market) await syncCatalog(store, app.id, market, now, sample);
   return vendors.size;
 }

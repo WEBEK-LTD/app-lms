@@ -40,8 +40,8 @@ import {
 } from "./content";
 import type { PictureName } from "./pictures";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
-import { savePicture, type PictureSize } from "./picture-assets";
-import { refreshMarketplaceDemo } from "./marketplace";
+import { saveArt, savePicture, type PictureSize } from "./picture-assets";
+import { refreshMarketplaceDemo, zadArt } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
 
@@ -214,7 +214,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   // Studio's demos: a parcel company, food delivery from three restaurants, rides.
   if (content === "deliveries") await syncDelivery(deps, client.id, saved);
   // 115.15 Zad: two restaurants and a supermarket, offers, the club, the wallet, and the demo number's orders and complaints.
-  if (content === "restaurants" && id === "marketplace") await refreshMarketplaceDemo(store, saved, now, { force: true });
+  if (content === "restaurants" && id === "marketplace") await refreshMarketplaceDemo(store, saved, now, { force: true, picture: (name, size) => saveArt(deps, { clientId: client.id }, zadArt(name), size, "product_image") });
   else if (content === "restaurants") await syncFood(deps, client.id, saved);
   if (content === "rides" && id === "taxi") await syncTaxi(deps, client.id, saved);
   else if (content === "rides") await syncRides(deps, client.id, saved);

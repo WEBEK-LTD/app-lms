@@ -5,8 +5,8 @@ import { deliverySettingsOf } from "../delivery/settings";
 import { isStudioDemo, type DemoId } from "../demo/constants";
 import { studioDemoOf } from "../studio/demo-templates";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
-import { marketCuisines, marketplaceSamples } from "../demo/marketplace";
-import { savePicture } from "../demo/picture-assets";
+import { marketCuisines, marketplaceSamples, zadArt, type ZadPicture } from "../demo/marketplace";
+import { saveArt, savePicture, type PictureSize } from "../demo/picture-assets";
 import { syncSchoolStructure } from "../demo/school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers } from "../demo/teachers";
 import { donationSettingsOf } from "../donations/service";
@@ -116,7 +116,9 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
     restaurants: async (m) => {
       const currency = await deliveryCurrency(m);
       const cuisines = await cuisinesFor(m, marketCuisines());
-      return (await marketplaceSamples(m.deps.store, m.app, m.deps.now, { money: (cents) => samplePrice(cents, "EGP", currency), cuisines })) > 0;
+      // Zad's drawn pictures, saved as the app's like the other demos' samples.
+      const picture = (name: ZadPicture, size: PictureSize) => saveArt(m.deps, { clientId: m.app.clientId, appId: m.app.id }, zadArt(name), size, "product_image");
+      return (await marketplaceSamples(m.deps.store, m.app, m.deps.now, { money: (cents) => samplePrice(cents, "EGP", currency), cuisines, picture })) > 0;
     },
   },
   rides: { vehicle_types: vehicleTypes(false) },

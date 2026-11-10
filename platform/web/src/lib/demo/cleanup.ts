@@ -2,7 +2,8 @@ import type { DataStore } from "../data/store";
 import type { App, DemoPurgeCounts, ListingInquiry } from "../data/types";
 import { listDemoApps } from "./apps";
 import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf } from "./constants";
-import { refreshMarketplaceDemo } from "./marketplace";
+import { refreshMarketplaceDemo, zadArt } from "./marketplace";
+import { savedArt } from "./picture-assets";
 import { refreshSchoolDay } from "./school";
 import { cleanDemoTeacher } from "./teachers";
 
@@ -37,7 +38,7 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     if (id === "school") report.deleted += await refreshSchoolDay(store, app, now);
     if (id === "instructors") report.deleted += await cleanDemoTeacher(store, app, now);
     // 115.15 Zad: visitors' orders after a day; the seeded orders, complaints and refunds from today.
-    if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now);
+    if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now, { picture: (name, size) => savedArt(store, { clientId: app.clientId }, zadArt(name), size) });
     // The shared account goes back to its name, should anything have changed it.
     const user = await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164);
     if (user && (user.name !== DEMO_USER_NAME || user.email !== null || user.city !== null)) {
