@@ -235,6 +235,11 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
 
 test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-only types, the differences and its own plans", async ({ page }) => {
   await page.goto("/yallapp-studio");
+  // The team's film plays in the phone frame at the top, muted, with a sound button.
+  const film = page.locator("[data-studio-video] video");
+  await expect(film).toHaveAttribute("src", "/videos/studio-hero-en.mp4");
+  await expect(film).toHaveAttribute("poster", "/videos/studio-hero-en.jpg");
+  await expect(page.locator("[data-studio-video]").getByRole("button", { name: "Turn the sound on" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Design your app your way, element by element" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^The Yallapp Studio editor/ }).first()).toBeVisible();
   // Real screenshots of apps made in Studio, light and dark, and a delivery company's.

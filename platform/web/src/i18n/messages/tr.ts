@@ -278,6 +278,10 @@ export const tr: Messages = {
   // 103R Yallapp Studio's own page, its demo, and its place on the home and pricing pages.
   studio: {
     eyebrow: "Yallapp Studio",
+    videoLabel: "Yallapp Studio hakkında kısa bir film",
+    videoSoundOn: "Sesi aç",
+    videoSoundOff: "Sesi kapat",
+    videoPlay: "Filmi oynat",
     title: "Uygulamanı kendi yolunla, öğe öğe tasarla",
     intro: "Yallapp Studio, hesabında özgürce tasarladığın projeler için ayrı bir alandır: satırlar, sütunlar, katmanlar, resimler, düğmeler ve kendi kartlarında listeler, telefonda yerel olarak çizilir. Yalnızca Studio'nun sunduğu uygulamaları da yapar: teslimat şirketleri, yemek teslimatı, yolcu taşıma ve taksiler, çok öğretmenli akademiler, okullar ve üniversiteler.",
     start: "Studio projesi başlat",

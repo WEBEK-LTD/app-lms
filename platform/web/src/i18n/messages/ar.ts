@@ -278,6 +278,10 @@ export const ar: Messages = {
   // 103R Yallapp Studio's own page, its demo, and its place on the home and pricing pages.
   studio: {
     eyebrow: "Yallapp Studio",
+    videoLabel: "فيلم قصير عن Yallapp Studio",
+    videoSoundOn: "تشغيل الصوت",
+    videoSoundOff: "إيقاف الصوت",
+    videoPlay: "تشغيل الفيلم",
     title: "صمّم تطبيقك على طريقتك، عنصرًا عنصرًا",
     intro: "Yallapp Studio مساحة مستقلة في حسابك لمشاريع تصمّمها بحرية: صفوف وأعمدة وطبقات وصور وأزرار وقوائم ببطاقات من تصميمك، يرسمها الهاتف بشكل أصلي. ويصنع أيضًا تطبيقات لا يقدّمها إلا Studio: شركات التوصيل، وتوصيل الطعام، وتوصيل الركاب وسيارات الأجرة، والأكاديميات بمدرسين كثيرين، والمدارس والجامعات.",
     start: "ابدأ مشروعًا في Studio",
