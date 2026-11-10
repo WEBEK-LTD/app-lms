@@ -6319,8 +6319,8 @@ paths:
     patch:
       tags: [Vendor]
       operationId: updateVendorDesk
-      summary: Set the vendor busy, paused or taking orders
-      description: '`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again. Staff with the `orders` role or more.'
+      summary: Set the vendor busy, paused, running late or taking orders, and its hours
+      description: '`busy_minutes` stops new orders for that long (scheduled ones still come); `paused` true stops them until set false again; `delay` keeps taking orders with more minutes on every delivery and pick-up time and a reason customers see, and ends by itself. Staff with the `orders` role or more. `hours`, `closed_dates` and `prep_minutes` change the vendor''s weekly hours, days off and preparation time at once, for its `owner` and `manager` only (403 otherwise); the app''s owner sees the change and can undo it.'
       requestBody:
         required: true
         content:
@@ -6330,6 +6330,32 @@ paths:
               properties:
                 busy_minutes: { type: [integer, 'null'], minimum: 5, maximum: 240, description: 'Null ends being busy.' }
                 paused: { type: boolean }
+                delay:
+                  type: [object, 'null']
+                  description: 'Running late; null ends it.'
+                  required: [minutes, reason]
+                  properties:
+                    minutes: { type: integer, enum: [10, 15, 20, 30, 45, 60] }
+                    reason: { type: string, enum: [demand, couriers, weather, other], description: 'High demand, few couriers, the weather, or the vendor''s own words in `note`.' }
+                    note: { type: [string, 'null'], maxLength: 80, description: 'Plain text, required with `other`; ignored otherwise.' }
+                    for_minutes: { type: [integer, 'null'], enum: [30, 60, 120, null], description: 'How long; null or left out: until the vendor ends it.' }
+                hours:
+                  type: array
+                  maxItems: 14
+                  description: 'The weekly hours, up to two periods a day; a day left out is closed. A period that closes before it opens runs past midnight.'
+                  items:
+                    type: object
+                    required: [day, opens, closes]
+                    properties:
+                      day: { type: string, enum: [mon, tue, wed, thu, fri, sat, sun] }
+                      opens: { type: string, pattern: '^\d{2}:\d{2}$' }
+                      closes: { type: string, pattern: '^\d{2}:\d{2}$' }
+                closed_dates:
+                  type: array
+                  maxItems: 20
+                  description: 'All the days off (holidays), replacing the ones before: closed all day from `from` to `to` (both included, in `MarketConfig`''s time zone), each up to 92 days, starting within a year. Past ones are dropped.'
+                  items: { $ref: '#/components/schemas/VendorClosedDates' }
+                prep_minutes: { type: integer, minimum: 5, maximum: 180, description: 'How long an order usually takes; delivery and pick-up times start from it.' }
       responses:
         '200':
           description: The vendor
@@ -16177,7 +16203,7 @@ components:
 
     MarketVendorSummary:
       type: object
-      required: [id, kind, name, logo_url, cover_url, categories, rating, ratings_count, open, opens_at, busy, delivery_by, delivery_minutes, delivery_fee, free_delivery_over, min_order, distance_km, delivers, pickup, scheduling, offer, club_benefit]
+      required: [id, kind, name, logo_url, cover_url, categories, rating, ratings_count, open, opens_at, busy, delivery_by, delivery_minutes, delivery_fee, free_delivery_over, min_order, distance_km, delivers, pickup, scheduling, offer, club_benefit, delay]
       properties:
         id: { type: integer }
         kind: { $ref: '#/components/schemas/VendorKind' }
@@ -16196,7 +16222,7 @@ components:
         delivery_minutes:
           type: [object, 'null']
           required: [min, max]
-          description: Preparing and delivering, with the customer's position; null without it.
+          description: Preparing (with the vendor's `delay` when it runs late) and delivering, with the customer's position; null without it.
           properties:
             min: { type: integer }
             max: { type: integer }
@@ -16209,6 +16235,25 @@ components:
         scheduling: { type: boolean }
         offer: { type: [string, 'null'], description: 'Its best offer in a few words, for the card.', example: '20% off grills' }
         club_benefit: { type: [string, 'null'], description: 'The club''s benefit at this vendor, for members and to invite others.', example: 'Free delivery' }
+        delay:
+          oneOf: [{ $ref: '#/components/schemas/VendorDelay' }, { type: 'null' }]
+          description: 'Running late: it still takes orders, and `delivery_minutes` (and pick-up times) include the extra minutes already. Show a short note on the card and a banner on its page, like "Running about 20 min late: high demand".'
+
+    VendorDelay:
+      type: object
+      required: [minutes, reason, note, until]
+      properties:
+        minutes: { type: integer, enum: [10, 15, 20, 30, 45, 60], description: 'The extra minutes.' }
+        reason: { type: string, enum: [demand, couriers, weather, other], description: 'High demand, few couriers, the weather, or the vendor''s own words in `note`.' }
+        note: { type: [string, 'null'], maxLength: 80, description: 'Plain text, with `other` only.' }
+        until: { type: [string, 'null'], format: date-time, description: 'When it ends by itself; null: when the vendor ends it.' }
+
+    VendorClosedDates:
+      type: object
+      required: [from, to]
+      properties:
+        from: { type: string, format: date, example: '2026-12-31' }
+        to: { type: string, format: date, description: 'The last day off.', example: '2027-01-01' }
 
     MarketVendor:
       allOf:
@@ -16601,7 +16646,7 @@ components:
 
     VendorDesk:
       type: object
-      required: [id, kind, name, logo_url, open, busy_until, paused, accepting, delivery_by, role, today]
+      required: [id, kind, name, logo_url, open, busy_until, paused, accepting, delivery_by, role, today, delay, prep_minutes, hours, closed_dates, can_edit_place]
       description: The vendor as its staff see it.
       properties:
         id: { type: integer }
@@ -16621,6 +16666,32 @@ components:
             orders: { type: integer }
             sales: { $ref: '#/components/schemas/Money' }
             new_orders: { type: integer }
+        delay:
+          description: 'Running late now; null otherwise.'
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/VendorDelay'
+                - type: object
+                  required: [set_at]
+                  properties:
+                    set_at: { type: string, format: date-time }
+            - type: 'null'
+        prep_minutes: { type: integer, description: 'How long an order usually takes.' }
+        hours:
+          type: array
+          description: 'The weekly hours.'
+          items:
+            type: object
+            required: [day, opens, closes]
+            properties:
+              day: { type: string, enum: [mon, tue, wed, thu, fri, sat, sun] }
+              opens: { type: string, pattern: '^\d{2}:\d{2}$' }
+              closes: { type: string, pattern: '^\d{2}:\d{2}$' }
+        closed_dates:
+          type: array
+          description: 'The days off from today on, soonest first.'
+          items: { $ref: '#/components/schemas/VendorClosedDates' }
+        can_edit_place: { type: boolean, description: 'The signed-in staff member may change the hours, days off and preparation time (`owner` and `manager`).' }
 
     VendorStatement:
       type: object

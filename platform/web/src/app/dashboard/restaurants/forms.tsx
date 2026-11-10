@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addSectionAction, addStaffAction, foodOrderStepAction, renameSectionAction, saveDishAction, saveHoursAction, saveRestaurantAction } from "@/app/actions/food";
+import { addClosedDatesAction, addSectionAction, addStaffAction, foodOrderStepAction, renameSectionAction, saveDishAction, saveHoursAction, saveRestaurantAction } from "@/app/actions/food";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FormActions, FormSection } from "@/components/page-kit";
@@ -191,6 +191,25 @@ export function HoursForm({ restaurant, hours }: { restaurant: number; hours: Ho
       <div className="flex justify-end">
         <SubmitButton className="h-10" pendingText={t("common.saving")}>
           {t("food.saveHours")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/** 115.20 Days off for a place: from one date to another (the last day off), closed all day. */
+export function DaysOffForm({ restaurant, today }: { restaurant: number; today: string }) {
+  const t = useDashT();
+  const [state, action] = useActionState(addClosedDatesAction, initialFormState);
+  return (
+    <form action={action} noValidate className="flex flex-col gap-2">
+      <FormMessage message={state.message} ok={state.ok} />
+      <input type="hidden" name="restaurant" value={restaurant} />
+      <div className="flex flex-wrap items-end gap-2">
+        <Field id={`f-off-from-${restaurant}`} label={t("food.dayOffFrom")} name="from" type="date" dir="ltr" min={today} defaultValue={state.values?.from ?? ""} error={state.errors?.from} />
+        <Field id={`f-off-to-${restaurant}`} label={t("food.dayOffTo")} name="to" type="date" dir="ltr" min={today} defaultValue={state.values?.to ?? ""} />
+        <SubmitButton variant="secondary" className="h-11" pendingText={t("common.saving")}>
+          {t("food.addDaysOff")}
         </SubmitButton>
       </div>
     </form>

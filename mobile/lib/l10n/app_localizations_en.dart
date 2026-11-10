@@ -9264,4 +9264,144 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get teacherAppOnlyMessage =>
       'This app is for the academy\'s teachers. Students learn in the academy\'s main app.';
+
+  @override
+  String marketLateShort(int minutes) {
+    return '~$minutes min late';
+  }
+
+  @override
+  String marketLateBanner(int minutes, String reason) {
+    return 'Running about $minutes min late: $reason';
+  }
+
+  @override
+  String get marketLateIncluded => 'Delivery and pick-up times include it.';
+
+  @override
+  String get marketLateDemand => 'high demand';
+
+  @override
+  String get marketLateCouriers => 'few couriers';
+
+  @override
+  String get marketLateWeather => 'the weather';
+
+  @override
+  String get vendorLate => 'Running late';
+
+  @override
+  String get vendorLateTitle => 'Running late?';
+
+  @override
+  String get vendorLateText =>
+      'Keep taking orders and tell customers it takes longer. Their delivery and pick-up times include the extra minutes.';
+
+  @override
+  String get vendorLateMinutes => 'Extra time';
+
+  @override
+  String vendorLateExtra(int minutes) {
+    return '+$minutes min';
+  }
+
+  @override
+  String get vendorLateReason => 'Why';
+
+  @override
+  String get vendorLateDemand => 'High demand';
+
+  @override
+  String get vendorLateCouriers => 'Few couriers';
+
+  @override
+  String get vendorLateWeather => 'Weather';
+
+  @override
+  String get vendorLateOther => 'Something else';
+
+  @override
+  String get vendorLateNote => 'Your words (customers see them)';
+
+  @override
+  String get vendorLateFor => 'For';
+
+  @override
+  String vendorLateForMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String vendorLateForHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorLateUntilEnd => 'Until I end it';
+
+  @override
+  String get vendorLateSet => 'Tell customers';
+
+  @override
+  String get vendorLateEnd => 'End the delay';
+
+  @override
+  String vendorLateUntil(String time) {
+    return 'Until $time';
+  }
+
+  @override
+  String get vendorHoursTitle => 'Hours & days off';
+
+  @override
+  String get vendorHoursNote =>
+      'Changes show in the app at once. The app\'s team sees what you changed and can put it back.';
+
+  @override
+  String get vendorHoursWeek => 'Every week';
+
+  @override
+  String get vendorHoursHint =>
+      'Up to two periods a day. A day without hours is closed; a time that closes before it opens runs past midnight.';
+
+  @override
+  String get vendorHoursClosed => 'Closed';
+
+  @override
+  String get vendorHoursAdd => 'Add hours';
+
+  @override
+  String get vendorHoursRemove => 'Remove';
+
+  @override
+  String get vendorPrepTitle => 'Preparation time';
+
+  @override
+  String get vendorPrepHint =>
+      'How long an order usually takes. Customers\' delivery and pick-up times start from it.';
+
+  @override
+  String get vendorDaysOff => 'Days off';
+
+  @override
+  String get vendorDaysOffHint =>
+      'Holidays and other days you\'re closed all day. Customers see you closed, and when you open again.';
+
+  @override
+  String get vendorDaysOffNone => 'No days off coming up.';
+
+  @override
+  String get vendorDaysOffAdd => 'Add days off';
+
+  @override
+  String get vendorHoursSave => 'Save';
+
+  @override
+  String get vendorHoursSaved => 'Saved. Customers see it now.';
 }

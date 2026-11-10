@@ -7,7 +7,7 @@ import { clientFor, mayUseDashboard, type ClientContext } from "@/lib/auth/sessi
 import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
-import { FOOD_REJECTIONS, type App, type FoodOrder, type Restaurant, type RestaurantMenu } from "@/lib/data/types";
+import { FOOD_REJECTIONS, type App, type FoodOrder, type Restaurant, type RestaurantMenu, type VendorClosedDates } from "@/lib/data/types";
 import { parseCourierForm } from "@/lib/delivery/forms";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { acceptOrder, cancelOrder, readyOrder, rejectOrder } from "@/lib/food/flow";
@@ -25,7 +25,9 @@ import {
   setDishAvailable,
 } from "@/lib/food/forms";
 import { EMPTY_MENU } from "@/lib/food/menu";
-import { FOOD_COMPANY_STEPS, foodOrderReference } from "@/lib/food/service";
+import { DEFAULT_FOOD_TIMEZONE, FOOD_COMPANY_STEPS, foodOrderReference } from "@/lib/food/service";
+import { utcToLocal } from "@/lib/bookings/time";
+import { afterOwnerEdit, parseClosedDates, undoPlaceChangePatch, upcomingClosedDates } from "@/lib/market/vendor-controls";
 import { formValues, type FormState } from "@/lib/forms";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { hostedSettings } from "@/lib/hosted/service";
@@ -107,8 +109,8 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const logoAssetId = logo.assetId ?? (formData.get("removeLogo") === "on" ? null : (existing?.logoAssetId ?? null));
   const coverAssetId = cover.assetId ?? (formData.get("removeCover") === "on" ? null : (existing?.coverAssetId ?? null));
   if (existing) {
-    // 110.2 A sample restaurant saved here is the owner's from now on.
-    await store.updateRestaurant(app.id, existing.id, { ...parsed.value, logoAssetId, coverAssetId, sample: false }, now);
+    // 110.2 A sample restaurant saved here is the owner's from now on. 115.20 A preparation time the owner changes isn't the place's change any more.
+    await store.updateRestaurant(app.id, existing.id, { ...parsed.value, logoAssetId, coverAssetId, sample: false, ...afterOwnerEdit(existing, { prepMinutes: parsed.value.prepMinutes }) }, now);
     await recordStaffChange(context, `Edited the restaurant ${parsed.value.name}`);
     refresh();
     return { ok: true, message: "Saved.", values };
@@ -157,10 +159,76 @@ export async function saveHoursAction(_: FormState, formData: FormData): Promise
   if (!restaurant) return { message: "This restaurant doesn't exist anymore." };
   const parsed = parseHoursForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { hours: parsed.value, sample: false }, new Date());
+  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { hours: parsed.value, sample: false, ...afterOwnerEdit(restaurant, { hours: parsed.value }) }, new Date());
   await recordStaffChange(context, `Saved the opening hours of ${restaurant.name}`);
   refresh();
   return { ok: true, message: "Saved.", values };
+}
+
+// 115.20 What a marketplace place set itself: running late, and its hours, days off and preparation time.
+
+/** Ends the place's "running late" notice: customers' times go back to its preparation time. */
+export async function endDelayAction(formData: FormData): Promise<void> {
+  const context = await requireFoodApp("orders");
+  const restaurant = await restaurantOf(context.app, formData);
+  if (!restaurant) return;
+  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { delay: null }, new Date());
+  await recordStaffChange(context, `Ended the delay notice of ${restaurant.name}`);
+  refresh();
+}
+
+/** Puts back the hours, days off and preparation time the place changed itself. */
+export async function undoPlaceChangeAction(formData: FormData): Promise<void> {
+  const context = await requireFoodApp("catalog");
+  const restaurant = await restaurantOf(context.app, formData);
+  const patch = restaurant ? undoPlaceChangePatch(restaurant) : null;
+  if (!restaurant || !patch) return;
+  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, patch, new Date());
+  await recordStaffChange(context, `Undid the changes ${restaurant.name} made to its hours`);
+  refresh();
+}
+
+/** Keeps what the place changed: the notice goes. */
+export async function keepPlaceChangeAction(formData: FormData): Promise<void> {
+  const context = await requireFoodApp("catalog");
+  const restaurant = await restaurantOf(context.app, formData);
+  if (!restaurant?.vendorEdit) return;
+  await (await getStore()).updateRestaurant(context.app.id, restaurant.id, { vendorEdit: null }, new Date());
+  refresh();
+}
+
+async function closedDatesChange(context: ClientContext & { app: App }, restaurant: Restaurant, next: (current: VendorClosedDates[], today: string) => unknown[]): Promise<string | null> {
+  const store = await getStore();
+  const timezone = deliverySettingsOf(await store.getDeliverySettings(context.app.id)).timezone ?? DEFAULT_FOOD_TIMEZONE;
+  const today = utcToLocal(new Date(), timezone).date;
+  const parsed = parseClosedDates(next(upcomingClosedDates(restaurant.closedDates, today), today), today);
+  if (!parsed.ok) return parsed.error;
+  await store.updateRestaurant(context.app.id, restaurant.id, { closedDates: parsed.value.length ? parsed.value : null, ...afterOwnerEdit(restaurant, { closedDates: parsed.value }) }, new Date());
+  await recordStaffChange(context, `Saved the days off of ${restaurant.name}`);
+  refresh();
+  return null;
+}
+
+/** Days off (holidays) for a place: closed all day from one date to another. */
+export async function addClosedDatesAction(_: FormState, formData: FormData): Promise<FormState> {
+  const context = await requireFoodApp("catalog");
+  const values = formValues(formData);
+  const restaurant = await restaurantOf(context.app, formData);
+  if (!restaurant) return { message: "This restaurant doesn't exist anymore." };
+  const from = (values.from ?? "").trim();
+  if (!from) return { errors: { from: "Enter the dates like 2026-12-31." }, values };
+  const error = await closedDatesChange(context, restaurant, (current) => [...current, { from, to: (values.to ?? "").trim() || from }]);
+  if (error) return { errors: { from: error }, values };
+  return { ok: true, message: "Saved.", values: {} };
+}
+
+export async function removeClosedDatesAction(formData: FormData): Promise<void> {
+  const context = await requireFoodApp("catalog");
+  const restaurant = await restaurantOf(context.app, formData);
+  if (!restaurant) return;
+  const from = String(formData.get("from") ?? "");
+  const to = String(formData.get("to") ?? "");
+  await closedDatesChange(context, restaurant, (current) => current.filter((c) => !(c.from === from && c.to === to)));
 }
 
 // The menu

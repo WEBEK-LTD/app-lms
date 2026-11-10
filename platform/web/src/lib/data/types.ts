@@ -3678,9 +3678,46 @@ export interface Restaurant {
   area?: string | null;
   /** 115 Where it delivers by area: the marketplace's `serviceAreas` it chose (their IDs); null or empty: by distance (`maxKm`). */
   deliveryAreas?: string[] | null;
+  /** 115.20 Running late: extra minutes on every delivery and pick-up time, with a reason customers see; still taking orders (lib/market/vendor-controls.ts). */
+  delay?: VendorDelay | null;
+  /** 115.20 Days off (holidays): closed all day on these dates, in the app's time zone. */
+  closedDates?: VendorClosedDates[] | null;
+  /** 115.20 The place itself last changed its hours, days off or preparation time: when, who, and the values before, for the owner's Undo. */
+  vendorEdit?: VendorEdit | null;
   createdAt: Date;
   updatedAt: Date;
 }
+
+/** 115.20 Why a place is running late, as customers read it. */
+export type VendorDelayReason = "demand" | "couriers" | "weather" | "other";
+export const VENDOR_DELAY_REASONS: readonly VendorDelayReason[] = ["demand", "couriers", "weather", "other"];
+
+/** 115.20 A place running late: `minutes` more on its times until `until` (null: until it ends it). */
+export interface VendorDelay {
+  minutes: number;
+  reason: VendorDelayReason;
+  /** The place's own words for `other` (plain text, up to 80 characters); null otherwise. */
+  note: string | null;
+  until: Date | null;
+  setAt: Date;
+}
+
+/** 115.20 Closed from `from` to `to` ("YYYY-MM-DD", both included), in the app's time zone. */
+export interface VendorClosedDates {
+  from: string;
+  to: string;
+}
+
+/** 115.20 What the place changed itself, and what it was before (one level of undo for the owner). */
+export interface VendorEdit {
+  at: Date;
+  /** The staff member's name. */
+  by: string | null;
+  fields: VendorEditField[];
+  previous: { hours: OpeningPeriod[]; closedDates: VendorClosedDates[]; prepMinutes: number };
+}
+
+export type VendorEditField = "hours" | "closed_dates" | "prep_minutes";
 
 /** 115.3 What a marketplace vendor sells: dishes (a menu), or products in departments and aisles. */
 export type VendorKind = "restaurant" | "grocery" | "shop";

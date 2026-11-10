@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
-import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, OffersSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
+import { CatalogSection, ComplaintsSection, DeliverySection, HoursSection, ImportSection, OffersSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
 import { assetUrl } from "@/lib/assets";
-import { catalogPage, waitingLinks, deliveryAreaWarning, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
+import { catalogPage, waitingLinks, deliveryAreaWarning, deliveryValues, monthBounds, panelContext, placeHoursValues, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
 import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
 import { fill, PANEL_WORDS, panelLang, type PanelLang, type PanelWords } from "@/lib/market/panel-words";
-import { addStaffAction, bulkPhotosAction, createOfferAction, fetchLinksAction, importAction, offerStateAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
+import { addDaysOffAction, addStaffAction, bulkPhotosAction, removeDaysOffAction, saveHoursAction, createOfferAction, fetchLinksAction, importAction, offerStateAction, removePhotoAction, requestPanelCode, uploadPhotoAction, saveDeliveryAction, saveStockAction, signOutOfPanel, toggleStaffAction, verifyPanelCode } from "./actions";
 import { vendorDelivery } from "@/lib/market/delivery";
 import { listVendorCoupons, vendorCatalogChoices, vendorCouponRules } from "@/lib/market/vendor-coupons";
 
@@ -97,6 +97,23 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
           save={saveDeliveryAction.bind(null, appId, lang)}
           areas={ctx.serviceAreas ?? []}
           areaWarning={deliveryAreaWarning(ctx)}
+        />
+      );
+    } else if (tab === "hours") {
+      // 115.20 The place's own hours, days off and preparation time.
+      const { values, closed, today } = placeHoursValues(ctx, new Date());
+      body = (
+        <HoursSection
+          w={w}
+          lang={lang}
+          values={values}
+          closed={closed}
+          today={today}
+          error={text(search.error) || null}
+          saved={search.saved === "1"}
+          save={saveHoursAction.bind(null, appId, lang)}
+          addDaysOff={addDaysOffAction.bind(null, appId, lang)}
+          removeDaysOff={removeDaysOffAction.bind(null, appId, lang)}
         />
       );
     } else if (tab === "offers") {

@@ -198,8 +198,22 @@ MarketVendor marketVendorFrom(
   club: v.clubBenefit != null,
   clubBenefit: v.clubBenefit,
   distanceKm: v.distanceKm,
-  opensAt: v.opensAt == null ? null : clockTime(v.opensAt!),
+  // 115.20 A day or a date when it opens after its days off.
+  opensAt: v.opensAt == null ? null : opensLabel(v.opensAt!),
   delivers: v.delivers,
+  late: switch (v.delay) {
+    final d? => MarketLate(
+      minutes: d.minutes,
+      reason: switch (d.reason) {
+        api.MarketDelayReason.demand => MarketLateReason.demand,
+        api.MarketDelayReason.couriers => MarketLateReason.couriers,
+        api.MarketDelayReason.weather => MarketLateReason.weather,
+        api.MarketDelayReason.other => MarketLateReason.other,
+      },
+      note: d.note,
+    ),
+    null => null,
+  },
 );
 
 /// A dish or a product as the screens show it.

@@ -9516,4 +9516,146 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get teacherAppOnlyMessage =>
       'هذا التطبيق لمعلمي الأكاديمية. ويتعلم الطلاب في التطبيق الرئيسي للأكاديمية.';
+
+  @override
+  String marketLateShort(int minutes) {
+    return 'تأخير ~$minutes د';
+  }
+
+  @override
+  String marketLateBanner(int minutes, String reason) {
+    return 'تأخير نحو $minutes دقيقة: $reason';
+  }
+
+  @override
+  String get marketLateIncluded => 'تشمل مواعيد التوصيل والاستلام هذا التأخير.';
+
+  @override
+  String get marketLateDemand => 'طلب مرتفع';
+
+  @override
+  String get marketLateCouriers => 'قلة المندوبين';
+
+  @override
+  String get marketLateWeather => 'الطقس';
+
+  @override
+  String get vendorLate => 'تأخير';
+
+  @override
+  String get vendorLateTitle => 'هل لديك تأخير؟';
+
+  @override
+  String get vendorLateText =>
+      'واصل استقبال الطلبات وأخبر العملاء أن الطلب يستغرق وقتًا أطول. تشمل مواعيد التوصيل والاستلام الدقائق الإضافية.';
+
+  @override
+  String get vendorLateMinutes => 'الوقت الإضافي';
+
+  @override
+  String vendorLateExtra(int minutes) {
+    return '+$minutes دقيقة';
+  }
+
+  @override
+  String get vendorLateReason => 'السبب';
+
+  @override
+  String get vendorLateDemand => 'طلب مرتفع';
+
+  @override
+  String get vendorLateCouriers => 'قلة المندوبين';
+
+  @override
+  String get vendorLateWeather => 'الطقس';
+
+  @override
+  String get vendorLateOther => 'سبب آخر';
+
+  @override
+  String get vendorLateNote => 'كلماتك (يراها العملاء)';
+
+  @override
+  String get vendorLateFor => 'المدة';
+
+  @override
+  String vendorLateForMinutes(int minutes) {
+    return '$minutes دقيقة';
+  }
+
+  @override
+  String vendorLateForHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours ساعة',
+      few: '$hours ساعات',
+      two: 'ساعتان',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vendorLateUntilEnd => 'حتى أنهيه';
+
+  @override
+  String get vendorLateSet => 'إبلاغ العملاء';
+
+  @override
+  String get vendorLateEnd => 'إنهاء التأخير';
+
+  @override
+  String vendorLateUntil(String time) {
+    return 'حتى $time';
+  }
+
+  @override
+  String get vendorHoursTitle => 'المواعيد والإجازات';
+
+  @override
+  String get vendorHoursNote =>
+      'تظهر التغييرات في التطبيق فورًا. ويرى فريق التطبيق ما غيّرته ويمكنه إعادته كما كان.';
+
+  @override
+  String get vendorHoursWeek => 'كل أسبوع';
+
+  @override
+  String get vendorHoursHint =>
+      'فترتان في اليوم على الأكثر. اليوم بلا مواعيد مغلق؛ والموعد الذي يغلق قبل أن يفتح يمتد بعد منتصف الليل.';
+
+  @override
+  String get vendorHoursClosed => 'مغلق';
+
+  @override
+  String get vendorHoursAdd => 'إضافة مواعيد';
+
+  @override
+  String get vendorHoursRemove => 'إزالة';
+
+  @override
+  String get vendorPrepTitle => 'مدة التحضير';
+
+  @override
+  String get vendorPrepHint =>
+      'المدة المعتادة لتحضير الطلب. تبدأ منها مواعيد التوصيل والاستلام التي يراها العملاء.';
+
+  @override
+  String get vendorDaysOff => 'الإجازات';
+
+  @override
+  String get vendorDaysOffHint =>
+      'العطلات والأيام الأخرى التي تُغلق فيها طوال اليوم. يراك العملاء مغلقًا، ويرون متى تفتح من جديد.';
+
+  @override
+  String get vendorDaysOffNone => 'لا توجد إجازات قادمة.';
+
+  @override
+  String get vendorDaysOffAdd => 'إضافة إجازة';
+
+  @override
+  String get vendorHoursSave => 'حفظ';
+
+  @override
+  String get vendorHoursSaved => 'تم الحفظ. يراه العملاء الآن.';
 }

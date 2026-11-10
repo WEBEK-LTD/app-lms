@@ -9869,4 +9869,168 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get teacherAppOnlyMessage =>
       overlay.text('teacherAppOnlyMessage') ?? base.teacherAppOnlyMessage;
+
+  @override
+  String marketLateShort(int minutes) =>
+      overlay.format('marketLateShort', {'minutes': minutes}) ??
+      base.marketLateShort(minutes);
+
+  @override
+  String marketLateBanner(int minutes, String reason) =>
+      overlay.format('marketLateBanner', {
+        'minutes': minutes,
+        'reason': reason,
+      }) ??
+      base.marketLateBanner(minutes, reason);
+
+  @override
+  String get marketLateIncluded =>
+      overlay.text('marketLateIncluded') ?? base.marketLateIncluded;
+
+  @override
+  String get marketLateDemand =>
+      overlay.text('marketLateDemand') ?? base.marketLateDemand;
+
+  @override
+  String get marketLateCouriers =>
+      overlay.text('marketLateCouriers') ?? base.marketLateCouriers;
+
+  @override
+  String get marketLateWeather =>
+      overlay.text('marketLateWeather') ?? base.marketLateWeather;
+
+  @override
+  String get vendorLate => overlay.text('vendorLate') ?? base.vendorLate;
+
+  @override
+  String get vendorLateTitle =>
+      overlay.text('vendorLateTitle') ?? base.vendorLateTitle;
+
+  @override
+  String get vendorLateText =>
+      overlay.text('vendorLateText') ?? base.vendorLateText;
+
+  @override
+  String get vendorLateMinutes =>
+      overlay.text('vendorLateMinutes') ?? base.vendorLateMinutes;
+
+  @override
+  String vendorLateExtra(int minutes) =>
+      overlay.format('vendorLateExtra', {'minutes': minutes}) ??
+      base.vendorLateExtra(minutes);
+
+  @override
+  String get vendorLateReason =>
+      overlay.text('vendorLateReason') ?? base.vendorLateReason;
+
+  @override
+  String get vendorLateDemand =>
+      overlay.text('vendorLateDemand') ?? base.vendorLateDemand;
+
+  @override
+  String get vendorLateCouriers =>
+      overlay.text('vendorLateCouriers') ?? base.vendorLateCouriers;
+
+  @override
+  String get vendorLateWeather =>
+      overlay.text('vendorLateWeather') ?? base.vendorLateWeather;
+
+  @override
+  String get vendorLateOther =>
+      overlay.text('vendorLateOther') ?? base.vendorLateOther;
+
+  @override
+  String get vendorLateNote =>
+      overlay.text('vendorLateNote') ?? base.vendorLateNote;
+
+  @override
+  String get vendorLateFor =>
+      overlay.text('vendorLateFor') ?? base.vendorLateFor;
+
+  @override
+  String vendorLateForMinutes(int minutes) =>
+      overlay.format('vendorLateForMinutes', {'minutes': minutes}) ??
+      base.vendorLateForMinutes(minutes);
+
+  @override
+  String vendorLateForHours(int hours) =>
+      overlay.format('vendorLateForHours', {'hours': hours}) ??
+      base.vendorLateForHours(hours);
+
+  @override
+  String get vendorLateUntilEnd =>
+      overlay.text('vendorLateUntilEnd') ?? base.vendorLateUntilEnd;
+
+  @override
+  String get vendorLateSet =>
+      overlay.text('vendorLateSet') ?? base.vendorLateSet;
+
+  @override
+  String get vendorLateEnd =>
+      overlay.text('vendorLateEnd') ?? base.vendorLateEnd;
+
+  @override
+  String vendorLateUntil(String time) =>
+      overlay.format('vendorLateUntil', {'time': time}) ??
+      base.vendorLateUntil(time);
+
+  @override
+  String get vendorHoursTitle =>
+      overlay.text('vendorHoursTitle') ?? base.vendorHoursTitle;
+
+  @override
+  String get vendorHoursNote =>
+      overlay.text('vendorHoursNote') ?? base.vendorHoursNote;
+
+  @override
+  String get vendorHoursWeek =>
+      overlay.text('vendorHoursWeek') ?? base.vendorHoursWeek;
+
+  @override
+  String get vendorHoursHint =>
+      overlay.text('vendorHoursHint') ?? base.vendorHoursHint;
+
+  @override
+  String get vendorHoursClosed =>
+      overlay.text('vendorHoursClosed') ?? base.vendorHoursClosed;
+
+  @override
+  String get vendorHoursAdd =>
+      overlay.text('vendorHoursAdd') ?? base.vendorHoursAdd;
+
+  @override
+  String get vendorHoursRemove =>
+      overlay.text('vendorHoursRemove') ?? base.vendorHoursRemove;
+
+  @override
+  String get vendorPrepTitle =>
+      overlay.text('vendorPrepTitle') ?? base.vendorPrepTitle;
+
+  @override
+  String get vendorPrepHint =>
+      overlay.text('vendorPrepHint') ?? base.vendorPrepHint;
+
+  @override
+  String get vendorDaysOff =>
+      overlay.text('vendorDaysOff') ?? base.vendorDaysOff;
+
+  @override
+  String get vendorDaysOffHint =>
+      overlay.text('vendorDaysOffHint') ?? base.vendorDaysOffHint;
+
+  @override
+  String get vendorDaysOffNone =>
+      overlay.text('vendorDaysOffNone') ?? base.vendorDaysOffNone;
+
+  @override
+  String get vendorDaysOffAdd =>
+      overlay.text('vendorDaysOffAdd') ?? base.vendorDaysOffAdd;
+
+  @override
+  String get vendorHoursSave =>
+      overlay.text('vendorHoursSave') ?? base.vendorHoursSave;
+
+  @override
+  String get vendorHoursSaved =>
+      overlay.text('vendorHoursSaved') ?? base.vendorHoursSaved;
 }

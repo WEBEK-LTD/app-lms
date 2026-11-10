@@ -19,6 +19,7 @@ import { vendorDelivery } from "./delivery";
 import { productPhotos } from "./photos";
 import type { OrderMoney, PriceLineKind } from "./money";
 import type { Statement } from "./statement";
+import { activeDelay, delayJson, mayEditPlace, upcomingClosedDates } from "./vendor-controls";
 
 /**
  * 115 The marketplace's JSON, as the contract writes it (docs/api/openapi.yaml,
@@ -68,6 +69,8 @@ export interface VendorNear {
   minutes: number | null;
   offer: string | null;
   clubBenefit: string | null;
+  /** 115.20 Running late at the time it was read: its minutes are in `minutes` already. */
+  delay?: ReturnType<typeof delayJson>;
 }
 
 export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: string, assetUrl: AssetUrl) {
@@ -97,6 +100,8 @@ export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: str
     scheduling: terms.scheduling,
     offer: near.offer,
     club_benefit: near.clubBenefit,
+    // 115.20 Running late: the extra minutes (already in `delivery_minutes`) and why.
+    delay: near.delay ?? null,
   };
 }
 
@@ -374,9 +379,10 @@ export function membershipJson(member: MarketClubMember | null, plan: MarketClub
 
 export function deskJson(
   v: Restaurant,
-  input: { role: VendorRole; inHours: boolean; busy: boolean; accepting: boolean; orders: number; sales: number; newOrders: number; currency: string },
+  input: { role: VendorRole; inHours: boolean; busy: boolean; accepting: boolean; orders: number; sales: number; newOrders: number; currency: string; now: Date; today: string },
   assetUrl: AssetUrl,
 ) {
+  const delay = activeDelay(v, input.now);
   return {
     id: v.id,
     kind: v.kind ?? "restaurant",
@@ -389,6 +395,12 @@ export function deskJson(
     delivery_by: vendorDelivery(v).by,
     role: input.role,
     today: { orders: input.orders, sales: money(input.sales, input.currency), new_orders: input.newOrders },
+    // 115.20 Running late, and what the place's owner and managers may change themselves.
+    delay: delay ? { ...delayJson(v, input.now)!, set_at: delay.setAt.toISOString() } : null,
+    prep_minutes: v.prepMinutes,
+    hours: [...v.hours].sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || a.opens.localeCompare(b.opens)).map((h) => ({ day: h.day, opens: h.opens, closes: h.closes })),
+    closed_dates: upcomingClosedDates(v.closedDates, input.today).map((c) => ({ from: c.from, to: c.to })),
+    can_edit_place: mayEditPlace(input.role),
   };
 }
 

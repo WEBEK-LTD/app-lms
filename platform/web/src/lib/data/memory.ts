@@ -4010,7 +4010,7 @@ export class MemoryStore implements DataStore {
   }
 
   async createRestaurant(input: RestaurantInput, menu: RestaurantMenu, now: Date): Promise<Restaurant> {
-    const restaurant: Restaurant = { ...clone(input), kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null, deliveryAreas: input.deliveryAreas ?? null, id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
+    const restaurant: Restaurant = { ...clone(input), kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null, deliveryAreas: input.deliveryAreas ?? null, delay: input.delay ?? null, closedDates: input.closedDates ?? null, vendorEdit: input.vendorEdit ?? null, id: this.nextRestaurantId++, busyUntil: null, ratingSum: 0, ratingCount: 0, createdAt: now, updatedAt: now };
     this.restaurants.set(restaurant.id, clone(restaurant));
     this.restaurantMenus.set(restaurant.id, clone(menu));
     return restaurant;
