@@ -96,6 +96,12 @@ export const AUDIT_ACTIONS = {
   "mail.segment_delete": "Audience deleted",
   "mail.suppress": "Address kept from campaigns",
   "mail.unsuppress": "Address allowed in campaigns again",
+  // The app-builder bot's dictionary
+  "bot.phrase_add": "Bot phrase added",
+  "bot.phrase_remove": "Bot phrase removed",
+  "bot.phrase_switch": "Built-in bot phrase switched off or on",
+  "bot.unmatched_map": "Unmatched phrase added to the bot's dictionary",
+  "bot.unmatched_ignore": "Unmatched phrase ignored",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
@@ -123,6 +129,8 @@ export const AUDIT_TARGETS = {
   mail_template: "Email template (campaigns)",
   mail_segment: "Audience",
   mail_address: "Email address",
+  bot_phrase: "Bot phrase",
+  bot_unmatched: "Unmatched bot phrase",
 } as const;
 
 export type AuditTargetType = keyof typeof AUDIT_TARGETS;

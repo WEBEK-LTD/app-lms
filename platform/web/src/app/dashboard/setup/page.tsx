@@ -11,6 +11,8 @@ import { richText } from "@/i18n/rich";
 import { TwoApps } from "@/components/two-apps";
 import { hasCourierJobs } from "@/lib/delivery/courier-app";
 import { twoAppsOf } from "@/lib/delivery/two-apps";
+import { StaffAppChoice } from "@/components/staff-app";
+import { hasStaffApp, staffAppKindOf, staffAppNameOf, staffAppOnPlan, staffAppPlaceOf, staffBundleIdOf, staffPackageOf } from "@/lib/school/staff-app";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { SETUP_STEPS, STEP_LABEL, hasStoreKeys, isSetupStep, managedPublishing, nextStep, stepStatus, type SetupStep } from "@/lib/app/setup";
 import { currentPlanId } from "@/lib/billing/plan-change";
@@ -96,6 +98,24 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
   const upcoming = editableSteps.slice(index + 1);
   // 112.3 A delivery, food, ride or taxi project's two apps.
   const twoApps = hasCourierJobs(app) ? await twoAppsOf(store, app, current) : null;
+  // 116 A school's or academy's main app and staff app, and where its staff work.
+  const staffKind = staffAppKindOf(app);
+  const staffChoice = staffKind
+    ? {
+        academy: staffKind === "academy",
+        place: staffAppPlaceOf(app),
+        before: !app.staffApp,
+        main: { name: (app.appName ?? "").trim() || "—", android: app.androidPackage ?? "—", ios: app.iosBundleId ?? "—", latest: builds[0] ?? null },
+        staff: {
+          name: staffAppNameOf(app),
+          android: app.androidPackage ? staffPackageOf(app.androidPackage) : "—",
+          ios: app.iosBundleId ? staffBundleIdOf(app.iosBundleId) : "—",
+          latest: hasStaffApp(app) ? ((await store.listBuildsByApp(app.id, 1, "staff"))[0] ?? null) : null,
+        },
+        onPlan: staffAppOnPlan(app, current) || app.demo === true,
+      }
+    : null;
+  const query = await searchParams;
   const text = await dashboardText();
 
   return (
@@ -169,6 +189,9 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
       </ol>
 
       {twoApps && step !== "website" ? <TwoApps text={text} data={twoApps} href={here} /> : null}
+      {staffChoice && contextCan(context, "settings") ? (
+        <StaffAppChoice text={text} data={staffChoice} href={here} step={step} saved={query.staff === "saved"} />
+      ) : null}
 
       {step === "website" && websiteSwitchedOff ? (
         <Notice tone="warn" icon="info" role="status">

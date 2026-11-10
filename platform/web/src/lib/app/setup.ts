@@ -6,6 +6,7 @@ import type { App, AppType, AppVertical, Build, BuildRelease, BuildStages, Build
 import { courierBuildConfig, courierListing, firebaseHasCourierApp, hasSecondApp, secondAppRoleOf } from "../delivery/courier-app";
 import { isDemoApp } from "../demo/apps";
 import { firebaseHasVendorApp, hasVendorApp, vendorBuildConfig, vendorListing } from "../market/vendor-app";
+import { firebaseHasStaffApp, hasStaffApp, staffAppOnPlan, staffBuildConfig, staffListing } from "../school/staff-app";
 import { deliverySettingsOf } from "../delivery/settings";
 import type { BuildConfig } from "../build-config/types";
 import { validateBuildConfig, type ConfigError } from "../build-config/validate";
@@ -88,6 +89,8 @@ export function newApp(clientId: string, siteUrl: string | null, now: Date, appT
     listingDoneAt: null,
     publishingDoneAt: null,
     publishingMode: null,
+    // 116 A new school's or academy's teachers and staff work in the staff app of its bundle (a project made before has none saved: the main app).
+    staffApp: "bundle",
     createdAt: now,
     updatedAt: now,
   };
@@ -260,7 +263,7 @@ export function buildHasIos(build: Pick<Build, "stages">): boolean {
 
 export type QueueBuildResult =
   | { ok: true; build: Build; checks: PreflightCheck[] }
-  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off" | "vendor_app_off"; errors?: ConfigError[] }
+  | { ok: false; reason: "setup_incomplete" | "license_inactive" | "build_running" | "version_too_low" | "invalid_config" | "courier_app_off" | "vendor_app_off" | "staff_app_off"; errors?: ConfigError[] }
   | { ok: false; reason: "preflight"; checks: PreflightCheck[] }
   /** 110.2 The app still has sample entries: they're removed or made the owner's before anything goes to the stores. */
   | { ok: false; reason: "samples"; samples: number };
@@ -314,6 +317,11 @@ export async function queueBuild(
   if (market && (!hasVendorApp(app, market) || !(hasFeature(plan, "food") || (await isDemoApp(store, app))))) {
     return { ok: false, reason: "vendor_app_off" };
   }
+  // 116 A school's or academy's staff app: when the owner put the staff in an app of their own, on a plan with the kind.
+  const staff = variant === "staff";
+  if (staff && (!hasStaffApp(app) || !(staffAppOnPlan(app, plan) || (await isDemoApp(store, app))))) {
+    return { ok: false, reason: "staff_app_off" };
+  }
   // One build at a time per app, whichever of its apps; versions go up within each.
   const running = (await store.listBuildsByApp(app.id, 1, "all"))[0];
   if (isInProgress(running, now)) return { ok: false, reason: "build_running" };
@@ -333,11 +341,20 @@ export async function queueBuild(
         }, delivery.courierIconAssetId ? assetUrl(delivery.courierIconAssetId) : null)
       : market && !input.from
         ? vendorBuildConfig(base, app, { android: await firebaseListsVendorApp(app, preflight) })
-        : base;
+        : staff && !input.from
+          ? staffBuildConfig(base, app, { android: await firebaseListsStaffApp(app, preflight) })
+          : base;
   const validation = validateBuildConfig(config);
   if (!validation.ok) return { ok: false, reason: "invalid_config", errors: validation.errors };
   const appListing = input.from ? input.from.storeListing : storeListingOf(app, assetUrl);
-  const listing = appListing && delivery && !input.from ? courierListing(appListing, app, delivery) : appListing && market && !input.from ? vendorListing(appListing, app) : appListing;
+  const listing =
+    appListing && delivery && !input.from
+      ? courierListing(appListing, app, delivery)
+      : appListing && market && !input.from
+        ? vendorListing(appListing, app)
+        : appListing && staff && !input.from
+          ? staffListing(appListing, app)
+          : appListing;
   if (!listing) return { ok: false, reason: "setup_incomplete" };
   if (input.from && (input.from.appId !== app.id || !input.from.sourceCommit || (input.from.variant ?? "app") !== variant)) return { ok: false, reason: "invalid_config" };
 
@@ -398,6 +415,13 @@ export async function firebaseListsVendorApp(app: App, preflight: PreflightDeps 
   if (!app.firebaseAndroidAssetId || !app.androidPackage || !preflight) return false;
   const data = await preflight.readAsset(app.firebaseAndroidAssetId);
   return data ? firebaseHasVendorApp(data.toString("utf8"), app.androidPackage) : false;
+}
+
+/** 116 Whether the app's google-services.json lists the staff app's package too. */
+export async function firebaseListsStaffApp(app: App, preflight: PreflightDeps | undefined): Promise<boolean> {
+  if (!app.firebaseAndroidAssetId || !app.androidPackage || !preflight) return false;
+  const data = await preflight.readAsset(app.firebaseAndroidAssetId);
+  return data ? firebaseHasStaffApp(data.toString("utf8"), app.androidPackage) : false;
 }
 
 /** 89.2 A build's release from the app's choice; null when nothing is staged. */

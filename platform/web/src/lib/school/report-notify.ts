@@ -1,6 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
-import type { App, HostedUser, SchoolPerson, SchoolReport } from "../data/types";
+import type { App, HostedUser, PushAudience, SchoolPerson, SchoolReport } from "../data/types";
+import { staffPushAudience } from "./staff-app";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 import { pushToOwner, type OwnerPushDeps } from "../owner/push";
 import { personUser } from "./notify";
@@ -13,8 +14,8 @@ import { personUser } from "./notify";
  * shares it with them (`school_report_shared`, opening the child's reports).
  */
 
-async function langOf(deps: DeliveryNotifyDeps, user: HostedUser): Promise<Lang> {
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+async function langOf(deps: DeliveryNotifyDeps, user: HostedUser, audience: PushAudience = "customers"): Promise<Lang> {
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], audience);
   return asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
 }
 
@@ -57,7 +58,7 @@ const TEACHER: Record<"comment" | "return" | "approve", Record<Lang, (title: str
 export async function tellTeacherReport(deps: DeliveryNotifyDeps, teacher: SchoolPerson, report: SchoolReport, action: "comment" | "return" | "approve"): Promise<number> {
   const user = await personUser(deps.store, teacher);
   if (!user) return 0;
-  const words = TEACHER[action][await langOf(deps, user)](report.templateName);
+  const words = TEACHER[action][await langOf(deps, user, staffPushAudience(deps.app))](report.templateName);
   return deliver(deps, user.id, words, { type: "school_report", report_id: String(report.id) }, false);
 }
 

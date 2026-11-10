@@ -1439,13 +1439,17 @@ paths:
                     who read a language or live in a country. Servers that don't need it ignore it.
                 role:
                   type: string
-                  enum: [customer, courier, driver]
+                  enum: [customer, courier, driver, vendor, staff]
                   description: >-
                     Roadmap 112.3: which of the company's apps registered here, the build config's `role`
                     (`customer` for the customers' app). In delivery, food, ride and taxi apps the
                     couriers' and drivers' pushes (`courier_job`, `ride_offer`) go only to the courier
                     or drivers' app's phones, and every other push only to the customers' app's. A phone
-                    whose app sends no role (one built before) gets them all, as before. Servers that
+                    whose app sends no role (one built before) gets them all, as before. 115.16 `vendor`, a
+                    marketplace's vendor app. 116 `staff`, a school's or academy's staff app: the pushes to
+                    the teachers and staff (`school_staff`, `school_leave`, `school_report`, `uni_advisee`,
+                    `teacher_course`, `teacher_question`, a staff member's library loans, a family's
+                    message to a teacher) go only to its phones when the project has it. Servers that
                     don't need it ignore it.
       responses:
         '204': { description: Saved }
@@ -17159,6 +17163,13 @@ components:
       properties:
         applications: { type: boolean, description: People may apply to teach from the app (`POST /teachers/application`). }
         timezone: { type: string, description: "The academy's IANA time zone, for the teachers' earnings.", example: Africa/Cairo }
+        staff_app:
+          type: string
+          enum: [bundle, same]
+          description: >-
+            Roadmap 116. Where the academy's teachers work: `bundle`, in the academy's staff app (the
+            build config's `role` `staff`), and the main app never shows the Teacher tab; `same`, in the
+            Teacher tab of the main app. Missing on older servers (`same`).
 
     TeacherSummary:
       type: object
@@ -17407,6 +17418,14 @@ components:
             search: { type: boolean }
             routes: { type: boolean }
         university: { type: boolean, description: "Roadmap 113.9. The school is a university: the app shows the University endpoints' screens (program, registration, results, transcript) instead of the class timetable, homework and grades." }
+        staff_app:
+          type: string
+          enum: [bundle, same]
+          description: >-
+            Roadmap 116. Where the school's teachers, staff and bus crews work: `bundle`, in the school's
+            staff app (the build config's `role` `staff`), and the main app is for students and parents
+            only (no Classroom or Staff tab); `same`, in their tabs of the main app. Apps built before
+            show their tabs either way. Missing on older servers (`same`).
 
     SchoolMe:
       type: object

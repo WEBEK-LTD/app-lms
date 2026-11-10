@@ -13,6 +13,7 @@ export function StartBuildForm({
   courier = false,
   driver = false,
   vendor = false,
+  staff = false,
 }: {
   suggestedVersion: string;
   disabledReason: string | null;
@@ -22,18 +23,21 @@ export function StartBuildForm({
   driver?: boolean;
   /** 115.16 Starts a build of the marketplace's vendor app. */
   vendor?: boolean;
+  /** 116 Starts a build of the school's or academy's staff app. */
+  staff?: boolean;
 }) {
   const t = useDashT();
   const known = useKnownText();
   const [state, action] = useActionState(startBuildAction, initialFormState);
   const error = state.errors?.versionName;
-  const id = vendor ? "f-vendorVersionName" : courier ? "f-courierVersionName" : "f-versionName";
-  const hint = vendor ? "start-vendor-build-hint" : courier ? "start-courier-build-hint" : "start-build-hint";
-  const second = courier || vendor;
+  const id = staff ? "f-staffVersionName" : vendor ? "f-vendorVersionName" : courier ? "f-courierVersionName" : "f-versionName";
+  const hint = staff ? "start-staff-build-hint" : vendor ? "start-vendor-build-hint" : courier ? "start-courier-build-hint" : "start-build-hint";
+  const second = courier || vendor || staff;
   return (
     <form action={action} noValidate className={`flex flex-col items-stretch gap-2 ${second ? "" : "sm:items-end"}`}>
       {courier ? <input type="hidden" name="variant" value="courier" /> : null}
       {vendor ? <input type="hidden" name="variant" value="vendor" /> : null}
+      {staff ? <input type="hidden" name="variant" value="staff" /> : null}
       <div className="flex flex-wrap items-end gap-2.5">
         <div className="flex flex-col gap-1">
           <label htmlFor={id} className="text-[13px] font-semibold text-muted">
@@ -53,7 +57,7 @@ export function StartBuildForm({
         </div>
         {/* The page's one main action; the second app's next to its own card. */}
         <SubmitButton variant={second ? "primary" : "main"} className="h-11" pendingText={t("builds.starting")} disabled={Boolean(disabledReason)} describedBy={disabledReason ? hint : undefined}>
-          {t(vendor ? "builds.vendorStart" : courier ? (driver ? "builds.driverStart" : "builds.courierStart") : "builds.startNew")}
+          {t(staff ? "builds.staffStart" : vendor ? "builds.vendorStart" : courier ? (driver ? "builds.driverStart" : "builds.courierStart") : "builds.startNew")}
         </SubmitButton>
       </div>
       {error ? (
@@ -74,7 +78,7 @@ export function StartBuildForm({
 }
 
 /** "Try again": the same app version as the build that didn't finish (nothing of it was published). */
-export function RetryBuildForm({ versionName, courier = false, vendor = false }: { versionName: string; courier?: boolean; vendor?: boolean }) {
+export function RetryBuildForm({ versionName, courier = false, vendor = false, staff = false }: { versionName: string; courier?: boolean; vendor?: boolean; staff?: boolean }) {
   const t = useDashT();
   const [state, action] = useActionState(retryBuildAction, initialFormState);
   return (
@@ -82,6 +86,7 @@ export function RetryBuildForm({ versionName, courier = false, vendor = false }:
       <input type="hidden" name="versionName" value={versionName} />
       {courier ? <input type="hidden" name="variant" value="courier" /> : null}
       {vendor ? <input type="hidden" name="variant" value="vendor" /> : null}
+      {staff ? <input type="hidden" name="variant" value="staff" /> : null}
       <SubmitButton variant="secondary" className="h-[42px]" pendingText={t("builds.starting")}>
         <Icon name="refresh" size={20} />
         {t("builds.tryAgain")}

@@ -1,9 +1,10 @@
 import type { Lang } from "@/i18n/config";
 import { appLang } from "../bookings/reschedule";
 import type { DataStore } from "../data/store";
-import type { HostedUser, SchoolPerson } from "../data/types";
+import type { App, HostedUser, PushAudience, SchoolPerson } from "../data/types";
 import { asLang, deliver, type DeliveryNotifyDeps, type Words } from "../delivery/notify";
 import { familyUsers, personUser } from "./notify";
+import { staffPushAudience } from "./staff-app";
 
 /**
  * 113.10 and 113.11 Pushes about the bus and the library: to a student's
@@ -30,14 +31,19 @@ export async function borrowerUsers(store: DataStore, person: SchoolPerson): Pro
   return user ? [user] : [];
 }
 
-async function langOf(deps: DeliveryNotifyDeps, user: HostedUser): Promise<Lang> {
-  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id]);
+async function langOf(deps: DeliveryNotifyDeps, user: HostedUser, audience: PushAudience): Promise<Lang> {
+  const devices = await deps.store.listHostedPushDevices(deps.app.id, [user.id], audience);
   return asLang(devices[0]?.language) ?? (await appLang(deps.store, deps.app.id));
 }
 
-/** Tells each account, in its language; returns the phones reached. */
-export async function tellUsers(deps: DeliveryNotifyDeps, users: readonly HostedUser[], words: (lang: Lang) => Words, data: Record<string, string>): Promise<number> {
+/** Tells each account, in its language; returns the phones reached. 116 `audience`: whose app's phones (a teacher's or staff's loans: the staff app's). */
+export async function tellUsers(deps: DeliveryNotifyDeps, users: readonly HostedUser[], words: (lang: Lang) => Words, data: Record<string, string>, audience: PushAudience = "customers"): Promise<number> {
   let reached = 0;
-  for (const user of users) reached += await deliver(deps, user.id, words(await langOf(deps, user)), data, false);
+  for (const user of users) reached += await deliver(deps, user.id, words(await langOf(deps, user, audience)), data, false, audience);
   return reached;
+}
+
+/** 116 Whose phones a borrower's library pushes go to: a teacher's or staff member's, the staff app's when the school has one; a student's family, the main app's. */
+export function borrowerAudience(app: Pick<App, "appType" | "vertical" | "staffApp">, person: Pick<SchoolPerson, "role">): PushAudience {
+  return person.role === "teacher" || person.role === "staff" ? staffPushAudience(app) : "customers";
 }

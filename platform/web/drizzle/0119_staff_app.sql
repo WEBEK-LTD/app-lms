@@ -1,0 +1,1 @@
+ALTER TABLE `apps` ADD `staff_app` varchar(8);

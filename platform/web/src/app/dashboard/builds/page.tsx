@@ -6,7 +6,7 @@ import { BuildBadge, BuildStages, BuildStatusText } from "@/components/build-sta
 import { Icon } from "@/components/icon";
 import { LinkCards, PageGroup } from "@/components/page-kit";
 import { EmptyState, Notice, PageHeader, Section, formatDate, formatDateTime } from "@/components/ui";
-import { firebaseListsCourierApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
+import { firebaseListsCourierApp, firebaseListsStaffApp, firebaseListsVendorApp, hasStoreKeys, isSetupComplete, nextStep } from "@/lib/app/setup";
 import { failedApiCheck } from "@/lib/app/api-check-notice";
 import { appLabel, licensePageName, usesPlugin } from "@/lib/app/label";
 import { wordsOf } from "@/lib/app/kinds";
@@ -47,6 +47,7 @@ import { SamplesStoreNotice } from "@/components/samples";
 import { TwoApps } from "@/components/two-apps";
 import { twoAppsOf } from "@/lib/delivery/two-apps";
 import { hasVendorApp, vendorAppNameOf, vendorBundleIdOf, vendorPackageOf } from "@/lib/market/vendor-app";
+import { hasStaffApp, staffAppKindOf, staffAppNameOf, staffAppOnPlan, staffBundleIdOf, staffPackageOf } from "@/lib/school/staff-app";
 import { isStudioProject, studioPathFor } from "@/lib/studio/section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -221,6 +222,27 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
     const link = url ? fileLink(url, now) : null;
     const unavailable = fileUnavailableReason({ kind, build: vendorReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
     return { href: unavailable === null && vendorReady ? dashboardFileHref(vendorReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
+  };
+  // 116 A school's or academy's staff app, when the owner put the staff in an app of their own.
+  const staffApp = hasStaffApp(app)
+    ? {
+        name: staffAppNameOf(app),
+        academy: staffAppKindOf(app) === "academy",
+        android: app.androidPackage ? staffPackageOf(app.androidPackage) : "—",
+        ios: app.iosBundleId ? staffBundleIdOf(app.iosBundleId) : "—",
+        onPlan: staffAppOnPlan(app, currentPlan),
+        firebaseAndroid: await firebaseListsStaffApp(app, preflightDeps(store)),
+        builds: await store.listBuildsByApp(app.id, 20, "staff"),
+      }
+    : null;
+  const staffCurrent = staffApp?.builds[0] ?? null;
+  const staffReady = staffApp?.builds.find((b) => b.status === "ready") ?? null;
+  const staffStalled = staffCurrent !== null && isStalled(staffCurrent, now);
+  const staffFileRow = (kind: ArtifactKind) => {
+    const url = staffReady?.artifacts.find((a) => a.kind === kind)?.url;
+    const link = url ? fileLink(url, now) : null;
+    const unavailable = fileUnavailableReason({ kind, build: staffReady, hasAppStoreKey: keys.appStore, iosOnPlan: currentPlan ? hasFeature(currentPlan, "ios") : true, linkProblem: link?.disabledReason ?? null });
+    return { href: unavailable === null && staffReady ? dashboardFileHref(staffReady.id, kind) : null, unavailable: unavailable === null ? null : k(unavailable) };
   };
   const courierCurrent = courier?.builds[0] ?? null;
   const courierReady = courier?.builds.find((b) => b.status === "ready") ?? null;
@@ -538,6 +560,66 @@ export default async function BuildsPage({ searchParams }: PageProps<"/dashboard
                 <ul className="m-0 list-none p-0">
                   {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
                     <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...vendorFileRow(kind)} />
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </Section>
+      ) : null}
+
+      {staffApp ? (
+        <Section
+          id="staff-app"
+          titleId="h-staff-app"
+          title={t("builds.staffTitle")}
+          description={t(staffApp.academy ? "builds.staffTextAcademy" : "builds.staffText", { name: staffApp.name, android: staffApp.android, ios: staffApp.ios })}
+        >
+          <div className="flex flex-col gap-4">
+            {!staffApp.onPlan ? (
+              <Notice tone="warn" icon="info">
+                {t("builds.staffOff")}
+              </Notice>
+            ) : null}
+            <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
+              <li className="flex items-start gap-2" data-staff-firebase="android">
+                <Icon name={staffApp.firebaseAndroid ? "check_circle" : "info"} size={20} className={staffApp.firebaseAndroid ? "text-success" : "text-ink-4"} />
+                <span>{staffApp.firebaseAndroid ? t("builds.staffFirebaseAndroidOk") : t("builds.staffFirebaseAndroidMissing", { android: staffApp.android })}</span>
+              </li>
+              <li className="flex items-start gap-2" data-staff-firebase="ios">
+                <Icon name="info" size={20} className="text-ink-4" />
+                <span>{t("builds.staffIos")}</span>
+              </li>
+            </ul>
+            <StartBuildForm staff suggestedVersion={suggestedVersion(staffCurrent)} disabledReason={disabledReason ?? (!staffApp.onPlan ? t("builds.staffOff") : null)} />
+            {staffCurrent ? (
+              <div className="flex flex-col gap-4 rounded-xl border border-line p-4" data-staff-build>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-sm font-semibold text-muted">{t("builds.staffLatest")}</span>
+                    <h3 className="m-0 text-base font-bold">{t("builds.buildTitle", { number: staffCurrent.number, version: staffCurrent.versionName })}</h3>
+                  </div>
+                  <BuildBadge status={staffCurrent.status} lang={lang} />
+                </div>
+                <Times build={staffCurrent} now={now} text={text} />
+                <BuildStages stages={staffCurrent.stages} lang={lang} />
+                {staffCurrent.status === "queued" || staffCurrent.status === "building" ? <p className="m-0 text-sm text-muted">{k(statusExplanation(staffCurrent, now))}</p> : null}
+                {staffCurrent.status === "failed" ? (
+                  <Notice tone="danger" icon="error">
+                    {richText(t("builds.failedNotice", { reason: k(failureReason(staffCurrent)) }), { b: (chunk) => <span className="font-semibold">{chunk}</span> })}
+                  </Notice>
+                ) : null}
+                {(staffCurrent.status === "failed" || staffStalled) && !licenseProblem && setupDone && staffApp.onPlan ? <RetryBuildForm staff versionName={staffCurrent.versionName} /> : null}
+              </div>
+            ) : (
+              <p className="m-0 text-sm text-muted">{t("builds.staffNone")}</p>
+            )}
+            {staffReady ? (
+              <div className="overflow-hidden rounded-xl border border-line">
+                <h3 className="m-0 border-b border-line-soft px-4 py-3 text-base font-bold sm:px-6">{t("builds.staffFiles")}</h3>
+                <ul className="m-0 list-none p-0">
+                  {(["apk", "aab", "ipa"] as const).map((kind, i, all) => (
+                    <DownloadRow key={kind} t={t} title={k(ARTIFACT_LABEL[kind])} text={k(fileDescription(kind, autoPublish))} last={i === all.length - 1} {...staffFileRow(kind)} />
                   ))}
                 </ul>
               </div>

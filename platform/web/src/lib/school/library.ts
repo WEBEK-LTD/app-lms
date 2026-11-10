@@ -8,7 +8,7 @@ import type { sendPush } from "../hosted/push";
 import { appIsActive } from "../license/status";
 import { schoolSettingsOf } from "./settings";
 import { schoolToday } from "./service";
-import { borrowerUsers, tellUsers } from "./tell";
+import { borrowerAudience, borrowerUsers, tellUsers } from "./tell";
 
 /**
  * 113.11 The school's library: books and their copies (each with its own
@@ -127,7 +127,7 @@ export async function settleHolds(deps: FlowDeps, book: Pick<SchoolBook, "id" | 
     const moved = await store.updateSchoolBookHold(app.id, hold.id, { status: "ready", copyId: copy.id, readyAt: now, expiresAt, updatedAt: now }, { statuses: ["waiting"] });
     if (!moved) continue;
     const person = await store.getSchoolPerson(app.id, hold.personId);
-    if (person) await safely(async () => tellUsers(notifyDeps(deps), await borrowerUsers(store, person), (lang) => READY[lang](book.title, dayOf(expiresAt, settings)), { type: "school_library" }));
+    if (person) await safely(async () => tellUsers(notifyDeps(deps), await borrowerUsers(store, person), (lang) => READY[lang](book.title, dayOf(expiresAt, settings)), { type: "school_library" }, borrowerAudience(app, person)));
   }
 }
 
@@ -241,7 +241,7 @@ export async function runLibraryReminders(deps: { store: DataStore; now: Date; s
     try {
       const [person, book] = await Promise.all([store.getSchoolPerson(school.app.id, loan.personId), store.getSchoolBook(school.app.id, loan.bookId)]);
       if (!person || !book) continue;
-      await tellUsers(notifyDeps(flow), await borrowerUsers(store, person), (lang) => DUE[kind][lang](person.name, book.title, loan.dueOn), { type: "school_library", ...(person.role === "student" ? { student_id: String(person.id) } : {}) });
+      await tellUsers(notifyDeps(flow), await borrowerUsers(store, person), (lang) => DUE[kind][lang](person.name, book.title, loan.dueOn), { type: "school_library", ...(person.role === "student" ? { student_id: String(person.id) } : {}) }, borrowerAudience(school.app, person));
       told += 1;
     } catch (error) {
       // One reminder that can't go out never stops the others.
