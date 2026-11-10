@@ -96,6 +96,12 @@ export const AUDIT_ACTIONS = {
   "mail.segment_delete": "Audience deleted",
   "mail.suppress": "Address kept from campaigns",
   "mail.unsuppress": "Address allowed in campaigns again",
+  "mail.contact_add": "Contact added",
+  "mail.contact_import": "Contacts imported",
+  "mail.contact_update": "Contact changed",
+  "mail.contact_tag": "Contacts tagged or untagged",
+  "mail.contact_delete": "Contacts deleted",
+  "mail.contact_export": "Contacts exported",
   // The app-builder bot's dictionary
   "bot.phrase_add": "Bot phrase added",
   "bot.phrase_remove": "Bot phrase removed",
@@ -129,6 +135,7 @@ export const AUDIT_TARGETS = {
   mail_template: "Email template (campaigns)",
   mail_segment: "Audience",
   mail_address: "Email address",
+  mail_contact: "Contact (email campaigns)",
   bot_phrase: "Bot phrase",
   bot_unmatched: "Unmatched bot phrase",
 } as const;

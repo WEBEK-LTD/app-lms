@@ -855,6 +855,13 @@
       "when": 1794311611532,
       "tag": "0121_vendor_delay",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "5",
+      "when": 1794341548240,
+      "tag": "0123_mail_contacts",
+      "breakpoints": true
     }
   ]
 }

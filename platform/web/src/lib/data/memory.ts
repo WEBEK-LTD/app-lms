@@ -210,7 +210,7 @@ import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatc
 // 114 Email campaigns
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
 import type { MatchedStep } from "../bot/intents";
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailContact, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 import { mailEventStatsOf } from "../mailing/stats";
 import type { TeamActivity, TeamInvitation, TeamInvitationPatch, TeamMember, TeamMemberRow } from "./types";
 import type { BookingAppointmentMove, PaidTotals, ScheduledNotification, ScheduledNotificationPatch, ScheduledNotificationStatus } from "./types";
@@ -7866,6 +7866,76 @@ export class MemoryStore implements DataStore {
     const runs = this.mailRuns.length;
     this.mailRuns = this.mailRuns.filter((r) => !old.has(r.campaignId));
     return { events: events - this.mailEvents.length, recipients, runs: runs - this.mailRuns.length };
+  }
+
+  private mailContacts = new Map<string, MailContact>();
+
+  private sortedMailContacts(): MailContact[] {
+    return [...this.mailContacts.values()].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime() || a.email.localeCompare(b.email));
+  }
+
+  async listMailContacts(filter: { query?: string; tag?: string; offset: number; limit: number }): Promise<{ items: MailContact[]; total: number }> {
+    const query = filter.query?.trim().toLowerCase();
+    const rows = this.sortedMailContacts().filter(
+      (c) => (!query || c.email.includes(query) || c.name.toLowerCase().includes(query) || (c.company ?? "").toLowerCase().includes(query)) && (!filter.tag || c.tags.includes(filter.tag)),
+    );
+    return { items: rows.slice(filter.offset, filter.offset + filter.limit).map(clone), total: rows.length };
+  }
+
+  async allMailContacts(): Promise<MailContact[]> {
+    return this.sortedMailContacts().map(clone);
+  }
+
+  async getMailContact(id: string): Promise<MailContact | null> {
+    const found = this.mailContacts.get(id);
+    return found ? clone(found) : null;
+  }
+
+  async findMailContacts(emails: string[]): Promise<MailContact[]> {
+    const wanted = new Set(emails.map((e) => e.toLowerCase()));
+    return this.sortedMailContacts().filter((c) => wanted.has(c.email)).map(clone);
+  }
+
+  async addMailContacts(contacts: MailContact[]): Promise<number> {
+    const taken = new Set([...this.mailContacts.values()].map((c) => c.email));
+    let added = 0;
+    for (const contact of contacts) {
+      const email = contact.email.toLowerCase();
+      if (taken.has(email) || this.mailContacts.has(contact.id)) continue;
+      taken.add(email);
+      this.mailContacts.set(contact.id, { ...clone(contact), email });
+      added += 1;
+    }
+    return added;
+  }
+
+  async updateMailContact(id: string, patch: Partial<Pick<MailContact, "email" | "name" | "company" | "lang" | "country" | "tags" | "source" | "sourceNote" | "updatedAt">>): Promise<"ok" | "missing" | "duplicate"> {
+    const found = this.mailContacts.get(id);
+    if (!found) return "missing";
+    const email = patch.email?.toLowerCase();
+    if (email && email !== found.email && [...this.mailContacts.values()].some((c) => c.email === email)) return "duplicate";
+    Object.assign(found, clone(patch), email ? { email } : {});
+    return "ok";
+  }
+
+  async deleteMailContact(id: string): Promise<boolean> {
+    return this.mailContacts.delete(id);
+  }
+
+  async listMailContactTags(): Promise<{ tag: string; count: number }[]> {
+    const counts = new Map<string, number>();
+    for (const c of this.mailContacts.values()) for (const tag of c.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    return [...counts].map(([tag, count]) => ({ tag, count })).sort((a, b) => a.tag.localeCompare(b.tag));
+  }
+
+  async setMailContactUnsubscribed(email: string, at: Date | null): Promise<void> {
+    const wanted = email.toLowerCase();
+    for (const c of this.mailContacts.values()) if (c.email === wanted) c.unsubscribedAt = at ? new Date(at) : null;
+  }
+
+  async listAccountEmails(emails: string[]): Promise<string[]> {
+    const wanted = new Set(emails.map((e) => e.toLowerCase()));
+    return [...new Set([...this.users.values()].map((u) => u.email.toLowerCase()).filter((e) => wanted.has(e)))];
   }
 
   // The app-builder bot

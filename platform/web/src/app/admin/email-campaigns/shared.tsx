@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Badge } from "@/components/ui";
+import { adminCan } from "@/lib/auth/session";
 import type { MailCampaignStatus } from "@/lib/mailing/types";
 
 /** 114 Admin › Email campaigns: the status as a badge. */
@@ -22,14 +23,16 @@ const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/admin/email-campaigns", label: "Campaigns", icon: "mail" },
   { href: "/admin/email-campaigns/templates", label: "Templates", icon: "dashboard_customize" },
   { href: "/admin/email-campaigns/audiences", label: "Audiences", icon: "groups" },
+  { href: "/admin/email-campaigns/contacts", label: "Contacts", icon: "person" },
   { href: "/admin/email-campaigns/never-mailed", label: "Never mailed", icon: "block" },
 ];
 
-/** The section's own tabs, under each page's header. */
-export function MailTabs({ current }: { current: string }) {
+/** The section's own tabs, under each page's header. Contacts only for the team members who write campaigns. */
+export async function MailTabs({ current }: { current: string }) {
+  const contacts = await adminCan("marketing.edit");
   return (
     <nav aria-label="Email campaigns" className="flex flex-wrap gap-1 rounded-2xl border border-line bg-white p-1.5">
-      {TABS.map((tab) => (
+      {TABS.filter((tab) => contacts || tab.href !== "/admin/email-campaigns/contacts").map((tab) => (
         <Link
           key={tab.href}
           href={tab.href}

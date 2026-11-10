@@ -33,6 +33,8 @@ export default async function UnsubscribePage({ params, searchParams }: PageProp
   const dir = lang === "ar" ? "rtl" : "ltr";
   const suppression = found ? await store.getMailSuppression(found.recipient.email) : null;
   const state = query.done === "again" ? "again" : suppression ? "out" : "ask";
+  // One of the admin's contacts has no account: nothing about account emails or settings.
+  const contact = Boolean(found?.recipient.contactId && !found.recipient.userId);
 
   async function unsubscribe() {
     "use server";
@@ -75,12 +77,12 @@ export default async function UnsubscribePage({ params, searchParams }: PageProp
                   {t.button}
                 </button>
               </form>
-              <p className="m-0 text-sm text-ink-4">{t.note}</p>
+              <p className="m-0 text-sm text-ink-4">{contact ? t.noteContact : t.note}</p>
             </>
           ) : (
             <>
               <h1 className="m-0 text-[26px] font-extrabold tracking-[-0.5px]">{t.done}</h1>
-              <p className="m-0 text-base leading-relaxed text-ink-4">{fill(t.doneBody, found.recipient.email)}</p>
+              <p className="m-0 text-base leading-relaxed text-ink-4">{fill(contact ? t.doneBodyContact : t.doneBody, found.recipient.email)}</p>
               {suppression?.reason === "unsubscribed" ? (
                 <form action={subscribeAgain}>
                   <button type="submit" className={`${btn.secondary} h-[50px] w-full cursor-pointer`} data-testid="resubscribe">

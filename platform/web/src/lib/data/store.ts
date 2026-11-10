@@ -206,7 +206,7 @@ import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, St
 // 58 Yallapp Business
 import type { OwnerDevice, OwnerDevicePatch } from "./types";
 // 114 Email campaigns
-import type { MailCampaign, MailCampaignStatus, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
+import type { MailCampaign, MailCampaignStatus, MailContact, MailEvent, MailEventStats, MailRecipient, MailRecipientStatus, MailRun, MailSegment, MailSuppression, MailTemplate } from "../mailing/types";
 // The app-builder bot
 import type { BotPhrase, BotUnmatched, BotUnmatchedStatus } from "../bot/types";
 import type { MatchedStep } from "../bot/intents";
@@ -2172,6 +2172,25 @@ export interface DataStore {
    * their totals; the addresses never to be mailed stay too.
    */
   pruneMailHistory(before: Date): Promise<{ events: number; recipients: number; runs: number }>;
+  /** 114 The admin's contacts (no Yallapp account), the latest added first. `query`: part of the address, name or company; `tag`: only those with it. */
+  listMailContacts(filter: { query?: string; tag?: string; offset: number; limit: number }): Promise<{ items: MailContact[]; total: number }>;
+  /** Every contact, the latest added first (a campaign's audience, the export). */
+  allMailContacts(): Promise<MailContact[]>;
+  getMailContact(id: string): Promise<MailContact | null>;
+  /** The contacts with these addresses (lower case). */
+  findMailContacts(emails: string[]): Promise<MailContact[]>;
+  /** Adds those whose address isn't a contact yet (one per address). How many were added. */
+  addMailContacts(contacts: MailContact[]): Promise<number>;
+  /** "duplicate" when the new address is another contact's. */
+  updateMailContact(id: string, patch: Partial<Pick<MailContact, "email" | "name" | "company" | "lang" | "country" | "tags" | "source" | "sourceNote" | "updatedAt">>): Promise<"ok" | "missing" | "duplicate">;
+  /** The address stays on the list never to be mailed, if it's there. False when it wasn't there. */
+  deleteMailContact(id: string): Promise<boolean>;
+  /** The tags in use and how many contacts have each, by tag. */
+  listMailContactTags(): Promise<{ tag: string; count: number }[]>;
+  /** The contact with this address unsubscribed then, or (null) subscribed again. */
+  setMailContactUnsubscribed(email: string, at: Date | null): Promise<void>;
+  /** Which of these addresses (lower case) have a Yallapp account. */
+  listAccountEmails(emails: string[]): Promise<string[]>;
 
   // The app-builder bot (lib/bot): the team's changes to its dictionary, and what owners typed that it didn't understand
   /** The team's added and switched-off phrases, oldest first. */

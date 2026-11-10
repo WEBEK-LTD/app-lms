@@ -17,10 +17,11 @@ import { Icon } from "@/components/icon";
 import { Notice, btn } from "@/components/ui";
 import { emptyContent } from "@/lib/mailing/blocks";
 import type { CampaignProblem } from "@/lib/mailing/campaigns";
+import { accountOnlyTagsWithoutDefault } from "@/lib/mailing/merge";
 import { MAIL_LANGS, type MailAudience, type MailContent, type MailContents, type MailLang, type MailSegment } from "@/lib/mailing/types";
 import { AudienceStep, type AudienceOptions } from "./audience";
 import { Builder, EmailPreview, HtmlEditor, previewHtml } from "./builder";
-import { Field, inputClass, RangeField, TextField, Toggle } from "./fields";
+import { Field, inputClass, MergeTagHelp, RangeField, TextField, Toggle } from "./fields";
 
 /**
  * 114 A campaign from draft to sent: Audience, Details, Design, Review.
@@ -337,6 +338,7 @@ function Details({ c, update, langs, addLang }: { c: EditorCampaign; update: (p:
             ))}
           </div>
         ) : null}
+        <MergeTagHelp />
         <Field label="Main language" hint="Sent to people whose language has no version." htmlFor="f-main-lang">
           <select id="f-main-lang" value={c.defaultLang} onChange={(e) => update({ defaultLang: e.target.value as MailLang })} className={`${inputClass} max-w-[320px] cursor-pointer`}>
             {langs.map((l) => (
@@ -401,6 +403,7 @@ function Review({ c, assetBase, canSend, canEdit, save, onDone, onUnscheduled, o
 
   const html = useMemo(() => (c.contents[previewLang] ? previewHtml(c.contents[previewLang]!, previewLang, assetBase, dark) : ""), [c, previewLang, assetBase, dark]);
   const minutes = count ? Math.ceil(count / c.perMinute) : 0;
+  const contactTags = useMemo(() => (c.audience.people === "contacts" || c.audience.people === "both" ? accountOnlyTagsWithoutDefault(JSON.stringify(c.contents)) : []), [c.audience.people, c.contents]);
   const blocked = !problems || problems.length > 0;
 
   const run = (fn: () => Promise<{ ok: true } | { ok: false; error: string; problems?: CampaignProblem[] }>, success: string, after?: () => void) =>
@@ -486,6 +489,14 @@ function Review({ c, assetBase, canSend, canEdit, save, onDone, onUnscheduled, o
               <Icon name="check_circle" size={19} /> Ready to send
             </p>
           )}
+          {contactTags.length ? (
+            <p className="m-0 flex gap-2 text-[13px] text-ink-2" data-testid="contact-tags-note">
+              <Icon name="info" size={18} className="shrink-0 text-accent" />
+              <span>
+                Contacts have no account, so {contactTags.map((t) => `{{${t}}}`).join(", ")} {contactTags.length === 1 ? "is" : "are"} empty for them. Give {contactTags.length === 1 ? "it" : "them"} a default, like {`{{${contactTags[0]}|…}}`}.
+              </span>
+            </p>
+          ) : null}
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[14px]">
             <dt className="text-muted">People</dt>
             <dd className="m-0 font-semibold text-midnight tabular-nums">{count === null ? "…" : count.toLocaleString("en")}</dd>

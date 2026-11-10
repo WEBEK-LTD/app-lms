@@ -70,7 +70,7 @@ import type { AnnouncementAudience, AnnouncementKind, AnnouncementSeverity, Coup
 import type { Plan } from "../plans";
 import type { ArabicTag, MatchedStep, PhraseLang } from "../bot/intents";
 import type { BotUnmatchedStatus } from "../bot/types";
-import type { MailAudience, MailCampaignStatus, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
+import type { MailAudience, MailCampaignStatus, MailContactSource, MailContents, MailEventKind, MailLang, MailRecipientStatus, MailSuppressionReason } from "../mailing/types";
 import type { Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { AdminRole } from "../admin/permissions";
 import {
@@ -4900,6 +4900,8 @@ export const mailRecipients = mysqlTable(
     leaseUntil: time("lease_until"),
     sentAt: time("sent_at"),
     team: boolean("team").notNull().default(false),
+    // One of the admin's contacts (no foreign key: a deleted contact's rows and report stay).
+    contactId: id("contact_id"),
   },
   (t) => [
     // A campaign never lists an address twice, so it never mails one twice.
@@ -4931,6 +4933,32 @@ export const mailSuppressions = mysqlTable("mail_suppressions", {
   campaignId: id("campaign_id"),
   createdAt: time("created_at").notNull(),
 });
+
+/**
+ * 114 The admin's contacts: customers and leads without a Yallapp account,
+ * whom campaigns can go to (lib/mailing/contacts.ts). One row per address;
+ * the tags are a JSON list of lower-case words. Whether one may be mailed is
+ * mail_suppressions', like any address.
+ */
+export const mailContacts = mysqlTable(
+  "mail_contacts",
+  {
+    id: id("id").primaryKey(),
+    email: varchar("email", { length: 191 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    company: varchar("company", { length: 160 }),
+    lang: varchar("lang", { length: 4 }).notNull().$type<MailLang>(),
+    country: varchar("country", { length: 2 }),
+    tags: jsonText<string[]>("tags").notNull(),
+    source: varchar("source", { length: 12 }).notNull().$type<MailContactSource>(),
+    sourceNote: varchar("source_note", { length: 200 }),
+    addedBy: varchar("added_by", { length: 191 }).notNull(),
+    addedAt: time("added_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+    unsubscribedAt: time("unsubscribed_at"),
+  },
+  (t) => [uniqueIndex("mail_contacts_email_unique").on(t.email), index("mail_contacts_added_idx").on(t.addedAt)],
+);
 
 /** 114 Each sending run of a campaign: what it sent in how long (the report's pace, the slow-sending alert). */
 export const mailRuns = mysqlTable(

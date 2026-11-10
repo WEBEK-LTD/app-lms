@@ -1,5 +1,6 @@
 /**
- * 114 Email campaigns from the admin to the people registered on Yallapp:
+ * 114 Email campaigns from the admin to the people registered on Yallapp
+ * (and the admin's own contacts, who aren't):
  * the email's design (blocks or HTML), the campaign, its audience, the
  * recipients and what they did, and the addresses never mailed again.
  */
@@ -158,8 +159,14 @@ export type MailContents = Partial<Record<MailLang, MailContent>>;
 
 export type MailAccountState = "active" | "pending" | "expired" | "suspended";
 
-/** Who a campaign goes to. Every list is "any of"; an empty or missing list means anyone. */
+/**
+ * Who a campaign goes to: Yallapp accounts, the admin's own contacts, or
+ * both (an address in both gets one email). Every list is "any of"; an empty
+ * or missing list means anyone.
+ */
 export interface MailAudience {
+  /** Accounts (the default: campaigns from before contacts), contacts, or both. */
+  people?: MailAudiencePeople;
   states?: MailAccountState[];
   /** Plan ids of the account's apps. */
   plans?: string[];
@@ -182,8 +189,61 @@ export interface MailAudience {
    * they didn't sign up to Yallapp themselves). Without it, only account owners.
    */
   includeTeam?: boolean;
-  /** Only these addresses (a test list), ignoring the rest. */
+  /** Contacts with any of these tags. */
+  contactTags?: string[];
+  /** Contacts in these languages. */
+  contactLangs?: MailLang[];
+  /** Contacts in these countries (ISO 3166-1 alpha-2, upper case). */
+  contactCountries?: string[];
+  /** Only these addresses (a test list), ignoring the rest. Applies to accounts and contacts. */
   emails?: string[];
+}
+
+export type MailAudiencePeople = "accounts" | "contacts" | "both";
+
+// Contacts ---------------------------------------------------------------------
+
+/** Where the admin knows a contact from (every contact has one). */
+export type MailContactSource = "customer" | "met" | "event" | "website" | "other";
+
+export const MAIL_CONTACT_SOURCES: readonly { value: MailContactSource; label: string }[] = [
+  { value: "customer", label: "Existing customer" },
+  { value: "met", label: "Met in person / call" },
+  { value: "event", label: "Event" },
+  { value: "website", label: "Website form" },
+  { value: "other", label: "Other" },
+];
+
+/** What the admin ticks to add or import contacts (kept with each contact as who added them and when). */
+export const MAIL_CONTACT_AGREEMENT = "These people are our customers or business contacts, or agreed to receive our emails";
+
+/**
+ * A business the admin talks to that has no Yallapp account (a customer, a
+ * lead): campaigns can go to them too. One per address (lower case). The
+ * addresses never to be mailed (unsubscribed, bounced, complained) are the
+ * same list as for accounts, and stay when a contact is deleted.
+ */
+export interface MailContact {
+  id: string;
+  /** Lower case, unique. */
+  email: string;
+  name: string;
+  company: string | null;
+  lang: MailLang;
+  /** ISO 3166-1 alpha-2, upper case. */
+  country: string | null;
+  /** Lower case, sorted, unique. */
+  tags: string[];
+  source: MailContactSource;
+  /** The free text of "Other" (required then), or a detail of the source (the event's name). */
+  sourceNote: string | null;
+  /** The admin who added or imported it, having ticked MAIL_CONTACT_AGREEMENT. */
+  addedBy: string;
+  /** When they did. */
+  addedAt: Date;
+  updatedAt: Date;
+  /** When they unsubscribed from a campaign email; null when they didn't (or subscribed again). */
+  unsubscribedAt: Date | null;
 }
 
 export interface MailSegment {
@@ -249,6 +309,8 @@ export interface MailRecipient {
   sentAt: Date | null;
   /** Team member (not the account's owner). */
   team: boolean;
+  /** One of the admin's contacts (not an account); null for an account. */
+  contactId: string | null;
 }
 
 /** One sending run of a campaign (a call of the minute job): how many it sent in how long. */
