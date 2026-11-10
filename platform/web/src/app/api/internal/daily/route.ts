@@ -1,4 +1,5 @@
 import { runAnalyticsNightly } from "@/lib/analytics/aggregate";
+import { BOT_UNMATCHED_DAYS } from "@/lib/bot/types";
 import { runMarketDaily } from "@/lib/market/daily";
 import { runWeeklySummaries } from "@/lib/analytics/weekly";
 import { purgeAnalyticsHistory } from "@/lib/analytics/retention";
@@ -118,11 +119,16 @@ async function runDaily(store: DataStore, now: Date) {
     console.error(`[daily] mail history: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
+  // The app-builder bot: what it didn't understand, kept BOT_UNMATCHED_DAYS.
+  const botUnmatchedPurged = await store.deleteBotUnmatchedBefore(new Date(now.getTime() - BOT_UNMATCHED_DAYS * 86_400_000)).catch((e: unknown) => {
+    console.error(`[daily] bot phrases: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  });
   // 115 Marketplaces: the club's memberships that ended or renew, the vendors' old web sign-ins, orders for later due.
   const marketplace = await runMarketDaily(store, now).catch((e: unknown) => {
     console.error(`[daily] marketplace: ${e instanceof Error ? e.message : String(e)}`);
     return null;
   });
   const watch = await runWatch({ store, now, mail: teamMail, jobs: ["frequent"], dispatch: dispatchSet() });
-  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, watch };
+  return { ...report, mailHistory, marketplace, analytics: { ...analytics, history: analyticsHistory, weekly }, media, chat, milestones, productDay, ownerDevicesPurged, sessionsPurged, deleted: { apps, accounts }, jobRunsPurged, appErrorsPurged, botUnmatchedPurged, watch };
 }

@@ -84,6 +84,7 @@ describe("60 what each part needs", () => {
     expect(pathPermission("/dashboard/license/receipts/x")).toBe("billing");
     expect(pathPermission("/dashboard/team")).toBe("team");
     expect(pathPermission("/dashboard/app-type?new=1")).toBe("apps");
+    expect(pathPermission("/dashboard/builder?studio=1")).toBe("apps");
     expect(pathPermission("/dashboard/setup?step=branding")).toBe("settings");
     expect(pathPermission("/dashboard/members")).toBe("bookings");
     expect(pathPermission("/dashboard/media")).toBe("media");
