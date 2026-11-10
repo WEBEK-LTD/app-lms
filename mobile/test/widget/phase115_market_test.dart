@@ -14,6 +14,7 @@ import 'package:yallapp/modules/market/data/market_models.dart';
 import 'package:yallapp/modules/market/data/market_place.dart';
 import 'package:yallapp/modules/market/data/market_providers.dart';
 import 'package:yallapp/modules/market/screens/market_vendor_screen.dart';
+import 'package:yallapp/modules/market/widgets/market_look.dart';
 import 'package:yallapp/modules/shared/pages/studio_page.dart';
 
 import '../support/fake_api.dart';
@@ -224,6 +225,117 @@ void main() {
     expect(find.text('Smoked double'), findsOneWidget);
     expect(find.textContaining('support team'), findsOneWidget);
     expect(find.byIcon(Icons.phone), findsNothing);
+  });
+
+  test('a vendor outside the customer\'s delivery area', () {
+    final vendor = marketVendorFrom(
+      MarketVendorSummary.fromJson({
+        'id': 8,
+        'kind': 'restaurant',
+        'name': 'Far Grill',
+        'categories': [],
+        'rating': null,
+        'ratings_count': 0,
+        'open': true,
+        'busy': false,
+        'delivery_by': 'app',
+        'delivery_minutes': null,
+        'delivery_fee': null,
+        'delivers': false,
+      }),
+      null,
+    );
+    expect(vendor.delivers, isFalse);
+    expect(vendor.outsideArea, isTrue);
+    // Unknown (no address yet) is not outside.
+    expect(
+      const MarketVendor(
+        id: '1',
+        kind: MarketVendorKind.restaurant,
+        name: 'X',
+        coverUrl: '',
+        logoUrl: '',
+        tags: [],
+      ).outsideArea,
+      isFalse,
+    );
+  });
+
+  group('outside the delivery area', () {
+    const far = MarketVendor(
+      id: 'far',
+      kind: MarketVendorKind.restaurant,
+      name: 'Far Grill',
+      coverUrl: '',
+      logoUrl: '',
+      tags: ['Grill'],
+      // Even with a time and a fee in hand, neither shows.
+      etaMin: 2994,
+      etaMax: 3009,
+      deliveryFee: 'EGP 15.00',
+      delivers: false,
+    );
+    Widget vendorPage(String lang) => ProviderScope(
+      overrides: [
+        marketVendorPageProvider.overrideWith(
+          (ref, id) async => const MarketVendorPage(
+            vendor: far,
+            shelves: [],
+            currency: 'EGP',
+            hours: marketAllDay,
+          ),
+        ),
+      ],
+      child: MaterialApp(
+        theme: buildAppTheme(
+          primary: const Color(0xFF0E7C66),
+          secondary: const Color(0xFFF2994A),
+          brightness: Brightness.light,
+          template: AppTemplate.bold,
+          fontFamily: 'Plus Jakarta Sans',
+        ),
+        locale: Locale(lang),
+        supportedLocales: const [Locale('en'), Locale('ar'), Locale('tr')],
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        home: const MarketVendorScreen(vendorId: 'far'),
+      ),
+    );
+
+    testWidgets('the vendor page says so instead of a time and a fee', (
+      tester,
+    ) async {
+      phone(tester);
+      await tester.pumpWidget(vendorPage('en'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.takeException(), isNull);
+      expect(find.text('Outside delivery area'), findsOneWidget);
+      expect(
+        find.text("This place doesn't deliver to your address."),
+        findsOneWidget,
+      );
+      expect(find.text('Use my location'), findsOneWidget);
+      expect(find.textContaining('2994'), findsNothing);
+      expect(find.textContaining('EGP 15.00'), findsNothing);
+      // Open all day: "Open 24 hours", never "Open 00:00–23:59".
+      expect(find.text('Open 24 hours'), findsOneWidget);
+    });
+
+    testWidgets('in Arabic', (tester) async {
+      phone(tester);
+      await tester.pumpWidget(vendorPage('ar'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.takeException(), isNull);
+      expect(find.text('خارج نطاق التوصيل'), findsOneWidget);
+      expect(find.text('مفتوح 24 ساعة'), findsOneWidget);
+    });
+
+    testWidgets('the card\'s facts', (tester) async {
+      await tester.pumpWidget(app(const MarketVendorFacts(vendor: far)));
+      await tester.pump();
+      expect(find.text('Outside delivery area'), findsOneWidget);
+      expect(find.textContaining('min'), findsNothing);
+      expect(find.textContaining('EGP 15.00'), findsNothing);
+    });
   });
 
   testWidgets('a shop: aisles and items by weight', (tester) async {

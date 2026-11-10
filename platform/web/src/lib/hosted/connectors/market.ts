@@ -12,6 +12,7 @@ import { distanceFrom, restaurantState } from "../../food/service";
 import { platformSetting } from "../../settings/platform";
 import { QUOTE_MINUTES, priceMarketCart, quoteHolds, quoteIdOf, readCart, readOrderRequest, repriceFor } from "../../market/cart";
 import { ACTIVE_COMPLAINT, COMPLAINT_MAX_PHOTOS, complaintWindow, customerMessage, openComplaint } from "../../market/complaints";
+import { checkDeliveryArea } from "../../market/areas";
 import { pickupCode, quoteMarketDelivery, vendorDelivery } from "../../market/delivery";
 import {
   CUSTOMER_CANCELLABLE,
@@ -232,7 +233,9 @@ export class MarketConnector {
     let fee: number | null = null;
     let delivers: boolean | null = null;
     let minutes: number | null = null;
-    if (at) {
+    // 115 Outside the marketplace's or the vendor's area: no time and no fee, whether it's open or not.
+    if (at && !checkDeliveryArea(settings, v, at).ok) delivers = false;
+    else if (at) {
       const q = quoteMarketDelivery(settings, { ...v, busyUntil: null, active: true }, { fulfilment: "delivery", dropoff: { address: "", details: null, lat: at.lat, lng: at.lng }, items: Number.MAX_SAFE_INTEGER / 4, itemCount: 1 }, now);
       if (q.ok) {
         fee = q.fee;
@@ -241,7 +244,7 @@ export class MarketConnector {
       } else if (q.refusal === "outside_area") delivers = false;
     } else if (vendorDelivery(v).by === "vendor" && vendorDelivery(v).feeKind === "fixed") fee = vendorDelivery(v).fee;
     // The fee above was quoted for a large order; the vendor's own free-delivery threshold is shown apart.
-    if (fee !== null && vendorDelivery(v).by === "vendor" && at) {
+    if (fee !== null && vendorDelivery(v).by === "vendor" && at && delivers !== false) {
       const own = quoteMarketDelivery(settings, { ...v, busyUntil: null, active: true }, { fulfilment: "delivery", dropoff: { address: "", details: null, lat: at.lat, lng: at.lng }, items: 0, itemCount: 1 }, now);
       if (own.ok) fee = own.fee;
     }

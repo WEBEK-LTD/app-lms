@@ -1,7 +1,8 @@
 import type { DataStore } from "../data/store";
-import type { App, MarketProduct, Restaurant, RestaurantStaff, VendorRole } from "../data/types";
+import type { App, MarketProduct, MarketServiceArea, Restaurant, RestaurantStaff, VendorRole } from "../data/types";
 import { EMPTY_MENU } from "../food/menu";
 import { deliverySettingsOf } from "../delivery/settings";
+import { parseVendorAreaForm, serviceAreasOf, vendorAreaFormValues, vendorAreaWarning } from "./areas";
 import { planCatalogImport, suggestMapping, vendorProducts, applyCatalogImport, type CatalogPlan } from "./catalog-import";
 import { complaintAdjustment, vendorComplaintView } from "./complaints";
 import { parseVendorDeliveryForm, vendorDeliveryFormValues } from "./delivery-forms";
@@ -48,13 +49,15 @@ export interface PanelContext {
   timezone: string;
   /** 115 Products without a photo are hidden from customers (the app's setting). */
   photosRequired: boolean;
+  /** 115 The marketplace's named areas, for delivering by area. */
+  serviceAreas?: MarketServiceArea[];
 }
 
 export async function panelContext(store: DataStore, app: App, staff: RestaurantStaff): Promise<PanelContext | null> {
   const vendor = await store.getRestaurant(app.id, staff.restaurantId);
   if (!vendor || !vendor.active || vendor.appId !== app.id) return null;
   const delivery = deliverySettingsOf(await store.getDeliverySettings(app.id));
-  return { store, app, staff, vendor, currency: marketCurrency(delivery), timezone: marketTimezone(delivery), photosRequired: photosRequired(marketSettingsOf(delivery)) };
+  return { store, app, staff, vendor, currency: marketCurrency(delivery), timezone: marketTimezone(delivery), photosRequired: photosRequired(marketSettingsOf(delivery)), serviceAreas: serviceAreasOf(delivery) };
 }
 
 // The catalog
@@ -197,13 +200,21 @@ export async function importCatalog(ctx: PanelContext, file: { bytes: Uint8Array
 // Delivery
 
 export function deliveryValues(ctx: PanelContext): Record<string, string> {
-  return vendorDeliveryFormValues(vendorDelivery(ctx.vendor), ctx.currency);
+  return { ...vendorDeliveryFormValues(vendorDelivery(ctx.vendor), ctx.currency), ...vendorAreaFormValues(ctx.vendor, ctx.serviceAreas ?? []) };
 }
 
+/** 115 What the place should fix about where it delivers: set it (taken as 10 km meanwhile), or put its address on the map. */
+export function deliveryAreaWarning(ctx: PanelContext): "set_area" | "no_position" | null {
+  return vendorAreaWarning(ctx.vendor, ctx.serviceAreas ?? []);
+}
+
+/** Who delivers and on what terms, and (115) where: every place sets its area. */
 export async function saveDelivery(ctx: PanelContext, form: Record<string, string>, now: Date): Promise<{ ok: true } | { ok: false; field: string; error: string }> {
   const parsed = parseVendorDeliveryForm(form, ctx.currency);
   if (!parsed.ok) return parsed;
-  await ctx.store.updateRestaurant(ctx.app.id, ctx.vendor.id, { delivery: parsed.value }, now);
+  const area = parseVendorAreaForm(form, ctx.serviceAreas ?? []);
+  if (!area.ok) return area;
+  await ctx.store.updateRestaurant(ctx.app.id, ctx.vendor.id, { delivery: parsed.value, ...area.value }, now);
   return { ok: true };
 }
 

@@ -39,6 +39,7 @@ class MarketVendor {
     this.distanceKm,
     this.opensAt,
     this.favorited = false,
+    this.delivers,
   });
 
   final String id;
@@ -78,6 +79,13 @@ class MarketVendor {
   /// "09:00", for a closed vendor.
   final String? opensAt;
   final bool favorited;
+
+  /// Whether it delivers to the customer's address; null without one.
+  final bool? delivers;
+
+  /// Outside the vendor's (or the marketplace's) delivery area: no time
+  /// and no fee, and no delivery from it (pick-up may still work).
+  bool get outsideArea => delivers == false;
 
   /// A shop or a grocery: aisles rather than a menu.
   bool get sellsGoods => kind != MarketVendorKind.restaurant;
@@ -276,6 +284,9 @@ class MarketVendorPage {
 
   /// The vendor's area, never a phone number: people reach the app owner.
   final String? address;
+
+  /// Today's hours ("10:00–23:00"), or `allDay` (market_providers.dart
+  /// `marketAllDay`) for a vendor open all day.
   final String? hours;
 }
 

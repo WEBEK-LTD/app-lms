@@ -189,9 +189,16 @@ class MarketVendorFacts extends StatelessWidget {
     final minutes = marketEtaText(context, vendor);
     final look = MarketCardLook.of(context);
     final facts = [
+      // Outside its delivery area: this instead of the time and the fee.
+      if (vendor.outsideArea)
+        fact(
+          Symbols.location_off_rounded,
+          l10n.marketOutsideArea,
+          color: p.danger,
+        ),
       if (eta && minutes != null && look.shows(StudioMarketFact.time))
         fact(Symbols.schedule_rounded, minutes),
-      if (!look.shows(StudioMarketFact.fee))
+      if (!look.shows(StudioMarketFact.fee) || vendor.outsideArea)
         ...const <Widget>[]
       else if (vendor.freeDelivery)
         fact(
@@ -225,8 +232,10 @@ class MarketVendorFacts extends StatelessWidget {
   }
 }
 
-/// "20–30 min", or null without the customer's position.
+/// "20–30 min", or null without the customer's position or outside the
+/// vendor's delivery area.
 String? marketEtaText(BuildContext context, MarketVendor vendor) {
+  if (vendor.outsideArea) return null;
   final min = vendor.etaMin;
   final max = vendor.etaMax;
   if (min == null || max == null) return null;

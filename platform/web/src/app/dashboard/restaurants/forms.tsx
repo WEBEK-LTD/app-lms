@@ -3,9 +3,11 @@
 import { useActionState } from "react";
 import { addSectionAction, addStaffAction, foodOrderStepAction, renameSectionAction, saveDishAction, saveHoursAction, saveRestaurantAction } from "@/app/actions/food";
 import { Field, FieldError, FormMessage, SubmitButton } from "@/components/form";
-import { useDashT } from "@/components/dashboard-i18n";
+import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FormActions, FormSection } from "@/components/page-kit";
 import { initialFormState } from "@/lib/forms";
+import { DeliveryAreaFields } from "@/components/delivery-area-fields";
+import { LEGACY_VENDOR_KM } from "@/lib/market/areas";
 
 export interface RestaurantFormValues {
   id: number | null;
@@ -26,10 +28,19 @@ export interface RestaurantFormValues {
   coverUrl: string | null;
 }
 
-/** 105.1 A restaurant's details: where it is, what it cooks, how long it takes, the company's share. */
-export function RestaurantForm({ restaurant, cuisines, currency }: { restaurant: RestaurantFormValues; cuisines: { id: string; name: string }[]; currency: string }) {
+/** 115 In a marketplace: where the place delivers (required), from the marketplace's named areas. */
+export interface RestaurantAreaValues {
+  areas: { id: string; name: string; km: number }[];
+  values: Record<string, string>;
+  warning: "set_area" | "no_position" | null;
+}
+
+/** 105.1 A restaurant's details: where it is, what it cooks, how long it takes, the company's share. 115 In a marketplace, where it delivers. */
+export function RestaurantForm({ restaurant, cuisines, currency, area }: { restaurant: RestaurantFormValues; cuisines: { id: string; name: string }[]; currency: string; area?: RestaurantAreaValues }) {
   const t = useDashT();
   const [state, action] = useActionState(saveRestaurantAction, initialFormState);
+  const known = useKnownText();
+  const areaError = state.errors?.area_kind ?? state.errors?.area_km;
   const value = (key: Exclude<keyof RestaurantFormValues, "id" | "cuisines" | "logoUrl" | "coverUrl">) => state.values?.[key] ?? restaurant[key];
   const suffix = restaurant.id ? `-${restaurant.id}` : "";
   return (
@@ -75,11 +86,32 @@ export function RestaurantForm({ restaurant, cuisines, currency }: { restaurant:
           </fieldset>
         ) : null}
       </FormSection>
+      {area ? (
+        <FormSection id={`f-restaurant${suffix || "-new"}-area`} title={t("food.formArea")} description={t("food.formAreaHint")}>
+          <DeliveryAreaFields
+            idPrefix={`f-area${suffix}`}
+            words={{
+              title: t("food.areaTitle"),
+              hint: t("food.areaHint"),
+              byKm: t("food.areaByKm"),
+              km: t("food.areaKm"),
+              byAreas: t("food.areaByAreas"),
+              noAreas: t("food.areaNoAreas"),
+              setArea: t("food.areaSetIt", { km: LEGACY_VENDOR_KM }),
+              noPosition: t("food.areaNoPosition"),
+            }}
+            values={state.values ?? area.values}
+            areas={area.areas}
+            warning={state.values ? null : area.warning}
+            error={areaError ? known(areaError) : undefined}
+          />
+        </FormSection>
+      ) : null}
       <FormSection id={`f-restaurant${suffix || "-new"}-orders`} title={t("food.formOrders")} description={t("food.formOrdersHint")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id={`f-prep${suffix}`} label={t("food.prepMinutes")} name="prepMinutes" inputMode="numeric" defaultValue={value("prepMinutes")} error={state.errors?.prepMinutes} />
           <Field id={`f-min${suffix}`} label={t("food.minOrder", { currency })} name="minOrder" inputMode="decimal" defaultValue={value("minOrder")} error={state.errors?.minOrder} />
-          <Field id={`f-maxkm${suffix}`} label={t("food.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("food.maxKmHint")} />
+          {area ? null : <Field id={`f-maxkm${suffix}`} label={t("food.maxKm")} name="maxKm" inputMode="decimal" defaultValue={value("maxKm")} error={state.errors?.maxKm} hint={t("food.maxKmHint")} />}
           <Field id={`f-commission${suffix}`} label={t("food.commission")} name="commission" inputMode="decimal" defaultValue={value("commission")} error={state.errors?.commission} hint={t("food.commissionHint")} />
           <Field id={`f-commission-fixed${suffix}`} label={t("food.commissionFixed", { currency })} name="commissionFixed" inputMode="decimal" defaultValue={value("commissionFixed")} error={state.errors?.commissionFixed} hint={t("food.commissionFixedHint")} />
           <Field id={`f-tax${suffix}`} label={t("food.taxRate")} name="taxRate" inputMode="decimal" defaultValue={value("taxRate")} error={state.errors?.taxRate} hint={t("food.taxRateHint")} />

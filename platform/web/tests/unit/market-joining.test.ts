@@ -98,10 +98,12 @@ describe("115.6 joining forms", () => {
     expect(await answerApplication(store, sent.application, { status: "more_info", message: " ", by: "team@souk.test" }, NOW)).toMatchObject({ ok: false });
     const asked = await answerApplication(store, sent.application, { status: "more_info", message: "Please send your health certificate.", by: "team@souk.test" }, NOW);
     expect(asked).toMatchObject({ ok: true, application: { status: "more_info" } });
-    const accepted = await acceptApplication(store, form, sent.application, "team@souk.test", NOW);
+    // 115 With where it delivers, as the owner chose it on accepting.
+    const accepted = await acceptApplication(store, form, sent.application, "team@souk.test", NOW, { maxKm: 5, deliveryAreas: null });
     expect(accepted).toMatchObject({ ok: true });
     if (!accepted.ok) throw new Error();
     const vendor = (await store.getRestaurant(app.id, accepted.vendorId!))!;
+    expect(vendor).toMatchObject({ maxKm: 5, deliveryAreas: null });
     expect(vendor).toMatchObject({ name: "Grill House", kind: "restaurant", active: false, phone: null, logoAssetId: "asset-logo-1", description: "Charcoal grills since 1998.", address: { address: "9 Road 233, Maadi" }, hours: [{ day: "mon", opens: "12:00", closes: "02:00" }] });
     const staff = await store.listRestaurantStaff(app.id, vendor.id);
     expect(staff).toMatchObject([{ email: "owner@grill.test", role: "owner", active: true }]);

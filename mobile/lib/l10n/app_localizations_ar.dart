@@ -8695,6 +8695,16 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get marketOutsideArea => 'خارج نطاق التوصيل';
+
+  @override
+  String get marketOutsideAreaBanner => 'هذا المكان لا يوصّل إلى عنوانك.';
+
+  @override
+  String get marketOutsideAreaMessage =>
+      'هذا المكان لا يوصّل إلى عنوانك. اختر عنوانًا آخر، أو استلم الطلب بنفسك إن كان المكان يتيح ذلك.';
+
+  @override
   String marketMinOrder(String amount) {
     return 'الحد الأدنى $amount';
   }
@@ -8800,7 +8810,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String marketHours(String hours) {
-    return 'يفتح $hours';
+    String _temp0 = intl.Intl.selectLogic(hours, {
+      'allDay': 'مفتوح 24 ساعة',
+      'other': 'يفتح $hours',
+    });
+    return '$_temp0';
   }
 
   @override

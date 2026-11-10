@@ -28,6 +28,8 @@ import { DEFAULT_FOOD_TIMEZONE, restaurantRating, restaurantState } from "@/lib/
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { ConfirmButton } from "../../chat/forms";
 import { isFood } from "../../shipments/parts";
+import { isMarketplaceApp } from "@/lib/market/plan";
+import { serviceAreasOf, vendorAreaFormValues, vendorAreaWarning } from "@/lib/market/areas";
 import { DishForm, HoursForm, RestaurantForm, SectionForm, StaffForm } from "../forms";
 import { NotFood, percentOf } from "../parts";
 
@@ -250,6 +252,7 @@ export default async function RestaurantPage({ params, searchParams }: { params:
                   logoUrl: restaurant.logoAssetId ? assetUrl(restaurant.logoAssetId) : null,
                   coverUrl: restaurant.coverAssetId ? assetUrl(restaurant.coverAssetId) : null,
                 }}
+                area={isMarketplaceApp(app) ? { areas: serviceAreasOf(settings), values: vendorAreaFormValues(restaurant, serviceAreasOf(settings)), warning: vendorAreaWarning(restaurant, serviceAreasOf(settings)) } : undefined}
               />
             </Section>
           </>

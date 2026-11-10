@@ -8,10 +8,12 @@ import { getBlobStore } from "@/lib/blobs";
 import { newId } from "@/lib/crypto/tokens";
 import { getStore } from "@/lib/data";
 import type { App, AssetKind } from "@/lib/data/types";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { imageType } from "@/lib/images";
 import { sendMail } from "@/lib/mail";
 import { acceptApplication, answerApplication, JOINING_LIMITS, joiningMail, newFormToken, submitApplication } from "@/lib/market/joining";
 import { addQuestion, answersFromForm, chosenKind, FILE_KINDS, moveQuestion, parseJoinFormMeta, parseQuestion, removeQuestion, replaceQuestion } from "@/lib/market/joining-forms";
+import { parseVendorAreaForm, serviceAreasOf } from "@/lib/market/areas";
 import { hitRateLimit } from "@/lib/rate-limit";
 import { siteUrl } from "@/lib/seo";
 
@@ -111,9 +113,12 @@ export async function decideApplicationAction(formData: FormData): Promise<void>
   const decision = String(formData.get("decision") ?? "");
   const message = String(formData.get("message") ?? "");
   const now = new Date();
+  // 115 Every place sets where it delivers: the owner chooses it on accepting.
+  const area = decision === "accept" ? parseVendorAreaForm(formOf(formData), serviceAreasOf(deliverySettingsOf(await store.getDeliverySettings(context.app.id)))) : null;
+  if (area && !area.ok) return back(area.error);
   const result =
     decision === "accept"
-      ? await acceptApplication(store, form, application, whoOf(context), now)
+      ? await acceptApplication(store, form, application, whoOf(context), now, area?.ok ? area.value : undefined)
       : decision === "more_info" || decision === "rejected"
         ? await answerApplication(store, application, { status: decision, message, by: whoOf(context) }, now)
         : ({ ok: false, error: "Choose what to do." } as const);

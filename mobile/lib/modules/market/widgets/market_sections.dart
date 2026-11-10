@@ -78,7 +78,10 @@ List<MarketVendor> _pick(List<MarketVendor> all, StudioMarket market) {
         v,
   ];
   int open(MarketVendor v) => v.state == MarketVendorState.closed ? 1 : 0;
+  int away(MarketVendor v) => v.outsideArea ? 1 : 0;
   picked.sort((a, b) {
+    final byArea = away(a) - away(b);
+    if (byArea != 0) return byArea;
     final byOpen = open(a) - open(b);
     if (byOpen != 0) return byOpen;
     return switch (market.sort) {
@@ -1147,7 +1150,8 @@ class MarketVendorCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (vendor.etaMin != null && look.shows(StudioMarketFact.time))
+                if (marketEtaText(context, vendor) != null &&
+                    look.shows(StudioMarketFact.time))
                   PositionedDirectional(
                     bottom: 10,
                     end: 10,
@@ -1306,7 +1310,7 @@ class _VendorTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (vendor.freeDelivery)
+                  if (vendor.freeDelivery && !vendor.outsideArea)
                     PositionedDirectional(
                       top: 8,
                       start: 8,
@@ -1336,7 +1340,18 @@ class _VendorTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            if (marketEtaText(context, vendor) case final eta?)
+            if (vendor.outsideArea)
+              Text(
+                l10n.marketOutsideArea,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: p.danger,
+                ),
+              )
+            else if (marketEtaText(context, vendor) case final eta?)
               Row(
                 children: [
                   AppIcon(Symbols.schedule_rounded, size: 14, color: p.primary),

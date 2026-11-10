@@ -165,8 +165,13 @@ export async function submitApplication(store: DataStore, form: MarketApplicatio
   return { ok: true, application };
 }
 
-/** The answers that make the vendor: its logo, place and hours when the form asked for them. */
-export function vendorFromApplication(form: MarketApplicationForm, application: MarketApplication, appId: string): Omit<Restaurant, "id" | "busyUntil" | "ratingSum" | "ratingCount" | "createdAt" | "updatedAt"> {
+/** The answers that make the vendor: its logo, place and hours when the form asked for them; (115) where it delivers, as the owner set it on accepting. */
+export function vendorFromApplication(
+  form: MarketApplicationForm,
+  application: MarketApplication,
+  appId: string,
+  area: Pick<Restaurant, "maxKm" | "deliveryAreas"> = { maxKm: null, deliveryAreas: null },
+): Omit<Restaurant, "id" | "busyUntil" | "ratingSum" | "ratingCount" | "createdAt" | "updatedAt"> {
   const answerOf = (kind: ApplicationField["kind"]) => {
     const field = form.fields.find((f) => f.kind === kind);
     return field ? application.answers[field.key] : undefined;
@@ -187,7 +192,8 @@ export function vendorFromApplication(form: MarketApplicationForm, application: 
     hours: hours ?? [],
     prepMinutes: 20,
     minOrderCents: 0,
-    maxKm: null,
+    maxKm: area.maxKm,
+    deliveryAreas: area.deliveryAreas ?? null,
     commissionBp: 0,
     // Hidden until the owner or the vendor makes it ready.
     active: false,
@@ -232,10 +238,10 @@ export async function answerApplication(store: DataStore, application: MarketApp
 }
 
 /** Accepting: the vendor made from the answers, its first staff member invited. Once. */
-export async function acceptApplication(store: DataStore, form: MarketApplicationForm, application: MarketApplication, by: string, now: Date): Promise<DecisionResult> {
+export async function acceptApplication(store: DataStore, form: MarketApplicationForm, application: MarketApplication, by: string, now: Date, area?: Pick<Restaurant, "maxKm" | "deliveryAreas">): Promise<DecisionResult> {
   const claimed = await store.updateMarketApplication(application.appId, application.id, { status: "accepted", decidedBy: by, decidedAt: now, updatedAt: now }, { statuses: ["new", "more_info"] });
   if (!claimed) return { ok: false, error: "Someone answered this application already." };
-  const vendor = await store.createRestaurant(vendorFromApplication(form, application, application.appId), { sections: [], nextId: 1 }, now);
+  const vendor = await store.createRestaurant(vendorFromApplication(form, application, application.appId, area), { sections: [], nextId: 1 }, now);
   const staff = await store.createRestaurantStaff({ appId: application.appId, restaurantId: vendor.id, name: application.businessName, phone: null, email: application.email, active: true, role: "owner" }, now);
   await store.updateMarketApplication(application.appId, application.id, { vendorId: vendor.id, updatedAt: now });
   // A staff member with this email already (another vendor's): the team adds one from the vendor's page.
