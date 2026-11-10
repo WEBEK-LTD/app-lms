@@ -40,32 +40,6 @@
       }
     },
     {
-      "slot": "school-homework",
-      "src": "/stories/school/school-homework.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "Shixart1985",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-        "source": "https://commons.wikimedia.org/wiki/File:Child_engaged_in_homework_with_glass_of_water_on_table.jpg",
-        "title": "Child engaged in homework with glass of water on table"
-      }
-    },
-    {
-      "slot": "school-library",
-      "src": "/stories/school/school-library.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "Shixart1985",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-        "source": "https://commons.wikimedia.org/wiki/File:Young_person_reading_a_book_in_a_cozy_library_surrounded_by_shelves_of_literature.jpg",
-        "title": "Young person reading a book in a cozy library surrounded by shelves of literature"
-      }
-    },
-    {
       "slot": "school-office",
       "src": "/stories/school/school-office.jpg",
       "width": 1600,
@@ -238,19 +212,6 @@
         "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "source": "https://commons.wikimedia.org/wiki/File:Passion_Pour_(Unsplash).jpg",
         "title": "Passion Pour (Unsplash)"
-      }
-    },
-    {
-      "slot": "zad-family-meal",
-      "src": "/stories/multi-vendor/zad-family-meal.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "Shixart1985",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-        "source": "https://commons.wikimedia.org/wiki/File:A_family_shares_a_comforting_meal.jpg",
-        "title": "A family shares a comforting meal"
       }
     },
     {
