@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:yallapp/core/api/models/json.dart' show snake;
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/api/yallapp_api.dart';
@@ -5,6 +8,7 @@ import 'package:yallapp/core/format/dates.dart';
 
 import '../../support/fake_api.dart';
 import '../../support/fixtures.dart';
+import '../../support/market_order_fixtures.dart';
 import 'demo_images.dart';
 import 'map_tiles.dart';
 
@@ -1158,7 +1162,11 @@ class DemoApi extends FakeApi {
 
   /// 110.5 Yallapp Studio's school demo (Nakhla School): Lina's day, her
   /// homework, and her class teacher taking attendance in the Classroom tab.
-  factory DemoApi.school() {
+  /// The website's school story also shows her mother's Parent tab, the
+  /// bus coming on the map ([map]: the drawn tiles), the fees, Ms. Mona's
+  /// payslip and the library, with the demo's own people and places
+  /// (lib/demo/school.ts, school-bus-library.ts, school-life.ts).
+  factory DemoApi.school({bool map = false}) {
     final api = DemoApi._(
       config: {
         ...configJson(lms: null, languages: _languages),
@@ -1171,6 +1179,7 @@ class DemoApi extends FakeApi {
             'starts_on': '2026-09-20',
             'ends_on': '2027-01-21',
           },
+          if (map) 'map': {'tiles_url': demoTilesUrl, 'attribution': null},
         },
       },
     );
@@ -1387,6 +1396,430 @@ class DemoApi extends FakeApi {
               as Map<String, dynamic>,
         },
       ],
+    };
+    _nakhlaFamily(api, lina, adam, dueIn);
+    return api;
+  }
+
+  /// The website's school story: Rania's Parent tab with Lina's day, the
+  /// morning bus a few minutes from their stop, Ms. Mona's payslip and the
+  /// school's library, as Nakhla School's demo has them.
+  static void _nakhlaFamily(
+    DemoApi api,
+    Map<String, dynamic> lina,
+    Map<String, dynamic> adam,
+    String Function(int days) dueIn,
+  ) {
+    final today = dueIn(0);
+    String at(int hour, int minute) => DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      hour,
+      minute,
+    ).toUtc().toIso8601String();
+    api.parentMe = {
+      'name': 'Rania Haddad',
+      'children': [
+        {...lina, 'slips_waiting': 1},
+        {...adam, 'slips_waiting': 0},
+      ],
+      'messages': true,
+      'slips_waiting': 1,
+    };
+    final stops = [
+      {
+        'id': 1,
+        'name': 'Corniche, Dar El Salam',
+        'lat': 29.9786,
+        'lng': 31.2387,
+        'time': '07:00',
+        'passed': true,
+      },
+      {
+        'id': 2,
+        'name': 'Victoria Square',
+        'lat': 29.9668,
+        'lng': 31.2502,
+        'time': '07:10',
+        'passed': true,
+      },
+      {
+        'id': 3,
+        'name': 'Road 9, Maadi',
+        'lat': 29.9602,
+        'lng': 31.2569,
+        'time': '07:20',
+        'passed': false,
+      },
+    ];
+    api.studentBus = {
+      'items': [
+        {
+          'trip': 'morning',
+          'route': {'id': 1, 'name': 'Route 1, Maadi', 'plate': 'ن ق ص 2741'},
+          'stop': stops.last,
+          'stops': stops,
+          'run': {
+            'id': 70,
+            'status': 'running',
+            'started_at': at(6, 55),
+            'ended_at': null,
+            'bus': {'lat': 29.9641, 'lng': 31.2531, 'updated_at': at(7, 15)},
+            'eta_minutes': 4,
+            'distance_m': 900,
+            'student': {'status': null, 'boarded_at': null, 'off_at': null},
+          },
+        },
+      ],
+    };
+    api.childDay = {
+      'date': today,
+      'student': lina,
+      'day_off': null,
+      'checkin': {
+        'date': today,
+        'state': 'in',
+        'in_at': at(7, 46),
+        'in_time': '07:46',
+        'in_method': 'qr',
+        'out_at': null,
+        'out_time': null,
+        'out_method': null,
+        'late': false,
+        'left_early': false,
+        'corrections': [],
+      },
+      'lessons': [
+        for (final lesson
+            in ((api.timetable['days'] as List).first['lessons'] as List).take(
+              3,
+            ))
+          lesson,
+      ],
+      'homework': {
+        'due_count': 2,
+        'items': [for (final h in api.homeworkDue.take(2)) h],
+      },
+      'grades': [
+        {
+          'assessment_id': 31,
+          'subject': 'Maths',
+          'title': 'Fractions quiz',
+          'kind': 'quiz',
+          'date': dueIn(-3),
+          'score': 9,
+          'max_score': 10,
+        },
+      ],
+      'behaviour': {
+        'points': 6,
+        'positive_count': 3,
+        'negative_count': 0,
+        'latest': null,
+      },
+      'bus': api.studentBus['items'],
+      'loans': [
+        {
+          'id': 5,
+          'title': "Charlotte's Web",
+          'due_on': dueIn(7),
+          'overdue': false,
+        },
+      ],
+      'reports': {'count': 1, 'latest_at': at(9, 0)},
+      'fees': {'currency': 'EGP', 'due_count': 1, 'due_formatted': 'E£350.00'},
+      'slips_waiting': 1,
+      'excuse': null,
+      'pickup': {
+        'people': 2,
+        'today': {
+          'date': today,
+          'name': 'Fathi Haddad',
+          'relation': 'Grandfather',
+          'phone': null,
+          'note': null,
+          'written_by': 'Rania Haddad',
+          'created_at': at(6, 30),
+        },
+      },
+      'events': [],
+      'exams': [],
+    };
+    Map<String, dynamic> money(String amount, String formatted) => {
+      'amount': amount,
+      'amount_formatted': formatted,
+    };
+    final month = dueIn(0).substring(0, 7);
+    api.payslips = [
+      {
+        'id': 42,
+        'number': 'PS-$month-42',
+        'month': month,
+        'currency': 'EGP',
+        'name': 'Mona Saleh',
+        'job_title': "Maths teacher, Grade 5 A's class teacher",
+        'department': 'Primary',
+        'base': money('16500.00', 'E£16,500.00'),
+        'allowances': [
+          {'name': 'Transport', ...money('800.00', 'E£800.00')},
+        ],
+        'bonuses': [
+          {
+            'kind': 'bonus',
+            'source': 'office',
+            'label': 'Bus duty',
+            'count': null,
+            ...money('600.00', 'E£600.00'),
+          },
+        ],
+        'deductions': [
+          {
+            'kind': 'advance',
+            'source': 'advance',
+            'label': 'Advance, instalment 1 of 3',
+            'count': null,
+            ...money('1000.00', 'E£1,000.00'),
+          },
+        ],
+        'gross': money('17900.00', 'E£17,900.00'),
+        'total_deductions': money('1000.00', 'E£1,000.00'),
+        'net': money('16900.00', 'E£16,900.00'),
+        'paid': money('16900.00', 'E£16,900.00'),
+        'left': money('0.00', 'E£0.00'),
+        'status': 'paid',
+        'payments': [
+          {
+            'method': 'bank',
+            'paid_on': today,
+            'note': null,
+            ...money('16900.00', 'E£16,900.00'),
+          },
+        ],
+        'attendance': {
+          'working_days': 21,
+          'present': 20,
+          'late': 1,
+          'left_early': 0,
+          'absent': 0,
+          'excused': 0,
+          'leave': 1,
+        },
+        'note': null,
+        'issued_at': at(10, 0),
+        'pdf_url': 'https://yallapp.test/a/app/payslips/42/pdf?lang=en&expires=1&sig=x',
+      },
+    ];
+    api.salaryAdvances = [];
+    Map<String, dynamic> book(
+      int id,
+      String title,
+      String author,
+      String category,
+      String language, {
+      int copies = 2,
+      int available = 1,
+      bool ebook = false,
+    }) => {
+      'id': id,
+      'title': title,
+      'author': author,
+      'cover_url': null,
+      'isbn': null,
+      'shelf': 'A$id',
+      'category': category,
+      'language': language,
+      'copies': copies,
+      'available': available,
+      'waiting': available == 0 ? 1 : 0,
+      'ebook': ebook,
+    };
+    api.libraryBooks = {
+      'page': 1,
+      'per_page': 20,
+      'total': 5,
+      'total_pages': 1,
+      'items': [
+        book(
+          1,
+          'The Little Prince',
+          'Antoine de Saint-Exupéry',
+          'Stories',
+          'English',
+          ebook: true,
+        ),
+        book(
+          2,
+          'Kalila wa Dimna',
+          'Ibn al-Muqaffa',
+          'Stories',
+          'Arabic',
+          copies: 3,
+          available: 2,
+        ),
+        book(
+          3,
+          'Atlas of Egypt',
+          'Nakhla School',
+          'Geography',
+          'Arabic',
+          copies: 1,
+          available: 0,
+        ),
+        book(
+          4,
+          "Charlotte's Web",
+          'E. B. White',
+          'Stories',
+          'English',
+          copies: 1,
+          available: 0,
+        ),
+        book(
+          5,
+          'Science for Young Minds',
+          'Nakhla School',
+          'Science',
+          'English',
+          available: 2,
+        ),
+      ],
+      'categories': ['Geography', 'Science', 'Stories'],
+    };
+  }
+
+  /// 115.15 Zad, Studio's multi-vendor demo: its home as the platform
+  /// makes it (test/support/zad_demo_home.json), its places and their
+  /// menus from zad.dart (the screen's providers), and the Fathys' groceries
+  /// on their way with Zad's courier on the drawn map.
+  factory DemoApi.zad() {
+    Map<String, dynamic> egp(String amount) => {
+      'amount': amount,
+      'formatted': 'EGP $amount',
+    };
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Zad'),
+        'branding': {'logo_url': null, 'primary_color': '#1E6B52'},
+        'appearance': {
+          'template': 'bold',
+          'theme_mode': 'light',
+          'user_can_change_mode': true,
+          'secondary_color': '#F2A93B',
+          'font': 'Outfit',
+          'corners': 'soft',
+          'cards': null,
+        },
+        'delivery': {
+          ...deliveryConfigJson(),
+          'map': {'tiles_url': demoTilesUrl, 'attribution': null},
+        },
+        'market': {
+          'country': 'EG',
+          'currency': 'EGP',
+          'timezone': 'Africa/Cairo',
+          'kinds': ['restaurant', 'grocery'],
+          'payment': {'cash': true, 'card': true},
+          'map': {'tiles_url': demoTilesUrl, 'attribution': null},
+        },
+      },
+    );
+    final home = jsonDecode(
+      File('test/support/zad_demo_home.json').readAsStringSync(),
+    );
+    api
+      ..me = {...userJson(), 'name': 'Salma Fathy'}
+      ..navigation = navigationJson(
+        tabs: [
+          navTabJson('t1', 'Home', 'home', {
+            'type': 'page',
+            'page_slug': 'home',
+          }),
+          navTabJson('t2', 'Search', 'search', {
+            'type': 'screen',
+            'screen': 'search',
+          }),
+          navTabJson('t3', 'Orders', 'receipt_long', {
+            'type': 'screen',
+            'screen': 'food_orders',
+          }),
+          navTabJson('t4', 'Club', 'workspace_premium', {
+            'type': 'screen',
+            'screen': 'club',
+          }),
+          navTabJson('t5', 'Account', 'person', {
+            'type': 'screen',
+            'screen': 'account',
+          }),
+        ],
+      )
+      ..pages = {
+        'home': {
+          ...appPageJson(title: 'Home', showTitle: false, blocks: []),
+          'studio': home,
+        },
+      };
+    // Friday lunch: ordered at 13:05, Cairo time (the shots run on Istanbul's).
+    final now = DateTime.now();
+    final placed = DateTime(now.year, now.month, now.day, 14, 5);
+    String ago(int minutes) =>
+        placed.add(Duration(minutes: minutes)).toUtc().toIso8601String();
+    Map<String, dynamic> line(
+      int id,
+      String name,
+      num quantity,
+      String unit,
+      String price,
+      String total,
+    ) => {
+      ...marketOrderLineJson(productId: id, name: name, quantity: quantity),
+      'unit': unit,
+      'unit_price': egp(price),
+      'total': egp(total),
+    };
+    api.marketOrders[1207] = {
+      ...marketOrderJson(id: 1207, status: 'on_the_way'),
+      'reference': 'Z-1207',
+      'vendor': {
+        ...marketVendorSummaryJson(id: 3, kind: 'grocery'),
+        'name': 'Zad Market',
+        'categories': const <String>[],
+        'delivery_minutes': {'min': 25, 'max': 40},
+        'delivery_fee': egp('0.00'),
+      },
+      'lines': [
+        line(31, 'Red apples', 1.5, 'kg', '90.00', '135.00'),
+        line(35, 'Tomatoes', 2, 'kg', '18.00', '36.00'),
+        line(38, 'Baladi bread, 5 loaves', 2, 'item', '10.00', '20.00'),
+        line(37, 'Lemons', 0.5, 'kg', '40.00', '20.00'),
+      ],
+      'price': [
+        {'kind': 'items', 'label': 'Items', 'amount': egp('211.00')},
+        {'kind': 'delivery', 'label': 'Delivery', 'amount': egp('0.00')},
+        {'kind': 'total', 'label': 'Total', 'amount': egp('211.00')},
+      ],
+      'total': egp('211.00'),
+      'payment': {'method': 'cash', 'status': 'unpaid', 'wallet_used': null},
+      'eta': ago(36),
+      'created_at': ago(0),
+      'timeline': [
+        {'status': 'placed', 'at': ago(0)},
+        {'status': 'accepted', 'at': ago(2)},
+        {'status': 'ready', 'at': ago(16)},
+        {'status': 'on_the_way', 'at': ago(19)},
+      ],
+      'tracking': {
+        'mode': 'map',
+        'courier': {
+          'name': 'Karim Adel',
+          'photo_url': null,
+          'vehicle': 'Motorbike',
+        },
+        'position': {'lat': 30.0548, 'lng': 31.2195},
+        'updated_at': ago(23),
+        'route': const [],
+      },
     };
     return api;
   }
