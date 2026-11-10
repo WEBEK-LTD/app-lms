@@ -5,7 +5,7 @@ import { DEFAULT_HOSTED_SETTINGS, type App } from "@/lib/data/types";
 import { DEFAULT_DELIVERY_SETTINGS } from "@/lib/delivery/settings";
 import { finishPanelSignIn, panelStaff, startPanelSignIn } from "@/lib/market/panel";
 import { boardAction, boardData } from "@/lib/market/panel-board";
-import { addStaff, catalogPage, importCatalog, monthBounds, panelContext, saveDelivery, setStaffActive, setStock, tabsFor, vendorComplaints, vendorStatement } from "@/lib/market/panel-pages";
+import { addStaff, catalogPage, deliveryAreaWarning, deliveryValues, importCatalog, monthBounds, panelContext, saveDelivery, setStaffActive, setStock, tabsFor, vendorComplaints, vendorStatement } from "@/lib/market/panel-pages";
 import { NOW, setupClient } from "./helpers";
 
 const EVERY_DAY = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
@@ -99,9 +99,13 @@ describe("115.7 the vendors' web panel", () => {
     // Another vendor's product isn't this one's.
     const theirsCtx = (await panelContext(store, app, (await store.listRestaurantStaff(app.id, theirs))[0]!))!;
     expect(await setStock(theirsCtx, milk.id, true, 5, NOW)).toBe(false);
-    // Delivery: its own drivers at a fixed fee.
-    expect(await saveDelivery(ctx, { by: "vendor", fee_kind: "fixed", fee: "15", per_km: "", free_over: "200", min_items: "", max_items: "", pickup: "on" }, NOW)).toEqual({ ok: true });
-    expect((await store.getRestaurant(app.id, mine))!.delivery).toMatchObject({ by: "vendor", fee: 15_00, freeOver: 200_00, pickup: true });
+    // Delivery: its own drivers at a fixed fee, and (115) where it delivers, which it must set.
+    const terms = { by: "vendor", fee_kind: "fixed", fee: "15", per_km: "", free_over: "200", min_items: "", max_items: "", pickup: "on" };
+    expect(deliveryAreaWarning(ctx)).toBe("set_area");
+    expect(await saveDelivery(ctx, terms, NOW)).toMatchObject({ ok: false, field: "area_kind" });
+    expect(await saveDelivery(ctx, { ...terms, area_kind: "km", area_km: "6" }, NOW)).toEqual({ ok: true });
+    expect((await store.getRestaurant(app.id, mine))!).toMatchObject({ delivery: { by: "vendor", fee: 15_00, freeOver: 200_00, pickup: true }, maxKm: 6, deliveryAreas: null });
+    expect(deliveryValues((await panelContext(store, app, ctx.staff))!)).toMatchObject({ by: "vendor", area_kind: "km", area_km: "6" });
     expect(await saveDelivery(ctx, { by: "vendor", fee_kind: "fixed", fee: "abc" }, NOW)).toMatchObject({ ok: false });
     // Staff: added by email, turned off, never oneself.
     expect(await addStaff(ctx, { name: "Sara", email: "sara@mine.test", role: "picker" }, NOW)).toEqual({ ok: true });

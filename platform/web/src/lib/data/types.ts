@@ -3372,6 +3372,22 @@ export interface MarketAppSettings {
    * with the largest percentage they may give (null: up to 100).
    */
   vendorCoupons?: { enabled: boolean; maxPercent: number | null };
+  /**
+   * 115 The named areas the marketplace serves (lib/market/areas.ts), each a
+   * circle around its centre; places that deliver by area choose among
+   * them. None (or absent): the marketplace is open everywhere, and each
+   * place's own area decides.
+   */
+  serviceAreas?: MarketServiceArea[];
+}
+
+/** 115 A named area the marketplace serves: within `km` of its centre. */
+export interface MarketServiceArea {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  km: number;
 }
 
 /**
@@ -3630,7 +3646,12 @@ export interface Restaurant {
   prepMinutes: number;
   /** The smallest subtotal; 0 for none. */
   minOrderCents: number;
-  /** The furthest it delivers, in a straight line; null: the company's limit (`DeliverySettings.maxKm`). */
+  /**
+   * The furthest it delivers, in a straight line; null: the company's limit
+   * (`DeliverySettings.maxKm`). 115 In a marketplace, its delivery radius
+   * from its address (lib/market/areas.ts); null without `deliveryAreas`:
+   * saved before places had to set one, taken as 10 km.
+   */
   maxKm: number | null;
   /** The company's share of each order's subtotal, in basis points (1250 = 12.5%). */
   commissionBp: number;
@@ -3655,6 +3676,8 @@ export interface Restaurant {
   paused?: boolean;
   /** 115.3 Its district, shown to customers (its exact place only for pick-up). */
   area?: string | null;
+  /** 115 Where it delivers by area: the marketplace's `serviceAreas` it chose (their IDs); null or empty: by distance (`maxKm`). */
+  deliveryAreas?: string[] | null;
   createdAt: Date;
   updatedAt: Date;
 }

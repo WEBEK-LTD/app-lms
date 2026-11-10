@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
 import { btn, Notice, PageHeader, Section } from "@/components/ui";
-import { saveCourierTermsAction, saveMarketSettingsAction, setMarketplaceAction } from "@/app/actions/market";
+import { addServiceAreaAction, removeServiceAreaAction, saveCourierTermsAction, saveMarketSettingsAction, setMarketplaceAction } from "@/app/actions/market";
 import type { DashKey } from "@/i18n/dashboard";
 import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
@@ -12,6 +12,7 @@ import { isMarketplaceApp, marketplaceInPlan } from "@/lib/market/plan";
 import { richText } from "@/i18n/rich";
 import Link from "next/link";
 import { courierTermsFormValues } from "@/lib/market/delivery-forms";
+import { AREA_LIMITS, serviceAreasOf } from "@/lib/market/areas";
 import { paymentSetupPlan, type PaymentSetupStep } from "@/lib/market/payments";
 import { marketCurrency, marketSettingsOf, paymentSettingsOf } from "@/lib/market/settings";
 import { MARKET_GATEWAYS, MAX_DAYS_AHEAD, MAX_WEIGHT_TOLERANCE, marketSettingsFormValues } from "@/lib/market/settings-form";
@@ -42,7 +43,7 @@ function Toggle({ name, on, children, hint }: { name: string; on: string | undef
 /** 115.12 Studio › Marketplace settings: the marketplace as a whole, and what the app's couriers cost. */
 export default async function MarketSettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; saved?: string }> }) {
   const { app, license } = await requireClient("settings");
-  const { t } = await dashboardText();
+  const { t, k } = await dashboardText();
   if (!isFood(app)) return <NotMarket title={t("market.settings")} t={t} />;
   const { error, saved } = await searchParams;
   const store = await getStore();
@@ -53,6 +54,7 @@ export default async function MarketSettingsPage({ searchParams }: { searchParam
   const currency = marketCurrency(settings);
   const v = marketSettingsFormValues(settings, settings.currency);
   const c = courierTermsFormValues(settings.market, currency);
+  const areas = serviceAreasOf(settings);
   const plan = paymentSetupPlan(paymentSettingsOf(marketSettingsOf(settings), settings));
   const stepText = (s: PaymentSetupStep) => t(`market.step_${s.step}` as DashKey, "name" in s ? { name: s.name } : undefined);
 
@@ -61,11 +63,11 @@ export default async function MarketSettingsPage({ searchParams }: { searchParam
       <PageHeader title={t("market.settings")} description={t("market.settingsIntro")} />
       {error ? (
         <Notice tone="danger" icon="error">
-          {error}
+          {k(error)}
         </Notice>
       ) : saved ? (
         <Notice tone="success" icon="check_circle">
-          {t(saved === "couriers" ? "market.savedCouriers" : saved === "grown" ? "market.savedGrown" : saved === "food" ? "market.savedFood" : "market.savedMarket")}
+          {t(saved === "couriers" ? "market.savedCouriers" : saved === "areas" ? "market.savedAreas" : saved === "grown" ? "market.savedGrown" : saved === "food" ? "market.savedFood" : "market.savedMarket")}
         </Notice>
       ) : null}
 
@@ -222,6 +224,63 @@ export default async function MarketSettingsPage({ searchParams }: { searchParam
           </button>
         </div>
       </form>
+
+      {/* 115 The areas the marketplace serves; none: open everywhere. */}
+      <Section titleId="h-areas" title={t("market.aTitle")} description={t("market.aIntro")}>
+        <div className="flex flex-col gap-4">
+          {areas.length ? (
+            <>
+              <ul className="m-0 flex list-none flex-col divide-y divide-line-soft p-0">
+                {areas.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-center gap-3 py-3">
+                    <Icon name="location_on" size={20} className="text-ink-4" />
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="text-[15px] font-bold text-ink-2">{a.name}</span>
+                      <span className="text-[13px] text-ink-4">
+                        {t("market.aLine", { km: a.km })} ·{" "}
+                        <span dir="ltr">
+                          {a.lat}, {a.lng}
+                        </span>
+                      </span>
+                    </span>
+                    <form action={removeServiceAreaAction}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <button type="submit" className={`${btn.secondary} h-9 px-3 text-sm`}>
+                        <Icon name="delete" size={18} />
+                        {t("market.aRemove")}
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+              <p className="m-0 text-[14px] leading-relaxed text-ink-4">{t("market.aLimited")}</p>
+            </>
+          ) : (
+            <Notice tone="info" icon="map">
+              {t("market.aOpen")}
+            </Notice>
+          )}
+          <form action={addServiceAreaAction} className="grid gap-3 sm:grid-cols-[1fr_1.4fr_0.6fr_auto] sm:items-end">
+            <label className={label}>
+              {t("market.aName")}
+              <input name="area_name" required maxLength={AREA_LIMITS.name} className={field} />
+            </label>
+            <label className={label}>
+              {t("market.aMap")}
+              <input name="area_map" required maxLength={1000} dir="ltr" placeholder="30.0444, 31.2357" title={t("market.aMapHint")} className={field} />
+            </label>
+            <label className={label}>
+              {t("market.aRadius")}
+              <input name="area_radius" required inputMode="decimal" dir="ltr" className={field} />
+            </label>
+            <button type="submit" className={`${btn.secondary} h-10 px-4 text-sm`}>
+              <Icon name="add" size={18} />
+              {t("market.aAdd")}
+            </button>
+            <p className="m-0 text-[13px] text-ink-4 sm:col-span-4">{t("market.aMapHint")}</p>
+          </form>
+        </div>
+      </Section>
 
       <form action={saveCourierTermsAction}>
         <Section titleId="h-couriers" title={t("market.cTitle")} description={t("market.cIntro")}>

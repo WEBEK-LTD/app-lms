@@ -9740,6 +9740,6 @@ function teamAlertOf({ openKey: _openKey, ...row }: typeof schema.teamAlerts.$in
 }
 
 /** 115.3 A vendor's marketplace fields, with their defaults for 105.1's restaurants. */
-function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<Restaurant, "kind" | "delivery" | "commissionFixed" | "taxRateBp" | "paused" | "area">> {
-  return { ...input, kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null };
+function vendorDefaults<T extends RestaurantInput>(input: T): T & Required<Pick<Restaurant, "kind" | "delivery" | "commissionFixed" | "taxRateBp" | "paused" | "area" | "deliveryAreas">> {
+  return { ...input, kind: input.kind ?? "restaurant", delivery: input.delivery ?? null, commissionFixed: input.commissionFixed ?? null, taxRateBp: input.taxRateBp ?? null, paused: input.paused ?? false, area: input.area ?? null, deliveryAreas: input.deliveryAreas ?? null };
 }

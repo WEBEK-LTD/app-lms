@@ -31,6 +31,8 @@ import { parseAnyPhone } from "@/lib/hosted/phone";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSignInMethods } from "@/lib/hosted/sign-in-methods";
 import { imageType } from "@/lib/images";
+import { parseVendorAreaForm, serviceAreasOf } from "@/lib/market/areas";
+import { isMarketplaceApp } from "@/lib/market/plan";
 import type { TeamPermission } from "@/lib/team/permissions";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 
@@ -92,7 +94,10 @@ export async function saveRestaurantAction(_: FormState, formData: FormData): Pr
   const settings = deliverySettingsOf(await store.getDeliverySettings(app.id));
   const country = hostedSettings(app).defaultCountryCode;
   const parsed = parseRestaurantForm(values, (settings.cuisines ?? []).map((c) => c.id), (text) => parseAnyPhone(text, country)?.e164 ?? null);
-  if (!parsed.ok) return { errors: parsed.errors, values };
+  // 115 In a marketplace, every place sets where it delivers.
+  const area = isMarketplaceApp(app) ? parseVendorAreaForm(values, serviceAreasOf(settings)) : null;
+  if (!parsed.ok || (area && !area.ok)) return { errors: { ...(parsed.ok ? {} : parsed.errors), ...(area && !area.ok ? { [area.field]: area.error } : {}) }, values };
+  if (area?.ok) Object.assign(parsed.value, area.value);
   const all = await store.listRestaurants(app.id);
   if (!existing && all.length >= FOOD_LIMITS.restaurants) return { message: `You can have up to ${FOOD_LIMITS.restaurants} restaurants.`, values };
   const logo = await picture(context, formData.get("logo"), now);

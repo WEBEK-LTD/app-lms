@@ -9206,6 +9206,18 @@
       }
     }
   },
+  "marketOutsideArea": "Outside delivery area",
+  "@marketOutsideArea": {
+    "description": "115 On a vendor's card and page instead of its delivery time and fee: it doesn't deliver to the customer's address."
+  },
+  "marketOutsideAreaBanner": "This place doesn't deliver to your address.",
+  "@marketOutsideAreaBanner": {
+    "description": "115 A banner on a vendor's page when it doesn't deliver to the customer's address."
+  },
+  "marketOutsideAreaMessage": "This place doesn't deliver to your address. Choose another address, or pick the order up if the place offers it.",
+  "@marketOutsideAreaMessage": {
+    "description": "115 At checkout, when the vendor doesn't deliver to the address chosen."
+  },
   "marketMinOrder": "Min. {amount}",
   "@marketMinOrder": {
     "description": "115 The smallest order a vendor takes.",
@@ -9349,9 +9361,9 @@
   "@marketInfo": {
     "description": "115 A vendor's details."
   },
-  "marketHours": "Open {hours}",
+  "marketHours": "{hours, select, allDay{Open 24 hours} other{Open {hours}}}",
   "@marketHours": {
-    "description": "115 A vendor's opening hours.",
+    "description": "115 A vendor's opening hours today; `allDay` for a vendor open all day.",
     "placeholders": {
       "hours": {
         "type": "String"

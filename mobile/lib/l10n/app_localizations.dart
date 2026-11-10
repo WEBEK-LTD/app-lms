@@ -13820,6 +13820,24 @@ abstract class AppLocalizations {
   /// **'{fee} delivery'**
   String marketDeliveryFee(String fee);
 
+  /// 115 On a vendor's card and page instead of its delivery time and fee: it doesn't deliver to the customer's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside delivery area'**
+  String get marketOutsideArea;
+
+  /// 115 A banner on a vendor's page when it doesn't deliver to the customer's address.
+  ///
+  /// In en, this message translates to:
+  /// **'This place doesn\'t deliver to your address.'**
+  String get marketOutsideAreaBanner;
+
+  /// 115 At checkout, when the vendor doesn't deliver to the address chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'This place doesn\'t deliver to your address. Choose another address, or pick the order up if the place offers it.'**
+  String get marketOutsideAreaMessage;
+
   /// 115 The smallest order a vendor takes.
   ///
   /// In en, this message translates to:
@@ -13982,10 +14000,10 @@ abstract class AppLocalizations {
   /// **'Info'**
   String get marketInfo;
 
-  /// 115 A vendor's opening hours.
+  /// 115 A vendor's opening hours today; `allDay` for a vendor open all day.
   ///
   /// In en, this message translates to:
-  /// **'Open {hours}'**
+  /// **'{hours, select, allDay{Open 24 hours} other{Open {hours}}}'**
   String marketHours(String hours);
 
   /// 115 A vendor nobody rated yet.

@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { Icon } from "./icon";
 import type { IconName } from "./icon-names";
 import { BulkPhotos, PhotoDrop } from "./partner-photo";
+import { DeliveryAreaFields } from "./delivery-area-fields";
+import { LEGACY_VENDOR_KM } from "@/lib/market/areas";
 import type { BulkPhotoOutcome } from "@/lib/market/photos";
 import type { MarketCoupon, RestaurantStaff } from "@/lib/data/types";
 import { formatMinor, fromMinor, currencyDecimals } from "@/lib/market/currency";
@@ -303,7 +305,26 @@ export function ImportSection({ w, restaurant, result, check, photos }: {
 
 // Delivery
 
-export function DeliverySection({ w, values, currency, error, saved, save }: { w: PanelWords; values: Record<string, string>; currency: string; error: string | null; saved: boolean; save: (f: FormData) => Promise<void> }) {
+export function DeliverySection({
+  w,
+  values,
+  currency,
+  error,
+  saved,
+  save,
+  areas = [],
+  areaWarning = null,
+}: {
+  w: PanelWords;
+  values: Record<string, string>;
+  currency: string;
+  error: string | null;
+  saved: boolean;
+  save: (f: FormData) => Promise<void>;
+  /** 115 The app's named areas, and what to fix about where the place delivers. */
+  areas?: { id: string; name: string; km: number }[];
+  areaWarning?: "set_area" | "no_position" | null;
+}) {
   const row = (label: string, child: ReactNode) => (
     <label className="flex flex-col gap-1.5 text-sm font-bold text-ink-2">
       {label}
@@ -339,6 +360,16 @@ export function DeliverySection({ w, values, currency, error, saved, save }: { w
         {row(w.freeOver, <input name="free_over" inputMode="decimal" defaultValue={values.free_over} className={field} dir="ltr" />)}
         {row(w.minItems, <input name="min_items" inputMode="numeric" defaultValue={values.min_items} className={field} dir="ltr" />)}
         {row(w.maxItems, <input name="max_items" inputMode="numeric" defaultValue={values.max_items} className={field} dir="ltr" />)}
+        {/* 115 Every place sets where it delivers. */}
+        <div className="md:col-span-2">
+          <DeliveryAreaFields
+            idPrefix="p-area"
+            words={{ title: w.areaTitle, hint: w.areaHint, byKm: w.areaByKm, km: w.areaKm, byAreas: w.areaByAreas, noAreas: w.areaNoAreas, setArea: fill(w.areaSetIt, { km: LEGACY_VENDOR_KM }), noPosition: w.areaNoPosition }}
+            values={values}
+            areas={areas}
+            warning={areaWarning}
+          />
+        </div>
         <label className="flex items-center gap-3 text-[15px] font-semibold text-ink">
           <input type="checkbox" name="pickup" defaultChecked={values.pickup === "on"} className="h-5 w-5 accent-[var(--color-ember)]" />
           {w.allowPickup}

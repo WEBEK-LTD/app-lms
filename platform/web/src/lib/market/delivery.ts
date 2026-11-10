@@ -3,6 +3,7 @@ import { addDays, utcToLocal } from "../bookings/time";
 import type { DeliverySettings, MarketCourierTerms, Restaurant, ShipmentPlace, VendorDelivery } from "../data/types";
 import { distanceKm } from "../delivery/pricing";
 import { deliveryMinutes, deliveryQuote, DEFAULT_FOOD_TIMEZONE, openings, restaurantState } from "../food/service";
+import { checkDeliveryArea } from "./areas";
 import { percentOf } from "./currency";
 
 /**
@@ -12,10 +13,12 @@ import { percentOf } from "./currency";
  * km, free over an amount, its area by distance; stages for the customer,
  * the map when its driver uses Yallapp Courier). Customers may pick up (no
  * fee, a pick-up code) and order for later within the vendor's hours.
+ * Delivery only goes where the marketplace and the vendor deliver
+ * (lib/market/areas.ts).
  */
 
 export type MarketVendor = Pick<Restaurant, "address" | "maxKm" | "minOrderCents" | "prepMinutes" | "hours" | "busyUntil" | "active"> &
-  Partial<Pick<Restaurant, "delivery" | "paused">>;
+  Partial<Pick<Restaurant, "delivery" | "paused" | "deliveryAreas">>;
 
 /** 105.1's restaurants and vendors without terms yet: the app's couriers, no pick-up, no orders for later. */
 export const APP_COURIERS: VendorDelivery = { by: "app", feeKind: "fixed", fee: 0, perKm: 0, freeOver: null, minItems: null, maxItems: null, pickup: false, scheduling: false };
@@ -112,19 +115,20 @@ export function quoteMarketDelivery(settings: DeliverySettings, vendor: MarketVe
     return { ok: true, fulfilment: "pickup", by: null, fee: 0, courierCharge: 0, distanceKm: null, minutes: vendor.prepMinutes, liveMap: "never" };
   }
 
+  // 115 Only where the marketplace and the vendor deliver: their areas need the address on the map.
+  if (!located(request.dropoff)) return { ok: false, refusal: "needs_location", error: "Set your address on the map.", field: "dropoff" };
+  const area = checkDeliveryArea(settings, vendor, request.dropoff);
+  if (!area.ok) return { ok: false, refusal: "outside_area", error: area.error, field: "dropoff", ...(area.limit !== undefined ? { limit: area.limit } : {}) };
+
   if (terms.by === "vendor") {
-    if (!located(request.dropoff)) return { ok: false, refusal: "needs_location", error: "Set your address on the map.", field: "dropoff" };
     const km = located(vendor.address) ? distanceKm(vendor.address, request.dropoff) : null;
-    if (km !== null && vendor.maxKm !== null && km > vendor.maxKm) {
-      return { ok: false, refusal: "outside_area", error: `This place delivers up to ${vendor.maxKm} km. You are ${km} km away.`, field: "dropoff", limit: vendor.maxKm };
-    }
     return { ok: true, fulfilment: "delivery", by: "vendor", fee: ownDeliveryFee(terms, km, request.items), courierCharge: 0, distanceKm: km, minutes: deliveryMinutes(vendor.prepMinutes, km), liveMap: "if_driver_signs_in" };
   }
 
   // The app's couriers: the owner's prices and area.
   const market = courierTerms(settings);
-  const dropoff = request.dropoff ?? { address: "", details: null, lat: null, lng: null };
-  const base = deliveryQuote(settings, vendor, dropoff, request.zoneId ?? null);
+  // The vendor's area is checked above; the owner's furthest distance still applies here.
+  const base = deliveryQuote(settings, { address: vendor.address, maxKm: null }, request.dropoff, request.zoneId ?? null);
   if (!base.ok) return { ok: false, refusal: base.field === "dropoff" && /up to/.test(base.error) ? "outside_area" : "needs_location", error: base.error, field: base.field };
   let fee = base.cents;
   if (market.customerFee === "percent") {

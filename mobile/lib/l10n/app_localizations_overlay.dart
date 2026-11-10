@@ -8936,6 +8936,18 @@ class OverlayLocalizations extends AppLocalizations {
       base.marketDeliveryFee(fee);
 
   @override
+  String get marketOutsideArea =>
+      overlay.text('marketOutsideArea') ?? base.marketOutsideArea;
+
+  @override
+  String get marketOutsideAreaBanner =>
+      overlay.text('marketOutsideAreaBanner') ?? base.marketOutsideAreaBanner;
+
+  @override
+  String get marketOutsideAreaMessage =>
+      overlay.text('marketOutsideAreaMessage') ?? base.marketOutsideAreaMessage;
+
+  @override
   String marketMinOrder(String amount) =>
       overlay.format('marketMinOrder', {'amount': amount}) ??
       base.marketMinOrder(amount);

@@ -1522,6 +1522,8 @@ export const restaurants = mysqlTable(
     taxRateBp: int("tax_rate_bp"),
     paused: boolean("paused").notNull().default(false),
     area: varchar("area", { length: 80 }),
+    // 115 Where it delivers by area: the marketplace's service areas it chose; null: by distance (max_km).
+    deliveryAreas: jsonText<string[] | null>("delivery_areas"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
