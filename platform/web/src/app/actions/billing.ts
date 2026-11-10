@@ -33,7 +33,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
   if (!context) redirect("/sign-in");
   if (context.client.status === "suspended") return { message: "This account is suspended. Message us on WhatsApp." };
   const values: Record<string, string> = {};
-  for (const name of ["plan", "city", "address", "coupon", "renewStorage"]) values[name] = String(formData.get(name) ?? "").trim();
+  for (const name of ["plan", "city", "address", "coupon", "renewStorage", "showOnSite"]) values[name] = String(formData.get(name) ?? "").trim();
   // The form names the app it was shown for: never pay for another app because the switcher changed in another tab.
   if (String(formData.get("appId") ?? "") !== (context.app?.id ?? "")) {
     return { message: "You switched to another app in the meantime. Reload the page and check which app you're paying for.", values };
@@ -94,6 +94,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
         charged: offer.charged,
         encryptionKey: encryptionKey(),
         now,
+        showOnSite: values.showOnSite === "on",
       });
     } catch (e) {
       // 70 Its last use went to another payment a moment ago.
@@ -121,6 +122,7 @@ export async function payPlanAction(_: FormState, formData: FormData): Promise<F
       coupon,
       offer,
       storagePacks,
+      showOnSite: values.showOnSite === "on",
     });
   } catch (e) {
     if (e instanceof PaymentError) return { message: `The payment couldn't start: ${explainPaymentError(account.provider, e, { whose: "yallapp" })}`, values };

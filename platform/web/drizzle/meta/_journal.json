@@ -855,6 +855,13 @@
       "when": 1794311611532,
       "tag": "0121_vendor_delay",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "5",
+      "when": 1794341179946,
+      "tag": "0122_live_activity",
+      "breakpoints": true
     }
   ]
 }

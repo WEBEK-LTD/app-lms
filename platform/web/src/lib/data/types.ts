@@ -4,6 +4,8 @@ import type { BuildConfig } from "../build-config/types";
 import type { AppDefaultsSetting, Layout, LayoutBlock, LayoutContent, StudioPage } from "../pages/types";
 import type { Design } from "../pages/designs/build";
 import type { AdminRole } from "../admin/permissions";
+import type { LiveActivitySetting } from "../live-activity/types";
+import type { ReviewsSetting } from "../reviews/types";
 import type { YallappPrice } from "../billing/prices";
 
 export type ClientStatus = "pending" | "active" | "suspended";
@@ -1509,6 +1511,12 @@ export interface PlanPayment {
   bankReference?: string | null;
   /** 95.2 The admin who recorded the bank transfer. */
   recordedBy?: string | null;
+  /**
+   * The website's live activity card: true only when the client ticked "Show
+   * my first name and plan on Yallapp's website" when paying (off by
+   * default). Null or missing: not allowed.
+   */
+  showOnSite?: boolean | null;
 }
 
 /** 95.2 "bank_transfer": the client paid into Yallapp's bank account and the team recorded it. */
@@ -2992,6 +3000,13 @@ export interface DemoSetting {
 
 export interface PlatformSettingValues {
   demo: DemoSetting;
+}
+
+/** The website's live activity card (Admin › Live activity); unset: lib/live-activity/types.ts LIVE_DEFAULTS. */
+export interface PlatformSettingValues {
+  liveActivity: LiveActivitySetting;
+  /** The home page's reviews (Admin › Reviews); unset: the labelled sample cards show until a real review is shown. */
+  reviews: ReviewsSetting;
 }
 
 /** What the daily job deleted from one demo app: visitors' activity from before a time. */

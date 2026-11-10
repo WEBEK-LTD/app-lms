@@ -9,6 +9,7 @@ import { StoreMarks, WhatsAppMark, WorksWithStrip } from "@/components/brand-mar
 import { Chip, Comparison, ContactBand, FeatureIcon, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { currencyNote, PlanCards } from "@/components/plan-cards";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { HomeReviews } from "@/components/home-reviews";
 import { APP_STORES } from "@/lib/stores";
 import { getStore } from "@/lib/data";
 import { effectivePlans } from "@/lib/entitlements";
@@ -288,6 +289,9 @@ export async function HomePage({ lang }: { lang: Lang }) {
           <StudioPlans lang={lang} plans={studioPlans} view={view} contact={contact} />
           <MoreLink href={lp("/yallapp-studio")}>{s.homeLink}</MoreLink>
         </Section>
+
+        {/* Customer reviews, only real ones from Admin › Reviews; nothing without any. */}
+        <HomeReviews lang={lang} />
 
         <ContactBand lang={lang} />
       </main>

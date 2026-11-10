@@ -1,0 +1,178 @@
+/*
+ * The home page's reviews (reviews-section.tsx): a dark band with an ember
+ * glow, a big quote mark, the score of the real reviews, and rows of glass
+ * cards. The first row drifts left, the next right, and so on, in English,
+ * Arabic and Turkish alike; the row under the pointer (or with focus in it)
+ * pauses. With reduced motion nothing moves and each row scrolls by hand.
+ */
+.rv-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #0e0d24;
+  color: #f6f3ee;
+  --rv-muted: #a7a3bd;
+  --rv-line: rgba(255, 255, 255, 0.1);
+  --rv-star: #ffb020;
+}
+.rv-band::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 760px;
+  height: 760px;
+  border-radius: 50%;
+  inset-inline-start: -260px;
+  top: -200px;
+  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.28), rgba(255, 90, 31, 0.06) 60%, transparent 72%);
+  animation: rv-breathe 10s ease-in-out infinite;
+}
+@keyframes rv-breathe {
+  50% {
+    transform: scale(1.1);
+  }
+}
+.rv-quote {
+  font-weight: 800;
+  font-size: 160px;
+  line-height: 0.7;
+  height: 90px;
+  color: #ff5a1f;
+  user-select: none;
+  transform-origin: bottom;
+  animation: rv-bob 6s ease-in-out infinite;
+}
+@keyframes rv-bob {
+  50% {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+}
+.rv-muted {
+  color: var(--rv-muted);
+}
+.rv-star {
+  fill: var(--rv-star);
+}
+.rv-star-off {
+  fill: rgba(255, 255, 255, 0.18);
+}
+.rv-score {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--rv-line);
+}
+/* Hidden only once the script is ready to pop them in (reviews-score.tsx); without it they simply show. */
+.rv-score[data-armed]:not([data-on]) .rv-star {
+  opacity: 0;
+}
+.rv-score[data-on] .rv-star {
+  animation: rv-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.rv-score[data-on] .rv-star:nth-child(2) { animation-delay: 0.1s; }
+.rv-score[data-on] .rv-star:nth-child(3) { animation-delay: 0.2s; }
+.rv-score[data-on] .rv-star:nth-child(4) { animation-delay: 0.3s; }
+.rv-score[data-on] .rv-star:nth-child(5) { animation-delay: 0.4s; }
+@keyframes rv-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rv-rows {
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+/* Left to right in every language, so each track starts at the left edge and "left" is left in Arabic too. */
+.rv-row {
+  overflow: hidden;
+  direction: ltr;
+}
+/* The track runs left to right in every language, so "left" is left in Arabic too; the cards keep the page's direction. */
+.rv-track {
+  display: flex;
+  width: max-content;
+  direction: ltr;
+  animation: rv-left var(--rv-duration, 60s) linear infinite;
+}
+.rv-row[data-drift="right"] .rv-track {
+  animation-name: rv-right;
+}
+.rv-row:hover .rv-track,
+.rv-row:focus-within .rv-track {
+  animation-play-state: paused;
+}
+@keyframes rv-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes rv-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.rv-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  border: 1px solid var(--rv-line);
+  box-shadow: 0 24px 50px -30px rgba(0, 0, 0, 0.9);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.rv-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 90, 31, 0.45);
+}
+.rv-chip {
+  color: #ffede4;
+  background: rgba(255, 90, 31, 0.14);
+}
+.rv-sample {
+  color: #9a3412;
+  background: #ffede4;
+}
+.rv-meta {
+  border-top: 1px solid var(--rv-line);
+}
+.rv-av-0 { background: #ff5a1f; }
+.rv-av-1 { background: #1c7c4a; }
+.rv-av-2 { background: #2b59c3; }
+.rv-av-3 { background: #7a3fb0; }
+.rv-av-4 { background: #9a4f0b; }
+.rv-av-5 { background: #0f766e; }
+@media (max-width: 760px) {
+  .rv-quote {
+    font-size: 110px;
+    height: 60px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv-band::before,
+  .rv-quote,
+  .rv-track {
+    animation: none;
+  }
+  .rv-card {
+    transition: none;
+  }
+  .rv-card:hover {
+    transform: none;
+  }
+  .rv-score .rv-star {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+  .rv-row {
+    overflow-x: auto;
+  }
+  .rv-rows {
+    mask-image: none;
+  }
+  .rv-row {
+    padding-inline: 16px;
+  }
+  /* The second copy and the repeats only make the drift seamless. */
+  .rv-copy,
+  .rv-repeat {
+    display: none;
+  }
+}

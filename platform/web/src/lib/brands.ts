@@ -1,11 +1,16 @@
 import {
   siApple,
   siAppgallery,
+  siAppstore,
+  siFacebook,
   siFirebase,
+  siGoogle,
   siGoogleplay,
+  siInstagram,
   siSalla,
   siSamsung,
   siShopify,
+  siTrustpilot,
   siWhatsapp,
   siWix,
   siWoocommerce,
@@ -54,6 +59,27 @@ function mark(icon: SimpleIcon, box: [number, number, number, number] = [0, 0, 2
 const SAMSUNG = mark(siSamsung, [0, 10.1, 24, 3.8]);
 const WOOCOMMERCE = mark(siWoocommerce, [0, 9.5, 24, 5]);
 const WIX = mark(siWix, [0, 7.3, 24, 9.4]);
+
+/**
+ * Where a customer's review on the home page was first written (Admin ›
+ * Reviews): the site's mark and name on the card's "Review on Google"
+ * badge. "direct" (given to us) has no badge.
+ */
+export const REVIEW_SOURCES = ["google", "facebook", "trustpilot", "google_play", "app_store", "instagram", "direct"] as const;
+export type ReviewSource = (typeof REVIEW_SOURCES)[number];
+
+export const REVIEW_SOURCE_BRANDS: Record<Exclude<ReviewSource, "direct">, { name: string; mark: BrandMark }> = {
+  google: { name: "Google", mark: mark(siGoogle) },
+  facebook: { name: "Facebook", mark: mark(siFacebook) },
+  trustpilot: { name: "Trustpilot", mark: mark(siTrustpilot) },
+  google_play: { name: "Google Play", mark: mark(siGoogleplay) },
+  app_store: { name: "App Store", mark: mark(siAppstore) },
+  instagram: { name: "Instagram", mark: mark(siInstagram) },
+};
+
+export function isReviewSource(value: unknown): value is ReviewSource {
+  return typeof value === "string" && (REVIEW_SOURCES as readonly string[]).includes(value);
+}
 
 export interface StoreInfo extends StoreFacts, Brand {
   id: AppStore;
