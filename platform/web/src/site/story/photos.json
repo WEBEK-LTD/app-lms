@@ -1,29 +1,16 @@
 {
   "school": [
     {
-      "slot": "school-bus",
-      "src": "/stories/school/school-bus.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
-      }
-    },
-    {
       "slot": "school-dawn",
       "src": "/stories/school/school-dawn.jpg",
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Julia Maudlin from Lake Oswego, Oregon, USA",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Big_brother_holding_little_brother%27s_hand_walking_home_from_school,_Shiraz,_Iran_(15515926721).jpg",
+        "title": "Big brother holding little brother's hand walking home from school, Shiraz, Iran (15515926721)"
       }
     },
     {
@@ -32,11 +19,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "OpusDEI",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Son_with_mother_walks_to_the_school_first_time_in_the_morning,_Tbilisi,_Georgia.jpg",
+        "title": "Son with mother walks to the school first time in the morning, Tbilisi, Georgia"
       }
     },
     {
@@ -45,24 +32,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
-      }
-    },
-    {
-      "slot": "school-graduation-2",
-      "src": "/stories/school/school-graduation-2.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Baim Hanif baim",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Malacca_graduates_(Unsplash).jpg",
+        "title": "Malacca graduates (Unsplash)"
       }
     },
     {
@@ -71,11 +45,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Child_engaged_in_homework_with_glass_of_water_on_table.jpg",
+        "title": "Child engaged in homework with glass of water on table"
       }
     },
     {
@@ -84,11 +58,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Young_person_reading_a_book_in_a_cozy_library_surrounded_by_shelves_of_literature.jpg",
+        "title": "Young person reading a book in a cozy library surrounded by shelves of literature"
       }
     },
     {
@@ -97,11 +71,24 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Douglas P. Perkins",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Hitane_Elementary_School_staff_room_2.jpg",
+        "title": "Hitane Elementary School staff room 2"
+      }
+    },
+    {
+      "slot": "school-teacher",
+      "src": "/stories/school/school-teacher.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "David Stroble",
+        "license": "Public Domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:STUDENTS_AND_TEACHER_IN_A_CLASSROOM_AT_CATHEDRAL_HIGH_SCHOOL_IN_NEW_ULM,_MINNESOTA._THE_TOWN_IS_A_COUNTY_SEAT_TRADING..._-_NARA_-_558214.jpg",
+        "title": "STUDENTS AND TEACHER IN A CLASSROOM AT CATHEDRAL HIGH SCHOOL IN NEW ULM, MINNESOTA. THE TOWN IS A COUNTY SEAT TRADING... - NARA - 558214"
       }
     }
   ],
@@ -112,11 +99,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Deansfa",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:235_East_73rd_Street_by_night_(entrance,_awning),_Lenox_Hill,_Upper_East_Side,_Manhattan.jpg",
+        "title": "235 East 73rd Street by night (entrance, awning), Lenox Hill, Upper East Side, Manhattan"
       }
     },
     {
@@ -125,11 +112,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "João Silas joaosilas",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Looking_Out_The_Car_Window_(Unsplash).jpg",
+        "title": "Looking Out The Car Window (Unsplash)"
       }
     },
     {
@@ -138,11 +125,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Nino Ubezio eastplane",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Watch_your_street_(Unsplash).jpg",
+        "title": "Watch your street (Unsplash)"
       }
     },
     {
@@ -151,11 +138,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Original uploader was Mo7amedsalim at ar.wikipedia",
+        "license": "Public Domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "source": "https://commons.wikimedia.org/wiki/File:AbasElAkaad_Night.jpg",
+        "title": "AbasElAkaad Night"
       }
     },
     {
@@ -164,11 +151,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "James Sutton jamessutton_photography",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Hooded_man_on_bench_(Unsplash).jpg",
+        "title": "Hooded man on bench (Unsplash)"
       }
     }
   ],
@@ -179,11 +166,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "maique madeira maique",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Pushing_It_(Unsplash).jpg",
+        "title": "Pushing It (Unsplash)"
       }
     },
     {
@@ -192,11 +179,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Meanwell Packaging",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Handing_a_package_over_for_delivery.jpg",
+        "title": "Handing a package over for delivery"
       }
     },
     {
@@ -205,11 +192,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Jorge Láscar from Melbourne, Australia",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Cairo_skyline_(14609334379).jpg",
+        "title": "Cairo skyline (14609334379)"
       }
     },
     {
@@ -218,37 +205,24 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Gsalamander",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Hatfield_Deliveryman.jpg",
+        "title": "Hatfield Deliveryman"
       }
     },
     {
       "slot": "delivery-shop-owner",
       "src": "/stories/delivery/delivery-shop-owner.jpg",
-      "width": 1600,
+      "width": 1000,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
-      }
-    },
-    {
-      "slot": "delivery-van",
-      "src": "/stories/delivery/delivery-van.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Bench Accounting benchaccounting",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Ships_out_today_(Unsplash).jpg",
+        "title": "Ships out today (Unsplash)"
       }
     }
   ],
@@ -259,11 +233,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Nathan Dumlao nate_dumlao",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Passion_Pour_(Unsplash).jpg",
+        "title": "Passion Pour (Unsplash)"
       }
     },
     {
@@ -272,11 +246,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:A_family_shares_a_comforting_meal.jpg",
+        "title": "A family shares a comforting meal"
       }
     },
     {
@@ -285,11 +259,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Kwameghana",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Group_of_friends_eating_together.jpg",
+        "title": "Group of friends eating together"
       }
     },
     {
@@ -298,11 +272,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "N509FZ",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Lamb_kebabs_on_grill_at_Ancient_City_of_Kashi_(20230923224509).jpg",
+        "title": "Lamb kebabs on grill at Ancient City of Kashi (20230923224509)"
       }
     },
     {
@@ -311,11 +285,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Matthias Ripp",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Cooking,_2015.jpg",
+        "title": "Cooking, 2015"
       }
     },
     {
@@ -324,24 +298,11 @@
       "width": 1600,
       "height": 1000,
       "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
-      }
-    },
-    {
-      "slot": "zad-rider-food",
-      "src": "/stories/multi-vendor/zad-rider-food.jpg",
-      "width": 1600,
-      "height": 1000,
-      "credit": {
-        "creator": "PREVIEW",
-        "license": "PREVIEW",
-        "licenseUrl": null,
-        "source": null,
-        "title": null
+        "creator": "Igor Ovsyannykov igorovsyannykov",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Street_Fruit_Seller_at_work_(Unsplash).jpg",
+        "title": "Street Fruit Seller at work (Unsplash)"
       }
     }
   ]

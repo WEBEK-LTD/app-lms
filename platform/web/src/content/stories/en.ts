@@ -256,7 +256,7 @@ export const STORIES_EN: StoryCopy = {
         "school-dawn": "Two children walking to school in the morning, hand in hand",
         "school-bus": "An old red and white school bus, with children waiting beside it",
         "school-gate": "A mother and her son on the pavement outside a school building",
-        "school-teacher": "A teacher in front of her class",
+        "school-teacher": "A teacher at the blackboard in front of a full classroom",
         "school-homework": "A girl writing in her notebook, a glass of water by her hand",
         "school-library": "Someone reading an open book in front of shelves of books",
         "school-office": "A school's staff room with desks, files and a blackboard",

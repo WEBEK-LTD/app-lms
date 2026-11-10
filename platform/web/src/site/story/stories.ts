@@ -74,7 +74,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { screen: "school-fees", icon: "payments" },
       { photo: "school-office", screen: "school-payslip", icon: "receipt_long", art: "payslip" },
     ],
-    interlude: { photo: "school-graduation-1" },
+    interlude: { photo: "school-graduation-2" },
     stats: [{ value: 30, suffix: " s" }, { value: 2 }, { value: 4 }, { value: 0 }],
     systems: [
       {
@@ -104,7 +104,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "school-graduation-2", screen: "school-today" },
+    finale: { photo: "school-graduation-1", screen: "school-today" },
   },
   rides: {
     id: "rides",

@@ -119,7 +119,7 @@ describe("the Studio story pages", () => {
         expect(c.sources.length, c.name).toBeGreaterThan(0);
         for (const url of c.sources) expect(url, c.name).toMatch(/^https:\/\//);
         // No prices quoted: several vendors give different ones on their own pages.
-        for (const lang of LANGS) expect(JSON.stringify(c).replace(/https:[^"]+/g, ""), c.name).not.toMatch(/[$€£]\s?\d|\d\s?(USD|EGP)/);
+        expect(JSON.stringify(c).replace(/https:[^"]+/g, ""), c.name).not.toMatch(/[$€£]\s?\d|\d\s?(USD|EGP)/);
       }
     }
   });
@@ -137,11 +137,13 @@ describe("the Studio story pages", () => {
         const t = copy.stories[id];
         expect(html, id).toContain(escape(t.title));
         for (const chapter of t.chapters) expect(html, `${id} ${chapter.time}`).toContain(escape(chapter.title));
-        for (const screen of storyScreens(STORIES[id])) expect(html, `${id} ${screen}`).toContain(`/screens/${screen}.png`);
+        for (const screen of storyScreens(STORIES[id])) expect(html, `${id} ${screen}`).toContain(`data-screen="${screen}"`);
         expect(html).toContain('id="plans"');
         expect(html).toContain(`${localePath(lang, "/demo/studio")}#`);
         expect(html).toContain(escape(copy.ui.creditsTitle));
-        expect(html).not.toMatch(/marketplace(?!\.wrteam)/i);
+        // The words on the page (not the sources' addresses) say "multi-vendor", never "marketplace".
+        const words = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+        expect(words, id).not.toMatch(/marketplace/i);
       }
     });
   }
