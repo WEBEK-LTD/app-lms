@@ -40,10 +40,12 @@ export const ADMIN_PERMISSIONS = [
   "marketing.edit",
   /** 114 Send or schedule a campaign to the people registered on Yallapp, pause, resume or cancel it, and change who never gets one. */
   "marketing.send",
+  /** The app-builder bot's dictionary: add, remove or switch off phrases, and map or ignore what owners typed that it didn't understand. */
+  "bot.edit",
 ] as const;
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];
 
-const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage"];
+const SUPPORT: readonly AdminPermission[] = ["view", "clients.license", "clients.edit", "clients.email", "builds.manage", "publishing.manage", "bot.edit"];
 
 export const ROLE_PERMISSIONS: Record<AdminRole, readonly AdminPermission[]> = {
   owner: ADMIN_PERMISSIONS,
@@ -57,7 +59,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = { owner: "Owner", admin: "
 export const ROLE_DESCRIPTIONS: Record<AdminRole, string> = {
   owner: "Everything, and manages the team.",
   admin: "Everything except the team.",
-  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients and sends their emails. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
+  support: "Sees everything; activates and extends licenses, changes clients' apps, publishes them for clients, sends their emails and teaches the app-builder bot. No prices, plans, payments, settings, releases, demo apps or email campaigns.",
   viewer: "Sees everything, changes nothing.",
 };
 
