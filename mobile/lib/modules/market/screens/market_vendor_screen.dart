@@ -11,7 +11,9 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../data/market_basket.dart';
+import '../../delivery/data/delivery_providers.dart' show LocateProblem;
 import '../data/market_models.dart';
+import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import '../widgets/market_look.dart';
 
@@ -286,49 +288,45 @@ class _Info extends StatelessWidget {
         ],
       ),
     );
-    return Container(
-      decoration: BoxDecoration(
-        color: p.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      transform: Matrix4.translationValues(0, -24, 0),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+    // The mark and the name sit under the cover, whole: nothing is drawn
+    // over the picture, so neither is cut by it.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Transform.translate(
-                offset: const Offset(0, -22),
-                child: MarketVendorMark(vendor: v, size: 72),
-              ),
+              MarketVendorMark(vendor: v, size: 64),
               const SizedBox(width: 12),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        v.name,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                          color: p.text,
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      v.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                        color: p.text,
                       ),
+                    ),
+                    if (v.tags.isNotEmpty)
                       Text(
                         v.tags.join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 13, color: p.textTertiary),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Row(
             children: [
               Flexible(child: MarketRating(vendor: v)),
@@ -359,9 +357,18 @@ class _Info extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
+              // Outside its delivery area: this instead of the time and the fee.
+              if (v.outsideArea)
+                chip(
+                  Symbols.location_off_rounded,
+                  l10n.marketOutsideArea,
+                  color: p.danger,
+                ),
               if (marketEtaText(context, v) case final eta?)
                 chip(Symbols.schedule_rounded, eta),
-              if (v.freeDelivery)
+              if (v.outsideArea)
+                ...const <Widget>[]
+              else if (v.freeDelivery)
                 chip(
                   Symbols.two_wheeler_rounded,
                   l10n.marketFreeDelivery,
@@ -383,6 +390,10 @@ class _Info extends StatelessWidget {
               ),
             ],
           ),
+          if (v.outsideArea) ...[
+            const SizedBox(height: 12),
+            const _OutsideAreaBanner(),
+          ],
           if (v.promo case final promo?) ...[
             const SizedBox(height: 12),
             Container(
@@ -435,6 +446,56 @@ class _Info extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 115 The vendor doesn't deliver to the customer's address: the way to
+/// change it (the phone's position, as the home's address line does).
+class _OutsideAreaBanner extends ConsumerWidget {
+  const _OutsideAreaBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 6, 10),
+      decoration: BoxDecoration(
+        color: marketTint(p, p.danger, 0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          AppIcon(Symbols.location_off_rounded, size: 20, color: p.danger),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.marketOutsideAreaBanner,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+                color: p.text,
+              ),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () async {
+              final problem = await ref
+                  .read(marketPlaceProvider.notifier)
+                  .useMyLocation();
+              if (problem == null || !context.mounted) return;
+              showMessage(context, switch (problem) {
+                LocateProblem.off => l10n.locateOff,
+                LocateProblem.denied => l10n.locateDenied,
+                _ => l10n.locateFailed,
+              });
+            },
+            icon: const AppIcon(Symbols.my_location_rounded, size: 18),
+            label: Text(l10n.marketUseMyLocation),
           ),
         ],
       ),

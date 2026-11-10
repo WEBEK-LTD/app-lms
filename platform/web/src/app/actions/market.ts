@@ -16,6 +16,8 @@ import { parseCourierTermsForm } from "@/lib/market/delivery-forms";
 import { parseClubPlanForm, parseCouponForm } from "@/lib/market/offer-forms";
 import { marketCurrency, marketSettingsOf } from "@/lib/market/settings";
 import { parseMarketSettingsForm } from "@/lib/market/settings-form";
+import { parseServiceAreaForm } from "@/lib/market/areas";
+import { newId } from "@/lib/crypto/tokens";
 import { ownerPauseVendorCoupon } from "@/lib/market/vendor-coupons";
 
 /**
@@ -257,6 +259,30 @@ export async function saveMarketSettingsAction(formData: FormData): Promise<void
   await store.saveDeliverySettings(app.id, { ...settings, marketApp: parsed.value }, new Date());
   await recordStaffChange(context, "Changed the marketplace settings");
   backToSettings(undefined, "market");
+}
+
+/** 115 One of the areas the marketplace serves: a name, its centre on the map and a radius. */
+export async function addServiceAreaAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const current = marketSettingsOf(settings);
+  const owned = current.serviceAreas ?? [];
+  const parsed = parseServiceAreaForm(formOf(formData), owned, newId);
+  if (!parsed.ok) backToSettings(parsed.error);
+  await store.saveDeliverySettings(app.id, { ...settings, marketApp: { ...current, serviceAreas: [...owned, parsed.value] } }, new Date());
+  await recordStaffChange(context, `Added the delivery area ${parsed.value.name}`);
+  backToSettings(undefined, "areas");
+}
+
+/** An area off the list. Places that delivered only there are asked to set their area again (10 km meanwhile). */
+export async function removeServiceAreaAction(formData: FormData): Promise<void> {
+  const { context, app, store, settings } = await settingsContext();
+  const current = marketSettingsOf(settings);
+  const owned = current.serviceAreas ?? [];
+  const area = owned.find((a) => a.id === text(formData, "id"));
+  if (!area) backToSettings(undefined, "areas");
+  await store.saveDeliverySettings(app.id, { ...settings, marketApp: { ...current, serviceAreas: owned.filter((a) => a.id !== area.id) } }, new Date());
+  await recordStaffChange(context, `Removed the delivery area ${area.name}`);
+  backToSettings(undefined, "areas");
 }
 
 /** What the app's couriers cost customers and the places that use them. */

@@ -13,6 +13,7 @@ import type {
   MarketOrderStage,
   MarketOrderStatus,
   MarketProductInput,
+  MarketServiceArea,
   MarketUnit,
   MenuSection,
   OpeningPeriod,
@@ -118,7 +119,10 @@ interface DemoVendor {
   address: ShipmentPlace;
   prepMinutes: number;
   minOrder: number;
-  maxKm: number | null;
+  /** 115 How far it delivers from its address; with `deliveryAreas`, only where Zad's samples have no named areas. */
+  maxKm: number;
+  /** 115 The named areas it delivers to (`ZAD_AREAS`), instead of the radius. */
+  deliveryAreas?: string[];
   commissionBp: number;
   delivery: VendorDelivery;
   /** Its cover picture. */
@@ -181,7 +185,7 @@ export const MARKET_VENDORS: DemoVendor[] = [
     address: { address: "Tahrir Street, Dokki", details: null, lat: 30.0384, lng: 31.2108 },
     prepMinutes: 20,
     minOrder: 0,
-    maxKm: null,
+    maxKm: 6,
     commissionBp: 1000,
     delivery: { by: "app", feeKind: "fixed", fee: 0, perKm: 0, freeOver: null, minItems: null, maxItems: null, pickup: true, scheduling: true },
     menu: [
@@ -214,7 +218,9 @@ export const MARKET_VENDORS: DemoVendor[] = [
     address: { address: "Gameat El Dewal Street, Mohandessin", details: null, lat: 30.0561, lng: 31.2016 },
     prepMinutes: 30,
     minOrder: 50_00,
-    maxKm: null,
+    // 115 By area: the four districts around it (a 6 km radius in apps started from Zad, which have no named areas).
+    maxKm: 6,
+    deliveryAreas: ["mohandessin", "dokki", "zamalek", "garden-city"],
     commissionBp: 800,
     delivery: { by: "app", feeKind: "fixed", fee: 0, perKm: 0, freeOver: null, minItems: null, maxItems: null, pickup: true, scheduling: true },
   },
@@ -516,6 +522,14 @@ export const SEED_ORDERS: SeedOrder[] = [
 
 const ALL_DAY: OpeningPeriod[] = (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => ({ day, opens: "00:00", closes: "23:59" }));
 
+/** 115 The areas Zad serves (Studio › Marketplace settings): a customer outside all of them is outside every place's area. */
+export const ZAD_AREAS: MarketServiceArea[] = [
+  { id: "zamalek", name: "Zamalek", lat: 30.0626, lng: 31.2197, km: 2 },
+  { id: "dokki", name: "Dokki", lat: 30.0384, lng: 31.2108, km: 2.5 },
+  { id: "mohandessin", name: "Mohandessin", lat: 30.0561, lng: 31.2016, km: 2.5 },
+  { id: "garden-city", name: "Garden City", lat: 30.0349, lng: 31.2316, km: 1.5 },
+];
+
 /** The marketplace's settings: Egypt, prices with 14% VAT in them, cash, pick-up, orders for later, the club and the wallet, and no photos needed. */
 export function marketplaceDeliverySettings(saved: DeliverySettings): DeliverySettings {
   return {
@@ -552,6 +566,7 @@ export function marketplaceDeliverySettings(saved: DeliverySettings): DeliverySe
       // 115.15 Not every product has a drawing (milk, rice, soap): those show without a picture.
       requirePhotos: false,
       vendorCoupons: { enabled: true, maxPercent: 30 },
+      serviceAreas: ZAD_AREAS.map((a) => ({ ...a })),
     },
   };
 }
@@ -642,7 +657,9 @@ async function syncVendors(store: DataStore, app: Pick<App, "id">, now: Date, ma
       hours: ALL_DAY,
       prepMinutes: v.prepMinutes,
       minOrderCents: money(v.minOrder),
-      maxKm: v.maxKm,
+      // 115 Samples go to apps without Zad's named areas: their radius instead.
+      maxKm: v.deliveryAreas && !making.sample ? null : v.maxKm,
+      deliveryAreas: v.deliveryAreas && !making.sample ? [...v.deliveryAreas] : null,
       commissionBp: v.commissionBp,
       active: true,
       position: after + position + 1,

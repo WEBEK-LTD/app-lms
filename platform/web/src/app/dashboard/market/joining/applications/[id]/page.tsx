@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DeliveryAreaFields } from "@/components/delivery-area-fields";
 import { Icon } from "@/components/icon";
 import { Badge, btn, Notice, PageHeader, Section } from "@/components/ui";
 import { decideApplicationAction } from "@/app/actions/joining";
@@ -10,6 +11,8 @@ import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import type { ApplicationField, OpeningPeriod, ShipmentPlace } from "@/lib/data/types";
+import { deliverySettingsOf } from "@/lib/delivery/settings";
+import { LEGACY_VENDOR_KM, serviceAreasOf } from "@/lib/market/areas";
 import { FILE_KINDS } from "@/lib/market/joining-forms";
 import { isFood } from "../../../../shipments/parts";
 import { APPLICATION_TONES, NotMarket } from "../../../parts";
@@ -64,7 +67,7 @@ function Answer({ q, value, t }: { q: ApplicationField; value: unknown; t: (key:
 /** 115.12 Studio › Joining › an application: the answers, and accepting, asking for more or turning it down. */
 export default async function ApplicationPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { app } = await requireClient("orders");
-  const { t } = await dashboardText();
+  const { t, k } = await dashboardText();
   if (!isFood(app)) return <NotMarket title={t("market.application")} t={t} />;
   const store = await getStore();
   const application = await store.getMarketApplication(app.id, Number((await params).id));
@@ -72,6 +75,7 @@ export default async function ApplicationPage({ params, searchParams }: { params
   const form = await store.getMarketApplicationForm(app.id, application.formId);
   const error = (await searchParams).error;
   const waiting = application.status === "new" || application.status === "more_info";
+  const areas = serviceAreasOf(deliverySettingsOf(await store.getDeliverySettings(app.id)));
 
   return (
     <div className="flex flex-col gap-6">
@@ -82,7 +86,7 @@ export default async function ApplicationPage({ params, searchParams }: { params
       <PageHeader title={application.businessName} description={`${t(`market.vk_${application.kind}` as DashKey)} · ${application.email}`} actions={<Badge tone={APPLICATION_TONES[application.status]}>{t(`market.as_${application.status}` as DashKey)}</Badge>} />
       {error ? (
         <Notice tone="danger" icon="error">
-          {error}
+          {k(error)}
         </Notice>
       ) : null}
       {application.message ? (
@@ -117,6 +121,23 @@ export default async function ApplicationPage({ params, searchParams }: { params
               <input type="hidden" name="decision" value="accept" />
               <strong>{t("market.acceptApp")}</strong>
               <span className="text-[13px] text-ink-4">{t("market.acceptAppHint")}</span>
+              {/* 115 Every place sets where it delivers. */}
+              <DeliveryAreaFields
+                idPrefix="a-area"
+                words={{
+                  title: t("food.areaTitle"),
+                  hint: t("food.formAreaHint"),
+                  byKm: t("food.areaByKm"),
+                  km: t("food.areaKm"),
+                  byAreas: t("food.areaByAreas"),
+                  noAreas: t("food.areaNoAreas"),
+                  setArea: t("food.areaSetIt", { km: LEGACY_VENDOR_KM }),
+                  noPosition: t("food.areaNoPosition"),
+                }}
+                values={{ area_kind: "km", area_km: "" }}
+                areas={areas}
+                warning={null}
+              />
               <button type="submit" className={`${btn.primary} mt-auto h-10 px-4 text-sm`}>
                 <Icon name="check" size={18} />
                 {t("market.acceptApp")}

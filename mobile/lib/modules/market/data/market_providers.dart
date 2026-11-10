@@ -199,6 +199,7 @@ MarketVendor marketVendorFrom(
   clubBenefit: v.clubBenefit,
   distanceKm: v.distanceKm,
   opensAt: v.opensAt == null ? null : clockTime(v.opensAt!),
+  delivers: v.delivers,
 );
 
 /// A dish or a product as the screens show it.
@@ -298,5 +299,15 @@ String? _today(List<api.MarketHours> hours) {
   final today = days[DateTime.now().weekday - 1];
   final open = hours.where((h) => h.day == today).toList();
   if (open.isEmpty) return null;
+  // Open all day (00:00–23:59, or 00:00 to 00:00): "Open 24 hours".
+  if (open.any(
+    (h) => h.opens == '00:00' && (h.closes == '23:59' || h.closes == '00:00'),
+  )) {
+    return marketAllDay;
+  }
   return open.map((h) => '${h.opens}–${h.closes}').join(', ');
 }
+
+/// [MarketVendorPage.hours] for a vendor open all day: `marketHours` reads
+/// it as "Open 24 hours".
+const marketAllDay = 'allDay';

@@ -128,13 +128,19 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
       if (!mounted || asked != _asked) return;
       setState(() {
         _quote = null;
-        _quoteError = e.message;
+        _quoteError = _errorText(e);
         if (e.code == 'coupon_invalid') _appliedCoupon = null;
       });
     } finally {
       if (mounted && asked == _asked) setState(() => _quoting = false);
     }
   }
+
+  /// The server's message, in the app's words where it has them: outside
+  /// the vendor's delivery area, the way out (another address, or pick-up).
+  String _errorText(ApiException e) => e.code == 'outside_delivery_area'
+      ? context.l10n.marketOutsideAreaMessage
+      : e.message;
 
   List<api.MarketPayMethod> _methods(api.MarketConfig? config) {
     final pay = config?.payment ?? const api.MarketPayment(cash: true);
@@ -242,7 +248,7 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
       if (mounted) context.pushReplacement(Paths.marketOrder(placed.order.id));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showMessage(context, e.message);
+      showMessage(context, _errorText(e));
       if (e.code == 'quote_expired') _requote(now: true);
     } finally {
       if (mounted) setState(() => _placing = false);

@@ -126,6 +126,30 @@ describe("Zad, the multi-vendor demo", { timeout: 30_000 }, () => {
     for (const r of places) expect((await store.getAsset(r.coverAssetId!))?.contentType).toBe("image/png");
   });
 
+  it("has a delivery area for every place: near the demo's home they deliver in a sensible time, far away none does", async () => {
+    const { app, ok } = await zad();
+    const places = await store.listRestaurants(app.id);
+    expect(places.map((r) => [r.name, r.maxKm, r.deliveryAreas])).toEqual([
+      ["Bab El Sharq Grill", 8, null],
+      ["Nile Pizza Co.", 6, null],
+      ["Zad Market", null, ["mohandessin", "dokki", "zamalek", "garden-city"]],
+    ]);
+    expect(marketSettingsOf(deliverySettingsOf(await store.getDeliverySettings(app.id))).serviceAreas?.map((a) => a.name)).toEqual(["Zamalek", "Dokki", "Mohandessin", "Garden City"]);
+    type Card = { name: string; delivers: boolean | null; delivery_minutes: { min: number; max: number } | null; delivery_fee: unknown };
+    const home = await ok<{ items: Card[] }>("GET", "/market/vendors", { query: { lat: String(DEMO_HOME.lat), lng: String(DEMO_HOME.lng) } });
+    for (const v of home.items) {
+      expect(v.delivers, v.name).toBe(true);
+      expect(v.delivery_minutes!.max, v.name).toBeLessThan(90);
+    }
+    // From Istanbul (about 1,200 km): outside every place's area, no time and no fee.
+    const far = await ok<{ items: Card[] }>("GET", "/market/vendors", { query: { lat: "41.0082", lng: "28.9784" } });
+    expect(far.items).toHaveLength(3);
+    for (const v of far.items) expect(v, v.name).toMatchObject({ delivers: false, delivery_minutes: null, delivery_fee: null });
+    // Maadi is outside Zad's areas: no place delivers there either.
+    const maadi = await ok<{ items: Card[] }>("GET", "/market/vendors", { query: { lat: "29.96", lng: "31.25" } });
+    expect(maadi.items.every((v) => v.delivers === false)).toBe(true);
+  });
+
   it("has the owner's code, an automatic offer, the places' own offers, the club and the wallet", async () => {
     const { app, ok, token } = await zad();
     const coupons = await store.listMarketCoupons(app.id);

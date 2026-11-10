@@ -222,8 +222,12 @@ List<RouteBase> tabbedRoutes({
       if (!used.contains(screen.path) && screen.path != Paths.home)
         GoRoute(
           path: screen.path,
-          pageBuilder: (context, state) =>
-              appPage(state, PushedTabScreen(child: screen.build(state))),
+          pageBuilder: (context, state) => appPage(
+            state,
+            screen.ownBar
+                ? screen.build(state)
+                : PushedTabScreen(child: screen.build(state)),
+          ),
           routes: screen.routes,
         ),
     GoRoute(

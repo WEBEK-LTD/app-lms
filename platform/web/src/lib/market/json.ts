@@ -86,8 +86,9 @@ export function vendorSummaryJson(v: Restaurant, near: VendorNear, currency: str
     opens_at: near.opensAt ? near.opensAt.toISOString() : null,
     busy: near.busy,
     delivery_by: terms.by,
-    delivery_minutes: near.minutes === null ? null : { min: Math.max(5, near.minutes - 5), max: near.minutes + 10 },
-    delivery_fee: moneyOrNull(near.deliveryFee, currency),
+    // 115 Outside the delivery area: no time and no fee.
+    delivery_minutes: near.minutes === null || near.delivers === false ? null : { min: Math.max(5, near.minutes - 5), max: near.minutes + 10 },
+    delivery_fee: near.delivers === false ? null : moneyOrNull(near.deliveryFee, currency),
     free_delivery_over: terms.by === "vendor" ? moneyOrNull(terms.freeOver, currency) : null,
     min_order: v.minOrderCents > 0 ? money(v.minOrderCents, currency) : null,
     distance_km: near.distanceKm,

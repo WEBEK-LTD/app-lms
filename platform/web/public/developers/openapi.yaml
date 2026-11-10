@@ -16204,7 +16204,7 @@ components:
         free_delivery_over: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
         min_order: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
         distance_km: { type: [number, 'null'] }
-        delivers: { type: [boolean, 'null'] }
+        delivers: { type: [boolean, 'null'], description: 'Whether it delivers to the customer''s position: inside the vendor''s delivery area (a radius from its address, or some of the marketplace''s named areas) and the marketplace''s areas when it has any; null without the position. When false, `delivery_minutes` and `delivery_fee` are null: show "outside delivery area"; pick-up may still be offered.' }
         pickup: { type: boolean }
         scheduling: { type: boolean }
         offer: { type: [string, 'null'], description: 'Its best offer in a few words, for the card.', example: '20% off grills' }

@@ -5,7 +5,7 @@ import { Icon } from "@/components/icon";
 import { CatalogSection, ComplaintsSection, DeliverySection, ImportSection, OffersSection, PanelTabs, PartnerFrame, StaffSection, StatementSection } from "@/components/partner-pages";
 import { VendorBoard, type BoardData } from "@/components/vendor-board";
 import { assetUrl } from "@/lib/assets";
-import { catalogPage, waitingLinks, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
+import { catalogPage, waitingLinks, deliveryAreaWarning, deliveryValues, monthBounds, panelContext, staffList, tabsFor, vendorComplaints, vendorStatement, type ImportResult, type PanelTab } from "@/lib/market/panel-pages";
 import { getStore } from "@/lib/data";
 import { panelCookie, panelStaff } from "@/lib/market/panel";
 import { boardData } from "@/lib/market/panel-board";
@@ -87,7 +87,18 @@ export default async function PartnerPanel(props: PageProps<"/partner/[appId]">)
         />
       );
     } else if (tab === "delivery") {
-      body = <DeliverySection w={w} values={deliveryValues(ctx)} currency={ctx.currency} error={text(search.error) || null} saved={search.saved === "1"} save={saveDeliveryAction.bind(null, appId, lang)} />;
+      body = (
+        <DeliverySection
+          w={w}
+          values={deliveryValues(ctx)}
+          currency={ctx.currency}
+          error={text(search.error) || null}
+          saved={search.saved === "1"}
+          save={saveDeliveryAction.bind(null, appId, lang)}
+          areas={ctx.serviceAreas ?? []}
+          areaWarning={deliveryAreaWarning(ctx)}
+        />
+      );
     } else if (tab === "offers") {
       // 115.18 The place's own coupons and automatic offers.
       const scope = { store, appId: app.id, vendor: ctx.vendor, currency: ctx.currency };

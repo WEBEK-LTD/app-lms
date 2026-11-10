@@ -162,8 +162,16 @@ List<TabScreen> _screens() => [
   TabScreen(Paths.vendorDesk, (state) => const VendorDeskScreen()),
   TabScreen(Paths.vendorStock, (state) => const VendorStockScreen()),
   // 115 A marketplace's search and club: tabs, or pages on top.
-  TabScreen(Paths.marketSearch, (state) => const MarketSearchScreen()),
-  TabScreen(Paths.marketClub, (state) => const MarketClubScreen()),
+  TabScreen(
+    Paths.marketSearch,
+    (state) => const MarketSearchScreen(),
+    ownBar: true,
+  ),
+  TabScreen(
+    Paths.marketClub,
+    (state) => const MarketClubScreen(),
+    ownBar: true,
+  ),
   TabScreen(
     Paths.account,
     (state) => const ProfileScreen(),

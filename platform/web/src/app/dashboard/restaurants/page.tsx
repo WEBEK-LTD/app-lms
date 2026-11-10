@@ -13,6 +13,8 @@ import { deliverySettingsOf, pricesSet } from "@/lib/delivery/settings";
 import { appPlan } from "@/lib/entitlements";
 import { DEFAULT_FOOD_TIMEZONE, restaurantState } from "@/lib/food/service";
 import { isFood, PlanNotice } from "../shipments/parts";
+import { isMarketplaceApp } from "@/lib/market/plan";
+import { serviceAreasOf } from "@/lib/market/areas";
 import { RestaurantForm } from "./forms";
 import { NotFood, percentOf } from "./parts";
 import { SampleBadge, SampleEntries, type SampleQuery } from "@/components/samples";
@@ -94,6 +96,7 @@ export default async function RestaurantsPage({ searchParams }: { searchParams: 
           currency={settings.currency}
           cuisines={cuisines}
           restaurant={{ id: null, name: "", description: "", phone: "", address: "", details: "", map: "", cuisines: [], prepMinutes: "20", minOrder: "", maxKm: "", commission: "", commissionFixed: "", taxRate: "", logoUrl: null, coverUrl: null }}
+          area={isMarketplaceApp(app) ? { areas: serviceAreasOf(settings), values: { area_kind: "km", area_km: "" }, warning: null } : undefined}
         />
       </Sheet>
 

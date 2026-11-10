@@ -1,0 +1,1 @@
+ALTER TABLE `restaurants` ADD `delivery_areas` longtext;
