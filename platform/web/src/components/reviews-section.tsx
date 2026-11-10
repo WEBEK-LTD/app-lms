@@ -44,7 +44,7 @@ function Stars({ on, size }: { on: number; size: number }) {
   );
 }
 
-function ReviewCard({ review, index, words, lang }: { review: PublicReview; index: number; words: ReviewsWords; lang: Lang }) {
+function ReviewCard({ review, words, lang }: { review: PublicReview; words: ReviewsWords; lang: Lang }) {
   const source = !review.sample && review.source !== "direct" ? review.source : null;
   const badge = source ? (
     <>
@@ -73,7 +73,7 @@ function ReviewCard({ review, index, words, lang }: { review: PublicReview; inde
           // eslint-disable-next-line @next/next/no-img-element -- The customer's own photo, from our files store.
           <img src={review.photoUrl} alt="" width={42} height={42} loading="lazy" className="h-[42px] w-[42px] flex-none rounded-full object-cover" />
         ) : (
-          <span aria-hidden="true" className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-full text-[15px] font-extrabold ${review.sample ? "rv-av-sample" : `rv-av rv-av-${index % 6}`}`}>
+          <span aria-hidden="true" className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-full text-[15px] font-extrabold ${review.sample ? "rv-av-sample" : "rv-av"}`}>
             {review.sample ? <Icon name="person" size={20} /> : review.initial}
           </span>
         )}
@@ -92,7 +92,7 @@ function ReviewCard({ review, index, words, lang }: { review: PublicReview; inde
       {badge ? (
         <div className="rv-meta flex items-center pt-3">
           {review.sourceUrl ? (
-            <a href={review.sourceUrl} target="_blank" rel="noopener nofollow" data-review-source={source!} className="group rv-muted inline-flex items-center gap-1.5 text-xs font-semibold no-underline hover:text-white">
+            <a href={review.sourceUrl} target="_blank" rel="noopener nofollow" data-review-source={source!} className="group rv-muted inline-flex items-center gap-1.5 text-xs font-semibold no-underline hover:text-midnight">
               {badge}
             </a>
           ) : (
@@ -127,11 +127,10 @@ export function ReviewsSection({ view, words, lang }: { view: ReviewsView; words
   const { moving, rows } = reviewRows(view.reviews);
   // With few reviews every row has them all: the rows after the first are read out as repeats.
   const shared = rows.length > 1 && rows.every((row) => row.length === view.reviews.length);
-  const index = new Map(view.reviews.map((r, i) => [r.key, i]));
   // A card repeated to fill a row is read out once: its repeats are hidden from assistive technology.
   const card = (review: PublicReview, i: number, repeat: boolean | "row" = false) => (
     <li key={`${review.key}-${i}`} className={repeat === true ? "rv-repeat flex" : "flex"} {...(repeat ? { "aria-hidden": true, inert: true } : {})}>
-      <ReviewCard review={review} index={index.get(review.key) ?? 0} words={words} lang={lang} />
+      <ReviewCard review={review} words={words} lang={lang} />
     </li>
   );
   return (

@@ -5,15 +5,16 @@
  * Arabic and Turkish alike; the row under the pointer (or with focus in it)
  * pauses. With reduced motion nothing moves and each row scrolls by hand.
  */
+/* The site's own tokens, so the band is Ivory in the light theme and Midnight in the dark one, in Yallapp's colours only. */
 .rv-band {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: #0e0d24;
-  color: #f6f3ee;
-  --rv-muted: #a7a3bd;
-  --rv-line: rgba(255, 255, 255, 0.1);
-  --rv-star: #ffb020;
+  background: var(--color-ivory);
+  color: var(--color-midnight);
+  --rv-muted: var(--color-muted);
+  --rv-line: var(--color-line);
+  --rv-star: var(--color-ember);
 }
 .rv-band::before {
   content: "";
@@ -24,7 +25,7 @@
   border-radius: 50%;
   inset-inline-start: -260px;
   top: -200px;
-  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.28), rgba(255, 90, 31, 0.06) 60%, transparent 72%);
+  background: radial-gradient(closest-side, rgba(255, 90, 31, 0.16), rgba(255, 90, 31, 0.04) 60%, transparent 72%);
   animation: rv-breathe 10s ease-in-out infinite;
 }
 @keyframes rv-breathe {
@@ -54,10 +55,10 @@
   fill: var(--rv-star);
 }
 .rv-star-off {
-  fill: rgba(255, 255, 255, 0.18);
+  fill: var(--color-line-strong);
 }
 .rv-score {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-white);
   border: 1px solid var(--rv-line);
 }
 /* Hidden only once the script is ready to pop them in (reviews-score.tsx); without it they simply show. */
@@ -112,50 +113,34 @@
   to { transform: translateX(0); }
 }
 .rv-card {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  background: var(--color-white);
   border: 1px solid var(--rv-line);
-  box-shadow: 0 24px 50px -30px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 24px 50px -32px rgba(14, 13, 36, 0.35);
   transition: transform 0.3s ease, border-color 0.3s ease;
 }
 .rv-card:hover {
   transform: translateY(-4px);
   border-color: rgba(255, 90, 31, 0.45);
 }
-.rv-chip {
-  color: #ffede4;
-  background: rgba(255, 90, 31, 0.14);
-}
+.rv-chip,
 .rv-sample {
-  color: #9a3412;
-  background: #ffede4;
-}
-/* The band is dark in both themes, so its colours are its own, not the site's theme tokens (which swap in dark mode). */
-.rv-band h2,
-.rv-name {
-  color: #f6f3ee;
+  color: var(--color-accent);
+  background: var(--color-peach);
 }
 .rv-note {
-  color: #ffede4;
-  background: rgba(255, 90, 31, 0.12);
-  border: 1px solid rgba(255, 90, 31, 0.4);
+  color: var(--color-ink-2);
+  background: var(--color-peach-soft);
+  border: 1px solid var(--color-line);
 }
-.rv-av {
-  color: #ffffff;
-}
+/* One avatar look for everyone, in the brand's peach and accent. */
+.rv-av,
 .rv-av-sample {
-  color: #f6f3ee;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-accent);
+  background: var(--color-peach);
 }
 .rv-meta {
   border-top: 1px solid var(--rv-line);
 }
-.rv-av-0 { background: #ff5a1f; }
-.rv-av-1 { background: #1c7c4a; }
-.rv-av-2 { background: #2b59c3; }
-.rv-av-3 { background: #7a3fb0; }
-.rv-av-4 { background: #9a4f0b; }
-.rv-av-5 { background: #0f766e; }
 @media (max-width: 760px) {
   .rv-quote {
     font-size: 84px;

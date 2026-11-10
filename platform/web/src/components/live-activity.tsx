@@ -39,11 +39,12 @@ function writeSession(key: string, value: string): void {
   }
 }
 
+/* One look in Yallapp's colours for every kind (peach and accent, which follow the light and dark themes). */
 const TONE: Record<LiveItem["tone"], string> = {
-  ember: "bg-ember text-white",
-  night: "bg-midnight text-white",
-  ok: "bg-success text-white",
-  earth: "bg-warn text-white",
+  ember: "bg-peach text-accent",
+  night: "bg-peach text-accent",
+  ok: "bg-peach text-accent",
+  earth: "bg-peach text-accent",
 };
 
 /** How many cards this visit has shown. */
