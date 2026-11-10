@@ -1535,7 +1535,7 @@ class DemoApi extends FakeApi {
         'people': 2,
         'today': {
           'date': today,
-          'name': 'Fathi Haddad',
+          'name': 'Samir Haddad',
           'relation': 'Grandfather',
           'phone': null,
           'note': null,
@@ -1729,7 +1729,7 @@ class DemoApi extends FakeApi {
       File('test/support/zad_demo_home.json').readAsStringSync(),
     );
     api
-      ..me = {...userJson(), 'name': 'Salma Fathy'}
+      ..me = {...userJson(), 'name': 'Mona Fathy'}
       ..navigation = navigationJson(
         tabs: [
           navTabJson('t1', 'Home', 'home', {

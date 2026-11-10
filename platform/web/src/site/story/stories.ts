@@ -118,8 +118,8 @@ export const STORIES: Record<StoryId, StoryShape> = {
       { screen: "rides-where", icon: "payments", art: "price" },
       { screen: "taxi-driver", icon: "timer", art: "offer" },
       { screen: "taxi-ride", icon: "route", art: "route" },
-      { photo: "rides-backseat", screen: "rides-ride", icon: "shield" },
-      { photo: "rides-arrive-home", screen: "rides-driver", icon: "home" },
+      { photo: "rides-backseat", screen: "taxi-ride", icon: "shield" },
+      { photo: "rides-arrive-home", screen: "taxi-driver", icon: "home" },
     ],
     interlude: { photo: "rides-night-city" },
     stats: [{ value: 4 }, { value: 2 }, { value: 15, suffix: " min" }, { value: 0, suffix: "%" }],
@@ -131,7 +131,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
       {
         icon: "directions_car",
-        screens: ["taxi-driver", "rides-driver"],
+        screens: ["taxi-driver"],
         features: ["bolt", "timer", "directions", "key", "route", "payments", "monitoring", "smartphone"],
       },
       {
@@ -146,7 +146,7 @@ export const STORIES: Record<StoryId, StoryShape> = {
       },
     ],
     bundle: ["smartphone", "dashboard_customize", "phone_iphone"],
-    finale: { photo: "rides-driver", screen: "rides-ride" },
+    finale: { photo: "rides-driver", screen: "taxi-ride" },
   },
   delivery: {
     id: "delivery",
