@@ -288,49 +288,45 @@ class _Info extends StatelessWidget {
         ],
       ),
     );
-    return Container(
-      decoration: BoxDecoration(
-        color: p.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      transform: Matrix4.translationValues(0, -24, 0),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+    // The mark and the name sit under the cover, whole: nothing is drawn
+    // over the picture, so neither is cut by it.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Transform.translate(
-                offset: const Offset(0, -22),
-                child: MarketVendorMark(vendor: v, size: 72),
-              ),
+              MarketVendorMark(vendor: v, size: 64),
               const SizedBox(width: 12),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        v.name,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                          color: p.text,
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      v.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                        color: p.text,
                       ),
+                    ),
+                    if (v.tags.isNotEmpty)
                       Text(
                         v.tags.join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 13, color: p.textTertiary),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Row(
             children: [
               Flexible(child: MarketRating(vendor: v)),

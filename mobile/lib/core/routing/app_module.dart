@@ -63,10 +63,19 @@ class ShellTab {
 /// A screen that is a bottom tab when the tabs include it, and a pushed
 /// page with a back button otherwise.
 class TabScreen {
-  const TabScreen(this.path, this.build, {this.routes = const []});
+  const TabScreen(
+    this.path,
+    this.build, {
+    this.routes = const [],
+    this.ownBar = false,
+  });
 
   final String path;
   final Widget Function(GoRouterState state) build;
+
+  /// The screen has its own app bar with a back button when it is pushed,
+  /// so opened on top of the tabs it gets no second one above it.
+  final bool ownBar;
 
   /// Pages under this screen (for example the account's settings).
   final List<RouteBase> routes;
