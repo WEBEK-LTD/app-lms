@@ -288,6 +288,10 @@ export const en = {
   // 103R Yallapp Studio's own page, its demo, and its place on the home and pricing pages.
   studio: {
     eyebrow: "Yallapp Studio",
+    videoLabel: "A short film about Yallapp Studio",
+    videoSoundOn: "Turn the sound on",
+    videoSoundOff: "Turn the sound off",
+    videoPlay: "Play the film",
     title: "Design your app your way, element by element",
     intro: "Yallapp Studio is a space of its own in your account for projects you design freely: rows, columns, layers, pictures, buttons and lists in your own cards, drawn natively on the phone. It also makes apps only Studio offers: delivery companies, food delivery, rides and taxis, academies with many teachers, schools and universities.",
     start: "Start a Studio project",

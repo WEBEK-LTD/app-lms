@@ -7,6 +7,7 @@ import { Icon } from "@/components/icon";
 import type { IconName } from "@/components/icon-names";
 import { Chip, FeatureIcon, MarketingPage, MoreLink, Section, SectionTitle } from "@/components/marketing";
 import { StudioDifferences, StudioPlans } from "@/components/studio-marketing";
+import { StudioHeroVideo } from "@/components/studio-hero-video";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { kindById } from "@/lib/app/kinds";
 import { visitorPriceView } from "@/lib/billing/display";
@@ -52,6 +53,14 @@ export async function studioPlans(lang: Lang) {
  * with many teachers, schools and universities),
  * how it differs from regular apps, and its own plans.
  */
+/** The team's film at the top of the Studio page: the Arabic one on the Arabic page, the English one in English and Turkish. */
+const STUDIO_VIDEOS: Record<Lang, string> = { en: "studio-hero-en", tr: "studio-hero-en", ar: "studio-hero-ar" };
+
+function studioVideo(lang: Lang): { src: string; poster: string } {
+  const name = STUDIO_VIDEOS[lang];
+  return { src: `/videos/${name}.mp4`, poster: `/videos/${name}.jpg` };
+}
+
 export async function StudioPage({ lang }: { lang: Lang }) {
   const [contact, { plans, view }] = await Promise.all([getVisitorContact(), studioPlans(lang)]);
   const m = messagesFor(lang).studio;
@@ -83,7 +92,7 @@ export async function StudioPage({ lang }: { lang: Lang }) {
       eyebrow={m.eyebrow}
       title={m.title}
       intro={m.intro}
-      aside={<DeviceFrame screen="studio-cafe-home" size="md" alt={alt["studio-cafe-home"]} priority />}
+      aside={<StudioHeroVideo {...studioVideo(lang)} label={m.videoLabel} soundOn={m.videoSoundOn} soundOff={m.videoSoundOff} play={m.videoPlay} />}
       lang={lang}
     >
       <Section>

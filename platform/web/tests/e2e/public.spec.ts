@@ -233,8 +233,21 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
   await expect(nav.getByRole("link", { name: /^Yallapp Studio/ })).toHaveAttribute("href", "/yallapp-studio");
 });
 
+test("Yallapp Studio's Arabic page plays the Arabic film", async ({ page }) => {
+  await page.goto("/ar/yallapp-studio");
+  const film = page.locator("[data-studio-video] video");
+  await expect(film).toHaveAttribute("src", "/videos/studio-hero-ar.mp4");
+  await expect(film).toHaveAttribute("poster", "/videos/studio-hero-ar.jpg");
+  await expect(page.locator("[data-studio-video]").getByRole("button", { name: /^(تشغيل|إيقاف) الصوت$/ })).toBeVisible();
+});
+
 test("103R Yallapp Studio has its own page: the editor, apps made in it, Studio-only types, the differences and its own plans", async ({ page }) => {
   await page.goto("/yallapp-studio");
+  // The team's film plays by itself in the phone frame at the top, with a sound button (with sound where the browser allows it, muted until the first tap elsewhere).
+  const film = page.locator("[data-studio-video] video");
+  await expect(film).toHaveAttribute("src", "/videos/studio-hero-en.mp4");
+  await expect(film).toHaveAttribute("poster", "/videos/studio-hero-en.jpg");
+  await expect(page.locator("[data-studio-video]").getByRole("button", { name: /^Turn the sound (on|off)$/ })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Design your app your way, element by element" })).toBeVisible();
   await expect(page.getByRole("img", { name: /^The Yallapp Studio editor/ }).first()).toBeVisible();
   // Real screenshots of apps made in Studio, light and dark, and a delivery company's.
