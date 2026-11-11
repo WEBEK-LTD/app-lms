@@ -80,7 +80,7 @@ export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
   },
   school: {
     style: "card",
-    // Drawn for Nakhla School: no photo of real children.
+    // The school's building: no photo of real children.
     photo: "/demo-screens/nakhla-school.jpg",
     title: { en: "Every school day, in one place", ar: "كل يوم دراسي في مكان واحد", tr: "Her okul günü tek bir yerde" },
     subtitle: {
