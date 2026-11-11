@@ -25,7 +25,8 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(ownTemplates(kindOf("store")).map((t) => t.id)).toEqual(["shop", "shop_deals", "shop_looks", "brand", "contact", "blank"]);
     // A restaurant gets its menu, not the shop.
     expect(ownTemplates(kindOf("restaurant")).map((t) => t.id)).toEqual(["menu", "brand", "contact", "blank"]);
-    expect(ownTemplates(kindOf("academy"))[0]!.id).toBe("courses");
+    // 123 The premium academy first, then the courses.
+    expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 2)).toEqual(["academy_premium", "courses"]);
     expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);

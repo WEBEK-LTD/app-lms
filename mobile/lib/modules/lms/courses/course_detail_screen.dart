@@ -365,19 +365,43 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Text(
-                              [
-                                if (course.rating != null &&
-                                    course.ratingCount > 0)
-                                  '★ ${course.rating!.toStringAsFixed(1)}',
-                                l10n.lessonCount(course.lessonCount),
-                                if (course.durationMinutes != null &&
-                                    look.shows(CoursePageFact.duration))
-                                  formatMinutes(course.durationMinutes!),
-                                if ((course.studentCount ?? 0) > 0 &&
-                                    look.shows(CoursePageFact.students))
-                                  l10n.studentCount(course.studentCount!),
-                              ].join('  ·  '),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  // The star drawn as an icon: not every font has the character.
+                                  if (course.rating != null &&
+                                      course.ratingCount > 0) ...[
+                                    const WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.only(
+                                          end: 4,
+                                        ),
+                                        child: Icon(
+                                          AppIcons.star,
+                                          size: 15,
+                                          color: Color(0xFFF5C451),
+                                        ),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '${course.rating!.toStringAsFixed(1)}  ·  ',
+                                    ),
+                                  ],
+                                  TextSpan(
+                                    text: [
+                                      l10n.lessonCount(course.lessonCount),
+                                      if (course.durationMinutes != null &&
+                                          look.shows(CoursePageFact.duration))
+                                        formatMinutes(course.durationMinutes!),
+                                      if ((course.studentCount ?? 0) > 0 &&
+                                          look.shows(CoursePageFact.students))
+                                        l10n.studentCount(course.studentCount!),
+                                    ].join('  ·  '),
+                                  ),
+                                ],
+                              ),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

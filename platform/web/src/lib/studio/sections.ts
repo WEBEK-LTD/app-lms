@@ -1,6 +1,7 @@
 import type { AppType, AppVertical } from "../data/types";
 import type { Action, ItemSource, LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
+import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, marketHome, studioDemoOf, studioTextOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
@@ -13,6 +14,21 @@ import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 
 export type SectionWord =
   | "heroTitle"
+  | "tabBlog"
+  | "acHello"
+  | "acHeadline"
+  | "acHeroKicker"
+  | "acHeroTitle"
+  | "acHeroButton"
+  | "acPromises"
+  | "acPromiseCertificate"
+  | "acPromisePhone"
+  | "acPromiseLifetime"
+  | "acSubjects"
+  | "acPopular"
+  | "acCertKicker"
+  | "acCertTitle"
+  | "acNew"
   | "seeAll"
   | "uniTitle"
   | "uniText"
@@ -889,6 +905,8 @@ export interface TemplateInfo {
   demo?: StudioDemoId;
   /** Shown as the recommended start. */
   recommended?: boolean;
+  /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
+  project?: TemplateProject;
 }
 
 function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {
@@ -959,6 +977,19 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  // 123 The premium academy: the whole project, its home, bar, tabs, screens and colours.
+  {
+    id: "academy_premium",
+    icon: "workspace_premium",
+    fits: { types: ["lms"] },
+    recommended: true,
+    project: ACADEMY_PROJECT,
+    make: (ctx: SectionContext) => {
+      const { ctx: words, translate } = translating(ctx);
+      const page = academyHome(words);
+      return { ...page, body: translate(page.body) };
+    },
+  },
   typed("courses", "school", { types: ["lms"] }, ["hero", "stats", "products", "review"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, { word: "ctaLearn", action: screen("courses") }),
   typed("services", "event_available", { types: ["booking"] }, ["hero", "features", "products", "review"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaBook", action: screen("services") }),
   typed("listings", "home_work", { types: ["real_estate"] }, ["search", "hero", "products", "contact"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, { word: "ctaListings", action: screen("favorites") }),

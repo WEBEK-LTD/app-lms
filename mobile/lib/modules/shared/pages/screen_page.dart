@@ -20,22 +20,38 @@ final screenPagesProvider = Provider<Map<String, String>>((ref) {
   final module = ref.watch(appModuleProvider);
   final gate = ref.watch(appGateProvider);
   final config = gate is GateReady ? gate.config : null;
-  return {
-    for (final page in navigation.pages)
-      ?screenPath(page.screen, module, config): page.slug,
-  };
+  // 123 Two screens can share an address (an academy's search is its
+  // courses with the search box open, its favourites a tab of My courses):
+  // the page of the screen that is exactly there wins, else the first.
+  final out = <String, String>{};
+  final exact = <String>{};
+  for (final page in navigation.pages) {
+    final location = screenLocation(page.screen, module, config);
+    if (location == null) continue;
+    final uri = Uri.parse(location);
+    final whole = !uri.hasQuery && !uri.hasFragment;
+    if (out.containsKey(uri.path) && (exact.contains(uri.path) || !whole)) {
+      continue;
+    }
+    out[uri.path] = page.slug;
+    if (whole) exact.add(uri.path);
+  }
+  return out;
 });
 
 /// 120 Where the screen the API calls [screen] is in this app: a built-in
 /// screen where the app type has it, 120.4 one opened from the tabs at its
 /// address (`/shipment/:id`); null for one this app doesn't have.
 String? screenPath(String? screen, AppModule module, AppConfig? config) {
+  final location = screenLocation(screen, module, config);
+  return location == null ? null : Uri.parse(location).path;
+}
+
+/// 123 Where [screen] opens, with what it opens with (`?focus=1`).
+String? screenLocation(String? screen, AppModule module, AppConfig? config) {
   if (screen == null) return null;
   final builtIn = builtInScreenFrom(screen);
-  if (builtIn != null) {
-    final location = module.screenLocation(builtIn, config);
-    return location == null ? null : Uri.parse(location).path;
-  }
+  if (builtIn != null) return module.screenLocation(builtIn, config);
   return innerScreenPaths[screen];
 }
 

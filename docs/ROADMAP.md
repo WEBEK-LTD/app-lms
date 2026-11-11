@@ -3066,3 +3066,23 @@ The owner (11 November): every account is active once it is made, and the person
 | [x] | 121.2 Where a new account starts (`/start`): the choice of the app editor (an app for a website, shop or academy) or Yallapp Studio (every screen designed, from a demo), in English, Arabic and Turkish; an account without an app comes back to it; our team managing it goes on to the app's type | `client-flow.spec.ts` |
 | [x] | 121.3 Studio's sign-in screen and account menu on WordPress: the license check brings them to the plugin (`LicenseStatus.screens`), which keeps the known fields and serves them in its `/config`; Studio › Screens is offered to a Studio project on WordPress | `studio-screens-wordpress.test.ts`, `StudioScreens121Test.php` |
 | [x] | 121.4 Plugin 0.4.33: the bar's designs, Studio pages around the app's screens, the title header, and Studio's sign-in screen and account menu | `TabBar119Test.php`, `api-test.php` |
+
+## Phase 122: A web page as a tab, and the courses designed in Studio
+
+The owner (11 November): a bottom-bar tab can open a page of the site inside the app, its link never shown and the site's header and footer hidden; an academy's courses look the way the owner designs them in Studio.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 122.1 A web page in the app (`Action.web`): opened in the app with no address bar and the link never shown, the site's header and footer hidden (`hide_header`, `hide_footer`), any other parts the owner names as CSS selectors (`hide`, checked), the site's own links kept in the app (`links_inside`); as a tab, the page alone in the tab; Studio's link inspector sets it; the hosted API and the WordPress plugin | `phase122_web_tab_test.dart`, `pages.test.ts`, `WebLook122Test.php` |
+| [x] | 122.2 The courses' card (`Config.screens.course_card`): classic, rich (with the teacher's photo), cover or tile, its corners and the facts it leaves out (teacher, rating, price, lessons), in the catalog, My courses, a teacher's and a bundle's courses; Studio › Screens for an academy, with a sample | `phase122_course_card_test.dart`, `studio-screens.test.ts`, `StudioScreens121Test.php` |
+| [x] | 122.3 A course's page (`Config.screens.course_page`): a tall cover with the course's name and facts on it, a frosted purchase bar, the tab it opens on, and the students, level, duration, certificate and reviews each left out or shown | `phase122_course_card_test.dart`, `studio-screens.test.ts`, `StudioScreens121Test.php` |
+
+## Phase 123: The premium academy template
+
+The owner (11 November): a premium academy for WordPress (Tutor LMS, Digits, WooCommerce), as advanced as it can be, every colour the owner's to change.
+
+| Status | Item | Tests |
+|---|---|---|
+| [x] | 123.1 The premium academy, the academy's recommended start in Studio: a home in navy and gold (the greeting, a banner, what the academy promises, the subjects, the popular courses, a certificate card, the newest courses) in light and dark, in English, Arabic and Turkish; the whole project with it: a page around every other screen, a frosted floating bar with the student's photo, a Blog tab with the site's blog in the app (its header and footer hidden, when the site is known from sign-up), the sign-in screen over a photo, the account menu at night in gold, rich course cards, a course's page with a tall cover and a frosted bar, Alexandria; the main colour the owner's (the banner and the card follow it), gold the second | `studio-academy-template.test.ts`, `studio-templates.test.ts` |
+| [x] | 123.2 Two screens at one address (an academy's search is its courses, its favourites a tab of My courses): the page drawn there is the one of the screen exactly at it, whichever comes first | `phase123_screen_pages_shared_test.dart` |
+| [x] | 123.3 A course's rating on its tall cover with the star drawn as an icon, which every font shows | `phase122_course_card_test.dart` |
