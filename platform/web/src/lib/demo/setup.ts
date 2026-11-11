@@ -14,6 +14,7 @@ import { appUrl } from "../env";
 import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage } from "../studio/sections";
 import { demoDesign, demoStudioContext } from "./look";
+import { demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
@@ -109,7 +110,8 @@ async function demoAccount(deps: DemoSetupDeps): Promise<{ client: Client; creat
  * company's test courier, restaurant staff and driver too, as the store
  * review account is: its parcels, orders and rides reach only itself.
  */
-function hostedSettingsFor(deps: DemoSetupDeps, studio = false): HostedSettings {
+function hostedSettingsFor(deps: DemoSetupDeps, id: DemoId): HostedSettings {
+  const studio = isStudioDemo(id);
   return {
     signupFields: [],
     signupAllowed: true,
@@ -119,6 +121,8 @@ function hostedSettingsFor(deps: DemoSetupDeps, studio = false): HostedSettings 
     termsUrl: `${deps.platformUrl}/terms`,
     reviewPhone: studio ? DEMO_SIGN_IN.e164 : null,
     reviewCode: studio ? DEMO_SIGN_IN.code : null,
+    // 118.3 Studio's demos: their own sign-in screen and account menu.
+    ...(studio ? { studioScreens: demoStudioScreens(id, deps.platformUrl) } : {}),
   };
 }
 
@@ -143,7 +147,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     backend: "hosted",
     siteUrl: null,
     connector: { kind: content },
-    hostedSettings: hostedSettingsFor(deps, isStudioDemo(id)),
+    hostedSettings: hostedSettingsFor(deps, id),
     // Studio's own project types are Studio projects.
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
     appName: brand.appName,

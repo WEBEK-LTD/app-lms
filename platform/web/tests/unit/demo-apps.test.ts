@@ -18,6 +18,10 @@ import { PICTURES } from "@/lib/demo/pictures";
 import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
+import { DEMO_SCREENS } from "@/lib/demo/screens";
+import type { StudioScreens } from "@/lib/studio/screens";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { connectorFor } from "@/lib/hosted/connectors";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
@@ -533,6 +537,27 @@ describe("signing in to a demo app", () => {
     expect(saved.courseSetup?.courses.map((c) => c.title)).not.toContain("My first course");
     expect(saved.courseSetup?.courses).toHaveLength(ACADEMY_COURSES.length);
     expect(await store.findTeacher(app.id, { phone: DEMO_SIGN_IN.e164, email: null })).toMatchObject({ name: "Demo teacher", bio: expect.stringContaining("This is you") });
+  });
+
+  it("118.3 Studio's demos open on their own sign-in screen and account menu; the others keep the app's", async () => {
+    const result = await setupDemoApps(deps(store));
+    const config = async (type: string) => {
+      const app = (await store.getAppById(result.apps.find((a) => a.type === type)!.appId))!;
+      const res = await handleHosted(context(app), { method: "GET", path: ["config"], query: new URLSearchParams({ platform: "android", app_version: "1.0.0" }), body: undefined, token: null });
+      expectContract("GET", "/config", res);
+      return (res.body as { screens?: StudioScreens }).screens;
+    };
+    for (const id of STUDIO_DEMO_TYPES) {
+      const screens = (await config(id))!;
+      expect(screens.sign_in?.title.ar, id).toBeTruthy();
+      expect(screens.sign_in?.title.tr, id).toBeTruthy();
+      expect(screens.account_menu?.header, id).not.toBe("plain");
+      // Their photos are the website's own, credit-free ones.
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/stories\/.+\.jpg$/);
+    }
+    expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
+    expect(await config("store")).toBeUndefined();
+    for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });
 
   it("refuses other numbers and wrong codes in a demo app", async () => {
