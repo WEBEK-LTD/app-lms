@@ -111,7 +111,8 @@ test("the team adds Yallapp's Kashier and Fawaterk accounts", async () => {
 test("a new client pays the plan in Egyptian pounds on Kashier", async () => {
   await signUp(own, client, "+20 100 123 4567");
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText(/EGP\s12,000 \/ year/)).toBeVisible();
+  // 121 On the Plan page, in the payment form (the plans above show the price too).
+  await expect(own.locator("#renew").getByText(/EGP\s12,000 \/ year/)).toBeVisible();
   await expect(own.getByText("You enter your card on Kashier's secure page.")).toBeVisible();
   await own.getByLabel("City").fill("Cairo");
   await own.getByLabel("Billing address").fill("12 Tahrir Street, Downtown");
@@ -166,6 +167,10 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
   await expect(admin.getByRole("status")).toContainText("Activated");
 
   await signIn(page, shop.email, shop.password);
+
+  // 121 Without an app yet: the choice of editor or Studio first.
+
+  await page.getByRole("link", { name: /The app editor/ }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();

@@ -102,7 +102,8 @@ test("card payment shows once the team sets the account and a card price", async
 
   await own.reload();
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText("$96 / year")).toBeVisible();
+  // 121 On the Plan page, in the payment form (the plans above show the price too).
+  await expect(own.locator("#renew").getByText("$96 / year")).toBeVisible();
   // Charged in the currency shown: nothing to convert.
   await expect(own.locator("[data-charge-line]")).toHaveCount(0);
 });

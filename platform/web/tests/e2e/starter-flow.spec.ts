@@ -123,6 +123,8 @@ test("62 a session that ended on the server stops the header saying Dashboard", 
 
 test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await page.getByRole("link", { name: /The app editor/ }).click();
   // This client builds a Store app.
   await page.getByText("Store", { exact: true }).click();
   await expect(page.getByRole("radio", { name: "Store" })).toBeChecked();

@@ -210,7 +210,7 @@ test("a coupon lowers the client's card payment", async () => {
   await own.getByLabel("Coupon code").fill(code.toLowerCase());
   await own.getByRole("button", { name: "Apply" }).click();
   await expect(own.getByText("Coupon applied. The price below is what you pay.")).toBeVisible();
-  await expect(own.getByText("$3,600")).toBeVisible();
+  await expect(own.locator("#renew").getByText("$3,600")).toBeVisible();
   // Applying the coupon keeps the address.
   await expect(own.getByLabel("City")).toHaveValue("Izmir");
   await own.getByRole("button", { name: "Pay and activate" }).click();
