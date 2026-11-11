@@ -61,7 +61,30 @@ enum TabLabels { always, active, never }
 /// 119 The bar's designs (`TabBar.design`): the icon in a soft pill over its
 /// name, the open tab filled, small quiet names, a dot under the open tab, a
 /// line over it, the open tab in a soft bubble.
-enum TabBarDesign { classic, pill, minimal, dot, line, bubble }
+enum TabBarDesign {
+  classic,
+  pill,
+  minimal,
+  dot,
+  line,
+  bubble,
+  // 119 More: a frosted floating bar, a cut for the middle button, the open
+  // tab rising in a circle, an outlined pill, a filled square, names only, a
+  // dark capsule, a segmented track, a folder's tab, a hanging drop, a glow,
+  // a colour for each tab.
+  glass,
+  notch,
+  lift,
+  outline,
+  square,
+  text,
+  island,
+  segment,
+  folder,
+  drop,
+  glow,
+  colours,
+}
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
 /// out keeps the template's usual look for it.
@@ -79,6 +102,7 @@ class TabBarStyle {
     this.font,
     this.labels = TabLabels.always,
     this.center,
+    this.avatar = false,
   });
 
   factory TabBarStyle.fromJson(Json json) => TabBarStyle(
@@ -94,6 +118,7 @@ class TabBarStyle {
     font: optString(json, 'font'),
     labels: enumOrNull(TabLabels.values, json['labels']) ?? TabLabels.always,
     center: optString(json, 'center'),
+    avatar: json['avatar'] == true,
   );
 
   static String? _hex(Object? value) =>
@@ -127,6 +152,9 @@ class TabBarStyle {
   /// A tab's id drawn as a round button raised in the middle, when it is
   /// the middle one of three or five.
   final String? center;
+
+  /// 119 The account tab shows the person's photo instead of its icon.
+  final bool avatar;
 }
 
 class NavTab {

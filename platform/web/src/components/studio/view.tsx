@@ -217,35 +217,66 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
   const style = look.tabBar ?? {};
   const { shown, more } = splitTabs(look.tabs);
   const tabs: (LayoutTab | null)[] = more.length ? [...shown, null] : shown;
-  const background = (dark ? (style.dark_background ?? style.background) : style.background) ?? (dark ? "#22203A" : "#FFFFFF");
+  const design = style.design ?? "classic";
+  const own = dark ? (style.dark_background ?? style.background) : style.background;
   // 119 In dark mode its own colours, else the light ones made readable on a dark bar.
   const activeColour = dark ? (style.dark_active ?? readableOnDark(style.active ?? look.brand)) : (style.active ?? look.brand);
   const inactiveColour = dark ? (style.dark_inactive ?? (style.inactive ? readableOnDark(style.inactive) : "#A7A3C2")) : (style.inactive ?? "#5E5B70");
-  const design = style.design ?? "classic";
+  const page = dark ? "#14121F" : "#FBF8F2";
+  const background =
+    own ??
+    (design === "island"
+      ? dark
+        ? "#262E2B"
+        : "#121614"
+      : design === "segment"
+        ? dark
+          ? "#1E2523"
+          : "#E9EDEB"
+        : design === "folder"
+          ? dark
+            ? mixHex(activeColour, "#000000", 0.62)
+            : (style.active ?? look.brand)
+          : design === "glass"
+            ? dark
+              ? "rgba(20,24,22,0.55)"
+              : "rgba(255,255,255,0.6)"
+            : dark
+              ? "#22203A"
+              : "#FFFFFF");
   const labels = style.labels ?? "always";
-  const middle = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
-  const center = middle >= 0 && style.center && tabs[middle]?.id === style.center ? middle : -1;
-  const margin = style.margin ?? 0;
-  const radius = style.radius ?? 0;
+  const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
+  const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
+  const floatsItself = design === "glass" || design === "island" || design === "segment";
+  const margin = style.margin ?? (floatsItself ? 12 : 0);
+  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : 0));
   const selected = editing?.selectedId === "tabs";
+  const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
+  const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
   return (
     <div
       data-studio-tabs=""
+      data-studio-tab-bar-design={design}
       onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("tabs")) : undefined}
       style={{
         position: "relative",
         // The usual bar sits a little in from the phone's edges.
-        margin: margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
-        padding: "8px 6px",
-        borderRadius: margin ? radius : radius || 18,
+        margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : "8px 6px",
+        borderRadius: margin || design === "island" ? radius : radius || 18,
         background,
-        boxShadow: "0 -2px 10px rgba(14,13,36,0.08)",
+        backdropFilter: design === "glass" ? "blur(18px)" : undefined,
+        border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
+        boxShadow: design === "notch" ? undefined : "0 -2px 10px rgba(14,13,36,0.08)",
+        // 119 The notch: a curved cut in the bar's top for the middle button.
+        WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
+        maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         display: "flex",
         justifyContent: "space-around",
         alignItems: "center",
         fontSize: 10,
         fontFamily: style.font ? `'${style.font}', inherit` : undefined,
-        color: inactiveColour,
+        color: onBar,
         outline: selected ? "1.5px dashed #6C8BFF" : undefined,
         outlineOffset: 2,
         cursor: editing ? "pointer" : undefined,
@@ -255,7 +286,11 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         const label = tab ? ((lang !== defaultLang ? (tab.translations?.[lang]?.label as string | undefined) : undefined) ?? tab.label) : (look.moreLabel ?? "More");
         const active = tab ? tab.id === look.activeTab : false;
         const icon = tab ? tab.icon : "apps";
-        const glyph = tab?.icon_url ? (
+        // 119 The account tab with the person's photo (a stand-in in the editor).
+        const photo = style.avatar === true && tab?.target.type === "screen" && tab.target.screen === "account";
+        const glyph = photo ? (
+          <span data-studio-tab-avatar="" style={{ display: "block", width: 22, height: 22, borderRadius: "50%", background: "linear-gradient(135deg,#E9C9A8,#B98A60)", boxShadow: active ? `0 0 0 2px ${activeColour}` : undefined }} />
+        ) : tab?.icon_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={tab.icon_url} alt="" style={{ width: 22, height: 22, objectFit: "contain" }} />
         ) : (
@@ -266,44 +301,88 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         if (i === center) {
           return (
             <div key={tab?.id ?? "more"} data-studio-tab-center="" title={label} style={{ display: "flex", flex: 1, justifyContent: "center" }}>
-              <span style={{ marginTop: -26, width: 50, height: 50, borderRadius: "50%", background: activeColour, color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(14,13,36,0.25)" }}>{glyph}</span>
+              <span style={{ marginTop: design === "notch" ? -38 : -26, width: 50, height: 50, borderRadius: "50%", background: activeColour, color: onFill(activeColour), display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(14,13,36,0.25)" }}>{glyph}</span>
             </div>
           );
         }
         const showLabel = labels === "always" || (labels === "active" && active);
         const name = <span style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>;
-        // 119 The open tab in a filled pill or a soft bubble, with its name beside its icon; the others icons only.
-        if ((design === "pill" || design === "bubble") && active) {
-          const filled = design === "pill";
+        const key = tab?.id ?? "more";
+        const tabKey = tab ? tab.id : "more";
+        // 119 The open tab with its name beside its icon: a filled pill (lit on the island), a soft bubble or a raised segment; the others icons only.
+        if (design === "pill" || design === "bubble" || design === "island" || design === "segment") {
+          if (!active) {
+            return (
+              <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0 }}>
+                {glyph}
+              </div>
+            );
+          }
+          const fill = design === "bubble" ? tint(activeColour, dark ? 0.22 : 0.14) : design === "segment" ? (dark ? "#2E3734" : "#FFFFFF") : activeColour;
+          const ink = design === "bubble" || design === "segment" ? activeColour : onFill(activeColour);
           return (
-            <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} data-studio-tab-design={design} title={label} style={{ display: "flex", flex: 1.6, justifyContent: "center", minWidth: 0 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 16, minWidth: 0, background: filled ? activeColour : tint(activeColour, dark ? 0.22 : 0.14), color: filled ? "#FFFFFF" : activeColour, fontWeight: 700 }}>
+            <div key={key} data-studio-tab={tabKey} data-studio-tab-design={design} title={label} style={{ display: "flex", flex: 1.6, justifyContent: "center", minWidth: 0 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: design === "segment" ? 12 : 16, minWidth: 0, background: fill, color: ink, fontWeight: 700, boxShadow: design === "segment" ? "0 2px 6px rgba(14,13,36,0.15)" : undefined }}>
                 {glyph}
                 {labels !== "never" ? name : null}
               </span>
             </div>
           );
         }
-        if (design === "pill" || design === "bubble") {
+        if (design === "text") {
           return (
-            <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0 }}>
-              {glyph}
+            <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0, fontSize: 11.5, color: active ? activeColour : undefined, fontWeight: active ? 700 : 400 }}>
+              <span style={{ borderBottom: `2px solid ${active ? activeColour : "transparent"}`, paddingBottom: 2 }}>{name}</span>
             </div>
           );
         }
+        if (design === "folder" && active) {
+          return (
+            <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", minWidth: 0, marginTop: -20, paddingTop: 6, paddingBottom: 4, borderRadius: "14px 14px 0 0", background: page, color: activeColour, fontWeight: 700 }}>
+              {glyph}
+              {showLabel ? name : null}
+            </div>
+          );
+        }
+        if (design === "lift" && active) {
+          return (
+            <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", minWidth: 0, color: activeColour, fontWeight: 700 }}>
+              <span style={{ marginTop: -26, width: 40, height: 40, borderRadius: "50%", background: activeColour, color: onFill(activeColour), border: `4px solid ${page}`, display: "flex", alignItems: "center", justifyContent: "center" }}>{glyph}</span>
+              {showLabel ? name : null}
+            </div>
+          );
+        }
+        const ownColour = colours[i % colours.length]!;
+        const wrapped =
+          design === "classic" ? (
+            <span style={{ display: "flex", padding: "1px 10px", borderRadius: 12, background: active ? tint(activeColour, dark ? 0.22 : 0.14) : "transparent" }}>{glyph}</span>
+          ) : design === "outline" ? (
+            <span style={{ display: "flex", padding: "1px 10px", borderRadius: 12, border: `1.5px solid ${active ? activeColour : "transparent"}` }}>{glyph}</span>
+          ) : design === "square" ? (
+            <span style={{ display: "flex", padding: "3px 7px", borderRadius: 9, background: active ? activeColour : "transparent", color: active ? onFill(activeColour) : undefined }}>{glyph}</span>
+          ) : design === "glass" ? (
+            <span style={{ display: "flex", padding: "1px 10px", borderRadius: 12, background: active ? (dark ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.85)") : "transparent" }}>{glyph}</span>
+          ) : design === "glow" ? (
+            <span style={{ display: "flex", filter: active ? `drop-shadow(0 0 6px ${activeColour})` : undefined }}>{glyph}</span>
+          ) : design === "colours" ? (
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, borderRadius: "50%", background: tint(ownColour, dark ? 0.22 : 0.14), color: ownColour, border: `1.5px solid ${active ? ownColour : "transparent"}` }}>{glyph}</span>
+          ) : (
+            glyph
+          );
         return (
           <div
-            key={tab?.id ?? "more"}
-            data-studio-tab={tab ? tab.id : "more"}
+            key={key}
+            data-studio-tab={tabKey}
             title={label}
             style={{
+              position: "relative",
               display: "flex",
               flex: 1,
               flexDirection: "column",
               alignItems: "center",
-              gap: design === "dot" ? 2 : 0,
+              gap: design === "dot" || design === "glow" ? 2 : 0,
               minWidth: 0,
-              color: active ? activeColour : undefined,
+              color: active ? (design === "colours" ? ownColour : activeColour) : undefined,
               fontWeight: active ? 700 : 400,
               fontSize: design === "minimal" ? 9 : undefined,
               borderTop: design === "line" ? `2.5px solid ${active ? activeColour : "transparent"}` : undefined,
@@ -311,15 +390,32 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
               marginTop: design === "line" ? -8 : undefined,
             }}
           >
-            {design === "classic" ? <span style={{ display: "flex", padding: "1px 10px", borderRadius: 12, background: active ? tint(activeColour, dark ? 0.22 : 0.14) : "transparent" }}>{glyph}</span> : glyph}
+            {design === "drop" && active ? <span style={{ position: "absolute", top: -9, width: 26, height: 8, borderRadius: "0 0 12px 12px", background: activeColour }} /> : null}
+            {wrapped}
             {design === "dot" ? <span style={{ width: 4, height: 4, borderRadius: 2, background: active ? activeColour : "transparent" }} /> : null}
             {showLabel ? name : null}
+            {design === "glow" ? <span style={{ width: 24, height: 2, borderRadius: 2, background: active ? activeColour : "transparent", boxShadow: active ? `0 0 8px ${activeColour}` : undefined }} /> : null}
           </div>
         );
       })}
       {selected && editing ? <Tag text={editing.tagOf({ id: "tabs", type: "row" })} /> : null}
     </div>
   );
+}
+
+/** 119 Dark text on a light fill, white on a dark one (as the app does). */
+function onFill(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  return lum > 0.6 ? "#14121F" : "#FFFFFF";
+}
+
+/** 119 Two #RRGGBB colours mixed. */
+function mixHex(a: string, b: string, t: number): string {
+  const x = parseInt(a.slice(1), 16);
+  const y = parseInt(b.slice(1), 16);
+  const ch = (s: number) => Math.round(((x >> s) & 255) * (1 - t) + ((y >> s) & 255) * t);
+  return `#${[16, 8, 0].map((s) => ch(s).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
 }
 
 function Tag({ text }: { text: string }) {

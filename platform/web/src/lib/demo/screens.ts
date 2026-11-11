@@ -121,15 +121,16 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
 
 /**
  * 119 Each Studio demo's bottom bar in its own design (light and dark mode
- * alike): a line, a bubble, a floating pill, a dot, the taxi's pill turning
- * taxi yellow at night, the classic one, a floating bubble.
+ * alike): a line, a bubble, frosted glass, the open tab lifted, the taxi's
+ * dark island lit in taxi yellow at night, the classic one with the person's
+ * photo, a segmented track.
  */
 export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   delivery: { design: "line" },
   food: { design: "bubble" },
-  marketplace: { design: "pill", radius: 24, margin: 12 },
-  rides: { design: "dot" },
-  taxi: { design: "pill", dark_active: "#F5B700" },
-  school: { design: "classic" },
-  instructors: { design: "bubble", radius: 20, margin: 10 },
+  marketplace: { design: "glass" },
+  rides: { design: "lift" },
+  taxi: { design: "island", dark_active: "#F5B700" },
+  school: { design: "classic", avatar: true },
+  instructors: { design: "segment" },
 };

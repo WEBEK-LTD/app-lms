@@ -784,6 +784,8 @@ export interface TabBarStyle {
   labels?: TabLabels;
   /** A tab's id, drawn as a round button raised in the middle: only when it's the middle one of three or five. */
   center?: string | null;
+  /** 119 The account tab shows the person's photo instead of its icon. */
+  avatar?: boolean;
 }
 
 export const TAB_LABELS = ["always", "active", "never"] as const;
@@ -794,7 +796,28 @@ export const TAB_LABELS = ["always", "active", "never"] as const;
  * quiet names, `dot` a dot under the open tab, `line` a line over it,
  * `bubble` the open tab in a soft bubble with its name.
  */
-export const TAB_BAR_DESIGNS = ["classic", "pill", "minimal", "dot", "line", "bubble"] as const;
+export const TAB_BAR_DESIGNS = [
+  "classic",
+  "pill",
+  "minimal",
+  "dot",
+  "line",
+  "bubble",
+  // 119 More: a frosted floating bar, a cut for the middle button, the open tab rising in a circle, an outlined pill,
+  // a filled square, names only, a dark capsule, a segmented track, a folder's tab, a hanging drop, a glow, a colour per tab.
+  "glass",
+  "notch",
+  "lift",
+  "outline",
+  "square",
+  "text",
+  "island",
+  "segment",
+  "folder",
+  "drop",
+  "glow",
+  "colours",
+] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];
 

@@ -14130,7 +14130,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -14138,8 +14138,20 @@ components:
             its name beside the icon, the others icons only. `minimal`: small
             quiet names. `dot`: a dot under the open tab's icon. `line`: a
             line over the open tab. `bubble`: the open tab in a soft bubble of
-            its colour with its name, the others icons only. Every design works
-            in light and dark mode. An app that doesn't know a value uses its
+            its colour with its name, the others icons only. `glass`: a frosted
+            floating bar. `notch`: a curved cut in the bar's top with the middle
+            tab (of three or five) a round button in it. `lift`: the open tab's
+            icon rises into a circle above the bar. `outline`: the open tab's icon
+            in a thin outlined pill. `square`: the open tab's icon on a filled
+            rounded square. `text`: names only, the open one bold and underlined.
+            `island`: a dark capsule in the middle, the open tab lit in its colour
+            with its name. `segment`: a segmented track, the open tab a raised
+            segment with its name. `folder`: the bar in the main colour, the open
+            tab rising out of it like a folder's tab in the page's colour. `drop`:
+            a drop of its colour hangs from the bar's edge over the open tab.
+            `glow`: the open tab glows in its colour. `colours`: each tab its own
+            colour in a soft circle, the open one ringed. Every design works in
+            light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
         dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background`, or the app's dark surface when that is null too." }
@@ -14158,6 +14170,7 @@ components:
         center:
           type: [string, 'null']
           description: "A tab's `id` drawn as a round button raised in the middle of the bar, in the app's main colour. Only when that tab is the middle one of three or five; otherwise ignored."
+        avatar: { type: boolean, default: false, description: "119 The account tab (the one that opens the Account screen) shows the signed-in person's photo instead of its icon, when they have one." }
 
     NavTab:
       type: object

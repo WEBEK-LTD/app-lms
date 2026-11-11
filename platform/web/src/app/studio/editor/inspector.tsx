@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FontPicker } from "@/components/font-picker";
 import { MediaPicker } from "@/components/media-picker";
@@ -1519,6 +1519,7 @@ function TabsPanel(props: Props) {
           </div>
         </div>
         {middle ? <Check label={t("studio.tabCenter")} checked={style.center === middle.id} onChange={(on) => setStyle({ center: on ? middle.id : null })} /> : null}
+        <Check label={t("studio.tabAvatar")} checked={style.avatar === true} onChange={(on) => setStyle({ avatar: on || undefined })} />
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {middle ? `${t("studio.tabCenterHint")} ` : ""}
           {t("studio.tabBarApp")}
@@ -1530,25 +1531,62 @@ function TabsPanel(props: Props) {
 
 /** 119 A tiny bar in one of the designs: three tabs, the middle one open. */
 function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; brand: string }) {
+  const grey = "#B8B4C9";
+  const box = (open: boolean, size = 9) => <span style={{ width: size, height: size, borderRadius: 3, background: open ? brand : grey }} />;
+  const name = (open: boolean, colour = open ? brand : "#D6D3E0") => <span style={{ width: 10, height: 2, borderRadius: 2, background: colour }} />;
+  const col = (children: ReactNode, extra: CSSProperties = {}) => <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, ...extra }}>{children}</span>;
   const tab = (open: boolean, key: number) => {
-    const dot = <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: open ? brand : "#B8B4C9" }} />;
     switch (design) {
       case "pill":
-        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: brand }}><span style={{ width: 7, height: 7, borderRadius: 2, background: "#FFFFFF" }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: "#FFFFFF" }} /></span> : dot;
+      case "island":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: brand }}><span style={{ width: 7, height: 7, borderRadius: 2, background: "#FFFFFF" }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: "#FFFFFF" }} /></span> : <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: design === "island" ? "#6F7A75" : grey }} />;
       case "bubble":
-        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: `${brand}26` }}><span style={{ width: 7, height: 7, borderRadius: 2, background: brand }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: brand }} /></span> : dot;
+      case "segment":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: design === "segment" ? "#FFFFFF" : `${brand}26`, boxShadow: design === "segment" ? "0 1px 3px rgba(14,13,36,.18)" : undefined }}><span style={{ width: 7, height: 7, borderRadius: 2, background: brand }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: brand }} /></span> : box(false);
       case "dot":
-        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>{dot}<span style={{ width: 3, height: 3, borderRadius: 2, background: open ? brand : "transparent" }} /></span>;
+        return <span key={key}>{col(<>{box(open)}<span style={{ width: 3, height: 3, borderRadius: 2, background: open ? brand : "transparent" }} /></>)}</span>;
       case "line":
-        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, borderTop: `2px solid ${open ? brand : "transparent"}`, paddingTop: 2 }}>{dot}<span style={{ width: 10, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+        return <span key={key}>{col(<>{box(open)}{name(open)}</>, { borderTop: `2px solid ${open ? brand : "transparent"}`, paddingTop: 2 })}</span>;
       case "minimal":
-        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}><span style={{ width: 7, height: 7, borderRadius: 2, background: open ? brand : "#B8B4C9" }} /><span style={{ width: 8, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+        return <span key={key}>{col(<>{box(open, 7)}<span style={{ width: 8, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></>)}</span>;
+      case "glass":
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? "rgba(255,255,255,.9)" : "transparent" }}>{box(open)}</span>{name(open)}</>)}</span>;
+      case "notch":
+        return open ? <span key={key} style={{ width: 14, height: 14, borderRadius: "50%", background: brand, marginTop: -10, boxShadow: "0 0 0 3px #F6F4FB" }} /> : <span key={key}>{col(<>{box(false)}{name(false)}</>)}</span>;
+      case "lift":
+        return open ? <span key={key}>{col(<><span style={{ width: 14, height: 14, borderRadius: "50%", background: brand, marginTop: -12, border: "2px solid #FFFFFF" }} />{name(true)}</>)}</span> : <span key={key}>{col(<>{box(false)}{name(false)}</>)}</span>;
+      case "outline":
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, border: `1.5px solid ${open ? brand : "transparent"}` }}>{box(open, 7)}</span>{name(open)}</>)}</span>;
+      case "square":
+        return <span key={key}>{col(<><span style={{ padding: 2, borderRadius: 4, background: open ? brand : "transparent" }}><span style={{ display: "block", width: 7, height: 7, borderRadius: 2, background: open ? "#FFFFFF" : grey }} /></span>{name(open)}</>)}</span>;
+      case "text":
+        return <span key={key} style={{ width: 16, height: 3, borderRadius: 2, background: open ? brand : grey, boxShadow: open ? `0 3px 0 -1px ${brand}` : undefined }} />;
+      case "folder":
+        return open ? <span key={key} style={{ alignSelf: "flex-start", marginTop: -3, padding: "4px 6px 6px", borderRadius: "6px 6px 0 0", background: "#F6F4FB" }}>{box(true)}</span> : <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: "rgba(255,255,255,.75)" }} />;
+      case "drop":
+        return <span key={key} style={{ position: "relative" }}>{open ? <span style={{ position: "absolute", top: -9, left: -3, width: 15, height: 5, borderRadius: "0 0 6px 6px", background: brand }} /> : null}{col(<>{box(open)}{name(open)}</>)}</span>;
+      case "glow":
+        return <span key={key}>{col(<><span style={{ width: 9, height: 9, borderRadius: 3, background: open ? brand : grey, boxShadow: open ? `0 0 6px ${brand}` : undefined }} />{name(open)}</>)}</span>;
+      case "colours": {
+        const c = ["#1F6F5C", "#B26A00", "#2F4FB5"][key] ?? brand;
+        return <span key={key} style={{ width: 13, height: 13, borderRadius: "50%", background: `${c}26`, border: open ? `1.5px solid ${c}` : "1.5px solid transparent", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: 5, height: 5, borderRadius: 2, background: c }} /></span>;
+      }
       default:
-        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? `${brand}22` : "transparent" }}>{dot}</span><span style={{ width: 10, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? `${brand}22` : "transparent" }}>{box(open)}</span>{name(open)}</>)}</span>;
     }
   };
+  const track: CSSProperties =
+    design === "island"
+      ? { margin: "0 14px", borderRadius: 999, background: "#121614" }
+      : design === "segment"
+        ? { margin: "0 4px", borderRadius: 8, background: "#E3E7E5" }
+        : design === "folder"
+          ? { background: brand }
+          : design === "glass"
+            ? { margin: "0 4px", borderRadius: 10, background: "linear-gradient(120deg,#F2B544,#E2623A 45%,#1F6F5C)" }
+            : { background: "#F6F4FB" };
   return (
-    <span aria-hidden="true" style={{ display: "flex", justifyContent: "space-around", alignItems: "center", height: 26, borderRadius: 7, background: "#F6F4FB" }}>
+    <span aria-hidden="true" style={{ display: "flex", justifyContent: "space-around", alignItems: "center", height: 26, borderRadius: 7, overflow: "visible", ...track }}>
       {[0, 1, 2].map((i) => tab(i === 1, i))}
     </span>
   );

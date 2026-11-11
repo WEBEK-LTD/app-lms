@@ -832,7 +832,17 @@ describe("pages on the hosted API", () => {
       "Tabs: the tab in the middle isn't one of the tabs.",
     ]);
     // 119 Only the bar's designs, and colours for dark mode.
-    expect(errorsOf(layoutWith([], { tab_bar: { design: "glass", dark_active: "gold" } }))).toEqual(["Tabs: choose one of the tab bar's designs.", "Tabs: a colour of the tab bar isn't a colour."]);
+    expect(errorsOf(layoutWith([], { tab_bar: { design: "liquid", dark_active: "gold", avatar: "yes" } }))).toEqual([
+      "Tabs: choose one of the tab bar's designs.",
+      "Tabs: a colour of the tab bar isn't a colour.",
+      "Tabs: say whether the account tab shows the person's photo.",
+    ]);
+    for (const design of ["glass", "notch", "lift", "outline", "square", "text", "island", "segment", "folder", "drop", "glow", "colours"]) {
+      const ok = parse(layoutWith([], { tab_bar: { design, avatar: true } }));
+      expect(ok.ok && ok.value.tab_bar, design).toEqual({ design, avatar: true });
+    }
+    const off = parse(layoutWith([], { tab_bar: { design: "dot", avatar: false } }));
+    expect(off.ok && off.value.tab_bar).toEqual({ design: "dot" });
     const parsed = parse(layoutWith([], { tab_bar: { radius: 0, margin: 0, labels: "always", background: null } }));
     expect(parsed.ok && parsed.value).not.toHaveProperty("tab_bar");
     // A plan that leaves the middle tab out leaves out the round button, not the rest of the look.
