@@ -15,6 +15,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import 'password_screens.dart';
 import 'sign_in_screen.dart';
 import 'signup_screen.dart';
 import '../../../core/l10n/l10n.dart';
@@ -25,10 +26,14 @@ class OtpArgs {
     this.phone = '',
     this.email,
     required this.request,
+    this.reset = false,
   });
 
   final String countryCode;
   final String phone;
+
+  /// 118 The code is for a forgotten password (`purpose: reset`).
+  final bool reset;
 
   /// 18 Set when the code went to this email address instead of a phone.
   final String? email;
@@ -103,8 +108,25 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     try {
       final outcome = await ref
           .read(authControllerProvider.notifier)
-          .verifyCode(requestId: _request.requestId, code: _code.text);
+          .verifyCode(
+            requestId: _request.requestId,
+            code: _code.text,
+            reset: widget.args.reset,
+          );
       if (!mounted) return;
+      // 118 A forgotten password: the new one next.
+      if (outcome is VerifyNeedsNewPassword) {
+        await context.push(
+          widget.from == null
+              ? Paths.signInNewPassword
+              : Uri(
+                  path: Paths.signInNewPassword,
+                  queryParameters: {'from': widget.from},
+                ).toString(),
+          extra: NewPasswordArgs(resetToken: outcome.resetToken),
+        );
+        return;
+      }
       if (outcome is VerifyNeedsSignup) {
         await context.push(
           widget.from == null

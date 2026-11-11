@@ -74,13 +74,18 @@ class FakeApi implements YallappApi {
   String? lastPhone;
   String? lastCode;
 
+  /// 118 Whether the last code was for a forgotten password.
+  bool lastVerifyReset = false;
+
   @override
   Future<VerifyResult> verifyOtp({
     required String requestId,
     required String code,
     required DeviceInput device,
+    bool reset = false,
   }) {
     lastCode = code;
+    lastVerifyReset = reset;
     return _answer(
       'verifyOtp',
       () => VerifyResult.fromJson(verifyResult ?? sessionJson()),
@@ -104,15 +109,49 @@ class FakeApi implements YallappApi {
     );
   }
 
+  /// 118 What the last password sign-in sent besides the email.
+  String? lastUsername;
+  String? lastPasswordPhone;
+
   @override
   Future<Session> signInWithPassword({
-    required String email,
+    String? email,
+    String? countryCode,
+    String? phone,
+    String? username,
     required String password,
     required DeviceInput device,
   }) {
     lastEmail = email;
+    lastUsername = username;
+    lastPasswordPhone = phone == null ? null : '$countryCode$phone';
     lastPassword = password;
     return _answer('signInWithPassword', () => Session.fromJson(sessionJson()));
+  }
+
+  String? lastResetToken;
+
+  @override
+  Future<Session> resetPassword({
+    required String resetToken,
+    required String password,
+    required DeviceInput device,
+  }) {
+    lastResetToken = resetToken;
+    lastPassword = password;
+    return _answer('resetPassword', () => Session.fromJson(sessionJson()));
+  }
+
+  String? lastCurrentPassword;
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String password,
+  }) {
+    lastCurrentPassword = currentPassword;
+    lastPassword = password;
+    return _answer('changePassword', () {});
   }
 
   RegisterInput? lastRegister;

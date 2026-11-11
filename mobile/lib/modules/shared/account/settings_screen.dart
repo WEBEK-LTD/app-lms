@@ -381,6 +381,13 @@ class SettingsScreen extends ConsumerWidget {
           SettingsGroup(
             title: l10n.security,
             children: [
+              // 118 Studio apps that sign in with a password.
+              if (ref.watch(appConfigProvider).auth.passwordSignIn != null)
+                SettingsTile(
+                  icon: AppIcons.lock,
+                  title: l10n.changePassword,
+                  onTap: () => context.push(Paths.changePassword),
+                ),
               SettingsTile(
                 icon: AppIcons.devices,
                 title: l10n.registeredDevices,

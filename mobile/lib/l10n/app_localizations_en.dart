@@ -9404,4 +9404,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vendorHoursSaved => 'Saved. Customers see it now.';
+
+  @override
+  String get signInWithUsername => 'Username';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get usernameHint =>
+      '3 to 30 letters, digits, dots or underscores, starting with a letter.';
+
+  @override
+  String get enterUsername =>
+      'Choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.';
+
+  @override
+  String get signInIntroPasswordStudio => 'Sign in with your password.';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot your password?';
+
+  @override
+  String get forgotPasswordIntro =>
+      'Enter the email address or phone number on your account. We\'ll send you a code to set a new password.';
+
+  @override
+  String get newPasswordTitle => 'Choose a new password';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get confirmPassword => 'Type the password again';
+
+  @override
+  String get passwordsDontMatch => 'The passwords don\'t match.';
+
+  @override
+  String get saveAndSignIn => 'Save and sign in';
+
+  @override
+  String get signInWithCodeInstead => 'Sign in with a code instead';
+
+  @override
+  String get signInWithPasswordInstead => 'Sign in with your password';
+
+  @override
+  String get createAnAccount => 'Create an account';
+
+  @override
+  String get newHereQuestion => 'New here?';
+
+  @override
+  String get createAccountIntroCode =>
+      'We\'ll send you a code to check your phone number or email address, then you choose your password.';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password.';
+
+  @override
+  String get passwordChanged =>
+      'Your password was changed. Your other phones were signed out.';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String newPasswordIntro(int min) {
+    return 'Use at least $min characters. Your other phones will be signed out.';
+  }
+
+  @override
+  String passwordTooShort(int min) {
+    return 'At least $min characters';
+  }
 }

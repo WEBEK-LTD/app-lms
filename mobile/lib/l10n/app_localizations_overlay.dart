@@ -10033,4 +10033,103 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get vendorHoursSaved =>
       overlay.text('vendorHoursSaved') ?? base.vendorHoursSaved;
+
+  @override
+  String get signInWithUsername =>
+      overlay.text('signInWithUsername') ?? base.signInWithUsername;
+
+  @override
+  String get username => overlay.text('username') ?? base.username;
+
+  @override
+  String get usernameHint => overlay.text('usernameHint') ?? base.usernameHint;
+
+  @override
+  String get enterUsername =>
+      overlay.text('enterUsername') ?? base.enterUsername;
+
+  @override
+  String get signInIntroPasswordStudio =>
+      overlay.text('signInIntroPasswordStudio') ??
+      base.signInIntroPasswordStudio;
+
+  @override
+  String get forgotPasswordTitle =>
+      overlay.text('forgotPasswordTitle') ?? base.forgotPasswordTitle;
+
+  @override
+  String get forgotPasswordIntro =>
+      overlay.text('forgotPasswordIntro') ?? base.forgotPasswordIntro;
+
+  @override
+  String get newPasswordTitle =>
+      overlay.text('newPasswordTitle') ?? base.newPasswordTitle;
+
+  @override
+  String get newPassword => overlay.text('newPassword') ?? base.newPassword;
+
+  @override
+  String get confirmPassword =>
+      overlay.text('confirmPassword') ?? base.confirmPassword;
+
+  @override
+  String get passwordsDontMatch =>
+      overlay.text('passwordsDontMatch') ?? base.passwordsDontMatch;
+
+  @override
+  String get saveAndSignIn =>
+      overlay.text('saveAndSignIn') ?? base.saveAndSignIn;
+
+  @override
+  String get signInWithCodeInstead =>
+      overlay.text('signInWithCodeInstead') ?? base.signInWithCodeInstead;
+
+  @override
+  String get signInWithPasswordInstead =>
+      overlay.text('signInWithPasswordInstead') ??
+      base.signInWithPasswordInstead;
+
+  @override
+  String get createAnAccount =>
+      overlay.text('createAnAccount') ?? base.createAnAccount;
+
+  @override
+  String get newHereQuestion =>
+      overlay.text('newHereQuestion') ?? base.newHereQuestion;
+
+  @override
+  String get createAccountIntroCode =>
+      overlay.text('createAccountIntroCode') ?? base.createAccountIntroCode;
+
+  @override
+  String get changePassword =>
+      overlay.text('changePassword') ?? base.changePassword;
+
+  @override
+  String get currentPassword =>
+      overlay.text('currentPassword') ?? base.currentPassword;
+
+  @override
+  String get enterCurrentPassword =>
+      overlay.text('enterCurrentPassword') ?? base.enterCurrentPassword;
+
+  @override
+  String get passwordChanged =>
+      overlay.text('passwordChanged') ?? base.passwordChanged;
+
+  @override
+  String get showPassword => overlay.text('showPassword') ?? base.showPassword;
+
+  @override
+  String get hidePassword => overlay.text('hidePassword') ?? base.hidePassword;
+
+  @override
+  String newPasswordIntro(int min) =>
+      overlay.format('newPasswordIntro', {'min': min}) ??
+      base.newPasswordIntro(min);
+
+  @override
+  String passwordTooShort(int min) =>
+      overlay.format('passwordTooShort', {'min': min}) ??
+      base.passwordTooShort(min);
 }

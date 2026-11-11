@@ -514,7 +514,8 @@ class SiteFeatures {
   final bool bundles;
 }
 
-enum SignupField { name, email, city }
+/// 118 `username` and `password`: a Studio app's account that signs in with them.
+enum SignupField { name, email, city, username, password }
 
 /// 18 How people sign in: a code to their phone, or by email.
 enum SignInMethod { phone, email }
@@ -522,6 +523,54 @@ enum SignInMethod { phone, email }
 /// 18 How email sign-in works on this server: a code by email (the hosted
 /// API) or the account's password (a WordPress site).
 enum EmailSignIn { code, password }
+
+/// 118 What a password signs in with in a Studio app.
+enum PasswordWay { email, phone, username }
+
+/// 118 `Config.auth.password_sign_in`: a Studio app that signs in with a
+/// password. [codes]: where a code still signs in (empty: passwords only);
+/// [recovery]: what username accounts are checked and reset with.
+class PasswordSignIn {
+  const PasswordSignIn({
+    required this.by,
+    this.codes = const [],
+    this.recovery = SignInMethod.email,
+    this.minLength = 8,
+  });
+
+  static PasswordSignIn? fromJson(Object? value) {
+    if (value is! Map<String, dynamic>) return null;
+    final by = [
+      for (final way in PasswordWay.values)
+        if (stringList(value, 'by').contains(way.name)) way,
+    ];
+    if (by.isEmpty) return null;
+    return PasswordSignIn(
+      by: by,
+      codes: [
+        for (final method in SignInMethod.values)
+          if (stringList(value, 'codes').contains(method.name)) method,
+      ],
+      recovery: optString(value, 'recovery') == 'phone'
+          ? SignInMethod.phone
+          : SignInMethod.email,
+      minLength: value['min_length'] is int ? value['min_length'] as int : 8,
+    );
+  }
+
+  final List<PasswordWay> by;
+  final List<SignInMethod> codes;
+  final SignInMethod recovery;
+  final int minLength;
+
+  /// Where "Forgot password" can send a code: the email or phone of an account.
+  List<SignInMethod> get resetChannels => [
+    for (final method in SignInMethod.values)
+      if (by.contains(PasswordWay.values.byName(method.name)) ||
+          (by.contains(PasswordWay.username) && recovery == method))
+        method,
+  ];
+}
 
 class AuthRules {
   const AuthRules({
@@ -532,6 +581,7 @@ class AuthRules {
     this.methods = const [SignInMethod.phone],
     this.emailSignIn = EmailSignIn.code,
     this.passwordResetUrl,
+    this.passwordSignIn,
   });
 
   factory AuthRules.fromJson(Json json) {
@@ -550,6 +600,7 @@ class AuthRules {
           ? EmailSignIn.password
           : EmailSignIn.code,
       passwordResetUrl: optString(json, 'password_reset_url'),
+      passwordSignIn: PasswordSignIn.fromJson(json['password_sign_in']),
     );
   }
 
@@ -563,6 +614,9 @@ class AuthRules {
 
   /// With [EmailSignIn.password]: the website's page for a forgotten password.
   final String? passwordResetUrl;
+
+  /// 118 A Studio app that signs in with a password; null: codes only.
+  final PasswordSignIn? passwordSignIn;
 
   /// The server signs in only the store review number when the app preview
   /// asks with `preview: true` (and never sends a code). Missing on older
