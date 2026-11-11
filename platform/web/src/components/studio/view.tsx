@@ -188,6 +188,12 @@ function Header(props: ViewProps & { header: StudioHeader }) {
           <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>{brandMark}</div>
           {buttons.filter((b) => b !== "menu").slice(0, 1).map(icon)}
         </>
+      ) : header.type === "title" ? (
+        <>
+          {buttons.includes("menu") ? icon("menu") : null}
+          <span style={{ flex: 1, fontWeight: 800, fontSize: 18, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</span>
+          {buttons.filter((b) => b !== "menu").map(icon)}
+        </>
       ) : header.type === "title_search" ? (
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
           <span style={{ fontWeight: 800, fontSize: 18 }}>{title}</span>

@@ -35,6 +35,8 @@ import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
+import { applyDemoScreensAction } from "@/app/actions/studio-screens";
+import { demoTabsWithPages } from "@/lib/studio/demo-pages";
 import { sourcesIn } from "@/lib/samples/lists";
 
 /**
@@ -825,7 +827,15 @@ export function StudioEditor(props: StudioEditorProps) {
   const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey), demo: (name: string) => t("studio.design_demo", { name }) };
   const galleryDesigns: GalleryDesign[] = useMemo(
     () => [
-      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designName(d, designWords), kind: "yallapp" as const, pages: d.templates.length, recommended: d.demo !== undefined, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...designsFor(props.kind).map((d) => ({
+        id: d.id,
+        name: designName(d, designWords),
+        kind: "yallapp" as const,
+        // 120 A demo's design: its home and a page for each of its tabs opening a screen.
+        pages: d.templates.length + (d.demo && props.demoTabs ? demoTabsWithPages(props.demoTabs).length : 0),
+        recommended: d.demo !== undefined,
+        file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages, d.demo ? props.demoTabs : null) : null,
+      })),
       ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
     ],
     // Made when the window opens, for the project as it is then.
@@ -846,8 +856,10 @@ export function StudioEditor(props: StudioEditorProps) {
     for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
     // Templates = demos: the demo's whole design is the demo, its look and tabs too.
-    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs) : undefined;
-    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo });
+    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang) : undefined;
+    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo, designSlugs: file.pages.map((p) => p.slug) });
+    // 120 The demo's sign-in screen and account menu too.
+    if (demo && file.demo) void applyDemoScreensAction(file.demo).catch(() => null);
     change(() => next);
     // 110.2 The empty lists the design's pages show get sample entries; a demo's design, the demo's own (as "Start from demo" does).
     if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)], file.demo ?? null).catch(() => null);

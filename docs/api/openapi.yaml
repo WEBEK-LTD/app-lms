@@ -14259,9 +14259,12 @@ components:
         the logo in the middle; `title_search`: the page's title and a
         search field; `logo_actions`: the logo and the `buttons`;
         `transparent`: over the page's first element, the buttons on it.
+        120 `title`: the page's title and the buttons, for the pages after
+        the first (a page drawn around one of the app's screens). Apps that
+        don't know a type show no header.
       required: [type]
       properties:
-        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent] }
+        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title] }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:

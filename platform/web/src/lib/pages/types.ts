@@ -20,7 +20,8 @@ export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
 export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
-export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
+/** 120 `title`: the page's title and its buttons, for the pages after the first. */
+export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
 export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;

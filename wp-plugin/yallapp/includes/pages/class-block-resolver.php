@@ -1023,7 +1023,7 @@ class Block_Resolver {
 	 */
 	private function studio_header( array $raw ) {
 		$type = $raw['type'] ?? null;
-		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent' ), true ) ) {
+		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title' ), true ) ) {
 			return null;
 		}
 		$buttons = array();

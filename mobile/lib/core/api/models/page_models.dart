@@ -1811,7 +1811,14 @@ class StudioPage {
   }
 }
 
-enum StudioHeaderType { logoCenter, titleSearch, logoActions, transparent }
+/// 120 [title]: the page's title and its buttons.
+enum StudioHeaderType {
+  logoCenter,
+  titleSearch,
+  logoActions,
+  transparent,
+  title,
+}
 
 enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
 

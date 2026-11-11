@@ -14192,6 +14192,15 @@ components:
         slug: { type: string, example: home }
         title: { type: string, example: Home }
         updated_at: { type: string, format: date-time }
+        screen:
+          type: string
+          description: |
+            120 A Studio page drawn around one of the app's screens
+            (`StudioPage.screen`): which one, so the app shows the page
+            wherever it shows that screen. A tab or a side menu entry opening
+            the page is sent opening the screen (`target.type` `screen`), so
+            an app that doesn't know pages around screens still shows it.
+            Missing for the other pages.
 
     AppPage:
       allOf:
@@ -14231,6 +14240,17 @@ components:
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The page's colour; null, the app's background." }
         dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background` (or the app's dark background when that is null too)." }
         show_tabs: { type: boolean, default: true, description: "The app's bottom tabs under the page, when it is one of them." }
+        screen:
+          type: string
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school]
+          description: |
+            120 The app's own screen drawn under the page's elements (its
+            list of shipments, the ride map, the orders): the header and the
+            body go over the top of the screen and scroll away with it, and
+            when the page has a header the screen's own title isn't shown.
+            The app shows this page wherever it shows that screen: a tab or
+            a button opening the screen, and the page itself. One page per
+            screen. Apps that don't know it show the page's elements alone.
 
     StudioHeader:
       type: [object, 'null']
@@ -14239,9 +14259,12 @@ components:
         the logo in the middle; `title_search`: the page's title and a
         search field; `logo_actions`: the logo and the `buttons`;
         `transparent`: over the page's first element, the buttons on it.
+        120 `title`: the page's title and the buttons, for the pages after
+        the first (a page drawn around one of the app's screens). Apps that
+        don't know a type show no header.
       required: [type]
       properties:
-        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent] }
+        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title] }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:

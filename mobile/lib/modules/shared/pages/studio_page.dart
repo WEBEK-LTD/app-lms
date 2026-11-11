@@ -141,6 +141,10 @@ class StudioPageView extends ConsumerWidget {
   /// scroll away over the screen, which fills the rest. Under a header the
   /// screen's own title isn't shown.
   Widget _aroundScreen(BuildContext context, Widget hosted) {
+    // Nothing over it yet: the screen as it is (the account's own top).
+    if (page.header == null && page.body.children.isEmpty && !pushed) {
+      return hosted;
+    }
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
@@ -402,6 +406,21 @@ class StudioHeaderView extends ConsumerWidget {
           ],
         ],
       ),
+      // 120 The page's title and its buttons.
+      StudioHeaderType.title => SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            ?menu,
+            if (menu != null)
+              const SizedBox(width: 4)
+            else
+              const SizedBox(width: 8),
+            Expanded(child: heading),
+            if (buttons.isNotEmpty) end,
+          ],
+        ),
+      ),
       StudioHeaderType.logoActions || StudioHeaderType.transparent => SizedBox(
         height: 44,
         child: Row(
@@ -426,6 +445,7 @@ class StudioHeaderView extends ConsumerWidget {
           StudioHeaderType.titleSearch => 'title_search',
           StudioHeaderType.logoActions => 'logo_actions',
           StudioHeaderType.transparent => 'transparent',
+          StudioHeaderType.title => 'title',
         }}',
       ),
       padding: EdgeInsets.fromLTRB(10, top + 8, 10, 4),

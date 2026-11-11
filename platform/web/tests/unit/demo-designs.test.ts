@@ -8,6 +8,7 @@ import { designsForApp } from "@/lib/pages/designs/catalog";
 import { withBuiltInTexts } from "@/lib/pages/builtin";
 import { designLayout } from "@/lib/pages/layout";
 import { parseLayoutContent } from "@/lib/pages/validate";
+import { demoPageTabs } from "@/lib/studio/demo-pages";
 import { MemoryStore } from "@/lib/data/memory";
 import type { App } from "@/lib/data/types";
 
@@ -40,9 +41,12 @@ describe("templates = demos", () => {
     // "Like our demo" taken by an app that had another look and other pages.
     const other = { appearance: { template: "classic" as const, theme_mode: "system" as const, user_can_change_mode: true, secondary_color: null, font: "Bricolage Grotesque" as const, corners: "sharp" as const, cards: "flat" as const }, languages: { default: "en" as const, available: ["en" as const] } };
     const design = designLayout(app, demoDesign(id), other, NOW);
-    const withoutSignIn = { ...demo, pages: demo.pages.map((p, i) => (i === 0 ? { ...p, blocks: p.blocks.filter((b) => b.id !== "demo-sign-in") } : p)) };
+    // 120 A Studio demo's pages after its home are its tabs' Studio pages, drawn around their screens (tests/unit/studio-demo-templates.test.ts): set apart, with the tabs opening them.
+    const own = demo.pages.filter((p) => !p.studio?.screen);
+    const withoutSignIn = { ...demo, pages: own.map((p, i) => (i === 0 ? { ...p, blocks: p.blocks.filter((b) => b.id !== "demo-sign-in") } : p)) };
     // Every page with its blocks (a Studio demo's home has none: it is its kind's designed Studio page, tests/unit/studio-demo-templates.test.ts), the tabs and the side menu.
-    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(design));
+    expect(pagesOf(withoutSignIn)).toEqual(pagesOf(isStudioDemo(id) ? { ...design, tabs: demoPageTabs(design.tabs, { lang: "en" }) } : design));
+    if (!isStudioDemo(id)) expect(own).toHaveLength(demo.pages.length);
     expect(demo.menu ?? []).toEqual(design.menu ?? []);
     // The demo's look is the design's.
     const look = demoDesign(id).look;

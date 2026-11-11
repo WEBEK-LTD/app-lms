@@ -161,7 +161,30 @@ export type SectionWord =
   | "mClubFreeText"
   | "mShops"
   | "mShopsText"
-  | "mAll";
+  | "mAll"
+  // 120 The Studio demos' pages after the home: their tabs' names and a word over each screen.
+  | "tabHome"
+  | "tabSend"
+  | "tabShipments"
+  | "tabRestaurants"
+  | "tabMyOrders"
+  | "tabOrders"
+  | "tabSearch"
+  | "tabClub"
+  | "tabRide"
+  | "tabMyRides"
+  | "tabSchool"
+  | "tabCourses"
+  | "tabMyCourses"
+  | "tabAccount"
+  | "tipSend"
+  | "tipShipments"
+  | "tipRestaurants"
+  | "tipFoodOrders"
+  | "tipMyRides"
+  | "tipSchool"
+  | "tipCourses"
+  | "tipMyCourses";
 
 export interface SectionContext {
   brand: string;
