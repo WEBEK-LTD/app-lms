@@ -198,14 +198,18 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final fg = onPressed == null && !loading ? p.textTertiary : p.onPrimary;
+    // 123 In a premium screen's gold scope: the second colour's gradient.
+    final gold = GoldButtons.of(context);
+    // On gold, the dark ink the premium academy writes on it.
+    final ink = gold == null ? p.onPrimary : const Color(0xFF2A1D05);
+    final fg = onPressed == null && !loading ? p.textTertiary : ink;
     final child = loading
         ? SizedBox(
             width: 22,
             height: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              color: p.onPrimary,
+              color: ink,
               semanticsLabel: context.l10n.loading,
             ),
           )
@@ -229,6 +233,44 @@ class PrimaryButton extends StatelessWidget {
               ),
             ],
           );
+    if (gold != null) {
+      final radius = BorderRadius.circular(18);
+      final on = onPressed != null || loading;
+      return DecoratedBox(
+        key: const ValueKey('gold-button'),
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          gradient: on
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color.lerp(gold, Colors.white, 0.45)!, gold],
+                )
+              : null,
+          color: on ? null : p.segment,
+          boxShadow: on
+              ? [
+                  BoxShadow(
+                    color: gold.withValues(alpha: 0.35),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
+        ),
+        child: FilledButton(
+          onPressed: loading ? null : onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            minimumSize: Size.fromHeight(height),
+            shape: RoundedRectangleBorder(borderRadius: radius),
+          ),
+          child: child,
+        ),
+      );
+    }
     return FilledButton(
       onPressed: loading ? null : onPressed,
       style: FilledButton.styleFrom(
@@ -242,6 +284,21 @@ class PrimaryButton extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// 123 A premium screen's main buttons in gold: the second colour's
+/// gradient, as the premium academy has them (a course's purchase, the
+/// cart's payment, signing in).
+class GoldButtons extends InheritedWidget {
+  const GoldButtons({super.key, required this.color, required super.child});
+
+  final Color color;
+
+  static Color? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GoldButtons>()?.color;
+
+  @override
+  bool updateShouldNotify(GoldButtons oldWidget) => oldWidget.color != color;
 }
 
 /// The light button beside a primary one ("Previous").

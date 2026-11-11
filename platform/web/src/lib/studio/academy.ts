@@ -264,7 +264,7 @@ export const ACADEMY_PROJECT: TemplateProject = {
       items: (["my_courses", "certificates", "quiz_results", "wishlist", "orders", "notifications", "settings", "help", "privacy", "terms"] as const).map((key) => ({ key, hidden: false, label: {}, icon: null })),
     },
     course_card: { style: "premium", radius: 18, hide: [] },
-    course_page: { cover: "full", bar: "glass", hide: [] },
+    course_page: { cover: "full", bar: "glass", hide: [], look: "premium" },
     // The approved Explore, My courses, lesson, code and cart.
     looks: { catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" },
   }),

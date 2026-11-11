@@ -10749,5 +10749,30 @@
   "courseBadgeBestseller": "Bestseller",
   "@courseBadgeBestseller": {
     "description": "123 The badge of one of the courses with the most students."
+  },
+  "certifiedCertificate": "Certified certificate",
+  "@certifiedCertificate": {
+    "description": "123 The tag on a premium course page's picture when the course gives a certificate."
+  },
+  "aboutCourse": "About the course",
+  "@aboutCourse": {
+    "description": "123 The tab with what a course teaches, on its premium page."
+  },
+  "courseQuestions": "Questions",
+  "@courseQuestions": {
+    "description": "123 The tab with the course's questions and answers, on its premium page."
+  },
+  "saveShare": "Save {percent}%",
+  "@saveShare": {
+    "description": "123 How much a course on sale saves, by its old price.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "joinNow": "Join now",
+  "@joinNow": {
+    "description": "123 The purchase button on a premium course page."
   }
 }

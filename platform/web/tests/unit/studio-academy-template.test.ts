@@ -138,7 +138,7 @@ describe("123 the premium academy template", () => {
     expect(screens.course_card).toEqual({ style: "premium", radius: 18, hide: [] });
     // 123 Explore, My courses, the lesson, the code and the cart as approved.
     expect(screens.looks).toEqual({ catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" });
-    expect(screens.course_page).toEqual({ cover: "full", bar: "glass", hide: [] });
+    expect(screens.course_page).toEqual({ cover: "full", bar: "glass", hide: [], look: "premium" });
   });
 
   it("reads the owner's website from sign-up as an https address", () => {

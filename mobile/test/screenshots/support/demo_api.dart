@@ -2575,6 +2575,14 @@ class DemoApi extends FakeApi {
 
   Map<String, dynamic> _courseDetail(Map<String, dynamic> summary) => {
     ...summary,
+    // 123 The teacher to follow, with their bio.
+    'instructor': {
+      ...(summary['instructor'] as Map<String, dynamic>),
+      'bio': arabic
+          ? 'مصممة منتجات في شركات عالمية · ٨ دورات'
+          : 'Product designer at global companies · 8 courses',
+      'following': false,
+    },
     'description_html': arabic
         ? '<p>تعلّم كيف تصمم تطبيقات ومواقع سهلة الاستخدام، من البحث مع المستخدمين إلى النماذج الأولية القابلة للنقر.</p>'
         : '<p>Learn how to design apps and websites people find easy to '

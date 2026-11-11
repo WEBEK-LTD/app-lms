@@ -71,6 +71,7 @@ class Instructor {
     required this.name,
     this.avatarUrl,
     this.bio,
+    this.following,
   });
 
   factory Instructor.fromJson(Json json) => Instructor(
@@ -78,12 +79,17 @@ class Instructor {
     name: reqString(json, 'name'),
     avatarUrl: optString(json, 'avatar_url'),
     bio: optString(json, 'bio'),
+    following: json['following'] is bool ? json['following'] as bool : null,
   );
 
   final int id;
   final String name;
   final String? avatarUrl;
   final String? bio;
+
+  /// 123 Whether the signed-in student follows them; null where following
+  /// isn't offered.
+  final bool? following;
 }
 
 class Price {

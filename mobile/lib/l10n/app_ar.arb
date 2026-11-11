@@ -2602,5 +2602,10 @@
   "exploreSearchHint": "دورة، مهارة، أو معلم",
   "freeCourses": "مجانية",
   "courseBadgeNew": "جديدة",
-  "courseBadgeBestseller": "الأكثر مبيعًا"
+  "courseBadgeBestseller": "الأكثر مبيعًا",
+  "certifiedCertificate": "شهادة معتمدة",
+  "aboutCourse": "عن الدورة",
+  "courseQuestions": "الأسئلة",
+  "saveShare": "وفّر {percent}٪",
+  "joinNow": "اشترك الآن"
 }

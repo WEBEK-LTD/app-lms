@@ -166,6 +166,10 @@ class Studio_Screens {
 		if ( in_array( $raw['first_tab'] ?? null, array( 'overview', 'curriculum' ), true ) ) {
 			$page['first_tab'] = $raw['first_tab'];
 		}
+		// 123 The premium academy's page.
+		if ( 'premium' === ( $raw['look'] ?? null ) ) {
+			$page['look'] = 'premium';
+		}
 		return $page;
 	}
 

@@ -9863,4 +9863,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get courseBadgeBestseller => 'الأكثر مبيعًا';
+
+  @override
+  String get certifiedCertificate => 'شهادة معتمدة';
+
+  @override
+  String get aboutCourse => 'عن الدورة';
+
+  @override
+  String get courseQuestions => 'الأسئلة';
+
+  @override
+  String saveShare(int percent) {
+    return 'وفّر $percent٪';
+  }
+
+  @override
+  String get joinNow => 'اشترك الآن';
 }

@@ -15727,6 +15727,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bestseller'**
   String get courseBadgeBestseller;
+
+  /// 123 The tag on a premium course page's picture when the course gives a certificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Certified certificate'**
+  String get certifiedCertificate;
+
+  /// 123 The tab with what a course teaches, on its premium page.
+  ///
+  /// In en, this message translates to:
+  /// **'About the course'**
+  String get aboutCourse;
+
+  /// 123 The tab with the course's questions and answers, on its premium page.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get courseQuestions;
+
+  /// 123 How much a course on sale saves, by its old price.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {percent}%'**
+  String saveShare(int percent);
+
+  /// 123 The purchase button on a premium course page.
+  ///
+  /// In en, this message translates to:
+  /// **'Join now'**
+  String get joinNow;
 }
 
 class _AppLocalizationsDelegate

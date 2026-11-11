@@ -1542,12 +1542,18 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 	private function instructor( $user_id ) {
 		$user = get_userdata( $user_id );
 		$bio  = $user ? (string) get_user_meta( $user_id, '_tutor_profile_bio', true ) : '';
-		return array(
+		$out  = array(
 			'id'         => (int) $user_id,
 			'name'       => $user ? (string) $user->display_name : '',
 			'avatar_url' => $user ? \Yallapp\Otp\Sign_In::avatar_url( $user_id ) : null,
 			'bio'        => '' !== $bio ? wp_strip_all_tags( $bio ) : null,
 		);
+		// 123 Whether the signed-in student follows them.
+		$me = get_current_user_id();
+		if ( $me > 0 && $user && $me !== (int) $user_id ) {
+			$out['following'] = in_array( (int) $user_id, \Yallapp\Lms\Follows::following( $me ), true );
+		}
+		return $out;
 	}
 
 	/**

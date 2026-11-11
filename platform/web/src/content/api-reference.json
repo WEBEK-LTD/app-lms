@@ -1737,7 +1737,7 @@
           "method": "PUT",
           "path": "/teachers/{teacher_id}/follow",
           "summary": "Follow a teacher",
-          "description": "The student gets a push (`new_course`) when a new course of the teacher is published.",
+          "description": "The student gets a push (`new_course`) when a new course of the teacher is published. 123 On WordPress too, for any course's teacher (`Instructor.following`).",
           "access": "signed-in"
         },
         {

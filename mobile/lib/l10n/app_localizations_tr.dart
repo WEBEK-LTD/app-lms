@@ -9566,4 +9566,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get courseBadgeBestseller => 'Çok satan';
+
+  @override
+  String get certifiedCertificate => 'Onaylı sertifika';
+
+  @override
+  String get aboutCourse => 'Kurs hakkında';
+
+  @override
+  String get courseQuestions => 'Sorular';
+
+  @override
+  String saveShare(int percent) {
+    return '%$percent tasarruf';
+  }
+
+  @override
+  String get joinNow => 'Hemen katıl';
 }

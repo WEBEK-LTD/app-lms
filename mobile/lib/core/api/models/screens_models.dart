@@ -180,6 +180,7 @@ class CoursePageLook {
     this.bar = CoursePageBar.classic,
     this.firstTab,
     this.hide = const {},
+    this.premium = false,
   });
 
   factory CoursePageLook.fromJson(Map<String, dynamic> json) {
@@ -198,6 +199,7 @@ class CoursePageLook {
         for (final f in json['hide'] is List ? json['hide'] as List : const [])
           ?pick(CoursePageFact.values, f),
       },
+      premium: json['look'] == 'premium',
     );
   }
 
@@ -208,6 +210,11 @@ class CoursePageLook {
   /// own choice.
   final String? firstTab;
   final Set<CoursePageFact> hide;
+
+  /// 123 The premium academy's page: the course's subject and certificate
+  /// on its cover, the teacher on a card, the tabs as chips with the
+  /// curriculum first, and the purchase in gold.
+  final bool premium;
 
   bool shows(CoursePageFact fact) => !hide.contains(fact);
 }

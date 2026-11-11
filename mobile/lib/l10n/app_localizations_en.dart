@@ -9605,4 +9605,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get courseBadgeBestseller => 'Bestseller';
+
+  @override
+  String get certifiedCertificate => 'Certified certificate';
+
+  @override
+  String get aboutCourse => 'About the course';
+
+  @override
+  String get courseQuestions => 'Questions';
+
+  @override
+  String saveShare(int percent) {
+    return 'Save $percent%';
+  }
+
+  @override
+  String get joinNow => 'Join now';
 }

@@ -10257,4 +10257,23 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get courseBadgeBestseller =>
       overlay.text('courseBadgeBestseller') ?? base.courseBadgeBestseller;
+
+  @override
+  String get certifiedCertificate =>
+      overlay.text('certifiedCertificate') ?? base.certifiedCertificate;
+
+  @override
+  String get aboutCourse => overlay.text('aboutCourse') ?? base.aboutCourse;
+
+  @override
+  String get courseQuestions =>
+      overlay.text('courseQuestions') ?? base.courseQuestions;
+
+  @override
+  String saveShare(int percent) =>
+      overlay.format('saveShare', {'percent': percent}) ??
+      base.saveShare(percent);
+
+  @override
+  String get joinNow => overlay.text('joinNow') ?? base.joinNow;
 }

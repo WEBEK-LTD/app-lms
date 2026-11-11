@@ -1,4 +1,5 @@
 import 'course_questions.dart';
+import 'premium_course_parts.dart';
 import 'course_reviews.dart';
 import 'store_purchase_bars.dart';
 
@@ -7,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
@@ -286,20 +288,29 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     // 122 The page as the owner designed it in Studio.
     final look = config.screens?.coursePage ?? const CoursePageLook();
     final fullCover = look.cover == CoursePageCover.full;
+    // 123 The premium academy's page: the curriculum first, as chips.
+    final premium = look.premium;
     final tabs = [
-      _CourseTab.overview,
+      if (!premium) _CourseTab.overview,
       _CourseTab.curriculum,
+      if (premium) _CourseTab.overview,
       if (config.features.reviews && look.shows(CoursePageFact.reviews))
         _CourseTab.reviews,
       if (showQna) _CourseTab.qna,
     ];
     // 30 Students start on the curriculum; visitors on the overview when it
     // says what the course teaches (122 or the tab the owner chose).
+    final curriculumAt = tabs.indexOf(_CourseTab.curriculum);
+    final overviewAt = tabs.indexOf(_CourseTab.overview);
     final first = course.enrolled || course.about.isEmpty
-        ? 1
+        ? curriculumAt
         : look.firstTab == 'curriculum'
-        ? 1
-        : 0;
+        ? curriculumAt
+        : look.firstTab == 'overview'
+        ? overviewAt
+        : premium
+        ? curriculumAt
+        : overviewAt;
     final tab = (_tab ?? first).clamp(0, tabs.length - 1);
 
     final glass = look.bar == CoursePageBar.glass;
@@ -350,6 +361,29 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // 123 Its subject and its certificate, over its name.
+                            if (premium &&
+                                (course.categories.isNotEmpty ||
+                                    (course.hasCertificate &&
+                                        look.shows(
+                                          CoursePageFact.certificate,
+                                        )))) ...[
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  if (course.categories.isNotEmpty)
+                                    _CoverTag(
+                                      course.categories.first.name,
+                                      gold: true,
+                                    ),
+                                  if (course.hasCertificate &&
+                                      look.shows(CoursePageFact.certificate))
+                                    _CoverTag(l10n.certifiedCertificate),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                            ],
                             Semantics(
                               header: true,
                               child: Text(
@@ -380,13 +414,15 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                                         child: Icon(
                                           AppIcons.star,
                                           size: 15,
+                                          fill: 1,
                                           color: Color(0xFFF5C451),
                                         ),
                                       ),
                                     ),
                                     TextSpan(
-                                      text:
-                                          '${course.rating!.toStringAsFixed(1)}  ·  ',
+                                      text: premium
+                                          ? '${course.rating!.toStringAsFixed(1)} (${course.ratingCount})  ·  '
+                                          : '${course.rating!.toStringAsFixed(1)}  ·  ',
                                     ),
                                   ],
                                   TextSpan(
@@ -415,7 +451,16 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                     PositionedDirectional(
                       top: MediaQuery.paddingOf(context).top + 16,
                       start: 20,
-                      child: const AppBackButton(),
+                      child: premium
+                          ? _CoverCircle(
+                              icon: AppIcons.back,
+                              label: l10n.back,
+                              gold: true,
+                              onPressed: () => context.canPop()
+                                  ? context.pop()
+                                  : context.go(Paths.home),
+                            )
+                          : const AppBackButton(),
                     ),
                     PositionedDirectional(
                       top: MediaQuery.paddingOf(context).top + 16,
@@ -429,13 +474,22 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                             id: course.id,
                             title: course.title,
                             bordered: false,
+                            onImage: premium,
+                            size: premium ? 40 : 44,
+                            background: premium ? _dim : null,
+                            foreground: premium ? Colors.white : null,
                           ),
                           if (config.features.wishlist) ...[
-                            const SizedBox(width: 4),
+                            SizedBox(width: premium ? 8 : 4),
                             SquareIconButton(
                               icon: AppIcons.favorite,
                               filled: wishlisted,
-                              foreground: wishlisted ? p.link : p.text,
+                              size: premium ? 40 : 44,
+                              radius: premium ? 20 : 12,
+                              background: premium ? _dim : null,
+                              foreground: wishlisted
+                                  ? (premium ? const Color(0xFFFF4D67) : p.link)
+                                  : (premium ? Colors.white : p.text),
                               bordered: false,
                               label: wishlisted
                                   ? l10n.removeFromWishlist
@@ -462,7 +516,18 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ),
-                    if (course.instructor != null) ...[
+                    if (course.instructor != null && premium)
+                      TeacherCard(
+                        instructor: course.instructor!,
+                        onTap:
+                            ref.watch(teachersOnProvider) &&
+                                course.instructor!.id > 0
+                            ? () => context.push(
+                                Paths.teacherPage(course.instructor!.id),
+                              )
+                            : null,
+                      )
+                    else if (course.instructor != null) ...[
                       const SizedBox(height: 14),
                       _InstructorRow(
                         instructor: course.instructor!,
@@ -477,54 +542,58 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       ),
                     ],
                     const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (course.rating != null && course.ratingCount > 0)
-                          _MetaChip(
-                            '${course.rating!.toStringAsFixed(1)} · '
-                            '${l10n.ratingCount(course.ratingCount)}',
-                            icon: AppIcons.star,
-                            iconColor: p.star,
-                          ),
-                        _MetaChip(
-                          l10n.lessonCount(course.lessonCount),
-                          icon: AppIcons.courses,
-                        ),
-                        if (course.durationMinutes != null &&
-                            look.shows(CoursePageFact.duration))
-                          _MetaChip(
-                            formatMinutes(course.durationMinutes!),
-                            icon: AppIcons.schedule,
-                          ),
-                        if ((course.studentCount ?? 0) > 0 &&
-                            look.shows(CoursePageFact.students))
-                          _MetaChip(
-                            l10n.studentCount(course.studentCount!),
-                            icon: AppIcons.group,
-                          ),
-                        if (course.level != null &&
-                            course.level!.isNotEmpty &&
-                            look.shows(CoursePageFact.level))
-                          _MetaChip(course.level!, icon: AppIcons.level),
-                        if (course.hasCertificate &&
-                            look.shows(CoursePageFact.certificate))
-                          _MetaChip(
-                            l10n.certificate,
-                            icon: AppIcons.certificate,
-                          ),
-                        // 112.5 The student's cohort and its first day.
-                        if (course.cohort != null)
-                          _MetaChip(
-                            l10n.cohortStarts(
-                              course.cohort!.name,
-                              shortDate(course.cohort!.startsAt),
+                    // 123 On the premium page the facts are on the cover.
+                    if (!premium || course.cohort != null)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (!premium &&
+                              course.rating != null &&
+                              course.ratingCount > 0)
+                            _MetaChip(
+                              '${course.rating!.toStringAsFixed(1)} · '
+                              '${l10n.ratingCount(course.ratingCount)}',
+                              icon: AppIcons.star,
+                              iconColor: p.star,
                             ),
-                            icon: AppIcons.group,
+                          _MetaChip(
+                            l10n.lessonCount(course.lessonCount),
+                            icon: AppIcons.courses,
                           ),
-                      ],
-                    ),
+                          if (course.durationMinutes != null &&
+                              look.shows(CoursePageFact.duration))
+                            _MetaChip(
+                              formatMinutes(course.durationMinutes!),
+                              icon: AppIcons.schedule,
+                            ),
+                          if ((course.studentCount ?? 0) > 0 &&
+                              look.shows(CoursePageFact.students))
+                            _MetaChip(
+                              l10n.studentCount(course.studentCount!),
+                              icon: AppIcons.group,
+                            ),
+                          if (course.level != null &&
+                              course.level!.isNotEmpty &&
+                              look.shows(CoursePageFact.level))
+                            _MetaChip(course.level!, icon: AppIcons.level),
+                          if (course.hasCertificate &&
+                              look.shows(CoursePageFact.certificate))
+                            _MetaChip(
+                              l10n.certificate,
+                              icon: AppIcons.certificate,
+                            ),
+                          // 112.5 The student's cohort and its first day.
+                          if (course.cohort != null)
+                            _MetaChip(
+                              l10n.cohortStarts(
+                                course.cohort!.name,
+                                shortDate(course.cohort!.startsAt),
+                              ),
+                              icon: AppIcons.group,
+                            ),
+                        ],
+                      ),
                     // 113.1 The bundles it's in, while one isn't the student's.
                     if (course.bundles.any((b) => !b.owned)) ...[
                       const SizedBox(height: 16),
@@ -585,19 +654,34 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
                       CourseLearningLinks(courseId: course.id),
                     ],
                     const SizedBox(height: 16),
-                    SegmentedTabs(
-                      labels: [
-                        for (final t in tabs)
-                          switch (t) {
-                            _CourseTab.overview => l10n.overview,
-                            _CourseTab.curriculum => l10n.curriculum,
-                            _CourseTab.reviews => l10n.reviews,
-                            _CourseTab.qna => l10n.questionsAndAnswers,
-                          },
-                      ],
-                      selected: tab,
-                      onChanged: (i) => setState(() => _tab = i),
-                    ),
+                    if (premium)
+                      InkChips(
+                        labels: [
+                          for (final t in tabs)
+                            switch (t) {
+                              _CourseTab.overview => l10n.aboutCourse,
+                              _CourseTab.curriculum => l10n.curriculum,
+                              _CourseTab.reviews => l10n.reviews,
+                              _CourseTab.qna => l10n.courseQuestions,
+                            },
+                        ],
+                        selected: tab,
+                        onChanged: (i) => setState(() => _tab = i),
+                      )
+                    else
+                      SegmentedTabs(
+                        labels: [
+                          for (final t in tabs)
+                            switch (t) {
+                              _CourseTab.overview => l10n.overview,
+                              _CourseTab.curriculum => l10n.curriculum,
+                              _CourseTab.reviews => l10n.reviews,
+                              _CourseTab.qna => l10n.questionsAndAnswers,
+                            },
+                        ],
+                        selected: tab,
+                        onChanged: (i) => setState(() => _tab = i),
+                      ),
                     const SizedBox(height: 16),
                     switch (tabs[tab]) {
                       _CourseTab.overview => _Overview(course: course),
@@ -661,23 +745,32 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
           onCheckout: () => _checkout(course),
         ),
     ];
-    if (!glass) return Scaffold(body: Column(children: page));
+    // 123 The premium page's purchase in gold, the price with its saving.
+    Widget gilded(Widget child) => premium
+        ? GoldButtons(
+            color: Theme.of(context).colorScheme.secondary,
+            child: PremiumPrice(child: child),
+          )
+        : child;
+    if (!glass) return Scaffold(body: gilded(Column(children: page)));
     // 122 The purchase bar frosted over the page.
     return Scaffold(
       body: GlassBottomBars(
-        child: Stack(
-          children: [
-            Positioned.fill(child: (page.first as Expanded).child),
-            PositionedDirectional(
-              start: 0,
-              end: 0,
-              bottom: 0,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: page.sublist(1),
+        child: gilded(
+          Stack(
+            children: [
+              Positioned.fill(child: (page.first as Expanded).child),
+              PositionedDirectional(
+                start: 0,
+                end: 0,
+                bottom: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: page.sublist(1),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1259,8 +1352,13 @@ class _CtaBar extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   key: const ValueKey('cta-checkout'),
-                  label: context.l10n.enrollNow,
-                  icon: AppIcons.cart,
+                  // 123 On the premium page: "Join now" with a bag.
+                  label: PremiumPrice.of(context)
+                      ? context.l10n.joinNow
+                      : context.l10n.enrollNow,
+                  icon: PremiumPrice.of(context)
+                      ? Symbols.shopping_bag_rounded
+                      : AppIcons.cart,
                   height: 54,
                   loading: busy,
                   onPressed: onCheckout,
@@ -1490,6 +1588,7 @@ class _PriceColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    if (PremiumPrice.of(context)) return PremiumPriceColumn(price: price);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1697,6 +1796,83 @@ class _CouponSheetState extends ConsumerState<CouponSheet> {
                     .pop((code: check?.applied == true ? check!.code : null)),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 123 A dimmed circle on the premium cover.
+const _dim = Color(0x40000000);
+
+/// 123 A tag over the course's name on its premium cover: its subject in
+/// gold, its certificate frosted.
+class _CoverTag extends StatelessWidget {
+  const _CoverTag(this.text, {this.gold = false});
+
+  final String text;
+  final bool gold;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+    decoration: BoxDecoration(
+      color: gold
+          ? Theme.of(context).colorScheme.secondary
+          : const Color(0x2EFFFFFF),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        color: gold ? const Color(0xFF2A1D05) : Colors.white,
+      ),
+    ),
+  );
+}
+
+/// 123 The way back on the premium cover: a round button in the second
+/// colour's light.
+class _CoverCircle extends StatelessWidget {
+  const _CoverCircle({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.gold = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+  final bool gold;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        key: const ValueKey('course-cover-back'),
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: gold
+                ? Theme.of(context).colorScheme.secondary
+                      .withValues(alpha: 0.55)
+                : _dim,
+          ),
+          // Turned to the reading direction by the icon itself.
+          child: Icon(
+            Symbols.arrow_back_rounded,
+            color: Colors.white,
+            size: 22,
           ),
         ),
       ),

@@ -2600,4 +2600,9 @@
 {"key":"exploreSearchHint","en":"Course, skill or teacher","ar":"دورة، مهارة، أو معلم","tr":"Kurs, beceri veya öğretmen","description":"123 The search box on the premium academy's Explore."},
 {"key":"freeCourses","en":"Free","ar":"مجانية","tr":"Ücretsiz","description":"123 The chip that shows the free courses on Explore."},
 {"key":"courseBadgeNew","en":"New","ar":"جديدة","tr":"Yeni","description":"123 The badge of a course published lately."},
-{"key":"courseBadgeBestseller","en":"Bestseller","ar":"الأكثر مبيعًا","tr":"Çok satan","description":"123 The badge of one of the courses with the most students."}]}
+{"key":"courseBadgeBestseller","en":"Bestseller","ar":"الأكثر مبيعًا","tr":"Çok satan","description":"123 The badge of one of the courses with the most students."},
+{"key":"certifiedCertificate","en":"Certified certificate","ar":"شهادة معتمدة","tr":"Onaylı sertifika","description":"123 The tag on a premium course page's picture when the course gives a certificate."},
+{"key":"aboutCourse","en":"About the course","ar":"عن الدورة","tr":"Kurs hakkında","description":"123 The tab with what a course teaches, on its premium page."},
+{"key":"courseQuestions","en":"Questions","ar":"الأسئلة","tr":"Sorular","description":"123 The tab with the course's questions and answers, on its premium page."},
+{"key":"saveShare","en":"Save {percent}%","ar":"وفّر {percent}٪","tr":"%{percent} tasarruf","description":"123 How much a course on sale saves, by its old price.","placeholders":{"percent":"int"}},
+{"key":"joinNow","en":"Join now","ar":"اشترك الآن","tr":"Hemen katıl","description":"123 The purchase button on a premium course page."}]}

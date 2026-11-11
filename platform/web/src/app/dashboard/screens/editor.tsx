@@ -487,6 +487,10 @@ export function ScreensEditor({
                 </div>
               </div>
             ))}
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input type="checkbox" data-course-page="look-premium" checked={coursePage.look === "premium"} onChange={(e) => setCoursePage({ ...coursePage, look: e.target.checked ? "premium" : undefined })} />
+              {t("studio.coursePagePremium")}
+            </label>
             <label className="flex flex-col gap-1 text-sm font-bold">
               {t("studio.coursePageFirst")}
               <select className="h-10 rounded-lg border border-line-strong px-2 font-normal" value={coursePage.first_tab ?? ""} onChange={(e) => setCoursePage({ ...coursePage, first_tab: (e.target.value || undefined) as CoursePageLook["first_tab"] })}>

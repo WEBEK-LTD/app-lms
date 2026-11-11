@@ -121,6 +121,8 @@ export interface CoursePageLook {
   bar: (typeof COURSE_PAGE_BARS)[number];
   first_tab?: (typeof COURSE_PAGE_TABS)[number];
   hide: CoursePageFact[];
+  /** 123 The premium academy's page: the subject and certificate on the cover, the teacher on a card to follow, the tabs as chips, the purchase in gold. */
+  look?: "premium";
 }
 
 export interface StudioScreens {
@@ -257,7 +259,7 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     const pick = <T extends string>(list: readonly T[], value: unknown, fallback: T): T => ((list as readonly unknown[]).includes(value) ? (value as T) : fallback);
     const first = (COURSE_PAGE_TABS as readonly unknown[]).includes(cp.first_tab) ? (cp.first_tab as CoursePageLook["first_tab"]) : undefined;
     const hide = [...new Set((Array.isArray(cp.hide) ? cp.hide : []).filter((f): f is CoursePageFact => (COURSE_PAGE_FACTS as readonly unknown[]).includes(f)))];
-    screens.course_page = { cover: pick(COURSE_PAGE_COVERS, cp.cover, "classic"), bar: pick(COURSE_PAGE_BARS, cp.bar, "classic"), ...(first ? { first_tab: first } : {}), hide };
+    screens.course_page = { cover: pick(COURSE_PAGE_COVERS, cp.cover, "classic"), bar: pick(COURSE_PAGE_BARS, cp.bar, "classic"), ...(first ? { first_tab: first } : {}), hide, ...(cp.look === "premium" ? { look: "premium" as const } : {}) };
   }
   // 123 The screens' own looks: the known ones, each with its one look.
   const lk = v.looks && typeof v.looks === "object" ? (v.looks as Record<string, unknown>) : null;

@@ -144,6 +144,11 @@ class Push_Service {
 		}
 		$types    = $lms->post_types();
 		$settings = $this->plugin->settings();
+		// 123 A new course of a teacher the student follows.
+		if ( $types['course'] === $post->post_type ) {
+			$this->notify_followers( $post );
+			return;
+		}
 		if ( $types['lesson'] === $post->post_type && $settings->get( 'notify_new_lesson' ) ) {
 			$kind = 'new_lessons';
 			$data = array(
@@ -174,6 +179,37 @@ class Push_Service {
 		$this->plugin->inbox()->add( $data['type'], Inbox::AUDIENCE_COURSE, $course_id, $notification['title'], $notification['body'], $course_id, 'new_lesson' === $data['type'] ? $post->ID : 0 );
 		if ( $this->is_configured() ) {
 			$this->queue( $lms->student_ids( $course_id ), $kind, $notification, $data );
+		}
+	}
+
+	/**
+	 * 123 Tells the students following a course's teacher that it is out: in their inbox,
+	 * and on their phones when they allow news of new lessons.
+	 *
+	 * @param WP_Post $post The course, just published.
+	 * @return void
+	 */
+	private function notify_followers( WP_Post $post ) {
+		$followers = \Yallapp\Lms\Follows::followers( (int) $post->post_author );
+		if ( ! $followers || ! $this->plugin->settings()->get( 'notify_new_lesson' ) ) {
+			return;
+		}
+		$teacher      = get_userdata( (int) $post->post_author );
+		$notification = array(
+			/* translators: %s: the teacher's name. */
+			'title' => wp_strip_all_tags( sprintf( __( 'A new course from %s', 'yallapp' ), $teacher ? $teacher->display_name : '' ) ),
+			'body'  => wp_strip_all_tags( get_the_title( $post ) ),
+		);
+		$data         = array(
+			'type'      => 'new_course',
+			'course_id' => (string) $post->ID,
+			'link'      => \Yallapp\App_Links::link( 'course', (int) $post->ID ),
+		);
+		foreach ( $followers as $follower ) {
+			$this->plugin->inbox()->add( 'new_course', Inbox::AUDIENCE_USER, $follower, $notification['title'], $notification['body'], (int) $post->ID );
+		}
+		if ( $this->is_configured() ) {
+			$this->queue( $followers, 'new_lessons', $notification, $data );
 		}
 	}
 

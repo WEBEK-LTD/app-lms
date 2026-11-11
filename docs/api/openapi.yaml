@@ -7541,7 +7541,7 @@ paths:
       tags: [Teachers]
       operationId: followTeacher
       summary: Follow a teacher
-      description: The student gets a push (`new_course`) when a new course of the teacher is published.
+      description: The student gets a push (`new_course`) when a new course of the teacher is published. 123 On WordPress too, for any course's teacher (`Instructor.following`).
       parameters:
         - $ref: '#/components/parameters/TeacherId'
       responses:
@@ -11512,6 +11512,7 @@ components:
                 cover: { type: string, enum: [classic, full] }
                 bar: { type: string, enum: [classic, glass] }
                 first_tab: { type: string, enum: [overview, curriculum] }
+                look: { type: string, enum: [premium], description: "123 The premium academy's page: the subject and certificate on the cover, the teacher on a card with following them, the tabs as chips with the curriculum first, and the purchase in gold with its saving." }
                 hide:
                   type: array
                   items: { type: string, enum: [students, level, duration, certificate, reviews] }
@@ -11807,6 +11808,7 @@ components:
         name: { type: string }
         avatar_url: { type: [string, 'null'], format: uri }
         bio: { type: [string, 'null'] }
+        following: { type: boolean, description: "123 Whether the signed-in student follows this teacher (`PUT /teachers/{teacher_id}/follow`); missing where following them isn't offered (signed out, or a course of the academy itself)." }
 
     Price:
       type: object

@@ -2602,5 +2602,10 @@
   "exploreSearchHint": "Kurs, beceri veya öğretmen",
   "freeCourses": "Ücretsiz",
   "courseBadgeNew": "Yeni",
-  "courseBadgeBestseller": "Çok satan"
+  "courseBadgeBestseller": "Çok satan",
+  "certifiedCertificate": "Onaylı sertifika",
+  "aboutCourse": "Kurs hakkında",
+  "courseQuestions": "Sorular",
+  "saveShare": "%{percent} tasarruf",
+  "joinNow": "Hemen katıl"
 }

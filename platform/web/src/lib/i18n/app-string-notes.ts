@@ -4061,6 +4061,31 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "شارة إحدى الدورات الأكثر طلابًا.",
     tr: "En çok öğrencisi olan kurslardan birinin rozeti.",
   },
+  "123 The tag on a premium course page's picture when the course gives a certificate.": {
+    en: "The tag on a premium course page's picture when the course gives a certificate.",
+    ar: "الوسم على صورة صفحة الدورة المميزة حين تمنح الدورة شهادة.",
+    tr: "Kurs sertifika veriyorsa premium kurs sayfasının resmindeki etiket.",
+  },
+  "123 The tab with what a course teaches, on its premium page.": {
+    en: "The tab with what a course teaches, on its premium page.",
+    ar: "تبويب ما تعلّمه الدورة، في صفحتها المميزة.",
+    tr: "Kursun öğrettiklerinin sekmesi, premium sayfasında.",
+  },
+  "123 The tab with the course's questions and answers, on its premium page.": {
+    en: "The tab with the course's questions and answers, on its premium page.",
+    ar: "تبويب أسئلة الدورة وإجاباتها، في صفحتها المميزة.",
+    tr: "Kursun soru ve cevaplarının sekmesi, premium sayfasında.",
+  },
+  "123 How much a course on sale saves, by its old price.": {
+    en: "How much a course on sale saves, by its old price.",
+    ar: "كم توفّر الدورة المخفّضة، بجانب سعرها القديم.",
+    tr: "İndirimli kursun eski fiyatının yanında ne kadar tasarruf ettirdiği.",
+  },
+  "123 The purchase button on a premium course page.": {
+    en: "The purchase button on a premium course page.",
+    ar: "زر الشراء في صفحة الدورة المميزة.",
+    tr: "Premium kurs sayfasındaki satın alma düğmesi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
