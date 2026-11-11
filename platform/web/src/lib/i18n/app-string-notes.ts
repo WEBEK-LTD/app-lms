@@ -4116,6 +4116,26 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زر الدورات التي حفظها الطالب، في «دوراتي» المميزة.",
     tr: "Premium Kurslarım'da öğrencinin kaydettiği kursların düğmesi.",
   },
+  "123 After how many courses the student has, on their academy card.": {
+    en: "After how many courses the student has, on their academy card.",
+    ar: "بعد عدد دورات الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin kurs sayısından sonra.",
+  },
+  "123 After how many certificates the student has, on their academy card.": {
+    en: "After how many certificates the student has, on their academy card.",
+    ar: "بعد عدد شهادات الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin sertifika sayısından sonra.",
+  },
+  "123 After the student's hours of learning, on their academy card.": {
+    en: "After the student's hours of learning, on their academy card.",
+    ar: "بعد ساعات تعلّم الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin öğrenme saatlerinden sonra.",
+  },
+  "123 The dark mode switch on the premium account page.": {
+    en: "The dark mode switch on the premium account page.",
+    ar: "مفتاح الوضع الداكن في صفحة الحساب المميزة.",
+    tr: "Premium hesap sayfasındaki koyu mod anahtarı.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

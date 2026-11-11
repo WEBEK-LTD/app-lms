@@ -2613,5 +2613,9 @@
   "certificatesReady": "جاهزة للتحميل",
   "myCoursesLearning": "قيد التعلم",
   "myCoursesFinished": "مكتملة",
-  "myCoursesSaved": "المحفوظة"
+  "myCoursesSaved": "المحفوظة",
+  "statCourses": "{count, plural, =1{دورة} =2{دورتان} few{دورات} other{دورة}}",
+  "statCertificates": "{count, plural, =1{شهادة} =2{شهادتان} few{شهادات} other{شهادة}}",
+  "statHours": "{count, plural, =1{ساعة} =2{ساعتان} few{ساعات} other{ساعة}}",
+  "darkModeSwitch": "الوضع الغامق"
 }

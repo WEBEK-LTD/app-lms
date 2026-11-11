@@ -15793,6 +15793,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get myCoursesSaved;
+
+  /// 123 After how many courses the student has, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{course} other{courses}}'**
+  String statCourses(int count);
+
+  /// 123 After how many certificates the student has, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{certificate} other{certificates}}'**
+  String statCertificates(int count);
+
+  /// 123 After the student's hours of learning, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{hour} other{hours}}'**
+  String statHours(int count);
+
+  /// 123 The dark mode switch on the premium account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark mode'**
+  String get darkModeSwitch;
 }
 
 class _AppLocalizationsDelegate

@@ -11487,7 +11487,7 @@ components:
               properties:
                 header:
                   type: string
-                  enum: [plain, card, cover, tiles, night]
+                  enum: [plain, card, cover, tiles, night, academy]
                   description: |
                     The menu's top. `plain`: the name and number. `card`: on a card in
                     the app's main color. `cover`: a cover in the app's main color with
@@ -11495,8 +11495,12 @@ components:
                     where the shop has them). `tiles`: the first entries as tiles and the
                     owner's first own entry as a banner. `night`: a dark page with a
                     membership card (the points, where the shop has them); in light
-                    mode the page is light and the card stays dark. Every look works in
-                    light and dark mode. An app that doesn't know a value shows `plain`.
+                    mode the page is light and the card stays dark. 123 `academy`: the
+                    student's card in gold on dark (the academy's name, the photo, how many
+                    courses, certificates and hours of learning), the entries with what
+                    they count, and the dark mode, notifications and language at hand.
+                    Every look works in light and dark mode. An app that doesn't know a
+                    value shows `plain`.
                 accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`night`: the membership card's color; null, gold." }
                 items:
                   type: array

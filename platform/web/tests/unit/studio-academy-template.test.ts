@@ -138,8 +138,11 @@ describe("123 the premium academy template", () => {
     expect(parsed.problems).toEqual([]);
     expect(parsed.screens).toEqual(screens);
     expect(screens.sign_in).toMatchObject({ style: "photo", image_url: "https://webek.org/demo-screens/rawaq-library.jpg" });
-    expect(screens.account_menu).toMatchObject({ header: "night", accent: "#E2BE74" });
-    expect(screens.account_menu!.items.map((i) => i.key)).toEqual(expect.arrayContaining(["my_courses", "certificates", "settings", "privacy", "terms"]));
+    // The academy card, then the orders, certificates, quiz results and downloads, as approved.
+    expect(screens.account_menu!.header).toBe("academy");
+    expect(screens.account_menu!.items.filter((i) => !i.hidden).map((i) => i.key)).toEqual(["orders", "certificates", "quiz_results", "downloads", "settings", "help", "privacy", "terms"]);
+    // Every other entry the app knows is left out.
+    expect(screens.account_menu!.items.filter((i) => i.hidden).map((i) => i.key)).toEqual(expect.arrayContaining(["wishlist", "notifications", "points"]));
     expect(screens.course_card).toEqual({ style: "premium", radius: 18, hide: [] });
     // 123 Explore, My courses, the lesson, the code and the cart as approved.
     expect(screens.looks).toEqual({ catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" });

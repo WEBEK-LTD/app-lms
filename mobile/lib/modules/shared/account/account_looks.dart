@@ -9,6 +9,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
 import '../../store/screens/points_screen.dart' show myPointsProvider;
 import '../auth/country_codes.dart';
+import 'academy_look.dart';
 
 /// 118.3 One entry of a Studio app's account menu, as the owner named it.
 class AccountLookEntry {
@@ -78,6 +79,10 @@ class AccountLook extends ConsumerWidget {
     final appName = ref.watch(appConfigProvider).site.name;
     return switch (design.header) {
       AccountMenuHeader.tiles => _Tiles(look: this, account: account),
+      AccountMenuHeader.academy => AcademyAccountLook(
+        look: this,
+        appName: appName,
+      ),
       AccountMenuHeader.night => _Night(
         look: this,
         account: account,

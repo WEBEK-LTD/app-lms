@@ -2611,4 +2611,8 @@
 {"key":"certificatesReady","en":"Ready to download","ar":"جاهزة للتحميل","tr":"İndirmeye hazır","description":"123 Under the student's certificates on My courses."},
 {"key":"myCoursesLearning","en":"Learning","ar":"قيد التعلم","tr":"Öğreniliyor","description":"123 The chip with the courses the student is taking, on the premium My courses."},
 {"key":"myCoursesFinished","en":"Completed","ar":"مكتملة","tr":"Tamamlanan","description":"123 The chip with the courses the student finished, on the premium My courses."},
-{"key":"myCoursesSaved","en":"Saved","ar":"المحفوظة","tr":"Kaydedilenler","description":"123 The chip with the courses the student saved, on the premium My courses."}]}
+{"key":"myCoursesSaved","en":"Saved","ar":"المحفوظة","tr":"Kaydedilenler","description":"123 The chip with the courses the student saved, on the premium My courses."},
+{"key":"statCourses","en":"{count, plural, =1{course} other{courses}}","ar":"{count, plural, =1{دورة} =2{دورتان} few{دورات} other{دورة}}","tr":"{count, plural, other{kurs}}","description":"123 After how many courses the student has, on their academy card.","placeholders":{"count":"int"}},
+{"key":"statCertificates","en":"{count, plural, =1{certificate} other{certificates}}","ar":"{count, plural, =1{شهادة} =2{شهادتان} few{شهادات} other{شهادة}}","tr":"{count, plural, other{sertifika}}","description":"123 After how many certificates the student has, on their academy card.","placeholders":{"count":"int"}},
+{"key":"statHours","en":"{count, plural, =1{hour} other{hours}}","ar":"{count, plural, =1{ساعة} =2{ساعتان} few{ساعات} other{ساعة}}","tr":"{count, plural, other{saat}}","description":"123 After the student's hours of learning, on their academy card.","placeholders":{"count":"int"}},
+{"key":"darkModeSwitch","en":"Dark mode","ar":"الوضع الغامق","tr":"Koyu mod","description":"123 The dark mode switch on the premium account page."}]}

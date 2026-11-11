@@ -76,7 +76,8 @@ export interface AccountMenuEntry {
 }
 
 /** 118.3 The menu's top: the name and photo, a card in the app's colour, a cover with shortcuts, quick tiles, or a dark page with a membership card. */
-export const ACCOUNT_HEADERS = ["plain", "card", "cover", "tiles", "night"] as const;
+/** 123 `academy`: the premium academy's card with the courses, certificates and hours, and the dark mode, notifications and language at hand. */
+export const ACCOUNT_HEADERS = ["plain", "card", "cover", "tiles", "night", "academy"] as const;
 export type AccountHeader = (typeof ACCOUNT_HEADERS)[number];
 
 export interface AccountMenu {

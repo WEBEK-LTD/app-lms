@@ -9910,4 +9910,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get myCoursesSaved => 'المحفوظة';
+
+  @override
+  String statCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دورة',
+      few: 'دورات',
+      two: 'دورتان',
+      one: 'دورة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statCertificates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'شهادة',
+      few: 'شهادات',
+      two: 'شهادتان',
+      one: 'شهادة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ساعة',
+      few: 'ساعات',
+      two: 'ساعتان',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get darkModeSwitch => 'الوضع الغامق';
 }

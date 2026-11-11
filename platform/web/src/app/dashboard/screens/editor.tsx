@@ -49,6 +49,7 @@ const HEADER_NAMES: Record<AccountHeader, DashKey> = {
   cover: "studio.menuTopCover",
   tiles: "studio.menuTopTiles",
   night: "studio.menuTopNight",
+  academy: "studio.menuTopAcademy",
 };
 const HEADER_HINTS: Record<AccountHeader, DashKey> = {
   plain: "studio.menuTopPlainHint",
@@ -56,6 +57,7 @@ const HEADER_HINTS: Record<AccountHeader, DashKey> = {
   cover: "studio.menuTopCoverHint",
   tiles: "studio.menuTopTilesHint",
   night: "studio.menuTopNightHint",
+  academy: "studio.menuTopAcademyHint",
 };
 
 /** The app's own icon for each entry, for the list and the preview. */
@@ -683,6 +685,22 @@ function MenuPreview({
                 <span className="truncate">{nameOf(banner)}</span>
               </span>
             ) : null}
+          </>
+        ) : header === "academy" ? (
+          <>
+            {/* 123 The student's card in gold on dark, then the entries and the switches. */}
+            <div className="flex flex-col gap-1 rounded-xl p-1.5 text-white" style={{ background: "linear-gradient(225deg,#1C1710,#3A2D18,#6E5427)" }} data-testid="menu-preview-academy">
+              <span className="flex items-center gap-1.5">
+                <span className="h-6 w-6 rounded-full border-2" style={{ borderColor: accent, background: "#3A3326" }} />
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-extrabold">{t("studio.previewName")}</span>
+                  <span className="opacity-70">+20 100 000 0000</span>
+                </span>
+              </span>
+              <span className="text-[8px]" style={{ color: accent }}>
+                4 · 2 · 38
+              </span>
+            </div>
           </>
         ) : night ? (
           <>

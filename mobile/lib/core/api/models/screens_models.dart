@@ -62,7 +62,10 @@ class SignInLook {
 
 /// 118.3 The menu's top: the name and photo, a card in the app's colour, a
 /// cover with shortcuts, quick tiles, or a dark page with a membership card.
-enum AccountMenuHeader { plain, card, cover, tiles, night }
+/// 123 `academy`: the premium academy's card with the student's courses,
+/// certificates and learning hours, and the dark mode, notifications and
+/// language at hand.
+enum AccountMenuHeader { plain, card, cover, tiles, night, academy }
 
 class AccountMenuEntry {
   const AccountMenuEntry({

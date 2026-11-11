@@ -9610,4 +9610,37 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get myCoursesSaved => 'Kaydedilenler';
+
+  @override
+  String statCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'kurs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statCertificates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'sertifika',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'saat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get darkModeSwitch => 'Koyu mod';
 }

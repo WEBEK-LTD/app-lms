@@ -10811,5 +10811,36 @@
   "myCoursesSaved": "Saved",
   "@myCoursesSaved": {
     "description": "123 The chip with the courses the student saved, on the premium My courses."
+  },
+  "statCourses": "{count, plural, =1{course} other{courses}}",
+  "@statCourses": {
+    "description": "123 After how many courses the student has, on their academy card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statCertificates": "{count, plural, =1{certificate} other{certificates}}",
+  "@statCertificates": {
+    "description": "123 After how many certificates the student has, on their academy card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statHours": "{count, plural, =1{hour} other{hours}}",
+  "@statHours": {
+    "description": "123 After the student's hours of learning, on their academy card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "darkModeSwitch": "Dark mode",
+  "@darkModeSwitch": {
+    "description": "123 The dark mode switch on the premium account page."
   }
 }

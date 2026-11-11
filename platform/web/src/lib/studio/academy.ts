@@ -1,6 +1,6 @@
 import type { Appearance, LayoutTab, StudioHeader, StudioNode, StudioPage, TabBarStyle } from "../pages/types";
 import { newNodeId } from "./elements";
-import type { StudioScreens } from "./screens";
+import { ACCOUNT_ITEMS, type StudioScreens } from "./screens";
 import type { SectionContext, SectionWord } from "./sections";
 
 /**
@@ -258,10 +258,14 @@ export const ACADEMY_PROJECT: TemplateProject = {
       },
       show_logo: true,
     },
+    // The approved account: the academy card, the orders, certificates, quiz results and downloads, then the settings.
     account_menu: {
-      header: "night",
-      accent: C.darkGold,
-      items: (["my_courses", "certificates", "quiz_results", "wishlist", "orders", "notifications", "settings", "help", "privacy", "terms"] as const).map((key) => ({ key, hidden: false, label: {}, icon: null })),
+      header: "academy",
+      items: [
+        ...(["orders", "certificates", "quiz_results", "downloads", "settings", "help", "privacy", "terms"] as const).map((key) => ({ key, hidden: false, label: {}, icon: null })),
+        // Every other entry the app knows stays out, as approved.
+        ...ACCOUNT_ITEMS.filter((key) => !["orders", "certificates", "quiz_results", "downloads", "settings", "help", "privacy", "terms"].includes(key)).map((key) => ({ key, hidden: true, label: {}, icon: null })),
+      ],
     },
     course_card: { style: "premium", radius: 18, hide: [] },
     course_page: { cover: "full", bar: "glass", hide: [], look: "premium" },

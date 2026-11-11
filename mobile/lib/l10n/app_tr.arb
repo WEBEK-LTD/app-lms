@@ -2613,5 +2613,9 @@
   "certificatesReady": "İndirmeye hazır",
   "myCoursesLearning": "Öğreniliyor",
   "myCoursesFinished": "Tamamlanan",
-  "myCoursesSaved": "Kaydedilenler"
+  "myCoursesSaved": "Kaydedilenler",
+  "statCourses": "{count, plural, other{kurs}}",
+  "statCertificates": "{count, plural, other{sertifika}}",
+  "statHours": "{count, plural, other{saat}}",
+  "darkModeSwitch": "Koyu mod"
 }

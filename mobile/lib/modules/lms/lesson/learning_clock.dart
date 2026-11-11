@@ -41,6 +41,8 @@ class _LearningClockState extends ConsumerState<LearningClock>
   @override
   void initState() {
     super.initState();
+    // Read now: the lesson may close when reading is no longer allowed.
+    _api;
     if (!_signedIn) return;
     WidgetsBinding.instance.addObserver(this);
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {

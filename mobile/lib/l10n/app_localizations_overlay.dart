@@ -10302,4 +10302,22 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get myCoursesSaved =>
       overlay.text('myCoursesSaved') ?? base.myCoursesSaved;
+
+  @override
+  String statCourses(int count) =>
+      overlay.format('statCourses', {'count': count}) ??
+      base.statCourses(count);
+
+  @override
+  String statCertificates(int count) =>
+      overlay.format('statCertificates', {'count': count}) ??
+      base.statCertificates(count);
+
+  @override
+  String statHours(int count) =>
+      overlay.format('statHours', {'count': count}) ?? base.statHours(count);
+
+  @override
+  String get darkModeSwitch =>
+      overlay.text('darkModeSwitch') ?? base.darkModeSwitch;
 }
