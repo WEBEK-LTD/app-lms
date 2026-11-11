@@ -58,8 +58,7 @@ bool learningCardShows(StudioLearningSection section, WidgetRef ref) {
           (ref.watch(achievementsProvider).value?.streakDays ?? 0) > 0,
     StudioLearningSection.live =>
       features.liveClasses && _nextLive(ref) != null,
-    // The week's learning time comes with the time the app records.
-    StudioLearningSection.week => false,
+    StudioLearningSection.week => ref.watch(learningTimeProvider).hasValue,
   };
 }
 
@@ -90,6 +89,11 @@ class StudioLearningCard extends ConsumerWidget {
       ),
       StudioLearningSection.streak => _Streak(
         days: ref.watch(achievementsProvider).value?.streakDays ?? 0,
+        learned: {
+          for (final d
+              in ref.watch(learningTimeProvider).value?.days ?? const [])
+            if (d.minutes > 0) DateUtils.dateOnly(d.date),
+        },
         now: ref.watch(pageClockProvider)(),
         color: color,
         title: title,
@@ -101,7 +105,11 @@ class StudioLearningCard extends ConsumerWidget {
         color: color,
         title: title,
       ),
-      StudioLearningSection.week => const SizedBox.shrink(),
+      StudioLearningSection.week => LearningWeek(
+        time: ref.watch(learningTimeProvider).value!,
+        color: color,
+        title: title,
+      ),
     };
   }
 }
@@ -284,6 +292,7 @@ class _Continue extends StatelessWidget {
 class _Streak extends StatelessWidget {
   const _Streak({
     required this.days,
+    required this.learned,
     required this.now,
     required this.color,
     required this.title,
@@ -291,6 +300,9 @@ class _Streak extends StatelessWidget {
   });
 
   final int days;
+
+  /// 123 The days of the last seven the student learned on, when known.
+  final Set<DateTime> learned;
   final DateTime now;
   final Color? color;
   final String? title;
@@ -313,7 +325,8 @@ class _Streak extends StatelessWidget {
     Color bar(int i) {
       final day = addDays(start, i);
       if (day.isAfter(today)) return p.divider;
-      if (day == today) return _goldLight;
+      if (day == today) return learned.contains(day) ? gold : _goldLight;
+      if (learned.isNotEmpty) return learned.contains(day) ? gold : p.divider;
       return today.difference(day).inDays < days ? gold : p.divider;
     }
 
@@ -459,6 +472,141 @@ class _Live extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 123 This week's learning time, each day of it as a bar (the most in
+/// gold), against the week before; on the element's own colours (a dark
+/// card in the premium academy).
+class LearningWeek extends StatelessWidget {
+  const LearningWeek({
+    super.key,
+    required this.time,
+    required this.color,
+    required this.title,
+  });
+
+  final LearningTime time;
+  final Color? color;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final ink = color ?? Colors.white;
+    final hours = time.weekMinutes ~/ 60;
+    final minutes = time.weekMinutes % 60;
+    final most = time.days.fold<int>(
+      0,
+      (m, d) => d.minutes > m ? d.minutes : m,
+    );
+    final change = time.change;
+    final names = MaterialLocalizations.of(context).narrowWeekdays;
+    return Padding(
+      key: const ValueKey('learning-week'),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title ?? l10n.learningWeekTitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: ink.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      hours > 0
+                          ? l10n.learningHoursMinutes(hours, minutes)
+                          : l10n.learningMinutesOnly(minutes),
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: ink,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (change != null && change != 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: ink.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    change > 0
+                        ? l10n.learningWeekUp(change)
+                        : l10n.learningWeekDown(-change),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: ink,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 112,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final (i, d) in time.days.indexed) ...[
+                  if (i > 0) const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          height: most == 0
+                              ? 8
+                              : (8 + 80 * d.minutes / most).toDouble(),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            gradient: d.minutes == most && most > 0
+                                ? const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [_goldLight, _gold],
+                                  )
+                                : null,
+                            color: d.minutes == most && most > 0
+                                ? null
+                                : ink.withValues(alpha: 0.14),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          names[d.date.weekday % 7],
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: ink.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

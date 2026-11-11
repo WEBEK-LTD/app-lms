@@ -671,6 +671,10 @@ export interface DataStore {
   /** Enrols once; false when they already were. */
   enrollInCourse(input: CourseEnrollment): Promise<boolean>;
   listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]>;
+  /** 123 Adds a student's seconds to a day's (`YYYY-MM-DD`) for a course, at most `max` for it. */
+  addLearningSeconds(input: { appId: string; userId: number; day: string; courseId: number; seconds: number; max: number }): Promise<void>;
+  /** 123 A student's seconds per day from `from` (`YYYY-MM-DD`), and all of them. */
+  learningSeconds(input: { appId: string; userId: number; from: string }): Promise<{ days: Record<string, number>; total: number }>;
   /** 112.5 Puts an enrolled student in one of the course's cohorts (null: none); false when they aren't enrolled. */
   setEnrollmentCohort(input: { appId: string; userId: number; courseId: number; cohortId: number | null }): Promise<boolean>;
   /** Saves a lesson's video position, and marks it complete when `completedAt` is given (never un-completes). */

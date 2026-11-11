@@ -2834,6 +2834,46 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /me/learning-time:
+    get:
+      tags: [Learning]
+      operationId: getLearningTime
+      summary: The time the student spent learning this week
+      description: >-
+        123 The last seven days to today (oldest first, in the academy's time zone), each
+        with the minutes the student spent in lessons, the seven days' total against the
+        seven before them, and the whole of it. The app counts the time
+        (`POST /me/learning-time`).
+      responses:
+        '200':
+          description: This week's learning
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LearningTime' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Learning]
+      operationId: addLearningTime
+      summary: Add the time spent in a lesson
+      description: >-
+        123 The seconds the app counted while a lesson of the course was open and the app in
+        front, sent about once a minute and when the lesson closes; added to today's, at most
+        a day's worth for each course.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [course_id, seconds]
+              properties:
+                course_id: { type: integer, minimum: 0 }
+                seconds: { type: integer, minimum: 1, maximum: 300 }
+      responses:
+        '204': { description: Added }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /me/wishlist:
     get:
       tags: [Learning]
@@ -11838,6 +11878,26 @@ components:
           type: [string, 'null']
           enum: [new, bestseller, null]
           description: 123 `new` published in the last 30 days, `bestseller` one of the academy's three with the most students; null, neither. Apps that don't know one show none.
+
+    LearningTime:
+      type: object
+      description: 123 The time a student spent learning (`GET /me/learning-time`).
+      required: [days, week_minutes, last_week_minutes, total_minutes]
+      properties:
+        days:
+          type: array
+          minItems: 7
+          maxItems: 7
+          description: The last seven days to today, oldest first.
+          items:
+            type: object
+            required: [date, minutes]
+            properties:
+              date: { type: string, format: date }
+              minutes: { type: integer, minimum: 0 }
+        week_minutes: { type: integer, minimum: 0 }
+        last_week_minutes: { type: integer, minimum: 0, description: The seven days before them. }
+        total_minutes: { type: integer, minimum: 0 }
 
     SiteSubscription:
       type: object

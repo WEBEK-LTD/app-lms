@@ -997,6 +997,23 @@ export const courseEnrollments = mysqlTable(
   (t) => [primaryKey({ columns: [t.appId, t.userId, t.courseId] }), index("course_enrollments_course_idx").on(t.appId, t.courseId), index("course_enrollments_app_enrolled_idx").on(t.appId, t.enrolledAt)],
 );
 
+/** 123 The time each student spent learning, per day (in the academy's time zone) and course. */
+export const learningTime = mysqlTable(
+  "learning_time",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    day: varchar("day", { length: 10 }).notNull(),
+    courseId: int("course_id").notNull(),
+    seconds: int("seconds").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.day, t.courseId] })],
+);
+
 export const lessonProgress = mysqlTable(
   "lesson_progress",
   {

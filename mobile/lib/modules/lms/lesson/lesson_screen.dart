@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
+import 'learning_clock.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
@@ -227,7 +228,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   Widget build(BuildContext context) {
     final lessonAsync = ref.watch(lessonProvider(widget.lessonId));
     return switch (lessonAsync) {
-      AsyncData(:final value) => _build(context, value),
+      // 123 The time spent in it counts towards the student's learning.
+      AsyncData(:final value) => LearningClock(
+        courseId: value.courseId,
+        child: _build(context, value),
+      ),
       AsyncError(:final error) => Scaffold(
         body: SafeArea(
           child: Column(

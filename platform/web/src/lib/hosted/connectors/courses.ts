@@ -216,6 +216,11 @@ export class CoursesConnector implements Connector {
         return this.paths(request);
       case "GET /me/achievements":
         return this.achievements(request);
+      // 123
+      case "GET /me/learning-time":
+        return this.learningTime(request);
+      case "POST /me/learning-time":
+        return this.addLearningTime(request);
       // 113.1
       case "GET /bundles":
         return this.bundles(request);
@@ -494,6 +499,30 @@ export class CoursesConnector implements Connector {
 
   private async ratings(): Promise<Ratings> {
     return this.deps.store.countCourseRatings(this.deps.app.id);
+  }
+
+  /** 123 This week's learning: the last seven days to today, each day's minutes, against the seven before, and all of it. */
+  private async learningTime(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const now = request.now ?? new Date();
+    const zone = await appZone(this.deps.store, this.deps.app);
+    const day = (offset: number) => utcToLocal(new Date(now.getTime() - offset * 86_400_000), zone).date;
+    const { days, total } = await this.deps.store.learningSeconds({ appId: this.deps.app.id, userId: request.user.id, from: day(13) });
+    const week = [6, 5, 4, 3, 2, 1, 0].map((i) => ({ date: day(i), minutes: Math.floor((days[day(i)] ?? 0) / 60) }));
+    const sum = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, k) => days[day(from + k)] ?? 0).reduce((a, b) => a + b, 0);
+    return { status: 200, body: { days: week, week_minutes: Math.floor(sum(0, 6) / 60), last_week_minutes: Math.floor(sum(7, 13) / 60), total_minutes: Math.floor(total / 60) } };
+  }
+
+  /** 123 The seconds the app counted in a lesson, added to today's (at most a day's worth for each course). */
+  private async addLearningTime(request: ConnectorRequest): Promise<ConnectorResult> {
+    if (!request.user) return signIn();
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    const seconds = Number(body.seconds);
+    const courseId = Number(body.course_id);
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > 300 || !Number.isInteger(courseId) || courseId < 0) return error(400, "invalid_request", "Send the course and 1 to 300 seconds.");
+    const zone = await appZone(this.deps.store, this.deps.app);
+    await this.deps.store.addLearningSeconds({ appId: this.deps.app.id, userId: request.user.id, day: utcToLocal(request.now ?? new Date(), zone).date, courseId, seconds, max: 86_400 });
+    return { status: 204, body: null };
   }
 
   private summary(c: Course, enrolled: Set<number>, ratings: Ratings = [], badges?: { bestsellers: Set<number>; now: Date }) {

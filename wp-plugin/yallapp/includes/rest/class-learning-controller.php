@@ -84,6 +84,35 @@ class Learning_Controller extends Controller {
 				),
 			)
 		);
+		// 123 The time the student spends learning.
+		$this->route(
+			'/me/learning-time',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'learning_time' ),
+					'permission_callback' => $auth,
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_learning_time' ),
+					'permission_callback' => $auth,
+					'args'                => array(
+						'course_id' => array(
+							'type'     => 'integer',
+							'minimum'  => 0,
+							'required' => true,
+						),
+						'seconds'   => array(
+							'type'     => 'integer',
+							'minimum'  => 1,
+							'maximum'  => 300,
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
 		// 123 Following a course's teacher (as academies with many teachers do on the hosted API).
 		$this->route(
 			'/teachers/(?P<teacher_id>\d+)/follow',
@@ -238,6 +267,26 @@ class Learning_Controller extends Controller {
 	 */
 	public function remove_from_wishlist( WP_REST_Request $request ) {
 		return $this->set_wishlist( (int) $request['course_id'], false );
+	}
+
+	/**
+	 * 123 GET /me/learning-time: this week's learning, each day of it, and the whole of it.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function learning_time() {
+		return new \WP_REST_Response( \Yallapp\Lms\Learning_Time::week( get_current_user_id(), time() ) );
+	}
+
+	/**
+	 * 123 POST /me/learning-time: the seconds the app counted in a lesson.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function add_learning_time( WP_REST_Request $request ) {
+		\Yallapp\Lms\Learning_Time::add( get_current_user_id(), (int) $request['course_id'], (int) $request['seconds'], time() );
+		return new \WP_REST_Response( null, 204 );
 	}
 
 	/**

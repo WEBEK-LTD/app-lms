@@ -165,6 +165,21 @@ describe("courses on the hosted API", () => {
     expect(home.sections.map((s) => s.type)).toEqual(["categories", "latest_courses"]);
   });
 
+  it("123 keeps the time a student spends learning: this week's, each day of it, and all of it", async () => {
+    const { access_token: token } = await signUp();
+    expect((await call("GET", "/me/learning-time")).status).toBe(401);
+    for (const seconds of [120, 300, 60]) expect((await call("POST", "/me/learning-time", { token, body: { course_id: 10, seconds } })).status).toBe(204);
+    expect((await call("POST", "/me/learning-time", { token, body: { course_id: 10, seconds: 301 } })).status).toBe(400);
+    const week = (await call("GET", "/me/learning-time", { token })).body as { days: { date: string; minutes: number }[]; week_minutes: number; last_week_minutes: number; total_minutes: number };
+    expect(week.days).toHaveLength(7);
+    expect(week.days.at(-1)!.minutes).toBe(8);
+    expect(week.days.slice(0, 6).every((d) => d.minutes === 0)).toBe(true);
+    expect(week).toMatchObject({ week_minutes: 8, last_week_minutes: 0, total_minutes: 8 });
+    // A day of a course holds at most a day's worth.
+    for (let i = 0; i < 300; i += 1) await store.addLearningSeconds({ appId: app.id, userId: 1, day: "2026-01-01", courseId: 10, seconds: 300, max: 86_400 });
+    expect((await store.learningSeconds({ appId: app.id, userId: 1, from: "2026-01-01" })).days["2026-01-01"]).toBe(86_400);
+  });
+
   it("shows the course page's button for each case", async () => {
     const free = await call("GET", "/courses/{course_id}", { params: ["10"], query: { platform: "ios" } });
     expect(free.body).toMatchObject({ purchase: { action: "enroll_free" }, lesson_count: 2, duration_minutes: 13, level: "Beginner", instructor: { name: "Selin Arslan" } });
