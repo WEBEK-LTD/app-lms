@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_icons.dart';
@@ -522,6 +524,18 @@ class SegmentedTabs extends StatelessWidget {
 }
 
 /// White footer bar with a top border, used for main actions.
+/// 122 The bottom bars under it ([BottomActionBar]) are frosted glass over
+/// the page (a course's purchase bar, as the owner chose in Studio).
+class GlassBottomBars extends InheritedWidget {
+  const GlassBottomBars({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassBottomBars>() != null;
+
+  @override
+  bool updateShouldNotify(GlassBottomBars oldWidget) => false;
+}
+
 class BottomActionBar extends StatelessWidget {
   const BottomActionBar({
     super.key,
@@ -535,6 +549,34 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 122 Frosted glass over the page, where the screen asks for it.
+    if (GlassBottomBars.of(context)) {
+      return ClipRect(
+        key: const ValueKey('bottom-bar-glass'),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: p.surface.withValues(alpha: 0.72),
+              border: Border(
+                top: BorderSide(color: p.border.withValues(alpha: 0.5)),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              minimum: padding,
+              child: Align(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: p.surface,

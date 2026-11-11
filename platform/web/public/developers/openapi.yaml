@@ -11494,6 +11494,24 @@ components:
                   type: array
                   description: What the card leaves out.
                   items: { type: string, enum: [teacher, rating, price, lessons] }
+            course_page:
+              type: object
+              description: |
+                122 A course's page. `cover`: `classic` its picture over the course,
+                `full` a tall picture with the course's name and facts on it. `bar`:
+                the purchase bar `classic`, or `glass` frosted over the page as it
+                scrolls under. `first_tab`: the tab people not enrolled open on;
+                missing, the app's own choice (enrolled students start on the
+                curriculum). `hide`: facts left out, and `reviews` the reviews tab.
+                Missing, the app's own page.
+              required: [cover, bar, hide]
+              properties:
+                cover: { type: string, enum: [classic, full] }
+                bar: { type: string, enum: [classic, glass] }
+                first_tab: { type: string, enum: [overview, curriculum] }
+                hide:
+                  type: array
+                  items: { type: string, enum: [students, level, duration, certificate, reviews] }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:

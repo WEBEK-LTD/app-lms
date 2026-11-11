@@ -46,6 +46,11 @@ class Studio_Screens {
 		if ( $card ) {
 			$out['course_card'] = $card;
 		}
+		// 122 A course's page.
+		$page = is_array( $raw['course_page'] ?? null ) ? self::course_page( $raw['course_page'] ) : null;
+		if ( $page ) {
+			$out['course_page'] = $page;
+		}
 		return $out ? $out : null;
 	}
 
@@ -126,6 +131,24 @@ class Studio_Screens {
 			$card['radius'] = $raw['radius'];
 		}
 		return $card;
+	}
+
+	/**
+	 * 122 A course's page: its top, its purchase bar, the tab it opens on and what it leaves out.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array
+	 */
+	private static function course_page( array $raw ) {
+		$page = array(
+			'cover' => in_array( $raw['cover'] ?? null, array( 'classic', 'full' ), true ) ? $raw['cover'] : 'classic',
+			'bar'   => in_array( $raw['bar'] ?? null, array( 'classic', 'glass' ), true ) ? $raw['bar'] : 'classic',
+			'hide'  => array_values( array_unique( array_intersect( is_array( $raw['hide'] ?? null ) ? $raw['hide'] : array(), array( 'students', 'level', 'duration', 'certificate', 'reviews' ) ) ) ),
+		);
+		if ( in_array( $raw['first_tab'] ?? null, array( 'overview', 'curriculum' ), true ) ) {
+			$page['first_tab'] = $raw['first_tab'];
+		}
+		return $page;
 	}
 
 	/**

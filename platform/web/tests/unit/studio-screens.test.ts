@@ -74,6 +74,12 @@ describe("118.3 Studio's sign-in screen and account menu", () => {
     expect(screensConfig(app)).toEqual({ screens: { course_card: { style: "cover", radius: 20, hide: ["lessons"] } } });
   });
 
+  it("122 keep a course's page: its top, bar, first tab and the facts it leaves out", () => {
+    const { screens } = parseStudioScreens({ course_page: { cover: "full", bar: "glass", first_tab: "curriculum", hide: ["reviews", "students", "x"] } });
+    expect(screens.course_page).toEqual({ cover: "full", bar: "glass", first_tab: "curriculum", hide: ["reviews", "students"] });
+    expect(parseStudioScreens({ course_page: { cover: "huge", bar: "neon", first_tab: "qna" } }).screens.course_page).toEqual({ cover: "classic", bar: "classic", hide: [] });
+  });
+
   it("are served only to Studio apps on the hosted API, on WordPress (121) or on their own API Yallapp signs people in to", () => {
     const studioScreens = parseStudioScreens({ sign_in: { style: "minimal" } }).screens;
     const app = (over: Partial<App>) => ({ ...newApp("c", null, NOW, "store"), backend: "hosted", hostedSettings: { studioScreens }, ...over }) as App;

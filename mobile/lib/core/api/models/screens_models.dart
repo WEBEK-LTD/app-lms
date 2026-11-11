@@ -162,14 +162,68 @@ class CourseCardLook {
   bool shows(CourseCardFact fact) => !hide.contains(fact);
 }
 
+/// 122 A course's page: `classic` its picture over the course, `full` a
+/// tall picture with the course's name and facts on it; its purchase bar
+/// `classic` or `glass` (frosted over the page); the tab it opens on for
+/// visitors; and what it leaves out.
+enum CoursePageCover { classic, full }
+
+enum CoursePageBar { classic, glass }
+
+enum CoursePageFact { students, level, duration, certificate, reviews }
+
+class CoursePageLook {
+  const CoursePageLook({
+    this.cover = CoursePageCover.classic,
+    this.bar = CoursePageBar.classic,
+    this.firstTab,
+    this.hide = const {},
+  });
+
+  factory CoursePageLook.fromJson(Map<String, dynamic> json) {
+    T? pick<T extends Enum>(List<T> values, Object? name) =>
+        values.where((v) => v.name == name).firstOrNull;
+    final first = json['first_tab'];
+    return CoursePageLook(
+      cover:
+          pick(CoursePageCover.values, json['cover']) ??
+          CoursePageCover.classic,
+      bar: pick(CoursePageBar.values, json['bar']) ?? CoursePageBar.classic,
+      firstTab: first == 'overview' || first == 'curriculum'
+          ? first as String
+          : null,
+      hide: {
+        for (final f in json['hide'] is List ? json['hide'] as List : const [])
+          ?pick(CoursePageFact.values, f),
+      },
+    );
+  }
+
+  final CoursePageCover cover;
+  final CoursePageBar bar;
+
+  /// `overview` or `curriculum`, for people not enrolled; null, the app's
+  /// own choice.
+  final String? firstTab;
+  final Set<CoursePageFact> hide;
+
+  bool shows(CoursePageFact fact) => !hide.contains(fact);
+}
+
 class StudioScreens {
-  const StudioScreens({this.signIn, this.accountMenu, this.courseCard});
+  const StudioScreens({
+    this.signIn,
+    this.accountMenu,
+    this.courseCard,
+    this.coursePage,
+  });
 
   static StudioScreens? fromJson(Object? value) {
     if (value is! Map<String, dynamic>) return null;
     final signIn = value['sign_in'];
     final menu = value['account_menu'];
     final card = value['course_card'];
+    final page = value['course_page'];
     return StudioScreens(
       signIn: signIn is Map<String, dynamic>
           ? SignInLook.fromJson(signIn)
@@ -180,6 +234,9 @@ class StudioScreens {
       courseCard: card is Map<String, dynamic>
           ? CourseCardLook.fromJson(card)
           : null,
+      coursePage: page is Map<String, dynamic>
+          ? CoursePageLook.fromJson(page)
+          : null,
     );
   }
 
@@ -188,6 +245,9 @@ class StudioScreens {
 
   /// 122 The courses' card in the lists; null, the app's own.
   final CourseCardLook? courseCard;
+
+  /// 122 A course's page; null, the app's own.
+  final CoursePageLook? coursePage;
 }
 
 Color? _hex(String? value) {

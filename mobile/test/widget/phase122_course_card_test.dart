@@ -71,4 +71,52 @@ void main() {
     expect(find.byType(CourseListCard), findsWidgets);
     expect(find.byKey(const ValueKey('course-card-tile-1')), findsNothing);
   });
+
+  test("122 reads a course page's look", () {
+    final page = StudioScreens.fromJson({
+      'course_page': {
+        'cover': 'full',
+        'bar': 'glass',
+        'first_tab': 'curriculum',
+        'hide': ['reviews', 'students', 'x'],
+      },
+    })!.coursePage!;
+    expect(page.cover, CoursePageCover.full);
+    expect(page.bar, CoursePageBar.glass);
+    expect(page.firstTab, 'curriculum');
+    expect(page.hide, {CoursePageFact.reviews, CoursePageFact.students});
+  });
+
+  Future<void> coursePage(
+    WidgetTester tester,
+    Map<String, dynamic>? page,
+  ) async {
+    final api = FakeApi();
+    if (page != null) api.config['screens'] = {'course_page': page};
+    final app = TestApp(api: api, signedIn: true);
+    await app.pump(tester);
+    await TestApp.settle(tester, 10);
+    app.container.read(appRouterProvider).push(Paths.course(1));
+    await TestApp.settle(tester, 14);
+  }
+
+  testWidgets("122 a course's page with the tall picture and the glass bar", (
+    tester,
+  ) async {
+    await coursePage(tester, {
+      'cover': 'full',
+      'bar': 'glass',
+      'hide': ['reviews'],
+    });
+    expect(find.byKey(const ValueKey('course-cover-full')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bottom-bar-glass')), findsOneWidget);
+  });
+
+  testWidgets("122 without a design a course's page is the app's own", (
+    tester,
+  ) async {
+    await coursePage(tester, null);
+    expect(find.byKey(const ValueKey('course-cover-classic')), findsOneWidget);
+    expect(find.byKey(const ValueKey('bottom-bar-glass')), findsNothing);
+  });
 }

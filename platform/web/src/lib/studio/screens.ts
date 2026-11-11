@@ -104,11 +104,31 @@ export interface CourseCardLook {
   hide: CourseCardFact[];
 }
 
+/**
+ * 122 A course's page: `classic` its picture over the course, `full` a tall
+ * picture with the course's name and facts on it; its purchase bar
+ * `classic` or `glass` (frosted over the page); the tab it opens on for
+ * people not enrolled; and what it leaves out.
+ */
+export const COURSE_PAGE_COVERS = ["classic", "full"] as const;
+export const COURSE_PAGE_BARS = ["classic", "glass"] as const;
+export const COURSE_PAGE_TABS = ["overview", "curriculum"] as const;
+export const COURSE_PAGE_FACTS = ["students", "level", "duration", "certificate", "reviews"] as const;
+export type CoursePageFact = (typeof COURSE_PAGE_FACTS)[number];
+export interface CoursePageLook {
+  cover: (typeof COURSE_PAGE_COVERS)[number];
+  bar: (typeof COURSE_PAGE_BARS)[number];
+  first_tab?: (typeof COURSE_PAGE_TABS)[number];
+  hide: CoursePageFact[];
+}
+
 export interface StudioScreens {
   sign_in?: SignInLook | null;
   account_menu?: AccountMenu | null;
   /** 122 The courses' card in the lists (academies). */
   course_card?: CourseCardLook | null;
+  /** 122 A course's page (academies). */
+  course_page?: CoursePageLook | null;
 }
 
 export const SCREEN_LIMITS = { title: 60, subtitle: 140, label: 40, links: 8 } as const;
@@ -218,6 +238,14 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     const hide = [...new Set((Array.isArray(cc.hide) ? cc.hide : []).filter((f): f is CourseCardFact => (COURSE_CARD_FACTS as readonly unknown[]).includes(f)))];
     screens.course_card = { style, ...(radius !== null && radius >= 0 && radius <= 32 ? { radius } : {}), hide };
   }
+  // 122 A course's page.
+  const cp = v.course_page && typeof v.course_page === "object" ? (v.course_page as Record<string, unknown>) : null;
+  if (cp) {
+    const pick = <T extends string>(list: readonly T[], value: unknown, fallback: T): T => ((list as readonly unknown[]).includes(value) ? (value as T) : fallback);
+    const first = (COURSE_PAGE_TABS as readonly unknown[]).includes(cp.first_tab) ? (cp.first_tab as CoursePageLook["first_tab"]) : undefined;
+    const hide = [...new Set((Array.isArray(cp.hide) ? cp.hide : []).filter((f): f is CoursePageFact => (COURSE_PAGE_FACTS as readonly unknown[]).includes(f)))];
+    screens.course_page = { cover: pick(COURSE_PAGE_COVERS, cp.cover, "classic"), bar: pick(COURSE_PAGE_BARS, cp.bar, "classic"), ...(first ? { first_tab: first } : {}), hide };
+  }
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -241,5 +269,6 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   if (saved.sign_in) screens.sign_in = saved.sign_in;
   if (saved.account_menu) screens.account_menu = saved.account_menu;
   if (saved.course_card) screens.course_card = saved.course_card;
+  if (saved.course_page) screens.course_page = saved.course_page;
   return Object.keys(screens).length ? { screens } : {};
 }

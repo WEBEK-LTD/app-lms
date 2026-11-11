@@ -16,6 +16,10 @@ import {
   ACCOUNT_ITEMS,
   COURSE_CARD_FACTS,
   COURSE_CARD_STYLES,
+  COURSE_PAGE_BARS,
+  COURSE_PAGE_COVERS,
+  COURSE_PAGE_FACTS,
+  COURSE_PAGE_TABS,
   REQUIRED_ACCOUNT_ITEMS,
   SCREEN_LIMITS,
   SIGN_IN_STYLES,
@@ -25,6 +29,7 @@ import {
   type CourseCardFact,
   type CourseCardLook,
   type CourseCardStyle,
+  type CoursePageLook,
   type ScreenTexts,
   type SignInLook,
   type SignInStyle,
@@ -131,6 +136,7 @@ export function ScreensEditor({
   const [previewDark, setPreviewDark] = useState(false);
   // 122 The courses' card.
   const [card, setCard] = useState<CourseCardLook>(initial?.course_card ?? { style: "classic", hide: [] });
+  const [coursePage, setCoursePage] = useState<CoursePageLook>(initial?.course_page ?? { cover: "classic", bar: "classic", hide: [] });
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -143,9 +149,9 @@ export function ScreensEditor({
           return { ...e, label: clean(e.label) };
         }),
       },
-      ...(courses ? { course_card: card } : {}),
+      ...(courses ? { course_card: card, course_page: coursePage } : {}),
     }),
-    [look, header, accent, entries, courses, card],
+    [look, header, accent, entries, courses, card, coursePage],
   );
 
   const move = (index: number, by: number) =>
@@ -414,6 +420,54 @@ export function ScreensEditor({
                 <label key={f} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={!card.hide.includes(f)} onChange={(e) => setCard({ ...card, hide: e.target.checked ? card.hide.filter((x) => x !== f) : [...card.hide, f] })} />
                   {t(`studio.courseFact_${f}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
+        {courses ? (
+          <section aria-labelledby="h-course-page" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-course-page" className="m-0 text-lg font-bold">
+                {t("studio.coursePageTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.coursePageText")}</p>
+            </div>
+            {(
+              [
+                ["cover", COURSE_PAGE_COVERS, "studio.coursePageCover"],
+                ["bar", COURSE_PAGE_BARS, "studio.coursePageBar"],
+              ] as const
+            ).map(([field, options, label]) => (
+              <div key={field} role="radiogroup" aria-label={t(label as DashKey)} className="flex flex-col gap-1.5">
+                <span className="text-sm font-bold">{t(label as DashKey)}</span>
+                <div className="flex flex-wrap gap-2">
+                  {options.map((o) => (
+                    <button key={o} type="button" role="radio" aria-checked={coursePage[field] === o} data-course-page={`${field}-${o}`} onClick={() => setCoursePage({ ...coursePage, [field]: o })} className="rounded-lg border px-3 py-1.5 text-sm" style={coursePage[field] === o ? { borderColor: color, boxShadow: `0 0 0 2px ${color}`, fontWeight: 700 } : undefined}>
+                      {t(`studio.coursePage_${field}_${o}` as DashKey)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              {t("studio.coursePageFirst")}
+              <select className="h-10 rounded-lg border border-line-strong px-2 font-normal" value={coursePage.first_tab ?? ""} onChange={(e) => setCoursePage({ ...coursePage, first_tab: (e.target.value || undefined) as CoursePageLook["first_tab"] })}>
+                <option value="">{t("studio.coursePageFirstAuto")}</option>
+                {COURSE_PAGE_TABS.map((tab) => (
+                  <option key={tab} value={tab}>
+                    {t(`studio.coursePageTab_${tab}` as DashKey)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <fieldset className="m-0 flex flex-wrap gap-x-5 gap-y-2 border-0 p-0">
+              <legend className="mb-1.5 text-sm font-bold">{t("studio.coursePageShows")}</legend>
+              {COURSE_PAGE_FACTS.map((f) => (
+                <label key={f} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!coursePage.hide.includes(f)} onChange={(e) => setCoursePage({ ...coursePage, hide: e.target.checked ? coursePage.hide.filter((x) => x !== f) : [...coursePage.hide, f] })} />
+                  {t(`studio.coursePageFact_${f}` as DashKey)}
                 </label>
               ))}
             </fieldset>

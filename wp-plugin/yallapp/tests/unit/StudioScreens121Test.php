@@ -116,6 +116,28 @@ class StudioScreens121Test extends TestCase {
 			$card['course_card']
 		);
 		$this->assertNull( Studio_Screens::of_status( array( 'screens' => array( 'course_card' => array( 'style' => 'hologram' ) ) ) ) );
+		// 122 A course's page.
+		$page = Studio_Screens::of_status(
+			array(
+				'screens' => array(
+					'course_page' => array(
+						'cover'     => 'full',
+						'bar'       => 'neon',
+						'first_tab' => 'curriculum',
+						'hide'      => array( 'reviews', 'x' ),
+					),
+				),
+			)
+		);
+		$this->assertSame(
+			array(
+				'cover'     => 'full',
+				'bar'       => 'classic',
+				'hide'      => array( 'reviews' ),
+				'first_tab' => 'curriculum',
+			),
+			$page['course_page']
+		);
 		$this->assertNull( Studio_Screens::of_status( array( 'screens' => 'none' ) ) );
 	}
 }
