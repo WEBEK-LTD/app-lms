@@ -230,6 +230,36 @@ void main() {
     expect(find.byKey(const ValueKey('studio-header-back')), findsNothing);
   });
 
+  testWidgets("120.4 a screen's own bar gives way to the header, its buttons "
+      'kept', (tester) async {
+    Widget screen(bool hides, {List<Widget>? actions}) => MaterialApp(
+      home: StudioScreenScope(
+        hidesTitle: hides,
+        child: Builder(
+          builder: (context) => Scaffold(
+            appBar: studioBar(
+              context,
+              AppBar(title: const Text('Own title'), actions: actions),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(screen(false));
+    expect(find.text('Own title'), findsOneWidget);
+    await tester.pumpWidget(screen(true));
+    expect(find.text('Own title'), findsNothing);
+    expect(find.byType(AppBar), findsNothing);
+    await tester.pumpWidget(
+      screen(
+        true,
+        actions: [const Icon(Icons.wallet, key: ValueKey('wallet'))],
+      ),
+    );
+    expect(find.text('Own title'), findsNothing);
+    expect(find.byKey(const ValueKey('wallet')), findsOneWidget);
+  });
+
   testWidgets("a tab's own title hides under a Studio page's header", (
     tester,
   ) async {
