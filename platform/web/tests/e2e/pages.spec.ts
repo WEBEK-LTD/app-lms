@@ -881,8 +881,9 @@ test("103R the team offers a Studio plan; the client makes a Studio project apar
   await tabsPanel.getByRole("button", { name: "Move tab 7 up" }).click();
   await expect(tabCards.nth(5).getByLabel("Name")).toHaveValue("Offers");
   await tabsPanel.getByRole("button", { name: "Icons only" }).click();
-  // The icon only, no name under it.
-  await expect(phone.locator("[data-studio-tab]").first().locator("span")).toHaveCount(1);
+  // The icon only, no name under it (119: the icon in the design's own mark).
+  await expect(phone.locator("[data-studio-tab]").first().locator("[data-studio-tab-name]")).toHaveCount(0);
+  await expect(phone.locator("[data-studio-tab]").first().locator(".material-symbols-rounded")).toHaveCount(1);
   await tabsPanel.getByLabel("Corners").fill("20");
   await tabsPanel.getByLabel("Round button in the middle").check();
   await expect(phone.locator("[data-studio-tab-center]")).toHaveCount(1);

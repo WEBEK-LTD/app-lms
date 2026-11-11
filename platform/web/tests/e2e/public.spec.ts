@@ -82,9 +82,9 @@ test("the landing page has the plans, the steps and the full footer", async ({ p
   await expect(plans.locator('[data-plan="growth"]')).toContainText("Full page editor");
   await expect(plans.locator('[data-plan="starter"]')).toContainText("Simple page editor");
   await expect(page.getByRole("link", { name: "Compare all features" })).toHaveAttribute("href", "/pricing");
-  // Equal heights side by side on a wide screen.
-  const heights = await plans.locator("[data-plan]").evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));
-  expect(new Set(heights).size).toBe(1);
+  // Equal heights side by side on a wide screen, once the page's styles are in (a slow runner measured the cards before).
+  const heights = () => plans.locator("[data-plan]").evaluateAll((cards) => cards.map((c) => Math.round(c.getBoundingClientRect().height)));
+  await expect.poll(async () => new Set(await heights()).size).toBe(1);
 
   // 41 Every plan card shows the marks of its stores: the Android stores on Starter, the App Store too from Growth.
   const storeNames = ["Google Play", "Apple App Store", "Samsung Galaxy Store", "Huawei AppGallery", "Xiaomi GetApps"];

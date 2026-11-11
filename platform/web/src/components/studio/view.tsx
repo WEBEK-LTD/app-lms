@@ -315,7 +315,7 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
           );
         }
         const showLabel = labels === "always" || (labels === "active" && active);
-        const name = <span style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>;
+        const name = <span data-studio-tab-name="" style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>;
         const key = tab?.id ?? "more";
         const tabKey = tab ? tab.id : "more";
         // 119 The open tab with its name beside its icon: a filled pill (lit on the island), a soft bubble or a raised segment; the others icons only.
