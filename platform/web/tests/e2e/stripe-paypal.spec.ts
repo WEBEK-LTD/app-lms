@@ -63,7 +63,7 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await page.getByLabel("Password", { exact: true }).fill(shop.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await signIn(page, E2E.gatewaysAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");
@@ -76,6 +76,10 @@ test("a shop takes an order on its own Stripe, then on its own PayPal", async ({
   await expect(page.getByRole("status")).toContainText("Activated");
 
   await signIn(page, shop.email, shop.password);
+
+  // 121 Without an app yet: the choice of editor or Studio first.
+
+  await page.getByRole("link", { name: /The app editor/ }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();

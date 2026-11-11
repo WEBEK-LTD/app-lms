@@ -22,6 +22,7 @@ import { appLinkTargetOf, LINK_PATH, MAX_LINK_PATHS } from "../links/app";
 import { licenseAppLinks } from "../links/well-known";
 import { chatBaseUrl, chatAvailable, chatGroupsOn } from "../chat/access";
 import { appUrl } from "../env";
+import { screensConfig, type StudioScreens } from "../studio/screens";
 
 /**
  * The license and update API from docs/api/platform.yaml, independent of HTTP
@@ -63,6 +64,8 @@ export interface LicenseStatusBody {
   switches: AppSwitches;
   /** 100.3 Selling courses and memberships in the app through the stores; null when the plan doesn't or nothing is ready in a store. */
   store_billing: ReturnType<typeof licenseStoreBilling>;
+  /** 121 A Studio project's sign-in screen and account menu (`Config.screens`), for the plugin to serve; null when none are designed. */
+  screens: StudioScreens | null;
   expires_at: string | null;
   checked_at: string;
   message: string | null;
@@ -284,6 +287,7 @@ function statusBody(
     chat: state === "active" && facts.app && chatAvailable(facts.app, plan) ? { base_url: chatBaseUrl(appUrl(), facts.app.id), groups: chatGroupsOn(facts.app) } : null,
     switches: appSwitches(facts.app ?? {}),
     store_billing: state === "active" && facts.app ? licenseStoreBilling(facts.app, plan, facts.storeProducts ?? [], appUrl()) : null,
+    screens: facts.app ? (screensConfig(facts.app).screens ?? null) : null,
     expires_at: license ? license.expiresAt.toISOString() : null,
     checked_at: now.toISOString(),
     message,

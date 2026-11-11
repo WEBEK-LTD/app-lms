@@ -92,7 +92,7 @@ test("a client signs up and in from the Arabic pages", async ({ page }) => {
   await page.getByLabel(ar.auth.password, { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: ar.auth.createButton }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
   expect(await langCookie(page)).toBe("ar");
 
   // The team activates it, in the admin (English).

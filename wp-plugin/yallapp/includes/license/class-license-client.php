@@ -457,7 +457,7 @@ class License_Client {
 	/**
 	 * The last known status.
 	 *
-	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, store_billing: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
+	 * @return array{status: string, plan: string|null, features: string[], sign_in_methods: string[]|null, email_sign_in: string|null, offline_downloads: bool|null, screen_protection: string|null, app_type: string|null, vertical: string|null, app_links: array|null, review_prompt: bool, crash_reports: bool, hide_video_branding: bool, chat: array|null, store_billing: array|null, screens: array|null, switches: array<string, bool>, expires_at: string|null, checked_at: string|null, message: string|null, contacted_at: int}
 	 */
 	public function status() {
 		$stored = get_option( self::STATUS_OPTION, array() );
@@ -478,6 +478,7 @@ class License_Client {
 				'hide_video_branding' => false,
 				'chat'                => null,
 				'store_billing'       => null,
+				'screens'             => null,
 				'switches'            => array(),
 				'expires_at'          => null,
 				'checked_at'          => null,
@@ -722,6 +723,8 @@ class License_Client {
 			'chat'                => self::chat_of( $result ),
 			// 100.4 Selling courses and memberships in the app through Google Play and the App Store.
 			'store_billing'       => \Yallapp\Billing\Store_Billing::of_status( $result ),
+			// 121 A Yallapp Studio project's sign-in screen and account menu.
+			'screens'             => \Yallapp\Pages\Studio_Screens::of_status( $result ),
 			// 83.3 The team's switches for the app's modules and new features.
 			'switches'            => self::switches_of( $result ),
 			'expires_at'          => isset( $result['expires_at'] ) ? sanitize_text_field( (string) $result['expires_at'] ) : null,

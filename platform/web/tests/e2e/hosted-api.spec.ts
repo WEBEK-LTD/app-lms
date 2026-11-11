@@ -70,7 +70,7 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await openClientAsAdmin(page, "Activate");
   const panel = page.getByRole("complementary");
@@ -79,6 +79,13 @@ test("our team moves a Store app to the hosted API", async ({ page }) => {
   await expect(page.getByRole("status")).toContainText("Activated");
 
   await signIn(page, client.email, client.password);
+
+  // 121 Without an app yet: the choice of editor or Studio first.
+
+  await expect(page).toHaveURL(/\/start$/);
+
+  await page.getByRole("link", { name: /The app editor/ }).click();
+
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();

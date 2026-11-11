@@ -118,10 +118,12 @@ test("a client outside Egypt sees dollars, pays EGP 1,500 on Kashier and gets a 
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
+  // 121 Active from the start: the first plan is paid on the Plan page.
+  await own.goto("/dashboard/license");
 
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText("$30 / year")).toBeVisible();
+  await expect(own.locator("#renew").getByText("$30 / year")).toBeVisible();
   await expect(own.locator("[data-charge-line]")).toHaveText(CHARGE_LINE);
   await expect(own.getByText("You enter your card on Kashier's secure page.")).toBeVisible();
   await own.getByLabel("City").fill("London");

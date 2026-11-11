@@ -8,6 +8,9 @@ import { MemoryStore } from "@/lib/data/memory";
 import { DuplicateEmailError } from "@/lib/data/store";
 import { forgotSchema, resetSchema, signInSchema, signUpSchema } from "@/lib/validation";
 import { NOW } from "./helpers";
+import { activeFromStart } from "@/lib/auth/activation";
+import { accountState, appIsActive } from "@/lib/license/status";
+import { businessesOf } from "@/lib/team/service";
 
 const SECRET = "session-secret-for-tests-0123456789abcdef";
 
@@ -44,17 +47,38 @@ describe("passwords", () => {
 });
 
 describe("accounts", () => {
-  it("registers a pending client and refuses duplicate emails", async () => {
+  it("121 registers a client active from the start and refuses duplicate emails", async () => {
     const store = new MemoryStore();
     const input = { name: "Ada", email: "Ada@Academy.test", whatsapp: "+905446731942", siteUrl: "https://academy.test", password: "a long password" };
     const { user, client } = await registerClient(store, input, NOW);
     expect(user.email).toBe("ada@academy.test");
-    expect(client.status).toBe("pending");
+    expect(client).toMatchObject({ status: "active", activatedAt: NOW });
+    expect((await store.getClientById(client.id))?.status).toBe("active");
+    // Without a plan yet: the admin still offers to activate it with one, and its apps don't run.
+    expect(accountState(client, null, NOW)).toBe("pending");
+    expect(appIsActive(null, client, NOW)).toBe(false);
     await expect(registerClient(store, { ...input, email: "ada@academy.test" }, NOW)).rejects.toBeInstanceOf(DuplicateEmailError);
 
     expect(await authenticate(store, "ada@academy.test", "a long password", NOW)).not.toBeNull();
     expect(await authenticate(store, "ada@academy.test", "wrong password", NOW)).toBeNull();
     expect(await authenticate(store, "nobody@academy.test", "a long password", NOW)).toBeNull();
+  });
+});
+
+describe("121 accounts waiting from before", () => {
+  it("become active the next time someone of theirs signs in; a suspended one stays suspended", async () => {
+    const store = new MemoryStore();
+    const owner = await store.createUser({ email: "old@academy.test", name: "Old", passwordHash: null, now: NOW });
+    const waiting = await store.createClient({ userId: owner.id, whatsapp: "+905446731942", siteUrl: "", now: NOW });
+    expect(waiting.status).toBe("pending");
+    const [own] = await businessesOf(store, owner);
+    expect(own!.client.status).toBe("active");
+    expect((await store.getClientById(waiting.id))?.activatedAt).toEqual(expect.any(Date));
+    const other = await store.createUser({ email: "gone@academy.test", name: "Gone", passwordHash: null, now: NOW });
+    const blocked = await store.createClient({ userId: other.id, whatsapp: "+905446731943", siteUrl: "", now: NOW });
+    await store.updateClient(blocked.id, { status: "suspended" }, NOW);
+    expect((await businessesOf(store, other))[0]!.client.status).toBe("suspended");
+    expect(await activeFromStart(store, { ...blocked, status: "suspended" }, NOW)).toMatchObject({ status: "suspended" });
   });
 });
 

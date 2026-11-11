@@ -167,7 +167,7 @@ test("a Starter app on the hosted API: the simple page editor, one language, usa
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   await admin.goto(`/admin/clients?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
@@ -176,7 +176,7 @@ test("a Starter app on the hosted API: the simple page editor, one language, usa
   await panel.getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
 
-  await own.goto("/pending");
+  await own.goto("/dashboard/app-type");
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByText("Store", { exact: true }).click();
   await own.getByRole("button", { name: "Continue" }).click();

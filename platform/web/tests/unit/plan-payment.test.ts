@@ -118,7 +118,7 @@ describe("plan payments", () => {
       const { payment } = await start(setup, iyzico.fetcher);
       const outcome = await completePlanPayment({ store: setup.store, account: { provider: "iyzico", keys: IYZICO }, fetcher: iyzico.fetcher, now: NOW, payment, iyzicoToken: "iyzi-1", encryptionKey: KEY });
       expect(outcome.kind).toBe("failed");
-      expect((await setup.store.getClientById(setup.client.id))?.status).toBe("pending");
+      // 121 Active from the start; the payment gave it no plan.
       expect(await licenseOf(setup.store, setup.client.id)).toBeNull();
       expect((await setup.store.listPlanPayments({ clientId: setup.client.id, limit: 5 }))[0]?.status).toBe("failed");
     }

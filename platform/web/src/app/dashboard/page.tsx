@@ -257,7 +257,8 @@ export default async function OverviewPage({ searchParams }: PageProps<"/dashboa
   // 73 The app just deleted.
   const deleted = typeof query.deleted === "string" ? query.deleted : null;
   if (!contextCan(context, "settings") || (!app && !contextCan(context, "apps"))) return <MemberOverview context={context} denied={denied} />;
-  if (!app) redirect(deleted ? `/dashboard/app-type?deleted=${encodeURIComponent(deleted)}` : "/dashboard/app-type");
+  // 121 Without an app yet: the choice between the regular editor and Yallapp Studio (our team, managing it, goes on to the app's type).
+  if (!app) redirect(deleted ? `/dashboard/app-type?deleted=${encodeURIComponent(deleted)}` : context.staff ? "/dashboard/app-type" : "/start");
   const canBilling = contextCan(context, "billing");
   const text = await dashboardText();
   const { t, k, lang, date, num } = text;

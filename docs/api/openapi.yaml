@@ -11422,7 +11422,9 @@ components:
             Roadmap 118.3. A Yallapp Studio app's sign-in screen and account menu, as the
             owner designed them in Studio; read at every start, no new build. Texts are
             per language code: the app shows its language's, else the first one, else its
-            own words. Missing (or a part missing): the app's own screens. A Studio app on
+            own words. Missing (or a part missing): the app's own screens. 121 A Studio
+            app on a WordPress site gets them from the plugin's `/config`, which has them
+            from its license check. A Studio app on
             its own API that Yallapp signs people in to takes `screens` from Yallapp's
             `GET {base_url}/config`, with `auth`; another own API may send it here.
           properties:

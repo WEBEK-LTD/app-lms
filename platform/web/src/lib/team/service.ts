@@ -1,6 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import { adminRoleOf, isBootstrapOwner } from "../admin/team";
 import { appLabel } from "../app/label";
+import { activeFromStart } from "../auth/activation";
 import { newId, randomToken, sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, Client, TeamInvitation, TeamMember, User } from "../data/types";
@@ -43,12 +44,15 @@ export function businessName(owner: Pick<User, "name">, apps: Pick<App, "appName
 /** Every business the person works on: their own first, then the teams they joined, in that order. */
 export async function businessesOf(store: DataStore, user: Pick<User, "id"> | User): Promise<Business[]> {
   const out: Business[] = [];
-  const own = await store.getClientByUserId(user.id);
+  const found = await store.getClientByUserId(user.id);
+  // 121 An account still waiting from before is active now.
+  const own = found ? await activeFromStart(store, found, new Date()) : null;
   // 98.1 The person's own business: they are its owner (no second read when the caller has their record).
   const self = own ? ("sessionVersion" in user ? user : await store.getUserById(own.userId)) : null;
   if (own && self) out.push({ client: own, owner: self, access: OWNER_ACCESS, member: null });
   for (const member of await store.listMembershipsOfUser(user.id)) {
-    const client = await store.getClientById(member.clientId);
+    const theirs = await store.getClientById(member.clientId);
+    const client = theirs ? await activeFromStart(store, theirs, new Date()) : null;
     const owner = client ? await store.getUserById(client.userId) : null;
     if (client && owner && owner.id !== user.id) out.push({ client, owner, access: memberAccess(member), member });
   }
@@ -57,13 +61,16 @@ export async function businessesOf(store: DataStore, user: Pick<User, "id"> | Us
 
 /** One business of the person, by its client ID; null when they don't work on it. */
 export async function businessFor(store: DataStore, user: Pick<User, "id">, clientId: string): Promise<Business | null> {
-  const client = await store.getClientById(clientId);
-  if (!client) return null;
-  const owner = await store.getUserById(client.userId);
+  const found = await store.getClientById(clientId);
+  if (!found) return null;
+  const owner = await store.getUserById(found.userId);
   if (!owner) return null;
+  const member = found.userId === user.id ? null : await store.getTeamMember(clientId, user.id);
+  if (found.userId !== user.id && !member) return null;
+  // 121 An account still waiting from before is active now.
+  const client = await activeFromStart(store, found, new Date());
   if (client.userId === user.id) return { client, owner, access: OWNER_ACCESS, member: null };
-  const member = await store.getTeamMember(clientId, user.id);
-  return member ? { client, owner, access: memberAccess(member), member } : null;
+  return { client, owner, access: memberAccess(member!), member: member! };
 }
 
 // Invitations

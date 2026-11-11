@@ -162,8 +162,19 @@ class App_Controller extends Controller {
 				'vertical'  => $license_status['vertical'],
 				// 83.3 The Yallapp team's switches for the app's modules and new features.
 				'switches'  => (object) ( is_array( $license_status['switches'] ?? null ) ? $license_status['switches'] : array() ),
-			) + $this->chat() + ( $store_billing ? array( 'store_billing' => $store_billing ) : array() ) + $this->look()
+			) + $this->chat() + ( $store_billing ? array( 'store_billing' => $store_billing ) : array() ) + $this->screens() + $this->look()
 		);
+	}
+
+	/**
+	 * 121 `Config.screens`: the sign-in screen and account menu designed in Yallapp Studio,
+	 * as the last license check brought them; nothing otherwise (the app's own screens).
+	 *
+	 * @return array
+	 */
+	private function screens() {
+		$screens = $this->plugin->license()->status()['screens'] ?? null;
+		return is_array( $screens ) && $screens ? array( 'screens' => $screens ) : array();
 	}
 
 	/**

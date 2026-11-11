@@ -117,14 +117,15 @@ test("70 a client turns on two-step sign-in and signs in with a code, in Arabic 
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
 
   // English chosen for the dashboard: signing in from the Arabic page below keeps it.
-  await own.goto("/dashboard");
+  // 121 Without an app yet the dashboard's address is the choice of editor or Studio: its app type page has the languages.
+  await own.goto("/dashboard/app-type");
   await Promise.all([own.waitForResponse((r) => r.request().method() === "POST"), own.locator("[data-dashboard-languages]").getByRole("button", { name: "English" }).click()]);
   // An app, so the overview opens; it suggests two-step sign-in until it is on.
   await own.goto("/dashboard/app-type");

@@ -196,11 +196,13 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
 /**
  * 118.3 Whether the app gets Studio's screens: a Studio project on the hosted
  * API, or on its own API that Yallapp signs people in to (the app reads them
- * from Yallapp's `/config` with the sign-in rules). Another own API sends
- * `Config.screens` itself.
+ * from Yallapp's `/config` with the sign-in rules), 121 or on a WordPress site
+ * (the plugin gets them with its license check, `LicenseStatus.screens`, and
+ * serves them in its `/config`). Another own API sends `Config.screens`
+ * itself.
  */
 export function studioScreensOn(app: Pick<App, "section" | "backend"> & { hostedSettings?: App["hostedSettings"] }): boolean {
-  return app.section === "studio" && (app.backend === "hosted" || yallappSignsIn(app));
+  return app.section === "studio" && (app.backend === "hosted" || app.backend === "wordpress" || yallappSignsIn(app));
 }
 
 /** 118.3 `Config.screens`, or nothing when the owner hasn't designed them. */

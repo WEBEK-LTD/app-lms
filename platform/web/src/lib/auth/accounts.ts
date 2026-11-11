@@ -1,5 +1,6 @@
 import type { DataStore } from "../data/store";
 import type { Client, User } from "../data/types";
+import { activeFromStart } from "./activation";
 import { hashPassword, verifyPassword } from "./password";
 
 export async function registerClient(
@@ -10,7 +11,9 @@ export async function registerClient(
 ): Promise<{ user: User; client: Client }> {
   const passwordHash = input.password ? await hashPassword(input.password) : null;
   const user = await store.createUser({ email: input.email, name: input.name, passwordHash, now });
-  const client = await store.createClient({ userId: user.id, whatsapp: input.whatsapp, siteUrl: input.siteUrl, country: input.country ?? null, now });
+  const made = await store.createClient({ userId: user.id, whatsapp: input.whatsapp, siteUrl: input.siteUrl, country: input.country ?? null, now });
+  // 121 Active from the start: no waiting for the team.
+  const client = await activeFromStart(store, made, now);
   return { user, client };
 }
 

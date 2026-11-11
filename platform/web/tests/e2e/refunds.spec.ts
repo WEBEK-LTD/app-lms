@@ -61,7 +61,7 @@ async function signUpAndActivate(page: Page, who: { name: string; email: string;
   await page.getByLabel("Password", { exact: true }).fill(who.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
   await admin.goto(`/admin/clients?q=${encodeURIComponent(who.email)}`);
   await admin.getByRole("link", { name: `Activate ${who.name}` }).click();
   const panel = admin.getByRole("complementary");
@@ -99,6 +99,8 @@ test.afterAll(async () => {
 test("a shop refunds an order in part, then the rest, through Kashier", async ({ page, request }) => {
   await signUpAndActivate(page, shop, "+20 122 765 4400");
   await signIn(page, shop.email, shop.password);
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await page.getByRole("link", { name: /The app editor/ }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();
@@ -198,6 +200,8 @@ test("a shop refunds an order in part, then the rest, through Kashier", async ({
 test("the team edits what a plan includes, and the WordPress site on it is asked to check its license", async ({ page, request }) => {
   await signUpAndActivate(page, site, "+20 100 765 4401", "business");
   await signIn(page, site.email, site.password);
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await page.getByRole("link", { name: /The app editor/ }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.goto("/dashboard/license");

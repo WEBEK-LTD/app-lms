@@ -65,7 +65,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   admin = await freshPage(browser);
   await signIn(admin, E2E.dashboardLanguagesAdminEmail, E2E.adminPassword);

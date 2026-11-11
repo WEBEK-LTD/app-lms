@@ -23,7 +23,7 @@ test("a campaign's sign-up reaches Admin › Product, with the daily snapshot", 
   await visitor.getByLabel("Password", { exact: true }).fill("rosa-strong-password-1");
   await visitor.getByRole("checkbox").check();
   await visitor.getByRole("button", { name: "Create account" }).click();
-  await expect(visitor).toHaveURL(/\/pending$/);
+  await expect(visitor).toHaveURL(/\/start$/);
   await visitor.close();
 
   const daily = await request.post("/api/internal/daily", { headers: { authorization: `Bearer ${E2E.internalJobSecret}` } });

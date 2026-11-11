@@ -41,7 +41,7 @@ test("an Academy app on the hosted API", async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   await signIn(own, E2E.translationsAdminEmail, E2E.adminPassword);
   await own.goto(`/admin?q=${encodeURIComponent(client.email)}`);

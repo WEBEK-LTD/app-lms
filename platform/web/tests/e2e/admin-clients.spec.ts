@@ -22,7 +22,7 @@ test.beforeAll(async ({ browser }) => {
   await signUp.getByLabel("Password", { exact: true }).fill(client.password);
   await signUp.getByRole("checkbox").check();
   await signUp.getByRole("button", { name: "Create account" }).click();
-  await expect(signUp).toHaveURL(/\/pending$/);
+  await expect(signUp).toHaveURL(/\/start$/);
   await signUp.close();
 
   // One sign-in for the whole file: sign-ins are rate limited per email.
@@ -103,8 +103,9 @@ test("the client sees what the team set", async ({ browser }) => {
   await own.getByLabel("Email").fill(client.email);
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("button", { name: "Sign in" }).click();
-  // Still pending activation: the app waits for the team, but its setup is kept.
-  await expect(own).toHaveURL(/\/pending$/);
+  // 121 Active from the start: the dashboard opens; the app waits for its plan, its setup kept.
+  await expect(own).not.toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/(dashboard|start)/);
   await own.close();
 });
 

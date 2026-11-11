@@ -36,7 +36,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   admin = await browser.newPage({ extraHTTPHeaders });
   await admin.goto("/sign-in");
@@ -59,7 +59,7 @@ test.afterAll(async () => {
 });
 
 test("their own API is saved even when its check fails, and the dashboard says so", async () => {
-  await own.goto("/pending");
+  await own.goto("/dashboard/app-type");
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByRole("button", { name: "Continue" }).click();
   await own.getByRole("radio", { name: /My own API/ }).check();

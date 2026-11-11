@@ -59,7 +59,9 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
+  // 121 Active from the start: the first plan is paid on the Plan page.
+  await own.goto("/dashboard/license");
 
   admin = await browser.newPage();
   await admin.goto("/sign-in");
@@ -100,7 +102,8 @@ test("card payment shows once the team sets the account and a card price", async
 
   await own.reload();
   await expect(own.getByRole("heading", { name: "Pay by card" })).toBeVisible();
-  await expect(own.getByText("$96 / year")).toBeVisible();
+  // 121 On the Plan page, in the payment form (the plans above show the price too).
+  await expect(own.locator("#renew").getByText("$96 / year")).toBeVisible();
   // Charged in the currency shown: nothing to convert.
   await expect(own.locator("[data-charge-line]")).toHaveCount(0);
 });

@@ -199,7 +199,8 @@ describe("licenses and plans per app", () => {
     expect(appState({ status: "suspended" }, firstLicense, NOW)).toBe("suspended");
     expect(clientAccountState(c, [firstLicense!], NOW)).toBe("active");
     expect(clientAccountState(c, [firstLicense!], days(100))).toBe("expired");
-    expect(clientAccountState(c, [], NOW)).toBe("expired");
+    // 121 No plan at all yet: waiting for the first one.
+    expect(clientAccountState(c, [], NOW)).toBe("pending");
   });
 
   it("a card payment for one app activates or extends that app only", async () => {

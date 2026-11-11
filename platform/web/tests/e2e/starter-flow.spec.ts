@@ -47,7 +47,7 @@ test("a Growth client signs up and is activated", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await page.context().clearCookies();
   await signIn(page, E2E.starterAdminEmail, E2E.adminPassword);
@@ -123,6 +123,8 @@ test("62 a session that ended on the server stops the header saying Dashboard", 
 
 test("the App Store Connect key is optional on Growth and reaches the pipeline", async ({ page, request }) => {
   await signIn(page, client.email, client.password);
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await page.getByRole("link", { name: /The app editor/ }).click();
   // This client builds a Store app.
   await page.getByText("Store", { exact: true }).click();
   await expect(page.getByRole("radio", { name: "Store" })).toBeChecked();

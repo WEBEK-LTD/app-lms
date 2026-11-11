@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.32
+Stable tag: 0.4.33
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,11 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.33 =
+* The app's bottom bar keeps the design you chose in Yallapp Studio (eighteen of them), its own colours in dark mode, and the account tab with the person's photo.
+* Yallapp Studio pages can be drawn around the app's own screens: a tab's page has your header and elements over the courses, the account or the other screens, which work as before; so do the screens opened from them (a course, a lesson, certificates, settings).
+* A header with the page's title and its buttons.
 
 = 0.4.32 =
 * Sliders on your app's pages keep their settings from the page editor: how long each slide shows, their shape (wide, standard or square) and how they show where you are (dots, lines that fill, or "2 / 5").

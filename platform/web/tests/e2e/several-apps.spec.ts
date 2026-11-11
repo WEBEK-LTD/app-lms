@@ -63,7 +63,7 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   admin = await browser.newPage({ extraHTTPHeaders });
   await admin.goto("/sign-in");
@@ -118,7 +118,7 @@ test("the team activates the account, and the client sets up their first app", a
   await expect(admin.getByRole("status")).toContainText("Activated");
 
   // Signed in since sign-up: the activated account goes to its first app's type.
-  await own.goto("/pending");
+  await own.goto("/dashboard/app-type");
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByText("Store", { exact: true }).click();
   await own.getByRole("button", { name: "Continue" }).click();
