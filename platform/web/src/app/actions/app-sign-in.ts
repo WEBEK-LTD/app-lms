@@ -18,7 +18,8 @@ import { appOtpSender, appWhatsappSender, parseAppWhatsappForm } from "@/lib/hos
 import { OtpSendError } from "@/lib/hosted/otp-sender";
 import { parseAnyPhone } from "@/lib/hosted/phone";
 import { parseHostedSettingsForm } from "@/lib/hosted/settings-form";
-import { emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice } from "@/lib/hosted/sign-in-methods";
+import { emailSignInNote, emailSignInPossible, normalizeEmail, parseEmailSignInChoice, parseSignInMethodsChoice, PASSWORD_WAYS, passwordChannels, passwordSignInPossible, SIGN_IN_METHODS } from "@/lib/hosted/sign-in-methods";
+import type { PasswordSignInSettings, PasswordWay, SignInMethod } from "@/lib/data/types";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 
@@ -186,6 +187,47 @@ export async function saveSignInMethodsAction(_: FormState, formData: FormData):
         ? WORDPRESS_SAVED
         : "Saved. The app shows it the next time it opens; no new build is needed.",
     values: { methods: choice, emailSignIn: next.emailSignIn ?? "" },
+  };
+}
+
+/**
+ * 118 Yallapp Studio apps: any of a code by phone, a code by email, and a
+ * password with the email address, the phone number or a username (whose
+ * accounts are verified and reset by email or by phone).
+ */
+export async function saveStudioSignInAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { context, app } = await signInContext(true);
+  if (!passwordSignInPossible(app)) redirect("/dashboard/app-sign-in");
+  const codes = SIGN_IN_METHODS.filter((m) => formData.get(`code_${m}`) === "on");
+  const by = PASSWORD_WAYS.filter((w) => formData.get(`password_${w}`) === "on");
+  const recovery: SignInMethod = formData.get("recovery") === "phone" ? "phone" : "email";
+  const values = {
+    ...Object.fromEntries(codes.map((m) => [`code_${m}`, "on"])),
+    ...Object.fromEntries(by.map((w) => [`password_${w}`, "on"])),
+    recovery,
+  };
+  if (!codes.length && !by.length) return { errors: { ways: "Choose at least one way to sign in." }, values };
+  const email = emailSignInPossible(app);
+  const usesEmail = codes.includes("email") || by.includes("email") || (by.includes("username") && recovery === "email");
+  if (usesEmail && !email) return { errors: { ways: emailSignInNote(app) ?? "This app signs in by phone." }, values };
+  const passwords: PasswordSignInSettings | null = by.length ? { by: by as PasswordWay[], codes, recovery } : null;
+  const signInMethods = passwords ? passwordChannels(passwords) : codes;
+  const store = await getStore();
+  await store.updateApp(app.id, { hostedSettings: withSettings(app, { signInMethods, passwordSignIn: passwords }) }, new Date());
+  await recordStaffChange(
+    context,
+    "Changed how people sign in to the app",
+    { signInMethods: app.hostedSettings?.signInMethods ?? null, passwordSignIn: app.hostedSettings?.passwordSignIn ?? null },
+    { signInMethods, passwordSignIn: passwords },
+  );
+  revalidatePath("/dashboard/app-sign-in");
+  revalidatePath("/studio/project/app-sign-in");
+  return {
+    ok: true,
+    message: passwords
+      ? "Saved. The app shows it the next time it opens. An app built before password sign-in came needs a new build to show it."
+      : "Saved. The app shows it the next time it opens; no new build is needed.",
+    values,
   };
 }
 

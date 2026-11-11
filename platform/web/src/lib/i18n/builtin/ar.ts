@@ -494,6 +494,23 @@ export const PAGE_TEXTS_AR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_AR: Record<string, string> = {
+  // 118 Password sign-in (Yallapp Studio apps).
+  "This app doesn't use passwords.": "هذا التطبيق لا يستخدم كلمات المرور.",
+  "There is no account with this email address.": "لا يوجد حساب بهذا البريد الإلكتروني.",
+  "There is no account with this number.": "لا يوجد حساب بهذا الرقم.",
+  "You already have an account. Sign in with your password, or reset it if you forgot it.": "لديك حساب بالفعل. سجّل الدخول بكلمة المرور، أو أعد تعيينها إذا نسيتها.",
+  "Please choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.": "يُرجى اختيار اسم مستخدم من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة سفلية، يبدأ بحرف.",
+  "This username is taken. Please choose another one.": "اسم المستخدم هذا مستخدَم. يُرجى اختيار اسم آخر.",
+  "Your password needs at least 8 characters.": "تحتاج كلمة المرور إلى 8 أحرف على الأقل.",
+  "Your password can have up to 128 characters.": "يمكن أن تتكوّن كلمة المرور من 128 حرفًا كحد أقصى.",
+  "This password is too easy to guess. Please choose another one.": "كلمة المرور هذه سهلة التخمين. يُرجى اختيار كلمة أخرى.",
+  "Your password can't be your email, phone number or username.": "لا يمكن أن تكون كلمة المرور هي بريدك الإلكتروني أو رقم هاتفك أو اسم المستخدم.",
+  "The details you entered are not correct.": "البيانات التي أدخلتها غير صحيحة.",
+  "This app doesn't offer sign-in with a password.": "هذا التطبيق لا يوفّر تسجيل الدخول بكلمة المرور.",
+  "This app doesn't offer this way of signing in.": "هذا التطبيق لا يوفّر هذه الطريقة لتسجيل الدخول.",
+  "Please enter your email, phone number or username.": "يُرجى إدخال بريدك الإلكتروني أو رقم هاتفك أو اسم المستخدم.",
+  "You don't have a password yet. Sign out and use “Forgot password” to set one.": "ليست لديك كلمة مرور بعد. سجّل الخروج واستخدم «نسيت كلمة المرور» لضبط واحدة.",
+  "Your current password is not correct.": "كلمة المرور الحالية غير صحيحة.",
   "Bundle not found.": "الحزمة غير موجودة.",
   "Choose a rating from 1 to 5.": "اختر تقييمًا من 1 إلى 5.",
   "Enroll in the course to review it.": "سجّل في الدورة لتقييمها.",

@@ -986,8 +986,17 @@ paths:
     post:
       tags: [Auth]
       operationId: signInWithPassword
-      summary: Sign in with email and password
+      summary: Sign in with a password
       description: |
+        Roadmap 118, the hosted API: a Yallapp Studio app whose `Config.auth.password_sign_in`
+        is set signs in here with what `password_sign_in.by` lists: `email`, `phone` with
+        `country_code`, or `username`, and the account's password. A wrong account and a
+        wrong password get the same 400 `invalid_credentials`. Limited to 10 tries per
+        account and 50 per IP in 15 minutes (429 `rate_limited`). The store review number
+        (or address) signs in with the review code as its password. Accounts are made with
+        a code (`POST /auth/otp/verify`, then `POST /auth/register` with `password`), and a
+        forgotten password is set again with `POST /auth/password/reset`.
+
         For servers whose `Config.auth.email_sign_in` is `password` (a WordPress site:
         its own accounts and passwords, checked by WordPress with the site's own
         rules and security plugins). Only existing accounts sign in here; people
@@ -1012,9 +1021,12 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email, password, device]
+              required: [password, device]
               properties:
-                email: { type: string, maxLength: 191, description: The account's email address (a WordPress username works too)., example: sara@example.com }
+                email: { type: string, maxLength: 191, description: The account's email address (a WordPress username works too). Required on WordPress., example: sara@example.com }
+                phone: { type: string, description: 'Roadmap 118, hosted API: the phone number, with `country_code`.', example: '5321234567' }
+                country_code: { type: string, example: '+90' }
+                username: { type: string, maxLength: 64, description: 'Roadmap 118, hosted API: the username (any letter case).', example: sara.y }
                 password: { type: string, maxLength: 4096 }
                 device: { $ref: '#/components/schemas/DeviceInput' }
                 preview: { type: boolean, description: Sent by the app preview in the Yallapp dashboard. }
@@ -1057,6 +1069,16 @@ paths:
                 request_id: { type: string }
                 code: { type: string, example: '481902' }
                 device: { $ref: '#/components/schemas/DeviceInput' }
+                purpose:
+                  type: string
+                  enum: [sign_in, reset]
+                  description: |
+                    Roadmap 118 (apps with `Config.auth.password_sign_in`). `reset`: the code
+                    proves the address of an account whose password was forgotten; the answer
+                    is a `reset_token` for `POST /auth/password/reset` (404 `no_account` when
+                    the address has none). Missing means `sign_in`. Where the channel isn't in
+                    `password_sign_in.codes`, a code doesn't sign an existing account in:
+                    409 `use_password`.
       responses:
         '200':
           description: Verified
@@ -1066,8 +1088,11 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/Session'
                   - $ref: '#/components/schemas/SignupRequired'
+                  - $ref: '#/components/schemas/PasswordResetToken'
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /auth/register:
@@ -1092,6 +1117,8 @@ paths:
                 name: { type: string, example: Sara Yilmaz }
                 email: { type: string, format: email }
                 city: { type: string }
+                username: { type: string, maxLength: 64, description: "Roadmap 118: when `fields` has `username`: 3 to 30 letters, digits, dots or underscores, starting with a letter. 409 `username_taken`." }
+                password: { type: string, maxLength: 4096, description: "Roadmap 118: when `fields` has `password`: at least `password_sign_in.min_length` characters, not a common password, not the email, phone or username. 400 `weak_password`." }
                 device: { $ref: '#/components/schemas/DeviceInput' }
       responses:
         '201':
@@ -1102,6 +1129,38 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+
+  /auth/password/reset:
+    post:
+      tags: [Auth]
+      operationId: resetPassword
+      summary: Set a forgotten password again
+      description: |
+        Roadmap 118 (apps with `Config.auth.password_sign_in`). After a code by
+        phone or email and `POST /auth/otp/verify` with `purpose: reset`, the
+        `reset_token` sets the account's new password and signs this device in.
+        The account's other devices are signed out.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reset_token, password, device]
+              properties:
+                reset_token: { type: string }
+                password: { type: string, maxLength: 4096 }
+                device: { $ref: '#/components/schemas/DeviceInput' }
+      responses:
+        '200':
+          description: Password set and signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /auth/refresh:
     post:
@@ -1367,6 +1426,32 @@ paths:
       responses:
         '204': { description: Account deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/password:
+    put:
+      tags: [Account]
+      operationId: changePassword
+      summary: Change the password
+      description: |
+        Roadmap 118 (apps with `Config.auth.password_sign_in`). With the current
+        password; the account's other devices are signed out. 400 `no_password`
+        for an account that has none yet (it sets one with "Forgot password").
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, password]
+              properties:
+                current_password: { type: string, maxLength: 4096 }
+                password: { type: string, maxLength: 4096 }
+      responses:
+        '204': { description: Changed }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /me/devices:
     get:
@@ -11293,6 +11378,30 @@ components:
                 owner chose `code` (in the Yallapp dashboard or the plugin's settings;
                 plugin 0.3.5 and later). Sent when `methods` has `email`.
             password_reset_url: { type: [string, 'null'], format: uri, description: "With `email_sign_in: password`: the website's page to reset a forgotten password." }
+            password_sign_in:
+              type: object
+              required: [by, codes, recovery, min_length]
+              description: |
+                Roadmap 118. A Yallapp Studio app on the hosted API that signs in with a
+                password: `by` lists what is typed with it (`POST /auth/password`), `codes`
+                the channels where a code still signs in (empty: passwords only), and
+                `recovery` the channel username accounts are verified and reset on. A new
+                account proves its email or phone with a code first, then registers with a
+                `password` (and a `username`) as `SignupRequired.fields` says; "Forgot
+                password" is a code with `purpose: reset`, then `POST /auth/password/reset`.
+                `methods` lists the channels codes go to. Missing: codes only.
+              properties:
+                by:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items: { type: string, enum: [email, phone, username] }
+                codes:
+                  type: array
+                  uniqueItems: true
+                  items: { type: string, enum: [phone, email] }
+                recovery: { type: string, enum: [phone, email] }
+                min_length: { type: integer, example: 8 }
             preview_sign_in: { type: boolean, description: "Whether `POST /auth/otp/request` honours `preview: true` (only the store review number signs in, no code is sent). The app preview offers sign-in only when this is true. Missing means false." }
             provider:
               type: string
@@ -11495,7 +11604,16 @@ components:
         signup_token: { type: string }
         fields:
           type: array
-          items: { type: string, enum: [name, email, city] }
+          items: { type: string, enum: [name, email, city, username, password] }
+          description: "Roadmap 118: `username` and `password` where the app signs in with them (`Config.auth.password_sign_in`)."
+
+    PasswordResetToken:
+      type: object
+      description: Roadmap 118. The answer to `POST /auth/otp/verify` with `purpose` `reset`.
+      required: [reset_token, expires_in_seconds]
+      properties:
+        reset_token: { type: string }
+        expires_in_seconds: { type: integer, example: 900 }
 
     User:
       type: object
@@ -11507,6 +11625,7 @@ components:
         email: { type: [string, 'null'], format: email }
         city: { type: [string, 'null'] }
         avatar_url: { type: [string, 'null'], format: uri }
+        username: { type: string, description: "Roadmap 118: the username of someone who signs in with one (lowercase). Missing otherwise.", example: sara.y }
         roles:
           type: array
           uniqueItems: true

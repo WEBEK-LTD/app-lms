@@ -256,6 +256,8 @@ export class MemoryStore implements DataStore {
   private resetTokens = new Map<string, ResetToken>();
   private rateLimits = new Map<string, { windowStart: number; hits: number }>();
   private hostedUsers = new Map<number, HostedUser>();
+  /** 118 Passwords of Studio apps' users, by user ID. */
+  private hostedPasswords = new Map<number, { appId: string; hash: string; updatedAt: Date }>();
   private hostedDevices = new Map<string, HostedDevice>();
   private hostedTokens = new Map<string, HostedRefreshToken>();
   // 34
@@ -688,9 +690,11 @@ export class MemoryStore implements DataStore {
     name: string;
     email: string | null;
     city: string | null;
+    username?: string | null;
     now: Date;
   }): Promise<HostedUser | null> {
     if (input.phone !== null && (await this.getHostedUserByPhone(input.appId, input.phone))) return null;
+    if (input.username && (await this.getHostedUserByUsername(input.appId, input.username))) return null;
     if (input.phone === null && (!input.email || (await this.getHostedEmailUser(input.appId, input.email)))) return null;
     const user: HostedUser = {
       id: this.nextHostedUserId++,
@@ -699,6 +703,7 @@ export class MemoryStore implements DataStore {
       name: input.name,
       email: input.email,
       city: input.city,
+      username: input.username ?? null,
       notificationsReadAt: null,
       createdAt: input.now,
       updatedAt: input.now,
@@ -726,6 +731,24 @@ export class MemoryStore implements DataStore {
     return null;
   }
 
+  async getHostedUserByUsername(appId: string, username: string): Promise<HostedUser | null> {
+    for (const user of this.hostedUsers.values()) {
+      if (user.appId === appId && user.username === username) return clone(user);
+    }
+    return null;
+  }
+
+  async getHostedUserPassword(appId: string, userId: number): Promise<string | null> {
+    const entry = this.hostedPasswords.get(userId);
+    return entry && entry.appId === appId ? entry.hash : null;
+  }
+
+  async setHostedUserPassword(appId: string, userId: number, passwordHash: string, now: Date): Promise<void> {
+    const user = this.hostedUsers.get(userId);
+    if (!user || user.appId !== appId) return;
+    this.hostedPasswords.set(userId, { appId, hash: passwordHash, updatedAt: now });
+  }
+
   async updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void> {
     const user = this.hostedUsers.get(id);
     if (user && user.appId === appId) this.hostedUsers.set(id, clone({ ...user, ...patch, updatedAt: now }));
@@ -735,6 +758,7 @@ export class MemoryStore implements DataStore {
     const user = this.hostedUsers.get(id);
     if (!user || user.appId !== appId) return;
     this.hostedUsers.delete(id);
+    this.hostedPasswords.delete(id);
     for (const device of [...this.hostedDevices.values()]) {
       if (device.userId === id) await this.deleteHostedDevice(appId, device.id);
     }

@@ -14,11 +14,11 @@ import { appUrl, isProduction } from "@/lib/env";
 import { platformDefinition } from "@/lib/hosted/connectors/registry";
 import { hostedSettings } from "@/lib/hosted/service";
 import { hostedSettingsValues } from "@/lib/hosted/settings-form";
-import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
+import { chosenEmailSignIn, chosenSignInMethods, emailSignInNote, emailSignInPossible, hostedSignInMethods, passwordSignIn, passwordSignInPossible, signInMethodsChoice } from "@/lib/hosted/sign-in-methods";
 import { signedInPath } from "@/lib/app/api-check";
 import { jwksUrl, tokenIssuer, yallappSignsIn } from "@/lib/hosted/app-auth";
 import { hostedApiUrl } from "@/lib/hosted/urls";
-import { AppMailForms, AppSignInForm, AppWhatsappForms, DeveloperTokens, ResendWebhookForm, SignInMethodsForm, SignInProviderForm } from "./forms";
+import { AppMailForms, AppSignInForm, AppWhatsappForms, DeveloperTokens, ResendWebhookForm, SignInMethodsForm, SignInProviderForm, StudioSignInForm } from "./forms";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("signin.title") };
@@ -149,6 +149,17 @@ function CustomApiSignIn({ app, text }: { app: App; text: DashboardText }) {
   );
 }
 
+/** 118 A Studio app's ways as the form's checkboxes: the saved passwords, or the code methods. */
+function studioWays(app: App): Record<string, string> {
+  const passwords = passwordSignIn(app);
+  const codes = passwords ? passwords.codes : hostedSignInMethods(app);
+  return {
+    ...Object.fromEntries(codes.map((m) => [`code_${m}`, "on"])),
+    ...Object.fromEntries((passwords?.by ?? []).map((w) => [`password_${w}`, "on"])),
+    recovery: passwords?.recovery ?? (emailSignInPossible(app) ? "email" : "phone"),
+  };
+}
+
 /** 19 The connected platform's name, for the note that email sign-in is off; null when it has none. */
 function sourceName(app: App): string | null {
   if (app.connector?.kind === "shopify") return "Shopify";
@@ -195,6 +206,7 @@ export default async function AppSignInPage() {
   const emailOnlyUsers = emailOff ? await (await getStore()).countHostedEmailOnlyUsers(app.id) : 0;
   const source = sourceName(app);
   const note = emailSignInNote(app);
+  const studio = !wordpress && passwordSignInPossible(app);
   return (
     <div className="flex flex-col gap-6">
       {/* The page kit: the header, then the settings in labelled groups: signing in, then the codes and emails. */}
@@ -220,6 +232,10 @@ export default async function AppSignInPage() {
         <h2 id="h-methods" className="m-0 text-lg font-bold">
           {t("signin.howSignIn")}
         </h2>
+        {/* 118 Yallapp Studio apps: codes and passwords, any of them. */}
+        {studio ? (
+          <StudioSignInForm current={studioWays(app)} emailPossible={emailSignInPossible(app)} note={note ? k(note) : null} />
+        ) : (
         <SignInMethodsForm
           current={signInMethodsChoice(methods)}
           wordpress={wordpress}
@@ -229,6 +245,7 @@ export default async function AppSignInPage() {
           emailWay={chosenEmailSignIn(app) ?? "password"}
           emailWayChosen={chosenEmailSignIn(app) !== null}
         />
+        )}
       </section>
 
       {wordpress ? null : (

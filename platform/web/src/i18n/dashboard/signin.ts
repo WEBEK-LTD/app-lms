@@ -168,7 +168,28 @@ export const en = {
   portHint: "465, 587, 25 or 2525.",
   security: "Security",
   saveEmail: "Save email settings",
+  // 118 Yallapp Studio apps: codes and passwords.
+  studioWaysIntro:
+    "Turn on any of these. With a password, a new account still proves its email address or phone number with one code at sign-up, and a forgotten password is reset with a code.",
+  waysLegend: "People sign in with",
+  wayPhoneCode: "Phone number and a code",
+  wayPhoneCodeHint: "A 6-digit code on WhatsApp, every time.",
+  wayEmailCode: "Email address and a code",
+  wayEmailCodeHint: "A 6-digit code by email, every time.",
+  wayEmailPassword: "Email address and password",
+  wayEmailPasswordHint: "The address is checked with a code once, at sign-up.",
+  wayPhonePassword: "Phone number and password",
+  wayPhonePasswordHint: "The number is checked with a code on WhatsApp once, at sign-up.",
+  wayUsernamePassword: "Username and password",
+  wayUsernamePasswordHint: "People choose a username at sign-up. They also give an email address or phone number, to get back in if they forget the password.",
+  recoveryLegend: "Username accounts are checked and reset with",
+  recoveryEmail: "Their email address",
+  recoveryPhone: "Their phone number",
+  passwordsNote:
+    "People who signed up with a code before set a password with “Forgot password” the first time. The store review number (or email address) signs in with the review code as its password. Passwords are stored as Argon2 hashes: nobody, Yallapp included, can read them.",
   known: {
+    chooseOneWay: "Choose at least one way to sign in.",
+    savedPasswords: "Saved. The app shows it the next time it opens. An app built before password sign-in came needs a new build to show it.",
     // app/actions/app-sign-in.ts
     chooseWho: "Choose who signs people in.",
     providerYallappSaved:
@@ -474,7 +495,28 @@ export const ar: Messages = {
   portHint: "465 أو 587 أو 25 أو 2525.",
   security: "الأمان",
   saveEmail: "حفظ إعدادات البريد الإلكتروني",
+  // 118 تطبيقات Yallapp Studio: الرموز وكلمات المرور.
+  studioWaysIntro:
+    "فعّل ما تريد منها. مع كلمة المرور، يُثبت الحساب الجديد بريده الإلكتروني أو رقم هاتفه برمز واحد عند التسجيل، وتُستعاد كلمة المرور المنسيّة برمز.",
+  waysLegend: "يسجّل الناس الدخول بـ",
+  wayPhoneCode: "رقم الهاتف ورمز",
+  wayPhoneCodeHint: "رمز من 6 أرقام على WhatsApp في كل مرة.",
+  wayEmailCode: "البريد الإلكتروني ورمز",
+  wayEmailCodeHint: "رمز من 6 أرقام بالبريد الإلكتروني في كل مرة.",
+  wayEmailPassword: "البريد الإلكتروني وكلمة المرور",
+  wayEmailPasswordHint: "يُتحقَّق من البريد برمز مرة واحدة عند التسجيل.",
+  wayPhonePassword: "رقم الهاتف وكلمة المرور",
+  wayPhonePasswordHint: "يُتحقَّق من الرقم برمز على WhatsApp مرة واحدة عند التسجيل.",
+  wayUsernamePassword: "اسم المستخدم وكلمة المرور",
+  wayUsernamePasswordHint: "يختار الشخص اسم مستخدم عند التسجيل، ويُضيف بريدًا إلكترونيًا أو رقم هاتف ليستعيد حسابه إذا نسي كلمة المرور.",
+  recoveryLegend: "يُتحقَّق من حسابات اسم المستخدم وتُستعاد بـ",
+  recoveryEmail: "بريدهم الإلكتروني",
+  recoveryPhone: "رقم هاتفهم",
+  passwordsNote:
+    "من سجّل سابقًا برمز يضبط كلمة مرور من «نسيت كلمة المرور» في أول مرة. يسجّل رقم مراجعة المتجر (أو بريدها) الدخول برمز المراجعة كلمةً للمرور. تُحفظ كلمات المرور مُشفّرة بـ Argon2، فلا يستطيع أحد قراءتها، ولا Yallapp نفسها.",
   known: {
+    chooseOneWay: "اختر طريقة واحدة على الأقل لتسجيل الدخول.",
+    savedPasswords: "تم الحفظ. يعرضه التطبيق في المرة القادمة التي يُفتح فيها. التطبيق المبني قبل إضافة تسجيل الدخول بكلمة المرور يحتاج إلى بناء جديد ليعرضه.",
     chooseWho: "اختر من يتولى تسجيل دخول الناس.",
     providerYallappSaved:
       "تم الحفظ. يتولى Yallapp تسجيل دخول الناس إلى تطبيقك بدءًا من إصداره التالي. يمكن لمطوّرك تحويل التطبيق الموجود لدى الناس قبل ذلك: راجع قسم «لمطوّرك» أدناه.",
@@ -770,7 +812,28 @@ export const tr: Messages = {
   portHint: "465, 587, 25 veya 2525.",
   security: "Güvenlik",
   saveEmail: "E-posta ayarlarını kaydet",
+  // 118 Yallapp Studio uygulamaları: kodlar ve şifreler.
+  studioWaysIntro:
+    "İstediklerinizi açın. Şifreyle de yeni bir hesap, kayıtta e-posta adresini veya telefon numarasını bir kodla doğrular; unutulan şifre bir kodla sıfırlanır.",
+  waysLegend: "Kullanıcılar şununla giriş yapar",
+  wayPhoneCode: "Telefon numarası ve kod",
+  wayPhoneCodeHint: "Her seferinde WhatsApp'tan 6 haneli bir kod.",
+  wayEmailCode: "E-posta adresi ve kod",
+  wayEmailCodeHint: "Her seferinde e-postayla 6 haneli bir kod.",
+  wayEmailPassword: "E-posta adresi ve şifre",
+  wayEmailPasswordHint: "Adres, kayıtta bir kez kodla doğrulanır.",
+  wayPhonePassword: "Telefon numarası ve şifre",
+  wayPhonePasswordHint: "Numara, kayıtta bir kez WhatsApp koduyla doğrulanır.",
+  wayUsernamePassword: "Kullanıcı adı ve şifre",
+  wayUsernamePasswordHint: "Kişi kayıtta bir kullanıcı adı seçer ve şifreyi unutursa hesabına dönebilmek için bir e-posta adresi veya telefon numarası verir.",
+  recoveryLegend: "Kullanıcı adlı hesaplar şununla doğrulanır ve sıfırlanır",
+  recoveryEmail: "E-posta adresleri",
+  recoveryPhone: "Telefon numaraları",
+  passwordsNote:
+    "Daha önce kodla kaydolanlar ilk seferde “Şifremi unuttum” ile şifre belirler. Mağaza inceleme numarası (veya e-posta adresi) inceleme kodunu şifre olarak kullanır. Şifreler Argon2 ile saklanır: Yallapp dahil kimse okuyamaz.",
   known: {
+    chooseOneWay: "Giriş için en az bir yol seçin.",
+    savedPasswords: "Kaydedildi. Uygulama bir sonraki açılışta gösterir. Şifreyle giriş gelmeden önce derlenen bir uygulamanın bunu göstermesi için yeni bir derleme gerekir.",
     chooseWho: "Girişi kimin yapacağını seçin.",
     providerYallappSaved:
       "Kaydedildi. Uygulamanızda girişi bir sonraki derlemeden itibaren Yallapp yapacak. Geliştiriciniz insanların elindeki uygulamayı daha önce geçirebilir: aşağıdaki Geliştiriciniz için bölümüne bakın.",

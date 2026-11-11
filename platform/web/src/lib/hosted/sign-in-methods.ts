@@ -1,5 +1,5 @@
 import { ENGINES, isAppType, isOwnContent } from "../app/kinds";
-import type { App, SignInMethod } from "../data/types";
+import type { App, PasswordSignInSettings, PasswordWay, SignInMethod } from "../data/types";
 
 /**
  * 18 How people sign in to an app: by phone (a code on WhatsApp), by email,
@@ -88,7 +88,10 @@ export function parseEmailSignInChoice(value: string): "code" | "password" | nul
 }
 
 /** The methods the hosted API offers: the owner's choice where email is possible, else phone. */
-export function hostedSignInMethods(app: Pick<App, "backend" | "connector" | "demo" | "hostedSettings">): SignInMethod[] {
+export function hostedSignInMethods(app: Pick<App, "backend" | "connector" | "demo" | "hostedSettings"> & { section?: App["section"] }): SignInMethod[] {
+  // 118 With passwords, the channels their accounts are verified and reset on, and where codes still sign in.
+  const passwords = passwordSignIn(app);
+  if (passwords) return passwordChannels(passwords);
   const chosen = chosenSignInMethods(app) ?? ["phone"];
   return emailSignInPossible(app) ? chosen : ["phone"];
 }
@@ -140,4 +143,78 @@ export function normalizeEmail(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const email = value.trim().toLowerCase();
   return email.length <= 191 && EMAIL.test(email) ? email : null;
+}
+
+// 118 Password sign-in (Yallapp Studio apps)
+
+/** 118 What a password signs in with, in the dashboard's order. */
+export const PASSWORD_WAYS: readonly PasswordWay[] = ["email", "phone", "username"];
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+/** 118 3 to 30 characters: lowercase letters, digits, dots and underscores, starting with a letter. */
+const USERNAME = /^[a-z][a-z0-9._]{2,29}$/;
+
+/**
+ * 118 Whether the app may offer password sign-in: a Yallapp Studio project
+ * whose accounts are Yallapp's (the hosted API, or an own API Yallapp signs
+ * people in to). Demo apps keep their demo number.
+ */
+export function passwordSignInPossible(app: Pick<App, "backend" | "section" | "demo"> & { hostedSettings?: App["hostedSettings"] }): boolean {
+  if (app.section !== "studio" || app.demo) return false;
+  return app.backend === "hosted" || yallappSignsIn(app);
+}
+
+/**
+ * 118 The app's password sign-in as it works now: the owner's choice, less
+ * what the app can't offer (email, where its content finds people by phone).
+ * Null: codes only.
+ */
+export function passwordSignIn(app: Pick<App, "backend" | "connector" | "demo" | "section"> & { hostedSettings?: App["hostedSettings"] }): PasswordSignInSettings | null {
+  const saved = app.hostedSettings?.passwordSignIn;
+  if (!saved || !passwordSignInPossible(app)) return null;
+  const email = emailSignInPossible(app);
+  const by = PASSWORD_WAYS.filter((w) => saved.by.includes(w) && (w !== "email" || email));
+  if (!by.length) return null;
+  const codes = SIGN_IN_METHODS.filter((m) => saved.codes.includes(m) && (m !== "email" || email));
+  const recovery: SignInMethod = saved.recovery === "email" && email ? "email" : "phone";
+  return { by, codes, recovery };
+}
+
+/** 118 The channels codes go to: where they sign in, and where passwords' accounts are verified and reset. */
+export function passwordChannels(settings: PasswordSignInSettings): SignInMethod[] {
+  const used = new Set<SignInMethod>(settings.codes);
+  if (settings.by.includes("email")) used.add("email");
+  if (settings.by.includes("phone")) used.add("phone");
+  if (settings.by.includes("username")) used.add(settings.recovery);
+  return SIGN_IN_METHODS.filter((m) => used.has(m));
+}
+
+/** 118 A username as typed, lowercase, or null when it isn't a valid one. */
+export function normalizeUsername(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const name = value.trim().toLowerCase();
+  return USERNAME.test(name) ? name : null;
+}
+
+/** 118 Passwords too common to protect anything. */
+const COMMON_PASSWORDS = new Set([
+  "password", "password1", "password123", "passw0rd", "12345678", "123456789", "1234567890", "12341234", "11111111", "00000000",
+  "88888888", "87654321", "987654321", "123123123", "qwertyui", "qwerty12", "qwerty123", "qwertyuiop", "1q2w3e4r", "1qaz2wsx",
+  "asdfghjk", "asdfasdf", "zxcvbnm1", "iloveyou", "abc12345", "abcd1234", "aaaaaaaa", "admin123", "welcome1", "letmein1",
+  "sunshine", "football", "princess", "baseball", "superman", "trustno1", "yallapp1", "yallapp123",
+]);
+
+/**
+ * 118 Why a new password isn't good enough (an English message the hosted API
+ * localizes), or null when it is: 8 to 128 characters, not one repeated
+ * character, not a common password, not the person's own email, phone or username.
+ */
+export function passwordProblem(password: string, own: (string | null | undefined)[] = []): string | null {
+  const length = [...password].length;
+  if (length < PASSWORD_MIN_LENGTH) return "Your password needs at least 8 characters.";
+  if (length > PASSWORD_MAX_LENGTH) return "Your password can have up to 128 characters.";
+  const lower = password.toLowerCase();
+  if (new Set(lower).size === 1 || COMMON_PASSWORDS.has(lower)) return "This password is too easy to guess. Please choose another one.";
+  if (own.some((v) => v && v.toLowerCase().replace(/^\+/, "") === lower.replace(/^\+/, ""))) return "Your password can't be your email, phone number or username.";
+  return null;
 }
