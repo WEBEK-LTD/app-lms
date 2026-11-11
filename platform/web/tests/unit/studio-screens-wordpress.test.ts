@@ -3,7 +3,8 @@ import { newApp } from "@/lib/app/setup";
 import { DEFAULT_HOSTED_SETTINGS, type App } from "@/lib/data/types";
 import { activateLicense, checkLicense, parseSiteInfo } from "@/lib/license/service";
 import { studioScreensOn, type StudioScreens } from "@/lib/studio/screens";
-import { NOW, setupClient } from "./helpers";
+import { activateClient } from "@/lib/admin/clients";
+import { days, KEY, NOW, setupClient } from "./helpers";
 import { expectPlatformContract } from "./platform-contract";
 
 /**
@@ -25,11 +26,11 @@ describe("121 Studio's screens on a WordPress site", () => {
   });
 
   it("go to the plugin with the license check, against the contract", async () => {
-    const { store, licenseKey, client, license } = await setupClient({ plan: "pro" });
+    const { store, client } = await setupClient({ activate: false });
     const site: App = { ...newApp(client.id, "https://academy.test", NOW, "lms"), appName: "Ada Academy", section: "studio" };
     await store.createApp(site);
-    // The app's own plan.
-    await store.updateLicense(license!.id, { appId: site.id }, NOW);
+    // The app's own plan, as the team gives it.
+    const { licenseKey } = await activateClient(store, { clientId: client.id, appId: site.id, plan: "pro", activeUntil: days(30), paymentNote: "bank transfer" }, KEY, NOW);
     const info = parseSiteInfo({ license_key: licenseKey, site_url: "https://academy.test", plugin_version: "0.4.33" });
     if (!info.ok) throw new Error("site");
     await activateLicense(store, info.value, NOW);
