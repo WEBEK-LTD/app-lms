@@ -9834,12 +9834,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String learningWeekUp(int percent) {
-    return '+$percent٪ عن الأسبوع الماضي';
+    return '+$percent٪ عن الماضي';
   }
 
   @override
   String learningWeekDown(int percent) {
-    return '−$percent٪ عن الأسبوع الماضي';
+    return '−$percent٪ عن الماضي';
   }
 
   @override
@@ -9880,4 +9880,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get joinNow => 'اشترك الآن';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$done من $total';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شهادة',
+      few: '$count شهادات',
+      two: 'شهادتان',
+      one: 'شهادة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'جاهزة للتحميل';
+
+  @override
+  String get myCoursesLearning => 'قيد التعلم';
+
+  @override
+  String get myCoursesFinished => 'مكتملة';
+
+  @override
+  String get myCoursesSaved => 'المحفوظة';
 }

@@ -2595,8 +2595,8 @@
   "learningLiveInHours": "بعد {hours} س · {time}",
   "learningLiveOn": "{day} · {time}",
   "learningWeekTitle": "هذا الأسبوع",
-  "learningWeekUp": "+{percent}٪ عن الأسبوع الماضي",
-  "learningWeekDown": "−{percent}٪ عن الأسبوع الماضي",
+  "learningWeekUp": "+{percent}٪ عن الماضي",
+  "learningWeekDown": "−{percent}٪ عن الماضي",
   "learningHoursMinutes": "{hours} س {minutes} د",
   "learningMinutesOnly": "{minutes} د",
   "exploreSearchHint": "دورة، مهارة، أو معلم",
@@ -2607,5 +2607,11 @@
   "aboutCourse": "عن الدورة",
   "courseQuestions": "الأسئلة",
   "saveShare": "وفّر {percent}٪",
-  "joinNow": "اشترك الآن"
+  "joinNow": "اشترك الآن",
+  "lessonsDoneOf": "{done} من {total}",
+  "certificatesCount": "{count, plural, =1{شهادة واحدة} =2{شهادتان} few{{count} شهادات} other{{count} شهادة}}",
+  "certificatesReady": "جاهزة للتحميل",
+  "myCoursesLearning": "قيد التعلم",
+  "myCoursesFinished": "مكتملة",
+  "myCoursesSaved": "المحفوظة"
 }

@@ -2593,8 +2593,8 @@
 {"key":"learningLiveInHours","en":"In {hours} h · {time}","ar":"بعد {hours} س · {time}","tr":"{hours} sa sonra · {time}","description":"123 A live class starting today.","placeholders":{"hours":"int","time":"String"}},
 {"key":"learningLiveOn","en":"{day} · {time}","ar":"{day} · {time}","tr":"{day} · {time}","description":"123 A live class on another day.","placeholders":{"day":"String","time":"String"}},
 {"key":"learningWeekTitle","en":"This week","ar":"هذا الأسبوع","tr":"Bu hafta","description":"123 The card with this week's learning time."},
-{"key":"learningWeekUp","en":"+{percent}% on last week","ar":"+{percent}٪ عن الأسبوع الماضي","tr":"Geçen haftaya göre +%{percent}","description":"123 More learning than the week before.","placeholders":{"percent":"int"}},
-{"key":"learningWeekDown","en":"−{percent}% on last week","ar":"−{percent}٪ عن الأسبوع الماضي","tr":"Geçen haftaya göre −%{percent}","description":"123 Less learning than the week before.","placeholders":{"percent":"int"}},
+{"key":"learningWeekUp","en":"+{percent}% on last week","ar":"+{percent}٪ عن الماضي","tr":"Geçen haftaya göre +%{percent}","description":"123 More learning than the week before.","placeholders":{"percent":"int"}},
+{"key":"learningWeekDown","en":"−{percent}% on last week","ar":"−{percent}٪ عن الماضي","tr":"Geçen haftaya göre −%{percent}","description":"123 Less learning than the week before.","placeholders":{"percent":"int"}},
 {"key":"learningHoursMinutes","en":"{hours} h {minutes} min","ar":"{hours} س {minutes} د","tr":"{hours} sa {minutes} dk","description":"123 A learning time of an hour or more.","placeholders":{"hours":"int","minutes":"int"}},
 {"key":"learningMinutesOnly","en":"{minutes} min","ar":"{minutes} د","tr":"{minutes} dk","description":"123 A learning time under an hour.","placeholders":{"minutes":"int"}},
 {"key":"exploreSearchHint","en":"Course, skill or teacher","ar":"دورة، مهارة، أو معلم","tr":"Kurs, beceri veya öğretmen","description":"123 The search box on the premium academy's Explore."},
@@ -2605,4 +2605,10 @@
 {"key":"aboutCourse","en":"About the course","ar":"عن الدورة","tr":"Kurs hakkında","description":"123 The tab with what a course teaches, on its premium page."},
 {"key":"courseQuestions","en":"Questions","ar":"الأسئلة","tr":"Sorular","description":"123 The tab with the course's questions and answers, on its premium page."},
 {"key":"saveShare","en":"Save {percent}%","ar":"وفّر {percent}٪","tr":"%{percent} tasarruf","description":"123 How much a course on sale saves, by its old price.","placeholders":{"percent":"int"}},
-{"key":"joinNow","en":"Join now","ar":"اشترك الآن","tr":"Hemen katıl","description":"123 The purchase button on a premium course page."}]}
+{"key":"joinNow","en":"Join now","ar":"اشترك الآن","tr":"Hemen katıl","description":"123 The purchase button on a premium course page."},
+{"key":"lessonsDoneOf","en":"{done} of {total}","ar":"{done} من {total}","tr":"{total} dersten {done}","description":"123 The lessons a student finished of a course's, on My courses.","placeholders":{"done":"int","total":"int"}},
+{"key":"certificatesCount","en":"{count, plural, =1{1 certificate} other{{count} certificates}}","ar":"{count, plural, =1{شهادة واحدة} =2{شهادتان} few{{count} شهادات} other{{count} شهادة}}","tr":"{count, plural, other{{count} sertifika}}","description":"123 How many certificates the student has, on My courses.","placeholders":{"count":"int"}},
+{"key":"certificatesReady","en":"Ready to download","ar":"جاهزة للتحميل","tr":"İndirmeye hazır","description":"123 Under the student's certificates on My courses."},
+{"key":"myCoursesLearning","en":"Learning","ar":"قيد التعلم","tr":"Öğreniliyor","description":"123 The chip with the courses the student is taking, on the premium My courses."},
+{"key":"myCoursesFinished","en":"Completed","ar":"مكتملة","tr":"Tamamlanan","description":"123 The chip with the courses the student finished, on the premium My courses."},
+{"key":"myCoursesSaved","en":"Saved","ar":"المحفوظة","tr":"Kaydedilenler","description":"123 The chip with the courses the student saved, on the premium My courses."}]}

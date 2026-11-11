@@ -10774,5 +10774,42 @@
   "joinNow": "Join now",
   "@joinNow": {
     "description": "123 The purchase button on a premium course page."
+  },
+  "lessonsDoneOf": "{done} of {total}",
+  "@lessonsDoneOf": {
+    "description": "123 The lessons a student finished of a course's, on My courses.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "certificatesCount": "{count, plural, =1{1 certificate} other{{count} certificates}}",
+  "@certificatesCount": {
+    "description": "123 How many certificates the student has, on My courses.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "certificatesReady": "Ready to download",
+  "@certificatesReady": {
+    "description": "123 Under the student's certificates on My courses."
+  },
+  "myCoursesLearning": "Learning",
+  "@myCoursesLearning": {
+    "description": "123 The chip with the courses the student is taking, on the premium My courses."
+  },
+  "myCoursesFinished": "Completed",
+  "@myCoursesFinished": {
+    "description": "123 The chip with the courses the student finished, on the premium My courses."
+  },
+  "myCoursesSaved": "Saved",
+  "@myCoursesSaved": {
+    "description": "123 The chip with the courses the student saved, on the premium My courses."
   }
 }

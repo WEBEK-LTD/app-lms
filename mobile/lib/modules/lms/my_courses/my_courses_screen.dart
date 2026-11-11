@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'premium_my_courses.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -57,6 +60,24 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
       if (wishlist) MyCoursesTab.wishlist,
     ];
     final selected = tabs.contains(_tab) ? _tab : MyCoursesTab.inProgress;
+    // 123 The premium academy's My courses.
+    final gate = ref.watch(appGateProvider);
+    if (gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.myCourses) ?? false)) {
+      return PremiumMyCourses(
+        labels: [
+          for (final t in tabs)
+            switch (t) {
+              MyCoursesTab.inProgress => context.l10n.myCoursesLearning,
+              MyCoursesTab.completed => context.l10n.myCoursesFinished,
+              MyCoursesTab.wishlist => context.l10n.myCoursesSaved,
+            },
+        ],
+        selected: tabs.indexOf(selected),
+        onSelected: (i) => setState(() => _tab = tabs[i]),
+        wishlist: const _WishlistList(),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         bottom: false,

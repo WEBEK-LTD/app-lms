@@ -15757,6 +15757,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Join now'**
   String get joinNow;
+
+  /// 123 The lessons a student finished of a course's, on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String lessonsDoneOf(int done, int total);
+
+  /// 123 How many certificates the student has, on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 certificate} other{{count} certificates}}'**
+  String certificatesCount(int count);
+
+  /// 123 Under the student's certificates on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to download'**
+  String get certificatesReady;
+
+  /// 123 The chip with the courses the student is taking, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get myCoursesLearning;
+
+  /// 123 The chip with the courses the student finished, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get myCoursesFinished;
+
+  /// 123 The chip with the courses the student saved, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get myCoursesSaved;
 }
 
 class _AppLocalizationsDelegate

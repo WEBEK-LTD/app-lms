@@ -525,14 +525,19 @@ class LearningWeek extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      hours > 0
-                          ? l10n.learningHoursMinutes(hours, minutes)
-                          : l10n.learningMinutesOnly(minutes),
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: ink,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        hours > 0
+                            ? l10n.learningHoursMinutes(hours, minutes)
+                            : l10n.learningMinutesOnly(minutes),
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: ink,
+                        ),
                       ),
                     ),
                   ],
@@ -563,7 +568,7 @@ class LearningWeek extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 112,
+            height: 96,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -576,7 +581,7 @@ class LearningWeek extends StatelessWidget {
                         Container(
                           height: most == 0
                               ? 8
-                              : (8 + 80 * d.minutes / most).toDouble(),
+                              : (8 + 64 * d.minutes / most).toDouble(),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             gradient: d.minutes == most && most > 0

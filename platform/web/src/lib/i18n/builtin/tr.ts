@@ -495,6 +495,8 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_TR: Record<string, string> = {
+  // 123 Learning time.
+  "Send the course and 1 to 300 seconds.": "Kursu ve 1 ile 300 saniye arasını gönderin.",
   // 118 Password sign-in (Yallapp Studio apps).
   "This app doesn't use passwords.": "Bu uygulama şifre kullanmıyor.",
   "There is no account with this email address.": "Bu e-posta adresiyle bir hesap yok.",

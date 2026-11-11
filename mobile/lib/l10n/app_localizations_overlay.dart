@@ -10276,4 +10276,30 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get joinNow => overlay.text('joinNow') ?? base.joinNow;
+
+  @override
+  String lessonsDoneOf(int done, int total) =>
+      overlay.format('lessonsDoneOf', {'done': done, 'total': total}) ??
+      base.lessonsDoneOf(done, total);
+
+  @override
+  String certificatesCount(int count) =>
+      overlay.format('certificatesCount', {'count': count}) ??
+      base.certificatesCount(count);
+
+  @override
+  String get certificatesReady =>
+      overlay.text('certificatesReady') ?? base.certificatesReady;
+
+  @override
+  String get myCoursesLearning =>
+      overlay.text('myCoursesLearning') ?? base.myCoursesLearning;
+
+  @override
+  String get myCoursesFinished =>
+      overlay.text('myCoursesFinished') ?? base.myCoursesFinished;
+
+  @override
+  String get myCoursesSaved =>
+      overlay.text('myCoursesSaved') ?? base.myCoursesSaved;
 }

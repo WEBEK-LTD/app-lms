@@ -4086,6 +4086,36 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زر الشراء في صفحة الدورة المميزة.",
     tr: "Premium kurs sayfasındaki satın alma düğmesi.",
   },
+  "123 The lessons a student finished of a course's, on My courses.": {
+    en: "The lessons a student finished of a course's, on My courses.",
+    ar: "الدروس التي أنهاها الطالب من دروس الدورة، في «دوراتي».",
+    tr: "Öğrencinin bitirdiği dersler, Kurslarım'da.",
+  },
+  "123 How many certificates the student has, on My courses.": {
+    en: "How many certificates the student has, on My courses.",
+    ar: "عدد شهادات الطالب، في «دوراتي».",
+    tr: "Öğrencinin kaç sertifikası olduğu, Kurslarım'da.",
+  },
+  "123 Under the student's certificates on My courses.": {
+    en: "Under the student's certificates on My courses.",
+    ar: "تحت شهادات الطالب في «دوراتي».",
+    tr: "Kurslarım'da öğrencinin sertifikalarının altında.",
+  },
+  "123 The chip with the courses the student is taking, on the premium My courses.": {
+    en: "The chip with the courses the student is taking, on the premium My courses.",
+    ar: "زر الدورات التي يدرسها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin aldığı kursların düğmesi.",
+  },
+  "123 The chip with the courses the student finished, on the premium My courses.": {
+    en: "The chip with the courses the student finished, on the premium My courses.",
+    ar: "زر الدورات التي أنهاها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin bitirdiği kursların düğmesi.",
+  },
+  "123 The chip with the courses the student saved, on the premium My courses.": {
+    en: "The chip with the courses the student saved, on the premium My courses.",
+    ar: "زر الدورات التي حفظها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin kaydettiği kursların düğmesi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -9622,4 +9622,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinNow => 'Join now';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count certificates',
+      one: '1 certificate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'Ready to download';
+
+  @override
+  String get myCoursesLearning => 'Learning';
+
+  @override
+  String get myCoursesFinished => 'Completed';
+
+  @override
+  String get myCoursesSaved => 'Saved';
 }

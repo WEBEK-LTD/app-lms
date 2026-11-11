@@ -9583,4 +9583,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get joinNow => 'Hemen katıl';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$total dersten $done';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sertifika',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'İndirmeye hazır';
+
+  @override
+  String get myCoursesLearning => 'Öğreniliyor';
+
+  @override
+  String get myCoursesFinished => 'Tamamlanan';
+
+  @override
+  String get myCoursesSaved => 'Kaydedilenler';
 }

@@ -2607,5 +2607,11 @@
   "aboutCourse": "Kurs hakkında",
   "courseQuestions": "Sorular",
   "saveShare": "%{percent} tasarruf",
-  "joinNow": "Hemen katıl"
+  "joinNow": "Hemen katıl",
+  "lessonsDoneOf": "{total} dersten {done}",
+  "certificatesCount": "{count, plural, other{{count} sertifika}}",
+  "certificatesReady": "İndirmeye hazır",
+  "myCoursesLearning": "Öğreniliyor",
+  "myCoursesFinished": "Tamamlanan",
+  "myCoursesSaved": "Kaydedilenler"
 }
