@@ -67,6 +67,8 @@ interface ViewProps {
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
   market?: MarketCanvas | null;
+  /** 120 For a page drawn around one of the app's screens: what the canvas says under the elements ("My shipments: the app draws this part"). */
+  screenLabel?: string;
 }
 
 const SHADOWS: Record<string, string> = {
@@ -135,6 +137,7 @@ export function StudioView(viewProps: ViewProps) {
       {page.header ? <Header header={page.header} {...props} /> : null}
       <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
         <Node node={page.body} parentDir="column" {...props} />
+        {page.screen ? <ScreenPart label={props.screenLabel ?? page.screen} dark={dark} /> : null}
       </div>
       {showTabs ? <Tabs {...props} /> : null}
     </div>
@@ -880,6 +883,33 @@ function Placeholder({ icon, text, dark, map }: { icon: string; text: string; da
       </span>
       {text}
     </span>
+  );
+}
+
+/** 120 The app's own screen under a page's elements: rows like its list, and what it is. */
+function ScreenPart({ label, dark }: { label: string; dark: boolean }) {
+  const row = dark ? "#26233A" : "#ECE6DA";
+  const line = dark ? "#34314A" : "#DDD5C6";
+  return (
+    <div data-studio-screen="" style={{ position: "relative", flex: "1 0 auto", minHeight: 300, display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px 18px", pointerEvents: "none" }}>
+      {[0, 1, 2, 3].map((i) => (
+        <span key={i} aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 12, height: 64, borderRadius: 16, background: row, padding: "0 12px" }}>
+          <span style={{ width: 40, height: 40, borderRadius: 12, background: line, flex: "none" }} />
+          <span style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
+            <span style={{ height: 9, width: `${70 - i * 9}%`, borderRadius: 5, background: line }} />
+            <span style={{ height: 8, width: `${45 + i * 7}%`, borderRadius: 5, background: line, opacity: 0.7 }} />
+          </span>
+        </span>
+      ))}
+      <span style={{ position: "absolute", top: 26, insetInline: 0, display: "flex", justifyContent: "center" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700, background: dark ? "#F4EFE6" : "#0E0D24", color: dark ? "#0E0D24" : "#F4EFE6", boxShadow: "0 4px 12px rgba(14,13,36,0.18)" }}>
+          <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+            apps
+          </span>
+          {label}
+        </span>
+      </span>
+    </div>
   );
 }
 

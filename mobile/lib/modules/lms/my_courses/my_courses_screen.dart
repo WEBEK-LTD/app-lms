@@ -17,6 +17,7 @@ import '../navigation.dart';
 import '../widgets/course_cards.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 enum MyCoursesTab { inProgress, completed, wishlist }
 
@@ -66,14 +67,17 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      context.l10n.tabMyCourses,
-                      style: Theme.of(context).textTheme.headlineSmall,
+                  // 120 Under a Studio page's header, the header is the title.
+                  if (!StudioScreenScope.hidesTitleOf(context)) ...[
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        context.l10n.tabMyCourses,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
                   SegmentedTabs(
                     labels: [
                       for (final t in tabs)

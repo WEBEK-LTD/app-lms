@@ -32,6 +32,7 @@ import 'pages/page_actions.dart';
 import 'pages/page_providers.dart';
 import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
+import 'pages/screen_page.dart';
 import 'pages/side_menu.dart';
 import '../../core/l10n/l10n.dart';
 
@@ -212,9 +213,13 @@ List<RouteBase> tabbedRoutes({
     final screen = screens[path];
     final GoRoute route;
     if (screen != null) {
+      // 120 With the Studio page the owner drew around it.
       route = GoRoute(
         path: path,
-        pageBuilder: (context, state) => appPage(state, screen.build(state)),
+        pageBuilder: (context, state) => appPage(
+          state,
+          ScreenWithPage(path: screen.path, child: screen.build(state)),
+        ),
         routes: screen.routes,
       );
     } else if (path.startsWith(Paths.pagePrefix)) {
@@ -248,12 +253,20 @@ List<RouteBase> tabbedRoutes({
       if (!used.contains(screen.path) && screen.path != Paths.home)
         GoRoute(
           path: screen.path,
-          pageBuilder: (context, state) => appPage(
-            state,
-            screen.ownBar
-                ? screen.build(state)
-                : PushedTabScreen(child: screen.build(state)),
-          ),
+          pageBuilder: (context, state) {
+            final child = screen.build(state);
+            // 120 With the Studio page the owner drew around it, its back
+            // button over the page.
+            return appPage(
+              state,
+              ScreenWithPage(
+                path: screen.path,
+                pushed: true,
+                alone: screen.ownBar ? child : PushedTabScreen(child: child),
+                child: child,
+              ),
+            );
+          },
           routes: screen.routes,
         ),
     GoRoute(

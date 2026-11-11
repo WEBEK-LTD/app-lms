@@ -13,6 +13,7 @@ import '../../../core/widgets/common.dart';
 import '../data/market_models.dart';
 import '../data/market_providers.dart';
 import '../widgets/market_sections.dart' show MarketVendorRow;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 115 The marketplace's Search tab: one search across its places, their
 /// dishes and the shops' products (`GET /market/search`). Before anything
@@ -58,7 +59,10 @@ class _MarketSearchScreenState extends ConsumerState<MarketSearchScreen> {
     final l10n = context.l10n;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.tabSearch)),
+      // 120 Under a Studio page's header, the header is the title.
+      appBar: StudioScreenScope.hidesTitleOf(context)
+          ? null
+          : AppBar(leading: appBarBack(context), title: Text(l10n.tabSearch)),
       body: Column(
         children: [
           Padding(

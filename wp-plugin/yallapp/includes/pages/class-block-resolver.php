@@ -1008,6 +1008,10 @@ class Block_Resolver {
 			$page[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
 		$page['show_tabs'] = ! isset( $raw['show_tabs'] ) || false !== $raw['show_tabs'];
+		// 120 The app's own screen drawn under the page's elements.
+		if ( in_array( $raw['screen'] ?? null, self::SCREENS, true ) ) {
+			$page['screen'] = $raw['screen'];
+		}
 		return $page;
 	}
 

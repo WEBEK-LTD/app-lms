@@ -199,17 +199,23 @@ class PageSummary {
     required this.slug,
     required this.title,
     required this.updatedAt,
+    this.screen,
   });
 
   factory PageSummary.fromJson(Json json) => PageSummary(
     slug: reqString(json, 'slug'),
     title: reqString(json, 'title'),
     updatedAt: reqDate(json, 'updated_at'),
+    screen: _screenFrom(json['screen']),
   );
 
   final String slug;
   final String title;
   final DateTime updatedAt;
+
+  /// 120 The app's screen this Studio page is drawn around; null for the
+  /// other pages.
+  final BuiltInScreen? screen;
 }
 
 /// `GET /pages/{slug}`: one page as a list of blocks.
@@ -1750,6 +1756,7 @@ class StudioPage {
     this.darkBackground,
     this.showTabs = true,
     this.tabletBody,
+    this.screen,
   });
 
   /// Null when it is missing or its body can't be read.
@@ -1770,10 +1777,16 @@ class StudioPage {
       background: optString(json, 'background'),
       darkBackground: optString(json, 'dark_background'),
       showTabs: boolOr(json, 'show_tabs', true),
+      screen: _screenFrom(json['screen']),
     );
   }
 
   final StudioNode body;
+
+  /// 120 The app's own screen drawn under the elements (`screen` in the
+  /// API, for example `shipments`); null, the page is its elements only,
+  /// also for a screen this app doesn't know.
+  final BuiltInScreen? screen;
 
   /// Editor audit 3.3: the body with each element's tablet changes, for
   /// screens at least 600 wide on their short side; null without any.

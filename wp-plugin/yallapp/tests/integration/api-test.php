@@ -542,6 +542,29 @@ $r = call( 'GET', '/pages?platform=android', null, null, array( 'Accept-Language
 check( 'more than five tabs: four and More', array( 'tab0', 'tab1', 'tab2', 'tab3', 'more' ) === array_column( $r['json']['tabs'] ?? array(), 'id' ) && array( 'type' => 'more' ) === ( $r['json']['tabs'][4]['target'] ?? null ) && 'المزيد' === ( $r['json']['tabs'][4]['label'] ?? '' ), $r['json']['tabs'] ?? null );
 check( 'more than five tabs: the rest in more', array( 'tab4', 'tab5', 'tab6' ) === array_column( $r['json']['more'] ?? array(), 'id' ), $r['json']['more'] ?? null );
 check( 'the tab bar look, known fields only', array( 'background' => '#0E0D24', 'radius' => 16, 'labels' => 'never', 'center' => 'tab2' ) === ( $r['json']['tab_bar'] ?? null ), $r['json']['tab_bar'] ?? null );
+
+// 120 A tab to a page drawn around one of the app's screens opens the screen, and the page says which.
+$around            = $layout;
+$around['version'] = '2026-11-11T10:00:00Z.1';
+$around['pages'][] = array(
+	'slug'       => 'learning',
+	'title'      => 'My learning',
+	'show_title' => false,
+	'updated_at' => '2026-11-11T10:00:00Z',
+	'blocks'     => array(),
+	'studio'     => array(
+		'header' => array( 'type' => 'title_search', 'title' => 'My learning' ),
+		'body'   => array( 'id' => 'n-learning', 'type' => 'column', 'children' => array() ),
+		'screen' => 'my_courses',
+	),
+);
+$around['tabs'][1] = array( 'id' => 'learning', 'label' => 'My learning', 'icon' => 'school', 'target' => array( 'type' => 'page', 'page_slug' => 'learning' ) );
+store_layout( $around );
+$r = call( 'GET', '/pages?platform=android' );
+check( 'a tab to a page around a screen opens the screen', array( 'type' => 'screen', 'screen' => 'my_courses' ) === ( $r['json']['tabs'][1]['target'] ?? null ), $r['json']['tabs'] ?? null );
+check( 'the page says its screen', 'my_courses' === ( array_column( $r['json']['pages'] ?? array(), 'screen', 'slug' )['learning'] ?? null ) && ! isset( $r['json']['pages'][0]['screen'] ), $r['json']['pages'] ?? null );
+$r = call( 'GET', '/pages/learning?platform=android' );
+check( 'the page keeps its screen', 'my_courses' === ( $r['json']['studio']['screen'] ?? null ), $r['json']['studio'] ?? null );
 store_layout( $layout );
 
 $r    = call( 'GET', '/pages/home?platform=android', null, null, array( 'Accept-Language: ar' ) );

@@ -1526,7 +1526,11 @@ components:
             list it can't serve, and serves the rest as it is. 112.4 An
             `items` element with `recent` is served with no `items` (the app
             keeps what was opened lately), and categories carry their
-            pictures.
+            pictures. 120 Its `screen`, the app's screen it is drawn around,
+            is passed on as it is when the site's app has that screen; the
+            navigation then sends a tab or side menu entry opening the page
+            as one opening that screen, and the page's entry in `pages` says
+            the screen.
 
     LayoutBlock:
       type: object

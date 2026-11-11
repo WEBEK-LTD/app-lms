@@ -18,6 +18,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
@@ -38,14 +39,21 @@ class StudioPageView extends ConsumerWidget {
     required this.page,
     required this.pageSlug,
     this.pushed = false,
+    this.screen,
   });
 
   final StudioPage page;
   final String pageSlug;
   final bool pushed;
 
+  /// 120 The app's own screen the page is drawn around (`StudioPage.screen`):
+  /// the header stays over it and the elements scroll away with it.
+  final Widget? screen;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hosted = screen;
+    if (hosted != null) return _aroundScreen(context, hosted);
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
@@ -110,6 +118,88 @@ class StudioPageView extends ConsumerWidget {
               end: 0,
               child: _pinnedColumn(pinnedTop, scope),
             ),
+          if (pinnedBottom.isNotEmpty)
+            PositionedDirectional(
+              bottom: MediaQuery.paddingOf(context).bottom,
+              start: 0,
+              end: 0,
+              child: _pinnedColumn(pinnedBottom, scope),
+            ),
+          if (pushed)
+            PositionedDirectional(
+              top: top + 8,
+              start: 16,
+              child: const AppBackButton(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 120 The page around the app's screen: its header (or the status bar's
+  /// strip) and the elements pinned to the top stay; the other elements
+  /// scroll away over the screen, which fills the rest. Under a header the
+  /// screen's own title isn't shown.
+  Widget _aroundScreen(BuildContext context, Widget hosted) {
+    final p = context.palette;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final top = MediaQuery.paddingOf(context).top;
+    final background =
+        parseHexColor(
+          dark ? (page.darkBackground ?? page.background) : page.background,
+        ) ??
+        p.background;
+    final scope = StudioScope(pageSlug: pageSlug, dark: dark);
+    final header = page.header;
+    final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+    final pinnedTop = [
+      for (final n in body.children)
+        if (n.pin == StudioPin.top) n,
+    ];
+    final pinnedBottom = [
+      for (final n in body.children)
+        if (n.pin == StudioPin.bottom) n,
+    ];
+    final over = _withChildren(body, [
+      for (final n in body.children)
+        if (n.pin == StudioPin.none) n,
+    ]);
+    final screen = MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+    );
+    final Widget rest = over.children.isEmpty
+        ? screen
+        : NestedScrollView(
+            key: ValueKey('studio-screen-$pageSlug'),
+            headerSliverBuilder: (context, _) => [
+              SliverToBoxAdapter(
+                child: StudioNodeView(node: over, scope: scope, parent: null),
+              ),
+            ],
+            body: screen,
+          );
+    return ColoredBox(
+      color: background,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (header != null)
+                  StudioHeaderView(header: header, top: top, scope: scope)
+                else
+                  AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: overlayStyleOn(background),
+                    child: SizedBox(height: top),
+                  ),
+                if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
+                Expanded(child: rest),
+              ],
+            ),
+          ),
           if (pinnedBottom.isNotEmpty)
             PositionedDirectional(
               bottom: MediaQuery.paddingOf(context).bottom,

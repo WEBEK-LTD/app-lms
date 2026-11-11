@@ -35,6 +35,11 @@ class Pages {
 	const HEADER_ICONS   = array( 'search', 'cart', 'notifications', 'chat', 'account' );
 
 	/**
+	 * 119 The bottom bar's designs (`TabBar.design`).
+	 */
+	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours' );
+
+	/**
 	 * 97.1 The Appearance fields naming a free font, each with the field of its files.
 	 */
 	const FONTS = array(
@@ -284,11 +289,17 @@ class Pages {
 		$pages = array();
 		foreach ( $this->pages() as $page ) {
 			$page    = Translator::apply( $page, $language );
-			$pages[] = array(
+			$summary = array(
 				'slug'       => $page['slug'],
 				'title'      => self::title( $page ),
 				'updated_at' => self::date( $page['updated_at'] ?? '' ),
 			);
+			// 120 A page drawn around one of the app's screens says which.
+			$screen = self::screen_of( $page );
+			if ( null !== $screen ) {
+				$summary['screen'] = $screen;
+			}
+			$pages[] = $summary;
 		}
 		// 109 Up to five tabs: with more, the first four, a More tab and the rest in `more`.
 		$tabs = array_slice( array_values( array_filter( $tabs ) ), 0, 10 );
@@ -351,7 +362,11 @@ class Pages {
 			return null;
 		}
 		$out = array();
-		foreach ( array( 'background', 'dark_background', 'active', 'inactive' ) as $key ) {
+		// 119 The bar's design.
+		if ( isset( $raw['design'] ) && in_array( $raw['design'], self::TAB_BAR_DESIGNS, true ) ) {
+			$out['design'] = $raw['design'];
+		}
+		foreach ( array( 'background', 'dark_background', 'active', 'inactive', 'dark_active', 'dark_inactive' ) as $key ) {
 			if ( isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $key ] ) ) {
 				$out[ $key ] = strtoupper( $raw[ $key ] );
 			}
@@ -372,6 +387,10 @@ class Pages {
 		}
 		if ( isset( $raw['center'] ) && is_string( $raw['center'] ) && '' !== $raw['center'] ) {
 			$out['center'] = substr( sanitize_text_field( $raw['center'] ), 0, 40 );
+		}
+		// 119 The account tab shows the person's photo.
+		if ( true === ( $raw['avatar'] ?? null ) ) {
+			$out['avatar'] = true;
 		}
 		return $out ? $out : null;
 	}
@@ -527,6 +546,19 @@ class Pages {
 		if ( null === $id || null === $label || null === $icon || null === $target ) {
 			return null;
 		}
+		// 120 A page drawn around one of the app's screens opens that screen, the app drawing the page around it.
+		if ( 'page' === $target['type'] ) {
+			foreach ( $this->pages() as $page ) {
+				$screen = ( $page['slug'] ?? null ) === ( $target['page_slug'] ?? null ) ? self::screen_of( $page ) : null;
+				if ( null !== $screen ) {
+					$target = array(
+						'type'   => 'screen',
+						'screen' => $screen,
+					);
+					break;
+				}
+			}
+		}
 		return array(
 			'id'       => $id,
 			'label'    => $label,
@@ -534,6 +566,17 @@ class Pages {
 			'icon_url' => Block_Resolver::icon_url( $raw['icon_url'] ?? null ),
 			'target'   => $target,
 		);
+	}
+
+	/**
+	 * 120 The app's screen a Studio page is drawn around, or null.
+	 *
+	 * @param array $page Page.
+	 * @return string|null
+	 */
+	private static function screen_of( array $page ) {
+		$screen = is_array( $page['studio'] ?? null ) ? ( $page['studio']['screen'] ?? null ) : null;
+		return in_array( $screen, Block_Resolver::SCREENS, true ) ? $screen : null;
 	}
 
 	/**

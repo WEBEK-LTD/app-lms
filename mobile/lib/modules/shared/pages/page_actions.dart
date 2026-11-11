@@ -11,6 +11,7 @@ import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/web/web_page_screen.dart';
 import 'more_tabs.dart';
+import 'screen_page.dart';
 
 /// Runs a tab's, button's or card's action. Actions this app type can't
 /// follow (a product in an Academy app, a post) do nothing.
@@ -20,9 +21,18 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
   switch (action.type) {
     case PageActionType.page:
       final slug = action.pageSlug;
-      if (slug != null && slug.isNotEmpty) {
-        openLocation(context, Paths.page(slug));
+      if (slug == null || slug.isEmpty) return;
+      // 120 A page drawn around one of the app's screens opens the screen,
+      // which shows the page (its tab when it is one).
+      final around = screenOfPage(ref, slug);
+      if (around != null) {
+        return runPageAction(
+          context,
+          ref,
+          PageAction(type: PageActionType.screen, screen: around),
+        );
       }
+      openLocation(context, Paths.page(slug));
     case PageActionType.screen:
       final screen = action.screen;
       if (screen == null) return;

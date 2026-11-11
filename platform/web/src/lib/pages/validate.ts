@@ -50,6 +50,7 @@ import {
   STUDIO_HEADER_BUTTONS,
   STUDIO_HEADER_TYPES,
   STUDIO_LAYOUT_TYPES,
+  STUDIO_PAGE_SCREENS,
   STUDIO_LIMITS,
   STUDIO_LOOPS,
   STUDIO_NODE_TYPES,
@@ -975,6 +976,13 @@ function parseStudio(ctx: Context, where: string, value: unknown): StudioPage | 
   const dark = optionalColor(c, where, v.dark_background, "the page's dark colour");
   if (dark) page.dark_background = dark;
   if (v.show_tabs === false) page.show_tabs = false;
+  // 120 The app's own screen under the elements.
+  if (v.screen !== undefined && v.screen !== null) {
+    if (!(STUDIO_PAGE_SCREENS as readonly unknown[]).includes(v.screen)) c.fail(where, "choose the app's screen the page is drawn around from the list.");
+    else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(String(v.screen))}" screen. Choose another screen.`);
+    else page.screen = v.screen as StudioPage["screen"];
+    if (page.screen && page.header?.type === "transparent") c.fail(where, "a page drawn around one of the app's screens can't have the header that lies over the page. Choose another header.");
+  }
   return page;
 }
 
@@ -1602,6 +1610,14 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
     .slice(0, LAYOUT_LIMITS.maxPages)
     .map((p, i) => parsePage(ctx, i, p, allowedBlocks, options.now))
     .filter((p): p is LayoutPage => p !== null);
+  // 120 One page around each of the app's screens, so the app knows which one to draw.
+  const around = new Set<string>();
+  for (const page of pages) {
+    const screen = page.studio?.screen;
+    if (!screen) continue;
+    if (around.has(screen)) c.fail(`Page "${page.title || page.slug}"`, `another page is already drawn around the "${screenName(screen)}" screen. Choose another screen.`);
+    around.add(screen);
+  }
   const tabsIn = Array.isArray(v.tabs) ? v.tabs : [];
   if (tabsIn.length < LAYOUT_LIMITS.minTabs || tabsIn.length > LAYOUT_LIMITS.maxTabs) {
     c.fail("Tabs", `the app needs ${LAYOUT_LIMITS.minTabs} to ${LAYOUT_LIMITS.maxTabs} tabs.`);

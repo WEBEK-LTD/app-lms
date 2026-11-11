@@ -572,6 +572,10 @@ export const en = {
   emptyPage: "Drag elements here",
   pageBackground: "Page background",
   showTabs: "Bottom tabs under this page",
+  pageScreen: "The app's screen under this page",
+  pageScreenNone: "None, the elements only",
+  pageScreenHint: "The app draws this screen (its lists, forms and map) under the elements you add here, and your header becomes its title. Only one page per screen.",
+  screenDrawn: "{screen}: the app draws this part",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "Bottom tabs",
   tabBarHint: "Up to five show in the bar. With more, the fifth becomes More and holds the rest.",
@@ -1672,6 +1676,10 @@ export const ar: Messages = {
   emptyPage: "اسحب العناصر وحطها هنا",
   pageBackground: "خلفية الصفحة",
   showTabs: "التابات تحت الصفحة دي",
+  pageScreen: "شاشة التطبيق تحت الصفحة دي",
+  pageScreenNone: "مفيش، العناصر بس",
+  pageScreenHint: "التطبيق بيرسم الشاشة دي (قوايمها وفورماتها والخريطة) تحت العناصر اللي بتحطها هنا، والهيدر بتاعك بيبقى عنوانها. كل شاشة ليها صفحة واحدة بس.",
+  screenDrawn: "{screen}: التطبيق بيرسم الجزء ده",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "المنيو اللي تحت",
   tabBarHint: "لحد ٥ تابات بيظهروا في الشريط. لو أكتر، الخامسة بتبقى «المزيد» وفيها الباقي.",
@@ -2762,6 +2770,10 @@ export const tr: Messages = {
   emptyPage: "Öğeleri buraya sürükleyin",
   pageBackground: "Sayfa arka planı",
   showTabs: "Bu sayfanın altında alt sekmeler",
+  pageScreen: "Bu sayfanın altındaki uygulama ekranı",
+  pageScreenNone: "Yok, yalnızca öğeler",
+  pageScreenHint: "Uygulama bu ekranı (listelerini, formlarını ve haritasını) buraya eklediğiniz öğelerin altına çizer, başlığınız da ekranın başlığı olur. Her ekran için yalnızca bir sayfa.",
+  screenDrawn: "{screen}: bu kısmı uygulama çizer",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "Alt sekmeler",
   tabBarHint: "Çubukta en fazla beşi görünür. Daha fazlasında beşincisi Daha fazla olur ve kalanları içerir.",

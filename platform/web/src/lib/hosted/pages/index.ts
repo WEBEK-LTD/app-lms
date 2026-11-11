@@ -100,10 +100,18 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
   return { ...studio, ...(header !== undefined ? { header } : {}), body: body ?? studio.body };
 }
 
-/** A tab or a side menu entry as the app gets it (`NavTab`): 82.5 with the owner's own icon. */
-function navTab(tab: LayoutTab, lang: LanguageCode, def: LanguageCode) {
+/**
+ * A tab or a side menu entry as the app gets it (`NavTab`): 82.5 with the
+ * owner's own icon. 120 One that opens a page drawn around one of the app's
+ * screens opens that screen: the app draws the page around it (the page's
+ * `screen` in the list of pages), and an app that doesn't know pages around
+ * screens still shows the screen.
+ */
+function navTab(tab: LayoutTab, lang: LanguageCode, def: LanguageCode, layout: Layout) {
   const t = translated(tab, lang, def);
-  return { id: t.id, label: t.label, icon: t.icon, ...(t.icon_url ? { icon_url: t.icon_url } : {}), target: t.target };
+  const around = t.target.type === "page" ? layout.pages.find((p) => p.slug === t.target.page_slug)?.studio?.screen : undefined;
+  const target = around ? { type: "screen" as const, screen: around } : t.target;
+  return { id: t.id, label: t.label, icon: t.icon, ...(t.icon_url ? { icon_url: t.icon_url } : {}), target };
 }
 
 function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): HostedResult {
@@ -115,7 +123,7 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
   if (etagValues(req.headers?.get("if-none-match") ?? null).includes(version)) {
     return { status: 304, headers: { ...VARY, etag } };
   }
-  const split = splitTabs(layout.tabs.map((tab) => navTab(tab, lang, def)));
+  const split = splitTabs(layout.tabs.map((tab) => navTab(tab, lang, def, layout)));
   return {
     status: 200,
     body: {
@@ -125,8 +133,9 @@ function navigation(layout: Layout, lang: LanguageCode, req: HostedRequest): Hos
       more: split.more,
       ...(layout.tab_bar ? { tab_bar: layout.tab_bar } : {}),
       // 82.5 The side menu.
-      menu: (layout.menu ?? []).map((entry) => navTab(entry, lang, def)),
-      pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at })),
+      menu: (layout.menu ?? []).map((entry) => navTab(entry, lang, def, layout)),
+      // 120 A page drawn around one of the app's screens says which.
+      pages: layout.pages.map((page) => ({ slug: page.slug, title: translated(page, lang, def).title, updated_at: page.updated_at, ...(page.studio?.screen ? { screen: page.studio.screen } : {}) })),
     },
     headers: { ...VARY, etag },
   };

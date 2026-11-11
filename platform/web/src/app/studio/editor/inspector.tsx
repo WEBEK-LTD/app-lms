@@ -15,6 +15,7 @@ import {
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_PAGE_SCREENS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -1609,6 +1610,32 @@ function PagePanel(props: Props) {
           ]}
         />
         <Check label={t("studio.showTabs")} checked={props.page.show_tabs !== false} onChange={(on) => props.onPage({ show_tabs: on ? undefined : false })} />
+        {/* 120 The app's own screen under the page's elements. */}
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.pageScreen")}
+          <select
+            value={props.page.screen ?? ""}
+            onChange={(e) => {
+              const screen = (e.target.value || undefined) as StudioPage["screen"];
+              // The header lying over the page can't lie over a screen.
+              props.onPage({ screen, ...(screen && props.page.header?.type === "transparent" ? { header: { ...props.page.header, type: "title_search" } } : {}) });
+            }}
+            className="h-9 rounded-lg px-2 font-normal"
+            style={{ border: "1px solid var(--studio-line)" }}
+          >
+            <option value="">{t("studio.pageScreenNone")}</option>
+            {props.screens
+              .filter((s) => !s.alias && (STUDIO_PAGE_SCREENS as readonly string[]).includes(s.value))
+              .map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+          </select>
+          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.pageScreenHint")}
+          </span>
+        </label>
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {t("studio.keyboard")}
         </p>

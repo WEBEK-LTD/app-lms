@@ -144,6 +144,12 @@ export const SCREENS = [
   "school",
   "classroom",
 ] as const;
+/**
+ * 120 The app's screens a Studio page can be drawn around (`StudioPage.screen`):
+ * every screen but the ones that open one thing (a restaurant, a teacher, a class).
+ */
+export const STUDIO_PAGE_SCREENS = SCREENS.filter((s) => s !== "restaurant" && s !== "teacher" && s !== "classroom");
+export type StudioPageScreen = (typeof SCREENS)[number];
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;
 export const BUTTON_STYLES = ["filled", "outlined", "text"] as const;
@@ -747,6 +753,12 @@ export interface StudioPage {
   background?: string | null;
   dark_background?: string | null;
   show_tabs?: boolean;
+  /**
+   * 120 The app's own screen drawn under the page's elements (its list of
+   * shipments, the ride map, the orders): the page is that screen's, its
+   * header and elements over it. Missing, the page is its elements only.
+   */
+  screen?: StudioPageScreen;
 }
 
 export interface LayoutPage {
