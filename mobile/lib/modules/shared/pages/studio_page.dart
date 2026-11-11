@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/format/dates.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
@@ -21,6 +22,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
+import '../../lms/home/learning_cards.dart';
 import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
@@ -322,7 +324,9 @@ class StudioHeaderView extends ConsumerWidget {
     final build = ref.watch(appEnvironmentProvider).build;
     final config = ref.watch(appConfigProvider);
     final transparent = header.type == StudioHeaderType.transparent;
-    final background = transparent
+    // 123 The greeting sits on the page itself unless it has its own colours.
+    final greeting = header.type == StudioHeaderType.greeting;
+    final background = transparent || (greeting && header.background == null)
         ? Colors.transparent
         : parseHexColor(
                 scope.dark
@@ -334,7 +338,11 @@ class StudioHeaderView extends ConsumerWidget {
         parseHexColor(
           scope.dark ? (header.darkColor ?? header.color) : header.color,
         ) ??
-        (transparent ? Colors.white : p.onPrimary);
+        (transparent
+            ? Colors.white
+            : greeting
+            ? p.text
+            : p.onPrimary);
     final title = header.title ?? build.appName;
     final logo =
         header.logoUrl ??
@@ -352,7 +360,12 @@ class StudioHeaderView extends ConsumerWidget {
     final buttons = [
       for (final b in header.buttons)
         if (_iconOf(b) case final icon? when headerIconOpens(ref, icon))
-          _StudioHeaderButton(icon: icon, color: color),
+          greeting
+              ? Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8),
+                  child: _GreetingButton(icon: icon, color: color),
+                )
+              : _StudioHeaderButton(icon: icon, color: color),
     ];
     final mark = logo != null
         ? ConstrainedBox(
@@ -437,6 +450,15 @@ class StudioHeaderView extends ConsumerWidget {
           ],
         ),
       ),
+      // 123 Today's date over a greeting with the person's first name.
+      StudioHeaderType.greeting => Row(
+        children: [
+          Expanded(
+            child: _Greeting(title: title, color: color),
+          ),
+          if (buttons.isNotEmpty) end,
+        ],
+      ),
       StudioHeaderType.logoActions || StudioHeaderType.transparent => SizedBox(
         height: 44,
         child: Row(
@@ -462,6 +484,7 @@ class StudioHeaderView extends ConsumerWidget {
           StudioHeaderType.logoActions => 'logo_actions',
           StudioHeaderType.transparent => 'transparent',
           StudioHeaderType.title => 'title',
+          StudioHeaderType.greeting => 'greeting',
         }}',
       ),
       padding: EdgeInsets.fromLTRB(10, top + 8, 10, 4),
@@ -489,6 +512,85 @@ class StudioHeaderView extends ConsumerWidget {
     StudioHeaderButton.chat => HeaderIcon.chat,
     StudioHeaderButton.account => HeaderIcon.account,
   };
+}
+
+/// 123 Today's date over "Good morning, Sara" (after noon "Good evening");
+/// signed out, the header's title (else the app's name) under the date.
+class _Greeting extends ConsumerWidget {
+  const _Greeting({required this.title, required this.color});
+
+  final String title;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final now = ref.watch(pageClockProvider)();
+    final auth = ref.watch(authControllerProvider);
+    final name = auth is SignedIn
+        ? (auth.user?.name ?? '').trim().split(RegExp(r'\s+')).first
+        : '';
+    final morning = now.hour < 12;
+    final hello = auth is! SignedIn
+        ? title
+        : name.isEmpty
+        ? (morning
+              ? l10n.studioGreetingMorningAlone
+              : l10n.studioGreetingEveningAlone)
+        : (morning
+              ? l10n.studioGreetingMorning(name)
+              : l10n.studioGreetingEvening(name));
+    return Column(
+      key: const ValueKey('studio-greeting'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          dayLabel(now),
+          style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.6)),
+        ),
+        Semantics(
+          header: true,
+          child: Text(
+            hello,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+              color: color,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 123 A header button of the greeting: a small frosted square.
+class _GreetingButton extends StatelessWidget {
+  const _GreetingButton({required this.icon, required this.color});
+
+  final HeaderIcon icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: dark ? const Color(0xB8161924) : const Color(0xB8FFFFFF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: dark ? const Color(0x14FFFFFF) : const Color(0x1415131A),
+        ),
+      ),
+      child: _StudioHeaderButton(icon: icon, color: color),
+    );
+  }
 }
 
 class _StudioHeaderButton extends ConsumerWidget {
@@ -598,6 +700,9 @@ class StudioNodeView extends ConsumerWidget {
         node.source == ItemSource.products &&
             ref.watch(recentlyViewedProvider).isNotEmpty,
       StudioNodeType.coupon => (node.code ?? '').isNotEmpty,
+      // 123 A student's card, signed in and with something to show.
+      StudioNodeType.learning =>
+        node.learning != null && learningCardShows(node.learning!, ref),
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -616,6 +721,14 @@ class StudioNodeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!shows(node, ref)) return const SizedBox.shrink();
+    // 123 A text bound to what the entry hasn't (a course without a badge)
+    // leaves no empty pill.
+    if (scope.entry != null &&
+        node.bind != null &&
+        node.bind != StudioBind.image &&
+        (_ownText() ?? '').trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
     final dark = scope.dark;
     final color = parseHexColor(
       dark ? (node.darkColor ?? node.color) : node.color,
@@ -991,6 +1104,13 @@ class StudioNodeView extends ConsumerWidget {
           );
         }
         return _CustomCards(node: node, scope: scope, entries: entries);
+      case StudioNodeType.learning:
+        return StudioLearningCard(
+          section: node.learning!,
+          color: color,
+          title: node.title,
+          dark: scope.dark,
+        );
       case StudioNodeType.market:
         final market = node.market;
         if (market == null) return const SizedBox.shrink();

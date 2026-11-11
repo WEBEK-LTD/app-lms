@@ -14303,11 +14303,14 @@ components:
         search field; `logo_actions`: the logo and the `buttons`;
         `transparent`: over the page's first element, the buttons on it.
         120 `title`: the page's title and the buttons, for the pages after
-        the first (a page drawn around one of the app's screens). Apps that
-        don't know a type show no header.
+        the first (a page drawn around one of the app's screens). 123
+        `greeting`: today's date over a greeting for the time of day with
+        the person's first name ("Good morning, Sara"), the buttons beside
+        it; signed out, `title` (or the app's name) under the date. Apps
+        that don't know a type show no header.
       required: [type]
       properties:
-        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title] }
+        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title, greeting] }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:
@@ -14343,7 +14346,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14421,6 +14424,7 @@ components:
         form: { $ref: '#/components/schemas/StudioForm' }
         map: { $ref: '#/components/schemas/StudioMap' }
         market: { $ref: '#/components/schemas/StudioMarket' }
+        learning: { $ref: '#/components/schemas/StudioLearning' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -14533,6 +14537,25 @@ components:
         submit_label: { type: [string, 'null'] }
         success_text: { type: [string, 'null'] }
         send_to: { type: string, enum: [email, chat] }
+
+    StudioLearning:
+      type: [object, 'null']
+      description: |
+        123 For `learning`, in academies: one card the app draws from the
+        signed-in student's own learning. `continue` the course they are
+        taking (the lesson they are on of how many, the minutes left in
+        it, the teacher and the lesson, how far they are, a button that
+        opens the lesson), on the element's `gradient` or picture; `streak`
+        the days in a row they learned, with the last seven days; `live`
+        their next live class and when it starts; `week` the time they
+        learned this week, each day of it, against the week before. The
+        element's `title` heads the card (missing, the app's own words) and
+        its colours are the card's. Nothing is drawn signed out, or without
+        anything to show (no course started, no live class coming). Apps
+        leave out a section they don't know.
+      required: [section]
+      properties:
+        section: { type: string, enum: [continue, streak, live, week] }
 
     StudioMarket:
       type: [object, 'null']

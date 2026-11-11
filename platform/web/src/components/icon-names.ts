@@ -13,6 +13,7 @@ export const ICON_NAMES = [
   "arrow_forward",
   "arrow_upward",
   "assignment",
+  "auto_stories",
   "block",
   "bookmark",
   "build",

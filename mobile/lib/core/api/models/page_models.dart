@@ -1883,6 +1883,8 @@ enum StudioHeaderType {
   logoActions,
   transparent,
   title,
+  // 123 Today's date over a greeting with the person's first name.
+  greeting,
 }
 
 enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
@@ -1962,7 +1964,23 @@ enum StudioNodeType {
   // 115 A marketplace section: the address, kinds, offers, cuisines, the
   // club, the vendors, what to order again (StudioMarket says which).
   market,
+  // 123 One of the student's own cards in an academy (StudioLearning).
+  learning,
 }
+
+/// 123 Which of the student's cards a `learning` element is: the course
+/// they are taking, their streak, their next live class, or this week's
+/// learning time.
+enum StudioLearningSection { continueCourse, streak, live, week }
+
+StudioLearningSection? studioLearningSection(Object? value) =>
+    switch (value) {
+      'continue' => StudioLearningSection.continueCourse,
+      'streak' => StudioLearningSection.streak,
+      'live' => StudioLearningSection.live,
+      'week' => StudioLearningSection.week,
+      _ => null,
+    };
 
 /// 115 Which marketplace section a `market` element is.
 enum StudioMarketSection {
@@ -2396,6 +2414,7 @@ class StudioNode {
     this.motion,
     this.hidden = false,
     this.market,
+    this.learning,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2502,6 +2521,9 @@ class StudioNode {
             : null,
         map: mapJson is Map ? StudioMapPlace.tryParse(asJson(mapJson)) : null,
         market: StudioMarket.tryParse(json['market']),
+        learning: json['learning'] is Map
+            ? studioLearningSection((json['learning'] as Map)['section'])
+            : null,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2644,6 +2666,9 @@ class StudioNode {
 
   /// 115 For [StudioNodeType.market]: which section it is.
   final StudioMarket? market;
+
+  /// 123 For [StudioNodeType.learning]: which of the student's cards it is.
+  final StudioLearningSection? learning;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

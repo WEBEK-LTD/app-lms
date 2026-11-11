@@ -18,10 +18,11 @@ export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
-export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title"] as const;
+/** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
+export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title", "greeting"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
 export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;
@@ -619,6 +620,16 @@ export interface StudioForm {
   send_to: (typeof FORM_SEND_TO)[number];
 }
 
+/**
+ * 123 For `learning`, in academies: one card drawn from the signed-in
+ * student's own learning (`StudioLearning`): the course they are taking,
+ * their streak, their next live class, or this week's learning time.
+ */
+export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] as const;
+export interface StudioLearning {
+  section: (typeof STUDIO_LEARNING_SECTIONS)[number];
+}
+
 /** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
 export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
 export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list"] as const;
@@ -734,6 +745,8 @@ export interface StudioNode {
   map?: StudioMap | null;
   /** 115.14 For `market`: the marketplace section (its title and text are the element's own). */
   market?: StudioMarket | null;
+  /** 123 For `learning`: which of the student's cards it is. */
+  learning?: StudioLearning | null;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];

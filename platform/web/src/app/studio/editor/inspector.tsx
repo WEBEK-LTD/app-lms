@@ -15,6 +15,7 @@ import {
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_LEARNING_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -723,6 +724,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
         </div>
       ) : null}
       {node.type === "market" ? <MarketControls node={node} onChange={onChange} /> : null}
+      {node.type === "learning" ? <LearningControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -1671,6 +1673,26 @@ function PagePanel(props: Props) {
 }
 
 /** 115.14 A marketplace section: which one, and for the places, how many, which and in what order. */
+/** 123 Which of the student's cards a `learning` element is. */
+function LearningControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  return (
+    <label className="flex flex-col gap-1 font-bold">
+      {t("studio.learningSection")}
+      <select value={node.learning?.section ?? "continue"} onChange={(e) => onChange({ learning: { section: e.target.value as NonNullable<StudioNode["learning"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        {STUDIO_LEARNING_SECTIONS.map((s) => (
+          <option key={s} value={s}>
+            {t(`studio.learning_${s}` as DashKey)}
+          </option>
+        ))}
+      </select>
+      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.learningHint")}
+      </span>
+    </label>
+  );
+}
+
 function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
   const market: StudioMarket = node.market ?? { section: "vendors" };

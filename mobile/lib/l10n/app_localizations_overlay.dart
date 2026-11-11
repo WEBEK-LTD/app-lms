@@ -10146,4 +10146,100 @@ class OverlayLocalizations extends AppLocalizations {
   String accountPointsToUse(int count) =>
       overlay.format('accountPointsToUse', {'count': count}) ??
       base.accountPointsToUse(count);
+
+  @override
+  String studioGreetingMorning(String name) =>
+      overlay.format('studioGreetingMorning', {'name': name}) ??
+      base.studioGreetingMorning(name);
+
+  @override
+  String studioGreetingEvening(String name) =>
+      overlay.format('studioGreetingEvening', {'name': name}) ??
+      base.studioGreetingEvening(name);
+
+  @override
+  String get studioGreetingMorningAlone =>
+      overlay.text('studioGreetingMorningAlone') ??
+      base.studioGreetingMorningAlone;
+
+  @override
+  String get studioGreetingEveningAlone =>
+      overlay.text('studioGreetingEveningAlone') ??
+      base.studioGreetingEveningAlone;
+
+  @override
+  String learningLessonOf(int current, int total) =>
+      overlay.format('learningLessonOf', {
+        'current': current,
+        'total': total,
+      }) ??
+      base.learningLessonOf(current, total);
+
+  @override
+  String learningMinutesLeft(int minutes) =>
+      overlay.format('learningMinutesLeft', {'minutes': minutes}) ??
+      base.learningMinutesLeft(minutes);
+
+  @override
+  String get learningStreakTitle =>
+      overlay.text('learningStreakTitle') ?? base.learningStreakTitle;
+
+  @override
+  String learningStreakDays(int count) =>
+      overlay.format('learningStreakDays', {'count': count}) ??
+      base.learningStreakDays(count);
+
+  @override
+  String get learningLiveTitle =>
+      overlay.text('learningLiveTitle') ?? base.learningLiveTitle;
+
+  @override
+  String learningLiveNow(String time) =>
+      overlay.format('learningLiveNow', {'time': time}) ??
+      base.learningLiveNow(time);
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) =>
+      overlay.format('learningLiveInMinutes', {
+        'minutes': minutes,
+        'time': time,
+      }) ??
+      base.learningLiveInMinutes(minutes, time);
+
+  @override
+  String learningLiveInHours(int hours, String time) =>
+      overlay.format('learningLiveInHours', {'hours': hours, 'time': time}) ??
+      base.learningLiveInHours(hours, time);
+
+  @override
+  String learningLiveOn(String day, String time) =>
+      overlay.format('learningLiveOn', {'day': day, 'time': time}) ??
+      base.learningLiveOn(day, time);
+
+  @override
+  String get learningWeekTitle =>
+      overlay.text('learningWeekTitle') ?? base.learningWeekTitle;
+
+  @override
+  String learningWeekUp(int percent) =>
+      overlay.format('learningWeekUp', {'percent': percent}) ??
+      base.learningWeekUp(percent);
+
+  @override
+  String learningWeekDown(int percent) =>
+      overlay.format('learningWeekDown', {'percent': percent}) ??
+      base.learningWeekDown(percent);
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) =>
+      overlay.format('learningHoursMinutes', {
+        'hours': hours,
+        'minutes': minutes,
+      }) ??
+      base.learningHoursMinutes(hours, minutes);
+
+  @override
+  String learningMinutesOnly(int minutes) =>
+      overlay.format('learningMinutesOnly', {'minutes': minutes}) ??
+      base.learningMinutesOnly(minutes);
 }

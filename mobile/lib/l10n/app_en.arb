@@ -10581,5 +10581,157 @@
         "type": "int"
       }
     }
+  },
+  "studioGreetingMorning": "Good morning, {name}",
+  "@studioGreetingMorning": {
+    "description": "123 The greeting header in the morning, with the person's first name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioGreetingEvening": "Good evening, {name}",
+  "@studioGreetingEvening": {
+    "description": "123 The greeting header after noon, with the person's first name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studioGreetingMorningAlone": "Good morning",
+  "@studioGreetingMorningAlone": {
+    "description": "123 The greeting header in the morning, without a name."
+  },
+  "studioGreetingEveningAlone": "Good evening",
+  "@studioGreetingEveningAlone": {
+    "description": "123 The greeting header after noon, without a name."
+  },
+  "learningLessonOf": "In progress · lesson {current} of {total}",
+  "@learningLessonOf": {
+    "description": "123 The course the student is taking: the lesson they are on.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "learningMinutesLeft": "{minutes} min left",
+  "@learningMinutesLeft": {
+    "description": "123 The minutes left in the lesson the student is on.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "learningStreakTitle": "Learning streak",
+  "@learningStreakTitle": {
+    "description": "123 The card with the days in a row the student learned."
+  },
+  "learningStreakDays": "{count, plural, =1{day} other{days}}",
+  "@learningStreakDays": {
+    "description": "123 The word after the number of days in a row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "learningLiveTitle": "Live class",
+  "@learningLiveTitle": {
+    "description": "123 The card with the student's next live class."
+  },
+  "learningLiveNow": "Now · {time}",
+  "@learningLiveNow": {
+    "description": "123 A live class that has started.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningLiveInMinutes": "In {minutes} min · {time}",
+  "@learningLiveInMinutes": {
+    "description": "123 A live class starting within the hour.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningLiveInHours": "In {hours} h · {time}",
+  "@learningLiveInHours": {
+    "description": "123 A live class starting today.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningLiveOn": "{day} · {time}",
+  "@learningLiveOn": {
+    "description": "123 A live class on another day.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningWeekTitle": "This week",
+  "@learningWeekTitle": {
+    "description": "123 The card with this week's learning time."
+  },
+  "learningWeekUp": "+{percent}% on last week",
+  "@learningWeekUp": {
+    "description": "123 More learning than the week before.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "learningWeekDown": "−{percent}% on last week",
+  "@learningWeekDown": {
+    "description": "123 Less learning than the week before.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "learningHoursMinutes": "{hours} h {minutes} min",
+  "@learningHoursMinutes": {
+    "description": "123 A learning time of an hour or more.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "learningMinutesOnly": "{minutes} min",
+  "@learningMinutesOnly": {
+    "description": "123 A learning time under an hour.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -1009,7 +1009,7 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning' );
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
 
 	/**
@@ -1057,7 +1057,8 @@ class Block_Resolver {
 	 */
 	private function studio_header( array $raw ) {
 		$type = $raw['type'] ?? null;
-		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title' ), true ) ) {
+		// 123 `greeting`: today's date over a greeting with the person's first name.
+		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title', 'greeting' ), true ) ) {
 			return null;
 		}
 		$buttons = array();
@@ -1262,6 +1263,14 @@ class Block_Resolver {
 				if ( empty( $node['text'] ) ) {
 					return null;
 				}
+				break;
+			case 'learning':
+				// 123 One of the student's cards, drawn by the app from their own learning.
+				$section = $raw['learning']['section'] ?? null;
+				if ( ! in_array( $section, array( 'continue', 'streak', 'live', 'week' ), true ) ) {
+					return null;
+				}
+				$node['learning'] = array( 'section' => $section );
 				break;
 			case 'coupon':
 				// 112.4 A code people copy: letters, numbers, - and _.

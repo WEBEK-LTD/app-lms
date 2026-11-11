@@ -9507,4 +9507,90 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String studioGreetingMorning(String name) {
+    return 'Good morning, $name';
+  }
+
+  @override
+  String studioGreetingEvening(String name) {
+    return 'Good evening, $name';
+  }
+
+  @override
+  String get studioGreetingMorningAlone => 'Good morning';
+
+  @override
+  String get studioGreetingEveningAlone => 'Good evening';
+
+  @override
+  String learningLessonOf(int current, int total) {
+    return 'In progress · lesson $current of $total';
+  }
+
+  @override
+  String learningMinutesLeft(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get learningStreakTitle => 'Learning streak';
+
+  @override
+  String learningStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get learningLiveTitle => 'Live class';
+
+  @override
+  String learningLiveNow(String time) {
+    return 'Now · $time';
+  }
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) {
+    return 'In $minutes min · $time';
+  }
+
+  @override
+  String learningLiveInHours(int hours, String time) {
+    return 'In $hours h · $time';
+  }
+
+  @override
+  String learningLiveOn(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get learningWeekTitle => 'This week';
+
+  @override
+  String learningWeekUp(int percent) {
+    return '+$percent% on last week';
+  }
+
+  @override
+  String learningWeekDown(int percent) {
+    return '−$percent% on last week';
+  }
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String learningMinutesOnly(int minutes) {
+    return '$minutes min';
+  }
 }

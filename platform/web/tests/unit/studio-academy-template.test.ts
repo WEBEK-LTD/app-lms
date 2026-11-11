@@ -82,32 +82,45 @@ describe("123 the premium academy template", () => {
 
   it("names the tabs and writes the home in each of Studio's languages, the others as translations", () => {
     const layout = start("https://nour.academy", "ar");
-    expect(layout.tabs.find((t) => t.id === "blog")!.label).toBe("المدونة");
+    // As the approved bar names them.
+    expect(layout.tabs.map((t) => t.label)).toEqual(["الرئيسية", "استكشف", "المدونة", "دوراتي", "حسابي"]);
     expect(layout.tabs.find((t) => t.id === "blog")!.translations).toMatchObject({ en: { label: "Blog" }, tr: { label: "Blog" } });
+    expect(layout.tabs.find((t) => t.id === "courses")!.translations).toMatchObject({ en: { label: "Explore" } });
     const home = layout.pages.find((p) => p.slug === "home")!.studio!;
     const texts = allNodes(home).filter((n: StudioNode) => n.type === "text" && n.text);
-    expect(texts.map((n) => n.text)).toContain("هتتعلم إيه النهارده؟");
-    const headline = texts.find((n) => n.text === "هتتعلم إيه النهارده؟")!;
-    expect(headline.translations).toMatchObject({ en: { text: "What will you learn today?" }, tr: { text: "Bugün ne öğreneceksin?" } });
+    const forYou = texts.find((n) => n.text === "اختيارات لك")!;
+    expect(forYou.translations).toMatchObject({ en: { text: "Picked for you" }, tr: { text: "Senin için seçtiklerimiz" } });
+    expect(texts.map((n) => n.text)).toContain("عرض الكل");
+  });
+
+  it("is the approved home: the greeting, the course they're taking, the streak beside the live class, courses picked for them", () => {
+    const home = start(null).pages.find((p) => p.slug === "home")!.studio!;
+    expect(home.header).toMatchObject({ type: "greeting", buttons: ["search", "notifications"] });
+    const cards = allNodes(home).filter((n) => n.type === "learning");
+    expect(cards.map((n) => n.learning!.section)).toEqual(["continue", "streak", "live"]);
+    // The student's own cards for students; the banner for everyone else.
+    expect(cards[0]!.visibility).toBe("signed_in");
+    expect(allNodes(home).find((n) => n.type === "stack" && n.visibility === "signed_out")).toBeTruthy();
+    const picked = allNodes(home).find((n) => n.type === "items")!;
+    expect(picked).toMatchObject({ layout: "carousel", query: { sort: "popular" } });
+    expect(allNodes({ body: picked.card! }).map((n) => n.bind).filter(Boolean)).toEqual(["image", "badge", "title", "subtitle", "price"]);
   });
 
   it("is light and dark: every coloured part of the home has its night colour", () => {
     const home = start(null).pages.find((p) => p.slug === "home")!.studio!;
     expect(home.dark_background).toBe("#0A0B10");
+    expect(home.header).toMatchObject({ color: "#15131A", dark_color: "#F4F1EA" });
     for (const n of allNodes(home)) {
-      // Parts over the banner, the gold chip and the certificate card stay as they are by night.
-      if (n.background && n.background !== ACADEMY_PROJECT.primary && !n.background.startsWith("#E7")) expect(n.dark_background, n.id).toBeTruthy();
+      // The parts on a picture or in gold look the same by night.
+      if (n.background && !n.image_background_url && n.background !== ACADEMY_PROJECT.primary) expect(n.dark_background, n.id).toBeTruthy();
+      if (n.color && n.color !== "#FFFFFF" && n.color !== "#2A1D05") expect(n.dark_color, n.id).toBeTruthy();
     }
-    const greeting = allNodes(home).find((n) => n.text === "What will you learn today?")!;
-    expect(greeting.dark_color).toBe("#F4F1EA");
   });
 
-  it("is in the brand's colour: the banner and the certificate card follow the main colour", () => {
+  it("is in the brand's colour: the banner follows the main colour", () => {
     const app = { ...academy(), primaryColor: "#7A1F3D" };
     const home = TEMPLATE.make(context(app));
-    const nodes = allNodes(home);
-    expect(nodes.some((n) => n.type === "stack" && n.background === "#7A1F3D")).toBe(true);
-    expect(nodes.some((n) => n.gradient?.from === "#7A1F3D")).toBe(true);
+    expect(allNodes(home).some((n) => n.type === "stack" && n.background === "#7A1F3D")).toBe(true);
   });
 
   it("designs the sign-in screen, the account menu and the courses, as the platform keeps them", () => {

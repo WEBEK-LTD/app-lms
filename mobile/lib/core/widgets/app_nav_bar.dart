@@ -794,21 +794,29 @@ class AppNavBar extends StatelessWidget {
                 ),
               );
             case TabBarDesign.glass:
-              // 119 The open tab on a brighter patch of the glass.
+              // 119 The open tab on a brighter patch of the glass; 123 with
+              // the owner's colour for it, on a pill of that colour (the
+              // premium academy's ink).
+              final fill = active;
               glyph = Container(
                 key: selected ? mark : null,
                 width: 54,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: selected
-                      ? (dark
-                            ? const Color(0x29FFFFFF)
-                            : const Color(0xD9FFFFFF))
-                      : Colors.transparent,
+                  color: !selected
+                      ? Colors.transparent
+                      : fill ??
+                            (dark
+                                ? const Color(0x29FFFFFF)
+                                : const Color(0xD9FFFFFF)),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 alignment: Alignment.center,
-                child: icon(22, color, filled: selected),
+                child: icon(
+                  22,
+                  selected && fill != null ? onFill(fill) : color,
+                  filled: selected,
+                ),
               );
             case TabBarDesign.minimal:
               glyph = icon(22, color, filled: selected);

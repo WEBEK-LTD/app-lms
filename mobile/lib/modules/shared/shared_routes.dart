@@ -12,6 +12,7 @@ import '../../core/theme/app_look.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/fonts/remote_fonts.dart';
 import '../../core/web/web_page_screen.dart';
+import '../../core/api/models/page_models.dart' show TabBarDesign;
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
 import '../../core/widgets/common.dart';
@@ -404,6 +405,11 @@ class MainShell extends ConsumerWidget {
         : null;
     return Scaffold(
       body: shell,
+      // 123 A frosted bar floats over the page, which goes on under it.
+      extendBody:
+          !hideTabs &&
+          tabBar?.design == TabBarDesign.glass &&
+          (tabBar?.margin ?? 0) > 0,
       // 82.5 The side menu built in the dashboard.
       drawer: hasMenu
           ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))

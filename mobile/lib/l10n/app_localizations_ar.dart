@@ -9763,4 +9763,92 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String studioGreetingMorning(String name) {
+    return 'صباح النور، $name';
+  }
+
+  @override
+  String studioGreetingEvening(String name) {
+    return 'مساء النور، $name';
+  }
+
+  @override
+  String get studioGreetingMorningAlone => 'صباح النور';
+
+  @override
+  String get studioGreetingEveningAlone => 'مساء النور';
+
+  @override
+  String learningLessonOf(int current, int total) {
+    return 'مستمر · الدرس $current من $total';
+  }
+
+  @override
+  String learningMinutesLeft(int minutes) {
+    return '$minutes د متبقية';
+  }
+
+  @override
+  String get learningStreakTitle => 'سلسلة التعلم';
+
+  @override
+  String learningStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يومًا',
+      few: 'أيام',
+      two: 'يومان',
+      one: 'يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get learningLiveTitle => 'حصة مباشرة';
+
+  @override
+  String learningLiveNow(String time) {
+    return 'الآن · $time';
+  }
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) {
+    return 'بعد $minutes د · $time';
+  }
+
+  @override
+  String learningLiveInHours(int hours, String time) {
+    return 'بعد $hours س · $time';
+  }
+
+  @override
+  String learningLiveOn(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get learningWeekTitle => 'هذا الأسبوع';
+
+  @override
+  String learningWeekUp(int percent) {
+    return '+$percent٪ عن الأسبوع الماضي';
+  }
+
+  @override
+  String learningWeekDown(int percent) {
+    return '−$percent٪ عن الأسبوع الماضي';
+  }
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) {
+    return '$hours س $minutes د';
+  }
+
+  @override
+  String learningMinutesOnly(int minutes) {
+    return '$minutes د';
+  }
 }

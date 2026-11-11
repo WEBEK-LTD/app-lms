@@ -93,6 +93,8 @@ const symbolsByName = <String, IconData>{
   'mail': Symbols.mail_rounded,
   'map': Symbols.map_rounded,
   'newspaper': Symbols.newspaper_rounded,
+  // 123 The premium academy's Blog tab.
+  'auto_stories': Symbols.auto_stories_rounded,
   'percent': Symbols.percent_rounded,
   'phone': Symbols.phone_rounded,
   'photo_library': Symbols.photo_library_rounded,

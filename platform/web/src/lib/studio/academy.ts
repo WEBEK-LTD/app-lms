@@ -44,111 +44,72 @@ function mix(a: string, b: string, t: number): string {
   return `#${out.map((v) => v.toString(16).padStart(2, "0")).join("")}`.toUpperCase();
 }
 
-/** The academy's home page, in the brand's colour (`ctx.brand`) with gold. */
+/**
+ * The academy's home page as it was approved (the premium academy's home
+ * board): the greeting with the date and the student's name, the course
+ * they are taking on a gradient, their streak beside their next live
+ * class in gold, and courses picked for them as covers with a gold badge.
+ * Signed out, a banner in the brand's colour invites them to the courses
+ * instead of the student's own cards.
+ */
 export function academyHome(ctx: SectionContext): StudioPage {
   const id = () => (ctx.newId ?? newNodeId)();
   const w = (word: SectionWord) => ctx.w(word);
   const courses = { type: "screen" as const, screen: "courses" as const };
   const text = (word: SectionWord, extra: Partial<StudioNode>): StudioNode => ({ id: id(), type: "text", text: w(word), ...extra });
-  const heading = (word: SectionWord, more = true): StudioNode => ({
-    id: id(),
-    type: "row",
-    name: w(word),
-    cross: "center",
-    gap: 8,
-    padding: pad(0, 18),
-    margin: { top: 22, bottom: 10 },
-    children: [
-      text(word, { width: "fill", font: { size: 18, weight: 800, family: ACADEMY_FONT }, color: C.ink, dark_color: C.nightInk }),
-      ...(more
-        ? [{ id: id(), type: "text" as const, text: w("seeAll"), color: C.gold, dark_color: C.darkGold, font: { size: 13, weight: 700 as const }, padding: pad(6, 2), action: courses }]
-        : []),
-    ],
-  });
-  const promise = (icon: string, word: SectionWord): StudioNode => ({
-    id: id(),
-    type: "row",
-    cross: "center",
-    gap: 6,
-    padding: pad(8, 12),
-    radius: 99,
-    background: "#FFFFFF",
-    dark_background: C.nightCard,
-    border_color: C.line,
-    border_width: 1,
-    children: [
-      { id: id(), type: "icon", icon, icon_size: 18, color: C.gold, dark_color: C.darkGold },
-      text(word, { font: { size: 12, weight: 600 }, color: C.ink, dark_color: C.nightInk }),
-    ],
-  });
-  const deep = mix(ctx.brand, "#000000", 0.45);
+  const card = { background: "#FFFFFF", dark_background: C.nightCard, border_color: C.line, border_width: 1, radius: 24, shadow: "medium" as const };
   return {
-    header: { type: "logo_actions", buttons: ["search", "cart", "notifications"], background: C.paper, dark_background: C.night, color: C.ink, dark_color: C.nightInk },
+    header: { type: "greeting", title: w("acHeadline"), buttons: ["search", "notifications"], color: C.ink, dark_color: C.nightInk },
     background: C.paper,
     dark_background: C.night,
     body: {
       id: id(),
       type: "column",
-      padding: { bottom: 24 },
+      padding: { top: 10, end: 18, bottom: 110, start: 18 },
       children: [
-        // The greeting.
+        // The course they are taking.
         {
           id: id(),
-          type: "column",
-          name: w("acHeadline"),
-          gap: 4,
-          padding: { top: 6, end: 18, bottom: 4, start: 18 },
-          children: [
-            text("acHello", { font: { size: 13, weight: 700 }, color: C.gold, dark_color: C.darkGold }),
-            text("acHeadline", { font: { size: 25, weight: 800, line_height: 1.25, family: ACADEMY_FONT }, color: C.ink, dark_color: C.nightInk }),
-          ],
+          type: "learning",
+          name: w("acContinue"),
+          learning: { section: "continue" },
+          visibility: "signed_in",
+          radius: 30,
+          background: "#141A3A",
+          image_background_url: ctx.picture?.("academy-mesh-1.jpg") ?? null,
+          color: "#FFFFFF",
+          shadow: "medium",
         },
-        // The banner: navy and gold, the main colour under the picture.
+        // Signed out: the banner, in the brand's colour.
         {
           id: id(),
           type: "stack",
           name: w("acHeroTitle"),
-          height: 214,
-          radius: 26,
-          margin: { top: 14, end: 16, bottom: 0, start: 16 },
+          visibility: "signed_out",
+          height: 206,
+          radius: 30,
           background: ctx.brand,
-          image_background_url: ctx.picture?.("academy-classic-2.jpg") ?? null,
-          overlay: { color: deep, opacity: 0.35 },
+          image_background_url: ctx.picture?.("academy-mesh-1.jpg") ?? null,
           shadow: "medium",
           children: [
             {
               id: id(),
               type: "column",
               align: "end",
-              gap: 8,
-              padding: pad(20, 20),
+              gap: 10,
+              padding: pad(18, 18),
               color: "#FFFFFF",
               children: [
-                {
-                  id: id(),
-                  type: "row",
-                  width: "hug",
-                  self_align: "start",
-                  cross: "center",
-                  gap: 4,
-                  padding: pad(4, 10),
-                  radius: 99,
-                  background: C.goldLight,
-                  children: [
-                    { id: id(), type: "icon", icon: "bolt", icon_size: 14, color: C.ink },
-                    text("acHeroKicker", { font: { size: 11, weight: 800 }, color: C.ink }),
-                  ],
-                },
-                text("acHeroTitle", { font: { size: 22, weight: 800, line_height: 1.3, family: ACADEMY_FONT }, color: "#FFFFFF" }),
+                text("acHeroTitle", { font: { size: 24, weight: 700, line_height: 1.3, family: ACADEMY_FONT }, color: "#FFFFFF" }),
                 {
                   id: id(),
                   type: "button",
                   text: w("acHeroButton"),
                   width: "hug",
-                  height: 42,
-                  radius: 14,
-                  background: C.goldLight,
-                  color: C.ink,
+                  height: 44,
+                  radius: 16,
+                  gradient: { from: C.goldLight, to: C.gold, angle: 135 },
+                  color: "#2A1D05",
                   font: { weight: 800, size: 14 },
                   padding: pad(0, 18),
                   icon: "arrow_forward",
@@ -160,68 +121,73 @@ export function academyHome(ctx: SectionContext): StudioPage {
             },
           ],
         },
-        // What the academy promises.
+        // The streak beside the next live class.
         {
           id: id(),
           type: "row",
-          name: w("acPromises"),
-          scroll: true,
-          gap: 8,
-          padding: { top: 14, end: 16, bottom: 0, start: 16 },
-          children: [promise("workspace_premium", "acPromiseCertificate"), promise("devices", "acPromisePhone"), promise("key", "acPromiseLifetime")],
-        },
-        // The subjects.
-        heading("acSubjects", false),
-        { id: id(), type: "categories", source: ctx.source ?? undefined, style: "circles", padding: pad(0, 12) },
-        // The popular courses.
-        heading("acPopular"),
-        { id: id(), type: "items", source: ctx.source ?? undefined, layout: "carousel", gap: 12, padding: pad(0, 16), query: { limit: 6, category_id: null, featured: false, sort: "popular", ids: [] } },
-        // The certificate card, in the main colour with gold.
-        {
-          id: id(),
-          type: "row",
-          name: w("acCertTitle"),
-          cross: "center",
-          gap: 14,
-          padding: pad(18, 18),
-          margin: { top: 22, end: 16, bottom: 0, start: 16 },
-          radius: 24,
-          gradient: { from: ctx.brand, to: deep, angle: 135 },
-          shadow: "light",
+          name: w("acStreakAndLive"),
+          visibility: "signed_in",
+          gap: 12,
+          cross: "stretch",
+          margin: { top: 14, bottom: 0 },
           children: [
-            {
-              id: id(),
-              type: "column",
-              width: "fill",
-              gap: 6,
-              children: [
-                text("acCertKicker", { font: { size: 12, weight: 800 }, color: C.goldLight }),
-                text("acCertTitle", { font: { size: 17, weight: 800, line_height: 1.35, family: ACADEMY_FONT }, color: "#FFFFFF" }),
-                // A gold outline over the card, by day and by night.
-                {
-                  id: id(),
-                  type: "row",
-                  name: w("ctaLearn"),
-                  width: "hug",
-                  self_align: "start",
-                  cross: "center",
-                  gap: 4,
-                  radius: 12,
-                  border_color: C.goldLight,
-                  border_width: 1.5,
-                  padding: pad(8, 14),
-                  margin: { top: 4 },
-                  action: courses,
-                  children: [text("ctaLearn", { font: { weight: 700, size: 13 }, color: C.goldLight }), { id: id(), type: "icon", icon: "arrow_forward", icon_size: 16, color: C.goldLight }],
-                },
-              ],
-            },
-            { id: id(), type: "icon", icon: "workspace_premium", icon_size: 56, color: C.goldLight },
+            { id: id(), type: "learning", learning: { section: "streak" }, width: "fill", ...card },
+            { id: id(), type: "learning", learning: { section: "live" }, width: "fill", radius: 24, gradient: { from: C.goldLight, to: C.gold, angle: 135 }, color: "#2A1D05", shadow: "medium" },
           ],
         },
-        // The newest courses.
-        heading("acNew"),
-        { id: id(), type: "items", source: ctx.source ?? undefined, layout: "list", gap: 10, padding: pad(0, 16), query: { limit: 4, category_id: null, featured: false, sort: "newest", ids: [] } },
+        // Picked for them.
+        {
+          id: id(),
+          type: "row",
+          name: w("acForYou"),
+          cross: "center",
+          margin: { top: 18, bottom: 10 },
+          children: [
+            text("acForYou", { width: "fill", font: { size: 18, weight: 700, family: ACADEMY_FONT }, color: C.ink, dark_color: C.nightInk }),
+            { id: id(), type: "text", text: w("acSeeAll"), color: C.gold, dark_color: C.darkGold, font: { size: 12.5, weight: 700 }, padding: pad(6, 2), action: courses },
+          ],
+        },
+        {
+          id: id(),
+          type: "items",
+          source: ctx.source ?? undefined,
+          layout: "carousel",
+          gap: 12,
+          query: { limit: 6, category_id: null, featured: false, sort: "popular", ids: [] },
+          card: {
+            id: id(),
+            type: "column",
+            width: 232,
+            children: [
+              {
+                id: id(),
+                type: "stack",
+                height: 112,
+                radius: 20,
+                children: [
+                  { id: id(), type: "image", bind: "image", width: "fill", height: 112, radius: 20 },
+                  {
+                    id: id(),
+                    type: "row",
+                    padding: pad(12, 12),
+                    children: [{ id: id(), type: "text", bind: "badge", font: { size: 11, weight: 800 }, padding: pad(4, 9), radius: 9, background: C.gold, dark_background: C.darkGold, color: "#2A1D05" }],
+                  },
+                ],
+              },
+              { id: id(), type: "text", bind: "title", max_lines: 1, font: { size: 15, weight: 700 }, margin: { top: 10, end: 2, bottom: 3, start: 2 }, color: C.ink, dark_color: C.nightInk },
+              {
+                id: id(),
+                type: "row",
+                cross: "center",
+                padding: pad(0, 2),
+                children: [
+                  { id: id(), type: "text", bind: "subtitle", width: "fill", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                  { id: id(), type: "text", bind: "price", font: { size: 14, weight: 700 }, color: C.gold, dark_color: C.darkGold },
+                ],
+              },
+            ],
+          },
+        },
       ],
     },
   };
@@ -255,18 +221,22 @@ export function siteAddress(raw: string | null | undefined): string | null {
 
 export const ACADEMY_PROJECT: TemplateProject = {
   primary: C.primary,
-  tab_bar: { design: "glass", avatar: true, radius: 24, margin: 12, labels: "active", dark_active: C.darkGold },
+  // The approved bar: frosted, floating, every tab named, the open one in ink.
+  tab_bar: { design: "glass", avatar: true, radius: 26, margin: 16, labels: "always", active: C.ink, dark_active: C.nightInk },
   // By day the main colour; by night a dark header with light words, the gold in the bar.
   page_header: { dark_background: C.nightCard, dark_color: C.nightInk },
   appearance: { secondary_color: C.gold, font_family: ACADEMY_FONT, arabic_font: ACADEMY_FONT },
   tabs: (tabs, site) => {
-    const out = structuredClone([...tabs]).map((t) => (t.id === "courses" ? { ...t, icon: "explore" } : t));
+    // Explore, the blog, My courses and the account, as the approved bar names them.
+    const out = structuredClone([...tabs]).map((t) =>
+      t.id === "courses" ? { ...t, label: "Explore", icon: "explore" } : t.id === "learning" ? { ...t, label: "Your courses", icon: "play_circle" } : t,
+    );
     if (!site) return out;
     // The site's blog in the app: the page alone, its own header and footer hidden, its links kept in the app.
     const blog: LayoutTab = {
       id: "blog",
       label: "Blog",
-      icon: "newspaper",
+      icon: "auto_stories",
       target: { type: "url", url: `${site}/blog/`, open_in: "in_app", web: { hide_header: true, hide_footer: true, links_inside: true } },
     };
     const at = out.findIndex((t) => t.id === "courses");

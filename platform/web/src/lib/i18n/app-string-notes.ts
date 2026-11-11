@@ -3951,6 +3951,96 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عدد النقاط التي ما زال الشخص يحتاجها ليستخدم نقاطه، على بطاقة العضوية.",
     tr: "Kişinin puanlarını kullanabilmesi için gereken puan sayısı, üyelik kartında.",
   },
+  "123 The greeting header in the morning, with the person's first name.": {
+    en: "The greeting at the top of the home in the morning, with the person's first name.",
+    ar: "التحية أعلى الصفحة الرئيسية صباحًا، مع الاسم الأول للشخص.",
+    tr: "Sabah ana sayfanın üstündeki selam, kişinin adıyla.",
+  },
+  "123 The greeting header after noon, with the person's first name.": {
+    en: "The greeting at the top of the home after noon, with the person's first name.",
+    ar: "التحية أعلى الصفحة الرئيسية بعد الظهر، مع الاسم الأول للشخص.",
+    tr: "Öğleden sonra ana sayfanın üstündeki selam, kişinin adıyla.",
+  },
+  "123 The greeting header in the morning, without a name.": {
+    en: "The greeting at the top of the home in the morning, without a name.",
+    ar: "التحية أعلى الصفحة الرئيسية صباحًا، دون اسم.",
+    tr: "Sabah ana sayfanın üstündeki selam, adsız.",
+  },
+  "123 The greeting header after noon, without a name.": {
+    en: "The greeting at the top of the home after noon, without a name.",
+    ar: "التحية أعلى الصفحة الرئيسية بعد الظهر، دون اسم.",
+    tr: "Öğleden sonra ana sayfanın üstündeki selam, adsız.",
+  },
+  "123 The course the student is taking: the lesson they are on.": {
+    en: "The card of the course the student is taking: the lesson they are on.",
+    ar: "بطاقة الدورة التي يدرسها الطالب: الدرس الذي وصل إليه.",
+    tr: "Öğrencinin aldığı kursun kartı: bulunduğu ders.",
+  },
+  "123 The minutes left in the lesson the student is on.": {
+    en: "The minutes left in the lesson the student is on.",
+    ar: "الدقائق المتبقية في الدرس الذي وصل إليه الطالب.",
+    tr: "Öğrencinin bulunduğu derste kalan dakikalar.",
+  },
+  "123 The card with the days in a row the student learned.": {
+    en: "The card with the days in a row the student learned.",
+    ar: "بطاقة الأيام المتتالية التي تعلّم فيها الطالب.",
+    tr: "Öğrencinin art arda öğrendiği günlerin kartı.",
+  },
+  "123 The word after the number of days in a row.": {
+    en: "The word after the number of days in a row.",
+    ar: "الكلمة بعد عدد الأيام المتتالية.",
+    tr: "Art arda gün sayısından sonraki kelime.",
+  },
+  "123 The card with the student's next live class.": {
+    en: "The card with the student's next live class.",
+    ar: "بطاقة الحصة المباشرة القادمة للطالب.",
+    tr: "Öğrencinin sıradaki canlı dersinin kartı.",
+  },
+  "123 A live class that has started.": {
+    en: "When a live class has started.",
+    ar: "حين تبدأ الحصة المباشرة.",
+    tr: "Canlı ders başladığında.",
+  },
+  "123 A live class starting within the hour.": {
+    en: "A live class starting within the hour.",
+    ar: "حصة مباشرة تبدأ خلال ساعة.",
+    tr: "Bir saat içinde başlayan canlı ders.",
+  },
+  "123 A live class starting today.": {
+    en: "A live class starting later today.",
+    ar: "حصة مباشرة تبدأ لاحقًا اليوم.",
+    tr: "Bugün daha sonra başlayan canlı ders.",
+  },
+  "123 A live class on another day.": {
+    en: "A live class on another day.",
+    ar: "حصة مباشرة في يوم آخر.",
+    tr: "Başka bir gündeki canlı ders.",
+  },
+  "123 The card with this week's learning time.": {
+    en: "The card with this week's learning time.",
+    ar: "بطاقة وقت التعلم هذا الأسبوع.",
+    tr: "Bu haftanın öğrenme süresi kartı.",
+  },
+  "123 More learning than the week before.": {
+    en: "More learning than the week before.",
+    ar: "تعلّم أكثر من الأسبوع السابق.",
+    tr: "Önceki haftadan daha fazla öğrenme.",
+  },
+  "123 Less learning than the week before.": {
+    en: "Less learning than the week before.",
+    ar: "تعلّم أقل من الأسبوع السابق.",
+    tr: "Önceki haftadan daha az öğrenme.",
+  },
+  "123 A learning time of an hour or more.": {
+    en: "A learning time of an hour or more.",
+    ar: "وقت تعلّم ساعة أو أكثر.",
+    tr: "Bir saat veya daha uzun öğrenme süresi.",
+  },
+  "123 A learning time under an hour.": {
+    en: "A learning time under an hour.",
+    ar: "وقت تعلّم أقل من ساعة.",
+    tr: "Bir saatten kısa öğrenme süresi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

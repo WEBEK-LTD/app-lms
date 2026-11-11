@@ -15595,6 +15595,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 more point and you can use them} other{{count} more points and you can use them}}'**
   String accountPointsToUse(int count);
+
+  /// 123 The greeting header in the morning, with the person's first name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning, {name}'**
+  String studioGreetingMorning(String name);
+
+  /// 123 The greeting header after noon, with the person's first name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening, {name}'**
+  String studioGreetingEvening(String name);
+
+  /// 123 The greeting header in the morning, without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get studioGreetingMorningAlone;
+
+  /// 123 The greeting header after noon, without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get studioGreetingEveningAlone;
+
+  /// 123 The course the student is taking: the lesson they are on.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress · lesson {current} of {total}'**
+  String learningLessonOf(int current, int total);
+
+  /// 123 The minutes left in the lesson the student is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min left'**
+  String learningMinutesLeft(int minutes);
+
+  /// 123 The card with the days in a row the student learned.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning streak'**
+  String get learningStreakTitle;
+
+  /// 123 The word after the number of days in a row.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String learningStreakDays(int count);
+
+  /// 123 The card with the student's next live class.
+  ///
+  /// In en, this message translates to:
+  /// **'Live class'**
+  String get learningLiveTitle;
+
+  /// 123 A live class that has started.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {time}'**
+  String learningLiveNow(String time);
+
+  /// 123 A live class starting within the hour.
+  ///
+  /// In en, this message translates to:
+  /// **'In {minutes} min · {time}'**
+  String learningLiveInMinutes(int minutes, String time);
+
+  /// 123 A live class starting today.
+  ///
+  /// In en, this message translates to:
+  /// **'In {hours} h · {time}'**
+  String learningLiveInHours(int hours, String time);
+
+  /// 123 A live class on another day.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} · {time}'**
+  String learningLiveOn(String day, String time);
+
+  /// 123 The card with this week's learning time.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get learningWeekTitle;
+
+  /// 123 More learning than the week before.
+  ///
+  /// In en, this message translates to:
+  /// **'+{percent}% on last week'**
+  String learningWeekUp(int percent);
+
+  /// 123 Less learning than the week before.
+  ///
+  /// In en, this message translates to:
+  /// **'−{percent}% on last week'**
+  String learningWeekDown(int percent);
+
+  /// 123 A learning time of an hour or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String learningHoursMinutes(int hours, int minutes);
+
+  /// 123 A learning time under an hour.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String learningMinutesOnly(int minutes);
 }
 
 class _AppLocalizationsDelegate

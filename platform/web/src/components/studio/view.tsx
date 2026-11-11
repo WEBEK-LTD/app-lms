@@ -10,6 +10,7 @@ import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioSides, Stud
 import { splitTabs } from "@/lib/pages/tab-bar";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import { MarketSection } from "./market";
+import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -65,6 +66,10 @@ interface ViewProps {
   tablet?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
+  /** 123 The sample words of the student's cards (`learning`); missing, English. */
+  learningWords?: LearningWords;
+  /** 123 The sample greeting header: today's date and a greeting with a name. */
+  greeting?: { date: string; hello: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
   market?: MarketCanvas | null;
   /** 120 For a page drawn around one of the app's screens: what the canvas says under the elements ("My shipments: the app draws this part"). */
@@ -180,6 +185,25 @@ function Header(props: ViewProps & { header: StudioHeader }) {
       {icons[name]}
     </span>
   );
+  // 123 Today's date over a greeting with the person's name, the buttons as small squares beside it.
+  if (header.type === "greeting") {
+    const ink = (dark ? (header.dark_color ?? header.color) : header.color) ?? (dark ? "#F3F1EC" : "#15131A");
+    const square: CSSProperties = { width: 40, height: 40, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: dark ? "rgba(22,25,36,.72)" : "rgba(255,255,255,.72)", border: `1px solid ${dark ? "rgba(255,255,255,.08)" : "rgba(21,19,26,.08)"}` };
+    return (
+      <div style={{ ...wrap, background: (dark ? (header.dark_background ?? header.background) : header.background) ?? "transparent", color: ink, margin: "30px 6px 0" }} onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("header")) : undefined} data-studio-header={header.type}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: 11, opacity: 0.6 }}>{props.greeting?.date ?? ""}</span>
+          <span style={{ fontWeight: 700, fontSize: 22 }}>{props.greeting?.hello ?? title}</span>
+        </div>
+        {buttons.map((b) => (
+          <span key={b} style={square}>
+            {icon(b)}
+          </span>
+        ))}
+        {selected && editing ? <Tag text={editing.tagOf({ id: "header", type: "row" })} /> : null}
+      </div>
+    );
+  }
   return (
     <div style={wrap} onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("header")) : undefined} data-studio-header={header.type}>
       {header.type === "logo_center" ? (
@@ -580,6 +604,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
             </span>
           </span>
         );
+      case "learning":
+        // 123 The student's card as the app draws it, with sample learning.
+        return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
       case "market":
         // 115.14 The section as the app draws it, from the project's marketplace (the app's samples where it has none).
         return <MarketSection node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} color={color} data={p.market} />;
