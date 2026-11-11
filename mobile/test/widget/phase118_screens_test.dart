@@ -282,4 +282,50 @@ void main() {
     expect(find.text('840 points'), findsOneWidget);
     expect(find.text('Worth ₺84.00'), findsOneWidget);
   });
+
+  // 119 Every look in light and dark mode.
+  Color pageColour(WidgetTester tester) => tester
+      .widget<Scaffold>(
+        find
+            .ancestor(
+              of: find.byKey(const ValueKey('account-member-card')),
+              matching: find.byType(Scaffold),
+            )
+            .first,
+      )
+      .backgroundColor!;
+
+  testWidgets('premium: a warm light page in light mode, its card dark', (
+    tester,
+  ) async {
+    await shopAccount(tester, 'night');
+    expect(pageColour(tester), const Color(0xFFF6F2EA));
+    expect(
+      tester
+          .widget<Material>(find.byKey(const ValueKey('account-member-card')))
+          .color,
+      const Color(0xFF18211D),
+    );
+  });
+
+  testWidgets('premium: a dark page in dark mode', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await shopAccount(tester, 'night');
+    expect(pageColour(tester), const Color(0xFF0D1210));
+  });
+
+  for (final header in ['plain', 'card', 'cover', 'tiles']) {
+    testWidgets('$header draws in dark mode', (tester) async {
+      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      await shopAccount(tester, header);
+      expect(tester.takeException(), isNull);
+      expect(find.text('Log out'), findsWidgets);
+      expect(
+        Theme.of(tester.element(find.text('Log out').first)).brightness,
+        Brightness.dark,
+      );
+    });
+  }
 }

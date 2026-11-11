@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/gate/app_gate.dart';
 import '../../core/routing/app_module.dart';
 import '../../core/routing/app_router.dart';
@@ -387,6 +388,18 @@ class MainShell extends ConsumerWidget {
               style: tabBar,
               fontFamily: barFont,
               centerIndex: centerIndex,
+              // 119 The account tab with the person's photo.
+              avatarIndex: tabBar?.avatar == true
+                  ? tabs.indexWhere(
+                      (t) =>
+                          t.path == Paths.account ||
+                          Uri.tryParse(t.pushLocation ?? '')?.path ==
+                              Paths.account,
+                    )
+                  : null,
+              avatarUrl: tabBar?.avatar == true
+                  ? ref.watch(authControllerProvider).user?.avatarUrl
+                  : null,
               destinations: [
                 for (final tab in tabs)
                   NavDestination(

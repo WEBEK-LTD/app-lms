@@ -35,6 +35,11 @@ class Pages {
 	const HEADER_ICONS   = array( 'search', 'cart', 'notifications', 'chat', 'account' );
 
 	/**
+	 * 119 The bottom bar's designs (`TabBar.design`).
+	 */
+	const TAB_BAR_DESIGNS = array( 'classic', 'pill', 'minimal', 'dot', 'line', 'bubble', 'glass', 'notch', 'lift', 'outline', 'square', 'text', 'island', 'segment', 'folder', 'drop', 'glow', 'colours' );
+
+	/**
 	 * 97.1 The Appearance fields naming a free font, each with the field of its files.
 	 */
 	const FONTS = array(
@@ -351,7 +356,11 @@ class Pages {
 			return null;
 		}
 		$out = array();
-		foreach ( array( 'background', 'dark_background', 'active', 'inactive' ) as $key ) {
+		// 119 The bar's design.
+		if ( isset( $raw['design'] ) && in_array( $raw['design'], self::TAB_BAR_DESIGNS, true ) ) {
+			$out['design'] = $raw['design'];
+		}
+		foreach ( array( 'background', 'dark_background', 'active', 'inactive', 'dark_active', 'dark_inactive' ) as $key ) {
 			if ( isset( $raw[ $key ] ) && is_string( $raw[ $key ] ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw[ $key ] ) ) {
 				$out[ $key ] = strtoupper( $raw[ $key ] );
 			}
@@ -372,6 +381,10 @@ class Pages {
 		}
 		if ( isset( $raw['center'] ) && is_string( $raw['center'] ) && '' !== $raw['center'] ) {
 			$out['center'] = substr( sanitize_text_field( $raw['center'] ), 0, 40 );
+		}
+		// 119 The account tab shows the person's photo.
+		if ( true === ( $raw['avatar'] ?? null ) ) {
+			$out['avatar'] = true;
 		}
 		return $out ? $out : null;
 	}

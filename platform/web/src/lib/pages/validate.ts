@@ -112,6 +112,7 @@ import {
   type LayoutPage,
   type LayoutTab,
   type TabBarStyle,
+  TAB_BAR_DESIGNS,
   type Translations,
 } from "./types";
 
@@ -1661,7 +1662,11 @@ function parseTabBar(raw: unknown, tabs: LayoutTab[], c: { fail: (where: string,
   }
   const v = raw as Record<string, unknown>;
   const out: TabBarStyle = {};
-  for (const key of ["background", "dark_background", "active", "inactive"] as const) {
+  if (v.design !== undefined && v.design !== null) {
+    if (oneOf(TAB_BAR_DESIGNS, v.design)) out.design = v.design;
+    else c.fail("Tabs", "choose one of the tab bar's designs.");
+  }
+  for (const key of ["background", "dark_background", "active", "inactive", "dark_active", "dark_inactive"] as const) {
     const colour = v[key];
     if (colour === undefined || colour === null) continue;
     if (typeof colour === "string" && HEX.test(colour)) out[key] = colour.toUpperCase();
@@ -1685,6 +1690,11 @@ function parseTabBar(raw: unknown, tabs: LayoutTab[], c: { fail: (where: string,
     if (oneOf(TAB_LABELS, v.labels)) {
       if (v.labels !== "always") out.labels = v.labels;
     } else c.fail("Tabs", "choose when the tabs' names show.");
+  }
+  if (v.avatar !== undefined && v.avatar !== null) {
+    if (typeof v.avatar === "boolean") {
+      if (v.avatar) out.avatar = true;
+    } else c.fail("Tabs", "say whether the account tab shows the person's photo.");
   }
   if (v.center !== undefined && v.center !== null) {
     if (typeof v.center === "string" && tabs.some((t) => t.id === v.center)) out.center = v.center;

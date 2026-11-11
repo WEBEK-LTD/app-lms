@@ -58,31 +58,67 @@ class Navigation {
 /// 109 When the tabs' names show under their icons.
 enum TabLabels { always, active, never }
 
+/// 119 The bar's designs (`TabBar.design`): the icon in a soft pill over its
+/// name, the open tab filled, small quiet names, a dot under the open tab, a
+/// line over it, the open tab in a soft bubble.
+enum TabBarDesign {
+  classic,
+  pill,
+  minimal,
+  dot,
+  line,
+  bubble,
+  // 119 More: a frosted floating bar, a cut for the middle button, the open
+  // tab rising in a circle, an outlined pill, a filled square, names only, a
+  // dark capsule, a segmented track, a folder's tab, a hanging drop, a glow,
+  // a colour for each tab.
+  glass,
+  notch,
+  lift,
+  outline,
+  square,
+  text,
+  island,
+  segment,
+  folder,
+  drop,
+  glow,
+  colours,
+}
+
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
 /// out keeps the template's usual look for it.
 class TabBarStyle {
   const TabBarStyle({
+    this.design,
     this.background,
     this.darkBackground,
     this.active,
     this.inactive,
+    this.darkActive,
+    this.darkInactive,
     this.radius = 0,
     this.margin = 0,
     this.font,
     this.labels = TabLabels.always,
     this.center,
+    this.avatar = false,
   });
 
   factory TabBarStyle.fromJson(Json json) => TabBarStyle(
+    design: enumOrNull(TabBarDesign.values, json['design']),
     background: _hex(json['background']),
     darkBackground: _hex(json['dark_background']),
     active: _hex(json['active']),
     inactive: _hex(json['inactive']),
+    darkActive: _hex(json['dark_active']),
+    darkInactive: _hex(json['dark_inactive']),
     radius: (optInt(json, 'radius') ?? 0).clamp(0, 32).toDouble(),
     margin: (optInt(json, 'margin') ?? 0).clamp(0, 24).toDouble(),
     font: optString(json, 'font'),
     labels: enumOrNull(TabLabels.values, json['labels']) ?? TabLabels.always,
     center: optString(json, 'center'),
+    avatar: json['avatar'] == true,
   );
 
   static String? _hex(Object? value) =>
@@ -95,6 +131,13 @@ class TabBarStyle {
   final String? darkBackground;
   final String? active;
   final String? inactive;
+
+  /// 119 In dark mode; null, [active] and [inactive] made readable there.
+  final String? darkActive;
+  final String? darkInactive;
+
+  /// 119 Null, the template's own design.
+  final TabBarDesign? design;
 
   /// How round the bar's corners are.
   final double radius;
@@ -109,6 +152,9 @@ class TabBarStyle {
   /// A tab's id drawn as a round button raised in the middle, when it is
   /// the middle one of three or five.
   final String? center;
+
+  /// 119 The account tab shows the person's photo instead of its icon.
+  final bool avatar;
 }
 
 class NavTab {

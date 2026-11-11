@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { useDashT, useKnownText } from "@/components/dashboard-i18n";
 import { FontPicker } from "@/components/font-picker";
 import { MediaPicker } from "@/components/media-picker";
@@ -37,6 +37,8 @@ import {
   type StudioSize,
   type StudioTextStyle,
   type TabBarStyle,
+  type TabBarDesign,
+  TAB_BAR_DESIGNS,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
@@ -1454,6 +1456,28 @@ function TabsPanel(props: Props) {
         </button>
         <Rule />
         <Heading>{t("studio.tabBarLook")}</Heading>
+        <div role="group" aria-label={t("studio.tabBarDesign")} className="flex flex-col gap-1.5">
+          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabBarDesign")}</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            {([undefined, ...TAB_BAR_DESIGNS] as const).map((design) => {
+              const on = style.design === design;
+              return (
+                <button
+                  key={design ?? "template"}
+                  type="button"
+                  aria-pressed={on}
+                  data-tab-design={design ?? "template"}
+                  onClick={() => setStyle({ design })}
+                  className="flex flex-col items-stretch gap-1 rounded-lg bg-white p-1.5 text-start text-xs"
+                  style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : line}
+                >
+                  <TabDesignSample design={design} brand={style.active ?? props.palette[0] ?? "#3D63FF"} />
+                  {t(`studio.tabDesign_${design ?? "template"}` as DashKey)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <Colors
           palette={props.palette}
           rows={[
@@ -1465,7 +1489,17 @@ function TabsPanel(props: Props) {
         <details>
           <summary className="cursor-pointer">{t("studio.inDark")}</summary>
           <div className="flex flex-col gap-2.5 pt-2">
-            <Colors palette={props.palette} rows={[{ label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) }]} />
+            <Colors
+              palette={props.palette}
+              rows={[
+                { label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) },
+                { label: t("studio.tabActive"), value: style.dark_active, onChange: (dark_active) => setStyle({ dark_active }) },
+                { label: t("studio.tabInactive"), value: style.dark_inactive, onChange: (dark_inactive) => setStyle({ dark_inactive }) },
+              ]}
+            />
+            <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.tabBarDarkHint")}
+            </p>
           </div>
         </details>
         <RangeField label={t("studio.tabBarRadius")} value={style.radius ?? 0} min={0} max={32} unit="px" fallback={0} onChange={(radius) => setStyle({ radius })} />
@@ -1485,12 +1519,76 @@ function TabsPanel(props: Props) {
           </div>
         </div>
         {middle ? <Check label={t("studio.tabCenter")} checked={style.center === middle.id} onChange={(on) => setStyle({ center: on ? middle.id : null })} /> : null}
+        <Check label={t("studio.tabAvatar")} checked={style.avatar === true} onChange={(on) => setStyle({ avatar: on || undefined })} />
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {middle ? `${t("studio.tabCenterHint")} ` : ""}
           {t("studio.tabBarApp")}
         </p>
       </div>
     </div>
+  );
+}
+
+/** 119 A tiny bar in one of the designs: three tabs, the middle one open. */
+function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; brand: string }) {
+  const grey = "#B8B4C9";
+  const box = (open: boolean, size = 9) => <span style={{ width: size, height: size, borderRadius: 3, background: open ? brand : grey }} />;
+  const name = (open: boolean, colour = open ? brand : "#D6D3E0") => <span style={{ width: 10, height: 2, borderRadius: 2, background: colour }} />;
+  const col = (children: ReactNode, extra: CSSProperties = {}) => <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, ...extra }}>{children}</span>;
+  const tab = (open: boolean, key: number) => {
+    switch (design) {
+      case "pill":
+      case "island":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: brand }}><span style={{ width: 7, height: 7, borderRadius: 2, background: "#FFFFFF" }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: "#FFFFFF" }} /></span> : <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: design === "island" ? "#6F7A75" : grey }} />;
+      case "bubble":
+      case "segment":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: design === "segment" ? "#FFFFFF" : `${brand}26`, boxShadow: design === "segment" ? "0 1px 3px rgba(14,13,36,.18)" : undefined }}><span style={{ width: 7, height: 7, borderRadius: 2, background: brand }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: brand }} /></span> : box(false);
+      case "dot":
+        return <span key={key}>{col(<>{box(open)}<span style={{ width: 3, height: 3, borderRadius: 2, background: open ? brand : "transparent" }} /></>)}</span>;
+      case "line":
+        return <span key={key}>{col(<>{box(open)}{name(open)}</>, { borderTop: `2px solid ${open ? brand : "transparent"}`, paddingTop: 2 })}</span>;
+      case "minimal":
+        return <span key={key}>{col(<>{box(open, 7)}<span style={{ width: 8, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></>)}</span>;
+      case "glass":
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? "rgba(255,255,255,.9)" : "transparent" }}>{box(open)}</span>{name(open)}</>)}</span>;
+      case "notch":
+        return open ? <span key={key} style={{ width: 14, height: 14, borderRadius: "50%", background: brand, marginTop: -10, boxShadow: "0 0 0 3px #F6F4FB" }} /> : <span key={key}>{col(<>{box(false)}{name(false)}</>)}</span>;
+      case "lift":
+        return open ? <span key={key}>{col(<><span style={{ width: 14, height: 14, borderRadius: "50%", background: brand, marginTop: -12, border: "2px solid #FFFFFF" }} />{name(true)}</>)}</span> : <span key={key}>{col(<>{box(false)}{name(false)}</>)}</span>;
+      case "outline":
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, border: `1.5px solid ${open ? brand : "transparent"}` }}>{box(open, 7)}</span>{name(open)}</>)}</span>;
+      case "square":
+        return <span key={key}>{col(<><span style={{ padding: 2, borderRadius: 4, background: open ? brand : "transparent" }}><span style={{ display: "block", width: 7, height: 7, borderRadius: 2, background: open ? "#FFFFFF" : grey }} /></span>{name(open)}</>)}</span>;
+      case "text":
+        return <span key={key} style={{ width: 16, height: 3, borderRadius: 2, background: open ? brand : grey, boxShadow: open ? `0 3px 0 -1px ${brand}` : undefined }} />;
+      case "folder":
+        return open ? <span key={key} style={{ alignSelf: "flex-start", marginTop: -3, padding: "4px 6px 6px", borderRadius: "6px 6px 0 0", background: "#F6F4FB" }}>{box(true)}</span> : <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: "rgba(255,255,255,.75)" }} />;
+      case "drop":
+        return <span key={key} style={{ position: "relative" }}>{open ? <span style={{ position: "absolute", top: -9, left: -3, width: 15, height: 5, borderRadius: "0 0 6px 6px", background: brand }} /> : null}{col(<>{box(open)}{name(open)}</>)}</span>;
+      case "glow":
+        return <span key={key}>{col(<><span style={{ width: 9, height: 9, borderRadius: 3, background: open ? brand : grey, boxShadow: open ? `0 0 6px ${brand}` : undefined }} />{name(open)}</>)}</span>;
+      case "colours": {
+        const c = ["#1F6F5C", "#B26A00", "#2F4FB5"][key] ?? brand;
+        return <span key={key} style={{ width: 13, height: 13, borderRadius: "50%", background: `${c}26`, border: open ? `1.5px solid ${c}` : "1.5px solid transparent", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: 5, height: 5, borderRadius: 2, background: c }} /></span>;
+      }
+      default:
+        return <span key={key}>{col(<><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? `${brand}22` : "transparent" }}>{box(open)}</span>{name(open)}</>)}</span>;
+    }
+  };
+  const track: CSSProperties =
+    design === "island"
+      ? { margin: "0 14px", borderRadius: 999, background: "#121614" }
+      : design === "segment"
+        ? { margin: "0 4px", borderRadius: 8, background: "#E3E7E5" }
+        : design === "folder"
+          ? { background: brand }
+          : design === "glass"
+            ? { margin: "0 4px", borderRadius: 10, background: "linear-gradient(120deg,#F2B544,#E2623A 45%,#1F6F5C)" }
+            : { background: "#F6F4FB" };
+  return (
+    <span aria-hidden="true" style={{ display: "flex", justifyContent: "space-around", alignItems: "center", height: 26, borderRadius: 7, overflow: "visible", ...track }}>
+      {[0, 1, 2].map((i) => tab(i === 1, i))}
+    </span>
   );
 }
 

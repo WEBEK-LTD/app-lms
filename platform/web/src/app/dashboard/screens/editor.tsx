@@ -119,6 +119,8 @@ export function ScreensEditor({
   const [entries, setEntries] = useState<Entry[]>(() => startingEntries(initial?.account_menu?.items));
   const [open, setOpen] = useState<string | null>(null);
   const [previewLang, setPreviewLang] = useState(languages[0]?.code ?? "en");
+  // 119 Every look in light and dark mode: the preview shows either.
+  const [previewDark, setPreviewDark] = useState(false);
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -379,6 +381,13 @@ export function ScreensEditor({
       <aside aria-label={t("studio.preview")} className="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
         <div className="flex items-center justify-between gap-2">
           <h2 className="m-0 text-base font-bold">{t("studio.preview")}</h2>
+          <div role="group" aria-label={t("studio.previewMode")} className="flex rounded-lg border border-line-strong p-0.5 text-sm">
+            {[false, true].map((d) => (
+              <button key={String(d)} type="button" aria-pressed={previewDark === d} onClick={() => setPreviewDark(d)} className={`h-8 rounded-md px-2.5 ${previewDark === d ? "bg-midnight font-bold text-white" : ""}`}>
+                {t(d ? "studio.previewDark" : "studio.previewLight")}
+              </button>
+            ))}
+          </div>
           {languages.length > 1 ? (
             <select aria-label={t("studio.previewLanguage")} className="h-9 rounded-lg border border-line-strong px-2 text-sm" value={previewLang} onChange={(e) => setPreviewLang(e.target.value)}>
               {languages.map((l) => (
@@ -390,8 +399,8 @@ export function ScreensEditor({
           ) : null}
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <SignInPreview look={look} title={shownTitle} subtitle={shownSubtitle} appName={appName} color={color} t={t} />
-          <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} nameOf={nameOf} iconOf={iconOf} t={t} />
+          <SignInPreview look={look} title={shownTitle} subtitle={shownSubtitle} appName={appName} color={color} dark={previewDark} t={t} />
+          <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} dark={previewDark} nameOf={nameOf} iconOf={iconOf} t={t} />
         </div>
       </aside>
     </div>
@@ -417,19 +426,27 @@ function StyleThumb({ style, color }: { style: SignInStyle; color: string }) {
   );
 }
 
-function SignInPreview({ look, title, subtitle, appName, color, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; t: ReturnType<typeof useDashT> }) {
+/** 119 The app's colours in light or dark mode, for the previews. */
+function previewTheme(dark: boolean) {
+  return dark
+    ? { page: "#121614", surface: "#1C2320", text: "#EEF1EF", muted: "#A3ADA8", line: "#2A322E", field: "#151B18", fieldLine: "#36403B", placeholder: "#3A4440" }
+    : { page: "#F7F3EC", surface: "#FFFFFF", text: "#0E1424", muted: "#5B6470", line: "#EFE9DE", field: "#FFFFFF", fieldLine: "#D9D3C7", placeholder: "#D9D3C7" };
+}
+
+function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
+  const th = previewTheme(dark);
   const photo = (look.style === "photo" || look.style === "card") && look.image_url;
-  const dark = look.style === "photo" && photo;
+  const panel = look.style === "photo" && photo;
   return (
-    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight bg-[#F7F3EC] text-[10px]" data-testid="sign-in-preview">
+    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page }} data-testid="sign-in-preview" data-dark={dark ? "" : undefined}>
       {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={look.image_url!} alt="" className={`absolute inset-x-0 top-0 w-full object-cover ${look.style === "photo" ? "h-full" : "h-[42%]"}`} />
       ) : null}
-      {dark ? <span className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/70" /> : null}
+      {panel ? <span className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/70" /> : null}
       <div
-        className={`absolute inset-x-2.5 flex flex-col gap-1.5 ${look.style === "card" ? "top-[36%] rounded-xl bg-white p-2.5 shadow" : look.style === "minimal" ? "top-[24%] items-center text-center" : "bottom-4"}`}
-        style={{ color: dark ? "#fff" : "#0E1424" }}
+        className={`absolute inset-x-2.5 flex flex-col gap-1.5 ${look.style === "card" ? "top-[36%] rounded-xl p-2.5 shadow" : look.style === "minimal" ? "top-[24%] items-center text-center" : panel ? "bottom-3 rounded-xl p-2.5" : "bottom-4"}`}
+        style={{ color: th.text, background: look.style === "card" ? th.page : panel ? th.surface : undefined, opacity: 1 }}
       >
         {look.show_logo ? (
           <span className="flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-extrabold text-white" style={{ background: color }}>
@@ -437,8 +454,10 @@ function SignInPreview({ look, title, subtitle, appName, color, t }: { look: Sig
           </span>
         ) : null}
         <span className="text-[13px] leading-tight font-extrabold">{title}</span>
-        <span className="leading-snug opacity-80">{subtitle}</span>
-        <span className="mt-1 block h-6 w-full rounded-md border" style={{ borderColor: dark ? "rgba(255,255,255,.4)" : "#D9D3C7", background: dark ? "rgba(255,255,255,.12)" : "#fff" }} />
+        <span className="leading-snug" style={{ color: th.muted }}>
+          {subtitle}
+        </span>
+        <span className="mt-1 block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
         <span className="flex h-6 w-full items-center justify-center rounded-md font-bold text-white" style={{ background: color }}>
           {t("studio.previewButton")}
         </span>
@@ -452,6 +471,7 @@ function MenuPreview({
   header,
   color,
   accent,
+  dark,
   nameOf,
   iconOf,
   t,
@@ -460,35 +480,35 @@ function MenuPreview({
   header: AccountHeader;
   color: string;
   accent: string;
+  dark: boolean;
   nameOf: (e: Entry) => string;
   iconOf: (e: Entry) => IconName;
   t: ReturnType<typeof useDashT>;
 }) {
   const night = header === "night";
+  // 119 The premium look: a dark page in dark mode, a warm light one in light mode; its card stays dark.
+  const th = night ? (dark ? { page: "#0D1210", surface: "#141B18", text: "#F2F4F3", muted: "#A3ADA8", line: "#222B27" } : { page: "#F6F2EA", surface: "#FFFFFF", text: "#1C1A16", muted: "#6B6457", line: "#E9E1D0" }) : previewTheme(dark);
   const required = (e: Entry) => e.key !== "link" && REQUIRED_ACCOUNT_ITEMS.includes(e.key);
   const quick = header === "cover" || header === "night" ? entries.filter((e) => !required(e) && e.key !== "link").slice(0, 3) : [];
   const tiles = header === "tiles" ? entries.filter((e) => !required(e) && e.key !== "link").slice(0, 4) : [];
   const banner = header === "tiles" ? entries.find((e) => e.key === "link") : undefined;
   const listed = entries.filter((e) => !quick.includes(e) && !tiles.includes(e) && e !== banner);
+  const deepAccent = night && !dark ? darken(accent) : accent;
   const name = (
     <span className="flex min-w-0 flex-col">
       <span className="truncate font-extrabold">{t("studio.previewName")}</span>
-      <span className="opacity-75">+20 100 000 0000</span>
+      <span style={{ color: header === "card" ? undefined : th.muted, opacity: header === "card" ? 0.8 : 1 }}>+20 100 000 0000</span>
     </span>
   );
   return (
-    <div
-      className={`relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px] ${night ? "bg-[#0D1210] text-[#F2F4F3]" : "bg-[#F7F3EC]"}`}
-      data-testid="menu-preview"
-      data-header={header}
-    >
+    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page, color: th.text }} data-testid="menu-preview" data-header={header} data-dark={dark ? "" : undefined}>
       {header === "cover" ? <div className="absolute inset-x-0 top-0 h-16" style={{ background: color }} /> : null}
       <div className="relative flex flex-col gap-2 p-2">
         {header === "cover" ? (
-          <div className="mt-7 flex flex-col items-center rounded-xl bg-white px-2 pb-1.5 pt-1 text-center shadow-sm">
-            <span className="-mt-5 h-8 w-8 rounded-full border-2 border-white bg-[#D9D3C7]" />
+          <div className="mt-7 flex flex-col items-center rounded-xl px-2 pt-1 pb-1.5 text-center shadow-sm" style={{ background: th.surface }}>
+            <span className="-mt-5 h-8 w-8 rounded-full border-2" style={{ borderColor: th.surface, background: dark ? "#3A4440" : "#D9D3C7" }} />
             {name}
-            <span className="mt-1 flex w-full justify-around border-t border-[#EFE9DE] pt-1">
+            <span className="mt-1 flex w-full justify-around border-t pt-1" style={{ borderColor: th.line }}>
               {quick.map((e) => (
                 <span key={e.uid} className="flex min-w-0 flex-col items-center">
                   <Icon name={iconOf(e)} size={12} />
@@ -505,7 +525,7 @@ function MenuPreview({
             </div>
             <div className="grid grid-cols-2 gap-1">
               {tiles.map((e) => (
-                <span key={e.uid} className="flex flex-col gap-1 rounded-lg bg-white p-1.5">
+                <span key={e.uid} className="flex flex-col gap-1 rounded-lg p-1.5" style={{ background: th.surface }}>
                   <Icon name={iconOf(e)} size={12} />
                   <span className="truncate font-semibold">{nameOf(e)}</span>
                 </span>
@@ -521,10 +541,10 @@ function MenuPreview({
         ) : night ? (
           <>
             <div className="flex items-center gap-1.5">
-              <span className="h-6 w-6 rounded-full border" style={{ borderColor: accent }} />
+              <span className="h-6 w-6 rounded-full border" style={{ borderColor: deepAccent }} />
               {name}
             </div>
-            <div className="flex h-14 flex-col justify-between rounded-xl border border-[#2A3530] bg-[#18211D] p-1.5">
+            <div className="flex h-14 flex-col justify-between rounded-xl border p-1.5" style={{ background: "#18211D", borderColor: "#2A3530" }}>
               <span className="text-[8px] text-[#A3ADA8]">{t("studio.previewMemberCard")}</span>
               <span className="text-[13px] font-extrabold" style={{ color: accent }}>
                 {t("studio.previewName")}
@@ -532,29 +552,40 @@ function MenuPreview({
             </div>
             <span className="grid grid-cols-3 gap-1">
               {quick.map((e) => (
-                <span key={e.uid} className="flex min-w-0 flex-col items-center rounded-lg border border-[#222B27] bg-[#141B18] p-1" style={{ color: accent }}>
+                <span key={e.uid} className="flex min-w-0 flex-col items-center rounded-lg border p-1" style={{ background: th.surface, borderColor: th.line, color: deepAccent }}>
                   <Icon name={iconOf(e)} size={12} />
-                  <span className="max-w-full truncate text-[8px] text-[#F2F4F3]">{nameOf(e)}</span>
+                  <span className="max-w-full truncate text-[8px]" style={{ color: th.text }}>
+                    {nameOf(e)}
+                  </span>
                 </span>
               ))}
             </span>
           </>
         ) : (
           <div className={`flex items-center gap-1.5 rounded-xl p-2 ${header === "card" ? "text-white" : ""}`} style={header === "card" ? { background: color } : undefined}>
-            <span className="h-6 w-6 rounded-full bg-[#D9D3C7]" />
+            <span className="h-6 w-6 rounded-full" style={{ background: dark ? "#3A4440" : "#D9D3C7" }} />
             {name}
           </div>
         )}
-        <div className={`flex flex-col overflow-hidden rounded-xl ${night ? "border border-[#222B27] bg-[#141B18]" : "bg-white"}`}>
+        <div className={`flex flex-col overflow-hidden rounded-xl ${night ? "border" : ""}`} style={{ background: th.surface, borderColor: th.line }}>
           {listed.slice(0, header === "plain" || header === "card" ? 9 : 5).map((e) => (
-            <span key={e.uid} className={`flex items-center gap-1.5 border-b px-2 py-1.5 ${night ? "border-[#222B27]" : "border-[#EFE9DE]"}`}>
+            <span key={e.uid} className="flex items-center gap-1.5 border-b px-2 py-1.5" style={{ borderColor: th.line }}>
               <Icon name={iconOf(e)} size={13} />
               <span className="truncate">{nameOf(e)}</span>
             </span>
           ))}
         </div>
-        <span className={`block rounded-xl px-2 py-1.5 font-bold ${night ? "bg-[#141B18] text-[#F0907F]" : "bg-white text-danger"}`}>{t("studio.previewSignOut")}</span>
+        <span className="block rounded-xl px-2 py-1.5 font-bold" style={{ background: th.surface, color: dark ? "#F0907F" : "#B42318" }}>
+          {t("studio.previewSignOut")}
+        </span>
       </div>
     </div>
   );
+}
+
+/** 119 The premium look's accent on a light page: deeper, so icons stay easy to see. */
+function darken(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const f = (c: number) => Math.round(c * 0.62).toString(16).padStart(2, "0");
+  return `#${f((n >> 16) & 255)}${f((n >> 8) & 255)}${f(n & 255)}`;
 }

@@ -766,11 +766,16 @@ export interface LayoutPage {
 /** A layout without its version: what the dashboard edits. */
 /** 109 How the bottom tabs look (`TabBar` in docs/api/openapi.yaml); a field left out keeps the usual look for it. */
 export interface TabBarStyle {
+  /** 119 The bar's design; missing, the app template's own (classic, pill or minimal). */
+  design?: TabBarDesign;
   background?: string | null;
   dark_background?: string | null;
   /** The open tab's icon and name; null, the app's main colour. */
   active?: string | null;
   inactive?: string | null;
+  /** 119 In dark mode; null, `active`/`inactive` made readable on a dark bar. */
+  dark_active?: string | null;
+  dark_inactive?: string | null;
   /** 0 to 32. */
   radius?: number;
   /** 0 to 24: 0, across the bottom of the screen; more, a floating bar. */
@@ -779,9 +784,41 @@ export interface TabBarStyle {
   labels?: TabLabels;
   /** A tab's id, drawn as a round button raised in the middle: only when it's the middle one of three or five. */
   center?: string | null;
+  /** 119 The account tab shows the person's photo instead of its icon. */
+  avatar?: boolean;
 }
 
 export const TAB_LABELS = ["always", "active", "never"] as const;
+
+/**
+ * 119 The bar's designs: `classic` the icon in a soft pill over its name,
+ * `pill` the open tab filled with its name beside the icon, `minimal` small
+ * quiet names, `dot` a dot under the open tab, `line` a line over it,
+ * `bubble` the open tab in a soft bubble with its name.
+ */
+export const TAB_BAR_DESIGNS = [
+  "classic",
+  "pill",
+  "minimal",
+  "dot",
+  "line",
+  "bubble",
+  // 119 More: a frosted floating bar, a cut for the middle button, the open tab rising in a circle, an outlined pill,
+  // a filled square, names only, a dark capsule, a segmented track, a folder's tab, a hanging drop, a glow, a colour per tab.
+  "glass",
+  "notch",
+  "lift",
+  "outline",
+  "square",
+  "text",
+  "island",
+  "segment",
+  "folder",
+  "drop",
+  "glow",
+  "colours",
+] as const;
+export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];
 
 export interface LayoutContent {

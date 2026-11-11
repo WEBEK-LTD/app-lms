@@ -101,11 +101,20 @@ class AccountLook extends ConsumerWidget {
 
 /// The colours the entries' icon boxes take in turn.
 List<Color> _tints(AppPalette p) => [
-  p.primary,
-  const Color(0xFFB26A00),
-  const Color(0xFF2F4FB5),
-  const Color(0xFF7A2E8E),
+  for (final c in [
+    p.primary,
+    const Color(0xFFB26A00),
+    const Color(0xFF2F4FB5),
+    const Color(0xFF7A2E8E),
+  ])
+    // 119 In dark mode lighter, so they stay easy to see on a dark card.
+    p.isDark && c.computeLuminance() < 0.25
+        ? Color.lerp(c, const Color(0xFFFFFFFF), 0.45)!
+        : c,
 ];
+
+/// 119 How strong an icon's box is: a little stronger on a dark card.
+double _boxAlpha(AppPalette p) => p.isDark ? 0.22 : 0.12;
 
 class _Avatar extends StatelessWidget {
   const _Avatar({
@@ -186,7 +195,7 @@ class _Row extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: box!.withValues(alpha: 0.12),
+                    color: box!.withValues(alpha: _boxAlpha(context.palette)),
                     borderRadius: BorderRadius.circular(11),
                   ),
                   alignment: Alignment.center,
@@ -323,13 +332,17 @@ class _Cover extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: p.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x14101814),
-                        blurRadius: 30,
-                        offset: Offset(0, 10),
-                      ),
-                    ],
+                    // 119 A shadow on a light page; a line on a dark one.
+                    border: p.isDark ? Border.all(color: p.border) : null,
+                    boxShadow: p.isDark
+                        ? null
+                        : const [
+                            BoxShadow(
+                              color: Color(0x14101814),
+                              blurRadius: 30,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
                   ),
                   child: Column(
                     children: [
@@ -640,7 +653,7 @@ class _Tiles extends StatelessWidget {
                             height: 40,
                             decoration: BoxDecoration(
                               color: tints[i % tints.length].withValues(
-                                alpha: 0.12,
+                                alpha: _boxAlpha(p),
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -765,17 +778,20 @@ class _Night extends StatelessWidget {
   final int minPoints;
   final String appName;
 
-  static const _page = Color(0xFF0D1210);
-  static const _card = Color(0xFF141B18);
-  static const _line = Color(0xFF222B27);
-  static const _text = Color(0xFFF2F4F3);
-  static const _muted = Color(0xFFA3ADA8);
+  /// The membership card stays dark in light and dark mode.
+  static const _cardMuted = Color(0xFFA3ADA8);
 
   @override
   Widget build(BuildContext context) {
     final accent = look.design.accent ?? const Color(0xFFD9B36C);
+    // 119 A dark page in dark mode, a warm light one in light mode.
+    final c = _NightColors.of(context);
+    // On a light page the accent deepens so icons stay easy to see.
+    final iconAccent = c.dark
+        ? accent
+        : Color.lerp(accent, const Color(0xFF000000), 0.38)!;
     final onAccent = accent.computeLuminance() > 0.4
-        ? _page
+        ? const Color(0xFF0D1210)
         : const Color(0xFFFFFFFF);
     final l10n = context.l10n;
     final pointsEntry = look.pointsEntry;
@@ -789,7 +805,7 @@ class _Night extends StatelessWidget {
     ];
     final balance = account?.balance;
     return Scaffold(
-      backgroundColor: _page,
+      backgroundColor: c.page,
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -800,9 +816,9 @@ class _Night extends StatelessWidget {
                 _Avatar(
                   user: look.user,
                   size: 48,
-                  background: const Color(0xFF1B2420),
-                  foreground: accent,
-                  border: Border.all(color: accent),
+                  background: c.avatar,
+                  foreground: iconAccent,
+                  border: Border.all(color: iconAccent),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -813,16 +829,16 @@ class _Night extends StatelessWidget {
                         header: true,
                         child: Text(
                           look.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.w700,
-                            color: _text,
+                            color: c.text,
                           ),
                         ),
                       ),
                       Text(
                         look.phone,
-                        style: const TextStyle(fontSize: 13, color: _muted),
+                        style: TextStyle(fontSize: 13, color: c.muted),
                       ),
                     ],
                   ),
@@ -830,9 +846,9 @@ class _Night extends StatelessWidget {
                 OutlinedButton(
                   onPressed: look.onEdit,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: _text,
-                    backgroundColor: _card,
-                    side: const BorderSide(color: Color(0xFF2E3833)),
+                    foregroundColor: c.text,
+                    backgroundColor: c.card,
+                    side: BorderSide(color: c.buttonLine),
                   ),
                   child: Text(l10n.edit),
                 ),
@@ -876,7 +892,7 @@ class _Night extends StatelessWidget {
                                     l10n.accountMemberCard,
                                     style: const TextStyle(
                                       fontSize: 13,
-                                      color: _muted,
+                                      color: _cardMuted,
                                     ),
                                   ),
                                 ),
@@ -932,7 +948,7 @@ class _Night extends StatelessWidget {
                                       ),
                                       style: const TextStyle(
                                         fontSize: 12.5,
-                                        color: _muted,
+                                        color: _cardMuted,
                                       ),
                                     ),
                                   ] else
@@ -940,7 +956,7 @@ class _Night extends StatelessWidget {
                                       l10n.accountPointsWorth(account!.value),
                                       style: const TextStyle(
                                         fontSize: 12.5,
-                                        color: _muted,
+                                        color: _cardMuted,
                                       ),
                                     ),
                                 ],
@@ -971,10 +987,10 @@ class _Night extends StatelessWidget {
                     Expanded(
                       child: Material(
                         key: ValueKey('account-shortcut-${e.key}'),
-                        color: _card,
+                        color: c.card,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          side: const BorderSide(color: _line),
+                          side: BorderSide(color: c.line),
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
@@ -984,7 +1000,7 @@ class _Night extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                AppIcon(e.icon, size: 21, color: accent),
+                                AppIcon(e.icon, size: 21, color: iconAccent),
                                 const SizedBox(height: 6),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -994,10 +1010,10 @@ class _Night extends StatelessWidget {
                                     e.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: _text,
+                                      color: c.text,
                                     ),
                                   ),
                                 ),
@@ -1013,9 +1029,9 @@ class _Night extends StatelessWidget {
             ],
             const SizedBox(height: 14),
             _Group(
-              color: _card,
-              line: _line,
-              border: _line,
+              color: c.card,
+              line: c.line,
+              border: c.line,
               children: [
                 for (final e in rest)
                   _Row(
@@ -1024,16 +1040,16 @@ class _Night extends StatelessWidget {
                     title: e.title,
                     value: e.value,
                     onTap: e.onTap,
-                    text: _text,
-                    muted: _muted,
+                    text: c.text,
+                    muted: c.muted,
                   ),
                 _Row(
                   key: const ValueKey('account-sign-out'),
                   icon: AppIcons.logout,
                   title: l10n.logOut,
                   onTap: look.onSignOut,
-                  text: const Color(0xFFF0907F),
-                  muted: _muted,
+                  text: c.signOut,
+                  muted: c.muted,
                   weight: FontWeight.w600,
                   arrow: false,
                 ),
@@ -1044,6 +1060,56 @@ class _Night extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 119 The premium look's page colours in each mode.
+class _NightColors {
+  const _NightColors({
+    required this.dark,
+    required this.page,
+    required this.card,
+    required this.line,
+    required this.buttonLine,
+    required this.text,
+    required this.muted,
+    required this.avatar,
+    required this.signOut,
+  });
+
+  factory _NightColors.of(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? const _NightColors(
+          dark: true,
+          page: Color(0xFF0D1210),
+          card: Color(0xFF141B18),
+          line: Color(0xFF222B27),
+          buttonLine: Color(0xFF2E3833),
+          text: Color(0xFFF2F4F3),
+          muted: Color(0xFFA3ADA8),
+          avatar: Color(0xFF1B2420),
+          signOut: Color(0xFFF0907F),
+        )
+      : const _NightColors(
+          dark: false,
+          page: Color(0xFFF6F2EA),
+          card: Color(0xFFFFFFFF),
+          line: Color(0xFFE9E1D0),
+          buttonLine: Color(0xFFDCD2BE),
+          text: Color(0xFF1C1A16),
+          muted: Color(0xFF6B6457),
+          avatar: Color(0xFFEFE7D6),
+          signOut: Color(0xFFB42318),
+        );
+
+  final bool dark;
+  final Color page;
+  final Color card;
+  final Color line;
+  final Color buttonLine;
+  final Color text;
+  final Color muted;
+  final Color avatar;
+  final Color signOut;
 }
 
 class _Ring extends StatelessWidget {

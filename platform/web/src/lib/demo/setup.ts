@@ -14,7 +14,7 @@ import { appUrl } from "../env";
 import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage } from "../studio/sections";
 import { demoDesign, demoStudioContext } from "./look";
-import { demoStudioScreens } from "./screens";
+import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
 import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
@@ -436,6 +436,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
       cards: brand.cards,
     },
     languages: { default: "en", available: [...brand.languages] },
+    // 119 A Studio demo's bar in its own design.
+    ...(isStudioDemo(id) ? { tab_bar: DEMO_TAB_BARS[id] } : {}),
     pages: [studio ? { ...home!, blocks: [], studio } : { ...home!, blocks }, ...rest],
   };
 }
