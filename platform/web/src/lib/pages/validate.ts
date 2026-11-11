@@ -7,6 +7,7 @@ import { BLOCK_DEFINITIONS, blockListLimits, blockTextLimit, ENTRY_TEXT_LIMITS, 
 import { cleanBlockHtml, safeHref } from "./html";
 import { BLOCK_LABELS } from "./labels";
 import { ICON_NAME } from "./icons";
+import { innerScreen, innerScreensFor } from "./inner-screens";
 import { appOpensScreen, blockTypesFor, categorySourcesFor, itemSourcesFor, screenName, sortFor } from "./sources";
 import {
   ACTION_TYPES,
@@ -978,7 +979,12 @@ function parseStudio(ctx: Context, where: string, value: unknown): StudioPage | 
   if (v.show_tabs === false) page.show_tabs = false;
   // 120 The app's own screen under the elements.
   if (v.screen !== undefined && v.screen !== null) {
-    if (!(STUDIO_PAGE_SCREENS as readonly unknown[]).includes(v.screen)) c.fail(where, "choose the app's screen the page is drawn around from the list.");
+    const inner = typeof v.screen === "string" ? innerScreen(v.screen) : undefined;
+    if (inner) {
+      // 120.4 One of the screens opened from the tabs.
+      if (!innerScreensFor(ctx.app).includes(inner)) c.fail(where, `this app has no "${screenName(inner.id)}" screen. Choose another screen.`);
+      else page.screen = inner.id;
+    } else if (!(STUDIO_PAGE_SCREENS as readonly unknown[]).includes(v.screen)) c.fail(where, "choose the app's screen the page is drawn around from the list.");
     else if (!appOpensScreen(ctx.app, v.screen)) c.fail(where, `this app has no "${screenName(String(v.screen))}" screen. Choose another screen.`);
     else page.screen = v.screen as StudioPage["screen"];
     if (page.screen && page.header?.type === "transparent") c.fail(where, "a page drawn around one of the app's screens can't have the header that lies over the page. Choose another header.");
@@ -1588,7 +1594,9 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   const languages = parseLanguages(v.languages, c);
   const pagesIn = Array.isArray(v.pages) ? v.pages : [];
   if (!Array.isArray(v.pages)) c.fail("", "The pages are missing.");
-  if (pagesIn.length > LAYOUT_LIMITS.maxPages) c.fail("", `An app can have at most ${LAYOUT_LIMITS.maxPages} pages.`);
+  const aroundIn = pagesIn.filter((p) => record(record(p)?.studio)?.screen).length;
+  if (pagesIn.length - aroundIn > LAYOUT_LIMITS.maxPages) c.fail("", `An app can have at most ${LAYOUT_LIMITS.maxPages} pages.`);
+  if (aroundIn > LAYOUT_LIMITS.maxScreenPages) c.fail("", `An app can have at most ${LAYOUT_LIMITS.maxScreenPages} pages drawn around its screens.`);
   const slugs = new Set<string>();
   for (const page of pagesIn) {
     const slug = record(page)?.slug;
@@ -1607,7 +1615,7 @@ export function parseLayoutContent(value: unknown, options: ParseOptions): Parse
   };
   const allowedBlocks = blockTypesFor(options.app);
   const pages = pagesIn
-    .slice(0, LAYOUT_LIMITS.maxPages)
+    .slice(0, LAYOUT_LIMITS.maxPages + LAYOUT_LIMITS.maxScreenPages)
     .map((p, i) => parsePage(ctx, i, p, allowedBlocks, options.now))
     .filter((p): p is LayoutPage => p !== null);
   // 120 One page around each of the app's screens, so the app knows which one to draw.

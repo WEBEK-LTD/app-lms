@@ -881,6 +881,12 @@ describe("pages on the hosted API", () => {
     expect(errorsOf(withPages(page("a", studio("classroom"))))).toEqual(['Page "a": choose the app\'s screen the page is drawn around from the list.']);
     expect(errorsOf(withPages(page("a", studio("my_courses")), page("b", studio("my_courses"))))).toEqual(['Page "b": another page is already drawn around the "My courses" screen. Choose another screen.']);
     expect(errorsOf(withPages(page("a", studio("my_courses", { type: "transparent" }))))).toEqual(['Page "a": a page drawn around one of the app\'s screens can\'t have the header that lies over the page. Choose another header.']);
+    // 120.4 A screen opened from the tabs, for the apps that have it; its page opens as a page from a tab.
+    expect(errorsOf(withPages(page("a", studio("course"))))).toEqual([]);
+    expect(errorsOf(withPages(page("a", studio("market_checkout"))))).toEqual(['Page "a": this app has no "Checkout" screen. Choose another screen.']);
+    // 120.4 Pages around the app's screens count apart from its own twenty.
+    const many = Array.from({ length: 25 }, (_, i) => page(`own-${i}`, null));
+    expect(errorsOf(withPages(...many))).toContain("An app can have at most 20 pages.");
     // 120 The header with the page's title and its buttons.
     const titled = parse(withPages(page("a", studio("courses", { type: "title", title: "Courses", buttons: ["search"] }))));
     expect(titled.ok && titled.value.pages[1]!.studio).toMatchObject({ screen: "courses", header: { type: "title", title: "Courses" } });

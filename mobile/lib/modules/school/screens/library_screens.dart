@@ -16,6 +16,7 @@ import '../../../core/widgets/file_viewer.dart';
 import '../data/bus_library_providers.dart';
 import '../data/school_providers.dart' show schoolConfigProvider;
 import '../widgets/school_widgets.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.11 The school's library in the app: its books searched and by
 /// category, a book with its copies on the shelf, its e-book read in the
@@ -66,17 +67,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     final async = ref.watch(libraryBooksProvider(q));
     final categories = async.value?.categories ?? const <String>[];
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.libraryTitle),
-        actions: [
-          IconButton(
-            key: const ValueKey('library-borrowed'),
-            tooltip: l10n.libraryBorrowed,
-            icon: const AppIcon(AppIcons.bookmark),
-            onPressed: () => context.push(Paths.schoolPart('library-loans')),
-          ),
-        ],
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.libraryTitle),
+          actions: [
+            IconButton(
+              key: const ValueKey('library-borrowed'),
+              tooltip: l10n.libraryBorrowed,
+              icon: const AppIcon(AppIcons.bookmark),
+              onPressed: () => context.push(Paths.schoolPart('library-loans')),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         top: false,
@@ -323,9 +327,12 @@ class _LibraryBookScreenState extends ConsumerState<LibraryBookScreen> {
     final l10n = context.l10n;
     final async = ref.watch(libraryBookProvider(widget.bookId));
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.book.title ?? l10n.libraryTitle),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(async.value?.book.title ?? l10n.libraryTitle),
+        ),
       ),
       body: SafeArea(
         top: false,
@@ -487,9 +494,9 @@ class LibraryLoansScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final async = ref.watch(libraryLoansProvider(null));
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.libraryBorrowed),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.libraryBorrowed)),
       ),
       body: SafeArea(
         top: false,

@@ -21,6 +21,7 @@ import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show StudentGateDays;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 105.4 Each part of a student's school, for them and their parents: the
 /// week's timetable, homework (handed in by the student), grades,
@@ -42,7 +43,10 @@ class _SchoolPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(leading: appBarBack(context), title: Text(title)),
+    appBar: studioBar(
+      context,
+      AppBar(leading: appBarBack(context), title: Text(title)),
+    ),
     body: SafeArea(
       top: false,
       child: StudentGate(wanted: student, builder: builder),
@@ -1004,9 +1008,9 @@ class SchoolNewsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.schoolNews),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.schoolNews)),
       ),
       body: SafeArea(
         top: false,

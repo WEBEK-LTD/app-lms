@@ -2,7 +2,7 @@ import type { Appearance, ITEMS_LAYOUTS, Languages, LayoutContent, LayoutPage, L
 import type { StudioDemoId } from "../demo/constants";
 import { DEMO_BRANDS } from "../demo/content";
 import { DEMO_TAB_BARS } from "../demo/screens";
-import { demoPageTabs, demoTabPages } from "./demo-pages";
+import { demoPageTabs, demoScreenPages, demoTabPages } from "./demo-pages";
 import { demoTemplateId, studioDemoOf } from "./demo-templates";
 import { DESIGN_FILE_FORMAT, DESIGN_FILE_VERSION, type DesignFile } from "./design-file";
 import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "./sections";
@@ -85,6 +85,8 @@ export interface WholeDesign {
   templates: string[];
   /** Templates = demos: the Studio demo this design is, shown first and recommended. */
   demo?: StudioDemoId;
+  /** 120.4 The project's type and kind, for the demo's pages around its screens. */
+  kind?: { appType: string; vertical: string | null };
 }
 
 /** The pages of a design laid out this way: its first page, then the kind's other templates, the brand page and contact. */
@@ -107,8 +109,15 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);
   // The demo's pages only: its home (the only page the demo has), nothing generated around it.
-  const first: WholeDesign[] = demo ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo }] : [];
+  const first: WholeDesign[] = demo && kind ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo, kind: { appType: kind.type, vertical: kind.vertical ?? null } }] : [];
   return [...first, ...DESIGN_THEMES.map((theme) => ({ id: `yallapp-${theme.id}`, theme, templates: pagesFor(own, theme.layout) }))];
+}
+
+/** 120.4 How many pages a whole design has: a demo's, its home, its tabs' pages and those around its other screens. */
+export function designPageCount(design: WholeDesign, demoTabs?: readonly LayoutTab[] | null): number {
+  if (!design.demo || !demoTabs) return design.templates.length;
+  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n" };
+  return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home", ...demoTabs.map((t) => t.id)])).length;
 }
 
 /** A page's lists and categories shown the design's way. A list with a card of its own keeps how it shows. */
@@ -176,7 +185,11 @@ export function makeDesign(design: WholeDesign, ctx: SectionContext, words: Desi
     const tpl = TEMPLATES.find((x) => x.id === id)!;
     return { slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: themedPage(tpl.make(made), design.theme) };
   });
-  if (design.demo && demoTabs) pages.push(...demoTabPages(demoTabs, made));
+  if (design.demo && demoTabs) {
+    pages.push(...demoTabPages(demoTabs, made));
+    // 120.4 And every other screen of the app.
+    pages.push(...demoScreenPages(design.kind ?? { appType: "", vertical: null }, demoTabs, made, new Set([...pages.map((p) => p.slug), ...demoTabs.map((t) => t.id)])));
+  }
   return {
     format: DESIGN_FILE_FORMAT,
     version: DESIGN_FILE_VERSION,

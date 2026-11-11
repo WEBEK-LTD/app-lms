@@ -26,6 +26,7 @@ import 'checkin_screens.dart' show checkinDayLine, checkinStateLabel;
 import 'messages_screen.dart' show SchoolMessagesTile;
 import 'student_screens.dart' show FileTile;
 import 'university_screens.dart' show UniToday;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.4 The Parent tab, which only the school's parents see (added for
 /// them, see `withParentTab`): one account for all their children, each
@@ -528,9 +529,9 @@ class PermissionSlipsScreen extends ConsumerWidget {
     final state = ref.watch(permissionSlipsProvider);
     final controller = ref.read(permissionSlipsProvider.notifier);
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.parentSlips),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.parentSlips)),
       ),
       body: SafeArea(
         top: false,
@@ -819,9 +820,9 @@ class ExcusesScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final async = ref.watch(absenceExcusesProvider(student));
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.parentExcuses),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.parentExcuses)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const ValueKey('excuse-new'),
@@ -1087,7 +1088,10 @@ class _ExcuseFormScreenState extends ConsumerState<ExcuseFormScreen> {
     final file = _file;
     final progress = _progress;
     return Scaffold(
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.excuseNew)),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.excuseNew)),
+      ),
       body: SafeArea(
         top: false,
         child: ListView(
@@ -1254,9 +1258,9 @@ class PickupScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final async = ref.watch(childPickupProvider(student));
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.parentPickup),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.parentPickup)),
       ),
       body: SafeArea(
         top: false,

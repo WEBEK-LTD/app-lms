@@ -758,8 +758,9 @@ export interface StudioPage {
    * 120 The app's own screen drawn under the page's elements (its list of
    * shipments, the ride map, the orders): the page is that screen's, its
    * header and elements over it. Missing, the page is its elements only.
+   * 120.4 Also one of the screens opened from the tabs (lib/pages/inner-screens.ts).
    */
-  screen?: StudioPageScreen;
+  screen?: StudioPageScreen | string;
 }
 
 export interface LayoutPage {
@@ -868,6 +869,8 @@ export const LAYOUT_LIMITS = {
   // 82.5 The side menu.
   maxMenu: 12,
   maxPages: 20,
+  // 120.4 Pages drawn around the app's screens count apart, at most one per screen.
+  maxScreenPages: 120,
   maxBlocks: 40,
   // 33 Entries in a block's list: each block's definition (lib/pages/blocks.ts).
   maxItems: 30,
@@ -912,4 +915,9 @@ export const ENTRY_LISTS = Object.keys(TRANSLATABLE_ENTRIES) as EntryList[];
 export interface AppDefaultsSetting {
   appearance: Omit<Appearance, "secondary_color">;
   languages: Languages;
+}
+
+/** 120.4 The app's own pages, the ones `LAYOUT_LIMITS.maxPages` counts: not those drawn around the app's screens. */
+export function ownPageCount(pages: readonly { studio?: { screen?: unknown } | null }[]): number {
+  return pages.filter((p) => !p.studio?.screen).length;
 }

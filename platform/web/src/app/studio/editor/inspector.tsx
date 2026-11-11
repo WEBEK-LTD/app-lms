@@ -15,7 +15,6 @@ import {
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
-  STUDIO_PAGE_SCREENS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -95,6 +94,8 @@ interface Props {
   sources: ItemSource[];
   categorySources: ItemSource[];
   screens: ScreenOption[];
+  /** 120 The screens a page can be drawn around. */
+  pageScreens: { value: string; label: string }[];
   pickable: Pickable;
   fontLabels: { arabicOnly: string; none: string; sample: string; hint?: string };
   /** Editor audit 3.3: the project's text styles, filled in from the defaults. */
@@ -1624,9 +1625,7 @@ function PagePanel(props: Props) {
             style={{ border: "1px solid var(--studio-line)" }}
           >
             <option value="">{t("studio.pageScreenNone")}</option>
-            {props.screens
-              .filter((s) => !s.alias && (STUDIO_PAGE_SCREENS as readonly string[]).includes(s.value))
-              .map((s) => (
+            {props.pageScreens.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>

@@ -45,7 +45,11 @@ Page<void> appPage(
 }) => MaterialPage<void>(
   key: state.pageKey,
   fullscreenDialog: fullscreen,
-  child: child,
+  // 120.4 Every screen with the Studio page the owner drew around it, when
+  // there is one: those a tab opens are wrapped where they're built.
+  child: child is ScreenWithPage || child is MainShell
+      ? child
+      : ScreenWithPage(path: state.fullPath ?? '', pushed: true, child: child),
 );
 
 int? intParam(GoRouterState state, String name) =>

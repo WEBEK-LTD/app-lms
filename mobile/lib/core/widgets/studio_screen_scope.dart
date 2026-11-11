@@ -23,3 +23,8 @@ class StudioScreenScope extends InheritedWidget {
   bool updateShouldNotify(StudioScreenScope oldWidget) =>
       hidesTitle != oldWidget.hidesTitle;
 }
+
+/// 120.4 A screen's own app bar, left out under a Studio page's header,
+/// which has the page's title and the back button instead.
+PreferredSizeWidget? studioBar(BuildContext context, PreferredSizeWidget bar) =>
+    StudioScreenScope.hidesTitleOf(context) ? null : bar;

@@ -27,6 +27,7 @@ import {
   HEADER_ICONS,
   HEADER_LAYOUTS,
   LAYOUT_LIMITS,
+  ownPageCount,
   MAX_HEADER_ICONS,
   PAGE_BACKGROUNDS,
   THEME_MODES,
@@ -626,7 +627,7 @@ export function PagesEditor({
   function addPage() {
     const title = newTitle.trim();
     if (!title) return;
-    if (layout.pages.length >= LAYOUT_LIMITS.maxPages) {
+    if (ownPageCount(layout.pages) >= LAYOUT_LIMITS.maxPages) {
       setMessage({ text: t("pages.maxPages", { max: LAYOUT_LIMITS.maxPages }), ok: false });
       return;
     }
@@ -647,7 +648,7 @@ export function PagesEditor({
   }
 
   function duplicate(p: LayoutPage) {
-    if (layout.pages.length >= LAYOUT_LIMITS.maxPages) return;
+    if (ownPageCount(layout.pages) >= LAYOUT_LIMITS.maxPages) return;
     const copy = duplicatePage(p, layout.pages.map((x) => x.slug), new Date());
     update((l) => {
       const at = l.pages.findIndex((x) => x.slug === p.slug);
@@ -1614,7 +1615,7 @@ export function PagesEditor({
               onAddPages={
                 plan.pageEditor
                   ? (imported, tabs) => {
-                      if (layout.pages.length >= LAYOUT_LIMITS.maxPages) return null;
+                      if (ownPageCount(layout.pages) >= LAYOUT_LIMITS.maxPages) return null;
                       const result = addFigmaPages(layout, imported, { screens, sources, tabs, updatedAt: new Date().toISOString() });
                       update(() => result.layout);
                       return result.added;

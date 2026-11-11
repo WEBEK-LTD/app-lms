@@ -4,7 +4,7 @@ import type { AppType, AppVertical } from "../data/types";
 import { lookFont, withLook } from "../fonts/look";
 import { blockListLimits } from "../pages/blocks";
 import { applyDesign, designsFor, type Design } from "../pages/designs";
-import { LANGUAGE_CODES, LAYOUT_LIMITS, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type QuickLink } from "../pages/types";
+import { LANGUAGE_CODES, LAYOUT_LIMITS, ownPageCount, type AppDefaultsSetting, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type QuickLink } from "../pages/types";
 import type { SiteMenuItem, SiteScan } from "./site-scan";
 
 /**
@@ -128,7 +128,7 @@ export function draftFromScan(scan: SiteScan, defaults: AppDefaultsSetting, now:
 
   // The menu: pages that show the website's own, in the app.
   const candidates = scan.menu.filter((item) => item.url.startsWith("https://") && !covered(item, layout.tabs));
-  const firstRoom = Math.max(0, LAYOUT_LIMITS.maxPages - layout.pages.length);
+  const firstRoom = Math.max(0, LAYOUT_LIMITS.maxPages - ownPageCount(layout.pages));
   // 84.2 The site's own About us and Contact pages take the place of the design's.
   const replaced = new Map<string, SiteMenuItem>();
   for (const [slug, icon] of COMPANY_PAGES) {

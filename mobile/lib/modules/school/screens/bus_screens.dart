@@ -18,6 +18,7 @@ import '../data/bus_library_providers.dart';
 import '../data/school_providers.dart';
 import '../widgets/bus_map.dart';
 import '../widgets/school_widgets.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.10 The school bus in the app: a family's view of their child's bus
 /// (each trip, its stops on the map and the bus live while it runs, how
@@ -62,9 +63,9 @@ class StudentBusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(
-      leading: appBarBack(context),
-      title: Text(context.l10n.schoolBus),
+    appBar: studioBar(
+      context,
+      AppBar(leading: appBarBack(context), title: Text(context.l10n.schoolBus)),
     ),
     body: SafeArea(
       top: false,
@@ -279,9 +280,9 @@ class _BusDutyScreenState extends ConsumerState<BusDutyScreen> {
     final p = context.palette;
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.busDutyTitle),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.busDutyTitle)),
       ),
       body: SafeArea(
         top: false,
@@ -507,15 +508,18 @@ class _BusRunScreenState extends ConsumerState<BusRunScreen>
       sharer.stop();
     }
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          run == null
-              ? l10n.busDutyTitle
-              : l10n.busTripTitle(
-                  run.routeName,
-                  busTripLabel(context, run.trip),
-                ),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(
+            run == null
+                ? l10n.busDutyTitle
+                : l10n.busTripTitle(
+                    run.routeName,
+                    busTripLabel(context, run.trip),
+                  ),
+          ),
         ),
       ),
       body: SafeArea(

@@ -270,7 +270,7 @@ describe("Zad: the approved marketplace home", () => {
     expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
     // 120 Each tab a Studio page, those after the home drawn around the tab's screen.
     expect(layout.tabs.map((t) => (t.target.type === "page" ? t.target.page_slug : t.target.screen))).toEqual(["home", "search", "orders", "club", "account"]);
-    expect(layout.pages.map((p) => p.studio?.screen ?? null)).toEqual([null, "search", "food_orders", "club", "account"]);
+    expect(layout.pages.slice(0, 5).map((p) => p.studio?.screen ?? null)).toEqual([null, "search", "food_orders", "club", "account"]);
     // Its titles in Arabic and Turkish as well.
     const hungry = markets[0]!;
     expect(hungry.translations).toEqual({ ar: { title: studioAr.w_mHungry }, tr: { title: studioTr.w_mHungry } });

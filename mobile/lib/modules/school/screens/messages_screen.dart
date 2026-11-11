@@ -18,6 +18,7 @@ import '../../../core/widgets/common.dart';
 import '../../chat/data/chat_providers.dart';
 import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../data/school_providers.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.6 Messages between a school's teachers and its families, as the
 /// school allows them: the school's administration (always), then the
@@ -35,9 +36,9 @@ class SchoolMessagesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.schoolMessages),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.schoolMessages)),
       ),
       body: SafeArea(
         top: false,

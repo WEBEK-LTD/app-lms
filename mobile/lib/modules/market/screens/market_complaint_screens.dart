@@ -15,6 +15,7 @@ import '../../../core/widgets/common.dart';
 import '../../chat/data/chat_api.dart';
 import '../../chat/data/chat_media.dart';
 import 'market_orders_screen.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 115.9 Complaint photos: started on the API (`/market/uploads`), sent in
 /// chunks to the media gate, as chat files are.
@@ -166,9 +167,12 @@ class _MarketNewComplaintScreenState
     final order = ref.watch(marketOrderProvider(widget.orderId)).value;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.marketReportProblem),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.marketReportProblem),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -292,12 +296,15 @@ class _MarketComplaintScreenState extends ConsumerState<MarketComplaintScreen> {
     final c = complaint.value;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          c == null
-              ? l10n.marketViewComplaint
-              : l10n.marketComplaintTitle(c.reference),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(
+            c == null
+                ? l10n.marketViewComplaint
+                : l10n.marketComplaintTitle(c.reference),
+          ),
         ),
       ),
       body: complaint.when(

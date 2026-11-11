@@ -14,6 +14,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import 'teacher_widgets.dart';
 import 'teachers_providers.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 105.3 Applying to teach at the academy: who they are and what they'd
 /// teach; then the academy's answer. Once approved, the Teacher tab opens.
@@ -76,7 +77,10 @@ class _TeachApplyScreenState extends ConsumerState<TeachApplyScreen> {
     final l10n = context.l10n;
     final async = ref.watch(teacherApplicationProvider);
     return Scaffold(
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.teachHere)),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.teachHere)),
+      ),
       body: switch (async) {
         AsyncValue(error: final e?) => ErrorView(
           error: e,

@@ -14,6 +14,7 @@ import 'download_widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/paths.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 45 Account › Downloads: what's saved for offline viewing, by course, with
 /// the space it takes, the transfers under way (pause, resume, cancel), the
@@ -65,9 +66,9 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
     ];
     final now = DateTime.now();
     return Scaffold(
-      appBar: AppBar(
-        leading: const AppBarBackButton(),
-        title: Text(l10n.downloads),
+      appBar: studioBar(
+        context,
+        AppBar(leading: const AppBarBackButton(), title: Text(l10n.downloads)),
       ),
       body: !state.supported
           ? MessageView(

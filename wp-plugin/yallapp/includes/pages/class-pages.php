@@ -550,7 +550,8 @@ class Pages {
 		if ( 'page' === $target['type'] ) {
 			foreach ( $this->pages() as $page ) {
 				$screen = ( $page['slug'] ?? null ) === ( $target['page_slug'] ?? null ) ? self::screen_of( $page ) : null;
-				if ( null !== $screen ) {
+				// A screen opened from the tabs needs what it shows: the page opens as a page.
+				if ( null !== $screen && in_array( $screen, Block_Resolver::SCREENS, true ) ) {
 					$target = array(
 						'type'   => 'screen',
 						'screen' => $screen,
@@ -576,7 +577,7 @@ class Pages {
 	 */
 	private static function screen_of( array $page ) {
 		$screen = is_array( $page['studio'] ?? null ) ? ( $page['studio']['screen'] ?? null ) : null;
-		return in_array( $screen, Block_Resolver::SCREENS, true ) ? $screen : null;
+		return in_array( $screen, Block_Resolver::SCREENS, true ) || in_array( $screen, Block_Resolver::INNER_SCREENS, true ) ? $screen : null;
 	}
 
 	/**

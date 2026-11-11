@@ -14242,8 +14242,14 @@ components:
         show_tabs: { type: boolean, default: true, description: "The app's bottom tabs under the page, when it is one of them." }
         screen:
           type: string
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school, edit_profile, devices, change_password, chat_conversation, shipment, restaurant_menu, food_order, food_cart, market_vendor, market_list, market_checkout, market_orders, market_order, market_wallet, market_complain, market_complaint, ride_follow, course, bundle, lesson, quiz, assignment, live, question, learning_paths, learning_path, leaderboard, course_notes, lesson_discussion, teacher_profile, teach_apply, certificates, quiz_results, live_classes, achievements, downloads, parent, parent_slips, parent_excuses, parent_excuse_new, parent_pickup, school_checkin, school_timetable, school_homework, school_grades, school_attendance, school_fees, school_news, school_report_card, school_messages, school_bus, school_library, school_library_loans, school_library_book, school_calendar, school_exams, school_behaviour, school_reports, uni_registration, uni_timetable, uni_results, uni_transcript, uni_plan]
           description: |
+            120.4 After the screens a tab or a button opens come those opened
+            from them, which show one thing (`shipment`, `restaurant_menu`,
+            `food_cart`, `market_checkout`, `ride_follow`, `course`, `lesson`,
+            the school's parts such as `school_timetable`, the account's
+            `edit_profile`): the app draws the page wherever it opens that
+            screen; a tab or a button opening such a page opens the page alone.
             120 The app's own screen drawn under the page's elements (its
             list of shipments, the ride map, the orders): the header and the
             body go over the top of the screen and scroll away with it, and

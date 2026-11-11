@@ -43,9 +43,9 @@ class MarketWalletScreen extends ConsumerWidget {
     final wallet = ref.watch(marketWalletProvider);
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.marketWallet),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.marketWallet)),
       ),
       body: wallet.when(
         loading: () => const SkeletonDetail(),

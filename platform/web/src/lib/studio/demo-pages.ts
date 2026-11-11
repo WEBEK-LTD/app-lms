@@ -1,6 +1,9 @@
 import type { LayoutTab, StudioNode, StudioPage, StudioPageScreen, Translations } from "../pages/types";
 import { STUDIO_PAGE_SCREENS } from "../pages/types";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
+import type { App } from "../data/types";
+import { innerScreen, innerScreenName, innerScreensFor, OWN_SCREEN_TITLES } from "../pages/inner-screens";
+import { pageScreenOptionsFor } from "../pages/sources";
 import { newNodeId } from "./elements";
 import type { SectionContext, SectionWord } from "./sections";
 
@@ -144,4 +147,48 @@ export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContex
       ...(screen ? { target: { type: "page" as const, page_slug: tab.id } } : {}),
     };
   });
+}
+
+/** 120.4 A page around one of the app's other screens: its title in the header when the screen has a fixed one, else nothing over it. */
+function screenPage(slug: string, screen: string, title: { en: string; ar: string; tr: string } | null, name: string, ctx: SectionContext): DemoTabPage {
+  const lang: DemoLang = ctx.lang ?? "en";
+  const newId = ctx.newId ?? newNodeId;
+  const others = LANGS.filter((l) => l !== lang);
+  const translations = title ? (Object.fromEntries(others.map((l) => [l, { title: title[l] }])) as Translations) : undefined;
+  const text = title ? title[lang] : name;
+  return {
+    slug,
+    title: text,
+    ...(translations ? { translations } : {}),
+    studio: {
+      ...(title ? { header: { type: "title" as const, title: text, ...(translations ? { translations } : {}) } } : {}),
+      body: { id: newId(), type: "column", children: [] },
+      screen,
+    },
+  };
+}
+
+/**
+ * 120.4 Templates = demos, every screen of them: a page around each of the
+ * app's screens that isn't one of its tabs, the ones a button opens
+ * (settings, notifications) and the ones opened from the tabs (a shipment,
+ * a restaurant's menu, the cart, an order, a ride on its way, a course, the
+ * school's parts), so each can be changed in Studio.
+ */
+export function demoScreenPages(app: { appType: string; vertical?: string | null }, tabs: readonly LayoutTab[], ctx: SectionContext, taken: ReadonlySet<string> = new Set()): DemoTabPage[] {
+  const onTabs = new Set(tabs.map(tabScreen).filter((s): s is StudioPageScreen => s !== null));
+  const used = new Set(taken);
+  const slugFor = (id: string) => {
+    let slug = id.replace(/_/g, "-");
+    if (used.has(slug)) slug = `${slug}-screen`;
+    used.add(slug);
+    return slug;
+  };
+  const own = pageScreenOptionsFor(app as Pick<App, "appType" | "vertical">)
+    .map((o) => o.value)
+    .filter((s) => !onTabs.has(s as StudioPageScreen) && OWN_SCREEN_TITLES[s] && !innerScreen(s));
+  return [
+    ...own.map((s) => screenPage(slugFor(s), s, OWN_SCREEN_TITLES[s]!, OWN_SCREEN_TITLES[s]!.en, ctx)),
+    ...innerScreensFor(app).map((s) => screenPage(slugFor(s.id), s.id, s.title, innerScreenName(s.id)!, ctx)),
+  ];
 }

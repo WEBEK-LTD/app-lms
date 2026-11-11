@@ -13,7 +13,7 @@ import { designLayout, publishLayout } from "../pages/layout";
 import { appUrl } from "../env";
 import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage } from "../studio/sections";
-import { demoPageTabs, demoTabPages } from "../studio/demo-pages";
+import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
@@ -427,7 +427,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const ctx = isStudioDemo(id) ? demoStudioContext(id, appUrl(), itemSourcesFor(app)[0] ?? null) : null;
   const studio = ctx && isStudioDemo(id) ? demoStudioPage(id, ctx, [signIn]) : null;
   // 120 Every tab after the home a Studio page drawn around its screen, so each of the demo's pages can be changed in Studio.
-  const tabPages = ctx ? demoTabPages(designed.tabs, ctx).map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
+  // 120.4 And every other screen of the app, so each can be changed in Studio too.
+  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set([...designed.pages.map((p) => p.slug), ...designed.tabs.map((t) => t.id)]))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
   return {
     ...designed,
     appearance: {

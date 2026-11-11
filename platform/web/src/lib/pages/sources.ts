@@ -1,8 +1,9 @@
 import { ENGINES, hostedOnly, isAppType, kindOf } from "../app/kinds";
 import type { App } from "../data/types";
 import { blockActions } from "./block-actions";
+import { innerScreenName, innerScreensFor } from "./inner-screens";
 import { SCREEN_LABELS } from "./labels";
-import { SCREENS, type Action, type BlockType, type ItemSource, type ItemsSort, type LayoutBlock, type ScreenName } from "./types";
+import { SCREENS, STUDIO_PAGE_SCREENS, type Action, type BlockType, type ItemSource, type ItemsSort, type LayoutBlock, type ScreenName } from "./types";
 
 /**
  * Which lists an app's pages can show: its engine's (lib/app/kinds.ts), and
@@ -85,6 +86,12 @@ export function screenOptionsFor(app: Pick<App, "appType" | "vertical">): Screen
   ];
 }
 
+/** 120.4 The screens a Studio page can be drawn around in this app: those a tab opens, then those opened from them. */
+export function pageScreenOptionsFor(app: Pick<App, "appType" | "vertical">): { value: string; label: string }[] {
+  const own = screenOptionsFor(app).filter((s) => !s.alias && (STUDIO_PAGE_SCREENS as readonly string[]).includes(s.value));
+  return [...own.map((s) => ({ value: s.value as string, label: s.label })), ...innerScreensFor(app).map((s) => ({ value: s.id, label: innerScreenName(s.id)! }))];
+}
+
 /** Whether the app can open a screen. */
 export function appOpensScreen(app: Pick<App, "appType" | "vertical">, screen: unknown): screen is ScreenName {
   return screenOptionsFor(app).some((o) => o.value === screen);
@@ -92,7 +99,7 @@ export function appOpensScreen(app: Pick<App, "appType" | "vertical">, screen: u
 
 /** A screen's name for messages, also for one the app doesn't have. */
 export function screenName(screen: string): string {
-  return (SCREEN_LABELS as Record<string, string>)[screen] ?? screen;
+  return (SCREEN_LABELS as Record<string, string>)[screen] ?? innerScreenName(screen) ?? screen;
 }
 
 /**

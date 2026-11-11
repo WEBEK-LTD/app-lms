@@ -206,16 +206,16 @@ class PageSummary {
     slug: reqString(json, 'slug'),
     title: reqString(json, 'title'),
     updatedAt: reqDate(json, 'updated_at'),
-    screen: _screenFrom(json['screen']),
+    screen: optString(json, 'screen'),
   );
 
   final String slug;
   final String title;
   final DateTime updatedAt;
 
-  /// 120 The app's screen this Studio page is drawn around; null for the
-  /// other pages.
-  final BuiltInScreen? screen;
+  /// 120 The app's screen this Studio page is drawn around, as the API
+  /// names it; null for the other pages.
+  final String? screen;
 }
 
 /// `GET /pages/{slug}`: one page as a list of blocks.
@@ -469,6 +469,9 @@ class PageAction {
   final String? url;
   final OpenIn openIn;
 }
+
+/// 120 The built-in screen the API calls [wire], or null.
+BuiltInScreen? builtInScreenFrom(String? wire) => _screenFrom(wire);
 
 BuiltInScreen? _screenFrom(Object? wire) {
   if (wire is! String) return null;
@@ -1777,16 +1780,17 @@ class StudioPage {
       background: optString(json, 'background'),
       darkBackground: optString(json, 'dark_background'),
       showTabs: boolOr(json, 'show_tabs', true),
-      screen: _screenFrom(json['screen']),
+      screen: optString(json, 'screen'),
     );
   }
 
   final StudioNode body;
 
-  /// 120 The app's own screen drawn under the elements (`screen` in the
-  /// API, for example `shipments`); null, the page is its elements only,
-  /// also for a screen this app doesn't know.
-  final BuiltInScreen? screen;
+  /// 120 The app's own screen drawn under the elements, as the API names it
+  /// (`shipments`, 120.4 also one opened from the tabs such as `shipment`);
+  /// null, the page is its elements only. One this app doesn't have draws
+  /// nothing under them.
+  final String? screen;
 
   /// Editor audit 3.3: the body with each element's tablet changes, for
   /// screens at least 600 wide on their short side; null without any.

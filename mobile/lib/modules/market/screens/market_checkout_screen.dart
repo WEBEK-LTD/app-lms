@@ -25,6 +25,7 @@ import '../data/market_models.dart';
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import 'market_orders_screen.dart' show marketOrdersProvider;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 115 The checkout: the basket's items (at a shop, what to do when one is
 /// out), delivery to the customer's place or picking it up, now or later,
@@ -265,9 +266,12 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
     final vendor = basket.vendor;
     if (basket.isEmpty || vendor == null) {
       return Scaffold(
-        appBar: AppBar(
-          leading: appBarBack(context),
-          title: Text(l10n.marketCheckoutTitle),
+        appBar: studioBar(
+          context,
+          AppBar(
+            leading: appBarBack(context),
+            title: Text(l10n.marketCheckoutTitle),
+          ),
         ),
         body: MessageView(
           icon: AppIcons.cart,
@@ -291,9 +295,12 @@ class _MarketCheckoutScreenState extends ConsumerState<MarketCheckoutScreen> {
     final quote = _quote;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.marketCheckoutTitle),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.marketCheckoutTitle),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),

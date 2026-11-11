@@ -8,6 +8,17 @@ import 'package:yallapp/modules/lms/my_courses/my_courses_screen.dart';
 import 'package:yallapp/modules/real_estate/widgets/listing_widgets.dart'
     show TabHeader;
 
+import 'package:go_router/go_router.dart';
+import 'package:yallapp/core/routing/app_module.dart';
+import 'package:yallapp/core/routing/app_router.dart';
+import 'package:yallapp/core/routing/inner_screens.dart';
+import 'package:yallapp/modules/delivery/delivery_routes.dart';
+import 'package:yallapp/modules/food/food_routes.dart';
+import 'package:yallapp/modules/lms/lms_routes.dart';
+import 'package:yallapp/modules/rides/rides_routes.dart';
+import 'package:yallapp/modules/school/school_routes.dart';
+import 'package:yallapp/modules/shared/shared_routes.dart';
+
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
@@ -69,18 +80,55 @@ void main() {
     ],
   };
 
+  test(
+    "120.4 every screen opened from the tabs is at its address in the app",
+    () {
+      final paths = <String>{};
+      void walk(List<RouteBase> routes, String parent) {
+        for (final route in routes) {
+          if (route is GoRoute) {
+            final full = route.path.startsWith('/')
+                ? route.path
+                : '${parent == '/' ? '' : parent}/${route.path}';
+            paths.add(full);
+            walk(route.routes, full);
+          } else if (route is StatefulShellRoute) {
+            for (final branch in route.branches) {
+              walk(branch.routes, parent);
+            }
+          } else if (route is ShellRouteBase) {
+            walk(route.routes, parent);
+          }
+        }
+      }
+
+      for (final AppModule module in [
+        deliveryModule,
+        foodModule,
+        ridesModule,
+        schoolModule,
+        lmsModule,
+      ]) {
+        walk(tabbedRoutes(module: module, tabs: module.defaultTabs(null)), '/');
+      }
+      for (final MapEntry(:key, :value) in innerScreenPaths.entries) {
+        expect(paths, contains(value), reason: key);
+      }
+    },
+  );
+
   test('reads the screen a page is drawn around, and the title header', () {
     final page = AppPage.fromJson(learning());
-    expect(page.studio!.screen, BuiltInScreen.myCourses);
+    expect(page.studio!.screen, 'my_courses');
     expect(page.studio!.header!.type, StudioHeaderType.title);
     final nav = Navigation.fromJson(navigation());
-    expect(nav.pages.map((p) => p.screen), [null, BuiltInScreen.myCourses]);
-    // A screen this app doesn't know: the page is its elements only.
-    final unknown = AppPage.fromJson({
+    expect(nav.pages.map((p) => p.screen), [null, 'my_courses']);
+    // 120.4 One opened from the tabs, by the name the API gives it.
+    final inner = AppPage.fromJson({
       ...learning(),
-      'studio': {...learning()['studio'] as Map, 'screen': 'teleport'},
+      'studio': {...learning()['studio'] as Map, 'screen': 'course'},
     });
-    expect(unknown.studio!.screen, isNull);
+    expect(inner.studio!.screen, 'course');
   });
 
   testWidgets('the tab shows the page over its screen, the header standing for '
@@ -122,6 +170,64 @@ void main() {
     expect(find.byType(MyCoursesScreen), findsOneWidget);
     expect(find.byKey(const ValueKey('studio-header-title')), findsNothing);
     expect(find.text('My courses'), findsOneWidget);
+  });
+
+  testWidgets('120.4 a screen opened from the tabs shows its page: the header '
+      'with the title and a back button instead of its own top', (
+    tester,
+  ) async {
+    final nav = navigation();
+    (nav['pages'] as List).add({
+      'slug': 'edit-profile',
+      'title': 'Your details',
+      'updated_at': '2026-10-13T18:00:00Z',
+      'screen': 'edit_profile',
+    });
+    final app = TestApp(
+      api: FakeApi()
+        ..navigation = nav
+        ..pages = {
+          'home': appPageJson(blocks: []),
+          'learning': learning(),
+          'edit-profile': {
+            ...appPageJson(
+              slug: 'edit-profile',
+              title: 'Your details',
+              blocks: [],
+            ),
+            'studio': {
+              'header': {'type': 'title', 'title': 'Your details'},
+              'body': {
+                'id': 'root',
+                'type': 'column',
+                'children': [
+                  {
+                    'id': 'tip',
+                    'type': 'text',
+                    'text': 'Keep your phone number up to date.',
+                  },
+                ],
+              },
+              'screen': 'edit_profile',
+            },
+          },
+        },
+      signedIn: true,
+    );
+    await app.pump(tester);
+    await TestApp.settle(tester, 10);
+    app.container.read(appRouterProvider).go('/account');
+    await TestApp.settle(tester, 10);
+    app.container.read(appRouterProvider).push('/account/edit');
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('studio-header-title')), findsOneWidget);
+    expect(find.byKey(const ValueKey('studio-header-back')), findsOneWidget);
+    expect(find.text('Your details'), findsOneWidget);
+    expect(find.text('Keep your phone number up to date.'), findsOneWidget);
+    // Back where it was opened from.
+    await tester.tap(find.byKey(const ValueKey('studio-header-back')));
+    await TestApp.settle(tester, 20);
+    expect(find.byKey(const ValueKey('studio-header-back')), findsNothing);
   });
 
   testWidgets("a tab's own title hides under a Studio page's header", (

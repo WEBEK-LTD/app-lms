@@ -17,6 +17,7 @@ import '../../lms/teachers/teacher_widgets.dart' show LabeledField;
 import '../data/school_life_providers.dart';
 import '../data/school_providers.dart';
 import '../widgets/school_widgets.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.8 The school's calendar (a month, or a list of what is coming), the
 /// exams' timetable and the behaviour record, for a student and each child
@@ -41,7 +42,10 @@ class _Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(leading: appBarBack(context), title: Text(title)),
+    appBar: studioBar(
+      context,
+      AppBar(leading: appBarBack(context), title: Text(title)),
+    ),
     body: SafeArea(
       top: false,
       child: classroom
@@ -986,12 +990,15 @@ class ClassBehaviourScreen extends ConsumerWidget {
     final async = ref.watch(classBehaviourProvider(classId));
     final me = ref.watch(classroomMeProvider).value?.name;
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(
-          async.value == null
-              ? l10n.schoolBehaviour
-              : '${l10n.schoolBehaviour} · ${async.value!.className}',
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(
+            async.value == null
+                ? l10n.schoolBehaviour
+                : '${l10n.schoolBehaviour} · ${async.value!.className}',
+          ),
         ),
       ),
       body: SafeArea(

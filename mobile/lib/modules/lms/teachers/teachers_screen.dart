@@ -19,6 +19,7 @@ import '../courses/community_widgets.dart';
 import '../navigation.dart';
 import '../widgets/course_cards.dart';
 import 'teachers_providers.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 105.3 The academy's teachers: search by name or subject, or pick a
 /// subject; featured teachers first.
@@ -57,9 +58,9 @@ class _TeachersScreenState extends ConsumerState<TeachersScreen> {
     final notifier = ref.read(teachersProvider(_query).notifier);
     final subjects = notifier.subjects;
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.teachersTitle),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.teachersTitle)),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -337,9 +338,12 @@ class _TeacherScreenState extends ConsumerState<TeacherScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(teacherProvider(widget.teacherId));
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(async.value?.name ?? ''),
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(async.value?.name ?? ''),
+        ),
       ),
       body: switch (async) {
         AsyncValue(value: final t?) => RefreshIndicator(

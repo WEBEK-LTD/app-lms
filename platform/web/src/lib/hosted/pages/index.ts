@@ -7,7 +7,7 @@ import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type StudioPage } from "../../pages/types";
+import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type StudioPage } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -110,7 +110,8 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
 function navTab(tab: LayoutTab, lang: LanguageCode, def: LanguageCode, layout: Layout) {
   const t = translated(tab, lang, def);
   const around = t.target.type === "page" ? layout.pages.find((p) => p.slug === t.target.page_slug)?.studio?.screen : undefined;
-  const target = around ? { type: "screen" as const, screen: around } : t.target;
+  // 120.4 A screen opened from the tabs needs what it shows: its page opens as a page.
+  const target = around && (STUDIO_PAGE_SCREENS as readonly string[]).includes(around) ? { type: "screen" as const, screen: around as ScreenName } : t.target;
   return { id: t.id, label: t.label, icon: t.icon, ...(t.icon_url ? { icon_url: t.icon_url } : {}), target };
 }
 
