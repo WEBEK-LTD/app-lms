@@ -4,8 +4,9 @@ import type { StudioDemoId } from "./constants";
 /**
  * 118.3 Each Studio demo's sign-in screen and account menu, as an owner
  * would design them on Studio › Screens: a look that suits the business,
- * one of the photos the website's stories already use (public/stories; only
- * CC0 or public-domain ones, which need no credit on the screen), and
+ * a photo that needs no credit on the screen (CC0 or public domain): one the
+ * website's stories already use (public/stories), or one of its own
+ * (public/demo-screens, CREDITS.json), and
  * a welcome in each of the demo's languages (the app's Arabic is formal).
  */
 interface DemoScreens {
@@ -32,8 +33,8 @@ export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
     menu: "tiles",
   },
   food: {
-    style: "card",
-    photo: "/stories/multi-vendor/zad-cafe.jpg",
+    style: "photo",
+    photo: "/demo-screens/sofra-mezze.jpg",
     title: { en: "Hungry? We're on our way", ar: "جائع؟ نحن في الطريق", tr: "Acıktınız mı? Yoldayız" },
     subtitle: {
       en: "Sign in to order from your favourite restaurants.",
@@ -89,7 +90,8 @@ export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
     menu: "card",
   },
   instructors: {
-    style: "minimal",
+    style: "card",
+    photo: "/demo-screens/rawaq-library.jpg",
     title: { en: "Learn from the best teachers", ar: "تعلّم من أفضل المدرّسين", tr: "En iyi öğretmenlerden öğrenin" },
     subtitle: {
       en: "Follow your teachers and pick up where you left off.",

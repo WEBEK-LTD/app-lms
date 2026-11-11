@@ -553,7 +553,7 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
       // Their photos are the website's own, credit-free ones.
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/stories\/.+\.jpg$/);
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
     expect(await config("store")).toBeUndefined();
