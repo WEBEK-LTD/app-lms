@@ -181,6 +181,9 @@ describe("saves that change what the license status carries ask the site", () =>
     ["app/actions/admin-clients.ts", "setAppSwitchesAction"],
     // 100.3 In-app purchases on or off.
     ["app/actions/store-billing.ts", "saveStoreBillingAction"],
+    // 121 A Studio project's sign-in screen and account menu, and the demo's taken.
+    ["app/actions/studio-screens.ts", "saveStudioScreensAction"],
+    ["app/actions/studio-screens.ts", "applyDemoScreensAction"],
   ])("%s %s", (file, name) => {
     expect(body(file, name)).toContain("refreshSitesSoon(");
   });
@@ -210,6 +213,8 @@ describe("saves that change what the license status carries ask the site", () =>
       "switches",
       // 100.3 In-app purchases (Dashboard › In-app purchases); products made in the stores reach the site at its next check.
       "store_billing",
+      // 121 A Studio project's sign-in screen and account menu (Studio › Screens).
+      "screens",
       "expires_at",
       "checked_at",
       "message",

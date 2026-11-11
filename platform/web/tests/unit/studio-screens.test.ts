@@ -63,12 +63,14 @@ describe("118.3 Studio's sign-in screen and account menu", () => {
     expect(parseStudioScreens({ account_menu: { header: "glass", items: [] } }).screens.account_menu?.header).toBe("plain");
   });
 
-  it("are served only to Studio apps on the hosted API, or on their own API Yallapp signs people in to", () => {
+  it("are served only to Studio apps on the hosted API, on WordPress (121) or on their own API Yallapp signs people in to", () => {
     const studioScreens = parseStudioScreens({ sign_in: { style: "minimal" } }).screens;
     const app = (over: Partial<App>) => ({ ...newApp("c", null, NOW, "store"), backend: "hosted", hostedSettings: { studioScreens }, ...over }) as App;
     expect(screensConfig(app({ section: "studio" }))).toEqual({ screens: { sign_in: studioScreens.sign_in } });
     expect(screensConfig(app({ section: "regular" }))).toEqual({});
-    expect(screensConfig(app({ section: "studio", backend: "wordpress" }))).toEqual({});
+    // 121 A WordPress site gets them with its license status.
+    expect(screensConfig(app({ section: "studio", backend: "wordpress" }))).toEqual({ screens: { sign_in: studioScreens.sign_in } });
+    expect(screensConfig(app({ section: "regular", backend: "wordpress" }))).toEqual({});
     expect(screensConfig(app({ section: "studio", hostedSettings: {} as App["hostedSettings"] }))).toEqual({});
     const own = (signInBy: "yallapp" | "api") => app({ section: "studio", backend: "custom_api", hostedSettings: { studioScreens, signInBy } as App["hostedSettings"] });
     expect(screensConfig(own("yallapp"))).toEqual({ screens: { sign_in: studioScreens.sign_in } });
