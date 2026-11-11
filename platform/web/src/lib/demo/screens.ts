@@ -79,8 +79,9 @@ export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
     accent: "#F5B700",
   },
   school: {
-    style: "photo",
-    photo: "/stories/school/school-graduation-1.jpg",
+    style: "card",
+    // Drawn for Nakhla School: no photo of real children.
+    photo: "/demo-screens/nakhla-school.jpg",
     title: { en: "Every school day, in one place", ar: "كل يوم دراسي في مكان واحد", tr: "Her okul günü tek bir yerde" },
     subtitle: {
       en: "Lessons, homework, grades and fees for students, parents and teachers.",
