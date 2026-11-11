@@ -19,6 +19,7 @@ import '../widgets/school_widgets.dart';
 import 'checkin_screens.dart' show CheckinCard;
 import 'library_screens.dart' show LibraryTile;
 import 'messages_screen.dart' show SchoolMessagesTile;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.9 A university student's part of the School tab: the program and
 /// GPA, registering in the term's sections (sent to the advisor), the week
@@ -386,7 +387,10 @@ class _UniPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(leading: appBarBack(context), title: Text(title)),
+    appBar: studioBar(
+      context,
+      AppBar(leading: appBarBack(context), title: Text(title)),
+    ),
     body: SafeArea(
       top: false,
       child: StudentGate(wanted: student, builder: builder),

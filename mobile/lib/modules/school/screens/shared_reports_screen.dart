@@ -11,6 +11,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../data/report_providers.dart';
 import '../widgets/school_widgets.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 113.5 The teachers' reports the school shared with a student's parents,
 /// newest first: what the teacher wrote in each field.
@@ -22,9 +23,12 @@ class SharedReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: appBarBack(context),
-      title: Text(context.l10n.schoolReports),
+    appBar: studioBar(
+      context,
+      AppBar(
+        leading: appBarBack(context),
+        title: Text(context.l10n.schoolReports),
+      ),
     ),
     body: SafeArea(
       top: false,

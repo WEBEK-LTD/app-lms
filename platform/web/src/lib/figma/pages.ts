@@ -1,7 +1,7 @@
 import { newBlockId } from "../pages/defaults";
 import { uniqueSlug } from "../pages/model";
 import type { ScreenOption } from "../pages/sources";
-import { LAYOUT_LIMITS, type Action, type ItemSource, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type ScreenName } from "../pages/types";
+import { LAYOUT_LIMITS, ownPageCount, type Action, type ItemSource, type LayoutBlock, type LayoutContent, type LayoutPage, type LayoutTab, type ScreenName } from "../pages/types";
 
 /**
  * 97.5 A Figma frame made into a page of the app: its texts become Text
@@ -357,7 +357,7 @@ export function addFigmaPages(
   options: { screens: readonly ScreenOption[]; sources: readonly ItemSource[]; tabs: string[] | null; updatedAt: string },
 ): { layout: LayoutContent; added: string[] } {
   const taken = layout.pages.map((p) => p.slug);
-  const room = Math.max(0, LAYOUT_LIMITS.maxPages - layout.pages.length);
+  const room = Math.max(0, LAYOUT_LIMITS.maxPages - ownPageCount(layout.pages));
   const pages: LayoutPage[] = imported.slice(0, room).map((page) => {
     const slug = uniqueSlug(page.title, taken);
     taken.push(slug);

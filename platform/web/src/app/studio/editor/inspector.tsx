@@ -94,6 +94,8 @@ interface Props {
   sources: ItemSource[];
   categorySources: ItemSource[];
   screens: ScreenOption[];
+  /** 120 The screens a page can be drawn around. */
+  pageScreens: { value: string; label: string }[];
   pickable: Pickable;
   fontLabels: { arabicOnly: string; none: string; sample: string; hint?: string };
   /** Editor audit 3.3: the project's text styles, filled in from the defaults. */
@@ -1609,6 +1611,30 @@ function PagePanel(props: Props) {
           ]}
         />
         <Check label={t("studio.showTabs")} checked={props.page.show_tabs !== false} onChange={(on) => props.onPage({ show_tabs: on ? undefined : false })} />
+        {/* 120 The app's own screen under the page's elements. */}
+        <label className="flex flex-col gap-1 font-bold">
+          {t("studio.pageScreen")}
+          <select
+            value={props.page.screen ?? ""}
+            onChange={(e) => {
+              const screen = (e.target.value || undefined) as StudioPage["screen"];
+              // The header lying over the page can't lie over a screen.
+              props.onPage({ screen, ...(screen && props.page.header?.type === "transparent" ? { header: { ...props.page.header, type: "title_search" } } : {}) });
+            }}
+            className="h-9 rounded-lg px-2 font-normal"
+            style={{ border: "1px solid var(--studio-line)" }}
+          >
+            <option value="">{t("studio.pageScreenNone")}</option>
+            {props.pageScreens.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+          </select>
+          <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.pageScreenHint")}
+          </span>
+        </label>
         <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
           {t("studio.keyboard")}
         </p>

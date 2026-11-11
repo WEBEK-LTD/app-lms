@@ -1,6 +1,8 @@
-import type { Appearance, ITEMS_LAYOUTS, Languages, LayoutContent, LayoutPage, LayoutTab, STUDIO_CATEGORY_STYLES, StudioHeaderType, StudioNode, StudioPage } from "../pages/types";
+import type { Appearance, ITEMS_LAYOUTS, Languages, LayoutContent, LayoutPage, LayoutTab, STUDIO_CATEGORY_STYLES, StudioHeaderType, StudioNode, StudioPage, TabBarStyle } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { DEMO_BRANDS } from "../demo/content";
+import { DEMO_TAB_BARS } from "../demo/screens";
+import { demoPageTabs, demoScreenPages, demoTabPages } from "./demo-pages";
 import { demoTemplateId, studioDemoOf } from "./demo-templates";
 import { DESIGN_FILE_FORMAT, DESIGN_FILE_VERSION, type DesignFile } from "./design-file";
 import { TEMPLATES, templatesFor, type ProjectKind, type SectionContext } from "./sections";
@@ -63,11 +65,17 @@ export function demoTheme(demo: StudioDemoId): DesignTheme {
 
 /**
  * What a Studio demo's whole design sets besides its pages, as the demo
- * app has it (lib/demo/setup.ts demoLayout): its look and its tabs.
+ * app has it (lib/demo/setup.ts demoLayout): its look, 119 its bar's design
+ * and its tabs, 120 those after the home opening the demo's pages drawn
+ * around their screens (at the tabs' ids, as the design's pages are).
  */
-export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[]): { appearance: Partial<Appearance>; tabs: LayoutTab[] } {
+export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], lang: SectionContext["lang"] = "en"): { appearance: Partial<Appearance>; tabs: LayoutTab[]; tab_bar: TabBarStyle } {
   const brand = DEMO_BRANDS[demo];
-  return { appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor }, tabs: structuredClone([...tabs]) };
+  return {
+    appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor },
+    tabs: demoPageTabs(tabs, { lang }),
+    tab_bar: structuredClone(DEMO_TAB_BARS[demo]),
+  };
 }
 
 export interface WholeDesign {
@@ -77,6 +85,8 @@ export interface WholeDesign {
   templates: string[];
   /** Templates = demos: the Studio demo this design is, shown first and recommended. */
   demo?: StudioDemoId;
+  /** 120.4 The project's type and kind, for the demo's pages around its screens. */
+  kind?: { appType: string; vertical: string | null };
 }
 
 /** The pages of a design laid out this way: its first page, then the kind's other templates, the brand page and contact. */
@@ -99,8 +109,15 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);
   // The demo's pages only: its home (the only page the demo has), nothing generated around it.
-  const first: WholeDesign[] = demo ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo }] : [];
+  const first: WholeDesign[] = demo && kind ? [{ id: `demo-${demo}`, theme: demoTheme(demo), templates: [demoTemplateId(demo)], demo, kind: { appType: kind.type, vertical: kind.vertical ?? null } }] : [];
   return [...first, ...DESIGN_THEMES.map((theme) => ({ id: `yallapp-${theme.id}`, theme, templates: pagesFor(own, theme.layout) }))];
+}
+
+/** 120.4 How many pages a whole design has: a demo's, its home, its tabs' pages and those around its other screens. */
+export function designPageCount(design: WholeDesign, demoTabs?: readonly LayoutTab[] | null): number {
+  if (!design.demo || !demoTabs) return design.templates.length;
+  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n" };
+  return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home", ...demoTabs.map((t) => t.id)])).length;
 }
 
 /** A page's lists and categories shown the design's way. A list with a card of its own keeps how it shows. */
@@ -157,12 +174,22 @@ export function designName(design: WholeDesign, words: DesignWords): string {
   return design.demo && words.demo ? words.demo(DEMO_BRANDS[design.demo].appName) : words.theme(design.theme.id);
 }
 
-/** A whole design made for this project, as a design file (its pages with the project's name and lists). */
-export function makeDesign(design: WholeDesign, ctx: SectionContext, words: DesignWords, languages: Languages): DesignFile {
-  const pages = design.templates.map((id, i) => {
+/**
+ * A whole design made for this project, as a design file (its pages with
+ * the project's name and lists). 120 A demo's has the demo's pages after its
+ * home too, one per tab of `demoTabs` (the demo's own) opening a screen.
+ */
+export function makeDesign(design: WholeDesign, ctx: SectionContext, words: DesignWords, languages: Languages, demoTabs?: readonly LayoutTab[] | null): DesignFile {
+  const made = { ...ctx, brand: design.theme.accent };
+  const pages: DesignFile["pages"] = design.templates.map((id, i) => {
     const tpl = TEMPLATES.find((x) => x.id === id)!;
-    return { slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: themedPage(tpl.make({ ...ctx, brand: design.theme.accent }), design.theme) };
+    return { slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: themedPage(tpl.make(made), design.theme) };
   });
+  if (design.demo && demoTabs) {
+    pages.push(...demoTabPages(demoTabs, made));
+    // 120.4 And every other screen of the app.
+    pages.push(...demoScreenPages(design.kind ?? { appType: "", vertical: null }, demoTabs, made, new Set([...pages.map((p) => p.slug), ...demoTabs.map((t) => t.id)])));
+  }
   return {
     format: DESIGN_FILE_FORMAT,
     version: DESIGN_FILE_VERSION,
@@ -222,8 +249,10 @@ export interface ApplyOptions {
   /** The project's texts and pictures go into the new design. */
   keep: boolean;
   now: string;
-  /** Templates = demos: a demo's whole design for the project also sets the demo's look and tabs (demoProjectLook). */
-  demo?: { appearance: Partial<Appearance>; tabs: LayoutTab[] };
+  /** Templates = demos: a demo's whole design for the project also sets the demo's look, bar and tabs (demoProjectLook). */
+  demo?: { appearance: Partial<Appearance>; tabs: LayoutTab[]; tab_bar?: TabBarStyle };
+  /** 120 The design file's own address of each of `fitted` (the demo's tabs open its pages at them). */
+  designSlugs?: readonly string[];
 }
 
 /**
@@ -251,7 +280,11 @@ export function applyWholeDesign(current: LayoutContent, fitted: LayoutPage[], l
     const from = mapped.get(p.slug);
     if (!from) return p;
     const studio = studioOf(p, from);
-    return { ...p, studio: { ...studio, body: relink(studio.body, slugs) }, updated_at: opts.now };
+    // 120 A demo's page keeps its own name too: its tab opens it.
+    const named = opts.demo ? { title: from.title, translations: from.translations } : {};
+    const next = { ...p, ...named, studio: { ...studio, body: relink(studio.body, slugs) }, updated_at: opts.now };
+    if (!next.translations) delete next.translations;
+    return next;
   });
   const added = fitted.slice(studioPages.length).map((p) => ({ ...p, studio: { ...p.studio!, body: relink(p.studio!.body, slugs) } }));
   const appearance = { ...current.appearance, ...(look?.font ? { font_family: look.font } : {}), ...(look?.secondary_color !== undefined ? { secondary_color: look.secondary_color } : {}) };
@@ -260,10 +293,18 @@ export function applyWholeDesign(current: LayoutContent, fitted: LayoutPage[], l
     Object.assign(appearance, opts.demo.appearance);
     if (opts.demo.appearance.font) delete appearance.font_family;
   }
+  // 120 The demo's tabs open its pages where they now are.
+  const at = new Map<string, string>();
+  (opts.designSlugs ?? []).forEach((own, i) => {
+    const page = fitted[i];
+    if (page) at.set(own, slugs.get(page.slug) ?? page.slug);
+  });
+  const tabs = opts.demo?.tabs.map((tab) => (tab.target.type === "page" && tab.target.page_slug && at.has(tab.target.page_slug) ? { ...structuredClone(tab), target: { ...tab.target, page_slug: at.get(tab.target.page_slug)! } } : structuredClone(tab)));
   return {
     ...current,
     pages: [...pages, ...added],
     appearance,
-    ...(opts.demo ? { tabs: structuredClone(opts.demo.tabs) } : {}),
+    ...(tabs ? { tabs } : {}),
+    ...(opts.demo?.tab_bar ? { tab_bar: structuredClone(opts.demo.tab_bar) } : {}),
   };
 }

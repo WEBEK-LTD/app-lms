@@ -16,6 +16,7 @@ import '../../../core/widgets/common.dart';
 import '../data/market_basket.dart';
 import '../data/market_models.dart';
 import '../data/market_providers.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 115 The customer's marketplace orders, newest first.
 final marketOrdersProvider = FutureProvider.autoDispose<Paged<api.MarketOrder>>(
@@ -135,10 +136,13 @@ class MarketOrdersScreen extends ConsumerWidget {
     final l10n = context.l10n;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.marketMyOrders),
-        actions: const [MarketWalletButton()],
+      appBar: studioBar(
+        context,
+        AppBar(
+          leading: appBarBack(context),
+          title: Text(l10n.marketMyOrders),
+          actions: const [MarketWalletButton()],
+        ),
       ),
       body: const MarketOrderList(),
     );

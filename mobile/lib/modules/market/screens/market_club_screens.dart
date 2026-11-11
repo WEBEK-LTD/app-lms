@@ -16,6 +16,7 @@ import '../../../core/widgets/common.dart';
 import '../../real_estate/widgets/listing_widgets.dart' show signInFor;
 import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../data/market_providers.dart' show marketConfigProvider;
+import '../../../core/widgets/studio_screen_scope.dart';
 
 final marketWalletProvider = FutureProvider.autoDispose<MarketWallet>(
   (ref) => ref.watch(yallappApiProvider).getMyWallet(),
@@ -42,9 +43,9 @@ class MarketWalletScreen extends ConsumerWidget {
     final wallet = ref.watch(marketWalletProvider);
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.marketWallet),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.marketWallet)),
       ),
       body: wallet.when(
         loading: () => const SkeletonDetail(),
@@ -194,7 +195,10 @@ class _MarketClubScreenState extends ConsumerState<MarketClubScreen> {
         ref.watch(authControllerProvider).isSignedIn;
     return Scaffold(
       backgroundColor: p.background,
-      appBar: AppBar(leading: appBarBack(context), title: Text(l10n.tabClub)),
+      // 120 Under a Studio page's header, the header is the title.
+      appBar: StudioScreenScope.hidesTitleOf(context)
+          ? null
+          : AppBar(leading: appBarBack(context), title: Text(l10n.tabClub)),
       body: club.when(
         loading: () => const SkeletonDetail(),
         error: (e, _) => MessageView(

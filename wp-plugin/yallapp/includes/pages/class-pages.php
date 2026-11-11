@@ -289,11 +289,17 @@ class Pages {
 		$pages = array();
 		foreach ( $this->pages() as $page ) {
 			$page    = Translator::apply( $page, $language );
-			$pages[] = array(
+			$summary = array(
 				'slug'       => $page['slug'],
 				'title'      => self::title( $page ),
 				'updated_at' => self::date( $page['updated_at'] ?? '' ),
 			);
+			// 120 A page drawn around one of the app's screens says which.
+			$screen = self::screen_of( $page );
+			if ( null !== $screen ) {
+				$summary['screen'] = $screen;
+			}
+			$pages[] = $summary;
 		}
 		// 109 Up to five tabs: with more, the first four, a More tab and the rest in `more`.
 		$tabs = array_slice( array_values( array_filter( $tabs ) ), 0, 10 );
@@ -540,6 +546,20 @@ class Pages {
 		if ( null === $id || null === $label || null === $icon || null === $target ) {
 			return null;
 		}
+		// 120 A page drawn around one of the app's screens opens that screen, the app drawing the page around it.
+		if ( 'page' === $target['type'] ) {
+			foreach ( $this->pages() as $page ) {
+				$screen = ( $page['slug'] ?? null ) === ( $target['page_slug'] ?? null ) ? self::screen_of( $page ) : null;
+				// A screen opened from the tabs needs what it shows: the page opens as a page.
+				if ( null !== $screen && in_array( $screen, Block_Resolver::SCREENS, true ) ) {
+					$target = array(
+						'type'   => 'screen',
+						'screen' => $screen,
+					);
+					break;
+				}
+			}
+		}
 		return array(
 			'id'       => $id,
 			'label'    => $label,
@@ -547,6 +567,17 @@ class Pages {
 			'icon_url' => Block_Resolver::icon_url( $raw['icon_url'] ?? null ),
 			'target'   => $target,
 		);
+	}
+
+	/**
+	 * 120 The app's screen a Studio page is drawn around, or null.
+	 *
+	 * @param array $page Page.
+	 * @return string|null
+	 */
+	private static function screen_of( array $page ) {
+		$screen = is_array( $page['studio'] ?? null ) ? ( $page['studio']['screen'] ?? null ) : null;
+		return in_array( $screen, Block_Resolver::SCREENS, true ) || in_array( $screen, Block_Resolver::INNER_SCREENS, true ) ? $screen : null;
 	}
 
 	/**

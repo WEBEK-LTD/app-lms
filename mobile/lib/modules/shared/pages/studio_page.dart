@@ -5,12 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
+import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/fonts/remote_fonts.dart';
@@ -18,6 +20,7 @@ import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
@@ -38,14 +41,21 @@ class StudioPageView extends ConsumerWidget {
     required this.page,
     required this.pageSlug,
     this.pushed = false,
+    this.screen,
   });
 
   final StudioPage page;
   final String pageSlug;
   final bool pushed;
 
+  /// 120 The app's own screen the page is drawn around (`StudioPage.screen`):
+  /// the header stays over it and the elements scroll away with it.
+  final Widget? screen;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hosted = screen;
+    if (hosted != null) return _aroundScreen(context, hosted);
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
@@ -118,6 +128,96 @@ class StudioPageView extends ConsumerWidget {
               child: _pinnedColumn(pinnedBottom, scope),
             ),
           if (pushed)
+            PositionedDirectional(
+              top: top + 8,
+              start: 16,
+              child: const AppBackButton(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 120 The page around the app's screen: its header (or the status bar's
+  /// strip) and the elements pinned to the top stay; the other elements
+  /// scroll away over the screen, which fills the rest. Under a header the
+  /// screen's own title isn't shown.
+  Widget _aroundScreen(BuildContext context, Widget hosted) {
+    // Nothing over it yet: the screen as it is (the account's own top).
+    if (page.header == null && page.body.children.isEmpty) return hosted;
+    final p = context.palette;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final top = MediaQuery.paddingOf(context).top;
+    final background =
+        parseHexColor(
+          dark ? (page.darkBackground ?? page.background) : page.background,
+        ) ??
+        p.background;
+    final scope = StudioScope(pageSlug: pageSlug, dark: dark);
+    final header = page.header;
+    final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+    final pinnedTop = [
+      for (final n in body.children)
+        if (n.pin == StudioPin.top) n,
+    ];
+    final pinnedBottom = [
+      for (final n in body.children)
+        if (n.pin == StudioPin.bottom) n,
+    ];
+    final over = _withChildren(body, [
+      for (final n in body.children)
+        if (n.pin == StudioPin.none) n,
+    ]);
+    final screen = MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: StudioScreenScope(hidesTitle: header != null, child: hosted),
+    );
+    final Widget rest = over.children.isEmpty
+        ? screen
+        : NestedScrollView(
+            key: ValueKey('studio-screen-$pageSlug'),
+            headerSliverBuilder: (context, _) => [
+              SliverToBoxAdapter(
+                child: StudioNodeView(node: over, scope: scope, parent: null),
+              ),
+            ],
+            body: screen,
+          );
+    return ColoredBox(
+      color: background,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (header != null)
+                  StudioHeaderView(
+                    header: header,
+                    top: top,
+                    scope: scope,
+                    back: pushed && header.type == StudioHeaderType.title,
+                  )
+                else
+                  AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: overlayStyleOn(background),
+                    child: SizedBox(height: top),
+                  ),
+                if (pinnedTop.isNotEmpty) _pinnedColumn(pinnedTop, scope),
+                Expanded(child: rest),
+              ],
+            ),
+          ),
+          if (pinnedBottom.isNotEmpty)
+            PositionedDirectional(
+              bottom: MediaQuery.paddingOf(context).bottom,
+              start: 0,
+              end: 0,
+              child: _pinnedColumn(pinnedBottom, scope),
+            ),
+          // The title header has its own; without a header the screen has.
+          if (pushed && header != null && header.type != StudioHeaderType.title)
             PositionedDirectional(
               top: top + 8,
               start: 16,
@@ -206,11 +306,15 @@ class StudioHeaderView extends ConsumerWidget {
     required this.header,
     required this.top,
     required this.scope,
+    this.back = false,
   });
 
   final StudioHeader header;
   final double top;
   final StudioScope scope;
+
+  /// 120.4 Over a screen opened on top of the tabs: a back button first.
+  final bool back;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -312,6 +416,27 @@ class StudioHeaderView extends ConsumerWidget {
           ],
         ],
       ),
+      // 120 The page's title and its buttons.
+      StudioHeaderType.title => SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            if (back)
+              AppBackButton(
+                key: const ValueKey('studio-header-back'),
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go(Paths.home),
+              ),
+            ?menu,
+            if (menu != null)
+              const SizedBox(width: 4)
+            else
+              const SizedBox(width: 8),
+            Expanded(child: heading),
+            if (buttons.isNotEmpty) end,
+          ],
+        ),
+      ),
       StudioHeaderType.logoActions || StudioHeaderType.transparent => SizedBox(
         height: 44,
         child: Row(
@@ -336,6 +461,7 @@ class StudioHeaderView extends ConsumerWidget {
           StudioHeaderType.titleSearch => 'title_search',
           StudioHeaderType.logoActions => 'logo_actions',
           StudioHeaderType.transparent => 'transparent',
+          StudioHeaderType.title => 'title',
         }}',
       ),
       padding: EdgeInsets.fromLTRB(10, top + 8, 10, 4),

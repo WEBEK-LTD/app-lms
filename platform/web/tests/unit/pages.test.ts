@@ -850,6 +850,48 @@ describe("pages on the hosted API", () => {
     expect(kept.ok && kept.value.tab_bar).toEqual({ radius: 12, center: "home" });
   });
 
+  it("120 serves a tab to a page drawn around one of the app's screens as that screen, and says each page's screen", async () => {
+    const around = { slug: "learning", title: "My learning", show_title: false, updated_at: NOW.toISOString(), blocks: [], studio: { header: { type: "title", title: "My learning", buttons: ["notifications"] }, body: { id: "n1", type: "column", children: [{ id: "n2", type: "text", text: "Pick up where you left off." }] }, screen: "my_courses" } };
+    const tabs = [
+      { id: "home", label: "Home", icon: "home", target: { type: "page", page_slug: "home" } },
+      { id: "learning", label: "My learning", icon: "school", target: { type: "page", page_slug: "learning" } },
+    ];
+    const layout = layoutWith([], { tabs, menu: [{ id: "m", label: "Learning", icon: "school", target: { type: "page", page_slug: "learning" } }] });
+    expect((await publishLayout(store, app, { ...layout, pages: [...(layout.pages as unknown[]), around] }, "owner@lale.test", NOW)).ok).toBe(true);
+    const nav = await call("/pages");
+    expectContract("GET", "/pages", nav);
+    const body = nav.body as { tabs: { target: unknown }[]; menu: { target: unknown }[]; pages: { slug: string; screen?: string }[] };
+    // Older apps still show the screen; the app knows the page to draw around it.
+    expect(body.tabs.map((t) => t.target)).toEqual([{ type: "page", page_slug: "home" }, { type: "screen", screen: "my_courses" }]);
+    expect(body.menu[0]!.target).toEqual({ type: "screen", screen: "my_courses" });
+    expect(body.pages).toEqual([expect.not.objectContaining({ screen: expect.anything() }), expect.objectContaining({ slug: "learning", screen: "my_courses" })]);
+    const page = await call("/pages/{slug}", { params: ["learning"] });
+    expectContract("GET", "/pages/{slug}", page);
+    expect((page.body as { studio: { screen?: string; header?: { type: string } } }).studio).toMatchObject({ screen: "my_courses", header: { type: "title" } });
+  });
+
+  it("120 checks the screen a page is drawn around", () => {
+    const studio = (screen: unknown, header: unknown = null) => ({ header, body: { id: "b", type: "column", children: [] }, screen });
+    const page = (slug: string, s: unknown) => ({ slug, title: slug, show_title: false, updated_at: NOW.toISOString(), blocks: [], studio: s });
+    const withPages = (...pages: unknown[]) => ({ ...layoutWith([]), pages: [...(layoutWith([]).pages as unknown[]), ...pages] });
+    expect(errorsOf(withPages(page("a", studio("my_courses"))))).toEqual([]);
+    expect(errorsOf(withPages(page("a", studio("teleport"))))).toEqual(['Page "a": choose the app\'s screen the page is drawn around from the list.']);
+    // A screen the app type doesn't have, one that opens one thing, and the same screen twice.
+    expect(errorsOf(withPages(page("a", studio("shipments"))))).toEqual(['Page "a": this app has no "My shipments" screen. Choose another screen.']);
+    expect(errorsOf(withPages(page("a", studio("classroom"))))).toEqual(['Page "a": choose the app\'s screen the page is drawn around from the list.']);
+    expect(errorsOf(withPages(page("a", studio("my_courses")), page("b", studio("my_courses"))))).toEqual(['Page "b": another page is already drawn around the "My courses" screen. Choose another screen.']);
+    expect(errorsOf(withPages(page("a", studio("my_courses", { type: "transparent" }))))).toEqual(['Page "a": a page drawn around one of the app\'s screens can\'t have the header that lies over the page. Choose another header.']);
+    // 120.4 A screen opened from the tabs, for the apps that have it; its page opens as a page from a tab.
+    expect(errorsOf(withPages(page("a", studio("course"))))).toEqual([]);
+    expect(errorsOf(withPages(page("a", studio("market_checkout"))))).toEqual(['Page "a": this app has no "Checkout" screen. Choose another screen.']);
+    // 120.4 Pages around the app's screens count apart from its own twenty.
+    const many = Array.from({ length: 25 }, (_, i) => page(`own-${i}`, null));
+    expect(errorsOf(withPages(...many))).toContain("An app can have at most 20 pages.");
+    // 120 The header with the page's title and its buttons.
+    const titled = parse(withPages(page("a", studio("courses", { type: "title", title: "Courses", buttons: ["search"] }))));
+    expect(titled.ok && titled.value.pages[1]!.studio).toMatchObject({ screen: "courses", header: { type: "title", title: "Courses" } });
+  });
+
   it("99.3 serves the block's text position, size, corners and picture fit, the page's background and picture, and only the blocks shown now", async () => {
     const header = "https://yallapp.test/m/top.jpg";
     const later = new Date(NOW.getTime() + 86_400_000).toISOString();

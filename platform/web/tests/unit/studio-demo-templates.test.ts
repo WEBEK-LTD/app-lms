@@ -6,7 +6,8 @@ import { newApp } from "@/lib/app/setup";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
 import { demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { demoStudioContext } from "@/lib/demo/look";
+import { demoDesign, demoStudioContext } from "@/lib/demo/look";
+import { designLayout } from "@/lib/pages/layout";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
@@ -157,14 +158,59 @@ describe("Studio templates = Studio demos", () => {
     // A project that started blank, with other tabs and look.
     const blank = startLayout(app, TEMPLATES.find((t) => t.id === "blank")!, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, englishContext(app));
     const current: LayoutContent = { ...blank, languages: LANGS, tabs: blank.tabs.slice(0, 2), appearance: { ...blank.appearance, template: "classic", corners: "sharp", cards: "flat", font_family: "Cairo", secondary_color: "#000000" } };
-    const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS);
+    // The demo's own tabs, as the editor has them (app/studio/editor/page.tsx).
+    const demoTabs = designLayout(app, demoDesign(id), current, NOW).tabs;
+    const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS, demoTabs);
     expect(file.demo).toBe(id);
     let n = 0;
     const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures: new Map(), now: NOW.toISOString() });
-    const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demo.tabs) });
-    expect(whole(applied).pages.map((p) => p.studio)).toEqual(whole(demo).pages.map((p) => p.studio));
-    expect(applied.tabs).toEqual(demo.tabs);
+    const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demoTabs), designSlugs: file.pages.map((p) => p.slug) });
+    // 120 Every page of the demo, its tabs' pages too, each where its tab opens it.
+    const studioOf = (l: LayoutContent, slug: string) => whole(l).pages.find((p) => p.slug === slug)?.studio ?? null;
+    const opened = (l: LayoutContent) => l.tabs.map((t) => (t.target.type === "page" ? studioOf(l, t.target.page_slug!) : t.target));
+    expect(opened(applied)).toEqual(opened(demo));
+    expect(whole(applied).pages.filter((p) => p.studio).length).toBe(whole(demo).pages.filter((p) => p.studio).length);
+    const named = (l: LayoutContent) => l.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon, translations: t.translations }));
+    expect(named(applied)).toEqual(named(demo));
+    expect(applied.tab_bar).toEqual(demo.tab_bar);
+    const checked = parseLayoutContent(applied, { app, now: NOW });
+    expect(checked.ok ? [] : checked.errors).toEqual([]);
     expect(whole(applied).look).toEqual(whole(demo).look);
+  });
+
+  it.each(STUDIO_DEMO_TYPES)("every tab of the %s demo opens a Studio page, those after the home drawn around the tab's screen", async (id) => {
+    const demo = await demoOf(id);
+    const app = demoApp(id);
+    const before = designLayout(app, demoDesign(id), demo, NOW).tabs;
+    expect(demo.tabs.map((t) => t.id)).toEqual(before.map((t) => t.id));
+    demo.tabs.forEach((tab, i) => {
+      expect(tab.target.type, tab.id).toBe("page");
+      const page = demo.pages.find((p) => p.slug === (tab.target.type === "page" ? tab.target.page_slug : ""));
+      expect(page?.studio, tab.id).toBeTruthy();
+      const was = before[i]!.target;
+      if (i === 0) {
+        expect(page!.slug).toBe("home");
+        expect(page!.studio!.screen).toBeUndefined();
+        return;
+      }
+      // The screen the tab opened before, now under the page's elements.
+      expect(was.type).toBe("screen");
+      expect(page!.studio!.screen).toBe(was.type === "screen" ? was.screen : null);
+      if (page!.studio!.screen === "account") {
+        // The account screen keeps its own top, set with the sign-in screen.
+        expect(page!.studio!.header ?? null).toBeNull();
+        expect(page!.studio!.body.children).toEqual([]);
+      } else {
+        expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
+        expect(page!.studio!.header!.translations?.ar?.title).toBeTruthy();
+      }
+      // The tab's name and the page's title in Arabic and Turkish too.
+      expect(tab.translations?.ar?.label, tab.id).toBeTruthy();
+      expect(tab.translations?.tr?.label, tab.id).toBeTruthy();
+      expect(page!.translations?.ar?.title).toBe(tab.translations?.ar?.label);
+    });
+    // The bar the demo was designed with.
+    expect(demo.tab_bar).toBeTruthy();
   });
 
   it.each(STUDIO_DEMO_TYPES)("the %s template, taken by an owner, is a page the platform takes, with their name", (id) => {
@@ -222,7 +268,9 @@ describe("Zad: the approved marketplace home", () => {
     expect(page.body.children![1]!.visibility).toBe("signed_out");
     expect(layout.appearance).toMatchObject({ font: DEMO_BRANDS.marketplace.font, template: DEMO_BRANDS.marketplace.template, secondary_color: DEMO_BRANDS.marketplace.secondaryColor });
     expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
-    expect(layout.tabs.map((t) => t.target.type === "page" ? t.target.page_slug : t.target.screen)).toEqual(["home", "search", "food_orders", "club", "account"]);
+    // 120 Each tab a Studio page, those after the home drawn around the tab's screen.
+    expect(layout.tabs.map((t) => (t.target.type === "page" ? t.target.page_slug : t.target.screen))).toEqual(["home", "search", "orders", "club", "account"]);
+    expect(layout.pages.slice(0, 5).map((p) => p.studio?.screen ?? null)).toEqual([null, "search", "food_orders", "club", "account"]);
     // Its titles in Arabic and Turkish as well.
     const hungry = markets[0]!;
     expect(hungry.translations).toEqual({ ar: { title: studioAr.w_mHungry }, tr: { title: studioTr.w_mHungry } });

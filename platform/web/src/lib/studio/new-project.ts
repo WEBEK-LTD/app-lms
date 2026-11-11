@@ -4,7 +4,9 @@ import { ownContentSetup } from "../app/own-content";
 import { newApp } from "../app/setup";
 import type { DataStore } from "../data/store";
 import type { App } from "../data/types";
+import { DEFAULT_HOSTED_SETTINGS } from "../data/types";
 import { DEMO_BRANDS } from "../demo/content";
+import { demoStudioScreens } from "../demo/screens";
 import { appUrl } from "../env";
 import { defaultLayout } from "../pages/defaults";
 import { appDefaults, saveDraft } from "../pages/layout";
@@ -42,7 +44,15 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   // Templates = demos: a demo's template starts the project in the demo's colour and look too.
   const demo = template.demo ?? null;
   const fresh = newApp(input.clientId, null, now, kind.engine, kind.vertical);
-  const base: App = { ...fresh, section: "studio", appName: name, ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : {}), ...input.extra };
+  const base: App = {
+    ...fresh,
+    section: "studio",
+    appName: name,
+    ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : {}),
+    // 120 The demo's sign-in screen and account menu too (lib/studio/screens.ts), as the demo has them.
+    ...(demo ? { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(fresh.hostedSettings ?? {}), studioScreens: demoStudioScreens(demo, appUrl()) } } : {}),
+    ...input.extra,
+  };
   const app: App =
     input.source === "catalog"
       ? { ...base, backend: "hosted", ...ownContentSetup(ENGINES[kind.engine].ownContent.kind, base), websiteDoneAt: now }

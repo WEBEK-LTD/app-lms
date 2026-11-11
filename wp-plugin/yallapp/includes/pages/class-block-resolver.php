@@ -23,13 +23,17 @@ use Yallapp\Store\Catalog;
  */
 class Block_Resolver {
 
-	const SOURCES    = array( 'courses', 'products', 'services', 'posts', 'listings', 'articles' );
-	const SCREENS    = array( 'courses', 'my_courses', 'search', 'favorites', 'messages', 'account', 'settings', 'notifications', 'cart', 'orders', 'services', 'appointments', 'articles', 'bookmarks' );
-	const SORTS      = array( 'newest', 'popular', 'price_asc', 'price_desc' );
-	const SLUG       = '/^[a-z0-9-]{1,64}$/';
-	const ICON       = '/^[a-z0-9_]{1,64}$/';
-	const MAX_ITEMS  = 30;
-	const PRICE_POOL = 100;
+	const SOURCES = array( 'courses', 'products', 'services', 'posts', 'listings', 'articles' );
+	/**
+	 * 120.4 The screens opened from the tabs a Studio page can be drawn around, on a site's app.
+	 */
+	const INNER_SCREENS = array( 'edit_profile', 'devices', 'change_password', 'chat_conversation', 'course', 'bundle', 'lesson', 'quiz', 'assignment', 'live', 'question', 'learning_paths', 'learning_path', 'leaderboard', 'course_notes', 'lesson_discussion', 'teacher_profile', 'teach_apply', 'certificates', 'quiz_results', 'live_classes', 'achievements', 'downloads' );
+	const SCREENS       = array( 'courses', 'my_courses', 'search', 'favorites', 'messages', 'account', 'settings', 'notifications', 'cart', 'orders', 'services', 'appointments', 'articles', 'bookmarks' );
+	const SORTS         = array( 'newest', 'popular', 'price_asc', 'price_desc' );
+	const SLUG          = '/^[a-z0-9-]{1,64}$/';
+	const ICON          = '/^[a-z0-9_]{1,64}$/';
+	const MAX_ITEMS     = 30;
+	const PRICE_POOL    = 100;
 
 	/**
 	 * 82.5 BlockLook's fields and their values, the default first (99.3 align, text_size,
@@ -1008,6 +1012,10 @@ class Block_Resolver {
 			$page[ $field ] = self::hex( $raw[ $field ] ?? null );
 		}
 		$page['show_tabs'] = ! isset( $raw['show_tabs'] ) || false !== $raw['show_tabs'];
+		// 120 The app's own screen drawn under the page's elements; 120.4 also one opened from the tabs.
+		if ( in_array( $raw['screen'] ?? null, self::SCREENS, true ) || in_array( $raw['screen'] ?? null, self::INNER_SCREENS, true ) ) {
+			$page['screen'] = $raw['screen'];
+		}
 		return $page;
 	}
 
@@ -1019,7 +1027,7 @@ class Block_Resolver {
 	 */
 	private function studio_header( array $raw ) {
 		$type = $raw['type'] ?? null;
-		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent' ), true ) ) {
+		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title' ), true ) ) {
 			return null;
 		}
 		$buttons = array();

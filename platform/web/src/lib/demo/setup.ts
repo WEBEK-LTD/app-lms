@@ -13,6 +13,7 @@ import { designLayout, publishLayout } from "../pages/layout";
 import { appUrl } from "../env";
 import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage } from "../studio/sections";
+import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
@@ -423,7 +424,11 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const blocks = home!.blocks[0]?.id === "demo-banner" ? [home!.blocks[0], signIn, ...home!.blocks.slice(1)] : [signIn, ...home!.blocks];
   // Templates = demos: a Studio demo's home is its kind's designed page, the same its template starts a project with (a Studio page has no blocks).
   const id = demoIdOf(app);
-  const studio = isStudioDemo(id) ? demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(app)[0] ?? null), [signIn]) : null;
+  const ctx = isStudioDemo(id) ? demoStudioContext(id, appUrl(), itemSourcesFor(app)[0] ?? null) : null;
+  const studio = ctx && isStudioDemo(id) ? demoStudioPage(id, ctx, [signIn]) : null;
+  // 120 Every tab after the home a Studio page drawn around its screen, so each of the demo's pages can be changed in Studio.
+  // 120.4 And every other screen of the app, so each can be changed in Studio too.
+  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set([...designed.pages.map((p) => p.slug), ...designed.tabs.map((t) => t.id)]))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
   return {
     ...designed,
     appearance: {
@@ -438,7 +443,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
     languages: { default: "en", available: [...brand.languages] },
     // 119 A Studio demo's bar in its own design.
     ...(isStudioDemo(id) ? { tab_bar: DEMO_TAB_BARS[id] } : {}),
-    pages: [studio ? { ...home!, blocks: [], studio } : { ...home!, blocks }, ...rest],
+    ...(ctx ? { tabs: demoPageTabs(designed.tabs, ctx) } : {}),
+    pages: [studio ? { ...home!, blocks: [], studio } : { ...home!, blocks }, ...rest, ...tabPages],
   };
 }
 

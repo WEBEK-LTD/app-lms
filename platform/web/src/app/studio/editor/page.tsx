@@ -16,7 +16,7 @@ import { marketCanvasOf } from "@/lib/studio/market-canvas-data";
 import { sampleEntries } from "@/lib/studio/sample-entries";
 import { designLayout, layoutHistory, loadLayout, withoutStrings } from "@/lib/pages/layout";
 import { allowedSources } from "@/lib/pages/plan";
-import { categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
+import { categorySourcesFor, itemSourcesFor, pageScreenOptionsFor, screenOptionsFor } from "@/lib/pages/sources";
 import { hasFeature } from "@/lib/plans";
 import { isStudioProject } from "@/lib/studio/section";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
@@ -65,6 +65,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       sources={sources}
       categorySources={categorySourcesFor(app).filter((s) => sources.includes(s))}
       screens={screenOptionsFor(app)}
+      pageScreens={pageScreenOptionsFor(app)}
       // Studio's canvas: the samples a list shows while the project has none (never offered to pick).
       pickable={{ ...(await pickableContent(app, { store, key: encryptionKey(), assetUrl, platformUrl: appUrl() }, now)), samples: sampleEntries(now) }}
       myTemplates={(await store.listStudioTemplates(app.clientId)).map(({ id, name, page }) => ({ id, name, page }))}

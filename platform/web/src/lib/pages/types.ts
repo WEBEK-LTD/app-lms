@@ -20,7 +20,8 @@ export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
 export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
-export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent"] as const;
+/** 120 `title`: the page's title and its buttons, for the pages after the first. */
+export const STUDIO_HEADER_TYPES = ["logo_center", "title_search", "logo_actions", "transparent", "title"] as const;
 export const STUDIO_HEADER_BUTTONS = ["menu", "search", "cart", "notifications", "chat", "account"] as const;
 export const STUDIO_ALIGNS = ["start", "center", "end", "between", "around"] as const;
 export const STUDIO_CROSS = ["start", "center", "end", "stretch"] as const;
@@ -144,6 +145,12 @@ export const SCREENS = [
   "school",
   "classroom",
 ] as const;
+/**
+ * 120 The app's screens a Studio page can be drawn around (`StudioPage.screen`):
+ * every screen but the ones that open one thing (a restaurant, a teacher, a class).
+ */
+export const STUDIO_PAGE_SCREENS = SCREENS.filter((s) => s !== "restaurant" && s !== "teacher" && s !== "classroom");
+export type StudioPageScreen = (typeof SCREENS)[number];
 export const ITEMS_LAYOUTS = ["carousel", "grid", "list"] as const;
 export const ITEMS_SORTS = ["newest", "popular", "price_asc", "price_desc"] as const;
 export const BUTTON_STYLES = ["filled", "outlined", "text"] as const;
@@ -747,6 +754,13 @@ export interface StudioPage {
   background?: string | null;
   dark_background?: string | null;
   show_tabs?: boolean;
+  /**
+   * 120 The app's own screen drawn under the page's elements (its list of
+   * shipments, the ride map, the orders): the page is that screen's, its
+   * header and elements over it. Missing, the page is its elements only.
+   * 120.4 Also one of the screens opened from the tabs (lib/pages/inner-screens.ts).
+   */
+  screen?: StudioPageScreen | string;
 }
 
 export interface LayoutPage {
@@ -855,6 +869,8 @@ export const LAYOUT_LIMITS = {
   // 82.5 The side menu.
   maxMenu: 12,
   maxPages: 20,
+  // 120.4 Pages drawn around the app's screens count apart, at most one per screen.
+  maxScreenPages: 120,
   maxBlocks: 40,
   // 33 Entries in a block's list: each block's definition (lib/pages/blocks.ts).
   maxItems: 30,
@@ -899,4 +915,9 @@ export const ENTRY_LISTS = Object.keys(TRANSLATABLE_ENTRIES) as EntryList[];
 export interface AppDefaultsSetting {
   appearance: Omit<Appearance, "secondary_color">;
   languages: Languages;
+}
+
+/** 120.4 The app's own pages, the ones `LAYOUT_LIMITS.maxPages` counts: not those drawn around the app's screens. */
+export function ownPageCount(pages: readonly { studio?: { screen?: unknown } | null }[]): number {
+  return pages.filter((p) => !p.studio?.screen).length;
 }

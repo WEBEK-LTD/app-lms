@@ -7,7 +7,7 @@ import { platformSetting } from "../settings/platform";
 import { BUILT_IN_APP_DEFAULTS, defaultAppearance, defaultLayout } from "./defaults";
 import { applyDesign, contactFacts, missingScreens, sampleTexts, socialProfilesOf, type Design } from "./designs";
 import { appUrl } from "../env";
-import { LAYOUT_LIMITS, type AppDefaultsSetting, type Appearance, type Languages, type Layout, type LayoutContent, type LayoutPage, type LayoutTab } from "./types";
+import { LAYOUT_LIMITS, ownPageCount, type AppDefaultsSetting, type Appearance, type Languages, type Layout, type LayoutContent, type LayoutPage, type LayoutTab } from "./types";
 import { parseLayoutContent, type BlockIssue, type ParseResult } from "./validate";
 import type { PlanInfo } from "../plans";
 import { languagesForPlan, layoutForPlan, planLayoutErrors } from "./plan";
@@ -244,7 +244,7 @@ export function designLookOnly(draft: LayoutContent, design: Pick<Design, "look"
  */
 export function withKeptPages(layout: LayoutContent, draft: Pick<LayoutContent, "pages" | "menu">): LayoutContent {
   const own = new Set(layout.pages.map((p) => p.slug));
-  const kept = draft.pages.filter((p) => !own.has(p.slug)).slice(0, Math.max(0, LAYOUT_LIMITS.maxPages - layout.pages.length));
+  const kept = draft.pages.filter((p) => !own.has(p.slug)).slice(0, Math.max(0, LAYOUT_LIMITS.maxPages - ownPageCount(layout.pages)));
   if (!kept.length) return layout;
   const menu = [...(layout.menu ?? [])];
   for (const page of kept) {

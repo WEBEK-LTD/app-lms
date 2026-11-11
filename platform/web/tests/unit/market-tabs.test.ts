@@ -53,7 +53,8 @@ describe("115 a marketplace's tabs", () => {
   it("are Zad's, and the template started from Zad has them", async () => {
     const zad: App = { ...app("marketplace"), demo: true, appName: DEMO_BRANDS.marketplace.appName, primaryColor: DEMO_BRANDS.marketplace.primaryColor };
     const demo = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, zad, "banner-asset");
-    expect(target(demo)).toEqual(APPROVED);
+    // 120 Each tab after the home opens its Studio page, drawn around the approved tab's screen.
+    expect(demo.tabs.map((t) => [t.label, t.target.type === "page" ? (t.target.page_slug === "home" ? "page:home" : demo.pages.find((p) => p.slug === (t.target.type === "page" ? t.target.page_slug : ""))?.studio?.screen) : null])).toEqual(APPROVED);
     const project = { ...app("marketplace"), primaryColor: DEMO_BRANDS.marketplace.primaryColor };
     const started = startLayout(project, TEMPLATES.find((t) => t.id === "demo_marketplace")!, defaultLayout(project, BUILT_IN_APP_DEFAULTS, NOW), NOW, {
       brand: project.primaryColor,

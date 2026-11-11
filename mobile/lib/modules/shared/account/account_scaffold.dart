@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/buttons.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// A pushed account screen: back button and title (design: Settings).
 class AccountScaffold extends StatelessWidget {
@@ -21,27 +22,30 @@ class AccountScaffold extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     body: Column(
       children: [
-        SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Row(
-              children: [
-                const AppBackButton(),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge,
+        // 120.4 Under a Studio page's header, the header is the title and
+        // has the back button.
+        if (!StudioScreenScope.hidesTitleOf(context))
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Row(
+                children: [
+                  const AppBackButton(),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
         Expanded(
           child: scrollable
               ? SingleChildScrollView(

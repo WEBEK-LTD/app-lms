@@ -26,6 +26,7 @@ import '../../store/screens/cart_screen.dart' show isOrderReceived;
 import '../../store/widgets/product_widgets.dart' show QuantityControl;
 import '../data/food_providers.dart';
 import '../widgets/food_widgets.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 
 /// 105.1 The checkout: the cart's dishes, where to deliver (typed, from the
 /// phone's position, a maps link or the map, as in sending a parcel), a
@@ -247,9 +248,9 @@ class _FoodCartScreenState extends ConsumerState<FoodCartScreen> {
     final payment = _paymentOf(config);
     if (cart.isEmpty) {
       return Scaffold(
-        appBar: AppBar(
-          leading: appBarBack(context),
-          title: Text(l10n.foodCartTitle),
+        appBar: studioBar(
+          context,
+          AppBar(leading: appBarBack(context), title: Text(l10n.foodCartTitle)),
         ),
         body: MessageView(
           icon: AppIcons.cart,
@@ -402,9 +403,9 @@ class _FoodCartScreenState extends ConsumerState<FoodCartScreen> {
       ],
     );
     return Scaffold(
-      appBar: AppBar(
-        leading: appBarBack(context),
-        title: Text(l10n.foodCartTitle),
+      appBar: studioBar(
+        context,
+        AppBar(leading: appBarBack(context), title: Text(l10n.foodCartTitle)),
       ),
       body: body,
       bottomNavigationBar: BottomActionBar(

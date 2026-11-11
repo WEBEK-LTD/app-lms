@@ -24,7 +24,7 @@ import { findNode } from "@/lib/studio/tree";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
-import { applyWholeDesign, demoProjectLook, designName, designsFor, makeDesign } from "@/lib/studio/designs";
+import { applyWholeDesign, demoProjectLook, designName, designPageCount, designsFor, makeDesign } from "@/lib/studio/designs";
 import type { OwnDesignView } from "@/lib/studio/own-designs";
 import { DesignsGallery, type GalleryDesign } from "./designs-gallery";
 import { PublishHistory } from "./publish-history";
@@ -35,6 +35,7 @@ import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
+import { applyDemoScreensAction } from "@/app/actions/studio-screens";
 import { sourcesIn } from "@/lib/samples/lists";
 
 /**
@@ -67,6 +68,8 @@ export interface StudioEditorProps {
   sources: ItemSource[];
   categorySources: ItemSource[];
   screens: ScreenOption[];
+  /** 120 The screens a page can be drawn around: the tabs' and those opened from them. */
+  pageScreens: { value: string; label: string }[];
   pickable: Pickable;
   myTemplates: MyTemplate[];
   previewHref: string;
@@ -825,7 +828,15 @@ export function StudioEditor(props: StudioEditorProps) {
   const designWords = { home: t("studio.designHome"), template: (id: string) => t(`studio.tpl_${id}` as DashKey), theme: (id: string) => t(`studio.design_${id}` as DashKey), demo: (name: string) => t("studio.design_demo", { name }) };
   const galleryDesigns: GalleryDesign[] = useMemo(
     () => [
-      ...designsFor(props.kind).map((d) => ({ id: d.id, name: designName(d, designWords), kind: "yallapp" as const, pages: d.templates.length, recommended: d.demo !== undefined, file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages) : null })),
+      ...designsFor(props.kind).map((d) => ({
+        id: d.id,
+        name: designName(d, designWords),
+        kind: "yallapp" as const,
+        // 120 A demo's design: its home and a page for each of its tabs opening a screen.
+        pages: designPageCount(d, d.demo ? props.demoTabs : null),
+        recommended: d.demo !== undefined,
+        file: designsOpen ? makeDesign(d, sectionContext, designWords, layout.languages, d.demo ? props.demoTabs : null) : null,
+      })),
       ...ownDesigns.map((d) => ({ id: d.id, name: d.name, kind: d.source, pages: d.pages, file: null })),
     ],
     // Made when the window opens, for the project as it is then.
@@ -846,8 +857,10 @@ export function StudioEditor(props: StudioEditorProps) {
     for (const p of file.pages) for (const url of picturesIn(p.studio)) if (/^https?:\/\//.test(url)) pictures.set(url, url);
     const fitted = designPages(file, { sources: props.sources, categorySources: props.categorySources, screens: props.screens.map((s) => s.value), newId: newNodeId, pages: current.pages, languages: current.languages, pictures, now: new Date().toISOString() });
     // Templates = demos: the demo's whole design is the demo, its look and tabs too.
-    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs) : undefined;
-    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo });
+    const demo = mode === "project" && file.demo && props.demoTabs ? demoProjectLook(file.demo, props.demoTabs, sectionContext.lang) : undefined;
+    const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo, designSlugs: file.pages.map((p) => p.slug) });
+    // 120 The demo's sign-in screen and account menu too.
+    if (demo && file.demo) void applyDemoScreensAction(file.demo).catch(() => null);
     change(() => next);
     // 110.2 The empty lists the design's pages show get sample entries; a demo's design, the demo's own (as "Start from demo" does).
     if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)], file.demo ?? null).catch(() => null);
@@ -938,24 +951,40 @@ export function StudioEditor(props: StudioEditorProps) {
           </button>
           {pagesOpen ? (
             <div role="menu" className="absolute top-full z-30 mt-1.5 flex w-[260px] flex-col gap-1 rounded-xl bg-white p-2 text-sm shadow-[0_14px_30px_rgba(14,13,36,0.25)]" style={{ insetInlineStart: 0, color: C.ink, border: `1px solid ${C.line}` }}>
-              {layout.pages.map((p) => (
-                <button
-                  key={p.slug}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={p.slug === page?.slug}
-                  onClick={() => {
-                    setSlug(p.slug);
-                    setSelectedId(null);
-                    setPagesOpen(false);
-                  }}
-                  className="flex items-center gap-2 rounded-lg border-0 px-2.5 py-2 text-start"
-                  style={{ background: p.slug === page?.slug ? C.ivory : "transparent", fontWeight: p.slug === page?.slug ? 700 : 400 }}
-                >
-                  <Glyph name={p.studio ? "dashboard_customize" : "description"} size={18} />
-                  <span className="min-w-0 flex-1 truncate">{pageTitle(p)}</span>
-                </button>
-              ))}
+              {/* 120.4 The app's own pages, then those drawn around its screens, the list scrolling past a dozen. */}
+              <div className="flex max-h-[min(60vh,440px)] flex-col gap-1 overflow-y-auto">
+                {[false, true].map((around) => {
+                  const group = layout.pages.filter((p) => Boolean(p.studio?.screen) === around);
+                  if (!group.length) return null;
+                  return (
+                    <div key={String(around)} className="flex flex-col gap-1">
+                      {layout.pages.some((p) => p.studio?.screen) ? (
+                        <span className="px-2.5 pt-1 text-xs font-bold" style={{ color: C.muted }}>
+                          {t(around ? "studio.pagesAroundScreens" : "studio.pagesOwn")}
+                        </span>
+                      ) : null}
+                      {group.map((p) => (
+                        <button
+                          key={p.slug}
+                          type="button"
+                          role="menuitemradio"
+                          aria-checked={p.slug === page?.slug}
+                          onClick={() => {
+                            setSlug(p.slug);
+                            setSelectedId(null);
+                            setPagesOpen(false);
+                          }}
+                          className="flex items-center gap-2 rounded-lg border-0 px-2.5 py-2 text-start"
+                          style={{ background: p.slug === page?.slug ? C.ivory : "transparent", fontWeight: p.slug === page?.slug ? 700 : 400 }}
+                        >
+                          <Glyph name={p.studio?.screen ? "apps" : p.studio ? "dashboard_customize" : "description"} size={18} />
+                          <span className="min-w-0 flex-1 truncate">{pageTitle(p)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
               {/* 108.2 Designs brought in and taken out as files. */}
               <div className="mt-1 flex flex-col gap-1 pt-2" style={{ borderTop: `1px solid ${C.line}` }}>
                 {(
@@ -1149,7 +1178,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} tablet={device === "tablet"} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} tablet={device === "tablet"} screenLabel={studio.screen ? t("studio.screenDrawn", { screen: props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen }) : undefined} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}
@@ -1250,6 +1279,7 @@ export function StudioEditor(props: StudioEditorProps) {
             sources={props.sources}
             categorySources={props.categorySources}
             screens={props.screens}
+            pageScreens={props.pageScreens}
             pickable={props.pickable}
             fontLabels={fontLabels}
             textStyles={textStyles}

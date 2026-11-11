@@ -7,6 +7,9 @@ import { clientFor, mayUseDashboard } from "@/lib/auth/session";
 import { getStore } from "@/lib/data";
 import { DEFAULT_HOSTED_SETTINGS } from "@/lib/data/types";
 import type { FormState } from "@/lib/forms";
+import { isStudioDemo, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoStudioScreens } from "@/lib/demo/screens";
+import { appUrl } from "@/lib/env";
 import { parseStudioScreens, studioScreensOn } from "@/lib/studio/screens";
 
 /**
@@ -39,4 +42,23 @@ export async function saveStudioScreensAction(_: FormState, formData: FormData):
   await recordStaffChange(context, "Changed the sign-in screen and the account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
   revalidatePath("/studio/project/screens");
   return { ok: true, message: reset ? "Back to the app's own screens. The app shows them the next time it opens." : "Saved. The app shows it the next time it opens; no new build is needed." };
+}
+
+/**
+ * 120 Templates = demos: a Studio demo's whole design applied to the
+ * project brings the demo's sign-in screen and account menu too, as the
+ * demo app has them (lib/demo/screens.ts). Nothing for an app whose screens
+ * Studio doesn't design.
+ */
+export async function applyDemoScreensAction(demo: string): Promise<{ ok: boolean }> {
+  const context = await clientFor("settings");
+  if (!context || !mayUseDashboard(context)) return { ok: false };
+  const app = context.app;
+  if (!app || !studioScreensOn(app) || !(STUDIO_DEMO_TYPES as readonly string[]).includes(demo) || !isStudioDemo(demo as StudioDemoId)) return { ok: false };
+  const screens = demoStudioScreens(demo as StudioDemoId, appUrl());
+  const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
+  await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
+  await recordStaffChange(context, "Took the demo's sign-in screen and account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
+  revalidatePath("/studio/project/screens");
+  return { ok: true };
 }

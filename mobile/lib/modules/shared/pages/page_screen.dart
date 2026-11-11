@@ -15,6 +15,7 @@ import 'app_header.dart';
 import 'draft_reload.dart';
 import 'page_blocks.dart';
 import 'page_providers.dart';
+import 'screen_page.dart';
 import 'side_menu.dart';
 import 'studio_page.dart';
 
@@ -80,7 +81,16 @@ class AppPageView extends ConsumerWidget {
     // 103R A page designed in Yallapp Studio.
     final studio = page.studio;
     if (studio != null) {
-      return StudioPageView(page: studio, pageSlug: page.slug, pushed: pushed);
+      // 120 A page drawn around one of the app's screens, opened by its address.
+      final around = studio.screen;
+      return StudioPageView(
+        page: studio,
+        pageSlug: page.slug,
+        pushed: pushed,
+        screen: around == null
+            ? null
+            : builtInScreenWidget(context, ref, around),
+      );
     }
     final template = ref.watch(appLookProvider).template;
     final style = PageStyle.of(template);

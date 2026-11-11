@@ -14,6 +14,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/studio_screen_scope.dart';
 import '../data/real_estate_providers.dart';
 
 /// Icons of the listing facts (Material Symbols Rounded).
@@ -407,6 +408,19 @@ class TabHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 120 Under a Studio page's header, the header is the screen's title.
+    if (StudioScreenScope.hidesTitleOf(context)) {
+      return trailing == null
+          ? const SizedBox(key: ValueKey('tab-header-hidden'), height: 4)
+          : Padding(
+              key: const ValueKey('tab-header-hidden'),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: trailing,
+              ),
+            );
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Row(
