@@ -14555,6 +14555,28 @@ components:
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
         open_in: { type: string, enum: [in_app, browser], default: in_app }
+        web:
+          type: [object, 'null']
+          description: |
+            122 For `url` opened `in_app`: how the app shows the page. As a
+            bottom tab it is one of the app's screens, the tab's name over it,
+            no address bar and the link never shown; opened from a button or
+            the More list, on top with no address either. `hide_header` and
+            `hide_footer` hide the site's own header and footer (the places
+            themes keep them), `hide` more parts by CSS selectors, and
+            `links_inside` keeps every link in the app (otherwise the site's
+            own pages stay and other sites open in the browser). Missing, the
+            page as it is. Apps that don't know it open the page on top.
+          properties:
+            hide_header: { type: boolean, default: false }
+            hide_footer: { type: boolean, default: false }
+            hide:
+              type: [string, 'null']
+              maxLength: 300
+              pattern: '^[A-Za-z0-9\s.#_\-:,>+~*\[\]="''()^$|]{1,300}$'
+              description: CSS selectors, comma separated, of more parts to hide.
+              example: '.newsletter, #cookie-banner'
+            links_inside: { type: boolean, default: false }
 
     ItemRef:
       type: [object, 'null']

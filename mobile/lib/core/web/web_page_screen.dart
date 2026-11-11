@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/models/models.dart';
+
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/buttons.dart';
@@ -13,10 +15,15 @@ class WebPageArgs {
     required this.title,
     this.headers = const {},
     this.completesOn,
+    this.look,
   });
 
   final String url;
   final String title;
+
+  /// 122 The owner's choices for a web page in the app: the site's header
+  /// and footer hidden, its links kept in the app.
+  final WebPageLook? look;
   final Map<String, String> headers;
 
   /// When a page the web view reaches matches, the screen closes with
@@ -44,6 +51,9 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
     headers: widget.args.headers,
     onUrlChange: _onUrl,
     debugLabel: 'page',
+    injectCss: widget.args.look?.css,
+    openLinksOutside:
+        widget.args.look != null && !widget.args.look!.linksInside,
   );
 
   void _onUrl(Uri url) {

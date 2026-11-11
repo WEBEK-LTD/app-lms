@@ -33,6 +33,7 @@ import 'pages/page_providers.dart';
 import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
 import 'pages/screen_page.dart';
+import 'pages/web_tab_screen.dart';
 import 'pages/side_menu.dart';
 import '../../core/l10n/l10n.dart';
 
@@ -225,6 +226,16 @@ List<RouteBase> tabbedRoutes({
           ScreenWithPage(path: screen.path, child: screen.build(state)),
         ),
         routes: screen.routes,
+      );
+    } else if (path.startsWith(Paths.webTabPrefix)) {
+      // 122 A web page in the app, as a tab.
+      final id = Uri.decodeComponent(path.substring(Paths.webTabPrefix.length));
+      route = GoRoute(
+        path: path,
+        pageBuilder: (context, state) => appPage(
+          state,
+          WebTabScreen(key: ValueKey('tab-web-$id'), tabId: id),
+        ),
       );
     } else if (path.startsWith(Paths.pagePrefix)) {
       final slug = Uri.decodeComponent(path.substring(Paths.pagePrefix.length));

@@ -58,9 +58,14 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
           !(uri.scheme == 'https' || uri.scheme == 'http')) {
         openExternal(url!);
       } else {
+        // 122 With the owner's choices the link isn't shown: no title.
         context.push(
           Paths.web,
-          extra: WebPageArgs(url: url!, title: uri.host),
+          extra: WebPageArgs(
+            url: url!,
+            title: action.web == null ? uri.host : '',
+            look: action.web,
+          ),
         );
       }
     case PageActionType.more:

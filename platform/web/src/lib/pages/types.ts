@@ -332,7 +332,27 @@ export interface Action {
   item?: { source: ItemSource; id: string } | null;
   url?: string | null;
   open_in?: "in_app" | "browser";
+  /** 122 A web page opened in the app (`url`, `in_app`): as a tab, the page alone, its site's header and footer hidden. */
+  web?: WebPageLook;
 }
+
+/**
+ * 122 How the app shows a web page in it (`Action.web`): with no address bar
+ * and the link never shown; the site's own header and footer hidden, and
+ * anything else the owner names (CSS selectors); the site's links opened in
+ * the app too. Missing, the page as it is.
+ */
+export interface WebPageLook {
+  hide_header?: boolean;
+  hide_footer?: boolean;
+  /** CSS selectors, comma separated, of more parts to hide (`.newsletter, #cookie-banner`). */
+  hide?: string | null;
+  /** The site's own links stay in the app; links to other sites open in the browser. */
+  links_inside?: boolean;
+}
+
+/** 122 What the selectors a page hides may hold: a selector list, nothing that ends a rule. */
+export const WEB_HIDE_PATTERN = /^[A-Za-z0-9\s.#_\-:,>+~*\[\]="'()^$|]{1,300}$/;
 
 /** What an `items` block lists (`LayoutBlock.query`). */
 export interface ItemsQuery {

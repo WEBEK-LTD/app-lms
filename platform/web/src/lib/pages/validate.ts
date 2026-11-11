@@ -52,6 +52,7 @@ import {
   STUDIO_HEADER_TYPES,
   STUDIO_LAYOUT_TYPES,
   STUDIO_PAGE_SCREENS,
+  WEB_HIDE_PATTERN,
   STUDIO_LIMITS,
   STUDIO_LOOPS,
   STUDIO_NODE_TYPES,
@@ -90,6 +91,7 @@ import {
   type StudioNode,
   type StudioFont,
   type StudioPage,
+  type WebPageLook,
   type StudioSides,
   type StudioSize,
   type FaqEntry,
@@ -383,10 +385,28 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
     case "url": {
       const url = typeof v.url === "string" ? safeHref(v.url) : null;
       if (!url || !/^https?:/i.test(url)) c.fail(where, "enter a full web address starting with https://.");
-      return { type: "url", url: url ?? "", open_in: openIn };
+      // 122 How the page shows in the app.
+      const web = openIn === "in_app" ? parseWebLook(c, where, v.web) : null;
+      return { type: "url", url: url ?? "", open_in: openIn, ...(web ? { web } : {}) };
     }
   }
   return null;
+}
+
+/** 122 `Action.web`: only what is set, the selectors checked; null for the page as it is. */
+function parseWebLook(c: Checker, where: string, value: unknown): WebPageLook | null {
+  const v = record(value);
+  if (!v) return null;
+  const out: WebPageLook = {};
+  if (v.hide_header === true) out.hide_header = true;
+  if (v.hide_footer === true) out.hide_footer = true;
+  if (v.links_inside === true) out.links_inside = true;
+  const hide = typeof v.hide === "string" ? v.hide.trim() : "";
+  if (hide) {
+    if (!WEB_HIDE_PATTERN.test(hide)) c.fail(where, "the parts to hide must be CSS selectors, such as .newsletter, #cookie-banner.");
+    else out.hide = hide;
+  }
+  return Object.keys(out).length ? out : null;
 }
 
 function parseTranslations(ctx: Context, where: string, value: unknown, fields: readonly string[], limits: Record<string, number>): Translations | undefined {

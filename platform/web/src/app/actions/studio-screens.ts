@@ -10,6 +10,7 @@ import type { FormState } from "@/lib/forms";
 import { isStudioDemo, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { demoStudioScreens } from "@/lib/demo/screens";
 import { appUrl } from "@/lib/env";
+import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { parseStudioScreens, studioScreensOn } from "@/lib/studio/screens";
 
 /**
@@ -40,6 +41,8 @@ export async function saveStudioScreensAction(_: FormState, formData: FormData):
   const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
   await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
   await recordStaffChange(context, "Changed the sign-in screen and the account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
+  // 121 A WordPress site gets them with its license status: it asks again now.
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   revalidatePath("/studio/project/screens");
   return { ok: true, message: reset ? "Back to the app's own screens. The app shows them the next time it opens." : "Saved. The app shows it the next time it opens; no new build is needed." };
 }
@@ -59,6 +62,7 @@ export async function applyDemoScreensAction(demo: string): Promise<{ ok: boolea
   const settings = { ...DEFAULT_HOSTED_SETTINGS, ...(app.hostedSettings ?? {}), studioScreens: screens };
   await (await getStore()).updateApp(app.id, { hostedSettings: settings }, new Date());
   await recordStaffChange(context, "Took the demo's sign-in screen and account menu", { studioScreens: app.hostedSettings?.studioScreens ?? null }, { studioScreens: screens });
+  if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   revalidatePath("/studio/project/screens");
   return { ok: true };
 }

@@ -901,13 +901,43 @@ class Block_Resolver {
 			if ( null === $url || ( 'ios' === $this->platform && $this->is_purchase_url( $url ) ) ) {
 				return null;
 			}
-			return array(
+			$open_in = self::choice( $raw['open_in'] ?? null, array( 'in_app', 'browser' ), 'in_app' );
+			$action  = array(
 				'type'    => 'url',
 				'url'     => $url,
-				'open_in' => self::choice( $raw['open_in'] ?? null, array( 'in_app', 'browser' ), 'in_app' ),
+				'open_in' => $open_in,
 			);
+			// 122 How the page shows in the app: its site's header and footer hidden, its links kept in.
+			$web = 'in_app' === $open_in ? self::web_look( $raw['web'] ?? null ) : null;
+			if ( $web ) {
+				$action['web'] = $web;
+			}
+			return $action;
 		}
 		return null;
+	}
+
+	/**
+	 * 122 `Action.web`: what is set, the selectors checked; null for the page as it is.
+	 *
+	 * @param mixed $raw The layout's.
+	 * @return array|null
+	 */
+	public static function web_look( $raw ) {
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+		$out = array();
+		foreach ( array( 'hide_header', 'hide_footer', 'links_inside' ) as $key ) {
+			if ( true === ( $raw[ $key ] ?? null ) ) {
+				$out[ $key ] = true;
+			}
+		}
+		$hide = isset( $raw['hide'] ) && is_string( $raw['hide'] ) ? trim( $raw['hide'] ) : '';
+		if ( '' !== $hide && preg_match( '/^[A-Za-z0-9\s.#_\-:,>+~*\[\]="\'()^$|]{1,300}$/', $hide ) ) {
+			$out['hide'] = $hide;
+		}
+		return $out ? $out : null;
 	}
 
 	/**

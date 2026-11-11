@@ -310,6 +310,11 @@ ShellTab? _shellTab(
       target.screen!,
       config,
     ),
+    // 122 A web page in the app is a tab of its own; in the More list it
+    // opens on top, as before.
+    PageActionType.url
+        when !onTop && target.url != null && target.openIn == OpenIn.inApp =>
+      Paths.webTab(tab.id),
     _ => null,
   };
   if (target.type == PageActionType.screen && location == null) return null;

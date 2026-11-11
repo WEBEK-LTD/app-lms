@@ -32,6 +32,7 @@ class WebViewRequest {
     this.allowNavigation,
     this.browserFrame = false,
     this.debugLabel,
+    this.injectCss,
   }) : assert(url != null || html != null);
 
   /// Loaded as the top-level page.
@@ -79,6 +80,10 @@ class WebViewRequest {
   /// web build) shows it instead of its "installed app only" note.
   final bool browserFrame;
   final String? debugLabel;
+
+  /// 122 Style rules the page gets as it loads and once it has (a site's
+  /// own header and footer hidden in a web page tab).
+  final String? injectCss;
 }
 
 /// 40 Whether a web view may load [uri], in the page itself ([mainFrame]) or
@@ -130,7 +135,11 @@ class _PlatformWebViewState extends State<PlatformWebView>
       ..setNavigationDelegate(
         NavigationDelegate(
           onNavigationRequest: _onNavigation,
-          onPageFinished: (_) => widget.request.onPageFinished?.call(),
+          onPageStarted: (_) => _injectCss(),
+          onPageFinished: (_) {
+            _injectCss();
+            widget.request.onPageFinished?.call();
+          },
           onUrlChange: (change) {
             final uri = Uri.tryParse(change.url ?? '');
             if (uri != null) widget.request.onUrlChange?.call(uri);
@@ -166,6 +175,23 @@ class _PlatformWebViewState extends State<PlatformWebView>
     }
     _load();
     widget.request.onCreated?.call(this);
+  }
+
+  /// 122 Adds [WebViewRequest.injectCss] to the page, once (again after
+  /// the page replaced its head).
+  void _injectCss() {
+    final css = widget.request.injectCss;
+    if (css == null || css.isEmpty) return;
+    unawaited(
+      _controller
+          .runJavaScript(
+            '(function(){var s=document.getElementById("yallapp-css");'
+            'if(!s){s=document.createElement("style");s.id="yallapp-css";'
+            '(document.head||document.documentElement).appendChild(s);}'
+            's.textContent=${jsonEncode(css)};})();',
+          )
+          .catchError((_) {}),
+    );
   }
 
   @override
