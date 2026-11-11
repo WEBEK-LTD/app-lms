@@ -3936,6 +3936,21 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "بعد أن يحفظ المكان مواعيده أو إجازاته.",
     tr: "İşletme saatlerini veya tatillerini kaydettikten sonra.",
   },
+  "118.3 Night account look: the title on the membership card.": {
+    en: "The title on the membership card, on the account page's night look.",
+    ar: "عنوان بطاقة العضوية في الشكل الليلي لصفحة الحساب.",
+    tr: "Hesap sayfasının gece görünümünde üyelik kartının başlığı.",
+  },
+  "118.3 What the points are worth, formatted (₺84.00).": {
+    en: "What the person's points are worth, on the membership card (₺84.00).",
+    ar: "قيمة نقاط الشخص على بطاقة العضوية (₺84.00).",
+    tr: "Kişinin puanlarının değeri, üyelik kartında (₺84.00).",
+  },
+  "118.3 Points still needed before they can be used.": {
+    en: "How many more points the person needs before they can use them, on the membership card.",
+    ar: "عدد النقاط التي ما زال الشخص يحتاجها ليستخدم نقاطه، على بطاقة العضوية.",
+    tr: "Kişinin puanlarını kullanabilmesi için gereken puan sayısı, üyelik kartında.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
