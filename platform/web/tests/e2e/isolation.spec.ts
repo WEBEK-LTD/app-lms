@@ -25,7 +25,7 @@ async function signUp(browser: Browser, who: typeof mine, phone: string): Promis
   await page.getByLabel("Password", { exact: true }).fill(who.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
   await page.close();
 }
 
@@ -60,6 +60,9 @@ test("two clients, each activated", async ({ browser }) => {
     const context = await browser.newContext({ extraHTTPHeaders });
     const page = await context.newPage();
     await signIn(page, who.email, who.password);
+    // 121 Without an app yet: the choice of editor or Studio first.
+    await expect(page).toHaveURL(/\/start$/);
+    await page.getByRole("link", { name: /The app editor/ }).click();
     await expect(page).toHaveURL(/\/dashboard\/app-type$/);
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL((url) => !url.pathname.endsWith("/app-type"));

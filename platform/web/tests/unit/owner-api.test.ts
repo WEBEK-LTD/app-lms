@@ -268,15 +268,21 @@ describe("58 the Owner API", () => {
       expect(await store.listOwnerDevices(user.id)).toHaveLength(2);
     });
 
-    it("lets a pending account see its state and nothing else", async () => {
-      const { user: waiting } = await registerClient(store, { name: "Waiting", email: "wait@ing.test", whatsapp: "+201001112223", siteUrl: "", password: null }, NOW);
-      await store.updateUser(waiting.id, { passwordHash: await hashPassword(PASSWORD) }, NOW);
+    it("121 lets a new account in at once, without a plan yet; a suspended one sees its state and nothing else", async () => {
+      const { user: fresh, client: account } = await registerClient(store, { name: "Fresh", email: "wait@ing.test", whatsapp: "+201001112223", siteUrl: "", password: null }, NOW);
+      await store.updateUser(fresh.id, { passwordHash: await hashPassword(PASSWORD) }, NOW);
       const session = await signIn("wait@ing.test");
+      // No plan yet: it waits for its first one, nothing in the way.
       expect(session.account_state).toBe("pending");
       const me = await call("GET", "/me", { token: session.access_token });
-      expect(me.body).toMatchObject({ account: { state: "pending", message: expect.stringContaining("waiting for activation") }, apps: [] });
-      expect(await call("GET", "/updates", { token: session.access_token })).toMatchObject({ status: 403, body: { code: "account_pending" } });
-      expect(await call("GET", "/apps/{app_id}/today", { token: session.access_token, params: { app_id: kitchen.id } })).toMatchObject({ status: 403 });
+      expect(me.body).toMatchObject({ account: { state: "pending", message: null }, apps: [] });
+      expect((await call("GET", "/updates", { token: session.access_token })).status).toBe(200);
+      // Another business's app stays closed to it.
+      expect(await call("GET", "/apps/{app_id}/today", { token: session.access_token, params: { app_id: kitchen.id } })).toMatchObject({ status: 404 });
+      await store.updateClient(account.id, { status: "suspended" }, NOW);
+      const blocked = await signIn("wait@ing.test");
+      expect(blocked.account_state).toBe("suspended");
+      expect(await call("GET", "/updates", { token: blocked.access_token })).toMatchObject({ status: 403, body: { code: "account_suspended" } });
     });
 
     it("renews with a new refresh token each time; the old one and a changed password stop it", async () => {

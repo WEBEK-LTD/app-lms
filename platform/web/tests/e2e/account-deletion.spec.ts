@@ -6,8 +6,8 @@ import { E2E } from "../../playwright.config";
 /**
  * 66 Deleting a Yallapp account: the public page Google Play and the App
  * Store link to (in English, Arabic and Turkish, in the footer, the legal
- * pages' menu and the privacy policy); an account waiting for activation asks
- * from the waiting page and cancels; once active, the owner asks from
+ * pages' menu and the privacy policy); 121 a new account (active from the
+ * start) asks from Your account before its first plan and cancels; once it has a plan, the owner asks from
  * Dashboard › Your account (a wrong password refused), their Yallapp
  * Business phone is signed out, our team is emailed, and marking it done in
  * Admin › Account deletion emails them.
@@ -75,7 +75,7 @@ test("66 the public page, in every language, linked from the footer and the priv
   expect(sitemap).toContain(`${E2E.baseURL}/tr/delete-account`);
 });
 
-test("66 an account waiting for activation asks from the waiting page, and cancels", async ({ browser }) => {
+test("66 121 a new account, before its first plan, asks from Your account, and cancels", async ({ browser }) => {
   own = await freshPage(browser);
   await own.goto("/sign-up");
   await own.getByLabel("Full name").fill(client.name);
@@ -85,19 +85,20 @@ test("66 an account waiting for activation asks from the waiting page, and cance
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
-  await own.locator("summary", { hasText: "Delete my account" }).click();
+  // Active from the start: its own account page, before any app or plan.
+  await own.goto("/dashboard/account");
   await own.getByLabel("Type your email address to confirm").fill(client.email);
   await own.getByLabel("Your password").fill(client.password);
   await own.getByRole("button", { name: "Delete my account" }).click();
-  await expect(own).toHaveURL(/\/pending\?deletion=requested/);
+  await expect(own).toHaveURL(/\/dashboard\/account\?deletion=requested/);
   await expect(own.getByRole("status").filter({ hasText: "Your request was sent." })).toBeVisible();
   await expect(own.locator('[data-deletion="pending"]')).toContainText("Your account will be deleted");
   await expect.poll(async () => (await mailsTo(client.email)).map((m) => m.subject)).toContain("We received your request to delete your Yallapp account");
 
   await own.getByRole("button", { name: "Cancel the request" }).click();
-  await expect(own).toHaveURL(/\/pending\?deletion=cancelled/);
+  await expect(own).toHaveURL(/\/dashboard\/account\?deletion=cancelled/);
   await expect(own.getByRole("status").filter({ hasText: "Your request was cancelled." })).toBeVisible();
   await expect(own.locator('[data-deletion="pending"]')).toHaveCount(0);
 });

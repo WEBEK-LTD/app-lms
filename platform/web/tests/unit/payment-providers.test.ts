@@ -332,7 +332,8 @@ describe("plan payments with Kashier", () => {
     // A payment for less isn't this one.
     kashier.pay("sess1abcdef", { amount: "1.00" });
     expect((await complete()).kind).toBe("pending");
-    expect((await setup.store.getClientById(setup.client.id))!.status).toBe("pending");
+    // 121 The account is active from the start; the payment gave it no plan.
+    expect(await setup.store.listLicensesByClient(setup.client.id)).toEqual([]);
 
     kashier.pay("sess1abcdef", { amount: "12000.00" });
     const outcome = await complete();
@@ -366,7 +367,8 @@ describe("plan payments with Kashier", () => {
     kashier.pay("sess1abcdef");
     const payment = (await setup.store.getPlanPaymentByToken(sha256Hex(token)))!;
     expect((await completePlanPayment({ store: setup.store, account: FAWATERK_ACCOUNT, fetcher: kashier.fetcher, now: NOW, payment, encryptionKey: KEY })).kind).toBe("failed");
-    expect((await setup.store.getClientById(setup.client.id))!.status).toBe("pending");
+    // 121 The account is active from the start; the payment gave it no plan.
+    expect(await setup.store.listLicensesByClient(setup.client.id)).toEqual([]);
   });
 });
 

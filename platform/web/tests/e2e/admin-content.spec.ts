@@ -93,7 +93,9 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("New password", { exact: true }).fill(client.password);
   await own.getByLabel("Repeat the new password").fill(client.password);
   await own.getByRole("button", { name: "Save password and sign in" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  // 121 Active from the start: the choice of editor, and the plan paid from the Plan page.
+  await expect(own).toHaveURL(/\/start$/);
+  await own.goto("/dashboard/license");
 });
 
 test.afterAll(async () => {
@@ -243,6 +245,9 @@ test("a coupon lowers the client's card payment", async () => {
 test("the team publishes an announcement; the client sees it, gets the email and dismisses it", async () => {
   // The client, active since the payment, picks their app type to reach the overview.
   await own.goto("/dashboard");
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await expect(own).toHaveURL(/\/start$/);
+  await own.getByRole("link", { name: /The app editor/ }).click();
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByRole("button", { name: "Continue" }).click();
   await expect(own.getByRole("heading", { name: "Website" })).toBeVisible();

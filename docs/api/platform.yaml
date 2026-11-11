@@ -1242,6 +1242,15 @@ components:
           properties:
             base_url: { type: string, format: uri }
             groups: { type: boolean, description: The academy turned on course groups. }
+        screens:
+          type: [object, 'null']
+          description: |
+            121 A Yallapp Studio project's sign-in screen and account menu,
+            as the owner designed them in Studio (`Config.screens` in the app
+            API, the same shape): the plugin serves it as `Config.screens` as
+            it is. Null when none are designed or the app isn't a Studio
+            project. Missing on older platforms.
+          additionalProperties: true
         store_billing:
           type: [object, 'null']
           description: |

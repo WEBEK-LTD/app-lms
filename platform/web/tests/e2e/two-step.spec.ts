@@ -117,7 +117,7 @@ test("70 a client turns on two-step sign-in and signs in with a code, in Arabic 
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
   await admin.goto(`/admin?q=${encodeURIComponent(client.email)}`);
   await admin.getByRole("link", { name: `Activate ${client.name}` }).click();
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();

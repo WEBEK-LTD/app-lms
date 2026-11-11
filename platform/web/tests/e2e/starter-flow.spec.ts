@@ -47,7 +47,7 @@ test("a Growth client signs up and is activated", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await page.context().clearCookies();
   await signIn(page, E2E.starterAdminEmail, E2E.adminPassword);

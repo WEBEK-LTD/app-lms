@@ -58,7 +58,7 @@ test("a shop takes a bank transfer, marks it paid, and cancels an unpaid order",
   await page.getByLabel("Password", { exact: true }).fill(shop.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await signIn(page, E2E.manualPayAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");

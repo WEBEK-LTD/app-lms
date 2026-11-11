@@ -61,7 +61,7 @@ async function signUpAndActivate(page: Page, who: { name: string; email: string;
   await page.getByLabel("Password", { exact: true }).fill(who.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
   await admin.goto(`/admin/clients?q=${encodeURIComponent(who.email)}`);
   await admin.getByRole("link", { name: `Activate ${who.name}` }).click();
   const panel = admin.getByRole("complementary");

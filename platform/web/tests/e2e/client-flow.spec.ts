@@ -4,7 +4,7 @@ import { E2E } from "../../playwright.config";
 import { solidPng } from "./png";
 
 /**
- * The main journey: sign up → pending → the super admin activates → the
+ * The main journey: sign up → 121 active at once, choosing the editor or Studio → the super admin activates the plan → the
  * client completes the setup wizard → a build is queued → the plugin uses the
  * license API → the pipeline reads the config and reports back.
  */
@@ -45,15 +45,17 @@ test("a new client signs up and waits for activation", async ({ page }) => {
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(page).toHaveURL(/\/pending$/);
-  await expect(page.getByRole("heading", { name: "Your account is waiting for activation" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Message us on WhatsApp" })).toHaveAttribute("href", /^https:\/\/wa\.me\/905446731942\?text=/);
-  await page.getByRole("link", { name: "Check again" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
-
-  // Pending clients can't open the dashboard.
-  await page.goto("/dashboard/builds");
-  await expect(page).toHaveURL(/\/pending$/);
+  // 121 Active from the start: no waiting, the choice of how to make the app.
+  await expect(page).toHaveURL(/\/start$/);
+  await expect(page.getByRole("heading", { name: "How do you want to make your app?" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /The app editor/ })).toHaveAttribute("href", "/dashboard/app-type");
+  await expect(page.getByRole("link", { name: /Yallapp Studio/ })).toHaveAttribute("href", "/studio/new");
+  // The waiting page is for a suspended account only: an active one is sent on.
+  await page.goto("/pending");
+  await expect(page).toHaveURL(/\/start$/);
+  // The dashboard opens.
+  await page.goto("/dashboard/account");
+  await expect(page.getByRole("heading", { level: 1, name: "Your account" })).toBeVisible();
 });
 
 test("the super admin activates the client with a Pro plan", async ({ page }) => {
@@ -81,9 +83,11 @@ test("the super admin activates the client with a Pro plan", async ({ page }) =>
 
 test("the client completes the setup wizard and the first build is queued", async ({ page }) => {
   await signIn(page, client.email, client.password);
-  // Active clients without an app start by choosing the app type.
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await expect(page).toHaveURL(/\/start$/);
+  await page.getByRole("link", { name: /The app editor/ }).click();
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
-  await page.goto("/pending");
+  await page.goto("/dashboard/app-type");
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await expect(page.getByRole("radio", { name: "Bookings" })).toBeAttached();
   await expect(page.getByRole("radio", { name: "Academy" })).toBeChecked();

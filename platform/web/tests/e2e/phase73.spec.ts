@@ -73,7 +73,7 @@ test("73 the client's dashboard is light or dark, and the account's country is t
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
 
   admin = await freshPage(browser);
   await admin.goto("/sign-in");
@@ -86,7 +86,7 @@ test("73 the client's dashboard is light or dark, and the account's country is t
   await admin.getByRole("complementary").getByRole("button", { name: "Activate & send license" }).click();
   await expect(admin.getByRole("status")).toContainText("Activated");
 
-  await own.goto("/pending");
+  await own.goto("/dashboard/app-type");
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByText("Store", { exact: true }).click();
   await own.getByRole("button", { name: "Continue" }).click();
@@ -176,5 +176,8 @@ test("73 the owner deletes the app; our team restores it, then deletes it for go
   expect((await request.post("/api/v1/licenses/check", { data: site })).status()).toBe(404);
   // The account stays, with no app.
   await own.goto("/dashboard");
+  // 121 Without an app yet: the choice of editor or Studio first.
+  await expect(own).toHaveURL(/\/start$/);
+  await own.getByRole("link", { name: /The app editor/ }).click();
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
 });

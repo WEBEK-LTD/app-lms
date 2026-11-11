@@ -62,7 +62,8 @@ export default async function PendingPage({ searchParams }: PageProps<"/pending"
       </AuthShell>
     );
   }
-  if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/dashboard/app-type");
+  // 121 Active from the start: a new account chooses the editor or Yallapp Studio.
+  if (context.client.status === "active") redirect(context.app ? "/dashboard" : "/start");
 
   const suspended = context.client.status === "suspended";
   const { payment, deletion, phones } = await searchParams;

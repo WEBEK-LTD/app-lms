@@ -2,11 +2,17 @@ import type { Client, License, LicenseState } from "../data/types";
 
 export type AccountState = "pending" | "active" | "expired" | "suspended";
 
-/** What the admin list shows for a client, from the license that decides it (see clientAccountState). */
+/**
+ * What the admin list shows for a client, from the license that decides it
+ * (see clientAccountState). 121 An account is active from the start, so one
+ * whose apps have no plan yet is still waiting for its first one: the team
+ * activates it with a plan as before.
+ */
 export function accountState(client: Pick<Client, "status">, license: Pick<License, "expiresAt"> | null, now: Date): AccountState {
   if (client.status === "pending") return "pending";
   if (client.status === "suspended") return "suspended";
-  if (!license || license.expiresAt.getTime() <= now.getTime()) return "expired";
+  if (!license) return "pending";
+  if (license.expiresAt.getTime() <= now.getTime()) return "expired";
   return "active";
 }
 

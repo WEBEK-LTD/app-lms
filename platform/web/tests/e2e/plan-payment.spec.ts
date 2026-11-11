@@ -59,7 +59,9 @@ test.beforeAll(async ({ browser }) => {
   await own.getByLabel("Password", { exact: true }).fill(client.password);
   await own.getByRole("checkbox").check();
   await own.getByRole("button", { name: "Create account" }).click();
-  await expect(own).toHaveURL(/\/pending$/);
+  await expect(own).toHaveURL(/\/start$/);
+  // 121 Active from the start: the first plan is paid on the Plan page.
+  await own.goto("/dashboard/license");
 
   admin = await browser.newPage();
   await admin.goto("/sign-in");

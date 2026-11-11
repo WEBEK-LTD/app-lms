@@ -17,7 +17,8 @@ describe("admin overview numbers", () => {
       { client: client("active", days(-200)), license: null },
       { client: client("suspended", days(-6)), license: license(days(30)) },
     ];
-    expect(clientsByState(rows, NOW)).toEqual({ pending: 2, active: 1, expired: 2, suspended: 1 });
+    // 121 An active account without a plan yet waits for its first one.
+    expect(clientsByState(rows, NOW)).toEqual({ pending: 3, active: 1, expired: 1, suspended: 1 });
     expect(signUpsSince(rows, NOW, 7)).toBe(3);
     expect(signUpsSince(rows, NOW, 30)).toBe(4);
   });

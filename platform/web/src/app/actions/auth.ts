@@ -81,7 +81,8 @@ async function signUp(formData: FormData, lang: Lang): Promise<FormState> {
     }
     throw error;
   }
-  redirect("/pending");
+  // 121 Active at once: the person chooses the regular editor or Yallapp Studio.
+  redirect("/start");
 }
 
 export async function signInAction(_: FormState, formData: FormData): Promise<FormState> {

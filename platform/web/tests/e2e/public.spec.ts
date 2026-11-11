@@ -655,7 +655,7 @@ test("a business signs up without a website", async ({ browser }) => {
   await page.getByLabel("Your website (optional)").fill("");
   await page.getByLabel("Password", { exact: true }).fill("nora-strong-password-1");
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
   await page.close();
 });
 

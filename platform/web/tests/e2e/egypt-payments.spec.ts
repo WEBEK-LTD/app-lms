@@ -42,7 +42,9 @@ async function signUp(page: Page, who: { name: string; email: string; password: 
   await page.getByLabel("Password", { exact: true }).fill(who.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
+  // 121 Active from the start: the first plan is paid on the Plan page.
+  await page.goto("/dashboard/license");
 }
 
 test.beforeAll(async ({ browser }) => {

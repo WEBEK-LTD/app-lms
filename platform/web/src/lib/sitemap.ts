@@ -23,6 +23,8 @@ export const PRIVATE_PATHS = [
   // 105.2 Shared rides.
   "/r/",
   "/pending",
+  // 121 Where a new account chooses the editor or Studio.
+  "/start",
   "/preview-app/",
   "/demo/download/",
   // 114 A campaign email's unsubscribe page.

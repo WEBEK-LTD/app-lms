@@ -26,6 +26,14 @@ export const en = {
   upPublishing:
     "When we publish for you: Google Play service account JSON and App Store Connect API key (Issuer ID, Key ID, .p8 file). When you publish yourself: optionally the App Store Connect API key to sign your iOS app, then publish with our guides. Optional on every plan: Firebase files for push notifications. Or choose “Publish it for me” and our team publishes it.",
   // Choose app type.
+  // 121 Where a new account starts.
+  startTitle: "How do you want to make your app?",
+  startText: "Your account is ready. Choose how to start; you can use the other one later too.",
+  startEditor: "The app editor",
+  startEditorText: "An app for your website, shop or academy: choose its type, connect your content and set its pages, look and tabs.",
+  startStudio: "Yallapp Studio",
+  startStudioText: "Design every screen yourself, starting from a ready demo: delivery, food, a marketplace, rides, a school or an academy with teachers.",
+  startChoose: "Start",
   typeTitle: "Choose app type",
   addApp: "Add an app",
   maxApps: "This account has {max} apps, the most it can have. Message us on WhatsApp if you need more.",
@@ -317,6 +325,13 @@ export const ar: Messages = {
   upListing: "اسم حزمة Android، ومعرّف حزمة iOS، والعنوان في المتجر، والوصف القصير والكامل، وبريد الدعم، ورابط سياسة الخصوصية، ولقطات شاشة المتجر اختياريًا.",
   upPublishing:
     "حين ننشر نيابةً عنك: ملف JSON لحساب خدمة Google Play ومفتاح App Store Connect API (Issuer ID وKey ID وملف ‎.p8). وحين تنشر بنفسك: مفتاح App Store Connect API اختياريًا لتوقيع تطبيق iOS، ثم تنشر بمساعدة أدلتنا. واختياري في كل الباقات: ملفات Firebase للإشعارات الفورية. أو اختر «انشره نيابةً عني» وسينشره فريقنا.",
+  startTitle: "كيف تريد أن تصنع تطبيقك؟",
+  startText: "حسابك جاهز. اختر طريقة البدء، ويمكنك استخدام الطريقة الأخرى لاحقًا أيضًا.",
+  startEditor: "محرر التطبيق",
+  startEditorText: "تطبيق لموقعك أو متجرك أو أكاديميتك: اختر نوعه، واربط محتواك، واضبط صفحاته وشكله وتبويباته.",
+  startStudio: "Yallapp Studio",
+  startStudioText: "صمّم كل شاشة بنفسك، بدءًا من نموذج جاهز: توصيل، أو طعام، أو سوق، أو رحلات، أو مدرسة، أو أكاديمية بمعلمين.",
+  startChoose: "ابدأ",
   typeTitle: "اختيار نوع التطبيق",
   addApp: "إضافة تطبيق",
   maxApps: "في هذا الحساب {max} تطبيقًا، وهو الحد الأقصى. راسلنا على WhatsApp إن احتجت إلى المزيد.",
@@ -599,6 +614,13 @@ export const tr: Messages = {
   upListing: "Android paket adı, iOS bundle ID, mağaza başlığı, kısa ve tam açıklama, destek e-postası, gizlilik politikası adresi ve isteğe bağlı olarak mağaza ekran görüntüleriniz.",
   upPublishing:
     "Sizin için biz yayınladığımızda: Google Play hizmet hesabı JSON dosyası ve App Store Connect API anahtarı (Issuer ID, Key ID, .p8 dosyası). Kendiniz yayınladığınızda: iOS uygulamanızı imzalamak için isteğe bağlı olarak App Store Connect API anahtarı, ardından rehberlerimizle yayın. Her pakette isteğe bağlı: anlık bildirimler için Firebase dosyaları. Ya da “Benim için yayınlayın”ı seçin, ekibimiz yayınlasın.",
+  startTitle: "Uygulamanızı nasıl yapmak istersiniz?",
+  startText: "Hesabınız hazır. Nasıl başlayacağınızı seçin; diğerini de daha sonra kullanabilirsiniz.",
+  startEditor: "Uygulama düzenleyicisi",
+  startEditorText: "Web siteniz, mağazanız veya akademiniz için bir uygulama: türünü seçin, içeriğinizi bağlayın, sayfalarını, görünümünü ve sekmelerini ayarlayın.",
+  startStudio: "Yallapp Studio",
+  startStudioText: "Her ekranı kendiniz tasarlayın, hazır bir demodan başlayarak: teslimat, yemek, pazar yeri, yolculuk, okul veya öğretmenli bir akademi.",
+  startChoose: "Başla",
   typeTitle: "Uygulama türünü seçin",
   addApp: "Uygulama ekle",
   maxApps: "Bu hesapta {max} uygulama var; bu, olabilecek en fazla sayı. Daha fazlasına ihtiyacınız varsa WhatsApp'tan bize yazın.",

@@ -77,7 +77,7 @@ test("a client without a website sets up their shop", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(client.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/pending$/);
+  await expect(page).toHaveURL(/\/start$/);
 
   await signIn(page, E2E.settingsAdminEmail, E2E.adminPassword);
   await page.goto("/admin/clients");
