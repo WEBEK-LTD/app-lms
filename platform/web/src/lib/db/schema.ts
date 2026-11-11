@@ -537,17 +537,33 @@ export const hostedUsers = mysqlTable(
     name: varchar("name", { length: 120 }).notNull(),
     email: varchar("email", { length: 191 }),
     city: varchar("city", { length: 120 }),
+    // 118 Studio apps' username sign-in: lowercase, one per app (nulls don't clash).
+    username: varchar("username", { length: 40 }),
     notificationsReadAt: time("notifications_read_at"),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
   (t) => [
     uniqueIndex("hosted_users_phone_unique").on(t.appId, t.phone),
+    uniqueIndex("hosted_users_username_unique").on(t.appId, t.username),
     index("hosted_users_email_idx").on(t.appId, t.email),
     // 61 New users of the day, counted by the database.
     index("hosted_users_created_idx").on(t.appId, t.createdAt),
   ],
 );
+
+// 118 The password of a Studio app's user who signs in with one (Argon2id), apart
+// from the user's row so it never travels with it.
+export const hostedUserPasswords = mysqlTable("hosted_user_passwords", {
+  userId: bigint("user_id", { mode: "number", unsigned: true })
+    .primaryKey()
+    .references(() => hostedUsers.id, { onDelete: "cascade" }),
+  appId: id("app_id")
+    .notNull()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
 
 export const hostedDevices = mysqlTable(
   "hosted_devices",
@@ -623,7 +639,8 @@ export const hostedChallenges = mysqlTable(
     appId: id("app_id")
       .notNull()
       .references(() => apps.id, { onDelete: "cascade" }),
-    kind: varchar("kind", { length: 8 }).notNull().$type<"otp" | "signup">(),
+    // 118 "reset": a forgotten password's code was right; the token sets a new one.
+    kind: varchar("kind", { length: 8 }).notNull().$type<"otp" | "signup" | "reset">(),
     phone: varchar("phone", { length: 20 }),
     // 18 Email sign-in.
     email: varchar("email", { length: 191 }),

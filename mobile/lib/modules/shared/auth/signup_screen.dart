@@ -8,6 +8,7 @@ import '../../../core/gate/owner_contact.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/buttons.dart';
+import 'password_screens.dart';
 import 'sign_in_screen.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -32,6 +33,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _city = TextEditingController();
+  // 118 A Studio app's username and password, where the sign-up asks them.
+  final _username = TextEditingController();
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
   bool _saving = false;
   String? _error;
 
@@ -45,6 +50,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _name.dispose();
     _email.dispose();
     _city.dispose();
+    _username.dispose();
+    _password.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
@@ -62,6 +70,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             name: _name.text.trim(),
             email: _email.text.trim(),
             city: _city.text.trim(),
+            username: _required.contains(SignupField.username)
+                ? _username.text.trim()
+                : null,
+            password: _required.contains(SignupField.password)
+                ? _password.text
+                : null,
           );
       // Signed in: the router leaves the sign-in screens by itself.
     } on ApiException catch (e) {
@@ -82,6 +96,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final site = ref.watch(appConfigProvider).site.name;
     final showEmail = _required.contains(SignupField.email);
     final showCity = _required.contains(SignupField.city);
+    final showUsername = _required.contains(SignupField.username);
+    final showPassword = _required.contains(SignupField.password);
+    final min =
+        ref.watch(appConfigProvider).auth.passwordSignIn?.minLength ?? 8;
     return Scaffold(
       body: SafeArea(
         child: Form(
@@ -151,6 +169,49 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                               : null,
                         ),
                       ],
+                      if (showUsername) ...[
+                        const SizedBox(height: 18),
+                        _Field(
+                          label: context.l10n.username,
+                          controller: _username,
+                          autofill: AutofillHints.newUsername,
+                          hint: context.l10n.usernameHint,
+                          validator: (v) =>
+                              _usernamePattern.hasMatch(
+                                (v ?? '').trim().toLowerCase(),
+                              )
+                              ? null
+                              : context.l10n.enterUsername,
+                        ),
+                      ],
+                      if (showPassword) ...[
+                        const SizedBox(height: 18),
+                        Text(
+                          context.l10n.password,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        PasswordField(
+                          controller: _password,
+                          label: context.l10n.passwordTooShort(min),
+                          newPassword: true,
+                          action: TextInputAction.next,
+                          validator: (v) => newPasswordProblem(context, v, min),
+                        ),
+                        const SizedBox(height: 12),
+                        PasswordField(
+                          controller: _confirm,
+                          label: context.l10n.confirmPassword,
+                          newPassword: true,
+                          validator: (v) => v == _password.text
+                              ? null
+                              : context.l10n.passwordsDontMatch,
+                          onSubmitted: (_) => _submit(),
+                        ),
+                      ],
                       if (_error != null) ...[
                         const SizedBox(height: 14),
                         InlineError(_error!),
@@ -175,6 +236,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 }
 
+/// 118 3 to 30 letters, digits, dots or underscores, starting with a letter (the server's rule).
+final _usernamePattern = RegExp(r'^[a-z][a-z0-9._]{2,29}$');
+
 class _Field extends StatelessWidget {
   const _Field({
     required this.label,
@@ -183,8 +247,11 @@ class _Field extends StatelessWidget {
     this.autofill,
     this.keyboard,
     this.capitalization = TextCapitalization.none,
+    this.hint,
   });
 
+  /// 118 A line under the field (the username's rule).
+  final String? hint;
   final String label;
   final TextEditingController controller;
   final FormFieldValidator<String> validator;
@@ -207,7 +274,7 @@ class _Field extends StatelessWidget {
         textCapitalization: capitalization,
         autofillHints: autofill == null ? null : [autofill!],
         textInputAction: TextInputAction.next,
-        decoration: InputDecoration(hintText: label),
+        decoration: InputDecoration(hintText: label, helperText: hint),
         validator: validator,
       ),
     ],

@@ -3016,3 +3016,20 @@ students' and parents' app.
 |---|---|---|
 | [x] | 117.1 The live activity card in the bottom start corner of the marketing pages, only from real records: plans paid with the client's "Show my first name and plan on Yallapp's website" (`plan_payments.show_on_site`, off by default), customers the team adds by hand with their agreement, demo sign-ins (`demo_visits`, the country only, 7 days), apps gone live (the kind and store only), new accounts (the country only), and counts from the code when there is nothing else; GET /api/live-activity (a minute's cache, at most 10, en/ar/tr); Admin › Live activity (on or off, kinds, pages, delay, pause, cards per visit; the manual entries); migration 0122 (lib/live-activity) | unit tests (`live-activity.test.ts`), the store suites on memory and MariaDB |
 | [x] | 117.2 Customer reviews on the home page from Admin › Reviews (real reviews only, with the customer's agreement; order, hide, delete; translations, photo, source and link), as the approved prototype; labelled sample cards (no rating, badge, link or score) only while no real review is shown and the team leaves them on (`site_reviews`, migration 0122, lib/reviews) | unit tests (`reviews.test.ts`), the store suites on memory and MariaDB |
+
+## Phase 118: Studio sign-in: passwords, the sign-in screen and the account menu
+
+A Yallapp Studio app signs people in the way its owner chooses, any of: a
+phone number and a code (as before), an email address and a code, an email
+address and a password, a phone number and a password, or a username and a
+password. With a password, a new account still proves its email address or
+phone number with one code at sign-up (a username account gives one of them,
+as the owner chose, to get back in), and a forgotten password is set again
+with a code. Studio also designs the sign-in screen and the account menu.
+Regular apps keep their codes.
+
+| | Step | Done when |
+|---|---|---|
+| [x] | 118.1 Platform and contract: `hosted_settings.passwordSignIn` (`by`, `codes`, `recovery`), Studio projects on the hosted API (or an own API Yallapp signs people in to) only; `hosted_users.username` (unique per app) and `hosted_user_passwords` (Argon2id, apart from the user's row; migration 0124); `POST /auth/password` with an email, phone or username, `purpose: reset` at `POST /auth/otp/verify`, `POST /auth/password/reset`, `PUT /me/password`, 409 `use_password` where a code doesn't sign in, `SignupRequired.fields` `username` and `password`, `Config.auth.password_sign_in`; 10 tries per account and 50 per IP in 15 minutes; the review number signs in with the review code as its password; App sign-in's checkboxes for Studio apps (en/ar/tr) | unit tests (`studio-passwords.test.ts`), the MySQL suite (`studio-passwords-mysql.test.ts`) |
+| [x] | 118.2 The app: the sign-in screen with the owner's ways (`Config.auth.password_sign_in`: the email, the phone number or the username with the password; "Sign in with a code instead" where codes stay; "Create an account" with a code), sign-up with a username and a password (typed twice), "Forgot password" (a code with `purpose: reset`, then the new password), and "Change password" in Account › Settings; en/ar/tr | `phase118_passwords_test.dart` |
+| [ ] | 118.3 Studio: the sign-in screen's look (layouts, background, logo, welcome, buttons) and the account menu (order, hide, rename, icons, own items; delete account, privacy and terms, and sign out always stay) | — |

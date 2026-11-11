@@ -417,12 +417,18 @@ class RegisterInput {
     required this.device,
     this.email,
     this.city,
+    this.username,
+    this.password,
   });
 
   final String signupToken;
   final String name;
   final String? email;
   final String? city;
+
+  /// 118 A Studio app's username and password, where the sign-up asks them.
+  final String? username;
+  final String? password;
   final DeviceInput device;
 
   Json toJson() => {
@@ -430,6 +436,8 @@ class RegisterInput {
     'name': name,
     if (email != null && email!.isNotEmpty) 'email': email,
     if (city != null && city!.isNotEmpty) 'city': city,
+    if (username != null && username!.isNotEmpty) 'username': username,
+    if (password != null && password!.isNotEmpty) 'password': password,
     'device': device.toJson(),
   };
 }
@@ -461,20 +469,42 @@ abstract class YallappApi {
     required String countryCode,
     required String phone,
   });
+
+  /// 118 [reset]: the code proves the address of an account whose password
+  /// was forgotten; the answer is a [PasswordReset].
   Future<VerifyResult> verifyOtp({
     required String requestId,
     required String code,
     required DeviceInput device,
+    bool reset = false,
   });
 
   /// 18 A code by email (`Config.auth.email_sign_in: code`).
   Future<OtpRequestResult> requestEmailCode({required String email});
 
   /// 18 Email and password of an existing account (`email_sign_in: password`).
+  /// 118 In a Studio app also the phone number (with [countryCode]) or the
+  /// username, as `Config.auth.password_sign_in` says.
   Future<Session> signInWithPassword({
-    required String email,
+    String? email,
+    String? countryCode,
+    String? phone,
+    String? username,
     required String password,
     required DeviceInput device,
+  });
+
+  /// 118 Sets a forgotten password again with the token of its code.
+  Future<Session> resetPassword({
+    required String resetToken,
+    required String password,
+    required DeviceInput device,
+  });
+
+  /// 118 Changes the signed-in account's password (`PUT /me/password`).
+  Future<void> changePassword({
+    required String currentPassword,
+    required String password,
   });
   Future<Session> register(RegisterInput input);
   Future<Tokens> refreshTokens(String refreshToken);
@@ -1677,12 +1707,18 @@ class HttpYallappApi implements YallappApi {
     required String requestId,
     required String code,
     required DeviceInput device,
+    bool reset = false,
   }) => _send(
     'POST',
     '/auth/otp/verify',
     _public,
     (data) => VerifyResult.fromJson(asJson(data)),
-    body: {'request_id': requestId, 'code': code, 'device': device.toJson()},
+    body: {
+      'request_id': requestId,
+      'code': code,
+      'device': device.toJson(),
+      if (reset) 'purpose': 'reset',
+    },
     account: true,
   );
 
@@ -1698,7 +1734,10 @@ class HttpYallappApi implements YallappApi {
 
   @override
   Future<Session> signInWithPassword({
-    required String email,
+    String? email,
+    String? countryCode,
+    String? phone,
+    String? username,
     required String password,
     required DeviceInput device,
   }) => _send(
@@ -1707,11 +1746,44 @@ class HttpYallappApi implements YallappApi {
     _public,
     (data) => Session.fromJson(asJson(data)),
     body: {
-      'email': email,
+      'email': ?email,
+      if (phone != null) ...{'country_code': countryCode, 'phone': phone},
+      'username': ?username,
       'password': password,
       'device': device.toJson(),
       if (preview) 'preview': true,
     },
+    account: true,
+  );
+
+  @override
+  Future<Session> resetPassword({
+    required String resetToken,
+    required String password,
+    required DeviceInput device,
+  }) => _send(
+    'POST',
+    '/auth/password/reset',
+    _public,
+    (data) => Session.fromJson(asJson(data)),
+    body: {
+      'reset_token': resetToken,
+      'password': password,
+      'device': device.toJson(),
+    },
+    account: true,
+  );
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String password,
+  }) => _send(
+    'PUT',
+    '/me/password',
+    _required,
+    _ignore,
+    body: {'current_password': currentPassword, 'password': password},
     account: true,
   );
 

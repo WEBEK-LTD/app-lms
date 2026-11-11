@@ -271,6 +271,11 @@ export interface HostedSettings {
    * plugin's own setting on WordPress.
    */
   signInMethods?: SignInMethod[];
+  /**
+   * 118 Yallapp Studio apps on the hosted API: sign-in with a password
+   * (lib/hosted/password-sign-in.ts). Missing: codes only, as before.
+   */
+  passwordSignIn?: PasswordSignInSettings | null;
   /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
   whatsappSender?: AppWhatsappSender | null;
   /**
@@ -371,6 +376,22 @@ export interface ApiSignInSnapshot {
 }
 
 export type SignInMethod = "phone" | "email";
+
+/** 118 What a password signs in with: the email address, the phone number or a username. */
+export type PasswordWay = "email" | "phone" | "username";
+
+/**
+ * 118 Password sign-in, as a Studio app's owner chose on App sign-in.
+ * `by`: what people type with their password. `codes`: where a code still
+ * signs in (empty: passwords only; codes then only verify a new account and
+ * reset a forgotten password). `recovery`: what a username account proves at
+ * sign-up and resets its password with.
+ */
+export interface PasswordSignInSettings {
+  by: PasswordWay[];
+  codes: SignInMethod[];
+  recovery: SignInMethod;
+}
 
 /**
  * 34 A key pair that signs the access tokens of an own API app when Yallapp
@@ -759,6 +780,8 @@ export interface HostedUser {
   /** Lowercase. For an account made by email sign-in (no phone), the address it signs in with. */
   email: string | null;
   city: string | null;
+  /** 118 Lowercase; one per app. Set by people who sign up with a username and password. */
+  username?: string | null;
   /** Notifications created up to then count as read. */
   notificationsReadAt: Date | null;
   createdAt: Date;
@@ -851,7 +874,8 @@ export interface HostedRefreshToken {
 export interface HostedChallenge {
   tokenHash: string;
   appId: string;
-  kind: "otp" | "signup";
+  /** 118 `reset`: a forgotten password's code was right; the token sets a new password. */
+  kind: "otp" | "signup" | "reset";
   /** The number, or null for an email sign-in (18). */
   phone: string | null;
   /** 18 The email address of an email sign-in, lowercase. */

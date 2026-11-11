@@ -9658,4 +9658,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get vendorHoursSaved => 'تم الحفظ. يراه العملاء الآن.';
+
+  @override
+  String get signInWithUsername => 'اسم المستخدم';
+
+  @override
+  String get username => 'اسم المستخدم';
+
+  @override
+  String get usernameHint =>
+      'من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة سفلية، يبدأ بحرف.';
+
+  @override
+  String get enterUsername =>
+      'اختر اسم مستخدم من 3 إلى 30 حرفًا أو رقمًا أو نقطة أو شرطة سفلية، يبدأ بحرف.';
+
+  @override
+  String get signInIntroPasswordStudio => 'سجّل الدخول بكلمة المرور.';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordIntro =>
+      'أدخل البريد الإلكتروني أو رقم الهاتف المسجَّل في حسابك، وسنرسل إليك رمزًا لتعيين كلمة مرور جديدة.';
+
+  @override
+  String get newPasswordTitle => 'اختر كلمة مرور جديدة';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get confirmPassword => 'أعد كتابة كلمة المرور';
+
+  @override
+  String get passwordsDontMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get saveAndSignIn => 'حفظ وتسجيل الدخول';
+
+  @override
+  String get signInWithCodeInstead => 'سجّل الدخول برمز بدلًا من ذلك';
+
+  @override
+  String get signInWithPasswordInstead => 'سجّل الدخول بكلمة المرور';
+
+  @override
+  String get createAnAccount => 'أنشئ حسابًا';
+
+  @override
+  String get newHereQuestion => 'جديد هنا؟';
+
+  @override
+  String get createAccountIntroCode =>
+      'سنرسل إليك رمزًا للتحقق من رقم هاتفك أو بريدك الإلكتروني، ثم تختار كلمة المرور.';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get enterCurrentPassword => 'أدخل كلمة المرور الحالية.';
+
+  @override
+  String get passwordChanged =>
+      'تم تغيير كلمة المرور، وسُجِّل الخروج من هواتفك الأخرى.';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String newPasswordIntro(int min) {
+    return 'استخدم $min أحرف على الأقل. سيُسجَّل الخروج من هواتفك الأخرى.';
+  }
+
+  @override
+  String passwordTooShort(int min) {
+    return '$min أحرف على الأقل';
+  }
 }

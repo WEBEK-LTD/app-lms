@@ -452,11 +452,18 @@ export interface DataStore {
   // Hosted API: an app's customers (always scoped by app)
   /** Returns null when the app already has a customer with this phone number. */
   /** Null when the number (or, for an email account, the address) already has an account. */
-  createHostedUser(input: { appId: string; phone: string | null; name: string; email: string | null; city: string | null; now: Date }): Promise<HostedUser | null>;
+  /** 118 Null also when the (lowercase) username is taken in the app. */
+  createHostedUser(input: { appId: string; phone: string | null; name: string; email: string | null; city: string | null; username?: string | null; now: Date }): Promise<HostedUser | null>;
   getHostedUser(appId: string, id: number): Promise<HostedUser | null>;
   getHostedUserByPhone(appId: string, phone: string): Promise<HostedUser | null>;
   /** 18 The account made by email sign-in with this (lowercase) address: one without a phone. */
   getHostedEmailUser(appId: string, email: string): Promise<HostedUser | null>;
+  /** 118 The account with this (lowercase) username. */
+  getHostedUserByUsername(appId: string, username: string): Promise<HostedUser | null>;
+  /** 118 The user's password hash (Argon2id), or null when they have none. */
+  getHostedUserPassword(appId: string, userId: number): Promise<string | null>;
+  /** 118 Sets (or replaces) the user's password hash. */
+  setHostedUserPassword(appId: string, userId: number, passwordHash: string, now: Date): Promise<void>;
   updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void>;
   /** Deletes the customer with their devices, sign-ins and notifications. */
   deleteHostedUser(appId: string, id: number): Promise<void>;

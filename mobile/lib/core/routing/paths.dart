@@ -3,6 +3,9 @@ abstract final class Paths {
   static const signIn = '/sign-in';
   static const signInCode = '/sign-in/code';
   static const signInDetails = '/sign-in/details';
+  // 118 Studio apps with passwords: a forgotten one, and the new one.
+  static const signInForgot = '/sign-in/forgot';
+  static const signInNewPassword = '/sign-in/new-password';
 
   static const home = '/home';
   static const courses = '/courses';
@@ -24,6 +27,8 @@ abstract final class Paths {
   static const editProfile = '/account/edit';
   static const settings = '/account/settings';
   static const devices = '/account/settings/devices';
+  // 118 Change the password.
+  static const changePassword = '/account/settings/password';
   static const certificates = '/account/certificates';
   static const subscriptions = '/account/memberships';
   static const quizResults = '/account/quiz-results';

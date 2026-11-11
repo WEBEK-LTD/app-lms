@@ -793,6 +793,7 @@ export class MysqlStore implements DataStore {
     name: string;
     email: string | null;
     city: string | null;
+    username?: string | null;
     now: Date;
   }): Promise<HostedUser | null> {
     const row = {
@@ -801,6 +802,7 @@ export class MysqlStore implements DataStore {
       name: input.name,
       email: input.email,
       city: input.city,
+      username: input.username ?? null,
       notificationsReadAt: null,
       createdAt: input.now,
       updatedAt: input.now,
@@ -844,6 +846,32 @@ export class MysqlStore implements DataStore {
       db.select().from(t).where(and(eq(t.appId, appId), isNull(t.phone), eq(t.email, email))).orderBy(asc(t.id)).limit(1),
     );
     return rows[0] ?? null;
+  }
+
+  async getHostedUserByUsername(appId: string, username: string): Promise<HostedUser | null> {
+    const t = schema.hostedUsers;
+    const rows = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.username, username))).limit(1));
+    return rows[0] ?? null;
+  }
+
+  async getHostedUserPassword(appId: string, userId: number): Promise<string | null> {
+    const t = schema.hostedUserPasswords;
+    const rows = await this.run((db) =>
+      db.select({ hash: t.passwordHash }).from(t).where(and(eq(t.appId, appId), eq(t.userId, userId))).limit(1),
+    );
+    return rows[0]?.hash ?? null;
+  }
+
+  async setHostedUserPassword(appId: string, userId: number, passwordHash: string, now: Date): Promise<void> {
+    // Only for the app's own user: the password row hangs off the user's.
+    if (!(await this.getHostedUser(appId, userId))) return;
+    const t = schema.hostedUserPasswords;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values({ userId, appId, passwordHash, updatedAt: now })
+        .onDuplicateKeyUpdate({ set: { passwordHash, updatedAt: now } }),
+    );
   }
 
   async updateHostedUser(appId: string, id: number, patch: HostedUserPatch, now: Date): Promise<void> {

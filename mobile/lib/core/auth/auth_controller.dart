@@ -49,6 +49,12 @@ class VerifyNeedsSignup extends VerifyOutcome {
   final SignupRequired signup;
 }
 
+/// 118 A forgotten password's code was right: choose the new password.
+class VerifyNeedsNewPassword extends VerifyOutcome {
+  const VerifyNeedsNewPassword(this.resetToken);
+  final String resetToken;
+}
+
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
@@ -98,14 +104,21 @@ class AuthController extends Notifier<AuthState> {
   Future<OtpRequestResult> requestEmailCode({required String email}) =>
       _api.requestEmailCode(email: email);
 
-  /// 18 Signs in with the email and password of an existing account.
+  /// 18 Signs in with the email and password of an existing account; 118 in
+  /// a Studio app also with the phone number or the username.
   Future<User> signInWithPassword({
-    required String email,
+    String? email,
+    String? countryCode,
+    String? phone,
+    String? username,
     required String password,
   }) async {
     final env = ref.read(appEnvironmentProvider);
     final session = await _api.signInWithPassword(
       email: email,
+      countryCode: countryCode,
+      phone: phone,
+      username: username,
       password: password,
       device: env.deviceInput,
     );
@@ -113,15 +126,18 @@ class AuthController extends Notifier<AuthState> {
     return session.user;
   }
 
+  /// 118 [reset]: the code is for a forgotten password.
   Future<VerifyOutcome> verifyCode({
     required String requestId,
     required String code,
+    bool reset = false,
   }) async {
     final env = ref.read(appEnvironmentProvider);
     final result = await _api.verifyOtp(
       requestId: requestId,
       code: code,
       device: env.deviceInput,
+      reset: reset,
     );
     switch (result) {
       case Session():
@@ -129,14 +145,40 @@ class AuthController extends Notifier<AuthState> {
         return VerifySignedIn(result.user);
       case SignupRequired():
         return VerifyNeedsSignup(result);
+      case PasswordReset():
+        return VerifyNeedsNewPassword(result.resetToken);
     }
   }
+
+  /// 118 Sets the new password after a forgotten password's code, and signs in.
+  Future<User> resetPassword({
+    required String resetToken,
+    required String password,
+  }) async {
+    final env = ref.read(appEnvironmentProvider);
+    final session = await _api.resetPassword(
+      resetToken: resetToken,
+      password: password,
+      device: env.deviceInput,
+    );
+    await _startSession(session);
+    return session.user;
+  }
+
+  /// 118 Changes the password; the account's other phones are signed out.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String password,
+  }) =>
+      _api.changePassword(currentPassword: currentPassword, password: password);
 
   Future<User> register({
     required String signupToken,
     required String name,
     String? email,
     String? city,
+    String? username,
+    String? password,
   }) async {
     final env = ref.read(appEnvironmentProvider);
     final session = await _api.register(
@@ -145,6 +187,8 @@ class AuthController extends Notifier<AuthState> {
         name: name,
         email: email,
         city: city,
+        username: username,
+        password: password,
         device: env.deviceInput,
       ),
     );

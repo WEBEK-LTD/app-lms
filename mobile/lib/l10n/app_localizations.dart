@@ -15427,6 +15427,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved. Customers see it now.'**
   String get vendorHoursSaved;
+
+  /// No description provided for @signInWithUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get signInWithUsername;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @usernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'3 to 30 letters, digits, dots or underscores, starting with a letter.'**
+  String get usernameHint;
+
+  /// No description provided for @enterUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.'**
+  String get enterUsername;
+
+  /// No description provided for @signInIntroPasswordStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your password.'**
+  String get signInIntroPasswordStudio;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email address or phone number on your account. We\'ll send you a code to set a new password.'**
+  String get forgotPasswordIntro;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get newPasswordTitle;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the password again'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordsDontMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The passwords don\'t match.'**
+  String get passwordsDontMatch;
+
+  /// No description provided for @saveAndSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and sign in'**
+  String get saveAndSignIn;
+
+  /// No description provided for @signInWithCodeInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with a code instead'**
+  String get signInWithCodeInstead;
+
+  /// No description provided for @signInWithPasswordInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your password'**
+  String get signInWithPasswordInstead;
+
+  /// No description provided for @createAnAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get createAnAccount;
+
+  /// No description provided for @newHereQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'New here?'**
+  String get newHereQuestion;
+
+  /// No description provided for @createAccountIntroCode.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send you a code to check your phone number or email address, then you choose your password.'**
+  String get createAccountIntroCode;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password.'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password was changed. Your other phones were signed out.'**
+  String get passwordChanged;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @newPasswordIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {min} characters. Your other phones will be signed out.'**
+  String newPasswordIntro(int min);
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min} characters'**
+  String passwordTooShort(int min);
 }
 
 class _AppLocalizationsDelegate

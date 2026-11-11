@@ -24,6 +24,7 @@ import 'account/order_screen.dart';
 import 'account/settings_screen.dart';
 import 'auth/otp_screen.dart';
 import 'auth/sign_in_screen.dart';
+import 'auth/password_screens.dart';
 import 'auth/signup_screen.dart';
 import 'pages/more_tabs.dart';
 import 'pages/page_actions.dart';
@@ -82,6 +83,26 @@ GoRoute signInRoute() => GoRoute(
         );
       },
     ),
+    // 118 Studio apps with passwords: "Forgot password", then the new one.
+    GoRoute(
+      path: 'forgot',
+      pageBuilder: (context, state) => appPage(
+        state,
+        ForgotPasswordScreen(from: state.uri.queryParameters['from']),
+      ),
+    ),
+    GoRoute(
+      path: 'new-password',
+      pageBuilder: (context, state) {
+        final args = state.extra;
+        return appPage(
+          state,
+          args is NewPasswordArgs
+              ? NewPasswordScreen(args: args)
+              : SignInScreen(from: state.uri.queryParameters['from']),
+        );
+      },
+    ),
   ],
 );
 
@@ -99,7 +120,11 @@ List<RouteBase> accountSubRoutes({List<RouteBase> extra = const []}) => [
     path: 'settings',
     parentNavigatorKey: rootNavigatorKey,
     pageBuilder: (context, state) => appPage(state, const SettingsScreen()),
-    routes: [_rootPage('devices', () => const DevicesScreen())],
+    routes: [
+      _rootPage('devices', () => const DevicesScreen()),
+      // 118 Studio apps with passwords.
+      _rootPage('password', () => const ChangePasswordScreen()),
+    ],
   ),
   GoRoute(
     path: 'orders',

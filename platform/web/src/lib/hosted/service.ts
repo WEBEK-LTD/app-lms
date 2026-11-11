@@ -49,7 +49,8 @@ import { parseAnyPhone, parsePhone, type Phone } from "./phone";
 import { hasFeature, type PlanInfo } from "../plans";
 import { DEMO_LIMITS, DEMO_SIGN_IN, DEMO_USER_NAME } from "../demo/constants";
 import { recordDemoVisit } from "../live-activity/demo";
-import { hostedSignInMethods, normalizeEmail } from "./sign-in-methods";
+import { hostedSignInMethods, normalizeEmail, normalizeUsername, PASSWORD_MIN_LENGTH, passwordProblem, passwordSignIn } from "./sign-in-methods";
+import { hashPassword, verifyPassword } from "../auth/password";
 import { personClaims, yallappSignsIn, type AppSignIn } from "./app-auth";
 import { localizedError, requestLanguage } from "../i18n/builtin";
 import { chatConfig, chatSessionKind } from "../chat/access";
@@ -93,6 +94,9 @@ export const HOSTED_LIMITS = {
   // 69 The store review number and address skip the limits above (reviewers sign in again and
   // again), but their fixed code is 6 digits: 30 tries an hour per app keep it from being guessed.
   review: { name: "hosted-otp:review", limit: 30, windowSeconds: 3600 },
+  // 118 Passwords: 10 tries per account and 50 per IP in 15 minutes, then a wait.
+  passwordAccount: { name: "hosted-password:account", limit: 10, windowSeconds: 900 },
+  passwordIp: { name: "hosted-password:ip", limit: 50, windowSeconds: 900 },
 } satisfies Record<string, RateLimitRule>;
 
 export interface HostedResult {
@@ -288,6 +292,11 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
       return verifyCode(ctx, record(req.body));
     case "POST /auth/register":
       return register(ctx, record(req.body));
+    // 118 Studio apps' password sign-in, and a forgotten password set again after a code.
+    case "POST /auth/password":
+      return passwordLogin(ctx, record(req.body));
+    case "POST /auth/password/reset":
+      return resetPassword(ctx, record(req.body));
     case "POST /auth/refresh":
       return refresh(ctx, record(req.body));
   }
@@ -338,6 +347,8 @@ async function route(ctx: HostedContext, req: HostedRequest): Promise<HostedResu
         return noContent;
       case "GET /me/devices":
         return listDevices(ctx, session);
+      case "PUT /me/password":
+        return changePassword(ctx, session, record(req.body));
       case "PUT /me/push-token":
         return setPushToken(ctx, session, record(req.body));
       case "PUT /me/cart": {
@@ -632,9 +643,18 @@ function authConfig(app: App) {
     // 18 Phone, email (a code by email) or both, as the owner chose.
     methods: hostedSignInMethods(app),
     ...(hostedSignInMethods(app).includes("email") ? { email_sign_in: "code" } : {}),
+    // 118 Studio apps: what a password signs in with, and where a code still does.
+    ...passwordConfig(app),
     // 17 `preview: true` at /auth/otp/request signs in only the store review number.
     preview_sign_in: true,
   };
+}
+
+/** 118 `Config.auth.password_sign_in`, when the app offers passwords. */
+function passwordConfig(app: App) {
+  const passwords = passwordSignIn(app);
+  if (!passwords) return {};
+  return { password_sign_in: { by: passwords.by, codes: passwords.codes, recovery: passwords.recovery, min_length: PASSWORD_MIN_LENGTH } };
 }
 
 /**
@@ -880,6 +900,9 @@ async function requestEmailCode(ctx: HostedContext, body: Record<string, unknown
 }
 
 async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
+  // 118 `purpose: reset`: the code proves the address of an account whose password was forgotten.
+  const reset = body.purpose === "reset";
+  if (reset && !passwordSignIn(ctx.app)) return error(403, "method_not_allowed", "This app doesn't use passwords.");
   const wait = await limited(ctx, HOSTED_LIMITS.verifyIp, ctx.ip);
   if (wait) return wait;
   const requestId = text(body.request_id, 100);
@@ -909,6 +932,29 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
   const user = challenge.email
     ? await ctx.store.getHostedEmailUser(ctx.app.id, challenge.email)
     : await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone!);
+  const passwords = passwordSignIn(ctx.app);
+  const channel = challenge.email ? "email" : "phone";
+  if (reset) {
+    if (!user) return error(404, "no_account", challenge.email ? "There is no account with this email address." : "There is no account with this number.");
+    const resetToken = randomToken(24);
+    await ctx.store.createHostedChallenge({
+      tokenHash: sha256Hex(resetToken),
+      appId: ctx.app.id,
+      kind: "reset",
+      phone: challenge.phone,
+      email: challenge.email,
+      codeHash: null,
+      attempts: 0,
+      review: false,
+      expiresAt: new Date(ctx.now.getTime() + SIGNUP_TTL_SECONDS * 1000),
+      createdAt: ctx.now,
+    });
+    return ok({ reset_token: resetToken, expires_in_seconds: SIGNUP_TTL_SECONDS });
+  }
+  // 118 Where a code doesn't sign in (passwords only), an account signs in with its password; the store review number still does.
+  if (user && passwords && !challenge.review && !passwords.codes.includes(channel)) {
+    return error(409, "use_password", "You already have an account. Sign in with your password, or reset it if you forgot it.");
+  }
   if (user) return session(ctx, user, record(body.device));
   if (!settings.signupAllowed) {
     return error(403, "signup_disabled", challenge.email ? "There is no account with this email address." : "There is no account with this number.");
@@ -928,7 +974,7 @@ async function verifyCode(ctx: HostedContext, body: Record<string, unknown>): Pr
     expiresAt: new Date(ctx.now.getTime() + SIGNUP_TTL_SECONDS * 1000),
     createdAt: ctx.now,
   });
-  return ok({ signup_required: true, signup_token: signupToken, fields: signupFields(settings, Boolean(challenge.email)) });
+  return ok({ signup_required: true, signup_token: signupToken, fields: [...signupFields(settings, Boolean(challenge.email)), ...passwordFields(ctx.app, channel)] });
 }
 
 async function register(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
@@ -941,7 +987,7 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   }
   const settings = hostedSettings(ctx.app);
   const byEmail = Boolean(challenge.email);
-  const fields = signupFields(settings, byEmail);
+  const fields = [...signupFields(settings, byEmail), ...passwordFields(ctx.app, byEmail ? "email" : "phone")];
   const name = text(body.name, 120);
   // 18 After an email sign-in, the account's email is the address that got the code.
   const email = challenge.email ?? text(body.email, 191);
@@ -949,6 +995,18 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   if (!name) return badRequest("Please enter your name.");
   if ((fields.includes("email") || email) && !EMAIL.test(email)) return badRequest("Please enter a valid email address.");
   if (fields.includes("city") && !city) return badRequest("Please enter your city.");
+  // 118 A username and a password, where the app signs in with them.
+  let username: string | null = null;
+  if (fields.includes("username")) {
+    username = normalizeUsername(body.username);
+    if (!username) return error(400, "invalid_username", "Please choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.");
+    if (await ctx.store.getHostedUserByUsername(ctx.app.id, username)) return error(409, "username_taken", "This username is taken. Please choose another one.");
+  }
+  const password = typeof body.password === "string" ? body.password : "";
+  if (fields.includes("password")) {
+    const problem = passwordProblem(password, [email, challenge.phone, username]);
+    if (problem) return error(400, "weak_password", problem);
+  }
   const device = deviceInput(body.device);
   if (!device) return error(400, "invalid_device", "Device details are missing.");
   if (await userLimitReached(ctx, challenge.phone, challenge.email)) return userLimitError(ctx.app);
@@ -959,11 +1017,14 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
     name,
     email: email || null,
     city: city || null,
+    username,
     now: ctx.now,
   });
   if (!user) {
+    if (username && (await ctx.store.getHostedUserByUsername(ctx.app.id, username))) return error(409, "username_taken", "This username is taken. Please choose another one.");
     return error(409, "account_exists", byEmail ? "An account with this email address already exists. Please sign in." : "An account with this number already exists. Please sign in.");
   }
+  if (fields.includes("password")) await ctx.store.setHostedUserPassword(ctx.app.id, user.id, await hashPassword(password), ctx.now);
   await ctx.store.deleteHostedChallenge(hash);
   if (ctx.onUsersCounted && ctx.plan?.limits.appUsers != null) {
     try {
@@ -975,6 +1036,134 @@ async function register(ctx: HostedContext, body: Record<string, unknown>): Prom
   }
   const result = await session(ctx, user, record(body.device));
   return result.status === 200 ? { ...result, status: 201 } : result;
+}
+
+// 118 Password sign-in (Yallapp Studio apps)
+
+/**
+ * 118 What a sign-up after a code asks besides the owner's fields: a password
+ * where the channel doesn't sign in with a code, and a username where people
+ * sign in with one (on the channel username accounts are verified on).
+ */
+function passwordFields(app: App, channel: "phone" | "email"): ("username" | "password")[] {
+  const passwords = passwordSignIn(app);
+  if (!passwords) return [];
+  const username = passwords.by.includes("username") && passwords.recovery === channel;
+  const password = username || !passwords.codes.includes(channel);
+  return [...(username ? (["username"] as const) : []), ...(password ? (["password"] as const) : [])];
+}
+
+const wrongDetails = () => error(400, "invalid_credentials", "The details you entered are not correct.");
+
+/**
+ * 118 Signs in with a password: the email address, the phone number or the
+ * username the app offers, and the account's password. A wrong account and a
+ * wrong password get the same answer. The store review number (or address)
+ * signs in with the review code as its password.
+ */
+async function passwordLogin(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
+  const passwords = passwordSignIn(ctx.app);
+  if (!passwords) return error(403, "method_not_allowed", "This app doesn't offer sign-in with a password.");
+  const settings = hostedSettings(ctx.app);
+  const password = typeof body.password === "string" ? body.password.slice(0, 4096) : "";
+  let way: "email" | "phone" | "username";
+  let subject: string;
+  let review = false;
+  let find: () => Promise<HostedUser | null>;
+  let phone: Phone | null = null;
+  let email: string | null = null;
+  if (body.username !== undefined) {
+    way = "username";
+    const username = normalizeUsername(body.username);
+    subject = `u:${username ?? text(body.username, 64).toLowerCase()}`;
+    find = async () => (username ? ctx.store.getHostedUserByUsername(ctx.app.id, username) : null);
+  } else if (body.email !== undefined) {
+    way = "email";
+    email = normalizeEmail(body.email);
+    if (!email) return error(400, "invalid_email", "Please enter a valid email address.");
+    subject = `e:${email}`;
+    review = isReviewEmail(settings, email);
+    find = () => ctx.store.getHostedEmailUser(ctx.app.id, email!);
+  } else if (body.phone !== undefined) {
+    way = "phone";
+    phone = parsePhone(body.country_code, body.phone);
+    if (!phone) return error(400, "invalid_phone", "Please enter a valid mobile number.");
+    subject = `p:${phone.e164}`;
+    review = isReviewPhone(settings, phone);
+    find = () => ctx.store.getHostedUserByPhone(ctx.app.id, phone!.e164);
+  } else {
+    return badRequest("Please enter your email, phone number or username.");
+  }
+  if ((ctx.preview || body.preview === true) && !review) return previewNumberOnly();
+  if (!review && !passwords.by.includes(way)) return error(403, "method_not_allowed", "This app doesn't offer this way of signing in.");
+  const wait = review
+    ? await limited(ctx, HOSTED_LIMITS.review, "review")
+    : ((await limited(ctx, HOSTED_LIMITS.passwordAccount, subject)) ?? (await limited(ctx, HOSTED_LIMITS.passwordIp, ctx.ip)));
+  if (wait) return wait;
+  if (review) {
+    if (!settings.reviewCode || !safeEqual(password, settings.reviewCode)) return wrongDetails();
+    // The reviewers' account, made the first time they sign in.
+    const user =
+      (await find()) ??
+      (await ctx.store.createHostedUser({ appId: ctx.app.id, phone: phone?.e164 ?? null, name: "App Review", email, city: null, now: ctx.now })) ??
+      (await find());
+    return user ? session(ctx, user, record(body.device)) : wrongDetails();
+  }
+  const user = await find();
+  const hash = user ? await ctx.store.getHostedUserPassword(ctx.app.id, user.id) : null;
+  if (!(await verifyPassword(hash, password)) || !user) return wrongDetails();
+  return session(ctx, user, record(body.device));
+}
+
+/** 118 Signs out the account's other phones (after its password changed). */
+async function signOutOtherDevices(ctx: HostedContext, userId: number, keepDeviceId: string | null): Promise<void> {
+  for (const device of await ctx.store.listHostedDevices(ctx.app.id, userId)) {
+    if (device.deviceId !== keepDeviceId) await ctx.store.deleteHostedDevice(ctx.app.id, device.id);
+  }
+}
+
+/**
+ * 118 A forgotten password: after `POST /auth/otp/verify` with `purpose:
+ * reset`, the token sets a new password and signs this phone in; the
+ * account's other phones are signed out.
+ */
+async function resetPassword(ctx: HostedContext, body: Record<string, unknown>): Promise<HostedResult> {
+  if (!passwordSignIn(ctx.app)) return error(403, "method_not_allowed", "This app doesn't use passwords.");
+  const wait = await limited(ctx, HOSTED_LIMITS.verifyIp, ctx.ip);
+  if (wait) return wait;
+  const hash = sha256Hex(text(body.reset_token, 100));
+  const challenge = await ctx.store.getHostedChallenge(hash);
+  if (!challenge || challenge.appId !== ctx.app.id || challenge.kind !== "reset" || challenge.expiresAt <= ctx.now) {
+    return error(400, "code_expired", "Your verification has expired. Please start again.");
+  }
+  const user = challenge.email ? await ctx.store.getHostedEmailUser(ctx.app.id, challenge.email) : await ctx.store.getHostedUserByPhone(ctx.app.id, challenge.phone!);
+  if (!user) return error(400, "code_expired", "Your verification has expired. Please start again.");
+  const password = typeof body.password === "string" ? body.password : "";
+  const problem = passwordProblem(password, [user.email, user.phone, user.username]);
+  if (problem) return error(400, "weak_password", problem);
+  const device = deviceInput(body.device);
+  if (!device) return error(400, "invalid_device", "Device details are missing.");
+  await ctx.store.setHostedUserPassword(ctx.app.id, user.id, await hashPassword(password), ctx.now);
+  await ctx.store.deleteHostedChallenge(hash);
+  await signOutOtherDevices(ctx, user.id, device.id);
+  return session(ctx, user, record(body.device));
+}
+
+/** 118 A signed-in person changes their password with the current one; their other phones are signed out. */
+async function changePassword(ctx: HostedContext, s: Session, body: Record<string, unknown>): Promise<HostedResult> {
+  if (!passwordSignIn(ctx.app)) return error(403, "method_not_allowed", "This app doesn't use passwords.");
+  const wait = await limited(ctx, HOSTED_LIMITS.passwordAccount, `user:${s.user.id}`);
+  if (wait) return wait;
+  const hash = await ctx.store.getHostedUserPassword(ctx.app.id, s.user.id);
+  if (!hash) return error(400, "no_password", "You don't have a password yet. Sign out and use “Forgot password” to set one.");
+  const current = typeof body.current_password === "string" ? body.current_password.slice(0, 4096) : "";
+  if (!(await verifyPassword(hash, current))) return error(400, "invalid_credentials", "Your current password is not correct.");
+  const password = typeof body.password === "string" ? body.password : "";
+  const problem = passwordProblem(password, [s.user.email, s.user.phone, s.user.username]);
+  if (problem) return error(400, "weak_password", problem);
+  await ctx.store.setHostedUserPassword(ctx.app.id, s.user.id, await hashPassword(password), ctx.now);
+  await signOutOtherDevices(ctx, s.user.id, s.device.deviceId);
+  return noContent;
 }
 
 interface DeviceFields {
@@ -1171,7 +1360,7 @@ async function worksAtRestaurant(ctx: HostedContext, user: HostedUser): Promise<
 }
 
 export function userJson(user: HostedUser) {
-  return { id: user.id, name: user.name, phone: user.phone, email: user.email, city: user.city, avatar_url: null };
+  return { id: user.id, name: user.name, phone: user.phone, email: user.email, city: user.city, avatar_url: null, ...(user.username ? { username: user.username } : {}) };
 }
 
 async function updateMe(ctx: HostedContext, s: Session, body: Record<string, unknown>): Promise<HostedResult> {

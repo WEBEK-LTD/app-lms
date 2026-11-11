@@ -77,8 +77,8 @@
         {
           "method": "POST",
           "path": "/auth/password",
-          "summary": "Sign in with email and password",
-          "description": "For servers whose `Config.auth.email_sign_in` is `password` (a WordPress site: its own accounts and passwords, checked by WordPress with the site's own rules and security plugins). Only existing accounts sign in here; people without an account sign up by phone or on the website (or, where the owner chose email codes, with `POST /auth/email/request`). A wrong address and a wrong password get the same 400 `invalid_credentials`, so the answer never tells whether an account exists. Limited per address and per IP. Devices and the device limit work as for phone sign-in.\n\nRefused with 403 `method_not_allowed` when the app doesn't offer email sign-in. In the app preview only the store review email address signs in; anything else gets 403 `preview_review_number_only`.\n\nStore review on WordPress: with the plugin's store review access on, its test email address signs in with the fixed code as the password, to the site's account with that address (made when there is none and sign-up is allowed; never an account that can edit the site).",
+          "summary": "Sign in with a password",
+          "description": "Roadmap 118, the hosted API: a Yallapp Studio app whose `Config.auth.password_sign_in` is set signs in here with what `password_sign_in.by` lists: `email`, `phone` with `country_code`, or `username`, and the account's password. A wrong account and a wrong password get the same 400 `invalid_credentials`. Limited to 10 tries per account and 50 per IP in 15 minutes (429 `rate_limited`). The store review number (or address) signs in with the review code as its password. Accounts are made with a code (`POST /auth/otp/verify`, then `POST /auth/register` with `password`), and a forgotten password is set again with `POST /auth/password/reset`.\n\nFor servers whose `Config.auth.email_sign_in` is `password` (a WordPress site: its own accounts and passwords, checked by WordPress with the site's own rules and security plugins). Only existing accounts sign in here; people without an account sign up by phone or on the website (or, where the owner chose email codes, with `POST /auth/email/request`). A wrong address and a wrong password get the same 400 `invalid_credentials`, so the answer never tells whether an account exists. Limited per address and per IP. Devices and the device limit work as for phone sign-in.\n\nRefused with 403 `method_not_allowed` when the app doesn't offer email sign-in. In the app preview only the store review email address signs in; anything else gets 403 `preview_review_number_only`.\n\nStore review on WordPress: with the plugin's store review access on, its test email address signs in with the fixed code as the password, to the site's account with that address (made when there is none and sign-up is allowed; never an account that can edit the site).",
           "access": "public"
         },
         {
@@ -93,6 +93,13 @@
           "path": "/auth/register",
           "summary": "Create an account after verification",
           "description": "Fields required here follow the \"Required at sign-up\" plugin setting. Refused with 403 `app_user_limit` (with `contact`) when the app reached its plan's number of app users since the code was verified.",
+          "access": "public"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/password/reset",
+          "summary": "Set a forgotten password again",
+          "description": "Roadmap 118 (apps with `Config.auth.password_sign_in`). After a code by phone or email and `POST /auth/otp/verify` with `purpose: reset`, the `reset_token` sets the account's new password and signs this device in. The account's other devices are signed out.",
           "access": "public"
         },
         {
@@ -154,6 +161,13 @@
           "path": "/me",
           "summary": "Delete account",
           "description": "Required by Apple and Google. Deletes or anonymises the WordPress user according to the site's policy and signs out every device. In a demo app (one shared account) it signs out this device only.\n\nRoadmap 68: it keeps working while the app is paused (its plan ended, or the owner's account is suspended), together with `POST /auth/refresh` and `POST /auth/logout`, on WordPress (plugin 0.4.6) and on the hosted API. The app offers it on its paused screen to someone who is signed in.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/password",
+          "summary": "Change the password",
+          "description": "Roadmap 118 (apps with `Config.auth.password_sign_in`). With the current password; the account's other devices are signed out. 400 `no_password` for an account that has none yet (it sets one with \"Forgot password\").",
           "access": "signed-in"
         },
         {

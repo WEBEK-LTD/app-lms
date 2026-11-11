@@ -50,6 +50,8 @@ sealed class VerifyResult {
     if (json['signup_required'] == true) {
       return SignupRequired.fromJson(json);
     }
+    // 118 A code with `purpose: reset`: the token that sets a new password.
+    if (json['reset_token'] is String) return PasswordReset.fromJson(json);
     return Session.fromJson(json);
   }
 }
@@ -78,6 +80,17 @@ class SignupRequired extends VerifyResult {
   final List<SignupField> fields;
 }
 
+/// 118 A forgotten password's code was right: [resetToken] sets a new one
+/// (`POST /auth/password/reset`).
+class PasswordReset extends VerifyResult {
+  const PasswordReset({required this.resetToken});
+
+  factory PasswordReset.fromJson(Json json) =>
+      PasswordReset(resetToken: reqString(json, 'reset_token'));
+
+  final String resetToken;
+}
+
 class User {
   const User({
     required this.id,
@@ -87,6 +100,7 @@ class User {
     this.city,
     this.avatarUrl,
     this.roles = const [],
+    this.username,
   });
 
   factory User.fromJson(Json json) => User(
@@ -100,6 +114,8 @@ class User {
     // 104 In delivery apps, `courier` for the company's couriers; 105.1 in
     // food delivery apps also `restaurant` for its restaurants' staff.
     roles: stringList(json, 'roles'),
+    // 118 Studio apps where people sign in with a username.
+    username: optString(json, 'username'),
   );
 
   final int id;
@@ -109,6 +125,9 @@ class User {
   final String? city;
   final String? avatarUrl;
   final List<String> roles;
+
+  /// 118 The username a Studio app's account signs in with, if it has one.
+  final String? username;
 
   /// 104 One of the delivery company's couriers.
   bool get isCourier => roles.contains('courier');

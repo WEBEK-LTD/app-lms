@@ -9367,4 +9367,88 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get vendorHoursSaved => 'Kaydedildi. Müşteriler artık görüyor.';
+
+  @override
+  String get signInWithUsername => 'Kullanıcı adı';
+
+  @override
+  String get username => 'Kullanıcı adı';
+
+  @override
+  String get usernameHint =>
+      'Harfle başlayan 3–30 harf, rakam, nokta veya alt çizgi.';
+
+  @override
+  String get enterUsername =>
+      'Harfle başlayan, 3–30 harf, rakam, nokta veya alt çizgiden oluşan bir kullanıcı adı seçin.';
+
+  @override
+  String get signInIntroPasswordStudio => 'Şifrenizle giriş yapın.';
+
+  @override
+  String get forgotPasswordTitle => 'Şifrenizi mi unuttunuz?';
+
+  @override
+  String get forgotPasswordIntro =>
+      'Hesabınızdaki e-posta adresini veya telefon numarasını girin. Yeni bir şifre belirlemeniz için size bir kod göndereceğiz.';
+
+  @override
+  String get newPasswordTitle => 'Yeni bir şifre seçin';
+
+  @override
+  String get newPassword => 'Yeni şifre';
+
+  @override
+  String get confirmPassword => 'Şifreyi tekrar yazın';
+
+  @override
+  String get passwordsDontMatch => 'Şifreler eşleşmiyor.';
+
+  @override
+  String get saveAndSignIn => 'Kaydet ve giriş yap';
+
+  @override
+  String get signInWithCodeInstead => 'Bunun yerine kodla giriş yap';
+
+  @override
+  String get signInWithPasswordInstead => 'Şifrenizle giriş yapın';
+
+  @override
+  String get createAnAccount => 'Hesap oluştur';
+
+  @override
+  String get newHereQuestion => 'Yeni misiniz?';
+
+  @override
+  String get createAccountIntroCode =>
+      'Telefon numaranızı veya e-posta adresinizi doğrulamak için size bir kod göndereceğiz, ardından şifrenizi seçersiniz.';
+
+  @override
+  String get changePassword => 'Şifreyi değiştir';
+
+  @override
+  String get currentPassword => 'Mevcut şifre';
+
+  @override
+  String get enterCurrentPassword => 'Mevcut şifrenizi girin.';
+
+  @override
+  String get passwordChanged =>
+      'Şifreniz değiştirildi. Diğer telefonlarınızda oturum kapatıldı.';
+
+  @override
+  String get showPassword => 'Şifreyi göster';
+
+  @override
+  String get hidePassword => 'Şifreyi gizle';
+
+  @override
+  String newPasswordIntro(int min) {
+    return 'En az $min karakter kullanın. Diğer telefonlarınızda oturum kapatılacak.';
+  }
+
+  @override
+  String passwordTooShort(int min) {
+    return 'En az $min karakter';
+  }
 }

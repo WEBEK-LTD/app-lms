@@ -495,6 +495,23 @@ export const PAGE_TEXTS_TR: Record<string, string> = {
 
 /** Messages the hosted API answers with (errors, refusals). */
 export const SERVER_MESSAGES_TR: Record<string, string> = {
+  // 118 Password sign-in (Yallapp Studio apps).
+  "This app doesn't use passwords.": "Bu uygulama şifre kullanmıyor.",
+  "There is no account with this email address.": "Bu e-posta adresiyle bir hesap yok.",
+  "There is no account with this number.": "Bu numarayla bir hesap yok.",
+  "You already have an account. Sign in with your password, or reset it if you forgot it.": "Zaten bir hesabınız var. Şifrenizle giriş yapın veya unuttuysanız sıfırlayın.",
+  "Please choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.": "Lütfen harfle başlayan, 3 ile 30 arasında harf, rakam, nokta veya alt çizgiden oluşan bir kullanıcı adı seçin.",
+  "This username is taken. Please choose another one.": "Bu kullanıcı adı alınmış. Lütfen başka bir tane seçin.",
+  "Your password needs at least 8 characters.": "Şifreniz en az 8 karakter olmalı.",
+  "Your password can have up to 128 characters.": "Şifreniz en fazla 128 karakter olabilir.",
+  "This password is too easy to guess. Please choose another one.": "Bu şifre tahmin edilmesi çok kolay. Lütfen başka bir şifre seçin.",
+  "Your password can't be your email, phone number or username.": "Şifreniz e-postanız, telefon numaranız veya kullanıcı adınız olamaz.",
+  "The details you entered are not correct.": "Girdiğiniz bilgiler doğru değil.",
+  "This app doesn't offer sign-in with a password.": "Bu uygulama şifreyle giriş sunmuyor.",
+  "This app doesn't offer this way of signing in.": "Bu uygulama bu giriş yolunu sunmuyor.",
+  "Please enter your email, phone number or username.": "Lütfen e-postanızı, telefon numaranızı veya kullanıcı adınızı girin.",
+  "You don't have a password yet. Sign out and use “Forgot password” to set one.": "Henüz bir şifreniz yok. Çıkış yapın ve bir şifre belirlemek için “Şifremi unuttum”u kullanın.",
+  "Your current password is not correct.": "Mevcut şifreniz doğru değil.",
   "Bundle not found.": "Paket bulunamadı.",
   "Choose a rating from 1 to 5.": "1 ile 5 arasında bir puan seçin.",
   "Enroll in the course to review it.": "Değerlendirmek için kursa kaydolun.",

@@ -11,6 +11,7 @@ import {
   saveAppWhatsappAction,
   saveSignInMethodsAction,
   saveSignInProviderAction,
+  saveStudioSignInAction,
   testAppMailAction,
   testAppWhatsappAction,
   testTokenAction,
@@ -179,6 +180,78 @@ const METHODS: readonly { value: "phone" | "email" | "both"; label: DashKey; hin
   { value: "email", label: "signin.methodEmail", hint: null },
   { value: "both", label: "signin.methodBoth", hint: "signin.methodBothHint" },
 ];
+
+/** 118 Yallapp Studio apps: the ways people sign in, each on or off. */
+const STUDIO_WAYS: readonly { name: string; label: DashKey; hint: DashKey; email: boolean }[] = [
+  { name: "code_phone", label: "signin.wayPhoneCode", hint: "signin.wayPhoneCodeHint", email: false },
+  { name: "code_email", label: "signin.wayEmailCode", hint: "signin.wayEmailCodeHint", email: true },
+  { name: "password_email", label: "signin.wayEmailPassword", hint: "signin.wayEmailPasswordHint", email: true },
+  { name: "password_phone", label: "signin.wayPhonePassword", hint: "signin.wayPhonePasswordHint", email: false },
+  { name: "password_username", label: "signin.wayUsernamePassword", hint: "signin.wayUsernamePasswordHint", email: false },
+];
+
+/** 118 Studio apps: codes and passwords, any of them, and how username accounts are verified and reset. */
+export function StudioSignInForm({ current, emailPossible, note = null }: { current: Record<string, string>; emailPossible: boolean; note?: string | null }) {
+  const t = useDashT();
+  const [state, action] = useActionState(saveStudioSignInAction, initialFormState);
+  const values = state.values ?? current;
+  const [username, setUsername] = useState(values.password_username === "on");
+  const error = state.errors?.ways;
+  return (
+    <form action={action} noValidate className="flex flex-col gap-4" key={JSON.stringify(values)}>
+      <FormMessage message={state.message} ok={state.ok} />
+      <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("signin.studioWaysIntro")}</p>
+      <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby={error ? "ways-error" : undefined}>
+        <legend className="mb-1.5 text-[15px] font-bold">{t("signin.waysLegend")}</legend>
+        {STUDIO_WAYS.map((w) => {
+          const disabled = w.email && !emailPossible;
+          return (
+            <label key={w.name} className={`flex items-start gap-2.5 text-[15px] ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+              <input
+                type="checkbox"
+                name={w.name}
+                defaultChecked={values[w.name] === "on"}
+                disabled={disabled}
+                onChange={w.name === "password_username" ? (e) => setUsername(e.currentTarget.checked) : undefined}
+                className="mt-1 h-4 w-4 accent-midnight"
+              />
+              <span className="flex flex-col">
+                <span className="font-semibold">{t(w.label)}</span>
+                <span className="text-sm text-muted">{t(w.hint)}</span>
+              </span>
+            </label>
+          );
+        })}
+        <FieldError id="ways-error" error={error} />
+      </fieldset>
+      {username ? (
+        <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend className="mb-1.5 text-[15px] font-bold">{t("signin.recoveryLegend")}</legend>
+          {(["email", "phone"] as const).map((r) => (
+            <label key={r} className={`flex items-start gap-2.5 text-[15px] ${r === "email" && !emailPossible ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+              <input
+                type="radio"
+                name="recovery"
+                value={r}
+                defaultChecked={(values.recovery ?? (emailPossible ? "email" : "phone")) === r}
+                disabled={r === "email" && !emailPossible}
+                className="mt-1 h-4 w-4 accent-midnight"
+              />
+              <span className="font-semibold">{t(r === "email" ? "signin.recoveryEmail" : "signin.recoveryPhone")}</span>
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      {note ? <p className="m-0 text-sm leading-relaxed text-muted">{note}</p> : null}
+      <p className="m-0 text-sm leading-relaxed text-muted">{t("signin.passwordsNote")}</p>
+      <div className="flex justify-end">
+        <SubmitButton className="h-11" pendingText={t("common.saving")}>
+          {t("common.save")}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
 
 /** 24 WordPress: how email sign-in works. */
 const EMAIL_WAYS: readonly { value: "code" | "password"; label: DashKey; hint: DashKey }[] = [

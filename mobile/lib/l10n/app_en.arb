@@ -10520,5 +10520,44 @@
   "vendorHoursSaved": "Saved. Customers see it now.",
   "@vendorHoursSaved": {
     "description": "115.20 After the vendor saved its hours or days off."
+  },
+  "signInWithUsername": "Username",
+  "username": "Username",
+  "usernameHint": "3 to 30 letters, digits, dots or underscores, starting with a letter.",
+  "enterUsername": "Choose a username of 3 to 30 letters, digits, dots or underscores, starting with a letter.",
+  "signInIntroPasswordStudio": "Sign in with your password.",
+  "forgotPasswordTitle": "Forgot your password?",
+  "forgotPasswordIntro": "Enter the email address or phone number on your account. We'll send you a code to set a new password.",
+  "newPasswordTitle": "Choose a new password",
+  "newPassword": "New password",
+  "confirmPassword": "Type the password again",
+  "passwordsDontMatch": "The passwords don't match.",
+  "saveAndSignIn": "Save and sign in",
+  "signInWithCodeInstead": "Sign in with a code instead",
+  "signInWithPasswordInstead": "Sign in with your password",
+  "createAnAccount": "Create an account",
+  "newHereQuestion": "New here?",
+  "createAccountIntroCode": "We'll send you a code to check your phone number or email address, then you choose your password.",
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "enterCurrentPassword": "Enter your current password.",
+  "passwordChanged": "Your password was changed. Your other phones were signed out.",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "newPasswordIntro": "Use at least {min} characters. Your other phones will be signed out.",
+  "@newPasswordIntro": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "passwordTooShort": "At least {min} characters",
+  "@passwordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
   }
 }
