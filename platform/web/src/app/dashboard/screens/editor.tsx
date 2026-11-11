@@ -12,6 +12,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { initialFormState } from "@/lib/forms";
 import { PAGE_ICONS } from "@/lib/pages/icons";
 import {
+  ACCOUNT_HEADERS,
   ACCOUNT_ITEMS,
   REQUIRED_ACCOUNT_ITEMS,
   SCREEN_LIMITS,
@@ -24,6 +25,25 @@ import {
   type SignInStyle,
   type StudioScreens,
 } from "@/lib/studio/screens";
+
+/** 118.3 The night look's card colour when the owner keeps the default. */
+const NIGHT_GOLD = "#D9B36C";
+const NIGHT_ACCENTS = [NIGHT_GOLD, "#C9CED6", "#E8A27C", "#8FD1B8"] as const;
+
+const HEADER_NAMES: Record<AccountHeader, DashKey> = {
+  plain: "studio.menuTopPlain",
+  card: "studio.menuTopCard",
+  cover: "studio.menuTopCover",
+  tiles: "studio.menuTopTiles",
+  night: "studio.menuTopNight",
+};
+const HEADER_HINTS: Record<AccountHeader, DashKey> = {
+  plain: "studio.menuTopPlainHint",
+  card: "studio.menuTopCardHint",
+  cover: "studio.menuTopCoverHint",
+  tiles: "studio.menuTopTilesHint",
+  night: "studio.menuTopNightHint",
+};
 
 /** The app's own icon for each entry, for the list and the preview. */
 const ITEM_ICONS: Record<AccountItemKey, IconName> = {
@@ -95,6 +115,7 @@ export function ScreensEditor({
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
   const [look, setLook] = useState<SignInLook>(initial?.sign_in ?? { style: "classic", image_url: null, title: {}, subtitle: {}, show_logo: true });
   const [header, setHeader] = useState<AccountHeader>(initial?.account_menu?.header ?? "plain");
+  const [accent, setAccent] = useState<string>(initial?.account_menu?.accent ?? NIGHT_GOLD);
   const [entries, setEntries] = useState<Entry[]>(() => startingEntries(initial?.account_menu?.items));
   const [open, setOpen] = useState<string | null>(null);
   const [previewLang, setPreviewLang] = useState(languages[0]?.code ?? "en");
@@ -104,13 +125,14 @@ export function ScreensEditor({
       sign_in: { ...look, title: clean(look.title), subtitle: clean(look.subtitle) },
       account_menu: {
         header,
+        ...(header === "night" && accent.toUpperCase() !== NIGHT_GOLD ? { accent: accent.toUpperCase() } : {}),
         items: entries.map(({ uid: _uid, ...e }) => {
           void _uid;
           return { ...e, label: clean(e.label) };
         }),
       },
     }),
-    [look, header, entries],
+    [look, header, accent, entries],
   );
 
   const move = (index: number, by: number) =>
@@ -204,15 +226,45 @@ export function ScreensEditor({
           <h2 id="h-account-menu" className="m-0 text-lg font-bold">
             {t("studio.accountMenu")}
           </h2>
-          <fieldset className="m-0 flex flex-wrap gap-3 border-0 p-0">
-            <legend className="mb-1.5 text-[15px] font-bold">{t("studio.menuTop")}</legend>
-            {(["plain", "card"] as const).map((h) => (
-              <label key={h} className="flex cursor-pointer items-center gap-2 text-[15px]">
-                <input type="radio" name="menu_header" checked={header === h} onChange={() => setHeader(h)} className="h-4 w-4 accent-midnight" />
-                {t(h === "plain" ? "studio.menuTopPlain" : "studio.menuTopCard")}
-              </label>
-            ))}
+          <fieldset className="m-0 border-0 p-0">
+            <legend className="mb-2 text-[15px] font-bold">{t("studio.menuTop")}</legend>
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
+              {ACCOUNT_HEADERS.map((h) => (
+                <label
+                  key={h}
+                  className={`flex cursor-pointer flex-col gap-1 rounded-xl border p-3 text-[14px] ${header === h ? "border-midnight ring-1 ring-midnight" : "border-line"}`}
+                >
+                  <span className="flex items-center gap-2 font-semibold">
+                    <input type="radio" name="menu_header" checked={header === h} onChange={() => setHeader(h)} className="h-4 w-4 accent-midnight" />
+                    {t(HEADER_NAMES[h])}
+                  </span>
+                  <span className="text-[13px] text-muted">{t(HEADER_HINTS[h])}</span>
+                </label>
+              ))}
+            </div>
           </fieldset>
+          {header === "night" ? (
+            <fieldset className="m-0 border-0 p-0">
+              <legend className="mb-2 text-[15px] font-bold">{t("studio.nightAccent")}</legend>
+              <div className="flex flex-wrap items-center gap-2">
+                {NIGHT_ACCENTS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setAccent(c)}
+                    aria-label={c}
+                    aria-pressed={accent.toUpperCase() === c}
+                    className={`h-9 w-9 rounded-full border-2 ${accent.toUpperCase() === c ? "border-midnight" : "border-transparent"}`}
+                    style={{ background: c }}
+                  />
+                ))}
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="h-9 w-12 cursor-pointer rounded border border-line bg-white" />
+                  {t("studio.nightAccentOwn")}
+                </label>
+              </div>
+            </fieldset>
+          ) : null}
           <p className="m-0 text-sm text-muted">{t("studio.menuNote")}</p>
           <ol className="m-0 flex list-none flex-col gap-2 p-0">
             {entries.map((e, i) => {
@@ -339,7 +391,7 @@ export function ScreensEditor({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <SignInPreview look={look} title={shownTitle} subtitle={shownSubtitle} appName={appName} color={color} t={t} />
-          <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} nameOf={nameOf} iconOf={iconOf} t={t} />
+          <MenuPreview entries={entries.filter((e) => !e.hidden)} header={header} color={color} accent={accent} nameOf={nameOf} iconOf={iconOf} t={t} />
         </div>
       </aside>
     </div>
@@ -399,6 +451,7 @@ function MenuPreview({
   entries,
   header,
   color,
+  accent,
   nameOf,
   iconOf,
   t,
@@ -406,28 +459,102 @@ function MenuPreview({
   entries: Entry[];
   header: AccountHeader;
   color: string;
+  accent: string;
   nameOf: (e: Entry) => string;
   iconOf: (e: Entry) => IconName;
   t: ReturnType<typeof useDashT>;
 }) {
+  const night = header === "night";
+  const required = (e: Entry) => e.key !== "link" && REQUIRED_ACCOUNT_ITEMS.includes(e.key);
+  const quick = header === "cover" || header === "night" ? entries.filter((e) => !required(e) && e.key !== "link").slice(0, 3) : [];
+  const tiles = header === "tiles" ? entries.filter((e) => !required(e) && e.key !== "link").slice(0, 4) : [];
+  const banner = header === "tiles" ? entries.find((e) => e.key === "link") : undefined;
+  const listed = entries.filter((e) => !quick.includes(e) && !tiles.includes(e) && e !== banner);
+  const name = (
+    <span className="flex min-w-0 flex-col">
+      <span className="truncate font-extrabold">{t("studio.previewName")}</span>
+      <span className="opacity-75">+20 100 000 0000</span>
+    </span>
+  );
   return (
-    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight bg-[#F7F3EC] p-2 text-[10px]" data-testid="menu-preview">
-      <div className={`mb-2 flex items-center gap-1.5 rounded-xl p-2 ${header === "card" ? "text-white" : ""}`} style={header === "card" ? { background: color } : undefined}>
-        <span className="h-6 w-6 rounded-full bg-[#D9D3C7]" />
-        <span className="flex flex-col">
-          <span className="font-extrabold">{t("studio.previewName")}</span>
-          <span className="opacity-75">+20 100 000 0000</span>
-        </span>
+    <div
+      className={`relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px] ${night ? "bg-[#0D1210] text-[#F2F4F3]" : "bg-[#F7F3EC]"}`}
+      data-testid="menu-preview"
+      data-header={header}
+    >
+      {header === "cover" ? <div className="absolute inset-x-0 top-0 h-16" style={{ background: color }} /> : null}
+      <div className="relative flex flex-col gap-2 p-2">
+        {header === "cover" ? (
+          <div className="mt-7 flex flex-col items-center rounded-xl bg-white px-2 pb-1.5 pt-1 text-center shadow-sm">
+            <span className="-mt-5 h-8 w-8 rounded-full border-2 border-white bg-[#D9D3C7]" />
+            {name}
+            <span className="mt-1 flex w-full justify-around border-t border-[#EFE9DE] pt-1">
+              {quick.map((e) => (
+                <span key={e.uid} className="flex min-w-0 flex-col items-center">
+                  <Icon name={iconOf(e)} size={12} />
+                  <span className="max-w-[48px] truncate text-[8px]">{nameOf(e)}</span>
+                </span>
+              ))}
+            </span>
+          </div>
+        ) : header === "tiles" ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span className="h-6 w-6 rounded-lg" style={{ background: color }} />
+              {name}
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              {tiles.map((e) => (
+                <span key={e.uid} className="flex flex-col gap-1 rounded-lg bg-white p-1.5">
+                  <Icon name={iconOf(e)} size={12} />
+                  <span className="truncate font-semibold">{nameOf(e)}</span>
+                </span>
+              ))}
+            </div>
+            {banner ? (
+              <span className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 font-semibold text-white" style={{ background: color }}>
+                <Icon name={iconOf(banner)} size={12} />
+                <span className="truncate">{nameOf(banner)}</span>
+              </span>
+            ) : null}
+          </>
+        ) : night ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span className="h-6 w-6 rounded-full border" style={{ borderColor: accent }} />
+              {name}
+            </div>
+            <div className="flex h-14 flex-col justify-between rounded-xl border border-[#2A3530] bg-[#18211D] p-1.5">
+              <span className="text-[8px] text-[#A3ADA8]">{t("studio.previewMemberCard")}</span>
+              <span className="text-[13px] font-extrabold" style={{ color: accent }}>
+                {t("studio.previewName")}
+              </span>
+            </div>
+            <span className="grid grid-cols-3 gap-1">
+              {quick.map((e) => (
+                <span key={e.uid} className="flex min-w-0 flex-col items-center rounded-lg border border-[#222B27] bg-[#141B18] p-1" style={{ color: accent }}>
+                  <Icon name={iconOf(e)} size={12} />
+                  <span className="max-w-full truncate text-[8px] text-[#F2F4F3]">{nameOf(e)}</span>
+                </span>
+              ))}
+            </span>
+          </>
+        ) : (
+          <div className={`flex items-center gap-1.5 rounded-xl p-2 ${header === "card" ? "text-white" : ""}`} style={header === "card" ? { background: color } : undefined}>
+            <span className="h-6 w-6 rounded-full bg-[#D9D3C7]" />
+            {name}
+          </div>
+        )}
+        <div className={`flex flex-col overflow-hidden rounded-xl ${night ? "border border-[#222B27] bg-[#141B18]" : "bg-white"}`}>
+          {listed.slice(0, header === "plain" || header === "card" ? 9 : 5).map((e) => (
+            <span key={e.uid} className={`flex items-center gap-1.5 border-b px-2 py-1.5 ${night ? "border-[#222B27]" : "border-[#EFE9DE]"}`}>
+              <Icon name={iconOf(e)} size={13} />
+              <span className="truncate">{nameOf(e)}</span>
+            </span>
+          ))}
+        </div>
+        <span className={`block rounded-xl px-2 py-1.5 font-bold ${night ? "bg-[#141B18] text-[#F0907F]" : "bg-white text-danger"}`}>{t("studio.previewSignOut")}</span>
       </div>
-      <div className="flex flex-col overflow-hidden rounded-xl bg-white">
-        {entries.slice(0, 9).map((e) => (
-          <span key={e.uid} className="flex items-center gap-1.5 border-b border-[#EFE9DE] px-2 py-1.5">
-            <Icon name={iconOf(e)} size={13} />
-            <span className="truncate">{nameOf(e)}</span>
-          </span>
-        ))}
-      </div>
-      <span className="mt-2 block rounded-xl bg-white px-2 py-1.5 font-bold text-danger">{t("studio.previewSignOut")}</span>
     </div>
   );
 }

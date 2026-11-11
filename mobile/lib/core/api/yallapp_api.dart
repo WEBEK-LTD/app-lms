@@ -1546,7 +1546,13 @@ class HttpYallappApi implements YallappApi {
     final auth = yallapp['auth'];
     if (auth is Map && auth['provider'] == 'yallapp') {
       _routeAuth(authBase);
-      return _parseConfig({...json, 'auth': auth});
+      // 118.3 A Studio app's sign-in screen and account menu come with it.
+      final screens = yallapp['screens'];
+      return _parseConfig({
+        ...json,
+        'auth': auth,
+        if (screens is Map) 'screens': screens,
+      });
     }
     _routeAuth(null);
     return _parseConfig(json);

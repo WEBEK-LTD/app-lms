@@ -2575,4 +2575,7 @@
 {"key":"showPassword","en":"Show password","ar":"إظهار كلمة المرور","tr":"Şifreyi göster"},
 {"key":"hidePassword","en":"Hide password","ar":"إخفاء كلمة المرور","tr":"Şifreyi gizle"},
 {"key":"newPasswordIntro","en":"Use at least {min} characters. Your other phones will be signed out.","ar":"استخدم {min} أحرف على الأقل. سيُسجَّل الخروج من هواتفك الأخرى.","tr":"En az {min} karakter kullanın. Diğer telefonlarınızda oturum kapatılacak.","placeholders":{"min":"int"}},
-{"key":"passwordTooShort","en":"At least {min} characters","ar":"{min} أحرف على الأقل","tr":"En az {min} karakter","placeholders":{"min":"int"}}]}
+{"key":"passwordTooShort","en":"At least {min} characters","ar":"{min} أحرف على الأقل","tr":"En az {min} karakter","placeholders":{"min":"int"}},
+{"key":"accountMemberCard","en":"Membership card","ar":"بطاقة العضوية","tr":"Üyelik kartı","description":"118.3 Night account look: the title on the membership card."},
+{"key":"accountPointsWorth","en":"Worth {value}","ar":"قيمتها {value}","tr":"Değeri {value}","description":"118.3 What the points are worth, formatted (₺84.00).","placeholders":{"value":"String"}},
+{"key":"accountPointsToUse","en":"{count, plural, =1{1 more point and you can use them} other{{count} more points and you can use them}}","ar":"{count, plural, =1{تبقّت نقطة واحدة لتتمكن من استخدامها} =2{تبقّت نقطتان لتتمكن من استخدامها} few{تبقّت {count} نقاط لتتمكن من استخدامها} other{تبقّت {count} نقطة لتتمكن من استخدامها}}","tr":"{count, plural, other{{count} puan daha topladığınızda kullanabilirsiniz}}","description":"118.3 Points still needed before they can be used.","placeholders":{"count":"int"}}]}

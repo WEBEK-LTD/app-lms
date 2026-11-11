@@ -684,6 +684,8 @@ function signInConfig(ctx: HostedContext, req: HostedRequest): HostedResult {
     branding: { logo_url: app.logoAssetId ? ctx.assetUrl(app.logoAssetId) : null, primary_color: app.primaryColor },
     features: { lms: null, lms_version: "", pro: false, certificates: false, quizzes: false, wishlist: false, reviews: false, qna: false, push: false },
     auth: { ...authConfig(app), provider: "yallapp", base_url: ctx.yallappSignIn!.baseUrl },
+    // 118.3 A Studio app on its own API: the app takes these with the sign-in rules.
+    ...screensConfig(app),
     purchases: { enroll_button: false, free_enrollment: false },
     content: { block_screen_capture: false, watermark: "off", embed_fullscreen_button: true, embed_height: "auto" },
     app: { update_required: false, maintenance: false, maintenance_message: null },

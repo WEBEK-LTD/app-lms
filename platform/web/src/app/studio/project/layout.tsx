@@ -13,6 +13,7 @@ import { pathPermission } from "@/lib/team/permissions";
 import { C, Glyph, StudioBar, StudioScreen } from "../chrome";
 import { ProjectNav, type ProjectNavGroup } from "./project-nav";
 import { StudioDashboardLinks } from "./dashboard-links";
+import { studioScreensOn } from "@/lib/studio/screens";
 
 /** A dashboard address in the project's own frame. */
 const inStudio = (href: string) => href.replace(/^\/dashboard/, "/studio/project");
@@ -57,8 +58,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         item("/dashboard/setup?step=website", t("studio.navSource"), "hub"),
         item("/dashboard/setup?step=branding", t("studio.navIdentity"), "palette"),
         item("/dashboard/languages", t("studio.navLanguages"), "translate"),
-        // 118.3 The sign-in screen and the account menu (Studio projects on Yallapp's server).
-        ...(app.backend === "hosted" ? [item("/dashboard/screens", t("studio.navScreens"), "account_circle")] : []),
+        // 118.3 The sign-in screen and the account menu (on Yallapp's server, or an own API Yallapp signs people in to).
+        ...(studioScreensOn(app) ? [item("/dashboard/screens", t("studio.navScreens"), "account_circle")] : []),
         ...(app.backend === "hosted"
           ? [item("/dashboard/notifications", t("studio.navNotifications"), "notifications")]
           : app.backend === "wordpress"

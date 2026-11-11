@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/routing/paths.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
 import '../support/test_app.dart';
+import 'phase91_points_test.dart' show loyaltyJson;
+import 'store_test.dart' show storeApi;
 
 /// 118.3 A Studio app's sign-in screen look and account menu
 /// (`Config.screens`).
@@ -149,5 +152,134 @@ void main() {
       lessThan(tester.getTopLeft(find.text('Preferences')).dy),
     );
     expect(find.text('Log out'), findsOneWidget);
+  });
+
+  /// A shop with points, and the owner's menu in [header].
+  Future<TestApp> shopAccount(
+    WidgetTester tester,
+    String header, {
+    int balance = 840,
+    String? accent,
+  }) async {
+    final api = storeApi(
+      store: {
+        ...storeConfigJson(deliveryDate: false),
+        'loyalty': loyaltyJson(),
+      },
+    );
+    api.config['screens'] = {
+      'account_menu': {
+        'header': header,
+        'accent': ?accent,
+        'items': [
+          {'key': 'orders', 'hidden': false},
+          {'key': 'points', 'hidden': false},
+          {
+            'key': 'link',
+            'hidden': false,
+            'label': {'en': 'This week\'s offers'},
+            'icon': 'redeem',
+            'page_slug': 'offers',
+          },
+          {
+            'key': 'help',
+            'hidden': false,
+            'label': {'en': 'WhatsApp us'},
+          },
+          {'key': 'notifications', 'hidden': true},
+        ],
+      },
+    };
+    api.points = {
+      'balance': balance,
+      'value': '₺84.00',
+      'entries': <Map<String, dynamic>>[],
+    };
+    final app = TestApp(signedIn: true, appType: AppType.store, api: api);
+    await app.pump(tester);
+    app.container.read(appRouterProvider).go(Paths.account);
+    await TestApp.settle(tester);
+    return app;
+  }
+
+  test('reads the new looks and the card colour', () {
+    final menu = AccountMenuDesign.fromJson({
+      'header': 'night',
+      'accent': '#C9CED6',
+      'items': <Object>[],
+    });
+    expect(menu.header, AccountMenuHeader.night);
+    expect(menu.accent, const Color(0xFFC9CED6));
+    expect(
+      AccountMenuDesign.fromJson({'header': 'newer', 'accent': 'gold'}).header,
+      AccountMenuHeader.plain,
+      reason: 'a look this app doesn\'t know',
+    );
+    expect(AccountMenuDesign.fromJson({'accent': 'gold'}).accent, isNull);
+  });
+
+  testWidgets('cover: the points and the first entries as shortcuts', (
+    tester,
+  ) async {
+    final app = await shopAccount(tester, 'cover');
+    expect(find.byKey(const ValueKey('account-cover')), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-points-count')), findsOneWidget);
+    expect(find.text('840'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('account-shortcut-orders')),
+      findsOneWidget,
+    );
+    expect(find.text('This week\'s offers'), findsOneWidget);
+    expect(find.text('WhatsApp us'), findsOneWidget);
+    expect(find.text('Notifications'), findsNothing, reason: 'hidden');
+    expect(find.text('Settings'), findsOneWidget, reason: 'always shown');
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('account-sign-out')),
+      200,
+    );
+    await tester.tap(find.byKey(const ValueKey('account-sign-out')));
+    await TestApp.settle(tester);
+    expect(find.text('Log out'), findsWidgets, reason: 'asks first');
+    expect(app.api.calls, contains('getMyPoints'));
+  });
+
+  testWidgets('tiles: the first entries as tiles and the owner\'s banner', (
+    tester,
+  ) async {
+    final app = await shopAccount(tester, 'tiles');
+    expect(find.byKey(const ValueKey('account-tile-orders')), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-tile-points')), findsOneWidget);
+    expect(find.text('840 points'), findsOneWidget);
+    expect(find.byKey(const ValueKey('account-link-2')), findsOneWidget);
+    expect(find.text('Welcome'), findsOneWidget);
+    await tester.tap(find.text('This week\'s offers'));
+    await TestApp.settle(tester);
+    expect(
+      app.container.read(appRouterProvider).state.uri.path,
+      Paths.page('offers'),
+    );
+  });
+
+  testWidgets('night: the membership card counts toward using the points', (
+    tester,
+  ) async {
+    await shopAccount(tester, 'night', balance: 40, accent: '#C9CED6');
+    expect(find.byKey(const ValueKey('account-member-card')), findsOneWidget);
+    expect(find.text('Membership card'), findsOneWidget);
+    expect(find.text('40 points'), findsOneWidget);
+    expect(find.text('60 more points and you can use them'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('account-shortcut-orders')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('account-sign-out')), findsOneWidget);
+  });
+
+  testWidgets('night: once there are enough, what they are worth', (
+    tester,
+  ) async {
+    await shopAccount(tester, 'night');
+    expect(find.text('840 points'), findsOneWidget);
+    expect(find.text('Worth ₺84.00'), findsOneWidget);
   });
 }

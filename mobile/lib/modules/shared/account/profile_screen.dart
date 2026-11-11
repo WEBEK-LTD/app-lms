@@ -26,6 +26,7 @@ import '../../lms/teachers/teachers_providers.dart';
 import '../../rides/data/rides_providers.dart';
 import '../../vendor/data/vendor_providers.dart';
 import '../staff_app.dart';
+import 'account_looks.dart';
 import '../../lms/downloads/download_manager.dart';
 import '../../lms/downloads/download_widgets.dart';
 
@@ -272,9 +273,10 @@ class ProfileScreen extends ConsumerWidget {
         ),
     };
     final language = Localizations.localeOf(context).languageCode;
-    List<Widget> designedTiles(AccountMenuDesign design) {
+    // The owner's entries, in the owner's order, with the owner's names.
+    List<AccountLookEntry> designedEntries(AccountMenuDesign design) {
       const required = {'settings', 'privacy', 'terms'};
-      final tiles = <Widget>[];
+      final shown = <AccountLookEntry>[];
       final placed = <String>{};
       for (final (i, item) in design.items.indexed) {
         final label = textFor(item.label, language);
@@ -282,9 +284,10 @@ class ProfileScreen extends ConsumerWidget {
           if (item.hidden || label == null) continue;
           final slug = item.pageSlug;
           final url = item.url;
-          tiles.add(
-            SettingsTile(
-              key: ValueKey('account-link-$i'),
+          shown.add(
+            AccountLookEntry(
+              key: 'link',
+              tileKey: 'account-link-$i',
               icon: symbolByName(item.icon ?? 'link'),
               title: label,
               onTap: slug != null
@@ -299,20 +302,40 @@ class ProfileScreen extends ConsumerWidget {
         final entry = available[item.key];
         if (entry == null || !placed.add(item.key)) continue;
         if (item.hidden && !required.contains(item.key)) continue;
-        tiles.add(
-          entry.tile(
+        shown.add(
+          entry.shown(
+            item.key,
             title: label,
             icon: item.icon == null ? null : symbolByName(item.icon),
+            required: required.contains(item.key),
           ),
         );
       }
       // The app's entries the design doesn't list, in the app's order.
       for (final MapEntry(:key, :value) in available.entries) {
         if (!placed.contains(key) && !design.items.any((i) => i.key == key)) {
-          tiles.add(value.tile());
+          shown.add(value.shown(key, required: required.contains(key)));
         }
       }
-      return tiles;
+      return shown;
+    }
+
+    List<Widget> designedTiles(AccountMenuDesign design) => [
+      for (final e in designedEntries(design)) e.tile(),
+    ];
+
+    // 118.3 The cover, tiles and night looks draw the whole page.
+    if (design != null &&
+        design.header != AccountMenuHeader.plain &&
+        design.header != AccountMenuHeader.card) {
+      return AccountLook(
+        design: design,
+        entries: designedEntries(design),
+        user: user,
+        onEdit: user == null ? null : () => context.push(Paths.editProfile),
+        onSignOut: () => _signOut(context, ref),
+        points: config.store?.loyalty != null && user != null,
+      );
     }
 
     return Scaffold(
@@ -670,11 +693,18 @@ class _MenuEntry {
   final String? value;
   final String? tileKey;
 
-  Widget tile({String? title, IconData? icon}) => SettingsTile(
-    key: tileKey == null ? null : ValueKey(tileKey),
+  AccountLookEntry shown(
+    String key, {
+    String? title,
+    IconData? icon,
+    bool required = false,
+  }) => AccountLookEntry(
+    key: key,
+    tileKey: tileKey,
     icon: icon ?? this.icon,
     title: title ?? this.title,
     value: value,
     onTap: onTap,
+    required: required,
   );
 }

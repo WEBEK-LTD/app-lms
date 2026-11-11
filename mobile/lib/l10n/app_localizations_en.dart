@@ -9488,4 +9488,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String passwordTooShort(int min) {
     return 'At least $min characters';
   }
+
+  @override
+  String get accountMemberCard => 'Membership card';
+
+  @override
+  String accountPointsWorth(String value) {
+    return 'Worth $value';
+  }
+
+  @override
+  String accountPointsToUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more points and you can use them',
+      one: '1 more point and you can use them',
+    );
+    return '$_temp0';
+  }
 }

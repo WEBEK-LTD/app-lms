@@ -1,4 +1,5 @@
 import type { App } from "../data/types";
+import { yallappSignsIn } from "../hosted/sign-in-methods";
 import { ICON_NAME } from "../pages/icons";
 
 /**
@@ -74,11 +75,14 @@ export interface AccountMenuEntry {
   page_slug?: string | null;
 }
 
-export const ACCOUNT_HEADERS = ["plain", "card"] as const;
+/** 118.3 The menu's top: the name and photo, a card in the app's colour, a cover with shortcuts, quick tiles, or a dark page with a membership card. */
+export const ACCOUNT_HEADERS = ["plain", "card", "cover", "tiles", "night"] as const;
 export type AccountHeader = (typeof ACCOUNT_HEADERS)[number];
 
 export interface AccountMenu {
   header: AccountHeader;
+  /** `night`: the membership card's colour (#RRGGBB); null: gold. */
+  accent?: string | null;
   /** In the order shown. Entries the app knows that aren't here follow, in its own order. */
   items: AccountMenuEntry[];
 }
@@ -183,14 +187,20 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
       const required = (REQUIRED_ACCOUNT_ITEMS as readonly string[]).includes(key);
       items.push({ key: key as AccountItemKey, hidden: required ? false : e.hidden === true, label, icon });
     }
-    screens.account_menu = { header, items };
+    const accent = typeof m.accent === "string" && /^#[0-9a-fA-F]{6}$/.test(m.accent) ? m.accent.toUpperCase() : null;
+    screens.account_menu = { header, ...(header === "night" && accent ? { accent } : {}), items };
   }
   return { screens, problems: [...new Set(problems)] };
 }
 
-/** 118.3 Whether the app gets Studio's screens: a Studio project on the hosted API. */
-export function studioScreensOn(app: Pick<App, "section" | "backend">): boolean {
-  return app.section === "studio" && app.backend === "hosted";
+/**
+ * 118.3 Whether the app gets Studio's screens: a Studio project on the hosted
+ * API, or on its own API that Yallapp signs people in to (the app reads them
+ * from Yallapp's `/config` with the sign-in rules). Another own API sends
+ * `Config.screens` itself.
+ */
+export function studioScreensOn(app: Pick<App, "section" | "backend"> & { hostedSettings?: App["hostedSettings"] }): boolean {
+  return app.section === "studio" && (app.backend === "hosted" || yallappSignsIn(app));
 }
 
 /** 118.3 `Config.screens`, or nothing when the owner hasn't designed them. */

@@ -9742,4 +9742,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String passwordTooShort(int min) {
     return '$min أحرف على الأقل';
   }
+
+  @override
+  String get accountMemberCard => 'بطاقة العضوية';
+
+  @override
+  String accountPointsWorth(String value) {
+    return 'قيمتها $value';
+  }
+
+  @override
+  String accountPointsToUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تبقّت $count نقطة لتتمكن من استخدامها',
+      few: 'تبقّت $count نقاط لتتمكن من استخدامها',
+      two: 'تبقّت نقطتان لتتمكن من استخدامها',
+      one: 'تبقّت نقطة واحدة لتتمكن من استخدامها',
+    );
+    return '$_temp0';
+  }
 }

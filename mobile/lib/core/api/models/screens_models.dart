@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'json.dart';
 
 /// 118.3 `Config.screens`: a Yallapp Studio app's sign-in screen and
@@ -58,7 +60,9 @@ class SignInLook {
   final bool showLogo;
 }
 
-enum AccountMenuHeader { plain, card }
+/// 118.3 The menu's top: the name and photo, a card in the app's colour, a
+/// cover with shortcuts, quick tiles, or a dark page with a membership card.
+enum AccountMenuHeader { plain, card, cover, tiles, night }
 
 class AccountMenuEntry {
   const AccountMenuEntry({
@@ -93,13 +97,16 @@ class AccountMenuEntry {
 class AccountMenuDesign {
   const AccountMenuDesign({
     this.header = AccountMenuHeader.plain,
+    this.accent,
     this.items = const [],
   });
 
   factory AccountMenuDesign.fromJson(Json json) => AccountMenuDesign(
-    header: optString(json, 'header') == 'card'
-        ? AccountMenuHeader.card
-        : AccountMenuHeader.plain,
+    header: AccountMenuHeader.values.firstWhere(
+      (h) => h.name == optString(json, 'header'),
+      orElse: () => AccountMenuHeader.plain,
+    ),
+    accent: _hex(optString(json, 'accent')),
     items: [
       for (final item in json['items'] is List ? json['items'] as List : [])
         if (item is Map<String, dynamic>) AccountMenuEntry.fromJson(item),
@@ -107,6 +114,9 @@ class AccountMenuDesign {
   );
 
   final AccountMenuHeader header;
+
+  /// `night`: the membership card's colour; null: gold.
+  final Color? accent;
   final List<AccountMenuEntry> items;
 }
 
@@ -129,4 +139,11 @@ class StudioScreens {
 
   final SignInLook? signIn;
   final AccountMenuDesign? accountMenu;
+}
+
+Color? _hex(String? value) {
+  if (value == null || !RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value)) {
+    return null;
+  }
+  return Color(int.parse('FF${value.substring(1)}', radix: 16));
 }

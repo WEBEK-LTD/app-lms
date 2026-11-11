@@ -11422,7 +11422,9 @@ components:
             Roadmap 118.3. A Yallapp Studio app's sign-in screen and account menu, as the
             owner designed them in Studio; read at every start, no new build. Texts are
             per language code: the app shows its language's, else the first one, else its
-            own words. Missing (or a part missing): the app's own screens.
+            own words. Missing (or a part missing): the app's own screens. A Studio app on
+            its own API that Yallapp signs people in to takes `screens` from Yallapp's
+            `GET {base_url}/config`, with `auth`; another own API may send it here.
           properties:
             sign_in:
               type: object
@@ -11440,7 +11442,18 @@ components:
               type: object
               required: [header, items]
               properties:
-                header: { type: string, enum: [plain, card], description: "`card`: the name and number on a card in the app's main color." }
+                header:
+                  type: string
+                  enum: [plain, card, cover, tiles, night]
+                  description: |
+                    The menu's top. `plain`: the name and number. `card`: on a card in
+                    the app's main color. `cover`: a cover in the app's main color with
+                    the photo on a card and the first entries as shortcuts (the points,
+                    where the shop has them). `tiles`: the first entries as tiles and the
+                    owner's first own entry as a banner. `night`: a dark page with a
+                    membership card (the points, where the shop has them). An app that
+                    doesn't know a value shows `plain`.
+                accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`night`: the membership card's color; null, gold." }
                 items:
                   type: array
                   description: |
