@@ -2354,6 +2354,8 @@ class DemoApi extends FakeApi {
   }) => {
     'id': id,
     'title': title,
+    // 123 The first course new, the third one of the three with the most students.
+    'badge': id == 1 ? 'new' : (id == 3 ? 'bestseller' : null),
     'image_url': demoImage(image),
     'instructor': {
       'id': id + 100,

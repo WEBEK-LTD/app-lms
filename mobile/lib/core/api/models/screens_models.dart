@@ -124,7 +124,9 @@ class AccountMenuDesign {
 /// teacher's and a bundle's courses): `classic` a row, `rich` a larger row
 /// with the teacher's photo and the price in the accent, `cover` a wide
 /// picture with the course over it, `tile` the picture over the course.
-enum CourseCardStyle { classic, rich, cover, tile }
+/// 123 `premium`: the premium academy's row (a square picture, the lessons
+/// and rating over the course, the teacher, the price at the end).
+enum CourseCardStyle { classic, rich, cover, tile, premium }
 
 /// 122 What a course card leaves out.
 enum CourseCardFact { teacher, rating, price, lessons }
@@ -216,6 +218,7 @@ class StudioScreens {
     this.accountMenu,
     this.courseCard,
     this.coursePage,
+    this.looks = const {},
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -237,6 +240,13 @@ class StudioScreens {
       coursePage: page is Map<String, dynamic>
           ? CoursePageLook.fromJson(page)
           : null,
+      looks: {
+        if (value['looks'] case final Map<String, dynamic> looks)
+          for (final MapEntry(:key, :value) in looks.entries)
+            if (ScreenLookKey.values.where((k) => k.wire == key).firstOrNull
+                case final k? when value == k.look)
+              k,
+      },
     );
   }
 
@@ -248,6 +258,25 @@ class StudioScreens {
 
   /// 122 A course's page; null, the app's own.
   final CoursePageLook? coursePage;
+
+  /// 123 The screens drawn in their premium look.
+  final Set<ScreenLookKey> looks;
+
+  bool has(ScreenLookKey key) => looks.contains(key);
+}
+
+/// 123 A screen with a look of its own (`Config.screens.looks`), and the
+/// name of that look: the catalog as Explore, the others premium.
+enum ScreenLookKey {
+  catalog('catalog', 'explore'),
+  myCourses('my_courses', 'premium'),
+  lesson('lesson', 'premium'),
+  code('code', 'premium'),
+  cart('cart', 'premium');
+
+  const ScreenLookKey(this.wire, this.look);
+  final String wire;
+  final String look;
 }
 
 Color? _hex(String? value) {

@@ -2609,7 +2609,8 @@ paths:
           schema: { type: string, enum: [all, free, paid], default: all }
         - name: orderby
           in: query
-          schema: { type: string, enum: [newest, popular, title], default: newest }
+          description: 123 `rating`, the best rated first (by their average, then how many rated them), the courses no one rated last.
+          schema: { type: string, enum: [newest, popular, title, rating], default: newest }
       responses:
         '200':
           description: Courses
@@ -11484,11 +11485,13 @@ components:
                 a teacher's and a bundle's courses). `classic`: a row; `rich`: a larger
                 row with the rating on top and the teacher's photo; `cover`: a wide
                 picture with the course over it and the price on a chip; `tile`: the
-                picture over the course. Missing, the app's own row. An app that
-                doesn't know a value shows `classic`.
+                picture over the course; 123 `premium`: a square picture, the lessons
+                and rating over the course, the teacher with their photo and the
+                price at the end. Missing, the app's own row. An app that doesn't
+                know a value shows `classic`.
               required: [style, hide]
               properties:
-                style: { type: string, enum: [classic, rich, cover, tile] }
+                style: { type: string, enum: [classic, rich, cover, tile, premium] }
                 radius: { type: integer, minimum: 0, maximum: 32, description: "The card's and its picture's corners; missing, the look's own." }
                 hide:
                   type: array
@@ -11512,6 +11515,21 @@ components:
                 hide:
                   type: array
                   items: { type: string, enum: [students, level, duration, certificate, reviews] }
+            looks:
+              type: object
+              description: |
+                123 The screens drawn in a look of their own: `catalog` `explore` the
+                course catalog as the premium academy's Explore (a large title, the
+                search with the filters in it, the subjects as icons, chips in ink);
+                `my_courses`, `lesson`, `code` (the sign-in code) and `cart`
+                `premium`. A screen left out has the app's own look; an app that
+                doesn't know one leaves it so.
+              properties:
+                catalog: { type: string, enum: [explore] }
+                my_courses: { type: string, enum: [premium] }
+                lesson: { type: string, enum: [premium] }
+                code: { type: string, enum: [premium] }
+                cart: { type: string, enum: [premium] }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:
@@ -11814,6 +11832,10 @@ components:
         rating_count: { type: integer }
         enrolled: { type: boolean }
         wishlisted: { type: boolean }
+        badge:
+          type: [string, 'null']
+          enum: [new, bestseller, null]
+          description: 123 `new` published in the last 30 days, `bestseller` one of the academy's three with the most students; null, neither. Apps that don't know one show none.
 
     SiteSubscription:
       type: object

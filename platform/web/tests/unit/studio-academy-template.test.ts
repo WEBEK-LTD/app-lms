@@ -67,7 +67,11 @@ describe("123 the premium academy template", () => {
     for (const id of ["courses", "learning", "account"]) {
       const tab = layout.tabs.find((t) => t.id === id)!;
       expect(tab.target).toEqual({ type: "page", page_slug: id });
-      expect(layout.pages.find((p) => p.slug === id)?.studio?.screen).toBeTruthy();
+      // Nothing over the tabs' screens: they draw their own large titles, as approved.
+      const page = layout.pages.find((p) => p.slug === id)!.studio!;
+      expect(page.screen).toBeTruthy();
+      expect(page.header).toBeUndefined();
+      expect(page.body.children).toEqual([]);
     }
     // And the screens a button opens: a course, the cart, settings.
     const screens = layout.pages.map((p) => p.studio?.screen).filter(Boolean);
@@ -131,7 +135,9 @@ describe("123 the premium academy template", () => {
     expect(screens.sign_in).toMatchObject({ style: "photo", image_url: "https://webek.org/demo-screens/rawaq-library.jpg" });
     expect(screens.account_menu).toMatchObject({ header: "night", accent: "#E2BE74" });
     expect(screens.account_menu!.items.map((i) => i.key)).toEqual(expect.arrayContaining(["my_courses", "certificates", "settings", "privacy", "terms"]));
-    expect(screens.course_card).toEqual({ style: "rich", radius: 20, hide: [] });
+    expect(screens.course_card).toEqual({ style: "premium", radius: 18, hide: [] });
+    // 123 Explore, My courses, the lesson, the code and the cart as approved.
+    expect(screens.looks).toEqual({ catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" });
     expect(screens.course_page).toEqual({ cover: "full", bar: "glass", hide: [] });
   });
 

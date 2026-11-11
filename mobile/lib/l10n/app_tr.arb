@@ -2598,5 +2598,9 @@
   "learningWeekUp": "Geçen haftaya göre +%{percent}",
   "learningWeekDown": "Geçen haftaya göre −%{percent}",
   "learningHoursMinutes": "{hours} sa {minutes} dk",
-  "learningMinutesOnly": "{minutes} dk"
+  "learningMinutesOnly": "{minutes} dk",
+  "exploreSearchHint": "Kurs, beceri veya öğretmen",
+  "freeCourses": "Ücretsiz",
+  "courseBadgeNew": "Yeni",
+  "courseBadgeBestseller": "Çok satan"
 }

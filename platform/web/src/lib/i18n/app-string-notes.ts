@@ -4041,6 +4041,26 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "وقت تعلّم أقل من ساعة.",
     tr: "Bir saatten kısa öğrenme süresi.",
   },
+  "123 The search box on the premium academy's Explore.": {
+    en: "The search box on the premium academy's Explore.",
+    ar: "مربع البحث في صفحة «استكشف» في الأكاديمية المميزة.",
+    tr: "Premium akademinin Keşfet ekranındaki arama kutusu.",
+  },
+  "123 The chip that shows the free courses on Explore.": {
+    en: "The chip that shows the free courses on Explore.",
+    ar: "الزر الذي يعرض الدورات المجانية في «استكشف».",
+    tr: "Keşfet'te ücretsiz kursları gösteren düğme.",
+  },
+  "123 The badge of a course published lately.": {
+    en: "The badge of a course published lately.",
+    ar: "شارة الدورة المنشورة حديثًا.",
+    tr: "Yakın zamanda yayınlanan kursun rozeti.",
+  },
+  "123 The badge of one of the courses with the most students.": {
+    en: "The badge of one of the courses with the most students.",
+    ar: "شارة إحدى الدورات الأكثر طلابًا.",
+    tr: "En çok öğrencisi olan kurslardan birinin rozeti.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

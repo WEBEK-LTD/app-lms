@@ -10,7 +10,8 @@ import '../l10n/l10n.dart';
 
 enum PriceFilter { all, free, paid }
 
-enum CourseOrder { newest, popular, title }
+/// 123 `rating`: the best rated first.
+enum CourseOrder { newest, popular, title, rating }
 
 enum MyCoursesStatus { inProgress, completed }
 

@@ -9851,4 +9851,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String learningMinutesOnly(int minutes) {
     return '$minutes د';
   }
+
+  @override
+  String get exploreSearchHint => 'دورة، مهارة، أو معلم';
+
+  @override
+  String get freeCourses => 'مجانية';
+
+  @override
+  String get courseBadgeNew => 'جديدة';
+
+  @override
+  String get courseBadgeBestseller => 'الأكثر مبيعًا';
 }

@@ -1973,14 +1973,13 @@ enum StudioNodeType {
 /// learning time.
 enum StudioLearningSection { continueCourse, streak, live, week }
 
-StudioLearningSection? studioLearningSection(Object? value) =>
-    switch (value) {
-      'continue' => StudioLearningSection.continueCourse,
-      'streak' => StudioLearningSection.streak,
-      'live' => StudioLearningSection.live,
-      'week' => StudioLearningSection.week,
-      _ => null,
-    };
+StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
+  'continue' => StudioLearningSection.continueCourse,
+  'streak' => StudioLearningSection.streak,
+  'live' => StudioLearningSection.live,
+  'week' => StudioLearningSection.week,
+  _ => null,
+};
 
 /// 115 Which marketplace section a `market` element is.
 enum StudioMarketSection {

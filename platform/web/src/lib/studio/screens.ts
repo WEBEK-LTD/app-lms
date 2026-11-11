@@ -93,7 +93,8 @@ export interface AccountMenu {
  * teacher's photo, `cover` a wide picture with the course over it, `tile`
  * the picture over the course; its corners; and what it leaves out.
  */
-export const COURSE_CARD_STYLES = ["classic", "rich", "cover", "tile"] as const;
+/** 123 `premium`: the premium academy's row, the price at its end. */
+export const COURSE_CARD_STYLES = ["classic", "rich", "cover", "tile", "premium"] as const;
 export const COURSE_CARD_FACTS = ["teacher", "rating", "price", "lessons"] as const;
 export type CourseCardStyle = (typeof COURSE_CARD_STYLES)[number];
 export type CourseCardFact = (typeof COURSE_CARD_FACTS)[number];
@@ -129,7 +130,19 @@ export interface StudioScreens {
   course_card?: CourseCardLook | null;
   /** 122 A course's page (academies). */
   course_page?: CoursePageLook | null;
+  /** 123 The screens drawn in a look of their own: the catalog as Explore, the others premium. */
+  looks?: ScreenLooks;
 }
+
+/**
+ * 123 A screen's own look (`Config.screens.looks`): the catalog as the
+ * premium academy's Explore (a large title, the search with the filters in
+ * it, the subjects as icons), My courses, a lesson, the code screen and the
+ * cart in their premium looks.
+ */
+export const SCREEN_LOOKS = { catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" } as const;
+export type ScreenLookKey = keyof typeof SCREEN_LOOKS;
+export type ScreenLooks = Partial<{ [K in ScreenLookKey]: (typeof SCREEN_LOOKS)[K] }>;
 
 export const SCREEN_LIMITS = { title: 60, subtitle: 140, label: 40, links: 8 } as const;
 
@@ -246,6 +259,13 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     const hide = [...new Set((Array.isArray(cp.hide) ? cp.hide : []).filter((f): f is CoursePageFact => (COURSE_PAGE_FACTS as readonly unknown[]).includes(f)))];
     screens.course_page = { cover: pick(COURSE_PAGE_COVERS, cp.cover, "classic"), bar: pick(COURSE_PAGE_BARS, cp.bar, "classic"), ...(first ? { first_tab: first } : {}), hide };
   }
+  // 123 The screens' own looks: the known ones, each with its one look.
+  const lk = v.looks && typeof v.looks === "object" ? (v.looks as Record<string, unknown>) : null;
+  if (lk) {
+    const looks: Record<string, string> = {};
+    for (const [key, look] of Object.entries(SCREEN_LOOKS)) if (lk[key] === look) looks[key] = look;
+    if (Object.keys(looks).length) screens.looks = looks as ScreenLooks;
+  }
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -270,5 +290,6 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   if (saved.account_menu) screens.account_menu = saved.account_menu;
   if (saved.course_card) screens.course_card = saved.course_card;
   if (saved.course_page) screens.course_page = saved.course_page;
+  if (saved.looks && Object.keys(saved.looks).length) screens.looks = saved.looks;
   return Object.keys(screens).length ? { screens } : {};
 }

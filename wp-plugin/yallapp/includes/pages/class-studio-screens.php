@@ -19,6 +19,13 @@ class Studio_Screens {
 
 	const SIGN_IN_STYLES = array( 'classic', 'photo', 'card', 'minimal' );
 	const HEADERS        = array( 'plain', 'card', 'cover', 'tiles', 'night' );
+	const LOOKS          = array(
+		'catalog'    => 'explore',
+		'my_courses' => 'premium',
+		'lesson'     => 'premium',
+		'code'       => 'premium',
+		'cart'       => 'premium',
+	);
 	const ITEMS          = array( 'orders', 'points', 'certificates', 'memberships', 'quiz_results', 'live_classes', 'learning_paths', 'achievements', 'wishlist', 'downloads', 'my_courses', 'restaurant', 'teachers', 'teacher', 'teach', 'shipments', 'food_orders', 'rides', 'chat', 'notifications', 'settings', 'help', 'privacy', 'terms', 'link' );
 
 	/**
@@ -50,6 +57,17 @@ class Studio_Screens {
 		$page = is_array( $raw['course_page'] ?? null ) ? self::course_page( $raw['course_page'] ) : null;
 		if ( $page ) {
 			$out['course_page'] = $page;
+		}
+		// 123 The screens drawn in a look of their own, each with its one look.
+		$looks = array();
+		$asked = is_array( $raw['looks'] ?? null ) ? $raw['looks'] : array();
+		foreach ( self::LOOKS as $screen => $look ) {
+			if ( isset( $asked[ $screen ] ) && $asked[ $screen ] === $look ) {
+				$looks[ $screen ] = $look;
+			}
+		}
+		if ( $looks ) {
+			$out['looks'] = $looks;
 		}
 		return $out ? $out : null;
 	}
@@ -120,7 +138,7 @@ class Studio_Screens {
 	 * @return array|null
 	 */
 	private static function course_card( array $raw ) {
-		if ( ! in_array( $raw['style'] ?? null, array( 'classic', 'rich', 'cover', 'tile' ), true ) ) {
+		if ( ! in_array( $raw['style'] ?? null, array( 'classic', 'rich', 'cover', 'tile', 'premium' ), true ) ) {
 			return null;
 		}
 		$card = array(

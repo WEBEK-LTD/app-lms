@@ -148,11 +148,18 @@ describe("courses on the hosted API", () => {
 
   it("lists categories and courses", async () => {
     expect((await call("GET", "/categories")).body).toEqual({ items: [{ id: 1, name: "Languages", count: 2 }] });
-    const all = (await call("GET", "/courses")).body as { items: { title: string }[] };
+    const all = (await call("GET", "/courses")).body as { items: { id: number; title: string }[] };
     expect(all.items.map((c) => c.title)).toEqual(["Business English", "Turkish for Beginners"]);
     expect((await call("GET", "/courses", { query: { price: "free" } })).body).toMatchObject({ total: 1, items: [{ title: "Turkish for Beginners", price: { is_free: true } }] });
     expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({ items: [{ price: { is_free: false, formatted: "₺450.00", amount: "450.00" } }] });
     expect((await call("GET", "/courses", { query: { orderby: "title" } })).body).toMatchObject({ items: [{ title: "Business English" }, { title: "Turkish for Beginners" }] });
+    // 123 Each course's badge: one of the three with the most students, or published lately.
+    expect(all.items.map((c) => (c as unknown as { badge: unknown }).badge).every((b) => b === null || b === "new" || b === "bestseller")).toBe(true);
+    // 123 The best rated first; with no one rating, the newest first.
+    expect(((await call("GET", "/courses", { query: { orderby: "rating" } })).body as { items: { title: string }[] }).items.map((c) => c.title)).toEqual(["Business English", "Turkish for Beginners"]);
+    const turkish = all.items.find((c) => c.title === "Turkish for Beginners")!;
+    await store.saveCourseReview({ appId: app.id, courseId: turkish.id, userId: 1, rating: 5, text: "", now });
+    expect(((await call("GET", "/courses", { query: { orderby: "rating" } })).body as { items: { title: string }[] }).items.map((c) => c.title)).toEqual(["Turkish for Beginners", "Business English"]);
     expect((await call("GET", "/courses/{course_id}", { params: ["30"] })).status).toBe(404);
     const home = (await call("GET", "/home")).body as { sections: { type: string }[] };
     expect(home.sections.map((s) => s.type)).toEqual(["categories", "latest_courses"]);

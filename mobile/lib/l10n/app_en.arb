@@ -10733,5 +10733,21 @@
         "type": "int"
       }
     }
+  },
+  "exploreSearchHint": "Course, skill or teacher",
+  "@exploreSearchHint": {
+    "description": "123 The search box on the premium academy's Explore."
+  },
+  "freeCourses": "Free",
+  "@freeCourses": {
+    "description": "123 The chip that shows the free courses on Explore."
+  },
+  "courseBadgeNew": "New",
+  "@courseBadgeNew": {
+    "description": "123 The badge of a course published lately."
+  },
+  "courseBadgeBestseller": "Bestseller",
+  "@courseBadgeBestseller": {
+    "description": "123 The badge of one of the courses with the most students."
   }
 }

@@ -496,8 +496,11 @@ export class CoursesConnector implements Connector {
     return this.deps.store.countCourseRatings(this.deps.app.id);
   }
 
-  private summary(c: Course, enrolled: Set<number>, ratings: Ratings = []) {
+  private summary(c: Course, enrolled: Set<number>, ratings: Ratings = [], badges?: { bestsellers: Set<number>; now: Date }) {
     const rated = ratingSummary(ratings, c.id);
+    // 123 One of the three with the most students, or published in the last 30 days.
+    const fresh = badges && badges.now.getTime() - new Date(c.createdAt).getTime() < 30 * 86_400_000;
+    const badge = badges?.bestsellers.has(c.id) ? "bestseller" : fresh ? "new" : null;
     return {
       id: c.id,
       title: c.title,
@@ -509,6 +512,7 @@ export class CoursesConnector implements Connector {
       rating_count: rated.count,
       enrolled: enrolled.has(c.id),
       wishlisted: false,
+      ...(badges ? { badge } : {}),
     };
   }
 
@@ -622,18 +626,23 @@ export class CoursesConnector implements Connector {
     const price = query.get("price") ?? "all";
     const orderby = query.get("orderby") ?? "newest";
     const enrolled = await this.enrolled(request);
+    const students = new Map<number, number>();
+    for (const e of await this.deps.store.listCourseEnrollments({ appId: this.deps.app.id })) students.set(e.courseId, (students.get(e.courseId) ?? 0) + 1);
+    const bestsellers = new Set([...students.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0]).slice(0, 3).map(([id]) => id));
     let all = this.active()
       .filter((c) => !search || c.title.toLowerCase().includes(search))
       .filter((c) => !category || c.categoryIds.includes(category))
       .filter((c) => price === "all" || (price === "free" ? c.priceCents === 0 : c.priceCents > 0));
     if (orderby === "title") all = all.sort((a, b) => a.title.localeCompare(b.title));
-    else if (orderby === "popular") {
-      const counts = new Map<number, number>();
-      for (const e of await this.deps.store.listCourseEnrollments({ appId: this.deps.app.id })) counts.set(e.courseId, (counts.get(e.courseId) ?? 0) + 1);
-      all = all.sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0));
-    } else all = all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    else if (orderby === "popular") all = all.sort((a, b) => (students.get(b.id) ?? 0) - (students.get(a.id) ?? 0));
+    else all = all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const ratings = await this.ratings();
-    const items = all.slice((page - 1) * perPage, page * perPage).map((c) => this.summary(c, enrolled, ratings));
+    // 123 The best rated first, then the most rated; the courses no one rated keep the newest first, after them.
+    if (orderby === "rating") {
+      const rated = new Map(all.map((c) => [c.id, ratingSummary(ratings, c.id)]));
+      all = all.sort((a, b) => (rated.get(b.id)?.rating ?? -1) - (rated.get(a.id)?.rating ?? -1) || (rated.get(b.id)?.count ?? 0) - (rated.get(a.id)?.count ?? 0));
+    }
+    const items = all.slice((page - 1) * perPage, page * perPage).map((c) => this.summary(c, enrolled, ratings, { bestsellers, now: request.now ?? new Date() }));
     return { status: 200, body: { page, per_page: perPage, total: all.length, total_pages: Math.max(1, Math.ceil(all.length / perPage)), items } };
   }
 

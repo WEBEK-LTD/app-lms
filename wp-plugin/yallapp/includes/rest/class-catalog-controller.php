@@ -57,7 +57,7 @@ class Catalog_Controller extends Controller {
 						),
 						'orderby'  => array(
 							'type'    => 'string',
-							'enum'    => array( 'newest', 'popular', 'title' ),
+							'enum'    => array( 'newest', 'popular', 'title', 'rating' ),
 							'default' => 'newest',
 						),
 					)

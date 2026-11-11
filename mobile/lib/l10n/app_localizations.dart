@@ -15703,6 +15703,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes} min'**
   String learningMinutesOnly(int minutes);
+
+  /// 123 The search box on the premium academy's Explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Course, skill or teacher'**
+  String get exploreSearchHint;
+
+  /// 123 The chip that shows the free courses on Explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get freeCourses;
+
+  /// 123 The badge of a course published lately.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get courseBadgeNew;
+
+  /// 123 The badge of one of the courses with the most students.
+  ///
+  /// In en, this message translates to:
+  /// **'Bestseller'**
+  String get courseBadgeBestseller;
 }
 
 class _AppLocalizationsDelegate

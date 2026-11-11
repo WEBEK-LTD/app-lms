@@ -9554,4 +9554,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String learningMinutesOnly(int minutes) {
     return '$minutes dk';
   }
+
+  @override
+  String get exploreSearchHint => 'Kurs, beceri veya öğretmen';
+
+  @override
+  String get freeCourses => 'Ücretsiz';
+
+  @override
+  String get courseBadgeNew => 'Yeni';
+
+  @override
+  String get courseBadgeBestseller => 'Çok satan';
 }

@@ -10242,4 +10242,19 @@ class OverlayLocalizations extends AppLocalizations {
   String learningMinutesOnly(int minutes) =>
       overlay.format('learningMinutesOnly', {'minutes': minutes}) ??
       base.learningMinutesOnly(minutes);
+
+  @override
+  String get exploreSearchHint =>
+      overlay.text('exploreSearchHint') ?? base.exploreSearchHint;
+
+  @override
+  String get freeCourses => overlay.text('freeCourses') ?? base.freeCourses;
+
+  @override
+  String get courseBadgeNew =>
+      overlay.text('courseBadgeNew') ?? base.courseBadgeNew;
+
+  @override
+  String get courseBadgeBestseller =>
+      overlay.text('courseBadgeBestseller') ?? base.courseBadgeBestseller;
 }

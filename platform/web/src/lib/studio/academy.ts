@@ -198,6 +198,8 @@ export interface TemplateProject {
   /** The main colour the project starts in, unless the owner chose one. */
   primary: string;
   tab_bar: TabBarStyle;
+  /** The tabs' pages around their screens with nothing over them: the screens draw their own large titles. */
+  bare_tab_pages?: boolean;
   /** The colours of the header of its pages after the home; one left out, the app's own. */
   page_header?: Pick<StudioHeader, "background" | "color" | "dark_background" | "dark_color">;
   appearance: Partial<Pick<Appearance, "secondary_color" | "font_family" | "arabic_font">>;
@@ -225,6 +227,7 @@ export const ACADEMY_PROJECT: TemplateProject = {
   tab_bar: { design: "glass", avatar: true, radius: 26, margin: 16, labels: "always", active: C.ink, dark_active: C.nightInk },
   // By day the main colour; by night a dark header with light words, the gold in the bar.
   page_header: { dark_background: C.nightCard, dark_color: C.nightInk },
+  bare_tab_pages: true,
   appearance: { secondary_color: C.gold, font_family: ACADEMY_FONT, arabic_font: ACADEMY_FONT },
   tabs: (tabs, site) => {
     // Explore, the blog, My courses and the account, as the approved bar names them.
@@ -260,7 +263,9 @@ export const ACADEMY_PROJECT: TemplateProject = {
       accent: C.darkGold,
       items: (["my_courses", "certificates", "quiz_results", "wishlist", "orders", "notifications", "settings", "help", "privacy", "terms"] as const).map((key) => ({ key, hidden: false, label: {}, icon: null })),
     },
-    course_card: { style: "rich", radius: 20, hide: [] },
+    course_card: { style: "premium", radius: 18, hide: [] },
     course_page: { cover: "full", bar: "glass", hide: [] },
+    // The approved Explore, My courses, lesson, code and cart.
+    looks: { catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" },
   }),
 };

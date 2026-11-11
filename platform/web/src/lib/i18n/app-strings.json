@@ -2596,4 +2596,8 @@
 {"key":"learningWeekUp","en":"+{percent}% on last week","ar":"+{percent}٪ عن الأسبوع الماضي","tr":"Geçen haftaya göre +%{percent}","description":"123 More learning than the week before.","placeholders":{"percent":"int"}},
 {"key":"learningWeekDown","en":"−{percent}% on last week","ar":"−{percent}٪ عن الأسبوع الماضي","tr":"Geçen haftaya göre −%{percent}","description":"123 Less learning than the week before.","placeholders":{"percent":"int"}},
 {"key":"learningHoursMinutes","en":"{hours} h {minutes} min","ar":"{hours} س {minutes} د","tr":"{hours} sa {minutes} dk","description":"123 A learning time of an hour or more.","placeholders":{"hours":"int","minutes":"int"}},
-{"key":"learningMinutesOnly","en":"{minutes} min","ar":"{minutes} د","tr":"{minutes} dk","description":"123 A learning time under an hour.","placeholders":{"minutes":"int"}}]}
+{"key":"learningMinutesOnly","en":"{minutes} min","ar":"{minutes} د","tr":"{minutes} dk","description":"123 A learning time under an hour.","placeholders":{"minutes":"int"}},
+{"key":"exploreSearchHint","en":"Course, skill or teacher","ar":"دورة، مهارة، أو معلم","tr":"Kurs, beceri veya öğretmen","description":"123 The search box on the premium academy's Explore."},
+{"key":"freeCourses","en":"Free","ar":"مجانية","tr":"Ücretsiz","description":"123 The chip that shows the free courses on Explore."},
+{"key":"courseBadgeNew","en":"New","ar":"جديدة","tr":"Yeni","description":"123 The badge of a course published lately."},
+{"key":"courseBadgeBestseller","en":"Bestseller","ar":"الأكثر مبيعًا","tr":"Çok satan","description":"123 The badge of one of the courses with the most students."}]}

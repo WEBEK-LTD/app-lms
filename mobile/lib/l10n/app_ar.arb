@@ -2598,5 +2598,9 @@
   "learningWeekUp": "+{percent}٪ عن الأسبوع الماضي",
   "learningWeekDown": "−{percent}٪ عن الأسبوع الماضي",
   "learningHoursMinutes": "{hours} س {minutes} د",
-  "learningMinutesOnly": "{minutes} د"
+  "learningMinutesOnly": "{minutes} د",
+  "exploreSearchHint": "دورة، مهارة، أو معلم",
+  "freeCourses": "مجانية",
+  "courseBadgeNew": "جديدة",
+  "courseBadgeBestseller": "الأكثر مبيعًا"
 }

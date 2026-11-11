@@ -15,11 +15,14 @@ import '../navigation.dart';
 import '../widgets/bundle_cards.dart';
 import '../../../core/l10n/l10n.dart';
 import '../widgets/designed_course_card.dart';
+import '../../../core/gate/app_gate.dart';
+import 'explore_parts.dart';
 
 String orderLabel(CourseOrder order) => switch (order) {
   CourseOrder.newest => currentL10n.sortNewest,
   CourseOrder.popular => currentL10n.sortPopular,
   CourseOrder.title => currentL10n.sortAtoZ,
+  CourseOrder.rating => currentL10n.sortTopRated,
 };
 
 /// The course catalog with search, price filters, sorting and categories
@@ -133,6 +136,64 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
         .where((c) => c.id == _query.category)
         .firstOrNull;
 
+    // 123 The premium academy's Explore: a large title, the search with
+    // the filters in it, the subjects as icons, and chips in ink.
+    final gate = ref.watch(appGateProvider);
+    final explore =
+        gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.catalog) ?? false);
+    if (explore) {
+      return Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: RefreshIndicator(
+            onRefresh: () =>
+                ref.read(coursesProvider(_query).notifier).refresh(),
+            child: CustomScrollView(
+              controller: _scroll,
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+                  sliver: SliverList.list(
+                    children: [
+                      ExploreTitle(
+                        title: category?.name ?? exploreTitle(ref, context),
+                      ),
+                      const SizedBox(height: 14),
+                      ExploreSearch(
+                        controller: _search,
+                        focusNode: _searchFocus,
+                        onChanged: _onSearchChanged,
+                        onFilters: _openFilters,
+                      ),
+                      if (categories.isNotEmpty) ...[
+                        const SizedBox(height: 18),
+                        ExploreSubjects(
+                          categories: categories,
+                          selected: _query.category,
+                          onTap: (id) => setState(
+                            () => _query = _query.copyWith(
+                              category: id,
+                              clearCategory: id == null,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      ExploreChips(
+                        query: _query,
+                        onChanged: (q) => setState(() => _query = q),
+                      ),
+                    ],
+                  ),
+                ),
+                ..._results(context, state),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         bottom: false,

@@ -30,7 +30,9 @@ export function startLayout(app: App, template: TemplateInfo, ready: LayoutConte
     : [{ slug: "home", title: "Home", show_title: false, updated_at: now.toISOString(), blocks: [], studio: home }, ...layout.pages];
   if (!template.demo && !project) return { ...layout, pages };
   const taken = new Set(pages.map((p) => p.slug));
-  const tabPages = [...demoTabPages(layout.tabs, ctx), ...demoScreenPages(app, layout.tabs, ctx, new Set([...taken, ...layout.tabs.map((t) => t.id)]))]
+  // 123 A template whose screens draw their own large titles has nothing over its tabs' screens.
+  const ownTabPages = demoTabPages(layout.tabs, ctx).map((p) => (project?.bare_tab_pages ? { ...p, studio: { body: { ...p.studio.body, children: [] }, screen: p.studio.screen } } : p));
+  const tabPages = [...ownTabPages, ...demoScreenPages(app, layout.tabs, ctx, new Set([...taken, ...layout.tabs.map((t) => t.id)]))]
     .filter((p) => !taken.has(p.slug))
     .map((p) => ({ ...p, show_title: false, updated_at: now.toISOString(), blocks: [] }))
     .map((p) => (project?.page_header && p.studio.header ? { ...p, studio: { ...p.studio, header: { ...p.studio.header, ...project.page_header } } } : p));

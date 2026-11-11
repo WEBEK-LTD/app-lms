@@ -50,6 +50,11 @@ class DesignedCourseCard extends ConsumerWidget {
         onTap: onTap,
         look: look,
       ),
+      CourseCardStyle.premium => _PremiumCard(
+        course: course,
+        onTap: onTap,
+        look: look,
+      ),
     };
   }
 }
@@ -382,6 +387,165 @@ class _TileCard extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 123 The premium academy's row: a square picture at the start, the
+/// lessons and rating over the course's name, the teacher with their
+/// photo, the price at the end, in the second colour.
+class _PremiumCard extends StatelessWidget {
+  const _PremiumCard({
+    required this.course,
+    required this.onTap,
+    required this.look,
+  });
+
+  final CourseSummary course;
+  final VoidCallback onTap;
+  final CourseCardLook look;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final radius = look.radius ?? 18;
+    final teacher = course.instructor;
+    // The star drawn as an icon: not every font has the character.
+    final rated = look.shows(CourseCardFact.rating) && course.rating != null;
+    final lessons = look.shows(CourseCardFact.lessons)
+        ? l10n.lessonCount(course.lessonCount)
+        : null;
+    final price = course.enrolled
+        ? EnrolledLabel(courseId: course.id)
+        : look.shows(CourseCardFact.price)
+        ? DefaultTextStyle.merge(
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: p.accent,
+            ),
+            child: Text(
+              course.price.isFree ? l10n.free : (course.price.formatted ?? ''),
+            ),
+          )
+        : const SizedBox.shrink();
+    return Semantics(
+      button: true,
+      label: course.title,
+      child: InkWell(
+        key: ValueKey('course-card-premium-${course.id}'),
+        borderRadius: BorderRadius.circular(radius),
+        onTap: onTap,
+        child: ExcludeSemantics(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              children: [
+                AppNetworkImage(
+                  url: course.imageUrl,
+                  seed: course.id,
+                  width: 96,
+                  height: 96,
+                  radius: radius,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (rated || lessons != null || course.badge != null)
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              if (course.badge case final badge?)
+                                TextSpan(
+                                  text:
+                                      '${switch (badge) {
+                                        CourseBadge.fresh => l10n.courseBadgeNew,
+                                        CourseBadge.bestseller => l10n.courseBadgeBestseller,
+                                      }}  ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    color: p.accent,
+                                  ),
+                                ),
+                              if (rated) ...[
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(
+                                    AppIcons.star,
+                                    size: 13,
+                                    fill: 1,
+                                    color: p.star,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      ' ${course.rating!.toStringAsFixed(1)}'
+                                      '${lessons != null ? ' · ' : ''}',
+                                ),
+                              ],
+                              ?lessons == null ? null : TextSpan(text: lessons),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: p.textSecondary,
+                          ),
+                        ),
+                      const SizedBox(height: 4),
+                      Text(
+                        course.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          height: 1.35,
+                          color: p.text,
+                        ),
+                      ),
+                      if (look.shows(CourseCardFact.teacher) &&
+                          teacher != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            ClipOval(
+                              child: AppNetworkImage(
+                                url: teacher.avatarUrl,
+                                seed: teacher.id,
+                                width: 22,
+                                height: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                teacher.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: p.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                price,
+              ],
+            ),
+          ),
         ),
       ),
     );

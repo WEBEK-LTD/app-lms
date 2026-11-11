@@ -16,6 +16,9 @@ import {
   ACCOUNT_ITEMS,
   COURSE_CARD_FACTS,
   COURSE_CARD_STYLES,
+  SCREEN_LOOKS,
+  type ScreenLookKey,
+  type ScreenLooks,
   COURSE_PAGE_BARS,
   COURSE_PAGE_COVERS,
   COURSE_PAGE_FACTS,
@@ -136,6 +139,8 @@ export function ScreensEditor({
   const [previewDark, setPreviewDark] = useState(false);
   // 122 The courses' card.
   const [card, setCard] = useState<CourseCardLook>(initial?.course_card ?? { style: "classic", hide: [] });
+  // 123 The screens drawn in a look of their own.
+  const [looks, setLooks] = useState<ScreenLooks>(initial?.looks ?? {});
   const [coursePage, setCoursePage] = useState<CoursePageLook>(initial?.course_page ?? { cover: "classic", bar: "classic", hide: [] });
 
   const screens: StudioScreens = useMemo(
@@ -150,8 +155,9 @@ export function ScreensEditor({
         }),
       },
       ...(courses ? { course_card: card, course_page: coursePage } : {}),
+      ...(courses && Object.keys(looks).length ? { looks } : {}),
     }),
-    [look, header, accent, entries, courses, card, coursePage],
+    [look, header, accent, entries, courses, card, coursePage, looks],
   );
 
   const move = (index: number, by: number) =>
@@ -386,6 +392,36 @@ export function ScreensEditor({
         </section>
 
         {courses ? (
+          <section aria-labelledby="h-looks" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-looks" className="m-0 text-lg font-bold">
+                {t("studio.looksTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.looksText")}</p>
+            </div>
+            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+              <legend className="sr-only">{t("studio.looksTitle")}</legend>
+              {(Object.keys(SCREEN_LOOKS) as ScreenLookKey[]).map((key) => (
+                <label key={key} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    data-screen-look={key}
+                    checked={looks[key] === SCREEN_LOOKS[key]}
+                    onChange={(e) => {
+                      const next: Record<string, string> = { ...looks };
+                      if (e.target.checked) next[key] = SCREEN_LOOKS[key];
+                      else delete next[key];
+                      setLooks(next as ScreenLooks);
+                    }}
+                  />
+                  {t(`studio.look_${key}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
+        {courses ? (
           <section aria-labelledby="h-course-card" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
             <div className="flex flex-col gap-1">
               <h2 id="h-course-card" className="m-0 text-lg font-bold">
@@ -393,7 +429,7 @@ export function ScreensEditor({
               </h2>
               <p className="m-0 text-sm text-muted">{t("studio.courseCardText")}</p>
             </div>
-            <div role="radiogroup" aria-label={t("studio.courseCardTitle")} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div role="radiogroup" aria-label={t("studio.courseCardTitle")} className="grid grid-cols-2 gap-3 sm:grid-cols-5">
               {COURSE_CARD_STYLES.map((s) => (
                 <button
                   key={s}

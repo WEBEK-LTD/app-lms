@@ -139,5 +139,27 @@ class StudioScreens121Test extends TestCase {
 			$page['course_page']
 		);
 		$this->assertNull( Studio_Screens::of_status( array( 'screens' => 'none' ) ) );
+		// 123 The screens' own looks: the known ones with their one look.
+		$looks = Studio_Screens::of_status(
+			array(
+				'screens' => array(
+					'course_card' => array( 'style' => 'premium' ),
+					'looks'       => array(
+						'catalog'    => 'explore',
+						'my_courses' => 'premium',
+						'lesson'     => 'neon',
+						'teleport'   => 'premium',
+					),
+				),
+			)
+		);
+		$this->assertSame( 'premium', $looks['course_card']['style'] );
+		$this->assertSame(
+			array(
+				'catalog'    => 'explore',
+				'my_courses' => 'premium',
+			),
+			$looks['looks']
+		);
 	}
 }
