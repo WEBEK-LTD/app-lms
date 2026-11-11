@@ -626,7 +626,7 @@ export async function StoryPage({ lang, id }: { lang: Lang; id: string }) {
         )}
       />
       <StoryEffects />
-      <SiteHeader current="studio" lang={lang} />
+      <SiteHeader current={`story-${id}`} lang={lang} />
       <main>
         <Hero shape={shape} t={t} ui={ui} lang={lang} demoHref={demo} />
         <Chapters shape={shape} t={t} ui={ui} lang={lang} />

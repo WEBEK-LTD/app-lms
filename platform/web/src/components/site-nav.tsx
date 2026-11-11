@@ -46,8 +46,8 @@ interface NavProps {
 }
 
 /**
- * 32 The public website's header: the menu with its Product and Resources
- * lists from lg up, a menu button with a full-screen panel below it.
+ * 32 The public website's header: the menu with its Product, Studio and
+ * Resources lists from lg up, a menu button with a full-screen panel below it.
  */
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -77,6 +77,22 @@ const topLink = "flex h-10 items-center gap-1 rounded-lg px-2 text-[15px] font-s
 /** The ember line under the page or section the visitor is on. */
 function Marked({ on, children }: { on: boolean; children: React.ReactNode }) {
   return <span className={`border-b-2 py-1 ${on ? "border-ember" : "border-transparent"}`}>{children}</span>;
+}
+
+/** A small heading inside a list, above the links it names (Studio's "Apps made in Studio"). */
+function MenuHeading({ children, wide }: { children: string; wide?: boolean }) {
+  return <li className={`mt-1 border-t border-line-soft px-3 pt-3 pb-1 text-xs font-bold tracking-[0.5px] text-muted ${wide ? "sm:col-span-2" : ""}`}>{children}</li>;
+}
+
+function NewBadge({ children }: { children: string }) {
+  return <span className="rounded-full bg-ember px-1.5 py-px text-[11px] leading-4 font-bold text-white">{children}</span>;
+}
+
+function MenuItems({ items, current, onPick, wide }: { items: SiteLink[]; current?: SitePage; onPick: () => void; wide?: boolean }) {
+  return items.map((item) => [
+    item.heading ? <MenuHeading key={`${item.id}-heading`} wide={wide}>{item.heading}</MenuHeading> : null,
+    <MenuItem key={item.id} item={item} current={current} onPick={onPick} />,
+  ]);
 }
 
 function MenuItem({ item, current, onPick }: { item: SiteLink; current?: SitePage; onPick: () => void }) {
@@ -169,6 +185,7 @@ function Dropdown({
         className={`${topLink} cursor-pointer border-0 bg-transparent ${marked || open ? "text-midnight" : "text-ink-3 hover:text-midnight"}`}
       >
         <Marked on={marked}>{group.label}</Marked>
+        {group.badge ? <NewBadge>{group.badge}</NewBadge> : null}
         <Icon name="expand_more" size={20} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       <div
@@ -178,9 +195,7 @@ function Dropdown({
         className="absolute start-0 top-full z-40 mt-2 w-[380px] rounded-2xl border border-line bg-white p-2 shadow-[0_16px_40px_rgba(14,13,36,0.14)]"
       >
         <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
-          {group.items.map((item) => (
-            <MenuItem key={item.id} item={item} current={current} onPick={() => setOpen(false)} />
-          ))}
+          <MenuItems items={group.items} current={current} onPick={() => setOpen(false)} />
         </ul>
       </div>
     </li>
@@ -212,7 +227,7 @@ function DesktopNav({ current, nav, labels }: NavProps) {
               >
                 <Marked on={entry.id === current}>{entry.label}</Marked>
                 {entry.badge ? " " : null}
-                {entry.badge ? <span className="rounded-full bg-ember px-1.5 py-px text-[11px] leading-4 font-bold text-white">{entry.badge}</span> : null}
+                {entry.badge ? <NewBadge>{entry.badge}</NewBadge> : null}
               </Link>
             </li>
           ),
@@ -316,14 +331,13 @@ function MobileMenu({ current, lang, nav, labels, languages }: NavProps) {
                   <li key={entry.id} className="flex flex-col gap-1 pt-2 pb-3">
                     <span
                       id={`site-menu-${entry.id}`}
-                      className={`px-3 text-xs font-bold tracking-[1px] uppercase ${marked === entry.id ? "text-accent" : "text-muted"}`}
+                      className={`flex items-center gap-2 px-3 text-xs font-bold tracking-[1px] uppercase ${marked === entry.id ? "text-accent" : "text-muted"}`}
                     >
                       {entry.label}
+                      {entry.badge ? <NewBadge>{entry.badge}</NewBadge> : null}
                     </span>
                     <ul aria-labelledby={`site-menu-${entry.id}`} className="m-0 grid list-none gap-0.5 p-0 sm:grid-cols-2">
-                      {entry.items.map((item) => (
-                        <MenuItem key={item.id} item={item} current={current} onPick={() => setOpen(false)} />
-                      ))}
+                      <MenuItems items={entry.items} current={current} onPick={() => setOpen(false)} wide />
                     </ul>
                   </li>
                 ) : (
