@@ -50,7 +50,7 @@
     "drizzle-kit": "0.31.11",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.2",
-    "pdfjs-dist": "5.4.394",
+    "pdfjs-dist": "6.4.299",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "vitest": "4.1.11",
