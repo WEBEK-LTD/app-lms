@@ -41,6 +41,11 @@ class Studio_Screens {
 		if ( $menu ) {
 			$out['account_menu'] = $menu;
 		}
+		// 122 The courses' card.
+		$card = is_array( $raw['course_card'] ?? null ) ? self::course_card( $raw['course_card'] ) : null;
+		if ( $card ) {
+			$out['course_card'] = $card;
+		}
 		return $out ? $out : null;
 	}
 
@@ -101,6 +106,26 @@ class Studio_Screens {
 			$menu['accent'] = strtoupper( $raw['accent'] );
 		}
 		return $menu;
+	}
+
+	/**
+	 * 122 The courses' card: its look, corners and the facts it leaves out; null when unknown.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function course_card( array $raw ) {
+		if ( ! in_array( $raw['style'] ?? null, array( 'classic', 'rich', 'cover', 'tile' ), true ) ) {
+			return null;
+		}
+		$card = array(
+			'style' => $raw['style'],
+			'hide'  => array_values( array_unique( array_intersect( is_array( $raw['hide'] ?? null ) ? $raw['hide'] : array(), array( 'teacher', 'rating', 'price', 'lessons' ) ) ) ),
+		);
+		if ( isset( $raw['radius'] ) && is_int( $raw['radius'] ) && $raw['radius'] >= 0 && $raw['radius'] <= 32 ) {
+			$card['radius'] = $raw['radius'];
+		}
+		return $card;
 	}
 
 	/**

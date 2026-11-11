@@ -95,6 +95,27 @@ class StudioScreens121Test extends TestCase {
 		$this->assertNull( $screens['account_menu']['items'][0]['icon'] );
 		$this->assertStringNotContainsString( '<', $screens['account_menu']['items'][0]['label']['en'] );
 		$this->assertNull( Studio_Screens::of_status( array() ) );
+		// 122 The courses' card: known looks and facts only.
+		$card = Studio_Screens::of_status(
+			array(
+				'screens' => array(
+					'course_card' => array(
+						'style'  => 'cover',
+						'radius' => 20,
+						'hide'   => array( 'lessons', 'teleport', 'lessons' ),
+					),
+				),
+			)
+		);
+		$this->assertSame(
+			array(
+				'style'  => 'cover',
+				'hide'   => array( 'lessons' ),
+				'radius' => 20,
+			),
+			$card['course_card']
+		);
+		$this->assertNull( Studio_Screens::of_status( array( 'screens' => array( 'course_card' => array( 'style' => 'hologram' ) ) ) ) );
 		$this->assertNull( Studio_Screens::of_status( array( 'screens' => 'none' ) ) );
 	}
 }

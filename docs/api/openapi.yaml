@@ -11477,6 +11477,23 @@ components:
                       icon: { type: [string, 'null'], description: A Material Symbols name; null means the app's own. }
                       url: { type: [string, 'null'], format: uri }
                       page_slug: { type: [string, 'null'] }
+            course_card:
+              type: object
+              description: |
+                122 How a course shows in the academy's lists (the catalog, My courses,
+                a teacher's and a bundle's courses). `classic`: a row; `rich`: a larger
+                row with the rating on top and the teacher's photo; `cover`: a wide
+                picture with the course over it and the price on a chip; `tile`: the
+                picture over the course. Missing, the app's own row. An app that
+                doesn't know a value shows `classic`.
+              required: [style, hide]
+              properties:
+                style: { type: string, enum: [classic, rich, cover, tile] }
+                radius: { type: integer, minimum: 0, maximum: 32, description: "The card's and its picture's corners; missing, the look's own." }
+                hide:
+                  type: array
+                  description: What the card leaves out.
+                  items: { type: string, enum: [teacher, rating, price, lessons] }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:

@@ -37,6 +37,7 @@ export default async function ScreensPage() {
         pages={pages}
         appName={app.appName ?? ""}
         color={app.primaryColor ?? "#0E1424"}
+        courses={app.appType === "lms"}
       />
     </div>
   );

@@ -120,13 +120,56 @@ class AccountMenuDesign {
   final List<AccountMenuEntry> items;
 }
 
+/// 122 How a course shows in the lists (the catalog, My courses, a
+/// teacher's and a bundle's courses): `classic` a row, `rich` a larger row
+/// with the teacher's photo and the price in the accent, `cover` a wide
+/// picture with the course over it, `tile` the picture over the course.
+enum CourseCardStyle { classic, rich, cover, tile }
+
+/// 122 What a course card leaves out.
+enum CourseCardFact { teacher, rating, price, lessons }
+
+class CourseCardLook {
+  const CourseCardLook({
+    this.style = CourseCardStyle.classic,
+    this.radius,
+    this.hide = const {},
+  });
+
+  factory CourseCardLook.fromJson(Map<String, dynamic> json) {
+    final style = CourseCardStyle.values
+        .where((s) => s.name == json['style'])
+        .firstOrNull;
+    final radius = json['radius'];
+    return CourseCardLook(
+      style: style ?? CourseCardStyle.classic,
+      radius: radius is num && radius >= 0 && radius <= 32
+          ? radius.toDouble()
+          : null,
+      hide: {
+        for (final f in json['hide'] is List ? json['hide'] as List : const [])
+          ?CourseCardFact.values.where((c) => c.name == f).firstOrNull,
+      },
+    );
+  }
+
+  final CourseCardStyle style;
+
+  /// The card's and its picture's corners; null, the look's own.
+  final double? radius;
+  final Set<CourseCardFact> hide;
+
+  bool shows(CourseCardFact fact) => !hide.contains(fact);
+}
+
 class StudioScreens {
-  const StudioScreens({this.signIn, this.accountMenu});
+  const StudioScreens({this.signIn, this.accountMenu, this.courseCard});
 
   static StudioScreens? fromJson(Object? value) {
     if (value is! Map<String, dynamic>) return null;
     final signIn = value['sign_in'];
     final menu = value['account_menu'];
+    final card = value['course_card'];
     return StudioScreens(
       signIn: signIn is Map<String, dynamic>
           ? SignInLook.fromJson(signIn)
@@ -134,11 +177,17 @@ class StudioScreens {
       accountMenu: menu is Map<String, dynamic>
           ? AccountMenuDesign.fromJson(menu)
           : null,
+      courseCard: card is Map<String, dynamic>
+          ? CourseCardLook.fromJson(card)
+          : null,
     );
   }
 
   final SignInLook? signIn;
   final AccountMenuDesign? accountMenu;
+
+  /// 122 The courses' card in the lists; null, the app's own.
+  final CourseCardLook? courseCard;
 }
 
 Color? _hex(String? value) {

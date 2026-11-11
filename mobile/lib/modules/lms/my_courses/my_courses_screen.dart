@@ -18,6 +18,7 @@ import '../widgets/course_cards.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
+import '../widgets/designed_course_card.dart';
 
 enum MyCoursesTab { inProgress, completed, wishlist }
 
@@ -396,7 +397,7 @@ class _WishlistList extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           itemCount: value.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, i) => CourseListCard(
+          itemBuilder: (context, i) => DesignedCourseCard(
             course: value[i],
             onTap: () => openCourse(context, value[i].id),
           ),

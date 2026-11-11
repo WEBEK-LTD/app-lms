@@ -87,9 +87,28 @@ export interface AccountMenu {
   items: AccountMenuEntry[];
 }
 
+/**
+ * 122 How a course shows in the lists (the catalog, My courses, a teacher's
+ * and a bundle's courses): `classic` a row, `rich` a larger row with the
+ * teacher's photo, `cover` a wide picture with the course over it, `tile`
+ * the picture over the course; its corners; and what it leaves out.
+ */
+export const COURSE_CARD_STYLES = ["classic", "rich", "cover", "tile"] as const;
+export const COURSE_CARD_FACTS = ["teacher", "rating", "price", "lessons"] as const;
+export type CourseCardStyle = (typeof COURSE_CARD_STYLES)[number];
+export type CourseCardFact = (typeof COURSE_CARD_FACTS)[number];
+export interface CourseCardLook {
+  style: CourseCardStyle;
+  /** 0 to 32; missing, the look's own. */
+  radius?: number;
+  hide: CourseCardFact[];
+}
+
 export interface StudioScreens {
   sign_in?: SignInLook | null;
   account_menu?: AccountMenu | null;
+  /** 122 The courses' card in the lists (academies). */
+  course_card?: CourseCardLook | null;
 }
 
 export const SCREEN_LIMITS = { title: 60, subtitle: 140, label: 40, links: 8 } as const;
@@ -190,6 +209,15 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     const accent = typeof m.accent === "string" && /^#[0-9a-fA-F]{6}$/.test(m.accent) ? m.accent.toUpperCase() : null;
     screens.account_menu = { header, ...(header === "night" && accent ? { accent } : {}), items };
   }
+  // 122 The courses' card.
+  const cc = v.course_card && typeof v.course_card === "object" ? (v.course_card as Record<string, unknown>) : null;
+  if (cc) {
+    const style = (COURSE_CARD_STYLES as readonly string[]).includes(String(cc.style)) ? (cc.style as CourseCardStyle) : "classic";
+    const radius = typeof cc.radius === "number" && Number.isFinite(cc.radius) ? Math.round(cc.radius) : null;
+    if (radius !== null && (radius < 0 || radius > 32)) problems.push("The card's corners must be 0 to 32.");
+    const hide = [...new Set((Array.isArray(cc.hide) ? cc.hide : []).filter((f): f is CourseCardFact => (COURSE_CARD_FACTS as readonly unknown[]).includes(f)))];
+    screens.course_card = { style, ...(radius !== null && radius >= 0 && radius <= 32 ? { radius } : {}), hide };
+  }
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -212,5 +240,6 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   const screens: StudioScreens = {};
   if (saved.sign_in) screens.sign_in = saved.sign_in;
   if (saved.account_menu) screens.account_menu = saved.account_menu;
+  if (saved.course_card) screens.course_card = saved.course_card;
   return Object.keys(screens).length ? { screens } : {};
 }

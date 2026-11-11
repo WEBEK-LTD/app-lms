@@ -14,12 +14,17 @@ import { PAGE_ICONS } from "@/lib/pages/icons";
 import {
   ACCOUNT_HEADERS,
   ACCOUNT_ITEMS,
+  COURSE_CARD_FACTS,
+  COURSE_CARD_STYLES,
   REQUIRED_ACCOUNT_ITEMS,
   SCREEN_LIMITS,
   SIGN_IN_STYLES,
   type AccountHeader,
   type AccountItemKey,
   type AccountMenuEntry,
+  type CourseCardFact,
+  type CourseCardLook,
+  type CourseCardStyle,
   type ScreenTexts,
   type SignInLook,
   type SignInStyle,
@@ -104,12 +109,15 @@ export function ScreensEditor({
   pages,
   appName,
   color,
+  courses = false,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
   pages: { slug: string; title: string }[];
   appName: string;
   color: string;
+  /** 122 An academy: its courses' card is designed here too. */
+  courses?: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -121,6 +129,8 @@ export function ScreensEditor({
   const [previewLang, setPreviewLang] = useState(languages[0]?.code ?? "en");
   // 119 Every look in light and dark mode: the preview shows either.
   const [previewDark, setPreviewDark] = useState(false);
+  // 122 The courses' card.
+  const [card, setCard] = useState<CourseCardLook>(initial?.course_card ?? { style: "classic", hide: [] });
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -133,8 +143,9 @@ export function ScreensEditor({
           return { ...e, label: clean(e.label) };
         }),
       },
+      ...(courses ? { course_card: card } : {}),
     }),
-    [look, header, accent, entries],
+    [look, header, accent, entries, courses, card],
   );
 
   const move = (index: number, by: number) =>
@@ -368,6 +379,47 @@ export function ScreensEditor({
           <p className="m-0 text-sm text-muted">{t("studio.signOutLast")}</p>
         </section>
 
+        {courses ? (
+          <section aria-labelledby="h-course-card" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-course-card" className="m-0 text-lg font-bold">
+                {t("studio.courseCardTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.courseCardText")}</p>
+            </div>
+            <div role="radiogroup" aria-label={t("studio.courseCardTitle")} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {COURSE_CARD_STYLES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="radio"
+                  aria-checked={card.style === s}
+                  data-course-card-style={s}
+                  onClick={() => setCard({ ...card, style: s })}
+                  className="flex flex-col gap-2 rounded-xl border p-2.5 text-start text-sm"
+                  style={card.style === s ? { borderColor: color, boxShadow: `0 0 0 2px ${color}` } : undefined}
+                >
+                  <CourseCardSample style={s} color={color} dark={false} hide={card.hide} radius={card.radius} />
+                  <span className="font-bold">{t(`studio.courseCard_${s}` as DashKey)}</span>
+                </button>
+              ))}
+            </div>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              {t("studio.courseCardCorners")}
+              <input type="range" min={0} max={32} value={card.radius ?? 16} onChange={(e) => setCard({ ...card, radius: Number(e.target.value) })} aria-valuetext={`${card.radius ?? 16}px`} />
+            </label>
+            <fieldset className="m-0 flex flex-wrap gap-x-5 gap-y-2 border-0 p-0">
+              <legend className="mb-1.5 text-sm font-bold">{t("studio.courseCardShows")}</legend>
+              {COURSE_CARD_FACTS.map((f) => (
+                <label key={f} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!card.hide.includes(f)} onChange={(e) => setCard({ ...card, hide: e.target.checked ? card.hide.filter((x) => x !== f) : [...card.hide, f] })} />
+                  {t(`studio.courseFact_${f}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
         <div className="flex flex-wrap justify-end gap-3">
           <SubmitButton variant="secondary" className="h-11" name="reset" value="1">
             {t("studio.backToAppOwn")}
@@ -588,4 +640,52 @@ function darken(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const f = (c: number) => Math.round(c * 0.62).toString(16).padStart(2, "0");
   return `#${f((n >> 16) & 255)}${f((n >> 8) & 255)}${f(n & 255)}`;
+}
+
+/** 122 A course card in the look chosen, as the app draws it: in light or dark, the facts left out. */
+function CourseCardSample({ style, color, dark, hide, radius }: { style: CourseCardStyle; color: string; dark: boolean; hide: CourseCardFact[]; radius?: number }) {
+  const r = radius ?? (style === "rich" || style === "cover" ? 18 : 12);
+  const ink = dark ? "#F3F1EC" : "#15131A";
+  const mute = dark ? "#9A98A2" : "#6E6A72";
+  const cardBg = dark ? "#151823" : "#FFFFFF";
+  const pic = `linear-gradient(135deg, ${color}, #2F4FB5 60%, #F2C879)`;
+  const shows = (f: CourseCardFact) => !hide.includes(f);
+  const meta = [shows("teacher") ? "Reem S." : null, shows("lessons") ? "20" : null].filter(Boolean).join(" · ");
+  const line = (w: string, h = 6, c = mute) => <span style={{ display: "block", width: w, height: h, borderRadius: 3, background: c, opacity: 0.55 }} />;
+  if (style === "cover") {
+    return (
+      <span aria-hidden="true" style={{ position: "relative", display: "block", height: 74, borderRadius: Math.min(r, 20), background: pic, overflow: "hidden" }}>
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,transparent 30%,rgba(0,0,0,.6))" }} />
+        <span style={{ position: "absolute", insetInline: 8, bottom: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+          {line("70%", 7, "#fff")}
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 9, color: "#fff" }}>
+            <span>{meta}</span>
+            {shows("price") ? <span style={{ background: "#fff", color: "#15131A", borderRadius: 5, padding: "1px 4px", fontWeight: 800 }}>390</span> : null}
+          </span>
+        </span>
+      </span>
+    );
+  }
+  if (style === "tile") {
+    return (
+      <span aria-hidden="true" style={{ display: "flex", flexDirection: "column", gap: 4, padding: 5, borderRadius: 10, background: cardBg, border: "1px solid rgba(127,127,127,.2)" }}>
+        <span style={{ height: 38, borderRadius: Math.min(r, 14), background: pic }} />
+        {line("80%", 6, ink)}
+        <span style={{ fontSize: 8.5, color: mute }}>{meta}</span>
+        {shows("price") ? <span style={{ fontSize: 9, fontWeight: 800, color }}>390</span> : null}
+      </span>
+    );
+  }
+  const big = style === "rich";
+  return (
+    <span aria-hidden="true" style={{ display: "flex", gap: 6, padding: 5, borderRadius: 10, background: cardBg, border: "1px solid rgba(127,127,127,.2)", alignItems: "center" }}>
+      <span style={{ width: big ? 42 : 36, height: big ? 42 : 36, flex: "none", borderRadius: Math.min(r, 14), background: pic }} />
+      <span style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
+        {big && shows("rating") ? <span style={{ fontSize: 8.5, color: "#E5A00D" }}>★ 4.8</span> : null}
+        {line("85%", 6, ink)}
+        <span style={{ fontSize: 8.5, color: mute, whiteSpace: "nowrap", overflow: "hidden" }}>{meta}</span>
+        {shows("price") ? <span style={{ fontSize: 9, fontWeight: 800, color: big ? color : ink }}>390</span> : null}
+      </span>
+    </span>
+  );
 }

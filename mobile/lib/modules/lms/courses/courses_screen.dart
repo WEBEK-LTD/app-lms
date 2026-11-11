@@ -13,8 +13,8 @@ import '../data/lms_providers.dart';
 import '../../../core/data/paged_controller.dart';
 import '../navigation.dart';
 import '../widgets/bundle_cards.dart';
-import '../widgets/course_cards.dart';
 import '../../../core/l10n/l10n.dart';
+import '../widgets/designed_course_card.dart';
 
 String orderLabel(CourseOrder order) => switch (order) {
   CourseOrder.newest => currentL10n.sortNewest,
@@ -296,7 +296,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, i) {
             if (i < items.length) {
-              return CourseListCard(
+              return DesignedCourseCard(
                 course: items[i],
                 onTap: () => openCourse(context, items[i].id),
               );
