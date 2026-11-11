@@ -416,7 +416,8 @@ export class MysqlStore implements DataStore {
         .innerJoin(schema.users, eq(schema.users.id, schema.clients.userId))
         .where(
           and(
-            input.filter === "pending" ? eq(schema.clients.status, "pending") : undefined,
+            // 121 An account active from the start waits for activation too while it has no plan: the state is read below.
+            input.filter === "pending" ? ne(schema.clients.status, "suspended") : undefined,
             input.filter === "active" || input.filter === "expired" ? eq(schema.clients.status, "active") : undefined,
             pattern
               ? or(
