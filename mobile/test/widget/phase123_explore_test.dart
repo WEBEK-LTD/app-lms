@@ -22,14 +22,16 @@ class _Catalog extends FakeApi {
   @override
   Future<Paged<CourseSummary>> listCourses(CourseQuery query) {
     queries.add(query);
-    return super.listCourses(query).then(
-      (_) => Paged.fromJson(
-        pageJson([
-          {...courseSummaryJson(), 'badge': 'bestseller'},
-        ]),
-        CourseSummary.fromJson,
-      ),
-    );
+    return super
+        .listCourses(query)
+        .then(
+          (_) => Paged.fromJson(
+            pageJson([
+              {...courseSummaryJson(), 'badge': 'bestseller'},
+            ]),
+            CourseSummary.fromJson,
+          ),
+        );
   }
 }
 

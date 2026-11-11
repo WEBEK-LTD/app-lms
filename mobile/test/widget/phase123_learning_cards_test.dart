@@ -68,7 +68,10 @@ void main() {
       {
         ...liveSessionJson(),
         'title': 'Content marketing',
-        'starts_at': now.add(const Duration(hours: 2)).toUtc().toIso8601String(),
+        'starts_at': now
+            .add(const Duration(hours: 2))
+            .toUtc()
+            .toIso8601String(),
         'ends_at': now.add(const Duration(hours: 3)).toUtc().toIso8601String(),
       },
     ];

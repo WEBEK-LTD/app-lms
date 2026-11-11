@@ -9,6 +9,7 @@ import { parseLayoutContent } from "@/lib/pages/validate";
 import { ACADEMY_PROJECT, siteAddress } from "@/lib/studio/academy";
 import { parseStudioScreens } from "@/lib/studio/screens";
 import { TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
+import { designsFor } from "@/lib/studio/designs";
 import { startLayout } from "@/lib/studio/start";
 import { allNodes } from "@/lib/studio/tree";
 
@@ -47,6 +48,10 @@ function start(site: string | null, lang: "en" | "ar" | "tr" = "en") {
 }
 
 describe("123 the premium academy template", () => {
+  it("is a project of its own, never a page of another whole design", () => {
+    for (const design of designsFor({ type: "lms", vertical: null })) expect(design.templates, design.id).not.toContain("academy_premium");
+  });
+
   it("is the academy's recommended start, offered first", () => {
     const list = templatesFor({ type: "lms", vertical: null });
     expect(list[0]!.id).toBe("academy_premium");
