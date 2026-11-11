@@ -58,14 +58,22 @@ class Navigation {
 /// 109 When the tabs' names show under their icons.
 enum TabLabels { always, active, never }
 
+/// 119 The bar's designs (`TabBar.design`): the icon in a soft pill over its
+/// name, the open tab filled, small quiet names, a dot under the open tab, a
+/// line over it, the open tab in a soft bubble.
+enum TabBarDesign { classic, pill, minimal, dot, line, bubble }
+
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
 /// out keeps the template's usual look for it.
 class TabBarStyle {
   const TabBarStyle({
+    this.design,
     this.background,
     this.darkBackground,
     this.active,
     this.inactive,
+    this.darkActive,
+    this.darkInactive,
     this.radius = 0,
     this.margin = 0,
     this.font,
@@ -74,10 +82,13 @@ class TabBarStyle {
   });
 
   factory TabBarStyle.fromJson(Json json) => TabBarStyle(
+    design: enumOrNull(TabBarDesign.values, json['design']),
     background: _hex(json['background']),
     darkBackground: _hex(json['dark_background']),
     active: _hex(json['active']),
     inactive: _hex(json['inactive']),
+    darkActive: _hex(json['dark_active']),
+    darkInactive: _hex(json['dark_inactive']),
     radius: (optInt(json, 'radius') ?? 0).clamp(0, 32).toDouble(),
     margin: (optInt(json, 'margin') ?? 0).clamp(0, 24).toDouble(),
     font: optString(json, 'font'),
@@ -95,6 +106,13 @@ class TabBarStyle {
   final String? darkBackground;
   final String? active;
   final String? inactive;
+
+  /// 119 In dark mode; null, [active] and [inactive] made readable there.
+  final String? darkActive;
+  final String? darkInactive;
+
+  /// 119 Null, the template's own design.
+  final TabBarDesign? design;
 
   /// How round the bar's corners are.
   final double radius;

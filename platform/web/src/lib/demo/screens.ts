@@ -1,3 +1,4 @@
+import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
 import type { StudioDemoId } from "./constants";
 
@@ -117,3 +118,18 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
     account_menu: { header: d.menu, ...(d.accent ? { accent: d.accent } : {}), items: [] },
   };
 }
+
+/**
+ * 119 Each Studio demo's bottom bar in its own design (light and dark mode
+ * alike): a line, a bubble, a floating pill, a dot, the taxi's pill turning
+ * taxi yellow at night, the classic one, a floating bubble.
+ */
+export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
+  delivery: { design: "line" },
+  food: { design: "bubble" },
+  marketplace: { design: "pill", radius: 24, margin: 12 },
+  rides: { design: "dot" },
+  taxi: { design: "pill", dark_active: "#F5B700" },
+  school: { design: "classic" },
+  instructors: { design: "bubble", radius: 20, margin: 10 },
+};

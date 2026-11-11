@@ -11451,8 +11451,9 @@ components:
                     the photo on a card and the first entries as shortcuts (the points,
                     where the shop has them). `tiles`: the first entries as tiles and the
                     owner's first own entry as a banner. `night`: a dark page with a
-                    membership card (the points, where the shop has them). An app that
-                    doesn't know a value shows `plain`.
+                    membership card (the points, where the shop has them); in light
+                    mode the page is light and the card stays dark. Every look works in
+                    light and dark mode. An app that doesn't know a value shows `plain`.
                 accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`night`: the membership card's color; null, gold." }
                 items:
                   type: array
@@ -14127,10 +14128,25 @@ components:
         app's usual bar. Apps that don't know it keep their usual bar. Each
         field left out keeps the usual look for it.
       properties:
+        design:
+          type: string
+          enum: [classic, pill, minimal, dot, line, bubble]
+          description: |
+            119 The bar's design; missing, the app template's own (Classic,
+            Bold's pill, Minimal). `classic`: the open tab's icon in a soft
+            pill over its name. `pill`: the open tab filled in its colour with
+            its name beside the icon, the others icons only. `minimal`: small
+            quiet names. `dot`: a dot under the open tab's icon. `line`: a
+            line over the open tab. `bubble`: the open tab in a soft bubble of
+            its colour with its name, the others icons only. Every design works
+            in light and dark mode. An app that doesn't know a value uses its
+            template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
         dark_background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "In dark mode; null, `background`, or the app's dark surface when that is null too." }
         active: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The open tab's icon and name; null, the app's main colour." }
         inactive: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The other tabs' icons and names; null, the app's muted text colour." }
+        dark_active: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "119 In dark mode; null, `active` lightened when it would be hard to see on a dark bar." }
+        dark_inactive: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "119 In dark mode; null, `inactive` lightened the same way, or the app's dark muted text." }
         radius: { type: integer, minimum: 0, maximum: 32, default: 0, description: "How round the bar's corners are, in logical pixels." }
         margin: { type: integer, minimum: 0, maximum: 24, default: 0, description: "The space around the bar, in logical pixels: 0, across the bottom of the screen; more, a floating bar." }
         font: { type: [string, 'null'], description: "The names' font family (`StudioFont.family`); null, or one the app can't show, the app's font." }

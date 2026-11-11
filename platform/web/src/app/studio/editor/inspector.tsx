@@ -37,6 +37,8 @@ import {
   type StudioSize,
   type StudioTextStyle,
   type TabBarStyle,
+  type TabBarDesign,
+  TAB_BAR_DESIGNS,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
@@ -1454,6 +1456,28 @@ function TabsPanel(props: Props) {
         </button>
         <Rule />
         <Heading>{t("studio.tabBarLook")}</Heading>
+        <div role="group" aria-label={t("studio.tabBarDesign")} className="flex flex-col gap-1.5">
+          <span style={{ color: "var(--studio-muted)" }}>{t("studio.tabBarDesign")}</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            {([undefined, ...TAB_BAR_DESIGNS] as const).map((design) => {
+              const on = style.design === design;
+              return (
+                <button
+                  key={design ?? "template"}
+                  type="button"
+                  aria-pressed={on}
+                  data-tab-design={design ?? "template"}
+                  onClick={() => setStyle({ design })}
+                  className="flex flex-col items-stretch gap-1 rounded-lg bg-white p-1.5 text-start text-xs"
+                  style={on ? { border: "2px solid #3D63FF", color: "#1F3FB8", fontWeight: 700 } : line}
+                >
+                  <TabDesignSample design={design} brand={style.active ?? props.palette[0] ?? "#3D63FF"} />
+                  {t(`studio.tabDesign_${design ?? "template"}` as DashKey)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <Colors
           palette={props.palette}
           rows={[
@@ -1465,7 +1489,17 @@ function TabsPanel(props: Props) {
         <details>
           <summary className="cursor-pointer">{t("studio.inDark")}</summary>
           <div className="flex flex-col gap-2.5 pt-2">
-            <Colors palette={props.palette} rows={[{ label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) }]} />
+            <Colors
+              palette={props.palette}
+              rows={[
+                { label: t("studio.background"), value: style.dark_background, onChange: (dark_background) => setStyle({ dark_background }) },
+                { label: t("studio.tabActive"), value: style.dark_active, onChange: (dark_active) => setStyle({ dark_active }) },
+                { label: t("studio.tabInactive"), value: style.dark_inactive, onChange: (dark_inactive) => setStyle({ dark_inactive }) },
+              ]}
+            />
+            <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+              {t("studio.tabBarDarkHint")}
+            </p>
           </div>
         </details>
         <RangeField label={t("studio.tabBarRadius")} value={style.radius ?? 0} min={0} max={32} unit="px" fallback={0} onChange={(radius) => setStyle({ radius })} />
@@ -1491,6 +1525,32 @@ function TabsPanel(props: Props) {
         </p>
       </div>
     </div>
+  );
+}
+
+/** 119 A tiny bar in one of the designs: three tabs, the middle one open. */
+function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; brand: string }) {
+  const tab = (open: boolean, key: number) => {
+    const dot = <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: open ? brand : "#B8B4C9" }} />;
+    switch (design) {
+      case "pill":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: brand }}><span style={{ width: 7, height: 7, borderRadius: 2, background: "#FFFFFF" }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: "#FFFFFF" }} /></span> : dot;
+      case "bubble":
+        return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: `${brand}26` }}><span style={{ width: 7, height: 7, borderRadius: 2, background: brand }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: brand }} /></span> : dot;
+      case "dot":
+        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>{dot}<span style={{ width: 3, height: 3, borderRadius: 2, background: open ? brand : "transparent" }} /></span>;
+      case "line":
+        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, borderTop: `2px solid ${open ? brand : "transparent"}`, paddingTop: 2 }}>{dot}<span style={{ width: 10, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+      case "minimal":
+        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}><span style={{ width: 7, height: 7, borderRadius: 2, background: open ? brand : "#B8B4C9" }} /><span style={{ width: 8, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+      default:
+        return <span key={key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}><span style={{ padding: "1px 4px", borderRadius: 6, background: open ? `${brand}22` : "transparent" }}>{dot}</span><span style={{ width: 10, height: 2, borderRadius: 2, background: open ? brand : "#D6D3E0" }} /></span>;
+    }
+  };
+  return (
+    <span aria-hidden="true" style={{ display: "flex", justifyContent: "space-around", alignItems: "center", height: 26, borderRadius: 7, background: "#F6F4FB" }}>
+      {[0, 1, 2].map((i) => tab(i === 1, i))}
+    </span>
   );
 }
 

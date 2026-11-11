@@ -218,8 +218,10 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
   const { shown, more } = splitTabs(look.tabs);
   const tabs: (LayoutTab | null)[] = more.length ? [...shown, null] : shown;
   const background = (dark ? (style.dark_background ?? style.background) : style.background) ?? (dark ? "#22203A" : "#FFFFFF");
-  const activeColour = style.active ?? look.brand;
-  const inactiveColour = style.inactive ?? (dark ? "#A7A3C2" : "#5E5B70");
+  // 119 In dark mode its own colours, else the light ones made readable on a dark bar.
+  const activeColour = dark ? (style.dark_active ?? readableOnDark(style.active ?? look.brand)) : (style.active ?? look.brand);
+  const inactiveColour = dark ? (style.dark_inactive ?? (style.inactive ? readableOnDark(style.inactive) : "#A7A3C2")) : (style.inactive ?? "#5E5B70");
+  const design = style.design ?? "classic";
   const labels = style.labels ?? "always";
   const middle = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
   const center = middle >= 0 && style.center && tabs[middle]?.id === style.center ? middle : -1;
@@ -269,10 +271,49 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
           );
         }
         const showLabel = labels === "always" || (labels === "active" && active);
+        const name = <span style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>;
+        // 119 The open tab in a filled pill or a soft bubble, with its name beside its icon; the others icons only.
+        if ((design === "pill" || design === "bubble") && active) {
+          const filled = design === "pill";
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} data-studio-tab-design={design} title={label} style={{ display: "flex", flex: 1.6, justifyContent: "center", minWidth: 0 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 16, minWidth: 0, background: filled ? activeColour : tint(activeColour, dark ? 0.22 : 0.14), color: filled ? "#FFFFFF" : activeColour, fontWeight: 700 }}>
+                {glyph}
+                {labels !== "never" ? name : null}
+              </span>
+            </div>
+          );
+        }
+        if (design === "pill" || design === "bubble") {
+          return (
+            <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0 }}>
+              {glyph}
+            </div>
+          );
+        }
         return (
-          <div key={tab?.id ?? "more"} data-studio-tab={tab ? tab.id : "more"} title={label} style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", minWidth: 0, color: active ? activeColour : undefined, fontWeight: active ? 700 : 400 }}>
-            {glyph}
-            {showLabel ? <span style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span> : null}
+          <div
+            key={tab?.id ?? "more"}
+            data-studio-tab={tab ? tab.id : "more"}
+            title={label}
+            style={{
+              display: "flex",
+              flex: 1,
+              flexDirection: "column",
+              alignItems: "center",
+              gap: design === "dot" ? 2 : 0,
+              minWidth: 0,
+              color: active ? activeColour : undefined,
+              fontWeight: active ? 700 : 400,
+              fontSize: design === "minimal" ? 9 : undefined,
+              borderTop: design === "line" ? `2.5px solid ${active ? activeColour : "transparent"}` : undefined,
+              paddingTop: design === "line" ? 4 : undefined,
+              marginTop: design === "line" ? -8 : undefined,
+            }}
+          >
+            {design === "classic" ? <span style={{ display: "flex", padding: "1px 10px", borderRadius: 12, background: active ? tint(activeColour, dark ? 0.22 : 0.14) : "transparent" }}>{glyph}</span> : glyph}
+            {design === "dot" ? <span style={{ width: 4, height: 4, borderRadius: 2, background: active ? activeColour : "transparent" }} /> : null}
+            {showLabel ? name : null}
           </div>
         );
       })}
@@ -287,6 +328,16 @@ function Tag({ text }: { text: string }) {
 
 /** The layout an element sits in; `scroll` a row that scrolls sideways (107.2). */
 type Dir = "row" | "scroll" | "column" | "stack" | "grid" | "slider" | null;
+
+/** 119 A colour lightened when it would be hard to see on a dark bar (as the app does). */
+function readableOnDark(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  if (lum >= 0.45) return hex;
+  const mix = (c: number) => Math.round(c + (255 - c) * 0.5);
+  return `#${[r, g, b].map((c) => mix(c).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
+}
 
 /** 107.2 A colour with its strength, for CSS. */
 function tint(hex: string, opacity: number): string {

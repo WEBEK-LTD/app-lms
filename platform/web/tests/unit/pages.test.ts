@@ -811,13 +811,14 @@ describe("pages on the hosted API", () => {
       screen("settings", "settings"),
       screen("account", "account"),
     ];
-    const tab_bar = { background: "#0e0d24", active: "#FF5A1F", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" };
+    const tab_bar = { design: "bubble", background: "#0e0d24", active: "#FF5A1F", dark_active: "#ffb38f", dark_inactive: "#8A93A6", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" };
     expect((await publishLayout(store, app, layoutWith([], { tabs, tab_bar }), "owner@lale.test", NOW)).ok).toBe(true);
     const nav = (await call("/pages", { headers: { "accept-language": "ar" } })).body as { tabs: { id: string; label: string; icon: string; target: unknown }[]; more: { id: string }[]; tab_bar: unknown };
     expect(nav.tabs.map((t) => t.id)).toEqual(["home", "courses", "mine", "search", "more"]);
     expect(nav.tabs[4]).toEqual({ id: "more", label: "المزيد", icon: "apps", target: { type: "more" } });
     expect(nav.more.map((t) => t.id)).toEqual(["alerts", "settings", "account"]);
-    expect(nav.tab_bar).toEqual({ background: "#0E0D24", active: "#FF5A1F", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" });
+    // 119 The bar's design and its own colours in dark mode.
+    expect(nav.tab_bar).toEqual({ design: "bubble", background: "#0E0D24", active: "#FF5A1F", dark_active: "#FFB38F", dark_inactive: "#8A93A6", radius: 16, margin: 12, font: "Cairo", labels: "active", center: "courses" });
   });
 
   it("109 checks the tab bar's look and keeps the usual look out of it", () => {
@@ -830,6 +831,8 @@ describe("pages on the hosted API", () => {
       "Tabs: choose when the tabs' names show.",
       "Tabs: the tab in the middle isn't one of the tabs.",
     ]);
+    // 119 Only the bar's designs, and colours for dark mode.
+    expect(errorsOf(layoutWith([], { tab_bar: { design: "glass", dark_active: "gold" } }))).toEqual(["Tabs: choose one of the tab bar's designs.", "Tabs: a colour of the tab bar isn't a colour."]);
     const parsed = parse(layoutWith([], { tab_bar: { radius: 0, margin: 0, labels: "always", background: null } }));
     expect(parsed.ok && parsed.value).not.toHaveProperty("tab_bar");
     // A plan that leaves the middle tab out leaves out the round button, not the rest of the look.

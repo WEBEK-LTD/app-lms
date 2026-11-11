@@ -17,7 +17,9 @@ class NavDestination {
 
 /// The bottom navigation in each template's style:
 /// Classic (icon over label), Bold (filled pill for the active tab, icons
-/// only for the rest) and Minimal (small, quiet labels).
+/// only for the rest) and Minimal (small, quiet labels); 119 or the design
+/// the owner chose for it (also a dot, a line or a soft bubble), in light
+/// and dark mode alike.
 class AppNavBar extends StatelessWidget {
   const AppNavBar({
     super.key,
@@ -50,6 +52,36 @@ class AppNavBar extends StatelessWidget {
 
   Color? _colour(String? hex) => parseHexColor(hex);
 
+  /// 119 The design: the owner's, else the template's own.
+  TabBarDesign get design =>
+      style?.design ??
+      switch (template) {
+        AppTemplate.classic => TabBarDesign.classic,
+        AppTemplate.bold => TabBarDesign.pill,
+        AppTemplate.minimal => TabBarDesign.minimal,
+      };
+
+  /// 119 A colour made easy to see on a dark bar: a dark one is lightened.
+  static Color? readableOnDark(Color? c) {
+    if (c == null) return null;
+    if (c.computeLuminance() >= 0.2) return c;
+    return Color.lerp(c, const Color(0xFFFFFFFF), 0.5);
+  }
+
+  /// 119 Text and icons on a fill: dark on a light one, white on a dark one.
+  static Color onFill(Color fill) => fill.computeLuminance() > 0.5
+      ? const Color(0xFF14121F)
+      : const Color(0xFFFFFFFF);
+
+  Color? _active(bool dark) => dark
+      ? (_colour(style?.darkActive) ?? readableOnDark(_colour(style?.active)))
+      : _colour(style?.active);
+
+  Color? _inactive(bool dark) => dark
+      ? (_colour(style?.darkInactive) ??
+            readableOnDark(_colour(style?.inactive)))
+      : _colour(style?.inactive);
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -63,20 +95,31 @@ class AppNavBar extends StatelessWidget {
     final margin = s?.margin ?? 0;
     final radius = s?.radius ?? 0;
     final floating = margin > 0;
-    final (height, padding, border) = switch (template) {
-      AppTemplate.classic => (
+    final wide = design == TabBarDesign.pill || design == TabBarDesign.bubble;
+    final (height, padding, border) = switch (design) {
+      TabBarDesign.classic => (
         76.0,
         const EdgeInsets.fromLTRB(8, 8, 8, 12),
         p.border,
       ),
-      AppTemplate.bold => (
+      TabBarDesign.pill || TabBarDesign.bubble => (
         80.0,
         const EdgeInsets.fromLTRB(14, 12, 14, 16),
-        null,
+        design == TabBarDesign.bubble ? p.divider : null,
       ),
-      AppTemplate.minimal => (
+      TabBarDesign.minimal => (
         72.0,
         const EdgeInsets.fromLTRB(8, 6, 8, 10),
+        p.divider,
+      ),
+      TabBarDesign.dot => (
+        72.0,
+        const EdgeInsets.fromLTRB(8, 8, 8, 10),
+        p.divider,
+      ),
+      TabBarDesign.line => (
+        74.0,
+        const EdgeInsets.fromLTRB(8, 0, 8, 12),
         p.divider,
       ),
     };
@@ -89,14 +132,11 @@ class AppNavBar extends StatelessWidget {
             // 38 Bold on a phone: when the tabs are narrow the active
             // pill gets twice the room, so its label fits
             // ("Membership"); a tablet's tabs are wide enough.
-            final widen =
-                template == AppTemplate.bold &&
-                box.maxWidth / destinations.length < 110;
+            final widen = wide && box.maxWidth / destinations.length < 110;
             return Row(
               children: [
                 for (var i = 0; i < destinations.length; i++) ...[
-                  if (template == AppTemplate.bold && i > 0)
-                    const SizedBox(width: 6),
+                  if (wide && i > 0) const SizedBox(width: 6),
                   Expanded(
                     flex: widen && i == currentIndex && i != centerIndex
                         ? 2
@@ -121,11 +161,12 @@ class AppNavBar extends StatelessWidget {
           ? null
           : Border(top: BorderSide(color: border)),
       boxShadow: floating || radius > 0
-          ? const [
+          ? [
               BoxShadow(
-                color: Color(0x1F0E0D24),
+                // A shadow shows on a light page; a dark one gets a darker one.
+                color: dark ? const Color(0x66000000) : const Color(0x1F0E0D24),
                 blurRadius: 18,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ]
           : null,
@@ -152,8 +193,9 @@ class AppNavBar extends StatelessWidget {
     final d = destinations[index];
     final selected = index == currentIndex;
     final count = badges[index] ?? 0;
-    final active = _colour(style?.active);
-    final inactive = _colour(style?.inactive);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final active = _active(dark);
+    final inactive = _inactive(dark);
     final labels = style?.labels ?? TabLabels.always;
     final showLabel =
         labels == TabLabels.always || (labels == TabLabels.active && selected);
@@ -195,17 +237,33 @@ class AppNavBar extends StatelessWidget {
               ],
             ),
             alignment: Alignment.center,
-            child: icon(26, p.onPrimary, filled: true),
+            child: icon(
+              26,
+              active == null ? p.onPrimary : onFill(active),
+              filled: true,
+            ),
           ),
         ),
       );
     } else {
-      switch (template) {
-        case AppTemplate.bold:
+      switch (design) {
+        case TabBarDesign.pill:
+        case TabBarDesign.bubble:
+          // The open tab filled (pill) or in a soft bubble of its colour,
+          // with its name beside the icon; the others icons only.
+          final bubble = design == TabBarDesign.bubble;
+          final tone = active ?? p.primary;
+          final fill = bubble
+              ? tone.withValues(alpha: dark ? 0.24 : 0.14)
+              : tone;
+          final onIt = bubble
+              ? tone
+              : (active == null ? p.onPrimary : onFill(active));
           content = selected
               ? DecoratedBox(
+                  key: ValueKey('nav-$index-${bubble ? 'bubble' : 'pill'}'),
                   decoration: BoxDecoration(
-                    color: active ?? p.primary,
+                    color: fill,
                     borderRadius: BorderRadius.circular(18),
                   ),
                   // 38 Room between the label and the pill's edges.
@@ -217,7 +275,7 @@ class AppNavBar extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            icon(20, p.onPrimary),
+                            icon(20, onIt),
                             if (labels != TabLabels.never) ...[
                               // A count's badge reaches past the icon.
                               SizedBox(width: count > 0 ? 12 : 6),
@@ -226,7 +284,7 @@ class AppNavBar extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: p.onPrimary,
+                                  color: onIt,
                                   fontFamily: fontFamily,
                                 ),
                               ),
@@ -238,9 +296,60 @@ class AppNavBar extends StatelessWidget {
                   ),
                 )
               : Center(child: icon(24, inactive ?? p.textSecondary));
-        case AppTemplate.classic:
-        case AppTemplate.minimal:
-          final minimal = template == AppTemplate.minimal;
+        case TabBarDesign.dot:
+        case TabBarDesign.line:
+          // 119 A dot under the open tab's icon, or a line over the open tab.
+          final color = selected
+              ? (active ?? p.primary)
+              : (inactive ?? p.textSecondary);
+          final mark = Container(
+            key: selected ? ValueKey('nav-$index-${design.name}') : null,
+            width: design == TabBarDesign.dot ? 5 : 28,
+            height: design == TabBarDesign.dot ? 5 : 3,
+            decoration: BoxDecoration(
+              color: selected ? color : Colors.transparent,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          );
+          final name = Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              d.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              textScaler: MediaQuery.textScalerOf(context)
+                  .clamp(maxScaleFactor: 1.3),
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                color: color,
+                fontFamily: fontFamily,
+              ),
+            ),
+          );
+          content = design == TabBarDesign.line
+              ? Column(
+                  children: [
+                    mark,
+                    const Spacer(),
+                    icon(24, color, filled: selected),
+                    if (showLabel) ...[const SizedBox(height: 2), name],
+                    const Spacer(),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    icon(24, color, filled: selected),
+                    const SizedBox(height: 4),
+                    mark,
+                    if (showLabel) ...[const SizedBox(height: 2), name],
+                  ],
+                );
+        case TabBarDesign.classic:
+        case TabBarDesign.minimal:
+          final minimal = design == TabBarDesign.minimal;
           final color = selected
               ? (active ?? p.text)
               : (inactive ?? (minimal ? p.textTertiary : p.textSecondary));
