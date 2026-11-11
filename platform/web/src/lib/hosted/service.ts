@@ -63,6 +63,7 @@ import { storeBillingConfig } from "../store-billing/config";
 import type { PurchaseDeps } from "../store-billing/purchases";
 import { accountForBillingToken } from "../store-billing/sessions";
 import { usesPlugin } from "../app/label";
+import { screensConfig } from "../studio/screens";
 
 /**
  * The hosted API: the app contract's configuration, sign-in, account,
@@ -560,6 +561,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
       downloads: extra.features?.downloads === true && ctx.plan !== undefined && hasFeature(ctx.plan, "offline_downloads"),
     },
     auth: authConfig(app),
+    // 118.3 Studio apps: the sign-in screen's look and the account menu.
+    ...screensConfig(app),
     // Paid courses never show "Enroll now" on iOS, nor without card payments in the plan (13.1).
     purchases: {
       ...(extra.purchases ?? { enroll_button: false, free_enrollment: false }),

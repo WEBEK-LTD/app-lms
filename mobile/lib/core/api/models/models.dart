@@ -30,6 +30,8 @@ export 'salary_models.dart';
 export 'school_life_models.dart';
 export 'school_models.dart';
 export 'school_report_models.dart';
+// 118.3
+export 'screens_models.dart';
 export 'taxi_models.dart';
 export 'teachers_models.dart';
 // 113.9

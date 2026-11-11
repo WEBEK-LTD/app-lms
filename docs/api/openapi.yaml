@@ -11416,6 +11416,51 @@ components:
                 chose it knows already (the build config's `auth_base_url`); a
                 client's own API may send it too, for apps built before.
             base_url: { type: string, format: uri, example: 'https://yallapp.com.tr/api/app/00000000-0000-0000-0000-000000000000', description: "With `provider: yallapp`: Yallapp's hosted API for the app." }
+        screens:
+          type: object
+          description: |
+            Roadmap 118.3. A Yallapp Studio app's sign-in screen and account menu, as the
+            owner designed them in Studio; read at every start, no new build. Texts are
+            per language code: the app shows its language's, else the first one, else its
+            own words. Missing (or a part missing): the app's own screens.
+          properties:
+            sign_in:
+              type: object
+              required: [style, show_logo]
+              properties:
+                style:
+                  type: string
+                  enum: [classic, photo, card, minimal]
+                  description: "`classic`: the app's own. `photo`: the form over a full-screen photo. `card`: the photo on top, the form in a card over it. `minimal`: the logo and the form, centred."
+                image_url: { type: [string, 'null'], format: uri, description: The photo of `photo` and `card`. }
+                title: { type: object, additionalProperties: { type: string }, description: 'Instead of "Welcome", per language code.', example: { en: Welcome to Safra, ar: أهلًا بك في سفرة } }
+                subtitle: { type: object, additionalProperties: { type: string }, description: The line under it, per language code. }
+                show_logo: { type: boolean }
+            account_menu:
+              type: object
+              required: [header, items]
+              properties:
+                header: { type: string, enum: [plain, card], description: "`card`: the name and number on a card in the app's main color." }
+                items:
+                  type: array
+                  description: |
+                    The entries in the order shown. `key` is one of the app's entries, or
+                    `link` (the owner's own: `url` or `page_slug`). An entry the app knows
+                    but isn't listed follows, in the app's order; one that doesn't belong to
+                    the app (its type, its features) never shows. `settings`, `privacy` and
+                    `terms` are never hidden; Sign out is always last.
+                  items:
+                    type: object
+                    required: [key, hidden]
+                    properties:
+                      key:
+                        type: string
+                        enum: [orders, points, certificates, memberships, quiz_results, live_classes, learning_paths, achievements, wishlist, downloads, my_courses, restaurant, teachers, teacher, teach, shipments, food_orders, rides, chat, notifications, settings, help, privacy, terms, link]
+                      hidden: { type: boolean }
+                      label: { type: object, additionalProperties: { type: string }, description: The owner's name for it per language code; empty or missing means the app's own. }
+                      icon: { type: [string, 'null'], description: A Material Symbols name; null means the app's own. }
+                      url: { type: [string, 'null'], format: uri }
+                      page_slug: { type: [string, 'null'] }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:

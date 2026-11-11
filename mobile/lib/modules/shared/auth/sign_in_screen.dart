@@ -440,207 +440,308 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final methods = _methods;
     final byEmail = _method == SignInMethod.email;
     final passwords = _passwords;
+    // 118.3 A Studio app's own sign-in look: its words, its logo, its photo.
+    final look = config.screens?.signIn;
+    final style = look?.style ?? SignInLookStyle.classic;
+    final language = Localizations.localeOf(context).languageCode;
+    final ownTitle = look == null ? null : textFor(look.title, language);
+    final ownSubtitle = look == null || _creating
+        ? null
+        : textFor(look.subtitle, language);
+    final showLogo = look?.showLogo ?? true;
+    final minimal = style == SignInLookStyle.minimal;
+    final panel =
+        style == SignInLookStyle.photo || style == SignInLookStyle.card;
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 56,
+    final formChildren = <Widget>[
+      Row(
+        children: [
+          if (canGoBack) ...[const AppBackButton(), const SizedBox(width: 12)],
+          if (showLogo && !minimal) ...[
+            SignInLogo(url: logo, name: config.site.name),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Text(
+              minimal ? '' : config.site.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: p.text,
               ),
-              child: IntrinsicHeight(
+            ),
+          ),
+          if (!canGoBack)
+            TextButton(
+              onPressed: _browse,
+              style: TextButton.styleFrom(foregroundColor: p.text),
+              child: Text(context.l10n.notNow),
+            ),
+        ],
+      ),
+      SizedBox(height: panel ? 24 : 56),
+      if (minimal && showLogo) ...[
+        Center(
+          child: SignInLogo(url: logo, name: config.site.name),
+        ),
+        const SizedBox(height: 20),
+      ],
+      Semantics(
+        header: true,
+        child: Text(
+          ownTitle ?? context.l10n.welcome,
+          textAlign: minimal ? TextAlign.center : null,
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        ownSubtitle ??
+            (_passwordMode
+                ? context.l10n.signInIntroPasswordStudio
+                : _creating
+                ? context.l10n.createAccountIntroCode
+                : !byEmail
+                ? context.l10n.signInIntro
+                : _byPassword
+                ? context.l10n.signInIntroPassword
+                : context.l10n.signInIntroEmail),
+        textAlign: minimal ? TextAlign.center : null,
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: context.palette.textSecondary),
+      ),
+      if (env.isPreview) ...[
+        const SizedBox(height: 16),
+        PreviewNote(
+          previewBlocked
+              ? context.l10n.previewSignInUnavailable
+              : context.l10n.previewSignInNote,
+        ),
+      ],
+      const SizedBox(height: 32),
+      if (_passwordMode && passwords != null)
+        ..._passwordFields(context, passwords)
+      else ...[
+        if (methods.length > 1) ...[
+          Semantics(
+            label: context.l10n.signInMethodLabel,
+            container: true,
+            child: SegmentedButton<SignInMethod>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                  value: SignInMethod.phone,
+                  label: Text(context.l10n.signInWithPhone),
+                ),
+                ButtonSegment(
+                  value: SignInMethod.email,
+                  label: Text(context.l10n.signInWithEmail),
+                ),
+              ],
+              selected: {_method},
+              onSelectionChanged: (selected) => setState(() {
+                _method = selected.first;
+                _error = null;
+              }),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+        if (byEmail)
+          ..._emailFields(context)
+        else ...[
+          Text(
+            context.l10n.mobileNumber,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: p.text,
+            ),
+          ),
+          const SizedBox(height: 10),
+          PhoneNumberField(
+            controller: _phone,
+            dialCode: _dialCode,
+            onPickCountry: _pickCountry,
+            onChanged: (_) => setState(() => _error = null),
+            onSubmitted: (_) => _send(),
+          ),
+        ],
+      ],
+      if (_error != null) ...[const SizedBox(height: 10), InlineError(_error!)],
+      const SizedBox(height: 32),
+      PrimaryButton(
+        label: _byPassword || _passwordMode
+            ? context.l10n.signIn
+            : context.l10n.sendCode,
+        loading: _sending,
+        onPressed: _valid && !previewBlocked ? _submit : null,
+      ),
+      // 118 With passwords: a code instead, creating an account, or back to the password.
+      if (passwords != null) ...[
+        const SizedBox(height: 12),
+        if (_passwordMode && passwords.codes.isNotEmpty)
+          TextButton(
+            onPressed: () => _switchTo(password: false),
+            child: Text(context.l10n.signInWithCodeInstead),
+          ),
+        if (!_passwordMode)
+          TextButton(
+            onPressed: () => _switchTo(password: true),
+            child: Text(context.l10n.signInWithPasswordInstead),
+          ),
+        if (_passwordMode && config.auth.signupAllowed)
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                context.l10n.newHereQuestion,
+                style: TextStyle(fontSize: 14, color: p.textSecondary),
+              ),
+              TextButton(
+                onPressed: () => _switchTo(password: false, creating: true),
+                child: Text(context.l10n.createAnAccount),
+              ),
+            ],
+          ),
+      ],
+      if (passwords == null || !config.auth.signupAllowed) ...[
+        const SizedBox(height: 32),
+        Text(
+          _byPassword
+              ? context.l10n.signInPasswordAccountsOnly(config.site.name)
+              : !config.auth.signupAllowed
+              ? context.l10n.signInRegisteredOnly(config.site.name)
+              : byEmail
+              ? context.l10n.signInNewHereEmail
+              : context.l10n.signInNewHere,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, height: 1.6, color: p.textSecondary),
+        ),
+      ],
+      if (panel) const SizedBox(height: 8) else const Spacer(),
+      const SizedBox(height: 24),
+      LegalLine(terms: config.site.termsUrl, privacy: config.site.privacyUrl),
+    ];
+    return Scaffold(
+      body: _framed(context, style, look?.imageUrl, formChildren),
+    );
+  }
+
+  /// 118.3 The form as the look lays it out: on the page (classic,
+  /// minimal), in a panel over a full-screen photo, or in a card under one.
+  Widget _framed(
+    BuildContext context,
+    SignInLookStyle style,
+    String? imageUrl,
+    List<Widget> children,
+  ) {
+    final p = context.palette;
+    final form = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+    if (style == SignInLookStyle.photo && imageUrl != null) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          AppNetworkImage(url: imageUrl, fit: BoxFit.cover),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x330E1424), Color(0xB30E1424)],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 40,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        key: const ValueKey('sign-in-photo-panel'),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                        decoration: BoxDecoration(
+                          color: p.surface.withValues(alpha: 0.96),
+                          borderRadius: BorderRadius.circular(
+                            context.shapes.r(28),
+                          ),
+                        ),
+                        child: form,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    if (style == SignInLookStyle.card && imageUrl != null) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final photo = (constraints.maxHeight * 0.38).clamp(180.0, 340.0);
+          return Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: photo + 40,
+                child: AppNetworkImage(url: imageUrl, fit: BoxFit.cover),
+              ),
+              SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      children: [
-                        if (canGoBack) ...[
-                          const AppBackButton(),
-                          const SizedBox(width: 12),
-                        ],
-                        SignInLogo(url: logo, name: config.site.name),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            config.site.name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: p.text,
-                            ),
-                          ),
-                        ),
-                        if (!canGoBack)
-                          TextButton(
-                            onPressed: _browse,
-                            style: TextButton.styleFrom(
-                              foregroundColor: p.text,
-                            ),
-                            child: Text(context.l10n.notNow),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 56),
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        context.l10n.welcome,
-                        style: Theme.of(context).textTheme.displaySmall,
+                    SizedBox(height: photo),
+                    Container(
+                      key: const ValueKey('sign-in-card'),
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - photo,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _passwordMode
-                          ? context.l10n.signInIntroPasswordStudio
-                          : _creating
-                          ? context.l10n.createAccountIntroCode
-                          : !byEmail
-                          ? context.l10n.signInIntro
-                          : _byPassword
-                          ? context.l10n.signInIntroPassword
-                          : context.l10n.signInIntroEmail,
-                      style: Theme.of(context).textTheme.bodyLarge
-                          ?.copyWith(color: context.palette.textSecondary),
-                    ),
-                    if (env.isPreview) ...[
-                      const SizedBox(height: 16),
-                      PreviewNote(
-                        previewBlocked
-                            ? context.l10n.previewSignInUnavailable
-                            : context.l10n.previewSignInNote,
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        8,
+                        24,
+                        24 + MediaQuery.paddingOf(context).bottom,
                       ),
-                    ],
-                    const SizedBox(height: 32),
-                    if (_passwordMode && passwords != null)
-                      ..._passwordFields(context, passwords)
-                    else ...[
-                      if (methods.length > 1) ...[
-                        Semantics(
-                          label: context.l10n.signInMethodLabel,
-                          container: true,
-                          child: SegmentedButton<SignInMethod>(
-                            showSelectedIcon: false,
-                            segments: [
-                              ButtonSegment(
-                                value: SignInMethod.phone,
-                                label: Text(context.l10n.signInWithPhone),
-                              ),
-                              ButtonSegment(
-                                value: SignInMethod.email,
-                                label: Text(context.l10n.signInWithEmail),
-                              ),
-                            ],
-                            selected: {_method},
-                            onSelectionChanged: (selected) => setState(() {
-                              _method = selected.first;
-                              _error = null;
-                            }),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                      if (byEmail)
-                        ..._emailFields(context)
-                      else ...[
-                        Text(
-                          context.l10n.mobileNumber,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: p.text,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        PhoneNumberField(
-                          controller: _phone,
-                          dialCode: _dialCode,
-                          onPickCountry: _pickCountry,
-                          onChanged: (_) => setState(() => _error = null),
-                          onSubmitted: (_) => _send(),
-                        ),
-                      ],
-                    ],
-                    if (_error != null) ...[
-                      const SizedBox(height: 10),
-                      InlineError(_error!),
-                    ],
-                    const SizedBox(height: 32),
-                    PrimaryButton(
-                      label: _byPassword || _passwordMode
-                          ? context.l10n.signIn
-                          : context.l10n.sendCode,
-                      loading: _sending,
-                      onPressed: _valid && !previewBlocked ? _submit : null,
-                    ),
-                    // 118 With passwords: a code instead, creating an account, or back to the password.
-                    if (passwords != null) ...[
-                      const SizedBox(height: 12),
-                      if (_passwordMode && passwords.codes.isNotEmpty)
-                        TextButton(
-                          onPressed: () => _switchTo(password: false),
-                          child: Text(context.l10n.signInWithCodeInstead),
-                        ),
-                      if (!_passwordMode)
-                        TextButton(
-                          onPressed: () => _switchTo(password: true),
-                          child: Text(context.l10n.signInWithPasswordInstead),
-                        ),
-                      if (_passwordMode && config.auth.signupAllowed)
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              context.l10n.newHereQuestion,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: p.textSecondary,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () =>
-                                  _switchTo(password: false, creating: true),
-                              child: Text(context.l10n.createAnAccount),
-                            ),
-                          ],
-                        ),
-                    ],
-                    if (passwords == null || !config.auth.signupAllowed) ...[
-                      const SizedBox(height: 32),
-                      Text(
-                        _byPassword
-                            ? context.l10n.signInPasswordAccountsOnly(
-                                config.site.name,
-                              )
-                            : !config.auth.signupAllowed
-                            ? context.l10n.signInRegisteredOnly(
-                                config.site.name,
-                              )
-                            : byEmail
-                            ? context.l10n.signInNewHereEmail
-                            : context.l10n.signInNewHere,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.6,
-                          color: p.textSecondary,
+                      decoration: BoxDecoration(
+                        color: p.background,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(context.shapes.r(28)),
                         ),
                       ),
-                    ],
-                    const Spacer(),
-                    const SizedBox(height: 24),
-                    LegalLine(
-                      terms: config.site.termsUrl,
-                      privacy: config.site.privacyUrl,
+                      child: form,
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
+          );
+        },
+      );
+    }
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight - 56),
+            child: IntrinsicHeight(child: form),
           ),
         ),
       ),

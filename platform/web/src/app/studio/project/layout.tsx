@@ -57,6 +57,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         item("/dashboard/setup?step=website", t("studio.navSource"), "hub"),
         item("/dashboard/setup?step=branding", t("studio.navIdentity"), "palette"),
         item("/dashboard/languages", t("studio.navLanguages"), "translate"),
+        // 118.3 The sign-in screen and the account menu (Studio projects on Yallapp's server).
+        ...(app.backend === "hosted" ? [item("/dashboard/screens", t("studio.navScreens"), "account_circle")] : []),
         ...(app.backend === "hosted"
           ? [item("/dashboard/notifications", t("studio.navNotifications"), "notifications")]
           : app.backend === "wordpress"

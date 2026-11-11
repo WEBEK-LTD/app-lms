@@ -12,7 +12,9 @@ import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../chat/data/chat_providers.dart';
@@ -103,64 +105,290 @@ class ProfileScreen extends ConsumerWidget {
     final chatUnread = chatHere ? ref.watch(chatUnreadProvider) : 0;
     // 104.8.4 Yallapp Courier: the company these screens are on.
     final hub = ref.watch(courierHubLinkProvider);
+    // 118.3 A Studio app's own account menu: its order, names and icons.
+    final design = hub == null ? config.screens?.accountMenu : null;
+    final onCard = design?.header == AccountMenuHeader.card;
+    final headText = onCard ? p.onPrimary : p.text;
+    final headSub = onCard
+        ? p.onPrimary.withValues(alpha: 0.8)
+        : p.textSecondary;
+    final learningShown =
+        config.features.certificates ||
+        config.features.liveClasses ||
+        config.features.learningPaths ||
+        config.features.gamification ||
+        config.features.memberships ||
+        config.features.quizzes ||
+        config.features.wishlist ||
+        showOrders ||
+        downloads;
+    // Each entry the app has here, by its key in `Config.screens.account_menu`.
+    final available = <String, _MenuEntry>{
+      if ((store && showOrders) || showOrders || purchases)
+        'orders': _MenuEntry(
+          AppIcons.orders,
+          context.l10n.myOrders,
+          () => context.push(Paths.orders),
+          tileKey: 'account-orders',
+        ),
+      if (store && showOrders && config.store?.loyalty != null && user != null)
+        'points': _MenuEntry(
+          AppIcons.loyalty,
+          context.l10n.myPoints,
+          () => context.push(Paths.points),
+          tileKey: 'account-points',
+        ),
+      if (lms && config.features.certificates)
+        'certificates': _MenuEntry(
+          AppIcons.certificate,
+          context.l10n.myCertificates,
+          () => context.push(Paths.certificates),
+        ),
+      if (lms && config.features.memberships)
+        'memberships': _MenuEntry(
+          AppIcons.membership,
+          context.l10n.siteMemberships,
+          () => context.push(Paths.subscriptions),
+        ),
+      if (lms && config.features.quizzes)
+        'quiz_results': _MenuEntry(
+          AppIcons.quizResults,
+          context.l10n.quizResults,
+          () => context.push(Paths.quizResults),
+        ),
+      if (lms && config.features.liveClasses)
+        'live_classes': _MenuEntry(
+          AppIcons.live,
+          context.l10n.liveClasses,
+          () => context.push(Paths.liveClasses),
+        ),
+      if (lms && config.features.learningPaths)
+        'learning_paths': _MenuEntry(
+          AppIcons.route,
+          context.l10n.learningPaths,
+          () => context.push(Paths.learningPaths),
+        ),
+      if (lms && config.features.gamification)
+        'achievements': _MenuEntry(
+          AppIcons.leaderboard,
+          context.l10n.achievementsTitle,
+          () => context.push(Paths.achievements),
+        ),
+      if (lms && config.features.wishlist)
+        'wishlist': _MenuEntry(
+          AppIcons.favorite,
+          context.l10n.wishlist,
+          () => context.go(Paths.myCoursesTab('wishlist')),
+        ),
+      if (downloads)
+        'downloads': _MenuEntry(
+          AppIcons.downloads,
+          context.l10n.downloads,
+          () => context.push(Paths.downloads),
+          value: savedBytes > 0 ? formatBytes(savedBytes) : null,
+        ),
+      if (lms && !learningShown)
+        'my_courses': _MenuEntry(
+          AppIcons.myCourses,
+          context.l10n.tabMyCourses,
+          () => context.go(Paths.myCourses),
+        ),
+      if (restaurant)
+        'restaurant': _MenuEntry(
+          AppIcons.restaurant,
+          context.l10n.restaurantMode,
+          () => context.go(Paths.restaurantDesk),
+        ),
+      if (instructors != null)
+        'teachers': _MenuEntry(
+          AppIcons.people,
+          context.l10n.teachersTitle,
+          () => context.push(Paths.teachers),
+        ),
+      if (teacher)
+        'teacher': _MenuEntry(
+          AppIcons.teacher,
+          context.l10n.tabTeacher,
+          () => context.go(Paths.teacherDesk),
+        )
+      else if (instructors != null && instructors.applications && user != null)
+        'teach': _MenuEntry(
+          AppIcons.teacher,
+          context.l10n.teachHere,
+          () => context.push(Paths.teachApply),
+        ),
+      if (delivery && user != null)
+        'shipments': _MenuEntry(
+          AppIcons.parcel,
+          context.l10n.tabShipments,
+          () => context.go(Paths.shipments),
+        ),
+      if (food && user != null)
+        'food_orders': _MenuEntry(
+          AppIcons.orders,
+          context.l10n.tabFoodOrders,
+          () => context.go(Paths.foodOrders),
+        ),
+      if (rides && user != null)
+        'rides': _MenuEntry(
+          AppIcons.receipt,
+          context.l10n.tabMyRides,
+          () => context.go(Paths.myRides),
+        ),
+      if (chatHere)
+        'chat': _MenuEntry(
+          AppIcons.chat,
+          context.l10n.chatTitle,
+          () => context.push(Paths.chat),
+          value: chatUnread > 0 ? '$chatUnread' : null,
+        ),
+      'notifications': _MenuEntry(
+        AppIcons.notifications,
+        context.l10n.notifications,
+        () => context.push(Paths.notifications),
+      ),
+      'settings': _MenuEntry(
+        AppIcons.settings,
+        context.l10n.settings,
+        () => context.push(Paths.settings),
+      ),
+      if (support != null && support.trim().isNotEmpty)
+        'help': _MenuEntry(
+          AppIcons.help,
+          context.l10n.helpAndSupport,
+          () => openExternal(whatsappLink(support)),
+        ),
+      if (config.site.privacyUrl != null)
+        'privacy': _MenuEntry(
+          AppIcons.article,
+          context.l10n.privacyPolicy,
+          () => openExternal(config.site.privacyUrl!),
+        ),
+      if (config.site.termsUrl != null)
+        'terms': _MenuEntry(
+          AppIcons.article,
+          context.l10n.termsAndConditions,
+          () => openExternal(config.site.termsUrl!),
+        ),
+    };
+    final language = Localizations.localeOf(context).languageCode;
+    List<Widget> designedTiles(AccountMenuDesign design) {
+      const required = {'settings', 'privacy', 'terms'};
+      final tiles = <Widget>[];
+      final placed = <String>{};
+      for (final (i, item) in design.items.indexed) {
+        final label = textFor(item.label, language);
+        if (item.isLink) {
+          if (item.hidden || label == null) continue;
+          final slug = item.pageSlug;
+          final url = item.url;
+          tiles.add(
+            SettingsTile(
+              key: ValueKey('account-link-$i'),
+              icon: symbolByName(item.icon ?? 'link'),
+              title: label,
+              onTap: slug != null
+                  ? () => context.push(Paths.page(slug))
+                  : url != null
+                  ? () => openExternal(url)
+                  : null,
+            ),
+          );
+          continue;
+        }
+        final entry = available[item.key];
+        if (entry == null || !placed.add(item.key)) continue;
+        if (item.hidden && !required.contains(item.key)) continue;
+        tiles.add(
+          entry.tile(
+            title: label,
+            icon: item.icon == null ? null : symbolByName(item.icon),
+          ),
+        );
+      }
+      // The app's entries the design doesn't list, in the app's order.
+      for (final MapEntry(:key, :value) in available.entries) {
+        if (!placed.contains(key) && !design.items.any((i) => i.key == key)) {
+          tiles.add(value.tile());
+        }
+      }
+      return tiles;
+    }
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
           children: [
-            Row(
-              children: [
-                ClipOval(
-                  child: user?.avatarUrl != null
-                      ? AppNetworkImage(
-                          url: user!.avatarUrl,
-                          width: 64,
-                          height: 64,
-                        )
-                      : Container(
-                          width: 64,
-                          height: 64,
-                          color: p.placeholderFor(2),
-                          alignment: Alignment.center,
-                          child: AppIcon(
-                            AppIcons.account,
-                            size: 30,
-                            color: p.text,
+            Container(
+              key: onCard ? const ValueKey('account-card') : null,
+              padding: onCard ? const EdgeInsets.all(16) : EdgeInsets.zero,
+              decoration: onCard
+                  ? BoxDecoration(
+                      color: p.primary,
+                      borderRadius: BorderRadius.circular(context.shapes.r(20)),
+                    )
+                  : null,
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: user?.avatarUrl != null
+                        ? AppNetworkImage(
+                            url: user!.avatarUrl,
+                            width: 64,
+                            height: 64,
+                          )
+                        : Container(
+                            width: 64,
+                            height: 64,
+                            color: p.placeholderFor(2),
+                            alignment: Alignment.center,
+                            child: AppIcon(
+                              AppIcons.account,
+                              size: 30,
+                              color: p.text,
+                            ),
                           ),
-                        ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          user?.name ?? '',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w700,
-                            color: p.text,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        ltrIsolate(formatPhone(user?.phone ?? '')),
-                        style: TextStyle(fontSize: 14, color: p.textSecondary),
-                      ),
-                    ],
                   ),
-                ),
-                OutlinedButton(
-                  onPressed: user == null
-                      ? null
-                      : () => context.push(Paths.editProfile),
-                  child: Text(context.l10n.edit),
-                ),
-              ],
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            user?.name ?? '',
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w700,
+                              color: headText,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          ltrIsolate(formatPhone(user?.phone ?? '')),
+                          style: TextStyle(fontSize: 14, color: headSub),
+                        ),
+                      ],
+                    ),
+                  ),
+                  OutlinedButton(
+                    style: onCard
+                        ? OutlinedButton.styleFrom(
+                            foregroundColor: p.onPrimary,
+                            side: BorderSide(color: p.onPrimary),
+                          )
+                        : null,
+                    onPressed: user == null
+                        ? null
+                        : () => context.push(Paths.editProfile),
+                    child: Text(context.l10n.edit),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 18),
             if (hub != null) ...[
@@ -183,7 +411,14 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
             ],
-            if (store && showOrders) ...[
+            if (design != null) ...[
+              SettingsGroup(
+                title: context.l10n.accountAndApp,
+                children: designedTiles(design),
+              ),
+              const SizedBox(height: 18),
+            ],
+            if (design == null && store && showOrders) ...[
               SettingsGroup(
                 title: context.l10n.shopping,
                 children: [
@@ -204,7 +439,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
             ],
-            if (lms) ...[
+            if (design == null && lms) ...[
               SettingsGroup(
                 title: context.l10n.learning,
                 children: [
@@ -290,106 +525,107 @@ class ProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
             ],
-            SettingsGroup(
-              title: context.l10n.accountAndApp,
-              children: [
-                if (purchases)
+            if (design == null)
+              SettingsGroup(
+                title: context.l10n.accountAndApp,
+                children: [
+                  if (purchases)
+                    SettingsTile(
+                      key: const ValueKey('account-orders'),
+                      icon: AppIcons.orders,
+                      title: context.l10n.myOrders,
+                      onTap: () => context.push(Paths.orders),
+                    ),
+                  if (restaurant)
+                    SettingsTile(
+                      key: const ValueKey('account-restaurant'),
+                      icon: AppIcons.restaurant,
+                      title: context.l10n.restaurantMode,
+                      onTap: () => context.go(Paths.restaurantDesk),
+                    ),
+                  if (instructors != null)
+                    SettingsTile(
+                      key: const ValueKey('account-teachers'),
+                      icon: AppIcons.people,
+                      title: context.l10n.teachersTitle,
+                      onTap: () => context.push(Paths.teachers),
+                    ),
+                  if (teacher)
+                    SettingsTile(
+                      key: const ValueKey('account-teacher'),
+                      icon: AppIcons.teacher,
+                      title: context.l10n.tabTeacher,
+                      onTap: () => context.go(Paths.teacherDesk),
+                    )
+                  else if (instructors != null &&
+                      instructors.applications &&
+                      user != null)
+                    SettingsTile(
+                      key: const ValueKey('account-teach'),
+                      icon: AppIcons.teacher,
+                      title: context.l10n.teachHere,
+                      onTap: () => context.push(Paths.teachApply),
+                    ),
+                  if (delivery && user != null)
+                    SettingsTile(
+                      key: const ValueKey('account-shipments'),
+                      icon: AppIcons.parcel,
+                      title: context.l10n.tabShipments,
+                      onTap: () => context.go(Paths.shipments),
+                    ),
+                  if (food && user != null)
+                    SettingsTile(
+                      key: const ValueKey('account-food-orders'),
+                      icon: AppIcons.orders,
+                      title: context.l10n.tabFoodOrders,
+                      onTap: () => context.go(Paths.foodOrders),
+                    ),
+                  if (rides && user != null)
+                    SettingsTile(
+                      key: const ValueKey('account-rides'),
+                      icon: AppIcons.receipt,
+                      title: context.l10n.tabMyRides,
+                      onTap: () => context.go(Paths.myRides),
+                    ),
+                  if (chatHere)
+                    SettingsTile(
+                      key: const ValueKey('account-chat'),
+                      icon: AppIcons.chat,
+                      title: context.l10n.chatTitle,
+                      value: chatUnread > 0 ? '$chatUnread' : null,
+                      onTap: () => context.push(Paths.chat),
+                    ),
                   SettingsTile(
-                    key: const ValueKey('account-orders'),
-                    icon: AppIcons.orders,
-                    title: context.l10n.myOrders,
-                    onTap: () => context.push(Paths.orders),
+                    icon: AppIcons.notifications,
+                    title: context.l10n.notifications,
+                    onTap: () => context.push(Paths.notifications),
                   ),
-                if (restaurant)
                   SettingsTile(
-                    key: const ValueKey('account-restaurant'),
-                    icon: AppIcons.restaurant,
-                    title: context.l10n.restaurantMode,
-                    onTap: () => context.go(Paths.restaurantDesk),
+                    icon: AppIcons.settings,
+                    title: context.l10n.settings,
+                    onTap: () => context.push(Paths.settings),
                   ),
-                if (instructors != null)
-                  SettingsTile(
-                    key: const ValueKey('account-teachers'),
-                    icon: AppIcons.people,
-                    title: context.l10n.teachersTitle,
-                    onTap: () => context.push(Paths.teachers),
-                  ),
-                if (teacher)
-                  SettingsTile(
-                    key: const ValueKey('account-teacher'),
-                    icon: AppIcons.teacher,
-                    title: context.l10n.tabTeacher,
-                    onTap: () => context.go(Paths.teacherDesk),
-                  )
-                else if (instructors != null &&
-                    instructors.applications &&
-                    user != null)
-                  SettingsTile(
-                    key: const ValueKey('account-teach'),
-                    icon: AppIcons.teacher,
-                    title: context.l10n.teachHere,
-                    onTap: () => context.push(Paths.teachApply),
-                  ),
-                if (delivery && user != null)
-                  SettingsTile(
-                    key: const ValueKey('account-shipments'),
-                    icon: AppIcons.parcel,
-                    title: context.l10n.tabShipments,
-                    onTap: () => context.go(Paths.shipments),
-                  ),
-                if (food && user != null)
-                  SettingsTile(
-                    key: const ValueKey('account-food-orders'),
-                    icon: AppIcons.orders,
-                    title: context.l10n.tabFoodOrders,
-                    onTap: () => context.go(Paths.foodOrders),
-                  ),
-                if (rides && user != null)
-                  SettingsTile(
-                    key: const ValueKey('account-rides'),
-                    icon: AppIcons.receipt,
-                    title: context.l10n.tabMyRides,
-                    onTap: () => context.go(Paths.myRides),
-                  ),
-                if (chatHere)
-                  SettingsTile(
-                    key: const ValueKey('account-chat'),
-                    icon: AppIcons.chat,
-                    title: context.l10n.chatTitle,
-                    value: chatUnread > 0 ? '$chatUnread' : null,
-                    onTap: () => context.push(Paths.chat),
-                  ),
-                SettingsTile(
-                  icon: AppIcons.notifications,
-                  title: context.l10n.notifications,
-                  onTap: () => context.push(Paths.notifications),
-                ),
-                SettingsTile(
-                  icon: AppIcons.settings,
-                  title: context.l10n.settings,
-                  onTap: () => context.push(Paths.settings),
-                ),
-                if (support != null && support.trim().isNotEmpty)
-                  SettingsTile(
-                    icon: AppIcons.help,
-                    title: context.l10n.helpAndSupport,
-                    onTap: () => openExternal(whatsappLink(support)),
-                  ),
-                if (config.site.privacyUrl != null)
-                  SettingsTile(
-                    icon: AppIcons.article,
-                    title: context.l10n.privacyPolicy,
-                    onTap: () => openExternal(config.site.privacyUrl!),
-                  ),
-                if (config.site.termsUrl != null)
-                  SettingsTile(
-                    icon: AppIcons.article,
-                    title: context.l10n.termsAndConditions,
-                    onTap: () => openExternal(config.site.termsUrl!),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 18),
+                  if (support != null && support.trim().isNotEmpty)
+                    SettingsTile(
+                      icon: AppIcons.help,
+                      title: context.l10n.helpAndSupport,
+                      onTap: () => openExternal(whatsappLink(support)),
+                    ),
+                  if (config.site.privacyUrl != null)
+                    SettingsTile(
+                      icon: AppIcons.article,
+                      title: context.l10n.privacyPolicy,
+                      onTap: () => openExternal(config.site.privacyUrl!),
+                    ),
+                  if (config.site.termsUrl != null)
+                    SettingsTile(
+                      icon: AppIcons.article,
+                      title: context.l10n.termsAndConditions,
+                      onTap: () => openExternal(config.site.termsUrl!),
+                    ),
+                ],
+              ),
+            if (design == null) const SizedBox(height: 18),
             AppCard(
               child: Column(
                 children: [
@@ -416,4 +652,29 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 118.3 One of the account menu's entries, before the owner's name and icon.
+class _MenuEntry {
+  const _MenuEntry(
+    this.icon,
+    this.title,
+    this.onTap, {
+    this.value,
+    this.tileKey,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final String? value;
+  final String? tileKey;
+
+  Widget tile({String? title, IconData? icon}) => SettingsTile(
+    key: tileKey == null ? null : ValueKey(tileKey),
+    icon: icon ?? this.icon,
+    title: title ?? this.title,
+    value: value,
+    onTap: onTap,
+  );
 }
