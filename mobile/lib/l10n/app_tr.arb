@@ -2577,5 +2577,8 @@
   "showPassword": "Şifreyi göster",
   "hidePassword": "Şifreyi gizle",
   "newPasswordIntro": "En az {min} karakter kullanın. Diğer telefonlarınızda oturum kapatılacak.",
-  "passwordTooShort": "En az {min} karakter"
+  "passwordTooShort": "En az {min} karakter",
+  "accountMemberCard": "Üyelik kartı",
+  "accountPointsWorth": "Değeri {value}",
+  "accountPointsToUse": "{count, plural, other{{count} puan daha topladığınızda kullanabilirsiniz}}"
 }

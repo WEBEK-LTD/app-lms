@@ -10559,5 +10559,27 @@
         "type": "int"
       }
     }
+  },
+  "accountMemberCard": "Membership card",
+  "@accountMemberCard": {
+    "description": "118.3 Night account look: the title on the membership card."
+  },
+  "accountPointsWorth": "Worth {value}",
+  "@accountPointsWorth": {
+    "description": "118.3 What the points are worth, formatted (₺84.00).",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPointsToUse": "{count, plural, =1{1 more point and you can use them} other{{count} more points and you can use them}}",
+  "@accountPointsToUse": {
+    "description": "118.3 Points still needed before they can be used.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

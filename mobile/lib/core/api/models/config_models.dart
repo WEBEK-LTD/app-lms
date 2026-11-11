@@ -1,4 +1,5 @@
 import 'market_api_models.dart';
+import 'screens_models.dart';
 import 'billing_models.dart';
 import 'bookings_models.dart';
 import '../../config/build_config_data.dart';
@@ -49,9 +50,12 @@ class AppConfig {
     this.chat,
     this.storeBilling,
     this.switches = const {},
+    this.screens,
   });
 
   factory AppConfig.fromJson(Json json) => AppConfig(
+    // 118.3 A Studio app's sign-in screen and account menu.
+    screens: StudioScreens.fromJson(json['screens']),
     site: SiteInfo.fromJson(asJson(json['site'], 'site')),
     branding: RemoteBranding.fromJson(asJson(json['branding'], 'branding')),
     features: SiteFeatures.fromJson(asJson(json['features'], 'features')),
@@ -147,6 +151,9 @@ class AppConfig {
   final RemoteBranding branding;
   final SiteFeatures features;
   final AuthRules auth;
+
+  /// 118.3 A Studio app's sign-in screen and account menu; null: the app's own.
+  final StudioScreens? screens;
   final PurchaseRules purchases;
   final ContentRules content;
   final AppRules app;

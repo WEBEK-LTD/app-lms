@@ -194,6 +194,16 @@ describe("Yallapp's sign-in for an app on its own API", () => {
     return registered.body as { access_token: string; refresh_token: string; user: { id: number } };
   }
 
+  it("118.3 brings a Studio app's screens with the sign-in rules", async () => {
+    const query = { platform: "android", app_version: "1.0.0" };
+    const studioScreens = { account_menu: { header: "tiles" as const, items: [{ key: "settings" as const, hidden: false, label: {}, icon: null }] } };
+    expect(((await call("GET", "/config", { query })).body as { screens?: unknown }).screens).toBeUndefined();
+    const studio = { ...app, section: "studio" as const, hostedSettings: { ...app.hostedSettings!, studioScreens } };
+    const result = await call("GET", "/config", { query }, { app: studio });
+    expectContract("GET", "/config", result);
+    expect((result.body as { screens?: unknown }).screens).toEqual(studioScreens);
+  });
+
   it("is only for own API apps whose owner chose it", async () => {
     expect(yallappSignsIn(app)).toBe(true);
     expect(yallappSignsIn({ ...app, hostedSettings: { ...app.hostedSettings!, signInBy: "api" } })).toBe(false);

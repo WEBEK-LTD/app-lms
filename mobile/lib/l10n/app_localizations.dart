@@ -15577,6 +15577,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At least {min} characters'**
   String passwordTooShort(int min);
+
+  /// 118.3 Night account look: the title on the membership card.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership card'**
+  String get accountMemberCard;
+
+  /// 118.3 What the points are worth, formatted (₺84.00).
+  ///
+  /// In en, this message translates to:
+  /// **'Worth {value}'**
+  String accountPointsWorth(String value);
+
+  /// 118.3 Points still needed before they can be used.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more point and you can use them} other{{count} more points and you can use them}}'**
+  String accountPointsToUse(int count);
 }
 
 class _AppLocalizationsDelegate

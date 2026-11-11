@@ -7,6 +7,7 @@ import type { AdminRole } from "../admin/permissions";
 import type { LiveActivitySetting } from "../live-activity/types";
 import type { ReviewsSetting } from "../reviews/types";
 import type { YallappPrice } from "../billing/prices";
+import type { StudioScreens } from "../studio/screens";
 
 export type ClientStatus = "pending" | "active" | "suspended";
 export type LicenseState = "active" | "expired" | "suspended" | "invalid";
@@ -276,6 +277,8 @@ export interface HostedSettings {
    * (lib/hosted/password-sign-in.ts). Missing: codes only, as before.
    */
   passwordSignIn?: PasswordSignInSettings | null;
+  /** 118.3 Yallapp Studio: the sign-in screen's look and the account menu (lib/studio/screens.ts). */
+  studioScreens?: StudioScreens | null;
   /** 18 The owner's own WhatsApp number on WABEK, for this app's phone codes; Yallapp's sender when missing. */
   whatsappSender?: AppWhatsappSender | null;
   /**

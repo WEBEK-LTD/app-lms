@@ -9451,4 +9451,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String passwordTooShort(int min) {
     return 'En az $min karakter';
   }
+
+  @override
+  String get accountMemberCard => 'Üyelik kartı';
+
+  @override
+  String accountPointsWorth(String value) {
+    return 'Değeri $value';
+  }
+
+  @override
+  String accountPointsToUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan daha topladığınızda kullanabilirsiniz',
+    );
+    return '$_temp0';
+  }
 }

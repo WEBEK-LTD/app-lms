@@ -10132,4 +10132,18 @@ class OverlayLocalizations extends AppLocalizations {
   String passwordTooShort(int min) =>
       overlay.format('passwordTooShort', {'min': min}) ??
       base.passwordTooShort(min);
+
+  @override
+  String get accountMemberCard =>
+      overlay.text('accountMemberCard') ?? base.accountMemberCard;
+
+  @override
+  String accountPointsWorth(String value) =>
+      overlay.format('accountPointsWorth', {'value': value}) ??
+      base.accountPointsWorth(value);
+
+  @override
+  String accountPointsToUse(int count) =>
+      overlay.format('accountPointsToUse', {'count': count}) ??
+      base.accountPointsToUse(count);
 }

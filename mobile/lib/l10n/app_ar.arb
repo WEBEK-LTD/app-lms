@@ -2577,5 +2577,8 @@
   "showPassword": "إظهار كلمة المرور",
   "hidePassword": "إخفاء كلمة المرور",
   "newPasswordIntro": "استخدم {min} أحرف على الأقل. سيُسجَّل الخروج من هواتفك الأخرى.",
-  "passwordTooShort": "{min} أحرف على الأقل"
+  "passwordTooShort": "{min} أحرف على الأقل",
+  "accountMemberCard": "بطاقة العضوية",
+  "accountPointsWorth": "قيمتها {value}",
+  "accountPointsToUse": "{count, plural, =1{تبقّت نقطة واحدة لتتمكن من استخدامها} =2{تبقّت نقطتان لتتمكن من استخدامها} few{تبقّت {count} نقاط لتتمكن من استخدامها} other{تبقّت {count} نقطة لتتمكن من استخدامها}}"
 }
