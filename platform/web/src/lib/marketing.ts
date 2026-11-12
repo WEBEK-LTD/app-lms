@@ -95,6 +95,14 @@ export const APP_SCREENS = [
   "sahm-send",
   "sahm-shipment",
   "sahm-courier",
+  // 123 The premium academy (Ufuq Academy, its demo on /demo/studio).
+  "premium-home",
+  "premium-explore",
+  "premium-course",
+  "premium-lesson",
+  "premium-mine",
+  "premium-account",
+  "premium-cart",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -168,6 +176,13 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "sahm-send": "A courier company's app to send a parcel: its services with their prices, and the pickup",
   "sahm-shipment": "A parcel on its way: the courier on the map from the pickup to the drop-off, and who is bringing it",
   "sahm-courier": "A job waiting in the courier app: the cash to collect, the way on the map, and the button to take it",
+  "premium-home": "The premium academy's home: good morning by name, the course the student is taking, their streak, their next live class and this week's learning",
+  "premium-explore": "Explore: the search with its filters, the subjects as icons, and the courses with their badges, rating and price",
+  "premium-course": "A course's page: its subject and certificate on a tall cover, its teacher, the curriculum as chips and Join now in gold",
+  "premium-lesson": "A lesson: the player in gold, the student's notes at their moment of the video, the files, the next lesson and the unit's quiz",
+  "premium-mine": "My courses: this week's learning by day, the courses with a ring for how far the student is, and their certificates",
+  "premium-account": "The account: the student's courses, certificates and hours of learning, and the night switch in gold",
+  "premium-cart": "The cart: the courses, the academy's coupon, the card the student saved before and the total",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

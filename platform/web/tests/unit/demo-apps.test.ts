@@ -52,7 +52,7 @@ beforeEach(() => clearPlatformSettingsCache());
 
 // 27 Eight (28 nine, 29 ten) demo apps draw their pictures: slower when the whole suite runs at once.
 describe("creating the demo apps", { timeout: 20_000 }, () => {
-  it("makes the demo account with seventeen apps, their content, pages and a license that doesn't end", async () => {
+  it("makes the demo account with eighteen apps, their content, pages and a license that doesn't end", async () => {
     const store = new MemoryStore();
     const blobs = new Map<string, Buffer>();
     const result = await setupDemoApps(deps(store, NOW, blobs));
@@ -75,6 +75,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
       ["taxi", true],
       ["school", true],
       ["instructors", true],
+      // 123 The premium academy, a template's demo.
+      ["premium_academy", true],
     ]);
     const user = await store.getUserByEmail(DEMO_ACCOUNT.email);
     expect(user?.passwordHash).toBeNull();
@@ -82,11 +84,13 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(client.status).toBe("active");
 
     const apps = await listDemoApps(store, { fresh: true });
-    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms"]);
+    expect(apps.map((a) => a.appType)).toEqual(["lms", "store", "store", "booking", "booking", "booking", "real_estate", "news", "events", "donations", "delivery", "food", "food", "rides", "rides", "school", "lms", "lms"]);
     // 21 The clinic demo is the bookings engine with the clinic vertical; 26 the café the store engine with the restaurant vertical; 27 the gym the bookings engine with the fitness vertical; 29 the charity the donations engine with the charity vertical.
     // 110.5 The live taxi app is the rides engine with the taxi vertical, the academy with many teachers the courses engine with the instructors vertical.
-    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors"]);
-    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(17);
+    expect(apps.map((a) => a.vertical ?? null)).toEqual([null, null, "restaurant", null, "clinic", "fitness", null, null, null, "charity", null, null, "marketplace", null, "taxi", null, "instructors", null]);
+    // 123 The premium academy: an academy that keeps the template it started from.
+    expect(apps.at(-1)?.design).toBe("academy_premium");
+    expect(new Set(apps.map((a) => a.primaryColor)).size).toBe(18);
     expect(new Set(apps.map((a) => a.template))).toEqual(new Set(["classic", "bold", "minimal"]));
     for (const app of apps) {
       expect(app).toMatchObject({ demo: true, backend: "hosted", publishingMode: "managed" });
@@ -226,8 +230,8 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(second.clientId).toBe(first.clientId);
     expect(second.apps.map((a) => a.appId)).toEqual(first.apps.map((a) => a.appId));
     expect(second.apps.every((a) => !a.created)).toBe(true);
-    expect(await store.listAppsByClient(first.clientId)).toHaveLength(17);
-    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(17);
+    expect(await store.listAppsByClient(first.clientId)).toHaveLength(18);
+    expect(await store.listLicensesByClient(first.clientId)).toHaveLength(18);
     const food = second.apps.find((a) => a.type === "food")!.appId;
     expect(await store.listRestaurants(food)).toHaveLength(DEMO_RESTAURANTS.length);
     const parcels = second.apps.find((a) => a.type === "delivery")!.appId;
@@ -283,8 +287,9 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(demoTypeOfSlug("taxi")).toBe("taxi");
     expect(demoTypeOfSlug("school")).toBe("school");
     expect(demoTypeOfSlug("teachers")).toBe("instructors");
+    expect(demoTypeOfSlug("premium-academy")).toBe("premium_academy");
     expect(DEMO_TYPES).not.toContain("rides");
-    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors"]);
+    expect(STUDIO_DEMO_TYPES).toEqual(["delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "premium_academy"]);
     expect(demoTypeOfSlug("nope")).toBeNull();
   });
 });
@@ -552,8 +557,8 @@ describe("signing in to a demo app", () => {
       expect(screens.sign_in?.title.ar, id).toBeTruthy();
       expect(screens.sign_in?.title.tr, id).toBeTruthy();
       expect(screens.account_menu?.header, id).not.toBe("plain");
-      // Their photos are the website's own, credit-free ones.
-      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens)\/.+\.jpg$/);
+      // Their photos are the website's own, credit-free ones (123 the premium academy's, its own picture).
+      if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|design-pictures)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
     // 119 Their bars in their own designs.
@@ -702,7 +707,7 @@ describe("demo checkout and the daily clean-up", () => {
     expect((await cleanDemoActivity(store, new Date(NOW.getTime() + 2 * HOUR))).deleted).toBe(0);
 
     const report = await runDailyNotices({ store, baseUrl: "https://yallapp.test", mail: async () => undefined, now: new Date(NOW.getTime() + 25 * HOUR) });
-    expect(report.demo.apps).toBe(17);
+    expect(report.demo.apps).toBe(18);
     // An order, a conversation, a favorite, a device; 115.15 and Zad's courier job of yesterday (made again with its day).
     expect(report.demo.deleted).toBe(5);
     const left = await store.listCatalogOrders({ appId: shop.id, offset: 0, limit: 10 });

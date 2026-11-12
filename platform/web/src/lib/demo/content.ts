@@ -332,6 +332,17 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     ],
     screens: ["teachers-list", "teachers-teacher", "teachers-desk"],
   },
+  // 123 The premium academy (lib/studio/academy.ts), as its template starts a project.
+  premium_academy: {
+    summary: "The premium academy in navy and gold: the student's own day on the home, Explore, a course and its lessons with notes, and their week of learning.",
+    tryThis: [
+      "On the home, see your own cards: the course you're taking, your streak and this week's learning",
+      "Open Explore, sort by the best rated and open a course: its curriculum, about it and its reviews",
+      "Enroll in the free Excel course, open a lesson and keep a note of it",
+      "Switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["premium-home", "premium-course", "premium-lesson"],
+  },
 };
 
 const PRIVACY_NOTE = "This is a demo app made by Yallapp to show what an app built with Yallapp can do. Everything in it is sample content.";
@@ -660,6 +671,27 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Courses from seven teachers: design, business, languages and code.",
     fullDescription: `Rawaq Academy brings together teachers who each publish their own courses.\n\nBrowse the teachers, read about them, follow the ones you like and learn at your own pace. Every course is reviewed by the academy before it is published.\n\n${PRIVACY_NOTE}`,
     welcome: "Seven teachers, each with their own courses. Start with a free one.",
+  },
+  // 123 The premium academy: the template's navy and gold, and Alexandria.
+  premium_academy: {
+    appName: "Ufuq Academy",
+    shortName: "Ufuq",
+    primaryColor: "#1D2B4F",
+    splashColor: "#F7F3EC",
+    secondaryColor: "#B8893A",
+    template: "classic",
+    // The app's own font field; its pages are in Alexandria (the template's appearance).
+    font: "Lexend",
+    corners: "soft",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-academy",
+    banner: { picture: "banner-academy", heading: "Learn what changes your path", subheading: "Courses with the best teachers, wherever you are." },
+    androidPackage: "com.yallapp.demo.ufuq",
+    storeTitle: "Ufuq Academy",
+    shortDescription: "Courses with the best teachers: design, business, languages and code.",
+    fullDescription: `Ufuq Academy brings its courses to your phone: design, business, languages, photography and programming.\n\nPick up the course you're taking where you stopped, keep your learning streak, see this week's learning, write notes at any moment of a lesson and follow the teachers you like.\n\n${PRIVACY_NOTE}`,
+    welcome: "Courses with the best teachers, wherever you are.",
   },
 };
 

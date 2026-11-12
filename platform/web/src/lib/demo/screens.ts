@@ -1,6 +1,7 @@
 import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
-import type { StudioDemoId } from "./constants";
+import { ACADEMY_PROJECT } from "../studio/academy";
+import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
 
 /**
  * 118.3 Each Studio demo's sign-in screen and account menu, as an owner
@@ -21,7 +22,8 @@ interface DemoScreens {
   accent?: string;
 }
 
-export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
+/** 123 The premium academy's are its template's (lib/studio/academy.ts), as a project started from it has them. */
+export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_DEMO>, DemoScreens> = {
   delivery: {
     style: "card",
     photo: "/stories/delivery/delivery-shop-owner.jpg",
@@ -106,6 +108,7 @@ export const DEMO_SCREENS: Record<StudioDemoId, DemoScreens> = {
 
 /** 118.3 A Studio demo's `hostedSettings.studioScreens`; its photo on the platform's own address. */
 export function demoStudioScreens(id: StudioDemoId, platformUrl: string): StudioScreens {
+  if (id === PREMIUM_ACADEMY_DEMO) return ACADEMY_PROJECT.screens(platformUrl);
   const d = DEMO_SCREENS[id];
   return {
     sign_in: {
@@ -133,4 +136,6 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   taxi: { design: "island", dark_active: "#F5B700" },
   school: { design: "classic", avatar: true },
   instructors: { design: "segment" },
+  // 123 The premium academy's frosted floating bar, as its template has it.
+  premium_academy: ACADEMY_PROJECT.tab_bar,
 };

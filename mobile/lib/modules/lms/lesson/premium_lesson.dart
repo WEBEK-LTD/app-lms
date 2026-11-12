@@ -37,6 +37,7 @@ class PremiumLessonBody extends ConsumerStatefulWidget {
     this.courseImage,
     this.enrolled = false,
     this.videoPosition,
+    this.textFirst = false,
   });
 
   final Lesson lesson;
@@ -52,6 +53,9 @@ class PremiumLessonBody extends ConsumerStatefulWidget {
 
   /// Where the video is now, for a note written while watching.
   final int? Function()? videoPosition;
+
+  /// A lesson without a video: its text is the first chip, open at first.
+  final bool textFirst;
 
   @override
   ConsumerState<PremiumLessonBody> createState() => _PremiumLessonBodyState();
@@ -76,10 +80,11 @@ class _PremiumLessonBodyState extends ConsumerState<PremiumLessonBody> {
         ? lesson.discussionCount
         : null;
     final chips = [
+      if (hasText && widget.textFirst) _Chip.overview,
       if (notes) _Chip.notes,
       if (files.isNotEmpty) _Chip.files,
       if (discussion != null) _Chip.discussion,
-      if (hasText) _Chip.overview,
+      if (hasText && !widget.textFirst) _Chip.overview,
     ];
     final open = chips.contains(_open)
         ? _open

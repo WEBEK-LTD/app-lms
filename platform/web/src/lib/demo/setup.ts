@@ -12,13 +12,14 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { designLayout, publishLayout } from "../pages/layout";
 import { appUrl } from "../env";
 import { itemSourcesFor } from "../pages/sources";
-import { demoStudioPage } from "../studio/sections";
+import { demoStudioPage, TEMPLATES } from "../studio/sections";
+import { startLayout } from "../studio/start";
 import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
 import { clearPlatformSettingsCache, platformSetting } from "../settings/platform";
-import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, type DemoId } from "./constants";
+import { ALL_DEMO_TYPES, DEMO_ACCOUNT, DEMO_LICENSE_UNTIL, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, type DemoId } from "./constants";
 import {
   BOOKING_RULES,
   CLINIC_INTAKE,
@@ -151,6 +152,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     hostedSettings: hostedSettingsFor(deps, id),
     // Studio's own project types are Studio projects.
     ...(isStudioDemo(id) ? { section: "studio" as const } : {}),
+    // 123 The premium academy keeps the template it started from, which tells it apart from the academy's own demo.
+    ...(id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {}),
     appName: brand.appName,
     shortName: brand.shortName,
     iconAssetId,
@@ -419,6 +422,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const base = defaultLayout({ ...app, brandingDoneAt: deps.now }, BUILT_IN_APP_DEFAULTS, deps.now);
   const designed = designLayout({ ...app, appName: brand.appName }, demoDesign(demoIdOf(app)), base, deps.now);
   const signIn = demoSignInBlock();
+  // 123 The premium academy: the project its template starts, with how to sign in to the demo on its home.
+  if (demoIdOf(app) === PREMIUM_ACADEMY_DEMO) return premiumAcademyLayout(deps, { ...app, appName: brand.appName }, base, signIn);
   const [home, ...rest] = designed.pages;
   // After the welcome banner, as before.
   const blocks = home!.blocks[0]?.id === "demo-banner" ? [home!.blocks[0], signIn, ...home!.blocks.slice(1)] : [signIn, ...home!.blocks];
@@ -445,6 +450,26 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
     ...(isStudioDemo(id) ? { tab_bar: DEMO_TAB_BARS[id] } : {}),
     ...(ctx ? { tabs: demoPageTabs(designed.tabs, ctx) } : {}),
     pages: [studio ? { ...home!, blocks: [], studio } : { ...home!, blocks }, ...rest, ...tabPages],
+  };
+}
+
+/**
+ * 123 The premium academy's demo is the project its template starts
+ * (lib/studio/start.ts): its tabs, bar, screens' pages and look, with how
+ * to sign in to the demo after its home's first element, in the demo's
+ * languages.
+ */
+function premiumAcademyLayout(deps: Pick<DemoSetupDeps, "now">, app: App, base: LayoutContent, signIn: LayoutBlock): LayoutContent {
+  const brand = DEMO_BRANDS[PREMIUM_ACADEMY_DEMO];
+  const template = TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+  const ctx = demoStudioContext(PREMIUM_ACADEMY_DEMO, appUrl(), itemSourcesFor(app)[0] ?? null);
+  const started = startLayout(app, template, base, deps.now, ctx, null);
+  const home = demoStudioPage(PREMIUM_ACADEMY_DEMO, ctx, [signIn]);
+  return {
+    ...started,
+    appearance: { ...started.appearance, theme_mode: "system", user_can_change_mode: true },
+    languages: { default: "en", available: [...brand.languages] },
+    pages: started.pages.map((p) => (p.slug === "home" ? { ...p, blocks: [], studio: home } : p)),
   };
 }
 

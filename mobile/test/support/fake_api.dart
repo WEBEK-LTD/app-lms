@@ -241,7 +241,10 @@ class FakeApi implements YallappApi {
     },
   ];
 
-  String _egp(double v) => 'EGP ${v.toStringAsFixed(2)}';
+  /// How the cart writes an amount.
+  String Function(double) cartMoney = (v) => 'EGP ${v.toStringAsFixed(2)}';
+
+  String _egp(double v) => cartMoney(v);
 
   @override
   Future<CourseCart> quoteCourseCart(List<int> courseIds, {String? coupon}) =>

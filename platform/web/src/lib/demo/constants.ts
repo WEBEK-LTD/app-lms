@@ -54,11 +54,20 @@ export const DEMO_LICENSE_UNTIL = new Date("2099-12-31T23:59:59.999Z");
  * delivery, 105.2 rides; 110.5 105.9 a live taxi app, 105.4 a school and
  * 105.3 an academy with many teachers), shown on /demo/studio only.
  */
-export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace">;
+/**
+ * 123 The premium academy (lib/studio/academy.ts): a Studio demo of the
+ * academy kind started from its template, told apart from the academy's
+ * own demo by the template it started from (`App.design`).
+ */
+export const PREMIUM_ACADEMY_DEMO = "premium_academy" as const;
+/** The premium academy's template (lib/studio/sections.ts), which its demo app keeps as its design. */
+export const PREMIUM_ACADEMY_TEMPLATE = "academy_premium";
+
+export type StudioDemoId = Extract<AppType, "delivery" | "food" | "rides" | "school"> | Extract<AppVertical, "taxi" | "instructors" | "marketplace"> | typeof PREMIUM_ACADEMY_DEMO;
 export type DemoId = Exclude<AppType, StudioDemoId> | Extract<AppVertical, "clinic" | "restaurant" | "fitness"> | StudioDemoId;
 
 /** The kinds only Studio offers (lib/studio/section.ts STUDIO_ONLY_KINDS). */
-const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace"];
+const STUDIO_DEMO_KINDS: readonly string[] = ["delivery", "food", "rides", "taxi", "school", "instructors", "marketplace", PREMIUM_ACADEMY_DEMO];
 
 export function isStudioDemo(id: DemoId): id is StudioDemoId {
   return STUDIO_DEMO_KINDS.includes(id);
@@ -66,6 +75,8 @@ export function isStudioDemo(id: DemoId): id is StudioDemoId {
 
 /** The kind a demo shows. */
 export function demoKind(id: DemoId): KindInfo {
+  // 123 The premium academy is an academy.
+  if (id === PREMIUM_ACADEMY_DEMO) return defaultKind("lms");
   return isAppType(id) ? defaultKind(id) : KINDS.find((k) => k.vertical === id)!;
 }
 
@@ -74,9 +85,11 @@ export function demoKind(id: DemoId): KindInfo {
  * order. 29 An engine's default kind is the engine's demo, even with a
  * vertical (the charity is the donations engine's).
  */
-export const ALL_DEMO_TYPES: readonly DemoId[] = KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) =>
-  defaultKind(k.engine) === k ? (k.engine as DemoId) : (k.vertical as DemoId),
-);
+export const ALL_DEMO_TYPES: readonly DemoId[] = [
+  ...KINDS.filter((k) => demoSlugOfKind(k) !== null).map((k) => (defaultKind(k.engine) === k ? (k.engine as DemoId) : (k.vertical as DemoId))),
+  // 123 The premium academy, a template's demo rather than a kind's.
+  PREMIUM_ACADEMY_DEMO,
+];
 
 /** The regular apps' demos, on /demo. */
 export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isStudioDemo(id));
@@ -85,14 +98,16 @@ export const DEMO_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => !isSt
 export const STUDIO_DEMO_TYPES: readonly StudioDemoId[] = ALL_DEMO_TYPES.filter(isStudioDemo);
 
 /** Each demo's address on /demo (or /demo/studio) and of its download: /demo/download/<slug> (lib/app/kinds.ts). */
-export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
+export const DEMO_SLUGS = Object.fromEntries(ALL_DEMO_TYPES.map((id) => [id, id === PREMIUM_ACADEMY_DEMO ? "premium-academy" : demoSlugOfKind(demoKind(id))!])) as Record<DemoId, string>;
 
 export function demoTypeOfSlug(slug: string): DemoId | null {
   return ALL_DEMO_TYPES.find((id) => DEMO_SLUGS[id] === slug) ?? null;
 }
 
 /** 21 Which demo an app is: its vertical's, when that has a demo, else its engine's. */
-export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null }): DemoId {
+export function demoIdOf(app: Pick<App, "appType"> & { vertical?: AppVertical | null; design?: string | null }): DemoId {
+  // 123 The premium academy's demo keeps its template as its design.
+  if (app.appType === "lms" && !app.vertical && app.design === PREMIUM_ACADEMY_TEMPLATE) return PREMIUM_ACADEMY_DEMO;
   const vertical = app.vertical ?? null;
   return vertical && (ALL_DEMO_TYPES as readonly string[]).includes(vertical) ? (vertical as DemoId) : (app.appType as DemoId);
 }

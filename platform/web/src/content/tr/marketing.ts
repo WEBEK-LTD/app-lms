@@ -72,6 +72,13 @@ export const TR_MARKETING: MarketingTranslation = {
     "sahm-send": "Bir kargo şirketinin uygulamasında paket gönderme: fiyatlarıyla hizmetleri ve alış yeri",
     "sahm-shipment": "Yoldaki bir paket: haritada alış yerinden teslim yerine kurye ve paketi getiren kişi",
     "sahm-courier": "Kurye uygulamasında bekleyen bir iş: tahsil edilecek nakit, haritada yol ve işi alma düğmesi",
+    "premium-home": "Premium akademinin ana sayfası: adıyla günaydın, öğrencinin aldığı kurs, serisi, sıradaki canlı dersi ve bu haftaki öğrenmesi",
+    "premium-explore": "Keşfet: filtreli arama, simgeleriyle konular ve rozetleri, puanı ve fiyatıyla kurslar",
+    "premium-course": "Bir kursun sayfası: uzun kapakta konusu ve sertifikası, eğitmeni, çip olarak müfredat ve altın renkli Hemen katıl",
+    "premium-lesson": "Bir ders: altın renkli oynatıcı, öğrencinin videonun anına bağlı notları, dosyalar, sıradaki ders ve ünitenin sınavı",
+    "premium-mine": "Kurslarım: gün gün bu haftaki öğrenme, öğrencinin ne kadar ilerlediğini halkayla gösteren kurslar ve sertifikaları",
+    "premium-account": "Hesap: öğrencinin kursları, sertifikaları ve öğrenme saatleri, altın renkli gece anahtarı",
+    "premium-cart": "Sepet: kurslar, akademinin kuponu, öğrencinin daha önce kaydettiği kart ve toplam",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",
     "studio-home": "Hesabın projeleriyle Yallapp Studio ana sayfası",
     "studio-project": "Bir Studio projesinin paneli",
@@ -95,6 +102,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "Live taxi on the map": "Haritada canlı taksi",
     School: "Okul",
     "Academy with many teachers": "Çok eğitmenli akademi",
+    "Premium academy": "Premium akademi",
   },
   solutions: {
     food: {
@@ -1681,6 +1689,15 @@ export const TR_MARKETING: MarketingTranslation = {
         "Eğitmenler'i açın ve bir eğitmenin sayfasını okuyun: tanıtımı, kursları ve takipçileri",
         "Bir eğitmeni takip edin, sonra ücretsiz Excel kursuna kaydolun ya da Android'de bir kurs satın alın: demo ödeme kart istemez",
         "Eğitmen sekmesinde bir dersi olan bir kurs hazırlayın ve inceleme için akademiye gönderin",
+      ],
+    },
+    premium_academy: {
+      summary: "Lacivert ve altın renkli premium akademi: ana sayfada öğrencinin kendi günü, Keşfet, bir kurs ve notlu dersleri ve haftanın öğrenmesi.",
+      tryThis: [
+        "Ana sayfada kendi kartlarınızı görün: aldığınız kurs, öğrenme seriniz ve bu haftaki öğrenmeniz",
+        "Keşfet'i açın, en yüksek puana göre sıralayın ve bir kurs açın: müfredatı, hakkında ve yorumları",
+        "Ücretsiz Excel kursuna kaydolun, bir ders açın ve onunla ilgili bir not alın",
+        "Uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
       ],
     },
   },

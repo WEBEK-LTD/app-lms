@@ -9,7 +9,7 @@ import { getContact } from "@/lib/contact";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { getStore } from "@/lib/data";
 import { demoDownloadBuild, demoSecondAppBuild, listDemoApps } from "@/lib/demo/apps";
-import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, type DemoId } from "@/lib/demo/constants";
+import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_SLUGS, DEMO_TYPES, demoIdOf, demoKind, PREMIUM_ACADEMY_DEMO, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS, DEMO_SECOND_APP_STEP } from "@/lib/demo/content";
 import { staffAppNameOf } from "@/lib/school/staff-app";
 import { appUrl } from "@/lib/env";
@@ -137,7 +137,8 @@ export function DemoAppSection({ type, lang, ready, tinted, secondReady = false 
   const kind = demoKind(type);
   const href = `${base}/demo/download/${slug}`;
   // 115.15 A kind whose own name stays off public pages has its demo's name, and its solution page by the demo's slug.
-  const label = kind.demo?.name ?? kind.name;
+  // 123 The premium academy is a template's demo: its own name.
+  const label = type === PREMIUM_ACADEMY_DEMO ? "Premium academy" : (kind.demo?.name ?? kind.name);
   const solution = allSolutionsFor(lang).find((s) => s.demoSlug === slug && s.kind === kind.id) ?? solutionFor(lang, kind.marketing.slug);
   const page = solution && solutionPage(solution.id) ? solution.id : solutionPage(kind.marketing.slug) ? kind.marketing.slug : null;
   return (
