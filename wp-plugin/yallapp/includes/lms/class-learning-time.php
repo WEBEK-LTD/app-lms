@@ -40,16 +40,8 @@ class Learning_Time {
 			return;
 		}
 		$table = Installer::tables()['learning_time'];
-		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare(
-				"INSERT INTO {$table} (user_id, day, course_id, seconds) VALUES (%d, %s, %d, %d) ON DUPLICATE KEY UPDATE seconds = LEAST(seconds + VALUES(seconds), %d)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				(int) $user_id,
-				self::day( $now ),
-				max( 0, (int) $course_id ),
-				$seconds,
-				self::MAX_DAY
-			)
-		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
+		$wpdb->query( $wpdb->prepare( "INSERT INTO {$table} (user_id, day, course_id, seconds) VALUES (%d, %s, %d, %d) ON DUPLICATE KEY UPDATE seconds = LEAST(seconds + VALUES(seconds), %d)", (int) $user_id, self::day( $now ), max( 0, (int) $course_id ), $seconds, self::MAX_DAY ) );
 	}
 
 	/**
@@ -64,13 +56,10 @@ class Learning_Time {
 		global $wpdb;
 		$table = Installer::tables()['learning_time'];
 		$from  = self::day( $now - 13 * DAY_IN_SECONDS );
-		$rows  = (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT day, SUM(seconds) AS seconds FROM {$table} WHERE user_id = %d AND day >= %s GROUP BY day", (int) $user_id, $from ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			ARRAY_A
-		);
-		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT COALESCE(SUM(seconds), 0) FROM {$table} WHERE user_id = %d", (int) $user_id ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT day, SUM(seconds) AS seconds FROM {$table} WHERE user_id = %d AND day >= %s GROUP BY day", (int) $user_id, $from ), ARRAY_A );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin table.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(seconds), 0) FROM {$table} WHERE user_id = %d", (int) $user_id ) );
 		return self::shape( array_column( $rows, 'seconds', 'day' ), $total, $now );
 	}
 
