@@ -55,6 +55,7 @@ class Post_Meta_Box {
 	 */
 	public function add() {
 		add_meta_box( 'yallapp-post', __( 'In the app', 'yallapp' ), array( $this, 'render' ), 'post', 'side' );
+		wp_enqueue_style( 'yallapp-meta-box', plugins_url( 'assets/meta-box.css', YALLAPP_FILE ), array(), YALLAPP_VERSION );
 	}
 
 	/**
@@ -65,19 +66,21 @@ class Post_Meta_Box {
 	 */
 	public function render( WP_Post $post ) {
 		wp_nonce_field( self::NONCE, self::NONCE );
+		echo '<div class="yallapp-box">';
 		if ( get_post_meta( $post->ID, Push_Service::NOTIFIED_META, true ) ) {
-			echo '<p>' . esc_html__( 'App users were notified about this post.', 'yallapp' ) . '</p>';
+			echo '<p class="ya-box-done">' . wp_kses( Icons::svg( 'check_circle', 18 ), Icons::allowed() ) . '<span>' . esc_html__( 'App users were notified about this post.', 'yallapp' ) . '</span></p></div>';
 			return;
 		}
 		printf(
-			'<p><label><input type="checkbox" name="%1$s" value="1"%2$s> %3$s</label></p>',
+			'<label class="ya-box-check"><input type="checkbox" name="%1$s" value="1"%2$s> <span>%3$s</span></label>',
 			esc_attr( self::FIELD ),
 			checked( (bool) get_post_meta( $post->ID, Push_Service::NO_PUSH_META, true ), true, false ),
 			esc_html__( 'Don\'t notify app users about this post', 'yallapp' )
 		);
 		if ( ! $this->plugin->settings()->get( 'notify_new_post' ) ) {
-			echo '<p class="description">' . esc_html__( 'New posts aren\'t sent to app users. Turn on "Notify app users about new posts" in Yallapp › Settings › Notifications to send them.', 'yallapp' ) . '</p>';
+			echo '<p class="description ya-box-note">' . wp_kses( Icons::svg( 'info', 18 ), Icons::allowed() ) . '<span>' . esc_html__( 'New posts aren\'t sent to app users. Turn on "Notify app users about new posts" in Yallapp › Settings › Notifications to send them.', 'yallapp' ) . '</span></p>';
 		}
+		echo '</div>';
 	}
 
 	/**

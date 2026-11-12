@@ -1,152 +1,1133 @@
-/* Yallapp settings screen. Brand: Midnight #0E0D24, Ivory #F4EFE6, Ember #FF5A1F (accents only). */
+/*
+ * Yallapp settings screen (Yallapp > the plugin's own page only; loaded there and nowhere else).
+ * Brand: Midnight #0E0D24, Ivory #F4EFE6, Ember #FF5A1F (accents and the main action).
+ * Light and dark (prefers-color-scheme), left to right and right to left (logical properties,
+ * plus the few `.rtl` rules at the end). Icons: Material Symbols Rounded as inline SVG.
+ */
+
+/* The page behind the cards: Ivory, as the Yallapp website; Midnight in dark mode. */
+html:has(body.toplevel_page_yallapp),
+body.toplevel_page_yallapp {
+	background: #f4efe6;
+}
+
 .yallapp {
 	--ya-ink: #0e0d24;
-	--ya-paper: #fff;
-	--ya-soft: #f4efe6;
+	--ya-ink-2: #24223a;
+	--ya-ink-4: #4a4760;
+	--ya-muted: #5e5b70;
+	--ya-faint: #8c889a;
+	--ya-card: #fff;
+	--ya-sand: #faf7f1;
+	--ya-peach: #ffede4;
+	--ya-peach-soft: #fff6f0;
 	--ya-line: #e4ddd0;
-	--ya-muted: #5b5a6e;
+	--ya-line-soft: #ede7dc;
+	--ya-line-strong: #cfc7b8;
 	--ya-ember: #ff5a1f;
+	--ya-ember-hover: #ff7a45;
 	--ya-ember-text: #c2410c;
-	--ya-ok: #15803d;
-	max-width: 880px;
+	--ya-on-ember: #0e0d24;
+	--ya-success: #1c7c4a;
+	--ya-success-bg: #e3f2ea;
+	--ya-warn: #9a4f0b;
+	--ya-warn-bg: #fbede0;
+	--ya-danger: #b3261e;
+	--ya-danger-bg: #fbe4e2;
+	--ya-button: #0e0d24;
+	--ya-button-text: #fff;
+	--ya-button-hover: #34314a;
+	--ya-focus: #0e0d24;
+	--ya-track: #8c889a;
+	--ya-head: #0e0d24;
+	--ya-head-line: #0e0d24;
+	--ya-head-tile: #24223f;
+	--ya-head-text: #f4efe6;
+	--ya-head-muted: #c9c6dc;
+	--ya-shadow: 0 1px 2px rgba(14, 13, 36, 0.04);
+	--ya-float: 0 12px 32px rgba(14, 13, 36, 0.14);
+	--ya-select-arrow: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%235e5b70%22%2F%3E%3C%2Fsvg%3E");
+
+	max-width: 1160px;
+	margin-block-start: 16px;
+	color: var(--ya-ink);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Noto Sans Arabic", Tahoma, sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+	html:has(body.toplevel_page_yallapp),
+	body.toplevel_page_yallapp {
+		background: #0e0d24;
+	}
+	body.toplevel_page_yallapp #wpfooter,
+	body.toplevel_page_yallapp #wpfooter a {
+		color: #a9a4bb;
+	}
+	.yallapp {
+		color-scheme: dark;
+		--ya-ink: #f4efe6;
+		--ya-ink-2: #ebe6f2;
+		--ya-ink-4: #bdb8cc;
+		--ya-muted: #a9a4bb;
+		--ya-faint: #827d96;
+		--ya-card: #161530;
+		--ya-sand: #1c1b38;
+		--ya-peach: #2e2645;
+		--ya-peach-soft: #1d1b3b;
+		--ya-line: #2c2a49;
+		--ya-line-soft: #24223f;
+		--ya-line-strong: #3d3a5c;
+		--ya-ember-text: #ff9a6e;
+		--ya-success: #5ccf95;
+		--ya-success-bg: #12301f;
+		--ya-warn: #f2ad6b;
+		--ya-warn-bg: #33240f;
+		--ya-danger: #ff8f86;
+		--ya-danger-bg: #3a1716;
+		--ya-button: #f4efe6;
+		--ya-button-text: #0e0d24;
+		--ya-button-hover: #ddd8e8;
+		--ya-focus: #f4efe6;
+		--ya-track: #827d96;
+		--ya-head: #161530;
+		--ya-head-line: #2c2a49;
+		--ya-shadow: none;
+		--ya-float: 0 12px 32px rgba(0, 0, 0, 0.45);
+		--ya-select-arrow: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23c9c6dc%22%2F%3E%3C%2Fsvg%3E");
+	}
+}
+
+.yallapp,
+.yallapp * {
+	box-sizing: border-box;
+}
+.yallapp button,
+.yallapp input,
+.yallapp select,
+.yallapp textarea {
+	font-family: inherit;
+}
+.yallapp a {
+	color: var(--ya-ember-text);
+	text-underline-offset: 3px;
+}
+.yallapp a:hover {
 	color: var(--ya-ink);
 }
-.yallapp .ya-head h1 { font-size: 28px; font-weight: 700; margin: 8px 0 4px; }
-.yallapp .ya-head p { color: var(--ya-muted); margin: 0 0 16px; }
-.yallapp .ya-card {
-	background: var(--ya-paper);
-	border: 1px solid var(--ya-line);
-	border-radius: 14px;
-	padding: 20px 24px;
-	margin: 0 0 16px;
-}
-.yallapp .ya-card h2 {
-	font-size: 16px;
-	margin: 0 0 12px;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-.yallapp .ya-row {
-	display: grid;
-	grid-template-columns: minmax(180px, 280px) 1fr;
-	gap: 8px 24px;
-	align-items: center;
-	padding: 12px 0;
-	border-top: 1px solid var(--ya-soft);
-	margin: 0;
-}
-.yallapp .ya-card h2 + .ya-row { border-top: 0; }
-.yallapp .ya-label { font-weight: 600; display: flex; flex-direction: column; gap: 2px; padding: 0; }
-.yallapp .ya-help { color: var(--ya-muted); font-weight: 400; font-size: 12px; }
-.yallapp .ya-toggle input[type="checkbox"] {
-	appearance: none;
-	width: 40px;
-	height: 22px;
-	border-radius: 11px;
-	background: #cfc8bb;
-	border: 0;
-	position: relative;
-	cursor: pointer;
-	justify-self: start;
-	margin: 0;
+.yallapp :focus-visible {
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 2px;
 	box-shadow: none;
 }
-.yallapp .ya-toggle input[type="checkbox"]::before {
-	content: "";
-	position: absolute;
-	top: 3px;
-	left: 3px;
-	width: 16px;
-	height: 16px;
-	border-radius: 50%;
-	background: #fff;
-	transition: transform 0.15s ease;
-	margin: 0;
+.yallapp .ya-icon {
+	flex: none;
+	display: block;
 }
-.yallapp .ya-toggle input[type="checkbox"]:checked { background: var(--ya-ink); }
-.yallapp .ya-toggle input[type="checkbox"]:checked::before { transform: translateX(18px); content: ""; }
-.yallapp .ya-toggle input[type="checkbox"]:focus-visible { outline: 2px solid var(--ya-ember); outline-offset: 2px; }
-.yallapp .ya-choices { display: flex; flex-direction: column; gap: 6px; }
-.yallapp .ya-choices-inline { flex-direction: row; gap: 16px; }
-.yallapp .ya-sub {
-	border: 1px solid var(--ya-line);
-	border-radius: 10px;
-	padding: 4px 16px 8px;
-	margin: 12px 0;
-	background: #fcfaf6;
-}
-.yallapp .ya-sub legend { font-weight: 600; padding: 0 6px; }
-.yallapp .ya-pill {
-	display: inline-block;
-	font-size: 12px;
-	font-weight: 600;
-	border-radius: 999px;
-	padding: 2px 10px;
-	justify-self: start;
-}
-.yallapp .ya-pill-ok { background: #dcfce7; color: var(--ya-ok); }
-.yallapp .ya-pill-warn { background: #ffedd5; color: var(--ya-ember-text); }
-.yallapp .ya-status { margin: 0; }
-.yallapp .ya-status li {
-	display: grid;
-	grid-template-columns: minmax(180px, 280px) 1fr auto;
-	gap: 16px;
+
+/* Header: the Yallapp mark, the page's name and where the license stands. */
+.yallapp .ya-head {
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	padding: 10px 0;
-	border-top: 1px solid var(--ya-soft);
+	gap: 16px 20px;
+	margin: 0 0 20px;
+	padding: 24px 28px;
+	border: 1px solid var(--ya-head-line);
+	border-radius: 22px;
+	background: var(--ya-head);
+	color: var(--ya-head-text);
+}
+.yallapp .ya-head-mark {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 64px;
+	height: 64px;
+	border-radius: 18px;
+	background: var(--ya-head-tile);
+}
+.yallapp .ya-mark-y {
+	fill: #f4efe6;
+}
+.yallapp .ya-mark-dot {
+	fill: #ff5a1f;
+}
+.yallapp .ya-head-text {
+	flex: 1 1 320px;
+	min-width: 0;
+}
+.yallapp .ya-head h1 {
+	margin: 0;
+	padding: 0;
+	color: var(--ya-head-text);
+	font-size: 30px;
+	font-weight: 800;
+	line-height: 1.15;
+	letter-spacing: -0.5px;
+}
+.yallapp .ya-head p {
+	margin: 6px 0 0;
+	color: var(--ya-head-muted);
+	font-size: 15px;
+}
+.yallapp .ya-head-status {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 6px;
+	margin-inline-start: auto;
+}
+.yallapp .ya-head-label {
+	color: var(--ya-head-muted);
+	font-size: 12.5px;
+	font-weight: 600;
+}
+.yallapp .ya-head .ya-pill-ok {
+	background: #12301f;
+	color: #5ccf95;
+}
+.yallapp .ya-head .ya-pill-warn {
+	background: #33240f;
+	color: #f2ad6b;
+}
+
+/* The page's notice (saved, or what went wrong). */
+.yallapp .notice.ya-notice {
+	margin: 0 0 20px;
+	padding-block: 4px;
+	padding-inline: 16px 44px;
+	border: 1px solid var(--ya-success);
+	border-inline-start-width: 4px;
+	border-radius: 14px;
+	background: var(--ya-success-bg);
+	box-shadow: none;
+}
+.yallapp .notice.ya-notice.notice-error {
+	border-color: var(--ya-danger);
+	background: var(--ya-danger-bg);
+}
+.yallapp .ya-notice p {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 8px 0;
+	color: var(--ya-ink-2);
+	font-size: 14px;
+}
+.yallapp .ya-notice .ya-icon {
+	color: var(--ya-success);
+}
+.yallapp .ya-notice.notice-error .ya-icon {
+	color: var(--ya-danger);
+}
+.yallapp .ya-notice .notice-dismiss::before {
+	color: var(--ya-muted);
+}
+
+/* Sections beside the cards. */
+.yallapp .ya-layout {
+	display: grid;
+	grid-template-columns: 232px minmax(0, 1fr);
+	gap: 28px;
+	align-items: start;
+}
+.yallapp .ya-nav {
+	position: sticky;
+	top: 52px;
+}
+.yallapp .ya-nav ul {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: 10px;
+	border: 1px solid var(--ya-line);
+	border-radius: 18px;
+	background: var(--ya-card);
+	list-style: none;
+	box-shadow: var(--ya-shadow);
+}
+.yallapp .ya-nav li {
 	margin: 0;
 }
-.yallapp .ya-status li:first-child { border-top: 0; }
-.yallapp .ya-facts {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 12px 24px;
-	margin: 0 0 12px;
-}
-.yallapp .ya-facts dt { color: var(--ya-muted); font-size: 12px; }
-.yallapp .ya-facts dd { margin: 2px 0 0; font-weight: 600; }
-.yallapp .ya-inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
-.yallapp .ya-inline .ya-field { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
-.yallapp .ya-inline .ya-help, .yallapp .ya-inline .ya-facts { flex-basis: 100%; }
-.yallapp .ya-actions { display: flex; gap: 16px; align-items: center; flex-basis: 100%; }
-.yallapp .ya-danger { color: #b42318 !important; }
-.yallapp .ya-disabled { opacity: 0.6; }
-.yallapp .ya-sortable { margin: 0; max-width: 360px; }
-.yallapp .ya-sortable li {
+.yallapp .ya-nav a {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	padding: 8px 12px;
-	margin: 0 0 6px;
+	border-radius: 10px;
+	color: var(--ya-ink);
+	font-size: 13.5px;
+	font-weight: 600;
+	line-height: 1.35;
+	text-decoration: none;
+}
+.yallapp .ya-nav a .ya-icon {
+	color: var(--ya-muted);
+}
+.yallapp .ya-nav a:hover {
+	background: var(--ya-sand);
+	color: var(--ya-ink);
+}
+.yallapp .ya-nav a[aria-current="true"] {
+	background: var(--ya-peach);
+}
+.yallapp .ya-nav a[aria-current="true"] .ya-icon {
+	color: var(--ya-ember-text);
+}
+.yallapp .ya-main {
+	min-width: 0;
+	max-width: 900px;
+}
+
+/* Cards. */
+.yallapp .ya-card {
+	margin: 0 0 20px;
+	padding: 24px 28px;
 	border: 1px solid var(--ya-line);
-	border-radius: 8px;
-	background: #fff;
-	cursor: grab;
+	border-radius: 20px;
+	background: var(--ya-card);
+	box-shadow: var(--ya-shadow);
+	scroll-margin-top: 52px;
 }
-.yallapp .ya-grip { color: var(--ya-muted); letter-spacing: -2px; }
-.yallapp .ya-multi { min-width: 320px; }
-.yallapp .ya-image { display: flex; align-items: center; gap: 12px; }
-.yallapp .ya-image img { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; border: 1px solid var(--ya-line); background: var(--ya-soft); }
-.yallapp .ya-savebar {
-	position: sticky;
-	bottom: 0;
-	padding: 12px 0;
-	background: linear-gradient(transparent, #f0f0f1 30%);
-	margin-bottom: 16px;
-}
-.yallapp .button-primary { background: var(--ya-ink); border-color: var(--ya-ink); }
-.yallapp .button-primary:hover, .yallapp .button-primary:focus { background: #23214a; border-color: #23214a; }
-.yallapp .ya-devices { margin: 0; }
-.yallapp .ya-devices li {
+.yallapp .ya-card-head {
 	display: flex;
-	justify-content: space-between;
+	flex-wrap: wrap;
 	align-items: center;
-	padding: 10px 0;
-	border-top: 1px solid var(--ya-soft);
+	gap: 10px 14px;
+	margin: 0 0 4px;
+	padding: 0 0 18px;
+	border-bottom: 1px solid var(--ya-line-soft);
+}
+.yallapp .ya-card-icon {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 42px;
+	height: 42px;
+	border-radius: 13px;
+	background: var(--ya-peach);
+	color: var(--ya-ember-text);
+}
+.yallapp .ya-card-title {
+	margin: 0;
+	padding: 0;
+	color: var(--ya-ink);
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+.yallapp .ya-card-head .ya-pill {
+	margin-inline-start: auto;
+}
+
+/* Rows: the name on one side, the control on the other. */
+.yallapp .ya-row {
+	display: grid;
+	grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+	gap: 8px 28px;
+	align-items: center;
+	margin: 0;
+	padding: 16px 0;
+	border-top: 1px solid var(--ya-line-soft);
+}
+.yallapp .ya-toggle,
+.yallapp .ya-row[role="radiogroup"],
+.yallapp .ya-row[role="group"] {
+	align-items: start;
+}
+.yallapp .ya-row[role="radiogroup"] > .ya-label {
+	padding-top: 11px;
+}
+.yallapp .ya-row[role="group"] > .ya-label {
+	padding-top: 8px;
+}
+.yallapp .ya-card-head + .ya-row,
+.yallapp .ya-card-head + form > .ya-row:first-of-type,
+.yallapp .ya-sub legend + .ya-row,
+.yallapp .ya-sub legend + .ya-help + .ya-row {
+	border-top: 0;
+}
+.yallapp .ya-label {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	padding: 0;
+	color: var(--ya-ink);
+	font-size: 14px;
+	font-weight: 600;
+}
+.yallapp .ya-help {
+	color: var(--ya-muted);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.55;
+}
+.yallapp p.ya-help {
+	margin: 14px 0;
+}
+.yallapp .ya-disabled .ya-label {
+	color: var(--ya-muted);
+}
+
+/* Inputs. */
+.yallapp input[type="text"],
+.yallapp input[type="search"],
+.yallapp input[type="number"],
+.yallapp input[type="url"],
+.yallapp input[type="email"],
+.yallapp input[type="password"],
+.yallapp select,
+.yallapp textarea {
+	min-height: 42px;
+	max-width: 100%;
+	margin: 0;
+	padding-block: 0;
+	padding-inline: 12px;
+	border: 1px solid var(--ya-line-strong);
+	border-radius: 10px;
+	background-color: var(--ya-card);
+	color: var(--ya-ink);
+	font-size: 14px;
+	line-height: 1.4;
+	box-shadow: none;
+}
+.yallapp select {
+	width: min(100%, 26em);
+	padding-inline-end: 34px;
+	background-image: var(--ya-select-arrow);
+}
+.yallapp select[multiple] {
+	padding: 6px;
+	background-image: none;
+}
+.yallapp select[multiple] option {
+	padding: 6px 8px;
+	border-radius: 6px;
+}
+.yallapp textarea {
+	padding-block: 10px;
+	line-height: 1.5;
+}
+.yallapp input::placeholder,
+.yallapp textarea::placeholder {
+	color: var(--ya-faint);
+	opacity: 1;
+}
+.yallapp input[type="text"]:focus,
+.yallapp input[type="search"]:focus,
+.yallapp input[type="number"]:focus,
+.yallapp input[type="url"]:focus,
+.yallapp input[type="email"]:focus,
+.yallapp input[type="password"]:focus,
+.yallapp select:focus,
+.yallapp textarea:focus {
+	border-color: var(--ya-focus);
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 0;
+	box-shadow: none;
+	color: var(--ya-ink);
+}
+.yallapp .regular-text {
+	width: min(100%, 26em);
+}
+.yallapp .large-text {
+	width: 100%;
+}
+.yallapp .small-text {
+	width: 96px;
+}
+.yallapp input[type="color"] {
+	width: 56px;
+	height: 42px;
+	padding: 4px;
+	border: 1px solid var(--ya-line-strong);
+	border-radius: 10px;
+	background: var(--ya-card);
+	cursor: pointer;
+}
+.yallapp input[type="file"] {
+	max-width: 100%;
+	color: var(--ya-muted);
+	font-size: 13px;
+}
+.yallapp input[type="file"]::file-selector-button {
+	margin-inline-end: 12px;
+	padding: 10px 16px;
+	border: 0;
+	border-radius: 10px;
+	background: var(--ya-button);
+	color: var(--ya-button-text);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* Radios and checkboxes: the browser's own, in the brand's colours. */
+.yallapp input[type="radio"],
+.yallapp input[type="checkbox"]:not([role="switch"]) {
+	appearance: auto;
+	flex: none;
+	width: 18px;
+	min-width: 18px;
+	height: 18px;
+	margin: 1px 0 0;
+	border: 0;
+	box-shadow: none;
+	accent-color: var(--ya-ink);
+	cursor: pointer;
+}
+.yallapp input[type="radio"] {
+	accent-color: var(--ya-ember-text);
+}
+.yallapp input[type="radio"]::before,
+.yallapp input[type="radio"]:checked::before,
+.yallapp input[type="checkbox"]:not([role="switch"])::before,
+.yallapp input[type="checkbox"]:not([role="switch"]):checked::before {
+	content: none;
+}
+
+/* Choices: each option a tile, the chosen one in Ember. */
+.yallapp .ya-choices {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.yallapp .ya-choice {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	padding: 11px 14px;
+	border: 1px solid var(--ya-line);
+	border-radius: 12px;
+	background: var(--ya-card);
+	color: var(--ya-ink);
+	line-height: 1.45;
+	cursor: pointer;
+}
+.yallapp .ya-choice:hover {
+	border-color: var(--ya-line-strong);
+}
+.yallapp .ya-choice:has(input:checked) {
+	border-color: var(--ya-ember);
+	background: var(--ya-peach-soft);
+}
+.yallapp .ya-choice-title {
+	display: block;
+	font-weight: 600;
+}
+.yallapp .ya-choice .ya-help {
+	display: block;
+	margin-top: 2px;
+}
+.yallapp .ya-choices-inline {
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+.yallapp .ya-chip-choice {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	padding: 7px 14px;
+	border: 1px solid var(--ya-line);
+	border-radius: 999px;
+	background: var(--ya-card);
+	color: var(--ya-ink);
+	font-weight: 600;
+	cursor: pointer;
+}
+.yallapp .ya-chip-choice input {
 	margin: 0;
 }
+.yallapp .ya-chip-choice:has(input:checked) {
+	border-color: var(--ya-ember);
+	background: var(--ya-peach-soft);
+}
+.yallapp .ya-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+	cursor: pointer;
+}
+.yallapp .ya-check input {
+	margin: 0;
+}
+
+/* Switches: still real checkboxes (role="switch"). */
+.yallapp .ya-toggle {
+	cursor: pointer;
+}
+.yallapp .ya-toggle input[type="checkbox"] {
+	appearance: none;
+	position: relative;
+	justify-self: start;
+	width: 44px;
+	min-width: 44px;
+	height: 26px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 13px;
+	background: var(--ya-track);
+	box-shadow: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+.yallapp .ya-toggle input[type="checkbox"]::before,
+.yallapp .ya-toggle input[type="checkbox"]:checked::before {
+	content: "";
+	position: absolute;
+	top: 3px;
+	inset-inline-start: 3px;
+	float: none;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(14, 13, 36, 0.3);
+	transition: transform 0.15s ease;
+}
+.yallapp .ya-toggle input[type="checkbox"]:checked {
+	background: var(--ya-ember);
+}
+.yallapp .ya-toggle input[type="checkbox"]:checked::before {
+	transform: translateX(18px);
+}
+.yallapp .ya-toggle input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 2px;
+}
+
+/* A group inside a card. */
+.yallapp .ya-sub {
+	min-width: 0;
+	margin: 16px 0 4px;
+	padding: 6px 20px 8px;
+	border: 1px solid var(--ya-line);
+	border-radius: 16px;
+	background: var(--ya-sand);
+}
+.yallapp .ya-sub legend {
+	padding: 0 8px;
+	color: var(--ya-ink);
+	font-size: 14px;
+	font-weight: 700;
+}
+.yallapp .ya-sub .ya-row {
+	border-top-color: var(--ya-line);
+}
+
+/* Status chips. */
+.yallapp .ya-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	justify-self: start;
+	max-width: 100%;
+	padding-block: 4px;
+	padding-inline: 8px 11px;
+	border-radius: 14px;
+	font-size: 12.5px;
+	font-weight: 700;
+	line-height: 1.35;
+}
+.yallapp .ya-pill-ok {
+	background: var(--ya-success-bg);
+	color: var(--ya-success);
+}
+.yallapp .ya-pill-warn {
+	background: var(--ya-warn-bg);
+	color: var(--ya-warn);
+}
+.yallapp .ya-pill-off {
+	background: var(--ya-line-soft);
+	color: var(--ya-muted);
+}
+.yallapp .ya-state {
+	margin: 0 0 12px;
+}
+
+/* A note: a choice made in the Yallapp dashboard that wins, or why something can't work. */
+.yallapp .ya-callout {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 12px 0;
+	padding: 12px 16px;
+	border-radius: 12px;
+	background: var(--ya-warn-bg);
+	color: var(--ya-ink-2);
+	font-size: 13.5px;
+	line-height: 1.5;
+}
+.yallapp .ya-callout .ya-icon {
+	margin-top: 1px;
+	color: var(--ya-warn);
+}
+
+/* What shows where there is nothing yet. */
+.yallapp .ya-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	margin: 16px 0 4px;
+	padding: 28px 20px;
+	border: 1px dashed var(--ya-line-strong);
+	border-radius: 16px;
+	background: var(--ya-sand);
+	text-align: center;
+}
+.yallapp .ya-empty-icon {
+	display: grid;
+	place-items: center;
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: var(--ya-card);
+	color: var(--ya-muted);
+}
+.yallapp .ya-empty p.ya-help {
+	max-width: 480px;
+	margin: 0;
+	font-size: 14px;
+}
+
+/* Compatibility. */
+.yallapp .ya-status {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.yallapp .ya-status li {
+	display: grid;
+	grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) minmax(0, 1.3fr);
+	gap: 8px 20px;
+	align-items: center;
+	margin: 0;
+	padding: 14px 0;
+	border-top: 1px solid var(--ya-line-soft);
+}
+.yallapp .ya-status li:first-child {
+	border-top: 0;
+}
+.yallapp .ya-status-value {
+	color: var(--ya-ink-4);
+}
+.yallapp .ya-status .ya-pill {
+	justify-self: end;
+}
+
+/* Facts of the license and the layout. */
+.yallapp .ya-facts {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+	gap: 10px;
+	width: 100%;
+	margin: 12px 0 6px;
+}
+.yallapp .ya-facts > div {
+	min-width: 0;
+	padding: 12px 16px;
+	border: 1px solid var(--ya-line-soft);
+	border-radius: 14px;
+	background: var(--ya-sand);
+}
+.yallapp .ya-facts dt {
+	color: var(--ya-muted);
+	font-size: 12.5px;
+	font-weight: 600;
+}
+.yallapp .ya-facts dd {
+	margin: 4px 0 0;
+	color: var(--ya-ink);
+	font-size: 15px;
+	font-weight: 700;
+	overflow-wrap: anywhere;
+}
+
+/* Small forms in a card. */
+.yallapp .ya-inline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 10px 12px;
+	margin-top: 14px;
+}
+.yallapp .ya-inline .ya-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	color: var(--ya-ink);
+	font-weight: 600;
+}
+.yallapp .ya-inline .ya-help,
+.yallapp .ya-inline .ya-facts,
+.yallapp .ya-inline .ya-callout {
+	flex-basis: 100%;
+	margin: 0;
+}
+.yallapp .ya-actions {
+	display: flex;
+	flex-wrap: wrap;
+	flex-basis: 100%;
+	align-items: center;
+	gap: 12px 18px;
+	margin-top: 6px;
+}
+.yallapp .ya-pair {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.yallapp .ya-search {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	flex: 0 1 26em;
+	min-width: 0;
+}
+.yallapp .ya-search .ya-icon {
+	position: absolute;
+	inset-inline-start: 12px;
+	color: var(--ya-faint);
+	pointer-events: none;
+}
+.yallapp .ya-search input[type="search"] {
+	width: 100%;
+	padding-inline-start: 40px;
+}
+
+/* Lists to reorder. */
+.yallapp .ya-sortable {
+	max-width: 420px;
+	margin: 0;
+}
+.yallapp .ya-sortable li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 8px;
+	padding: 10px 14px;
+	border: 1px solid var(--ya-line);
+	border-radius: 12px;
+	background: var(--ya-card);
+	cursor: grab;
+}
+.yallapp .ya-sortable li:last-child {
+	margin-bottom: 0;
+}
+.yallapp .ya-sortable li.ui-sortable-helper {
+	box-shadow: var(--ya-float);
+}
+.yallapp .ya-sortable label {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	gap: 10px;
+	cursor: grab;
+}
+.yallapp .ya-grip {
+	display: flex;
+	color: var(--ya-faint);
+}
+.yallapp .ya-sortable + .ya-help {
+	display: block;
+	margin-top: 10px;
+}
+.yallapp .ya-multi {
+	width: min(100%, 360px);
+}
+
+/* Images from the media library. */
+.yallapp .ya-image {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+.yallapp .ya-image img {
+	width: 64px;
+	height: 64px;
+	object-fit: contain;
+	border: 1px solid var(--ya-line);
+	border-radius: 14px;
+	background: var(--ya-sand);
+}
+.yallapp .ya-image img[hidden] {
+	display: none;
+}
+.yallapp .ya-image-empty {
+	display: grid;
+	place-items: center;
+	width: 64px;
+	height: 64px;
+	border: 1.5px dashed var(--ya-line-strong);
+	border-radius: 14px;
+	background: var(--ya-sand);
+	color: var(--ya-faint);
+}
+.yallapp .ya-image:has(img:not([hidden])) .ya-image-empty {
+	display: none;
+}
+
+/* Devices. */
+.yallapp .ya-person {
+	margin: 18px 0 4px;
+	font-size: 15px;
+}
+.yallapp .ya-devices {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.yallapp .ya-devices li {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 0;
+	padding: 12px 0;
+	border-top: 1px solid var(--ya-line-soft);
+}
+.yallapp .ya-device-icon {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	background: var(--ya-sand);
+	color: var(--ya-ink-4);
+}
+.yallapp .ya-device-text {
+	flex: 1;
+	min-width: 0;
+}
+.yallapp .ya-devices form {
+	margin-inline-start: auto;
+}
+
+/* Buttons: the main action in Ember, the others in Midnight (Ivory in dark mode). */
+.wp-core-ui .yallapp .button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 42px;
+	margin: 0;
+	padding: 0 18px;
+	border: 1px solid var(--ya-button);
+	border-radius: 10px;
+	background: var(--ya-button);
+	color: var(--ya-button-text);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-shadow: none;
+	box-shadow: none;
+	vertical-align: middle;
+}
+.wp-core-ui .yallapp .button:hover,
+.wp-core-ui .yallapp .button:focus {
+	border-color: var(--ya-button-hover);
+	background: var(--ya-button-hover);
+	color: var(--ya-button-text);
+	box-shadow: none;
+}
+.wp-core-ui .yallapp .button:focus-visible {
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 2px;
+}
+.wp-core-ui .yallapp .button-primary {
+	border-color: var(--ya-ember);
+	background: var(--ya-ember);
+	color: var(--ya-on-ember);
+	font-weight: 700;
+}
+.wp-core-ui .yallapp .button-primary:hover,
+.wp-core-ui .yallapp .button-primary:focus {
+	border-color: var(--ya-ember-hover);
+	background: var(--ya-ember-hover);
+	color: var(--ya-on-ember);
+}
+.wp-core-ui .yallapp .button-hero {
+	min-height: 48px;
+	padding: 0 28px;
+	font-size: 15px;
+}
+.wp-core-ui .yallapp .button:disabled,
+.wp-core-ui .yallapp .button[disabled] {
+	border-color: var(--ya-line-soft) !important;
+	background: var(--ya-line-soft) !important;
+	color: var(--ya-faint) !important;
+	cursor: not-allowed;
+}
+.wp-core-ui .yallapp .button-link {
+	padding: 4px 2px;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.yallapp .ya-danger {
+	color: var(--ya-danger) !important;
+}
+
+/* The save button stays in reach while scrolling the form. */
+.yallapp .ya-savebar {
+	position: sticky;
+	bottom: 16px;
+	z-index: 5;
+	display: flex;
+	justify-content: flex-end;
+	margin: 0 0 20px;
+	padding: 10px;
+	border: 1px solid var(--ya-line);
+	border-radius: 18px;
+	background: var(--ya-card);
+	box-shadow: var(--ya-float);
+}
+
+/* Narrower screens: the sections go above the cards. */
+@media (max-width: 1100px) {
+	.yallapp .ya-layout {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
+	}
+	.yallapp .ya-nav {
+		position: static;
+		min-width: 0;
+		margin: 0 0 20px;
+	}
+	.yallapp .ya-nav ul {
+		flex-direction: row;
+		gap: 4px;
+		padding: 6px;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
+	.yallapp .ya-nav a {
+		white-space: nowrap;
+	}
+	.yallapp .ya-main {
+		max-width: none;
+	}
+}
+
+/* WordPress's phone and tablet layout. */
 @media (max-width: 782px) {
-	.yallapp .ya-row, .yallapp .ya-status li { grid-template-columns: 1fr; }
-	.yallapp .ya-choices-inline { flex-direction: column; }
+	.yallapp {
+		margin-block-start: 12px;
+	}
+	.yallapp .ya-head {
+		gap: 14px;
+		padding: 20px;
+		border-radius: 18px;
+	}
+	.yallapp .ya-head-mark {
+		width: 52px;
+		height: 52px;
+		border-radius: 15px;
+	}
+	.yallapp .ya-head-mark .ya-mark {
+		width: 36px;
+		height: 36px;
+	}
+	.yallapp .ya-head h1 {
+		font-size: 24px;
+	}
+	.yallapp .ya-head p {
+		font-size: 14px;
+	}
+	.yallapp .ya-head-status {
+		flex-basis: 100%;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+		margin-inline-start: 0;
+	}
+	.yallapp .ya-card {
+		padding: 20px 18px;
+		border-radius: 18px;
+	}
+	.yallapp .ya-card-icon {
+		width: 38px;
+		height: 38px;
+		border-radius: 12px;
+	}
+	.yallapp .ya-card-title {
+		font-size: 17px;
+	}
+	.yallapp .ya-row,
+	.yallapp .ya-status li {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 10px;
+	}
+	.yallapp .ya-status .ya-pill {
+		justify-self: start;
+	}
+	.yallapp .ya-sub {
+		padding: 6px 14px 8px;
+	}
+	.yallapp input[type="text"],
+	.yallapp input[type="search"],
+	.yallapp input[type="number"]:not(.small-text),
+	.yallapp input[type="url"],
+	.yallapp input[type="email"],
+	.yallapp input[type="password"],
+	.yallapp select,
+	.yallapp textarea,
+	.yallapp .regular-text,
+	.yallapp .ya-multi {
+		width: 100%;
+		min-height: 44px;
+		font-size: 16px;
+	}
+	.yallapp .ya-search,
+	.yallapp .ya-inline .ya-field {
+		flex: 1 1 100%;
+	}
+	.yallapp .ya-toggle input[type="checkbox"] {
+		width: 44px;
+		height: 26px;
+	}
+	.yallapp input[type="radio"],
+	.yallapp input[type="checkbox"]:not([role="switch"]) {
+		width: 20px;
+		min-width: 20px;
+		height: 20px;
+	}
+	.yallapp .ya-savebar {
+		bottom: 8px;
+	}
+	.wp-core-ui .yallapp .ya-savebar .button {
+		width: 100%;
+	}
+	.wp-core-ui .yallapp .button {
+		min-height: 44px;
+	}
+}
+
+/* Right to left (Arabic and the other RTL languages). */
+.rtl .yallapp .ya-toggle input[type="checkbox"]:checked::before {
+	transform: translateX(-18px);
+}
+.rtl .yallapp .ya-icon-flip {
+	transform: scaleX(-1);
+}
+.rtl .yallapp .ya-head h1 {
+	letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yallapp .ya-toggle input[type="checkbox"],
+	.yallapp .ya-toggle input[type="checkbox"]::before {
+		transition: none;
+	}
 }

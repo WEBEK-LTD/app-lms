@@ -42,7 +42,7 @@ $render = static function ( $app_type ) use ( $page ) {
 	return (string) ob_get_clean();
 };
 $cards  = static function ( $html ) {
-	preg_match_all( '/<section class="ya-card"><h2>([^<]*?) ?(?:<|$)/', $html, $m );
+	preg_match_all( '/<h2 class="ya-card-title" id="[^"]*">([^<]*)<\/h2>/', $html, $m );
 	return array_map(
 		static function ( $title ) {
 			return html_entity_decode( trim( $title ), ENT_QUOTES );

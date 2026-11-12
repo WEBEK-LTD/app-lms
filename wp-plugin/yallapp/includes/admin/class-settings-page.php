@@ -40,6 +40,39 @@ class Settings_Page {
 	private $values = array();
 
 	/**
+	 * The cards printed so far, id => title, for the list of sections beside them.
+	 *
+	 * @var array<string, string>
+	 */
+	private $sections = array();
+
+	/**
+	 * The symbol at the head of each card (Icons::PATHS).
+	 *
+	 * @var array<string, string>
+	 */
+	const SECTION_ICONS = array(
+		'license'       => 'key',
+		'layout'        => 'dashboard_customize',
+		'compatibility' => 'extension',
+		'general'       => 'tune',
+		'sign-in'       => 'passkey',
+		'app'           => 'apps',
+		'purchases'     => 'shopping_bag',
+		'checkout'      => 'shopping_cart',
+		'store'         => 'storefront',
+		'bookings'      => 'event',
+		'video'         => 'smart_display',
+		'content'       => 'code',
+		'home'          => 'home',
+		'news'          => 'newspaper',
+		'notifications' => 'notifications',
+		'updates'       => 'system_update',
+		'push'          => 'campaign',
+		'devices'       => 'devices',
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -134,10 +167,10 @@ class Settings_Page {
 		if ( ! current_user_can( self::CAPABILITY ) ) {
 			return;
 		}
-		$this->values = $this->plugin->settings()->all();
-		echo '<div class="wrap yallapp">';
-		echo '<header class="ya-head"><div><h1>' . esc_html__( 'Yallapp', 'yallapp' ) . '</h1><p>' . esc_html__( 'These settings apply to the app instantly, with no app store update needed.', 'yallapp' ) . '</p></div></header>';
-		$this->notice();
+		$this->values   = $this->plugin->settings()->all();
+		$this->sections = array();
+		// The cards first, so the list of sections beside them knows their titles.
+		ob_start();
 		$this->license_card();
 		$this->layout_card();
 		$this->compatibility_card();
@@ -155,7 +188,67 @@ class Settings_Page {
 
 		$this->manual_push_card( $type );
 		$this->devices_card( $type );
-		echo '</div>';
+		$cards = (string) ob_get_clean();
+
+		$state = $this->plugin->license()->state();
+		$names = self::license_labels();
+		echo '<div class="wrap yallapp">';
+		echo '<header class="ya-head"><span class="ya-head-mark">' . wp_kses( Icons::mark( 44 ), Icons::allowed() ) . '</span>';
+		echo '<div class="ya-head-text"><h1>' . esc_html__( 'Yallapp', 'yallapp' ) . '</h1><p>' . esc_html__( 'These settings apply to the app instantly, with no app store update needed.', 'yallapp' ) . '</p></div>';
+		echo '<div class="ya-head-status"><span class="ya-head-label">' . esc_html__( 'License', 'yallapp' ) . '</span>' . $this->pill( $names[ $state ] ?? $names['invalid'], 'active' === $state ) . '</div></header>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
+		// WordPress moves admin notices to this line, under the header.
+		echo '<hr class="wp-header-end">';
+		$this->notice();
+		echo '<div class="ya-layout">';
+		$this->nav();
+		echo '<div class="ya-main">' . $cards . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The cards, escaped as they were printed above.
+		echo '</div></div>';
+	}
+
+	/**
+	 * The list of the page's sections: beside the cards on wide screens, above them on narrow ones.
+	 *
+	 * @return void
+	 */
+	private function nav() {
+		echo '<nav class="ya-nav" aria-label="' . esc_attr__( 'Settings sections', 'yallapp' ) . '"><ul>';
+		foreach ( $this->sections as $id => $title ) {
+			printf(
+				'<li><a href="#%1$s">%2$s<span>%3$s</span></a></li>',
+				esc_attr( 'ya-section-' . $id ),
+				wp_kses( Icons::svg( self::SECTION_ICONS[ $id ] ?? 'tune', 18 ), Icons::allowed() ),
+				esc_html( $title )
+			);
+		}
+		echo '</ul></nav>';
+	}
+
+	/**
+	 * A status chip: green with a tick when all is well, amber with a mark when not, grey
+	 * for what is simply not used.
+	 *
+	 * @param string    $text Text.
+	 * @param bool|null $ok   Whether it's fine; null for neither.
+	 * @return string Escaped markup.
+	 */
+	private function pill( $text, $ok ) {
+		$tone = null === $ok ? 'off' : ( $ok ? 'ok' : 'warn' );
+		$icon = array(
+			'ok'   => 'check_circle',
+			'warn' => 'error',
+			'off'  => 'info',
+		);
+		return '<span class="ya-pill ya-pill-' . $tone . '">' . wp_kses( Icons::svg( $icon[ $tone ], 16 ), Icons::allowed() ) . '<span>' . esc_html( $text ) . '</span></span>';
+	}
+
+	/**
+	 * A note in a card: a choice made elsewhere that wins, or why something can't work.
+	 *
+	 * @param string $text Text.
+	 * @return void
+	 */
+	private function callout( $text ) {
+		echo '<p class="ya-callout">' . wp_kses( Icons::svg( 'info', 20 ), Icons::allowed() ) . '<span>' . esc_html( $text ) . '</span></p>';
 	}
 
 	/**
@@ -261,8 +354,9 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function no_type_card() {
-		$this->open( __( 'Your app', 'yallapp' ) );
-		echo '<p class="ya-help">' . esc_html__( 'Choose your app type in your Yallapp dashboard, then activate your license above (or click Check now). The settings for that kind of app then appear here. Until then, only the settings every app has are shown.', 'yallapp' ) . '</p>';
+		$this->open( 'app', __( 'Your app', 'yallapp' ) );
+		echo '<div class="ya-empty"><span class="ya-empty-icon">' . wp_kses( Icons::svg( 'apps', 28 ), Icons::allowed() ) . '</span>';
+		echo '<p class="ya-help">' . esc_html__( 'Choose your app type in your Yallapp dashboard, then activate your license above (or click Check now). The settings for that kind of app then appear here. Until then, only the settings every app has are shown.', 'yallapp' ) . '</p></div>';
 		$this->close();
 	}
 
@@ -430,9 +524,10 @@ class Settings_Page {
 		}
 		delete_transient( $key );
 		printf(
-			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
+			'<div class="notice notice-%1$s is-dismissible ya-notice"><p>%3$s<span>%2$s</span></p></div>',
 			'success' === $notice['type'] ? 'success' : 'error',
-			esc_html( $notice['message'] )
+			esc_html( $notice['message'] ),
+			wp_kses( Icons::svg( 'success' === $notice['type'] ? 'check_circle' : 'error', 20 ), Icons::allowed() )
 		);
 	}
 
@@ -445,17 +540,10 @@ class Settings_Page {
 		$client = $this->plugin->license();
 		$status = $client->status();
 		$key    = (string) $this->values['license_key'];
-		$labels = array(
-			'none'        => __( 'Not activated', 'yallapp' ),
-			'active'      => __( 'Active', 'yallapp' ),
-			'expired'     => __( 'Ended', 'yallapp' ),
-			'suspended'   => __( 'Suspended', 'yallapp' ),
-			'invalid'     => __( 'Not valid', 'yallapp' ),
-			'unreachable' => __( 'Not confirmed', 'yallapp' ),
-		);
+		$labels = self::license_labels();
 		// 68 Where the license stands now: an ended plan shows as ended at once.
 		$state = $client->state();
-		$this->open( __( 'License', 'yallapp' ), '<span class="ya-pill ya-pill-' . esc_attr( 'active' === $state ? 'ok' : 'warn' ) . '">' . esc_html( $labels[ $state ] ?? $labels['invalid'] ) . '</span>' );
+		$this->open( 'license', __( 'License', 'yallapp' ), $this->pill( $labels[ $state ] ?? $labels['invalid'], 'active' === $state ) );
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ya-inline">';
 		echo '<input type="hidden" name="action" value="yallapp_license">';
 		wp_nonce_field( 'yallapp_license' );
@@ -490,6 +578,22 @@ class Settings_Page {
 		}
 		echo '</form>';
 		$this->close();
+	}
+
+	/**
+	 * The license states as the page names them.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function license_labels() {
+		return array(
+			'none'        => __( 'Not activated', 'yallapp' ),
+			'active'      => __( 'Active', 'yallapp' ),
+			'expired'     => __( 'Ended', 'yallapp' ),
+			'suspended'   => __( 'Suspended', 'yallapp' ),
+			'invalid'     => __( 'Not valid', 'yallapp' ),
+			'unreachable' => __( 'Not confirmed', 'yallapp' ),
+		);
 	}
 
 	/**
@@ -529,7 +633,7 @@ class Settings_Page {
 		$state     = $this->plugin->layout_client()->state();
 		$published = null !== $state['layout'];
 		$format    = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
-		$this->open( __( 'App pages and look', 'yallapp' ), '<span class="ya-pill ya-pill-' . ( $published ? 'ok' : 'warn' ) . '">' . esc_html( $published ? __( 'Published', 'yallapp' ) : __( 'Default pages', 'yallapp' ) ) . '</span>' );
+		$this->open( 'layout', __( 'App pages and look', 'yallapp' ), $this->pill( $published ? __( 'Published', 'yallapp' ) : __( 'Default pages', 'yallapp' ), $published ) );
 		echo '<p class="ya-help">' . esc_html__( 'Build your app\'s pages, tabs, look and languages in your Yallapp dashboard. This site fetches them every 15 minutes and fills them with its own content.', 'yallapp' ) . '</p>';
 		echo '<dl class="ya-facts">';
 		$this->fact( __( 'Layout version', 'yallapp' ), $published ? (string) $state['layout']['version'] : __( 'None published yet', 'yallapp' ) );
@@ -543,7 +647,7 @@ class Settings_Page {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ya-inline">';
 		echo '<input type="hidden" name="action" value="yallapp_layout">';
 		wp_nonce_field( 'yallapp_layout' );
-		echo '<div class="ya-actions"><button class="button"' . disabled( '' === (string) $this->values['license_key'], true, false ) . '>' . esc_html__( 'Refresh app layout', 'yallapp' ) . '</button></div>';
+		echo '<div class="ya-actions"><button class="button"' . disabled( '' === (string) $this->values['license_key'], true, false ) . '>' . wp_kses( Icons::svg( 'refresh', 18 ), Icons::allowed() ) . esc_html__( 'Refresh app layout', 'yallapp' ) . '</button></div>';
 		echo '</form>';
 		$this->close();
 	}
@@ -558,7 +662,7 @@ class Settings_Page {
 		$lms      = $detector->lms();
 		$digits   = $detector->digits();
 		$woo      = $detector->woocommerce();
-		$this->open( __( 'Compatibility status', 'yallapp' ) );
+		$this->open( 'compatibility', __( 'Compatibility status', 'yallapp' ) );
 		echo '<ul class="ya-status">';
 		if ( $lms ) {
 			$this->status_row( __( 'LMS plugin (detected)', 'yallapp' ), $lms['name'] . ' ' . $lms['version'], $lms['supported'], $lms['supported'] ? __( 'Compatible', 'yallapp' ) : __( 'Support is coming soon', 'yallapp' ) );
@@ -620,7 +724,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function general_card( $type = null ) {
-		$this->open( __( 'General', 'yallapp' ) );
+		$this->open( 'general', __( 'General', 'yallapp' ) );
 		$this->toggle( 'api_enabled', __( 'Enable the app API', 'yallapp' ), __( 'Turn off to stop the app from loading anything from this site.', 'yallapp' ) );
 		$this->text( 'app_name', __( 'App name', 'yallapp' ), get_bloginfo( 'name' ) );
 		$this->image( 'logo_id', __( 'Logo', 'yallapp' ) );
@@ -658,7 +762,7 @@ class Settings_Page {
 				'content' => __( 'Chosen on your Yallapp dashboard: course content only. That choice replaces this setting.', 'yallapp' ),
 				'app'     => __( 'Chosen on your Yallapp dashboard: the whole app. That choice replaces this setting.', 'yallapp' ),
 			);
-			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $labels[ $chosen ] ) . '</span></p>';
+			$this->callout( $labels[ $chosen ] );
 		}
 	}
 
@@ -668,7 +772,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function sign_in_card() {
-		$this->open( __( 'Sign-in', 'yallapp' ) );
+		$this->open( 'sign-in', __( 'Sign-in', 'yallapp' ) );
 		$this->radios(
 			'sign_in_methods',
 			__( 'People sign in with', 'yallapp' ),
@@ -699,10 +803,10 @@ class Settings_Page {
 				$chosen[] = $names[ $method ];
 			}
 			/* translators: %s: sign-in methods, such as "phone number, email and password". */
-			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( sprintf( __( 'Chosen on your Yallapp dashboard\'s App sign-in page: %s. That choice replaces this setting.', 'yallapp' ), implode( ', ', $chosen ) ) ) . '</span></p>';
+			$this->callout( sprintf( __( 'Chosen on your Yallapp dashboard\'s App sign-in page: %s. That choice replaces this setting.', 'yallapp' ), implode( ', ', $chosen ) ) );
 		}
 		if ( null !== $way && $this->plugin->license()->has_key() ) {
-			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( 'code' === $way ? __( 'Chosen on your Yallapp dashboard: email sign-in with a code. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: email sign-in with the password. That choice replaces this setting.', 'yallapp' ) ) . '</span></p>';
+			$this->callout( 'code' === $way ? __( 'Chosen on your Yallapp dashboard: email sign-in with a code. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: email sign-in with the password. That choice replaces this setting.', 'yallapp' ) );
 		}
 		echo '<p class="ya-help">' . esc_html__( 'With the password, only people who already have an account on this website sign in by email, and WordPress checks the password with your security plugins. With a code, Yallapp emails a 6-digit code (from your own address when you set one in your Yallapp dashboard), and people without an account sign up when sign-up from the app is allowed. Staff accounts that can edit the site never sign in by code. Needs an active license.', 'yallapp' ) . '</p>';
 		$this->provider_choice();
@@ -792,7 +896,7 @@ class Settings_Page {
 		echo '<div class="ya-row" role="radiogroup" aria-labelledby="ya-otp-provider"><span class="ya-label" id="ya-otp-provider">' . esc_html__( 'Sign-in codes are sent by', 'yallapp' ) . '</span><div class="ya-choices">';
 		foreach ( $options as $value => $option ) {
 			printf(
-				'<label><input type="radio" name="%1$s" value="%2$s"%3$s> %4$s<br><span class="ya-help">%5$s</span></label>',
+				'<label class="ya-choice"><input type="radio" name="%1$s" value="%2$s"%3$s> <span><span class="ya-choice-title">%4$s</span><span class="ya-help">%5$s</span></span></label>',
 				esc_attr( self::name( 'otp_provider' ) ),
 				esc_attr( $value ),
 				checked( (string) $this->values['otp_provider'], $value, false ),
@@ -803,7 +907,7 @@ class Settings_Page {
 		echo '</div></div>';
 		$notice = $this->otp_notice( $choice, $digits );
 		if ( '' !== $notice ) {
-			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $notice ) . '</span></p>';
+			$this->callout( $notice );
 		}
 		$error = Adapter_Choice::YALLAPP === $choice['id'] ? Yallapp_Adapter::last_error() : null;
 		if ( $error ) {
@@ -865,7 +969,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function purchases_card() {
-		$this->open( __( 'Purchases', 'yallapp' ) );
+		$this->open( 'purchases', __( 'Purchases', 'yallapp' ) );
 		$this->toggle( 'android_enroll_button', __( '"Enroll now" button on Android', 'yallapp' ), __( 'Opens your website checkout with the student signed in.', 'yallapp' ) );
 		echo '<div class="ya-row ya-disabled"><span class="ya-label">' . esc_html__( '"Enroll now" button on iOS', 'yallapp' ) . '</span><span class="ya-help">' . esc_html__( 'Disabled due to Apple\'s digital content policy. iOS is view-only.', 'yallapp' ) . '</span></div>';
 		$this->toggle( 'free_enrollment', __( 'Free courses: enroll directly in the app (Android & iOS)', 'yallapp' ) );
@@ -887,7 +991,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function checkout_card() {
-		$this->open( __( 'Checkout', 'yallapp' ) );
+		$this->open( 'checkout', __( 'Checkout', 'yallapp' ) );
 		$this->radios(
 			'checkout_opens_in',
 			__( 'Where checkout opens', 'yallapp' ),
@@ -916,7 +1020,7 @@ class Settings_Page {
 		);
 		$enabled = (array) $this->values['bookings_home_sections'];
 		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
-		$this->open( __( 'Bookings app', 'yallapp' ) );
+		$this->open( 'bookings', __( 'Bookings app', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Home sections shown (drag to reorder)', 'yallapp' ) . '</span>';
 		echo '<input type="hidden" name="yallapp[bookings_home_sections][]" value="">';
 		echo '<ul class="ya-sortable">';
@@ -925,10 +1029,11 @@ class Settings_Page {
 				continue;
 			}
 			printf(
-				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[bookings_home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				'<li><span class="ya-grip" aria-hidden="true">%4$s</span><label><input type="checkbox" name="yallapp[bookings_home_sections][]" value="%1$s"%2$s> <span>%3$s</span></label></li>',
 				esc_attr( $section ),
 				checked( in_array( $section, $enabled, true ), true, false ),
-				esc_html( $labels[ $section ] )
+				esc_html( $labels[ $section ] ),
+				wp_kses( Icons::svg( 'drag_indicator', 20 ), Icons::allowed() )
 			);
 		}
 		echo '</ul></div>';
@@ -959,7 +1064,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function video_card() {
-		$this->open( __( 'Video & content protection', 'yallapp' ) );
+		$this->open( 'video', __( 'Video & content protection', 'yallapp' ) );
 		$this->select(
 			'watermark',
 			__( 'Video watermark', 'yallapp' ),
@@ -991,7 +1096,7 @@ class Settings_Page {
 		$this->toggle( 'offline_downloads', __( 'Allow offline downloads', 'yallapp' ), __( 'Students can save lessons and whole courses to watch and read without the internet. Files are stored encrypted inside the app and deleted when the student\'s access ends. Lessons whose video plays from YouTube, Vimeo or another video site can\'t be saved. Needs a plan with offline mode; a choice made on the Yallapp dashboard\'s Courses page wins.', 'yallapp' ) );
 		$chosen = $this->plugin->license()->has_key() ? ( $this->plugin->license()->status()['offline_downloads'] ?? null ) : null;
 		if ( is_bool( $chosen ) ) {
-			echo '<p class="ya-help"><span class="ya-pill ya-pill-warn">' . esc_html( $chosen ? __( 'Chosen on your Yallapp dashboard: downloads on. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: downloads off. That choice replaces this setting.', 'yallapp' ) ) . '</span></p>';
+			$this->callout( $chosen ? __( 'Chosen on your Yallapp dashboard: downloads on. That choice replaces this setting.', 'yallapp' ) : __( 'Chosen on your Yallapp dashboard: downloads off. That choice replaces this setting.', 'yallapp' ) );
 		}
 		$this->close();
 	}
@@ -1002,7 +1107,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function content_card() {
-		$this->open( __( 'Lesson content (HTML & code)', 'yallapp' ) );
+		$this->open( 'content', __( 'Lesson content (HTML & code)', 'yallapp' ) );
 		$this->radios(
 			'render_mode',
 			__( 'How lesson content is displayed', 'yallapp' ),
@@ -1044,7 +1149,7 @@ class Settings_Page {
 		);
 		$enabled = (array) $this->values['home_sections'];
 		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
-		$this->open( __( 'App home screen', 'yallapp' ) );
+		$this->open( 'home', __( 'App home screen', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Sections shown (drag to reorder)', 'yallapp' ) . '</span>';
 		echo '<input type="hidden" name="yallapp[home_sections][]" value="">';
 		echo '<ul class="ya-sortable">';
@@ -1053,10 +1158,11 @@ class Settings_Page {
 				continue;
 			}
 			printf(
-				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				'<li><span class="ya-grip" aria-hidden="true">%4$s</span><label><input type="checkbox" name="yallapp[home_sections][]" value="%1$s"%2$s> <span>%3$s</span></label></li>',
 				esc_attr( $section ),
 				checked( in_array( $section, $enabled, true ), true, false ),
-				esc_html( $labels[ $section ] )
+				esc_html( $labels[ $section ] ),
+				wp_kses( Icons::svg( 'drag_indicator', 20 ), Icons::allowed() )
 			);
 		}
 		echo '</ul></div>';
@@ -1089,7 +1195,7 @@ class Settings_Page {
 		);
 		$enabled = (array) $this->values['store_home_sections'];
 		$order   = array_merge( $enabled, array_diff( array_keys( $labels ), $enabled ) );
-		$this->open( __( 'Store app', 'yallapp' ) );
+		$this->open( 'store', __( 'Store app', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Home sections shown (drag to reorder)', 'yallapp' ) . '</span>';
 		echo '<input type="hidden" name="yallapp[store_home_sections][]" value="">';
 		echo '<ul class="ya-sortable">';
@@ -1098,10 +1204,11 @@ class Settings_Page {
 				continue;
 			}
 			printf(
-				'<li><span class="ya-grip" aria-hidden="true">⋮⋮</span><label><input type="checkbox" name="yallapp[store_home_sections][]" value="%1$s"%2$s> %3$s</label></li>',
+				'<li><span class="ya-grip" aria-hidden="true">%4$s</span><label><input type="checkbox" name="yallapp[store_home_sections][]" value="%1$s"%2$s> <span>%3$s</span></label></li>',
 				esc_attr( $section ),
 				checked( in_array( $section, $enabled, true ), true, false ),
-				esc_html( $labels[ $section ] )
+				esc_html( $labels[ $section ] ),
+				wp_kses( Icons::svg( 'drag_indicator', 20 ), Icons::allowed() )
 			);
 		}
 		echo '</ul><span class="ya-help">' . esc_html__( 'Featured products are the ones starred in WooCommerce.', 'yallapp' ) . '</span></div>';
@@ -1163,11 +1270,12 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function notifications_card( $type ) {
-		$this->open( __( 'Notifications (Firebase)', 'yallapp' ) );
+		$this->open( 'notifications', __( 'Notifications (Firebase)', 'yallapp' ) );
 		echo '<div class="ya-row"><span class="ya-label">' . esc_html__( 'Firebase service account file', 'yallapp' ) . '</span><div>';
-		if ( '' !== (string) $this->plugin->settings()->get( 'firebase_service_account' ) ) {
-			echo '<p><span class="ya-pill ya-pill-ok">' . esc_html__( 'Connected', 'yallapp' ) . '</span></p>';
-			echo '<label><input type="checkbox" name="yallapp_firebase_remove" value="1"> ' . esc_html__( 'Remove the saved file', 'yallapp' ) . '</label><br>';
+		$connected = '' !== (string) $this->plugin->settings()->get( 'firebase_service_account' );
+		echo '<p class="ya-state">' . $this->pill( $connected ? __( 'Connected', 'yallapp' ) : __( 'Not connected', 'yallapp' ), $connected ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
+		if ( $connected ) {
+			echo '<label class="ya-check"><input type="checkbox" name="yallapp_firebase_remove" value="1"> <span>' . esc_html__( 'Remove the saved file', 'yallapp' ) . '</span></label>';
 		}
 		echo '<input type="file" name="yallapp_firebase" accept="application/json,.json">';
 		echo '<p class="ya-help">' . esc_html__( 'Firebase > Project settings > Service accounts > Generate new private key. The file is stored encrypted.', 'yallapp' ) . '</p>';
@@ -1204,12 +1312,12 @@ class Settings_Page {
 		$settings = $this->plugin->settings();
 		$saved    = '' !== (string) $settings->get( 'huawei_push_app_id' ) && '' !== (string) $settings->get( 'huawei_push_app_secret' );
 		echo '<div class="ya-row"><label class="ya-label" for="ya-huawei-app-id">' . esc_html__( 'Huawei Push Kit (optional)', 'yallapp' ) . '</label><div>';
+		echo '<p class="ya-state">' . $this->pill( $saved ? __( 'Connected', 'yallapp' ) : __( 'Not connected', 'yallapp' ), $saved ? true : null ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
 		if ( $saved ) {
-			echo '<p><span class="ya-pill ya-pill-ok">' . esc_html__( 'Connected', 'yallapp' ) . '</span></p>';
-			echo '<label><input type="checkbox" name="yallapp_huawei_remove" value="1"> ' . esc_html__( 'Remove the Huawei details', 'yallapp' ) . '</label><br>';
+			echo '<label class="ya-check"><input type="checkbox" name="yallapp_huawei_remove" value="1"> <span>' . esc_html__( 'Remove the Huawei details', 'yallapp' ) . '</span></label>';
 		}
-		echo '<input type="text" id="ya-huawei-app-id" name="yallapp[huawei_push_app_id]" inputmode="numeric" autocomplete="off" placeholder="' . esc_attr__( 'App ID', 'yallapp' ) . '" value="' . esc_attr( (string) $settings->get( 'huawei_push_app_id' ) ) . '"> ';
-		echo '<input type="password" name="yallapp[huawei_push_app_secret]" autocomplete="off" placeholder="' . esc_attr( $saved ? __( 'App secret (saved)', 'yallapp' ) : __( 'App secret', 'yallapp' ) ) . '" aria-label="' . esc_attr__( 'App secret', 'yallapp' ) . '">';
+		echo '<span class="ya-pair"><input type="text" id="ya-huawei-app-id" name="yallapp[huawei_push_app_id]" inputmode="numeric" autocomplete="off" placeholder="' . esc_attr__( 'App ID', 'yallapp' ) . '" value="' . esc_attr( (string) $settings->get( 'huawei_push_app_id' ) ) . '"> ';
+		echo '<input type="password" name="yallapp[huawei_push_app_secret]" autocomplete="off" placeholder="' . esc_attr( $saved ? __( 'App secret (saved)', 'yallapp' ) : __( 'App secret', 'yallapp' ) ) . '" aria-label="' . esc_attr__( 'App secret', 'yallapp' ) . '"></span>';
 		echo '<p class="ya-help">' . esc_html__( 'For Huawei phones without Google Play. AppGallery Connect > Project settings > App information: the app ID and the app secret. The secret is stored encrypted; leave it empty to keep the saved one.', 'yallapp' ) . '</p>';
 		echo '</div></div>';
 	}
@@ -1220,7 +1328,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function news_card() {
-		$this->open( __( 'News & blog', 'yallapp' ) );
+		$this->open( 'news', __( 'News & blog', 'yallapp' ) );
 		echo '<p class="ya-help">' . esc_html__( 'The app shows your published posts. Sticky posts are the top stories; private and password-protected posts never show.', 'yallapp' ) . '</p>';
 		$this->toggle( 'news_show_author', __( 'Show who wrote each article', 'yallapp' ) );
 		$this->toggle( 'news_show_dates', __( 'Show when each article was published', 'yallapp' ) );
@@ -1233,7 +1341,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function updates_card() {
-		$this->open( __( 'Updates & maintenance', 'yallapp' ) );
+		$this->open( 'updates', __( 'Updates & maintenance', 'yallapp' ) );
 		$this->text( 'min_app_version', __( 'Minimum allowed version (force update)', 'yallapp' ), '1.0.0' );
 		$this->toggle( 'maintenance', __( 'Maintenance mode (the app shows a message only)', 'yallapp' ) );
 		$name = 'yallapp[maintenance_message]';
@@ -1248,7 +1356,7 @@ class Settings_Page {
 	 * @return void
 	 */
 	private function manual_push_card( $type ) {
-		$this->open( __( 'Send a manual notification', 'yallapp' ) );
+		$this->open( 'push', __( 'Send a manual notification', 'yallapp' ) );
 		if ( ! $this->plugin->push()->is_configured() ) {
 			echo '<p class="ya-help">' . esc_html__( 'Messages appear in the app\'s notifications. Upload your Firebase service account file in Notifications to also send them as push notifications.', 'yallapp' ) . '</p>';
 		}
@@ -1264,7 +1372,7 @@ class Settings_Page {
 		echo '</select></label>';
 		echo '<label class="ya-row"><span class="ya-label">' . esc_html__( 'Title', 'yallapp' ) . '</span><input type="text" name="title" class="regular-text" maxlength="80" required></label>';
 		echo '<label class="ya-row"><span class="ya-label">' . esc_html__( 'Message', 'yallapp' ) . '</span><textarea name="body" rows="3" class="large-text" maxlength="240" required></textarea></label>';
-		echo '<div class="ya-actions"><button class="button button-primary">' . esc_html__( 'Send', 'yallapp' ) . '</button></div>';
+		echo '<div class="ya-actions"><button class="button button-primary">' . wp_kses( Icons::svg( 'send', 18 ), Icons::allowed() ) . esc_html__( 'Send', 'yallapp' ) . '</button></div>';
 		echo '</form>';
 		$this->close();
 	}
@@ -1277,25 +1385,25 @@ class Settings_Page {
 	 */
 	private function devices_card( $type ) {
 		$search = isset( $_GET['device_search'] ) ? sanitize_text_field( wp_unslash( $_GET['device_search'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search.
-		$this->open( 'lms' === $type ? __( 'Student devices', 'yallapp' ) : __( 'App user devices', 'yallapp' ) );
+		$this->open( 'devices', 'lms' === $type ? __( 'Student devices', 'yallapp' ) : __( 'App user devices', 'yallapp' ) );
 		echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '" class="ya-inline">';
 		echo '<input type="hidden" name="page" value="' . esc_attr( self::SLUG ) . '">';
-		echo '<input type="search" name="device_search" value="' . esc_attr( $search ) . '" class="regular-text" placeholder="' . esc_attr__( 'Search by mobile number', 'yallapp' ) . '">';
+		echo '<span class="ya-search">' . wp_kses( Icons::svg( 'search', 20 ), Icons::allowed() ) . '<input type="search" name="device_search" value="' . esc_attr( $search ) . '" class="regular-text" placeholder="' . esc_attr__( 'Search by mobile number', 'yallapp' ) . '" aria-label="' . esc_attr__( 'Search by mobile number', 'yallapp' ) . '"></span>';
 		echo '<button class="button">' . esc_html__( 'Search', 'yallapp' ) . '</button></form>';
 		if ( '' !== $search ) {
 			$user = $this->find_student( $search );
 			if ( ! $user ) {
-				echo '<p class="ya-help">' . esc_html( 'lms' === $type ? __( 'No student uses this number.', 'yallapp' ) : __( 'Nobody uses this number in the app.', 'yallapp' ) ) . '</p>';
+				echo '<div class="ya-empty"><span class="ya-empty-icon">' . wp_kses( Icons::svg( 'person_search', 28 ), Icons::allowed() ) . '</span><p class="ya-help">' . esc_html( 'lms' === $type ? __( 'No student uses this number.', 'yallapp' ) : __( 'Nobody uses this number in the app.', 'yallapp' ) ) . '</p></div>';
 			} else {
 				$rows = $this->plugin->devices()->for_user( $user->ID );
-				echo '<p><strong>' . esc_html( $user->display_name ) . '</strong></p>';
+				echo '<p class="ya-person"><strong>' . esc_html( $user->display_name ) . '</strong></p>';
 				if ( ! $rows ) {
-					echo '<p class="ya-help">' . esc_html__( 'No devices are signed in.', 'yallapp' ) . '</p>';
+					echo '<div class="ya-empty"><span class="ya-empty-icon">' . wp_kses( Icons::svg( 'devices', 28 ), Icons::allowed() ) . '</span><p class="ya-help">' . esc_html__( 'No devices are signed in.', 'yallapp' ) . '</p></div>';
 				}
 				echo '<ul class="ya-devices">';
 				foreach ( $rows as $row ) {
 					$device = Devices::to_api( $row, 0 );
-					echo '<li><div><strong>' . esc_html( ( $device['name'] ? $device['name'] : __( 'Phone', 'yallapp' ) ) . ' · ' . ( 'ios' === $device['platform'] ? 'iOS' : 'Android' ) ) . '</strong><br><span class="ya-help">';
+					echo '<li><span class="ya-device-icon">' . wp_kses( Icons::svg( 'phone_iphone', 22 ), Icons::allowed() ) . '</span><div class="ya-device-text"><strong>' . esc_html( ( $device['name'] ? $device['name'] : __( 'Phone', 'yallapp' ) ) . ' · ' . ( 'ios' === $device['platform'] ? 'iOS' : 'Android' ) ) . '</strong><br><span class="ya-help">';
 					/* translators: %s: date. */
 					echo esc_html( sprintf( __( 'Last sign-in: %s', 'yallapp' ), date_i18n( get_option( 'date_format' ), strtotime( $device['last_seen_at'] ) ) ) );
 					echo '</span></div><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
@@ -1366,12 +1474,20 @@ class Settings_Page {
 	/**
 	 * Opens a card.
 	 *
+	 * @param string $id    Section id, a key of SECTION_ICONS.
 	 * @param string $title Title.
 	 * @param string $badge Badge HTML (escaped by the caller).
 	 * @return void
 	 */
-	private function open( $title, $badge = '' ) {
-		echo '<section class="ya-card"><h2>' . esc_html( $title ) . ' ' . $badge . '</h2>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller.
+	private function open( $id, $title, $badge = '' ) {
+		$this->sections[ $id ] = $title;
+		printf(
+			'<section class="ya-card" id="%1$s" aria-labelledby="%1$s-title"><div class="ya-card-head"><span class="ya-card-icon">%2$s</span><h2 class="ya-card-title" id="%1$s-title">%3$s</h2>%4$s</div>',
+			esc_attr( 'ya-section-' . $id ),
+			wp_kses( Icons::svg( self::SECTION_ICONS[ $id ] ?? 'tune', 22 ), Icons::allowed() ),
+			esc_html( $title ),
+			$badge // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the caller.
+		);
 	}
 
 	/**
@@ -1493,7 +1609,7 @@ class Settings_Page {
 		$id = 'ya-' . str_replace( '_', '-', $key );
 		echo '<div class="ya-row" role="radiogroup" aria-labelledby="' . esc_attr( $id ) . '"><span class="ya-label" id="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</span><div class="ya-choices">';
 		foreach ( $options as $value => $text ) {
-			printf( '<label><input type="radio" name="%1$s" value="%2$s"%3$s> %4$s</label>', esc_attr( self::name( $key ) ), esc_attr( (string) $value ), checked( (string) $this->values[ $key ], (string) $value, false ), esc_html( $text ) );
+			printf( '<label class="ya-choice"><input type="radio" name="%1$s" value="%2$s"%3$s> <span>%4$s</span></label>', esc_attr( self::name( $key ) ), esc_attr( (string) $value ), checked( (string) $this->values[ $key ], (string) $value, false ), esc_html( $text ) );
 		}
 		echo '</div></div>';
 	}
@@ -1514,7 +1630,7 @@ class Settings_Page {
 		foreach ( $options as $value => $text ) {
 			$locked = in_array( $value, $required, true );
 			printf(
-				'<label><input type="checkbox" name="%1$s[]" value="%2$s"%3$s%4$s> %5$s</label>',
+				'<label class="ya-chip-choice"><input type="checkbox" name="%1$s[]" value="%2$s"%3$s%4$s> <span>%5$s</span></label>',
 				esc_attr( self::name( $key ) ),
 				esc_attr( $value ),
 				checked( $locked || in_array( $value, (array) $this->values[ $key ], true ), true, false ),
@@ -1556,7 +1672,7 @@ class Settings_Page {
 		$id  = (int) $this->values[ $key ];
 		$url = $id ? wp_get_attachment_image_url( $id, 'thumbnail' ) : '';
 		printf(
-			'<div class="ya-row"><span class="ya-label">%1$s</span><div class="ya-image" data-ya-image><img src="%2$s" alt=""%3$s><input type="hidden" name="%4$s" value="%5$d"><button type="button" class="button" data-ya-pick>%6$s</button> <button type="button" class="button-link ya-danger" data-ya-clear%7$s>%8$s</button></div></div>',
+			'<div class="ya-row"><span class="ya-label">%1$s</span><div class="ya-image" data-ya-image><span class="ya-image-empty" aria-hidden="true">%9$s</span><img src="%2$s" alt=""%3$s><input type="hidden" name="%4$s" value="%5$d"><button type="button" class="button" data-ya-pick>%6$s</button> <button type="button" class="button-link ya-danger" data-ya-clear%7$s>%8$s</button></div></div>',
 			esc_html( $label ),
 			esc_url( (string) $url ),
 			$url ? '' : ' hidden',
@@ -1564,7 +1680,8 @@ class Settings_Page {
 			(int) $id,
 			esc_html__( 'Upload image', 'yallapp' ),
 			$url ? '' : ' hidden',
-			esc_html__( 'Remove', 'yallapp' )
+			esc_html__( 'Remove', 'yallapp' ),
+			wp_kses( Icons::svg( 'upload', 24 ), Icons::allowed() )
 		);
 	}
 
@@ -1579,11 +1696,10 @@ class Settings_Page {
 	 */
 	private function status_row( $label, $value, $ok, $detail ) {
 		printf(
-			'<li><span class="ya-label">%1$s</span><span>%2$s</span><span class="ya-pill ya-pill-%3$s">%4$s</span></li>',
+			'<li><span class="ya-label">%1$s</span><span class="ya-status-value">%2$s</span>%3$s</li>',
 			esc_html( $label ),
 			esc_html( $value ),
-			$ok ? 'ok' : 'warn',
-			esc_html( $detail )
+			$this->pill( $detail, $ok ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in pill().
 		);
 	}
 
