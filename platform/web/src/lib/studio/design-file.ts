@@ -1,7 +1,8 @@
-import type { Action, Languages, LanguageCode, LayoutPage, LayoutTab, StudioNode, StudioPage, Translations } from "../pages/types";
+import type { Action, Languages, LanguageCode, LayoutPage, LayoutTab, StudioNode, StudioPage, TabBarStyle, Translations } from "../pages/types";
 import { uniqueSlug } from "../pages/model";
 import type { StudioDemoId } from "../demo/constants";
 import { forPaste, type PasteContext } from "./clipboard";
+import type { StudioScreens } from "./screens";
 
 /**
  * 108.2 Yallapp's own design file (`.yallapp`): a page, an element with what
@@ -55,6 +56,10 @@ export interface DesignFileLook {
   primary_color?: string;
   secondary_color?: string | null;
   tabs?: LayoutTab[];
+  /** 124.11 The tab bar's design. */
+  tab_bar?: TabBarStyle;
+  /** 124.11 The looks chosen in Studio › Screens (sign-in, account menu, courses, the premium screens). Checked again when applied. */
+  screens?: StudioScreens;
 }
 
 export interface DesignFile {
@@ -267,6 +272,8 @@ export function readDesignFile(text: string): { ok: true; file: DesignFile } | {
               ...(typeof look.primary_color === "string" ? { primary_color: look.primary_color } : {}),
               ...(typeof look.secondary_color === "string" ? { secondary_color: look.secondary_color } : {}),
               ...(Array.isArray(look.tabs) ? { tabs: look.tabs as LayoutTab[] } : {}),
+              ...(record(look.tab_bar) ? { tab_bar: look.tab_bar as TabBarStyle } : {}),
+              ...(record(look.screens) ? { screens: look.screens as StudioScreens } : {}),
             },
           }
         : {}),
@@ -278,7 +285,8 @@ export function readDesignFile(text: string): { ok: true; file: DesignFile } | {
 
 /** Where an imported design goes. */
 /** 108.7 `keep_mine`: kept as one of the account's own whole designs, the draft unchanged. */
-export type DesignPlace = "new_pages" | "this_page" | "section" | "keep_mine";
+/** 124.11 `whole_project`: the project becomes the file's: its pages, tabs, bar, colours and screens' looks. */
+export type DesignPlace = "whole_project" | "new_pages" | "this_page" | "section" | "keep_mine";
 
 export interface DesignFit extends Omit<PasteContext, "pageSlugs"> {
   /** The project's pages, to give the new ones their own addresses. */

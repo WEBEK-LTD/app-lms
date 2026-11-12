@@ -252,7 +252,8 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
   const { design } = props.read;
   const section = design.kind === "section";
   const [chosen, setChosen] = useState<number[]>(() => design.pages.map((_, i) => i));
-  const [place, setPlace] = useState<DesignPlace>(section ? "section" : "new_pages");
+  const whole = design.kind === "project" && !!design.look?.tabs?.length;
+  const [place, setPlace] = useState<DesignPlace>(section ? "section" : whole ? "whole_project" : "new_pages");
   const [takeLook, setTakeLook] = useState(false);
   const [states, setStates] = useState<Record<string, FontState>>({});
   const [appFont, setAppFont] = useState<string[]>([]);
@@ -263,9 +264,9 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
   const pages = useMemo(() => (section ? [{ studio: { body: design.section! } as StudioPage }] : design.pages.filter((_, i) => chosen.includes(i))), [design, chosen, section]);
   const families = useMemo(() => {
     const all = new Set(pages.flatMap((p) => fontsIn(p.studio)));
-    if (takeLook && design.look?.font) all.add(design.look.font);
+    if ((takeLook || place === "whole_project") && design.look?.font) all.add(design.look.font);
     return [...all];
-  }, [pages, takeLook, design.look]);
+  }, [pages, takeLook, place, design.look]);
   const pictures = useMemo(() => [...new Set(pages.flatMap((p) => picturesIn(p.studio)))].filter((url) => design.pictures[url]), [pages, design.pictures]);
   const pictureBytes = pictures.reduce((sum, url) => sum + Math.floor((design.pictures[url]!.data.length * 3) / 4), 0);
 
@@ -365,10 +366,10 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
           <fieldset className="m-0 flex flex-col gap-2 rounded-xl p-3" style={{ border: `1px solid ${C.line}` }}>
             <legend className="sr-only">{t("studio.importWhere")}</legend>
             <b aria-hidden="true">{t("studio.importWhere")}</b>
-            {(section ? (["section"] as const) : (["new_pages", "this_page", "section", "keep_mine"] as const)).map((p) => (
+            {(section ? (["section"] as const) : whole ? (["whole_project", "new_pages", "this_page", "section", "keep_mine"] as const) : (["new_pages", "this_page", "section", "keep_mine"] as const)).map((p) => (
               <label key={p} className="flex cursor-pointer items-center gap-1.5" style={place === p ? undefined : { color: C.muted }}>
                 <input type="radio" name="import-place" checked={place === p} disabled={(p === "this_page" || p === "section") && !props.hasOpenPage} onChange={() => setPlace(p)} className="accent-[#3D63FF]" />
-                {t(p === "new_pages" ? "studio.importNewPages" : p === "this_page" ? "studio.importThisPage" : p === "section" ? "studio.importSection" : "studio.importKeepMine")}
+                {t(p === "whole_project" ? "studio.importWholeProject" : p === "new_pages" ? "studio.importNewPages" : p === "this_page" ? "studio.importThisPage" : p === "section" ? "studio.importSection" : "studio.importKeepMine")}
               </label>
             ))}
             {place === "this_page" && chosen.length !== 1 && !section ? (
@@ -376,7 +377,12 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
                 {t("studio.importOneForThisPage")}
               </span>
             ) : null}
-            {design.kind === "project" && design.look ? (
+            {place === "whole_project" ? (
+              <span className="text-xs" style={{ color: C.muted }}>
+                {t("studio.importWholeProjectHint")}
+              </span>
+            ) : null}
+            {design.kind === "project" && design.look && place !== "whole_project" ? (
               <label className="mt-1 flex cursor-pointer items-center gap-1.5">
                 <input type="checkbox" checked={takeLook} onChange={(e) => setTakeLook(e.target.checked)} className="accent-[#3D63FF]" />
                 {t("studio.importLook")}
@@ -444,10 +450,12 @@ function Found(props: Parameters<typeof ImportDialog>[0] & { read: ImportRead; o
               {pictures.length === 1 ? t("studio.importPicturesOne", { size: sizeText(pictureBytes) }) : t("studio.importPictures", { count: pictures.length, size: sizeText(pictureBytes) })}
             </div>
           ) : null}
-          <div className="flex gap-1.5 text-xs" style={{ color: C.muted }}>
-            <Glyph name="info" size={18} />
-            {t("studio.importBars")}
-          </div>
+          {place === "whole_project" ? null : (
+            <div className="flex gap-1.5 text-xs" style={{ color: C.muted }}>
+              <Glyph name="info" size={18} />
+              {t("studio.importBars")}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex justify-between gap-2 px-5 py-3.5" style={{ borderTop: `1px solid ${C.line}` }}>

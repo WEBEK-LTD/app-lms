@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { E2E } from "../../playwright.config";
+import { readFileSync } from "node:fs";
 import { solidPng } from "./png";
 
 /**
@@ -384,6 +385,57 @@ test("124 Branding keeps what was entered while the icon is still missing, and a
   await expect(own.getByRole("menuitemradio", { name: "Promo" })).toHaveCount(0);
   await expect(own.getByRole("menuitem", { name: "Delete this page" })).toHaveCount(0);
   await own.keyboard.press("Escape");
+});
+
+test("124.11 a project's file brings the whole app into another project: pages, tabs, bar, colours and screens", async ({ request }) => {
+  // A premium academy, taken out as a file.
+  await newProject("Academy", "Whole From");
+  await own.goto("/studio/project/setup?step=branding");
+  await own.getByLabel("Name under the app icon").fill("Whole");
+  await uploadIcon();
+  await designRadio("studio-academy_premium").click();
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own).toHaveURL(/step=listing$/);
+  await own.goto("/studio/editor");
+  await own.getByRole("button", { name: /^Page: / }).click();
+  const [exported] = await Promise.all([own.waitForEvent("download"), own.getByRole("menuitem", { name: "Export the whole project as a file" }).click()]);
+  const file = JSON.parse(readFileSync((await exported.path())!, "utf8"));
+  expect(file.kind).toBe("project");
+  expect(file.look.tabs.map((t: { label: string }) => t.label)).toEqual(["Home", "Explore", "Blog", "My courses", "Account"]);
+  expect(file.look.tab_bar).toMatchObject({ design: "glass" });
+  expect(file.look.screens.looks).toMatchObject({ my_courses: "premium", lesson: "premium" });
+  // As another owner's brand would have it.
+  file.look.primary_color = "#002F5D";
+  file.look.secondary_color = "#D50313";
+
+  // A blank academy takes it whole.
+  await newProject("Academy", "Whole To");
+  await own.goto("/studio/editor");
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByRole("menuitem", { name: "Import a design…" }).click();
+  const importing = own.getByRole("dialog", { name: "Import a design" });
+  await importing.getByLabel("Choose a file").setInputFiles({ name: "Whole From.yallapp", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await importing.getByRole("button", { name: "Next" }).click();
+  await expect(importing.getByRole("radio", { name: "The whole project: pages, tabs, colours and screens" })).toBeChecked();
+  await expect(importing.getByText("The status bar and the tab bar are the app's own")).toHaveCount(0);
+  await importing.getByRole("button", { name: /^Import \d+ pages$/ }).click();
+  await expect(importing).toHaveCount(0);
+  await expect(own.getByRole("status").filter({ hasText: "The design is applied." })).toBeVisible({ timeout: 15_000 });
+  // One step undone and done again, then saved.
+  await own.getByRole("button", { name: "Undo" }).click();
+  await own.getByRole("button", { name: "Redo" }).click();
+  await expect(own.getByRole("status").filter({ hasText: "Saved just now" })).toBeVisible({ timeout: 10_000 });
+  // Its pages, with no second home.
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Home" })).toHaveCount(1);
+  await expect(own.getByRole("menuitemradio", { name: "My courses" })).toHaveCount(1);
+  await own.keyboard.press("Escape");
+  // The app gets its tabs; the main colour and the screens' looks are the project's now.
+  expect((await draftPages(request)).tabs).toEqual(["Home", "Explore", "Blog", "My courses", "Account"]);
+  await own.goto("/studio/project/setup?step=branding");
+  await expect(own.locator('input[name="primaryColor"]')).toHaveValue("#002f5d");
+  await own.goto("/studio/project/screens");
+  await expect(own.getByRole("radio", { name: /Premium/ }).first()).toBeChecked();
 });
 
 test("in Arabic: the designs' names, the messages in place, and every step on a phone", async () => {
