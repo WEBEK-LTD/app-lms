@@ -40,6 +40,9 @@ import { getPlans, platformSetting } from "@/lib/settings/platform";
 import { getSwitches, noWebsiteFor, websiteOf, websiteOn } from "@/lib/switches";
 import { designFitsApp, designsForApp, findDesign } from "@/lib/pages/designs/catalog";
 import { isStudioProject, studioPathFor } from "@/lib/studio/section";
+import { chosenProjectDesign, projectDesignId, projectTemplateLayout, projectTemplatePicture, projectTemplatesFor } from "@/lib/studio/project-templates";
+import type { SectionWord } from "@/lib/studio/sections";
+import type { DashKey } from "@/i18n/dashboard";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await dashboardText()).t("setup.title") };
@@ -275,7 +278,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
           icon={icon ? { id: icon.id, url: `/api/v1/assets/${icon.id}` } : null}
           logo={logo ? { id: logo.id, url: `/api/v1/assets/${logo.id}` } : null}
           fontCount={FREE_FONT_COUNT}
-          {...await brandingDesigns(store, app)}
+          {...await brandingDesigns(store, app, text)}
         />
       ) : null}
       {step === "listing" ? (
@@ -378,15 +381,30 @@ export default async function SetupPage({ searchParams }: PageProps<"/dashboard/
 }
 
 /** 33 The Branding step's designs for the app's kind, each as the draft it makes, and the draft as it is for "Keep my pages". */
-async function brandingDesigns(store: DataStore, app: App): Promise<Pick<BrandingDesigns, "designs" | "current" | "design" | "established">> {
+async function brandingDesigns(store: DataStore, app: App, { t, lang }: Awaited<ReturnType<typeof dashboardText>>): Promise<Pick<BrandingDesigns, "designs" | "current" | "design" | "established">> {
   const now = new Date();
   const record = await loadLayout(store, app, now);
   // 84.4 The built-in designs and the team's.
   const chosen = await findDesign(store, app.design);
+  // 124.6 A Studio project's templates for the whole project first (the premium academy), shown in their real picture.
+  const words = { w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.appName ?? "" }), lang };
+  const projects = await Promise.all(
+    projectTemplatesFor(app).map(async (template) => {
+      const name = t(`studio.tpl_${template.id}` as DashKey);
+      const src = projectTemplatePicture(template);
+      return {
+        id: projectDesignId(template.id),
+        name,
+        description: t(`studio.tplText_${template.id}` as DashKey),
+        ...(src ? { picture: { src, alt: t("studio.tplPicture", { name }) } } : {}),
+        layout: await projectTemplateLayout(store, app, template, now, words),
+      };
+    }),
+  );
   return {
-    designs: (await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) })),
+    designs: [...projects, ...(await designsForApp(store, app)).map((d) => ({ id: d.id, name: d.name, description: d.description, layout: designLayout(app, d, record.draft, now) }))],
     current: record.draft,
-    design: chosen && (await designFitsApp(store, chosen, app)) ? chosen.id : null,
+    design: chosenProjectDesign(app) ?? (chosen && (await designFitsApp(store, chosen, app)) ? chosen.id : null),
     // 99.2 An app with pages of its own can take a design's look only.
     established: record.published !== null || app.design != null,
   };

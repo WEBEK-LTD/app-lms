@@ -55,6 +55,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
     ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : project ? { primaryColor: project.primary } : {}),
     // 120 The demo's sign-in screen and account menu too (lib/studio/screens.ts), as the demo has them.
     ...(screens ? { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(fresh.hostedSettings ?? {}), studioScreens: screens } } : {}),
+    // 124.6 The template it started from, which App setup's Branding shows as chosen (lib/studio/project-templates.ts).
+    ...(project ? { design: template.id } : {}),
     ...input.extra,
   };
   const app: App =

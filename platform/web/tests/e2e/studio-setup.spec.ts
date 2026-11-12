@@ -163,8 +163,10 @@ test("Academy in Studio: every step, its links in Studio, and moving between the
   // Branding: every design and back, each with its own thumbnail.
   await expectChosen(KEEP);
   const ids = await everyDesignAndBack();
-  // Templates = demos: the demo's design first, then the academy's own.
-  expect(ids).toEqual(["demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
+  // 124.6 The premium academy (the Studio template for the whole project) first, in its real picture; templates = demos: the demo's design, then the academy's own.
+  expect(ids).toEqual(["studio-academy_premium", "demo-lms", "academy-classic", "academy-online", "academy-coaching", "academy-kids"]);
+  await expect(card("studio-academy_premium").getByRole("img", { name: "Premium academy: its home in the app" })).toHaveAttribute("src", "/screens/premium-home.png");
+  await expect(card("studio-academy_premium")).toContainText("The whole app: the home, the tab bar");
   expect(await thumbText("academy-kids")).toContain("Fun lessons for curious kids");
   expect(await thumbText(KEEP)).not.toContain("Fun lessons for curious kids");
 
@@ -271,6 +273,49 @@ test("Academy with pages of its own: another design's look only, its pages, or k
   await own.getByRole("button", { name: "Save & continue" }).click();
   await expect(own).toHaveURL(/step=listing$/);
   expect(await draftPages(request)).toEqual(online);
+});
+
+test("124.6 Academy: the premium academy's whole project from App setup, then shown as chosen", async ({ request }) => {
+  await own.goto("/studio/project/setup?step=branding");
+  await expectChosen("academy-online");
+  await designRadio("studio-academy_premium").click();
+  await expectChosen("studio-academy_premium");
+  // With pages of its own, its pages and look unless the owner keeps theirs.
+  await expect(take().getByRole("radio", { name: "Its pages and look" })).toBeChecked();
+  // The template's font comes with it.
+  await expect(own.getByLabel("Font", { exact: true })).toHaveValue("Alexandria");
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  await expect(own).toHaveURL(/step=listing$/);
+  // The project as a new one from the template starts: its tabs, with the blog of the website from sign-up.
+  const premium = await draftPages(request);
+  expect(premium.tabs).toEqual(["Home", "Explore", "Blog", "My courses", "Account"]);
+  await own.goto("/studio/project/setup?step=branding");
+  await expectChosen("studio-academy_premium");
+  await expect(take()).toHaveCount(0);
+  // Its sign-in screen and account menu too.
+  await own.goto("/studio/project/screens");
+  await expect(own.getByRole("radio", { name: /Premium/ }).first()).toBeChecked();
+});
+
+test("124.6 a new project: the premium academy among the Studio projects, its template already picked", async () => {
+  await own.goto("/studio/new");
+  const studioOnly = own.locator("section#step-1 div.grid").first();
+  const tile = studioOnly.getByRole("radio", { name: /^Premium academy / });
+  await expect(tile).toBeVisible();
+  await tile.check();
+  await expect(own.locator('input[type=hidden][name="kind"]')).toHaveValue("academy");
+  await expect(own.locator('input[type=hidden][name="template"]')).toHaveValue("academy_premium");
+  await expect(own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { checked: true })).toContainText("Premium academy");
+  // Another start can still be picked; back to the premium academy.
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: "Blank page" }).click();
+  await expect(own.locator('input[type=hidden][name="template"]')).toHaveValue("blank");
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Premium academy/ }).click();
+  await own.getByLabel("Project name").fill("Nour Premium");
+  // On the third step already: Next makes the project.
+  await own.getByRole("button", { name: "Next" }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  await own.goto("/studio/project/setup?step=branding");
+  await expectChosen("studio-academy_premium");
 });
 
 const KINDS = [

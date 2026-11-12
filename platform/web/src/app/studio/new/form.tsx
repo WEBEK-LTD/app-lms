@@ -10,10 +10,12 @@ import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { DashKey } from "@/i18n/dashboard";
 import { kindById } from "@/lib/app/kinds";
 import { templatesFor, type SectionWord } from "@/lib/studio/sections";
+import { kindOfChoice, templateAfterChoice, type PresetChoice } from "@/lib/studio/new-choices";
 import { Glyph, STUDIO_COLORS as C } from "../editor/shared";
 import { StudioBar } from "../chrome";
 
-export interface KindChoice {
+/** 124.6 A choice with its own id may make another kind with a template picked (lib/studio/new-choices.ts). */
+export interface KindChoice extends PresetChoice {
   id: string;
   name: string;
   icon: string;
@@ -35,10 +37,12 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
   const source = kind?.sources.find((s) => s.value === sourceValue) ?? kind?.sources[0] ?? null;
   const [template, setTemplate] = useState<string | null>(null);
   // 103R.7 The project type's own templates first; a choice another type's list had counts as none.
+  // 124.6 The real kind of the choice (the premium academy is the Academy).
+  const [kindOf, setKindOf] = useState<string | null>(null);
   const kindTemplates = useMemo(() => {
-    const info = kindById(kindId);
+    const info = kindById(kindOf);
     return templatesFor(info ? { type: info.engine, vertical: info.vertical } : null);
-  }, [kindId]);
+  }, [kindOf]);
   // Templates = demos: the kind's demo is chosen unless another is.
   const pick = template && kindTemplates.some((x) => x.id === template) ? template : (kindTemplates.find((x) => x.recommended)?.id ?? null);
   const [name, setName] = useState("");
@@ -76,7 +80,7 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
 
   return (
     <form action={createStudioProjectAction} className="flex min-h-dvh flex-col">
-      <input type="hidden" name="kind" value={kind?.id ?? ""} />
+      <input type="hidden" name="kind" value={kindOf ?? ""} />
       <input type="hidden" name="source" value={source?.value ?? ""} />
       <input type="hidden" name="template" value={pick ?? "blank"} />
       <StudioBar>
@@ -142,6 +146,8 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       disabled={k.soon}
                       onChange={() => {
                         setKindId(k.id);
+                        setKindOf(kindOfChoice(k));
+                        setTemplate(templateAfterChoice(k, kind, template));
                         setSourceValue(null);
                         setStep(2);
                       }}
@@ -178,6 +184,8 @@ export function NewProjectForm({ studioKinds, kinds, error, samples }: { studioK
                       checked={on}
                       onChange={() => {
                         setKindId(k.id);
+                        setKindOf(kindOfChoice(k));
+                        setTemplate(templateAfterChoice(k, kind, template));
                         setSourceValue(null);
                         setStep(2);
                       }}

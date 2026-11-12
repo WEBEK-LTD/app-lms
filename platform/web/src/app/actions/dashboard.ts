@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ownContentSetup } from "@/lib/app/own-content";
 import { STUDIO_ONLY_KINDS, isStudioProject, studioPathFor } from "@/lib/studio/section";
+import { applyProjectTemplate, projectTemplateOf } from "@/lib/studio/project-templates";
+import type { SectionWord } from "@/lib/studio/sections";
+import type { DashKey } from "@/i18n/dashboard";
+import { dashboardText } from "@/lib/dashboard-lang";
 import { checkApi, type ApiCheckResult } from "@/lib/app/api-check";
 import { listingLanguages, parseListingExtras } from "@/lib/app/listing-languages";
 import { versionSettingsProblems } from "@/lib/app/version-policy";
@@ -595,8 +599,10 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   }
   // 33 A ready-made design for the app's kind, or "" to keep the pages as they are.
   const designId = String(formData.get("design") ?? "");
-  const design = designId ? await findDesign(store, designId) : null;
-  if (designId && (!design || !(await designFitsApp(store, design, context.app)))) return { errors: { design: "Choose one of the designs shown." }, values };
+  // 124.6 Or a Studio project's template for the whole project (the premium academy).
+  const project = projectTemplateOf(context.app, designId);
+  const design = designId && !project ? await findDesign(store, designId) : null;
+  if (designId && !project && (!design || !(await designFitsApp(store, design, context.app)))) return { errors: { design: "Choose one of the designs shown." }, values };
   const now = new Date();
   const patch: AppPatch = {
     appName: parsed.data.appName,
@@ -619,6 +625,16 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
     // 110.2 The empty lists the design shows get sample entries.
     if (mode === "all") await seedForDesign(store, context.app.id, saved.value.record.draft.pages, now, demoOfDesign(design.id));
     revalidatePath("/dashboard/pages");
+  }
+  // 124.6 The template's whole project, as a new project from it starts (or its look only), in the colour just chosen.
+  if (project && project.id !== context.app.design) {
+    const { t, lang } = await dashboardText();
+    const app = { ...context.app, ...patch };
+    const words = { w: (word: SectionWord) => t(`studio.w_${word}` as DashKey, { app: app.appName ?? "" }), lang };
+    const saved = await applyProjectTemplate(store, app, project, now, words, { mode, look: { template: parsed.data.template, ...lookFont(parsed.data.font) } });
+    if (!saved.ok) return { errors: { design: "This design couldn't be applied to your app. Choose another one." }, values };
+    revalidatePath("/dashboard/pages");
+    revalidatePath("/studio", "layout");
   }
   return afterStep(context, "branding");
 }

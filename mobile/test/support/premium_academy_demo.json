@@ -372,6 +372,7 @@
          {
           "id": "demo-61",
           "type": "column",
+          "height": 206,
           "align": "end",
           "gap": 10,
           "padding": {

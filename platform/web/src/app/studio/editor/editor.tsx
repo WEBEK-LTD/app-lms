@@ -9,6 +9,7 @@ import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { LearningWords } from "@/components/studio/learning";
 import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
+import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
 import type { DashKey } from "@/i18n/dashboard";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
@@ -165,6 +166,8 @@ export function StudioEditor(props: StudioEditorProps) {
     moreLabel: moreLabel(editLang),
     accent: layout.appearance.secondary_color,
   };
+  // 124.6 The canvas in the fonts the app draws the page in (the look's and each element's), not the dashboard's.
+  useStudioFonts(fontsOfPage(studio?.body, look.font), ownFonts);
   const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
   const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;

@@ -747,7 +747,8 @@ function lookOf(a: Appearance): Partial<Appearance> {
 
 /** 33 The ready-made designs the Branding step offers, each as the draft it makes. */
 export interface BrandingDesigns {
-  designs: { id: string; name: string; description: string; layout: LayoutContent }[];
+  /** 124.6 `picture`: the design's real picture, shown instead of its pages drawn small (a Studio template for the whole project). */
+  designs: { id: string; name: string; description: string; layout: LayoutContent; picture?: { src: string; alt: string } }[];
   /** The draft as it is, for "Keep my pages". */
   current: LayoutContent;
   /** The design the app last started from. */
@@ -876,7 +877,7 @@ export function BrandingStep({
           </p>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
             {[
-              { id: "", name: t("setup.keepPages"), description: t("setup.keepPagesText"), layout: designs.current },
+              { id: "", name: t("setup.keepPages"), description: t("setup.keepPagesText"), layout: designs.current, picture: undefined },
               ...designs.designs.map((d) => ({ ...d, name: known(d.name), description: known(d.description) })),
             ].map((d) => {
               const checked = design === d.id;
@@ -890,7 +891,12 @@ export function BrandingStep({
               return (
                 <label key={d.id || "keep"} className="flex min-w-0 cursor-pointer flex-col gap-1.5">
                   <div className={`overflow-hidden rounded-xl ${checked ? "outline-2 outline-midnight" : "outline-1 outline-line"} bg-ivory outline`}>
-                    <DesignThumb layout={{ ...layout, appearance: { ...layout.appearance, theme_mode: "light" } }} app={{ name: name || t("setup.yourApp"), primaryColor: primary }} />
+                    {d.picture ? (
+                      // 124.6 A Studio page isn't drawn by the thumbnail: the template's home as the app draws it.
+                      <img src={d.picture.src} alt={d.picture.alt} loading="lazy" className="block h-[300px] w-full object-cover object-top" />
+                    ) : (
+                      <DesignThumb layout={{ ...layout, appearance: { ...layout.appearance, theme_mode: "light" } }} app={{ name: name || t("setup.yourApp"), primaryColor: primary }} />
+                    )}
                   </div>
                   <span className={`flex items-center gap-2 text-sm ${checked ? "font-bold" : "font-semibold"}`}>
                     <input
