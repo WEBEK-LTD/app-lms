@@ -272,7 +272,8 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Send it in cash and follow its stages under My shipments",
       "Open Account › Courier mode, go on duty and deliver your own parcel: picked up, on the way, delivered",
     ],
-    screens: ["delivery-send", "delivery-shipment", "delivery-courier"],
+    // 124 Sahm's own screens, designed in Studio.
+    screens: ["sahm-send", "sahm-shipment", "sahm-courier"],
   },
   food: {
     summary: "Food delivery from three restaurants: order, follow your order, then take it as the restaurant's staff and deliver it as the courier.",
@@ -292,7 +293,8 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "In the My store tab, accept your order with the minutes it needs, pick and weigh each item, then mark it ready",
       "In Account › Courier mode, take its job and deliver it, then see your complaints: one open, one waiting for you, one refunded to your wallet",
     ],
-    screens: ["food-restaurants", "food-menu", "food-order"],
+    // 124 The owner: the screens designed for Zad in Studio, not the basic ones.
+    screens: ["zad-home", "zad-market", "zad-tracking"],
   },
   rides: {
     summary: "A ride service in Cairo: ask for a ride and see each car type's fare first, then take your own ride as the company's driver.",
