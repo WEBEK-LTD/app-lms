@@ -219,6 +219,23 @@ export const ICON_NAMES = [
   // 124 The premium academy's cards in Studio: the learning streak and the live class.
   "local_fire_department",
   "videocam",
+  // 124.8 The academy's screens drawn on Studio's canvas: the subjects, the account, a course's units, the lesson's player and cards.
+  "article",
+  "calculate",
+  "download_for_offline",
+  "edit_note",
+  "expand_less",
+  "fact_check",
+  "folder",
+  "forward_10",
+  "fullscreen",
+  "keyboard_arrow_down",
+  "music_note",
+  "picture_as_pdf",
+  "replay_10",
+  "skip_next",
+  "trending_up",
+  "verified",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
