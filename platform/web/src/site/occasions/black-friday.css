@@ -288,23 +288,13 @@
 }
 .bf-btn-gold {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #ffd2bd, #ff7a45 45%, #e8571f);
-  box-shadow:
-    0 16px 36px -16px rgba(232, 87, 31, 0.9),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
-}
-.bf-btn-gold::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
-  transform: translateX(-120%);
-  animation: bf-sweep 5s ease-in-out 2s infinite;
-  pointer-events: none;
+  /* The owner, 12 November: buttons in one colour, Yallapp's ember, no gradient. */
+  background: #ff5a1f;
+  box-shadow: 0 16px 36px -18px rgba(255, 90, 31, 0.75);
 }
 .bf-btn-gold:hover {
   transform: translateY(-2px);
+  background: #f04a0f;
 }
 .bf-btn-ghost,
 .bf-btn-ghost:hover {
@@ -2528,16 +2518,6 @@
   85%,
   100% {
     transform: translateX(70%);
-  }
-}
-@keyframes bf-sweep {
-  0%,
-  60% {
-    transform: translateX(-120%);
-  }
-  90%,
-  100% {
-    transform: translateX(120%);
   }
 }
 @keyframes bf-marquee {
