@@ -43,6 +43,21 @@ export const BLACK_FRIDAY_TR: OccasionText = {
     seePlans: "Fiyatları görün",
     seePricing: "Bugünkü fiyatları görün",
     screensNote: "Yallapp ile yapılmış uygulamalardan gerçek ekranlar.",
+    scene: {
+      label: "Cuma akşamı, 21:00",
+      lines: [
+        "Yıllardır söylüyorsunuz: bir gün bizim de kendi uygulamamız olacak.",
+        "Mağazalarda sizin adınız, müşterilerinizin telefonlarında sizin renkleriniz.",
+        "Bu gece fiyatlar düşüyor ve o “bir gün” bugün oluyor.",
+      ],
+    },
+    sceneOver: {
+      label: "O geceden sonra",
+      lines: [
+        "Fiyatlar eski yerine döndü.",
+        "Ama yıllardır ertelediğiniz uygulamaya yine bugün başlayabilirsiniz.",
+      ],
+    },
   },
   countdown: {
     endsIn: "Kampanyanın bitmesine",
@@ -72,6 +87,14 @@ export const BLACK_FRIDAY_TR: OccasionText = {
     studioNone: "Studio paketleri şimdilik talep üzerine düzenleniyor; kartla ödenmedikleri için kod bunlarda geçerli değildir. Bize WhatsApp'tan yazın, projenize uygun paketi önerelim.",
     details: "Tüm paketleri karşılaştırın",
     period: "/ {period}",
+    scene: {
+      label: "21:07 · Fiyat düşüyor",
+      lines: [
+        "Fiyatları açıyorsunuz, alıştığınız rakamı bekleyerek.",
+        "Altın bir çizgi rakamın tam ortasından geçiyor.",
+        "Aynı paket, aynı uygulama: kodu kullandığınız ödemede %{percent} daha az.",
+      ],
+    },
   },
   kinds: {
     eyebrow: "Ne yaptığınızı seçin",
@@ -82,6 +105,17 @@ export const BLACK_FRIDAY_TR: OccasionText = {
     regularApp: "Normal uygulama",
     solution: "{apps} hakkında her şey",
     demo: "Demoyu deneyin",
+    scene: {
+      label: "21:30 · Vitrin",
+      lines: [
+        "Sokak ışıl ışıl; her vitrinin ardında başka bir işletme var.",
+        "Bir kafe, bir akademi, bir mağaza, bir klinik, bir kurye filosu: her birinin kendi ekranları var.",
+        "Bu rafta bir yerde sizinki de bekliyor.",
+      ],
+    },
+    prev: "Önceki",
+    next: "Sonraki",
+    more: "Neler yapar",
   },
   steps: {
     eyebrow: "Nasıl çalışır",
@@ -109,6 +143,17 @@ export const BLACK_FRIDAY_TR: OccasionText = {
         "Bir derleme genellikle 15 ila 45 dakika sürer; mağaza incelemeleri genellikle birkaç gün",
       ],
     ],
+    scene: {
+      label: "22:00 · Fiş",
+      lines: [
+        "Kod yok, ajans yok: tek bir fişte dört satır.",
+        "İlk ekranda sizin renkleriniz. Bir QR kodu ve uygulama kendi telefonunuzda açılıyor.",
+        "Ona itiraf edeceğinizden çok daha uzun bakıyorsunuz.",
+      ],
+    },
+    receipt: "Fiş · kendi uygulamanız",
+    total: "Toplam",
+    thanks: "Teşekkürler. Mağazalarda görüşmek üzere.",
   },
   included: {
     eyebrow: "İçindeki her şey, açıklamalarıyla",
@@ -211,6 +256,14 @@ export const BLACK_FRIDAY_TR: OccasionText = {
         ],
       },
     ],
+    scene: {
+      label: "23:40 · Kutu açılıyor",
+      lines: [
+        "Bir uygulama bekliyordunuz; kutudan koca bir sistem çıkıyor.",
+        "Parçaları tek tek çıkarın ve yakından bakın: ödediğiniz şey tam olarak bu.",
+      ],
+    },
+    count: "{count, plural, other{{count} parça}}",
   },
   terms: {
     eyebrow: "Kampanya koşulları",
@@ -230,6 +283,14 @@ export const BLACK_FRIDAY_TR: OccasionText = {
     ],
     over: "Bu yılın kampanyası İstanbul saatiyle {days} tarihlerinde geçerliydi. Kodu artık çalışmıyor ve paketler normal fiyatlarında.",
     refund: "İade politikamız her zamanki gibi geçerlidir.",
+    scene: {
+      label: "00:10 · Küçük harfler",
+      lines: [
+        "Ödemeden önce kuponu çevirip arkasına bakıyorsunuz.",
+        "Gizli dipnot yok, sürpriz yok; işleyiş olduğu gibi.",
+      ],
+    },
+    overStamp: "Sona erdi",
   },
   faq: {
     title: "Kampanya hakkında sorular",
@@ -250,11 +311,26 @@ export const BLACK_FRIDAY_TR: OccasionText = {
       { q: "Web sitesine ihtiyacım var mı?", a: "Hayır. Uygulamanız içeriğini web sitenizden, Shopify gibi bir platformdan, kendi API'nizden ya da web siteniz yoksa Yallapp panelinden alabilir." },
       { q: "Uygulamam mağazalara ne zaman çıkar?", a: "Kurulum tamamlandığında bir derleme genellikle 15 ila 45 dakika sürer. Google ve Apple incelemeleri, gönderdikten sonra genellikle birkaç gün sürer." },
     ],
+    scene: {
+      label: "00:30 · Son sorular",
+      lines: [
+        "Saat ilerledi; sorular birer birer geliyor.",
+        "İşte cevapları, uyumadan önce.",
+      ],
+    },
   },
   final: {
     title: "{to} tarihine kadar uygulamanız %{percent} indirimli",
     text: "Hesabınızı açın, uygulamanızı tasarlayın ve ücretsiz önizleyin. Paketinizi seçtiğinizde kod %{percent} indirim yapar.",
     titleOver: "Uygulamanıza yine bugün başlayabilirsiniz",
     textOver: "Hesabınızı açın, uygulamanızı tasarlayın ve ücretsiz önizleyin, ardından size uyan paketi seçin.",
+    scene: {
+      label: "08:00 · Ertesi sabah",
+      lines: [
+        "Sabah. İlk ekran hâlâ telefonunuzda açık, sizin renklerinizle.",
+        "Birkaç gün içinde mağazalarda. Sonra bir bildirim: ilk sipariş ya da sonuna kadar izlenen ilk ders.",
+        "Her şey bir cuma akşamı başladı.",
+      ],
+    },
   },
 };

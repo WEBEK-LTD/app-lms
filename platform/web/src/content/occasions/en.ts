@@ -43,6 +43,21 @@ export const BLACK_FRIDAY_EN: OccasionText = {
     seePlans: "See the prices",
     seePricing: "See today's prices",
     screensNote: "Real screens of apps made with Yallapp.",
+    scene: {
+      label: "Friday evening, 21:00",
+      lines: [
+        "For years you've said it: one day, we'll have our own app.",
+        "Your name on the stores. Your colours on your customers' phones.",
+        "Tonight the prices fall, and one day becomes today.",
+      ],
+    },
+    sceneOver: {
+      label: "After the night",
+      lines: [
+        "The prices are back where they were.",
+        "But the app you've put off for years can still start today.",
+      ],
+    },
   },
   countdown: {
     endsIn: "The offer ends in",
@@ -72,6 +87,14 @@ export const BLACK_FRIDAY_EN: OccasionText = {
     studioNone: "Studio's plans are arranged on request for now, so they aren't paid by card and the code doesn't apply to them. Message us on WhatsApp and we'll suggest the plan that fits your project.",
     details: "Compare every plan",
     period: "per {period}",
+    scene: {
+      label: "21:07 · The price falls",
+      lines: [
+        "You open the prices, ready for the usual number.",
+        "A gold line cuts straight through it.",
+        "The same plan, the same app: {percent}% less on the payment you make with the code.",
+      ],
+    },
   },
   kinds: {
     eyebrow: "Choose what you're building",
@@ -82,6 +105,17 @@ export const BLACK_FRIDAY_EN: OccasionText = {
     regularApp: "A regular app",
     solution: "All about {apps}",
     demo: "Try the demo",
+    scene: {
+      label: "21:30 · The shop window",
+      lines: [
+        "The street is lit, and behind every window is a different business.",
+        "A café, an academy, a shop, a clinic, a fleet of couriers, each with screens of its own.",
+        "Somewhere on this shelf, yours is waiting.",
+      ],
+    },
+    prev: "Previous",
+    next: "Next",
+    more: "What it does",
   },
   steps: {
     eyebrow: "How it works",
@@ -109,6 +143,17 @@ export const BLACK_FRIDAY_EN: OccasionText = {
         "A build usually takes 15 to 45 minutes; the stores' reviews usually a few days",
       ],
     ],
+    scene: {
+      label: "22:00 · The receipt",
+      lines: [
+        "No code, no agency: four lines on one receipt.",
+        "Your colours on the first screen. A QR code, and it opens on your own phone.",
+        "You look at it longer than you'd ever admit.",
+      ],
+    },
+    receipt: "Receipt · your own app",
+    total: "Total",
+    thanks: "Thank you. See you in the stores.",
   },
   included: {
     eyebrow: "Everything included, explained",
@@ -211,6 +256,14 @@ export const BLACK_FRIDAY_EN: OccasionText = {
         ],
       },
     ],
+    scene: {
+      label: "23:40 · Unboxing",
+      lines: [
+        "You were expecting an app. The box holds a whole system.",
+        "Lift it out part by part and look closely: this is what you pay for.",
+      ],
+    },
+    count: "{count, plural, =1{1 part} other{{count} parts}}",
   },
   terms: {
     eyebrow: "The offer's terms",
@@ -230,6 +283,14 @@ export const BLACK_FRIDAY_EN: OccasionText = {
     ],
     over: "This year's offer ran {days}, Istanbul time. Its code no longer works, and the plans are at their normal prices.",
     refund: "Our refund policy applies as usual.",
+    scene: {
+      label: "00:10 · The small print",
+      lines: [
+        "Before you pay, you turn the coupon over.",
+        "No hidden footnotes, no surprises: just how it works.",
+      ],
+    },
+    overStamp: "Over",
   },
   faq: {
     title: "Questions about the offer",
@@ -250,11 +311,26 @@ export const BLACK_FRIDAY_EN: OccasionText = {
       { q: "Do I need a website?", a: "No. Your app can take its content from your website, a platform such as Shopify, your own API, or the Yallapp dashboard if you have no website." },
       { q: "How long until my app is in the stores?", a: "Once the setup is complete, a build usually takes 15 to 45 minutes. Google's and Apple's reviews usually take a few days after you submit." },
     ],
+    scene: {
+      label: "00:30 · The last questions",
+      lines: [
+        "It's late, and the questions come one by one.",
+        "Here are their answers, before you sleep.",
+      ],
+    },
   },
   final: {
     title: "Your app, {percent}% off, until {to}",
     text: "Create your account, design your app and preview it for free. When you choose your plan, the code takes {percent}% off.",
     titleOver: "Your app can still start today",
     textOver: "Create your account, design your app and preview it for free, then choose the plan that fits.",
+    scene: {
+      label: "08:00 · The morning after",
+      lines: [
+        "Morning. The first screen is still open on your phone, in your colours.",
+        "In a few days it's in the stores. Then a notification: the first order, or a first lesson watched to the end.",
+        "It all started on a Friday evening.",
+      ],
+    },
   },
 };

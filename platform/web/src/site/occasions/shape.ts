@@ -7,8 +7,32 @@ import type { AppScreen } from "@/lib/marketing";
  * tests hold each language to the same counts).
  */
 
-/** The real app screens in the hero's phones (public/screens). */
-export const HERO_SCREENS: [AppScreen, AppScreen, AppScreen] = ["studio-cafe-home-dark", "store-home", "taxi-map"];
+/**
+ * The real app screens in the opening's phones (public/screens): the
+ * premium academy in the middle, a café designed in Studio and a
+ * multi-vendor home at its sides. The page shows only the premium
+ * template and screens designed in Studio.
+ */
+export const HERO_SCREENS: [AppScreen, AppScreen, AppScreen] = ["premium-home", "studio-cafe-home-dark", "zad-home"];
+
+/**
+ * The shop window's displays, kind by kind (lib/marketing `ALL_SOLUTIONS`):
+ * the premium or Studio screen that shows that kind. A kind without one is
+ * lit as a sign of its own, without a phone.
+ */
+export const KIND_SCREENS: Partial<Record<string, AppScreen>> = {
+  academy: "premium-home",
+  restaurant: "studio-cafe-home",
+  delivery: "sahm-shipment",
+  food: "zad-home",
+  "multi-vendor": "zad-grill",
+  rides: "taxi-on-ride",
+  university: "premium-course",
+  instructors: "premium-explore",
+};
+
+/** The phone beside the receipt: your app on your own phone, before you pay. */
+export const RECEIPT_SCREEN: AppScreen = "premium-lesson";
 
 /** "From idea to the stores in four steps": one icon per step. */
 export const STEP_ICONS: IconName[] = ["account_circle", "palette", "link", "rocket_launch"];

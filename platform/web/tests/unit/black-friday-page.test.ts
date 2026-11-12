@@ -9,7 +9,7 @@ import { MemoryStore } from "@/lib/data/memory";
 import type { OccasionRecord } from "@/lib/data/types";
 import { icuArguments, parseIcu } from "@/lib/i18n/icu";
 import { llmsText } from "@/lib/llms";
-import { APP_SCREENS, SCREEN_ALT } from "@/lib/marketing";
+import { ALL_SOLUTIONS, APP_SCREENS, SCREEN_ALT, type AppScreen } from "@/lib/marketing";
 import { newOccasion } from "@/lib/occasions";
 import { PLAN_INFO, planPriceOf, planSettingOf, plansWith, REGULAR_PLANS } from "@/lib/plans";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -18,7 +18,7 @@ import { PRICED_PAGES } from "@/lib/geo-vary";
 import { LANGS, type Lang } from "@/i18n/config";
 import { isLocalizedPath, languageAlternates, localePath } from "@/i18n/paths";
 import { daysText, FALLBACK_BLACK_FRIDAY, occasionPlanPrice, occasionView, percentText } from "@/site/occasions/offer";
-import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
+import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, KIND_SCREENS, RECEIPT_SCREEN, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
 import { BLACK_FRIDAY_PATH, type OccasionText } from "@/site/occasions/types";
 
 /**
@@ -143,14 +143,36 @@ describe("124 Black Friday's page", () => {
     expect(blackFridayCopyFor("tr").navName).toBe("Kara Cuma");
   });
 
-  it("uses only icons and screens that exist", () => {
-    for (const icon of [...STEP_ICONS, ...TERM_ICONS, ...INCLUDED_GROUPS.flatMap((g) => [g.icon, ...g.items]), "local_offer", "percent", "calendar_month", "schedule", "event_busy"]) {
+  it("uses only icons and screens that exist, and only premium or Studio screens", () => {
+    for (const icon of [...STEP_ICONS, ...TERM_ICONS, ...INCLUDED_GROUPS.flatMap((g) => [g.icon, ...g.items]), "local_offer", "percent", "calendar_month", "schedule", "event_busy", "content_cut", "receipt_long", "arrow_back", "expand_more"]) {
       expect(ICON_NAMES, icon).toContain(icon);
     }
-    for (const screen of HERO_SCREENS) {
+    const screens = [...HERO_SCREENS, ...Object.values(KIND_SCREENS), RECEIPT_SCREEN] as AppScreen[];
+    for (const screen of screens) {
       expect(APP_SCREENS).toContain(screen);
       expect(SCREEN_ALT[screen]).toBeTruthy();
       expect(existsSync(path.join(PUBLIC, "screens", `${screen}.png`)), screen).toBe(true);
+      // The premium academy and the screens designed in Studio, never a plain template's.
+      expect(screen, screen).toMatch(/^(premium-|studio-cafe-|zad-|sahm-|taxi-map$|taxi-on-ride$)/);
+    }
+    // A display per kind: its screen, or its own lit sign.
+    for (const id of Object.keys(KIND_SCREENS)) expect(ALL_SOLUTIONS.map((s) => s.id)).toContain(id);
+  });
+
+  it("tells one night: every scene has its moment and a few short lines, in every language", () => {
+    const scenesOf = (t: OccasionText) => [t.hero.scene, t.hero.sceneOver, t.plans.scene, t.kinds.scene, t.steps.scene, t.included.scene, t.terms.scene, t.faq.scene, t.final.scene];
+    // The same night in each language: the scenes' clocks are the English ones.
+    const clock = (s: { label: string }) => /\d{2}:\d{2}/.exec(s.label)?.[0] ?? null;
+    const english = scenesOf(blackFridayCopyFor("en")).map(clock);
+    for (const lang of LANGS) {
+      const scenes = scenesOf(blackFridayCopyFor(lang));
+      for (const scene of scenes) {
+        expect(scene.label.trim(), lang).not.toBe("");
+        expect(scene.lines.length, `${lang} ${scene.label}`).toBeGreaterThanOrEqual(2);
+        expect(scene.lines.length, `${lang} ${scene.label}`).toBeLessThanOrEqual(4);
+        for (const line of scene.lines) expect(line.length, `${lang} ${line}`).toBeLessThanOrEqual(130);
+      }
+      expect(scenes.map(clock), lang).toEqual(english);
     }
   });
 
@@ -213,6 +235,22 @@ describe("124 Black Friday's page", () => {
       for (const id of ["bf-plans", "bf-kinds", "bf-steps", "bf-included", "bf-terms", "bf-faq", "bf-final"]) expect(html, id).toContain(`id="${id}"`);
       for (const g of t.included.groups) expect(html).toContain(escape(g.title));
       for (const s of HERO_SCREENS) expect(html).toContain(`data-screen="${s}"`);
+      // Only the premium academy's screens and Studio's are on the page.
+      for (const [, s] of html.matchAll(/data-screen="([^"]+)"/g)) expect([...HERO_SCREENS, ...Object.values(KIND_SCREENS), RECEIPT_SCREEN]).toContain(s);
+      // The night, scene by scene: every scene's moment and lines are in the HTML, the motion only leads to them.
+      for (const scene of [t.hero.scene, t.plans.scene, t.kinds.scene, t.steps.scene, t.included.scene, t.terms.scene, t.faq.scene, t.final.scene]) {
+        expect(html).toContain(escape(scene.label));
+        for (const line of scene.lines) expect(html).toContain(escape(line.replace("{percent}", "40")));
+      }
+      expect(html).not.toContain(escape(t.hero.sceneOver.label));
+      // The price falls in a pinned scene, from the featured plan's normal price to its price with the code.
+      expect(html).toContain('data-progress="pin"');
+      expect(html).toMatch(/data-count-to="\$\d/);
+      // The shop window holds every kind; the receipt prints the four steps; the box holds every part.
+      expect(html.match(/data-kind="/g)).toHaveLength(ALL_SOLUTIONS.length);
+      expect(html.match(/data-print=""/g)!.length).toBeGreaterThanOrEqual(STEP_ICONS.length + 3);
+      for (const g of t.included.groups) for (const [title] of g.items) expect(html).toContain(escape(title));
+      expect(html).toContain(escape(t.steps.total));
       // Headings in order: h1, then h2 sections with h3 inside; never h4 skipping.
       const levels = [...html.matchAll(/<h([1-6])[\s>]/g)].map((m) => Number(m[1]));
       levels.forEach((l, i) => i > 0 && expect(l - levels[i - 1]!, `heading ${i}`).toBeLessThanOrEqual(1));
@@ -278,6 +316,11 @@ describe("124 Black Friday's page", () => {
         expect(html).not.toContain("data-coupon-code");
         expect(html).not.toContain("data-offer-price");
         expect(html).not.toContain("BF2026");
+        // No price falling, no confetti; the opening says the night has passed, the coupon is stamped.
+        expect(html).not.toContain("data-count-to");
+        expect(html).not.toContain("bf-confetti");
+        expect(html).toContain(escape(t.hero.sceneOver.label));
+        expect(html).toContain(escape(t.terms.overStamp));
         expect(html).toContain(`href="${localePath(lang, "/pricing")}"`);
         expect(ldOf(html).filter((d) => d["@type"] === "Offer")).toHaveLength(0);
         expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
