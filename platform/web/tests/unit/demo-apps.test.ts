@@ -23,6 +23,7 @@ import type { StudioScreens } from "@/lib/studio/screens";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { connectorFor } from "@/lib/hosted/connectors";
+import { pickableContent } from "@/lib/hosted/pages/pickable";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
 import { runDailyNotices } from "@/lib/notices";
@@ -182,6 +183,14 @@ describe("creating the demo apps", { timeout: 20_000 }, () => {
     expect(restaurants.every((r) => r.hours.length === 7 && r.active)).toBe(true);
     expect(rides).toMatchObject({ appName: "Masar Rides", connector: { kind: "rides" } });
     expect((await store.listVehicleTypes(rides.id)).map((t) => t.name)).toEqual(["Economy", "Comfort", "Van"]);
+    // 124.7 Its cars in the designs' drawings, saved as the demo account's pictures (none drawn of a van).
+    expect((await store.listVehicleTypes(rides.id)).map((t) => t.imageAssetId !== null)).toEqual([true, true, false]);
+    expect((await store.listVehicleTypes(taxi.id)).map((t) => t.imageAssetId !== null)).toEqual([true, true, false]);
+    const car = (await store.listVehicleTypes(taxi.id))[0]!;
+    expect(await store.getAsset(car.imageAssetId!)).toMatchObject({ contentType: "image/png" });
+    // Studio's canvas draws them as the app's cards do.
+    const canvas = await pickableContent(rides, { store, key: KEY, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test" }, NOW);
+    expect(canvas.items.vehicle_types?.map((t) => Boolean(t.imageUrl))).toEqual([true, true, false]);
     expect((await store.getDeliverySettings(rides.id))?.rides).toMatchObject({ fareMode: "upfront", pin: true, scheduling: true });
     // 110.5 Lamha Taxi: three vehicle types with fares, and drivers with their cars who are never online.
     expect(taxi).toMatchObject({ appName: "Lamha Taxi", connector: { kind: "rides" }, vertical: "taxi" });
@@ -362,7 +371,7 @@ describe("signing in to a demo app", () => {
 
   it("Studio's demos: the visitor is the rider and, in Driver mode, the driver who gets their own ride", async () => {
     const ridesApp = (await listDemoApps(store, { fresh: true })).find((a) => a.appType === "rides")!;
-    const connector = connectorFor(ridesApp, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true })!;
+    const connector = connectorFor(ridesApp, KEY, { store, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test", rides: true })!;
     const ride = (app: App) => ({ ...context(app), connector });
     const go = async (method: string, route: string, body?: unknown, token: string | null = null) => {
       const result = await handleHosted(ride(ridesApp), { method, path: route.split("/").filter(Boolean), query: new URLSearchParams({ platform: "android" }), body, token });
@@ -387,7 +396,7 @@ describe("signing in to a demo app", () => {
   /** Signs in to a Studio demo with the demo number, through its connector when it has one. */
   async function studio(type: "taxi" | "school" | "instructors" | "rides") {
     const app = (await listDemoApps(store, { fresh: true })).find((a) => demoIdOf(a) === type)!;
-    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true }) ?? undefined;
+    const connector = connectorFor(app, KEY, { store, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test", rides: true }) ?? undefined;
     const go = async (method: string, route: string, body?: unknown, token: string | null = null, query: Record<string, string> = {}) => {
       const [path, search] = route.split("?");
       const parts = path!.split("/").filter(Boolean);
@@ -462,7 +471,7 @@ describe("signing in to a demo app", () => {
     const taxi: App = { ...newApp(client.id, null, NOW, "rides", "taxi"), backend: "hosted", connector: { kind: "rides" } };
     await store.createApp(taxi);
     await store.createCourier({ appId: taxi.id, name: "Off duty", phone: "+905321112233", email: null, vehicle: null, active: true, driver: { ...EMPTY_DRIVER } }, NOW);
-    const connector = connectorFor(taxi, KEY, { store, assetUrl: (id) => id, platformUrl: "https://yallapp.test", rides: true })!;
+    const connector = connectorFor(taxi, KEY, { store, assetUrl: (id) => `https://yallapp.test/api/v1/assets/${id}`, platformUrl: "https://yallapp.test", rides: true })!;
     const result = await handleHosted({ ...context(taxi), connector }, { method: "GET", path: ["taxi", "nearby"], query: new URLSearchParams({ lat: "30.0444", lng: "31.2357" }), body: undefined, token: null });
     expect(result.body).toEqual({ items: [] });
   });

@@ -11,6 +11,7 @@ import { designLayout } from "@/lib/pages/layout";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
 import { demoStudioScreens } from "@/lib/demo/screens";
 import { fontFiles } from "@/lib/fonts/catalog";
+import { servedAppearance } from "@/lib/fonts/look";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
@@ -21,7 +22,7 @@ import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pa
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
 import { designPages } from "@/lib/studio/design-file";
-import { DEMO_HOME_TEMPLATES, demoTemplateId, marketHome, paragraphsOf, studioDemoOf } from "@/lib/studio/demo-templates";
+import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, marketHome, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
@@ -93,6 +94,11 @@ function whole(layout: Pick<LayoutContent, "pages" | "tabs" | "menu" | "appearan
   };
 }
 
+/** 124.7 A project as the demo shows it: the demo's own words in its home's brackets. */
+function withFacts(id: StudioDemoId, layout: LayoutContent): LayoutContent {
+  return { ...layout, pages: layout.pages.map((p) => (p.slug === "home" && p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
+}
+
 const demoOf = async (id: StudioDemoId) => demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
 
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
@@ -124,7 +130,8 @@ describe("Studio templates = Studio demos", () => {
     const home = layout.pages[0]!;
     expect(home.blocks).toEqual([]);
     const source = itemSourcesFor(demoApp(id))[0] ?? null;
-    expect(home.studio).toEqual(demoStudioPage(id, demoStudioContext(id, appUrl(), source), [demoSignInBlock()]));
+    // 124.7 With the demo's own words where the template asks the owner for theirs.
+    expect(home.studio).toEqual(withDemoFacts(id, demoStudioPage(id, demoStudioContext(id, appUrl(), source), [demoSignInBlock()])));
     // The note, for people not signed in, right after the page's first element.
     const note = home.studio!.body.children![1]!;
     expect(note.visibility).toBe("signed_out");
@@ -134,7 +141,8 @@ describe("Studio templates = Studio demos", () => {
     const own = DEMO_HOME_TEMPLATES[id];
     const designed = own === "market_home" ? marketHome(ctx) : TEMPLATES.find((t) => t.id === own)!.make(ctx);
     const page = withoutNote(home.studio!);
-    expect(withoutIds({ ...page, body: untranslated(page.body) })).toEqual(withoutIds(designed));
+    const facts = withDemoFacts(id, designed);
+    expect(withoutIds({ ...page, body: untranslated(page.body) })).toEqual(withoutIds({ ...facts, body: untranslated(facts.body) }));
     // Nothing generated for the demo: no banner of the brand's words, no welcome over one list.
     expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].banner.heading);
     expect(texts(home.studio!)).not.toContain(DEMO_BRANDS[id].welcome);
@@ -149,7 +157,9 @@ describe("Studio templates = Studio demos", () => {
     const template = templatesFor(kindOf(id))[0]!;
     const ready = defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW);
     const project = startLayout(app, template, ready, NOW, englishContext(app));
-    expect(whole(project)).toEqual(whole(demo));
+    expect(whole(withFacts(id, project))).toEqual(whole(demo));
+    // The project keeps the template's brackets for the owner's own words.
+    if (DEMO_FACTS[id]) expect(JSON.stringify(project.pages[0]!.studio)).toMatch(/\[[^\]]+\]/);
     // The demo's own colour, and its look as the demo app has it.
     expect(app.primaryColor).toBe(DEMO_BRANDS[id].primaryColor);
     expect(project.appearance).toMatchObject({ template: DEMO_BRANDS[id].template, font: DEMO_BRANDS[id].font, corners: DEMO_BRANDS[id].corners, cards: DEMO_BRANDS[id].cards, secondary_color: DEMO_BRANDS[id].secondaryColor });
@@ -175,7 +185,7 @@ describe("Studio templates = Studio demos", () => {
     // 120 Every page of the demo, its tabs' pages too, each where its tab opens it.
     const studioOf = (l: LayoutContent, slug: string) => whole(l).pages.find((p) => p.slug === slug)?.studio ?? null;
     const opened = (l: LayoutContent) => l.tabs.map((t) => (t.target.type === "page" ? studioOf(l, t.target.page_slug!) : t.target));
-    expect(opened(applied)).toEqual(opened(demo));
+    expect(opened(withFacts(id, applied))).toEqual(opened(demo));
     expect(whole(applied).pages.filter((p) => p.studio).length).toBe(whole(demo).pages.filter((p) => p.studio).length);
     const named = (l: LayoutContent) => l.tabs.map((t) => ({ id: t.id, label: t.label, icon: t.icon, translations: t.translations }));
     expect(named(applied)).toEqual(named(demo));
@@ -278,6 +288,44 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const data = `${JSON.stringify({ screens: demoStudioScreens(PREMIUM_ACADEMY_DEMO, appUrl()), layout: served }, null, 1)}\n`;
     if (process.env.YALLAPP_WRITE_PREMIUM_ACADEMY) writeFileSync(file, data);
     expect(readFileSync(file, "utf8")).toBe(data);
+  });
+
+  // 124.7 The other Studio demos too: the website's pictures of each draw the demo as it is.
+  it.each([
+    ["delivery", "sahm"],
+    ["food", "sofra"],
+    ["rides", "masar"],
+    ["taxi", "lamha"],
+    ["school", "nakhla"],
+    ["instructors", "rawaq"],
+  ] as const)("the %s demo is the project the app's website pictures draw (mobile/test/support/%s_demo.json)", async (id, brand) => {
+    const layout = await demoOf(id);
+    const file = join(process.cwd(), "..", "..", "mobile", "test", "support", `${brand}_demo.json`);
+    // As the hosted API serves it: the look with the files of its free fonts (none for the app's own fonts).
+    const served = { ...layout, appearance: servedAppearance(layout.appearance, appUrl()) };
+    const data = `${JSON.stringify({ screens: demoStudioScreens(id, appUrl()), layout: served }, null, 1)}\n`;
+    if (process.env.YALLAPP_WRITE_STUDIO_DEMOS) writeFileSync(file, data);
+    expect(readFileSync(file, "utf8")).toBe(data);
+  });
+
+  it("lists a school's news as cards of words, never as picture tiles (school news has no pictures)", async () => {
+    const layout = await demoOf("school");
+    const lists = allNodes(layout.pages[0]!.studio!).filter((n) => n.type === "items");
+    expect(lists.map((n) => n.source)).toEqual(["school_news"]);
+    const news = lists[0]!;
+    expect(news).toMatchObject({ layout: "list" });
+    const binds = allNodes({ body: news.card! }).map((n) => n.bind).filter(Boolean);
+    expect(binds).toEqual(["badge", "title", "subtitle"]);
+    // A new school project's template too.
+    const template = TEMPLATES.find((t) => t.id === "school")!.make(englishContext(projectApp("school")));
+    expect(allNodes(template).find((n) => n.type === "items")?.card).toBeTruthy();
+  });
+
+  it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in the app (mobile/lib/core/theme/symbol_names.dart)", async (id) => {
+    const layout = await demoOf(id);
+    const dart = readFileSync(join(process.cwd(), "..", "..", "mobile", "lib", "core", "theme", "symbol_names.dart"), "utf8");
+    const icons = new Set([...layout.tabs.map((t) => t.icon), ...layout.pages.flatMap((p) => (p.studio ? allNodes(p.studio).map((n) => n.icon) : []))].filter((i): i is string => Boolean(i)));
+    for (const icon of icons) expect(dart, `${id}: ${icon}`).toContain(`'${icon}':`);
   });
 
   it("is told apart from the academy's own demo by its template, and isn't offered as a template twice", () => {

@@ -272,6 +272,48 @@ function marketSection(
 }
 
 /** 105.4 A school's welcome in its words: a button to the school and one to what's new. */
+/**
+ * 124.7 A school's news, which never has pictures: each entry a card of
+ * words (its date on a chip, its title and a line or two of it) instead of
+ * a picture tile, under "What's new".
+ */
+function schoolNewsList(ctx: SectionContext): StudioNode {
+  const id = () => (ctx.newId ?? newNodeId)();
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w("schoolUpdates"),
+    gap: 8,
+    padding: pad(6, 10),
+    children: [
+      text(ctx, ctx.w("schoolUpdates"), { font: { size: 17, weight: 800 } }),
+      {
+        id: id(),
+        type: "items",
+        source: "school_news",
+        layout: "list",
+        gap: 10,
+        query: { limit: 4, category_id: null, featured: false, sort: "newest", ids: [] },
+        card: {
+          id: id(),
+          type: "column",
+          gap: 6,
+          padding: pad(14, 14),
+          radius: 16,
+          background: "#FFFFFF",
+          dark_background: "#22203A",
+          shadow: "light",
+          children: [
+            { id: id(), type: "row", children: [{ id: id(), type: "text", bind: "badge", font: { size: 11, weight: 800 }, padding: pad(3, 9), radius: 9, background: ctx.brand, color: "#FFFFFF" }] },
+            { id: id(), type: "text", bind: "title", max_lines: 2, font: { size: 15, weight: 700 } },
+            { id: id(), type: "text", bind: "subtitle", max_lines: 2, font: { size: 13 }, opacity: 0.75 },
+          ],
+        },
+      },
+    ],
+  };
+}
+
 function schoolWelcome(ctx: SectionContext, words: { title: SectionWord; text: SectionWord; button: SectionWord; updates: SectionWord }, icon: string): StudioNode {
   return {
     id: (ctx.newId ?? newNodeId)(),
@@ -393,7 +435,7 @@ export const SECTIONS: readonly SectionInfo[] = [
   {
     id: "products",
     icon: "grid_view",
-    make: (ctx) => ({
+    make: (ctx) => (ctx.source === "school_news" ? schoolNewsList(ctx) : {
       id: (ctx.newId ?? newNodeId)(),
       type: "column",
       name: ctx.w("listTitle"),

@@ -129,6 +129,11 @@ const symbolsByName = <String, IconData>{
   // 113.7 The badges of points and badges.
   'task_alt': Symbols.task_alt_rounded,
   'route': Symbols.route_rounded,
+  // 124.7 What Studio's demos draw (platform/web/src/lib/studio): the food
+  // demo's dish, the ride demos' Ride tab and the call to action's arrow.
+  'restaurant': Symbols.restaurant_rounded,
+  'directions_car': Symbols.directions_car_rounded,
+  'arrow_back': Symbols.arrow_back_rounded,
 };
 
 /// Shown for a name the app doesn't have.

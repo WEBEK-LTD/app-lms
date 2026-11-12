@@ -19,6 +19,7 @@ import {
   type DemoListing,
 } from "../demo/content";
 import type { PictureName } from "../demo/pictures";
+import type { DesignDrawing } from "../demo/picture-assets";
 
 /**
  * 110.2 The sample entries a list gets when a design is chosen and the list
@@ -1422,6 +1423,8 @@ export interface SampleVehicleType {
   perMinuteCents: number;
   minCents: number;
   waitPerMinuteCents: number;
+  /** 124.7 Its car in a design's drawing, as the demo's. */
+  picture?: DesignDrawing;
 }
 
 function demoVehicle(name: string, ar: [string, string], tr: [string, string]): SampleVehicleType {

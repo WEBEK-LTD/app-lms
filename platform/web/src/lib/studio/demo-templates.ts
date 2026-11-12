@@ -203,3 +203,35 @@ export function studioDemoOf(kind: { type: string; vertical?: string | null } | 
   if (kind.vertical) return DEMO_VERTICALS.includes(kind.vertical) ? (kind.vertical as StudioDemoId) : null;
   return DEMO_TYPES.includes(kind.type) ? (kind.type as StudioDemoId) : null;
 }
+
+/**
+ * 124.7 What a demo says of itself where its template asks the owner for
+ * their own words in brackets ("[Your address and opening hours]"): the
+ * demo app shows them, in its three languages; a project started from the
+ * template keeps the brackets for the owner to fill.
+ */
+export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord, Record<"en" | "ar" | "tr", string>>>>> = {
+  // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
+  delivery: {
+    contactText: {
+      en: "Downtown Cairo, by Tahrir Square · Every day, 09:00 to 22:00",
+      ar: "وسط القاهرة، بجوار ميدان التحرير · يوميًا من 09:00 إلى 22:00",
+      tr: "Kahire şehir merkezi, Tahrir Meydanı'nın yanında · Her gün 09.00–22.00",
+    },
+  },
+};
+
+/** `page` with the demo's own words (`DEMO_FACTS`) in place of its template's brackets. */
+export function withDemoFacts(id: StudioDemoId, page: StudioPage): StudioPage {
+  const facts = DEMO_FACTS[id];
+  if (!facts) return page;
+  const byText = new Map(Object.entries(facts).map(([word, words]) => [String(studioEn[`w_${word as SectionWord}`]), words!]));
+  const fill = (node: StudioNode): StudioNode => {
+    const words = node.text ? byText.get(node.text) : undefined;
+    const out: StudioNode = words ? { ...node, text: words.en, translations: { ar: { text: words.ar }, tr: { text: words.tr } } } : { ...node };
+    if (node.children) out.children = node.children.map(fill);
+    if (node.card) out.card = fill(node.card);
+    return out;
+  };
+  return { ...page, body: fill(page.body) };
+}

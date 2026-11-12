@@ -186,7 +186,9 @@ test("/demo/studio shows Studio's own demos apart from the regular ones", async 
   await expect(page.locator("#multi-vendor").getByRole("link", { name: "About multi-vendor apps" })).toHaveAttribute("href", "/solutions/multi-vendor");
   await expect(page.locator("main")).not.toContainText(/marketplace/i);
   // 110.5 What to try as each of the demo number's people.
-  await expect(page.locator("#taxi")).toContainText("Account › Driver mode");
+  // 124.7 The drivers' own app, not a Driver mode the riders' app no longer has.
+  await expect(page.locator("#taxi")).toContainText("The drivers have their own app, Lamha Taxi Driver.");
+  await expect(page.locator("main")).not.toContainText(/Driver mode/);
   await expect(page.locator("#school")).toContainText("In the Classroom tab");
   await expect(page.locator("#teachers")).toContainText("In the Teacher tab");
   // The regular demo page keeps its ten.
