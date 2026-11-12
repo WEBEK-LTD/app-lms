@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.33
+Stable tag: 0.4.34
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,13 @@ Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
 == Changelog ==
+
+= 0.4.34 =
+* The premium academy: your app's home, Explore, a course's page, a lesson, My courses, the account, signing in and the sign-in code keep the looks you chose in Yallapp Studio.
+* Students can follow a teacher; a new course of theirs reaches their followers' inboxes and phones.
+* The time each student spends in lessons is kept (a new table), for this week's learning in the app.
+* Courses can be sorted by the best rated, and each course carries its badge (new, or one of the three with the most students).
+* With Tutor LMS selling its courses through WooCommerce: several courses in one checkout, with a coupon of yours and the card the student saved before chosen for them.
 
 = 0.4.33 =
 * The app's bottom bar keeps the design you chose in Yallapp Studio (eighteen of them), its own colours in dark mode, and the account tab with the person's photo.
