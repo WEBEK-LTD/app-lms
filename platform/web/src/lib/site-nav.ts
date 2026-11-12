@@ -25,6 +25,8 @@ export type SitePage =
   | "developers"
   | "contact"
   | "studio-demo"
+  // 124 Black Friday's page: in the footer while the offer is on (site/occasions).
+  | "black-friday"
   | `story-${StoryId}`;
 
 export interface SiteLink {
