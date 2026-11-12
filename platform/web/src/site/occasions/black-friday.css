@@ -44,6 +44,7 @@
   --bf-tape-b-ink: #fff6f0;
   --bf-shadow: 0 30px 60px -32px rgba(14, 13, 36, 0.38);
   --bf-gold-text: linear-gradient(180deg, #0e0d24, #2e2c4a);
+  --bf-title-gold: linear-gradient(180deg, #e3ad3c 0%, #b98420 55%, #8f6214 100%);
   --bf-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   background: var(--bf-bg);
   color: var(--bf-ink);
@@ -74,6 +75,7 @@
     --bf-tape-b-ink: #fff6f0;
     --bf-shadow: 0 40px 80px -36px rgba(0, 0, 0, 0.85);
     --bf-gold-text: linear-gradient(180deg, #ffe6da 0%, #ff7a45 45%, #c2410c 100%);
+    --bf-title-gold: linear-gradient(180deg, #fff1c4 0%, #f5c451 45%, #c8902a 100%);
   }
 }
 :root[data-theme="dark"]:has([data-site-theme]) .bf {
@@ -101,6 +103,7 @@
   --bf-tape-b-ink: #fff6f0;
   --bf-shadow: 0 40px 80px -36px rgba(0, 0, 0, 0.85);
   --bf-gold-text: linear-gradient(180deg, #ffe6da 0%, #ff7a45 45%, #c2410c 100%);
+  --bf-title-gold: linear-gradient(180deg, #fff1c4 0%, #f5c451 45%, #c8902a 100%);
 }
 
 .bf-main {
@@ -676,11 +679,12 @@
   font-weight: 800;
   letter-spacing: -0.045em;
   text-transform: uppercase;
-  background: var(--bf-gold-text);
+  /* The owner, 12 November: the name and the tag under it in gold; the rest of the page in Yallapp's colours. */
+  background: var(--bf-title-gold);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 8px 30px rgba(255, 122, 69, 0.18));
+  filter: drop-shadow(0 8px 30px rgba(245, 196, 81, 0.2));
 }
 @media (min-width: 900px) {
   .bf-h1-name {
@@ -730,7 +734,7 @@
   padding-top: 58px;
   transform-origin: 50% 0;
   animation: bf-swing 7s ease-in-out infinite;
-  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 40px rgba(255, 122, 69, 0.25));
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 40px rgba(245, 196, 81, 0.25));
 }
 .bf-tag-hang::before {
   content: "";
@@ -740,7 +744,7 @@
   width: 2px;
   height: calc(58px + 6px + 28px);
   translate: -50% 0;
-  background: linear-gradient(var(--bf-gold-3), var(--bf-gold-2));
+  background: linear-gradient(#c08a22, #f5c451);
 }
 .bf-tag {
   position: relative;
@@ -752,7 +756,7 @@
   color: #0e0d24;
   background:
     radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.55), transparent 50%),
-    linear-gradient(150deg, #ffe6da 0%, #ff7a45 38%, #ee5d22 70%, #a8380a 100%);
+    linear-gradient(150deg, #fff1c4 0%, #f5c451 38%, #dca332 70%, #b47d1c 100%);
   clip-path: polygon(24% 0, 76% 0, 100% 15%, 100% 100%, 0 100%, 0 15%);
   overflow: hidden;
 }
@@ -774,7 +778,7 @@
   border-radius: 50%;
   background: var(--bf-bg);
   box-shadow:
-    0 0 0 4px #b33c0b,
+    0 0 0 4px #b98420,
     inset 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 .bf-tag-face {
@@ -2014,7 +2018,8 @@
   width: 560px;
   height: 340px;
   translate: -50% 0;
-  background: conic-gradient(from -60deg at 50% 100%, transparent 0deg, rgba(255, 122, 69, 0.4) 14deg, transparent 26deg, transparent 40deg, rgba(255, 210, 189, 0.5) 54deg, transparent 66deg, transparent 78deg, rgba(255, 122, 69, 0.35) 92deg, transparent 104deg, transparent 120deg);
+  /* The owner, 12 November: the light out of the opened box in gold. */
+  background: conic-gradient(from -60deg at 50% 100%, transparent 0deg, rgba(245, 196, 81, 0.45) 14deg, transparent 26deg, transparent 40deg, rgba(255, 231, 163, 0.55) 54deg, transparent 66deg, transparent 78deg, rgba(245, 196, 81, 0.4) 92deg, transparent 104deg, transparent 120deg);
   -webkit-mask: radial-gradient(closest-side at 50% 100%, #000 30%, transparent);
   mask: radial-gradient(farthest-side at 50% 100%, #000 20%, transparent 95%);
   transform-origin: 50% 100%;
@@ -2072,7 +2077,7 @@
   inset-inline: 0;
   top: 0;
   height: 45%;
-  background: linear-gradient(rgba(255, 210, 189, 0.4), transparent);
+  background: linear-gradient(rgba(255, 231, 163, 0.5), transparent);
   opacity: var(--lift);
 }
 .bf-box-lid::before {
