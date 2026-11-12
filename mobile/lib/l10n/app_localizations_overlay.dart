@@ -10408,4 +10408,8 @@ class OverlayLocalizations extends AppLocalizations {
 
   @override
   String get anotherCard => overlay.text('anotherCard') ?? base.anotherCard;
+
+  @override
+  String get webPageMediaRefused =>
+      overlay.text('webPageMediaRefused') ?? base.webPageMediaRefused;
 }

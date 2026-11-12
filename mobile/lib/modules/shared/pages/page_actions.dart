@@ -65,6 +65,8 @@ void runPageAction(BuildContext context, WidgetRef ref, PageAction? action) {
             url: url!,
             title: action.web == null ? uri.host : '',
             look: action.web,
+            // 124.9 Signed in on the site; the camera and microphone if it asks.
+            ownerPage: true,
           ),
         );
       }
