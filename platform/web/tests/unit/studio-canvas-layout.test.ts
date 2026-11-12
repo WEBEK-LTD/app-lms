@@ -80,6 +80,17 @@ describe("124.6 the canvas lays a page out as the app", () => {
     expect(html).toContain("display:-webkit-box;-webkit-box-orient:vertical;white-space:pre-wrap;-webkit-line-clamp:1");
   });
 
+  it("124.7 draws a school's news as cards of words: the date chip, the title and its lines, no picture tile", () => {
+    let n = 0;
+    const page = TEMPLATES.find((t) => t.id === "school")!.make({ brand: "#1F4E79", source: "school_news", w: (word: SectionWord) => String(studioEn[`w_${word}`]), newId: () => `n${++n}`, lang: "en", picture: (f) => `/design-pictures/${f}` });
+    const news = allNodes(page).find((x) => x.type === "items")!;
+    const school = { items: { school_news: [{ id: "1", title: "Parents' evening on Thursday", subtitle: "Teachers will meet parents in the classrooms.", badge: "2026-11-11", imageUrl: null }] }, categories: {} };
+    const html = renderToStaticMarkup(createElement(StudioView, { page, lang: "en", defaultLang: "en", dark: false, look: { ...LOOK, brand: "#1F4E79" }, pickable: school, words: WORDS }));
+    for (const words of ["What&#x27;s new", "Parents&#x27; evening on Thursday", "Teachers will meet parents in the classrooms.", "2026-11-11"]) expect(html).toContain(words);
+    expect(news.card).toBeTruthy();
+    expect(allNodes({ body: news.card! }).some((x) => x.type === "image" || x.bind === "image")).toBe(false);
+  });
+
   it("names the fonts the page is drawn in: the look's and each element's", () => {
     expect(fontsOfPage(academyHome().body, "DM Sans")).toEqual(["DM Sans", "Alexandria"]);
     expect(fontsOfPage(null, null)).toEqual([]);

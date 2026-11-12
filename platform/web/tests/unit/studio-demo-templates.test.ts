@@ -308,6 +308,19 @@ describe("123 The premium academy's demo: the project its template starts", () =
     expect(readFileSync(file, "utf8")).toBe(data);
   });
 
+  it("lists a school's news as cards of words, never as picture tiles (school news has no pictures)", async () => {
+    const layout = await demoOf("school");
+    const lists = allNodes(layout.pages[0]!.studio!).filter((n) => n.type === "items");
+    expect(lists.map((n) => n.source)).toEqual(["school_news"]);
+    const news = lists[0]!;
+    expect(news).toMatchObject({ layout: "list" });
+    const binds = allNodes({ body: news.card! }).map((n) => n.bind).filter(Boolean);
+    expect(binds).toEqual(["badge", "title", "subtitle"]);
+    // A new school project's template too.
+    const template = TEMPLATES.find((t) => t.id === "school")!.make(englishContext(projectApp("school")));
+    expect(allNodes(template).find((n) => n.type === "items")?.card).toBeTruthy();
+  });
+
   it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in the app (mobile/lib/core/theme/symbol_names.dart)", async (id) => {
     const layout = await demoOf(id);
     const dart = readFileSync(join(process.cwd(), "..", "..", "mobile", "lib", "core", "theme", "symbol_names.dart"), "utf8");

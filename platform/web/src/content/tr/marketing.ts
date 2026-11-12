@@ -1673,7 +1673,7 @@ export const TR_MARKETING: MarketingTranslation = {
         "Siparişlerim'i açın: biri yolda ve kuryesi haritada, biri yarın için, biri de gel-al için tezgâhta sizi bekliyor",
         "Zad Market'ten bir sepet doldurun, bir kısmı kiloyla, marketin kendi kampanyasını ya da ZAD20 kodunu kullanın ve cüzdanınızla ödeyin",
         "İşletmem sekmesinde siparişinizi gereken dakikalarla kabul edin, her ürünü toplayıp tartın, sonra hazır olarak işaretleyin",
-        "Hesap › Kurye modu'nda onun işini alıp teslim edin, sonra şikâyetlerinize bakın: biri açık, biri yanıtınızı bekliyor, biri cüzdanınıza iade edildi",
+        "Zad'ın kuryelerinin kendi uygulaması var: Zad Courier. Buradan indirilebildiğinde aynı numarayla giriş yapın, onun işini alıp teslim edin, sonra Zad'da şikâyetlerinize bakın: biri açık, biri yanıtınızı bekliyor, biri cüzdanınıza iade edildi",
       ],
     },
     rides: {

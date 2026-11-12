@@ -134,6 +134,15 @@ export const DEMO_SECOND_APP_STEP: Partial<Record<DemoId, { index: number; text:
       tr: "Aşağıdan indirip aynı numarayla girdiğiniz {app} uygulamasında işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
     },
   },
+  // 124.7 Zad's couriers work in their own app too (112.3).
+  marketplace: {
+    index: 3,
+    text: {
+      en: "Download {app} below, sign in with the same number, take its job and deliver it, then see your complaints in Zad: one open, one waiting for you, one refunded to your wallet",
+      ar: "نزّل {app} من الأسفل، وسجّل الدخول بالرقم نفسه، وخذ مهمته ووصّلها، ثم شاهد شكاواك في زاد: واحدة مفتوحة، وواحدة تنتظر ردك، وواحدة رُدّ مبلغها إلى محفظتك",
+      tr: "Aşağıdan {app} uygulamasını indirin, aynı numarayla giriş yapın, onun işini alıp teslim edin, sonra Zad'da şikâyetlerinize bakın: biri açık, biri yanıtınızı bekliyor, biri cüzdanınıza iade edildi",
+    },
+  },
   rides: {
     index: 1,
     text: {
@@ -292,7 +301,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Open My orders: one is on its way with its courier on the map, one is for tomorrow and one waits at the counter for pick-up",
       "Fill a basket at Zad Market, some of it by the kilo, take the market's own offer or the code ZAD20, and pay from your wallet",
       "In the My store tab, accept your order with the minutes it needs, pick and weigh each item, then mark it ready",
-      "In Account › Courier mode, take its job and deliver it, then see your complaints: one open, one waiting for you, one refunded to your wallet",
+      "Zad's couriers have their own app, Zad Courier. Once it can be downloaded here, sign in with the same number, take its job and deliver it, then see your complaints in Zad: one open, one waiting for you, one refunded to your wallet",
     ],
     // 124 The owner: the screens designed for Zad in Studio, not the basic ones.
     screens: ["zad-home", "zad-market", "zad-tracking"],
