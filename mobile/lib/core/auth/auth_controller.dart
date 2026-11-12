@@ -8,6 +8,7 @@ import '../api/offline_cache.dart';
 import '../api/yallapp_api.dart';
 import '../providers.dart';
 import '../storage/local_settings.dart';
+import '../web/web_view.dart';
 
 sealed class AuthState {
   const AuthState();
@@ -234,6 +235,8 @@ class AuthController extends Notifier<AuthState> {
 
   /// What offline mode kept may be this user's own: never show it to the next one.
   Future<void> _forgetOffline() async {
+    // 124.9 The website the app's pages signed them in to signs them out too.
+    await clearWebSessions();
     try {
       await ref.read(offlineCacheProvider).clear();
       // 28 Their tickets too.

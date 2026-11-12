@@ -543,6 +543,11 @@ abstract class YallappApi {
   /// own pages (its permalink). Plugin only; 404 elsewhere.
   Future<LinkResolution> resolveLink(String url);
 
+  /// 124.9 A one-time link to [url], a page of the WordPress site, that
+  /// signs the student in there first; [appView], the app hides the site's
+  /// header and footer on it. Plugin only: the app asks only a WordPress site (`siteSignedInPage`).
+  Future<WebLink> createWebLink(String url, {bool appView = false});
+
   Future<User> getMe();
   Future<User> updateMe({String? name, String? email, String? city});
   Future<void> deleteMe();
@@ -1940,6 +1945,15 @@ class HttpYallappApi implements YallappApi {
     _public,
     LinkResolution.fromJson,
     query: {'url': url},
+  );
+
+  @override
+  Future<WebLink> createWebLink(String url, {bool appView = false}) => _send(
+    'POST',
+    '/auth/web-link',
+    _required,
+    (data) => WebLink.fromJson(asJson(data)),
+    body: {'url': url, if (appView) 'app_view': true},
   );
 
   @override

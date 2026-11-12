@@ -50,6 +50,7 @@ function call( $method, $path, $body = null, $token = null, array $headers = arr
 	return array(
 		'status'  => $status,
 		'headers' => strtolower( $head ),
+		'head'    => $head,
 		'raw'     => $text,
 		'json'    => json_decode( $text, true ),
 	);
@@ -246,6 +247,29 @@ if ( $link ) {
 	$m = call( 'GET', $link );
 	check( 'magic link is single use', false === strpos( $m['headers'], 'wordpress_logged_in_' ) );
 }
+
+echo "Web pages signed in (124.9)\n";
+$site   = rtrim( $argv[1] ?? 'http://127.0.0.1:8089', '/' );
+$target = $site . '/?part=2';
+$r      = call( 'POST', '/auth/web-link', array( 'url' => $target ), $token );
+check( 'web link issued for a page of the site', 200 === $r['status'] && false !== strpos( $r['json']['url'] ?? '', 'yallapp_link=' ) && ! empty( $r['json']['expires_at'] ), $r['raw'] );
+$link = $r['json']['url'] ?? '';
+if ( $link ) {
+	$m = call( 'GET', $link );
+	preg_match( '/^location: *(\S+)/m', $m['headers'], $to );
+	check( 'web link signs in and lands on the page', 302 === $m['status'] && false !== strpos( $m['headers'], 'wordpress_logged_in_' ) && strtolower( $target ) === ( $to[1] ?? '' ), substr( $m['headers'], 0, 400 ) );
+	preg_match_all( '/^set-cookie: *(wordpress_[^=]+=[^;]+)/mi', $m['head'], $cookies );
+	$page = call( 'GET', $target, null, null, array( 'Cookie: ' . implode( '; ', $cookies[1] ) ) );
+	check( 'the page opens signed in', 200 === $page['status'] && false !== strpos( $page['raw'], 'logged-in' ), substr( $page['raw'], 0, 300 ) );
+	$m = call( 'GET', $link );
+	check( 'web link is single use', false === strpos( $m['headers'], 'wordpress_logged_in_' ) );
+}
+$r = call( 'POST', '/auth/web-link', array( 'url' => 'https://meet.example.com/room' ), $token );
+check( 'web link for another host refused', 400 === $r['status'] && 'invalid_request' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/auth/web-link', array( 'url' => $site . '.evil.com/' ), $token );
+check( 'web link for a look-alike host refused', 400 === $r['status'], $r['raw'] );
+$r = call( 'POST', '/auth/web-link', array( 'url' => $target ) );
+check( 'web link signed out refused', 401 === $r['status'], $r['raw'] );
 
 echo "Learning\n";
 $r = call( 'GET', '/lessons/' . $seed['lesson_html'], null, $token );

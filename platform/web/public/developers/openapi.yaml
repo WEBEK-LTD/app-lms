@@ -1343,6 +1343,56 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /auth/web-link:
+    post:
+      tags: [Auth]
+      operationId: createWebLink
+      summary: Get a one-time signed-in link to a page of the website (WordPress)
+      description: |
+        Roadmap 124.9. Served by the Yallapp plugin only (0.4.36 and later):
+        a web page or tab of a WordPress app (`Action.web`, roadmap 122) on
+        the site's own website opens with the student signed in there. The
+        app asks for this link when the page's address is on the site's host
+        and the student is signed in, and opens the answer's `url` in the same
+        web view, with the address still hidden. The link signs the student
+        in on the website and then lands on `url` of the request. It works
+        once and expires after 5 minutes. Signed out, on another host, or when
+        this call fails, the app opens the page's address as it is.
+
+        `url` must be on the site's own host (the host of the site's address,
+        with or without `www.`), over https or the site's own scheme, on the
+        site's port and without a user name or password; any other address is
+        400 `invalid_request`. The hosted API has no website and doesn't serve
+        this path: the app asks only a WordPress site.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: The page to open, on the site's own host.
+                app_view:
+                  type: boolean
+                  description: "True when the app hides the site's header and footer on this page: the site hides them too while the student goes on from it in the app. Missing means false."
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at]
+                properties:
+                  url: { type: string, format: uri, description: The one-time link to open. }
+                  expires_at: { type: string, format: date-time }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /courses/{course_id}/coupon:
     post:
       tags: [Commerce]

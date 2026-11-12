@@ -15955,6 +15955,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Another card on the checkout'**
   String get anotherCard;
+
+  /// No description provided for @webPageMediaRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the camera and microphone in your phone\'s settings so this page can use them.'**
+  String get webPageMediaRefused;
 }
 
 class _AppLocalizationsDelegate

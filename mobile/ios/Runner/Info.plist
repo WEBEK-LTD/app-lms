@@ -59,9 +59,9 @@
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>The camera takes the pictures and videos you send in the chat.</string>
+	<string>The camera takes the pictures and videos you send in the chat, and shows you to the pages you open in the app that ask for it, such as a video call or an identity check.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>The microphone records the voice messages you send in the chat, and the sound of the videos you take for it.</string>
+	<string>The microphone records the voice messages you send in the chat and the sound of the videos you take for it, and lets you speak on the pages you open in the app that ask for it, such as a video call.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The pictures and videos you choose are sent in the chat.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

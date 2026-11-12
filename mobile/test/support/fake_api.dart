@@ -353,6 +353,23 @@ class FakeApi implements YallappApi {
     );
   });
 
+  /// 124.9 The pages asked to open signed in, and whether the app hides the
+  /// site's header and footer on each.
+  final webLinks = <({String url, bool appView})>[];
+
+  @override
+  Future<WebLink> createWebLink(
+    String url, {
+    bool appView = false,
+  }) => _answer('createWebLink', () {
+    webLinks.add((url: url, appView: appView));
+    return WebLink.fromJson({
+      'url':
+          '${Uri.parse(url).origin}/?yallapp_link=one-time-${webLinks.length}',
+      'expires_at': '2026-11-12T10:05:00Z',
+    });
+  });
+
   /// 104 What [getMe] answers (a courier has `roles: ['courier']`).
   Map<String, dynamic> me = userJson();
 
