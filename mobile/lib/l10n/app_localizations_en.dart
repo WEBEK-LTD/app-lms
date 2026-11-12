@@ -9767,4 +9767,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get anotherCard => 'Another card on the checkout';
+
+  @override
+  String get webPageMediaRefused =>
+      'Allow the camera and microphone in your phone\'s settings so this page can use them.';
 }

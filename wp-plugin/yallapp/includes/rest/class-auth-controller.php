@@ -167,6 +167,24 @@ class Auth_Controller extends Controller {
 				),
 			)
 		);
+		$this->route(
+			'/auth/web-link',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'web_link' ),
+				'permission_callback' => array( $this, 'require_user' ),
+				'args'                => array(
+					'url'      => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'app_view' => array(
+						'type'     => 'boolean',
+						'required' => false,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -288,6 +306,25 @@ class Auth_Controller extends Controller {
 				'url'        => $url,
 				'expires_at' => gmdate( 'c', time() + Magic_Links::TTL ),
 				'open_in'    => $opens_in,
+			)
+		);
+	}
+
+	/**
+	 * POST /auth/web-link: 124.9 a page of this site, opened in the app signed in.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function web_link( WP_REST_Request $request ) {
+		$target = Magic_Links::site_target( (string) $request['url'], home_url( '/' ) );
+		if ( null === $target ) {
+			return self::error( 'invalid_request', __( 'Only a page of this website opens signed in.', 'yallapp' ), 400 );
+		}
+		return $this->ok(
+			array(
+				'url'        => Magic_Links::create( get_current_user_id(), $target, true === $request['app_view'] ),
+				'expires_at' => gmdate( 'c', time() + Magic_Links::TTL ),
 			)
 		);
 	}

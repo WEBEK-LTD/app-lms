@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/models/models.dart';
+import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/web/media_permission.dart';
+import '../../../core/web/site_sign_in.dart';
 import '../../../core/web/web_view.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
@@ -28,6 +34,32 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
   /// A new key loads the page again.
   var _load = 0;
 
+  /// 124.9 The page asked for (with the load and whether the student was
+  /// signed in), and what the tab shows for it: on the app's WordPress site
+  /// a one-time link that signs the student in there first.
+  ({Uri page, int load, bool signedIn})? _asked;
+  Uri? _shown;
+
+  /// A new web view for each page asked for.
+  var _opened = 0;
+
+  void _open(Uri page, WebPageLook? look, bool signedIn) {
+    final key = (page: page, load: _load, signedIn: signedIn);
+    if (_asked == key) return;
+    _asked = key;
+    _shown = null;
+    _opened += 1;
+    unawaited(
+      siteSignedInPage(
+        ref.read,
+        page,
+        appView: look != null && look.hideHeader && look.hideFooter,
+      ).then((url) {
+        if (mounted && _asked == key) setState(() => _shown = url);
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -41,6 +73,11 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
     final url = target?.url == null ? null : Uri.tryParse(target!.url!);
     final builder = ref.watch(webViewBuilderProvider);
     final look = target?.web;
+    final signedIn = ref.watch(
+      authControllerProvider.select((s) => s.isSignedIn),
+    );
+    if (url != null) _open(url, look, signedIn);
+    final shown = _shown;
     return Scaffold(
       backgroundColor: p.surface,
       body: SafeArea(
@@ -102,11 +139,15 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
                         _loading = true;
                       }),
                     )
+                  : shown == null
+                  ? const SizedBox.shrink()
                   : KeyedSubtree(
-                      key: ValueKey('web-tab-${widget.tabId}-$_load'),
+                      key: ValueKey('web-tab-${widget.tabId}-$_opened'),
                       child: builder(
                         WebViewRequest(
-                          url: url,
+                          url: shown,
+                          pageHost: shown == url ? null : url.host,
+                          onMediaRequest: pageMediaRequests(context, ref),
                           // Only the site's own pages stay, unless every link should.
                           openLinksOutside: !(look?.linksInside ?? false),
                           injectCss: look?.css,

@@ -1302,6 +1302,13 @@ nothing is submitted there, and the review's email needs no answer.
       long press reports it (or deletes one's own) and blocks its sender in
       a group, and a group's Members list blocks and unblocks; the business
       sees reports in Dashboard › Chat.
+- [ ] **Web pages signed in, with the camera and microphone** (124.9) come
+      with plugin 0.4.36 and each app's next build. The build now declares
+      Android's `CAMERA` (with the camera and microphone not required, so
+      phones without them still install it) and its iOS camera and
+      microphone texts name the pages opened in the app (a video call, an
+      identity check): say so in the Play Console's and App Store's privacy
+      answers for apps whose tabs open such pages.
 - [ ] **Yallapp Business** (77.6): its next release has the Chat tab
       (after the app's main tool; Stats moves to More when the bar is
       full), replies, reports and the chat's switches. Owners and managers

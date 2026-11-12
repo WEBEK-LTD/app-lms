@@ -10,6 +10,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../services/external_links.dart';
+import 'media_permission.dart';
 
 /// What a web view should show and report.
 @immutable
@@ -33,6 +34,8 @@ class WebViewRequest {
     this.browserFrame = false,
     this.debugLabel,
     this.injectCss,
+    this.pageHost,
+    this.onMediaRequest,
   }) : assert(url != null || html != null);
 
   /// Loaded as the top-level page.
@@ -84,6 +87,16 @@ class WebViewRequest {
   /// 122 Style rules the page gets as it loads and once it has (a site's
   /// own header and footer hidden in a web page tab).
   final String? injectCss;
+
+  /// 124.9 With [openLinksOutside], the host whose pages also stay in the
+  /// app: the page's own when [url] is a one-time sign-in link on the
+  /// site's address that lands on it (`www.` either way).
+  final String? pageHost;
+
+  /// 124.9 The page may have the camera and microphone when it asks, once
+  /// the person allows them; without it, or for anything else, the page's
+  /// request is refused (see [mediaToAsk]).
+  final MediaRequestHandler? onMediaRequest;
 }
 
 /// 40 Whether a web view may load [uri], in the page itself ([mainFrame]) or
@@ -130,34 +143,42 @@ class _PlatformWebViewState extends State<PlatformWebView>
             mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
           )
         : const PlatformWebViewControllerCreationParams();
-    _controller = WebViewController.fromPlatformCreationParams(params)
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: _onNavigation,
-          onPageStarted: (_) => _injectCss(),
-          onPageFinished: (_) {
-            _injectCss();
-            widget.request.onPageFinished?.call();
-          },
-          onUrlChange: (change) {
-            final uri = Uri.tryParse(change.url ?? '');
-            if (uri != null) widget.request.onUrlChange?.call(uri);
-          },
-          onWebResourceError: (error) {
-            if (error.isForMainFrame ?? true) {
-              widget.request.onMainFrameError?.call();
-            }
-          },
-        ),
-      )
-      ..addJavaScriptChannel(
-        'YallappHeight',
-        onMessageReceived: (message) {
-          final value = double.tryParse(message.message);
-          if (value != null && value > 0) widget.request.onHeight?.call(value);
-        },
-      );
+    _controller =
+        WebViewController.fromPlatformCreationParams(
+            params,
+            onPermissionRequest: widget.request.onMediaRequest == null
+                ? null
+                : _onPermissionRequest,
+          )
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onNavigationRequest: _onNavigation,
+              onPageStarted: (_) => _injectCss(),
+              onPageFinished: (_) {
+                _injectCss();
+                widget.request.onPageFinished?.call();
+              },
+              onUrlChange: (change) {
+                final uri = Uri.tryParse(change.url ?? '');
+                if (uri != null) widget.request.onUrlChange?.call(uri);
+              },
+              onWebResourceError: (error) {
+                if (error.isForMainFrame ?? true) {
+                  widget.request.onMainFrameError?.call();
+                }
+              },
+            ),
+          )
+          ..addJavaScriptChannel(
+            'YallappHeight',
+            onMessageReceived: (message) {
+              final value = double.tryParse(message.message);
+              if (value != null && value > 0) {
+                widget.request.onHeight?.call(value);
+              }
+            },
+          );
     for (final name in widget.request.channels.keys) {
       _controller.addJavaScriptChannel(
         name,
@@ -192,6 +213,26 @@ class _PlatformWebViewState extends State<PlatformWebView>
           )
           .catchError((_) {}),
     );
+  }
+
+  /// 124.9 The camera and microphone, only for this page while it is open,
+  /// and only once the person allowed them; anything else is refused.
+  Future<void> _onPermissionRequest(WebViewPermissionRequest request) async {
+    final handler = widget.request.onMediaRequest;
+    final ask = mediaToAsk(request.types, pageOpen: mounted);
+    if (handler == null || ask == null) {
+      await request.deny();
+      return;
+    }
+    var granted = false;
+    try {
+      granted = await handler(camera: ask.camera, microphone: ask.microphone);
+    } catch (_) {}
+    if (granted && mounted) {
+      await request.grant();
+    } else {
+      await request.deny();
+    }
   }
 
   @override
@@ -234,7 +275,8 @@ class _PlatformWebViewState extends State<PlatformWebView>
     if (uri == null || uri.scheme == 'about' || uri.scheme == 'data') {
       return NavigationDecision.navigate;
     }
-    if (uri.host == _initialHost && widget.request.html == null) {
+    if ((uri.host == _initialHost || uri.host == widget.request.pageHost) &&
+        widget.request.html == null) {
       return NavigationDecision.navigate;
     }
     unawaited(openExternal(request.url));
@@ -257,6 +299,17 @@ class _PlatformWebViewState extends State<PlatformWebView>
             : const {},
       ),
     );
+  }
+}
+
+/// 124.9 Forgets what the app's web views keep (the website's sign-in
+/// among it), when the student signs out of the app.
+Future<void> clearWebSessions() async {
+  if (kIsWeb || WebViewPlatform.instance == null) return;
+  try {
+    await WebViewCookieManager().clearCookies();
+  } catch (_) {
+    // Nothing to forget.
   }
 }
 
