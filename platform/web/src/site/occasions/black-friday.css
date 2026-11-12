@@ -623,13 +623,16 @@
   opacity: 0.9;
 }
 @media (max-width: 899.98px) {
+  /* On phones the two phones sit beside the tag, above the line under it, and lean out of the way. */
   .bf-hp-a {
-    top: 36%;
-    inset-inline-end: -26px;
+    top: 27%;
+    inset-inline-end: -34px;
+    width: clamp(96px, 27vw, 180px);
   }
   .bf-hp-b {
-    top: 38%;
-    inset-inline-start: -22px;
+    top: 29%;
+    inset-inline-start: -30px;
+    width: clamp(90px, 25vw, 170px);
   }
   .bf-hp-c {
     display: none;
@@ -713,6 +716,14 @@
   color: var(--bf-ink);
   text-wrap: balance;
   text-shadow: 0 2px 18px var(--bf-bg);
+}
+@media (max-width: 899.98px) {
+  .bf-h1-what {
+    position: relative;
+    z-index: 4;
+    background: color-mix(in srgb, var(--bf-bg) 82%, transparent);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--bf-bg) 60%, transparent);
+  }
 }
 .bf-h1-over {
   margin-top: 10px;
