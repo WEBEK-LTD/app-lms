@@ -163,6 +163,35 @@ void main() {
     expect(find.text('Lesson 3 of 3 · Unit 2'), findsOneWidget);
   });
 
+  testWidgets('a lesson without a video: its text first, then the notes', (
+    tester,
+  ) async {
+    final fake = api();
+    fake.lessons[102] = {
+      ...textLessonJson(),
+      'id': 102,
+      'title': 'Layout principles',
+      'previous_id': null,
+      'next_id': null,
+      'discussion_count': 3,
+    };
+    await open(tester, fake);
+    expect(find.byKey(const ValueKey('premium-lesson')), findsOneWidget);
+    expect(find.text('Lesson 2 of 3 · Unit 2'), findsOneWidget);
+    // The lesson's text is the first chip, open; the student's notes after it.
+    final overview = tester.getCenter(
+      find.byKey(const ValueKey('lesson-chip-overview')),
+    );
+    final notes = tester.getCenter(
+      find.byKey(const ValueKey('lesson-chip-notes')),
+    );
+    expect(overview.dx, lessThan(notes.dx));
+    expect(find.text('8 px for every space'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('lesson-chip-notes')));
+    await TestApp.settle(tester, 5);
+    expect(find.text('8 px for every space'), findsOneWidget);
+  });
+
   testWidgets('without the look, the lesson is as it was', (tester) async {
     await open(tester, api(premium: false));
     expect(find.byKey(const ValueKey('premium-lesson')), findsNothing);

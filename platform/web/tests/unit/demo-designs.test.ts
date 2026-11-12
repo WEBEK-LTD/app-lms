@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { ALL_DEMO_TYPES, demoKind, isStudioDemo } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
-import { DEMO_DESIGNS, demoDesign, demoDesignId } from "@/lib/demo/look";
+import { DEMO_DESIGN_TYPES, DEMO_DESIGNS, demoDesign, demoDesignId } from "@/lib/demo/look";
 import { demoLayout } from "@/lib/demo/setup";
 import { designsForApp } from "@/lib/pages/designs/catalog";
 import { withBuiltInTexts } from "@/lib/pages/builtin";
@@ -31,11 +31,13 @@ function pagesOf(layout: { pages: { slug: string; title: string; blocks: unknown
 
 describe("templates = demos", () => {
   it("has a design for every demo, its kind's", () => {
-    expect(DEMO_DESIGNS.map((d) => d.id)).toEqual(ALL_DEMO_TYPES.map(demoDesignId));
-    for (const id of ALL_DEMO_TYPES) expect(demoDesign(id).kind).toBe(demoKind(id).id);
+    expect(DEMO_DESIGNS.map((d) => d.id)).toEqual(DEMO_DESIGN_TYPES.map(demoDesignId));
+    for (const id of DEMO_DESIGN_TYPES) expect(demoDesign(id).kind).toBe(demoKind(id).id);
+    // 123 But the premium academy's: its design is its Studio template (tests/unit/studio-demo-templates.test.ts), never a design of pages offered to an academy.
+    expect(DEMO_DESIGN_TYPES).toEqual(ALL_DEMO_TYPES.filter((id) => id !== "premium_academy"));
   });
 
-  it.each(ALL_DEMO_TYPES)("the %s demo is exactly its design, with only how to sign in added", async (id) => {
+  it.each(DEMO_DESIGN_TYPES)("the %s demo is exactly its design, with only how to sign in added", async (id) => {
     const app = demoApp(id);
     const demo = await demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, app, "banner-asset");
     // "Like our demo" taken by an app that had another look and other pages.
@@ -68,7 +70,7 @@ describe("templates = demos", () => {
 
   it("offers the demo's design first, before the other designs of its kind, and keeps them all", async () => {
     const store = new MemoryStore();
-    for (const id of ALL_DEMO_TYPES) {
+    for (const id of DEMO_DESIGN_TYPES) {
       const list = await designsForApp(store, demoApp(id));
       expect(list[0]?.id).toBe(demoDesignId(id));
       expect(list[0]?.recommended).toBe(true);
@@ -76,6 +78,7 @@ describe("templates = demos", () => {
     // The built-in designs are all still there.
     const school = await designsForApp(store, demoApp("school"));
     expect(school.length).toBeGreaterThan(1);
+    expect((await designsForApp(store, demoApp("lms"))).map((d) => d.id)).not.toContain("demo-premium_academy");
   });
 });
 

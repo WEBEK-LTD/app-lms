@@ -360,6 +360,41 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       );
     }
 
+    // 123 The premium academy's lesson without a video: its text first, then
+    // the student's notes, the files and the discussion, as a video's has them.
+    if (premium && lesson.renderMode != RenderMode.webview) {
+      return Scaffold(
+        body: GoldButtons(
+          color: Theme.of(context).colorScheme.secondary,
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
+                  child: AppBackButton(),
+                ),
+                Expanded(
+                  child: PremiumLessonBody(
+                    lesson: lesson,
+                    position: position,
+                    download: download,
+                    completed: completed,
+                    completing: _completing,
+                    onComplete: () => _complete(lesson),
+                    courseImage: course?.imageUrl,
+                    enrolled: tools != null,
+                    textFirst: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final header = _LessonHeader(
       subtitle: subtitle,
       counter: position.index != null && position.total != null

@@ -201,6 +201,7 @@ test("every menu link opens its own page and marks it", async ({ page }) => {
     { group: "Studio", name: "Ride-hailing app", path: "/yallapp-studio/rides" },
     { group: "Studio", name: "Delivery & shipping app", path: "/yallapp-studio/delivery" },
     { group: "Studio", name: "Multi-vendor app", path: "/yallapp-studio/multi-vendor" },
+    { group: "Studio", name: "Academy app", path: "/yallapp-studio/academy" },
     { group: "Product", name: "Solutions", path: "/solutions" },
     { group: "Product", name: "Features", path: "/features" },
     { group: "Product", name: "Integrations", path: "/integrations" },
@@ -368,7 +369,8 @@ test("103R pricing keeps the regular plans and Studio's own plans apart, with th
   const apps = footer.getByRole("navigation", { name: "Apps made in Studio" });
   await expect(apps.getByRole("link", { name: "School app" })).toHaveAttribute("href", "/yallapp-studio/school");
   await expect(apps.getByRole("link", { name: "Multi-vendor app" })).toHaveAttribute("href", "/yallapp-studio/multi-vendor");
-  await expect(apps.getByRole("link")).toHaveCount(4);
+  await expect(apps.getByRole("link", { name: "Academy app" })).toHaveAttribute("href", "/yallapp-studio/academy");
+  await expect(apps.getByRole("link")).toHaveCount(5);
 });
 
 test("the menu's lists open with the keyboard and close on Escape or a click outside", async ({ page }) => {

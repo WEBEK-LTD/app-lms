@@ -7,7 +7,7 @@ import { LANGS } from "@/i18n/config";
 import { isLocalizedPath, localePath } from "@/i18n/paths";
 import { MemoryStore } from "@/lib/data/memory";
 import { APP_SCREENS, SCREEN_ALT } from "@/lib/marketing";
-import { STUDIO_SOLUTIONS } from "@/lib/marketing";
+import { ALL_SOLUTIONS } from "@/lib/marketing";
 import { AGENCY, competitorsOf, YALLAPP } from "@/site/story/competitors";
 import { photosOf } from "@/site/story/photos";
 import { photoSlots, STORIES, storyScreens } from "@/site/story/stories";
@@ -124,8 +124,8 @@ describe("the Studio story pages", () => {
     }
   });
 
-  it("are linked from every Studio solution page they tell", () => {
-    const ids = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
+  it("are linked from every solution page they tell (Studio's, and the academy's)", () => {
+    const ids = new Set(ALL_SOLUTIONS.map((s) => s.id));
     for (const id of STORY_IDS) for (const s of STORIES[id].solutions) expect(ids.has(s), s).toBe(true);
   });
 

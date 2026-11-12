@@ -551,15 +551,19 @@ class _Greeting extends ConsumerWidget {
         ),
         Semantics(
           header: true,
-          child: Text(
-            hello,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.3,
-              color: color,
+          // A long name makes the line smaller, never cut off.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              hello,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
+                color: color,
+              ),
             ),
           ),
         ),

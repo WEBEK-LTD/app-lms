@@ -99,6 +99,8 @@ const vehicleTypes = (taxi: boolean): DemoSeeder => async (m) => (await demoVehi
 /** What each demo brings, by list; the lists it has nothing for get 110.2's samples. */
 const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   lms: { courses: (m) => courses(m, false) },
+  // 123 The premium academy: the academy's courses.
+  premium_academy: { courses: (m) => courses(m, false) },
   store: { products: products(false) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },

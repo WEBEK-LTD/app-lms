@@ -43,6 +43,8 @@ export const tr: Messages = {
     storyDeliveryText: "Gönderiler, kuryeler ve canlı takip",
     storyMultiVendor: "Çok satıcılı uygulama",
     storyMultiVendorText: "Restoranlar, marketler ve teslimat",
+    storyAcademy: "Akademi uygulaması",
+    storyAcademyText: "Kurslar, canlı dersler ve sertifikalar",
     studioDemo: "Studio demosu",
     studioDemoText: "Studio uygulamalarını telefonunda dene",
     signIn: "Giriş yap",

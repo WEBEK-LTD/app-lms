@@ -48,6 +48,8 @@ export const en = {
     storyDeliveryText: "Parcels, couriers and live tracking",
     storyMultiVendor: "Multi-vendor app",
     storyMultiVendorText: "Restaurants, supermarkets and delivery",
+    storyAcademy: "Academy app",
+    storyAcademyText: "Courses, live classes and certificates",
     studioDemo: "Studio demo",
     studioDemoText: "Try Studio's apps on your phone",
     signIn: "Sign in",

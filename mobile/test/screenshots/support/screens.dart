@@ -12,6 +12,7 @@ import 'package:yallapp/modules/store/data/cart_controller.dart';
 import '../../support/fake_api.dart';
 import '../../support/test_app.dart';
 import 'demo_api.dart';
+import 'premium_academy.dart';
 import 'demo_images.dart';
 import 'map_tiles.dart';
 import 'shot.dart';
@@ -123,6 +124,7 @@ class Shot {
     this.appName,
     this.mapAround = const [],
     this.shadows = false,
+    this.prepare,
   });
 
   final String name;
@@ -138,6 +140,10 @@ class Shot {
 
   /// Taps or scrolls once the screen is open.
   final Future<void> Function(WidgetTester tester, GoRouter router)? after;
+
+  /// 123 Set up before the app opens (the premium academy's pictures and its
+  /// lesson's video).
+  final Future<void> Function(WidgetTester tester)? prepare;
   final Size size;
   final bool signedIn;
 
@@ -179,6 +185,7 @@ class Shot {
     usePhone(tester, size: size);
     seedDemoImages();
     if (designPictures) await seedDesignPictures(tester);
+    if (prepare != null) await prepare!(tester);
     if (mapTiles) {
       final at = mapCenter;
       at == null ? seedMapTiles() : seedMapTiles(lat: at.lat, lng: at.lng);
@@ -830,4 +837,30 @@ final websiteShots = <Shot>[
     appType: AppType.lms,
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 123 The premium academy's demo, Ufuq Academy (its story page too).
+  for (final (name, location) in [
+    ('premium-home', null),
+    ('premium-explore', '/courses'),
+    ('premium-course', '/course/1'),
+    ('premium-lesson', '/lesson/301'),
+    ('premium-mine', '/my-courses'),
+    ('premium-account', '/account'),
+    ('premium-cart', '/course-cart'),
+  ])
+    Shot(
+      name,
+      // The course's page as a student sees it before joining.
+      api: name == 'premium-course'
+          ? () => premiumAcademyApi(enrolled: false)
+          : premiumAcademyApi,
+      appType: AppType.lms,
+      prepare: preparePremiumAcademy,
+      overrides: premiumAcademyOverrides,
+      preferences: name == 'premium-cart'
+          ? const {'lms.course_cart': '[1,3]'}
+          : const {},
+      after: location == null
+          ? null
+          : (tester, router) async => router.go(location),
+    ),
 ];

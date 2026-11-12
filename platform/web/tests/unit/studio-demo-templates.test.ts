@@ -4,11 +4,13 @@ import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
-import { demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
+import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoStudioContext } from "@/lib/demo/look";
 import { designLayout } from "@/lib/pages/layout";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
+import { demoStudioScreens } from "@/lib/demo/screens";
+import { fontFiles } from "@/lib/fonts/catalog";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
@@ -39,8 +41,13 @@ const LANGS = { default: "en" as const, available: ["en" as const, "ar" as const
 
 function demoApp(id: StudioDemoId): App {
   const kind = demoKind(id);
-  return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW };
+  // 123 The premium academy's demo keeps the template it started from.
+  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {};
+  return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, primaryColor: DEMO_BRANDS[id].primaryColor, brandingDoneAt: NOW, ...design };
 }
+
+/** The demos that are their kind's own template; 123 the premium academy is a template's demo (below). */
+const KIND_DEMOS = STUDIO_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO);
 
 /** A client's new Studio project of the demo's kind, named as the demo so the two can be compared. */
 function projectApp(id: StudioDemoId): App {
@@ -92,15 +99,15 @@ const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.tit
 
 describe("Studio templates = Studio demos", () => {
   it("has a template for every Studio demo, and none for another kind", () => {
-    expect(TEMPLATES.filter((t) => t.demo).map((t) => t.demo).sort()).toEqual([...STUDIO_DEMO_TYPES].sort());
-    for (const id of STUDIO_DEMO_TYPES) expect(studioDemoOf(kindOf(id))).toBe(id);
+    expect(TEMPLATES.filter((t) => t.demo).map((t) => t.demo).sort()).toEqual([...KIND_DEMOS].sort());
+    for (const id of KIND_DEMOS) expect(studioDemoOf(kindOf(id))).toBe(id);
     for (const kind of KINDS) {
       const demo = studioDemoOf({ type: kind.engine, vertical: kind.vertical });
       if (!(STUDIO_DEMO_TYPES as readonly string[]).includes(kind.id)) expect(demo, kind.id).toBeNull();
     }
   });
 
-  it.each(STUDIO_DEMO_TYPES)("offers the %s demo's template first, recommended, and keeps every template it had", (id) => {
+  it.each(KIND_DEMOS)("offers the %s demo's template first, recommended, and keeps every template it had", (id) => {
     const list = templatesFor(kindOf(id));
     expect(list[0]).toMatchObject({ id: demoTemplateId(id), demo: id, recommended: true });
     expect(list.filter((t) => t.demo).map((t) => t.id)).toEqual([demoTemplateId(id)]);
@@ -112,7 +119,7 @@ describe("Studio templates = Studio demos", () => {
     for (const old of ["market", "market_offers", "market_grocery", "delivery", "food", "ride", "teachers", "school", "university", "brand", "contact", "blank"]) expect(TEMPLATES.some((t) => t.id === old), old).toBe(true);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s demo's home is its kind's designed page, with only how to sign in added", async (id) => {
+  it.each(KIND_DEMOS)("the %s demo's home is its kind's designed page, with only how to sign in added", async (id) => {
     const layout = await demoOf(id);
     const home = layout.pages[0]!;
     expect(home.blocks).toEqual([]);
@@ -136,7 +143,7 @@ describe("Studio templates = Studio demos", () => {
     expect(checked.ok ? [] : checked.errors).toEqual([]);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s template is the whole demo: a project started from it has the demo's pages, tabs and look", async (id) => {
+  it.each(KIND_DEMOS)("the %s template is the whole demo: a project started from it has the demo's pages, tabs and look", async (id) => {
     const demo = await demoOf(id);
     const app = projectApp(id);
     const template = templatesFor(kindOf(id))[0]!;
@@ -150,7 +157,7 @@ describe("Studio templates = Studio demos", () => {
     expect(checked.ok ? [] : checked.errors).toEqual([]);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("\"Like our demo\" (the %s demo's whole design) makes a project the demo, nothing added", async (id) => {
+  it.each(KIND_DEMOS)("\"Like our demo\" (the %s demo's whole design) makes a project the demo, nothing added", async (id) => {
     const demo = await demoOf(id);
     const app = projectApp(id);
     const design = designsFor(kindOf(id))[0]!;
@@ -178,7 +185,7 @@ describe("Studio templates = Studio demos", () => {
     expect(whole(applied).look).toEqual(whole(demo).look);
   });
 
-  it.each(STUDIO_DEMO_TYPES)("every tab of the %s demo opens a Studio page, those after the home drawn around the tab's screen", async (id) => {
+  it.each(KIND_DEMOS)("every tab of the %s demo opens a Studio page, those after the home drawn around the tab's screen", async (id) => {
     const demo = await demoOf(id);
     const app = demoApp(id);
     const before = designLayout(app, demoDesign(id), demo, NOW).tabs;
@@ -213,7 +220,7 @@ describe("Studio templates = Studio demos", () => {
     expect(demo.tab_bar).toBeTruthy();
   });
 
-  it.each(STUDIO_DEMO_TYPES)("the %s template, taken by an owner, is a page the platform takes, with their name", (id) => {
+  it.each(KIND_DEMOS)("the %s template, taken by an owner, is a page the platform takes, with their name", (id) => {
     const kind = demoKind(id);
     const app = { ...newApp("c1", null, NOW, kind.engine, kind.vertical), backend: "hosted" as const, appName: "Corner Bakery" };
     const page = TEMPLATES.find((t) => t.demo === id)!.make({ ...englishContext({ ...app, primaryColor: "#1F4E5F" }), app: "Corner Bakery" });
@@ -239,6 +246,43 @@ describe("Studio templates = Studio demos", () => {
       { heading: false, text: 'This is a demo app. Sign in & enjoy "it".' },
     ]);
     expect(paragraphsOf("loose <p>kept</p> <script>x</script><p>cut")).toEqual([{ heading: false, text: "kept" }]);
+  });
+});
+
+describe("123 The premium academy's demo: the project its template starts", () => {
+  it("is its template's project, with only how to sign in added on its home", async () => {
+    const demo = await demoOf(PREMIUM_ACADEMY_DEMO);
+    const app = { ...projectApp(PREMIUM_ACADEMY_DEMO), primaryColor: DEMO_BRANDS[PREMIUM_ACADEMY_DEMO].primaryColor };
+    const template = TEMPLATES.find((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)!;
+    const ctx = demoStudioContext(PREMIUM_ACADEMY_DEMO, appUrl(), itemSourcesFor(app)[0] ?? null);
+    const project = startLayout(app, template, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, ctx, null);
+    expect(whole(demo)).toEqual(whole(project));
+    expect(demo.tab_bar).toEqual(project.tab_bar);
+    // The note, for people not signed in, right after the home's first element.
+    const note = demo.pages[0]!.studio!.body.children![1]!;
+    expect(note.visibility).toBe("signed_out");
+    expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
+    // In the template's Alexandria and gold, in the demo's languages.
+    expect(demo.appearance).toMatchObject({ font_family: "Alexandria", secondary_color: "#B8893A", theme_mode: "system", user_can_change_mode: true });
+    expect(demo.languages?.available).toEqual(["en", "ar", "tr"]);
+    const checked = parseLayoutContent(demo, { app: demoApp(PREMIUM_ACADEMY_DEMO), now: NOW });
+    expect(checked.ok ? [] : checked.errors).toEqual([]);
+  });
+
+  it("is the project the app's website pictures draw (mobile/test/support/premium_academy_demo.json)", async () => {
+    const layout = await demoOf(PREMIUM_ACADEMY_DEMO);
+    const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "premium_academy_demo.json");
+    // As the hosted API serves it: the template's font with its files.
+    const fonts = fontFiles(appUrl(), "Alexandria");
+    const served = { ...layout, appearance: { ...layout.appearance, font_files: fonts, arabic_font_files: fonts } };
+    const data = `${JSON.stringify({ screens: demoStudioScreens(PREMIUM_ACADEMY_DEMO, appUrl()), layout: served }, null, 1)}\n`;
+    if (process.env.YALLAPP_WRITE_PREMIUM_ACADEMY) writeFileSync(file, data);
+    expect(readFileSync(file, "utf8")).toBe(data);
+  });
+
+  it("is told apart from the academy's own demo by its template, and isn't offered as a template twice", () => {
+    expect(TEMPLATES.filter((t) => t.id === PREMIUM_ACADEMY_TEMPLATE)).toHaveLength(1);
+    expect(TEMPLATES.some((t) => t.demo === PREMIUM_ACADEMY_DEMO)).toBe(false);
   });
 });
 

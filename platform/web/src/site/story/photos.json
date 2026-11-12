@@ -266,5 +266,85 @@
         "title": "Street Fruit Seller at work (Unsplash)"
       }
     }
+  ],
+  "academy": [
+    {
+      "slot": "academy-breakfast",
+      "src": "/stories/academy/academy-breakfast.jpg",
+      "width": 1000,
+      "height": 1000,
+      "credit": {
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Young_woman_studying_at_home_with_a_laptop_and_breakfast_on_the_table.jpg",
+        "title": "Young woman studying at home with a laptop and breakfast on the table"
+      }
+    },
+    {
+      "slot": "academy-desk",
+      "src": "/stories/academy/academy-desk.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Woman_studies_at_a_desk_with_a_laptop_notebook_and_drink_in_a_bright_room.jpg",
+        "title": "Woman studies at a desk with a laptop notebook and drink in a bright room"
+      }
+    },
+    {
+      "slot": "academy-evening",
+      "src": "/stories/academy/academy-evening.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Budva_at_night_undefined.jpg",
+        "title": "Budva at night"
+      }
+    },
+    {
+      "slot": "academy-graduation",
+      "src": "/stories/academy/academy-graduation.jpg",
+      "width": 1600,
+      "height": 1000,
+      "credit": {
+        "creator": "Juan Ramos juanmramosjr",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Thank_goodness_it%27s_over%21_(Unsplash).jpg",
+        "title": "Thank goodness it's over! (Unsplash)"
+      }
+    },
+    {
+      "slot": "academy-live",
+      "src": "/stories/academy/academy-live.jpg",
+      "width": 1000,
+      "height": 1000,
+      "credit": {
+        "creator": "Muhammad Raufan Yusup muhraufan",
+        "license": "CC0 1.0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "source": "https://commons.wikimedia.org/wiki/File:Working_Late_(Unsplash).jpg",
+        "title": "Working Late (Unsplash)"
+      }
+    },
+    {
+      "slot": "academy-phone",
+      "src": "/stories/academy/academy-phone.jpg",
+      "width": 1000,
+      "height": 1000,
+      "credit": {
+        "creator": "Shixart1985",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "source": "https://commons.wikimedia.org/wiki/File:Woman_holding_a_cup_of_coffee_while_looking_at_her_phone.jpg",
+        "title": "Woman holding a cup of coffee while looking at her phone"
+      }
+    }
   ]
 }

@@ -955,7 +955,7 @@ export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterFirst
 }
 
 /** Each Studio demo's home as a template, offered first and recommended for its kind. */
-const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as StudioDemoId[]).map((id) => ({
+const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as (keyof typeof DEMO_ICONS)[]).map((id) => ({
   id: demoTemplateId(id),
   icon: DEMO_ICONS[id],
   demo: id,

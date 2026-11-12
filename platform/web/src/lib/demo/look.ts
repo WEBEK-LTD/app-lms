@@ -4,7 +4,7 @@ import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "../pages/defaults";
 import { picture, type Design } from "../pages/designs/build";
 import type { ItemSource, LayoutBlock } from "../pages/types";
 import { DEMO_BRANDS } from "./content";
-import { ALL_DEMO_TYPES, demoKind, isStudioDemo, type DemoId, type StudioDemoId } from "./constants";
+import { ALL_DEMO_TYPES, demoKind, isStudioDemo, PREMIUM_ACADEMY_DEMO, type DemoId, type StudioDemoId } from "./constants";
 import { DEMO_BANNER_ART } from "./design-art";
 import { en as studioWords } from "../../i18n/dashboard/studio";
 import type { SectionContext, SectionWord } from "../studio/sections";
@@ -79,12 +79,15 @@ export function demoDesign(id: DemoId): Design {
   };
 }
 
+/** 123 The demos with a design of pages: all but the premium academy, whose design is its Studio template (`academy_premium`), never a page design an academy's owner would take. */
+export const DEMO_DESIGN_TYPES: readonly DemoId[] = ALL_DEMO_TYPES.filter((id) => id !== PREMIUM_ACADEMY_DEMO);
+
 /** Every demo's design, in the demos' order. */
-export const DEMO_DESIGNS: readonly Design[] = ALL_DEMO_TYPES.map(demoDesign);
+export const DEMO_DESIGNS: readonly Design[] = DEMO_DESIGN_TYPES.map(demoDesign);
 
 /** The demo whose design this is (`demo-<demo>`), for its sample entries (lib/samples/demo.ts); null for any other design. */
 export function demoOfDesign(designId: string | null | undefined): DemoId | null {
-  return ALL_DEMO_TYPES.find((id) => demoDesignId(id) === designId) ?? null;
+  return DEMO_DESIGN_TYPES.find((id) => demoDesignId(id) === designId) ?? null;
 }
 
 /**

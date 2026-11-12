@@ -6,7 +6,7 @@
  * (icons, screens, photos, numbers) is in ./stories.ts, item by item.
  */
 
-export const STORY_IDS = ["school", "rides", "delivery", "multi-vendor"] as const;
+export const STORY_IDS = ["school", "rides", "delivery", "multi-vendor", "academy"] as const;
 export type StoryId = (typeof STORY_IDS)[number];
 
 export function isStoryId(value: string): value is StoryId {

@@ -45,6 +45,8 @@ const VEHICLE: Record<StoryId, "two_wheeler" | "local_taxi" | "directions_bus" |
   rides: "local_taxi",
   delivery: "two_wheeler",
   "multi-vendor": "delivery_dining",
+  // The academy's scenes draw no map.
+  academy: "two_wheeler",
 };
 
 const primary =
@@ -521,7 +523,7 @@ function Finale({ shape, t, ui, lang }: { shape: StoryShape; t: StoryText; ui: S
           <h2 id="story-more" className="m-0 text-[24px] font-extrabold tracking-[-0.4px]">
             {ui.otherStories}
           </h2>
-          <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-3">
+          <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
             {others.map((id) => (
               <li key={id}>
                 <Link

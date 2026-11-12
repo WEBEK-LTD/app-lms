@@ -43,6 +43,8 @@ export const ar: Messages = {
     storyDeliveryText: "الشحنات والمندوبون والتتبع المباشر",
     storyMultiVendor: "تطبيق متعدد المتاجر",
     storyMultiVendorText: "المطاعم والسوبرماركت والتوصيل",
+    storyAcademy: "تطبيق الأكاديمية",
+    storyAcademyText: "الدورات والحصص المباشرة والشهادات",
     studioDemo: "عرض Studio",
     studioDemoText: "جرّب تطبيقات Studio على هاتفك",
     signIn: "تسجيل الدخول",

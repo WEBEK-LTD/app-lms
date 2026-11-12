@@ -32,6 +32,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string | "market_home"> =
   taxi: "ride",
   school: "school",
   instructors: "teachers",
+  // 123 The premium academy's home is its template's.
+  premium_academy: "academy_premium",
 };
 
 /**
@@ -176,7 +178,8 @@ export function translating(ctx: SectionContext): { ctx: SectionContext; transla
   return { ctx: { ...ctx, w }, translate };
 }
 
-export const DEMO_ICONS: Record<StudioDemoId, string> = {
+/** The demos' own templates; 123 the premium academy is a template already (lib/studio/sections.ts academy_premium). */
+export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy">, string> = {
   delivery: "local_shipping",
   food: "delivery_dining",
   marketplace: "storefront",
