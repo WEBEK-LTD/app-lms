@@ -89,6 +89,8 @@ export function academyHome(ctx: SectionContext): StudioPage {
             {
               id: id(),
               type: "column",
+              // 124.6 As tall as the banner, so its words and button sit at its foot in the app too (a layer's first element is as tall as what it holds).
+              height: 206,
               align: "end",
               gap: 10,
               padding: pad(18, 18),

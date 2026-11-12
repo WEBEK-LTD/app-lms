@@ -216,6 +216,9 @@ export const ICON_NAMES = [
   "format_paint",
   "keyboard",
   "subdirectory_arrow_left",
+  // 124 The premium academy's cards in Studio: the learning streak and the live class.
+  "local_fire_department",
+  "videocam",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

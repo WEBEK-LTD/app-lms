@@ -481,7 +481,16 @@ function cornersStyle(node: StudioNode): CSSProperties {
   return { borderStartStartRadius: k.top_start ?? 0, borderStartEndRadius: k.top_end ?? 0, borderEndEndRadius: k.bottom_end ?? 0, borderEndStartRadius: k.bottom_start ?? 0 };
 }
 
-function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
+/** 124.6 Where an element sits on a layer (a stack's `cross`), as the app aligns it there. */
+const STACK_AT: Record<string, CSSProperties["alignSelf"]> = { start: "start", center: "center", end: "end", stretch: "start" };
+
+/** 124.6 An element on a layer: whether it is the layer's first, and the layer's alignment. */
+interface InStack {
+  first: boolean;
+  cross: StudioNode["cross"];
+}
+
+function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: InStack }) {
   const { node, dark, editing, lang, defaultLang, look, parentDir } = props;
   // 107.2 A hidden element shows only in the editor, faded.
   if (node.hidden && !editing) return null;
@@ -517,10 +526,18 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
     textDecoration: decoration || undefined,
     textTransform: node.font?.uppercase ? "uppercase" : undefined,
     textAlign: node.text_align === "center" ? "center" : node.text_align === "end" ? "end" : undefined,
-    alignSelf: node.self_align ? ITEMS[node.self_align] : undefined,
+    // 124.6 Hugging across its row or column, it sits at the start of it, as the app draws it (a button that hugs its words).
+    alignSelf: node.self_align ? ITEMS[node.self_align] : (parentDir === "column" && node.width === "hug") || (parentDir === "row" && node.height === "hug") ? "flex-start" : undefined,
     overflow: node.radius || node.corners ? "hidden" : undefined,
   };
-  if (parentDir === "stack") Object.assign(style, { gridArea: "1 / 1", justifySelf: node.self_align ? ITEMS[node.self_align] : "stretch", alignSelf: node.self_align ? ITEMS[node.self_align] : "stretch" });
+  if (parentDir === "stack") {
+    // 124.6 As the app's layers: after the first, an element filling the height fills the layer; any other is as tall as
+    // what it holds, at its own alignment or the layer's (and as wide, when it hugs or has a width).
+    const fills = props.inStack?.first === false && node.height === "fill" && (node.width === undefined || node.width === "fill");
+    const at = node.self_align ? ITEMS[node.self_align] : STACK_AT[props.inStack?.cross ?? "stretch"];
+    const across = node.self_align ? ITEMS[node.self_align] : node.width === "hug" || typeof node.width === "number" ? at : "stretch";
+    Object.assign(style, { gridArea: "1 / 1", justifySelf: fills ? "stretch" : across, alignSelf: fills ? "stretch" : at });
+  }
   // 112.4 A spot on a picture: the point at the same share of it sits there, as the app's alignment does.
   if (parentDir === "stack" && node.place) {
     const { x, y } = node.place;
@@ -613,7 +630,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       case "spacer":
         return null;
       case "text":
-        return <span style={{ display: "block", whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;
+        // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
+        return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;
       case "button":
         return (
           <span style={{ display: "flex", alignItems: "center", justifyContent: n.text_align === "start" ? "flex-start" : n.text_align === "end" ? "flex-end" : "center", gap: 8, height: "100%", flexDirection: n.icon_position === "start" ? "row" : "row-reverse", minHeight: 40, paddingInline: n.padding ? 0 : 16 }}>
@@ -779,7 +797,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
       if (drop === i) out.push(<DropLine key={`drop${i}`} dir={dir} label={editing!.dropLabel} />);
       if (n.type === "tabs" && i !== shownTab) return;
       const width = n.type === "slider" ? { width: `${100 / (n.per_view ?? 1)}%` } : {};
-      const view = <Node {...p} node={child} parentDir={dir} />;
+      const view = <Node {...p} node={child} parentDir={dir} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
       out.push(
         n.type === "accordion" ? (
           <div key={child.id} style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid rgba(127,127,127,0.25)", paddingBottom: 4 }}>
@@ -896,16 +914,21 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir }) {
 /** An items element's card for one entry: its bound elements show the entry. */
 function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string } }) {
   const { entry } = props;
+  const bound = (node: StudioNode): string | null => (node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : null);
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
-    ...(node.bind === "title" ? { text: entry.title, translations: undefined } : {}),
-    ...(node.bind === "price" ? { text: entry.price, translations: undefined } : {}),
-    ...(node.bind === "subtitle" ? { text: entry.subtitle, translations: undefined } : {}),
-    ...(node.bind === "badge" ? { text: entry.badge, translations: undefined } : {}),
+    ...(bound(node) !== null ? { text: bound(node)!, translations: undefined } : {}),
+    // 124.6 What the entry hasn't (a course without a badge) leaves no empty pill, as in the app.
+    ...(bound(node) !== null && !bound(node)!.trim() ? { hidden: true } : {}),
     ...(node.bind === "image" && entry.imageUrl ? { image_url: entry.imageUrl } : {}),
     ...(node.children ? { children: node.children.map(fill) } : {}),
   });
-  return <StudioView {...props} page={{ body: fill(props.node), show_tabs: false, background: "transparent" }} editing={undefined} />;
+  // 124.6 Only the view's own props: the card (and where the list sits) would stand in for the filled card.
+  const { node: card, entry: _entry, parentDir: _dir, inStack: _stack, ...view } = props as typeof props & { parentDir?: unknown; inStack?: unknown };
+  void _entry;
+  void _dir;
+  void _stack;
+  return <StudioView {...view} page={{ body: fill(card), show_tabs: false, background: "transparent" }} editing={undefined} />;
 }
 
 function Placeholder({ icon, text, dark, map }: { icon: string; text: string; dark?: boolean; map?: boolean }) {

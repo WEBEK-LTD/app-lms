@@ -374,6 +374,8 @@ export const SECTIONS: readonly SectionInfo[] = [
         {
           id: (ctx.newId ?? newNodeId)(),
           type: "column",
+          // 124.6 As tall as the offer, so its words sit at its foot in the app too.
+          height: 150,
           align: "end",
           padding: pad(14, 14),
           color: "#14361F",

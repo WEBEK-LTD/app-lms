@@ -6,6 +6,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { platformDefinitions } from "@/lib/hosted/connectors/registry";
 import { STUDIO_ONLY_KINDS, studioSourcesFor } from "@/lib/studio/section";
+import { premiumAcademyChoice } from "@/lib/studio/new-choices";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { StudioScreen } from "../chrome";
 import { NewProjectForm, type KindChoice } from "./form";
@@ -55,7 +56,11 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const taxi = kindById("taxi");
   const instructors = kindById("instructors");
   const school = kindById("school");
+  const academy = kindById("academy");
+  // 124.6 The premium academy: an academy with its template for the whole project already chosen (step 3 still offers the others).
+  const premium = academy && offered.includes(academy) ? premiumAcademyChoice(choiceOf(academy), t("studio.tpl_academy_premium"), t("studio.kindPremiumAcademyText")) : null;
   const studioKinds = [
+    ...(premium ? [premium] : []),
     delivery && offered.includes(delivery)
       ? { ...choiceOf(delivery), name: t("studio.kindDelivery"), text: t("studio.kindDeliveryText"), soon: false }
       : { id: "delivery", name: t("studio.kindDelivery"), icon: "local_shipping", sources: [], text: t("studio.soon"), soon: true },
