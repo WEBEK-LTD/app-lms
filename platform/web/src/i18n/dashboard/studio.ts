@@ -645,7 +645,11 @@ export const en = {
   pagesAroundScreens: "The app's screens",
   pageScreenNone: "None, the elements only",
   pageScreenHint: "The app draws this screen (its lists, forms and map) under the elements you add here, and your header becomes its title. Only one page per screen.",
-  screenDrawn: "{screen}: the app draws this part",
+  // 124.8 The app's screen on the canvas.
+  screenDrawnLook: "Drawn by the app; choose its look in Screens",
+  screenDrawnOwn: "Drawn by the app, with your content and colours",
+  screenOpenLooks: "Open Screens",
+  screenDrawnHint: "{screen}: the app's own screen, drawn here with sample entries. Add your elements above or below it; choose its look in Screens.",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "Bottom tabs",
   tabBarHint: "Up to five show in the bar. With more, the fifth becomes More and holds the rest.",
@@ -1861,7 +1865,10 @@ export const ar: Messages = {
   pagesAroundScreens: "شاشات التطبيق",
   pageScreenNone: "مفيش، العناصر بس",
   pageScreenHint: "التطبيق بيرسم الشاشة دي (قوايمها وفورماتها والخريطة) تحت العناصر اللي بتحطها هنا، والهيدر بتاعك بيبقى عنوانها. كل شاشة ليها صفحة واحدة بس.",
-  screenDrawn: "{screen}: التطبيق بيرسم الجزء ده",
+  screenDrawnLook: "التطبيق بيرسمها؛ اختار شكلها من الشاشات",
+  screenDrawnOwn: "التطبيق بيرسمها بمحتواك وألوانك",
+  screenOpenLooks: "افتح الشاشات",
+  screenDrawnHint: "{screen}: دي شاشة التطبيق نفسها، مرسومة هنا بأمثلة. حط عناصرك فوقها أو تحتها، واختار شكلها من الشاشات.",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "المنيو اللي تحت",
   tabBarHint: "لحد ٥ تابات بيظهروا في الشريط. لو أكتر، الخامسة بتبقى «المزيد» وفيها الباقي.",
@@ -3066,7 +3073,10 @@ export const tr: Messages = {
   pagesAroundScreens: "Uygulamanın ekranları",
   pageScreenNone: "Yok, yalnızca öğeler",
   pageScreenHint: "Uygulama bu ekranı (listelerini, formlarını ve haritasını) buraya eklediğiniz öğelerin altına çizer, başlığınız da ekranın başlığı olur. Her ekran için yalnızca bir sayfa.",
-  screenDrawn: "{screen}: bu kısmı uygulama çizer",
+  screenDrawnLook: "Uygulama çizer; görünümünü Ekranlar'dan seçin",
+  screenDrawnOwn: "Uygulama çizer, içeriğiniz ve renklerinizle",
+  screenOpenLooks: "Ekranlar'ı aç",
+  screenDrawnHint: "{screen}: uygulamanın kendi ekranı, burada örnek kayıtlarla çizildi. Öğelerinizi üstüne veya altına ekleyin; görünümünü Ekranlar'dan seçin.",
   // 109 The bottom tabs, edited in Studio.
   tabBar: "Alt sekmeler",
   tabBarHint: "Çubukta en fazla beşi görünür. Daha fazlasında beşincisi Daha fazla olur ve kalanları içerir.",

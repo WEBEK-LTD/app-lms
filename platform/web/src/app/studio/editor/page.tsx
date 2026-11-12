@@ -20,6 +20,7 @@ import { categorySourcesFor, itemSourcesFor, pageScreenOptionsFor, screenOptions
 import { hasFeature } from "@/lib/plans";
 import { isStudioProject } from "@/lib/studio/section";
 import { studioDemoOf } from "@/lib/studio/demo-templates";
+import { screensConfig, studioScreensOn } from "@/lib/studio/screens";
 import { demoDesign } from "@/lib/demo/look";
 import { StudioEditor } from "./editor";
 
@@ -84,6 +85,9 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       pictureBase={appUrl()}
       // 115.14 What a marketplace's sections show on the canvas, read as the app reads it.
       market={await marketCanvasOf(app, { store, assetUrl, platformUrl: appUrl() }, now)}
+      // 124.8 The screens drawn on the canvas in the looks the app gets, and where those are chosen.
+      studioScreens={screensConfig(app).screens ?? null}
+      screensHref={studioScreensOn(app) ? "/studio/project/screens" : null}
     />
   );
 }

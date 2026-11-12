@@ -8,7 +8,9 @@ import { shareMediaAction } from "@/app/actions/media";
 import type { LayoutHistoryEntry } from "@/lib/pages/layout";
 import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n";
 import type { LearningWords } from "@/components/studio/learning";
-import { StudioView, type StudioEditing, type StudioLook } from "@/components/studio/view";
+import { StudioView, type ScreenPartInfo, type StudioEditing, type StudioLook } from "@/components/studio/view";
+import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
+import type { StudioScreens } from "@/lib/studio/screens";
 import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
 import type { DashKey } from "@/i18n/dashboard";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
@@ -91,6 +93,10 @@ export interface StudioEditorProps {
   pictureBase: string;
   /** 115.14 A marketplace's places, offers, cuisines and orders, drawn by its `market` elements; null for other projects. */
   market?: MarketCanvas | null;
+  /** 124.8 The looks chosen in Studio › Screens, as the app gets them (`Config.screens`), for the screens the canvas draws; null: the app's own. */
+  studioScreens?: StudioScreens | null;
+  /** 124.8 Studio › Screens, where a screen's look is chosen; null when the project has none. */
+  screensHref?: string | null;
 }
 
 export function StudioEditor(props: StudioEditorProps) {
@@ -172,6 +178,17 @@ export function StudioEditor(props: StudioEditorProps) {
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
   const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
+  // 124.8 The app's screen under the page: drawn as the app draws it in the look chosen in Studio › Screens, else said so.
+  const screenName = studio?.screen ? known(props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen) : "";
+  const looksAt = screenLookSection(studio?.screen, props.kind.type);
+  const screenPart: ScreenPartInfo | undefined = studio?.screen
+    ? {
+        name: screenName,
+        drawing: screenDrawing(studio.screen, props.kind.type, props.studioScreens),
+        looksHref: props.screensHref && looksAt ? `${props.screensHref}#${looksAt}` : null,
+        words: { drawnLook: t("studio.screenDrawnLook"), drawnOwn: t("studio.screenDrawnOwn"), open: t("studio.screenOpenLooks"), hint: t("studio.screenDrawnHint", { screen: screenName }) },
+      }
+    : undefined;
   const words = { price: t("studio.price"), addPicture: t("studio.addPicture"), addVideo: t("studio.addVideo"), send: t("studio.send"), search: t("studio.search"), days: t("studio.days"), hours: t("studio.hours"), minutes: t("studio.minutes"), seconds: t("studio.seconds"), copy: t("studio.copyCode") };
   const kindSections = useMemo(() => sectionsFor(props.kind, { categories: props.categorySources.length > 0 }), [props.kind, props.categorySources]);
   // Editor audit 3.3: the page templates (About, FAQ) come before the blank page, beside the rest.
@@ -1186,7 +1203,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} greeting={greeting} tablet={device === "tablet"} screenLabel={studio.screen ? t("studio.screenDrawn", { screen: props.pageScreens.find((s) => s.value === studio.screen)?.label ?? studio.screen }) : undefined} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}

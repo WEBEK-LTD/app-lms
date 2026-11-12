@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, DragEvent, MouseEvent, PointerEvent, ReactNode } from "react";
+import { useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
@@ -11,6 +11,8 @@ import { splitTabs } from "@/lib/pages/tab-bar";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import { MarketSection } from "./market";
 import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
+import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
+import { AppScreen } from "./app-screens";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -72,8 +74,20 @@ interface ViewProps {
   greeting?: { date: string; hello: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
   market?: MarketCanvas | null;
-  /** 120 For a page drawn around one of the app's screens: what the canvas says under the elements ("My shipments: the app draws this part"). */
-  screenLabel?: string;
+  /** 120 For a page drawn around one of the app's screens: 124.8 the screen as the app draws it, or what the canvas says in its place. */
+  screenPart?: ScreenPartInfo;
+}
+
+/** 124.8 The app's screen under a page's elements in the canvas. */
+export interface ScreenPartInfo {
+  /** Its name in the editor ("My courses"). */
+  name: string;
+  /** How the app draws it (lib/studio/screen-drawing.ts); null: no drawing yet, the canvas says the app draws it. */
+  drawing: ScreenDrawing | null;
+  /** Studio › Screens, where its look is chosen; null when it has none there. */
+  looksHref: string | null;
+  /** In the dashboard's language. */
+  words: { drawnLook: string; drawnOwn: string; open: string; hint: string };
 }
 
 const SHADOWS: Record<string, string> = {
@@ -142,7 +156,7 @@ export function StudioView(viewProps: ViewProps) {
       {page.header ? <Header header={page.header} {...props} /> : null}
       <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
         <Node node={page.body} parentDir="column" {...props} />
-        {page.screen ? <ScreenPart label={props.screenLabel ?? page.screen} dark={dark} /> : null}
+        {page.screen ? <ScreenPart {...props} /> : null}
       </div>
       {showTabs ? <Tabs {...props} /> : null}
     </div>
@@ -942,14 +956,84 @@ function Placeholder({ icon, text, dark, map }: { icon: string; text: string; da
   );
 }
 
-/** 120 The app's own screen under a page's elements: rows like its list, and what it is. */
-function ScreenPart({ label, dark }: { label: string; dark: boolean }) {
+/**
+ * 120 The app's own screen under a page's elements. 124.8 As the app draws
+ * it, in the look chosen in Studio › Screens, where the canvas has a
+ * drawing of it (components/studio/app-screens.tsx): only a drawing, so a
+ * click selects nothing and a drop lands at the end of the page's
+ * elements; on the pointer, a note says so, with the way to its look.
+ * Without a drawing yet: the screen's name, that the app draws it, and
+ * the way to its look when Studio › Screens has one.
+ */
+function ScreenPart(props: ViewProps) {
+  const { page, dark, lang, look, pickable } = props;
+  const part: ScreenPartInfo = props.screenPart ?? { name: page.screen ?? "", drawing: null, looksHref: null, words: { drawnLook: "", drawnOwn: "", open: "", hint: "" } };
+  const [hover, setHover] = useState(false);
+  const link = (onDark: boolean) =>
+    part.looksHref ? (
+    <a
+      href={part.looksHref}
+      target="_blank"
+      rel="noopener"
+      onClick={(e) => e.stopPropagation()}
+      data-studio-screen-looks=""
+      style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: 999, background: onDark ? "#FFFFFF" : "#0E0D24", color: onDark ? "#0E0D24" : "#FFFFFF", fontSize: 11.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}
+    >
+      {part.words.open}
+      <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 14 }}>
+        open_in_new
+      </span>
+    </a>
+  ) : null;
+  if (part.drawing) {
+    const own = pickable.items.courses ?? [];
+    const courses = own.length ? own : ((pickable.samples?.[lang] ?? pickable.samples?.en)?.courses ?? []);
+    const tab = look.tabs.find((t) => t.id === look.activeTab);
+    const tabLabel = tab ? ((lang !== props.defaultLang ? (tab.translations?.[lang]?.label as string | undefined) : undefined) ?? tab.label) : null;
+    return (
+      <div
+        data-studio-screen=""
+        data-studio-screen-name={part.name}
+        title={props.editing ? part.words.hint : undefined}
+        onMouseEnter={props.editing ? () => setHover(true) : undefined}
+        onMouseLeave={props.editing ? () => setHover(false) : undefined}
+        style={{ position: "relative", flex: "1 0 auto", display: "flex", flexDirection: "column", cursor: props.editing ? "default" : undefined, userSelect: "none" }}
+      >
+        <AppScreen
+          drawing={part.drawing}
+          dark={dark}
+          lang={lang}
+          brand={look.brand}
+          accent={look.accent ?? null}
+          appName={look.name}
+          tabLabel={tabLabel}
+          courses={courses}
+          own={own.length > 0}
+          categories={(pickable.categories.courses ?? []).map((c) => c.name)}
+          hidesTitle={Boolean(page.header)}
+          // Room for the status bar when nothing is over it (in the editor the empty page's drop box takes it).
+          top={page.header || page.body.children?.length || props.editing ? 0 : 30}
+        />
+        {props.editing && hover ? (
+          <span style={{ position: "absolute", top: 8, insetInline: 10, display: "flex", justifyContent: "center", pointerEvents: "none", zIndex: 4 }}>
+            <span data-studio-screen-hint="" style={{ display: "inline-flex", alignItems: "center", gap: 8, maxWidth: "100%", padding: "6px 6px 6px 12px", borderRadius: 999, background: "rgba(14,13,36,0.88)", color: "#F4EFE6", fontSize: 11.5, fontWeight: 700, boxShadow: "0 6px 16px rgba(14,13,36,0.25)" }}>
+              <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+                apps
+              </span>
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{part.name}</span>
+              {link(true)}
+            </span>
+          </span>
+        ) : null}
+      </div>
+    );
+  }
   const row = dark ? "#26233A" : "#ECE6DA";
   const line = dark ? "#34314A" : "#DDD5C6";
   return (
-    <div data-studio-screen="" style={{ position: "relative", flex: "1 0 auto", minHeight: 300, display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px 18px", pointerEvents: "none" }}>
+    <div data-studio-screen="" data-studio-screen-name={part.name} style={{ position: "relative", flex: "1 0 auto", minHeight: 300, display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px 18px", pointerEvents: "none" }}>
       {[0, 1, 2, 3].map((i) => (
-        <span key={i} aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 12, height: 64, borderRadius: 16, background: row, padding: "0 12px" }}>
+        <span key={i} aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 12, height: 64, borderRadius: 16, background: row, padding: "0 12px", opacity: 0.7 }}>
           <span style={{ width: 40, height: 40, borderRadius: 12, background: line, flex: "none" }} />
           <span style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1 }}>
             <span style={{ height: 9, width: `${70 - i * 9}%`, borderRadius: 5, background: line }} />
@@ -957,12 +1041,14 @@ function ScreenPart({ label, dark }: { label: string; dark: boolean }) {
           </span>
         </span>
       ))}
-      <span style={{ position: "absolute", top: 26, insetInline: 0, display: "flex", justifyContent: "center" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700, background: dark ? "#F4EFE6" : "#0E0D24", color: dark ? "#0E0D24" : "#F4EFE6", boxShadow: "0 4px 12px rgba(14,13,36,0.18)" }}>
-          <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 16 }}>
+      <span style={{ position: "absolute", top: 34, insetInline: 18, display: "flex", justifyContent: "center" }}>
+        <span data-studio-screen-placeholder="" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, maxWidth: 260, padding: "14px 16px", borderRadius: 18, textAlign: "center", background: dark ? "#F4EFE6" : "#0E0D24", color: dark ? "#0E0D24" : "#F4EFE6", boxShadow: "0 8px 20px rgba(14,13,36,0.22)" }}>
+          <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: 22 }}>
             apps
           </span>
-          {label}
+          <b style={{ fontSize: 14, fontWeight: 800 }}>{part.name}</b>
+          {part.words.drawnOwn ? <span style={{ fontSize: 12, lineHeight: 1.4, opacity: 0.85 }}>{part.looksHref ? part.words.drawnLook : part.words.drawnOwn}</span> : null}
+          {part.looksHref ? <span style={{ marginTop: 4 }}>{link(!dark)}</span> : null}
         </span>
       </span>
     </div>

@@ -1025,6 +1025,59 @@ test("112.4 a store project starts from a full shop, with a store's sections and
   await own.goto("/dashboard/pages");
 });
 
+test("124.8 the premium academy's pages show the app's own screens on the canvas, drawn as the app draws them", async () => {
+  await own.goto("/studio/new");
+  await own.locator("section#step-1 div.grid").first().getByRole("radio", { name: /^Premium academy / }).check();
+  await own.getByLabel("Project name").fill("Ufuq Academy");
+  await own.getByRole("radiogroup", { name: "3 · Where do you start?" }).getByRole("radio", { name: /Premium academy/ }).click();
+  await own.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(own).toHaveURL(/\/studio\/project$/);
+  const phone = own.getByRole("main", { name: "The page in the phone" });
+
+  // My courses: the premium screen, its large title, this week and the lists as chips; no placeholder.
+  await own.goto("/studio/editor?page=learning");
+  const mine = phone.locator('[data-studio-screen-drawn="my_courses:premium"]');
+  await expect(mine).toBeVisible();
+  await expect(mine.getByText("This week")).toBeVisible();
+  await expect(mine.locator("[data-screen-chip]")).toHaveText([/^Learning \d$/, /^Completed \d$/, "Saved"]);
+  await expect(mine.getByText("UX Design Fundamentals")).toBeVisible();
+  await expect(phone.locator("[data-studio-screen-placeholder]")).toHaveCount(0);
+  await expect(phone.getByText("the app draws this part")).toHaveCount(0);
+  // Its large title is the tab's name, as in the app.
+  const tabName = (await phone.locator('[data-studio-tab="learning"]').getAttribute("title"))!;
+  await expect(mine.getByText(tabName, { exact: true })).toBeVisible();
+  // Only a drawing: on the pointer it says so, with the way to its look; a click selects nothing.
+  await mine.hover();
+  await expect(phone.locator("[data-studio-screen-hint]")).toBeVisible();
+  await expect(phone.locator("[data-studio-screen-looks]")).toHaveAttribute("href", "/studio/project/screens#h-looks");
+  await mine.getByText("This week").click();
+  expect(await phone.locator("[data-studio-node]").evaluateAll((nodes) => nodes.filter((n) => getComputedStyle(n).outlineStyle === "solid").length)).toBe(0);
+  // Dark: the week's card in cream, the page at night.
+  await own.getByRole("button", { name: /Light \/ dark/ }).click();
+  await expect(mine).toHaveCSS("background-color", "rgb(11, 10, 28)");
+  await own.getByRole("button", { name: /Light \/ dark/ }).click();
+
+  // Explore, the account and a course's page in their premium looks.
+  await own.goto("/studio/editor?page=courses");
+  await expect(phone.locator('[data-studio-screen-drawn="catalog:explore"]')).toBeVisible();
+  await expect(phone.getByText("Course, skill or teacher")).toBeVisible();
+  await own.goto("/studio/editor?page=account");
+  await expect(phone.locator("[data-screen-account-card]")).toContainText("Ufuq Academy");
+  await own.goto("/studio/editor?page=course");
+  await expect(phone.locator('[data-studio-screen-drawn="course:premium"]')).toContainText("Join now");
+
+  // A screen without a drawing yet: its name, that the app draws it.
+  await own.goto("/studio/editor?page=orders");
+  await expect(phone.locator("[data-studio-screen-placeholder]")).toContainText("Orders");
+  await expect(phone.locator("[data-studio-screen-placeholder]")).toContainText("Drawn by the app");
+
+  // Back to the regular app, for the specs after this one.
+  await own.goto("/studio");
+  await own.getByRole("button", { name: "Regular apps" }).click();
+  await expect(own).toHaveURL(/\/dashboard$/);
+  await own.goto("/dashboard/pages");
+});
+
 test("97.3 the client brings a look from Figma, apart from the standard one", async ({ request }) => {
   await own.getByRole("tab", { name: "Look" }).click();
   // No Figma file yet: the standard look only.
