@@ -9733,4 +9733,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmAndSignIn => 'Confirm and sign in';
+
+  @override
+  String get courseCartTitle => 'Cart';
+
+  @override
+  String courseCartCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count courses',
+      one: '1 course',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseCartEmpty => 'The courses you choose show up here.';
+
+  @override
+  String get subtotalShort => 'Subtotal';
+
+  @override
+  String payAmountSecurely(String amount) {
+    return 'Pay $amount securely';
+  }
+
+  @override
+  String get cardAtCheckout => 'Your card is entered on the secure checkout';
+
+  @override
+  String get chooseCard => 'Choose a card';
+
+  @override
+  String get anotherCard => 'Another card on the checkout';
 }

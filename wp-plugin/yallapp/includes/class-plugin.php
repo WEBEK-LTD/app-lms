@@ -136,6 +136,8 @@ class Plugin {
 		( new Rest\Notifications_Controller( $this ) )->register_routes();
 		( new Rest\Community_Controller( $this ) )->register_routes();
 		( new Rest\Store_Controller( $this ) )->register_routes();
+		// 123 Several courses in one checkout, with a saved card.
+		( new Rest\Course_Cart_Controller( $this ) )->register_routes();
 		( new Rest\Bookings_Controller( $this ) )->register_routes();
 		( new Rest\News_Controller( $this ) )->register_routes();
 		( new Rest\License_Controller( $this ) )->register_routes();

@@ -644,11 +644,13 @@ class PurchaseRules {
     required this.enrollButton,
     required this.freeEnrollment,
     this.checkoutOpensIn,
+    this.courseCart = false,
   });
 
   factory PurchaseRules.fromJson(Json json) => PurchaseRules(
     enrollButton: reqBool(json, 'enroll_button'),
     freeEnrollment: reqBool(json, 'free_enrollment'),
+    courseCart: boolOr(json, 'course_cart', false),
     checkoutOpensIn: json['checkout_opens_in'] == null
         ? null
         : enumFromSnake(
@@ -661,6 +663,12 @@ class PurchaseRules {
   final bool enrollButton;
   final bool freeEnrollment;
   final CheckoutOpensIn? checkoutOpensIn;
+
+  /// 123 Several courses in one checkout (`POST /courses/cart`), where the
+  /// checkout may open on this platform too ([enrollButton]).
+  final bool courseCart;
+
+  bool get cart => courseCart && enrollButton;
 }
 
 enum WatermarkMode { off, phone, name, nameAndPhone }

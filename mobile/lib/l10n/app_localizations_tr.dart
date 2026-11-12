@@ -9690,4 +9690,37 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get confirmAndSignIn => 'Onayla ve giriş yap';
+
+  @override
+  String get courseCartTitle => 'Sepet';
+
+  @override
+  String courseCartCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kurs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseCartEmpty => 'Seçtiğin kurslar burada görünür.';
+
+  @override
+  String get subtotalShort => 'Ara toplam';
+
+  @override
+  String payAmountSecurely(String amount) {
+    return '$amount güvenle öde';
+  }
+
+  @override
+  String get cardAtCheckout => 'Kartın güvenli ödeme sayfasında girilir';
+
+  @override
+  String get chooseCard => 'Bir kart seç';
+
+  @override
+  String get anotherCard => 'Ödeme sayfasında başka bir kart';
 }

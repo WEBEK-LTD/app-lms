@@ -10376,4 +10376,36 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get confirmAndSignIn =>
       overlay.text('confirmAndSignIn') ?? base.confirmAndSignIn;
+
+  @override
+  String get courseCartTitle =>
+      overlay.text('courseCartTitle') ?? base.courseCartTitle;
+
+  @override
+  String courseCartCount(int count) =>
+      overlay.format('courseCartCount', {'count': count}) ??
+      base.courseCartCount(count);
+
+  @override
+  String get courseCartEmpty =>
+      overlay.text('courseCartEmpty') ?? base.courseCartEmpty;
+
+  @override
+  String get subtotalShort =>
+      overlay.text('subtotalShort') ?? base.subtotalShort;
+
+  @override
+  String payAmountSecurely(String amount) =>
+      overlay.format('payAmountSecurely', {'amount': amount}) ??
+      base.payAmountSecurely(amount);
+
+  @override
+  String get cardAtCheckout =>
+      overlay.text('cardAtCheckout') ?? base.cardAtCheckout;
+
+  @override
+  String get chooseCard => overlay.text('chooseCard') ?? base.chooseCard;
+
+  @override
+  String get anotherCard => overlay.text('anotherCard') ?? base.anotherCard;
 }

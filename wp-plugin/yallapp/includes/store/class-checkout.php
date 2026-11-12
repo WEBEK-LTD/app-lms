@@ -15,6 +15,7 @@ use WC_Product_Variation;
 use WP_Error;
 use Yallapp\Commerce\Money;
 use Yallapp\Commerce\Order_Returns;
+use Yallapp\Commerce\Saved_Cards;
 use Yallapp\Content\Magic_Links;
 use Yallapp\Crypto;
 use Yallapp\Settings;
@@ -63,6 +64,7 @@ class Checkout {
 		add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'admin_details' ) );
 		add_action( 'woocommerce_order_details_after_order_table', array( $this, 'customer_details' ) );
 		add_filter( 'woocommerce_email_order_meta_fields', array( $this, 'email_fields' ), 10, 3 );
+		add_filter( 'woocommerce_get_customer_payment_tokens', array( Saved_Cards::class, 'choose' ), 10, 3 );
 	}
 
 	/**
@@ -205,6 +207,20 @@ class Checkout {
 		if ( is_wp_error( $extras ) ) {
 			return $extras;
 		}
+		return $this->issue( (int) $user_id, $filled, $extras, $coupon );
+	}
+
+	/**
+	 * The one-time link that fills the WooCommerce cart with these lines and opens the checkout.
+	 *
+	 * @param int        $user_id Signed-in customer, or 0.
+	 * @param array      $filled  Lines: product_id, variation_id, quantity, attributes.
+	 * @param array      $extras  delivery_date, gift_message.
+	 * @param string     $coupon  A coupon code, or ''.
+	 * @param string|int $card    123 A saved card (`GET /me/cards`) to show chosen, or 0.
+	 * @return array {url, expires_at, open_in}
+	 */
+	public function issue( $user_id, array $filled, array $extras, $coupon, $card = 0 ) {
 		$opens_in = (string) $this->settings->get( 'checkout_opens_in' );
 		$app_view = 'in_app' === $opens_in && (bool) $this->settings->get( 'hide_site_chrome_in_app' );
 		$token    = Crypto::token( 32 );
@@ -216,6 +232,7 @@ class Checkout {
 				'extras'   => $extras,
 				'coupon'   => $coupon,
 				'app_view' => $app_view,
+				'card'     => (int) $card,
 			),
 			Magic_Links::TTL
 		);
@@ -258,6 +275,12 @@ class Checkout {
 		// 91.1 The app's coupon, as WooCommerce's checkout applies it (it says so when it can't).
 		if ( ! empty( $cart['coupon'] ) ) {
 			WC()->cart->apply_coupon( (string) $cart['coupon'] );
+		}
+		// 123 The saved card the app chose, chosen on the checkout (the student can pick another).
+		$card = ! empty( $cart['card'] ) ? Saved_Cards::find( get_current_user_id(), (string) $cart['card'] ) : null;
+		WC()->session->set( Saved_Cards::SESSION, $card ? (int) $card->get_id() : null );
+		if ( $card ) {
+			WC()->session->set( 'chosen_payment_method', $card->get_gateway_id() );
 		}
 		WC()->session->set( self::SESSION_DELIVERY, $cart['extras']['delivery_date'] );
 		WC()->session->set( self::SESSION_GIFT, $cart['extras']['gift_message'] );

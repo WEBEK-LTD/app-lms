@@ -2632,5 +2632,13 @@
   "codeSentDigits": "{number} numarasına {count} haneli bir kod gönderdik",
   "didntGetCode": "Gelmedi mi?",
   "resendCode": "Yeniden gönder",
-  "confirmAndSignIn": "Onayla ve giriş yap"
+  "confirmAndSignIn": "Onayla ve giriş yap",
+  "courseCartTitle": "Sepet",
+  "courseCartCount": "{count, plural, other{{count} kurs}}",
+  "courseCartEmpty": "Seçtiğin kurslar burada görünür.",
+  "subtotalShort": "Ara toplam",
+  "payAmountSecurely": "{amount} güvenle öde",
+  "cardAtCheckout": "Kartın güvenli ödeme sayfasında girilir",
+  "chooseCard": "Bir kart seç",
+  "anotherCard": "Ödeme sayfasında başka bir kart"
 }

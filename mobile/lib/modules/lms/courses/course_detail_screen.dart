@@ -34,6 +34,7 @@ import '../navigation.dart';
 import '../teachers/teachers_providers.dart';
 import '../learning/course_learning.dart';
 import '../widgets/bundle_cards.dart';
+import '../cart/course_cart.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/services/share_links.dart';
 
@@ -128,6 +129,20 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen>
     // Never on iOS, whatever the server said.
     if (!canOpenCheckout(env.platform)) return;
     if (!_signedIn) return _signIn();
+    // 123 The premium academy's cart: the course joins the cart, which pays
+    // for every course in it at once.
+    final gate = ref.read(appGateProvider);
+    if (ref.read(appConfigProvider).purchases.cart &&
+        gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.cart) ?? false)) {
+      if (!ref.read(courseCartProvider.notifier).add(course.id)) {
+        showMessage(context, context.l10n.cartFull);
+        return;
+      }
+      await context.push(Paths.courseCart);
+      if (mounted) invalidateCourse(ref, course.id);
+      return;
+    }
     // 112.5 A coupon first, when the academy takes them.
     String? coupon;
     if (course.takesCoupons) {

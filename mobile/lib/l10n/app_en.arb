@@ -10910,5 +10910,47 @@
   "confirmAndSignIn": "Confirm and sign in",
   "@confirmAndSignIn": {
     "description": "123 The button of the premium sign-in code screen."
+  },
+  "courseCartTitle": "Cart",
+  "@courseCartTitle": {
+    "description": "123 The title of the course cart."
+  },
+  "courseCartCount": "{count, plural, =1{1 course} other{{count} courses}}",
+  "@courseCartCount": {
+    "description": "123 How many courses the cart holds, beside its title.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "courseCartEmpty": "The courses you choose show up here.",
+  "@courseCartEmpty": {
+    "description": "123 The empty course cart."
+  },
+  "subtotalShort": "Subtotal",
+  "@subtotalShort": {
+    "description": "123 The courses' total before the coupon, on the course cart."
+  },
+  "payAmountSecurely": "Pay {amount} securely",
+  "@payAmountSecurely": {
+    "description": "123 The course cart's button.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cardAtCheckout": "Your card is entered on the secure checkout",
+  "@cardAtCheckout": {
+    "description": "123 On the course cart when the student has no saved card."
+  },
+  "chooseCard": "Choose a card",
+  "@chooseCard": {
+    "description": "123 The sheet of the student's saved cards, on the course cart."
+  },
+  "anotherCard": "Another card on the checkout",
+  "@anotherCard": {
+    "description": "123 Pays with a card not saved yet, on the course cart."
   }
 }
