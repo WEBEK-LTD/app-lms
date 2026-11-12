@@ -49,6 +49,7 @@ class Lesson_Meta_Box {
 	public function add( $post_type ) {
 		if ( in_array( $post_type, self::post_types(), true ) ) {
 			add_meta_box( 'yallapp-lesson', __( 'In the app', 'yallapp' ), array( $this, 'render' ), $post_type, 'side' );
+			wp_enqueue_style( 'yallapp-meta-box', plugins_url( 'assets/meta-box.css', YALLAPP_FILE ), array(), YALLAPP_VERSION );
 		}
 	}
 
@@ -60,6 +61,7 @@ class Lesson_Meta_Box {
 	 */
 	public function render( WP_Post $post ) {
 		wp_nonce_field( self::NONCE, self::NONCE );
+		echo '<div class="yallapp-box">';
 		$this->select(
 			Lesson_Renderer::OVERRIDE_META,
 			__( 'Display', 'yallapp' ),
@@ -83,9 +85,10 @@ class Lesson_Meta_Box {
 		);
 		// 51 A video from the app's Media library in the Yallapp dashboard.
 		$link = (string) get_post_meta( $post->ID, Yallapp_Media::META, true );
-		echo '<p><label for="' . esc_attr( Yallapp_Media::META ) . '"><strong>' . esc_html__( 'Yallapp video', 'yallapp' ) . '</strong></label><br>';
+		echo '<div class="ya-box-field"><label for="' . esc_attr( Yallapp_Media::META ) . '">' . wp_kses( Icons::svg( 'smart_display', 18 ), Icons::allowed() ) . '<span>' . esc_html__( 'Yallapp video', 'yallapp' ) . '</span></label>';
 		echo '<input type="url" id="' . esc_attr( Yallapp_Media::META ) . '" name="' . esc_attr( Yallapp_Media::META ) . '" value="' . esc_attr( $link ) . '" class="widefat" placeholder="' . esc_attr( Yallapp_Media::origin() . '/m/…' ) . '">';
-		echo '<span class="description">' . esc_html__( 'Paste a video\'s link from Media in your Yallapp dashboard. The app plays it as this lesson\'s video, in its own player, for students who may open the lesson.', 'yallapp' ) . '</span></p>';
+		echo '<span class="description">' . esc_html__( 'Paste a video\'s link from Media in your Yallapp dashboard. The app plays it as this lesson\'s video, in its own player, for students who may open the lesson.', 'yallapp' ) . '</span></div>';
+		echo '</div>';
 	}
 
 	/**
@@ -133,11 +136,11 @@ class Lesson_Meta_Box {
 	 * @return void
 	 */
 	private function select( $key, $label, $current, array $options ) {
-		echo '<p><label for="' . esc_attr( $key ) . '"><strong>' . esc_html( $label ) . '</strong></label><br>';
+		echo '<div class="ya-box-field"><label for="' . esc_attr( $key ) . '"><span>' . esc_html( $label ) . '</span></label>';
 		echo '<select id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" class="widefat">';
 		foreach ( $options as $value => $text ) {
 			printf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $value ), selected( $current, $value, false ), esc_html( $text ) );
 		}
-		echo '</select></p>';
+		echo '</select></div>';
 	}
 }

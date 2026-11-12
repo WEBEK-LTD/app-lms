@@ -1,0 +1,283 @@
+/*
+ * The "In the app" boxes on the course, lesson and post edit screens: styles only inside
+ * these boxes (#yallapp-course, #yallapp-lesson, #yallapp-post). Light and dark, left to
+ * right and right to left. Brand: Midnight #0E0D24, Ivory #F4EFE6, Ember #FF5A1F.
+ */
+#yallapp-course,
+#yallapp-lesson,
+#yallapp-post {
+	--ya-ink: #0e0d24;
+	--ya-ink-2: #24223a;
+	--ya-muted: #5e5b70;
+	--ya-faint: #8c889a;
+	--ya-card: #fff;
+	--ya-sand: #faf7f1;
+	--ya-line: #e4ddd0;
+	--ya-line-soft: #ede7dc;
+	--ya-line-strong: #cfc7b8;
+	--ya-ember: #ff5a1f;
+	--ya-ember-text: #c2410c;
+	--ya-success: #1c7c4a;
+	--ya-success-bg: #e3f2ea;
+	--ya-warn: #9a4f0b;
+	--ya-warn-bg: #fbede0;
+	--ya-focus: #0e0d24;
+	--ya-track: #8c889a;
+	--ya-select-arrow: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%235e5b70%22%2F%3E%3C%2Fsvg%3E");
+
+	overflow: hidden;
+	border-color: var(--ya-line);
+	border-radius: 14px;
+	background: var(--ya-card);
+	color: var(--ya-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+	#yallapp-course,
+	#yallapp-lesson,
+	#yallapp-post {
+		color-scheme: dark;
+		--ya-ink: #f4efe6;
+		--ya-ink-2: #ebe6f2;
+		--ya-muted: #a9a4bb;
+		--ya-faint: #827d96;
+		--ya-card: #161530;
+		--ya-sand: #1c1b38;
+		--ya-line: #2c2a49;
+		--ya-line-soft: #24223f;
+		--ya-line-strong: #3d3a5c;
+		--ya-ember-text: #ff9a6e;
+		--ya-success: #5ccf95;
+		--ya-success-bg: #12301f;
+		--ya-warn: #f2ad6b;
+		--ya-warn-bg: #33240f;
+		--ya-focus: #f4efe6;
+		--ya-track: #827d96;
+		--ya-select-arrow: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23c9c6dc%22%2F%3E%3C%2Fsvg%3E");
+	}
+}
+
+/* The box's title, with the Yallapp mark. */
+#yallapp-course .postbox-header,
+#yallapp-lesson .postbox-header,
+#yallapp-post .postbox-header {
+	border-bottom-color: var(--ya-line-soft);
+	background: var(--ya-card);
+}
+#yallapp-course .hndle,
+#yallapp-lesson .hndle,
+#yallapp-post .hndle {
+	justify-content: flex-start;
+	gap: 8px;
+	color: var(--ya-ink);
+	font-weight: 700;
+}
+#yallapp-course .hndle::before,
+#yallapp-lesson .hndle::before,
+#yallapp-post .hndle::before {
+	content: "";
+	flex: none;
+	width: 20px;
+	height: 20px;
+	background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1024 1024%22%3E%3Crect width=%221024%22 height=%221024%22 rx=%22230.4%22 fill=%22%230E0D24%22/%3E%3Cg transform=%22translate(191.738 685.534) scale(0.940563)%22%3E%3Cpath fill=%22%23F4EFE6%22 d=%22M224.0 153.0Q190.0 153.0 153.5 146.5Q117.0 140.0 83.0 125.5Q49.0 111.0 22.0 89.0L63.0 -30.0Q95.0 6.0 137.5 20.5Q180.0 35.0 219.0 35.0Q276.0 35.0 311.0 11.0Q346.0 -13.0 362.5 -56.0Q379.0 -99.0 379.0 -156.0L384.0 -262.0H375.0Q370.0 -187.0 347.0 -140.5Q324.0 -94.0 287.5 -73.0Q251.0 -52.0 204.0 -52.0Q146.0 -52.0 108.5 -81.5Q71.0 -111.0 53.0 -168.0Q35.0 -225.0 35.0 -306.0V-522.0H161.0V-336.0Q161.0 -247.0 182.5 -205.0Q204.0 -163.0 252.0 -163.0Q278.0 -163.0 298.5 -176.0Q319.0 -189.0 333.5 -214.5Q348.0 -240.0 355.5 -279.0Q363.0 -318.0 363.0 -369.0V-522.0H489.0V-152.0Q489.0 -109.0 481.0 -65.0Q473.0 -21.0 454.5 18.0Q436.0 57.0 406.0 87.5Q376.0 118.0 331.0 135.5Q286.0 153.0 224.0 153.0Z%22/%3E%3Cpath fill=%22%23FF5A1F%22 d=%22M576.0 12.0Q535.0 12.0 514.5 -6.0Q494.0 -24.0 494.0 -61.0Q494.0 -98.0 514.5 -116.0Q535.0 -134.0 576.0 -134.0Q617.0 -134.0 638.0 -116.0Q659.0 -98.0 659.0 -61.0Q659.0 12.0 576.0 12.0Z%22/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+}
+#yallapp-course .handle-actions button,
+#yallapp-lesson .handle-actions button,
+#yallapp-post .handle-actions button {
+	color: var(--ya-muted);
+}
+
+#yallapp-course .inside,
+#yallapp-lesson .inside,
+#yallapp-post .inside {
+	margin: 0;
+	padding: 14px 14px 16px;
+}
+.yallapp-box {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	color: var(--ya-ink);
+	font-size: 13px;
+	line-height: 1.5;
+}
+.yallapp-box .ya-icon {
+	flex: none;
+	display: block;
+}
+.yallapp-box .description {
+	display: block;
+	margin: 0;
+	color: var(--ya-muted);
+	font-size: 12.5px;
+	font-style: normal;
+	line-height: 1.5;
+}
+.yallapp-box :focus-visible {
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+/* A labelled field. */
+.yallapp-box .ya-box-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.yallapp-box .ya-box-field label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--ya-ink);
+	font-weight: 600;
+}
+.yallapp-box .ya-box-field label .ya-icon {
+	color: var(--ya-ember-text);
+}
+.yallapp-box select,
+.yallapp-box input[type="url"] {
+	width: 100%;
+	max-width: none;
+	min-height: 38px;
+	margin: 0;
+	padding-block: 0;
+	padding-inline: 10px;
+	border: 1px solid var(--ya-line-strong);
+	border-radius: 9px;
+	background-color: var(--ya-card);
+	color: var(--ya-ink);
+	font-size: 13px;
+	box-shadow: none;
+}
+.yallapp-box select {
+	padding-inline-end: 30px;
+	background-image: var(--ya-select-arrow);
+}
+.yallapp-box input[type="url"]::placeholder {
+	color: var(--ya-faint);
+	opacity: 1;
+}
+.yallapp-box select:focus,
+.yallapp-box input[type="url"]:focus {
+	border-color: var(--ya-focus);
+	outline: 2px solid var(--ya-focus);
+	outline-offset: 0;
+	box-shadow: none;
+	color: var(--ya-ink);
+}
+
+/* A switch (course) and a checkbox (post): both real checkboxes. */
+.yallapp-box .ya-box-switch,
+.yallapp-box .ya-box-check {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 10px 12px;
+	border: 1px solid var(--ya-line);
+	border-radius: 10px;
+	background: var(--ya-sand);
+	color: var(--ya-ink);
+	font-weight: 600;
+	cursor: pointer;
+}
+.yallapp-box .ya-box-switch {
+	justify-content: space-between;
+	align-items: center;
+}
+.yallapp-box .ya-box-check input[type="checkbox"] {
+	appearance: auto;
+	flex: none;
+	width: 18px;
+	height: 18px;
+	margin: 1px 0 0;
+	border: 0;
+	box-shadow: none;
+	accent-color: var(--ya-ink);
+}
+.yallapp-box .ya-box-check input[type="checkbox"]::before,
+.yallapp-box .ya-box-check input[type="checkbox"]:checked::before {
+	content: none;
+}
+.yallapp-box .ya-box-switch input[type="checkbox"] {
+	appearance: none;
+	position: relative;
+	flex: none;
+	width: 40px;
+	min-width: 40px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 12px;
+	background: var(--ya-track);
+	box-shadow: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+.yallapp-box .ya-box-switch input[type="checkbox"]::before,
+.yallapp-box .ya-box-switch input[type="checkbox"]:checked::before {
+	content: "";
+	position: absolute;
+	top: 3px;
+	inset-inline-start: 3px;
+	float: none;
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(14, 13, 36, 0.3);
+	transition: transform 0.15s ease;
+}
+.yallapp-box .ya-box-switch input[type="checkbox"]:checked {
+	background: var(--ya-ember);
+}
+.yallapp-box .ya-box-switch input[type="checkbox"]:checked::before {
+	transform: translateX(16px);
+}
+.rtl .yallapp-box .ya-box-switch input[type="checkbox"]:checked::before {
+	transform: translateX(-16px);
+}
+
+/* Notes. */
+.yallapp-box .ya-box-note,
+.yallapp-box .ya-box-done {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: var(--ya-warn-bg);
+	color: var(--ya-ink-2);
+}
+.yallapp-box .ya-box-note .ya-icon {
+	color: var(--ya-warn);
+}
+.yallapp-box .ya-box-done {
+	background: var(--ya-success-bg);
+	font-weight: 600;
+}
+.yallapp-box .ya-box-done .ya-icon {
+	color: var(--ya-success);
+}
+
+@media (max-width: 782px) {
+	.yallapp-box select,
+	.yallapp-box input[type="url"] {
+		min-height: 44px;
+		font-size: 16px;
+	}
+	.yallapp-box .ya-box-check input[type="checkbox"] {
+		width: 20px;
+		height: 20px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.yallapp-box .ya-box-switch input[type="checkbox"],
+	.yallapp-box .ya-box-switch input[type="checkbox"]::before {
+		transition: none;
+	}
+}

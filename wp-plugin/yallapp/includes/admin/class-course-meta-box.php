@@ -51,6 +51,7 @@ class Course_Meta_Box {
 	public function add( $post_type ) {
 		if ( in_array( $post_type, self::post_types(), true ) ) {
 			add_meta_box( 'yallapp-course', __( 'In the app', 'yallapp' ), array( $this, 'render' ), $post_type, 'side' );
+			wp_enqueue_style( 'yallapp-meta-box', plugins_url( 'assets/meta-box.css', YALLAPP_FILE ), array(), YALLAPP_VERSION );
 		}
 	}
 
@@ -62,8 +63,9 @@ class Course_Meta_Box {
 	 */
 	public function render( WP_Post $post ) {
 		wp_nonce_field( self::NONCE, self::NONCE );
+		echo '<div class="yallapp-box">';
 		printf(
-			'<p><label><input type="checkbox" name="%1$s" value="1"%2$s> %3$s</label></p>',
+			'<label class="ya-box-switch"><span>%3$s</span><input type="checkbox" role="switch" name="%1$s" value="1"%2$s></label>',
 			esc_attr( self::FIELD ),
 			checked( Course_Restart::allowed_by_owner( $post->ID ), true, false ),
 			esc_html__( 'Students can start this course again', 'yallapp' )
@@ -71,8 +73,9 @@ class Course_Meta_Box {
 		echo '<p class="description">' . esc_html__( 'Once they\'ve finished every lesson, the app offers "Start the course again", which clears their progress in this course. Only with an LMS that can reset a student\'s progress.', 'yallapp' ) . '</p>';
 		$lms = \Yallapp\Plugin::instance()->lms();
 		if ( $lms && ! $lms->can_reset_progress( $post->ID, 0 ) && 'learnpress' !== $lms->id() ) {
-			echo '<p class="description">' . esc_html__( 'Your LMS has no way for Yallapp to reset a student\'s progress, so the app doesn\'t offer it.', 'yallapp' ) . '</p>';
+			echo '<p class="description ya-box-note">' . wp_kses( Icons::svg( 'info', 18 ), Icons::allowed() ) . '<span>' . esc_html__( 'Your LMS has no way for Yallapp to reset a student\'s progress, so the app doesn\'t offer it.', 'yallapp' ) . '</span></p>';
 		}
+		echo '</div>';
 	}
 
 	/**

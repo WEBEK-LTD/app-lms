@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.34
+Stable tag: 0.4.35
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -133,7 +133,16 @@ Huawei phones it goes to) to push-api.cloud.huawei.com.
 Terms: https://developer.huawei.com/consumer/en/devservice/term
 Privacy: https://consumer.huawei.com/en/privacy/privacy-policy/
 
+== Credits ==
+
+The icons on the settings screen and in the "In the app" boxes are Material
+Symbols Rounded by Google (the material-design-icons project),
+under the Apache License 2.0, included as inline SVG.
+
 == Changelog ==
+
+= 0.4.35 =
+* A new look for the settings screen and the course, lesson and post boxes: the Yallapp header, the sections listed beside the settings, cards with their icons, status chips, switches and buttons in Yallapp's colours, in light and dark, right to left too. Nothing else changes.
 
 = 0.4.34 =
 * The premium academy: your app's home, Explore, a course's page, a lesson, My courses, the account, signing in and the sign-in code keep the looks you chose in Yallapp Studio.

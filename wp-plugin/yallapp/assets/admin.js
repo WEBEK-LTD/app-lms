@@ -5,6 +5,22 @@
 	$( function () {
 		$( '.yallapp .ya-sortable' ).sortable( { axis: 'y', handle: '.ya-grip, label' } );
 
+		// The list of sections marks the one being read.
+		var links = $( '.yallapp .ya-nav a' );
+		if ( links.length && 'IntersectionObserver' in window ) {
+			var observer = new IntersectionObserver( function ( entries ) {
+				entries.forEach( function ( entry ) {
+					if ( entry.isIntersecting ) {
+						links.removeAttr( 'aria-current' );
+						links.filter( '[href="#' + entry.target.id + '"]' ).attr( 'aria-current', 'true' );
+					}
+				} );
+			}, { rootMargin: '-15% 0px -70% 0px' } );
+			$( '.yallapp .ya-card[id]' ).each( function () {
+				observer.observe( this );
+			} );
+		}
+
 		$( '.yallapp [data-ya-image]' ).each( function () {
 			var box = $( this );
 			var input = box.find( 'input[type=hidden]' );
