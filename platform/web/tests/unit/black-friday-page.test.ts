@@ -9,7 +9,7 @@ import { MemoryStore } from "@/lib/data/memory";
 import type { OccasionRecord } from "@/lib/data/types";
 import { icuArguments, parseIcu } from "@/lib/i18n/icu";
 import { llmsText } from "@/lib/llms";
-import { ALL_SOLUTIONS, APP_SCREENS, SCREEN_ALT, type AppScreen } from "@/lib/marketing";
+import { ALL_SOLUTIONS, APP_SCREENS, SCREEN_ALT, STUDIO_SOLUTIONS, type AppScreen } from "@/lib/marketing";
 import { newOccasion } from "@/lib/occasions";
 import { PLAN_INFO, planPriceOf, planSettingOf, plansWith, REGULAR_PLANS } from "@/lib/plans";
 import { clearPlatformSettingsCache } from "@/lib/settings/platform";
@@ -18,7 +18,7 @@ import { PRICED_PAGES } from "@/lib/geo-vary";
 import { LANGS, type Lang } from "@/i18n/config";
 import { isLocalizedPath, languageAlternates, localePath } from "@/i18n/paths";
 import { daysText, FALLBACK_BLACK_FRIDAY, occasionPlanPrice, occasionView, percentText } from "@/site/occasions/offer";
-import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, KIND_SCREENS, RECEIPT_SCREEN, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
+import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shopWindowKinds, STEP_ICONS, TERM_ICONS } from "@/site/occasions/shape";
 import { BLACK_FRIDAY_PATH, type OccasionText } from "@/site/occasions/types";
 
 /**
@@ -147,7 +147,7 @@ describe("124 Black Friday's page", () => {
     for (const icon of [...STEP_ICONS, ...TERM_ICONS, ...INCLUDED_GROUPS.flatMap((g) => [g.icon, ...g.items]), "local_offer", "percent", "calendar_month", "schedule", "event_busy", "content_cut", "receipt_long", "arrow_back", "expand_more"]) {
       expect(ICON_NAMES, icon).toContain(icon);
     }
-    const screens = [...HERO_SCREENS, ...Object.values(KIND_SCREENS), RECEIPT_SCREEN] as AppScreen[];
+    const screens = [...HERO_SCREENS, RECEIPT_SCREEN] as AppScreen[];
     for (const screen of screens) {
       expect(APP_SCREENS).toContain(screen);
       expect(SCREEN_ALT[screen]).toBeTruthy();
@@ -155,8 +155,18 @@ describe("124 Black Friday's page", () => {
       // The premium academy and the screens designed in Studio, never a plain template's.
       expect(screen, screen).toMatch(/^(premium-|studio-cafe-|zad-|sahm-|taxi-map$|taxi-on-ride$)/);
     }
-    // A display per kind: its screen, or its own lit sign.
-    for (const id of Object.keys(KIND_SCREENS)) expect(ALL_SOLUTIONS.map((s) => s.id)).toContain(id);
+    // The shop window: every kind as its own lit sign (no phone screens), Studio's first; a kind with its story links to the story.
+    const studioIds = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
+    const order = shopWindowKinds(ALL_SOLUTIONS, studioIds).map((s) => s.id);
+    expect(order).toHaveLength(ALL_SOLUTIONS.length);
+    expect(order.slice(0, studioIds.size).every((id) => studioIds.has(id))).toBe(true);
+    expect(kindPagePath("school")).toBe("/yallapp-studio/school");
+    expect(kindPagePath("university")).toBe("/yallapp-studio/school");
+    expect(kindPagePath("rides")).toBe("/yallapp-studio/rides");
+    expect(kindPagePath("delivery")).toBe("/yallapp-studio/delivery");
+    expect(kindPagePath("food")).toBe("/yallapp-studio/multi-vendor");
+    expect(kindPagePath("academy")).toBe("/yallapp-studio/academy");
+    expect(kindPagePath("store")).toBe("/solutions/store");
   });
 
   it("tells one night: every scene has its moment and a few short lines, in every language", () => {
@@ -236,7 +246,7 @@ describe("124 Black Friday's page", () => {
       for (const g of t.included.groups) expect(html).toContain(escape(g.title));
       for (const s of HERO_SCREENS) expect(html).toContain(`data-screen="${s}"`);
       // Only the premium academy's screens and Studio's are on the page.
-      for (const [, s] of html.matchAll(/data-screen="([^"]+)"/g)) expect([...HERO_SCREENS, ...Object.values(KIND_SCREENS), RECEIPT_SCREEN]).toContain(s);
+      for (const [, s] of html.matchAll(/data-screen="([^"]+)"/g)) expect([...HERO_SCREENS, RECEIPT_SCREEN]).toContain(s);
       // The night, scene by scene: every scene's moment and lines are in the HTML, the motion only leads to them.
       for (const scene of [t.hero.scene, t.plans.scene, t.kinds.scene, t.steps.scene, t.included.scene, t.terms.scene, t.faq.scene, t.final.scene]) {
         expect(html).toContain(escape(scene.label));
@@ -266,7 +276,11 @@ describe("124 Black Friday's page", () => {
       for (const id of REGULAR_PLANS.filter((p) => p === "starter" || p === "business")) expect(html).toMatch(new RegExp(`data-plan="${id}" class`));
       expect(html).toContain(`${localePath(lang, "/sign-up")}`);
       expect(html).toContain(`${localePath(lang, "/pricing")}`);
-      expect(html).toContain(`${localePath(lang, "/solutions/academy")}`);
+      // A kind with its story opens the story; one without opens its solution page.
+      expect(html).toContain(`href="${localePath(lang, "/yallapp-studio/academy")}"`);
+      expect(html).toContain(`href="${localePath(lang, "/yallapp-studio/school")}"`);
+      const plain = ALL_SOLUTIONS.find((x) => kindPagePath(x.id).startsWith("/solutions/"))!;
+      expect(html).toContain(`href="${localePath(lang, `/solutions/${plain.id}`)}"`);
       expect(html).toContain(`${localePath(lang, "/demo/studio")}#`);
       expect(words(html)).not.toMatch(/marketplace/i);
       // The structured data: the trail, the questions and the offer with its days.

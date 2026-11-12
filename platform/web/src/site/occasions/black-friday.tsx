@@ -29,7 +29,7 @@ import { localePath } from "@/i18n/paths";
 import { BlackFridayMotion, Confetti, CouponTicket, Countdown, GoldDust, Shelf, Tabs } from "./client";
 import { blackFridayOccasion } from "./load";
 import { occasionPlanPrice, occasionValues, occasionView, percentText, savedText, type OccasionPlanPrice, type OccasionView } from "./offer";
-import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, KIND_SCREENS, RECEIPT_SCREEN, STEP_ICONS, TERM_ICONS } from "./shape";
+import { FAQ_COUNT, HERO_SCREENS, INCLUDED_GROUPS, kindPagePath, RECEIPT_SCREEN, shopWindowKinds, STEP_ICONS, TERM_ICONS } from "./shape";
 import { BLACK_FRIDAY_PATH, type OccasionText, type SceneText } from "./types";
 import "./black-friday.css";
 
@@ -571,9 +571,8 @@ function capitalize(lang: Lang, text: string): string {
 
 function Kinds({ lang, t, view }: { lang: Lang; t: OccasionText; view: OccasionView }) {
   const studioIds = new Set(STUDIO_SOLUTIONS.map((s) => s.id));
-  const alt = screenAltFor(lang);
   const lp = (path: string) => localePath(lang, path);
-  const solutions = allSolutionsFor(lang);
+  const solutions = shopWindowKinds(allSolutionsFor(lang), studioIds);
   const percent = percentText(lang, view.occasion.percent);
   return (
     <section className="bf-scene bf-kinds" aria-labelledby="bf-kinds" id="kinds">
@@ -587,25 +586,20 @@ function Kinds({ lang, t, view }: { lang: Lang; t: OccasionText; view: OccasionV
         <ul className="bf-shelf-list">
           {solutions.map((s, i) => {
             const studio = studioIds.has(s.id);
-            const screen = KIND_SCREENS[s.id];
             return (
               <li key={s.id} className="bf-shelf-item">
                 <article className="bf-display" aria-labelledby={`bf-kind-${s.id}`} data-kind={s.id} style={vars({ "--hue": (i * 47) % 360 })}>
                   <div className="bf-display-window">
                     <span aria-hidden="true" className="bf-display-light" />
-                    {screen ? (
-                      <Phone screen={screen} alt={alt[screen]} className="bf-display-phone" sizes="(max-width: 640px) 46vw, 200px" />
-                    ) : (
-                      <span aria-hidden="true" className="bf-emblem">
-                        <span className="bf-emblem-ring" />
-                        <Icon name={s.icon} size={64} />
-                        <span className="bf-emblem-orbit">
-                          {s.highlights.slice(0, 3).map((h) => (
-                            <Icon key={h.title} name={h.icon} size={20} />
-                          ))}
-                        </span>
+                    <span aria-hidden="true" className="bf-emblem">
+                      <span className="bf-emblem-ring" />
+                      <Icon name={s.icon} size={64} />
+                      <span className="bf-emblem-orbit">
+                        {s.highlights.slice(0, 3).map((h) => (
+                          <Icon key={h.title} name={h.icon} size={20} />
+                        ))}
                       </span>
-                    )}
+                    </span>
                     {view.on ? (
                       <span aria-hidden="true" className="bf-display-tag" dir="ltr">
                         −{percent}
@@ -637,7 +631,7 @@ function Kinds({ lang, t, view }: { lang: Lang; t: OccasionText; view: OccasionV
                       </ul>
                     </details>
                     <div className="bf-display-links">
-                      <Link href={lp(`/solutions/${s.id}`)} className="bf-btn bf-btn-small bf-btn-gold">
+                      <Link href={lp(kindPagePath(s.id))} className="bf-btn bf-btn-small bf-btn-gold">
                         {capitalize(lang, formatMessage(lang, t.kinds.solution, { apps: s.apps }))}
                         <Icon name="arrow_forward" size={18} />
                       </Link>

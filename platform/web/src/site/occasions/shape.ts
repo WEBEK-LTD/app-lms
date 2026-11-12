@@ -1,3 +1,5 @@
+import { STORIES } from "@/site/story/stories";
+import { STORY_IDS, storyPath } from "@/site/story/types";
 import type { IconName } from "@/components/icon-names";
 import type { AppScreen } from "@/lib/marketing";
 
@@ -16,20 +18,20 @@ import type { AppScreen } from "@/lib/marketing";
 export const HERO_SCREENS: [AppScreen, AppScreen, AppScreen] = ["premium-home", "studio-cafe-home-dark", "zad-home"];
 
 /**
- * The shop window's displays, kind by kind (lib/marketing `ALL_SOLUTIONS`):
- * the premium or Studio screen that shows that kind. A kind without one is
- * lit as a sign of its own, without a phone.
+ * The shop window's displays, kind by kind (lib/marketing `ALL_SOLUTIONS`),
+ * each a lit sign of its own icon (the owner, 12 November: icons, not phone
+ * screens), Studio's kinds first; a kind with its story (site/story) links
+ * to the story, any other to its solution page.
  */
-export const KIND_SCREENS: Partial<Record<string, AppScreen>> = {
-  academy: "premium-home",
-  restaurant: "studio-cafe-home",
-  delivery: "sahm-shipment",
-  food: "zad-home",
-  "multi-vendor": "zad-grill",
-  rides: "taxi-on-ride",
-  university: "premium-course",
-  instructors: "premium-explore",
-};
+export function shopWindowKinds<T extends { id: string }>(solutions: readonly T[], studioIds: ReadonlySet<string>): T[] {
+  return [...solutions.filter((s) => studioIds.has(s.id)), ...solutions.filter((s) => !studioIds.has(s.id))];
+}
+
+/** Where "All about …" goes: the story of the kind when there is one, else its solution page. */
+export function kindPagePath(solutionId: string): string {
+  const story = STORY_IDS.find((id) => (STORIES[id].solutions as readonly string[]).includes(solutionId));
+  return story ? storyPath(story) : `/solutions/${solutionId}`;
+}
 
 /** The phone beside the receipt: your app on your own phone, before you pay. */
 export const RECEIPT_SCREEN: AppScreen = "premium-lesson";
