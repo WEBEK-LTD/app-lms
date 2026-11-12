@@ -91,7 +91,7 @@ export const BLACK_FRIDAY_EN: OccasionText = {
       label: "21:07 · The price falls",
       lines: [
         "You open the prices, ready for the usual number.",
-        "A gold line cuts straight through it.",
+        "An orange line cuts straight through it.",
         "The same plan, the same app: {percent}% less on the payment you make with the code.",
       ],
     },
@@ -287,7 +287,7 @@ export const BLACK_FRIDAY_EN: OccasionText = {
       label: "00:10 · The small print",
       lines: [
         "Before you pay, you turn the coupon over.",
-        "No hidden footnotes, no surprises: just how it works.",
+        "No hidden conditions, no surprises: everything is written out in front of you.",
       ],
     },
     overStamp: "Over",

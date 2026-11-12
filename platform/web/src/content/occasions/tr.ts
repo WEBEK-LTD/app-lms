@@ -91,7 +91,7 @@ export const BLACK_FRIDAY_TR: OccasionText = {
       label: "21:07 · Fiyat düşüyor",
       lines: [
         "Fiyatları açıyorsunuz, alıştığınız rakamı bekleyerek.",
-        "Altın bir çizgi rakamın tam ortasından geçiyor.",
+        "Turuncu bir çizgi rakamın tam ortasından geçiyor.",
         "Aynı paket, aynı uygulama: kodu kullandığınız ödemede %{percent} daha az.",
       ],
     },
@@ -287,7 +287,7 @@ export const BLACK_FRIDAY_TR: OccasionText = {
       label: "00:10 · Küçük harfler",
       lines: [
         "Ödemeden önce kuponu çevirip arkasına bakıyorsunuz.",
-        "Gizli dipnot yok, sürpriz yok; işleyiş olduğu gibi.",
+        "Gizli şart yok, sürpriz yok; her şey açıkça önünüzde yazıyor.",
       ],
     },
     overStamp: "Sona erdi",

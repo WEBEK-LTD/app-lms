@@ -510,7 +510,7 @@ const dustSetup = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => 
   let { w, h } = sizeCanvas(canvas, ctx);
   const count = w < 640 ? 26 : 56;
   const dots = Array.from({ length: count }, () => ({ x: Math.random() * w, y: Math.random() * h, r: 0.6 + Math.random() * 1.8, v: 0.08 + Math.random() * 0.25, drift: Math.random() * Math.PI * 2, tw: Math.random() * Math.PI * 2 }));
-  const color = () => getComputedStyle(canvas).color || "#f5c451";
+  const color = () => getComputedStyle(canvas).color || "#ff7a45";
   let fill = color();
   let last = 0;
   const onResize = () => {
@@ -548,7 +548,7 @@ export function GoldDust() {
 
 const confettiSetup = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
   const { w, h } = sizeCanvas(canvas, ctx);
-  const colors = ["#f5c451", "#ffe39a", "#c8902a", "#ff3d6e", "#fff4d6"];
+  const colors = ["#ff7a45", "#ffc2a6", "#c2410c", "#ff5a1f", "#fff6f0"];
   const n = w < 640 ? 100 : 180;
   const bits = Array.from({ length: n }, () => {
     const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.9;
