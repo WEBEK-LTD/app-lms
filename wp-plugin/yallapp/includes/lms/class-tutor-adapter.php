@@ -19,7 +19,7 @@ use Yallapp\Commerce\Woo_Orders;
  * Tutor LMS 2.0.6 and later, Free and Pro. Uses tutor_utils(), which keeps moved
  * helpers callable across versions.
  */
-class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
+class Tutor_Adapter implements Lms_Adapter, Store_Enrolment, Woo_Course_Products {
 
 	/**
 	 * 123 The ids of the rated courses, best rated first, once read.
@@ -870,6 +870,25 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 			}
 		}
 		return $items;
+	}
+
+	/**
+	 * 123 Whether Tutor sells the courses with WooCommerce (Woo_Course_Products).
+	 *
+	 * @return bool
+	 */
+	public function sells_with_woocommerce() {
+		return 'wc' === tutor_utils()->get_option( 'monetize_by' ) && function_exists( 'wc_get_product' );
+	}
+
+	/**
+	 * 123 The WooCommerce product of a course (Woo_Course_Products).
+	 *
+	 * @param int $course_id Course ID.
+	 * @return int
+	 */
+	public function course_product_id( $course_id ) {
+		return $this->sells_with_woocommerce() ? (int) tutor_utils()->get_course_product_id( $course_id ) : 0;
 	}
 
 	/**

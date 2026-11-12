@@ -9999,4 +9999,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmAndSignIn => 'تأكيد ودخول';
+
+  @override
+  String get courseCartTitle => 'السلة';
+
+  @override
+  String courseCartCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دورة',
+      many: '$count دورة',
+      few: '$count دورات',
+      two: 'دورتان',
+      one: 'دورة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get courseCartEmpty => 'تظهر هنا الدورات التي تختارها.';
+
+  @override
+  String get subtotalShort => 'المجموع';
+
+  @override
+  String payAmountSecurely(String amount) {
+    return 'ادفع $amount بأمان';
+  }
+
+  @override
+  String get cardAtCheckout => 'تُدخل بطاقتك في صفحة الدفع الآمنة';
+
+  @override
+  String get chooseCard => 'اختر بطاقة';
+
+  @override
+  String get anotherCard => 'بطاقة أخرى في صفحة الدفع';
 }

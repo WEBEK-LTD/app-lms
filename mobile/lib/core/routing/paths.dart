@@ -144,6 +144,8 @@ abstract final class Paths {
   static String driverRide(int id) => '/driver-ride/$id';
 
   // 105.3 Academies with many teachers.
+  // 123 The academy's course cart.
+  static const courseCart = '/course-cart';
   static const teachers = '/teachers';
   static String teacherPage(int id) => '/teachers/$id';
   static const teachApply = '/teach-apply';

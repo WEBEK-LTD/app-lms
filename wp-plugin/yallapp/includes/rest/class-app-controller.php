@@ -135,6 +135,8 @@ class App_Controller extends Controller {
 					'enroll_button'     => null === $store_billing && Purchase_Rules::enroll_button( $platform, (bool) $settings->get( 'android_enroll_button' ) ),
 					'free_enrollment'   => (bool) $settings->get( 'free_enrollment' ),
 					'checkout_opens_in' => (string) $settings->get( 'checkout_opens_in' ),
+					// 123 Several courses in one checkout (courses sold with WooCommerce).
+					'course_cart'       => \Yallapp\Lms\Course_Cart::available( $this->plugin->lms() ),
 				),
 				'content'   => array(
 					// Apps built before 53 protect lessons only, when this is true.

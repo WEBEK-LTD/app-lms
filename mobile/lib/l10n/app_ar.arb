@@ -2632,5 +2632,13 @@
   "codeSentDigits": "أرسلنا رمزًا من {count} أرقام إلى {number}",
   "didntGetCode": "لم يصلك؟",
   "resendCode": "إعادة الإرسال",
-  "confirmAndSignIn": "تأكيد ودخول"
+  "confirmAndSignIn": "تأكيد ودخول",
+  "courseCartTitle": "السلة",
+  "courseCartCount": "{count, plural, =1{دورة واحدة} =2{دورتان} few{{count} دورات} many{{count} دورة} other{{count} دورة}}",
+  "courseCartEmpty": "تظهر هنا الدورات التي تختارها.",
+  "subtotalShort": "المجموع",
+  "payAmountSecurely": "ادفع {amount} بأمان",
+  "cardAtCheckout": "تُدخل بطاقتك في صفحة الدفع الآمنة",
+  "chooseCard": "اختر بطاقة",
+  "anotherCard": "بطاقة أخرى في صفحة الدفع"
 }

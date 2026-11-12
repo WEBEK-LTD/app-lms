@@ -515,6 +515,20 @@ abstract class YallappApi {
   /// 112.5 With a [coupon] of the academy's (courses managed in Yallapp).
   Future<CheckoutLink> createCheckoutLink(int courseId, {String? coupon});
 
+  /// 123 Several courses priced for one checkout, with a [coupon] of the
+  /// site's (`PurchaseRules.cart`).
+  Future<CourseCart> quoteCourseCart(List<int> courseIds, {String? coupon});
+
+  /// 123 One checkout for the cart's courses, with a saved card chosen.
+  Future<CheckoutLink> createCourseCartCheckoutLink(
+    List<int> courseIds, {
+    String? coupon,
+    String? cardId,
+  });
+
+  /// 123 The cards the student saved with the site's payment gateway.
+  Future<List<SavedCard>> listSavedCards();
+
   /// 112.5 What a coupon takes off a paid course, or why it doesn't apply.
   Future<CouponCheck> checkCourseCoupon(int courseId, String code);
 
@@ -1867,7 +1881,39 @@ class HttpYallappApi implements YallappApi {
   );
 
   /// `POST /auth/checkout-link` for a course or 113.1 a bundle.
-  Future<CheckoutLink> _checkoutLink(Map<String, Object> body) {
+  @override
+  Future<CourseCart> quoteCourseCart(List<int> courseIds, {String? coupon}) =>
+      _send(
+        'POST',
+        '/courses/cart',
+        _required,
+        (data) => CourseCart.fromJson(asJson(data)),
+        body: {'course_ids': courseIds, 'coupon': ?coupon},
+        query: {'platform': platform.name},
+      );
+
+  @override
+  Future<CheckoutLink> createCourseCartCheckoutLink(
+    List<int> courseIds, {
+    String? coupon,
+    String? cardId,
+  }) => _checkoutLink({
+    'course_ids': courseIds,
+    'coupon': ?coupon,
+    'card_id': ?cardId,
+  }, path: '/courses/cart/checkout-link');
+
+  @override
+  Future<List<SavedCard>> listSavedCards() => _get(
+    '/me/cards',
+    _required,
+    (json) => listOf(json, 'items', SavedCard.fromJson),
+  );
+
+  Future<CheckoutLink> _checkoutLink(
+    Map<String, Object> body, {
+    String path = '/auth/checkout-link',
+  }) {
     if (platform != DevicePlatform.android) {
       // iOS never shows or opens a purchase flow (Apple's digital goods rule).
       return Future.error(
@@ -1880,7 +1926,7 @@ class HttpYallappApi implements YallappApi {
     if (preview) return _noCheckoutInPreview();
     return _send(
       'POST',
-      '/auth/checkout-link',
+      path,
       _required,
       (data) => CheckoutLink.fromJson(asJson(data)),
       body: body,

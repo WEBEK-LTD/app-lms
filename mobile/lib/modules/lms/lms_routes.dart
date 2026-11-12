@@ -1,3 +1,5 @@
+import 'cart/course_cart_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -192,6 +194,11 @@ List<TabScreen> _screens() => [
 ];
 
 List<RouteBase> _pushedRoutes() => [
+  // 123 The academy's course cart.
+  GoRoute(
+    path: Paths.courseCart,
+    pageBuilder: (context, state) => appPage(state, const CourseCartScreen()),
+  ),
   // 105.3 The academy's teachers, applying to teach, a teacher's course.
   GoRoute(
     path: Paths.teachers,

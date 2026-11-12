@@ -15907,6 +15907,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm and sign in'**
   String get confirmAndSignIn;
+
+  /// 123 The title of the course cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get courseCartTitle;
+
+  /// 123 How many courses the cart holds, beside its title.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 course} other{{count} courses}}'**
+  String courseCartCount(int count);
+
+  /// 123 The empty course cart.
+  ///
+  /// In en, this message translates to:
+  /// **'The courses you choose show up here.'**
+  String get courseCartEmpty;
+
+  /// 123 The courses' total before the coupon, on the course cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotalShort;
+
+  /// 123 The course cart's button.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount} securely'**
+  String payAmountSecurely(String amount);
+
+  /// 123 On the course cart when the student has no saved card.
+  ///
+  /// In en, this message translates to:
+  /// **'Your card is entered on the secure checkout'**
+  String get cardAtCheckout;
+
+  /// 123 The sheet of the student's saved cards, on the course cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a card'**
+  String get chooseCard;
+
+  /// 123 Pays with a card not saved yet, on the course cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Another card on the checkout'**
+  String get anotherCard;
 }
 
 class _AppLocalizationsDelegate

@@ -318,6 +318,31 @@ check( 'listed in My courses', in_array( $seed['english'], my_course_ids( $b['ac
 $r = call( 'GET', '/courses/' . $seed['english'] . '?platform=android', null, $b['access_token'] );
 check( 'course page: continue', true === ( $r['json']['enrolled'] ?? null ) && 'continue' === ( $r['json']['purchase']['action'] ?? '' ), $r['raw'] );
 
+echo "123 Two courses in one checkout\n";
+$r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
+check( 'the academy sells several courses in one checkout', true === ( $r['json']['purchases']['course_cart'] ?? null ), $r['json']['purchases'] ?? $r['raw'] );
+$r = call( 'POST', '/courses/cart', array( 'platform' => 'android', 'course_ids' => array( $seed['design'], $seed['photo'], $seed['english'] ), 'coupon' => 'NO-SUCH-COUPON' ), $b['access_token'] );
+$lines = (array) ( $r['json']['lines'] ?? array() );
+check( 'priced: the two paid courses, the one they have left out', 200 === $r['status'] && 3 === count( $lines ) && true === $lines[0]['available'] && true === $lines[1]['available'] && false === $lines[2]['available'], $r['raw'] );
+check( 'a coupon that does not exist says so', 'invalid' === ( $r['json']['coupon']['status'] ?? '' ) && null === $r['json']['discount'], $r['raw'] );
+$r = call( 'POST', '/courses/cart', array( 'platform' => 'ios', 'course_ids' => array( $seed['design'] ) ), $b['access_token'] );
+check( 'ios: no cart', 403 === $r['status'] && 'purchase_not_allowed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'POST', '/courses/cart/checkout-link', array( 'platform' => 'android', 'course_ids' => array( $seed['design'], $seed['english'] ) ), $b['access_token'] );
+check( 'a course they have: the cart changed', 409 === $r['status'] && 'cart_changed' === ( $r['json']['code'] ?? '' ), $r['raw'] );
+$r = call( 'GET', '/me/cards', null, $b['access_token'] );
+check( 'no saved cards yet', 200 === $r['status'] && array() === ( $r['json']['items'] ?? null ), $r['raw'] );
+$r = call( 'POST', '/courses/cart/checkout-link', array( 'platform' => 'android', 'course_ids' => array( $seed['design'], $seed['photo'] ), 'card_id' => '999' ), $b['access_token'] );
+check( 'one checkout link', 200 === $r['status'] && ! empty( $r['json']['url'] ), $r['raw'] );
+$jar     = tempnam( sys_get_temp_dir(), 'yallapp-jar' );
+$landing = browse( $jar, (string) ( $r['json']['url'] ?? '' ) );
+$nonce   = preg_match( '/createNonceMiddleware\(\s*"([0-9a-f]+)"\s*\)/', $landing['raw'], $m ) ? $m[1] : '';
+$cart    = browse( $jar, $site . '/wp-json/wc/store/v1/cart', 'GET', null, array( 'X-WP-Nonce: ' . $nonce ) );
+$in_cart = array_column( (array) ( $cart['json']['items'] ?? array() ), 'id' );
+sort( $in_cart );
+$want = array( (int) $seed['design_product'], (int) $seed['photo_product'] );
+sort( $want );
+check( 'the checkout opens with both courses in the cart', false !== strpos( (string) $landing['url'], '/checkout' ) && $want === $in_cart, array( $landing['url'], $in_cart ) );
+
 echo "Paid course bought with WooCommerce: bank transfer\n";
 $buy = buy_on_website( $a['access_token'], $seed['photo'], $seed['photo_product'], 'bacs' );
 check( 'the checkout link signs the student in on the checkout with the course in the cart', false !== strpos( (string) ( $buy['landing'] ?? '' ), '/checkout' ) && array( $seed['photo_product'] ) === ( $buy['cart'] ?? null ), $buy );

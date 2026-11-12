@@ -220,6 +220,84 @@ class FakeApi implements YallappApi {
         return _link(coupon, [courseId]);
       });
 
+  /// 123 The course cart: the price of each course by ID (`EGP 390.00`
+  /// style), the courses the student has, and coupons taking 20% off.
+  final cartPrices = <int, double>{1: 390, 2: 450};
+  final cartOwned = <int>{};
+  final cartTitles = <int, String>{};
+  final cartImages = <int, String>{};
+  final cartCoupons = <String>{'NOOR20'};
+  final cartCheckouts = <({List<int> courses, String? coupon, String? card})>[];
+
+  /// 123 The student's saved cards (`GET /me/cards`).
+  List<Map<String, dynamic>> savedCards = [
+    {
+      'id': '7',
+      'brand': 'visa',
+      'last4': '4821',
+      'exp_month': 8,
+      'exp_year': 2028,
+      'default': true,
+    },
+  ];
+
+  String _egp(double v) => 'EGP ${v.toStringAsFixed(2)}';
+
+  @override
+  Future<CourseCart> quoteCourseCart(List<int> courseIds, {String? coupon}) =>
+      _answer('quoteCourseCart', () {
+        var subtotal = 0.0;
+        final lines = [
+          for (final id in courseIds)
+            () {
+              final price = cartPrices[id] ?? 0;
+              final ok = !cartOwned.contains(id) && cartPrices.containsKey(id);
+              if (ok) subtotal += price;
+              return {
+                'course_id': id,
+                'title': cartTitles[id] ?? 'Course $id',
+                'image_url': cartImages[id],
+                'price': _egp(price),
+                'available': ok,
+                'problem': ok ? null : 'You already have this course.',
+              };
+            }(),
+        ];
+        final applied = coupon != null && cartCoupons.contains(coupon);
+        final off = applied ? subtotal * 0.2 : 0.0;
+        return CourseCart.fromJson({
+          'lines': lines,
+          'subtotal': _egp(subtotal),
+          'discount': applied ? _egp(off) : null,
+          'total': _egp(subtotal - off),
+          'currency': 'EGP',
+          'coupon': coupon == null
+              ? null
+              : {
+                  'code': coupon,
+                  'status': applied ? 'applied' : 'invalid',
+                  'label': applied ? '20%' : null,
+                  'message': applied ? null : "This coupon doesn't exist.",
+                },
+        });
+      });
+
+  @override
+  Future<CheckoutLink> createCourseCartCheckoutLink(
+    List<int> courseIds, {
+    String? coupon,
+    String? cardId,
+  }) => _answer('createCourseCartCheckoutLink', () {
+    cartCheckouts.add((courses: courseIds, coupon: coupon, card: cardId));
+    return _link(null, courseIds);
+  });
+
+  @override
+  Future<List<SavedCard>> listSavedCards() => _answer(
+    'listSavedCards',
+    () => [for (final c in savedCards) SavedCard.fromJson(c)],
+  );
+
   CheckoutLink _link(String? coupon, List<int> courseIds) {
     final free = coupon != null && freeCoupons.contains(coupon);
     return CheckoutLink.fromJson({

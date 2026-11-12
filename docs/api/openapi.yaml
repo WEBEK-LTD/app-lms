@@ -1373,6 +1373,84 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
+  /courses/cart:
+    post:
+      tags: [Commerce]
+      operationId: quoteCourseCart
+      summary: Price several courses for one checkout
+      description: |
+        Roadmap 123. The courses the student put in the app's cart, priced as
+        the site sells them now, with a coupon of the site's. Only where
+        `purchases.course_cart` and `purchases.enroll_button` are both true
+        (the courses are sold on the site's checkout and this platform may open
+        it, as `POST /auth/checkout-link`). A course the student already has,
+        a free one, or one the site no longer sells is `available` false with
+        why; the totals leave it out. Nothing is saved.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CourseCartInput' }
+      responses:
+        '200':
+          description: The priced courses
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CourseCart' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /courses/cart/checkout-link:
+    post:
+      tags: [Commerce]
+      operationId: createCourseCartCheckoutLink
+      summary: Get a one-time checkout link for the cart's courses
+      description: |
+        Roadmap 123. As `POST /auth/checkout-link`, for every course of the
+        cart at once: the link signs the student in on the website, fills its
+        cart with the courses and the coupon, and opens the checkout; it works
+        once. With `card_id` (`GET /me/cards`) the checkout opens with that
+        saved card chosen; the card is charged by the site's payment gateway,
+        never through the app, and the student can still pick another. 409
+        `cart_changed` when a course can't be bought any more (the app prices
+        the cart again); 403 `purchase_not_allowed` where this platform may not
+        open the checkout.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Platform'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/CourseCartInput'
+                - type: object
+                  properties:
+                    card_id: { type: [string, 'null'], description: A saved card's `id` to pay with. }
+      responses:
+        '200':
+          description: Checkout link
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, expires_at, open_in]
+                properties:
+                  url: { type: string, format: uri }
+                  expires_at: { type: string, format: date-time }
+                  open_in: { type: string, enum: [in_app, browser] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
   /me:
     get:
       tags: [Account]
@@ -2872,6 +2950,27 @@ paths:
       responses:
         '204': { description: Added }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/cards:
+    get:
+      tags: [Commerce]
+      operationId: listSavedCards
+      summary: The student's saved cards
+      description: |
+        Roadmap 123. The cards the student saved with the site's payment
+        gateway when paying before (WooCommerce's saved payment methods): the
+        brand, the last four digits and when it expires, the default first.
+        The app shows one on the cart and sends its `id` with the checkout
+        link; card numbers never reach the app or Yallapp. Empty where the
+        site keeps none.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Saved cards
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SavedCards' }
         '401': { $ref: '#/components/responses/Unauthorized' }
 
   /me/wishlist:
@@ -11584,6 +11683,7 @@ components:
             enroll_button: { type: boolean, description: "Whether paid courses show \"Enroll now\" (the website's checkout) on this platform. Always false on iOS, and on the hosted API false when the app's plan has no card payments in the app. Roadmap 100: also false on Android, as the stores ask: paid courses are bought through the store (`store_billing`) or not in the app." }
             free_enrollment: { type: boolean }
             checkout_opens_in: { type: string, enum: [in_app, browser] }
+            course_cart: { type: boolean, description: "Roadmap 123. Several courses can be bought in one checkout (`POST /courses/cart`): WordPress sites that sell their courses with WooCommerce. The app's cart shows only where `enroll_button` is true too. Missing means false." }
         content:
           type: object
           required: [block_screen_capture, watermark, embed_fullscreen_button, embed_height]
@@ -11902,6 +12002,62 @@ components:
         week_minutes: { type: integer, minimum: 0 }
         last_week_minutes: { type: integer, minimum: 0, description: The seven days before them. }
         total_minutes: { type: integer, minimum: 0 }
+
+    CourseCartInput:
+      type: object
+      description: Roadmap 123. The courses of the app's cart and a coupon.
+      required: [course_ids]
+      properties:
+        course_ids: { type: array, items: { type: integer }, minItems: 1, maxItems: 20 }
+        coupon: { type: [string, 'null'], example: NOOR20 }
+
+    CourseCart:
+      type: object
+      description: Roadmap 123. The cart's courses priced as the site sells them now.
+      required: [lines, subtotal, discount, total, currency, coupon]
+      properties:
+        lines:
+          type: array
+          items:
+            type: object
+            required: [course_id, title, image_url, price, available, problem]
+            properties:
+              course_id: { type: integer }
+              title: { type: string }
+              image_url: { type: [string, 'null'], format: uri }
+              price: { type: string, description: Formatted. }
+              available: { type: boolean }
+              problem: { type: [string, 'null'], example: You already have this course. }
+        subtotal: { type: string, example: EGP 840.00 }
+        discount: { type: [string, 'null'], description: The coupon's; null without one., example: EGP 168.00 }
+        total: { type: string, example: EGP 672.00 }
+        currency: { type: string, example: EGP }
+        coupon:
+          type: [object, 'null']
+          description: The coupon of `CourseCartInput.coupon`, `applied` or `invalid` with why. Null without one.
+          required: [code, status, message]
+          properties:
+            code: { type: string, example: NOOR20 }
+            status: { type: string, enum: [applied, invalid] }
+            label: { type: [string, 'null'], description: "What it takes off (`20%`, `EGP 50`).", example: "20%" }
+            message: { type: [string, 'null'] }
+
+    SavedCard:
+      type: object
+      required: [id, brand, last4, exp_month, exp_year, default]
+      properties:
+        id: { type: string }
+        brand: { type: string, description: "As the gateway names it: `visa`, `mastercard`, `amex`…", example: visa }
+        last4: { type: string, example: '4821' }
+        exp_month: { type: integer, example: 8 }
+        exp_year: { type: integer, example: 2028 }
+        default: { type: boolean }
+
+    SavedCards:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/SavedCard' } }
 
     SiteSubscription:
       type: object

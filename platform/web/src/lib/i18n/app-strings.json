@@ -2630,4 +2630,12 @@
 {"key":"codeSentDigits","en":"We sent a {count}-digit code to {number}","ar":"أرسلنا رمزًا من {count} أرقام إلى {number}","tr":"{number} numarasına {count} haneli bir kod gönderdik","description":"123 Under the title of the premium sign-in code screen.","placeholders":{"count":"int","number":"String"}},
 {"key":"didntGetCode","en":"Didn't get it?","ar":"لم يصلك؟","tr":"Gelmedi mi?","description":"123 Before the way to send the code again, on the premium sign-in code screen."},
 {"key":"resendCode","en":"Resend","ar":"إعادة الإرسال","tr":"Yeniden gönder","description":"123 Sends the sign-in code again, on the premium sign-in code screen."},
-{"key":"confirmAndSignIn","en":"Confirm and sign in","ar":"تأكيد ودخول","tr":"Onayla ve giriş yap","description":"123 The button of the premium sign-in code screen."}]}
+{"key":"confirmAndSignIn","en":"Confirm and sign in","ar":"تأكيد ودخول","tr":"Onayla ve giriş yap","description":"123 The button of the premium sign-in code screen."},
+{"key":"courseCartTitle","en":"Cart","ar":"السلة","tr":"Sepet","description":"123 The title of the course cart."},
+{"key":"courseCartCount","en":"{count, plural, =1{1 course} other{{count} courses}}","ar":"{count, plural, =1{دورة واحدة} =2{دورتان} few{{count} دورات} many{{count} دورة} other{{count} دورة}}","tr":"{count, plural, other{{count} kurs}}","description":"123 How many courses the cart holds, beside its title.","placeholders":{"count":"int"}},
+{"key":"courseCartEmpty","en":"The courses you choose show up here.","ar":"تظهر هنا الدورات التي تختارها.","tr":"Seçtiğin kurslar burada görünür.","description":"123 The empty course cart."},
+{"key":"subtotalShort","en":"Subtotal","ar":"المجموع","tr":"Ara toplam","description":"123 The courses' total before the coupon, on the course cart."},
+{"key":"payAmountSecurely","en":"Pay {amount} securely","ar":"ادفع {amount} بأمان","tr":"{amount} güvenle öde","description":"123 The course cart's button.","placeholders":{"amount":"String"}},
+{"key":"cardAtCheckout","en":"Your card is entered on the secure checkout","ar":"تُدخل بطاقتك في صفحة الدفع الآمنة","tr":"Kartın güvenli ödeme sayfasında girilir","description":"123 On the course cart when the student has no saved card."},
+{"key":"chooseCard","en":"Choose a card","ar":"اختر بطاقة","tr":"Bir kart seç","description":"123 The sheet of the student's saved cards, on the course cart."},
+{"key":"anotherCard","en":"Another card on the checkout","ar":"بطاقة أخرى في صفحة الدفع","tr":"Ödeme sayfasında başka bir kart","description":"123 Pays with a card not saved yet, on the course cart."}]}

@@ -4211,6 +4211,46 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "زر شاشة رمز الدخول المميزة.",
     tr: "Premium giriş kodu ekranının düğmesi.",
   },
+  "123 The title of the course cart.": {
+    en: "The title of the course cart.",
+    ar: "عنوان سلة الدورات.",
+    tr: "Kurs sepetinin başlığı.",
+  },
+  "123 How many courses the cart holds, beside its title.": {
+    en: "How many courses the cart holds, beside its title.",
+    ar: "عدد الدورات في السلة، بجانب عنوانها.",
+    tr: "Sepetteki kurs sayısı, başlığının yanında.",
+  },
+  "123 The empty course cart.": {
+    en: "The empty course cart.",
+    ar: "سلة الدورات الفارغة.",
+    tr: "Boş kurs sepeti.",
+  },
+  "123 The courses' total before the coupon, on the course cart.": {
+    en: "The courses' total before the coupon, on the course cart.",
+    ar: "مجموع الدورات قبل الكوبون، في سلة الدورات.",
+    tr: "Kurs sepetinde, kupondan önce kursların toplamı.",
+  },
+  "123 The course cart's button.": {
+    en: "The course cart's button.",
+    ar: "زر سلة الدورات.",
+    tr: "Kurs sepetinin düğmesi.",
+  },
+  "123 On the course cart when the student has no saved card.": {
+    en: "On the course cart when the student has no saved card.",
+    ar: "في سلة الدورات عندما لا يكون للطالب بطاقة محفوظة.",
+    tr: "Öğrencinin kayıtlı kartı yokken kurs sepetinde.",
+  },
+  "123 The sheet of the student's saved cards, on the course cart.": {
+    en: "The sheet of the student's saved cards, on the course cart.",
+    ar: "قائمة بطاقات الطالب المحفوظة، في سلة الدورات.",
+    tr: "Kurs sepetinde öğrencinin kayıtlı kartlarının listesi.",
+  },
+  "123 Pays with a card not saved yet, on the course cart.": {
+    en: "Pays with a card not saved yet, on the course cart.",
+    ar: "الدفع ببطاقة غير محفوظة بعد، في سلة الدورات.",
+    tr: "Kurs sepetinde henüz kaydedilmemiş bir kartla öder.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
