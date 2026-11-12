@@ -22,7 +22,8 @@ import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elem
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
-import { findNode } from "@/lib/studio/tree";
+import { findNode, studioPageOpeners } from "@/lib/studio/tree";
+import { formatList } from "@/i18n/format";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
@@ -695,6 +696,25 @@ export function StudioEditor(props: StudioEditorProps) {
     setPagesOpen(false);
   }
 
+  /** 124 The open page deleted (never the home), unless a tab, the side menu or another page opens it. */
+  function deletePage() {
+    if (!page || page.slug === "home" || page === layout.pages[0]) return;
+    const name = pageTitle(page);
+    const openers = studioPageOpeners(layout, page.slug);
+    if (openers.length) {
+      const links = formatList(dashLang, openers.map((o) => t(o.kind === "tab" ? "studio.openerTab" : o.kind === "menu" ? "studio.openerMenu" : "studio.openerPage", { name: o.name })));
+      setNotice(t("studio.cantDeletePage", { page: name, links }));
+      setPagesOpen(false);
+      return;
+    }
+    if (!window.confirm(t("studio.deletePageConfirm", { page: name }))) return;
+    const gone = page.slug;
+    change((current) => ({ ...current, pages: current.pages.filter((p) => p.slug !== gone) }));
+    setSlug(layout.pages.find((p) => p.slug !== gone)?.slug ?? "home");
+    setSelectedId(null);
+    setPagesOpen(false);
+  }
+
   async function saveTemplate(name: string): Promise<string | null> {
     if (!studio) return null;
     const r = await saveStudioTemplateAction(name, JSON.stringify(studio));
@@ -1009,6 +1029,13 @@ export function StudioEditor(props: StudioEditorProps) {
                       <span className="min-w-0 flex-1 truncate">{label}</span>
                     </button>
                   ))}
+                {/* 124 The open page deleted, never the home. */}
+                {page && page.slug !== "home" && page !== layout.pages[0] ? (
+                  <button type="button" role="menuitem" onClick={() => deletePage()} className="flex items-center gap-2 rounded-lg border-0 bg-transparent px-2.5 py-2 text-start" style={{ color: "#B3261E" }}>
+                    <Glyph name="delete" size={18} />
+                    <span className="min-w-0 flex-1 truncate">{t("studio.deletePage")}</span>
+                  </button>
+                ) : null}
               </div>
               <form
                 className="mt-1 flex gap-1.5 pt-2"
