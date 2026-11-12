@@ -14,12 +14,25 @@ import { PAGE_ICONS } from "@/lib/pages/icons";
 import {
   ACCOUNT_HEADERS,
   ACCOUNT_ITEMS,
+  COURSE_CARD_FACTS,
+  COURSE_CARD_STYLES,
+  SCREEN_LOOKS,
+  type ScreenLookKey,
+  type ScreenLooks,
+  COURSE_PAGE_BARS,
+  COURSE_PAGE_COVERS,
+  COURSE_PAGE_FACTS,
+  COURSE_PAGE_TABS,
   REQUIRED_ACCOUNT_ITEMS,
   SCREEN_LIMITS,
   SIGN_IN_STYLES,
   type AccountHeader,
   type AccountItemKey,
   type AccountMenuEntry,
+  type CourseCardFact,
+  type CourseCardLook,
+  type CourseCardStyle,
+  type CoursePageLook,
   type ScreenTexts,
   type SignInLook,
   type SignInStyle,
@@ -36,6 +49,7 @@ const HEADER_NAMES: Record<AccountHeader, DashKey> = {
   cover: "studio.menuTopCover",
   tiles: "studio.menuTopTiles",
   night: "studio.menuTopNight",
+  academy: "studio.menuTopAcademy",
 };
 const HEADER_HINTS: Record<AccountHeader, DashKey> = {
   plain: "studio.menuTopPlainHint",
@@ -43,6 +57,7 @@ const HEADER_HINTS: Record<AccountHeader, DashKey> = {
   cover: "studio.menuTopCoverHint",
   tiles: "studio.menuTopTilesHint",
   night: "studio.menuTopNightHint",
+  academy: "studio.menuTopAcademyHint",
 };
 
 /** The app's own icon for each entry, for the list and the preview. */
@@ -78,6 +93,7 @@ const STYLE_WORDS: Record<SignInStyle, { label: DashKey; hint: DashKey }> = {
   photo: { label: "studio.stylePhoto", hint: "studio.stylePhotoHint" },
   card: { label: "studio.styleCard", hint: "studio.styleCardHint" },
   minimal: { label: "studio.styleMinimal", hint: "studio.styleMinimalHint" },
+  premium: { label: "studio.stylePremium", hint: "studio.stylePremiumHint" },
 };
 
 type Entry = AccountMenuEntry & { uid: string };
@@ -104,12 +120,15 @@ export function ScreensEditor({
   pages,
   appName,
   color,
+  courses = false,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
   pages: { slug: string; title: string }[];
   appName: string;
   color: string;
+  /** 122 An academy: its courses' card is designed here too. */
+  courses?: boolean;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -121,6 +140,11 @@ export function ScreensEditor({
   const [previewLang, setPreviewLang] = useState(languages[0]?.code ?? "en");
   // 119 Every look in light and dark mode: the preview shows either.
   const [previewDark, setPreviewDark] = useState(false);
+  // 122 The courses' card.
+  const [card, setCard] = useState<CourseCardLook>(initial?.course_card ?? { style: "classic", hide: [] });
+  // 123 The screens drawn in a look of their own.
+  const [looks, setLooks] = useState<ScreenLooks>(initial?.looks ?? {});
+  const [coursePage, setCoursePage] = useState<CoursePageLook>(initial?.course_page ?? { cover: "classic", bar: "classic", hide: [] });
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -133,8 +157,10 @@ export function ScreensEditor({
           return { ...e, label: clean(e.label) };
         }),
       },
+      ...(courses ? { course_card: card, course_page: coursePage } : {}),
+      ...(courses && Object.keys(looks).length ? { looks } : {}),
     }),
-    [look, header, accent, entries],
+    [look, header, accent, entries, courses, card, coursePage, looks],
   );
 
   const move = (index: number, by: number) =>
@@ -162,7 +188,7 @@ export function ScreensEditor({
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">
             {t("studio.signInLook")}
           </h2>
-          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-4">
+          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-5">
             <legend className="sr-only">{t("studio.signInLook")}</legend>
             {SIGN_IN_STYLES.map((style) => {
               const on = look.style === style;
@@ -177,7 +203,7 @@ export function ScreensEditor({
             })}
           </fieldset>
 
-          {look.style === "photo" || look.style === "card" ? (
+          {look.style === "photo" || look.style === "card" || look.style === "premium" ? (
             <div className="flex flex-wrap items-center gap-3">
               {look.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -368,6 +394,129 @@ export function ScreensEditor({
           <p className="m-0 text-sm text-muted">{t("studio.signOutLast")}</p>
         </section>
 
+        {courses ? (
+          <section aria-labelledby="h-looks" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-looks" className="m-0 text-lg font-bold">
+                {t("studio.looksTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.looksText")}</p>
+            </div>
+            <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+              <legend className="sr-only">{t("studio.looksTitle")}</legend>
+              {(Object.keys(SCREEN_LOOKS) as ScreenLookKey[]).map((key) => (
+                <label key={key} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    data-screen-look={key}
+                    checked={looks[key] === SCREEN_LOOKS[key]}
+                    onChange={(e) => {
+                      const next: Record<string, string> = { ...looks };
+                      if (e.target.checked) next[key] = SCREEN_LOOKS[key];
+                      else delete next[key];
+                      setLooks(next as ScreenLooks);
+                    }}
+                  />
+                  {t(`studio.look_${key}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
+        {courses ? (
+          <section aria-labelledby="h-course-card" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-course-card" className="m-0 text-lg font-bold">
+                {t("studio.courseCardTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.courseCardText")}</p>
+            </div>
+            <div role="radiogroup" aria-label={t("studio.courseCardTitle")} className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+              {COURSE_CARD_STYLES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="radio"
+                  aria-checked={card.style === s}
+                  data-course-card-style={s}
+                  onClick={() => setCard({ ...card, style: s })}
+                  className="flex flex-col gap-2 rounded-xl border p-2.5 text-start text-sm"
+                  style={card.style === s ? { borderColor: color, boxShadow: `0 0 0 2px ${color}` } : undefined}
+                >
+                  <CourseCardSample style={s} color={color} dark={false} hide={card.hide} radius={card.radius} />
+                  <span className="font-bold">{t(`studio.courseCard_${s}` as DashKey)}</span>
+                </button>
+              ))}
+            </div>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              {t("studio.courseCardCorners")}
+              <input type="range" min={0} max={32} value={card.radius ?? 16} onChange={(e) => setCard({ ...card, radius: Number(e.target.value) })} aria-valuetext={`${card.radius ?? 16}px`} />
+            </label>
+            <fieldset className="m-0 flex flex-wrap gap-x-5 gap-y-2 border-0 p-0">
+              <legend className="mb-1.5 text-sm font-bold">{t("studio.courseCardShows")}</legend>
+              {COURSE_CARD_FACTS.map((f) => (
+                <label key={f} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!card.hide.includes(f)} onChange={(e) => setCard({ ...card, hide: e.target.checked ? card.hide.filter((x) => x !== f) : [...card.hide, f] })} />
+                  {t(`studio.courseFact_${f}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
+        {courses ? (
+          <section aria-labelledby="h-course-page" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 id="h-course-page" className="m-0 text-lg font-bold">
+                {t("studio.coursePageTitle")}
+              </h2>
+              <p className="m-0 text-sm text-muted">{t("studio.coursePageText")}</p>
+            </div>
+            {(
+              [
+                ["cover", COURSE_PAGE_COVERS, "studio.coursePageCover"],
+                ["bar", COURSE_PAGE_BARS, "studio.coursePageBar"],
+              ] as const
+            ).map(([field, options, label]) => (
+              <div key={field} role="radiogroup" aria-label={t(label as DashKey)} className="flex flex-col gap-1.5">
+                <span className="text-sm font-bold">{t(label as DashKey)}</span>
+                <div className="flex flex-wrap gap-2">
+                  {options.map((o) => (
+                    <button key={o} type="button" role="radio" aria-checked={coursePage[field] === o} data-course-page={`${field}-${o}`} onClick={() => setCoursePage({ ...coursePage, [field]: o })} className="rounded-lg border px-3 py-1.5 text-sm" style={coursePage[field] === o ? { borderColor: color, boxShadow: `0 0 0 2px ${color}`, fontWeight: 700 } : undefined}>
+                      {t(`studio.coursePage_${field}_${o}` as DashKey)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input type="checkbox" data-course-page="look-premium" checked={coursePage.look === "premium"} onChange={(e) => setCoursePage({ ...coursePage, look: e.target.checked ? "premium" : undefined })} />
+              {t("studio.coursePagePremium")}
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              {t("studio.coursePageFirst")}
+              <select className="h-10 rounded-lg border border-line-strong px-2 font-normal" value={coursePage.first_tab ?? ""} onChange={(e) => setCoursePage({ ...coursePage, first_tab: (e.target.value || undefined) as CoursePageLook["first_tab"] })}>
+                <option value="">{t("studio.coursePageFirstAuto")}</option>
+                {COURSE_PAGE_TABS.map((tab) => (
+                  <option key={tab} value={tab}>
+                    {t(`studio.coursePageTab_${tab}` as DashKey)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <fieldset className="m-0 flex flex-wrap gap-x-5 gap-y-2 border-0 p-0">
+              <legend className="mb-1.5 text-sm font-bold">{t("studio.coursePageShows")}</legend>
+              {COURSE_PAGE_FACTS.map((f) => (
+                <label key={f} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!coursePage.hide.includes(f)} onChange={(e) => setCoursePage({ ...coursePage, hide: e.target.checked ? coursePage.hide.filter((x) => x !== f) : [...coursePage.hide, f] })} />
+                  {t(`studio.coursePageFact_${f}` as DashKey)}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        ) : null}
+
         <div className="flex flex-wrap justify-end gap-3">
           <SubmitButton variant="secondary" className="h-11" name="reset" value="1">
             {t("studio.backToAppOwn")}
@@ -410,6 +559,21 @@ export function ScreensEditor({
 /** The look's small drawing in its choice. */
 function StyleThumb({ style, color }: { style: SignInStyle; color: string }) {
   const bar = <span className="block h-1.5 w-full rounded-full bg-[#D9D3C7]" />;
+  if (style === "premium") {
+    // 123 The welcome over the photo, the form on a card at the foot, the button in gold.
+    return (
+      <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: "linear-gradient(200deg,#D9B36C 0%,#2A2D5C 38%,#F7F3EC 72%)" }}>
+        <span className="absolute inset-x-2 top-3 flex flex-col gap-1">
+          <span className="block h-2 w-3/4 rounded-full bg-white/90" />
+          <span className="block h-1.5 w-1/2 rounded-full bg-white/60" />
+        </span>
+        <span className="absolute inset-x-1.5 bottom-1.5 flex flex-col gap-1 rounded-md bg-white p-1.5 shadow-sm">
+          {bar}
+          <span className="block h-2 w-full rounded" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)" }} />
+        </span>
+      </span>
+    );
+  }
   return (
     <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: style === "photo" ? "#2A3350" : "#F7F3EC" }}>
       {style === "card" ? <span className="absolute inset-x-0 top-0 h-[45%]" style={{ background: "#2A3350" }} /> : null}
@@ -435,6 +599,7 @@ function previewTheme(dark: boolean) {
 
 function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
   const th = previewTheme(dark);
+  if (look.style === "premium") return <PremiumSignInPreview look={look} title={title} subtitle={subtitle} appName={appName} color={color} dark={dark} t={t} />;
   const photo = (look.style === "photo" || look.style === "card") && look.image_url;
   const panel = look.style === "photo" && photo;
   return (
@@ -459,6 +624,38 @@ function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { loo
         </span>
         <span className="mt-1 block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
         <span className="flex h-6 w-full items-center justify-center rounded-md font-bold text-white" style={{ background: color }}>
+          {t("studio.previewButton")}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** 123 The premium sign-in: the welcome large in white over the photo (or the app's colours), the form on a card at the foot with the button in gold. */
+function PremiumSignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
+  const th = previewTheme(dark);
+  return (
+    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page }} data-testid="sign-in-preview" data-dark={dark ? "" : undefined}>
+      {look.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={look.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <span className="absolute inset-0" style={{ background: `linear-gradient(200deg,#D9B36C 0%,${color} 45%,#0E1424 100%)` }} />
+      )}
+      <span className="absolute inset-0" style={{ background: `linear-gradient(180deg,transparent 0%,transparent 35%,${th.page} 72%)` }} />
+      <div className="absolute inset-x-3 top-4 flex flex-col gap-1.5 text-white">
+        {look.show_logo ? (
+          <span className="flex items-center gap-1.5 font-extrabold">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/20 text-[10px]">{(appName || "A").slice(0, 1)}</span>
+            {appName}
+          </span>
+        ) : null}
+        <span className="mt-2 text-[17px] leading-tight font-black">{title}</span>
+        <span className="leading-snug opacity-80">{subtitle}</span>
+      </div>
+      <div className="absolute inset-x-2 bottom-2 flex flex-col gap-1.5 rounded-xl border p-2.5 shadow" style={{ background: th.surface, borderColor: th.line, color: th.text }}>
+        <span className="block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
+        <span className="flex h-6 w-full items-center justify-center rounded-md font-bold" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)", color: "#2A1D05" }}>
           {t("studio.previewButton")}
         </span>
       </div>
@@ -538,6 +735,22 @@ function MenuPreview({
               </span>
             ) : null}
           </>
+        ) : header === "academy" ? (
+          <>
+            {/* 123 The student's card in gold on dark, then the entries and the switches. */}
+            <div className="flex flex-col gap-1 rounded-xl p-1.5 text-white" style={{ background: "linear-gradient(225deg,#1C1710,#3A2D18,#6E5427)" }} data-testid="menu-preview-academy">
+              <span className="flex items-center gap-1.5">
+                <span className="h-6 w-6 rounded-full border-2" style={{ borderColor: accent, background: "#3A3326" }} />
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-extrabold">{t("studio.previewName")}</span>
+                  <span className="opacity-70">+20 100 000 0000</span>
+                </span>
+              </span>
+              <span className="text-[8px]" style={{ color: accent }}>
+                4 · 2 · 38
+              </span>
+            </div>
+          </>
         ) : night ? (
           <>
             <div className="flex items-center gap-1.5">
@@ -588,4 +801,52 @@ function darken(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const f = (c: number) => Math.round(c * 0.62).toString(16).padStart(2, "0");
   return `#${f((n >> 16) & 255)}${f((n >> 8) & 255)}${f(n & 255)}`;
+}
+
+/** 122 A course card in the look chosen, as the app draws it: in light or dark, the facts left out. */
+function CourseCardSample({ style, color, dark, hide, radius }: { style: CourseCardStyle; color: string; dark: boolean; hide: CourseCardFact[]; radius?: number }) {
+  const r = radius ?? (style === "rich" || style === "cover" ? 18 : 12);
+  const ink = dark ? "#F3F1EC" : "#15131A";
+  const mute = dark ? "#9A98A2" : "#6E6A72";
+  const cardBg = dark ? "#151823" : "#FFFFFF";
+  const pic = `linear-gradient(135deg, ${color}, #2F4FB5 60%, #F2C879)`;
+  const shows = (f: CourseCardFact) => !hide.includes(f);
+  const meta = [shows("teacher") ? "Reem S." : null, shows("lessons") ? "20" : null].filter(Boolean).join(" · ");
+  const line = (w: string, h = 6, c = mute) => <span style={{ display: "block", width: w, height: h, borderRadius: 3, background: c, opacity: 0.55 }} />;
+  if (style === "cover") {
+    return (
+      <span aria-hidden="true" style={{ position: "relative", display: "block", height: 74, borderRadius: Math.min(r, 20), background: pic, overflow: "hidden" }}>
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,transparent 30%,rgba(0,0,0,.6))" }} />
+        <span style={{ position: "absolute", insetInline: 8, bottom: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+          {line("70%", 7, "#fff")}
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 9, color: "#fff" }}>
+            <span>{meta}</span>
+            {shows("price") ? <span style={{ background: "#fff", color: "#15131A", borderRadius: 5, padding: "1px 4px", fontWeight: 800 }}>390</span> : null}
+          </span>
+        </span>
+      </span>
+    );
+  }
+  if (style === "tile") {
+    return (
+      <span aria-hidden="true" style={{ display: "flex", flexDirection: "column", gap: 4, padding: 5, borderRadius: 10, background: cardBg, border: "1px solid rgba(127,127,127,.2)" }}>
+        <span style={{ height: 38, borderRadius: Math.min(r, 14), background: pic }} />
+        {line("80%", 6, ink)}
+        <span style={{ fontSize: 8.5, color: mute }}>{meta}</span>
+        {shows("price") ? <span style={{ fontSize: 9, fontWeight: 800, color }}>390</span> : null}
+      </span>
+    );
+  }
+  const big = style === "rich";
+  return (
+    <span aria-hidden="true" style={{ display: "flex", gap: 6, padding: 5, borderRadius: 10, background: cardBg, border: "1px solid rgba(127,127,127,.2)", alignItems: "center" }}>
+      <span style={{ width: big ? 42 : 36, height: big ? 42 : 36, flex: "none", borderRadius: Math.min(r, 14), background: pic }} />
+      <span style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
+        {big && shows("rating") ? <span style={{ fontSize: 8.5, color: "#E5A00D" }}>★ 4.8</span> : null}
+        {line("85%", 6, ink)}
+        <span style={{ fontSize: 8.5, color: mute, whiteSpace: "nowrap", overflow: "hidden" }}>{meta}</span>
+        {shows("price") ? <span style={{ fontSize: 9, fontWeight: 800, color: big ? color : ink }}>390</span> : null}
+      </span>
+    </span>
+  );
 }

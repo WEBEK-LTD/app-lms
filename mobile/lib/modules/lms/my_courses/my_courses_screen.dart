@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'premium_my_courses.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +21,7 @@ import '../widgets/course_cards.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
+import '../widgets/designed_course_card.dart';
 
 enum MyCoursesTab { inProgress, completed, wishlist }
 
@@ -56,6 +60,24 @@ class _MyCoursesScreenState extends ConsumerState<MyCoursesScreen> {
       if (wishlist) MyCoursesTab.wishlist,
     ];
     final selected = tabs.contains(_tab) ? _tab : MyCoursesTab.inProgress;
+    // 123 The premium academy's My courses.
+    final gate = ref.watch(appGateProvider);
+    if (gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.myCourses) ?? false)) {
+      return PremiumMyCourses(
+        labels: [
+          for (final t in tabs)
+            switch (t) {
+              MyCoursesTab.inProgress => context.l10n.myCoursesLearning,
+              MyCoursesTab.completed => context.l10n.myCoursesFinished,
+              MyCoursesTab.wishlist => context.l10n.myCoursesSaved,
+            },
+        ],
+        selected: tabs.indexOf(selected),
+        onSelected: (i) => setState(() => _tab = tabs[i]),
+        wishlist: const _WishlistList(),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -396,7 +418,7 @@ class _WishlistList extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           itemCount: value.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, i) => CourseListCard(
+          itemBuilder: (context, i) => DesignedCourseCard(
             course: value[i],
             onTap: () => openCourse(context, value[i].id),
           ),

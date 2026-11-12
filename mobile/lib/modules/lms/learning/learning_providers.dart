@@ -20,6 +20,11 @@ final achievementsProvider = FutureProvider.autoDispose<Achievements>(
   (ref) => ref.watch(yallappApiProvider).getAchievements(),
 );
 
+/// 123 The time the student spent learning this week, and all of it.
+final learningTimeProvider = FutureProvider.autoDispose<LearningTime>(
+  (ref) => ref.watch(yallappApiProvider).getLearningTime(),
+);
+
 /// A course's leaderboard: the whole course's, or the student's cohort's.
 final leaderboardProvider = FutureProvider.autoDispose
     .family<Leaderboard, ({int courseId, bool cohort})>(

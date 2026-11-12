@@ -103,8 +103,9 @@ function pagesFor(own: readonly string[], layout: DesignLayout | undefined): str
  * each of the six looks, each laid out its own way.
  */
 export function designsFor(kind: ProjectKind | null): WholeDesign[] {
+  // 123 A template for the whole project (the premium academy) is a project of its own, never a page of another look.
   const own = templatesFor(kind)
-    .filter((tpl) => tpl.fits)
+    .filter((tpl) => tpl.fits && !tpl.project)
     .slice(0, 3)
     .map((tpl) => tpl.id);
   const demo = studioDemoOf(kind);

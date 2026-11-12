@@ -760,6 +760,35 @@ class FakeApi implements YallappApi {
   Future<Achievements> getAchievements() =>
       _answer('getAchievements', () => Achievements.fromJson(achievements));
 
+  /// 123 The week `getLearningTime` answers, and the seconds the app sent.
+  Map<String, dynamic> learningTime = {
+    'days': [
+      for (var i = 6; i >= 0; i--)
+        {
+          'date': DateTime(
+            2026,
+            11,
+            11,
+          ).subtract(Duration(days: i)).toIso8601String().substring(0, 10),
+          'minutes': const [30, 0, 45, 80, 20, 0, 25][6 - i],
+        },
+    ],
+    'week_minutes': 200,
+    'last_week_minutes': 160,
+    'total_minutes': 2280,
+  };
+  final learningSent = <({int courseId, int seconds})>[];
+
+  @override
+  Future<LearningTime> getLearningTime() =>
+      _answer('getLearningTime', () => LearningTime.fromJson(learningTime));
+
+  @override
+  Future<void> addLearningTime(int courseId, int seconds) =>
+      _answer('addLearningTime', () {
+        learningSent.add((courseId: courseId, seconds: seconds));
+      });
+
   @override
   Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false}) =>
       _answer('getLeaderboard', () {

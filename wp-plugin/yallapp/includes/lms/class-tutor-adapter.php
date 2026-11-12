@@ -22,6 +22,20 @@ use Yallapp\Commerce\Woo_Orders;
 class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 
 	/**
+	 * 123 The ids of the rated courses, best rated first, once read.
+	 *
+	 * @var int[]|null
+	 */
+	private $rated = null;
+
+	/**
+	 * 123 The ids of the three courses with the most students, once read.
+	 *
+	 * @var int[]|null
+	 */
+	private $bestsellers = null;
+
+	/**
 	 * 83.4 This adapter's version: the third number for a fix, the second for something new it sends
 	 * the app, the first when the app must change too (docs/CONNECTORS.md).
 	 */
@@ -186,6 +200,25 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 					'comment_count' => 'DESC',
 					'date'          => 'DESC',
 				);
+			} elseif ( 'rating' === $orderby ) {
+				// 123 The best rated first (their average, then how many rated them), the rest newest first after them.
+				$rated                  = $this->rated_courses();
+				$rest                   = get_posts(
+					array_merge(
+						$query_args,
+						array(
+							'fields'         => 'ids',
+							'posts_per_page' => -1,
+							'paged'          => 1,
+							'post__not_in'   => $rated, // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
+							'orderby'        => 'date',
+							'order'          => 'DESC',
+						)
+					)
+				);
+				$query_args['post__in'] = array_merge( $rated, array_map( 'intval', $rest ) );
+				$query_args['post__in'] = $query_args['post__in'] ? $query_args['post__in'] : array( 0 );
+				$query_args['orderby']  = 'post__in';
 			} else {
 				$query_args['orderby'] = 'date';
 				$query_args['order']   = 'DESC';
@@ -1105,6 +1138,25 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 	}
 
 	/**
+	 * 123 The ids of the courses someone rated, the best rated first: by
+	 * their average rating, then by how many rated them.
+	 *
+	 * @return int[]
+	 */
+	private function rated_courses() {
+		global $wpdb;
+		if ( null === $this->rated ) {
+			$this->rated = array_map(
+				'intval',
+				(array) $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+					"SELECT c.comment_post_ID FROM {$wpdb->comments} c INNER JOIN {$wpdb->commentmeta} m ON m.comment_id = c.comment_ID AND m.meta_key = 'tutor_rating' WHERE c.comment_type = 'tutor_course_rating' AND c.comment_approved = 'approved' GROUP BY c.comment_post_ID ORDER BY AVG( CAST( m.meta_value AS DECIMAL( 3, 2 ) ) ) DESC, COUNT( * ) DESC, c.comment_post_ID DESC"
+				)
+			);
+		}
+		return $this->rated;
+	}
+
+	/**
 	 * The user's review comment.
 	 *
 	 * @param int $course_id Course ID.
@@ -1399,7 +1451,32 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 			'rating_count' => $count,
 			'enrolled'     => $this->is_enrolled( $post->ID, $user_id ),
 			'wishlisted'   => $user_id > 0 && (bool) tutor_utils()->is_wishlisted( $post->ID, $user_id ),
+			'badge'        => $this->badge( $post ),
 		);
+	}
+
+	/**
+	 * 123 A course's badge: `bestseller` for one of the three with the most
+	 * students, `new` for one published in the last 30 days, else null.
+	 *
+	 * @param WP_Post $post Course.
+	 * @return string|null
+	 */
+	private function badge( WP_Post $post ) {
+		global $wpdb;
+		if ( null === $this->bestsellers ) {
+			$this->bestsellers = array_map(
+				'intval',
+				(array) $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+					"SELECT post_parent FROM {$wpdb->posts} WHERE post_type = 'tutor_enrolled' AND post_status = 'completed' AND post_parent > 0 GROUP BY post_parent ORDER BY COUNT( * ) DESC, post_parent DESC LIMIT 3"
+				)
+			);
+		}
+		if ( in_array( (int) $post->ID, $this->bestsellers, true ) ) {
+			return 'bestseller';
+		}
+		$published = strtotime( (string) $post->post_date_gmt . ' UTC' );
+		return $published && $published > time() - 30 * DAY_IN_SECONDS ? 'new' : null;
 	}
 
 	/**
@@ -1465,12 +1542,18 @@ class Tutor_Adapter implements Lms_Adapter, Store_Enrolment {
 	private function instructor( $user_id ) {
 		$user = get_userdata( $user_id );
 		$bio  = $user ? (string) get_user_meta( $user_id, '_tutor_profile_bio', true ) : '';
-		return array(
+		$out  = array(
 			'id'         => (int) $user_id,
 			'name'       => $user ? (string) $user->display_name : '',
 			'avatar_url' => $user ? \Yallapp\Otp\Sign_In::avatar_url( $user_id ) : null,
 			'bio'        => '' !== $bio ? wp_strip_all_tags( $bio ) : null,
 		);
+		// 123 Whether the signed-in student follows them.
+		$me = get_current_user_id();
+		if ( $me > 0 && $user && $me !== (int) $user_id ) {
+			$out['following'] = in_array( (int) $user_id, \Yallapp\Lms\Follows::following( $me ), true );
+		}
+		return $out;
 	}
 
 	/**

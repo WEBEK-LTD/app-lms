@@ -304,7 +304,10 @@ check( 'the upgrader replaces the plugin and it stays active', 'updated active' 
 echo "After the update\n";
 $r = call( 'GET', '/config?platform=android&app_version=1.0.0' );
 check( 'the new release answers', 200 === $r['status'] && $new === plugin_version( $r ) && $new !== $old, array( $old, plugin_version( $r ), $r['raw'] ) );
-check( 'tables upgraded', '6' === trim( wp_cli( 'option get yallapp_db_version' ) ), wp_cli( 'option get yallapp_db_version' ) );
+check( 'tables upgraded', '7' === trim( wp_cli( 'option get yallapp_db_version' ) ), wp_cli( 'option get yallapp_db_version' ) );
+// 123 The time each student spends learning has its own table.
+$learning = wp_eval( 'global $wpdb; echo implode( ",", $wpdb->get_col( "SELECT name FROM pragma_table_info(\'" . $wpdb->prefix . "yallapp_learning_time\')" ) ?: $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}yallapp_learning_time" ) );' );
+check( 'learning time table added', false !== strpos( $learning, 'seconds' ) && false !== strpos( $learning, 'day' ), $learning );
 // 85.4 Campaigns: the inbox keeps a campaign's link and picture.
 $inbox = wp_eval( 'global $wpdb; echo implode( ",", $wpdb->get_col( "SELECT name FROM pragma_table_info(\'" . $wpdb->prefix . "yallapp_notifications\')" ) ?: $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}yallapp_notifications" ) );' );
 check( 'inbox table has the campaign link and picture columns', false !== strpos( $inbox, 'link' ) && false !== strpos( $inbox, 'image_url' ), $inbox );

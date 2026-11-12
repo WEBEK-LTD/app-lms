@@ -10,7 +10,8 @@ import { ICON_NAME } from "../pages/icons";
  * languages); the app picks its language's, else its own words.
  */
 
-export const SIGN_IN_STYLES = ["classic", "photo", "card", "minimal"] as const;
+/** 123 `premium`: the premium academy's, the welcome large over the photo (or the app's colours) and the form on a card at the foot. */
+export const SIGN_IN_STYLES = ["classic", "photo", "card", "minimal", "premium"] as const;
 export type SignInStyle = (typeof SIGN_IN_STYLES)[number];
 
 /** Per language code (en, ar, tr, …): the owner's words. */
@@ -76,7 +77,8 @@ export interface AccountMenuEntry {
 }
 
 /** 118.3 The menu's top: the name and photo, a card in the app's colour, a cover with shortcuts, quick tiles, or a dark page with a membership card. */
-export const ACCOUNT_HEADERS = ["plain", "card", "cover", "tiles", "night"] as const;
+/** 123 `academy`: the premium academy's card with the courses, certificates and hours, and the dark mode, notifications and language at hand. */
+export const ACCOUNT_HEADERS = ["plain", "card", "cover", "tiles", "night", "academy"] as const;
 export type AccountHeader = (typeof ACCOUNT_HEADERS)[number];
 
 export interface AccountMenu {
@@ -87,10 +89,64 @@ export interface AccountMenu {
   items: AccountMenuEntry[];
 }
 
+/**
+ * 122 How a course shows in the lists (the catalog, My courses, a teacher's
+ * and a bundle's courses): `classic` a row, `rich` a larger row with the
+ * teacher's photo, `cover` a wide picture with the course over it, `tile`
+ * the picture over the course; its corners; and what it leaves out.
+ */
+/** 123 `premium`: the premium academy's row, the price at its end. */
+export const COURSE_CARD_STYLES = ["classic", "rich", "cover", "tile", "premium"] as const;
+export const COURSE_CARD_FACTS = ["teacher", "rating", "price", "lessons"] as const;
+export type CourseCardStyle = (typeof COURSE_CARD_STYLES)[number];
+export type CourseCardFact = (typeof COURSE_CARD_FACTS)[number];
+export interface CourseCardLook {
+  style: CourseCardStyle;
+  /** 0 to 32; missing, the look's own. */
+  radius?: number;
+  hide: CourseCardFact[];
+}
+
+/**
+ * 122 A course's page: `classic` its picture over the course, `full` a tall
+ * picture with the course's name and facts on it; its purchase bar
+ * `classic` or `glass` (frosted over the page); the tab it opens on for
+ * people not enrolled; and what it leaves out.
+ */
+export const COURSE_PAGE_COVERS = ["classic", "full"] as const;
+export const COURSE_PAGE_BARS = ["classic", "glass"] as const;
+export const COURSE_PAGE_TABS = ["overview", "curriculum"] as const;
+export const COURSE_PAGE_FACTS = ["students", "level", "duration", "certificate", "reviews"] as const;
+export type CoursePageFact = (typeof COURSE_PAGE_FACTS)[number];
+export interface CoursePageLook {
+  cover: (typeof COURSE_PAGE_COVERS)[number];
+  bar: (typeof COURSE_PAGE_BARS)[number];
+  first_tab?: (typeof COURSE_PAGE_TABS)[number];
+  hide: CoursePageFact[];
+  /** 123 The premium academy's page: the subject and certificate on the cover, the teacher on a card to follow, the tabs as chips, the purchase in gold. */
+  look?: "premium";
+}
+
 export interface StudioScreens {
   sign_in?: SignInLook | null;
   account_menu?: AccountMenu | null;
+  /** 122 The courses' card in the lists (academies). */
+  course_card?: CourseCardLook | null;
+  /** 122 A course's page (academies). */
+  course_page?: CoursePageLook | null;
+  /** 123 The screens drawn in a look of their own: the catalog as Explore, the others premium. */
+  looks?: ScreenLooks;
 }
+
+/**
+ * 123 A screen's own look (`Config.screens.looks`): the catalog as the
+ * premium academy's Explore (a large title, the search with the filters in
+ * it, the subjects as icons), My courses, a lesson, the code screen and the
+ * cart in their premium looks.
+ */
+export const SCREEN_LOOKS = { catalog: "explore", my_courses: "premium", lesson: "premium", code: "premium", cart: "premium" } as const;
+export type ScreenLookKey = keyof typeof SCREEN_LOOKS;
+export type ScreenLooks = Partial<{ [K in ScreenLookKey]: (typeof SCREEN_LOOKS)[K] }>;
 
 export const SCREEN_LIMITS = { title: 60, subtitle: 140, label: 40, links: 8 } as const;
 
@@ -142,7 +198,7 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     if ((style === "photo" || style === "card") && !image) problems.push("Choose a photo for this look.");
     screens.sign_in = {
       style,
-      image_url: style === "photo" || style === "card" ? image : null,
+      image_url: style === "photo" || style === "card" || style === "premium" ? image : null,
       title: texts(s.title, SCREEN_LIMITS.title, problems, "The welcome"),
       subtitle: texts(s.subtitle, SCREEN_LIMITS.subtitle, problems, "The line under the welcome"),
       show_logo: s.show_logo !== false,
@@ -190,6 +246,30 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     const accent = typeof m.accent === "string" && /^#[0-9a-fA-F]{6}$/.test(m.accent) ? m.accent.toUpperCase() : null;
     screens.account_menu = { header, ...(header === "night" && accent ? { accent } : {}), items };
   }
+  // 122 The courses' card.
+  const cc = v.course_card && typeof v.course_card === "object" ? (v.course_card as Record<string, unknown>) : null;
+  if (cc) {
+    const style = (COURSE_CARD_STYLES as readonly string[]).includes(String(cc.style)) ? (cc.style as CourseCardStyle) : "classic";
+    const radius = typeof cc.radius === "number" && Number.isFinite(cc.radius) ? Math.round(cc.radius) : null;
+    if (radius !== null && (radius < 0 || radius > 32)) problems.push("The card's corners must be 0 to 32.");
+    const hide = [...new Set((Array.isArray(cc.hide) ? cc.hide : []).filter((f): f is CourseCardFact => (COURSE_CARD_FACTS as readonly unknown[]).includes(f)))];
+    screens.course_card = { style, ...(radius !== null && radius >= 0 && radius <= 32 ? { radius } : {}), hide };
+  }
+  // 122 A course's page.
+  const cp = v.course_page && typeof v.course_page === "object" ? (v.course_page as Record<string, unknown>) : null;
+  if (cp) {
+    const pick = <T extends string>(list: readonly T[], value: unknown, fallback: T): T => ((list as readonly unknown[]).includes(value) ? (value as T) : fallback);
+    const first = (COURSE_PAGE_TABS as readonly unknown[]).includes(cp.first_tab) ? (cp.first_tab as CoursePageLook["first_tab"]) : undefined;
+    const hide = [...new Set((Array.isArray(cp.hide) ? cp.hide : []).filter((f): f is CoursePageFact => (COURSE_PAGE_FACTS as readonly unknown[]).includes(f)))];
+    screens.course_page = { cover: pick(COURSE_PAGE_COVERS, cp.cover, "classic"), bar: pick(COURSE_PAGE_BARS, cp.bar, "classic"), ...(first ? { first_tab: first } : {}), hide, ...(cp.look === "premium" ? { look: "premium" as const } : {}) };
+  }
+  // 123 The screens' own looks: the known ones, each with its one look.
+  const lk = v.looks && typeof v.looks === "object" ? (v.looks as Record<string, unknown>) : null;
+  if (lk) {
+    const looks: Record<string, string> = {};
+    for (const [key, look] of Object.entries(SCREEN_LOOKS)) if (lk[key] === look) looks[key] = look;
+    if (Object.keys(looks).length) screens.looks = looks as ScreenLooks;
+  }
   return { screens, problems: [...new Set(problems)] };
 }
 
@@ -212,5 +292,8 @@ export function screensConfig(app: Pick<App, "section" | "backend"> & { hostedSe
   const screens: StudioScreens = {};
   if (saved.sign_in) screens.sign_in = saved.sign_in;
   if (saved.account_menu) screens.account_menu = saved.account_menu;
+  if (saved.course_card) screens.course_card = saved.course_card;
+  if (saved.course_page) screens.course_page = saved.course_page;
+  if (saved.looks && Object.keys(saved.looks).length) screens.looks = saved.looks;
   return Object.keys(screens).length ? { screens } : {};
 }

@@ -15,6 +15,7 @@ import type { Languages } from "../pages/types";
 import { seedForDesign } from "../samples/server";
 import type { SectionWord, TemplateInfo } from "./sections";
 import type { StudioSource } from "./section";
+import { siteAddress } from "./academy";
 import { startLayout } from "./start";
 
 export interface NewStudioProject {
@@ -43,14 +44,17 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   const { kind, template, name } = input;
   // Templates = demos: a demo's template starts the project in the demo's colour and look too.
   const demo = template.demo ?? null;
+  // 123 A template for the whole project starts it in its colour, with its screens.
+  const project = template.project ?? null;
   const fresh = newApp(input.clientId, null, now, kind.engine, kind.vertical);
+  const screens = demo ? demoStudioScreens(demo, appUrl()) : project ? project.screens(appUrl()) : null;
   const base: App = {
     ...fresh,
     section: "studio",
     appName: name,
-    ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : {}),
+    ...(demo ? { primaryColor: DEMO_BRANDS[demo].primaryColor } : project ? { primaryColor: project.primary } : {}),
     // 120 The demo's sign-in screen and account menu too (lib/studio/screens.ts), as the demo has them.
-    ...(demo ? { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(fresh.hostedSettings ?? {}), studioScreens: demoStudioScreens(demo, appUrl()) } } : {}),
+    ...(screens ? { hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...(fresh.hostedSettings ?? {}), studioScreens: screens } } : {}),
     ...input.extra,
   };
   const app: App =
@@ -60,6 +64,8 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
   await store.createApp(app);
   const defaults = defaultLayout(app, await appDefaults(store), now);
   const ready = input.languages ? { ...defaults, languages: input.languages } : defaults;
+  // 123 The owner's website from sign-up, for a template's Blog tab.
+  const site = project ? siteAddress((await store.getClientById(input.clientId))?.siteUrl) : null;
   // The demo's pages and look; its home is the demo's Studio page.
   const layout = startLayout(app, template, ready, now, {
     brand: app.primaryColor,
@@ -69,7 +75,7 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
     lang: input.lang,
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
-  });
+  }, site);
   const saved = await saveDraft(store, app, layout, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));

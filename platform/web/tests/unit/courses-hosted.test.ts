@@ -148,14 +148,36 @@ describe("courses on the hosted API", () => {
 
   it("lists categories and courses", async () => {
     expect((await call("GET", "/categories")).body).toEqual({ items: [{ id: 1, name: "Languages", count: 2 }] });
-    const all = (await call("GET", "/courses")).body as { items: { title: string }[] };
+    const all = (await call("GET", "/courses")).body as { items: { id: number; title: string }[] };
     expect(all.items.map((c) => c.title)).toEqual(["Business English", "Turkish for Beginners"]);
     expect((await call("GET", "/courses", { query: { price: "free" } })).body).toMatchObject({ total: 1, items: [{ title: "Turkish for Beginners", price: { is_free: true } }] });
     expect((await call("GET", "/courses", { query: { price: "paid" } })).body).toMatchObject({ items: [{ price: { is_free: false, formatted: "₺450.00", amount: "450.00" } }] });
     expect((await call("GET", "/courses", { query: { orderby: "title" } })).body).toMatchObject({ items: [{ title: "Business English" }, { title: "Turkish for Beginners" }] });
+    // 123 Each course's badge: one of the three with the most students, or published lately.
+    expect(all.items.map((c) => (c as unknown as { badge: unknown }).badge).every((b) => b === null || b === "new" || b === "bestseller")).toBe(true);
+    // 123 The best rated first; with no one rating, the newest first.
+    expect(((await call("GET", "/courses", { query: { orderby: "rating" } })).body as { items: { title: string }[] }).items.map((c) => c.title)).toEqual(["Business English", "Turkish for Beginners"]);
+    const turkish = all.items.find((c) => c.title === "Turkish for Beginners")!;
+    await store.saveCourseReview({ appId: app.id, courseId: turkish.id, userId: 1, rating: 5, text: "", now });
+    expect(((await call("GET", "/courses", { query: { orderby: "rating" } })).body as { items: { title: string }[] }).items.map((c) => c.title)).toEqual(["Turkish for Beginners", "Business English"]);
     expect((await call("GET", "/courses/{course_id}", { params: ["30"] })).status).toBe(404);
     const home = (await call("GET", "/home")).body as { sections: { type: string }[] };
     expect(home.sections.map((s) => s.type)).toEqual(["categories", "latest_courses"]);
+  });
+
+  it("123 keeps the time a student spends learning: this week's, each day of it, and all of it", async () => {
+    const { access_token: token } = await signUp();
+    expect((await call("GET", "/me/learning-time")).status).toBe(401);
+    for (const seconds of [120, 300, 60]) expect((await call("POST", "/me/learning-time", { token, body: { course_id: 10, seconds } })).status).toBe(204);
+    expect((await call("POST", "/me/learning-time", { token, body: { course_id: 10, seconds: 301 } })).status).toBe(400);
+    const week = (await call("GET", "/me/learning-time", { token })).body as { days: { date: string; minutes: number }[]; week_minutes: number; last_week_minutes: number; total_minutes: number };
+    expect(week.days).toHaveLength(7);
+    expect(week.days.at(-1)!.minutes).toBe(8);
+    expect(week.days.slice(0, 6).every((d) => d.minutes === 0)).toBe(true);
+    expect(week).toMatchObject({ week_minutes: 8, last_week_minutes: 0, total_minutes: 8 });
+    // A day of a course holds at most a day's worth.
+    for (let i = 0; i < 300; i += 1) await store.addLearningSeconds({ appId: app.id, userId: 1, day: "2026-01-01", courseId: 10, seconds: 300, max: 86_400 });
+    expect((await store.learningSeconds({ appId: app.id, userId: 1, from: "2026-01-01" })).days["2026-01-01"]).toBe(86_400);
   });
 
   it("shows the course page's button for each case", async () => {

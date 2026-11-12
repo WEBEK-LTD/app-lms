@@ -1,8 +1,11 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
@@ -453,6 +456,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final panel =
         style == SignInLookStyle.photo || style == SignInLookStyle.card;
 
+    if (style == SignInLookStyle.premium) {
+      return Scaffold(
+        body: _premium(
+          context,
+          logo: logo,
+          imageUrl: look?.imageUrl,
+          title: ownTitle ?? context.l10n.welcome,
+          subtitle: ownSubtitle,
+          showLogo: showLogo,
+          previewBlocked: previewBlocked,
+        ),
+      );
+    }
+
     final formChildren = <Widget>[
       Row(
         children: [
@@ -631,6 +648,385 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     );
   }
 
+  /// 123 The premium academy's sign-in: the owner's words large over the
+  /// photo (or the app's colours) with the logo and name, and the form on
+  /// a card at the foot: the way in, a gold button to go on, the other way
+  /// and a new account side by side, and the terms with their links in gold.
+  Widget _premium(
+    BuildContext context, {
+    required String? logo,
+    required String? imageUrl,
+    required String title,
+    required String? subtitle,
+    required bool showLogo,
+    required bool previewBlocked,
+  }) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final config = ref.watch(appConfigProvider);
+    final env = ref.watch(appEnvironmentProvider);
+    final gold = Theme.of(context).colorScheme.secondary;
+    final passwords = _passwords;
+    final methods = _methods;
+    final byEmail = _method == SignInMethod.email;
+    final canGoBack = context.canPop();
+    const white = Colors.white;
+
+    final heading = _creating
+        ? l10n.createAnAccount
+        : _passwordMode
+        ? l10n.signIn
+        : byEmail
+        ? l10n.signInEmailTitle
+        : l10n.signInPhoneTitle;
+    final note = _creating
+        ? (passwords != null ? l10n.createAccountIntroCode : l10n.signInNewHere)
+        : _passwordMode
+        ? l10n.signInIntroPasswordStudio
+        : _byPassword
+        ? l10n.signInIntroPassword
+        : l10n.signInCodeNote;
+
+    // The other way in, beside a new account.
+    (String, IconData, VoidCallback)? other;
+    if (_passwordMode) {
+      if (passwords != null && passwords.codes.isNotEmpty) {
+        other = (
+          l10n.signInCodeShort,
+          Symbols.sms_rounded,
+          () => _switchTo(password: false),
+        );
+      }
+    } else if (methods.length > 1) {
+      other = byEmail
+          ? (
+              l10n.signInWithPhone,
+              Symbols.smartphone_rounded,
+              () => setState(() {
+                _method = SignInMethod.phone;
+                _error = null;
+              }),
+            )
+          : (
+              l10n.emailShort,
+              Symbols.mail_rounded,
+              () => setState(() {
+                _method = SignInMethod.email;
+                _error = null;
+              }),
+            );
+    } else if (passwords != null) {
+      other = (
+        l10n.password,
+        Symbols.password_rounded,
+        () => _switchTo(password: true),
+      );
+    }
+    (String, IconData, VoidCallback)? account;
+    if (_creating) {
+      account = (
+        l10n.signIn,
+        Symbols.login_rounded,
+        () => passwords != null
+            ? _switchTo(password: true)
+            : setState(() => _creating = false),
+      );
+    } else if (config.auth.signupAllowed) {
+      account = (
+        l10n.newAccountShort,
+        Symbols.person_add_rounded,
+        () => passwords != null
+            ? _switchTo(password: false, creating: true)
+            : setState(() => _creating = true),
+      );
+    }
+    Widget side((String, IconData, VoidCallback) b, String key) => SizedBox(
+      height: 48,
+      child: OutlinedButton.icon(
+        key: ValueKey(key),
+        onPressed: b.$3,
+        icon: Icon(b.$2, size: 19, color: p.text),
+        label: Text(
+          b.$1,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w800,
+            color: p.text,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: p.surface,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          side: BorderSide(color: p.divider),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+
+    final card = Container(
+      key: const ValueKey('sign-in-premium-card'),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      decoration: BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: p.divider),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: p.isDark ? 0.3 : 0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              heading,
+              style: TextStyle(
+                fontSize: 16.5,
+                fontWeight: FontWeight.w800,
+                color: p.text,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            note,
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.5,
+              color: p.textSecondary,
+            ),
+          ),
+          if (env.isPreview) ...[
+            const SizedBox(height: 12),
+            PreviewNote(
+              previewBlocked
+                  ? l10n.previewSignInUnavailable
+                  : l10n.previewSignInNote,
+            ),
+          ],
+          const SizedBox(height: 16),
+          if (_passwordMode && passwords != null)
+            ..._passwordFields(context, passwords)
+          else if (byEmail)
+            ..._emailFields(context)
+          else
+            _PremiumPhoneField(
+              controller: _phone,
+              dialCode: _dialCode,
+              valid: nationalNumber(_phone.text, _dialCode).length >= 6,
+              onPickCountry: _pickCountry,
+              onChanged: (_) => setState(() => _error = null),
+              onSubmitted: (_) => _send(),
+            ),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            InlineError(_error!),
+          ],
+          const SizedBox(height: 14),
+          GoldButtons(
+            color: gold,
+            child: PrimaryButton(
+              key: const ValueKey('sign-in-continue'),
+              label: _byPassword || _passwordMode
+                  ? l10n.signIn
+                  : l10n.continueAction,
+              trailingIcon: Symbols.arrow_forward_rounded,
+              loading: _sending,
+              onPressed: _valid && !previewBlocked ? _submit : null,
+            ),
+          ),
+          if (other != null || account != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                if (other != null)
+                  Expanded(child: side(other, 'sign-in-other')),
+                if (other != null && account != null) const SizedBox(width: 10),
+                if (account != null)
+                  Expanded(child: side(account, 'sign-in-account')),
+              ],
+            ),
+          ],
+          if (!config.auth.signupAllowed) ...[
+            const SizedBox(height: 12),
+            Text(
+              _byPassword
+                  ? l10n.signInPasswordAccountsOnly(config.site.name)
+                  : l10n.signInRegisteredOnly(config.site.name),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.5,
+                color: p.textSecondary,
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
+          LegalLine(
+            terms: config.site.termsUrl,
+            privacy: config.site.privacyUrl,
+            linkColor: gold,
+            fontSize: 11.5,
+          ),
+        ],
+      ),
+    );
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (imageUrl != null && imageUrl.isNotEmpty)
+          AppNetworkImage(url: imageUrl, fit: BoxFit.cover)
+        else
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.topEnd,
+                end: AlignmentDirectional.bottomStart,
+                colors: [gold, p.primary, BrandColors.midnight],
+                stops: const [0, 0.45, 1],
+              ),
+            ),
+          ),
+        // The page coming up from the foot, under the card.
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                p.background.withValues(alpha: 0),
+                p.background.withValues(alpha: 0),
+                p.background,
+              ],
+              stops: const [0, 0.35, 0.72],
+            ),
+          ),
+        ),
+        SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 12, 0),
+                        child: Row(
+                          children: [
+                            if (canGoBack) ...[
+                              const AppBackButton(onDark: true),
+                              const SizedBox(width: 10),
+                            ],
+                            if (showLogo) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 12,
+                                    sigmaY: 12,
+                                  ),
+                                  child: Container(
+                                    width: 46,
+                                    height: 46,
+                                    color: white.withValues(alpha: 0.16),
+                                    alignment: Alignment.center,
+                                    child: logo != null && logo.isNotEmpty
+                                        ? SignInLogo(
+                                            url: logo,
+                                            name: config.site.name,
+                                          )
+                                        : Icon(
+                                            Symbols.school_rounded,
+                                            fill: 1,
+                                            size: 22,
+                                            color: Color.lerp(gold, white, 0.5),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
+                            Expanded(
+                              child: Text(
+                                config.site.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: white,
+                                ),
+                              ),
+                            ),
+                            if (!canGoBack)
+                              TextButton(
+                                onPressed: _browse,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: white,
+                                ),
+                                child: Text(l10n.notNow),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Semantics(
+                              header: true,
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 33,
+                                  height: 1.15,
+                                  fontWeight: FontWeight.w900,
+                                  color: white,
+                                ),
+                              ),
+                            ),
+                            if (subtitle != null && subtitle.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                subtitle,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.5,
+                                  color: white.withValues(alpha: 0.82),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      const SizedBox(height: 32),
+                      card,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// 118.3 The form as the look lays it out: on the page (classic,
   /// minimal), in a panel over a full-screen photo, or in a card under one.
   Widget _framed(
@@ -785,6 +1181,123 @@ class InlineError extends StatelessWidget {
 
 /// The country code button and the mobile number, as tall as each other.
 /// 104.8.4 Yallapp Courier's sign-in has them too.
+/// 123 The premium sign-in's number: the country's flag and code, a line,
+/// the number, and a tick once it is long enough.
+class _PremiumPhoneField extends StatelessWidget {
+  const _PremiumPhoneField({
+    required this.controller,
+    required this.dialCode,
+    required this.valid,
+    required this.onPickCountry,
+    required this.onChanged,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String dialCode;
+  final bool valid;
+  final VoidCallback onPickCountry;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final iso = countryCodes
+        .where((c) => c.dialCode == dialCode)
+        .firstOrNull
+        ?.iso;
+    final flag = iso == null
+        ? ''
+        : String.fromCharCodes([
+            for (final c in iso.codeUnits) 0x1F1E6 + c - 65,
+          ]);
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: p.isDark ? p.background : p.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: p.divider),
+      ),
+      // The number reads left to right in every language.
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Row(
+          children: [
+            Semantics(
+              button: true,
+              label: context.l10n.chooseCountryCode(dialCode),
+              excludeSemantics: true,
+              child: InkWell(
+                key: const ValueKey('sign-in-country'),
+                onTap: onPickCountry,
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(18),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Row(
+                    children: [
+                      if (flag.isNotEmpty) ...[
+                        Text(flag, style: const TextStyle(fontSize: 18)),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        dialCode,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: p.text,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, height: 28, color: p.divider),
+            Expanded(
+              child: TextField(
+                key: const ValueKey('phone-field'),
+                controller: controller,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.send,
+                autofillHints: const [AutofillHints.telephoneNumberNational],
+                inputFormatters: [LengthLimitingTextInputFormatter(20)],
+                style: TextStyle(
+                  fontSize: 16,
+                  letterSpacing: 0.5,
+                  color: p.text,
+                ),
+                decoration: InputDecoration(
+                  hintText: context.l10n.mobileNumber,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                ),
+                onChanged: onChanged,
+                onSubmitted: onSubmitted,
+              ),
+            ),
+            if (valid)
+              Padding(
+                padding: const EdgeInsets.only(right: 14),
+                child: Icon(
+                  Symbols.check_circle_rounded,
+                  fill: 1,
+                  size: 22,
+                  color: p.success,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class PhoneNumberField extends StatelessWidget {
   const PhoneNumberField({
     super.key,
@@ -927,9 +1440,20 @@ class SignInLogo extends StatelessWidget {
 
 /// "By continuing, you agree to…" with the terms and the privacy policy.
 class LegalLine extends StatefulWidget {
-  const LegalLine({super.key, this.terms, this.privacy});
+  const LegalLine({
+    super.key,
+    this.terms,
+    this.privacy,
+    this.linkColor,
+    this.fontSize = 13,
+  });
   final String? terms;
   final String? privacy;
+
+  /// 123 The documents in this colour, bold and not underlined (the
+  /// premium sign-in's gold).
+  final Color? linkColor;
+  final double fontSize;
 
   @override
   State<LegalLine> createState() => _LegalLineState();
@@ -951,7 +1475,9 @@ class _LegalLineState extends State<LegalLine> {
     _recognizers.add(recognizer);
     return TextSpan(
       text: text,
-      style: TextStyle(color: color, decoration: TextDecoration.underline),
+      style: widget.linkColor != null
+          ? TextStyle(color: color, fontWeight: FontWeight.w800)
+          : TextStyle(color: color, decoration: TextDecoration.underline),
       recognizer: recognizer,
     );
   }
@@ -996,8 +1522,17 @@ class _LegalLineState extends State<LegalLine> {
     _recognizers.clear();
     return Text.rich(
       TextSpan(
-        style: TextStyle(fontSize: 13, height: 1.6, color: p.textSecondary),
-        children: _legalSpans(context.l10n, terms, privacy, p.link),
+        style: TextStyle(
+          fontSize: widget.fontSize,
+          height: 1.6,
+          color: p.textSecondary,
+        ),
+        children: _legalSpans(
+          context.l10n,
+          terms,
+          privacy,
+          widget.linkColor ?? p.link,
+        ),
       ),
       textAlign: TextAlign.center,
     );

@@ -84,6 +84,51 @@ class Learning_Controller extends Controller {
 				),
 			)
 		);
+		// 123 The time the student spends learning.
+		$this->route(
+			'/me/learning-time',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'learning_time' ),
+					'permission_callback' => $auth,
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'add_learning_time' ),
+					'permission_callback' => $auth,
+					'args'                => array(
+						'course_id' => array(
+							'type'     => 'integer',
+							'minimum'  => 0,
+							'required' => true,
+						),
+						'seconds'   => array(
+							'type'     => 'integer',
+							'minimum'  => 1,
+							'maximum'  => 300,
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
+		// 123 Following a course's teacher (as academies with many teachers do on the hosted API).
+		$this->route(
+			'/teachers/(?P<teacher_id>\d+)/follow',
+			array(
+				array(
+					'methods'             => 'PUT',
+					'callback'            => array( $this, 'follow' ),
+					'permission_callback' => $auth,
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'unfollow' ),
+					'permission_callback' => $auth,
+				),
+			)
+		);
 		$this->route(
 			'/lessons/(?P<lesson_id>\d+)',
 			array(
@@ -222,6 +267,66 @@ class Learning_Controller extends Controller {
 	 */
 	public function remove_from_wishlist( WP_REST_Request $request ) {
 		return $this->set_wishlist( (int) $request['course_id'], false );
+	}
+
+	/**
+	 * 123 GET /me/learning-time: this week's learning, each day of it, and the whole of it.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function learning_time() {
+		return new \WP_REST_Response( \Yallapp\Lms\Learning_Time::week( get_current_user_id(), time() ) );
+	}
+
+	/**
+	 * 123 POST /me/learning-time: the seconds the app counted in a lesson.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function add_learning_time( WP_REST_Request $request ) {
+		\Yallapp\Lms\Learning_Time::add( get_current_user_id(), (int) $request['course_id'], (int) $request['seconds'], time() );
+		return new \WP_REST_Response( null, 204 );
+	}
+
+	/**
+	 * 123 PUT /teachers/{id}/follow.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function follow( WP_REST_Request $request ) {
+		return $this->set_following( (int) $request['teacher_id'], true );
+	}
+
+	/**
+	 * 123 DELETE /teachers/{id}/follow.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return \WP_REST_Response
+	 */
+	public function unfollow( WP_REST_Request $request ) {
+		return $this->set_following( (int) $request['teacher_id'], false );
+	}
+
+	/**
+	 * 123 Follows a teacher or stops following them; 404 for someone who isn't one.
+	 *
+	 * @param int  $instructor_id Teacher.
+	 * @param bool $follow        Follow or stop.
+	 * @return \WP_REST_Response
+	 */
+	private function set_following( $instructor_id, $follow ) {
+		if ( ! \Yallapp\Lms\Follows::set( get_current_user_id(), $instructor_id, $follow ) ) {
+			return new \WP_REST_Response(
+				array(
+					'code'    => 'not_found',
+					'message' => __( 'This teacher was not found.', 'yallapp' ),
+				),
+				404
+			);
+		}
+		return new \WP_REST_Response( null, 204 );
 	}
 
 	/**

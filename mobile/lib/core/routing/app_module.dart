@@ -111,5 +111,7 @@ class AppModule {
   final Map<String, int> Function(WidgetRef ref)? badges;
 
   bool isTabPath(String path) =>
-      tabPaths.contains(path) || path.startsWith(Paths.pagePrefix);
+      tabPaths.contains(path) ||
+      path.startsWith(Paths.pagePrefix) ||
+      path.startsWith(Paths.webTabPrefix);
 }

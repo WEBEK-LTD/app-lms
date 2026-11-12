@@ -24,9 +24,9 @@ import '../data/lms_providers.dart';
 import '../lesson/content/html_content.dart';
 import '../navigation.dart';
 import '../widgets/bundle_cards.dart';
-import '../widgets/course_cards.dart';
 import 'course_detail_screen.dart' show CouponSheet;
 import 'store_purchase_bars.dart';
+import '../widgets/designed_course_card.dart';
 
 /// 113.1 A course bundle's page: its courses, the bundle's price against
 /// what they cost on their own, and "Buy the bundle" (the academy's payment
@@ -248,7 +248,7 @@ class _BundleScreenState extends ConsumerState<BundleScreen>
                         SectionHeader(title: l10n.bundleCoursesIn, size: 17),
                         const SizedBox(height: 10),
                         for (final course in bundle.courses) ...[
-                          CourseListCard(
+                          DesignedCourseCard(
                             course: course,
                             onTap: () => openCourse(context, course.id),
                           ),

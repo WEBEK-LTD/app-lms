@@ -2609,7 +2609,8 @@ paths:
           schema: { type: string, enum: [all, free, paid], default: all }
         - name: orderby
           in: query
-          schema: { type: string, enum: [newest, popular, title], default: newest }
+          description: 123 `rating`, the best rated first (by their average, then how many rated them), the courses no one rated last.
+          schema: { type: string, enum: [newest, popular, title, rating], default: newest }
       responses:
         '200':
           description: Courses
@@ -2832,6 +2833,46 @@ paths:
                         items: { $ref: '#/components/schemas/MyCourse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/learning-time:
+    get:
+      tags: [Learning]
+      operationId: getLearningTime
+      summary: The time the student spent learning this week
+      description: >-
+        123 The last seven days to today (oldest first, in the academy's time zone), each
+        with the minutes the student spent in lessons, the seven days' total against the
+        seven before them, and the whole of it. The app counts the time
+        (`POST /me/learning-time`).
+      responses:
+        '200':
+          description: This week's learning
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LearningTime' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Learning]
+      operationId: addLearningTime
+      summary: Add the time spent in a lesson
+      description: >-
+        123 The seconds the app counted while a lesson of the course was open and the app in
+        front, sent about once a minute and when the lesson closes; added to today's, at most
+        a day's worth for each course.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [course_id, seconds]
+              properties:
+                course_id: { type: integer, minimum: 0 }
+                seconds: { type: integer, minimum: 1, maximum: 300 }
+      responses:
+        '204': { description: Added }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
 
   /me/wishlist:
     get:
@@ -7540,7 +7581,7 @@ paths:
       tags: [Teachers]
       operationId: followTeacher
       summary: Follow a teacher
-      description: The student gets a push (`new_course`) when a new course of the teacher is published.
+      description: The student gets a push (`new_course`) when a new course of the teacher is published. 123 On WordPress too, for any course's teacher (`Instructor.following`).
       parameters:
         - $ref: '#/components/parameters/TeacherId'
       responses:
@@ -11434,9 +11475,9 @@ components:
               properties:
                 style:
                   type: string
-                  enum: [classic, photo, card, minimal]
-                  description: "`classic`: the app's own. `photo`: the form over a full-screen photo. `card`: the photo on top, the form in a card over it. `minimal`: the logo and the form, centred."
-                image_url: { type: [string, 'null'], format: uri, description: The photo of `photo` and `card`. }
+                  enum: [classic, photo, card, minimal, premium]
+                  description: "`classic`: the app's own. `photo`: the form over a full-screen photo. `card`: the photo on top, the form in a card over it. `minimal`: the logo and the form, centred. `premium` (123): the welcome large over the photo (or the app's colours when there is none), the form on a card at the foot with its button in gold."
+                image_url: { type: [string, 'null'], format: uri, description: "The photo of `photo`, `card` and `premium`." }
                 title: { type: object, additionalProperties: { type: string }, description: 'Instead of "Welcome", per language code.', example: { en: Welcome to Safra, ar: أهلًا بك في سفرة } }
                 subtitle: { type: object, additionalProperties: { type: string }, description: 'The line under it, per language code.' }
                 show_logo: { type: boolean }
@@ -11446,7 +11487,7 @@ components:
               properties:
                 header:
                   type: string
-                  enum: [plain, card, cover, tiles, night]
+                  enum: [plain, card, cover, tiles, night, academy]
                   description: |
                     The menu's top. `plain`: the name and number. `card`: on a card in
                     the app's main color. `cover`: a cover in the app's main color with
@@ -11454,8 +11495,12 @@ components:
                     where the shop has them). `tiles`: the first entries as tiles and the
                     owner's first own entry as a banner. `night`: a dark page with a
                     membership card (the points, where the shop has them); in light
-                    mode the page is light and the card stays dark. Every look works in
-                    light and dark mode. An app that doesn't know a value shows `plain`.
+                    mode the page is light and the card stays dark. 123 `academy`: the
+                    student's card in gold on dark (the academy's name, the photo, how many
+                    courses, certificates and hours of learning), the entries with what
+                    they count, and the dark mode, notifications and language at hand.
+                    Every look works in light and dark mode. An app that doesn't know a
+                    value shows `plain`.
                 accent: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`night`: the membership card's color; null, gold." }
                 items:
                   type: array
@@ -11477,6 +11522,59 @@ components:
                       icon: { type: [string, 'null'], description: A Material Symbols name; null means the app's own. }
                       url: { type: [string, 'null'], format: uri }
                       page_slug: { type: [string, 'null'] }
+            course_card:
+              type: object
+              description: |
+                122 How a course shows in the academy's lists (the catalog, My courses,
+                a teacher's and a bundle's courses). `classic`: a row; `rich`: a larger
+                row with the rating on top and the teacher's photo; `cover`: a wide
+                picture with the course over it and the price on a chip; `tile`: the
+                picture over the course; 123 `premium`: a square picture, the lessons
+                and rating over the course, the teacher with their photo and the
+                price at the end. Missing, the app's own row. An app that doesn't
+                know a value shows `classic`.
+              required: [style, hide]
+              properties:
+                style: { type: string, enum: [classic, rich, cover, tile, premium] }
+                radius: { type: integer, minimum: 0, maximum: 32, description: "The card's and its picture's corners; missing, the look's own." }
+                hide:
+                  type: array
+                  description: What the card leaves out.
+                  items: { type: string, enum: [teacher, rating, price, lessons] }
+            course_page:
+              type: object
+              description: |
+                122 A course's page. `cover`: `classic` its picture over the course,
+                `full` a tall picture with the course's name and facts on it. `bar`:
+                the purchase bar `classic`, or `glass` frosted over the page as it
+                scrolls under. `first_tab`: the tab people not enrolled open on;
+                missing, the app's own choice (enrolled students start on the
+                curriculum). `hide`: facts left out, and `reviews` the reviews tab.
+                Missing, the app's own page.
+              required: [cover, bar, hide]
+              properties:
+                cover: { type: string, enum: [classic, full] }
+                bar: { type: string, enum: [classic, glass] }
+                first_tab: { type: string, enum: [overview, curriculum] }
+                look: { type: string, enum: [premium], description: "123 The premium academy's page: the subject and certificate on the cover, the teacher on a card with following them, the tabs as chips with the curriculum first, and the purchase in gold with its saving." }
+                hide:
+                  type: array
+                  items: { type: string, enum: [students, level, duration, certificate, reviews] }
+            looks:
+              type: object
+              description: |
+                123 The screens drawn in a look of their own: `catalog` `explore` the
+                course catalog as the premium academy's Explore (a large title, the
+                search with the filters in it, the subjects as icons, chips in ink);
+                `my_courses`, `lesson`, `code` (the sign-in code) and `cart`
+                `premium`. A screen left out has the app's own look; an app that
+                doesn't know one leaves it so.
+              properties:
+                catalog: { type: string, enum: [explore] }
+                my_courses: { type: string, enum: [premium] }
+                lesson: { type: string, enum: [premium] }
+                code: { type: string, enum: [premium] }
+                cart: { type: string, enum: [premium] }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:
@@ -11754,6 +11852,7 @@ components:
         name: { type: string }
         avatar_url: { type: [string, 'null'], format: uri }
         bio: { type: [string, 'null'] }
+        following: { type: boolean, description: "123 Whether the signed-in student follows this teacher (`PUT /teachers/{teacher_id}/follow`); missing where following them isn't offered (signed out, or a course of the academy itself)." }
 
     Price:
       type: object
@@ -11779,6 +11878,30 @@ components:
         rating_count: { type: integer }
         enrolled: { type: boolean }
         wishlisted: { type: boolean }
+        badge:
+          type: [string, 'null']
+          enum: [new, bestseller, null]
+          description: 123 `new` published in the last 30 days, `bestseller` one of the academy's three with the most students; null, neither. Apps that don't know one show none.
+
+    LearningTime:
+      type: object
+      description: 123 The time a student spent learning (`GET /me/learning-time`).
+      required: [days, week_minutes, last_week_minutes, total_minutes]
+      properties:
+        days:
+          type: array
+          minItems: 7
+          maxItems: 7
+          description: The last seven days to today, oldest first.
+          items:
+            type: object
+            required: [date, minutes]
+            properties:
+              date: { type: string, format: date }
+              minutes: { type: integer, minimum: 0 }
+        week_minutes: { type: integer, minimum: 0 }
+        last_week_minutes: { type: integer, minimum: 0, description: The seven days before them. }
+        total_minutes: { type: integer, minimum: 0 }
 
     SiteSubscription:
       type: object
@@ -14268,11 +14391,14 @@ components:
         search field; `logo_actions`: the logo and the `buttons`;
         `transparent`: over the page's first element, the buttons on it.
         120 `title`: the page's title and the buttons, for the pages after
-        the first (a page drawn around one of the app's screens). Apps that
-        don't know a type show no header.
+        the first (a page drawn around one of the app's screens). 123
+        `greeting`: today's date over a greeting for the time of day with
+        the person's first name ("Good morning, Sara"), the buttons beside
+        it; signed out, `title` (or the app's name) under the date. Apps
+        that don't know a type show no header.
       required: [type]
       properties:
-        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title] }
+        type: { type: string, enum: [logo_center, title_search, logo_actions, transparent, title, greeting] }
         title: { type: [string, 'null'], maxLength: 80, description: "In the language asked for; null, the app's name." }
         logo_url: { type: [string, 'null'], format: uri, description: "Null, the app's logo." }
         buttons:
@@ -14308,7 +14434,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14386,6 +14512,7 @@ components:
         form: { $ref: '#/components/schemas/StudioForm' }
         map: { $ref: '#/components/schemas/StudioMap' }
         market: { $ref: '#/components/schemas/StudioMarket' }
+        learning: { $ref: '#/components/schemas/StudioLearning' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -14499,6 +14626,25 @@ components:
         success_text: { type: [string, 'null'] }
         send_to: { type: string, enum: [email, chat] }
 
+    StudioLearning:
+      type: [object, 'null']
+      description: |
+        123 For `learning`, in academies: one card the app draws from the
+        signed-in student's own learning. `continue` the course they are
+        taking (the lesson they are on of how many, the minutes left in
+        it, the teacher and the lesson, how far they are, a button that
+        opens the lesson), on the element's `gradient` or picture; `streak`
+        the days in a row they learned, with the last seven days; `live`
+        their next live class and when it starts; `week` the time they
+        learned this week, each day of it, against the week before. The
+        element's `title` heads the card (missing, the app's own words) and
+        its colours are the card's. Nothing is drawn signed out, or without
+        anything to show (no course started, no live class coming). Apps
+        leave out a section they don't know.
+      required: [section]
+      properties:
+        section: { type: string, enum: [continue, streak, live, week] }
+
     StudioMarket:
       type: [object, 'null']
       description: |
@@ -14555,6 +14701,28 @@ components:
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
         open_in: { type: string, enum: [in_app, browser], default: in_app }
+        web:
+          type: [object, 'null']
+          description: |
+            122 For `url` opened `in_app`: how the app shows the page. As a
+            bottom tab it is one of the app's screens, the tab's name over it,
+            no address bar and the link never shown; opened from a button or
+            the More list, on top with no address either. `hide_header` and
+            `hide_footer` hide the site's own header and footer (the places
+            themes keep them), `hide` more parts by CSS selectors, and
+            `links_inside` keeps every link in the app (otherwise the site's
+            own pages stay and other sites open in the browser). Missing, the
+            page as it is. Apps that don't know it open the page on top.
+          properties:
+            hide_header: { type: boolean, default: false }
+            hide_footer: { type: boolean, default: false }
+            hide:
+              type: [string, 'null']
+              maxLength: 300
+              pattern: '^[A-Za-z0-9\s.#_\-:,>+~*\[\]="''()^$|]{1,300}$'
+              description: CSS selectors, comma separated, of more parts to hide.
+              example: '.newsletter, #cookie-banner'
+            links_inside: { type: boolean, default: false }
 
     ItemRef:
       type: [object, 'null']

@@ -9469,4 +9469,225 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String studioGreetingMorning(String name) {
+    return 'Günaydın $name';
+  }
+
+  @override
+  String studioGreetingEvening(String name) {
+    return 'İyi akşamlar $name';
+  }
+
+  @override
+  String get studioGreetingMorningAlone => 'Günaydın';
+
+  @override
+  String get studioGreetingEveningAlone => 'İyi akşamlar';
+
+  @override
+  String learningLessonOf(int current, int total) {
+    return 'Devam ediyor · $total dersten $current.';
+  }
+
+  @override
+  String learningMinutesLeft(int minutes) {
+    return '$minutes dk kaldı';
+  }
+
+  @override
+  String get learningStreakTitle => 'Öğrenme serisi';
+
+  @override
+  String learningStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'gün',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get learningLiveTitle => 'Canlı ders';
+
+  @override
+  String learningLiveNow(String time) {
+    return 'Şimdi · $time';
+  }
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) {
+    return '$minutes dk sonra · $time';
+  }
+
+  @override
+  String learningLiveInHours(int hours, String time) {
+    return '$hours sa sonra · $time';
+  }
+
+  @override
+  String learningLiveOn(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get learningWeekTitle => 'Bu hafta';
+
+  @override
+  String learningWeekUp(int percent) {
+    return 'Geçen haftaya göre +%$percent';
+  }
+
+  @override
+  String learningWeekDown(int percent) {
+    return 'Geçen haftaya göre −%$percent';
+  }
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) {
+    return '$hours sa $minutes dk';
+  }
+
+  @override
+  String learningMinutesOnly(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String get exploreSearchHint => 'Kurs, beceri veya öğretmen';
+
+  @override
+  String get freeCourses => 'Ücretsiz';
+
+  @override
+  String get courseBadgeNew => 'Yeni';
+
+  @override
+  String get courseBadgeBestseller => 'Çok satan';
+
+  @override
+  String get certifiedCertificate => 'Onaylı sertifika';
+
+  @override
+  String get aboutCourse => 'Kurs hakkında';
+
+  @override
+  String get courseQuestions => 'Sorular';
+
+  @override
+  String saveShare(int percent) {
+    return '%$percent tasarruf';
+  }
+
+  @override
+  String get joinNow => 'Hemen katıl';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$total dersten $done';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sertifika',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'İndirmeye hazır';
+
+  @override
+  String get myCoursesLearning => 'Öğreniliyor';
+
+  @override
+  String get myCoursesFinished => 'Tamamlanan';
+
+  @override
+  String get myCoursesSaved => 'Kaydedilenler';
+
+  @override
+  String statCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'kurs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statCertificates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'sertifika',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'saat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get darkModeSwitch => 'Koyu mod';
+
+  @override
+  String get lessonFiles => 'Dosyalar';
+
+  @override
+  String get lessonOverview => 'Anlatım';
+
+  @override
+  String get upNext => 'Sıradaki';
+
+  @override
+  String get quizOpensAfter => 'Bu dersten sonra açılır';
+
+  @override
+  String get signInPhoneTitle => 'Telefonla giriş';
+
+  @override
+  String get signInEmailTitle => 'E-postayla giriş';
+
+  @override
+  String get signInCodeNote => 'Giriş için bir kod göndeririz, şifre gerekmez.';
+
+  @override
+  String get newAccountShort => 'Yeni hesap';
+
+  @override
+  String get signInCodeShort => 'Kod';
+
+  @override
+  String get emailShort => 'E-posta';
+
+  @override
+  String get verificationCodeTitle => 'Doğrulama kodu';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return '$number numarasına $count haneli bir kod gönderdik';
+  }
+
+  @override
+  String get didntGetCode => 'Gelmedi mi?';
+
+  @override
+  String get resendCode => 'Yeniden gönder';
+
+  @override
+  String get confirmAndSignIn => 'Onayla ve giriş yap';
 }

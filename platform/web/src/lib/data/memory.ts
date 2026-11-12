@@ -281,6 +281,8 @@ export class MemoryStore implements DataStore {
   private memberships = new Map<number, Membership>();
   private nextClassId = 1;
   private courseEnrollments: CourseEnrollment[] = [];
+  /** 123 Seconds learned, by `appId|userId|day|courseId`. */
+  private learning = new Map<string, number>();
   private lessonProgress = new Map<string, LessonProgress>();
   // 90.1
   private quizAttempts: QuizAttempt[] = [];
@@ -1698,6 +1700,23 @@ export class MemoryStore implements DataStore {
     if (index < 0) return false;
     this.courseEnrollments.splice(index, 1);
     return true;
+  }
+
+  async addLearningSeconds(input: { appId: string; userId: number; day: string; courseId: number; seconds: number; max: number }): Promise<void> {
+    const key = `${input.appId}|${input.userId}|${input.day}|${input.courseId}`;
+    this.learning.set(key, Math.min((this.learning.get(key) ?? 0) + input.seconds, input.max));
+  }
+
+  async learningSeconds(input: { appId: string; userId: number; from: string }): Promise<{ days: Record<string, number>; total: number }> {
+    const days: Record<string, number> = {};
+    let total = 0;
+    for (const [key, seconds] of this.learning) {
+      const [appId, userId, day] = key.split("|");
+      if (appId !== input.appId || Number(userId) !== input.userId) continue;
+      total += seconds;
+      if (day! >= input.from) days[day!] = (days[day!] ?? 0) + seconds;
+    }
+    return { days, total };
   }
 
   async listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]> {

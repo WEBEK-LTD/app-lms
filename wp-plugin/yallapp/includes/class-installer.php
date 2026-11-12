@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Installer {
 
-	const DB_VERSION        = '6';
+	const DB_VERSION        = '7';
 	const DB_VERSION_OPTION = 'yallapp_db_version';
 
 	/**
@@ -66,6 +66,7 @@ class Installer {
 			'devices'       => $wpdb->prefix . 'yallapp_devices',
 			'tokens'        => $wpdb->prefix . 'yallapp_tokens',
 			'notifications' => $wpdb->prefix . 'yallapp_notifications',
+			'learning_time' => $wpdb->prefix . 'yallapp_learning_time',
 		);
 	}
 
@@ -132,6 +133,17 @@ class Installer {
 				PRIMARY KEY  (id),
 				KEY audience_target (audience,target_id),
 				KEY created_at (created_at)
+			) $charset;"
+		);
+		// 123 The time each student spends learning, one row per day and course.
+		dbDelta(
+			"CREATE TABLE {$tables['learning_time']} (
+				user_id bigint(20) unsigned NOT NULL,
+				day date NOT NULL,
+				course_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				seconds int(10) unsigned NOT NULL DEFAULT 0,
+				PRIMARY KEY  (user_id,day,course_id),
+				KEY user_day (user_id,day)
 			) $charset;"
 		);
 		update_option( self::DB_VERSION_OPTION, self::DB_VERSION, false );

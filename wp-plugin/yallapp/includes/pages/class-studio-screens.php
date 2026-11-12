@@ -17,8 +17,15 @@ defined( 'ABSPATH' ) || exit;
  */
 class Studio_Screens {
 
-	const SIGN_IN_STYLES = array( 'classic', 'photo', 'card', 'minimal' );
-	const HEADERS        = array( 'plain', 'card', 'cover', 'tiles', 'night' );
+	const SIGN_IN_STYLES = array( 'classic', 'photo', 'card', 'minimal', 'premium' );
+	const HEADERS        = array( 'plain', 'card', 'cover', 'tiles', 'night', 'academy' );
+	const LOOKS          = array(
+		'catalog'    => 'explore',
+		'my_courses' => 'premium',
+		'lesson'     => 'premium',
+		'code'       => 'premium',
+		'cart'       => 'premium',
+	);
 	const ITEMS          = array( 'orders', 'points', 'certificates', 'memberships', 'quiz_results', 'live_classes', 'learning_paths', 'achievements', 'wishlist', 'downloads', 'my_courses', 'restaurant', 'teachers', 'teacher', 'teach', 'shipments', 'food_orders', 'rides', 'chat', 'notifications', 'settings', 'help', 'privacy', 'terms', 'link' );
 
 	/**
@@ -40,6 +47,27 @@ class Studio_Screens {
 		$menu = is_array( $raw['account_menu'] ?? null ) ? self::menu( $raw['account_menu'] ) : null;
 		if ( $menu ) {
 			$out['account_menu'] = $menu;
+		}
+		// 122 The courses' card.
+		$card = is_array( $raw['course_card'] ?? null ) ? self::course_card( $raw['course_card'] ) : null;
+		if ( $card ) {
+			$out['course_card'] = $card;
+		}
+		// 122 A course's page.
+		$page = is_array( $raw['course_page'] ?? null ) ? self::course_page( $raw['course_page'] ) : null;
+		if ( $page ) {
+			$out['course_page'] = $page;
+		}
+		// 123 The screens drawn in a look of their own, each with its one look.
+		$looks = array();
+		$asked = is_array( $raw['looks'] ?? null ) ? $raw['looks'] : array();
+		foreach ( self::LOOKS as $screen => $look ) {
+			if ( isset( $asked[ $screen ] ) && $asked[ $screen ] === $look ) {
+				$looks[ $screen ] = $look;
+			}
+		}
+		if ( $looks ) {
+			$out['looks'] = $looks;
 		}
 		return $out ? $out : null;
 	}
@@ -101,6 +129,48 @@ class Studio_Screens {
 			$menu['accent'] = strtoupper( $raw['accent'] );
 		}
 		return $menu;
+	}
+
+	/**
+	 * 122 The courses' card: its look, corners and the facts it leaves out; null when unknown.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function course_card( array $raw ) {
+		if ( ! in_array( $raw['style'] ?? null, array( 'classic', 'rich', 'cover', 'tile', 'premium' ), true ) ) {
+			return null;
+		}
+		$card = array(
+			'style' => $raw['style'],
+			'hide'  => array_values( array_unique( array_intersect( is_array( $raw['hide'] ?? null ) ? $raw['hide'] : array(), array( 'teacher', 'rating', 'price', 'lessons' ) ) ) ),
+		);
+		if ( isset( $raw['radius'] ) && is_int( $raw['radius'] ) && $raw['radius'] >= 0 && $raw['radius'] <= 32 ) {
+			$card['radius'] = $raw['radius'];
+		}
+		return $card;
+	}
+
+	/**
+	 * 122 A course's page: its top, its purchase bar, the tab it opens on and what it leaves out.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array
+	 */
+	private static function course_page( array $raw ) {
+		$page = array(
+			'cover' => in_array( $raw['cover'] ?? null, array( 'classic', 'full' ), true ) ? $raw['cover'] : 'classic',
+			'bar'   => in_array( $raw['bar'] ?? null, array( 'classic', 'glass' ), true ) ? $raw['bar'] : 'classic',
+			'hide'  => array_values( array_unique( array_intersect( is_array( $raw['hide'] ?? null ) ? $raw['hide'] : array(), array( 'students', 'level', 'duration', 'certificate', 'reviews' ) ) ) ),
+		);
+		if ( in_array( $raw['first_tab'] ?? null, array( 'overview', 'curriculum' ), true ) ) {
+			$page['first_tab'] = $raw['first_tab'];
+		}
+		// 123 The premium academy's page.
+		if ( 'premium' === ( $raw['look'] ?? null ) ) {
+			$page['look'] = 'premium';
+		}
+		return $page;
 	}
 
 	/**

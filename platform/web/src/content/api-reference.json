@@ -268,6 +268,20 @@
         },
         {
           "method": "GET",
+          "path": "/me/learning-time",
+          "summary": "The time the student spent learning this week",
+          "description": "123 The last seven days to today (oldest first, in the academy's time zone), each with the minutes the student spent in lessons, the seven days' total against the seven before them, and the whole of it. The app counts the time (`POST /me/learning-time`).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/learning-time",
+          "summary": "Add the time spent in a lesson",
+          "description": "123 The seconds the app counted while a lesson of the course was open and the app in front, sent about once a minute and when the lesson closes; added to today's, at most a day's worth for each course.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
           "path": "/me/wishlist",
           "summary": "List wishlisted courses",
           "description": "Empty when the LMS has no wishlist (`features.wishlist` is false). Roadmap 62: a private course the student may open (enrolled in it, or may read it on the website) is listed like any other; one they can't open isn't.",
@@ -1737,7 +1751,7 @@
           "method": "PUT",
           "path": "/teachers/{teacher_id}/follow",
           "summary": "Follow a teacher",
-          "description": "The student gets a push (`new_course`) when a new course of the teacher is published.",
+          "description": "The student gets a push (`new_course`) when a new course of the teacher is published. 123 On WordPress too, for any course's teacher (`Instructor.following`).",
           "access": "signed-in"
         },
         {

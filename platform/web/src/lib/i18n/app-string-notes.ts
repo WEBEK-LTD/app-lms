@@ -3951,6 +3951,266 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عدد النقاط التي ما زال الشخص يحتاجها ليستخدم نقاطه، على بطاقة العضوية.",
     tr: "Kişinin puanlarını kullanabilmesi için gereken puan sayısı, üyelik kartında.",
   },
+  "123 The greeting header in the morning, with the person's first name.": {
+    en: "The greeting at the top of the home in the morning, with the person's first name.",
+    ar: "التحية أعلى الصفحة الرئيسية صباحًا، مع الاسم الأول للشخص.",
+    tr: "Sabah ana sayfanın üstündeki selam, kişinin adıyla.",
+  },
+  "123 The greeting header after noon, with the person's first name.": {
+    en: "The greeting at the top of the home after noon, with the person's first name.",
+    ar: "التحية أعلى الصفحة الرئيسية بعد الظهر، مع الاسم الأول للشخص.",
+    tr: "Öğleden sonra ana sayfanın üstündeki selam, kişinin adıyla.",
+  },
+  "123 The greeting header in the morning, without a name.": {
+    en: "The greeting at the top of the home in the morning, without a name.",
+    ar: "التحية أعلى الصفحة الرئيسية صباحًا، دون اسم.",
+    tr: "Sabah ana sayfanın üstündeki selam, adsız.",
+  },
+  "123 The greeting header after noon, without a name.": {
+    en: "The greeting at the top of the home after noon, without a name.",
+    ar: "التحية أعلى الصفحة الرئيسية بعد الظهر، دون اسم.",
+    tr: "Öğleden sonra ana sayfanın üstündeki selam, adsız.",
+  },
+  "123 The course the student is taking: the lesson they are on.": {
+    en: "The card of the course the student is taking: the lesson they are on.",
+    ar: "بطاقة الدورة التي يدرسها الطالب: الدرس الذي وصل إليه.",
+    tr: "Öğrencinin aldığı kursun kartı: bulunduğu ders.",
+  },
+  "123 The minutes left in the lesson the student is on.": {
+    en: "The minutes left in the lesson the student is on.",
+    ar: "الدقائق المتبقية في الدرس الذي وصل إليه الطالب.",
+    tr: "Öğrencinin bulunduğu derste kalan dakikalar.",
+  },
+  "123 The card with the days in a row the student learned.": {
+    en: "The card with the days in a row the student learned.",
+    ar: "بطاقة الأيام المتتالية التي تعلّم فيها الطالب.",
+    tr: "Öğrencinin art arda öğrendiği günlerin kartı.",
+  },
+  "123 The word after the number of days in a row.": {
+    en: "The word after the number of days in a row.",
+    ar: "الكلمة بعد عدد الأيام المتتالية.",
+    tr: "Art arda gün sayısından sonraki kelime.",
+  },
+  "123 The card with the student's next live class.": {
+    en: "The card with the student's next live class.",
+    ar: "بطاقة الحصة المباشرة القادمة للطالب.",
+    tr: "Öğrencinin sıradaki canlı dersinin kartı.",
+  },
+  "123 A live class that has started.": {
+    en: "When a live class has started.",
+    ar: "حين تبدأ الحصة المباشرة.",
+    tr: "Canlı ders başladığında.",
+  },
+  "123 A live class starting within the hour.": {
+    en: "A live class starting within the hour.",
+    ar: "حصة مباشرة تبدأ خلال ساعة.",
+    tr: "Bir saat içinde başlayan canlı ders.",
+  },
+  "123 A live class starting today.": {
+    en: "A live class starting later today.",
+    ar: "حصة مباشرة تبدأ لاحقًا اليوم.",
+    tr: "Bugün daha sonra başlayan canlı ders.",
+  },
+  "123 A live class on another day.": {
+    en: "A live class on another day.",
+    ar: "حصة مباشرة في يوم آخر.",
+    tr: "Başka bir gündeki canlı ders.",
+  },
+  "123 The card with this week's learning time.": {
+    en: "The card with this week's learning time.",
+    ar: "بطاقة وقت التعلم هذا الأسبوع.",
+    tr: "Bu haftanın öğrenme süresi kartı.",
+  },
+  "123 More learning than the week before.": {
+    en: "More learning than the week before.",
+    ar: "تعلّم أكثر من الأسبوع السابق.",
+    tr: "Önceki haftadan daha fazla öğrenme.",
+  },
+  "123 Less learning than the week before.": {
+    en: "Less learning than the week before.",
+    ar: "تعلّم أقل من الأسبوع السابق.",
+    tr: "Önceki haftadan daha az öğrenme.",
+  },
+  "123 A learning time of an hour or more.": {
+    en: "A learning time of an hour or more.",
+    ar: "وقت تعلّم ساعة أو أكثر.",
+    tr: "Bir saat veya daha uzun öğrenme süresi.",
+  },
+  "123 A learning time under an hour.": {
+    en: "A learning time under an hour.",
+    ar: "وقت تعلّم أقل من ساعة.",
+    tr: "Bir saatten kısa öğrenme süresi.",
+  },
+  "123 The search box on the premium academy's Explore.": {
+    en: "The search box on the premium academy's Explore.",
+    ar: "مربع البحث في صفحة «استكشف» في الأكاديمية المميزة.",
+    tr: "Premium akademinin Keşfet ekranındaki arama kutusu.",
+  },
+  "123 The chip that shows the free courses on Explore.": {
+    en: "The chip that shows the free courses on Explore.",
+    ar: "الزر الذي يعرض الدورات المجانية في «استكشف».",
+    tr: "Keşfet'te ücretsiz kursları gösteren düğme.",
+  },
+  "123 The badge of a course published lately.": {
+    en: "The badge of a course published lately.",
+    ar: "شارة الدورة المنشورة حديثًا.",
+    tr: "Yakın zamanda yayınlanan kursun rozeti.",
+  },
+  "123 The badge of one of the courses with the most students.": {
+    en: "The badge of one of the courses with the most students.",
+    ar: "شارة إحدى الدورات الأكثر طلابًا.",
+    tr: "En çok öğrencisi olan kurslardan birinin rozeti.",
+  },
+  "123 The tag on a premium course page's picture when the course gives a certificate.": {
+    en: "The tag on a premium course page's picture when the course gives a certificate.",
+    ar: "الوسم على صورة صفحة الدورة المميزة حين تمنح الدورة شهادة.",
+    tr: "Kurs sertifika veriyorsa premium kurs sayfasının resmindeki etiket.",
+  },
+  "123 The tab with what a course teaches, on its premium page.": {
+    en: "The tab with what a course teaches, on its premium page.",
+    ar: "تبويب ما تعلّمه الدورة، في صفحتها المميزة.",
+    tr: "Kursun öğrettiklerinin sekmesi, premium sayfasında.",
+  },
+  "123 The tab with the course's questions and answers, on its premium page.": {
+    en: "The tab with the course's questions and answers, on its premium page.",
+    ar: "تبويب أسئلة الدورة وإجاباتها، في صفحتها المميزة.",
+    tr: "Kursun soru ve cevaplarının sekmesi, premium sayfasında.",
+  },
+  "123 How much a course on sale saves, by its old price.": {
+    en: "How much a course on sale saves, by its old price.",
+    ar: "كم توفّر الدورة المخفّضة، بجانب سعرها القديم.",
+    tr: "İndirimli kursun eski fiyatının yanında ne kadar tasarruf ettirdiği.",
+  },
+  "123 The purchase button on a premium course page.": {
+    en: "The purchase button on a premium course page.",
+    ar: "زر الشراء في صفحة الدورة المميزة.",
+    tr: "Premium kurs sayfasındaki satın alma düğmesi.",
+  },
+  "123 The lessons a student finished of a course's, on My courses.": {
+    en: "The lessons a student finished of a course's, on My courses.",
+    ar: "الدروس التي أنهاها الطالب من دروس الدورة، في «دوراتي».",
+    tr: "Öğrencinin bitirdiği dersler, Kurslarım'da.",
+  },
+  "123 How many certificates the student has, on My courses.": {
+    en: "How many certificates the student has, on My courses.",
+    ar: "عدد شهادات الطالب، في «دوراتي».",
+    tr: "Öğrencinin kaç sertifikası olduğu, Kurslarım'da.",
+  },
+  "123 Under the student's certificates on My courses.": {
+    en: "Under the student's certificates on My courses.",
+    ar: "تحت شهادات الطالب في «دوراتي».",
+    tr: "Kurslarım'da öğrencinin sertifikalarının altında.",
+  },
+  "123 The chip with the courses the student is taking, on the premium My courses.": {
+    en: "The chip with the courses the student is taking, on the premium My courses.",
+    ar: "زر الدورات التي يدرسها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin aldığı kursların düğmesi.",
+  },
+  "123 The chip with the courses the student finished, on the premium My courses.": {
+    en: "The chip with the courses the student finished, on the premium My courses.",
+    ar: "زر الدورات التي أنهاها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin bitirdiği kursların düğmesi.",
+  },
+  "123 The chip with the courses the student saved, on the premium My courses.": {
+    en: "The chip with the courses the student saved, on the premium My courses.",
+    ar: "زر الدورات التي حفظها الطالب، في «دوراتي» المميزة.",
+    tr: "Premium Kurslarım'da öğrencinin kaydettiği kursların düğmesi.",
+  },
+  "123 After how many courses the student has, on their academy card.": {
+    en: "After how many courses the student has, on their academy card.",
+    ar: "بعد عدد دورات الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin kurs sayısından sonra.",
+  },
+  "123 After how many certificates the student has, on their academy card.": {
+    en: "After how many certificates the student has, on their academy card.",
+    ar: "بعد عدد شهادات الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin sertifika sayısından sonra.",
+  },
+  "123 After the student's hours of learning, on their academy card.": {
+    en: "After the student's hours of learning, on their academy card.",
+    ar: "بعد ساعات تعلّم الطالب، على بطاقة الأكاديمية.",
+    tr: "Akademi kartında öğrencinin öğrenme saatlerinden sonra.",
+  },
+  "123 The dark mode switch on the premium account page.": {
+    en: "The dark mode switch on the premium account page.",
+    ar: "مفتاح الوضع الداكن في صفحة الحساب المميزة.",
+    tr: "Premium hesap sayfasındaki koyu mod anahtarı.",
+  },
+  "123 The lesson's files, a chip on a premium lesson.": {
+    en: "The lesson's files, a chip on a premium lesson.",
+    ar: "ملفات الدرس، شريحة في الدرس المميز.",
+    tr: "Premium derste bir çip olarak dersin dosyaları.",
+  },
+  "123 The lesson's own text, a chip on a premium lesson.": {
+    en: "The lesson's own text, a chip on a premium lesson.",
+    ar: "نص الدرس نفسه، شريحة في الدرس المميز.",
+    tr: "Premium derste bir çip olarak dersin kendi metni.",
+  },
+  "123 Over the next lesson on a premium lesson.": {
+    en: "Over the next lesson on a premium lesson.",
+    ar: "فوق الدرس التالي في الدرس المميز.",
+    tr: "Premium derste sonraki dersin üstünde.",
+  },
+  "123 Under a quiz that unlocks once the lesson is done, on a premium lesson.": {
+    en: "Under a quiz that unlocks once the lesson is done, on a premium lesson.",
+    ar: "تحت اختبار يُفتح بعد إنهاء الدرس، في الدرس المميز.",
+    tr: "Premium derste, ders bitince açılan bir sınavın altında.",
+  },
+  "123 The heading of the premium sign-in with a phone number.": {
+    en: "The heading of the premium sign-in with a phone number.",
+    ar: "عنوان الدخول المميز برقم الهاتف.",
+    tr: "Telefon numarasıyla premium girişin başlığı.",
+  },
+  "123 The heading of the premium sign-in with an email address.": {
+    en: "The heading of the premium sign-in with an email address.",
+    ar: "عنوان الدخول المميز بالبريد الإلكتروني.",
+    tr: "E-posta adresiyle premium girişin başlığı.",
+  },
+  "123 Under the heading of the premium sign-in with a code.": {
+    en: "Under the heading of the premium sign-in with a code.",
+    ar: "تحت عنوان الدخول المميز برمز.",
+    tr: "Kodla premium girişin başlığının altında.",
+  },
+  "123 The premium sign-in's button to create an account.": {
+    en: "The premium sign-in's button to create an account.",
+    ar: "زر إنشاء حساب في الدخول المميز.",
+    tr: "Premium girişte hesap oluşturma düğmesi.",
+  },
+  "123 The premium sign-in's button to sign in with a code instead of a password.": {
+    en: "The premium sign-in's button to sign in with a code instead of a password.",
+    ar: "زر الدخول برمز بدل كلمة المرور في الدخول المميز.",
+    tr: "Premium girişte şifre yerine kodla giriş düğmesi.",
+  },
+  "123 The premium sign-in's button to sign in by email instead.": {
+    en: "The premium sign-in's button to sign in by email instead.",
+    ar: "زر الدخول بالبريد بدلًا من ذلك في الدخول المميز.",
+    tr: "Premium girişte bunun yerine e-postayla giriş düğmesi.",
+  },
+  "123 The title of the premium sign-in code screen.": {
+    en: "The title of the premium sign-in code screen.",
+    ar: "عنوان شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının başlığı.",
+  },
+  "123 Under the title of the premium sign-in code screen.": {
+    en: "Under the title of the premium sign-in code screen.",
+    ar: "تحت عنوان شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının başlığının altında.",
+  },
+  "123 Before the way to send the code again, on the premium sign-in code screen.": {
+    en: "Before the way to send the code again, on the premium sign-in code screen.",
+    ar: "قبل طريقة إرسال الرمز مرة أخرى، في شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranında, kodu yeniden gönderme yolundan önce.",
+  },
+  "123 Sends the sign-in code again, on the premium sign-in code screen.": {
+    en: "Sends the sign-in code again, on the premium sign-in code screen.",
+    ar: "يرسل رمز الدخول مرة أخرى، في شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranında giriş kodunu yeniden gönderir.",
+  },
+  "123 The button of the premium sign-in code screen.": {
+    en: "The button of the premium sign-in code screen.",
+    ar: "زر شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının düğmesi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

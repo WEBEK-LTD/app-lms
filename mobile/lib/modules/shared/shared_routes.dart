@@ -12,6 +12,7 @@ import '../../core/theme/app_look.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/fonts/remote_fonts.dart';
 import '../../core/web/web_page_screen.dart';
+import '../../core/api/models/page_models.dart' show TabBarDesign;
 import '../../core/widgets/app_nav_bar.dart';
 import '../../core/widgets/buttons.dart';
 import '../../core/widgets/common.dart';
@@ -33,6 +34,7 @@ import 'pages/page_providers.dart';
 import 'links/link_open_screen.dart';
 import 'pages/page_screen.dart';
 import 'pages/screen_page.dart';
+import 'pages/web_tab_screen.dart';
 import 'pages/side_menu.dart';
 import '../../core/l10n/l10n.dart';
 
@@ -226,6 +228,16 @@ List<RouteBase> tabbedRoutes({
         ),
         routes: screen.routes,
       );
+    } else if (path.startsWith(Paths.webTabPrefix)) {
+      // 122 A web page in the app, as a tab.
+      final id = Uri.decodeComponent(path.substring(Paths.webTabPrefix.length));
+      route = GoRoute(
+        path: path,
+        pageBuilder: (context, state) => appPage(
+          state,
+          WebTabScreen(key: ValueKey('tab-web-$id'), tabId: id),
+        ),
+      );
     } else if (path.startsWith(Paths.pagePrefix)) {
       final slug = Uri.decodeComponent(path.substring(Paths.pagePrefix.length));
       route = GoRoute(
@@ -393,6 +405,11 @@ class MainShell extends ConsumerWidget {
         : null;
     return Scaffold(
       body: shell,
+      // 123 A frosted bar floats over the page, which goes on under it.
+      extendBody:
+          !hideTabs &&
+          tabBar?.design == TabBarDesign.glass &&
+          (tabBar?.margin ?? 0) > 0,
       // 82.5 The side menu built in the dashboard.
       drawer: hasMenu
           ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))

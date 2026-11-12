@@ -15,6 +15,7 @@ import {
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_LEARNING_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -39,6 +40,7 @@ import {
   type TabBarStyle,
   type TabBarDesign,
   TAB_BAR_DESIGNS,
+ type WebPageLook,
 } from "@/lib/pages/types";
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
@@ -473,7 +475,9 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
       {action?.type === "url" ? (
         <>
           <input dir="ltr" type="url" aria-label={t("studio.tapLink")} placeholder="https://" value={action.url ?? ""} onChange={(e) => onChange({ ...action, url: e.target.value })} className={field} style={line} />
-          <Check label={t("studio.inBrowser")} checked={action.open_in === "browser"} onChange={(on) => onChange({ ...action, open_in: on ? "browser" : "in_app" })} />
+          <Check label={t("studio.inBrowser")} checked={action.open_in === "browser"} onChange={(on) => onChange({ ...action, open_in: on ? "browser" : "in_app", ...(on ? { web: undefined } : {}) })} />
+          {/* 122 A web page in the app: no address shown, the site's own header and footer hidden, its links kept in. */}
+          {action.open_in !== "browser" ? <WebLookControls look={action.web} onChange={(web) => onChange({ ...action, web })} /> : null}
         </>
       ) : null}
       {action?.type === "item" && action.item ? (
@@ -511,6 +515,30 @@ function TapAction({ id, action, onChange, pages, sources, screens, pickable }: 
           ))}
         </select>
       ) : null}
+    </div>
+  );
+}
+
+/** 122 How a web page shows in the app (`Action.web`): what to hide of the site, and whether every link stays in. */
+function WebLookControls({ look, onChange }: { look: WebPageLook | undefined; onChange: (look: WebPageLook | undefined) => void }) {
+  const t = useDashT();
+  const set = (patch: Partial<WebPageLook>) => {
+    const next: WebPageLook = { ...(look ?? {}), ...patch };
+    for (const key of Object.keys(next) as (keyof WebPageLook)[]) if (next[key] === false || next[key] === "" || next[key] === undefined) delete next[key];
+    onChange(Object.keys(next).length ? next : undefined);
+  };
+  return (
+    <div className="flex flex-col gap-1.5 rounded-lg p-2.5" style={{ background: "var(--studio-soft, #F6F4FB)" }}>
+      <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.webHint")}
+      </span>
+      <Check label={t("studio.webHideHeader")} checked={look?.hide_header === true} onChange={(on) => set({ hide_header: on })} />
+      <Check label={t("studio.webHideFooter")} checked={look?.hide_footer === true} onChange={(on) => set({ hide_footer: on })} />
+      <Check label={t("studio.webLinksInside")} checked={look?.links_inside === true} onChange={(on) => set({ links_inside: on })} />
+      <label className="flex flex-col gap-1 text-xs font-bold">
+        {t("studio.webHideMore")}
+        <input dir="ltr" value={look?.hide ?? ""} maxLength={300} placeholder=".newsletter, #cookie-banner" onChange={(e) => set({ hide: e.target.value })} className="h-[34px] w-full rounded-lg bg-white px-2.5 text-[13px] font-normal" style={{ border: "1px solid var(--studio-line)" }} />
+      </label>
     </div>
   );
 }
@@ -696,6 +724,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
         </div>
       ) : null}
       {node.type === "market" ? <MarketControls node={node} onChange={onChange} /> : null}
+      {node.type === "learning" ? <LearningControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -1644,6 +1673,26 @@ function PagePanel(props: Props) {
 }
 
 /** 115.14 A marketplace section: which one, and for the places, how many, which and in what order. */
+/** 123 Which of the student's cards a `learning` element is. */
+function LearningControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  return (
+    <label className="flex flex-col gap-1 font-bold">
+      {t("studio.learningSection")}
+      <select value={node.learning?.section ?? "continue"} onChange={(e) => onChange({ learning: { section: e.target.value as NonNullable<StudioNode["learning"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        {STUDIO_LEARNING_SECTIONS.map((s) => (
+          <option key={s} value={s}>
+            {t(`studio.learning_${s}` as DashKey)}
+          </option>
+        ))}
+      </select>
+      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.learningHint")}
+      </span>
+    </label>
+  );
+}
+
 function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
   const market: StudioMarket = node.market ?? { section: "vendors" };

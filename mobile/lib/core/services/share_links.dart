@@ -50,6 +50,8 @@ class ShareLinkButton extends ConsumerWidget {
     this.onImage = false,
     this.bordered = true,
     this.size = 44,
+    this.background,
+    this.foreground,
   });
 
   final String kind;
@@ -63,6 +65,10 @@ class ShareLinkButton extends ConsumerWidget {
   final bool bordered;
   final double size;
 
+  /// 123 Its own colours (a dimmed circle on a course's cover).
+  final Color? background;
+  final Color? foreground;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = context.palette;
@@ -73,7 +79,8 @@ class ShareLinkButton extends ConsumerWidget {
       iconSize: 21,
       radius: onImage ? size / 2 : 12,
       bordered: bordered && !onImage,
-      background: onImage ? p.surface : null,
+      background: background ?? (onImage ? p.surface : null),
+      foreground: foreground,
       onPressed: () {
         final gate = ref.read(appGateProvider);
         final appName = gate is GateReady

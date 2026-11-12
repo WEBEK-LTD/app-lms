@@ -40,6 +40,10 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Courses: "tabCourses",
   "My courses": "tabMyCourses",
   Account: "tabAccount",
+  // 123 The premium academy's tab with the site's blog.
+  Blog: "tabBlog",
+  Explore: "acTabExplore",
+  "Your courses": "acTabMine",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */

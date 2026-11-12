@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'country_codes.dart';
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/gate/app_gate.dart';
 import '../../../core/gate/owner_contact.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
@@ -198,6 +200,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           formatPhone(widget.args.phone, dialCode: widget.args.countryCode),
     );
     final resendIn = _resendIn;
+    // 123 The premium academy's code screen.
+    final gate = ref.watch(appGateProvider);
+    if (gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.code) ?? false)) {
+      return _premium(context, number, resendIn);
+    }
     final sentTo = parts(context.l10n.codeSentTo);
     final resendParts = parts(context.l10n.resendCodeIn);
     return Scaffold(
@@ -336,6 +344,232 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       ),
     );
   }
+
+  /// 123 The premium academy's code screen: the time left as a gold ring
+  /// round the message icon, the title large, where the code went, a box
+  /// per digit with the next one in gold, sending again in gold, and the
+  /// button in ink.
+  Widget _premium(BuildContext context, String number, Duration resendIn) {
+    final p = context.palette;
+    final l10n = context.l10n;
+    final gold = Theme.of(context).colorScheme.secondary;
+    final sentTo = parts((m) => l10n.codeSentDigits(_length, m));
+    final wait = _request.resendAfterSeconds;
+    final left = wait <= 0
+        ? 0.0
+        : (resendIn.inMilliseconds / (wait * 1000)).clamp(0.0, 1.0);
+    final ready = _code.text.length == _length;
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Material(
+                        color: p.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: BorderSide(color: p.divider),
+                        ),
+                        child: InkWell(
+                          key: const ValueKey('code-back'),
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => context.pop(),
+                          child: Semantics(
+                            button: true,
+                            label: l10n.back,
+                            excludeSemantics: true,
+                            child: SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: Icon(
+                                Symbols.arrow_back_rounded,
+                                size: 22,
+                                color: p.text,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      key: const ValueKey('code-ring'),
+                      width: 86,
+                      height: 86,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CircularProgressIndicator(
+                            value: resendIn > Duration.zero ? left : 1,
+                            strokeWidth: 5,
+                            strokeCap: StrokeCap.round,
+                            color: gold,
+                            backgroundColor: p.divider,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(9),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: p.surface,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Symbols.sms_rounded,
+                                fill: 1,
+                                size: 32,
+                                color: gold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.verificationCodeTitle,
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w800,
+                          color: p.text,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.6,
+                          color: p.textSecondary,
+                        ),
+                        children: [
+                          TextSpan(text: sentTo.first),
+                          TextSpan(
+                            text: number,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: p.text,
+                            ),
+                          ),
+                          if (sentTo.length > 1) TextSpan(text: sentTo.last),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    CodeBoxes(
+                      controller: _code,
+                      focusNode: _focus,
+                      length: _length,
+                      gold: gold,
+                      onChanged: (value) {
+                        setState(() => _error = null);
+                        if (value.length == _length) _verify();
+                      },
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 12),
+                      InlineError(_error!),
+                    ],
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            l10n.didntGetCode,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: p.textSecondary,
+                            ),
+                          ),
+                          TextButton(
+                            key: const ValueKey('code-resend'),
+                            onPressed: resendIn > Duration.zero || _resending
+                                ? null
+                                : _resend,
+                            style: TextButton.styleFrom(
+                              foregroundColor: gold,
+                              disabledForegroundColor: gold,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                              ),
+                            ),
+                            child: Text(
+                              [
+                                _resending ? l10n.sending : l10n.resendCode,
+                                if (resendIn > Duration.zero)
+                                  formatClock(
+                                    resendIn +
+                                        const Duration(milliseconds: 999),
+                                  ),
+                              ].join(' '),
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: SizedBox(
+                height: 56,
+                width: double.infinity,
+                child: FilledButton(
+                  key: const ValueKey('code-confirm'),
+                  onPressed: ready && !_verifying ? _verify : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: p.text,
+                    foregroundColor: p.isDark ? p.background : p.surface,
+                    disabledBackgroundColor: p.text.withValues(alpha: 0.85),
+                    disabledForegroundColor:
+                        (p.isDark ? p.background : p.surface).withValues(
+                          alpha: 0.9,
+                        ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                  child: _verifying
+                      ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: p.isDark ? p.background : p.surface,
+                            semanticsLabel: l10n.loading,
+                          ),
+                        )
+                      : Text(
+                          l10n.confirmAndSignIn,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// One box per digit over a single text field, so paste and SMS autofill
@@ -347,12 +581,17 @@ class CodeBoxes extends StatelessWidget {
     required this.focusNode,
     required this.length,
     required this.onChanged,
+    this.gold,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
   final int length;
   final ValueChanged<String> onChanged;
+
+  /// 123 The premium code screen's boxes: rounder, the next one in [gold]
+  /// with a glow.
+  final Color? gold;
 
   @override
   Widget build(BuildContext context) {
@@ -367,23 +606,45 @@ class CodeBoxes extends StatelessWidget {
               child: Row(
                 children: [
                   for (var i = 0; i < length; i++) ...[
-                    if (i > 0) const SizedBox(width: 8),
+                    if (i > 0) SizedBox(width: gold != null ? 10 : 8),
                     Expanded(
                       child: Container(
-                        height: 60,
+                        height: gold != null ? 62 : 60,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: p.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: focusNode.hasFocus && i == text.length
-                                ? p.text
-                                : p.inputBorder,
-                            width: focusNode.hasFocus && i == text.length
-                                ? 2
-                                : 1.5,
-                          ),
-                        ),
+                        decoration: gold != null
+                            ? BoxDecoration(
+                                color: p.surface,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: focusNode.hasFocus && i == text.length
+                                      ? gold!
+                                      : p.divider,
+                                  width: focusNode.hasFocus && i == text.length
+                                      ? 2
+                                      : 1,
+                                ),
+                                boxShadow:
+                                    focusNode.hasFocus && i == text.length
+                                    ? [
+                                        BoxShadow(
+                                          color: gold!.withValues(alpha: 0.22),
+                                          spreadRadius: 4,
+                                        ),
+                                      ]
+                                    : null,
+                              )
+                            : BoxDecoration(
+                                color: p.surface,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: focusNode.hasFocus && i == text.length
+                                      ? p.text
+                                      : p.inputBorder,
+                                  width: focusNode.hasFocus && i == text.length
+                                      ? 2
+                                      : 1.5,
+                                ),
+                              ),
                         child: Text(
                           i < text.length ? text[i] : '',
                           style: TextStyle(

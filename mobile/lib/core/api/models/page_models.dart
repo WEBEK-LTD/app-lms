@@ -440,6 +440,7 @@ class PageAction {
     this.item,
     this.url,
     this.openIn = OpenIn.inApp,
+    this.web,
   });
 
   /// Null for a missing action or one whose type this app doesn't know.
@@ -456,6 +457,7 @@ class PageAction {
       item: ItemRef.tryParse(json['item']),
       url: optString(json, 'url'),
       openIn: enumFromSnake(OpenIn.values, json['open_in'], OpenIn.inApp),
+      web: WebPageLook.tryParse(json['web']),
     );
   }
 
@@ -468,6 +470,65 @@ class PageAction {
   final ItemRef? item;
   final String? url;
   final OpenIn openIn;
+
+  /// 122 How a web page opened in the app shows; null, as it is.
+  final WebPageLook? web;
+}
+
+/// 122 `Action.web`: a web page in the app with its site's header and
+/// footer hidden, more parts hidden by CSS selectors, and every link kept
+/// in the app.
+class WebPageLook {
+  const WebPageLook({
+    this.hideHeader = false,
+    this.hideFooter = false,
+    this.hide,
+    this.linksInside = false,
+  });
+
+  static WebPageLook? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final hide = optString(json, 'hide');
+    return WebPageLook(
+      hideHeader: json['hide_header'] == true,
+      hideFooter: json['hide_footer'] == true,
+      // The same characters the servers allow: a selector list, nothing more.
+      hide: hide != null && _selectors.hasMatch(hide) ? hide : null,
+      linksInside: json['links_inside'] == true,
+    );
+  }
+
+  static final _selectors = RegExp(
+    r'''^[A-Za-z0-9\s.#_\-:,>+~*\[\]="'()^$|]{1,300}$''',
+  );
+
+  final bool hideHeader;
+  final bool hideFooter;
+  final String? hide;
+  final bool linksInside;
+
+  /// The common places themes keep their header and footer.
+  static const headerSelectors =
+      'body > header, #masthead, .site-header, header.site-header, '
+      '[role="banner"], .elementor-location-header, #header, .main-header, '
+      '#wpadminbar';
+  static const footerSelectors =
+      'body > footer, #colophon, .site-footer, footer.site-footer, '
+      '[role="contentinfo"], .elementor-location-footer, #footer, '
+      '.main-footer';
+
+  /// The style rules that hide what was chosen; empty for nothing.
+  String get css {
+    final parts = [
+      if (hideHeader) headerSelectors,
+      if (hideFooter) footerSelectors,
+      ?hide,
+    ];
+    if (parts.isEmpty) return '';
+    final reset = hideHeader ? 'html{margin-top:0!important}' : '';
+    return '${parts.join(', ')}{display:none!important}$reset';
+  }
 }
 
 /// 120 The built-in screen the API calls [wire], or null.
@@ -1822,6 +1883,8 @@ enum StudioHeaderType {
   logoActions,
   transparent,
   title,
+  // 123 Today's date over a greeting with the person's first name.
+  greeting,
 }
 
 enum StudioHeaderButton { menu, search, cart, notifications, chat, account }
@@ -1901,7 +1964,22 @@ enum StudioNodeType {
   // 115 A marketplace section: the address, kinds, offers, cuisines, the
   // club, the vendors, what to order again (StudioMarket says which).
   market,
+  // 123 One of the student's own cards in an academy (StudioLearning).
+  learning,
 }
+
+/// 123 Which of the student's cards a `learning` element is: the course
+/// they are taking, their streak, their next live class, or this week's
+/// learning time.
+enum StudioLearningSection { continueCourse, streak, live, week }
+
+StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
+  'continue' => StudioLearningSection.continueCourse,
+  'streak' => StudioLearningSection.streak,
+  'live' => StudioLearningSection.live,
+  'week' => StudioLearningSection.week,
+  _ => null,
+};
 
 /// 115 Which marketplace section a `market` element is.
 enum StudioMarketSection {
@@ -2335,6 +2413,7 @@ class StudioNode {
     this.motion,
     this.hidden = false,
     this.market,
+    this.learning,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2441,6 +2520,9 @@ class StudioNode {
             : null,
         map: mapJson is Map ? StudioMapPlace.tryParse(asJson(mapJson)) : null,
         market: StudioMarket.tryParse(json['market']),
+        learning: json['learning'] is Map
+            ? studioLearningSection((json['learning'] as Map)['section'])
+            : null,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2583,6 +2665,9 @@ class StudioNode {
 
   /// 115 For [StudioNodeType.market]: which section it is.
   final StudioMarket? market;
+
+  /// 123 For [StudioNodeType.learning]: which of the student's cards it is.
+  final StudioLearningSection? learning;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

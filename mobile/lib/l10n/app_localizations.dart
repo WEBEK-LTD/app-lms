@@ -15595,6 +15595,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 more point and you can use them} other{{count} more points and you can use them}}'**
   String accountPointsToUse(int count);
+
+  /// 123 The greeting header in the morning, with the person's first name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning, {name}'**
+  String studioGreetingMorning(String name);
+
+  /// 123 The greeting header after noon, with the person's first name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening, {name}'**
+  String studioGreetingEvening(String name);
+
+  /// 123 The greeting header in the morning, without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get studioGreetingMorningAlone;
+
+  /// 123 The greeting header after noon, without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get studioGreetingEveningAlone;
+
+  /// 123 The course the student is taking: the lesson they are on.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress · lesson {current} of {total}'**
+  String learningLessonOf(int current, int total);
+
+  /// 123 The minutes left in the lesson the student is on.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min left'**
+  String learningMinutesLeft(int minutes);
+
+  /// 123 The card with the days in a row the student learned.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning streak'**
+  String get learningStreakTitle;
+
+  /// 123 The word after the number of days in a row.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String learningStreakDays(int count);
+
+  /// 123 The card with the student's next live class.
+  ///
+  /// In en, this message translates to:
+  /// **'Live class'**
+  String get learningLiveTitle;
+
+  /// 123 A live class that has started.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {time}'**
+  String learningLiveNow(String time);
+
+  /// 123 A live class starting within the hour.
+  ///
+  /// In en, this message translates to:
+  /// **'In {minutes} min · {time}'**
+  String learningLiveInMinutes(int minutes, String time);
+
+  /// 123 A live class starting today.
+  ///
+  /// In en, this message translates to:
+  /// **'In {hours} h · {time}'**
+  String learningLiveInHours(int hours, String time);
+
+  /// 123 A live class on another day.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} · {time}'**
+  String learningLiveOn(String day, String time);
+
+  /// 123 The card with this week's learning time.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get learningWeekTitle;
+
+  /// 123 More learning than the week before.
+  ///
+  /// In en, this message translates to:
+  /// **'+{percent}% on last week'**
+  String learningWeekUp(int percent);
+
+  /// 123 Less learning than the week before.
+  ///
+  /// In en, this message translates to:
+  /// **'−{percent}% on last week'**
+  String learningWeekDown(int percent);
+
+  /// 123 A learning time of an hour or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String learningHoursMinutes(int hours, int minutes);
+
+  /// 123 A learning time under an hour.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String learningMinutesOnly(int minutes);
+
+  /// 123 The search box on the premium academy's Explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Course, skill or teacher'**
+  String get exploreSearchHint;
+
+  /// 123 The chip that shows the free courses on Explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get freeCourses;
+
+  /// 123 The badge of a course published lately.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get courseBadgeNew;
+
+  /// 123 The badge of one of the courses with the most students.
+  ///
+  /// In en, this message translates to:
+  /// **'Bestseller'**
+  String get courseBadgeBestseller;
+
+  /// 123 The tag on a premium course page's picture when the course gives a certificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Certified certificate'**
+  String get certifiedCertificate;
+
+  /// 123 The tab with what a course teaches, on its premium page.
+  ///
+  /// In en, this message translates to:
+  /// **'About the course'**
+  String get aboutCourse;
+
+  /// 123 The tab with the course's questions and answers, on its premium page.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get courseQuestions;
+
+  /// 123 How much a course on sale saves, by its old price.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {percent}%'**
+  String saveShare(int percent);
+
+  /// 123 The purchase button on a premium course page.
+  ///
+  /// In en, this message translates to:
+  /// **'Join now'**
+  String get joinNow;
+
+  /// 123 The lessons a student finished of a course's, on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String lessonsDoneOf(int done, int total);
+
+  /// 123 How many certificates the student has, on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 certificate} other{{count} certificates}}'**
+  String certificatesCount(int count);
+
+  /// 123 Under the student's certificates on My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to download'**
+  String get certificatesReady;
+
+  /// 123 The chip with the courses the student is taking, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get myCoursesLearning;
+
+  /// 123 The chip with the courses the student finished, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get myCoursesFinished;
+
+  /// 123 The chip with the courses the student saved, on the premium My courses.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get myCoursesSaved;
+
+  /// 123 After how many courses the student has, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{course} other{courses}}'**
+  String statCourses(int count);
+
+  /// 123 After how many certificates the student has, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{certificate} other{certificates}}'**
+  String statCertificates(int count);
+
+  /// 123 After the student's hours of learning, on their academy card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{hour} other{hours}}'**
+  String statHours(int count);
+
+  /// 123 The dark mode switch on the premium account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark mode'**
+  String get darkModeSwitch;
+
+  /// 123 The lesson's files, a chip on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get lessonFiles;
+
+  /// 123 The lesson's own text, a chip on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get lessonOverview;
+
+  /// 123 Over the next lesson on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get upNext;
+
+  /// 123 Under a quiz that unlocks once the lesson is done, on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens after this lesson'**
+  String get quizOpensAfter;
+
+  /// 123 The heading of the premium sign-in with a phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your phone'**
+  String get signInPhoneTitle;
+
+  /// 123 The heading of the premium sign-in with an email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your email'**
+  String get signInEmailTitle;
+
+  /// 123 Under the heading of the premium sign-in with a code.
+  ///
+  /// In en, this message translates to:
+  /// **'We send you a code to sign in, no password.'**
+  String get signInCodeNote;
+
+  /// 123 The premium sign-in's button to create an account.
+  ///
+  /// In en, this message translates to:
+  /// **'New account'**
+  String get newAccountShort;
+
+  /// 123 The premium sign-in's button to sign in with a code instead of a password.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get signInCodeShort;
+
+  /// 123 The premium sign-in's button to sign in by email instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailShort;
+
+  /// 123 The title of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get verificationCodeTitle;
+
+  /// 123 Under the title of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a {count}-digit code to {number}'**
+  String codeSentDigits(int count, String number);
+
+  /// 123 Before the way to send the code again, on the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t get it?'**
+  String get didntGetCode;
+
+  /// 123 Sends the sign-in code again, on the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get resendCode;
+
+  /// 123 The button of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and sign in'**
+  String get confirmAndSignIn;
 }
 
 class _AppLocalizationsDelegate

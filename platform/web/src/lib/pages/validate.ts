@@ -52,6 +52,7 @@ import {
   STUDIO_HEADER_TYPES,
   STUDIO_LAYOUT_TYPES,
   STUDIO_PAGE_SCREENS,
+  WEB_HIDE_PATTERN,
   STUDIO_LIMITS,
   STUDIO_LOOPS,
   STUDIO_NODE_TYPES,
@@ -69,6 +70,7 @@ import {
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
+  STUDIO_LEARNING_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -90,6 +92,7 @@ import {
   type StudioNode,
   type StudioFont,
   type StudioPage,
+  type WebPageLook,
   type StudioSides,
   type StudioSize,
   type FaqEntry,
@@ -383,10 +386,28 @@ function parseAction(ctx: Context, where: string, value: unknown, required: bool
     case "url": {
       const url = typeof v.url === "string" ? safeHref(v.url) : null;
       if (!url || !/^https?:/i.test(url)) c.fail(where, "enter a full web address starting with https://.");
-      return { type: "url", url: url ?? "", open_in: openIn };
+      // 122 How the page shows in the app.
+      const web = openIn === "in_app" ? parseWebLook(c, where, v.web) : null;
+      return { type: "url", url: url ?? "", open_in: openIn, ...(web ? { web } : {}) };
     }
   }
   return null;
+}
+
+/** 122 `Action.web`: only what is set, the selectors checked; null for the page as it is. */
+function parseWebLook(c: Checker, where: string, value: unknown): WebPageLook | null {
+  const v = record(value);
+  if (!v) return null;
+  const out: WebPageLook = {};
+  if (v.hide_header === true) out.hide_header = true;
+  if (v.hide_footer === true) out.hide_footer = true;
+  if (v.links_inside === true) out.links_inside = true;
+  const hide = typeof v.hide === "string" ? v.hide.trim() : "";
+  if (hide) {
+    if (!WEB_HIDE_PATTERN.test(hide)) c.fail(where, "the parts to hide must be CSS selectors, such as .newsletter, #cookie-banner.");
+    else out.hide = hide;
+  }
+  return Object.keys(out).length ? out : null;
 }
 
 function parseTranslations(ctx: Context, where: string, value: unknown, fields: readonly string[], limits: Record<string, number>): Translations | undefined {
@@ -1260,7 +1281,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
   // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1421,6 +1442,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         const label = c.optionalText(where, m?.label, 120, "The place's name");
         if (label) node.map.label = label;
       }
+      break;
+    }
+    case "learning": {
+      // 123 One of the student's cards, drawn by the app from their own learning.
+      const l = record(v.learning);
+      if (!l || !oneOf(STUDIO_LEARNING_SECTIONS, l.section)) {
+        bad("choose which of the student's cards it is.");
+        break;
+      }
+      node.learning = { section: l.section };
       break;
     }
     case "market": {

@@ -20,6 +20,7 @@ import '../navigation.dart';
 import '../widgets/course_cards.dart';
 import 'teachers_providers.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
+import '../widgets/designed_course_card.dart';
 
 /// 105.3 The academy's teachers: search by name or subject, or pick a
 /// subject; featured teachers first.
@@ -453,7 +454,7 @@ class _TeacherScreenState extends ConsumerState<TeacherScreen> {
             style: TextStyle(color: p.textSecondary),
           ),
         for (final course in t.courses) ...[
-          CourseListCard(
+          DesignedCourseCard(
             course: course,
             onTap: () => openCourse(context, course.id),
           ),

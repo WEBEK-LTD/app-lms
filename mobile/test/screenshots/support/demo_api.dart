@@ -2354,6 +2354,8 @@ class DemoApi extends FakeApi {
   }) => {
     'id': id,
     'title': title,
+    // 123 The first course new, the third one of the three with the most students.
+    'badge': id == 1 ? 'new' : (id == 3 ? 'bestseller' : null),
     'image_url': demoImage(image),
     'instructor': {
       'id': id + 100,
@@ -2573,6 +2575,14 @@ class DemoApi extends FakeApi {
 
   Map<String, dynamic> _courseDetail(Map<String, dynamic> summary) => {
     ...summary,
+    // 123 The teacher to follow, with their bio.
+    'instructor': {
+      ...(summary['instructor'] as Map<String, dynamic>),
+      'bio': arabic
+          ? 'مصممة منتجات في شركات عالمية · ٨ دورات'
+          : 'Product designer at global companies · 8 courses',
+      'following': false,
+    },
     'description_html': arabic
         ? '<p>تعلّم كيف تصمم تطبيقات ومواقع سهلة الاستخدام، من البحث مع المستخدمين إلى النماذج الأولية القابلة للنقر.</p>'
         : '<p>Learn how to design apps and websites people find easy to '
@@ -2592,7 +2602,11 @@ class DemoApi extends FakeApi {
   @override
   Future<List<Topic>> getCurriculum(int courseId) => super
       .getCurriculum(courseId)
-      .then((_) => [for (final t in _curriculum) Topic.fromJson(t)]);
+      .then(
+        (topics) => curriculum != null
+            ? topics
+            : [for (final t in _curriculum) Topic.fromJson(t)],
+      );
 
   static Map<String, dynamic> _item(
     int id,

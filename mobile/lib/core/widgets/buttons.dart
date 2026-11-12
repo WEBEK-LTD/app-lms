@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_icons.dart';
@@ -183,6 +185,7 @@ class PrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.trailingIcon,
     this.loading = false,
     this.height = 56,
   });
@@ -190,20 +193,27 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
+  /// 123 An icon after the words ("Continue →").
+  final IconData? trailingIcon;
   final bool loading;
   final double height;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final fg = onPressed == null && !loading ? p.textTertiary : p.onPrimary;
+    // 123 In a premium screen's gold scope: the second colour's gradient.
+    final gold = GoldButtons.of(context);
+    // On gold, the dark ink the premium academy writes on it.
+    final ink = gold == null ? p.onPrimary : const Color(0xFF2A1D05);
+    final fg = onPressed == null && !loading ? p.textTertiary : ink;
     final child = loading
         ? SizedBox(
             width: 22,
             height: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              color: p.onPrimary,
+              color: ink,
               semanticsLabel: context.l10n.loading,
             ),
           )
@@ -225,8 +235,50 @@ class PrimaryButton extends StatelessWidget {
                   ),
                 ),
               ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 8),
+                AppIcon(trailingIcon!, size: 20, color: fg),
+              ],
             ],
           );
+    if (gold != null) {
+      final radius = BorderRadius.circular(18);
+      final on = onPressed != null || loading;
+      return DecoratedBox(
+        key: const ValueKey('gold-button'),
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          gradient: on
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color.lerp(gold, Colors.white, 0.45)!, gold],
+                )
+              : null,
+          color: on ? null : p.segment,
+          boxShadow: on
+              ? [
+                  BoxShadow(
+                    color: gold.withValues(alpha: 0.35),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
+        ),
+        child: FilledButton(
+          onPressed: loading ? null : onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            minimumSize: Size.fromHeight(height),
+            shape: RoundedRectangleBorder(borderRadius: radius),
+          ),
+          child: child,
+        ),
+      );
+    }
     return FilledButton(
       onPressed: loading ? null : onPressed,
       style: FilledButton.styleFrom(
@@ -240,6 +292,21 @@ class PrimaryButton extends StatelessWidget {
       child: child,
     );
   }
+}
+
+/// 123 A premium screen's main buttons in gold: the second colour's
+/// gradient, as the premium academy has them (a course's purchase, the
+/// cart's payment, signing in).
+class GoldButtons extends InheritedWidget {
+  const GoldButtons({super.key, required this.color, required super.child});
+
+  final Color color;
+
+  static Color? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GoldButtons>()?.color;
+
+  @override
+  bool updateShouldNotify(GoldButtons oldWidget) => oldWidget.color != color;
 }
 
 /// The light button beside a primary one ("Previous").
@@ -522,6 +589,18 @@ class SegmentedTabs extends StatelessWidget {
 }
 
 /// White footer bar with a top border, used for main actions.
+/// 122 The bottom bars under it ([BottomActionBar]) are frosted glass over
+/// the page (a course's purchase bar, as the owner chose in Studio).
+class GlassBottomBars extends InheritedWidget {
+  const GlassBottomBars({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassBottomBars>() != null;
+
+  @override
+  bool updateShouldNotify(GlassBottomBars oldWidget) => false;
+}
+
 class BottomActionBar extends StatelessWidget {
   const BottomActionBar({
     super.key,
@@ -535,6 +614,34 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    // 122 Frosted glass over the page, where the screen asks for it.
+    if (GlassBottomBars.of(context)) {
+      return ClipRect(
+        key: const ValueKey('bottom-bar-glass'),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: p.surface.withValues(alpha: 0.72),
+              border: Border(
+                top: BorderSide(color: p.border.withValues(alpha: 0.5)),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              minimum: padding,
+              child: Align(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: p.surface,

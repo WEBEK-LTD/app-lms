@@ -2161,6 +2161,35 @@ export class MysqlStore implements DataStore {
     return result.affectedRows === 1;
   }
 
+  async addLearningSeconds(input: { appId: string; userId: number; day: string; courseId: number; seconds: number; max: number }): Promise<void> {
+    const t = schema.learningTime;
+    await this.run((db) =>
+      db
+        .insert(t)
+        .values({ appId: input.appId, userId: input.userId, day: input.day, courseId: input.courseId, seconds: Math.min(input.seconds, input.max) })
+        .onDuplicateKeyUpdate({ set: { seconds: sql`LEAST(${t.seconds} + ${input.seconds}, ${input.max})` } }),
+    );
+  }
+
+  async learningSeconds(input: { appId: string; userId: number; from: string }): Promise<{ days: Record<string, number>; total: number }> {
+    const t = schema.learningTime;
+    const rows = await this.run((db) =>
+      db
+        .select({ day: t.day, seconds: sql<string>`SUM(${t.seconds})` })
+        .from(t)
+        .where(and(eq(t.appId, input.appId), eq(t.userId, input.userId)))
+        .groupBy(t.day),
+    );
+    const days: Record<string, number> = {};
+    let total = 0;
+    for (const row of rows) {
+      const seconds = Number(row.seconds);
+      total += seconds;
+      if (row.day >= input.from) days[row.day] = seconds;
+    }
+    return { days, total };
+  }
+
   async listCourseEnrollments(input: { appId: string; userId?: number; courseId?: number }): Promise<CourseEnrollment[]> {
     const t = schema.courseEnrollments;
     return this.run((db) =>

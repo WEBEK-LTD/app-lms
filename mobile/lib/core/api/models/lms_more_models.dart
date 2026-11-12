@@ -379,3 +379,38 @@ class CourseNotes {
   final List<LessonNote> items;
   final List<({int lessonId, String title})> bookmarks;
 }
+
+/// 123 `LearningTime`: the minutes a student spent learning each of the
+/// last seven days (oldest first), this week's and the week before's, and
+/// all of it.
+class LearningTime {
+  const LearningTime({
+    required this.days,
+    required this.weekMinutes,
+    required this.lastWeekMinutes,
+    required this.totalMinutes,
+  });
+
+  factory LearningTime.fromJson(Json json) => LearningTime(
+    days: [
+      for (final d in (json['days'] as List? ?? const []).cast<Map>())
+        (
+          date: DateTime.tryParse('${d['date']}') ?? DateTime(1970),
+          minutes: d['minutes'] is int ? d['minutes'] as int : 0,
+        ),
+    ],
+    weekMinutes: intOr(json, 'week_minutes', 0),
+    lastWeekMinutes: intOr(json, 'last_week_minutes', 0),
+    totalMinutes: intOr(json, 'total_minutes', 0),
+  );
+
+  final List<({DateTime date, int minutes})> days;
+  final int weekMinutes;
+  final int lastWeekMinutes;
+  final int totalMinutes;
+
+  /// Against the week before, in percent; null when it had none.
+  int? get change => lastWeekMinutes == 0
+      ? null
+      : ((weekMinutes - lastWeekMinutes) * 100 / lastWeekMinutes).round();
+}

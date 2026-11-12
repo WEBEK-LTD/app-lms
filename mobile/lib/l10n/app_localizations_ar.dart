@@ -9763,4 +9763,240 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String studioGreetingMorning(String name) {
+    return 'صباح النور، $name';
+  }
+
+  @override
+  String studioGreetingEvening(String name) {
+    return 'مساء النور، $name';
+  }
+
+  @override
+  String get studioGreetingMorningAlone => 'صباح النور';
+
+  @override
+  String get studioGreetingEveningAlone => 'مساء النور';
+
+  @override
+  String learningLessonOf(int current, int total) {
+    return 'مستمر · الدرس $current من $total';
+  }
+
+  @override
+  String learningMinutesLeft(int minutes) {
+    return '$minutes د متبقية';
+  }
+
+  @override
+  String get learningStreakTitle => 'سلسلة التعلم';
+
+  @override
+  String learningStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يومًا',
+      few: 'أيام',
+      two: 'يومان',
+      one: 'يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get learningLiveTitle => 'حصة مباشرة';
+
+  @override
+  String learningLiveNow(String time) {
+    return 'الآن · $time';
+  }
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) {
+    return 'بعد $minutes د · $time';
+  }
+
+  @override
+  String learningLiveInHours(int hours, String time) {
+    return 'بعد $hours س · $time';
+  }
+
+  @override
+  String learningLiveOn(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get learningWeekTitle => 'هذا الأسبوع';
+
+  @override
+  String learningWeekUp(int percent) {
+    return '+$percent٪ عن الماضي';
+  }
+
+  @override
+  String learningWeekDown(int percent) {
+    return '−$percent٪ عن الماضي';
+  }
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) {
+    return '$hours س $minutes د';
+  }
+
+  @override
+  String learningMinutesOnly(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String get exploreSearchHint => 'دورة، مهارة، أو معلم';
+
+  @override
+  String get freeCourses => 'مجانية';
+
+  @override
+  String get courseBadgeNew => 'جديدة';
+
+  @override
+  String get courseBadgeBestseller => 'الأكثر مبيعًا';
+
+  @override
+  String get certifiedCertificate => 'شهادة معتمدة';
+
+  @override
+  String get aboutCourse => 'عن الدورة';
+
+  @override
+  String get courseQuestions => 'الأسئلة';
+
+  @override
+  String saveShare(int percent) {
+    return 'وفّر $percent٪';
+  }
+
+  @override
+  String get joinNow => 'اشترك الآن';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$done من $total';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شهادة',
+      few: '$count شهادات',
+      two: 'شهادتان',
+      one: 'شهادة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'جاهزة للتحميل';
+
+  @override
+  String get myCoursesLearning => 'قيد التعلم';
+
+  @override
+  String get myCoursesFinished => 'مكتملة';
+
+  @override
+  String get myCoursesSaved => 'المحفوظة';
+
+  @override
+  String statCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دورة',
+      few: 'دورات',
+      two: 'دورتان',
+      one: 'دورة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statCertificates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'شهادة',
+      few: 'شهادات',
+      two: 'شهادتان',
+      one: 'شهادة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ساعة',
+      few: 'ساعات',
+      two: 'ساعتان',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get darkModeSwitch => 'الوضع الغامق';
+
+  @override
+  String get lessonFiles => 'الملفات';
+
+  @override
+  String get lessonOverview => 'الشرح';
+
+  @override
+  String get upNext => 'التالي';
+
+  @override
+  String get quizOpensAfter => 'يفتح بعد هذا الدرس';
+
+  @override
+  String get signInPhoneTitle => 'الدخول برقم الهاتف';
+
+  @override
+  String get signInEmailTitle => 'الدخول بالبريد الإلكتروني';
+
+  @override
+  String get signInCodeNote => 'نرسل لك رمزًا للدخول، بلا كلمة مرور.';
+
+  @override
+  String get newAccountShort => 'حساب جديد';
+
+  @override
+  String get signInCodeShort => 'الرمز';
+
+  @override
+  String get emailShort => 'البريد';
+
+  @override
+  String get verificationCodeTitle => 'رمز التحقق';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return 'أرسلنا رمزًا من $count أرقام إلى $number';
+  }
+
+  @override
+  String get didntGetCode => 'لم يصلك؟';
+
+  @override
+  String get resendCode => 'إعادة الإرسال';
+
+  @override
+  String get confirmAndSignIn => 'تأكيد ودخول';
 }

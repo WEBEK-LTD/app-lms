@@ -62,12 +62,16 @@ class Category {
   final String? imageUrl;
 }
 
+/// 123 A course's badge in the lists.
+enum CourseBadge { fresh, bestseller }
+
 class Instructor {
   const Instructor({
     required this.id,
     required this.name,
     this.avatarUrl,
     this.bio,
+    this.following,
   });
 
   factory Instructor.fromJson(Json json) => Instructor(
@@ -75,12 +79,17 @@ class Instructor {
     name: reqString(json, 'name'),
     avatarUrl: optString(json, 'avatar_url'),
     bio: optString(json, 'bio'),
+    following: json['following'] is bool ? json['following'] as bool : null,
   );
 
   final int id;
   final String name;
   final String? avatarUrl;
   final String? bio;
+
+  /// 123 Whether the signed-in student follows them; null where following
+  /// isn't offered.
+  final bool? following;
 }
 
 class Price {
@@ -129,6 +138,7 @@ class CourseSummary {
     this.rating,
     this.ratingCount = 0,
     this.wishlisted = false,
+    this.badge,
   });
 
   factory CourseSummary.fromJson(Json json) => CourseSummary(
@@ -142,6 +152,11 @@ class CourseSummary {
     ratingCount: intOr(json, 'rating_count', 0),
     enrolled: reqBool(json, 'enrolled'),
     wishlisted: boolOr(json, 'wishlisted', false),
+    badge: switch (json['badge']) {
+      'new' => CourseBadge.fresh,
+      'bestseller' => CourseBadge.bestseller,
+      _ => null,
+    },
   );
 
   final int id;
@@ -154,6 +169,9 @@ class CourseSummary {
   final int ratingCount;
   final bool enrolled;
   final bool wishlisted;
+
+  /// 123 New (published lately) or one of the three with the most students.
+  final CourseBadge? badge;
 }
 
 /// What the course page's main button does on this platform. 100 `store`:

@@ -870,6 +870,25 @@ describe("pages on the hosted API", () => {
     expect((page.body as { studio: { screen?: string; header?: { type: string } } }).studio).toMatchObject({ screen: "my_courses", header: { type: "title" } });
   });
 
+  it("122 keeps how a web page shows in the app, and checks the parts it hides", () => {
+    const tab = (web: unknown, open_in = "in_app") => ({ id: "blog", label: "Blog", icon: "article", target: { type: "url", url: "https://academy.test/blog", open_in, web } });
+    const withTab = (t: unknown) => {
+      const base = layoutWith([]);
+      return { ...base, tabs: [...(base.tabs as unknown[]), t] };
+    };
+    const ok = parse(withTab(tab({ hide_header: true, hide_footer: true, links_inside: true, hide: ".newsletter, #cookie-banner", other: 1 })));
+    expect(ok.ok && ok.value.tabs[2]!.target).toEqual({ type: "url", url: "https://academy.test/blog", open_in: "in_app", web: { hide_header: true, hide_footer: true, links_inside: true, hide: ".newsletter, #cookie-banner" } });
+    // Nothing chosen: none kept. In the browser: the app doesn't show it, none kept.
+    const plain = parse(withTab(tab({ hide_header: false })));
+    expect(plain.ok && plain.value.tabs[2]!.target).not.toHaveProperty("web");
+    const outside = parse(withTab(tab({ hide_header: true }, "browser")));
+    expect(outside.ok && outside.value.tabs[2]!.target).not.toHaveProperty("web");
+    // Only selectors: nothing that ends a rule or a style.
+    for (const bad of ["a{display:block}", "x; y", "</style><script>"]) {
+      expect(errorsOf(withTab(tab({ hide: bad })))).toEqual(['Tab 3: the parts to hide must be CSS selectors, such as .newsletter, #cookie-banner.']);
+    }
+  });
+
   it("120 checks the screen a page is drawn around", () => {
     const studio = (screen: unknown, header: unknown = null) => ({ header, body: { id: "b", type: "column", children: [] }, screen });
     const page = (slug: string, s: unknown) => ({ slug, title: slug, show_title: false, updated_at: NOW.toISOString(), blocks: [], studio: s });

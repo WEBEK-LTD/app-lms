@@ -10146,4 +10146,234 @@ class OverlayLocalizations extends AppLocalizations {
   String accountPointsToUse(int count) =>
       overlay.format('accountPointsToUse', {'count': count}) ??
       base.accountPointsToUse(count);
+
+  @override
+  String studioGreetingMorning(String name) =>
+      overlay.format('studioGreetingMorning', {'name': name}) ??
+      base.studioGreetingMorning(name);
+
+  @override
+  String studioGreetingEvening(String name) =>
+      overlay.format('studioGreetingEvening', {'name': name}) ??
+      base.studioGreetingEvening(name);
+
+  @override
+  String get studioGreetingMorningAlone =>
+      overlay.text('studioGreetingMorningAlone') ??
+      base.studioGreetingMorningAlone;
+
+  @override
+  String get studioGreetingEveningAlone =>
+      overlay.text('studioGreetingEveningAlone') ??
+      base.studioGreetingEveningAlone;
+
+  @override
+  String learningLessonOf(int current, int total) =>
+      overlay.format('learningLessonOf', {
+        'current': current,
+        'total': total,
+      }) ??
+      base.learningLessonOf(current, total);
+
+  @override
+  String learningMinutesLeft(int minutes) =>
+      overlay.format('learningMinutesLeft', {'minutes': minutes}) ??
+      base.learningMinutesLeft(minutes);
+
+  @override
+  String get learningStreakTitle =>
+      overlay.text('learningStreakTitle') ?? base.learningStreakTitle;
+
+  @override
+  String learningStreakDays(int count) =>
+      overlay.format('learningStreakDays', {'count': count}) ??
+      base.learningStreakDays(count);
+
+  @override
+  String get learningLiveTitle =>
+      overlay.text('learningLiveTitle') ?? base.learningLiveTitle;
+
+  @override
+  String learningLiveNow(String time) =>
+      overlay.format('learningLiveNow', {'time': time}) ??
+      base.learningLiveNow(time);
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) =>
+      overlay.format('learningLiveInMinutes', {
+        'minutes': minutes,
+        'time': time,
+      }) ??
+      base.learningLiveInMinutes(minutes, time);
+
+  @override
+  String learningLiveInHours(int hours, String time) =>
+      overlay.format('learningLiveInHours', {'hours': hours, 'time': time}) ??
+      base.learningLiveInHours(hours, time);
+
+  @override
+  String learningLiveOn(String day, String time) =>
+      overlay.format('learningLiveOn', {'day': day, 'time': time}) ??
+      base.learningLiveOn(day, time);
+
+  @override
+  String get learningWeekTitle =>
+      overlay.text('learningWeekTitle') ?? base.learningWeekTitle;
+
+  @override
+  String learningWeekUp(int percent) =>
+      overlay.format('learningWeekUp', {'percent': percent}) ??
+      base.learningWeekUp(percent);
+
+  @override
+  String learningWeekDown(int percent) =>
+      overlay.format('learningWeekDown', {'percent': percent}) ??
+      base.learningWeekDown(percent);
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) =>
+      overlay.format('learningHoursMinutes', {
+        'hours': hours,
+        'minutes': minutes,
+      }) ??
+      base.learningHoursMinutes(hours, minutes);
+
+  @override
+  String learningMinutesOnly(int minutes) =>
+      overlay.format('learningMinutesOnly', {'minutes': minutes}) ??
+      base.learningMinutesOnly(minutes);
+
+  @override
+  String get exploreSearchHint =>
+      overlay.text('exploreSearchHint') ?? base.exploreSearchHint;
+
+  @override
+  String get freeCourses => overlay.text('freeCourses') ?? base.freeCourses;
+
+  @override
+  String get courseBadgeNew =>
+      overlay.text('courseBadgeNew') ?? base.courseBadgeNew;
+
+  @override
+  String get courseBadgeBestseller =>
+      overlay.text('courseBadgeBestseller') ?? base.courseBadgeBestseller;
+
+  @override
+  String get certifiedCertificate =>
+      overlay.text('certifiedCertificate') ?? base.certifiedCertificate;
+
+  @override
+  String get aboutCourse => overlay.text('aboutCourse') ?? base.aboutCourse;
+
+  @override
+  String get courseQuestions =>
+      overlay.text('courseQuestions') ?? base.courseQuestions;
+
+  @override
+  String saveShare(int percent) =>
+      overlay.format('saveShare', {'percent': percent}) ??
+      base.saveShare(percent);
+
+  @override
+  String get joinNow => overlay.text('joinNow') ?? base.joinNow;
+
+  @override
+  String lessonsDoneOf(int done, int total) =>
+      overlay.format('lessonsDoneOf', {'done': done, 'total': total}) ??
+      base.lessonsDoneOf(done, total);
+
+  @override
+  String certificatesCount(int count) =>
+      overlay.format('certificatesCount', {'count': count}) ??
+      base.certificatesCount(count);
+
+  @override
+  String get certificatesReady =>
+      overlay.text('certificatesReady') ?? base.certificatesReady;
+
+  @override
+  String get myCoursesLearning =>
+      overlay.text('myCoursesLearning') ?? base.myCoursesLearning;
+
+  @override
+  String get myCoursesFinished =>
+      overlay.text('myCoursesFinished') ?? base.myCoursesFinished;
+
+  @override
+  String get myCoursesSaved =>
+      overlay.text('myCoursesSaved') ?? base.myCoursesSaved;
+
+  @override
+  String statCourses(int count) =>
+      overlay.format('statCourses', {'count': count}) ??
+      base.statCourses(count);
+
+  @override
+  String statCertificates(int count) =>
+      overlay.format('statCertificates', {'count': count}) ??
+      base.statCertificates(count);
+
+  @override
+  String statHours(int count) =>
+      overlay.format('statHours', {'count': count}) ?? base.statHours(count);
+
+  @override
+  String get darkModeSwitch =>
+      overlay.text('darkModeSwitch') ?? base.darkModeSwitch;
+
+  @override
+  String get lessonFiles => overlay.text('lessonFiles') ?? base.lessonFiles;
+
+  @override
+  String get lessonOverview =>
+      overlay.text('lessonOverview') ?? base.lessonOverview;
+
+  @override
+  String get upNext => overlay.text('upNext') ?? base.upNext;
+
+  @override
+  String get quizOpensAfter =>
+      overlay.text('quizOpensAfter') ?? base.quizOpensAfter;
+
+  @override
+  String get signInPhoneTitle =>
+      overlay.text('signInPhoneTitle') ?? base.signInPhoneTitle;
+
+  @override
+  String get signInEmailTitle =>
+      overlay.text('signInEmailTitle') ?? base.signInEmailTitle;
+
+  @override
+  String get signInCodeNote =>
+      overlay.text('signInCodeNote') ?? base.signInCodeNote;
+
+  @override
+  String get newAccountShort =>
+      overlay.text('newAccountShort') ?? base.newAccountShort;
+
+  @override
+  String get signInCodeShort =>
+      overlay.text('signInCodeShort') ?? base.signInCodeShort;
+
+  @override
+  String get emailShort => overlay.text('emailShort') ?? base.emailShort;
+
+  @override
+  String get verificationCodeTitle =>
+      overlay.text('verificationCodeTitle') ?? base.verificationCodeTitle;
+
+  @override
+  String codeSentDigits(int count, String number) =>
+      overlay.format('codeSentDigits', {'count': count, 'number': number}) ??
+      base.codeSentDigits(count, number);
+
+  @override
+  String get didntGetCode => overlay.text('didntGetCode') ?? base.didntGetCode;
+
+  @override
+  String get resendCode => overlay.text('resendCode') ?? base.resendCode;
+
+  @override
+  String get confirmAndSignIn =>
+      overlay.text('confirmAndSignIn') ?? base.confirmAndSignIn;
 }

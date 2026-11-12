@@ -9507,4 +9507,230 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String studioGreetingMorning(String name) {
+    return 'Good morning, $name';
+  }
+
+  @override
+  String studioGreetingEvening(String name) {
+    return 'Good evening, $name';
+  }
+
+  @override
+  String get studioGreetingMorningAlone => 'Good morning';
+
+  @override
+  String get studioGreetingEveningAlone => 'Good evening';
+
+  @override
+  String learningLessonOf(int current, int total) {
+    return 'In progress · lesson $current of $total';
+  }
+
+  @override
+  String learningMinutesLeft(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get learningStreakTitle => 'Learning streak';
+
+  @override
+  String learningStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get learningLiveTitle => 'Live class';
+
+  @override
+  String learningLiveNow(String time) {
+    return 'Now · $time';
+  }
+
+  @override
+  String learningLiveInMinutes(int minutes, String time) {
+    return 'In $minutes min · $time';
+  }
+
+  @override
+  String learningLiveInHours(int hours, String time) {
+    return 'In $hours h · $time';
+  }
+
+  @override
+  String learningLiveOn(String day, String time) {
+    return '$day · $time';
+  }
+
+  @override
+  String get learningWeekTitle => 'This week';
+
+  @override
+  String learningWeekUp(int percent) {
+    return '+$percent% on last week';
+  }
+
+  @override
+  String learningWeekDown(int percent) {
+    return '−$percent% on last week';
+  }
+
+  @override
+  String learningHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String learningMinutesOnly(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get exploreSearchHint => 'Course, skill or teacher';
+
+  @override
+  String get freeCourses => 'Free';
+
+  @override
+  String get courseBadgeNew => 'New';
+
+  @override
+  String get courseBadgeBestseller => 'Bestseller';
+
+  @override
+  String get certifiedCertificate => 'Certified certificate';
+
+  @override
+  String get aboutCourse => 'About the course';
+
+  @override
+  String get courseQuestions => 'Questions';
+
+  @override
+  String saveShare(int percent) {
+    return 'Save $percent%';
+  }
+
+  @override
+  String get joinNow => 'Join now';
+
+  @override
+  String lessonsDoneOf(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String certificatesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count certificates',
+      one: '1 certificate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get certificatesReady => 'Ready to download';
+
+  @override
+  String get myCoursesLearning => 'Learning';
+
+  @override
+  String get myCoursesFinished => 'Completed';
+
+  @override
+  String get myCoursesSaved => 'Saved';
+
+  @override
+  String statCourses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'courses',
+      one: 'course',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statCertificates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'certificates',
+      one: 'certificate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'hours',
+      one: 'hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get darkModeSwitch => 'Dark mode';
+
+  @override
+  String get lessonFiles => 'Files';
+
+  @override
+  String get lessonOverview => 'Overview';
+
+  @override
+  String get upNext => 'Next';
+
+  @override
+  String get quizOpensAfter => 'Opens after this lesson';
+
+  @override
+  String get signInPhoneTitle => 'Sign in with your phone';
+
+  @override
+  String get signInEmailTitle => 'Sign in with your email';
+
+  @override
+  String get signInCodeNote => 'We send you a code to sign in, no password.';
+
+  @override
+  String get newAccountShort => 'New account';
+
+  @override
+  String get signInCodeShort => 'Code';
+
+  @override
+  String get emailShort => 'Email';
+
+  @override
+  String get verificationCodeTitle => 'Verification code';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return 'We sent a $count-digit code to $number';
+  }
+
+  @override
+  String get didntGetCode => 'Didn\'t get it?';
+
+  @override
+  String get resendCode => 'Resend';
+
+  @override
+  String get confirmAndSignIn => 'Confirm and sign in';
 }

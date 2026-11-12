@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -231,6 +232,9 @@ class PlayerControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (PremiumPlayer.of(context) case final gold?) {
+      return _PremiumControls(controls: this, gold: gold);
+    }
     final l10n = context.l10n;
     final duration = state.duration;
     final position = state.position > duration && duration > Duration.zero
@@ -428,6 +432,343 @@ class _RoundButton extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// 123 Where the player's controls are drawn as the premium academy's
+/// lesson has them, the played part in [gold].
+class PremiumPlayer extends InheritedWidget {
+  const PremiumPlayer({super.key, required this.gold, required super.child});
+
+  final Color gold;
+
+  static Color? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PremiumPlayer>()?.gold;
+
+  @override
+  bool updateShouldNotify(PremiumPlayer oldWidget) => oldWidget.gold != gold;
+}
+
+/// 123 The premium controls: speed, captions and full screen at the top,
+/// 10 seconds back and forward round a frosted play button, and the seek
+/// bar in parts, the played part in gold, over the time.
+class _PremiumControls extends StatelessWidget {
+  const _PremiumControls({required this.controls, required this.gold});
+
+  final PlayerControls controls;
+  final Color gold;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final c = controls;
+    final state = c.state;
+    final duration = state.duration;
+    final position = state.position > duration && duration > Duration.zero
+        ? duration
+        : state.position;
+    final canSeek = duration > Duration.zero;
+    final fraction = canSeek
+        ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
+        : 0.0;
+    const time = TextStyle(fontSize: 10.5, color: Color(0xD9FFFFFF));
+    Widget top(
+      IconData? icon,
+      String? label,
+      String semantics,
+      VoidCallback onTap,
+    ) => Semantics(
+      button: true,
+      label: semantics,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          child: Center(
+            widthFactor: 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: label != null
+                  ? Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    )
+                  : AppIcon(icon!, size: 22, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+    return Stack(
+      children: [
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x59000000),
+                    Color(0x00000000),
+                    Color(0x00000000),
+                    Color(0x8C000000),
+                  ],
+                  stops: [0, 0.3, 0.6, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        PositionedDirectional(
+          top: 8,
+          end: 8,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (c.onCaptions != null && state.captions.isNotEmpty)
+                top(
+                  state.captionLanguage != null
+                      ? AppIcons.captions
+                      : AppIcons.captionsOff,
+                  null,
+                  state.captionLanguage != null
+                      ? l10n.captionsTurnOff
+                      : l10n.captionsTurnOn,
+                  c.onCaptions!,
+                ),
+              if (c.onQuality != null && state.qualities.length > 1)
+                top(AppIcons.quality, null, l10n.videoQuality, c.onQuality!),
+              if (c.onSpeed != null && state.speeds.isNotEmpty)
+                top(
+                  null,
+                  speedLabel(state.speed),
+                  l10n.playbackSpeedIs(speedLabel(state.speed)),
+                  c.onSpeed!,
+                ),
+              top(
+                c.fullScreen ? AppIcons.fullscreenExit : AppIcons.fullscreen,
+                null,
+                c.fullScreen ? l10n.exitFullScreen : l10n.fullScreen,
+                c.onFullScreen,
+              ),
+            ],
+          ),
+        ),
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (canSeek && state.started && !state.ended)
+                _PlainSkip(
+                  icon: AppIcons.back10,
+                  label: l10n.back10Seconds,
+                  onTap: () => c._skip(-10),
+                ),
+              const SizedBox(width: 22),
+              Semantics(
+                button: true,
+                label: state.playing
+                    ? l10n.pause
+                    : (state.ended ? l10n.playAgain : l10n.play),
+                excludeSemantics: true,
+                child: ClipOval(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Material(
+                      color: const Color(0x33FFFFFF),
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        key: const ValueKey('player-play'),
+                        customBorder: const CircleBorder(),
+                        onTap: c.onPlayPause,
+                        child: SizedBox(
+                          width: 70,
+                          height: 70,
+                          child: AppIcon(
+                            state.playing
+                                ? AppIcons.pause
+                                : (state.ended
+                                      ? AppIcons.replay
+                                      : AppIcons.play),
+                            size: 34,
+                            color: Colors.white,
+                            filled: true,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 22),
+              if (canSeek && state.started && !state.ended)
+                _PlainSkip(
+                  icon: AppIcons.forward10,
+                  label: l10n.forward10Seconds,
+                  onTap: () => c._skip(10),
+                ),
+            ],
+          ),
+        ),
+        Positioned(
+          left: 14,
+          right: 14,
+          bottom: 6,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 24,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: _PartsPainter(
+                          played: fraction,
+                          loaded: state.buffered.clamp(0.0, 1.0),
+                          gold: gold,
+                          rtl: Directionality.of(context) == TextDirection.rtl,
+                        ),
+                      ),
+                    ),
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 4,
+                        activeTrackColor: Colors.transparent,
+                        inactiveTrackColor: Colors.transparent,
+                        secondaryActiveTrackColor: Colors.transparent,
+                        thumbColor: gold,
+                        overlayShape: SliderComponentShape.noOverlay,
+                        trackShape: const RectangularSliderTrackShape(),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 0,
+                          disabledThumbRadius: 0,
+                        ),
+                      ),
+                      child: Slider(
+                        value: fraction,
+                        semanticFormatterCallback: (_) => l10n.positionOf(
+                          formatClock(position),
+                          formatClock(duration),
+                        ),
+                        onChanged: canSeek
+                            ? (v) => c.onSeek(duration * v)
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 110 Played, then the length, in every language.
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Row(
+                  children: [
+                    Text(formatClock(position), style: time),
+                    const Spacer(),
+                    Text(formatClock(duration), style: time),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PlainSkip extends StatelessWidget {
+  const _PlainSkip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    excludeSemantics: true,
+    child: InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: AppIcon(icon, size: 32, color: Colors.white),
+      ),
+    ),
+  );
+}
+
+/// The seek bar in five parts: played in gold, loaded lighter, the rest
+/// faint, from where the language reads.
+class _PartsPainter extends CustomPainter {
+  const _PartsPainter({
+    required this.played,
+    required this.loaded,
+    required this.gold,
+    required this.rtl,
+  });
+
+  final double played;
+  final double loaded;
+  final Color gold;
+  final bool rtl;
+
+  static const _parts = 5;
+  static const _gap = 4.0;
+  static const _height = 4.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final width = (size.width - _gap * (_parts - 1)) / _parts;
+    final top = (size.height - _height) / 2;
+    final rest = Paint()..color = const Color(0x40FFFFFF);
+    final load = Paint()..color = const Color(0x66FFFFFF);
+    final play = Paint()..color = gold;
+    for (var i = 0; i < _parts; i++) {
+      final start = i * (width + _gap);
+      final from = i / _parts;
+      final to = (i + 1) / _parts;
+      double part(double v) => ((v - from) / (to - from)).clamp(0.0, 1.0);
+      void bar(double share, Paint paint) {
+        if (share <= 0) return;
+        final w = width * share;
+        final left = rtl ? size.width - start - w : start;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(left, top, w, _height),
+            const Radius.circular(2),
+          ),
+          paint,
+        );
+      }
+
+      bar(1, rest);
+      bar(part(loaded), load);
+      bar(part(played), play);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PartsPainter old) =>
+      old.played != played ||
+      old.loaded != loaded ||
+      old.gold != gold ||
+      old.rtl != rtl;
 }
 
 /// A small dark button in the player's bottom row.

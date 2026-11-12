@@ -10,7 +10,8 @@ import '../l10n/l10n.dart';
 
 enum PriceFilter { all, free, paid }
 
-enum CourseOrder { newest, popular, title }
+/// 123 `rating`: the best rated first.
+enum CourseOrder { newest, popular, title, rating }
 
 enum MyCoursesStatus { inProgress, completed }
 
@@ -671,6 +672,12 @@ abstract class YallappApi {
   Future<List<LearningPath>> listLearningPaths();
   Future<LearningPath> getLearningPath(int pathId);
   Future<Achievements> getAchievements();
+
+  /// 123 The time the student spent learning this week, and all of it.
+  Future<LearningTime> getLearningTime();
+
+  /// 123 Adds [seconds] (1 to 300) spent in a lesson of [courseId].
+  Future<void> addLearningTime(int courseId, int seconds);
   Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false});
   Future<CourseNotes> listCourseNotes(int courseId);
   Future<LessonNotes> listLessonNotes(int lessonId);
@@ -2336,6 +2343,19 @@ class HttpYallappApi implements YallappApi {
   @override
   Future<Achievements> getAchievements() =>
       _get('/me/achievements', _required, Achievements.fromJson);
+
+  @override
+  Future<LearningTime> getLearningTime() =>
+      _get('/me/learning-time', _required, LearningTime.fromJson);
+
+  @override
+  Future<void> addLearningTime(int courseId, int seconds) => _send(
+    'POST',
+    '/me/learning-time',
+    _required,
+    _ignore,
+    body: {'course_id': courseId, 'seconds': seconds.clamp(1, 300)},
+  );
 
   @override
   Future<Leaderboard> getLeaderboard(int courseId, {bool cohort = false}) =>

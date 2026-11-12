@@ -220,6 +220,10 @@ abstract final class Paths {
   static String page(String slug) => '/page/${Uri.encodeComponent(slug)}';
   static const pagePrefix = '/page/';
 
+  /// 122 A bottom tab showing a web page in the app, by the tab's id.
+  static String webTab(String id) => '/web-tab/${Uri.encodeComponent(id)}';
+  static const webTabPrefix = '/web-tab/';
+
   static String course(int id) => '/course/$id';
 
   /// 113.1 A course bundle's page.

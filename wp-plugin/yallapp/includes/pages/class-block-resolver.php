@@ -901,13 +901,43 @@ class Block_Resolver {
 			if ( null === $url || ( 'ios' === $this->platform && $this->is_purchase_url( $url ) ) ) {
 				return null;
 			}
-			return array(
+			$open_in = self::choice( $raw['open_in'] ?? null, array( 'in_app', 'browser' ), 'in_app' );
+			$action  = array(
 				'type'    => 'url',
 				'url'     => $url,
-				'open_in' => self::choice( $raw['open_in'] ?? null, array( 'in_app', 'browser' ), 'in_app' ),
+				'open_in' => $open_in,
 			);
+			// 122 How the page shows in the app: its site's header and footer hidden, its links kept in.
+			$web = 'in_app' === $open_in ? self::web_look( $raw['web'] ?? null ) : null;
+			if ( $web ) {
+				$action['web'] = $web;
+			}
+			return $action;
 		}
 		return null;
+	}
+
+	/**
+	 * 122 `Action.web`: what is set, the selectors checked; null for the page as it is.
+	 *
+	 * @param mixed $raw The layout's.
+	 * @return array|null
+	 */
+	public static function web_look( $raw ) {
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+		$out = array();
+		foreach ( array( 'hide_header', 'hide_footer', 'links_inside' ) as $key ) {
+			if ( true === ( $raw[ $key ] ?? null ) ) {
+				$out[ $key ] = true;
+			}
+		}
+		$hide = isset( $raw['hide'] ) && is_string( $raw['hide'] ) ? trim( $raw['hide'] ) : '';
+		if ( '' !== $hide && preg_match( '/^[A-Za-z0-9\s.#_\-:,>+~*\[\]="\'()^$|]{1,300}$/', $hide ) ) {
+			$out['hide'] = $hide;
+		}
+		return $out ? $out : null;
 	}
 
 	/**
@@ -979,7 +1009,7 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning' );
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
 
 	/**
@@ -1027,7 +1057,8 @@ class Block_Resolver {
 	 */
 	private function studio_header( array $raw ) {
 		$type = $raw['type'] ?? null;
-		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title' ), true ) ) {
+		// 123 `greeting`: today's date over a greeting with the person's first name.
+		if ( ! in_array( $type, array( 'logo_center', 'title_search', 'logo_actions', 'transparent', 'title', 'greeting' ), true ) ) {
 			return null;
 		}
 		$buttons = array();
@@ -1232,6 +1263,14 @@ class Block_Resolver {
 				if ( empty( $node['text'] ) ) {
 					return null;
 				}
+				break;
+			case 'learning':
+				// 123 One of the student's cards, drawn by the app from their own learning.
+				$section = $raw['learning']['section'] ?? null;
+				if ( ! in_array( $section, array( 'continue', 'streak', 'live', 'week' ), true ) ) {
+					return null;
+				}
+				$node['learning'] = array( 'section' => $section );
 				break;
 			case 'coupon':
 				// 112.4 A code people copy: letters, numbers, - and _.
