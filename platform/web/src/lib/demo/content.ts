@@ -3,6 +3,7 @@ import type { DemoId } from "./constants";
 import type { AppFont } from "../build-config/types";
 import type { CardStyle, Corners, LanguageCode } from "../pages/types";
 import type { PictureName } from "./pictures";
+import type { DesignDrawing } from "./picture-assets";
 import type { AppScreen } from "../marketing";
 
 /**
@@ -270,7 +271,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     tryThis: [
       "Tap Send: choose a service, set the pickup and the drop-off (your location or a maps link) and see the price",
       "Send it in cash and follow its stages under My shipments",
-      "Open Account › Courier mode, go on duty and deliver your own parcel: picked up, on the way, delivered",
+      "The couriers have their own app, Sahm Express Courier. Once it can be downloaded here, sign in with the same number, go on duty and deliver your own parcel: picked up, on the way, delivered",
     ],
     // 124.7 Each Studio demo's pictures are its app as it is: its Studio home, its bar and look, and two of its screens.
     screens: ["sahm-home", "sahm-tracking", "sahm-job"],
@@ -280,7 +281,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     tryThis: [
       "Open a restaurant, pick a dish with its size and extras and check out in cash",
       "In the Restaurant tab, accept your order with the minutes it needs, then mark it ready",
-      "In Account › Courier mode, take the job and deliver it, and see each stage in My orders",
+      "The couriers have their own app, Sofra Eats Courier. Once it can be downloaded here, sign in with the same number, take the job and deliver it, and see each stage in My orders",
     ],
     screens: ["sofra-home", "sofra-menu", "sofra-order"],
   },
@@ -300,7 +301,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     summary: "A ride service in Cairo: ask for a ride and see each car type's fare first, then take your own ride as the company's driver.",
     tryThis: [
       "Set the pickup and the drop-off, compare Economy, Comfort and Van, and request a ride in cash",
-      "Open Account › Driver mode, go online and accept your ride before the time runs out",
+      "The drivers have their own app, Masar Rides Driver. Once it can be downloaded here, sign in with the same number, go online and accept your ride before the time runs out",
       "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
     ],
     screens: ["masar-home", "masar-where", "masar-driver"],
@@ -311,7 +312,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     tryThis: [
       "Open the app on the map and see the free taxis moving around you",
       "Set the pickup and where to, compare Taxi, Comfort and XL, and ask for a taxi in cash",
-      "Open Account › Driver mode, go online and accept your ride before the countdown ends",
+      "The drivers have their own app, Lamha Taxi Driver. Once it can be downloaded here, sign in with the same number, go online and accept your ride before the countdown ends",
       "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
     ],
     screens: ["lamha-home", "lamha-ride", "lamha-driver"],
@@ -1715,10 +1716,10 @@ export const DEMO_RESTAURANTS: DemoRestaurant[] = [
   },
 ];
 
-/** 110.5 Lamha Taxi: three vehicle types with their fares, the rider's code to start. */
+/** 110.5 Lamha Taxi: three vehicle types with their fares, the rider's code to start; 124.7 the cars in the designs' drawings (none of a six-seat car, so XL has none). */
 export const TAXI_DEMO_TYPES: typeof RIDES_DEMO_TYPES = [
-  { name: "Taxi", description: "Everyday taxis with four seats", icon: "local_taxi", seats: 4, baseCents: 15_00, perKmCents: 7_50, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00 },
-  { name: "Comfort", description: "Newer cars with more room", icon: "directions_car", seats: 4, baseCents: 22_00, perKmCents: 10_00, perMinuteCents: 1_50, minCents: 55_00, waitPerMinuteCents: 1_50 },
+  { name: "Taxi", description: "Everyday taxis with four seats", icon: "local_taxi", seats: 4, baseCents: 15_00, perKmCents: 7_50, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00, picture: "car-yellow" },
+  { name: "Comfort", description: "Newer cars with more room", icon: "directions_car", seats: 4, baseCents: 22_00, perKmCents: 10_00, perMinuteCents: 1_50, minCents: 55_00, waitPerMinuteCents: 1_50, picture: "car-dark" },
   { name: "XL", description: "Six seats for the family and the luggage", icon: "airport_shuttle", seats: 6, baseCents: 32_00, perKmCents: 13_00, perMinuteCents: 2_00, minCents: 85_00, waitPerMinuteCents: 2_00 },
 ];
 
@@ -1765,9 +1766,9 @@ export const RIDES_DEMO_DRIVERS: DemoTaxiDriver[] = [
   { name: "Adel Fekry", phone: "+12025550158", type: "Van", carModel: "Seven-seat van", carColor: "White", plate: "MS 9033", rating: 4.9, rides: 81 },
 ];
 
-/** Masar Rides: upfront fares, three vehicle types, the rider's code to start. */
-export const RIDES_DEMO_TYPES: { name: string; description: string; icon: string; seats: number; baseCents: number; perKmCents: number; perMinuteCents: number; minCents: number; waitPerMinuteCents: number }[] = [
-  { name: "Economy", description: "Everyday cars", icon: "directions_car", seats: 4, baseCents: 15_00, perKmCents: 7_00, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00 },
-  { name: "Comfort", description: "Newer cars with more room", icon: "local_taxi", seats: 4, baseCents: 20_00, perKmCents: 9_50, perMinuteCents: 1_50, minCents: 50_00, waitPerMinuteCents: 1_50 },
+/** Masar Rides: upfront fares, three vehicle types, the rider's code to start; 124.7 the cars in the designs' drawings (none of a van, so the Van has none). */
+export const RIDES_DEMO_TYPES: { name: string; description: string; icon: string; seats: number; baseCents: number; perKmCents: number; perMinuteCents: number; minCents: number; waitPerMinuteCents: number; picture?: DesignDrawing }[] = [
+  { name: "Economy", description: "Everyday cars", icon: "directions_car", seats: 4, baseCents: 15_00, perKmCents: 7_00, perMinuteCents: 1_00, minCents: 35_00, waitPerMinuteCents: 1_00, picture: "car-teal" },
+  { name: "Comfort", description: "Newer cars with more room", icon: "local_taxi", seats: 4, baseCents: 20_00, perKmCents: 9_50, perMinuteCents: 1_50, minCents: 50_00, waitPerMinuteCents: 1_50, picture: "car-dark" },
   { name: "Van", description: "For the family and the luggage", icon: "airport_shuttle", seats: 7, baseCents: 30_00, perKmCents: 12_00, perMinuteCents: 2_00, minCents: 80_00, waitPerMinuteCents: 2_00 },
 ];

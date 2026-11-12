@@ -17,8 +17,7 @@ import type {
 } from "../data/types";
 import { deliverySettingsOf } from "../delivery/settings";
 import { STUDIO_HOURS } from "../demo/content";
-import { savePicture, type PictureDeps, type PictureSize } from "../demo/picture-assets";
-import type { PictureName } from "../demo/pictures";
+import { savePicture, type DemoPicture, type PictureDeps, type PictureSize } from "../demo/picture-assets";
 import { donationSettingsOf } from "../donations/service";
 import { eventSettingsOf } from "../events/service";
 import { listingSettingsFor } from "../listings/types";
@@ -71,7 +70,7 @@ interface Seeding {
   teachers: Map<string, number>;
 }
 
-const picture = (s: Seeding, name: PictureName, size: PictureSize) => savePicture(s.deps, { clientId: s.app.clientId, appId: s.app.id }, name, size, "product_image");
+const picture = (s: Seeding, name: DemoPicture, size: PictureSize) => savePicture(s.deps, { clientId: s.app.clientId, appId: s.app.id }, name, size, "product_image");
 
 /** Seconds apart, newest first in the order given, so the lists that show the newest first keep the samples' order. */
 const ago = (now: Date, i: number, step = 60_000) => new Date(now.getTime() - i * step);
@@ -551,7 +550,7 @@ async function seedVehicleTypes(s: Seeding): Promise<boolean> {
         name: seed.name[s.lang],
         description: seed.description[s.lang],
         icon: seed.icon,
-        imageAssetId: null,
+        imageAssetId: seed.picture ? await picture(s, seed.picture, "product") : null,
         seats: seed.seats,
         baseCents: money(seed.baseCents),
         perKmCents: money(seed.perKmCents),

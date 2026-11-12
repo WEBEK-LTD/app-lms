@@ -13,6 +13,7 @@ import { demoIdOf, demoKind, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoDesignId } from "@/lib/demo/look";
 import { demoLayout } from "@/lib/demo/setup";
+import { withDemoFacts } from "@/lib/studio/demo-templates";
 import { designsForApp } from "@/lib/pages/designs/catalog";
 import { parseLayoutContent } from "@/lib/pages/validate";
 import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pages/types";
@@ -83,7 +84,9 @@ describe("the bot makes a Studio project: the chosen demo, exactly", () => {
     // The demo as the platform keeps it (a layout is checked and tidied when it's saved or published).
     const kept = parseLayoutContent(demo, { app, now: NOW });
     expect(kept.ok).toBe(true);
-    if (kept.ok) expect(whole(layout)).toEqual(whole(kept.value));
+    // 124.7 The demo's own words where the project keeps the template's brackets for the owner.
+    const asDemo = { ...layout, pages: layout.pages.map((p) => (p.slug === "home" && p.studio ? { ...p, studio: withDemoFacts(id, p.studio) } : p)) };
+    if (kept.ok) expect(whole(asDemo)).toEqual(whole(kept.value));
     // The demo's own sample entries.
     expect(await sampleTotal(store, (await store.getAppById(app.id))!)).toBeGreaterThan(0);
   });

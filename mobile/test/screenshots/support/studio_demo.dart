@@ -359,7 +359,8 @@ DemoApi sofraStudioApi() {
   );
 }
 
-/// Masar Rides (Studio's rides demo): its car types on its home; without
+/// Masar Rides (Studio's rides demo): its car types on its home, the cars
+/// in their drawings (none of a van); without
 /// [ride], no ride on its way.
 DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
     StudioDemo.masar.apply(
@@ -370,14 +371,27 @@ DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
       primaryColor: '#14857A',
       items: {
         'vehicle_types': [
-          _item('vehicle_types', 1, 'Economy', 'Everyday cars'),
-          _item('vehicle_types', 2, 'Comfort', 'Newer cars with more room'),
+          _item(
+            'vehicle_types',
+            1,
+            'Economy',
+            'Everyday cars',
+            image: StudioDemo.masar.picture('car-teal'),
+          ),
+          _item(
+            'vehicle_types',
+            2,
+            'Comfort',
+            'Newer cars with more room',
+            image: StudioDemo.masar.picture('car-dark'),
+          ),
           _item('vehicle_types', 3, 'Van', 'For the family and the luggage'),
         ],
       },
     );
 
-/// Lamha Taxi (Studio's live taxi demo): its car types on its home.
+/// Lamha Taxi (Studio's live taxi demo): its car types on its home, the cars
+/// in their drawings (none of a six-seat car).
 DemoApi lamhaStudioApi({
   bool driver = false,
   bool ride = true,
@@ -388,8 +402,20 @@ DemoApi lamhaStudioApi({
   primaryColor: '#1C2541',
   items: {
     'vehicle_types': [
-      _item('vehicle_types', 1, 'Taxi', 'Everyday taxis with four seats'),
-      _item('vehicle_types', 2, 'Comfort', 'Newer cars with more room'),
+      _item(
+        'vehicle_types',
+        1,
+        'Taxi',
+        'Everyday taxis with four seats',
+        image: StudioDemo.lamha.picture('car-yellow'),
+      ),
+      _item(
+        'vehicle_types',
+        2,
+        'Comfort',
+        'Newer cars with more room',
+        image: StudioDemo.lamha.picture('car-dark'),
+      ),
       _item(
         'vehicle_types',
         3,

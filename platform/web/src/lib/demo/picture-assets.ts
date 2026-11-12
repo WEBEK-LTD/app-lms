@@ -2,6 +2,7 @@ import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { AssetKind } from "../data/types";
 import { artPng, type Art } from "./art";
+import { DESIGN_ART } from "./design-art";
 import { PICTURES, type PictureName } from "./pictures";
 
 /**
@@ -41,8 +42,19 @@ export interface PictureDeps {
  * account's (`appId` missing); 110.2 a sample entry's are its app's alone,
  * so removing an app's samples never takes another app's pictures.
  */
-export async function savePicture(deps: PictureDeps, owner: { clientId: string; appId?: string }, name: PictureName, size: PictureSize, kind: AssetKind): Promise<string> {
-  return saveArt(deps, owner, PICTURES[name], size, kind);
+export async function savePicture(deps: PictureDeps, owner: { clientId: string; appId?: string }, name: DemoPicture, size: PictureSize, kind: AssetKind): Promise<string> {
+  return saveArt(deps, owner, demoArt(name), size, kind);
+}
+
+/** 124.7 The designs' drawings a demo's entries use too (public/design-pictures/art-<name>.png): the ride demos' cars. */
+export type DesignDrawing = "car-teal" | "car-dark" | "car-yellow";
+
+/** A demo's picture: its own drawing (lib/demo/pictures.ts), or one of the designs'. */
+export type DemoPicture = PictureName | DesignDrawing;
+
+/** The drawing of a demo's picture. */
+export function demoArt(name: DemoPicture): Art {
+  return (PICTURES as Record<string, Art>)[name] ?? DESIGN_ART[`art-${name}.png`]!.art;
 }
 
 function artId(owner: { clientId: string; appId?: string }, art: Art, size: PictureSize): string {

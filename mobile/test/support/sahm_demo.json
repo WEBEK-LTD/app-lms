@@ -547,17 +547,17 @@
          {
           "id": "demo-25",
           "type": "text",
-          "text": "[Your address and opening hours]",
+          "text": "Downtown Cairo, by Tahrir Square · Every day, 09:00 to 22:00",
           "font": {
            "size": 13
           },
           "opacity": 0.8,
           "translations": {
            "ar": {
-            "text": "[العنوان ومواعيد العمل]"
+            "text": "وسط القاهرة، بجوار ميدان التحرير · يوميًا من 09:00 إلى 22:00"
            },
            "tr": {
-            "text": "[Adresiniz ve çalışma saatleriniz]"
+            "text": "Kahire şehir merkezi, Tahrir Meydanı'nın yanında · Her gün 09.00–22.00"
            }
           }
          },

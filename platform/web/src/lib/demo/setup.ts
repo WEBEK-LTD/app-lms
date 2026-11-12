@@ -15,6 +15,7 @@ import { itemSourcesFor } from "../pages/sources";
 import { demoStudioPage, TEMPLATES } from "../studio/sections";
 import { startLayout } from "../studio/start";
 import { demoPageTabs, demoScreenPages, demoTabPages } from "../studio/demo-pages";
+import { withDemoFacts } from "../studio/demo-templates";
 import { demoDesign, demoStudioContext } from "./look";
 import { DEMO_TAB_BARS, demoStudioScreens } from "./screens";
 import type { LayoutBlock, LayoutContent } from "../pages/types";
@@ -41,9 +42,8 @@ import {
   STORE_FREE_SHIPPING_OVER_CENTS,
   STORE_SHIPPING_CENTS,
 } from "./content";
-import type { PictureName } from "./pictures";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
-import { savePicture, type PictureSize } from "./picture-assets";
+import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
@@ -87,7 +87,7 @@ export interface DemoSetupResult {
 }
 
 /** The demo's pictures, saved once per account (lib/demo/picture-assets.ts). */
-async function picture(deps: DemoSetupDeps, clientId: string, name: PictureName, size: PictureSize, kind: AssetKind): Promise<string> {
+async function picture(deps: DemoSetupDeps, clientId: string, name: DemoPicture, size: PictureSize, kind: AssetKind): Promise<string> {
   return savePicture(deps, { clientId }, name, size, kind);
 }
 
@@ -430,7 +430,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   // Templates = demos: a Studio demo's home is its kind's designed page, the same its template starts a project with (a Studio page has no blocks).
   const id = demoIdOf(app);
   const ctx = isStudioDemo(id) ? demoStudioContext(id, appUrl(), itemSourcesFor(app)[0] ?? null) : null;
-  const studio = ctx && isStudioDemo(id) ? demoStudioPage(id, ctx, [signIn]) : null;
+  // 124.7 With the demo's own words where its template asks the owner for theirs.
+  const studio = ctx && isStudioDemo(id) ? withDemoFacts(id, demoStudioPage(id, ctx, [signIn])) : null;
   // 120 Every tab after the home a Studio page drawn around its screen, so each of the demo's pages can be changed in Studio.
   // 120.4 And every other screen of the app, so each can be changed in Studio too.
   const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set([...designed.pages.map((p) => p.slug), ...designed.tabs.map((t) => t.id)]))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];

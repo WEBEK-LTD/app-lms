@@ -59,7 +59,7 @@ import {
   type DemoStaff,
 } from "./content";
 import type { PictureName } from "./pictures";
-import type { PictureSize } from "./picture-assets";
+import type { DemoPicture, PictureSize } from "./picture-assets";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
 /**
@@ -78,7 +78,7 @@ export interface EntryDeps {
   store: DataStore;
   now: Date;
   /** A drawn picture of the demo's as an asset: the demo account's, or the app's own for samples. */
-  picture: (name: PictureName, size: PictureSize) => Promise<string>;
+  picture: (name: DemoPicture, size: PictureSize) => Promise<string>;
   /** Samples for an app started from the demo, rather than the demo app itself. */
   sample: boolean;
 }
@@ -559,7 +559,10 @@ export async function demoVehicleTypes(deps: EntryDeps, app: App, taxi: boolean,
     const prices = deps.sample
       ? { baseCents: money(type.baseCents), perKmCents: money(type.perKmCents), perMinuteCents: money(type.perMinuteCents), minCents: money(type.minCents), waitPerMinuteCents: money(type.waitPerMinuteCents) }
       : {};
-    const input = { appId: app.id, ...type, ...prices, imageAssetId: null, position: after + position + 1, active: true, ...marked(deps) };
+    // 124.7 Its car in a design's drawing, where one fits it.
+    const { picture, ...fields } = type;
+    const imageAssetId = picture ? await deps.picture(picture, "product") : null;
+    const input = { appId: app.id, ...fields, ...prices, imageAssetId, position: after + position + 1, active: true, ...marked(deps) };
     const found = deps.sample ? undefined : types.find((t) => t.name === type.name);
     if (found) await store.updateVehicleType(app.id, found.id, input, now);
     typeIds.set(type.name, found ? found.id : (await store.createVehicleType(input, now)).id);

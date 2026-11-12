@@ -1656,7 +1656,7 @@ export const TR_MARKETING: MarketingTranslation = {
       tryThis: [
         "Gönder'e dokunun: bir hizmet seçin, alış ve teslim noktalarını (konumunuz veya bir harita bağlantısı) belirleyin ve fiyatı görün",
         "Nakit gönderin ve aşamalarını Gönderilerim'de takip edin",
-        "Hesap › Kurye modu'nu açın, mesaiye başlayın ve kendi paketinizi teslim edin: alındı, yolda, teslim edildi",
+        "Kuryelerin kendi uygulaması var: Sahm Express Courier. Buradan indirilebildiğinde aynı numarayla giriş yapın, mesaiye başlayın ve kendi paketinizi teslim edin: alındı, yolda, teslim edildi",
       ],
     },
     food: {
@@ -1664,7 +1664,7 @@ export const TR_MARKETING: MarketingTranslation = {
       tryThis: [
         "Bir restoran açın, boyutu ve ekstralarıyla bir yemek seçin ve nakit ödeyin",
         "Restoran sekmesinde siparişinizi gereken dakikalarla kabul edin, sonra hazır olarak işaretleyin",
-        "Hesap › Kurye modu'nda işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
+        "Kuryelerin kendi uygulaması var: Sofra Eats Courier. Buradan indirilebildiğinde aynı numarayla giriş yapın, işi alıp teslim edin ve her aşamayı Siparişlerim'de görün",
       ],
     },
     marketplace: {
@@ -1680,7 +1680,7 @@ export const TR_MARKETING: MarketingTranslation = {
       summary: "Kahire'de bir yolculuk hizmeti: yolculuk isteyin ve önce her araç türünün ücretini görün, sonra şirketin sürücüsü olarak kendi yolculuğunuzu yapın.",
       tryThis: [
         "Alış ve bırakış noktalarını belirleyin, Ekonomi, Konfor ve Van'ı karşılaştırın ve nakit yolculuk isteyin",
-        "Hesap › Sürücü modu'nu açın, çevrimiçi olun ve süre bitmeden yolculuğunuzu kabul edin",
+        "Sürücülerin kendi uygulaması var: Masar Rides Driver. Buradan indirilebildiğinde aynı numarayla giriş yapın, çevrimiçi olun ve süre bitmeden yolculuğunuzu kabul edin",
         "Geldim'e dokunun, yolculuğunuzdaki kodla başlatın, bitirin ve sürücünüzü puanlayın",
       ],
     },
@@ -1689,7 +1689,7 @@ export const TR_MARKETING: MarketingTranslation = {
       tryThis: [
         "Uygulamayı haritada açın ve çevrenizde hareket eden boş taksileri görün",
         "Alış noktasını ve gideceğiniz yeri belirleyin, Taksi, Konfor ve XL'i karşılaştırın ve nakit taksi çağırın",
-        "Hesap › Sürücü modu'nu açın, çevrimiçi olun ve geri sayım bitmeden yolculuğunuzu kabul edin",
+        "Sürücülerin kendi uygulaması var: Lamha Taxi Driver. Buradan indirilebildiğinde aynı numarayla giriş yapın, çevrimiçi olun ve geri sayım bitmeden yolculuğunuzu kabul edin",
         "Geldim'e dokunun, yolculuğunuzdaki kodla başlatın, bitirin ve sürücünüzü puanlayın",
       ],
     },
