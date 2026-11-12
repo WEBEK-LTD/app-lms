@@ -2667,6 +2667,42 @@ export interface PlatformSettingValues {
   designs: DesignsSetting;
 }
 
+/** 124 The kinds of occasion the site has a page for (lib/occasions). */
+export type OccasionTemplate = "black_friday";
+/** The plans an occasion's offer is for. */
+export type OccasionPlans = "all" | "regular" | "studio";
+/** 124 An occasion (Admin › Occasions): an offer for a season with its page, coupon and email. Days are Istanbul's, inclusive. */
+export interface OccasionRecord {
+  id: string;
+  template: OccasionTemplate;
+  /** For the team, e.g. "Black Friday 2026". */
+  name: string;
+  /** `2026-11-01`. */
+  startsOn: string;
+  /** `2026-11-30`, the last day it is on. */
+  endsOn: string;
+  /** A whole percentage off, 1 to 90. */
+  percent: number;
+  /** The coupon's code, upper case. */
+  couponCode: string;
+  plans: OccasionPlans;
+  /** Off: the page says the offer is over and the coupon is off. */
+  active: boolean;
+  /** The coupon saving the occasion made or updated. */
+  couponId: string | null;
+  /** ISO time. */
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export interface OccasionsSetting {
+  items: OccasionRecord[];
+}
+
+export interface PlatformSettingValues {
+  occasions: OccasionsSetting;
+}
+
 /** 62 The daily job's look at the media folders: folders of apps that no longer exist, and when each was first seen (lib/media/sweep.ts). */
 export interface MediaSweepSetting {
   orphans: Record<string, string>;

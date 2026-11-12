@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { activateClient } from "@/lib/admin/clients";
 import { registerClient } from "@/lib/auth/accounts";
@@ -238,7 +240,7 @@ describe("114 templates", () => {
     expect(new Set(MAIL_TEMPLATES.map((t) => t.id)).size).toBe(MAIL_TEMPLATES.length);
     for (const def of MAIL_TEMPLATES) {
       const c = templateContent(def, BASE);
-      expect(c.dir).toBe("ltr");
+      expect(c.dir).toBe(def.dir ?? "ltr");
       expect(validDoc(c.doc)).toBe(true);
       const { html } = renderContent(c, { lang: "en", assetBase: BASE });
       expect(html).toContain(`${BASE}/email/templates/${def.picture}`);
@@ -253,6 +255,36 @@ describe("114 templates", () => {
     const offer = MAIL_TEMPLATES.find((t) => t.id === "offer")!;
     const problems = campaignProblems(campaign({ contents: { en: templateContent(offer, BASE) } }), BASE);
     expect(problems.map((p) => p.message).join(" ")).toContain("{{discount}}");
+  });
+
+  it("124 Black Friday: an offer in English, Arabic (right to left) and Turkish, with the code, the days, the page and a credited photograph", () => {
+    const ids = ["black_friday", "black_friday_ar", "black_friday_tr"];
+    const defs = ids.map((id) => MAIL_TEMPLATES.find((t) => t.id === id)!);
+    const pages = { black_friday: "https://yallapp.com.tr/black-friday", black_friday_ar: "https://yallapp.com.tr/ar/black-friday", black_friday_tr: "https://yallapp.com.tr/tr/black-friday" } as Record<string, string>;
+    for (const def of defs) {
+      expect(def, def?.id).toBeDefined();
+      expect(def.category).toBe("Offers");
+      expect(def.picture).toBe("black-friday.jpg");
+      expect(def.credit).toMatchObject({ creator: "Shixart1985", license: "CC BY 2.0", source: expect.stringMatching(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/) });
+      const c = templateContent(def, BASE);
+      expect(c.dir).toBe(def.id === "black_friday_ar" ? "rtl" : "ltr");
+      const { html } = renderContent(c, { lang: def.lang ?? "en", assetBase: BASE });
+      expect(html).toContain("BLACKFRIDAY50");
+      expect(html).toMatch(/50%|%50/);
+      expect(html).toContain(pages[def.id]!);
+      expect(html).toContain("Shixart1985");
+      // The coupon block, and nothing left for the admin to fill in.
+      expect(c.doc!.blocks.some((b) => b.type === "coupon" && b.code === "BLACKFRIDAY50")).toBe(true);
+      expect(unknownMergeTags(JSON.stringify(c.doc))).toEqual([]);
+      expect(campaignProblems(campaign({ contents: { [def.lang ?? "en"]: c } }), BASE).map((p) => p.message).join(" ")).not.toMatch(/\{\{(discount|coupon_code)\}\}/);
+    }
+    expect(renderContent(templateContent(defs[1]!, BASE), { lang: "ar", assetBase: BASE }).html).toContain('dir="rtl"');
+    // The Arabic is the site's: Latin digits and Arabic punctuation.
+    expect(JSON.stringify(templateContent(defs[1]!, BASE).doc)).not.toMatch(/[٠-٩]/);
+    const credits = readFileSync(path.join(__dirname, "../../public/email/templates/CREDITS.md"), "utf8");
+    expect(credits).toContain("black-friday.jpg");
+    expect(credits).toContain("CC BY 2.0");
+    expect(existsSync(path.join(__dirname, "../../public/email/templates/black-friday.jpg"))).toBe(true);
   });
 
   it("a template's ids are new each time it's used", () => {

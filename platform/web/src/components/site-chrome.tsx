@@ -14,6 +14,7 @@ import { WhatsAppLink } from "./whatsapp-link";
 import { LanguageList } from "./language-switcher";
 import { SiteNav } from "./site-nav";
 import { LiveActivity } from "./live-activity";
+import { blackFridayLink } from "@/site/occasions/load";
 
 export type { SitePage };
 
@@ -66,7 +67,7 @@ function productLinks(lang: Lang, m: Messages): { id: string; href: string; labe
 
 /** The dark footer. `full` (marketing pages) adds the WhatsApp button and a contact column, and the live activity card (outside the dark band, so it takes the page's light or dark colors). */
 export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?: boolean; lang?: Lang }) {
-  const contact = await getContact();
+  const [contact, offer] = await Promise.all([getContact(), blackFridayLink(lang)]);
   const m = messagesFor(lang);
   const f = m.footer;
   const lp = (path: string) => localePath(lang, path);
@@ -95,6 +96,13 @@ export async function SiteFooter({ full = false, lang = DEFAULT_LANG }: { full?:
           </div>
           <nav aria-label={m.nav.product} className="flex flex-[1_1_140px] flex-col gap-3 text-[15px]">
             <FooterHeading>{f.product}</FooterHeading>
+            {/* 124 Black Friday's page, while the offer is on or about to start (Admin › Occasions). */}
+            {offer ? (
+              <Link href={offer.href} className={`${footerLink} flex items-center gap-1.5 font-bold`} data-occasion-link="">
+                <Icon name="local_offer" size={18} className="text-ember" />
+                {offer.label}
+              </Link>
+            ) : null}
             {productLinks(lang, m).map((page) => (
               <Link key={page.id} href={page.href} className={footerLink}>
                 {page.label}

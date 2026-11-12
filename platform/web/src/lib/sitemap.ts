@@ -64,6 +64,8 @@ export function sitemapEntries(base: string, updated: Record<string, string | un
     entry("/yallapp-studio", 0.9),
     // The Studio story pages, one per bundle.
     ...STORY_IDS.map((id) => entry(storyPath(id), 0.8)),
+    // 124 Black Friday's page: the same address every year, listed when the offer is over too.
+    entry("/black-friday", 0.8),
     entry("/compare", 0.8),
     ...compareParams().map((c) => entry(`/compare/${c.name}`, 0.7)),
     entry("/demo", 0.7),

@@ -6,6 +6,7 @@ import { solutionFor } from "@/lib/marketing-lang";
 import { formatMessage, messagesFor, type Lang } from "@/i18n";
 import { storyCopyFor } from "@/content/stories";
 import { isStoryId } from "@/site/story/types";
+import { blackFridayOgText } from "@/site/occasions/load";
 
 /** 32 The share images, 55 in every language: the text on them is the page's language. */
 
@@ -56,4 +57,9 @@ export function storyOgImage(lang: Lang, id: string) {
   if (!isStoryId(id)) return studioOgImage(lang);
   const t = storyCopyFor(lang).stories[id];
   return ogImage({ eyebrow: t.navName, title: t.title, text: t.summary, lang });
+}
+
+/** 124 Black Friday's share image: the offer as the team saved it, or that it's over. */
+export async function blackFridayOgImage(lang: Lang) {
+  return ogImage({ ...(await blackFridayOgText(lang)), lang });
 }

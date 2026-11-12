@@ -63,6 +63,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 { href: "/admin/payments", label: "Payments", icon: "payments" },
                 { href: "/admin/invoices", label: "Invoices", icon: "receipt_long" },
                 { href: "/admin/coupons", label: "Coupons", icon: "local_offer" },
+                // 124 Offers for a season (Black Friday): their days, coupon and next year's.
+                { href: "/admin/occasions", label: "Occasions", icon: "event" },
               ],
             },
             {

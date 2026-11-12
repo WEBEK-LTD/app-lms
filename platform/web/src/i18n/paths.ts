@@ -24,6 +24,8 @@ const EXACT_PAGES = new Set([
   // The comparison with other app builders (its pages are /compare/<name>, a section).
   "/compare",
   "/faq",
+  // 124 Black Friday's page (Admin › Occasions), every year at the same address.
+  "/black-friday",
   "/docs",
   "/developers",
   "/terms",

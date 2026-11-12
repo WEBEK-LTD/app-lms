@@ -5,10 +5,15 @@
  * in Yallapp's look with its own picture (public/email/templates). No prices
  * are written in them: a placeholder like {{discount}} or {{event_date}}
  * stays until the admin replaces it, and sending refuses while one is left.
+ *
+ * 124 Black Friday's three (English, Arabic right to left, Turkish) are the
+ * exception: the owner fixed the offer (50% with BLACKFRIDAY50, 1 to 30
+ * November 2026), so they say it. Their picture is a photograph, credited
+ * in `credit` and in public/email/templates/CREDITS.md.
  */
 
 import { BRAND_THEME, blockId, cloneBlock } from "./blocks";
-import type { MailBlock, MailContent, MailDoc, MailTheme } from "./types";
+import type { MailBlock, MailContent, MailDoc, MailLang, MailTheme } from "./types";
 
 export interface MailTemplateDef {
   id: string;
@@ -20,6 +25,11 @@ export interface MailTemplateDef {
   /** Its picture, under /email/templates/. */
   picture: string;
   theme?: Partial<MailTheme>;
+  /** 124 The language it is written in (English when unset), and its direction: right to left for Arabic. */
+  lang?: MailLang;
+  dir?: "ltr" | "rtl";
+  /** 124 The picture's credit, when it is someone's photograph (also in public/email/templates/CREDITS.md). */
+  credit?: { creator: string; license: string; licenseUrl: string; source: string };
   blocks: (assets: string) => MailBlock[];
 }
 
@@ -50,6 +60,138 @@ const footer = (line = "Yallapp turns your website into a real mobile app, and y
   style: { align: "center", padding: P(22, 32, 8, 32) },
 });
 const social = (): MailBlock => ({ id: blockId(), type: "social", social: [{ network: "website", url: "https://yallapp.com.tr" }], style: { align: "center", padding: P(4, 32, 4, 32) } });
+
+
+/** 124 Black Friday's page, on the site (each language's own address). */
+const BLACK_FRIDAY_PAGE = { en: "https://yallapp.com.tr/black-friday", ar: "https://yallapp.com.tr/ar/black-friday", tr: "https://yallapp.com.tr/tr/black-friday" } as const;
+const BLACK_FRIDAY_CODE = "BLACKFRIDAY50";
+const EMBER = "#FF5A1F";
+/** The gift box's photograph: Shixart1985 on Wikimedia Commons, CC BY 2.0, cropped and resized. */
+const BLACK_FRIDAY_CREDIT = {
+  creator: "Shixart1985",
+  license: "CC BY 2.0",
+  licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+  source: "https://commons.wikimedia.org/wiki/File:Brown_gift_box_with_red_ribbon_and_bow.jpg",
+};
+const BLACK_FRIDAY_THEME: Partial<MailTheme> = { background: MIDNIGHT, body: "#17153B", text: IVORY, muted: "#B9B4D3", accent: EMBER };
+
+interface BlackFridayWords {
+  alt: string;
+  kicker: string;
+  title: string;
+  text: string;
+  codeLabel: string;
+  useCode: string;
+  list: string[];
+  seeOffer: string;
+  terms: string;
+  credit: string;
+  footer: string;
+}
+
+/** One language of Black Friday's email: the offer, the code, the page and the terms in one line. */
+function blackFridayBlocks(assets: string, lang: "en" | "ar" | "tr", w: BlackFridayWords): MailBlock[] {
+  // "left" is where the line starts: the right side in the Arabic (right-to-left) email.
+  const align = "left" as const;
+  return [
+    darkHeader(),
+    { ...hero(assets, "black-friday.jpg", w.alt, BLACK_FRIDAY_PAGE[lang]), style: { padding: P(0, 32, 8, 32), radius: 18 } },
+    { ...kicker(w.kicker, EMBER), style: { padding: P(22, 32, 0, 32), fontSize: 13, color: EMBER, align } },
+    h1(w.title, { color: IVORY, align }),
+    text(w.text, { color: "#D9D5EA", align }),
+    { id: blockId(), type: "coupon", text: w.codeLabel, code: BLACK_FRIDAY_CODE, button: { label: w.useCode, url: "{{sign_in_link}}" }, style: { padding: P(12, 32, 12, 32) } },
+    { ...list(w.list), style: { padding: P(8, 32, 8, 32), color: "#D9D5EA", align } },
+    button(w.seeOffer, BLACK_FRIDAY_PAGE[lang], { align, surface: EMBER, color: MIDNIGHT }),
+    text(w.terms, { fontSize: 13, color: "#B9B4D3", align }),
+    text(w.credit, { fontSize: 11, color: "#8C889A", align }),
+    { id: blockId(), type: "footer", text: w.footer, style: { align: "center", padding: P(22, 32, 8, 32), color: "#B9B4D3" } },
+  ];
+}
+
+/** 124 Black Friday in English, Arabic and Turkish ("Offers"). */
+const BLACK_FRIDAY_TEMPLATES: MailTemplateDef[] = [
+  {
+    id: "black_friday",
+    name: "Black Friday",
+    category: "Offers",
+    description: "Black Friday 2026: 50% off every plan with BLACKFRIDAY50, 1 to 30 November, with a button to the offer's page.",
+    subject: "Black Friday: 50% off every Yallapp plan",
+    preview: "All of November, with the code BLACKFRIDAY50, monthly or yearly.",
+    picture: "black-friday.jpg",
+    theme: BLACK_FRIDAY_THEME,
+    lang: "en",
+    dir: "ltr",
+    credit: BLACK_FRIDAY_CREDIT,
+    blocks: (a) =>
+      blackFridayBlocks(a, "en", {
+        alt: "A gift box tied with a red ribbon",
+        kicker: "BLACK FRIDAY · 1–30 NOVEMBER",
+        title: "50% off every Yallapp plan",
+        text: "<p>Hi {{first_name|there}}, all of November every Yallapp plan is half price with a code: Starter, Growth, Pro and Business for regular apps, and every Yallapp Studio plan, monthly or yearly.</p>",
+        codeLabel: "Your code",
+        useCode: "Use my code",
+        list: ["Your own Android and iOS app, in your name on the stores", "From your website, a platform such as Shopify, or no website at all", "Published by you with our guides, or by us on the plans that include it"],
+        seeOffer: "See the offer →",
+        terms: "<p>From 1 to 30 November 2026, Istanbul time. On the payment you make with the code, once per account; the renewals after it are at the normal price.</p>",
+        credit: "<p>Photo: Shixart1985, CC BY 2.0, Wikimedia Commons.</p>",
+        footer: "<p>Yallapp turns your business into a real mobile app, and you publish it in your own name.</p><p>Questions? Just reply to this email.</p>",
+      }),
+  },
+  {
+    id: "black_friday_ar",
+    name: "Black Friday (Arabic)",
+    category: "Offers",
+    description: "The Black Friday email in Arabic, right to left: 50% off every plan with BLACKFRIDAY50, 1 to 30 November.",
+    subject: "الجمعة البيضاء: خصم 50% على كل باقات Yallapp",
+    preview: "طوال شهر نوفمبر، بالرمز BLACKFRIDAY50، شهريًا أو سنويًا.",
+    picture: "black-friday.jpg",
+    theme: BLACK_FRIDAY_THEME,
+    lang: "ar",
+    dir: "rtl",
+    credit: BLACK_FRIDAY_CREDIT,
+    blocks: (a) =>
+      blackFridayBlocks(a, "ar", {
+        alt: "علبة هدية مربوطة بشريط أحمر",
+        kicker: "الجمعة البيضاء · 1–30 نوفمبر",
+        title: "خصم 50% على كل باقات Yallapp",
+        text: "<p>مرحبًا {{first_name|بك}}، طوال شهر نوفمبر تحصل على خصم 50% على كل باقات Yallapp برمز قسيمة: Starter وGrowth وPro وBusiness للتطبيقات العادية، وكل باقات Yallapp Studio، شهريًا أو سنويًا.</p>",
+        codeLabel: "رمز القسيمة",
+        useCode: "استخدم الرمز",
+        list: ["تطبيقك الخاص على Android وiOS، باسمك في المتاجر", "من موقعك الإلكتروني، أو من منصة مثل Shopify، أو من دون موقع إطلاقًا", "تنشره بنفسك بأدلتنا، أو ننشره نيابةً عنك في الباقات التي تتضمن ذلك"],
+        seeOffer: "اطّلع على العرض ←",
+        terms: "<p>من 1 إلى 30 نوفمبر 2026 بتوقيت إسطنبول. على الدفعة التي تستخدم فيها الرمز، مرة واحدة لكل حساب، والتجديدات التي تليها بالسعر المعتاد.</p>",
+        credit: "<p>الصورة: Shixart1985، برخصة CC BY 2.0، من Wikimedia Commons.</p>",
+        footer: "<p>يحوّل Yallapp نشاطك التجاري إلى تطبيق حقيقي على الهاتف، وتنشره باسمك.</p><p>لديك سؤال؟ ما عليك إلا الرد على هذه الرسالة.</p>",
+      }),
+  },
+  {
+    id: "black_friday_tr",
+    name: "Black Friday (Turkish)",
+    category: "Offers",
+    description: "The Black Friday email in Turkish (Kara Cuma): 50% off every plan with BLACKFRIDAY50, 1 to 30 November.",
+    subject: "Kara Cuma: tüm Yallapp paketlerinde %50 indirim",
+    preview: "Kasım boyunca, BLACKFRIDAY50 koduyla, aylık ya da yıllık.",
+    picture: "black-friday.jpg",
+    theme: BLACK_FRIDAY_THEME,
+    lang: "tr",
+    dir: "ltr",
+    credit: BLACK_FRIDAY_CREDIT,
+    blocks: (a) =>
+      blackFridayBlocks(a, "tr", {
+        alt: "Kırmızı kurdeleyle bağlanmış bir hediye kutusu",
+        kicker: "KARA CUMA · 1–30 KASIM",
+        title: "Tüm Yallapp paketlerinde %50 indirim",
+        text: "<p>Kasım ayı boyunca tüm Yallapp paketleri bir kodla %50 indirimli: normal uygulamalar için Starter, Growth, Pro ve Business ile tüm Yallapp Studio paketleri, aylık ya da yıllık.</p>",
+        codeLabel: "Kodunuz",
+        useCode: "Kodumu kullan",
+        list: ["Mağazalarda kendi adınızla Android ve iOS uygulamanız", "Web sitenizden, Shopify gibi bir platformdan ya da hiç web sitesi olmadan", "Rehberlerimizle siz yayımlarsınız ya da bunu içeren paketlerde biz yayımlarız"],
+        seeOffer: "Kampanyayı görün →",
+        terms: "<p>İstanbul saatiyle 1–30 Kasım 2026. Kodu kullandığınız ödemede, hesap başına bir kez; sonraki yenilemeler normal fiyatla.</p>",
+        credit: "<p>Fotoğraf: Shixart1985, CC BY 2.0, Wikimedia Commons.</p>",
+        footer: "<p>Yallapp işletmenizi gerçek bir mobil uygulamaya dönüştürür, siz de onu kendi adınızla yayımlarsınız.</p><p>Sorunuz mu var? Bu e-postayı yanıtlamanız yeterli.</p>",
+      }),
+  },
+];
 
 export const MAIL_TEMPLATES: MailTemplateDef[] = [
   {
@@ -118,6 +260,7 @@ export const MAIL_TEMPLATES: MailTemplateDef[] = [
       footer(),
     ],
   },
+  ...BLACK_FRIDAY_TEMPLATES,
   {
     id: "renewal",
     name: "Renewal reminder",
@@ -354,5 +497,5 @@ export function mailTemplate(id: string): MailTemplateDef | null {
 export function templateContent(def: MailTemplateDef, assets: string): MailContent {
   const theme = { ...BRAND_THEME, ...def.theme };
   const doc: MailDoc = { version: 1, theme, blocks: def.blocks(assets.replace(/\/+$/, "")).map(cloneBlock) };
-  return { subject: def.subject, preview: def.preview, mode: "blocks", dir: "ltr", doc, html: null };
+  return { subject: def.subject, preview: def.preview, mode: "blocks", dir: def.dir ?? "ltr", doc, html: null };
 }

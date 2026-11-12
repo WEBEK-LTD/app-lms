@@ -66,6 +66,7 @@ const COPY: Record<LlmsLang, Copy> = {
       "/integrations": ["Integrations", "the website plugins and platforms an app can use"],
       "/yallapp-studio": ["Yallapp Studio", "design the app freely, and the Studio project kinds"],
       "/pricing": ["Pricing", "the plans"],
+      "/black-friday": ["Black Friday", "Yallapp's yearly Black Friday offer on the plans, with its days and terms"],
       "/compare": ["Compare", "Yallapp next to other app builders, feature by feature, and regular apps next to Yallapp Studio"],
       "/demo": ["Demo apps", "sample apps to try on an Android phone"],
       "/demo/studio": ["Studio demo apps", "sample Yallapp Studio apps"],
@@ -95,6 +96,7 @@ const COPY: Record<LlmsLang, Copy> = {
       "/integrations": ["التكاملات", "إضافات المواقع والمنصات التي يعمل معها التطبيق"],
       "/yallapp-studio": ["Yallapp Studio", "صمّم تطبيقك بحرية، وأنواع مشاريع Studio"],
       "/pricing": ["الأسعار", "الباقات"],
+      "/black-friday": ["الجمعة البيضاء", "عرض الجمعة البيضاء السنوي من Yallapp على الباقات، بمدته وشروطه"],
       "/compare": ["المقارنة", "Yallapp بجانب منشئي التطبيقات الآخرين ميزةً بميزة، والتطبيقات العادية بجانب Yallapp Studio"],
       "/demo": ["التطبيقات التجريبية", "تطبيقات تجريبية تُجرَّب على هاتف Android"],
       "/demo/studio": ["تطبيقات Studio التجريبية", "تطبيقات تجريبية من Yallapp Studio"],
@@ -113,7 +115,7 @@ const COPY: Record<LlmsLang, Copy> = {
 /** English titles that read badly as "<kind> apps". */
 const EN_TITLES: Record<string, string> = { instructors: "Apps for academies with many teachers" };
 
-const MAIN_PAGES = ["/", "/features", "/how-it-works", "/integrations", "/yallapp-studio", "/pricing", "/compare", "/demo", "/demo/studio", "/faq", "/docs"];
+const MAIN_PAGES = ["/", "/features", "/how-it-works", "/integrations", "/yallapp-studio", "/pricing", "/black-friday", "/compare", "/demo", "/demo/studio", "/faq", "/docs"];
 const COMPANY_PAGES = ["/contact", "/terms", "/privacy", "/refund", "/delete-account"];
 
 /** One line of a link list; Markdown brackets and line breaks in a title are kept out. */
