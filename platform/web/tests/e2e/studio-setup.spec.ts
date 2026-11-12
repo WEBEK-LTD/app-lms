@@ -357,6 +357,35 @@ for (const [kind, short] of KINDS) {
   });
 }
 
+test("124 Branding keeps what was entered while the icon is still missing, and a Studio page can be deleted", async () => {
+  await newProject("Academy", "Keep Academy");
+  await own.goto("/studio/project/setup?step=branding");
+  await own.getByLabel("Name under the app icon").fill("Keep");
+  await own.locator("#upload-logo").setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: solidPng(600, 200, [10, 40, 90]) });
+  await expect(own.getByText("Replace file").first()).toBeVisible();
+  await own.getByRole("button", { name: "Save & continue" }).click();
+  // The step isn't done (no icon), but what was entered is saved and the page says so.
+  await expect(own.getByText("Saved what you entered. To finish this step, fill in what is marked below.")).toBeVisible();
+  await expect(own.getByText("Upload your app icon.")).toBeVisible();
+  await own.goto("/studio/project/setup?step=branding");
+  await expect(own.getByLabel("Name under the app icon")).toHaveValue("Keep");
+  await expect(own.getByText("Replace file")).toHaveCount(1);
+
+  // Studio's page menu: a new page, then deleted (the home never is).
+  await own.goto("/studio/editor");
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await own.getByLabel("Page name").fill("Promo");
+  await own.getByRole("button", { name: "Add the page" }).click();
+  await own.getByRole("button", { name: /^Page: Promo/ }).click();
+  own.once("dialog", (d) => void d.accept());
+  await own.getByRole("menuitem", { name: "Delete this page" }).click();
+  await expect(own.getByRole("button", { name: /^Page: Home/ })).toBeVisible();
+  await own.getByRole("button", { name: /^Page: / }).click();
+  await expect(own.getByRole("menuitemradio", { name: "Promo" })).toHaveCount(0);
+  await expect(own.getByRole("menuitem", { name: "Delete this page" })).toHaveCount(0);
+  await own.keyboard.press("Escape");
+});
+
 test("in Arabic: the designs' names, the messages in place, and every step on a phone", async () => {
   await newProject("Live taxi on the map", "Lamha");
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);
