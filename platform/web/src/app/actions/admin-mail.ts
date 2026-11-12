@@ -356,7 +356,9 @@ export async function createMailCampaignAction(source: string): Promise<MailActi
     const def = MAIL_TEMPLATES.find((t) => t.id === source.slice(6));
     if (!def) return { ok: false, error: "That template isn't there." };
     name = def.name;
-    contents = { en: templateContent(def, appUrl()) };
+    // 124 A template written in Arabic or Turkish starts the campaign in that language.
+    defaultLang = def.lang ?? "en";
+    contents = { [defaultLang]: templateContent(def, appUrl()) };
   } else if (source.startsWith("saved:")) {
     const template = await store.getMailTemplate(source.slice(6));
     if (!template) return { ok: false, error: "That template isn't there." };
