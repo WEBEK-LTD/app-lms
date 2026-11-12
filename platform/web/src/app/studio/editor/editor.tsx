@@ -40,7 +40,7 @@ import { Inspector, type InspectorTab } from "./inspector";
 import { LeftPanel, elementLabel, type LeftTab, type MyTemplate } from "./left-panel";
 import { DRAG_TYPE, Glyph, STUDIO_COLORS as C, StudioMark, type DragPayload } from "./shared";
 import { seedSamplesAction } from "@/app/actions/samples";
-import { applyDemoScreensAction } from "@/app/actions/studio-screens";
+import { applyDemoScreensAction, applyDesignLookAction } from "@/app/actions/studio-screens";
 import { sourcesIn } from "@/lib/samples/lists";
 
 /**
@@ -105,7 +105,10 @@ export function StudioEditor(props: StudioEditorProps) {
   const fontLabels = { arabicOnly: t("common.fontsArabicOnly"), none: t("common.fontsNone"), sample: t("common.fontsSample"), hint: t("common.fontsHint", { count: props.fontCount }) };
   const known = useKnownText();
   const dashLang = useDashLang();
-  const { app } = props;
+  // 124.11 The main colour and the screens' looks a whole design brings are the app's: kept here once saved.
+  const [brand, setBrand] = useState(props.app.brand);
+  const [studioScreens, setStudioScreens] = useState<StudioScreens | null>(props.studioScreens ?? null);
+  const app = { ...props.app, brand };
 
   const [history, setHistory] = useState<History<LayoutContent>>(() => historyOf(props.initial.draft));
   const layout = history.present;
@@ -175,7 +178,7 @@ export function StudioEditor(props: StudioEditorProps) {
   };
   // 124.6 The canvas in the fonts the app draws the page in (the look's and each element's), not the dashboard's.
   useStudioFonts(fontsOfPage(studio?.body, look.font), ownFonts);
-  const palette = useMemo(() => [...new Set([app.brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [app.brand, layout.appearance.secondary_color]);
+  const palette = useMemo(() => [...new Set([brand, layout.appearance.secondary_color, "#FFFFFF", "#0E0D24", "#F4EFE6", "#FF5A1F"].filter((c): c is string => !!c))], [brand, layout.appearance.secondary_color]);
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
   const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
@@ -185,7 +188,7 @@ export function StudioEditor(props: StudioEditorProps) {
   const screenPart: ScreenPartInfo | undefined = studio?.screen
     ? {
         name: screenName,
-        drawing: screenDrawing(studio.screen, props.kind.type, props.studioScreens),
+        drawing: screenDrawing(studio.screen, props.kind.type, studioScreens),
         looksHref: props.screensHref && looksAt ? `${props.screensHref}#${looksAt}` : null,
         words: { drawnLook: t("studio.screenDrawnLook"), drawnOwn: t("studio.screenDrawnOwn"), open: t("studio.screenOpenLooks"), hint: t("studio.screenDrawnHint", { screen: screenName }) },
       }
@@ -747,6 +750,19 @@ export function StudioEditor(props: StudioEditorProps) {
 
   // ——— 108.2 Designs taken out and brought in as files ———
 
+  /** 124.11 What a project's file carries besides its pages: the look, the tabs and their bar, the main colour and the screens' looks. */
+  function projectLook(): NonNullable<DesignFile["look"]> {
+    return {
+      font: layout.appearance.font_family ?? layout.appearance.font,
+      ...(layout.appearance.arabic_font ? { arabic_font: layout.appearance.arabic_font } : {}),
+      primary_color: app.brand,
+      secondary_color: layout.appearance.secondary_color,
+      tabs: layout.tabs,
+      ...(layout.tab_bar ? { tab_bar: layout.tab_bar } : {}),
+      ...(studioScreens ? { screens: studioScreens } : {}),
+    };
+  }
+
   async function exportDesign(kind: DesignKind) {
     setPagesOpen(false);
     const chosen = kind === "project" ? layout.pages.filter((p) => p.studio) : kind === "page" && page?.studio ? [page] : [];
@@ -755,6 +771,8 @@ export function StudioEditor(props: StudioEditorProps) {
     setNotice(t("studio.exporting"));
     try {
       const urls = new Set([...chosen.flatMap((p) => picturesIn(p.studio!)), ...(section ? picturesIn(null, section) : [])]);
+      // 124.11 The sign-in screen's photo goes with the project too.
+      if (kind === "project" && studioScreens?.sign_in?.image_url) urls.add(studioScreens.sign_in.image_url);
       const pictures: Record<string, DesignFilePicture> = {};
       for (const url of urls) {
         const picture = await readPicture(url);
@@ -776,7 +794,7 @@ export function StudioEditor(props: StudioEditorProps) {
         pages: chosen.map((p) => ({ slug: p.slug, title: p.title, ...(p.translations ? { translations: p.translations } : {}), studio: p.studio! })),
         ...(section ? { section } : {}),
         ...(kind === "project"
-          ? { look: { font: layout.appearance.font_family ?? layout.appearance.font, ...(layout.appearance.arabic_font ? { arabic_font: layout.appearance.arabic_font } : {}), primary_color: app.brand, secondary_color: layout.appearance.secondary_color, tabs: layout.tabs } }
+          ? { look: projectLook() }
           : {}),
         pictures,
         fonts,
@@ -793,6 +811,8 @@ export function StudioEditor(props: StudioEditorProps) {
     const section = choice.design.kind === "section";
     const design = { ...choice.design, pages: section ? [] : choice.pages.map((i) => choice.design.pages[i]!) };
     const urls = new Set([...design.pages.flatMap((p) => picturesIn(p.studio)), ...(design.section ? picturesIn(null, design.section) : [])]);
+    const signInPhoto = design.look?.screens?.sign_in?.image_url;
+    if (signInPhoto && (choice.place === "keep_mine" || choice.place === "whole_project")) urls.add(signInPhoto);
     const moved = new Map<string, string>();
     const saving = [...urls].filter((url) => design.pictures[url]);
     let failed = 0;
@@ -824,13 +844,24 @@ export function StudioEditor(props: StudioEditorProps) {
     }
     const file = withoutFonts(design, appFont);
     // 108.7 Kept as one of the account's own whole designs, its pictures at their saved addresses.
-    if (choice.place === "keep_mine") {
+    // 124.11 Or the whole project taken from it at once.
+    if (choice.place === "keep_mine" || choice.place === "whole_project") {
+      const photo = file.look?.screens?.sign_in;
       const kept: DesignFile = {
         ...file,
         pages: file.pages.map((p) => ({ ...p, studio: { ...p.studio, ...(p.studio.header ? { header: { ...p.studio.header, logo_url: p.studio.header.logo_url ? (moved.get(p.studio.header.logo_url) ?? null) : p.studio.header.logo_url } } : {}), body: withPictures(p.studio.body, moved) } })),
+        ...(file.look
+          ? { look: { ...file.look, ...(photo?.image_url && file.look.screens ? { screens: { ...file.look.screens, sign_in: { ...photo, image_url: moved.get(photo.image_url) ?? (/^https:\/\//.test(photo.image_url) ? photo.image_url : null) } } } : {}) } }
+          : {}),
         pictures: {},
         fonts: [],
       };
+      if (choice.place === "whole_project") {
+        applyDesign(kept, "project", 0, false);
+        if (failed) setNotice([t("studio.designsApplied"), t(busy ? "studio.importBusy" : "studio.importPictureFailed", { count: failed }), ...fontFailed].join(" "));
+        else if (fontFailed.length) setNotice([t("studio.designsApplied"), ...fontFailed].join(" "));
+        return;
+      }
       const r = await saveStudioDesignAction(file.name || app.name, "imported", writeDesignFile(kept)).catch(() => null);
       if (r?.ok) setOwnDesigns((list) => [r.design, ...list]);
       setNotice(r?.ok ? t("studio.importKept") : t(r && r.error === "plan" ? "studio.designsErrPlan" : r && r.error === "limit" ? "studio.designsErrLimit" : "studio.designsCantKeep"));
@@ -905,6 +936,15 @@ export function StudioEditor(props: StudioEditorProps) {
     const next = applyWholeDesign(current, fitted, mode === "project" ? file.look : undefined, { mode, openSlug: slug, pageIndex, keep, now: new Date().toISOString(), demo, designSlugs: file.pages.map((p) => p.slug) });
     // 120 The demo's sign-in screen and account menu too.
     if (demo && file.demo) void applyDemoScreensAction(file.demo).catch(() => null);
+    // 124.11 A project's own file: its main colour and its screens' looks, which are the app's.
+    else if (mode === "project" && file.look && (file.look.primary_color || file.look.screens)) {
+      void applyDesignLookAction({ primary: file.look.primary_color ?? null, screens: file.look.screens ?? null })
+        .then((r) => {
+          if (r.primary) setBrand(r.primary);
+          if (r.screens) setStudioScreens(r.screens);
+        })
+        .catch(() => null);
+    }
     change(() => next);
     // 110.2 The empty lists the design's pages show get sample entries; a demo's design, the demo's own (as "Start from demo" does).
     if (mode === "project") void seedSamplesAction([...sourcesIn(fitted)], file.demo ?? null).catch(() => null);
@@ -922,7 +962,7 @@ export function StudioEditor(props: StudioEditorProps) {
       made_at: new Date().toISOString(),
       languages: layout.languages,
       pages: pages.map((p) => ({ slug: p.slug, title: p.title, ...(p.translations ? { translations: p.translations } : {}), studio: p.studio! })),
-      look: { font: layout.appearance.font_family ?? layout.appearance.font, secondary_color: layout.appearance.secondary_color, tabs: layout.tabs },
+      look: projectLook(),
       pictures: {},
       fonts: [],
     });

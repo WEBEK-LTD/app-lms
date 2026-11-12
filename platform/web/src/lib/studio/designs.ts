@@ -275,6 +275,7 @@ export function applyWholeDesign(current: LayoutContent, fitted: LayoutPage[], l
     const studio = studioOf(open, from);
     return { ...current, pages: current.pages.map((p) => (p.slug === open.slug ? { ...p, studio: { ...studio, body: relink(studio.body, slugs) }, updated_at: opts.now } : p)) };
   }
+  if (!opts.demo && look?.tabs?.length) return applyProjectFile(current, fitted, look, opts);
   const slugs = new Map<string, string | null>(fitted.map((p, i) => [p.slug, studioPages[i]?.slug ?? p.slug]));
   const mapped = new Map(studioPages.slice(0, fitted.length).map((p, i) => [p.slug, fitted[i]!]));
   const pages = current.pages.map((p) => {
@@ -308,4 +309,58 @@ export function applyWholeDesign(current: LayoutContent, fitted: LayoutPage[], l
     ...(tabs ? { tabs } : {}),
     ...(opts.demo?.tab_bar ? { tab_bar: structuredClone(opts.demo.tab_bar) } : {}),
   };
+}
+
+/**
+ * 124.11 A project's own file (exported from Studio, kept in "Mine", or
+ * bought from another owner): the whole app as it was made. Each of its
+ * pages takes the project's page drawn around the same screen, else at the
+ * same address, else (the first) the project's first page; the others are
+ * added, and the project's pages the file doesn't have stay. Its tabs open
+ * its pages where they now are (a tab whose page isn't there goes), and its
+ * tab bar, font and second colour become the project's. The main colour and
+ * the screens' looks are the app's, not the draft's: the editor saves them
+ * (applyDesignLookAction).
+ */
+function applyProjectFile(current: LayoutContent, fitted: LayoutPage[], look: NonNullable<DesignFile["look"]>, opts: ApplyOptions): LayoutContent {
+  const studioPages = current.pages.filter((p) => p.studio);
+  const own = opts.designSlugs ?? fitted.map((p) => p.slug);
+  const taken = new Set<string>();
+  const target = fitted.map((page, i) => {
+    const screen = page.studio?.screen;
+    const found =
+      (screen ? studioPages.find((p) => !taken.has(p.slug) && p.studio?.screen === screen) : undefined) ??
+      studioPages.find((p) => !taken.has(p.slug) && !p.studio?.screen && !screen && (p.slug === own[i] || p.slug === page.slug)) ??
+      (i === 0 && !screen ? studioPages.find((p) => !taken.has(p.slug) && !p.studio?.screen) : undefined);
+    if (found) taken.add(found.slug);
+    return found?.slug ?? null;
+  });
+  // Where each of the file's pages is now: links between them follow.
+  const slugs = new Map<string, string | null>(fitted.map((p, i) => [p.slug, target[i] ?? p.slug]));
+  const at = new Map<string, string>(own.map((slug, i) => [slug, target[i] ?? fitted[i]?.slug ?? slug]));
+  const into = new Map(fitted.map((p, i) => [target[i], p] as const).filter((x): x is [string, LayoutPage] => x[0] !== null));
+  const pages = current.pages.map((p) => {
+    const from = into.get(p.slug);
+    if (!from?.studio) return p;
+    const body = opts.keep && p.studio ? keepContent(p.studio.body, from.studio.body) : from.studio.body;
+    const next: LayoutPage = { ...p, title: from.title, translations: from.translations, studio: { ...from.studio, body: relink(body, slugs) }, updated_at: opts.now };
+    if (!next.translations) delete next.translations;
+    return next;
+  });
+  const added = fitted.filter((_, i) => target[i] === null).map((p) => ({ ...p, studio: { ...p.studio!, body: relink(p.studio!.body, slugs) } }));
+  const all = [...pages, ...added];
+  const tabs = (look.tabs ?? [])
+    .map((tab) => {
+      const copy = structuredClone(tab);
+      if (copy.target.type === "page" && copy.target.page_slug) copy.target = { ...copy.target, page_slug: at.get(copy.target.page_slug) ?? copy.target.page_slug };
+      return copy;
+    })
+    .filter((tab) => tab.target.type !== "page" || all.some((p) => p.slug === tab.target.page_slug));
+  const appearance = {
+    ...current.appearance,
+    ...(look.font ? { font_family: look.font } : {}),
+    ...(look.arabic_font ? { arabic_font: look.arabic_font } : {}),
+    ...(look.secondary_color !== undefined ? { secondary_color: look.secondary_color } : {}),
+  };
+  return { ...current, pages: all, appearance, ...(tabs.length ? { tabs } : {}), ...(look.tab_bar ? { tab_bar: structuredClone(look.tab_bar) } : {}) };
 }
