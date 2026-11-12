@@ -13,6 +13,7 @@ import '../../support/fake_api.dart';
 import '../../support/test_app.dart';
 import 'demo_api.dart';
 import 'premium_academy.dart';
+import 'studio_demo.dart';
 import 'demo_images.dart';
 import 'map_tiles.dart';
 import 'shot.dart';
@@ -100,6 +101,34 @@ class _TahrirLocator implements Locator {
 }
 
 final _atTahrir = [locatorProvider.overrideWithValue(const _TahrirLocator())];
+
+/// A ride from Tahrir Square to Cairo Tower set on the ride form, with
+/// "When" at the top and each car type's fare under it.
+Future<void> _whereTo(WidgetTester tester, GoRouter router) async {
+  Future<void> place(String prefix, String address, String at) async {
+    await tester.dragUntilVisible(
+      find.byKey(ValueKey('$prefix-paste')),
+      find.byKey(const ValueKey('ride-form')),
+      const Offset(0, -150),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(ValueKey('$prefix-address')), address);
+    await tester.tap(find.byKey(ValueKey('$prefix-paste')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('paste-link-field')), at);
+    await tester.tap(find.text('Use this place'));
+    await tester.pumpAndSettle();
+  }
+
+  await place('pickup', 'Tahrir Square', '30.0444, 31.2357');
+  await place('dropoff', 'Cairo Tower, Zamalek', '30.0459, 31.2243');
+  await tester.pump(const Duration(milliseconds: 600));
+  await tester.pumpAndSettle();
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pumpAndSettle();
+  await Scrollable.ensureVisible(tester.element(find.text('When')));
+  await tester.pumpAndSettle();
+}
 
 /// One screenshot: which app, how it looks and where it goes.
 class Shot {
@@ -622,38 +651,7 @@ final websiteShots = <Shot>[
     'rides-where',
     api: DemoApi.rides,
     appType: AppType.rides,
-    after: (tester, router) async {
-      Future<void> place(String prefix, String address, String at) async {
-        await tester.dragUntilVisible(
-          find.byKey(ValueKey('$prefix-paste')),
-          find.byKey(const ValueKey('ride-form')),
-          const Offset(0, -150),
-        );
-        await tester.pumpAndSettle();
-        await tester.enterText(
-          find.byKey(ValueKey('$prefix-address')),
-          address,
-        );
-        await tester.tap(find.byKey(ValueKey('$prefix-paste')));
-        await tester.pumpAndSettle();
-        await tester.enterText(
-          find.byKey(const ValueKey('paste-link-field')),
-          at,
-        );
-        await tester.tap(find.text('Use this place'));
-        await tester.pumpAndSettle();
-      }
-
-      await place('pickup', 'Tahrir Square', '30.0444, 31.2357');
-      await place('dropoff', 'Cairo Tower, Zamalek', '30.0459, 31.2243');
-      await tester.pump(const Duration(milliseconds: 600));
-      await tester.pumpAndSettle();
-      // "When" at the top, the vehicle types under it.
-      FocusManager.instance.primaryFocus?.unfocus();
-      await tester.pumpAndSettle();
-      await Scrollable.ensureVisible(tester.element(find.text('When')));
-      await tester.pumpAndSettle();
-    },
+    after: _whereTo,
   ),
   Shot(
     'rides-ride',
@@ -863,4 +861,189 @@ final websiteShots = <Shot>[
           ? null
           : (tester, router) async => router.go(location),
     ),
+  // 124.7 Studio's other demos as their apps are (studio_demo.dart): each
+  // demo's Studio home with its header, bar and look, and two of the
+  // screens it is for, inside the Studio pages drawn around them.
+  Shot(
+    'sahm-home',
+    api: sahmStudioApi,
+    appName: 'Sahm Express',
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sahm.prepare,
+    shadows: true,
+  ),
+  Shot(
+    'sahm-tracking',
+    api: sahmStudioApi,
+    appName: 'Sahm Express',
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sahm.prepare,
+    location: '/shipment/1',
+    mapTiles: true,
+    mapCenter: _sahmTrip,
+    mapAround: _sahmEnds,
+    shadows: true,
+  ),
+  // The company's couriers' app: the job waiting for Karim.
+  Shot(
+    'sahm-job',
+    api: () => sahmStudioApi(courier: true),
+    appName: 'Sahm Express Courier',
+    build: _courierApp,
+    appType: AppType.delivery,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sahm.prepare,
+    location: '/courier-job/1',
+    mapTiles: true,
+    mapCenter: _sahmTrip,
+    mapAround: _sahmEnds,
+    shadows: true,
+  ),
+  Shot(
+    'sofra-home',
+    api: sofraStudioApi,
+    appName: 'Sofra Eats',
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sofra.prepare,
+    shadows: true,
+  ),
+  Shot(
+    'sofra-menu',
+    api: sofraStudioApi,
+    appName: 'Sofra Eats',
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sofra.prepare,
+    location: '/restaurant/1',
+    shadows: true,
+  ),
+  Shot(
+    'sofra-order',
+    api: sofraStudioApi,
+    appName: 'Sofra Eats',
+    appType: AppType.food,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.sofra.prepare,
+    location: '/food-order/1',
+    mapTiles: true,
+    shadows: true,
+  ),
+  // A ride app opens on its Ride tab; its Studio home is the next tab.
+  Shot(
+    'masar-home',
+    api: masarStudioApi,
+    appName: 'Masar Rides',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.masar.prepare,
+    shadows: true,
+    after: (tester, router) async => router.go('/page/home'),
+  ),
+  Shot(
+    'masar-where',
+    api: () => masarStudioApi(ride: false),
+    appName: 'Masar Rides',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.masar.prepare,
+    shadows: true,
+    after: _whereTo,
+  ),
+  Shot(
+    'masar-driver',
+    api: () => masarStudioApi(driver: true),
+    appName: 'Masar Rides Driver',
+    build: _driverApp,
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.masar.prepare,
+    shadows: true,
+    after: (tester, router) async => router.go('/driver'),
+  ),
+  // Lamha Taxi opens on its live map, the free taxis around the rider.
+  Shot(
+    'lamha-home',
+    api: () => lamhaStudioApi(ride: false),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.lamha.prepare,
+    overrides: _atTahrir,
+    mapTiles: true,
+    shadows: true,
+  ),
+  Shot(
+    'lamha-ride',
+    api: () => lamhaStudioApi(onBoard: true),
+    appName: 'Lamha Taxi',
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.lamha.prepare,
+    location: '/ride/1',
+    overrides: _atTahrir,
+    mapTiles: true,
+    shadows: true,
+  ),
+  Shot(
+    'lamha-driver',
+    api: () => lamhaStudioApi(driver: true),
+    appName: 'Lamha Taxi Driver',
+    build: _driverApp,
+    appType: AppType.rides,
+    template: AppTemplate.bold,
+    prepare: StudioDemo.lamha.prepare,
+    overrides: _atTahrir,
+    mapTiles: true,
+    shadows: true,
+    after: (tester, router) async => router.go('/driver'),
+  ),
+  Shot(
+    'nakhla-home',
+    api: nakhlaStudioApi,
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+  ),
+  Shot(
+    'nakhla-parent',
+    api: nakhlaStudioApi,
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    after: (tester, router) async => router.go('/parent'),
+  ),
+  Shot(
+    'nakhla-classroom',
+    api: nakhlaStudioApi,
+    appName: 'Nakhla School',
+    appType: AppType.school,
+    prepare: StudioDemo.nakhla.prepare,
+    location: '/classroom/class/2/attendance',
+  ),
+  Shot(
+    'rawaq-home',
+    api: rawaqStudioApi,
+    appName: 'Rawaq Academy',
+    appType: AppType.lms,
+    prepare: StudioDemo.rawaq.prepare,
+  ),
+  Shot(
+    'rawaq-teacher',
+    api: rawaqStudioApi,
+    appName: 'Rawaq Academy',
+    appType: AppType.lms,
+    prepare: StudioDemo.rawaq.prepare,
+    location: '/teachers/1',
+  ),
+  Shot(
+    'rawaq-desk',
+    api: rawaqStudioApi,
+    appName: 'Rawaq Academy',
+    appType: AppType.lms,
+    prepare: StudioDemo.rawaq.prepare,
+    after: (tester, router) async => router.go('/teacher-desk'),
+  ),
 ];

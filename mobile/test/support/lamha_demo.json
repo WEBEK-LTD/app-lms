@@ -1,0 +1,906 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/stories/rides/rides-night-city.jpg",
+   "title": {
+    "en": "A taxi, moments away",
+    "ar": "سيارة أجرة على بُعد لحظات",
+    "tr": "Taksiniz birkaç dakika uzakta"
+   },
+   "subtitle": {
+    "en": "See the free taxis around you, live on the map.",
+    "ar": "شاهد سيارات الأجرة المتاحة حولك مباشرةً على الخريطة.",
+    "tr": "Etrafınızdaki boş taksileri haritada canlı görün."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#F5B700",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#F5B700",
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "elevated"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "ride",
+    "label": "Ride",
+    "icon": "directions_car",
+    "target": {
+     "type": "page",
+     "page_slug": "ride"
+    },
+    "translations": {
+     "ar": {
+      "label": "مشوار"
+     },
+     "tr": {
+      "label": "Yolculuk"
+     }
+    }
+   },
+   {
+    "id": "rides",
+    "label": "My rides",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "rides"
+    },
+    "translations": {
+     "ar": {
+      "label": "مشاويري"
+     },
+     "tr": {
+      "label": "Yolculuklarım"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     },
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "gap": 4,
+      "padding": {
+       "bottom": 16
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "column",
+        "name": "Where to? Lamha Taxi gets you there",
+        "gap": 10,
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "radius": 18,
+        "background": "#1C2541",
+        "color": "#FFFFFF",
+        "children": [
+         {
+          "id": "demo-3",
+          "type": "icon",
+          "icon": "local_taxi",
+          "icon_size": 34,
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "demo-4",
+          "type": "text",
+          "text": "Where to? Lamha Taxi gets you there",
+          "font": {
+           "size": 24,
+           "weight": 800,
+           "line_height": 1.25
+          },
+          "translations": {
+           "ar": {
+            "text": "رايح فين؟ Lamha Taxi يوصّلك"
+           },
+           "tr": {
+            "text": "Nereye? Lamha Taxi sizi götürsün"
+           }
+          }
+         },
+         {
+          "id": "demo-5",
+          "type": "text",
+          "text": "Set the pickup and drop-off, see the fare first and follow your driver on the way.",
+          "font": {
+           "size": 14
+          },
+          "opacity": 0.9,
+          "translations": {
+           "ar": {
+            "text": "حدد مكان الركوب والوجهة، اعرف الأجرة الأول وتابع السواق وهو جاي."
+           },
+           "tr": {
+            "text": "Alış ve bırakış noktasını belirleyin, ücreti önce görün ve sürücünüzü yolda takip edin."
+           }
+          }
+         },
+         {
+          "id": "demo-6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Request a ride",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "background": "#FFFFFF",
+            "color": "#1C2541",
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "action": {
+             "type": "screen",
+             "screen": "ride"
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "translations": {
+             "ar": {
+              "text": "اطلب مشوار"
+             },
+             "tr": {
+              "text": "Yolculuk iste"
+             }
+            }
+           },
+           {
+            "id": "demo-8",
+            "type": "button",
+            "text": "My rides",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "border": {
+             "width": 1.5,
+             "color": "#FFFFFF"
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "my_rides"
+            },
+            "translations": {
+             "ar": {
+              "text": "مشاويري"
+             },
+             "tr": {
+              "text": "Yolculuklarım"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-25",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-24",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "font": {
+           "size": 15,
+           "line_height": 1.5
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-9",
+        "type": "column",
+        "name": "Most popular",
+        "gap": 8,
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "children": [
+         {
+          "id": "demo-10",
+          "type": "text",
+          "text": "Most popular",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الأكتر طلبًا"
+           },
+           "tr": {
+            "text": "En çok tercih edilenler"
+           }
+          }
+         },
+         {
+          "id": "demo-11",
+          "type": "items",
+          "source": "vehicle_types",
+          "layout": "grid",
+          "columns": 2,
+          "gap": 10,
+          "query": {
+           "limit": 4,
+           "category_id": null,
+           "featured": false,
+           "sort": "newest",
+           "ids": []
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-12",
+        "type": "column",
+        "name": "How it works",
+        "gap": 10,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "demo-13",
+          "type": "text",
+          "text": "How it works",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الموضوع ماشي إزاي"
+           },
+           "tr": {
+            "text": "Nasıl çalışır"
+           }
+          }
+         },
+         {
+          "id": "demo-14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-15",
+            "type": "text",
+            "text": "1",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1C2541",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-16",
+            "type": "text",
+            "text": "Set where from and where to",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "حدد انت فين ورايح فين"
+             },
+             "tr": {
+              "text": "Nereden nereye gideceğinizi belirleyin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-18",
+            "type": "text",
+            "text": "2",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1C2541",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-19",
+            "type": "text",
+            "text": "The nearest driver accepts",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "أقرب سواق يقبل المشوار"
+             },
+             "tr": {
+              "text": "En yakın sürücü kabul eder"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-21",
+            "type": "text",
+            "text": "3",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1C2541",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-22",
+            "type": "text",
+            "text": "Follow your driver and ride",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "تابع السواق واركب"
+             },
+             "tr": {
+              "text": "Sürücünüzü takip edin ve binin"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-23",
+        "type": "button",
+        "text": "Request a ride",
+        "action": {
+         "type": "screen",
+         "screen": "ride"
+        },
+        "width": "fill",
+        "height": 46,
+        "radius": 14,
+        "background": "#1C2541",
+        "color": "#FFFFFF",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "icon": "arrow_back",
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "shadow": "medium",
+        "motion": {
+         "press": "shrink"
+        },
+        "translations": {
+         "ar": {
+          "text": "اطلب مشوار"
+         },
+         "tr": {
+          "text": "Yolculuk iste"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "ride",
+    "title": "Ride",
+    "translations": {
+     "ar": {
+      "title": "مشوار"
+     },
+     "tr": {
+      "title": "Yolculuk"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Ride",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "مشوار"
+       },
+       "tr": {
+        "title": "Yolculuk"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-26",
+      "type": "column",
+      "children": []
+     },
+     "screen": "ride"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "rides",
+    "title": "My rides",
+    "translations": {
+     "ar": {
+      "title": "مشاويري"
+     },
+     "tr": {
+      "title": "Yolculuklarım"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My rides",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "مشاويري"
+       },
+       "tr": {
+        "title": "Yolculuklarım"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-30",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-27",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#E4E5E8",
+        "dark_background": "#161729",
+        "children": [
+         {
+          "id": "demo-28",
+          "type": "icon",
+          "icon": "route",
+          "icon_size": 22,
+          "color": "#1C2541",
+          "dark_color": "#999DAA"
+         },
+         {
+          "id": "demo-29",
+          "type": "text",
+          "text": "Your trips and their receipts, in one place.",
+          "translations": {
+           "ar": {
+            "text": "مشاويرك وإيصالاتها في مكان واحد."
+           },
+           "tr": {
+            "text": "Yolculuklarınız ve fişleri tek yerde."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "my_rides"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-31",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-32",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-33",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "ride-follow",
+    "title": "A ride on its way",
+    "studio": {
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "ride_follow"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "island",
+   "dark_active": "#F5B700"
+  }
+ }
+}

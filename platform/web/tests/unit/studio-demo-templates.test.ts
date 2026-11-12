@@ -11,6 +11,7 @@ import { designLayout } from "@/lib/pages/layout";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
 import { demoStudioScreens } from "@/lib/demo/screens";
 import { fontFiles } from "@/lib/fonts/catalog";
+import { servedAppearance } from "@/lib/fonts/look";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
 import { BUILT_IN_APP_DEFAULTS, defaultLayout } from "@/lib/pages/defaults";
@@ -278,6 +279,31 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const data = `${JSON.stringify({ screens: demoStudioScreens(PREMIUM_ACADEMY_DEMO, appUrl()), layout: served }, null, 1)}\n`;
     if (process.env.YALLAPP_WRITE_PREMIUM_ACADEMY) writeFileSync(file, data);
     expect(readFileSync(file, "utf8")).toBe(data);
+  });
+
+  // 124.7 The other Studio demos too: the website's pictures of each draw the demo as it is.
+  it.each([
+    ["delivery", "sahm"],
+    ["food", "sofra"],
+    ["rides", "masar"],
+    ["taxi", "lamha"],
+    ["school", "nakhla"],
+    ["instructors", "rawaq"],
+  ] as const)("the %s demo is the project the app's website pictures draw (mobile/test/support/%s_demo.json)", async (id, brand) => {
+    const layout = await demoOf(id);
+    const file = join(process.cwd(), "..", "..", "mobile", "test", "support", `${brand}_demo.json`);
+    // As the hosted API serves it: the look with the files of its free fonts (none for the app's own fonts).
+    const served = { ...layout, appearance: servedAppearance(layout.appearance, appUrl()) };
+    const data = `${JSON.stringify({ screens: demoStudioScreens(id, appUrl()), layout: served }, null, 1)}\n`;
+    if (process.env.YALLAPP_WRITE_STUDIO_DEMOS) writeFileSync(file, data);
+    expect(readFileSync(file, "utf8")).toBe(data);
+  });
+
+  it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in the app (mobile/lib/core/theme/symbol_names.dart)", async (id) => {
+    const layout = await demoOf(id);
+    const dart = readFileSync(join(process.cwd(), "..", "..", "mobile", "lib", "core", "theme", "symbol_names.dart"), "utf8");
+    const icons = new Set([...layout.tabs.map((t) => t.icon), ...layout.pages.flatMap((p) => (p.studio ? allNodes(p.studio).map((n) => n.icon) : []))].filter((i): i is string => Boolean(i)));
+    for (const icon of icons) expect(dart, `${id}: ${icon}`).toContain(`'${icon}':`);
   });
 
   it("is told apart from the academy's own demo by its template, and isn't offered as a template twice", () => {

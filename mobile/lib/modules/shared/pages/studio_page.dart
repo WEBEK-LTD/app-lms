@@ -186,7 +186,7 @@ class StudioPageView extends ConsumerWidget {
             ],
             body: screen,
           );
-    return ColoredBox(
+    final view = ColoredBox(
       color: background,
       child: Stack(
         children: [
@@ -228,6 +228,11 @@ class StudioPageView extends ConsumerWidget {
         ],
       ),
     );
+    // 124.7 Opened on top of the tabs, the page is over the screen's own
+    // Scaffold, not in one: its header's words need the app's text style.
+    return pushed
+        ? Material(type: MaterialType.transparency, child: view)
+        : view;
   }
 
   Widget _pinnedColumn(List<StudioNode> nodes, StudioScope scope) => Column(

@@ -1,0 +1,1008 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/demo-screens/sofra-mezze.jpg",
+   "title": {
+    "en": "Hungry? We're on our way",
+    "ar": "جائع؟ نحن في الطريق",
+    "tr": "Acıktınız mı? Yoldayız"
+   },
+   "subtitle": {
+    "en": "Sign in to order from your favourite restaurants.",
+    "ar": "سجّل الدخول لتطلب من مطاعمك المفضلة.",
+    "tr": "En sevdiğiniz restoranlardan sipariş vermek için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "cover",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "bold",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#2E7D5B",
+   "font": "Outfit",
+   "corners": "round",
+   "cards": "elevated"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "restaurants",
+    "label": "Restaurants",
+    "icon": "restaurant_menu",
+    "target": {
+     "type": "page",
+     "page_slug": "restaurants"
+    },
+    "translations": {
+     "ar": {
+      "label": "المطاعم"
+     },
+     "tr": {
+      "label": "Restoranlar"
+     }
+    }
+   },
+   {
+    "id": "orders",
+    "label": "My orders",
+    "icon": "receipt_long",
+    "target": {
+     "type": "page",
+     "page_slug": "orders"
+    },
+    "translations": {
+     "ar": {
+      "label": "طلباتي"
+     },
+     "tr": {
+      "label": "Siparişlerim"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     },
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "gap": 4,
+      "padding": {
+       "bottom": 16
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "column",
+        "name": "Hungry? Order from the restaurants near you",
+        "gap": 10,
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "radius": 18,
+        "background": "#D2552B",
+        "color": "#FFFFFF",
+        "children": [
+         {
+          "id": "demo-3",
+          "type": "icon",
+          "icon": "restaurant",
+          "icon_size": 34,
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "demo-4",
+          "type": "text",
+          "text": "Hungry? Order from the restaurants near you",
+          "font": {
+           "size": 24,
+           "weight": 800,
+           "line_height": 1.25
+          },
+          "translations": {
+           "ar": {
+            "text": "جعان؟ اطلب من المطاعم اللي جنبك"
+           },
+           "tr": {
+            "text": "Acıktınız mı? Yakınınızdaki restoranlardan sipariş verin"
+           }
+          }
+         },
+         {
+          "id": "demo-5",
+          "type": "text",
+          "text": "Pick a restaurant, choose your dishes and follow your order to the door.",
+          "font": {
+           "size": 14
+          },
+          "opacity": 0.9,
+          "translations": {
+           "ar": {
+            "text": "اختار مطعم، اختار أكلك وتابع طلبك لحد الباب."
+           },
+           "tr": {
+            "text": "Bir restoran seçin, yemeklerinizi seçin ve siparişinizi kapıya kadar takip edin."
+           }
+          }
+         },
+         {
+          "id": "demo-6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Order now",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "background": "#FFFFFF",
+            "color": "#D2552B",
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "action": {
+             "type": "screen",
+             "screen": "restaurants"
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "translations": {
+             "ar": {
+              "text": "اطلب دلوقتي"
+             },
+             "tr": {
+              "text": "Hemen sipariş ver"
+             }
+            }
+           },
+           {
+            "id": "demo-8",
+            "type": "button",
+            "text": "My orders",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "border": {
+             "width": 1.5,
+             "color": "#FFFFFF"
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "food_orders"
+            },
+            "translations": {
+             "ar": {
+              "text": "طلباتي"
+             },
+             "tr": {
+              "text": "Siparişlerim"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-25",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-24",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "font": {
+           "size": 15,
+           "line_height": 1.5
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-9",
+        "type": "column",
+        "name": "Most popular",
+        "gap": 8,
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "children": [
+         {
+          "id": "demo-10",
+          "type": "text",
+          "text": "Most popular",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الأكتر طلبًا"
+           },
+           "tr": {
+            "text": "En çok tercih edilenler"
+           }
+          }
+         },
+         {
+          "id": "demo-11",
+          "type": "items",
+          "source": "restaurants",
+          "layout": "grid",
+          "columns": 2,
+          "gap": 10,
+          "query": {
+           "limit": 4,
+           "category_id": null,
+           "featured": false,
+           "sort": "newest",
+           "ids": []
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-12",
+        "type": "column",
+        "name": "How it works",
+        "gap": 10,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "demo-13",
+          "type": "text",
+          "text": "How it works",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الموضوع ماشي إزاي"
+           },
+           "tr": {
+            "text": "Nasıl çalışır"
+           }
+          }
+         },
+         {
+          "id": "demo-14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-15",
+            "type": "text",
+            "text": "1",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#D2552B",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-16",
+            "type": "text",
+            "text": "Pick a restaurant near you",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "اختار مطعم قريب منك"
+             },
+             "tr": {
+              "text": "Yakınınızda bir restoran seçin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-18",
+            "type": "text",
+            "text": "2",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#D2552B",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-19",
+            "type": "text",
+            "text": "The restaurant prepares your order",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "المطعم بيجهز طلبك"
+             },
+             "tr": {
+              "text": "Restoran siparişinizi hazırlar"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-21",
+            "type": "text",
+            "text": "3",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#D2552B",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-22",
+            "type": "text",
+            "text": "A courier brings it to your door",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "المندوب يوصّله لحد بابك"
+             },
+             "tr": {
+              "text": "Kurye kapınıza getirir"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-23",
+        "type": "button",
+        "text": "See the restaurants",
+        "action": {
+         "type": "screen",
+         "screen": "restaurants"
+        },
+        "width": "fill",
+        "height": 46,
+        "radius": 14,
+        "background": "#D2552B",
+        "color": "#FFFFFF",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "icon": "arrow_back",
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "shadow": "medium",
+        "motion": {
+         "press": "shrink"
+        },
+        "translations": {
+         "ar": {
+          "text": "شوف المطاعم"
+         },
+         "tr": {
+          "text": "Restoranları gör"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "restaurants",
+    "title": "Restaurants",
+    "translations": {
+     "ar": {
+      "title": "المطاعم"
+     },
+     "tr": {
+      "title": "Restoranlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Restaurants",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المطاعم"
+       },
+       "tr": {
+        "title": "Restoranlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-29",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-26",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FAEBE6",
+        "dark_background": "#492522",
+        "children": [
+         {
+          "id": "demo-27",
+          "type": "icon",
+          "icon": "restaurant",
+          "icon_size": 22,
+          "color": "#D2552B",
+          "dark_color": "#EBB3A0"
+         },
+         {
+          "id": "demo-28",
+          "type": "text",
+          "text": "Order from the places near you, delivered hot.",
+          "translations": {
+           "ar": {
+            "text": "اطلب من الأماكن اللي جنبك ويوصلك سخن."
+           },
+           "tr": {
+            "text": "Yakınınızdaki yerlerden sipariş verin, sıcak gelsin."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "restaurants"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "My orders",
+    "translations": {
+     "ar": {
+      "title": "طلباتي"
+     },
+     "tr": {
+      "title": "Siparişlerim"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "طلباتي"
+       },
+       "tr": {
+        "title": "Siparişlerim"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-33",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-30",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FAEBE6",
+        "dark_background": "#492522",
+        "children": [
+         {
+          "id": "demo-31",
+          "type": "icon",
+          "icon": "receipt_long",
+          "icon_size": 22,
+          "color": "#D2552B",
+          "dark_color": "#EBB3A0"
+         },
+         {
+          "id": "demo-32",
+          "type": "text",
+          "text": "Follow your order from the kitchen to your door.",
+          "translations": {
+           "ar": {
+            "text": "تابع طلبك من المطبخ لحد بابك."
+           },
+           "tr": {
+            "text": "Siparişinizi mutfaktan kapınıza kadar takip edin."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "food_orders"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "restaurant-menu",
+    "title": "A restaurant's menu",
+    "studio": {
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "restaurant_menu"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-order",
+    "title": "An order",
+    "studio": {
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_order"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "food-cart",
+    "title": "Your cart",
+    "translations": {
+     "ar": {
+      "title": "سلتك"
+     },
+     "tr": {
+      "title": "Sepetiniz"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Your cart",
+      "translations": {
+       "ar": {
+        "title": "سلتك"
+       },
+       "tr": {
+        "title": "Sepetiniz"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_cart"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "bubble"
+  }
+ }
+}

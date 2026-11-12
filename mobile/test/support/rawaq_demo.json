@@ -1,0 +1,1568 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "card",
+   "image_url": "http://localhost:3000/demo-screens/rawaq-library.jpg",
+   "title": {
+    "en": "Learn from the best teachers",
+    "ar": "تعلّم من أفضل المدرّسين",
+    "tr": "En iyi öğretmenlerden öğrenin"
+   },
+   "subtitle": {
+    "en": "Follow your teachers and pick up where you left off.",
+    "ar": "تابع مدرّسيك وأكمل من حيث توقفت.",
+    "tr": "Öğretmenlerinizi takip edin, kaldığınız yerden devam edin."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "tiles",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#F2B544",
+   "font": "Outfit",
+   "corners": "soft",
+   "cards": "outlined"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "courses",
+    "label": "Courses",
+    "icon": "school",
+    "target": {
+     "type": "page",
+     "page_slug": "courses"
+    },
+    "translations": {
+     "ar": {
+      "label": "الكورسات"
+     },
+     "tr": {
+      "label": "Kurslar"
+     }
+    }
+   },
+   {
+    "id": "learning",
+    "label": "My courses",
+    "icon": "menu_book",
+    "target": {
+     "type": "page",
+     "page_slug": "learning"
+    },
+    "translations": {
+     "ar": {
+      "label": "كورساتي"
+     },
+     "tr": {
+      "label": "Kurslarım"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     },
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "gap": 4,
+      "padding": {
+       "bottom": 16
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "column",
+        "name": "Learn from the teachers of Rawaq Academy",
+        "gap": 10,
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "radius": 18,
+        "background": "#2E5E4E",
+        "color": "#FFFFFF",
+        "children": [
+         {
+          "id": "demo-3",
+          "type": "icon",
+          "icon": "groups",
+          "icon_size": 34,
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "demo-4",
+          "type": "text",
+          "text": "Learn from the teachers of Rawaq Academy",
+          "font": {
+           "size": 24,
+           "weight": 800,
+           "line_height": 1.25
+          },
+          "translations": {
+           "ar": {
+            "text": "اتعلم مع مدرسين Rawaq Academy"
+           },
+           "tr": {
+            "text": "Rawaq Academy eğitmenleriyle öğrenin"
+           }
+          }
+         },
+         {
+          "id": "demo-5",
+          "type": "text",
+          "text": "Find a teacher for your subject, see their courses and what students say, and follow them for new ones.",
+          "font": {
+           "size": 14
+          },
+          "opacity": 0.9,
+          "translations": {
+           "ar": {
+            "text": "لاقي مدرس لمادتك، شوف كورساته وآراء الطلبة، وتابعه عشان توصلك كورساته الجديدة."
+           },
+           "tr": {
+            "text": "Konunuz için bir eğitmen bulun, kurslarını ve öğrenci yorumlarını görün, yenileri için takip edin."
+           }
+          }
+         },
+         {
+          "id": "demo-6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Meet the teachers",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "background": "#FFFFFF",
+            "color": "#2E5E4E",
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "action": {
+             "type": "screen",
+             "screen": "teachers"
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "translations": {
+             "ar": {
+              "text": "قابل المدرسين"
+             },
+             "tr": {
+              "text": "Eğitmenlerle tanışın"
+             }
+            }
+           },
+           {
+            "id": "demo-8",
+            "type": "button",
+            "text": "Browse courses",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "border": {
+             "width": 1.5,
+             "color": "#FFFFFF"
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "courses"
+            },
+            "translations": {
+             "ar": {
+              "text": "تصفح الكورسات"
+             },
+             "tr": {
+              "text": "Kurslara göz atın"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-25",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-24",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "font": {
+           "size": 15,
+           "line_height": 1.5
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-9",
+        "type": "column",
+        "name": "Most popular",
+        "gap": 8,
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "children": [
+         {
+          "id": "demo-10",
+          "type": "text",
+          "text": "Most popular",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الأكتر طلبًا"
+           },
+           "tr": {
+            "text": "En çok tercih edilenler"
+           }
+          }
+         },
+         {
+          "id": "demo-11",
+          "type": "items",
+          "source": "courses",
+          "layout": "grid",
+          "columns": 2,
+          "gap": 10,
+          "query": {
+           "limit": 4,
+           "category_id": null,
+           "featured": false,
+           "sort": "newest",
+           "ids": []
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-12",
+        "type": "column",
+        "name": "How it works",
+        "gap": 10,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "demo-13",
+          "type": "text",
+          "text": "How it works",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الموضوع ماشي إزاي"
+           },
+           "tr": {
+            "text": "Nasıl çalışır"
+           }
+          }
+         },
+         {
+          "id": "demo-14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-15",
+            "type": "text",
+            "text": "1",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#2E5E4E",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-16",
+            "type": "text",
+            "text": "Pick a teacher or a subject",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "اختار مدرس أو مادة"
+             },
+             "tr": {
+              "text": "Bir eğitmen veya konu seçin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-18",
+            "type": "text",
+            "text": "2",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#2E5E4E",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-19",
+            "type": "text",
+            "text": "Join their course and learn at your pace",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "اشترك في الكورس واتعلم على راحتك"
+             },
+             "tr": {
+              "text": "Kursuna katılın, kendi hızınızda öğrenin"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-21",
+            "type": "text",
+            "text": "3",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#2E5E4E",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-22",
+            "type": "text",
+            "text": "Ask them, and hear of their new courses",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "اسأله، وتوصلك كورساته الجديدة"
+             },
+             "tr": {
+              "text": "Sorun ve yeni kurslarından haberdar olun"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-23",
+        "type": "button",
+        "text": "Meet the teachers",
+        "action": {
+         "type": "screen",
+         "screen": "teachers"
+        },
+        "width": "fill",
+        "height": 46,
+        "radius": 14,
+        "background": "#2E5E4E",
+        "color": "#FFFFFF",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "icon": "arrow_back",
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "shadow": "medium",
+        "motion": {
+         "press": "shrink"
+        },
+        "translations": {
+         "ar": {
+          "text": "قابل المدرسين"
+         },
+         "tr": {
+          "text": "Eğitmenlerle tanışın"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "courses",
+    "title": "Courses",
+    "translations": {
+     "ar": {
+      "title": "الكورسات"
+     },
+     "tr": {
+      "title": "Kurslar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Courses",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الكورسات"
+       },
+       "tr": {
+        "title": "Kurslar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-29",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-26",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#E6ECEA",
+        "dark_background": "#1B272C",
+        "children": [
+         {
+          "id": "demo-27",
+          "type": "icon",
+          "icon": "school",
+          "icon_size": 22,
+          "color": "#2E5E4E",
+          "dark_color": "#A1B7AF"
+         },
+         {
+          "id": "demo-28",
+          "type": "text",
+          "text": "Learn from teachers who know their subject.",
+          "translations": {
+           "ar": {
+            "text": "اتعلم من مدرسين فاهمين مادتهم."
+           },
+           "tr": {
+            "text": "Konusunu bilen öğretmenlerden öğrenin."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "courses"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "learning",
+    "title": "My courses",
+    "translations": {
+     "ar": {
+      "title": "كورساتي"
+     },
+     "tr": {
+      "title": "Kurslarım"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My courses",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "كورساتي"
+       },
+       "tr": {
+        "title": "Kurslarım"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-33",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-30",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#E6ECEA",
+        "dark_background": "#1B272C",
+        "children": [
+         {
+          "id": "demo-31",
+          "type": "icon",
+          "icon": "play_circle",
+          "icon_size": 22,
+          "color": "#2E5E4E",
+          "dark_color": "#A1B7AF"
+         },
+         {
+          "id": "demo-32",
+          "type": "text",
+          "text": "Pick up where you left off.",
+          "translations": {
+           "ar": {
+            "text": "كمّل من مكان ما وقفت."
+           },
+           "tr": {
+            "text": "Kaldığınız yerden devam edin."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "my_courses"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "search",
+    "title": "Search",
+    "translations": {
+     "ar": {
+      "title": "البحث"
+     },
+     "tr": {
+      "title": "Ara"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Search",
+      "translations": {
+       "ar": {
+        "title": "البحث"
+       },
+       "tr": {
+        "title": "Ara"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "search"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "favorites",
+    "title": "Wishlist",
+    "translations": {
+     "ar": {
+      "title": "المفضلة"
+     },
+     "tr": {
+      "title": "Favoriler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Wishlist",
+      "translations": {
+       "ar": {
+        "title": "المفضلة"
+       },
+       "tr": {
+        "title": "Favoriler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "favorites"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "orders",
+    "title": "My orders",
+    "translations": {
+     "ar": {
+      "title": "طلباتي"
+     },
+     "tr": {
+      "title": "Siparişlerim"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My orders",
+      "translations": {
+       "ar": {
+        "title": "طلباتي"
+       },
+       "tr": {
+        "title": "Siparişlerim"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "orders"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "teachers",
+    "title": "Teachers",
+    "translations": {
+     "ar": {
+      "title": "المعلمون"
+     },
+     "tr": {
+      "title": "Öğretmenler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Teachers",
+      "translations": {
+       "ar": {
+        "title": "المعلمون"
+       },
+       "tr": {
+        "title": "Öğretmenler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "teachers"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-44",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "course",
+    "title": "A course",
+    "studio": {
+     "body": {
+      "id": "demo-45",
+      "type": "column",
+      "children": []
+     },
+     "screen": "course"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "bundle",
+    "title": "A bundle",
+    "studio": {
+     "body": {
+      "id": "demo-46",
+      "type": "column",
+      "children": []
+     },
+     "screen": "bundle"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "lesson",
+    "title": "A lesson",
+    "studio": {
+     "body": {
+      "id": "demo-47",
+      "type": "column",
+      "children": []
+     },
+     "screen": "lesson"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "quiz",
+    "title": "A quiz",
+    "studio": {
+     "body": {
+      "id": "demo-48",
+      "type": "column",
+      "children": []
+     },
+     "screen": "quiz"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "assignment",
+    "title": "An assignment",
+    "studio": {
+     "body": {
+      "id": "demo-49",
+      "type": "column",
+      "children": []
+     },
+     "screen": "assignment"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "live",
+    "title": "A live session",
+    "studio": {
+     "body": {
+      "id": "demo-50",
+      "type": "column",
+      "children": []
+     },
+     "screen": "live"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "question",
+    "title": "A question",
+    "studio": {
+     "body": {
+      "id": "demo-51",
+      "type": "column",
+      "children": []
+     },
+     "screen": "question"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "learning-paths",
+    "title": "Learning paths",
+    "translations": {
+     "ar": {
+      "title": "مسارات التعلم"
+     },
+     "tr": {
+      "title": "Öğrenme yolları"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Learning paths",
+      "translations": {
+       "ar": {
+        "title": "مسارات التعلم"
+       },
+       "tr": {
+        "title": "Öğrenme yolları"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-52",
+      "type": "column",
+      "children": []
+     },
+     "screen": "learning_paths"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "learning-path",
+    "title": "A learning path",
+    "studio": {
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "learning_path"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "leaderboard",
+    "title": "Leaderboard",
+    "translations": {
+     "ar": {
+      "title": "لوحة المتصدرين"
+     },
+     "tr": {
+      "title": "Liderlik tablosu"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Leaderboard",
+      "translations": {
+       "ar": {
+        "title": "لوحة المتصدرين"
+       },
+       "tr": {
+        "title": "Liderlik tablosu"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-54",
+      "type": "column",
+      "children": []
+     },
+     "screen": "leaderboard"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "course-notes",
+    "title": "My notes",
+    "translations": {
+     "ar": {
+      "title": "ملاحظاتي"
+     },
+     "tr": {
+      "title": "Notlarım"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My notes",
+      "translations": {
+       "ar": {
+        "title": "ملاحظاتي"
+       },
+       "tr": {
+        "title": "Notlarım"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-55",
+      "type": "column",
+      "children": []
+     },
+     "screen": "course_notes"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "lesson-discussion",
+    "title": "Discussion",
+    "translations": {
+     "ar": {
+      "title": "النقاش"
+     },
+     "tr": {
+      "title": "Tartışma"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Discussion",
+      "translations": {
+       "ar": {
+        "title": "النقاش"
+       },
+       "tr": {
+        "title": "Tartışma"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "lesson_discussion"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "teacher-profile",
+    "title": "A teacher's page",
+    "studio": {
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "teacher_profile"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "teach-apply",
+    "title": "Teach with us",
+    "translations": {
+     "ar": {
+      "title": "درّس معنا"
+     },
+     "tr": {
+      "title": "Bizimle öğretin"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Teach with us",
+      "translations": {
+       "ar": {
+        "title": "درّس معنا"
+       },
+       "tr": {
+        "title": "Bizimle öğretin"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "teach_apply"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "certificates",
+    "title": "Certificates",
+    "translations": {
+     "ar": {
+      "title": "الشهادات"
+     },
+     "tr": {
+      "title": "Sertifikalar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Certificates",
+      "translations": {
+       "ar": {
+        "title": "الشهادات"
+       },
+       "tr": {
+        "title": "Sertifikalar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "certificates"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "quiz-results",
+    "title": "Quiz results",
+    "translations": {
+     "ar": {
+      "title": "نتائج الاختبارات"
+     },
+     "tr": {
+      "title": "Sınav sonuçları"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Quiz results",
+      "translations": {
+       "ar": {
+        "title": "نتائج الاختبارات"
+       },
+       "tr": {
+        "title": "Sınav sonuçları"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-60",
+      "type": "column",
+      "children": []
+     },
+     "screen": "quiz_results"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "live-classes",
+    "title": "Live classes",
+    "translations": {
+     "ar": {
+      "title": "الحصص المباشرة"
+     },
+     "tr": {
+      "title": "Canlı dersler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Live classes",
+      "translations": {
+       "ar": {
+        "title": "الحصص المباشرة"
+       },
+       "tr": {
+        "title": "Canlı dersler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-61",
+      "type": "column",
+      "children": []
+     },
+     "screen": "live_classes"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "achievements",
+    "title": "Achievements",
+    "translations": {
+     "ar": {
+      "title": "الإنجازات"
+     },
+     "tr": {
+      "title": "Başarılar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Achievements",
+      "translations": {
+       "ar": {
+        "title": "الإنجازات"
+       },
+       "tr": {
+        "title": "Başarılar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-62",
+      "type": "column",
+      "children": []
+     },
+     "screen": "achievements"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "downloads",
+    "title": "Downloads",
+    "translations": {
+     "ar": {
+      "title": "التنزيلات"
+     },
+     "tr": {
+      "title": "İndirilenler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Downloads",
+      "translations": {
+       "ar": {
+        "title": "التنزيلات"
+       },
+       "tr": {
+        "title": "İndirilenler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-63",
+      "type": "column",
+      "children": []
+     },
+     "screen": "downloads"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "segment"
+  }
+ }
+}

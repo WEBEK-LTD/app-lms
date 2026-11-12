@@ -1,0 +1,1740 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "card",
+   "image_url": "http://localhost:3000/demo-screens/nakhla-school.jpg",
+   "title": {
+    "en": "Every school day, in one place",
+    "ar": "كل يوم دراسي في مكان واحد",
+    "tr": "Her okul günü tek bir yerde"
+   },
+   "subtitle": {
+    "en": "Lessons, homework, grades and fees for students, parents and teachers.",
+    "ar": "الحصص والواجبات والدرجات والرسوم للطلاب وأولياء الأمور والمعلمين.",
+    "tr": "Öğrenciler, veliler ve öğretmenler için dersler, ödevler, notlar ve ücretler."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "card",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#F2B544",
+   "font": "Plus Jakarta Sans",
+   "corners": "soft",
+   "cards": "outlined"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Home",
+    "icon": "home",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرئيسية"
+     },
+     "tr": {
+      "label": "Ana sayfa"
+     }
+    }
+   },
+   {
+    "id": "school",
+    "label": "School",
+    "icon": "school",
+    "target": {
+     "type": "page",
+     "page_slug": "school"
+    },
+    "translations": {
+     "ar": {
+      "label": "المدرسة"
+     },
+     "tr": {
+      "label": "Okul"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ]
+     },
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "gap": 4,
+      "padding": {
+       "bottom": 16
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "column",
+        "name": "Your school day at Nakhla School",
+        "gap": 10,
+        "padding": {
+         "top": 22,
+         "end": 18,
+         "bottom": 22,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "radius": 18,
+        "background": "#1F4E79",
+        "color": "#FFFFFF",
+        "children": [
+         {
+          "id": "demo-3",
+          "type": "icon",
+          "icon": "school",
+          "icon_size": 34,
+          "color": "#FFFFFF"
+         },
+         {
+          "id": "demo-4",
+          "type": "text",
+          "text": "Your school day at Nakhla School",
+          "font": {
+           "size": 24,
+           "weight": 800,
+           "line_height": 1.25
+          },
+          "translations": {
+           "ar": {
+            "text": "يومك في Nakhla School"
+           },
+           "tr": {
+            "text": "Nakhla School ile okul gününüz"
+           }
+          }
+         },
+         {
+          "id": "demo-5",
+          "type": "text",
+          "text": "The timetable, homework, grades and attendance, for students and their parents.",
+          "font": {
+           "size": 14
+          },
+          "opacity": 0.9,
+          "translations": {
+           "ar": {
+            "text": "الجدول والواجبات والدرجات والغياب، للطلبة وأولياء الأمور."
+           },
+           "tr": {
+            "text": "Ders programı, ödevler, notlar ve devam durumu; öğrenciler ve velileri için."
+           }
+          }
+         },
+         {
+          "id": "demo-6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Open my school",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "background": "#FFFFFF",
+            "color": "#1F4E79",
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "action": {
+             "type": "screen",
+             "screen": "school"
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "translations": {
+             "ar": {
+              "text": "افتح مدرستي"
+             },
+             "tr": {
+              "text": "Okulumu aç"
+             }
+            }
+           },
+           {
+            "id": "demo-8",
+            "type": "button",
+            "text": "What's new",
+            "width": "hug",
+            "height": 42,
+            "radius": 12,
+            "border": {
+             "width": 1.5,
+             "color": "#FFFFFF"
+            },
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "notifications"
+            },
+            "translations": {
+             "ar": {
+              "text": "الجديد"
+             },
+             "tr": {
+              "text": "Yenilikler"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-25",
+        "type": "column",
+        "gap": 6,
+        "padding": {
+         "top": 8,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "margin": {
+         "top": 4,
+         "end": 0,
+         "bottom": 4,
+         "start": 0
+        },
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-24",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "font": {
+           "size": 15,
+           "line_height": 1.5
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-9",
+        "type": "column",
+        "name": "Most popular",
+        "gap": 8,
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "children": [
+         {
+          "id": "demo-10",
+          "type": "text",
+          "text": "Most popular",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الأكتر طلبًا"
+           },
+           "tr": {
+            "text": "En çok tercih edilenler"
+           }
+          }
+         },
+         {
+          "id": "demo-11",
+          "type": "items",
+          "source": "school_news",
+          "layout": "grid",
+          "columns": 2,
+          "gap": 10,
+          "query": {
+           "limit": 4,
+           "category_id": null,
+           "featured": false,
+           "sort": "newest",
+           "ids": []
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-12",
+        "type": "column",
+        "name": "How it works",
+        "gap": 10,
+        "padding": {
+         "top": 14,
+         "end": 14,
+         "bottom": 14,
+         "start": 14
+        },
+        "margin": {
+         "top": 8,
+         "end": 10,
+         "bottom": 8,
+         "start": 10
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#22203A",
+        "shadow": "light",
+        "children": [
+         {
+          "id": "demo-13",
+          "type": "text",
+          "text": "How it works",
+          "font": {
+           "size": 17,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "الموضوع ماشي إزاي"
+           },
+           "tr": {
+            "text": "Nasıl çalışır"
+           }
+          }
+         },
+         {
+          "id": "demo-14",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-15",
+            "type": "text",
+            "text": "1",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1F4E79",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-16",
+            "type": "text",
+            "text": "Sign in with the number you gave the school",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "ادخل بالرقم اللي إديته للمدرسة"
+             },
+             "tr": {
+              "text": "Okula verdiğiniz numarayla giriş yapın"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-17",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-18",
+            "type": "text",
+            "text": "2",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1F4E79",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-19",
+            "type": "text",
+            "text": "See the timetable, homework and grades",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "شوف الجدول والواجبات والدرجات"
+             },
+             "tr": {
+              "text": "Ders programını, ödevleri ve notları görün"
+             }
+            }
+           }
+          ]
+         },
+         {
+          "id": "demo-20",
+          "type": "row",
+          "gap": 10,
+          "cross": "center",
+          "children": [
+           {
+            "id": "demo-21",
+            "type": "text",
+            "text": "3",
+            "width": 30,
+            "height": 30,
+            "radius": 15,
+            "background": "#1F4E79",
+            "color": "#FFFFFF",
+            "text_align": "center",
+            "font": {
+             "size": 14,
+             "weight": 800,
+             "line_height": 2.1
+            }
+           },
+           {
+            "id": "demo-22",
+            "type": "text",
+            "text": "Hear of absences, marks and news at once",
+            "font": {
+             "size": 14,
+             "weight": 600
+            },
+            "width": "fill",
+            "translations": {
+             "ar": {
+              "text": "اعرف الغياب والدرجات والأخبار أول بأول"
+             },
+             "tr": {
+              "text": "Devamsızlık, not ve duyurulardan hemen haberdar olun"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-23",
+        "type": "button",
+        "text": "Open my school",
+        "action": {
+         "type": "screen",
+         "screen": "school"
+        },
+        "width": "fill",
+        "height": 46,
+        "radius": 14,
+        "background": "#1F4E79",
+        "color": "#FFFFFF",
+        "font": {
+         "weight": 800,
+         "size": 15
+        },
+        "text_align": "center",
+        "icon": "arrow_back",
+        "margin": {
+         "top": 10,
+         "end": 18,
+         "bottom": 10,
+         "start": 18
+        },
+        "shadow": "medium",
+        "motion": {
+         "press": "shrink"
+        },
+        "translations": {
+         "ar": {
+          "text": "افتح مدرستي"
+         },
+         "tr": {
+          "text": "Okulumu aç"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "school",
+    "title": "School",
+    "translations": {
+     "ar": {
+      "title": "المدرسة"
+     },
+     "tr": {
+      "title": "Okul"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "School",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المدرسة"
+       },
+       "tr": {
+        "title": "Okul"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-29",
+      "type": "column",
+      "children": [
+       {
+        "id": "demo-26",
+        "type": "row",
+        "name": "Note",
+        "gap": 10,
+        "cross": "center",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 10,
+         "end": 16,
+         "bottom": 2,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#E4EAEF",
+        "dark_background": "#172338",
+        "children": [
+         {
+          "id": "demo-27",
+          "type": "icon",
+          "icon": "school",
+          "icon_size": 22,
+          "color": "#1F4E79",
+          "dark_color": "#9AAFC3"
+         },
+         {
+          "id": "demo-28",
+          "type": "text",
+          "text": "News, the timetable and homework, in one place.",
+          "translations": {
+           "ar": {
+            "text": "الأخبار والجدول والواجبات في مكان واحد."
+           },
+           "tr": {
+            "text": "Haberler, ders programı ve ödevler tek yerde."
+           }
+          },
+          "width": "fill",
+          "font": {
+           "size": 14,
+           "weight": 600,
+           "line_height": 1.35
+          },
+          "color": "#24222F",
+          "dark_color": "#EDE9F6"
+         }
+        ]
+       }
+      ]
+     },
+     "screen": "school"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-30",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-31",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-32",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-33",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "parent",
+    "title": "Parent",
+    "studio": {
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "parent-slips",
+    "title": "Permission slips",
+    "translations": {
+     "ar": {
+      "title": "أذونات الخروج"
+     },
+     "tr": {
+      "title": "İzin formları"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Permission slips",
+      "translations": {
+       "ar": {
+        "title": "أذونات الخروج"
+       },
+       "tr": {
+        "title": "İzin formları"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_slips"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "parent-excuses",
+    "title": "Absence notes",
+    "translations": {
+     "ar": {
+      "title": "أعذار الغياب"
+     },
+     "tr": {
+      "title": "Devamsızlık mazeretleri"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Absence notes",
+      "translations": {
+       "ar": {
+        "title": "أعذار الغياب"
+       },
+       "tr": {
+        "title": "Devamsızlık mazeretleri"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_excuses"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "parent-excuse-new",
+    "title": "New absence note",
+    "translations": {
+     "ar": {
+      "title": "عذر غياب جديد"
+     },
+     "tr": {
+      "title": "Yeni mazeret"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "New absence note",
+      "translations": {
+       "ar": {
+        "title": "عذر غياب جديد"
+       },
+       "tr": {
+        "title": "Yeni mazeret"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_excuse_new"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "parent-pickup",
+    "title": "Pickup",
+    "translations": {
+     "ar": {
+      "title": "الاستلام من المدرسة"
+     },
+     "tr": {
+      "title": "Okuldan alma"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Pickup",
+      "translations": {
+       "ar": {
+        "title": "الاستلام من المدرسة"
+       },
+       "tr": {
+        "title": "Okuldan alma"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "parent_pickup"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-checkin",
+    "title": "Check-in",
+    "translations": {
+     "ar": {
+      "title": "تسجيل الحضور"
+     },
+     "tr": {
+      "title": "Giriş kaydı"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Check-in",
+      "translations": {
+       "ar": {
+        "title": "تسجيل الحضور"
+       },
+       "tr": {
+        "title": "Giriş kaydı"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_checkin"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-timetable",
+    "title": "Timetable",
+    "translations": {
+     "ar": {
+      "title": "الجدول"
+     },
+     "tr": {
+      "title": "Ders programı"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Timetable",
+      "translations": {
+       "ar": {
+        "title": "الجدول"
+       },
+       "tr": {
+        "title": "Ders programı"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_timetable"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-homework",
+    "title": "Homework",
+    "translations": {
+     "ar": {
+      "title": "الواجبات"
+     },
+     "tr": {
+      "title": "Ödevler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Homework",
+      "translations": {
+       "ar": {
+        "title": "الواجبات"
+       },
+       "tr": {
+        "title": "Ödevler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-44",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_homework"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-grades",
+    "title": "Grades",
+    "translations": {
+     "ar": {
+      "title": "الدرجات"
+     },
+     "tr": {
+      "title": "Notlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Grades",
+      "translations": {
+       "ar": {
+        "title": "الدرجات"
+       },
+       "tr": {
+        "title": "Notlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-45",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_grades"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-attendance",
+    "title": "Attendance",
+    "translations": {
+     "ar": {
+      "title": "الحضور"
+     },
+     "tr": {
+      "title": "Devam"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Attendance",
+      "translations": {
+       "ar": {
+        "title": "الحضور"
+       },
+       "tr": {
+        "title": "Devam"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-46",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_attendance"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-fees",
+    "title": "Fees",
+    "translations": {
+     "ar": {
+      "title": "المصروفات"
+     },
+     "tr": {
+      "title": "Ücretler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Fees",
+      "translations": {
+       "ar": {
+        "title": "المصروفات"
+       },
+       "tr": {
+        "title": "Ücretler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-47",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_fees"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-news",
+    "title": "News",
+    "translations": {
+     "ar": {
+      "title": "الأخبار"
+     },
+     "tr": {
+      "title": "Haberler"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "News",
+      "translations": {
+       "ar": {
+        "title": "الأخبار"
+       },
+       "tr": {
+        "title": "Haberler"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-48",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_news"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-report-card",
+    "title": "Report card",
+    "translations": {
+     "ar": {
+      "title": "الشهادة"
+     },
+     "tr": {
+      "title": "Karne"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Report card",
+      "translations": {
+       "ar": {
+        "title": "الشهادة"
+       },
+       "tr": {
+        "title": "Karne"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-49",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_report_card"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-messages",
+    "title": "Messages",
+    "translations": {
+     "ar": {
+      "title": "الرسائل"
+     },
+     "tr": {
+      "title": "Mesajlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Messages",
+      "translations": {
+       "ar": {
+        "title": "الرسائل"
+       },
+       "tr": {
+        "title": "Mesajlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-50",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_messages"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-bus",
+    "title": "School bus",
+    "translations": {
+     "ar": {
+      "title": "باص المدرسة"
+     },
+     "tr": {
+      "title": "Okul servisi"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "School bus",
+      "translations": {
+       "ar": {
+        "title": "باص المدرسة"
+       },
+       "tr": {
+        "title": "Okul servisi"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-51",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_bus"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-library",
+    "title": "Library",
+    "translations": {
+     "ar": {
+      "title": "المكتبة"
+     },
+     "tr": {
+      "title": "Kütüphane"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Library",
+      "translations": {
+       "ar": {
+        "title": "المكتبة"
+       },
+       "tr": {
+        "title": "Kütüphane"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-52",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_library"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-library-loans",
+    "title": "My loans",
+    "translations": {
+     "ar": {
+      "title": "كتبي المستعارة"
+     },
+     "tr": {
+      "title": "Ödünç aldıklarım"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "My loans",
+      "translations": {
+       "ar": {
+        "title": "كتبي المستعارة"
+       },
+       "tr": {
+        "title": "Ödünç aldıklarım"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_library_loans"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-library-book",
+    "title": "A library book",
+    "studio": {
+     "body": {
+      "id": "demo-54",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_library_book"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-calendar",
+    "title": "Calendar",
+    "translations": {
+     "ar": {
+      "title": "التقويم"
+     },
+     "tr": {
+      "title": "Takvim"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Calendar",
+      "translations": {
+       "ar": {
+        "title": "التقويم"
+       },
+       "tr": {
+        "title": "Takvim"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-55",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_calendar"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-exams",
+    "title": "Exams",
+    "translations": {
+     "ar": {
+      "title": "الامتحانات"
+     },
+     "tr": {
+      "title": "Sınavlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Exams",
+      "translations": {
+       "ar": {
+        "title": "الامتحانات"
+       },
+       "tr": {
+        "title": "Sınavlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_exams"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-behaviour",
+    "title": "Behaviour",
+    "translations": {
+     "ar": {
+      "title": "السلوك"
+     },
+     "tr": {
+      "title": "Davranış"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Behaviour",
+      "translations": {
+       "ar": {
+        "title": "السلوك"
+       },
+       "tr": {
+        "title": "Davranış"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_behaviour"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "school-reports",
+    "title": "Reports",
+    "translations": {
+     "ar": {
+      "title": "التقارير"
+     },
+     "tr": {
+      "title": "Raporlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Reports",
+      "translations": {
+       "ar": {
+        "title": "التقارير"
+       },
+       "tr": {
+        "title": "Raporlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-58",
+      "type": "column",
+      "children": []
+     },
+     "screen": "school_reports"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "uni-registration",
+    "title": "Registration",
+    "translations": {
+     "ar": {
+      "title": "تسجيل المقررات"
+     },
+     "tr": {
+      "title": "Ders kaydı"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Registration",
+      "translations": {
+       "ar": {
+        "title": "تسجيل المقررات"
+       },
+       "tr": {
+        "title": "Ders kaydı"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_registration"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "uni-timetable",
+    "title": "Timetable",
+    "translations": {
+     "ar": {
+      "title": "الجدول"
+     },
+     "tr": {
+      "title": "Ders programı"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Timetable",
+      "translations": {
+       "ar": {
+        "title": "الجدول"
+       },
+       "tr": {
+        "title": "Ders programı"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-60",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_timetable"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "uni-results",
+    "title": "Results",
+    "translations": {
+     "ar": {
+      "title": "النتائج"
+     },
+     "tr": {
+      "title": "Sonuçlar"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Results",
+      "translations": {
+       "ar": {
+        "title": "النتائج"
+       },
+       "tr": {
+        "title": "Sonuçlar"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-61",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_results"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "uni-transcript",
+    "title": "Transcript",
+    "translations": {
+     "ar": {
+      "title": "كشف الدرجات"
+     },
+     "tr": {
+      "title": "Transkript"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Transcript",
+      "translations": {
+       "ar": {
+        "title": "كشف الدرجات"
+       },
+       "tr": {
+        "title": "Transkript"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-62",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_transcript"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "uni-plan",
+    "title": "Study plan",
+    "translations": {
+     "ar": {
+      "title": "الخطة الدراسية"
+     },
+     "tr": {
+      "title": "Ders planı"
+     }
+    },
+    "studio": {
+     "header": {
+      "type": "title",
+      "title": "Study plan",
+      "translations": {
+       "ar": {
+        "title": "الخطة الدراسية"
+       },
+       "tr": {
+        "title": "Ders planı"
+       }
+      }
+     },
+     "body": {
+      "id": "demo-63",
+      "type": "column",
+      "children": []
+     },
+     "screen": "uni_plan"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "classic",
+   "avatar": true
+  }
+ }
+}

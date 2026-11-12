@@ -314,33 +314,40 @@ test("103R the Studio demo has its own page; the regular demo stays as it is", a
   for (const screen of [
     "studio-cafe-home",
     "studio-cafe-home-dark",
-    "food-restaurants",
-    "food-menu",
-    "food-order",
-    // 124 Zad's and Sahm's own screens.
+    // 124.7 Each Studio demo as its app is: its Studio home and two of its screens.
+    "sahm-home",
+    "sahm-tracking",
+    "sahm-job",
+    "sofra-home",
+    "sofra-menu",
+    "sofra-order",
     "zad-home",
     "zad-market",
     "zad-tracking",
-    "sahm-send",
-    "sahm-shipment",
-    "sahm-courier",
-    "rides-where",
-    "rides-ride",
-    "rides-driver",
-    "taxi-map",
-    "taxi-ride",
-    "taxi-driver",
-    "school-today",
-    "school-homework",
-    "school-classroom",
-    "teachers-list",
-    "teachers-teacher",
-    "teachers-desk",
+    "masar-home",
+    "masar-where",
+    "masar-driver",
+    "lamha-home",
+    "lamha-ride",
+    "lamha-driver",
+    "nakhla-home",
+    "nakhla-parent",
+    "nakhla-classroom",
+    "rawaq-home",
+    "rawaq-teacher",
+    "rawaq-desk",
+    "premium-home",
+    "premium-course",
+    "premium-lesson",
     "studio-editor",
     "studio-home",
     "studio-project",
   ]) {
     await expect(page.locator(`main img[src*="${screen}.png"]`).first()).toBeVisible();
+  }
+  // 124.7 None of the pictures drawn with the app's plain defaults.
+  for (const screen of ["food-restaurants", "food-menu", "food-order", "rides-where", "rides-ride", "rides-driver", "taxi-map", "taxi-ride", "taxi-driver", "school-today", "school-homework", "school-classroom", "teachers-list", "teachers-teacher", "teachers-desk", "sahm-send", "sahm-shipment", "sahm-courier"]) {
+    await expect(page.locator(`main img[src*="${screen}.png"]`)).toHaveCount(0);
   }
   // The Demo menu entry is marked, and the regular demo apps are a link away.
   await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Demo", exact: true })).toHaveAttribute("aria-current", "page");

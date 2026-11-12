@@ -272,8 +272,8 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Send it in cash and follow its stages under My shipments",
       "Open Account › Courier mode, go on duty and deliver your own parcel: picked up, on the way, delivered",
     ],
-    // 124 Sahm's own screens, designed in Studio.
-    screens: ["sahm-send", "sahm-shipment", "sahm-courier"],
+    // 124.7 Each Studio demo's pictures are its app as it is: its Studio home, its bar and look, and two of its screens.
+    screens: ["sahm-home", "sahm-tracking", "sahm-job"],
   },
   food: {
     summary: "Food delivery from three restaurants: order, follow your order, then take it as the restaurant's staff and deliver it as the courier.",
@@ -282,7 +282,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "In the Restaurant tab, accept your order with the minutes it needs, then mark it ready",
       "In Account › Courier mode, take the job and deliver it, and see each stage in My orders",
     ],
-    screens: ["food-restaurants", "food-menu", "food-order"],
+    screens: ["sofra-home", "sofra-menu", "sofra-order"],
   },
   // 115.15 Restaurants and a supermarket in one app; the demo number is a customer, the supermarket's staff and a courier.
   marketplace: {
@@ -303,7 +303,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Open Account › Driver mode, go online and accept your ride before the time runs out",
       "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
     ],
-    screens: ["rides-where", "rides-ride", "rides-driver"],
+    screens: ["masar-home", "masar-where", "masar-driver"],
   },
   // 110.5 More of Studio's: the demo account is also a test driver, a student, her parent and her class teacher, and the academy's demo teacher.
   taxi: {
@@ -314,7 +314,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Open Account › Driver mode, go online and accept your ride before the countdown ends",
       "Tap I've arrived, start the ride with the code your ride shows, end it and rate your driver",
     ],
-    screens: ["taxi-map", "taxi-ride", "taxi-driver"],
+    screens: ["lamha-home", "lamha-ride", "lamha-driver"],
   },
   school: {
     summary: "A school in Cairo seen from all three sides: the demo number is Lina, a student, her mother Rania, who also has a son, and Ms. Mona, Lina's class teacher.",
@@ -323,7 +323,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Switch to her brother Adam: his grades, his attendance and a fee to pay, with no card in the demo",
       "In the Classroom tab, take Grade 5 A's attendance, give homework and enter scores, then see them on Lina's screens",
     ],
-    screens: ["school-today", "school-homework", "school-classroom"],
+    screens: ["nakhla-home", "nakhla-parent", "nakhla-classroom"],
   },
   instructors: {
     summary: "An academy where seven teachers publish their own courses: browse the teachers, follow one, then make a course of your own as one of the academy's teachers.",
@@ -332,7 +332,7 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Follow a teacher, then enroll in the free Excel course or buy one on Android: the demo checkout takes no card",
       "In the Teacher tab, make a course with a lesson and send it to the academy for review",
     ],
-    screens: ["teachers-list", "teachers-teacher", "teachers-desk"],
+    screens: ["rawaq-home", "rawaq-teacher", "rawaq-desk"],
   },
   // 123 The premium academy (lib/studio/academy.ts), as its template starts a project.
   premium_academy: {
