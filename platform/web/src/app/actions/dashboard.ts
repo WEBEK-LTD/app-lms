@@ -584,7 +584,11 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
   const context = await requireApp("settings");
   const values = formValues(formData);
   const parsed = brandingSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
+  if (!parsed.success) {
+    // 124 What the owner entered is kept even while the step isn't finished (an icon still to upload, say): every field that is valid on its own is saved.
+    const kept = await keepValidBranding(context, formData);
+    return { errors: fieldErrors(parsed.error), values, ...(kept ? { message: "Saved what you entered. To finish this step, fill in what is marked below." } : {}) };
+  }
   const store = await getStore();
   // Uploaded files must belong to this client.
   for (const [field, id, kind] of [
@@ -637,6 +641,34 @@ export async function saveBrandingAction(_: FormState, formData: FormData): Prom
     revalidatePath("/studio", "layout");
   }
   return afterStep(context, "branding");
+}
+
+/** 124 The Branding fields that are valid on their own, saved (never the step as done, nor a design); whether any was. */
+async function keepValidBranding(context: Awaited<ReturnType<typeof requireApp>>, formData: FormData): Promise<boolean> {
+  const store = await getStore();
+  const raw = Object.fromEntries(formData);
+  const patch: AppPatch = {};
+  for (const key of ["appName", "shortName", "primaryColor", "splashColor", "template", "font", "iconAssetId", "logoAssetId"] as const) {
+    const field = brandingSchema.shape[key].safeParse(raw[key] ?? "");
+    if (!field.success) continue;
+    let value = field.data as string | null;
+    if (key === "primaryColor" || key === "splashColor") value = String(value).toUpperCase();
+    if (key === "iconAssetId" || key === "logoAssetId") {
+      if (!value) {
+        if (key === "logoAssetId") (patch as Record<string, unknown>)[key] = null;
+        continue;
+      }
+      // Uploaded files must belong to this client.
+      const asset = await store.getAsset(value);
+      if (!asset || asset.clientId !== context.client.id || asset.kind !== (key === "iconAssetId" ? "icon" : "logo")) continue;
+    }
+    (patch as Record<string, unknown>)[key] = value;
+  }
+  if (!Object.keys(patch).length) return false;
+  await store.updateApp(context.app.id, patch, new Date());
+  revalidatePath("/dashboard/setup");
+  revalidatePath("/studio", "layout");
+  return true;
 }
 
 export async function saveListingAction(_: FormState, formData: FormData): Promise<FormState> {
