@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
-import { demoKind, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
+import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoLayout } from "@/lib/demo/setup";
 import { INNER_SCREENS, innerScreensFor } from "@/lib/pages/inner-screens";
@@ -22,7 +22,9 @@ const NOW = new Date("2026-11-11T10:00:00Z");
 
 function demoApp(id: (typeof STUDIO_DEMO_TYPES)[number]): App {
   const kind = demoKind(id);
-  return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, brandingDoneAt: NOW };
+  // 123 The premium academy's demo keeps the template it started from.
+  const design = id === PREMIUM_ACADEMY_DEMO ? { design: PREMIUM_ACADEMY_TEMPLATE } : {};
+  return { ...newApp("demo-client", null, NOW, kind.engine, kind.vertical), demo: true, section: "studio", backend: "hosted", appName: DEMO_BRANDS[id].appName, brandingDoneAt: NOW, ...design };
 }
 
 describe("120.4 the screens opened from the tabs", () => {
