@@ -10036,4 +10036,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get anotherCard => 'بطاقة أخرى في صفحة الدفع';
+
+  @override
+  String get webPageMediaRefused =>
+      'اسمح باستخدام الكاميرا والميكروفون من إعدادات هاتفك لتتمكن هذه الصفحة من استخدامهما.';
 }

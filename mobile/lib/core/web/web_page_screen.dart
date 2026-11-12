@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,8 @@ import '../api/models/models.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/buttons.dart';
+import 'media_permission.dart';
+import 'site_sign_in.dart';
 import 'web_view.dart';
 import '../l10n/l10n.dart';
 
@@ -16,6 +20,7 @@ class WebPageArgs {
     this.headers = const {},
     this.completesOn,
     this.look,
+    this.ownerPage = false,
   });
 
   final String url;
@@ -24,6 +29,12 @@ class WebPageArgs {
   /// 122 The owner's choices for a web page in the app: the site's header
   /// and footer hidden, its links kept in the app.
   final WebPageLook? look;
+
+  /// 124.9 A page the owner put in the app (a tab's, a button's or a
+  /// banner's link): on the app's WordPress site it opens with the student
+  /// signed in there, and it may have the camera and microphone when it
+  /// asks and the student allows them.
+  final bool ownerPage;
   final Map<String, String> headers;
 
   /// When a page the web view reaches matches, the screen closes with
@@ -46,14 +57,41 @@ class WebPageScreen extends ConsumerStatefulWidget {
 
 class _WebPageScreenState extends ConsumerState<WebPageScreen> {
   bool _completed = false;
-  late final WebViewRequest _request = WebViewRequest(
-    url: Uri.parse(widget.args.url),
+  late final Uri _page = Uri.parse(widget.args.url);
+  WebViewRequest? _request;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.args.ownerPage) {
+      _request = _requestFor(_page);
+      return;
+    }
+    // 124.9 The site's own page opens signed in, by a one-time link.
+    final look = widget.args.look;
+    unawaited(
+      siteSignedInPage(
+        ref.read,
+        _page,
+        appView: look != null && look.hideHeader && look.hideFooter,
+      ).then((url) {
+        if (mounted) setState(() => _request = _requestFor(url));
+      }),
+    );
+  }
+
+  WebViewRequest _requestFor(Uri url) => WebViewRequest(
+    url: url,
     headers: widget.args.headers,
     onUrlChange: _onUrl,
     debugLabel: 'page',
     injectCss: widget.args.look?.css,
     openLinksOutside:
         widget.args.look != null && !widget.args.look!.linksInside,
+    pageHost: url == _page ? null : _page.host,
+    onMediaRequest: widget.args.ownerPage
+        ? pageMediaRequests(context, ref)
+        : null,
   );
 
   void _onUrl(Uri url) {
@@ -110,7 +148,16 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
                   ],
                 ),
               ),
-              Expanded(child: builder(_request)),
+              Expanded(
+                child: _request == null
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          key: const ValueKey('web-page-signing-in'),
+                          color: p.primary,
+                        ),
+                      )
+                    : builder(_request!),
+              ),
             ],
           ),
         ),

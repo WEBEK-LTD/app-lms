@@ -9723,4 +9723,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get anotherCard => 'Ödeme sayfasında başka bir kart';
+
+  @override
+  String get webPageMediaRefused =>
+      'Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin.';
 }

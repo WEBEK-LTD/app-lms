@@ -2638,4 +2638,5 @@
 {"key":"payAmountSecurely","en":"Pay {amount} securely","ar":"ادفع {amount} بأمان","tr":"{amount} güvenle öde","description":"123 The course cart's button.","placeholders":{"amount":"String"}},
 {"key":"cardAtCheckout","en":"Your card is entered on the secure checkout","ar":"تُدخل بطاقتك في صفحة الدفع الآمنة","tr":"Kartın güvenli ödeme sayfasında girilir","description":"123 On the course cart when the student has no saved card."},
 {"key":"chooseCard","en":"Choose a card","ar":"اختر بطاقة","tr":"Bir kart seç","description":"123 The sheet of the student's saved cards, on the course cart."},
-{"key":"anotherCard","en":"Another card on the checkout","ar":"بطاقة أخرى في صفحة الدفع","tr":"Ödeme sayfasında başka bir kart","description":"123 Pays with a card not saved yet, on the course cart."}]}
+{"key":"anotherCard","en":"Another card on the checkout","ar":"بطاقة أخرى في صفحة الدفع","tr":"Ödeme sayfasında başka bir kart","description":"123 Pays with a card not saved yet, on the course cart."},
+{"key":"webPageMediaRefused","en":"Allow the camera and microphone in your phone's settings so this page can use them.","ar":"اسمح باستخدام الكاميرا والميكروفون من إعدادات هاتفك لتتمكن هذه الصفحة من استخدامهما.","tr":"Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin."}]}
