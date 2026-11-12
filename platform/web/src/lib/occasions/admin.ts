@@ -176,7 +176,7 @@ export async function runOccasionNextYear(store: DataStore, id: string, by: Occa
     return {
       ok: false,
       errors: {},
-      message: `${saved.name} is ${state === "live" ? "on now" : "still to come"}. Run it again once it has ended (or after turning it off): next year's takes over its coupon, ${saved.couponCode}.`,
+      message: `${saved.name} is ${state === "live" ? "on now" : "still to come"}. Run it again once it has ended (or after turning it off): next year's gets a coupon ${saved.couponCode} of its own, and this one's is kept, off, as ${saved.couponCode.slice(0, 34)}-${saved.startsOn.slice(0, 4)}.`,
     };
   }
   const year = Number(saved.startsOn.slice(0, 4));
@@ -188,13 +188,24 @@ export async function runOccasionNextYear(store: DataStore, id: string, by: Occa
     updatedAt: now.toISOString(),
     updatedBy: by.email,
   };
-  // The coupon is next year's from now on; this year's keeps its days, percentage and code as its record.
-  const others = items.map((o) => (o.id === id ? { ...o, couponId: null } : o));
-  const errors = occasionErrorsAmong(others, draft);
+  // Next year's gets a coupon of its own with the same code, so an account that used it this year may use it again;
+  // this year's coupon keeps its uses under the code with the year (BLACKFRIDAY50-2026), turned off.
+  const archived = `${saved.couponCode.slice(0, 34)}-${year}`;
+  const others = items.map((o) => (o.id === id ? { ...o, couponCode: archived } : o));
+  const fresh: OccasionRecord = { ...draft, couponId: null };
+  const errors = occasionErrorsAmong(others, fresh);
   if (Object.keys(errors).length) return { ok: false, errors, message: Object.values(errors)[0] };
-  const coupon = await syncCoupon(store, others, draft, by, now);
-  if (!coupon.ok) return { ...coupon, message: Object.values(coupon.errors)[0] };
-  const occasion = { ...draft, couponId: coupon.couponId };
+  const old = saved.couponId ? await store.getCoupon(saved.couponId) : null;
+  if (old && old.code !== archived && !(await store.updateCoupon(old.id, { code: archived, active: false }, now))) {
+    const message = `Another coupon has the code ${archived} (Admin › Coupons), which this year's coupon is kept under. Rename that one first.`;
+    return { ok: false, errors: { couponCode: message }, message };
+  }
+  const coupon = await syncCoupon(store, others, fresh, by, now);
+  if (!coupon.ok) {
+    if (old && old.code !== archived) await store.updateCoupon(old.id, { code: old.code, active: old.active }, now);
+    return { ...coupon, message: Object.values(coupon.errors)[0] };
+  }
+  const occasion = { ...fresh, couponId: coupon.couponId };
   await saveOccasions(store, [...others, occasion], by, now);
   await recordAudit(
     { actor: by, action: "occasion.next_year", target: { type: "occasion", id: occasion.id }, summary: `Ran ${saved.name} again as ${summaryOf(occasion)}`, after: occasion },

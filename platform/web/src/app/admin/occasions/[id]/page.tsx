@@ -86,8 +86,9 @@ export default async function OccasionPage({ params, searchParams }: PageProps<"
           Run it again next year
         </h2>
         <p className="m-0 text-[15px] text-muted">
-          A new occasion copying this one, on {nextDays}, turned on. Its coupon {occasion.couponCode} moves to it, so do this once this one has ended; this one
-          stays here as the record of its year.
+          A new occasion copying this one, on {nextDays}, turned on, with a coupon {occasion.couponCode} of its own: an account that used the code this year
+          can use it again. This one&apos;s coupon keeps its uses, off, as {occasion.couponCode.slice(0, 34)}-{occasion.startsOn.slice(0, 4)}. Do this once
+          this one has ended; this one stays here as the record of its year.
         </p>
         <NextYearForm id={occasion.id} />
       </section>

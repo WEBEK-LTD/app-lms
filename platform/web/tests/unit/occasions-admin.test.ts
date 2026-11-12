@@ -73,7 +73,7 @@ describe("124 Admin › Occasions", () => {
     expect(await couponOf(store, "c-old")).toMatchObject({ discount: { percent: 50 }, plans: null, periods: null, maxRedemptions: null, maxPerClient: 1, firstPaymentOnly: false, active: true });
   });
 
-  it("runs it again next year: a new record a year on, which takes over the coupon; refused while this year's is on", async () => {
+  it("runs it again next year: a new record a year on with a coupon of its own, this year's kept under its year; refused while this year's is on", async () => {
     const store = new MemoryStore();
     const bf = await created(store);
     const early = await runOccasionNextYear(store, bf.id, TEAM, NOW);
@@ -83,16 +83,23 @@ describe("124 Admin › Occasions", () => {
     const december = new Date("2026-12-02T09:00:00Z");
     const next = await runOccasionNextYear(store, bf.id, TEAM, december);
     if (!next.ok) throw new Error(next.message);
-    expect(next.occasion).toMatchObject({ name: "Black Friday 2027", startsOn: "2027-11-01", endsOn: "2027-11-30", percent: 50, couponCode: "BLACKFRIDAY50", active: true, couponId: bf.couponId });
+    expect(next.occasion).toMatchObject({ name: "Black Friday 2027", startsOn: "2027-11-01", endsOn: "2027-11-30", percent: 50, couponCode: "BLACKFRIDAY50", active: true });
+    expect(next.occasion.couponId).not.toBe(bf.couponId);
     const items = await occasionsOf(store, { fresh: true });
     expect(items).toHaveLength(2);
-    // Last year's stays as its record, without the coupon.
-    expect(items.find((o) => o.id === bf.id)).toMatchObject({ name: "Black Friday 2026", startsOn: "2026-11-01", couponId: null });
-    const coupon = await couponOf(store, bf.couponId);
+    // Last year's stays as its record, with its coupon under the code with the year, off: its uses stay with it.
+    expect(items.find((o) => o.id === bf.id)).toMatchObject({ name: "Black Friday 2026", startsOn: "2026-11-01", couponCode: "BLACKFRIDAY50-2026", couponId: bf.couponId });
+    expect(await couponOf(store, bf.couponId)).toMatchObject({ code: "BLACKFRIDAY50-2026", active: false });
+    // Next year's: the code, next year's days, so an account that used it in 2026 may use it again in 2027.
+    const coupon = await couponOf(store, next.occasion.couponId);
+    expect(coupon).toMatchObject({ code: "BLACKFRIDAY50", active: true, maxPerClient: 1 });
     expect(coupon.validFrom?.toISOString()).toBe("2027-10-31T21:00:00.000Z");
     expect(coupon.validUntil?.toISOString()).toBe("2027-11-30T20:59:59.999Z");
-    expect((await store.listCoupons()).length).toBe(1);
+    expect((await store.listCoupons()).length).toBe(2);
     expect((await store.listAuditEntries({ offset: 0, limit: 50 })).items.map((e) => e.action)).toContain("occasion.next_year");
+    // Last year's record can still be saved: its coupon is its own.
+    const last = items.find((o) => o.id === bf.id)!;
+    expect((await updateOccasion(store, bf.id, { name: last.name, startsOn: last.startsOn, endsOn: last.endsOn, percent: last.percent, couponCode: last.couponCode, plans: last.plans, active: last.active }, TEAM, december)).ok).toBe(true);
     // Twice is the same days: refused.
     expect((await runOccasionNextYear(store, bf.id, TEAM, december)).ok).toBe(false);
   });
