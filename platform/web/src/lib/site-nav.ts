@@ -63,12 +63,13 @@ export const PRODUCT_LINKS: SiteLink[] = [
   { id: "how", href: "/how-it-works", label: "How it works", description: "From sign-up to the app stores", icon: "task_alt" },
 ];
 
-const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront" };
+const STORY_ICONS: Record<StoryId, IconName> = { school: "school", rides: "local_taxi", delivery: "local_shipping", "multi-vendor": "storefront", academy: "workspace_premium" };
 const STORY_LABELS: Record<StoryId, [string, string]> = {
   school: ["School app", "Students, parents, teachers and staff"],
   rides: ["Ride-hailing app", "Riders, drivers and the live map"],
   delivery: ["Delivery & shipping app", "Parcels, couriers and live tracking"],
   "multi-vendor": ["Multi-vendor app", "Restaurants, supermarkets and delivery"],
+  academy: ["Academy app", "Courses, live classes and certificates"],
 };
 
 /** The Studio story pages, for the Studio menu and the footer. */
@@ -117,6 +118,7 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
     "story-rides": [m.storyRides, m.storyRidesText],
     "story-delivery": [m.storyDelivery, m.storyDeliveryText],
     "story-multi-vendor": [m.storyMultiVendor, m.storyMultiVendorText],
+    "story-academy": [m.storyAcademy, m.storyAcademyText],
     pricing: [m.pricing],
     demo: [m.demo],
     resources: [m.resources],
@@ -145,6 +147,6 @@ export function siteNavFor(lang: Lang, m: Messages["nav"]): SiteNavEntry[] {
 
 /** The footer's Studio column in a language: the apps made in Studio. */
 export function storyLinksFor(lang: Lang, m: Messages["nav"]): { id: string; href: string; label: string }[] {
-  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor };
+  const label: Record<StoryId, string> = { school: m.storySchool, rides: m.storyRides, delivery: m.storyDelivery, "multi-vendor": m.storyMultiVendor, academy: m.storyAcademy };
   return STORY_IDS.map((id) => ({ id: `story-${id}`, href: localePath(lang, storyPath(id)), label: label[id] }));
 }

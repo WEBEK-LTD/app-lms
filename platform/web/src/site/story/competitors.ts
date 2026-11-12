@@ -4,7 +4,8 @@ import type { StoryId } from "./types";
 /**
  * The comparison on each story page: companies that make and sell such
  * apps (SaaS builders, white-label and clone-script vendors), what their own
- * sites say, checked on 10 November 2026, with the pages it comes from.
+ * sites say, checked on 10 November 2026 (the academy's on 12 November),
+ * with the pages it comes from.
  * Only rows their sites state plainly: which apps come with it, whether the
  * apps carry the client's own name, how it is priced, whether prices are
  * published, and whether Arabic is stated. No prices are quoted (several
@@ -196,6 +197,63 @@ const COLUMNS = {
     arabic: { en: "Right to left stated", ar: "الاتجاه من اليمين لليسار مذكور", tr: "Sağdan sola belirtilmiş" },
     sources: ["https://6ammart.app/pricing/", "https://6ammart.app/features/", "https://6ammart.app/installation/"],
   },
+  // The academy story, checked on 12 November 2026.
+  kajabi: {
+    name: "Kajabi",
+    kind: SAAS,
+    apps: { en: "Its website and the Kajabi app; an app under your brand as an extra", ar: "موقعها وتطبيق Kajabi؛ وتطبيق بعلامتك كإضافة", tr: "Sitesi ve Kajabi uygulaması; ek olarak kendi markanızla bir uygulama" },
+    ownName: { en: "Yes, a branded app: on its top plan, an add-on on the others", ar: "نعم، تطبيق بعلامتك: في باقتها العليا، وإضافة مدفوعة في غيرها", tr: "Evet, markalı uygulama: en üst pakette, diğerlerinde ek olarak" },
+    pricing: { en: "Monthly or yearly plans; card processing fees apart", ar: "باقات شهرية أو سنوية؛ ورسوم معالجة البطاقات منفصلة", tr: "Aylık veya yıllık paketler; kart işlem ücretleri ayrı" },
+    published: YES_PUBLISHED,
+    arabic: { en: "Not among its listed site languages", ar: "ليست ضمن لغات المواقع المذكورة لديها", tr: "Listelediği site dilleri arasında yok" },
+    sources: [
+      "https://www.kajabi.com/pricing",
+      "https://help.kajabi.com/articles/mobile-apps/branded-app/kajabi-branded-app-overview",
+      "https://help.kajabi.com/articles/mobile-apps/branded-app/kajabi-branded-app-faqs",
+      "https://help.kajabi.com/en/articles/12696242-change-your-site-language",
+    ],
+  },
+  thinkific: {
+    name: "Thinkific",
+    kind: SAAS,
+    apps: { en: "Its website and the Thinkific app; a branded app as an add-on", ar: "موقعها وتطبيق Thinkific؛ وتطبيق بعلامتك كإضافة", tr: "Sitesi ve Thinkific uygulaması; ek olarak markalı uygulama" },
+    ownName: { en: "Yes, as a paid add-on, in your own store accounts", ar: "نعم، كإضافة مدفوعة، في حساباتك على المتاجر", tr: "Evet, ücretli ek olarak, kendi mağaza hesaplarınızda" },
+    pricing: { en: "Monthly or yearly plans; a gateway fee on lower plans with your own Stripe or PayPal", ar: "باقات شهرية أو سنوية؛ ورسوم بوابة في الباقات الأدنى مع Stripe أو PayPal الخاص بك", tr: "Aylık veya yıllık paketler; alt paketlerde kendi Stripe veya PayPal hesabınızla ağ geçidi ücreti" },
+    published: YES_PUBLISHED,
+    arabic: { en: "Courses may be written in Arabic; its site text and right to left are not offered", ar: "يمكن كتابة الدورات بالعربية؛ أما نصوص الموقع والاتجاه من اليمين لليسار فغير متاحة", tr: "Kurslar Arapça yazılabilir; site metinleri ve sağdan sola sunulmuyor" },
+    sources: [
+      "https://www.thinkific.com/pricing/",
+      "https://www.thinkific.com/features/branded-mobile/",
+      "https://support.thinkific.com/hc/en-us/articles/13166713617431-Maximize-Your-Brand-Potential-With-the-Branded-Mobile-App",
+      "https://support.thinkific.com/hc/en-us/articles/360035031914-Does-Thinkific-support-Arabic-and-Hebrew",
+    ],
+  },
+  learnworlds: {
+    name: "LearnWorlds",
+    kind: SAAS,
+    apps: { en: "Its online school; a mobile app as a paid add-on on higher plans", ar: "مدرستها على الإنترنت؛ وتطبيق للهاتف كإضافة مدفوعة في الباقات الأعلى", tr: "Çevrim içi okulu; üst paketlerde ücretli ek olarak mobil uygulama" },
+    ownName: { en: "Yes, in your own developer accounts, with a one-time publishing fee", ar: "نعم، في حسابات المطوّر الخاصة بك، مع رسوم نشر لمرة واحدة", tr: "Evet, kendi geliştirici hesaplarınızda, tek seferlik yayın ücretiyle" },
+    pricing: { en: "Monthly or yearly plans; a fee per sale on its first plan; the app an add-on", ar: "باقات شهرية أو سنوية؛ ورسوم على كل عملية بيع في باقتها الأولى؛ والتطبيق إضافة", tr: "Aylık veya yıllık paketler; ilk paketinde satış başına ücret; uygulama ek" },
+    published: YES_PUBLISHED,
+    arabic: { en: "Right to left stated for some languages; Arabic pages through a translation integration", ar: "الاتجاه من اليمين لليسار مذكور لبعض اللغات؛ والصفحات العربية عبر تكامل للترجمة", tr: "Bazı diller için sağdan sola belirtilmiş; Arapça sayfalar bir çeviri entegrasyonuyla" },
+    sources: [
+      "https://www.learnworlds.com/branded-mobile-app-online-courses/",
+      "https://support.learnworlds.com/support/solutions/articles/12000108295-before-purchasing-a-learnworlds-mobile-app",
+      "https://www.learnworlds.com/blog/business/budget-friendly-learning-management-system/",
+      "https://support.learnworlds.com/support/solutions/articles/12000080532-how-to-enable-the-right-to-left-text-in-your-school-rtl-",
+      "https://support.learnworlds.com/support/solutions/articles/12000096288-how-to-integrate-weglot-for-a-multilanguage-school-experience",
+    ],
+  },
+  graphy: {
+    name: "Graphy",
+    kind: SAAS,
+    apps: { en: "Its website; Android and iOS apps from its middle plan", ar: "موقعها؛ وتطبيقا أندرويد وiOS بدءًا من باقتها الوسطى", tr: "Sitesi; orta paketinden itibaren Android ve iOS uygulamaları" },
+    ownName: { en: "Yes, a branded app from its middle plan", ar: "نعم، تطبيق بعلامتك بدءًا من باقتها الوسطى", tr: "Evet, orta paketinden itibaren markalı uygulama" },
+    pricing: { en: "Monthly plans; no transaction fee stated", ar: "باقات شهرية؛ وبلا رسوم على المعاملات كما تذكر", tr: "Aylık paketler; işlem ücreti olmadığı belirtilmiş" },
+    published: YES_PUBLISHED,
+    arabic: NOT_STATED,
+    sources: ["https://graphy.com/us/pricing/", "https://graphy.com/blog/kajabi-alternatives/"],
+  },
 } satisfies Record<string, CompareColumn>;
 
 /** Each story's companies, in the order shown. */
@@ -204,6 +262,7 @@ const BY_STORY: Record<StoryId, (keyof typeof COLUMNS)[]> = {
   rides: ["appscrip", "onde", "apporio", "codebrewRides"],
   delivery: ["tookan", "shipday", "onfleet", "apporioDelivery"],
   "multi-vendor": ["yelo", "enatega", "deonde", "sixammart"],
+  academy: ["kajabi", "thinkific", "learnworlds", "graphy"],
 };
 
 export function competitorsOf(story: StoryId): CompareColumn[] {
@@ -249,6 +308,13 @@ export const YALLAPP: Record<StoryId, Pick<CompareColumn, "kind" | "apps" | "own
     ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
     pricing: { en: "A Studio plan; no fee per order", ar: "باقة Studio؛ بلا رسوم لكل طلب", tr: "Bir Studio paketi; sipariş başına ücret yok" },
     arabic: { en: "Yes: Arabic, right to left, in the apps and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيقات وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamalarda ve Studio'da" },
+  },
+  academy: {
+    kind: { en: "A Yallapp Studio template", ar: "قالب من Yallapp Studio", tr: "Bir Yallapp Studio şablonu" },
+    apps: { en: "The academy's own app for its students, and Studio for you", ar: "تطبيق الأكاديمية الخاص لطلابها، وStudio لك", tr: "Akademinin öğrencileri için kendi uygulaması ve sizin için Studio" },
+    ownName: { en: "Yes: your name, your icon, your store accounts", ar: "نعم: اسمك وأيقونتك وحساباتك في المتاجر", tr: "Evet: adınız, simgeniz, mağaza hesaplarınız" },
+    pricing: { en: "A Studio plan; no share of your course sales", ar: "باقة Studio؛ بلا نسبة من مبيعات دوراتك", tr: "Bir Studio paketi; kurs satışlarınızdan pay yok" },
+    arabic: { en: "Yes: Arabic, right to left, in the app and in Studio", ar: "نعم: العربية من اليمين لليسار، في التطبيق وفي Studio", tr: "Evet: Arapça, sağdan sola, uygulamada ve Studio'da" },
   },
 };
 

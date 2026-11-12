@@ -225,6 +225,56 @@ export const STORIES: Record<StoryId, StoryShape> = {
     bundle: ["smartphone", "dashboard_customize", "storefront", "two_wheeler"],
     finale: { photo: "zad-friday", screen: "zad-home" },
   },
+  academy: {
+    id: "academy",
+    icon: "workspace_premium",
+    // The premium academy's gold, on its navy (#1D2B4F) at night.
+    accent: "#E2BE74",
+    demos: ["premium_academy"],
+    solutions: ["academy"],
+    hero: { photo: "academy-desk", screens: ["premium-home", "premium-course"] },
+    chapters: [
+      { photo: "academy-phone", screen: "premium-account", icon: "login" },
+      { photo: "academy-breakfast", screen: "premium-home", icon: "home" },
+      { screen: "premium-mine", icon: "monitoring" },
+      { screen: "premium-explore", icon: "explore" },
+      { screen: "premium-course", icon: "school" },
+      { screen: "premium-cart", icon: "shopping_cart" },
+      { photo: "academy-live", screen: "premium-home", icon: "live_tv" },
+      { screen: "premium-lesson", icon: "edit" },
+    ],
+    interlude: { photo: "academy-evening" },
+    stats: [{ value: 15, suffix: " min" }, { value: 10, suffix: " s" }, { value: 3 }, { value: 0 }],
+    systems: [
+      {
+        icon: "person",
+        screens: ["premium-explore", "premium-lesson"],
+        features: ["home", "bolt", "monitoring", "explore", "smart_display", "edit", "quiz", "live_tv", "workspace_premium", "download", "account_circle", "phone_iphone", "shield"],
+      },
+      {
+        icon: "shopping_cart",
+        screens: ["premium-course", "premium-cart"],
+        features: ["task_alt", "sell", "credit_card", "phone_iphone", "shopping_cart", "local_offer", "lock", "receipt_long"],
+      },
+      {
+        icon: "dashboard_customize",
+        screens: [],
+        features: ["school", "smart_display", "quiz", "assignment", "workspace_premium", "schedule", "route", "monitoring", "person", "devices", "notifications", "forum", "emoji_events"],
+      },
+      {
+        icon: "palette",
+        screens: ["premium-account", "premium-mine"],
+        features: ["palette", "tab", "dashboard_customize", "dark_mode", "login", "view_agenda", "translate", "web"],
+      },
+      {
+        icon: "web",
+        screens: [],
+        features: ["cloud_sync", "task_alt", "forum", "group", "shopping_cart", "credit_card"],
+      },
+    ],
+    bundle: ["smartphone", "dashboard_customize", "web"],
+    finale: { photo: "academy-graduation", screen: "premium-home" },
+  },
 };
 
 /** Every photo slot of a story, each once. */
