@@ -322,3 +322,17 @@ class CheckoutLink {
   final bool enrolled;
   final List<int> courseIds;
 }
+
+/// 124.9 A one-time link that signs the student in on the WordPress site and
+/// opens one of its pages (`POST /auth/web-link`).
+class WebLink {
+  const WebLink({required this.url, required this.expiresAt});
+
+  factory WebLink.fromJson(Json json) => WebLink(
+    url: reqString(json, 'url'),
+    expiresAt: reqDate(json, 'expires_at'),
+  );
+
+  final String url;
+  final DateTime expiresAt;
+}

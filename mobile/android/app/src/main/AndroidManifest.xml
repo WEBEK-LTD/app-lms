@@ -2,6 +2,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 77 Voice messages in the chat (asked when the person records one). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 124.9 Pages opened in the app that ask for the camera and the
+         microphone (a video call, an identity check), asked when they do.
+         Phones without them still install the app. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <!-- 104 Delivery apps: the customer's place, and the courier's position
          while a parcel is on the way, only while the app is open. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

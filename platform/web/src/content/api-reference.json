@@ -115,6 +115,13 @@
           "summary": "Sign out this device",
           "description": "Also while the app is paused (roadmap 68).",
           "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/web-link",
+          "summary": "Get a one-time signed-in link to a page of the website (WordPress)",
+          "description": "Roadmap 124.9. Served by the Yallapp plugin only (0.4.36 and later): a web page or tab of a WordPress app (`Action.web`, roadmap 122) on the site's own website opens with the student signed in there. The app asks for this link when the page's address is on the site's host and the student is signed in, and opens the answer's `url` in the same web view, with the address still hidden. The link signs the student in on the website and then lands on `url` of the request. It works once and expires after 5 minutes. Signed out, on another host, or when this call fails, the app opens the page's address as it is.\n\n`url` must be on the site's own host (the host of the site's address, with or without `www.`), over https or the site's own scheme, on the site's port and without a user name or password; any other address is 400 `invalid_request`. The hosted API has no website and doesn't serve this path: the app asks only a WordPress site.",
+          "access": "signed-in"
         }
       ]
     },

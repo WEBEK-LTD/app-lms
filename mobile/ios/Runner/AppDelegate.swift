@@ -1,3 +1,4 @@
+import AVFoundation
 import Flutter
 import PDFKit
 import UIKit
@@ -7,6 +8,7 @@ import UIKit
   private var screenSecurity: ScreenSecurity?
   private var pdfPages: PdfPages?
   private var privateFiles: PrivateFiles?
+  private var mediaPermission: MediaPermission?
 
   override func application(
     _ application: UIApplication,
@@ -22,6 +24,8 @@ import UIKit
       // 53 Course PDFs in the app's own viewer; saved lessons out of backups.
       pdfPages = PdfPages(messenger: registrar.messenger())
       privateFiles = PrivateFiles(messenger: registrar.messenger())
+      // 124.9 The camera and microphone for a page in the app that asks.
+      mediaPermission = MediaPermission(messenger: registrar.messenger())
     }
   }
 }
@@ -300,6 +304,47 @@ final class PrivateFiles {
       default:
         result(FlutterMethodNotImplemented)
       }
+    }
+  }
+}
+
+/// 124.9 A page in the app (a video call, an identity check) asked for the
+/// camera or the microphone: iOS asks the person the first time (the usage
+/// texts in Info.plist), and the answer says whether the app may use all
+/// that was asked (lib/core/web/media_permission.dart).
+final class MediaPermission {
+  private let channel: FlutterMethodChannel
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "yallapp/media_permission", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "request" else { return result(FlutterMethodNotImplemented) }
+      let args = call.arguments as? [String: Any]
+      var wanted: [AVMediaType] = []
+      if args?["camera"] as? Bool == true { wanted.append(.video) }
+      if args?["microphone"] as? Bool == true { wanted.append(.audio) }
+      guard !wanted.isEmpty else { return result(false) }
+      MediaPermission.ask(wanted) { granted in
+        DispatchQueue.main.async { result(granted) }
+      }
+    }
+  }
+
+  private static func ask(_ types: [AVMediaType], done: @escaping (Bool) -> Void) {
+    guard let type = types.first else { return done(true) }
+    switch AVCaptureDevice.authorizationStatus(for: type) {
+    case .authorized:
+      ask(Array(types.dropFirst()), done: done)
+    case .notDetermined:
+      AVCaptureDevice.requestAccess(for: type) { granted in
+        if granted {
+          ask(Array(types.dropFirst()), done: done)
+        } else {
+          done(false)
+        }
+      }
+    default:
+      done(false)
     }
   }
 }

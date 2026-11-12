@@ -55,6 +55,48 @@ class Magic_Links {
 	}
 
 	/**
+	 * 124.9 A page of this site to open signed in from the app: [url] when it is on the
+	 * site's own host ([home], `www.` either way), over https or the site's own scheme, on
+	 * the site's port, with no user name or password in it. Given back on the site's own
+	 * host, so the redirect after signing in keeps it; null for any other address.
+	 *
+	 * @param string $url  The page the app opens.
+	 * @param string $home The site's address (`home_url()`).
+	 * @return string|null
+	 */
+	public static function site_target( $url, $home ) {
+		$url = trim( (string) $url );
+		if ( '' === $url || strlen( $url ) > 2048 || preg_match( '/[\x00-\x20\x7f\\\\]/', $url ) ) {
+			return null;
+		}
+		$target = wp_parse_url( $url );
+		$site   = wp_parse_url( (string) $home );
+		if ( ! is_array( $target ) || ! is_array( $site ) || empty( $target['host'] ) || empty( $site['host'] ) || empty( $target['scheme'] ) || empty( $site['scheme'] ) ) {
+			return null;
+		}
+		if ( isset( $target['user'] ) || isset( $target['pass'] ) ) {
+			return null;
+		}
+		$scheme      = strtolower( $target['scheme'] );
+		$site_scheme = strtolower( $site['scheme'] );
+		if ( 'https' !== $scheme && $site_scheme !== $scheme ) {
+			return null;
+		}
+		$bare = function ( $host ) {
+			$host = strtolower( $host );
+			return 0 === strpos( $host, 'www.' ) ? substr( $host, 4 ) : $host;
+		};
+		if ( $bare( $target['host'] ) !== $bare( $site['host'] ) || ( $target['port'] ?? null ) !== ( $site['port'] ?? null ) ) {
+			return null;
+		}
+		$path = $target['path'] ?? '/';
+		return $scheme . '://' . strtolower( $site['host'] ) . ( isset( $site['port'] ) ? ':' . $site['port'] : '' )
+			. ( '' === $path || '/' !== $path[0] ? '/' . $path : $path )
+			. ( isset( $target['query'] ) ? '?' . $target['query'] : '' )
+			. ( isset( $target['fragment'] ) ? '#' . $target['fragment'] : '' );
+	}
+
+	/**
 	 * Signs the user in and redirects, once.
 	 *
 	 * @return void

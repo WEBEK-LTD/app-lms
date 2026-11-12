@@ -202,6 +202,7 @@ class BuildConfigData {
   BuildConfigData copyWith({
     String? appName,
     String? siteUrl,
+    String? apiBaseUrl,
     bool clearApiBaseUrl = false,
     AppTemplate? template,
     AppType? appType,
@@ -222,7 +223,7 @@ class BuildConfigData {
     appName: appName ?? this.appName,
     shortName: shortName,
     siteUrl: siteUrl ?? this.siteUrl,
-    apiBaseUrl: clearApiBaseUrl ? null : apiBaseUrl,
+    apiBaseUrl: clearApiBaseUrl ? null : (apiBaseUrl ?? this.apiBaseUrl),
     authBaseUrl: clearApiBaseUrl ? null : authBaseUrl,
     androidPackage: androidPackage,
     iosBundleId: iosBundleId,
