@@ -9,7 +9,7 @@ import type { App } from "@/lib/data/types";
 import { deliverySettingsOf } from "@/lib/delivery/settings";
 import { ALL_DEMO_TYPES, DEMO_SIGN_IN, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_ARTICLES, DEMO_CAMPAIGNS, DEMO_COURSES, DEMO_DELIVERY_SERVICES, DEMO_DISHES, DEMO_EVENTS, DEMO_LISTINGS, DEMO_PRODUCTS, DEMO_RESTAURANTS, DEMO_SERVICES, RIDES_DEMO_TYPES, TAXI_DEMO_TYPES } from "@/lib/demo/content";
-import { demoDesignId, demoOfDesign } from "@/lib/demo/look";
+import { DEMO_DESIGN_TYPES, demoDesignId, demoOfDesign } from "@/lib/demo/look";
 import { MARKET_CATALOG, MARKET_VENDORS } from "@/lib/demo/marketplace";
 import { SCHOOL_CLASSES, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
@@ -183,8 +183,10 @@ describe("templates = demos: the demo's own sample entries", () => {
   });
 
   it("knows a demo's design by its ID", () => {
-    for (const demo of ALL_DEMO_TYPES) expect(demoOfDesign(demoDesignId(demo))).toBe(demo);
+    for (const demo of DEMO_DESIGN_TYPES) expect(demoOfDesign(demoDesignId(demo))).toBe(demo);
     expect(demoOfDesign("store-fashion")).toBeNull();
+    // 123 The premium academy's design is its Studio template, no design of pages.
+    expect(demoOfDesign("demo-premium_academy")).toBeNull();
     expect(demoOfDesign(null)).toBeNull();
   });
 });
