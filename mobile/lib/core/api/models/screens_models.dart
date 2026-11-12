@@ -22,7 +22,9 @@ Map<String, String> _texts(Object? value) => {
         key: text.trim(),
 };
 
-enum SignInLookStyle { classic, photo, card, minimal }
+/// 123 `premium`: the premium academy's, the owner's words large over the
+/// photo (or the app's colours) and the form on a card at the foot.
+enum SignInLookStyle { classic, photo, card, minimal, premium }
 
 class SignInLook {
   const SignInLook({

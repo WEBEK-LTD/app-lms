@@ -9643,4 +9643,51 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get darkModeSwitch => 'Koyu mod';
+
+  @override
+  String get lessonFiles => 'Dosyalar';
+
+  @override
+  String get lessonOverview => 'Anlatım';
+
+  @override
+  String get upNext => 'Sıradaki';
+
+  @override
+  String get quizOpensAfter => 'Bu dersten sonra açılır';
+
+  @override
+  String get signInPhoneTitle => 'Telefonla giriş';
+
+  @override
+  String get signInEmailTitle => 'E-postayla giriş';
+
+  @override
+  String get signInCodeNote => 'Giriş için bir kod göndeririz, şifre gerekmez.';
+
+  @override
+  String get newAccountShort => 'Yeni hesap';
+
+  @override
+  String get signInCodeShort => 'Kod';
+
+  @override
+  String get emailShort => 'E-posta';
+
+  @override
+  String get verificationCodeTitle => 'Doğrulama kodu';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return '$number numarasına $count haneli bir kod gönderdik';
+  }
+
+  @override
+  String get didntGetCode => 'Gelmedi mi?';
+
+  @override
+  String get resendCode => 'Yeniden gönder';
+
+  @override
+  String get confirmAndSignIn => 'Onayla ve giriş yap';
 }

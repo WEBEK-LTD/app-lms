@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Studio_Screens {
 
-	const SIGN_IN_STYLES = array( 'classic', 'photo', 'card', 'minimal' );
+	const SIGN_IN_STYLES = array( 'classic', 'photo', 'card', 'minimal', 'premium' );
 	const HEADERS        = array( 'plain', 'card', 'cover', 'tiles', 'night', 'academy' );
 	const LOOKS          = array(
 		'catalog'    => 'explore',

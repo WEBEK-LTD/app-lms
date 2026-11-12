@@ -15817,6 +15817,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark mode'**
   String get darkModeSwitch;
+
+  /// 123 The lesson's files, a chip on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get lessonFiles;
+
+  /// 123 The lesson's own text, a chip on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get lessonOverview;
+
+  /// 123 Over the next lesson on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get upNext;
+
+  /// 123 Under a quiz that unlocks once the lesson is done, on a premium lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens after this lesson'**
+  String get quizOpensAfter;
+
+  /// 123 The heading of the premium sign-in with a phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your phone'**
+  String get signInPhoneTitle;
+
+  /// 123 The heading of the premium sign-in with an email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your email'**
+  String get signInEmailTitle;
+
+  /// 123 Under the heading of the premium sign-in with a code.
+  ///
+  /// In en, this message translates to:
+  /// **'We send you a code to sign in, no password.'**
+  String get signInCodeNote;
+
+  /// 123 The premium sign-in's button to create an account.
+  ///
+  /// In en, this message translates to:
+  /// **'New account'**
+  String get newAccountShort;
+
+  /// 123 The premium sign-in's button to sign in with a code instead of a password.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get signInCodeShort;
+
+  /// 123 The premium sign-in's button to sign in by email instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailShort;
+
+  /// 123 The title of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code'**
+  String get verificationCodeTitle;
+
+  /// 123 Under the title of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a {count}-digit code to {number}'**
+  String codeSentDigits(int count, String number);
+
+  /// 123 Before the way to send the code again, on the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t get it?'**
+  String get didntGetCode;
+
+  /// 123 Sends the sign-in code again, on the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get resendCode;
+
+  /// 123 The button of the premium sign-in code screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and sign in'**
+  String get confirmAndSignIn;
 }
 
 class _AppLocalizationsDelegate

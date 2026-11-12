@@ -9952,4 +9952,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get darkModeSwitch => 'الوضع الغامق';
+
+  @override
+  String get lessonFiles => 'الملفات';
+
+  @override
+  String get lessonOverview => 'الشرح';
+
+  @override
+  String get upNext => 'التالي';
+
+  @override
+  String get quizOpensAfter => 'يفتح بعد هذا الدرس';
+
+  @override
+  String get signInPhoneTitle => 'الدخول برقم الهاتف';
+
+  @override
+  String get signInEmailTitle => 'الدخول بالبريد الإلكتروني';
+
+  @override
+  String get signInCodeNote => 'نرسل لك رمزًا للدخول، بلا كلمة مرور.';
+
+  @override
+  String get newAccountShort => 'حساب جديد';
+
+  @override
+  String get signInCodeShort => 'الرمز';
+
+  @override
+  String get emailShort => 'البريد';
+
+  @override
+  String get verificationCodeTitle => 'رمز التحقق';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return 'أرسلنا رمزًا من $count أرقام إلى $number';
+  }
+
+  @override
+  String get didntGetCode => 'لم يصلك؟';
+
+  @override
+  String get resendCode => 'إعادة الإرسال';
+
+  @override
+  String get confirmAndSignIn => 'تأكيد ودخول';
 }

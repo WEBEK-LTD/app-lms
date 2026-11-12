@@ -2617,5 +2617,20 @@
   "statCourses": "{count, plural, =1{دورة} =2{دورتان} few{دورات} other{دورة}}",
   "statCertificates": "{count, plural, =1{شهادة} =2{شهادتان} few{شهادات} other{شهادة}}",
   "statHours": "{count, plural, =1{ساعة} =2{ساعتان} few{ساعات} other{ساعة}}",
-  "darkModeSwitch": "الوضع الغامق"
+  "darkModeSwitch": "الوضع الغامق",
+  "lessonFiles": "الملفات",
+  "lessonOverview": "الشرح",
+  "upNext": "التالي",
+  "quizOpensAfter": "يفتح بعد هذا الدرس",
+  "signInPhoneTitle": "الدخول برقم الهاتف",
+  "signInEmailTitle": "الدخول بالبريد الإلكتروني",
+  "signInCodeNote": "نرسل لك رمزًا للدخول، بلا كلمة مرور.",
+  "newAccountShort": "حساب جديد",
+  "signInCodeShort": "الرمز",
+  "emailShort": "البريد",
+  "verificationCodeTitle": "رمز التحقق",
+  "codeSentDigits": "أرسلنا رمزًا من {count} أرقام إلى {number}",
+  "didntGetCode": "لم يصلك؟",
+  "resendCode": "إعادة الإرسال",
+  "confirmAndSignIn": "تأكيد ودخول"
 }

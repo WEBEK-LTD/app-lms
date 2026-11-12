@@ -137,7 +137,7 @@ describe("123 the premium academy template", () => {
     const parsed = parseStudioScreens(JSON.parse(JSON.stringify(screens)));
     expect(parsed.problems).toEqual([]);
     expect(parsed.screens).toEqual(screens);
-    expect(screens.sign_in).toMatchObject({ style: "photo", image_url: "https://webek.org/demo-screens/rawaq-library.jpg" });
+    expect(screens.sign_in).toMatchObject({ style: "premium", image_url: "https://webek.org/design-pictures/academy-mesh-1.jpg" });
     // The academy card, then the orders, certificates, quiz results and downloads, as approved.
     expect(screens.account_menu!.header).toBe("academy");
     expect(screens.account_menu!.items.filter((i) => !i.hidden).map((i) => i.key)).toEqual(["orders", "certificates", "quiz_results", "downloads", "settings", "help", "privacy", "terms"]);

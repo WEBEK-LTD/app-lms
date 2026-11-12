@@ -93,6 +93,7 @@ const STYLE_WORDS: Record<SignInStyle, { label: DashKey; hint: DashKey }> = {
   photo: { label: "studio.stylePhoto", hint: "studio.stylePhotoHint" },
   card: { label: "studio.styleCard", hint: "studio.styleCardHint" },
   minimal: { label: "studio.styleMinimal", hint: "studio.styleMinimalHint" },
+  premium: { label: "studio.stylePremium", hint: "studio.stylePremiumHint" },
 };
 
 type Entry = AccountMenuEntry & { uid: string };
@@ -187,7 +188,7 @@ export function ScreensEditor({
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">
             {t("studio.signInLook")}
           </h2>
-          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-4">
+          <fieldset className="m-0 grid grid-cols-2 gap-3 border-0 p-0 sm:grid-cols-5">
             <legend className="sr-only">{t("studio.signInLook")}</legend>
             {SIGN_IN_STYLES.map((style) => {
               const on = look.style === style;
@@ -202,7 +203,7 @@ export function ScreensEditor({
             })}
           </fieldset>
 
-          {look.style === "photo" || look.style === "card" ? (
+          {look.style === "photo" || look.style === "card" || look.style === "premium" ? (
             <div className="flex flex-wrap items-center gap-3">
               {look.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -558,6 +559,21 @@ export function ScreensEditor({
 /** The look's small drawing in its choice. */
 function StyleThumb({ style, color }: { style: SignInStyle; color: string }) {
   const bar = <span className="block h-1.5 w-full rounded-full bg-[#D9D3C7]" />;
+  if (style === "premium") {
+    // 123 The welcome over the photo, the form on a card at the foot, the button in gold.
+    return (
+      <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: "linear-gradient(200deg,#D9B36C 0%,#2A2D5C 38%,#F7F3EC 72%)" }}>
+        <span className="absolute inset-x-2 top-3 flex flex-col gap-1">
+          <span className="block h-2 w-3/4 rounded-full bg-white/90" />
+          <span className="block h-1.5 w-1/2 rounded-full bg-white/60" />
+        </span>
+        <span className="absolute inset-x-1.5 bottom-1.5 flex flex-col gap-1 rounded-md bg-white p-1.5 shadow-sm">
+          {bar}
+          <span className="block h-2 w-full rounded" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)" }} />
+        </span>
+      </span>
+    );
+  }
   return (
     <span aria-hidden="true" className="relative block aspect-[9/16] w-full overflow-hidden rounded-lg border border-line" style={{ background: style === "photo" ? "#2A3350" : "#F7F3EC" }}>
       {style === "card" ? <span className="absolute inset-x-0 top-0 h-[45%]" style={{ background: "#2A3350" }} /> : null}
@@ -583,6 +599,7 @@ function previewTheme(dark: boolean) {
 
 function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
   const th = previewTheme(dark);
+  if (look.style === "premium") return <PremiumSignInPreview look={look} title={title} subtitle={subtitle} appName={appName} color={color} dark={dark} t={t} />;
   const photo = (look.style === "photo" || look.style === "card") && look.image_url;
   const panel = look.style === "photo" && photo;
   return (
@@ -607,6 +624,38 @@ function SignInPreview({ look, title, subtitle, appName, color, dark, t }: { loo
         </span>
         <span className="mt-1 block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
         <span className="flex h-6 w-full items-center justify-center rounded-md font-bold text-white" style={{ background: color }}>
+          {t("studio.previewButton")}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** 123 The premium sign-in: the welcome large in white over the photo (or the app's colours), the form on a card at the foot with the button in gold. */
+function PremiumSignInPreview({ look, title, subtitle, appName, color, dark, t }: { look: SignInLook; title: string; subtitle: string; appName: string; color: string; dark: boolean; t: ReturnType<typeof useDashT> }) {
+  const th = previewTheme(dark);
+  return (
+    <div className="relative aspect-[9/19] overflow-hidden rounded-[22px] border-[5px] border-midnight text-[10px]" style={{ background: th.page }} data-testid="sign-in-preview" data-dark={dark ? "" : undefined}>
+      {look.image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={look.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <span className="absolute inset-0" style={{ background: `linear-gradient(200deg,#D9B36C 0%,${color} 45%,#0E1424 100%)` }} />
+      )}
+      <span className="absolute inset-0" style={{ background: `linear-gradient(180deg,transparent 0%,transparent 35%,${th.page} 72%)` }} />
+      <div className="absolute inset-x-3 top-4 flex flex-col gap-1.5 text-white">
+        {look.show_logo ? (
+          <span className="flex items-center gap-1.5 font-extrabold">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/20 text-[10px]">{(appName || "A").slice(0, 1)}</span>
+            {appName}
+          </span>
+        ) : null}
+        <span className="mt-2 text-[17px] leading-tight font-black">{title}</span>
+        <span className="leading-snug opacity-80">{subtitle}</span>
+      </div>
+      <div className="absolute inset-x-2 bottom-2 flex flex-col gap-1.5 rounded-xl border p-2.5 shadow" style={{ background: th.surface, borderColor: th.line, color: th.text }}>
+        <span className="block h-6 w-full rounded-md border" style={{ borderColor: th.fieldLine, background: th.field }} />
+        <span className="flex h-6 w-full items-center justify-center rounded-md font-bold" style={{ background: "linear-gradient(90deg,#E7C982,#B8893A)", color: "#2A1D05" }}>
           {t("studio.previewButton")}
         </span>
       </div>

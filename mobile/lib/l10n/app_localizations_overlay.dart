@@ -10320,4 +10320,60 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get darkModeSwitch =>
       overlay.text('darkModeSwitch') ?? base.darkModeSwitch;
+
+  @override
+  String get lessonFiles => overlay.text('lessonFiles') ?? base.lessonFiles;
+
+  @override
+  String get lessonOverview =>
+      overlay.text('lessonOverview') ?? base.lessonOverview;
+
+  @override
+  String get upNext => overlay.text('upNext') ?? base.upNext;
+
+  @override
+  String get quizOpensAfter =>
+      overlay.text('quizOpensAfter') ?? base.quizOpensAfter;
+
+  @override
+  String get signInPhoneTitle =>
+      overlay.text('signInPhoneTitle') ?? base.signInPhoneTitle;
+
+  @override
+  String get signInEmailTitle =>
+      overlay.text('signInEmailTitle') ?? base.signInEmailTitle;
+
+  @override
+  String get signInCodeNote =>
+      overlay.text('signInCodeNote') ?? base.signInCodeNote;
+
+  @override
+  String get newAccountShort =>
+      overlay.text('newAccountShort') ?? base.newAccountShort;
+
+  @override
+  String get signInCodeShort =>
+      overlay.text('signInCodeShort') ?? base.signInCodeShort;
+
+  @override
+  String get emailShort => overlay.text('emailShort') ?? base.emailShort;
+
+  @override
+  String get verificationCodeTitle =>
+      overlay.text('verificationCodeTitle') ?? base.verificationCodeTitle;
+
+  @override
+  String codeSentDigits(int count, String number) =>
+      overlay.format('codeSentDigits', {'count': count, 'number': number}) ??
+      base.codeSentDigits(count, number);
+
+  @override
+  String get didntGetCode => overlay.text('didntGetCode') ?? base.didntGetCode;
+
+  @override
+  String get resendCode => overlay.text('resendCode') ?? base.resendCode;
+
+  @override
+  String get confirmAndSignIn =>
+      overlay.text('confirmAndSignIn') ?? base.confirmAndSignIn;
 }

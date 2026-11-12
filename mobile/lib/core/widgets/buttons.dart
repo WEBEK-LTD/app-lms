@@ -185,6 +185,7 @@ class PrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.trailingIcon,
     this.loading = false,
     this.height = 56,
   });
@@ -192,6 +193,9 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
+  /// 123 An icon after the words ("Continue →").
+  final IconData? trailingIcon;
   final bool loading;
   final double height;
 
@@ -231,6 +235,10 @@ class PrimaryButton extends StatelessWidget {
                   ),
                 ),
               ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 8),
+                AppIcon(trailingIcon!, size: 20, color: fg),
+              ],
             ],
           );
     if (gold != null) {

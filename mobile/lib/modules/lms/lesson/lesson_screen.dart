@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/models.dart';
 import 'learning_clock.dart';
+import 'premium_lesson.dart';
+import 'video/player_controls.dart' show PremiumPlayer;
 import '../../../core/auth/auth_controller.dart';
 import '../../../core/gate/app_gate.dart';
 import '../../../core/providers.dart';
@@ -314,8 +317,27 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       courseImage: course?.imageUrl,
     );
 
+    // 123 The premium academy's lesson.
+    final gate = ref.watch(appGateProvider);
+    final premium =
+        gate is GateReady &&
+        (gate.config.screens?.has(ScreenLookKey.lesson) ?? false);
+
     if (lesson.video != null) {
       return _VideoLesson(
+        premium: premium
+            ? PremiumLessonBody(
+                lesson: lesson,
+                position: position,
+                download: download,
+                completed: completed,
+                completing: _completing,
+                onComplete: () => _complete(lesson),
+                courseImage: course?.imageUrl,
+                enrolled: tools != null,
+                videoPosition: () => _lastPosition,
+              )
+            : null,
         lesson: lesson,
         download: download,
         subtitle: subtitle,
@@ -545,9 +567,14 @@ class _VideoLesson extends ConsumerStatefulWidget {
     required this.onProgress,
     required this.onEnded,
     this.tools,
+    this.premium,
   });
 
   final Lesson lesson;
+
+  /// 123 The premium academy's lesson under the video, in place of the
+  /// app's own.
+  final Widget? premium;
 
   /// 113.7 The student's bookmark, notes and the lesson's discussion.
   final Widget? tools;
@@ -579,30 +606,58 @@ class _VideoLessonState extends ConsumerState<_VideoLesson> {
     final l10n = context.l10n;
     final tabs = [if (hasNotes) 'notes', 'lessons', 'attachments'];
     final current = tabs[_tab.clamp(0, tabs.length - 1)];
+    final premium = widget.premium;
+    final gold = Theme.of(context).colorScheme.secondary;
+
+    final player = ColoredBox(
+      color: BrandColors.midnight,
+      child: SafeArea(
+        bottom: false,
+        child: LessonVideoPlayer(
+          key: ValueKey('video-${lesson.id}'),
+          video: lesson.video!,
+          startSeconds: lesson.positionSeconds,
+          reloadVideo: widget.reloadVideo,
+          watermark: watermarkText(config.content.watermark, user),
+          captured: widget.captured,
+          onProgress: widget.onProgress,
+          onEnded: widget.onEnded,
+          overlay: premium != null
+              ? IconButton(
+                  key: const ValueKey('lesson-close'),
+                  tooltip: l10n.back,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: const Icon(
+                    Symbols.keyboard_arrow_down_rounded,
+                    size: 28,
+                    color: Colors.white,
+                  ),
+                )
+              : AppBackButton(
+                  onDark: true,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+        ),
+      ),
+    );
+    if (premium != null) {
+      return Scaffold(
+        body: GoldButtons(
+          color: gold,
+          child: Column(
+            children: [
+              PremiumPlayer(gold: gold, child: player),
+              Expanded(child: premium),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: Column(
         children: [
-          ColoredBox(
-            color: BrandColors.midnight,
-            child: SafeArea(
-              bottom: false,
-              child: LessonVideoPlayer(
-                key: ValueKey('video-${lesson.id}'),
-                video: lesson.video!,
-                startSeconds: lesson.positionSeconds,
-                reloadVideo: widget.reloadVideo,
-                watermark: watermarkText(config.content.watermark, user),
-                captured: widget.captured,
-                onProgress: widget.onProgress,
-                onEnded: widget.onEnded,
-                overlay: AppBackButton(
-                  onDark: true,
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-              ),
-            ),
-          ),
+          player,
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
@@ -823,36 +878,6 @@ class _Attachments extends ConsumerWidget {
 
   final List<Attachment> attachments;
 
-  /// 45 A saved attachment opens from the phone; the others from the web.
-  /// 53 While screen protection is on, both open only in the app's own
-  /// viewer: no other app gets the file, and nothing offers to share, save
-  /// or print it.
-  Future<void> _open(BuildContext context, WidgetRef ref, Attachment a) async {
-    final url = a.url;
-    final saved = url.startsWith('$savedFileScheme:');
-    if (ref.read(attachmentsInAppProvider)) {
-      final downloads = ref.read(downloadManagerProvider.notifier);
-      final fetch = ref.read(attachmentFetcherProvider);
-      await openInViewer(
-        context,
-        name: a.name,
-        mimeType: a.mimeType,
-        load: () => saved ? downloads.savedBytes(url) : fetch(url),
-      );
-      return;
-    }
-    if (!saved) {
-      await openExternal(url);
-      return;
-    }
-    final opened = await ref
-        .read(downloadManagerProvider.notifier)
-        .openSaved(url);
-    if (!opened && context.mounted) {
-      showMessage(context, context.l10n.downloadFailed);
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) => AppCard(
     child: Column(
@@ -862,13 +887,13 @@ class _Attachments extends ConsumerWidget {
           SettingsTile(
             icon: AppIcons.attachment,
             title: a.name,
-            value: a.sizeBytes == null ? null : _size(a.sizeBytes!),
+            value: a.sizeBytes == null ? null : attachmentSize(a.sizeBytes!),
             trailing: AppIcon(
               AppIcons.download,
               size: 20,
               color: context.palette.textSecondary,
             ),
-            onTap: () => _open(context, ref, a),
+            onTap: () => openLessonAttachment(context, ref, a),
           ),
         ],
       ],
@@ -876,7 +901,41 @@ class _Attachments extends ConsumerWidget {
   );
 }
 
-String _size(int bytes) {
+/// 45 A saved attachment opens from the phone; the others from the web.
+/// 53 While screen protection is on, both open only in the app's own
+/// viewer: no other app gets the file, and nothing offers to share, save
+/// or print it.
+Future<void> openLessonAttachment(
+  BuildContext context,
+  WidgetRef ref,
+  Attachment a,
+) async {
+  final url = a.url;
+  final saved = url.startsWith('$savedFileScheme:');
+  if (ref.read(attachmentsInAppProvider)) {
+    final downloads = ref.read(downloadManagerProvider.notifier);
+    final fetch = ref.read(attachmentFetcherProvider);
+    await openInViewer(
+      context,
+      name: a.name,
+      mimeType: a.mimeType,
+      load: () => saved ? downloads.savedBytes(url) : fetch(url),
+    );
+    return;
+  }
+  if (!saved) {
+    await openExternal(url);
+    return;
+  }
+  final opened = await ref
+      .read(downloadManagerProvider.notifier)
+      .openSaved(url);
+  if (!opened && context.mounted) {
+    showMessage(context, context.l10n.downloadFailed);
+  }
+}
+
+String attachmentSize(int bytes) {
   if (bytes < 1024) return currentL10n.sizeBytes(bytes);
   if (bytes < 1024 * 1024) {
     return currentL10n.sizeKilobytes((bytes / 1024).toStringAsFixed(0));

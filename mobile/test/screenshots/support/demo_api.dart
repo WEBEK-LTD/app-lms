@@ -2602,7 +2602,11 @@ class DemoApi extends FakeApi {
   @override
   Future<List<Topic>> getCurriculum(int courseId) => super
       .getCurriculum(courseId)
-      .then((_) => [for (final t in _curriculum) Topic.fromJson(t)]);
+      .then(
+        (topics) => curriculum != null
+            ? topics
+            : [for (final t in _curriculum) Topic.fromJson(t)],
+      );
 
   static Map<String, dynamic> _item(
     int id,

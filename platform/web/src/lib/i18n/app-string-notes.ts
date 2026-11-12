@@ -4136,6 +4136,81 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "مفتاح الوضع الداكن في صفحة الحساب المميزة.",
     tr: "Premium hesap sayfasındaki koyu mod anahtarı.",
   },
+  "123 The lesson's files, a chip on a premium lesson.": {
+    en: "The lesson's files, a chip on a premium lesson.",
+    ar: "ملفات الدرس، شريحة في الدرس المميز.",
+    tr: "Premium derste bir çip olarak dersin dosyaları.",
+  },
+  "123 The lesson's own text, a chip on a premium lesson.": {
+    en: "The lesson's own text, a chip on a premium lesson.",
+    ar: "نص الدرس نفسه، شريحة في الدرس المميز.",
+    tr: "Premium derste bir çip olarak dersin kendi metni.",
+  },
+  "123 Over the next lesson on a premium lesson.": {
+    en: "Over the next lesson on a premium lesson.",
+    ar: "فوق الدرس التالي في الدرس المميز.",
+    tr: "Premium derste sonraki dersin üstünde.",
+  },
+  "123 Under a quiz that unlocks once the lesson is done, on a premium lesson.": {
+    en: "Under a quiz that unlocks once the lesson is done, on a premium lesson.",
+    ar: "تحت اختبار يُفتح بعد إنهاء الدرس، في الدرس المميز.",
+    tr: "Premium derste, ders bitince açılan bir sınavın altında.",
+  },
+  "123 The heading of the premium sign-in with a phone number.": {
+    en: "The heading of the premium sign-in with a phone number.",
+    ar: "عنوان الدخول المميز برقم الهاتف.",
+    tr: "Telefon numarasıyla premium girişin başlığı.",
+  },
+  "123 The heading of the premium sign-in with an email address.": {
+    en: "The heading of the premium sign-in with an email address.",
+    ar: "عنوان الدخول المميز بالبريد الإلكتروني.",
+    tr: "E-posta adresiyle premium girişin başlığı.",
+  },
+  "123 Under the heading of the premium sign-in with a code.": {
+    en: "Under the heading of the premium sign-in with a code.",
+    ar: "تحت عنوان الدخول المميز برمز.",
+    tr: "Kodla premium girişin başlığının altında.",
+  },
+  "123 The premium sign-in's button to create an account.": {
+    en: "The premium sign-in's button to create an account.",
+    ar: "زر إنشاء حساب في الدخول المميز.",
+    tr: "Premium girişte hesap oluşturma düğmesi.",
+  },
+  "123 The premium sign-in's button to sign in with a code instead of a password.": {
+    en: "The premium sign-in's button to sign in with a code instead of a password.",
+    ar: "زر الدخول برمز بدل كلمة المرور في الدخول المميز.",
+    tr: "Premium girişte şifre yerine kodla giriş düğmesi.",
+  },
+  "123 The premium sign-in's button to sign in by email instead.": {
+    en: "The premium sign-in's button to sign in by email instead.",
+    ar: "زر الدخول بالبريد بدلًا من ذلك في الدخول المميز.",
+    tr: "Premium girişte bunun yerine e-postayla giriş düğmesi.",
+  },
+  "123 The title of the premium sign-in code screen.": {
+    en: "The title of the premium sign-in code screen.",
+    ar: "عنوان شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının başlığı.",
+  },
+  "123 Under the title of the premium sign-in code screen.": {
+    en: "Under the title of the premium sign-in code screen.",
+    ar: "تحت عنوان شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının başlığının altında.",
+  },
+  "123 Before the way to send the code again, on the premium sign-in code screen.": {
+    en: "Before the way to send the code again, on the premium sign-in code screen.",
+    ar: "قبل طريقة إرسال الرمز مرة أخرى، في شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranında, kodu yeniden gönderme yolundan önce.",
+  },
+  "123 Sends the sign-in code again, on the premium sign-in code screen.": {
+    en: "Sends the sign-in code again, on the premium sign-in code screen.",
+    ar: "يرسل رمز الدخول مرة أخرى، في شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranında giriş kodunu yeniden gönderir.",
+  },
+  "123 The button of the premium sign-in code screen.": {
+    en: "The button of the premium sign-in code screen.",
+    ar: "زر شاشة رمز الدخول المميزة.",
+    tr: "Premium giriş kodu ekranının düğmesi.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

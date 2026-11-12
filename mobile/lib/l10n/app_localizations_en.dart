@@ -9686,4 +9686,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get darkModeSwitch => 'Dark mode';
+
+  @override
+  String get lessonFiles => 'Files';
+
+  @override
+  String get lessonOverview => 'Overview';
+
+  @override
+  String get upNext => 'Next';
+
+  @override
+  String get quizOpensAfter => 'Opens after this lesson';
+
+  @override
+  String get signInPhoneTitle => 'Sign in with your phone';
+
+  @override
+  String get signInEmailTitle => 'Sign in with your email';
+
+  @override
+  String get signInCodeNote => 'We send you a code to sign in, no password.';
+
+  @override
+  String get newAccountShort => 'New account';
+
+  @override
+  String get signInCodeShort => 'Code';
+
+  @override
+  String get emailShort => 'Email';
+
+  @override
+  String get verificationCodeTitle => 'Verification code';
+
+  @override
+  String codeSentDigits(int count, String number) {
+    return 'We sent a $count-digit code to $number';
+  }
+
+  @override
+  String get didntGetCode => 'Didn\'t get it?';
+
+  @override
+  String get resendCode => 'Resend';
+
+  @override
+  String get confirmAndSignIn => 'Confirm and sign in';
 }

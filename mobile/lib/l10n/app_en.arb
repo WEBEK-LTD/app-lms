@@ -10842,5 +10842,73 @@
   "darkModeSwitch": "Dark mode",
   "@darkModeSwitch": {
     "description": "123 The dark mode switch on the premium account page."
+  },
+  "lessonFiles": "Files",
+  "@lessonFiles": {
+    "description": "123 The lesson's files, a chip on a premium lesson."
+  },
+  "lessonOverview": "Overview",
+  "@lessonOverview": {
+    "description": "123 The lesson's own text, a chip on a premium lesson."
+  },
+  "upNext": "Next",
+  "@upNext": {
+    "description": "123 Over the next lesson on a premium lesson."
+  },
+  "quizOpensAfter": "Opens after this lesson",
+  "@quizOpensAfter": {
+    "description": "123 Under a quiz that unlocks once the lesson is done, on a premium lesson."
+  },
+  "signInPhoneTitle": "Sign in with your phone",
+  "@signInPhoneTitle": {
+    "description": "123 The heading of the premium sign-in with a phone number."
+  },
+  "signInEmailTitle": "Sign in with your email",
+  "@signInEmailTitle": {
+    "description": "123 The heading of the premium sign-in with an email address."
+  },
+  "signInCodeNote": "We send you a code to sign in, no password.",
+  "@signInCodeNote": {
+    "description": "123 Under the heading of the premium sign-in with a code."
+  },
+  "newAccountShort": "New account",
+  "@newAccountShort": {
+    "description": "123 The premium sign-in's button to create an account."
+  },
+  "signInCodeShort": "Code",
+  "@signInCodeShort": {
+    "description": "123 The premium sign-in's button to sign in with a code instead of a password."
+  },
+  "emailShort": "Email",
+  "@emailShort": {
+    "description": "123 The premium sign-in's button to sign in by email instead."
+  },
+  "verificationCodeTitle": "Verification code",
+  "@verificationCodeTitle": {
+    "description": "123 The title of the premium sign-in code screen."
+  },
+  "codeSentDigits": "We sent a {count}-digit code to {number}",
+  "@codeSentDigits": {
+    "description": "123 Under the title of the premium sign-in code screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "didntGetCode": "Didn't get it?",
+  "@didntGetCode": {
+    "description": "123 Before the way to send the code again, on the premium sign-in code screen."
+  },
+  "resendCode": "Resend",
+  "@resendCode": {
+    "description": "123 Sends the sign-in code again, on the premium sign-in code screen."
+  },
+  "confirmAndSignIn": "Confirm and sign in",
+  "@confirmAndSignIn": {
+    "description": "123 The button of the premium sign-in code screen."
   }
 }

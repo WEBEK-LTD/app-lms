@@ -38,12 +38,6 @@ export const ACADEMY_COLORS = {
 const C = ACADEMY_COLORS;
 export const ACADEMY_FONT = "Alexandria";
 
-function mix(a: string, b: string, t: number): string {
-  const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
-  const out = [0, 1, 2].map((i) => Math.round(ch(a, i) * (1 - t) + ch(b, i) * t));
-  return `#${out.map((v) => v.toString(16).padStart(2, "0")).join("")}`.toUpperCase();
-}
-
 /**
  * The academy's home page as it was approved (the premium academy's home
  * board): the greeting with the date and the student's name, the course
@@ -248,13 +242,14 @@ export const ACADEMY_PROJECT: TemplateProject = {
   },
   screens: (platform) => ({
     sign_in: {
-      style: "photo",
-      image_url: `${platform.replace(/\/+$/, "")}/demo-screens/rawaq-library.jpg`,
-      title: { en: "Learn from the best", ar: "تعلّم من الأفضل", tr: "En iyilerden öğren" },
+      // The approved sign-in: the welcome large over the academy's navy and gold, the form on a card.
+      style: "premium",
+      image_url: `${platform.replace(/\/+$/, "")}/design-pictures/academy-mesh-1.jpg`,
+      title: { en: "Learn what changes your path.", ar: "تعلّم ما يغيّر مسارك.", tr: "Yolunu değiştirecek olanı öğren." },
       subtitle: {
-        en: "Sign in with your phone number to continue your courses.",
-        ar: "سجّل الدخول برقم هاتفك لتكمل دوراتك.",
-        tr: "Kurslarına devam etmek için telefon numaranla giriş yap.",
+        en: "Courses with the best teachers, wherever you are.",
+        ar: "دورات مع نخبة من المعلمين، أينما كنت.",
+        tr: "Nerede olursan ol, en iyi öğretmenlerle kurslar.",
       },
       show_logo: true,
     },

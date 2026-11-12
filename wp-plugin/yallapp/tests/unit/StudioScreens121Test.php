@@ -60,6 +60,9 @@ class StudioScreens121Test extends TestCase {
 		$this->assertSame( '#D9B36C', $screens['account_menu']['accent'] );
 		$this->assertSame( array( 'certificates', 'link' ), array_column( $screens['account_menu']['items'], 'key' ) );
 		$this->assertSame( 'https://academy.test/blog', $screens['account_menu']['items'][1]['url'] );
+		// 123 The premium academy's sign-in.
+		$premium = Studio_Screens::of_status( array( 'screens' => array( 'sign_in' => array( 'style' => 'premium' ) ) ) );
+		$this->assertSame( 'premium', $premium['sign_in']['style'] );
 		// 123 The premium academy's account header.
 		$academy = Studio_Screens::of_status( array( 'screens' => array( 'account_menu' => array( 'header' => 'academy' ) ) ) );
 		$this->assertSame( 'academy', $academy['account_menu']['header'] );

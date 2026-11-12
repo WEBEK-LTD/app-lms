@@ -11475,9 +11475,9 @@ components:
               properties:
                 style:
                   type: string
-                  enum: [classic, photo, card, minimal]
-                  description: "`classic`: the app's own. `photo`: the form over a full-screen photo. `card`: the photo on top, the form in a card over it. `minimal`: the logo and the form, centred."
-                image_url: { type: [string, 'null'], format: uri, description: The photo of `photo` and `card`. }
+                  enum: [classic, photo, card, minimal, premium]
+                  description: "`classic`: the app's own. `photo`: the form over a full-screen photo. `card`: the photo on top, the form in a card over it. `minimal`: the logo and the form, centred. `premium` (123): the welcome large over the photo (or the app's colours when there is none), the form on a card at the foot with its button in gold."
+                image_url: { type: [string, 'null'], format: uri, description: "The photo of `photo`, `card` and `premium`." }
                 title: { type: object, additionalProperties: { type: string }, description: 'Instead of "Welcome", per language code.', example: { en: Welcome to Safra, ar: أهلًا بك في سفرة } }
                 subtitle: { type: object, additionalProperties: { type: string }, description: 'The line under it, per language code.' }
                 show_logo: { type: boolean }

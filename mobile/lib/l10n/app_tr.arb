@@ -2617,5 +2617,20 @@
   "statCourses": "{count, plural, other{kurs}}",
   "statCertificates": "{count, plural, other{sertifika}}",
   "statHours": "{count, plural, other{saat}}",
-  "darkModeSwitch": "Koyu mod"
+  "darkModeSwitch": "Koyu mod",
+  "lessonFiles": "Dosyalar",
+  "lessonOverview": "Anlatım",
+  "upNext": "Sıradaki",
+  "quizOpensAfter": "Bu dersten sonra açılır",
+  "signInPhoneTitle": "Telefonla giriş",
+  "signInEmailTitle": "E-postayla giriş",
+  "signInCodeNote": "Giriş için bir kod göndeririz, şifre gerekmez.",
+  "newAccountShort": "Yeni hesap",
+  "signInCodeShort": "Kod",
+  "emailShort": "E-posta",
+  "verificationCodeTitle": "Doğrulama kodu",
+  "codeSentDigits": "{number} numarasına {count} haneli bir kod gönderdik",
+  "didntGetCode": "Gelmedi mi?",
+  "resendCode": "Yeniden gönder",
+  "confirmAndSignIn": "Onayla ve giriş yap"
 }

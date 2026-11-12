@@ -10,7 +10,8 @@ import { ICON_NAME } from "../pages/icons";
  * languages); the app picks its language's, else its own words.
  */
 
-export const SIGN_IN_STYLES = ["classic", "photo", "card", "minimal"] as const;
+/** 123 `premium`: the premium academy's, the welcome large over the photo (or the app's colours) and the form on a card at the foot. */
+export const SIGN_IN_STYLES = ["classic", "photo", "card", "minimal", "premium"] as const;
 export type SignInStyle = (typeof SIGN_IN_STYLES)[number];
 
 /** Per language code (en, ar, tr, …): the owner's words. */
@@ -197,7 +198,7 @@ export function parseStudioScreens(input: unknown): { screens: StudioScreens; pr
     if ((style === "photo" || style === "card") && !image) problems.push("Choose a photo for this look.");
     screens.sign_in = {
       style,
-      image_url: style === "photo" || style === "card" ? image : null,
+      image_url: style === "photo" || style === "card" || style === "premium" ? image : null,
       title: texts(s.title, SCREEN_LIMITS.title, problems, "The welcome"),
       subtitle: texts(s.subtitle, SCREEN_LIMITS.subtitle, problems, "The line under the welcome"),
       show_logo: s.show_logo !== false,
