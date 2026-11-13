@@ -1722,12 +1722,12 @@ export const TR_MARKETING: MarketingTranslation = {
       ],
     },
     travel: {
-      summary: "Bir seyahat şirketinin uygulaması: otelleri ve kendi uçuşları, tek fiyata birlikte konaklama ve uçuş, tek yerde tüm seyahat.",
+      summary: "Bir seyahat şirketinin uygulaması: otelleri ve kendi uçuşları, tek fiyata birlikte konaklama ve uçuş, tek yerde tüm seyahat. Otel fotoğrafları Wikimedia Commons'tan, CC0.",
       tryThis: [
-        "Keşfet'te bir destinasyon seçip tüm seyahatin fiyatını görün, sonra Konaklama'yı açıp kahvaltılı ve ücretsiz iptalli bir oda seçin",
+        "Ana sayfada öne çıkan bir konaklamayı açın ya da Konaklama bul'a dokunup kahvaltılı ve ücretsiz iptalli bir oda seçin",
         "Uçuşlar'ı açın, ayın fiyatlarını görün, paketinizi ve koltuklarınızı seçip rezervasyon yapın: demo ödeme kart istemez",
         "Seyahatler'i açın: kapısıyla uçuş, transfer, otel ve biniş kartınız",
-        "Alarmlar'da bir hattın fiyatını takip edin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
+        "Bulunan uçuşlarda Takip et'i açıp hattın fiyatını izleyin, uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",
       ],
     },
   },

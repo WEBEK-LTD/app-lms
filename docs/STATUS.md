@@ -4,7 +4,7 @@ The current state of the project: what is released in the code, what still
 needs checking against real services, and what a deployment needs.
 `docs/ROADMAP.md` is the plan; this file is the current state.
 
-Last updated: 29 October 2026.
+Last updated: 13 November 2026.
 
 ## Current release
 
@@ -20,6 +20,19 @@ Turkish. Its screenshots are real: the app's (`studio-cafe-home`, its dark
 version, `delivery-send`, `delivery-shipment`, `delivery-courier`) from the
 Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
 `studio-project`) from `tests/screens/studio.screens.ts`.
+
+Phase 126 (Travel: hotels and flights, phase 1) is complete: a Yallapp
+Studio app type for a travel company's hotels, its fixed-seat flights or
+both (migration 0128; `lib/travel`, the hosted API's Travel tag, the app's
+`lib/modules/travel`). The team switches Hotels and Flights in Admin ›
+client › Travel, which sets the app's tabs; the company adds its hotels,
+rooms, rates, prices, open dates and flights in the dashboard (in Studio at
+`/studio/project/travel`); people search, book a stay, a flight or both as
+one trip and pay on the company's own payment page or at the hotel, then
+follow the trip, its boarding passes and its flight's news in the app.
+Safra is its demo on `/demo/studio`, with CC0 photos. The outside providers
+(a hotel's own system, a hotel supplier, a live flight provider) are shown in
+Admin as coming soon and are not connected.
 
 Phase 111 (Studio setup fixes) is complete: in `/studio/project/setup` a
 save that doesn't go through keeps the chosen design (and the other choices)
@@ -283,6 +296,11 @@ test environment:
   `?lang=` is not checked on Netlify yet.
 
 ## Known gaps
+
+- 126 Travel: the outside providers are not connected (Admin shows them as
+  coming soon); the hotel map is drawn by the app from the hotels' places,
+  without map tiles; a trip can't be split into several payments, and the
+  boarding pass can't be added to a phone's wallet yet.
 
 - The Owner API returns `in_app_sales`, but Yallapp Business does not show it
   yet.

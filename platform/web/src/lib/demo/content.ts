@@ -356,12 +356,12 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
     screens: ["premium-home", "premium-course", "premium-lesson"],
   },  // 126 Safra: a travel company's hotels and charter flights, stay and flight as one trip.
   travel: {
-    summary: "A travel company's app: its hotels and its own flights, a stay and a flight booked together for one price, and the whole trip in one place.",
+    summary: "A travel company's app: its hotels and its own flights, a stay and a flight booked together for one price, and the whole trip in one place. Its hotel photos are CC0, from Wikimedia Commons.",
     tryThis: [
-      "On Explore, pick a destination and see the whole trip's price, then open Stays and choose a room with breakfast and free cancellation",
+      "On the home, open a featured stay, or tap Find a stay and choose a room with breakfast and free cancellation",
       "Open Flights, see the month's prices, choose a fare and your seats, and book: the demo checkout takes no card",
       "Open Trips: the flight with its gate, the transfer, the hotel and your boarding pass",
-      "Watch a route's price in Alerts, and switch the app to Arabic or to dark mode in the account",
+      "In the flights found, turn on Track to watch the route's price, and switch the app to Arabic or to dark mode in the account",
     ],
     screens: ["safra-explore", "safra-hotel", "safra-trip"],
   },
