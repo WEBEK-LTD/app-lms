@@ -12,7 +12,6 @@
 library;
 
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -338,6 +337,7 @@ final premiumShots = <PremiumShot>[
         'gap': 8,
         'padding': _pad(0, 16, 12, 16),
         'gallery': {'layout': 'bento', 'radius': 18, 'captions': true},
+        'caption_style': 'pill',
         'images': _galleryImages(w).take(4).toList(),
       },
       {
@@ -512,6 +512,90 @@ final premiumShots = <PremiumShot>[
         'margin': _pad(24, 0, 8, 0),
         'marquee': {'direction': 'end'},
       },
+      // A band turned -2 degrees with dots, and routes in pills.
+      {
+        'id': 'm4',
+        'type': 'marquee',
+        'text': w(
+          'KOSHARY EGP 55\nMIXED GRILL EGP 240\nTAWOOK EGP 150',
+          'كشري ٥٥ جنيه\nمشويات مشكلة ٢٤٠ جنيه\nطاووق ١٥٠ جنيه',
+        ),
+        'gap': 22,
+        'background': '#14110F',
+        'color': '#F5B23C',
+        'dark_background': '#F5B23C',
+        'dark_color': '#14110F',
+        'font': {'size': 17, 'weight': 900, 'letter_spacing': 1},
+        'padding': _pad(14, 0, 14, 0),
+        'margin': _pad(26, 0, 18, 0),
+        'marquee': {'tilt': -2, 'dot': true},
+      },
+      {
+        'id': 'm5',
+        'type': 'marquee',
+        'text': w(
+          'CAI → DXB  Dubai · 10:15\nCAI → IST  Istanbul · 06:40',
+          'CAI → DXB  دبي · 10:15\nCAI → IST  إسطنبول · 06:40',
+        ),
+        'gap': 12,
+        'font': {'size': 15, 'weight': 700},
+        'marquee': {'chips': true, 'speed': 30},
+      },
+    ],
+  ),
+  // 129.1 A bar of segments: a course's lessons over a photo.
+  PremiumShot(
+    'segments',
+    (w) => [
+      {
+        ..._slide(
+          'sg',
+          'stories/academy/academy-evening.jpg',
+          w('Continue · lesson 12 of 18', 'تابع · الدرس ١٢ من ١٨'),
+          w('Arabic Calligraphy for Beginners', 'الخط العربي للمبتدئين'),
+          null,
+          height: 520,
+        ),
+        'align': 'between',
+        'children': [
+          {
+            'id': 'sg-bar',
+            'type': 'segments',
+            'color': '#E7C982',
+            'segments': {'count': 18, 'done': 11, 'part': 0.6},
+          },
+          {
+            'id': 'sg-words',
+            'type': 'column',
+            'gap': 8,
+            'children': [
+              _text(
+                'sg-k',
+                w('Continue · lesson 12 of 18', 'تابع · الدرس ١٢ من ١٨'),
+                size: 12,
+                weight: 800,
+                color: '#E7C982',
+                uppercase: true,
+                spacing: 2,
+              ),
+              _text(
+                'sg-h',
+                w('Arabic Calligraphy for Beginners', 'الخط العربي للمبتدئين'),
+                size: 34,
+                weight: 800,
+                color: '#FFFFFF',
+              ),
+            ],
+          },
+        ],
+      },
+      ..._heading(
+        w('Progress segments', 'شريط التقدّم'),
+        w(
+          'The lessons of the course a student is taking, or any steps.',
+          'دروس الكورس الذي يأخذه الطالب، أو أي خطوات.',
+        ),
+      ),
     ],
   ),
   // 129.1 The hero slider and the card carousel.
@@ -525,6 +609,13 @@ final premiumShots = <PremiumShot>[
         'autoplay': true,
         'interval_ms': 5000,
         'indicator': 'progress',
+        // 129.1 The lines at the top in gold, "01/02" under them.
+        'indicator_look': {
+          'at': 'top',
+          'inset': 44,
+          'color': '#F5C451',
+          'count': 'padded',
+        },
         'ken_burns': true,
         'children': [
           _slide(
@@ -629,6 +720,20 @@ final _storiesShot = PremiumShot(
             ),
             'action': {'type': 'url', 'url': 'https://example.com/new'},
           },
+        // Initials on a colour with a lit ring, and a dashed tile for all.
+        {
+          'heading': w('Salma', 'سلمى'),
+          'label': 'SN',
+          'color': '#9C1C4A',
+          'ring': 'highlight',
+          'ring_color': '#E5484D',
+        },
+        {
+          'heading': w('All 8', 'الكل ٨'),
+          'icon': 'apps',
+          'ring': 'dashed',
+          'action': {'type': 'screen', 'screen': 'courses'},
+        },
       ],
     },
     _slide(

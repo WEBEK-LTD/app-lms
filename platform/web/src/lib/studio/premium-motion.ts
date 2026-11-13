@@ -38,6 +38,7 @@ export const PREMIUM_WORDS_EN: Record<PremiumWord, string> = {
 export const PREMIUM_MOTION_ELEMENTS: readonly ElementInfo[] = [
   { type: "slider", preset: "hero_slider", group: "premium", icon: "view_carousel", keywords: "hero slider slideshow banner autoplay ken burns zoom stories progress premium" },
   { type: "slider", preset: "card_carousel", group: "premium", icon: "view_week", keywords: "carousel cards peek next swipe snap premium" },
+  { type: "segments", group: "premium", icon: "linear_scale", keywords: "progress segments bar lessons steps story progress course premium" },
   { type: "stories", group: "premium", icon: "amp_stories", keywords: "stories rings circles story viewer full screen highlights premium" },
   { type: "video_hero", group: "premium", icon: "movie", keywords: "video hero banner background loop muted poster play cover premium" },
   { type: "parallax_banner", group: "premium", icon: "wallpaper", keywords: "parallax banner photo scroll depth glass frosted panel premium" },
@@ -123,6 +124,10 @@ export function premiumMotionNode(type: StudioNodeType, preset: string | undefin
         { id: id(), type: "button", text: w("cta"), width: "hug", height: 44, radius: 22, background: "#FFFFFF", color: "#0E0D24", font: { size: 14, weight: 800 }, padding: pad(0, 22, 0, 22), margin: pad(6, 0, 0, 0) },
       ],
     };
+  }
+  if (type === "segments") {
+    // 129.1 A bar of the student's course's lessons, gold, as a hero's top line.
+    return { id: id(), type, segments: { count: 12, done: 7, part: 0.5, source: "course" }, color: "#F5C451", gap: 4, margin: pad(8, 16, 8, 16) };
   }
   if (type === "before_after") {
     // 129.6 Two of the owner's photos with a divider to drag, labelled; they're added in the inspector.

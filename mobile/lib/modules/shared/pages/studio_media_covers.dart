@@ -56,6 +56,8 @@ class StudioMediaCover extends ConsumerWidget {
     );
     if (node.glass) front = _Glass(child: front);
     final photo = AppNetworkImage(url: node.imageUrl, seed: node.id.hashCode);
+    // 129.1 The poster growing slowly with `ken_burns`.
+    final poster = StudioKenBurns.wrap(context, photo);
     Widget layers(Widget? media, Widget? control) => Stack(
       fit: StackFit.expand,
       children: [
@@ -91,11 +93,14 @@ class StudioMediaCover extends ConsumerWidget {
       ],
     );
     final cover = video
-        ? _VideoCover(node: node, poster: photo, layers: layers)
+        ? _VideoCover(node: node, poster: poster, layers: layers)
         : layers(
             node.imageUrl == null
                 ? null
-                : _ParallaxPhoto(speed: node.parallaxSpeed, child: photo),
+                : _ParallaxPhoto(
+                    speed: node.parallaxSpeed,
+                    child: StudioKenBurns.wrap(context, photo),
+                  ),
             null,
           );
     return SizedBox(

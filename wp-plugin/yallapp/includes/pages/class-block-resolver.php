@@ -1045,6 +1045,7 @@ class Block_Resolver {
 		'parallax_banner',
 		'gallery',
 		'before_after',
+		'segments',
 	);
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'video_hero', 'parallax_banner' );
 
@@ -1383,10 +1384,15 @@ class Block_Resolver {
 			case 'parallax_banner':
 			case 'gallery':
 			case 'before_after':
+			case 'segments':
 				$node = Studio_Premium_Motion::node( $type, $raw, $node, array( $this, 'action' ) );
 				if ( null === $node ) {
 					return null;
 				}
+				break;
+			// 129.1 Where a slider's indicator sits, its colour and a count.
+			case 'slider':
+				$node = Studio_Premium_Motion::slider( $raw, $node );
 				break;
 			case 'map':
 				$map = $raw['map'] ?? null;

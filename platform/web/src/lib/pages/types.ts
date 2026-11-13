@@ -59,6 +59,8 @@ export const STUDIO_CONTENT_TYPES = [
   "marquee",
   "gallery",
   "before_after",
+  // 129.1 A bar of segments (a course's lessons, a story's progress).
+  "segments",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -106,6 +108,52 @@ export interface StudioGallery {
   radius?: number;
   captions?: boolean;
 }
+/** 129.2 How a story's ring is drawn: the second colour into the main one until seen (`auto`), always lit (`highlight`, an offer), quiet (`plain`) or dashed (a tile for all of them). */
+export const STUDIO_STORY_RINGS = ["auto", "highlight", "plain", "dashed"] as const;
+/**
+ * 129.2 One story: a slide (its photo, title, line over the photo and link)
+ * and how its round photo is drawn: its ring, the ring's colour, and without
+ * a photo a colour with a short `label` (initials) or an `icon`. A story
+ * without a photo that has a link opens the link instead of the stories.
+ */
+export interface StudioStory extends Slide {
+  ring?: (typeof STUDIO_STORY_RINGS)[number];
+  ring_color?: string;
+  color?: string;
+  label?: string;
+  icon?: string;
+}
+/** 129.5 A gallery's photo; with a link, a tap opens it instead of the full-screen viewer. */
+export interface StudioPhoto extends GalleryImage {
+  action?: Action;
+}
+/** 129.5 How a gallery's captions sit over its photos: on a shade at their foot, or in a frosted pill. */
+export const STUDIO_CAPTION_STYLES = ["shade", "pill"] as const;
+/**
+ * 129.1 Where a slider's lines, dots or pill sit (`at` its top or foot,
+ * `inset` from that edge), their colour, and "1/3" or "01/03" beside them.
+ */
+export interface StudioIndicatorLook {
+  at?: "top" | "bottom";
+  inset?: number;
+  color?: string;
+  count?: "plain" | "padded";
+}
+/**
+ * 129.1 For `segments`: a bar of `count` segments, `done` of them filled
+ * and the next one filled by `part` (0 to 1), `height` tall; with
+ * `source: course`, the app fills it from the signed-in student's course in
+ * progress (its lessons, the ones done) and leaves it out without one.
+ */
+export interface StudioSegments {
+  count?: number;
+  done?: number;
+  part?: number;
+  height?: number;
+  source?: "course";
+}
+/** 129 The elements whose photo can grow slowly (Ken Burns): in a slider its open slide's; elsewhere again and again. */
+export const STUDIO_KEN_BURNS_TYPES = ["slider", "photo_hero", "image", "video_hero", "parallax_banner"] as const;
 /** 129 Their bounds. */
 export const STUDIO_PREMIUM_LIMITS = { stories: 20, storyTitle: 40, storyLine: 120, ringMin: 52, ringMax: 96, images: 30, caption: 120, speedMin: 10, speedMax: 200, logoMin: 16, logoMax: 120 } as const;
 /** 129.3 Which way a ticker runs: toward the start (the left in English, the right in Arabic) or the end. */
@@ -121,6 +169,12 @@ export interface StudioMarquee {
   direction?: (typeof STUDIO_MARQUEE_DIRECTIONS)[number];
   pause_on_press?: boolean;
   size?: number;
+  /** A band turned this many degrees (-8 to 8), reaching past the screen's sides. */
+  tilt?: number;
+  /** A small dot between its words when it has no icon. */
+  dot?: boolean;
+  /** Each word in an outlined pill (routes, tags). */
+  chips?: boolean;
 }
 /** 129.2 For `stories`: how big each round photo is, 52 to 96; missing, 68. */
 export interface StudioStories {
@@ -901,18 +955,24 @@ export interface StudioNode {
   /** 112.4 For `slider`: how it shows where it is; missing, dots. 129.1 `pill` too. */
   indicator?: (typeof STUDIO_SLIDER_INDICATORS)[number];
   // ——— 129.1–129.8 Premium motion & media ———
-  /** 129.1 For `slider`: the open slide's photo grows slowly (Ken Burns). */
+  /** 129.1 For `slider`: the open slide's photo grows slowly (Ken Burns); for a photo hero, a picture or a banner, again and again (STUDIO_KEN_BURNS_TYPES). */
   ken_burns?: boolean;
-  /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`) and link (`action`). */
-  slides?: Slide[];
+  /** 129.1 For `slider`: where its indicator sits, its colour and a count beside it. */
+  indicator_look?: StudioIndicatorLook | null;
+  /** 129.2 For `stories`: each story's photo, title (`heading`), line under it (`subheading`), link (`action`) and ring. */
+  slides?: StudioStory[];
+  /** 129.1 For `segments`: how many, how many done. */
+  segments?: StudioSegments | null;
+  /** 129.5 For `gallery`: how its captions sit over the photos; missing, on a shade. */
+  caption_style?: (typeof STUDIO_CAPTION_STYLES)[number];
   /** 129.2 For `stories`: the rings' size. */
   stories?: StudioStories | null;
   /** 129.5 For `gallery`: how it lays them out. */
   gallery?: StudioGallery | null;
   /** 129.6 For `before_after` (its two `images`, before then after, their captions the labels): where the divider starts, 5 to 95 (%) from the start; missing, 50. */
   compare?: { at?: number } | null;
-  /** 129.3 For `marquee`: its logos or photos (`caption`: what they show, for screen readers). 129.5 A gallery's photos. */
-  images?: GalleryImage[];
+  /** 129.3 For `marquee`: its logos or photos (`caption`: what they show, for screen readers). 129.5 A gallery's photos (with a link each, maybe). */
+  images?: StudioPhoto[];
   /** 129.3 For `marquee`: its speed, direction and size. */
   marquee?: StudioMarquee | null;
   /** 129.4 and 129.7 For `video_hero` and `parallax_banner`: what lies over it sits in a frosted panel. */

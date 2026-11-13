@@ -1,5 +1,7 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
@@ -80,8 +82,25 @@ class _StudioMarqueeState extends State<StudioMarquee>
       for (final line in (node.text ?? '').split('\n'))
         if (line.trim().isNotEmpty) line.trim(),
     ];
+    final chip = node.marqueeChips;
     final items = <Widget>[
-      for (final word in words) Text(word, maxLines: 1, softWrap: false),
+      for (final word in words)
+        chip
+            ? DecoratedBox(
+                decoration: BoxDecoration(
+                  color: p.isDark ? const Color(0x0AFFFFFF) : Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: p.border),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Text(word, maxLines: 1, softWrap: false),
+                ),
+              )
+            : Text(word, maxLines: 1, softWrap: false),
       for (final (i, image) in node.images.indexed)
         AppNetworkImage(
           url: image.imageUrl,
@@ -109,7 +128,21 @@ class _StudioMarqueeState extends State<StudioMarquee>
             ),
             SizedBox(width: node.gap / 2),
           ],
-          if (icon == null) SizedBox(width: node.gap / 2),
+          // A small dot between the words without an icon.
+          if (icon == null && node.marqueeDot) ...[
+            Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color:
+                    (widget.color ?? DefaultTextStyle.of(context).style.color)
+                        ?.withValues(alpha: 0.8),
+                shape: BoxShape.circle,
+              ),
+            ),
+            SizedBox(width: node.gap / 2),
+          ] else if (icon == null)
+            SizedBox(width: node.gap / 2),
         ],
       ],
     );
@@ -123,30 +156,47 @@ class _StudioMarqueeState extends State<StudioMarquee>
         : toStart
         ? sign * _run
         : sign * (_run - _length);
+    // A turned band reaches past the sides, so its ends never show.
+    Widget band(Widget child) {
+      final tilt = node.marqueeTilt;
+      if (tilt == 0) return child;
+      final angle = (rtl ? -tilt : tilt) * math.pi / 180;
+      return Transform.rotate(
+        key: ValueKey('studio-marquee-tilt-${node.id}'),
+        angle: angle,
+        child: Transform.scale(
+          scaleX: 1.04 + math.sin(angle).abs() * 2,
+          child: child,
+        ),
+      );
+    }
+
     return Semantics(
       label: [...words, for (final i in node.images) ?i.caption].join(', '),
       hint: _held ? context.l10n.studioTickerPaused : null,
       container: true,
       child: ExcludeSemantics(
-        child: Listener(
-          onPointerDown: (_) => _hold(true),
-          onPointerUp: (_) => _hold(false),
-          onPointerCancel: (_) => _hold(false),
-          // Laid out as wide as its copies, the window over them still.
-          child: SingleChildScrollView(
-            key: ValueKey('studio-marquee-${node.id}'),
-            scrollDirection: Axis.horizontal,
-            physics: const NeverScrollableScrollPhysics(),
-            child: Transform.translate(
-              key: ValueKey('studio-marquee-run-${node.id}'),
-              offset: Offset(shift, 0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  copy(key: _copy),
-                  // Enough copies for the widest phone and the run.
-                  if (!still) ...[copy(), copy(), copy()],
-                ],
+        child: band(
+          Listener(
+            onPointerDown: (_) => _hold(true),
+            onPointerUp: (_) => _hold(false),
+            onPointerCancel: (_) => _hold(false),
+            // Laid out as wide as its copies, the window over them still.
+            child: SingleChildScrollView(
+              key: ValueKey('studio-marquee-${node.id}'),
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              child: Transform.translate(
+                key: ValueKey('studio-marquee-run-${node.id}'),
+                offset: Offset(shift, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    copy(key: _copy),
+                    // Enough copies for the widest phone and the run.
+                    if (!still) ...[copy(), copy(), copy()],
+                  ],
+                ),
               ),
             ),
           ),

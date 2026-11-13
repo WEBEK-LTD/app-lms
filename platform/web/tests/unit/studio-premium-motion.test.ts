@@ -45,6 +45,8 @@ const PREMIUM_PAGE: unknown[] = [
   { id: "vid", type: "video_hero", video_url: "https://cdn.example.com/loop.mp4", image_url: "https://cdn.example.com/poster.jpg", autoplay: true, glass: true, height: 400, scrim: { color: "#000000", from: 0.2, to: 0.8 }, children: [{ id: "vt", type: "text", text: "In motion", translations: { ar: { text: "بالحركة" } } }] },
   { id: "par", type: "parallax_banner", image_url: "https://cdn.example.com/photo.jpg", parallax: { speed: 0.3 }, children: [{ id: "pt", type: "text", text: "Crafted" }] },
   { id: "gal", type: "gallery", gallery: { layout: "bento", captions: true }, images: [{ image_url: "https://cdn.example.com/1.jpg", caption: "Garden", translations: { ar: { caption: "الحديقة" } } }] },
+  { id: "seg", type: "segments", segments: { count: 18, done: 11, source: "course" } },
+  { id: "look", type: "slider", indicator_look: { at: "top", count: "padded" }, children: [] },
   { id: "ba", type: "before_after", compare: { at: 40 }, images: [{ image_url: "https://cdn.example.com/b.jpg", caption: "Before", translations: { ar: { caption: "قبل" } } }, { image_url: "https://cdn.example.com/a.jpg", caption: "After" }] },
   { id: "tick", type: "marquee", text: "Free delivery\nNew", translations: { ar: { text: "توصيل مجاني\nجديد" } }, images: [{ image_url: "https://cdn.example.com/logo.png", caption: "Logo", translations: { ar: { caption: "الشعار" } } }], marquee: { speed: 60, direction: "end" } },
 ];
@@ -358,6 +360,57 @@ describe("129.8 entrances", () => {
     expect(els[0]!.animate).not.toHaveBeenCalled();
     expect(els[1]!.animate).not.toHaveBeenCalled();
     stop();
+  });
+});
+
+describe("129 the options the Signature homes need", () => {
+  it("keeps a slider's indicator at its top in gold with 01/03, and a photo hero's slow zoom", () => {
+    const [s, h, t] = ok([
+      { id: "s", type: "slider", indicator: "progress", indicator_look: { at: "top", inset: 40, color: "#F5C451", count: "padded" }, children: [] },
+      { id: "h", type: "photo_hero", ken_burns: true, children: [] },
+      { id: "t", type: "text", text: "x", ken_burns: true },
+    ]);
+    expect(s!.indicator_look).toEqual({ at: "top", inset: 40, color: "#F5C451", count: "padded" });
+    expect(h!.ken_burns).toBe(true);
+    expect(t).not.toHaveProperty("ken_burns");
+    expect(errors([{ id: "s", type: "slider", indicator_look: { count: "roman" }, children: [] }])).toContain("choose how the slides are counted.");
+    const html = draw([{ id: "s", type: "slider", indicator: "progress", indicator_look: { at: "top", inset: 40, color: "#F5C451", count: "padded" }, children: [make("text"), make("text"), make("text")] }, { id: "h", type: "photo_hero", ken_burns: true, children: [] }]);
+    expect(html).toMatch(/data-studio-slide-count[^>]*>01(<!-- -->)?\/(<!-- -->)?03</);
+    expect(html).toMatch(/data-studio-indicator="progress"[^>]*top:40px/);
+    expect(html).toMatch(/data-studio-node="h"[^>]*data-studio-ken-burns/);
+  });
+
+  it("keeps each story's ring, colours, initials and icon", () => {
+    const [st] = ok([{ id: "st", type: "stories", slides: [{ heading: "Salma", label: "SN", color: "#9C1C4A", ring: "highlight", ring_color: "#E5484D" }, { heading: "All 6", icon: "apps", ring: "dashed", action: { type: "screen", screen: "courses" } }] }]);
+    expect(st!.slides).toEqual([
+      { heading: "Salma", label: "SN", color: "#9C1C4A", ring: "highlight", ring_color: "#E5484D" },
+      { heading: "All 6", icon: "apps", ring: "dashed", action: { type: "screen", screen: "courses" } },
+    ]);
+    expect(errors([{ id: "st", type: "stories", slides: [{ heading: "x", ring: "neon" }] }])).toContain("choose how the story's ring looks.");
+    const html = draw([st!]);
+    expect(html).toContain('data-studio-story-ring="highlight"');
+    expect(html).toContain('data-studio-story-ring="dashed"');
+    expect(html).toContain(">SN<");
+  });
+
+  it("keeps a turned ticker with dots or pills, a gallery's links and pills, and a bar of segments", () => {
+    const [m, g, b] = ok([
+      { id: "m", type: "marquee", text: "A\nB", marquee: { tilt: -2, dot: true, chips: true } },
+      { id: "g", type: "gallery", caption_style: "pill", gallery: { layout: "bento", captions: true }, images: [{ image_url: "https://cdn.example.com/g.jpg", caption: "Grill\nSahara Grill", action: { type: "screen", screen: "courses" } }] },
+      { id: "b", type: "segments", color: "#F5C451", segments: { count: 18, done: 11, part: 0.5 } },
+    ]);
+    expect(m!.marquee).toEqual({ tilt: -2, dot: true, chips: true });
+    expect(g).toMatchObject({ caption_style: "pill", images: [{ action: { type: "screen", screen: "courses" } }] });
+    expect(b!.segments).toEqual({ count: 18, done: 11, part: 0.5 });
+    expect(errors([{ id: "b", type: "segments", segments: { count: 50 } }])).toContain("2 to 40");
+    expect(errors([{ id: "m", type: "marquee", text: "A", marquee: { tilt: 20 } }])).toContain("-8 to 8");
+    expect(make("segments").segments).toMatchObject({ source: "course" });
+    const html = draw([m!, g!, b!], { lang: "ar" });
+    expect(html).toContain("rotate(2deg)");
+    expect(html).toContain("data-studio-marquee-chip");
+    expect(html).toContain('data-studio-caption="pill"');
+    expect(html).toContain(">Sahara Grill<");
+    expect(html.match(/data-studio-segments/g)).toHaveLength(1);
   });
 });
 

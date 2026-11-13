@@ -1,9 +1,64 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/common.dart';
 import 'content_blocks.dart' show GalleryViewer;
+import 'page_actions.dart';
+
+/// 129.5 A caption: its first line bold, the others under it.
+class _Lines extends StatelessWidget {
+  const _Lines({required this.caption});
+
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = caption.split('\n');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final (j, line) in lines.indexed)
+          Text(
+            line,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: j == 0 ? 1 : 0.9),
+              fontSize: j == 0 ? 13 : 11,
+              fontWeight: j == 0 ? FontWeight.w800 : FontWeight.w500,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 129.5 A caption in a frosted pill.
+class _Pill extends StatelessWidget {
+  const _Pill({required this.caption});
+
+  final String caption;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(16),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      child: ColoredBox(
+        color: const Color(0x800E0D24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          child: _Lines(caption: caption),
+        ),
+      ),
+    ),
+  );
+}
 
 /// 129.5 A gallery on a Studio page (`gallery`; Studio's canvas:
 /// components/studio/premium-motion.tsx): its photos in masonry columns of
@@ -12,7 +67,7 @@ import 'content_blocks.dart' show GalleryViewer;
 /// captions over them when the owner asked; a tap opens them full screen
 /// ([GalleryViewer]: swipe through them, pinch to zoom, each with its
 /// caption).
-class StudioGallery extends StatelessWidget {
+class StudioGallery extends ConsumerWidget {
   const StudioGallery({super.key, required this.node});
 
   final StudioNode node;
@@ -22,8 +77,9 @@ class StudioGallery extends StatelessWidget {
   static const masonryRatios = [0.8, 1.15, 1.0, 0.75, 1.25, 0.9];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final images = node.images;
+    Widget tile(BuildContext context, int i) => _photo(context, ref, i);
     final gap = node.gap;
     return switch (node.galleryLayout) {
       StudioGalleryLayout.filmstrip => SizedBox(
@@ -35,7 +91,7 @@ class StudioGallery extends StatelessWidget {
           itemCount: images.length,
           separatorBuilder: (_, _) => SizedBox(width: gap),
           itemBuilder: (context, i) =>
-              AspectRatio(aspectRatio: 0.75, child: _tile(context, i)),
+              AspectRatio(aspectRatio: 0.75, child: tile(context, i)),
         ),
       ),
       StudioGalleryLayout.bento => LayoutBuilder(
@@ -54,18 +110,18 @@ class StudioGallery extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(flex: 2, child: _tile(context, start)),
+                    Expanded(flex: 2, child: tile(context, start)),
                     if (left > 1) ...[
                       SizedBox(width: gap),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(child: _tile(context, start + 1)),
+                            Expanded(child: tile(context, start + 1)),
                             SizedBox(height: gap),
                             Expanded(
                               child: left > 2
-                                  ? _tile(context, start + 2)
+                                  ? tile(context, start + 2)
                                   : const SizedBox.shrink(),
                             ),
                           ],
@@ -79,7 +135,7 @@ class StudioGallery extends StatelessWidget {
             if (left > 3) {
               rows
                 ..add(SizedBox(height: gap))
-                ..add(SizedBox(height: cell, child: _tile(context, start + 3)));
+                ..add(SizedBox(height: cell, child: tile(context, start + 3)));
             }
           }
           return Column(
@@ -106,7 +162,7 @@ class StudioGallery extends StatelessWidget {
                       ),
                       child: AspectRatio(
                         aspectRatio: masonryRatios[i % masonryRatios.length],
-                        child: _tile(context, i),
+                        child: tile(context, i),
                       ),
                     ),
                 ],
@@ -118,8 +174,9 @@ class StudioGallery extends StatelessWidget {
     };
   }
 
-  /// One photo, its caption over its foot when asked; a tap opens them all.
-  Widget _tile(BuildContext context, int i) {
+  /// One photo, its caption over its foot when asked; a tap opens them all
+  /// (or its link).
+  Widget _photo(BuildContext context, WidgetRef ref, int i) {
     final image = node.images[i];
     final caption = image.caption?.trim() ?? '';
     final radius = BorderRadius.circular(node.galleryRadius);
@@ -135,7 +192,17 @@ class StudioGallery extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             AppNetworkImage(url: image.imageUrl, seed: node.id.hashCode + i),
-            if (node.galleryCaptions && caption.isNotEmpty)
+            if (node.galleryCaptions && caption.isNotEmpty && node.captionPill)
+              PositionedDirectional(
+                start: 10,
+                bottom: 10,
+                end: 10,
+                child: Align(
+                  alignment: AlignmentDirectional.bottomStart,
+                  child: ExcludeSemantics(child: _Pill(caption: caption)),
+                ),
+              )
+            else if (node.galleryCaptions && caption.isNotEmpty)
               PositionedDirectional(
                 start: 0,
                 end: 0,
@@ -156,16 +223,7 @@ class StudioGallery extends StatelessWidget {
                         10,
                         8,
                       ),
-                      child: Text(
-                        caption,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: _Lines(caption: caption),
                     ),
                   ),
                 ),
@@ -175,7 +233,10 @@ class StudioGallery extends StatelessWidget {
               child: InkWell(
                 key: ValueKey('studio-gallery-${node.id}-$i'),
                 borderRadius: radius,
-                onTap: () => GalleryViewer.open(context, node.images, i),
+                // 129.5 A photo with a link opens it; the others, the viewer.
+                onTap: image.action != null && canOpenAction(ref, image.action!)
+                    ? () => runPageAction(context, ref, image.action)
+                    : () => GalleryViewer.open(context, node.images, i),
               ),
             ),
           ],

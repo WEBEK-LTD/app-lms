@@ -14725,7 +14725,11 @@ components:
         photo after, their captions the labels at their top corners) one
         over the other with a divider people drag (a white line with a round
         handle), starting `compare.at` percent from the start side, the
-        photo before on the start side (the right in Arabic). The first element of a page
+        photo before on the start side (the right in Arabic). `segments` is a
+        bar of `segments.count` segments, `done` of them filled in its
+        `color` and the next by `part`; with `segments.source: course` the
+        app fills it from the signed-in student's course in progress (its
+        lessons, the ones done) and leaves it out without one. The first element of a page
         without a header reaches under the status bar when it is a cover.
         `tracking` is the signed-in person's own shipment or ride on its way,
         or the free taxis near them (`tracking`), and `greeting` good morning
@@ -14739,7 +14743,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after, segments]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14803,6 +14807,11 @@ components:
               heading: { type: [string, 'null'], maxLength: 40, description: "Its title, under its ring and over its photo." }
               subheading: { type: [string, 'null'], maxLength: 120, description: "A line over its photo." }
               action: { $ref: '#/components/schemas/Action' }
+              ring: { type: string, enum: [auto, highlight, plain, dashed], default: auto, description: "`auto` the second colour into the main one until seen on this phone, then quiet; `highlight` always lit (an offer); `plain` quiet; `dashed` a dashed ring (a tile for all of them)." }
+              ring_color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "The ring's colour instead of the app's (a live class in red)." }
+              color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "Without a photo, the circle's colour." }
+              label: { type: string, maxLength: 3, description: "Without a photo, the letters in the circle (initials)." }
+              icon: { type: string, description: "Without a photo or `label`, a Material Symbols name in the circle. A story without a photo that has an `action` opens it instead of the stories." }
         images:
           type: array
           maxItems: 30
@@ -14812,7 +14821,8 @@ components:
             required: [image_url]
             properties:
               image_url: { type: string, format: uri }
-              caption: { type: [string, 'null'], maxLength: 120 }
+              caption: { type: [string, 'null'], maxLength: 120, description: "129.5 In a gallery, its first line bold over the photo, the others under it." }
+              action: { $ref: '#/components/schemas/Action', description: "129.5 In a gallery: a tap opens it instead of the full-screen viewer." }
         marquee:
           type: [object, 'null']
           description: "129.3 For `marquee`: how it runs."
@@ -14821,6 +14831,9 @@ components:
             direction: { type: string, enum: [start, end], default: start, description: "Toward the start (the left in a left-to-right language, the right in Arabic) or the end." }
             pause_on_press: { type: boolean, default: true, description: "Held still while pressed." }
             size: { type: integer, minimum: 16, maximum: 120, default: 36, description: "How tall its pictures are." }
+            tilt: { type: number, minimum: -8, maximum: 8, default: 0, description: "A band turned this many degrees, clockwise (counter-clockwise in Arabic), reaching past the screen's sides." }
+            dot: { type: boolean, default: false, description: "A small dot between its words when it has no `icon`." }
+            chips: { type: boolean, default: false, description: "Each word in an outlined pill (routes, tags)." }
         gallery:
           type: [object, 'null']
           description: "129.5 For `gallery`: how it lays out its photos."
@@ -14845,7 +14858,25 @@ components:
           description: "129.2 For `stories`: how they're drawn."
           properties:
             size: { type: integer, minimum: 52, maximum: 96, default: 68, description: "Each round photo's size across." }
-        ken_burns: { type: boolean, default: false, description: "129.1 For `slider`: the photo of the slide showing grows slowly while it shows (a photo hero's, a picture's or a background picture), started again on each slide. Still on phones set to reduce motion. A slider stops moving on by itself while it is off the screen." }
+        ken_burns: { type: boolean, default: false, description: "129.1 For `slider`: the photo of the slide showing grows slowly while it shows (a photo hero's, a picture's or a background picture), started again on each slide; for `photo_hero`, `image`, `video_hero` (its poster) and `parallax_banner`, its photo grows and shrinks slowly again and again. Still on phones set to reduce motion. A slider stops moving on by itself while it is off the screen." }
+        indicator_look:
+          type: [object, 'null']
+          description: "129.1 For `slider`: where its indicator (lines, dots or pill) sits and its colour, and a count beside it."
+          properties:
+            at: { type: string, enum: [top, bottom], default: bottom }
+            inset: { type: integer, minimum: 0, maximum: 400, default: 12, description: "How far from that edge." }
+            color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$', description: "The open slide's line or dot; missing, white." }
+            count: { type: string, enum: [plain, padded], description: "\"1/3\" or \"01/03\" at the end side beside the indicator." }
+        segments:
+          type: [object, 'null']
+          description: "129.1 For `segments`."
+          properties:
+            count: { type: integer, minimum: 2, maximum: 40, default: 5 }
+            done: { type: integer, minimum: 0, maximum: 40, default: 0 }
+            part: { type: number, minimum: 0, maximum: 1, default: 0, description: "How much of the next segment is filled." }
+            height: { type: number, minimum: 2, maximum: 10, default: 3 }
+            source: { type: string, enum: [course], description: "The signed-in student's course in progress, instead of `count` and `done`." }
+        caption_style: { type: string, enum: [shade, pill], default: shade, description: "129.5 For `gallery`: its captions on a shade at the photo's foot or in a frosted pill." }
         place:
           type: [object, 'null']
           description: "112.4 For a child of `stack`: where it sits, in percent of the stack from its `start` (`x`) and its top (`y`); the child's own point at the same share sits there (0 its start or top, 50 its middle, 100 its end or bottom). Spots on a picture that open a product (shop the look). Null, by `self_align`."

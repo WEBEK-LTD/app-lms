@@ -107,6 +107,102 @@ class StudioPremiumMotion129Test extends TestCase {
 		$this->assertArrayNotHasKey( 'translations', $arabic[0]['slides'][0] );
 	}
 
+	public function test_keeps_the_options_the_signature_homes_need() {
+		$served = $this->served(
+			array(
+				array(
+					'id'             => 'hero',
+					'type'           => 'slider',
+					'indicator_look' => array(
+						'at'    => 'top',
+						'inset' => 900,
+						'color' => '#f5c451',
+						'count' => 'padded',
+					),
+					'children'       => array(),
+				),
+				array(
+					'id'     => 'st',
+					'type'   => 'stories',
+					'slides' => array(
+						array(
+							'heading'    => 'Salma',
+							'label'      => 'SNXY',
+							'color'      => '#9C1C4A',
+							'ring'       => 'highlight',
+							'ring_color' => 'red',
+						),
+						array(
+							'icon'   => 'apps',
+							'ring'   => 'dashed',
+							'action' => array(
+								'type'   => 'screen',
+								'screen' => 'courses',
+							),
+						),
+					),
+				),
+				array(
+					'id'       => 'seg',
+					'type'     => 'segments',
+					'segments' => array(
+						'count'  => 18,
+						'done'   => 30,
+						'part'   => 0.5,
+						'source' => 'course',
+					),
+				),
+				array(
+					'id'      => 'tick',
+					'type'    => 'marquee',
+					'text'    => 'A',
+					'marquee' => array(
+						'tilt'  => -2,
+						'dot'   => true,
+						'chips' => true,
+					),
+				),
+			)
+		);
+		$this->assertSame(
+			array(
+				'at'    => 'top',
+				'inset' => 400,
+				'color' => '#F5C451',
+				'count' => 'padded',
+			),
+			$served[0]['indicator_look']
+		);
+		$this->assertSame(
+			array(
+				'heading' => 'Salma',
+				'ring'    => 'highlight',
+				'color'   => '#9C1C4A',
+				'label'   => 'SNX',
+			),
+			$served[1]['slides'][0]
+		);
+		$this->assertSame( 'dashed', $served[1]['slides'][1]['ring'] );
+		$this->assertSame( 'apps', $served[1]['slides'][1]['icon'] );
+		$this->assertSame(
+			array(
+				'count'  => 18,
+				'done'   => 18,
+				'part'   => 0.5,
+				'source' => 'course',
+			),
+			$served[2]['segments']
+		);
+		$this->assertSame(
+			array(
+				'tilt'  => -2.0,
+				'dot'   => true,
+				'chips' => true,
+			),
+			$served[3]['marquee']
+		);
+	}
+
 	public function test_serves_the_banners_with_what_lies_over_them() {
 		$served = $this->served(
 			array(

@@ -181,13 +181,62 @@ class StudioKenBurns extends InheritedWidget {
   bool updateShouldNotify(StudioKenBurns oldWidget) => zoom != oldWidget.zoom;
 }
 
+/// 129.1 A photo growing and shrinking slowly again and again (a photo
+/// hero's, a picture's, a banner's with `ken_burns`); in a slider the open
+/// slide's zoom wins. Still on a phone that reduces motion.
+class StudioKenBurnsLoop extends StatefulWidget {
+  const StudioKenBurnsLoop({super.key, required this.on, required this.child});
+
+  final bool on;
+  final Widget child;
+
+  @override
+  State<StudioKenBurnsLoop> createState() => _StudioKenBurnsLoopState();
+}
+
+class _StudioKenBurnsLoopState extends State<StudioKenBurnsLoop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _zoom = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 20),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final move = widget.on && !MediaQuery.disableAnimationsOf(context);
+    if (move && !_zoom.isAnimating) _zoom.repeat(reverse: true);
+    if (!move) _zoom.stop();
+  }
+
+  @override
+  void dispose() {
+    _zoom.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.on || StudioKenBurns.of(context) != null) return widget.child;
+    return StudioKenBurns(zoom: _zoom, child: widget.child);
+  }
+}
+
 /// 129.1 Where a slider is, as dots in a frosted pill over its slides'
 /// foot: the open one a longer white line.
 class StudioSliderPill extends StatelessWidget {
-  const StudioSliderPill({super.key, required this.count, required this.page});
+  const StudioSliderPill({
+    super.key,
+    required this.count,
+    required this.page,
+    this.color,
+  });
 
   final int count;
   final int page;
+
+  /// The open slide's dot; null, white.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
@@ -216,7 +265,7 @@ class StudioSliderPill extends StatelessWidget {
                     height: 6,
                     decoration: BoxDecoration(
                       color: i == page
-                          ? const Color(0xFFFFFFFF)
+                          ? (color ?? const Color(0xFFFFFFFF))
                           : const Color(0x8CFFFFFF),
                       borderRadius: BorderRadius.circular(3),
                     ),

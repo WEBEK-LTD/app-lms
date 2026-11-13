@@ -43,6 +43,7 @@ import 'studio_marquee.dart';
 import 'studio_media_covers.dart';
 import 'studio_motion.dart';
 import 'studio_scrim.dart';
+import 'studio_segments.dart';
 import 'studio_stories.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
@@ -811,6 +812,7 @@ class StudioNodeView extends ConsumerWidget {
         (node.text ?? '').trim().isNotEmpty || node.images.isNotEmpty,
       StudioNodeType.gallery => node.images.isNotEmpty,
       StudioNodeType.beforeAfter => node.images.length >= 2,
+      StudioNodeType.segments => StudioSegments.shows(node, ref),
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
@@ -994,6 +996,10 @@ class StudioNodeView extends ConsumerWidget {
         motion.moves &&
         !MediaQuery.disableAnimationsOf(context)) {
       child = _Moving(motion: motion, child: child);
+    }
+    // 129.1 A photo growing slowly again and again.
+    if (node.kenBurns && node.type != StudioNodeType.slider) {
+      child = StudioKenBurnsLoop(on: true, child: child);
     }
     // 107.2 Turned, with what it holds.
     if (node.rotation != 0) {
@@ -1324,6 +1330,8 @@ class StudioNodeView extends ConsumerWidget {
         return StudioGallery(node: node);
       case StudioNodeType.beforeAfter:
         return StudioBeforeAfter(node: node);
+      case StudioNodeType.segments:
+        return StudioSegments(node: node, color: color);
       // Drawn by [StudioMediaCover] in [build].
       case StudioNodeType.videoHero || StudioNodeType.parallaxBanner:
         return const SizedBox.shrink();
@@ -1958,14 +1966,16 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
           children: [
             SizedBox(
               height: height,
-              child: switch (shown) {
+              child: _counted(switch (shown) {
                 StudioIndicator.progress => Stack(
                   children: [
                     Positioned.fill(child: pages),
+                    // 129.1 At the top or the foot, as far from it as set.
                     PositionedDirectional(
                       start: 16,
                       end: 16 + node.gap,
-                      bottom: 12,
+                      top: node.indicatorTop ? node.indicatorInset : null,
+                      bottom: node.indicatorTop ? null : node.indicatorInset,
                       child: SliderLines(
                         key: ValueKey('studio-lines-${node.id}'),
                         count: kids.length,
@@ -1974,6 +1984,8 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
                         wait: _moving
                             ? Duration(milliseconds: node.intervalMs)
                             : null,
+                        fill:
+                            parseHexColor(node.indicatorColor) ?? Colors.white,
                       ),
                     ),
                   ],
@@ -1985,12 +1997,14 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
                     PositionedDirectional(
                       start: 0,
                       end: node.gap,
-                      bottom: 12,
+                      top: node.indicatorTop ? node.indicatorInset : null,
+                      bottom: node.indicatorTop ? null : node.indicatorInset,
                       child: Center(
                         child: StudioSliderPill(
                           key: ValueKey('studio-pill-${node.id}'),
                           count: kids.length,
                           page: _page,
+                          color: parseHexColor(node.indicatorColor),
                         ),
                       ),
                     ),
@@ -2011,7 +2025,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
                   ],
                 ),
                 _ => pages,
-              },
+              }, kids.length),
             ),
             if (shown == StudioIndicator.dots) ...[
               const SizedBox(height: 8),
@@ -2020,6 +2034,41 @@ class _StudioSliderState extends ConsumerState<_StudioSlider>
           ],
         );
       },
+    );
+  }
+}
+
+extension on _StudioSliderState {
+  /// 129.1 "1/3" or "01/03" at the end side beside the indicator.
+  Widget _counted(Widget slides, int count) {
+    final node = widget.node;
+    final padded = node.slideCount;
+    if (padded == null || count < 2) return slides;
+    String n(int i) => padded ? '$i'.padLeft(2, '0') : '$i';
+    final at = node.indicatorInset + 18;
+    return Stack(
+      children: [
+        Positioned.fill(child: slides),
+        PositionedDirectional(
+          end: 16 + node.gap,
+          top: node.indicatorTop ? at : null,
+          bottom: node.indicatorTop ? null : at,
+          child: ExcludeSemantics(
+            child: Text(
+              '${n(_page + 1)}/${n(count)}',
+              key: ValueKey('studio-slide-count-${node.id}'),
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                color: parseHexColor(node.indicatorColor) ?? Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -2063,12 +2112,16 @@ class SliderLines extends StatelessWidget {
     required this.page,
     required this.turn,
     required this.wait,
+    this.fill = const Color(0xFFFFFFFF),
   });
 
   final int count;
   final int page;
   final int turn;
   final Duration? wait;
+
+  /// 129.1 The open and seen slides' lines; missing, white.
+  final Color fill;
 
   @override
   Widget build(BuildContext context) {
@@ -2083,7 +2136,7 @@ class SliderLines extends StatelessWidget {
             FractionallySizedBox(
               alignment: AlignmentDirectional.centerStart,
               widthFactor: filled,
-              child: const ColoredBox(color: Color(0xFFFFFFFF)),
+              child: ColoredBox(color: fill),
             ),
           ],
         ),

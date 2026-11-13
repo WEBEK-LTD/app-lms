@@ -21,7 +21,7 @@ class Studio_Premium_Motion {
 	/**
 	 * 129 The premium element types.
 	 */
-	const TYPES = array( 'stories', 'marquee', 'video_hero', 'parallax_banner', 'gallery', 'before_after' );
+	const TYPES = array( 'stories', 'marquee', 'video_hero', 'parallax_banner', 'gallery', 'before_after', 'segments' );
 
 	/**
 	 * 129.2 At most this many stories in a row.
@@ -48,12 +48,85 @@ class Studio_Premium_Motion {
 			return self::banner( $type, $raw, $node );
 		}
 		if ( 'gallery' === $type ) {
-			return self::gallery( $raw, $node );
+			return self::gallery( $raw, $node, $action );
 		}
 		if ( 'before_after' === $type ) {
 			return self::compare( $raw, $node );
 		}
+		if ( 'segments' === $type ) {
+			return self::segments( $raw, $node );
+		}
 		return $node;
+	}
+
+	/**
+	 * 129.1 A slider's indicator: at its top or foot, how far from that edge, its colour and a count.
+	 *
+	 * @param array $raw  The stored element.
+	 * @param array $node The element served so far.
+	 * @return array
+	 */
+	public static function slider( array $raw, array $node ) {
+		$l    = isset( $raw['indicator_look'] ) && is_array( $raw['indicator_look'] ) ? $raw['indicator_look'] : array();
+		$look = array();
+		if ( 'top' === ( $l['at'] ?? null ) ) {
+			$look['at'] = 'top';
+		}
+		if ( isset( $l['inset'] ) && is_numeric( $l['inset'] ) ) {
+			$look['inset'] = (int) max( 0, min( 400, (float) $l['inset'] ) );
+		}
+		$color = self::hex( $l['color'] ?? null );
+		if ( null !== $color ) {
+			$look['color'] = $color;
+		}
+		if ( in_array( $l['count'] ?? null, array( 'plain', 'padded' ), true ) ) {
+			$look['count'] = $l['count'];
+		}
+		if ( $look ) {
+			$node['indicator_look'] = $look;
+		}
+		return $node;
+	}
+
+	/**
+	 * 129.1 A bar of segments, or the student's course's lessons.
+	 *
+	 * @param array $raw  The stored element.
+	 * @param array $node The element served so far.
+	 * @return array
+	 */
+	private static function segments( array $raw, array $node ) {
+		$s        = isset( $raw['segments'] ) && is_array( $raw['segments'] ) ? $raw['segments'] : array();
+		$segments = array();
+		if ( isset( $s['count'] ) && is_numeric( $s['count'] ) ) {
+			$segments['count'] = (int) max( 2, min( 40, (float) $s['count'] ) );
+		}
+		if ( isset( $s['done'] ) && is_numeric( $s['done'] ) ) {
+			$segments['done'] = (int) max( 0, min( $segments['count'] ?? 40, (float) $s['done'] ) );
+		}
+		if ( isset( $s['part'] ) && is_numeric( $s['part'] ) ) {
+			$segments['part'] = round( max( 0, min( 1, (float) $s['part'] ) ), 2 );
+		}
+		if ( isset( $s['height'] ) && is_numeric( $s['height'] ) ) {
+			$segments['height'] = round( max( 2, min( 10, (float) $s['height'] ) ), 1 );
+		}
+		if ( 'course' === ( $s['source'] ?? null ) ) {
+			$segments['source'] = 'course';
+		}
+		if ( $segments ) {
+			$node['segments'] = $segments;
+		}
+		return $node;
+	}
+
+	/**
+	 * A #RRGGBB colour in capitals, or null.
+	 *
+	 * @param mixed $value Value.
+	 * @return string|null
+	 */
+	private static function hex( $value ) {
+		return is_string( $value ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $value ) ? strtoupper( $value ) : null;
 	}
 
 	/**
@@ -76,14 +149,15 @@ class Studio_Premium_Motion {
 	}
 
 	/**
-	 * 129.5 The gallery: its photos with their captions, its layout, corners and captions over them.
+	 * 129.5 The gallery: its photos with their captions and links, its layout, corners and captions over them.
 	 *
-	 * @param array $raw  The stored element.
-	 * @param array $node The element served so far.
+	 * @param array    $raw    The stored element.
+	 * @param array    $node   The element served so far.
+	 * @param callable $action Action check.
 	 * @return array|null
 	 */
-	private static function gallery( array $raw, array $node ) {
-		$images = self::images( $raw );
+	private static function gallery( array $raw, array $node, callable $action ) {
+		$images = self::images( $raw, $action );
 		$layout = $raw['gallery']['layout'] ?? null;
 		if ( ! $images || ! in_array( $layout, array( 'masonry', 'bento', 'filmstrip' ), true ) ) {
 			return null;
@@ -95,6 +169,9 @@ class Studio_Premium_Motion {
 		}
 		if ( true === ( $raw['gallery']['captions'] ?? false ) ) {
 			$node['gallery']['captions'] = true;
+		}
+		if ( 'pill' === ( $raw['caption_style'] ?? null ) ) {
+			$node['caption_style'] = 'pill';
 		}
 		if ( isset( $node['columns'] ) ) {
 			$node['columns'] = max( 2, min( 3, $node['columns'] ) );
@@ -198,6 +275,14 @@ class Studio_Premium_Motion {
 		if ( isset( $m['size'] ) && is_numeric( $m['size'] ) ) {
 			$marquee['size'] = (int) max( 16, min( 120, (float) $m['size'] ) );
 		}
+		if ( isset( $m['tilt'] ) && is_numeric( $m['tilt'] ) && 0.0 !== (float) $m['tilt'] ) {
+			$marquee['tilt'] = round( max( -8, min( 8, (float) $m['tilt'] ) ), 1 );
+		}
+		foreach ( array( 'dot', 'chips' ) as $flag ) {
+			if ( true === ( $m[ $flag ] ?? false ) ) {
+				$marquee[ $flag ] = true;
+			}
+		}
 		if ( $marquee ) {
 			$node['marquee'] = $marquee;
 		}
@@ -205,12 +290,13 @@ class Studio_Premium_Motion {
 	}
 
 	/**
-	 * 129 A premium element's photos: each one's https address and caption, at most 30.
+	 * 129 A premium element's photos: each one's https address and caption, at most 30; with `$action`, its link too.
 	 *
-	 * @param array $raw The stored element.
+	 * @param array         $raw    The stored element.
+	 * @param callable|null $action Action check, for photos that open a link.
 	 * @return array
 	 */
-	private static function images( array $raw ) {
+	private static function images( array $raw, $action = null ) {
 		$images = array();
 		$list   = isset( $raw['images'] ) && is_array( $raw['images'] ) ? array_values( $raw['images'] ) : array();
 		foreach ( array_slice( $list, 0, 30 ) as $entry ) {
@@ -222,6 +308,10 @@ class Studio_Premium_Motion {
 			$caption = self::text( $entry['caption'] ?? null, 120 );
 			if ( null !== $caption ) {
 				$image['caption'] = $caption;
+			}
+			$link = null === $action ? null : $action( $entry['action'] ?? null );
+			if ( null !== $link ) {
+				$image['action'] = $link;
 			}
 			$images[] = $image;
 		}
@@ -249,12 +339,18 @@ class Studio_Premium_Motion {
 					'heading'    => self::text( $entry['heading'] ?? null, 40 ),
 					'subheading' => self::text( $entry['subheading'] ?? null, 120 ),
 					'action'     => $action( $entry['action'] ?? null ),
+					// 129.2 Its ring, the ring's colour, and without a photo a colour with initials or an icon.
+					'ring'       => in_array( $entry['ring'] ?? null, array( 'highlight', 'plain', 'dashed' ), true ) ? $entry['ring'] : null,
+					'ring_color' => self::hex( $entry['ring_color'] ?? null ),
+					'color'      => self::hex( $entry['color'] ?? null ),
+					'label'      => self::text( $entry['label'] ?? null, 3 ),
+					'icon'       => is_string( $entry['icon'] ?? null ) && preg_match( '/^[a-z0-9_]{1,64}$/', $entry['icon'] ) ? $entry['icon'] : null,
 				),
 				static function ( $value ) {
 					return null !== $value;
 				}
 			);
-			if ( isset( $story['image_url'] ) || isset( $story['heading'] ) ) {
+			if ( isset( $story['image_url'] ) || isset( $story['heading'] ) || isset( $story['label'] ) || isset( $story['icon'] ) ) {
 				$slides[] = $story;
 			}
 		}

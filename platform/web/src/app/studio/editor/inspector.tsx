@@ -53,7 +53,7 @@ import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
 // 129 Premium motion & media.
-import { BannerControls, BeforeAfterControls, GalleryControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
+import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -727,8 +727,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
               options={STUDIO_SLIDER_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
             />
           ) : null}
-          {/* 129.1 The open slide's photo zooming slowly. */}
+          {/* 129.1 The open slide's photo zooming slowly; where the indicator sits, its colour and a count. */}
           <Check label={t("studio.kenBurns")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} />
+          <IndicatorLookControls {...premiumProps(props, node)} />
           {node.children?.length ? <SlidesControl node={node} onChange={onChange} /> : null}
         </div>
       ) : null}
@@ -749,6 +750,9 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}
       {node.type === "before_after" ? <BeforeAfterControls {...premiumProps(props, node)} /> : null}
+      {node.type === "segments" ? <SegmentsControls {...premiumProps(props, node)} /> : null}
+      {/* 129.1 A photo growing slowly, again and again. */}
+      {node.type === "photo_hero" || node.type === "image" || node.type === "video_hero" || node.type === "parallax_banner" ? <Check label={t("studio.pmKenBurnsLoop")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">

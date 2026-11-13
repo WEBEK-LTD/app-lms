@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/core/services/data_saver.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/storage/local_settings.dart';
@@ -701,6 +702,166 @@ void main() {
         ),
         findsNothing,
       );
+    });
+  });
+
+  group('129 the options the Signature homes need', () {
+    testWidgets('a slider with gold lines at its top and "01/02" beside them', (
+      tester,
+    ) async {
+      await open(tester, [
+        {
+          ...slider(indicator: 'progress', kenBurns: false),
+          'indicator_look': {
+            'at': 'top',
+            'inset': 40,
+            'color': '#F5C451',
+            'count': 'padded',
+          },
+        },
+      ]);
+      final cover = tester.getRect(
+        find.byKey(const ValueKey('studio-cover-one')),
+      );
+      final lines = tester.getRect(
+        find.byKey(const ValueKey('studio-lines-hero')),
+      );
+      expect(lines.top, closeTo(cover.top + 40, 1));
+      expect(find.text('01/02'), findsOneWidget);
+      expect(
+        tester.getRect(find.text('01/02')).top,
+        closeTo(cover.top + 58, 1),
+      );
+    });
+
+    testWidgets('a photo hero zooming slowly again and again', (tester) async {
+      await open(tester, [
+        {...slide('solo', 'Alone'), 'ken_burns': true},
+      ]);
+      expect(find.byKey(const ValueKey('studio-ken-burns')), findsOneWidget);
+    });
+
+    testWidgets('stories with initials, a lit ring, and a tile that opens its '
+        'link', (tester) async {
+      final app = await open(tester, [
+        {
+          'id': 'st',
+          'type': 'stories',
+          'slides': [
+            {
+              'heading': 'Salma',
+              'label': 'SN',
+              'color': '#9C1C4A',
+              'ring': 'highlight',
+              'ring_color': '#E5484D',
+            },
+            {
+              'heading': 'All 6',
+              'icon': 'apps',
+              'ring': 'dashed',
+              'action': {'type': 'screen', 'screen': 'courses'},
+            },
+          ],
+        },
+      ]);
+      expect(find.text('SN'), findsOneWidget);
+      final ring = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byKey(const ValueKey('studio-story-ring-st-0')),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect(
+        (ring.decoration! as BoxDecoration).color,
+        const Color(0xFFE5484D),
+      );
+      await tester.tap(find.byKey(const ValueKey('studio-story-st-1')));
+      await TestApp.settle(tester);
+      expect(
+        find.byKey(const ValueKey('studio-story-viewer-st')),
+        findsNothing,
+      );
+      expect(app.container.read(appRouterProvider).state.uri.path, isNot('/'));
+    });
+
+    testWidgets('a bar of segments, 11 of 18 done', (tester) async {
+      await open(tester, [
+        {
+          'id': 'seg',
+          'type': 'segments',
+          'color': '#F5C451',
+          'segments': {'count': 18, 'done': 11, 'part': 0.5},
+        },
+        {
+          'id': 'mine',
+          'type': 'segments',
+          'segments': {'source': 'course'},
+        },
+      ]);
+      final bar = find.byKey(const ValueKey('studio-segments-seg'));
+      expect(bar, findsOneWidget);
+      expect(
+        find.descendant(of: bar, matching: find.byType(Expanded)),
+        findsNWidgets(18),
+      );
+      final fills = tester
+          .widgetList<FractionallySizedBox>(
+            find.descendant(
+              of: bar,
+              matching: find.byType(FractionallySizedBox),
+            ),
+          )
+          .map((f) => f.widthFactor)
+          .toList();
+      expect(fills.where((f) => f == 1), hasLength(11));
+      expect(fills[11], 0.5);
+      // The student's own bar follows their course (the fake's).
+      expect(find.byKey(const ValueKey('studio-segments-mine')), findsOne);
+    });
+
+    testWidgets('a ticker band turned -2 degrees with dots, and pills', (
+      tester,
+    ) async {
+      await open(tester, [
+        {
+          'id': 'tick',
+          'type': 'marquee',
+          'text': 'KOSHARY EGP 55\nMIXED GRILL EGP 240',
+          'marquee': {'tilt': -2, 'dot': true, 'chips': true},
+        },
+      ]);
+      final turned = tester.widget<Transform>(
+        find.byKey(const ValueKey('studio-marquee-tilt-tick')),
+      );
+      expect(turned.transform.getRotation().entry(1, 0), lessThan(0));
+    });
+
+    testWidgets('a gallery photo with a link opens it, captions in pills', (
+      tester,
+    ) async {
+      await open(tester, [
+        {
+          'id': 'gal',
+          'type': 'gallery',
+          'caption_style': 'pill',
+          'gallery': {'layout': 'bento', 'captions': true},
+          'images': [
+            {
+              'image_url': 'https://cdn.example.com/g.jpg',
+              'caption': 'Grill\nSahara Grill',
+              'action': {'type': 'screen', 'screen': 'courses'},
+            },
+            {'image_url': 'https://cdn.example.com/p.jpg', 'caption': 'Pizza'},
+          ],
+        },
+      ]);
+      expect(find.text('Grill'), findsOneWidget);
+      expect(find.text('Sahara Grill'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('studio-gallery-gal-0')));
+      await TestApp.settle(tester);
+      expect(find.byKey(const ValueKey('gallery-viewer')), findsNothing);
     });
   });
 

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
 import 'page_actions.dart';
 import 'studio_page.dart';
@@ -29,7 +32,7 @@ class StudioStoriesRow extends ConsumerStatefulWidget {
 const _seenKey = 'studio.stories_seen';
 
 /// A story's mark among the seen ones: its element and its photo or title.
-String studioStoryMark(StudioNode node, Slide story) =>
+String studioStoryMark(StudioNode node, StudioStoryEntry story) =>
     '${node.id}|${story.imageUrl ?? story.heading ?? ''}';
 
 class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
@@ -60,7 +63,19 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                 key: ValueKey('studio-story-${node.id}-$i'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () async {
-                  final action = await StudioStoryViewer.open(context, node, i);
+                  // 129.2 A tile without a photo (all of them) opens its link.
+                  final link = story.action;
+                  if (story.imageUrl == null && link != null) {
+                    if (canOpenAction(ref, link)) {
+                      runPageAction(context, ref, link);
+                    }
+                    return;
+                  }
+                  final action = await StudioStoryViewer.open(
+                    context,
+                    node,
+                    studioViewableStories(node).indexOf(story),
+                  );
                   if (!context.mounted) return;
                   setState(() {});
                   // A story's link opens once the stories have closed.
@@ -73,14 +88,17 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
                       _Ring(
                         key: ValueKey('studio-story-ring-${node.id}-$i'),
                         size: size,
+                        ring: story.ring,
                         seen: seen.contains(studioStoryMark(node, story)),
                         colors: [p.accent, p.primary],
+                        lit: parseHexColor(story.ringColor),
                         muted: p.border,
                         gap: widget.scope.dark
                             ? const Color(0xFF14121F)
                             : p.background,
-                        child: AppNetworkImage(
-                          url: story.imageUrl,
+                        child: _Face(
+                          story: story,
+                          size: size,
                           seed: node.id.hashCode + i,
                         ),
                       ),
@@ -109,47 +127,137 @@ class _StudioStoriesRowState extends ConsumerState<StudioStoriesRow> {
   }
 }
 
-/// A round photo in its ring: a gradient while unseen, a thin line once seen.
+/// The stories a row opens full screen: those with a photo, and those
+/// without a link.
+List<StudioStoryEntry> studioViewableStories(StudioNode node) => [
+  for (final s in node.slides)
+    if (s.imageUrl != null || s.action == null) s,
+];
+
+/// What a story's circle shows: its photo, else its colour with its
+/// initials or its icon.
+class _Face extends StatelessWidget {
+  const _Face({required this.story, required this.size, required this.seed});
+
+  final StudioStoryEntry story;
+  final double size;
+  final int seed;
+
+  @override
+  Widget build(BuildContext context) {
+    if (story.imageUrl != null || (story.label == null && story.icon == null)) {
+      return AppNetworkImage(url: story.imageUrl, seed: seed);
+    }
+    final fill = parseHexColor(story.color);
+    final ink = fill == null ? context.palette.text : Colors.white;
+    return ColoredBox(
+      color: fill ?? Colors.transparent,
+      child: Center(
+        child: story.label != null
+            ? Text(
+                story.label!,
+                style: TextStyle(
+                  color: ink,
+                  fontSize: size * 0.32,
+                  fontWeight: FontWeight.w800,
+                ),
+              )
+            : AppIcon(symbolByName(story.icon), size: size * 0.42, color: ink),
+      ),
+    );
+  }
+}
+
+/// A round photo in its ring: lit (the second colour into the main one,
+/// or the story's own colour) while unseen or always, a thin quiet line
+/// once seen or when quiet, or dashed.
 class _Ring extends StatelessWidget {
   const _Ring({
     super.key,
     required this.size,
+    required this.ring,
     required this.seen,
     required this.colors,
+    required this.lit,
     required this.muted,
     required this.gap,
     required this.child,
   });
 
   final double size;
+  final StudioStoryRing ring;
   final bool seen;
   final List<Color> colors;
+  final Color? lit;
   final Color muted;
   final Color gap;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: size + 8,
-    height: size + 8,
-    padding: EdgeInsets.all(seen ? 2.5 : 3),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: seen ? muted : null,
-      gradient: seen
-          ? null
-          : LinearGradient(
-              begin: AlignmentDirectional.bottomStart,
-              end: AlignmentDirectional.topEnd,
-              colors: colors,
-            ),
-    ),
-    child: Container(
-      padding: const EdgeInsets.all(2.5),
+  Widget build(BuildContext context) {
+    final inner = Container(
+      padding: EdgeInsets.all(ring == StudioStoryRing.dashed ? 1 : 2.5),
       decoration: BoxDecoration(shape: BoxShape.circle, color: gap),
       child: ClipOval(child: child),
-    ),
-  );
+    );
+    if (ring == StudioStoryRing.dashed) {
+      return CustomPaint(
+        painter: _DashedRing(color: muted),
+        child: Container(
+          width: size + 8,
+          height: size + 8,
+          padding: const EdgeInsets.all(2.5),
+          child: inner,
+        ),
+      );
+    }
+    final quiet =
+        ring == StudioStoryRing.plain || (ring == StudioStoryRing.auto && seen);
+    final solid = ring == StudioStoryRing.highlight
+        ? (lit ?? colors.first)
+        : lit;
+    return Container(
+      width: size + 8,
+      height: size + 8,
+      padding: EdgeInsets.all(quiet ? 2.5 : 3),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: quiet ? muted : solid,
+        gradient: quiet || solid != null
+            ? null
+            : LinearGradient(
+                begin: AlignmentDirectional.bottomStart,
+                end: AlignmentDirectional.topEnd,
+                colors: colors,
+              ),
+      ),
+      child: inner,
+    );
+  }
+}
+
+/// A dashed ring around a tile for all of them.
+class _DashedRing extends CustomPainter {
+  const _DashedRing({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final rect = (Offset.zero & size).deflate(1);
+    const dashes = 28;
+    for (var i = 0; i < dashes; i++) {
+      final start = i * 2 * math.pi / dashes;
+      canvas.drawArc(rect, start, math.pi / dashes, false, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedRing old) => old.color != color;
 }
 
 /// 129.2 The stories full screen, one after another: a line per story over
@@ -200,7 +308,9 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
   double _drag = 0;
   bool _started = false;
 
-  List<Slide> get _stories => widget.node.slides;
+  /// The stories that open here: a story without a photo that has a link
+  /// opens the link instead.
+  List<StudioStoryEntry> get _stories => studioViewableStories(widget.node);
 
   @override
   void didChangeDependencies() {
@@ -221,7 +331,7 @@ class _StudioStoryViewerState extends ConsumerState<StudioStoryViewer>
     if (!MediaQuery.disableAnimationsOf(context)) _time.forward();
   }
 
-  void _markSeen(Slide story) {
+  void _markSeen(StudioStoryEntry story) {
     final prefs = ref.read(sharedPreferencesProvider);
     final seen = [...?prefs.getStringList(_seenKey)];
     final mark = studioStoryMark(widget.node, story);

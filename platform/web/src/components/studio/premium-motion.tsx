@@ -13,12 +13,12 @@ import { scrimCss } from "@/lib/studio/scrim";
 /** The keyframes, once per canvas. */
 export const PREMIUM_MOTION_CSS = `
 @keyframes studio-ken-burns { from { transform: scale(1); } to { transform: scale(1.1); } }
-[data-studio-ken-burns] [data-studio-cover] img, [data-studio-ken-burns] [data-studio-node] > img { animation: studio-ken-burns 8s ease-in-out infinite alternate; transform-origin: center; }
+[data-studio-ken-burns] [data-studio-cover] img, [data-studio-ken-burns] [data-studio-node] > img, [data-studio-ken-burns] > img, [data-studio-ken-burns] [data-studio-banner] > img { animation: studio-ken-burns 8s ease-in-out infinite alternate; transform-origin: center; }
 @keyframes studio-marquee { from { transform: translateX(var(--studio-marquee-from)); } to { transform: translateX(var(--studio-marquee-to)); } }
 [data-studio-marquee-track] { animation: studio-marquee var(--studio-marquee-time) linear infinite; }
 [data-studio-marquee="press"]:active [data-studio-marquee-track] { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  [data-studio-ken-burns] [data-studio-cover] img, [data-studio-ken-burns] [data-studio-node] > img { animation: none; }
+  [data-studio-ken-burns] [data-studio-cover] img, [data-studio-ken-burns] [data-studio-node] > img, [data-studio-ken-burns] > img, [data-studio-ken-burns] [data-studio-banner] > img { animation: none; }
   [data-studio-marquee-track] { animation: none; }
 }
 `;
@@ -27,12 +27,28 @@ export function PremiumMotionStyles() {
   return <style data-studio-premium-motion="">{PREMIUM_MOTION_CSS}</style>;
 }
 
-/** 129.1 Where a slider is: its dots in a frosted pill over its slides' foot, the first one open. */
-export function SliderPill({ count }: { count: number }) {
+/** 129.1 Where a slider's indicator sits: at its top or foot, as far from that edge as the owner set (12 missing). */
+export function edge(look: StudioNode["indicator_look"]): CSSProperties {
+  return look?.at === "top" ? { top: look.inset ?? 12 } : { bottom: look?.inset ?? 12 };
+}
+
+/** 129.1 "1/3" or "01/03" beside the indicator, at its end, the open slide first. */
+export function SliderCount({ count, look }: { count: number; look: StudioNode["indicator_look"] }) {
+  const pad = (n: number) => (look?.count === "padded" ? String(n).padStart(2, "0") : String(n));
+  const at = look?.at === "top" ? { top: (look.inset ?? 12) + 18 } : { bottom: (look?.inset ?? 12) + 18 };
   return (
-    <span data-studio-indicator="pill" aria-hidden="true" style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, padding: "7px 10px", borderRadius: 999, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
+    <span data-studio-slide-count="" dir="ltr" style={{ position: "absolute", insetInlineEnd: 16, ...at, color: look?.color ?? "#FFFFFF", fontSize: 12, fontWeight: 700, letterSpacing: 1, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+      {pad(1)}/{pad(count)}
+    </span>
+  );
+}
+
+/** 129.1 Where a slider is: its dots in a frosted pill over its slides' foot (or top), the first one open. */
+export function SliderPill({ count, look }: { count: number; look?: StudioNode["indicator_look"] }) {
+  return (
+    <span data-studio-indicator="pill" aria-hidden="true" style={{ position: "absolute", ...edge(look), left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, padding: "7px 10px", borderRadius: 999, background: "rgba(255,255,255,0.22)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
       {Array.from({ length: count }, (_, i) => (
-        <span key={i} style={{ width: i === 0 ? 18 : 6, height: 6, borderRadius: 3, background: i === 0 ? "#FFFFFF" : "rgba(255,255,255,0.55)" }} />
+        <span key={i} style={{ width: i === 0 ? 18 : 6, height: 6, borderRadius: 3, background: i === 0 ? (look?.color ?? "#FFFFFF") : "rgba(255,255,255,0.55)" }} />
       ))}
     </span>
   );
@@ -44,7 +60,7 @@ export function SliderPill({ count }: { count: number }) {
  * endlessly toward the start (or the end), held while pressed; a still row
  * when the computer reduces motion.
  */
-export function Marquee({ node, text, rtl, accent }: { node: StudioNode; text: string; rtl: boolean; accent?: string | null }) {
+export function Marquee({ node, text, rtl, accent, dark = false }: { node: StudioNode; text: string; rtl: boolean; accent?: string | null; dark?: boolean }) {
   const m = node.marquee ?? {};
   const size = m.size ?? 36;
   const fontSize = node.font?.size ?? 15;
@@ -55,7 +71,7 @@ export function Marquee({ node, text, rtl, accent }: { node: StudioNode; text: s
     .filter(Boolean);
   const items: ReactNode[] = [
     ...words.map((word, i) => (
-      <span key={`w${i}`} style={{ whiteSpace: "nowrap" }}>
+      <span key={`w${i}`} data-studio-marquee-chip={m.chips ? "" : undefined} style={{ whiteSpace: "nowrap", ...(m.chips ? { padding: "8px 16px", borderRadius: 999, border: `1px solid ${dark ? "rgba(255,255,255,0.16)" : "#E5DFD3"}`, background: dark ? "rgba(255,255,255,0.04)" : "#FFFFFF" } : {}) }}>
         {word}
       </span>
     )),
@@ -64,7 +80,9 @@ export function Marquee({ node, text, rtl, accent }: { node: StudioNode; text: s
       <img key={`i${i}`} src={image.image_url} alt="" draggable={false} style={{ height: size, width: "auto", display: "block", borderRadius: 6 }} />
     )),
   ].flatMap((item, i) =>
-    node.icon
+    !node.icon && m.dot
+      ? [item, <span key={`d${i}`} aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 3, background: "currentColor", opacity: 0.8, flex: "none" }} />]
+      : node.icon
       ? [
           item,
           <span key={`s${i}`} className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: node.icon_size ?? 16, color: accent ?? "#F5B700", fontVariationSettings: "'FILL' 1" }}>
@@ -84,7 +102,8 @@ export function Marquee({ node, text, rtl, accent }: { node: StudioNode; text: s
     </span>
   );
   return (
-    <span data-studio-marquee={m.pause_on_press === false ? "" : "press"} aria-label={words.join(", ")} style={{ display: "block", overflow: "hidden" }}>
+    // A turned band reaches past the sides, so its ends never show.
+    <span data-studio-marquee={m.pause_on_press === false ? "" : "press"} aria-label={words.join(", ")} style={{ display: "block", overflow: "hidden", ...(m.tilt ? { transform: `rotate(${rtl ? -m.tilt : m.tilt}deg) scaleX(${(1.04 + Math.abs(Math.sin((m.tilt * Math.PI) / 180)) * 2).toFixed(3)})` } : {}) }}>
       <span data-studio-marquee-track="" style={{ display: "inline-flex", width: "max-content", ...vars }}>
         {copy("a", false)}
         {copy("b", true)}
@@ -232,7 +251,16 @@ export function GalleryGrid({ node, lang, defaultLang, dark, words }: { node: St
             add_photo_alternate
           </span>
         )}
-        {g.captions && caption ? <span style={{ position: "absolute", insetInline: 0, bottom: 0, padding: "18px 10px 8px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))", color: "#FFFFFF", fontSize: 12, fontWeight: 700 }}>{caption}</span> : null}
+        {g.captions && caption ? (
+          <span data-studio-caption={node.caption_style ?? "shade"} style={node.caption_style === "pill" ? { position: "absolute", insetInlineStart: 10, bottom: 10, maxWidth: "calc(100% - 20px)", padding: "7px 14px", borderRadius: 16, background: "rgba(14,13,36,0.5)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", color: "#FFFFFF" } : { position: "absolute", insetInline: 0, bottom: 0, padding: "18px 10px 8px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))", color: "#FFFFFF" }}>
+            {/* Its first line bold, the rest under it. */}
+            {caption.split("\n").map((line, j) => (
+              <span key={j} style={{ display: "block", fontSize: j ? 11 : 13, fontWeight: j ? 500 : 800, opacity: j ? 0.9 : 1 }}>
+                {line}
+              </span>
+            ))}
+          </span>
+        ) : null}
       </span>
     );
   };
@@ -273,6 +301,29 @@ export function GalleryGrid({ node, lang, defaultLang, dark, words }: { node: St
   );
 }
 
+/**
+ * 129.1 A bar of segments: `done` of them filled in the element's colour
+ * (gold missing), the next one filled by `part`, the rest a quiet track;
+ * from the start side. With `source: course` the app fills it from the
+ * student's course (the canvas shows the owner's numbers).
+ */
+export function Segments({ node, dark, rtl }: { node: StudioNode; dark: boolean; rtl: boolean }) {
+  const s = node.segments ?? {};
+  const count = s.count ?? 5;
+  const done = Math.min(s.done ?? 0, count);
+  const color = (dark ? (node.dark_color ?? node.color) : node.color) ?? "#F5C451";
+  // The track: the colour, faint, so it reads on a photo and on paper.
+  const track = `${color}4D`;
+  return (
+    <span data-studio-segments="" aria-hidden="true" style={{ display: "flex", gap: node.gap ?? 4 }}>
+      {Array.from({ length: count }, (_, i) => {
+        const fill = i < done ? 1 : i === done ? (s.part ?? 0) : 0;
+        return <span key={i} style={{ flex: "1 1 0", height: s.height ?? 3, borderRadius: 2, background: fill >= 1 ? color : fill > 0 ? `linear-gradient(${rtl ? 270 : 90}deg, ${color} ${fill * 100}%, ${track} ${fill * 100}%)` : track }} />;
+      })}
+    </span>
+  );
+}
+
 /** An entry's text (a story's title, a photo's caption) in the language being edited. */
 export function entryText(entry: { translations?: Translations } | null | undefined, field: string, lang: string, def: string): string {
   if (!entry) return "";
@@ -294,12 +345,31 @@ export function StoriesRow({ node, lang, defaultLang, dark, brand, accent }: { n
     <span data-studio-stories="" style={{ display: "flex", gap: 14, overflow: "hidden" }}>
       {(node.slides ?? []).map((story, i) => (
         <span key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flex: "0 0 auto", width: size + 8 }}>
-          <span data-studio-story-ring="" style={{ width: size + 8, height: size + 8, borderRadius: "50%", padding: 3, boxSizing: "border-box", background: `linear-gradient(45deg, ${accent ?? "#F5B700"}, ${brand})` }}>
-            <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", padding: 2.5, boxSizing: "border-box", background: dark ? "#14121F" : "#FFFFFF" }}>
-              <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: shades[i % 3] }}>
+          {/* 129.2 Its ring: lit until seen (the canvas shows it unseen), always lit, quiet, or dashed. */}
+          <span
+            data-studio-story-ring={story.ring ?? "auto"}
+            style={{
+              width: size + 8,
+              height: size + 8,
+              borderRadius: "50%",
+              padding: 3,
+              boxSizing: "border-box",
+              ...(story.ring === "dashed"
+                ? { border: `2px dashed ${dark ? "rgba(255,255,255,0.35)" : "#B9B2A3"}`, padding: 1 }
+                : { background: story.ring === "plain" ? (dark ? "#3B3858" : "#DDD8CC") : story.ring === "highlight" ? (story.ring_color ?? accent ?? "#F5B700") : story.ring_color ? story.ring_color : `linear-gradient(45deg, ${accent ?? "#F5B700"}, ${brand})` }),
+            }}
+          >
+            <span style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", padding: story.ring === "dashed" ? 0 : 2.5, boxSizing: "border-box", background: dark ? "#14121F" : "#FFFFFF" }}>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: story.color ?? (story.ring === "dashed" ? "transparent" : shades[i % 3]), color: story.color ? "#FFFFFF" : undefined }}>
                 {story.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element -- the owner's photo, drawn as the app draws it
                   <img src={story.image_url} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                ) : story.label ? (
+                  <span style={{ fontWeight: 800, fontSize: size * 0.32 }}>{story.label}</span>
+                ) : story.icon ? (
+                  <span className="material-symbols-rounded" aria-hidden="true" style={{ fontSize: size * 0.42 }}>
+                    {story.icon}
+                  </span>
                 ) : null}
               </span>
             </span>
