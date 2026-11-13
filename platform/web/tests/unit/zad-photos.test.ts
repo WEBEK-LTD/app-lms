@@ -35,5 +35,7 @@ describe("Zad's photos", () => {
     expect(cover("Start Your Own Small Business")).toBe("academy-desk");
     expect(cover("Arabic for Beginners")).toBe("academy-live");
     expect(isAcademyPhoto(cover("Arabic for Beginners"))).toBe(true);
+    // 128 Every course's a photo, so the live home's popular courses never show a drawing.
+    for (const c of ACADEMY_COURSES) expect(isAcademyPhoto(c.picture), c.title).toBe(true);
   });
 });
