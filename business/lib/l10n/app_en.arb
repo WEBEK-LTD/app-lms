@@ -1298,6 +1298,794 @@
   "chatNoPlan": "Chat comes with the Pro and Business plans.",
   "chatOlder": "Show earlier messages",
   "markPaid": "Mark as paid",
+  "foodOrdersTitle": "Food orders",
+  "shipmentsTitle": "Shipments",
+  "ridesTitle": "Rides",
+  "marketTab": "Market",
+  "marketplaceTitle": "Marketplace",
+  "schoolTitle": "School",
+  "restaurantsTitle": "Restaurants",
+  "couriersTitle": "Couriers",
+  "driversTitle": "Drivers",
+  "searchAction": "Search",
+  "searchFoodHint": "Order number, customer or restaurant",
+  "searchShipmentsHint": "Shipment number or address",
+  "searchRidesHint": "Ride number or rider",
+  "searchMarketHint": "Order number, customer or vendor",
+  "closeSearch": "Close search",
+  "filterNew": "New",
+  "filterActive": "Active",
+  "filterDone": "Done",
+  "filterProblems": "Problems",
+  "filterWaiting": "Waiting",
+  "filterNow": "Now",
+  "filterScheduled": "Scheduled",
+  "busyUntil": "{name} is busy until {time}",
+  "@busyUntil": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "endDelay": "End delay",
+  "openNow": "Open now",
+  "foodRoute": "{restaurant} → {customer}",
+  "@foodRoute": {
+    "placeholders": {
+      "restaurant": {
+        "type": "String"
+      },
+      "customer": {
+        "type": "String"
+      }
+    }
+  },
+  "kmShort": "{km} km",
+  "@kmShort": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "kmAway": "{km} km away",
+  "@kmAway": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectAction": "Reject",
+  "rejectMore": "Reject…",
+  "foodRaceNote": "The restaurant accepts too, from its own app. Whoever taps first wins.",
+  "noFoodOrders": "No food orders here",
+  "noFoodOrdersText": "New orders show here as customers place them.",
+  "readyIn": "Ready in",
+  "acceptNote": "The customer sees the time. A courier job is made as soon as you accept.",
+  "acceptWith": "Accept · {minutes}",
+  "@acceptWith": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "cashCollect": "Cash on delivery: the courier collects {amount}",
+  "@cashCollect": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "placedWaiting": "Placed {time} · waiting for you or the restaurant",
+  "@placedWaiting": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "placedAt": "Placed {time}",
+  "@placedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readyAt": "Ready at {time}",
+  "@readyAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "totalLabel": "Total",
+  "rejectTitle": "Reject {reference}?",
+  "@rejectTitle": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "rejectWhy": "Why?",
+  "rejectText": "The customer is told, and a card payment is given back.",
+  "chooseWhy": "Choose why.",
+  "noteOptional": "Note (optional)",
+  "rejectOrder": "Reject order",
+  "cancelFoodOrder": "Cancel order…",
+  "cancelTitle": "Cancel {reference}?",
+  "@cancelTitle": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelFoodText": "The customer is told. A card payment is refunded.",
+  "cancelConfirm": "Cancel it",
+  "keepIt": "Keep it",
+  "foodAccepted": "{reference} accepted · ready in {minutes}",
+  "@foodAccepted": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "foodRejected": "{reference} rejected",
+  "@foodRejected": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "foodReadyDone": "{reference} is ready",
+  "@foodReadyDone": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "foodCancelled": "{reference} cancelled",
+  "@foodCancelled": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "historyTitle": "History",
+  "delayEnded": "{name}: delay ended",
+  "@delayEnded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "restaurantOpened": "{name} is open",
+  "@restaurantOpened": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "opensAt": "Opens {time}",
+  "@opensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "noRestaurants": "No restaurants yet",
+  "refundDue": "A refund is due on this order.",
+  "callCustomer": "Call customer",
+  "courierLabel": "Courier",
+  "onDuty": "On duty",
+  "onTheWay": "On the way",
+  "needsCourier": "Needs a courier",
+  "shipFoodOrder": "Food order {reference}",
+  "@shipFoodOrder": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "shipCollect": "cash {amount} to collect",
+  "@shipCollect": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "giveTo": "Give {reference} to",
+  "@giveTo": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "closestFirst": "Closest first. Couriers on duty only.",
+  "courierFree": "free",
+  "courierOff": "off duty",
+  "courierPaused": "paused",
+  "giveItTo": "Give it to {name}",
+  "@giveItTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noCouriersOnDuty": "No courier is on duty now.",
+  "shipmentGiven": "{reference} given to {name}",
+  "@shipmentGiven": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickupLabel": "Pickup",
+  "dropoffLabel": "Drop-off",
+  "priceLabel": "Price",
+  "paymentLabel": "Payment",
+  "recipientLabel": "Recipient",
+  "giveCourier": "Give to a courier",
+  "giveAnotherCourier": "Give to another courier",
+  "shipPickedUp": "Picked up",
+  "shipDelivered": "Delivered",
+  "shipFailed": "Couldn't deliver",
+  "shipCancel": "Cancel shipment",
+  "shipMoved": "{reference}: {status}",
+  "@shipMoved": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "noShipments": "No shipments here",
+  "noShipmentsText": "Courier jobs show here as they come.",
+  "noCouriers": "No couriers yet",
+  "noteLabel": "Note",
+  "freeDrivers": "Free drivers",
+  "onARide": "On a ride",
+  "searchingLabel": "Searching",
+  "rideQuoted": "quoted",
+  "cancelRide": "Cancel ride",
+  "giveToDriver": "Give to a driver",
+  "callDriver": "Call driver",
+  "arrivesAt": "arrives {time}",
+  "@arrivesAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rideScheduledFor": "For {time}",
+  "@rideScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "closestSameType": "Closest first. The same vehicle type first.",
+  "driverFree": "free",
+  "driverOnRide": "on a ride",
+  "driverOffline": "offline",
+  "driverSuspended": "suspended",
+  "cancelRideText": "The rider is told.",
+  "rideCancelled": "{reference} cancelled",
+  "@rideCancelled": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "rideGiven": "{reference} given to {name}",
+  "@rideGiven": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noRides": "No rides here",
+  "noRidesText": "Rides show here as riders ask for them.",
+  "noFreeDrivers": "No driver is free now.",
+  "noDrivers": "No drivers yet",
+  "riderLabel": "Rider",
+  "finalPrice": "Paid",
+  "complaintsTab": "Complaints",
+  "vendorsTab": "Vendors",
+  "waitingForYou": "Waiting for you",
+  "withVendor": "With the vendor",
+  "waitingCustomer": "Waiting for the customer",
+  "complaintReply": "Reply",
+  "refundOf": "Refund {amount}",
+  "@refundOf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "marketInfo": "Vendors move their own orders. You see every order and settle complaints.",
+  "noComplaints": "No complaints",
+  "noComplaintsText": "When a customer complains about an order, it shows here.",
+  "noMarketOrders": "No orders here",
+  "noVendors": "No vendors yet",
+  "vendorOpen": "Open",
+  "vendorClosed": "Closed",
+  "vendorInactive": "Not selling",
+  "amountIn": "Amount ({currency})",
+  "@amountIn": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "upToAmount": "Up to {amount}",
+  "@upToAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "enterAmountUpTo": "Enter an amount up to {amount}.",
+  "@enterAmountUpTo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "decidedAs": "Done: {label}",
+  "@decidedAs": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "replyToCustomer": "Write to the customer",
+  "refundConfirmTitle": "Refund {amount}?",
+  "@refundConfirmTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "refundConfirmText": "The customer gets it back and is told. The complaint is closed.",
+  "writeWhy": "Write why, for the customer.",
+  "noteToCustomer": "Why (the customer reads it)",
+  "moneyGoesTo": "The money goes to",
+  "toPayment": "The way they paid",
+  "toWallet": "Their app wallet",
+  "toCoupon": "A coupon",
+  "fromCustomer": "Customer",
+  "fromVendor": "Vendor",
+  "fromSupport": "You",
+  "deliveryBy": "Delivered by {who}",
+  "@deliveryBy": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "fulfilmentDelivery": "Delivery",
+  "fulfilmentPickup": "Pickup",
+  "schoolDateLine": "{date} · check-in closes {time}",
+  "@schoolDateLine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "studentsTitle": "Students",
+  "inAll": "{count} in all",
+  "@inAll": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "studentsIn": "In",
+  "studentsLate": "Late",
+  "studentsNotYet": "Not in yet",
+  "studentsAbsent": "Absent",
+  "teachersLabel": "Teachers",
+  "staffLabel": "Staff",
+  "countOf": "{count} of {total}",
+  "@countOf": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "busLate": "{route} is {minutes} late",
+  "@busLate": {
+    "placeholders": {
+      "route": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busesOnTime": "All on time",
+  "pickupsText": "Someone else today",
+  "slipLine": "{yes} yes · {no} no · {waiting} waiting",
+  "@slipLine": {
+    "placeholders": {
+      "yes": {
+        "type": "String"
+      },
+      "no": {
+        "type": "String"
+      },
+      "waiting": {
+        "type": "String"
+      }
+    }
+  },
+  "feesDue": "{amount} due",
+  "@feesDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "excuseTitle": "Absence excuse",
+  "reportTitle": "Teacher’s report",
+  "leaveTitle": "Leave request",
+  "chipExcuses": "Excuses · {count}",
+  "@chipExcuses": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "chipReports": "Reports · {count}",
+  "@chipReports": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "chipLeave": "Leave · {count}",
+  "@chipLeave": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "daysLabel": "Days",
+  "reasonLabel": "Reason",
+  "sentByLine": "Sent by {name} ({relation}) · {when}",
+  "@sentByLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "relation": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sentByOnly": "Sent by {name} · {when}",
+  "@sentByOnly": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "sentWhen": "Sent {when}",
+  "@sentWhen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "commentsTitle": "Comments",
+  "noteToParents": "Note to the parents",
+  "noteNeededDecline": "Needed only when you decline",
+  "declineNeedsNote": "Write a note to the parents to decline.",
+  "excuseAccepted": "Excuse accepted. The parents are told.",
+  "excuseDeclined": "Excuse declined. The parents are told.",
+  "noExcuses": "No excuses waiting",
+  "noReports": "No reports to read",
+  "noLeave": "No leave requests waiting",
+  "allAnsweredText": "Everything here is answered.",
+  "openFile": "Open {name}",
+  "@openFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutLabel": "About",
+  "reportCommentHint": "A comment, or what to change",
+  "returnReport": "Return",
+  "approveReport": "Approve",
+  "sendComment": "Comment",
+  "reportApproved": "Report approved",
+  "reportReturned": "Report returned to {name}",
+  "@reportReturned": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "commentSent": "Comment sent",
+  "writeFirst": "Write what to change first.",
+  "refuseLeave": "Refuse",
+  "approveLeave": "Approve",
+  "leaveApproved": "Leave approved",
+  "leaveRefused": "Leave refused",
+  "noteToPerson": "Note (optional)",
+  "kindClass": "Class",
+  "kindStudent": "Student",
+  "primeBadge": "Prime",
+  "changeUp": "▲ {pct} {label}",
+  "@changeUp": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "changeDown": "▼ {pct} {label}",
+  "@changeDown": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "changeSame": "Same {label}",
+  "@changeSame": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "morningBrief": "Morning brief",
+  "insightsTitle": "Insights",
+  "insightsTileText": "Peak hours, best sellers",
+  "smartAlerts": "Smart alerts",
+  "accountManagerTitle": "Your account manager",
+  "vipRepliesFirst": "VIP · replies first",
+  "messageAction": "Message",
+  "thisWeek": "This week",
+  "thisMonth": "This month",
+  "vsLastWeek": "vs last week",
+  "vsLastMonth": "vs last month",
+  "lastWeek": "Last week",
+  "lastMonth": "Last month",
+  "peakHours": "Peak hours",
+  "busiestLine": "Busiest: {label}",
+  "@busiestLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "returningTitle": "Customers who came back",
+  "averageOrder": "Average order",
+  "sameAsLastWeek": "same as last week",
+  "sameAsLastMonth": "same as last month",
+  "bestSellers": "Best sellers",
+  "noInsights": "Not enough orders yet",
+  "noInsightsText": "Insights show once the app has orders.",
+  "percentValue": "{value}%",
+  "@percentValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsIntro": "A notification on this phone when something needs you. You choose when.",
+  "alertOrderWaiting": "An order waits to be accepted",
+  "alertShipment": "A shipment has no courier",
+  "alertSalesLow": "Sales are low today",
+  "alertMessage": "A message has no answer",
+  "alertLowRating": "A low rating",
+  "alertNoDriver": "A ride finds no driver",
+  "belowBy": "Below {amount} by {time}",
+  "@belowBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "briefWhen": "Yesterday in one notification, every day at {time}",
+  "@briefWhen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsFooter": "Tap an alert to change its number or time. Each person on the team sets their own.",
+  "minutesField": "Minutes",
+  "amountField": "Amount ({currency})",
+  "@amountField": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "byTimeField": "By",
+  "starsField": "Stars",
+  "chooseTime": "Choose the time",
+  "lookTitle": "Look",
+  "lookClassic": "Classic",
+  "lookMidnightGold": "Midnight gold",
+  "lookEmber": "Ember",
+  "lookSage": "Sage",
+  "primeHeaderOnToday": "Prime header on Today",
+  "primeHeaderHelp": "Sales and the comparison at the top",
+  "lightOrDark": "Light or dark",
+  "lightOrDarkHelp": "Every look has both · {mode}",
+  "@lightOrDarkHelp": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "lookFooter": "The look is kept on this phone and changes nothing in your customers’ app.",
+  "lookChosen": "{name}, chosen",
+  "@lookChosen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vipTitle": "VIP service",
+  "vipManagerAt": "Your account manager at Yallapp",
+  "whatsappAction": "WhatsApp",
+  "priorityLine": "Priority line",
+  "priorityFirst": "you go first in the queue",
+  "bookCall": "Book a call",
+  "bookOn": "Book {day} {time}",
+  "@bookOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "vipFooter": "For the Business plan and Studio’s Business plan. Your manager sees the call in their calendar.",
+  "callRequested": "Call asked for {day} {time}. Your manager confirms it.",
+  "@callRequested": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "noSlots": "No free times in the next days. Write on WhatsApp.",
+  "vipPlan": "VIP",
+  "primeTitle": "Prime",
+  "primeComes": "Prime comes with every Yallapp Studio app",
+  "primeRegular": "Your app “{name}” is on the regular editor. Apps made in Studio get Prime in Yallapp Business.",
+  "@primeRegular": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "insightsHelp": "This week against last, peak hours, best sellers",
+  "alertsHelp": "Told when something waits too long",
+  "briefHelp": "Yesterday in one notification",
+  "primeLooks": "Prime looks",
+  "primeLooksHelp": "Four looks for this app, light and dark",
+  "learnMoreWebsite": "Learn more on the website",
+  "nothingSold": "Nothing is sold in this app.",
+  "launchTagline": "Every order, booking and message. One place.",
+  "launchOpening": "Opening {app}.",
+  "@launchOpening": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "launchLoading": "Opening Yallapp Business",
+  "pushFoodOrder": "New food orders",
+  "pushFoodOrderHelp": "When a customer places a food order.",
+  "pushShipment": "Shipments without a courier",
+  "pushShipmentHelp": "When a courier job waits for someone to take it.",
+  "pushComplaint": "Marketplace complaints",
+  "pushComplaintHelp": "When a customer complains about an order.",
+  "pushPrimeAlert": "Smart alerts",
+  "pushPrimeAlertHelp": "Prime: when something waits too long.",
+  "pushBrief": "Morning brief",
+  "pushBriefHelp": "Prime: yesterday in one notification.",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
@@ -1466,6 +2254,150 @@
   },
   "chatMembers": "{count, plural, =1{1 member} other{{count} members}}",
   "@chatMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "minutesShort": "{count, plural, =1{1 min} other{{count} min}}",
+  "@minutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "jobsNow": "{count, plural, =1{1 job now} other{{count} jobs now}}",
+  "@jobsNow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersTodayCount": "{count, plural, =0{No orders today} =1{1 order today} other{{count} orders today}}",
+  "@ordersTodayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsFoodNew": "{count, plural, =1{1 new food order} other{{count} new food orders}}",
+  "@needsFoodNew": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsShipments": "{count, plural, =1{1 shipment needs a courier} other{{count} shipments need a courier}}",
+  "@needsShipments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsRides": "{count, plural, =1{1 ride needs a driver} other{{count} rides need a driver}}",
+  "@needsRides": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsComplaints": "{count, plural, =1{1 complaint waiting for you} other{{count} complaints waiting for you}}",
+  "@needsComplaints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsExcuses": "{count, plural, =1{1 absence excuse} other{{count} absence excuses}}",
+  "@needsExcuses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsReports": "{count, plural, =1{1 teacher’s report to read} other{{count} teachers’ reports to read}}",
+  "@needsReports": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "needsLeave": "{count, plural, =1{1 leave request} other{{count} leave requests}}",
+  "@needsLeave": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "busesRunning": "{count, plural, =0{No buses running} =1{1 bus running} other{{count} buses running}}",
+  "@busesRunning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickupsCount": "{count, plural, =0{No pick-ups} =1{1 pick-up} other{{count} pick-ups}}",
+  "@pickupsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feesNotPaid": "{count, plural, =1{1 fee not paid} other{{count} fees not paid}}",
+  "@feesNotPaid": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "excuseExplain": "{count, plural, =1{Accepting marks the day excused in the register and tells the parents.} =2{Accepting marks both days excused in the register and tells the parents.} other{Accepting marks the {count} days excused in the register and tells the parents.}}",
+  "@excuseExplain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsOnCount": "{count, plural, =0{All off} =1{1 on} other{{count} on}}",
+  "@alertsOnCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "afterMinutes": "{count, plural, =1{After 1 minute} other{After {count} minutes}}",
+  "@afterMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "starsOrLess": "{count, plural, =1{1 star or less} other{{count} stars or less}}",
+  "@starsOrLess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsChange": "{count, plural, =1{1 point} other{{count} points}}",
+  "@pointsChange": {
     "placeholders": {
       "count": {
         "type": "int"

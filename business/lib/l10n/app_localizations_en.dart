@@ -2168,6 +2168,1015 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markPaid => 'Mark as paid';
 
   @override
+  String get foodOrdersTitle => 'Food orders';
+
+  @override
+  String get shipmentsTitle => 'Shipments';
+
+  @override
+  String get ridesTitle => 'Rides';
+
+  @override
+  String get marketTab => 'Market';
+
+  @override
+  String get marketplaceTitle => 'Marketplace';
+
+  @override
+  String get schoolTitle => 'School';
+
+  @override
+  String get restaurantsTitle => 'Restaurants';
+
+  @override
+  String get couriersTitle => 'Couriers';
+
+  @override
+  String get driversTitle => 'Drivers';
+
+  @override
+  String get searchAction => 'Search';
+
+  @override
+  String get searchFoodHint => 'Order number, customer or restaurant';
+
+  @override
+  String get searchShipmentsHint => 'Shipment number or address';
+
+  @override
+  String get searchRidesHint => 'Ride number or rider';
+
+  @override
+  String get searchMarketHint => 'Order number, customer or vendor';
+
+  @override
+  String get closeSearch => 'Close search';
+
+  @override
+  String get filterNew => 'New';
+
+  @override
+  String get filterActive => 'Active';
+
+  @override
+  String get filterDone => 'Done';
+
+  @override
+  String get filterProblems => 'Problems';
+
+  @override
+  String get filterWaiting => 'Waiting';
+
+  @override
+  String get filterNow => 'Now';
+
+  @override
+  String get filterScheduled => 'Scheduled';
+
+  @override
+  String busyUntil(String name, String time) {
+    return '$name is busy until $time';
+  }
+
+  @override
+  String get endDelay => 'End delay';
+
+  @override
+  String get openNow => 'Open now';
+
+  @override
+  String foodRoute(String restaurant, String customer) {
+    return '$restaurant → $customer';
+  }
+
+  @override
+  String kmShort(String km) {
+    return '$km km';
+  }
+
+  @override
+  String kmAway(String km) {
+    return '$km km away';
+  }
+
+  @override
+  String get rejectAction => 'Reject';
+
+  @override
+  String get rejectMore => 'Reject…';
+
+  @override
+  String get foodRaceNote =>
+      'The restaurant accepts too, from its own app. Whoever taps first wins.';
+
+  @override
+  String get noFoodOrders => 'No food orders here';
+
+  @override
+  String get noFoodOrdersText =>
+      'New orders show here as customers place them.';
+
+  @override
+  String get readyIn => 'Ready in';
+
+  @override
+  String get acceptNote =>
+      'The customer sees the time. A courier job is made as soon as you accept.';
+
+  @override
+  String acceptWith(String minutes) {
+    return 'Accept · $minutes';
+  }
+
+  @override
+  String cashCollect(String amount) {
+    return 'Cash on delivery: the courier collects $amount';
+  }
+
+  @override
+  String placedWaiting(String time) {
+    return 'Placed $time · waiting for you or the restaurant';
+  }
+
+  @override
+  String placedAt(String time) {
+    return 'Placed $time';
+  }
+
+  @override
+  String readyAt(String time) {
+    return 'Ready at $time';
+  }
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String rejectTitle(String reference) {
+    return 'Reject $reference?';
+  }
+
+  @override
+  String get rejectWhy => 'Why?';
+
+  @override
+  String get rejectText =>
+      'The customer is told, and a card payment is given back.';
+
+  @override
+  String get chooseWhy => 'Choose why.';
+
+  @override
+  String get noteOptional => 'Note (optional)';
+
+  @override
+  String get rejectOrder => 'Reject order';
+
+  @override
+  String get cancelFoodOrder => 'Cancel order…';
+
+  @override
+  String cancelTitle(String reference) {
+    return 'Cancel $reference?';
+  }
+
+  @override
+  String get cancelFoodText =>
+      'The customer is told. A card payment is refunded.';
+
+  @override
+  String get cancelConfirm => 'Cancel it';
+
+  @override
+  String get keepIt => 'Keep it';
+
+  @override
+  String foodAccepted(String reference, String minutes) {
+    return '$reference accepted · ready in $minutes';
+  }
+
+  @override
+  String foodRejected(String reference) {
+    return '$reference rejected';
+  }
+
+  @override
+  String foodReadyDone(String reference) {
+    return '$reference is ready';
+  }
+
+  @override
+  String foodCancelled(String reference) {
+    return '$reference cancelled';
+  }
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String delayEnded(String name) {
+    return '$name: delay ended';
+  }
+
+  @override
+  String restaurantOpened(String name) {
+    return '$name is open';
+  }
+
+  @override
+  String opensAt(String time) {
+    return 'Opens $time';
+  }
+
+  @override
+  String get noRestaurants => 'No restaurants yet';
+
+  @override
+  String get refundDue => 'A refund is due on this order.';
+
+  @override
+  String get callCustomer => 'Call customer';
+
+  @override
+  String get courierLabel => 'Courier';
+
+  @override
+  String get onDuty => 'On duty';
+
+  @override
+  String get onTheWay => 'On the way';
+
+  @override
+  String get needsCourier => 'Needs a courier';
+
+  @override
+  String shipFoodOrder(String reference) {
+    return 'Food order $reference';
+  }
+
+  @override
+  String shipCollect(String amount) {
+    return 'cash $amount to collect';
+  }
+
+  @override
+  String giveTo(String reference) {
+    return 'Give $reference to';
+  }
+
+  @override
+  String get closestFirst => 'Closest first. Couriers on duty only.';
+
+  @override
+  String get courierFree => 'free';
+
+  @override
+  String get courierOff => 'off duty';
+
+  @override
+  String get courierPaused => 'paused';
+
+  @override
+  String giveItTo(String name) {
+    return 'Give it to $name';
+  }
+
+  @override
+  String get noCouriersOnDuty => 'No courier is on duty now.';
+
+  @override
+  String shipmentGiven(String reference, String name) {
+    return '$reference given to $name';
+  }
+
+  @override
+  String get pickupLabel => 'Pickup';
+
+  @override
+  String get dropoffLabel => 'Drop-off';
+
+  @override
+  String get priceLabel => 'Price';
+
+  @override
+  String get paymentLabel => 'Payment';
+
+  @override
+  String get recipientLabel => 'Recipient';
+
+  @override
+  String get giveCourier => 'Give to a courier';
+
+  @override
+  String get giveAnotherCourier => 'Give to another courier';
+
+  @override
+  String get shipPickedUp => 'Picked up';
+
+  @override
+  String get shipDelivered => 'Delivered';
+
+  @override
+  String get shipFailed => 'Couldn\'t deliver';
+
+  @override
+  String get shipCancel => 'Cancel shipment';
+
+  @override
+  String shipMoved(String reference, String status) {
+    return '$reference: $status';
+  }
+
+  @override
+  String get noShipments => 'No shipments here';
+
+  @override
+  String get noShipmentsText => 'Courier jobs show here as they come.';
+
+  @override
+  String get noCouriers => 'No couriers yet';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get freeDrivers => 'Free drivers';
+
+  @override
+  String get onARide => 'On a ride';
+
+  @override
+  String get searchingLabel => 'Searching';
+
+  @override
+  String get rideQuoted => 'quoted';
+
+  @override
+  String get cancelRide => 'Cancel ride';
+
+  @override
+  String get giveToDriver => 'Give to a driver';
+
+  @override
+  String get callDriver => 'Call driver';
+
+  @override
+  String arrivesAt(String time) {
+    return 'arrives $time';
+  }
+
+  @override
+  String rideScheduledFor(String time) {
+    return 'For $time';
+  }
+
+  @override
+  String get closestSameType => 'Closest first. The same vehicle type first.';
+
+  @override
+  String get driverFree => 'free';
+
+  @override
+  String get driverOnRide => 'on a ride';
+
+  @override
+  String get driverOffline => 'offline';
+
+  @override
+  String get driverSuspended => 'suspended';
+
+  @override
+  String get cancelRideText => 'The rider is told.';
+
+  @override
+  String rideCancelled(String reference) {
+    return '$reference cancelled';
+  }
+
+  @override
+  String rideGiven(String reference, String name) {
+    return '$reference given to $name';
+  }
+
+  @override
+  String get noRides => 'No rides here';
+
+  @override
+  String get noRidesText => 'Rides show here as riders ask for them.';
+
+  @override
+  String get noFreeDrivers => 'No driver is free now.';
+
+  @override
+  String get noDrivers => 'No drivers yet';
+
+  @override
+  String get riderLabel => 'Rider';
+
+  @override
+  String get finalPrice => 'Paid';
+
+  @override
+  String get complaintsTab => 'Complaints';
+
+  @override
+  String get vendorsTab => 'Vendors';
+
+  @override
+  String get waitingForYou => 'Waiting for you';
+
+  @override
+  String get withVendor => 'With the vendor';
+
+  @override
+  String get waitingCustomer => 'Waiting for the customer';
+
+  @override
+  String get complaintReply => 'Reply';
+
+  @override
+  String refundOf(String amount) {
+    return 'Refund $amount';
+  }
+
+  @override
+  String get marketInfo =>
+      'Vendors move their own orders. You see every order and settle complaints.';
+
+  @override
+  String get noComplaints => 'No complaints';
+
+  @override
+  String get noComplaintsText =>
+      'When a customer complains about an order, it shows here.';
+
+  @override
+  String get noMarketOrders => 'No orders here';
+
+  @override
+  String get noVendors => 'No vendors yet';
+
+  @override
+  String get vendorOpen => 'Open';
+
+  @override
+  String get vendorClosed => 'Closed';
+
+  @override
+  String get vendorInactive => 'Not selling';
+
+  @override
+  String amountIn(String currency) {
+    return 'Amount ($currency)';
+  }
+
+  @override
+  String upToAmount(String amount) {
+    return 'Up to $amount';
+  }
+
+  @override
+  String enterAmountUpTo(String amount) {
+    return 'Enter an amount up to $amount.';
+  }
+
+  @override
+  String decidedAs(String label) {
+    return 'Done: $label';
+  }
+
+  @override
+  String get replyToCustomer => 'Write to the customer';
+
+  @override
+  String refundConfirmTitle(String amount) {
+    return 'Refund $amount?';
+  }
+
+  @override
+  String get refundConfirmText =>
+      'The customer gets it back and is told. The complaint is closed.';
+
+  @override
+  String get writeWhy => 'Write why, for the customer.';
+
+  @override
+  String get noteToCustomer => 'Why (the customer reads it)';
+
+  @override
+  String get moneyGoesTo => 'The money goes to';
+
+  @override
+  String get toPayment => 'The way they paid';
+
+  @override
+  String get toWallet => 'Their app wallet';
+
+  @override
+  String get toCoupon => 'A coupon';
+
+  @override
+  String get fromCustomer => 'Customer';
+
+  @override
+  String get fromVendor => 'Vendor';
+
+  @override
+  String get fromSupport => 'You';
+
+  @override
+  String deliveryBy(String who) {
+    return 'Delivered by $who';
+  }
+
+  @override
+  String get fulfilmentDelivery => 'Delivery';
+
+  @override
+  String get fulfilmentPickup => 'Pickup';
+
+  @override
+  String schoolDateLine(String date, String time) {
+    return '$date · check-in closes $time';
+  }
+
+  @override
+  String get studentsTitle => 'Students';
+
+  @override
+  String inAll(String count) {
+    return '$count in all';
+  }
+
+  @override
+  String get studentsIn => 'In';
+
+  @override
+  String get studentsLate => 'Late';
+
+  @override
+  String get studentsNotYet => 'Not in yet';
+
+  @override
+  String get studentsAbsent => 'Absent';
+
+  @override
+  String get teachersLabel => 'Teachers';
+
+  @override
+  String get staffLabel => 'Staff';
+
+  @override
+  String countOf(String count, String total) {
+    return '$count of $total';
+  }
+
+  @override
+  String busLate(String route, String minutes) {
+    return '$route is $minutes late';
+  }
+
+  @override
+  String get busesOnTime => 'All on time';
+
+  @override
+  String get pickupsText => 'Someone else today';
+
+  @override
+  String slipLine(String yes, String no, String waiting) {
+    return '$yes yes · $no no · $waiting waiting';
+  }
+
+  @override
+  String feesDue(String amount) {
+    return '$amount due';
+  }
+
+  @override
+  String get excuseTitle => 'Absence excuse';
+
+  @override
+  String get reportTitle => 'Teacher’s report';
+
+  @override
+  String get leaveTitle => 'Leave request';
+
+  @override
+  String chipExcuses(String count) {
+    return 'Excuses · $count';
+  }
+
+  @override
+  String chipReports(String count) {
+    return 'Reports · $count';
+  }
+
+  @override
+  String chipLeave(String count) {
+    return 'Leave · $count';
+  }
+
+  @override
+  String get daysLabel => 'Days';
+
+  @override
+  String get reasonLabel => 'Reason';
+
+  @override
+  String sentByLine(String name, String relation, String when) {
+    return 'Sent by $name ($relation) · $when';
+  }
+
+  @override
+  String sentByOnly(String name, String when) {
+    return 'Sent by $name · $when';
+  }
+
+  @override
+  String sentWhen(String when) {
+    return 'Sent $when';
+  }
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String get noteToParents => 'Note to the parents';
+
+  @override
+  String get noteNeededDecline => 'Needed only when you decline';
+
+  @override
+  String get declineNeedsNote => 'Write a note to the parents to decline.';
+
+  @override
+  String get excuseAccepted => 'Excuse accepted. The parents are told.';
+
+  @override
+  String get excuseDeclined => 'Excuse declined. The parents are told.';
+
+  @override
+  String get noExcuses => 'No excuses waiting';
+
+  @override
+  String get noReports => 'No reports to read';
+
+  @override
+  String get noLeave => 'No leave requests waiting';
+
+  @override
+  String get allAnsweredText => 'Everything here is answered.';
+
+  @override
+  String openFile(String name) {
+    return 'Open $name';
+  }
+
+  @override
+  String get aboutLabel => 'About';
+
+  @override
+  String get reportCommentHint => 'A comment, or what to change';
+
+  @override
+  String get returnReport => 'Return';
+
+  @override
+  String get approveReport => 'Approve';
+
+  @override
+  String get sendComment => 'Comment';
+
+  @override
+  String get reportApproved => 'Report approved';
+
+  @override
+  String reportReturned(String name) {
+    return 'Report returned to $name';
+  }
+
+  @override
+  String get commentSent => 'Comment sent';
+
+  @override
+  String get writeFirst => 'Write what to change first.';
+
+  @override
+  String get refuseLeave => 'Refuse';
+
+  @override
+  String get approveLeave => 'Approve';
+
+  @override
+  String get leaveApproved => 'Leave approved';
+
+  @override
+  String get leaveRefused => 'Leave refused';
+
+  @override
+  String get noteToPerson => 'Note (optional)';
+
+  @override
+  String get kindClass => 'Class';
+
+  @override
+  String get kindStudent => 'Student';
+
+  @override
+  String get primeBadge => 'Prime';
+
+  @override
+  String changeUp(String pct, String label) {
+    return '▲ $pct $label';
+  }
+
+  @override
+  String changeDown(String pct, String label) {
+    return '▼ $pct $label';
+  }
+
+  @override
+  String changeSame(String label) {
+    return 'Same $label';
+  }
+
+  @override
+  String get morningBrief => 'Morning brief';
+
+  @override
+  String get insightsTitle => 'Insights';
+
+  @override
+  String get insightsTileText => 'Peak hours, best sellers';
+
+  @override
+  String get smartAlerts => 'Smart alerts';
+
+  @override
+  String get accountManagerTitle => 'Your account manager';
+
+  @override
+  String get vipRepliesFirst => 'VIP · replies first';
+
+  @override
+  String get messageAction => 'Message';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String get vsLastWeek => 'vs last week';
+
+  @override
+  String get vsLastMonth => 'vs last month';
+
+  @override
+  String get lastWeek => 'Last week';
+
+  @override
+  String get lastMonth => 'Last month';
+
+  @override
+  String get peakHours => 'Peak hours';
+
+  @override
+  String busiestLine(String label) {
+    return 'Busiest: $label';
+  }
+
+  @override
+  String get returningTitle => 'Customers who came back';
+
+  @override
+  String get averageOrder => 'Average order';
+
+  @override
+  String get sameAsLastWeek => 'same as last week';
+
+  @override
+  String get sameAsLastMonth => 'same as last month';
+
+  @override
+  String get bestSellers => 'Best sellers';
+
+  @override
+  String get noInsights => 'Not enough orders yet';
+
+  @override
+  String get noInsightsText => 'Insights show once the app has orders.';
+
+  @override
+  String percentValue(String value) {
+    return '$value%';
+  }
+
+  @override
+  String get alertsIntro =>
+      'A notification on this phone when something needs you. You choose when.';
+
+  @override
+  String get alertOrderWaiting => 'An order waits to be accepted';
+
+  @override
+  String get alertShipment => 'A shipment has no courier';
+
+  @override
+  String get alertSalesLow => 'Sales are low today';
+
+  @override
+  String get alertMessage => 'A message has no answer';
+
+  @override
+  String get alertLowRating => 'A low rating';
+
+  @override
+  String get alertNoDriver => 'A ride finds no driver';
+
+  @override
+  String belowBy(String amount, String time) {
+    return 'Below $amount by $time';
+  }
+
+  @override
+  String briefWhen(String time) {
+    return 'Yesterday in one notification, every day at $time';
+  }
+
+  @override
+  String get alertsFooter =>
+      'Tap an alert to change its number or time. Each person on the team sets their own.';
+
+  @override
+  String get minutesField => 'Minutes';
+
+  @override
+  String amountField(String currency) {
+    return 'Amount ($currency)';
+  }
+
+  @override
+  String get byTimeField => 'By';
+
+  @override
+  String get starsField => 'Stars';
+
+  @override
+  String get chooseTime => 'Choose the time';
+
+  @override
+  String get lookTitle => 'Look';
+
+  @override
+  String get lookClassic => 'Classic';
+
+  @override
+  String get lookMidnightGold => 'Midnight gold';
+
+  @override
+  String get lookEmber => 'Ember';
+
+  @override
+  String get lookSage => 'Sage';
+
+  @override
+  String get primeHeaderOnToday => 'Prime header on Today';
+
+  @override
+  String get primeHeaderHelp => 'Sales and the comparison at the top';
+
+  @override
+  String get lightOrDark => 'Light or dark';
+
+  @override
+  String lightOrDarkHelp(String mode) {
+    return 'Every look has both · $mode';
+  }
+
+  @override
+  String get lookFooter =>
+      'The look is kept on this phone and changes nothing in your customers’ app.';
+
+  @override
+  String lookChosen(String name) {
+    return '$name, chosen';
+  }
+
+  @override
+  String get vipTitle => 'VIP service';
+
+  @override
+  String get vipManagerAt => 'Your account manager at Yallapp';
+
+  @override
+  String get whatsappAction => 'WhatsApp';
+
+  @override
+  String get priorityLine => 'Priority line';
+
+  @override
+  String get priorityFirst => 'you go first in the queue';
+
+  @override
+  String get bookCall => 'Book a call';
+
+  @override
+  String bookOn(String day, String time) {
+    return 'Book $day $time';
+  }
+
+  @override
+  String get vipFooter =>
+      'For the Business plan and Studio’s Business plan. Your manager sees the call in their calendar.';
+
+  @override
+  String callRequested(String day, String time) {
+    return 'Call asked for $day $time. Your manager confirms it.';
+  }
+
+  @override
+  String get noSlots => 'No free times in the next days. Write on WhatsApp.';
+
+  @override
+  String get vipPlan => 'VIP';
+
+  @override
+  String get primeTitle => 'Prime';
+
+  @override
+  String get primeComes => 'Prime comes with every Yallapp Studio app';
+
+  @override
+  String primeRegular(String name) {
+    return 'Your app “$name” is on the regular editor. Apps made in Studio get Prime in Yallapp Business.';
+  }
+
+  @override
+  String get insightsHelp => 'This week against last, peak hours, best sellers';
+
+  @override
+  String get alertsHelp => 'Told when something waits too long';
+
+  @override
+  String get briefHelp => 'Yesterday in one notification';
+
+  @override
+  String get primeLooks => 'Prime looks';
+
+  @override
+  String get primeLooksHelp => 'Four looks for this app, light and dark';
+
+  @override
+  String get learnMoreWebsite => 'Learn more on the website';
+
+  @override
+  String get nothingSold => 'Nothing is sold in this app.';
+
+  @override
+  String get launchTagline => 'Every order, booking and message. One place.';
+
+  @override
+  String launchOpening(String app) {
+    return 'Opening $app.';
+  }
+
+  @override
+  String get launchLoading => 'Opening Yallapp Business';
+
+  @override
+  String get pushFoodOrder => 'New food orders';
+
+  @override
+  String get pushFoodOrderHelp => 'When a customer places a food order.';
+
+  @override
+  String get pushShipment => 'Shipments without a courier';
+
+  @override
+  String get pushShipmentHelp =>
+      'When a courier job waits for someone to take it.';
+
+  @override
+  String get pushComplaint => 'Marketplace complaints';
+
+  @override
+  String get pushComplaintHelp => 'When a customer complains about an order.';
+
+  @override
+  String get pushPrimeAlert => 'Smart alerts';
+
+  @override
+  String get pushPrimeAlertHelp => 'Prime: when something waits too long.';
+
+  @override
+  String get pushBrief => 'Morning brief';
+
+  @override
+  String get pushBriefHelp => 'Prime: yesterday in one notification.';
+
+  @override
   String minutesAgo(int count) {
     return '$count min ago';
   }
@@ -2372,6 +3381,210 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count members',
       one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min',
+      one: '1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String jobsNow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jobs now',
+      one: '1 job now',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersTodayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders today',
+      one: '1 order today',
+      zero: 'No orders today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsFoodNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new food orders',
+      one: '1 new food order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsShipments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shipments need a courier',
+      one: '1 shipment needs a courier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsRides(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rides need a driver',
+      one: '1 ride needs a driver',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsComplaints(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count complaints waiting for you',
+      one: '1 complaint waiting for you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsExcuses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count absence excuses',
+      one: '1 absence excuse',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count teachers’ reports to read',
+      one: '1 teacher’s report to read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsLeave(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count leave requests',
+      one: '1 leave request',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String busesRunning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count buses running',
+      one: '1 bus running',
+      zero: 'No buses running',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickupsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pick-ups',
+      one: '1 pick-up',
+      zero: 'No pick-ups',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String feesNotPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fees not paid',
+      one: '1 fee not paid',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String excuseExplain(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Accepting marks the $count days excused in the register and tells the parents.',
+      two: 'Accepting marks both days excused in the register and tells the parents.',
+      one: 'Accepting marks the day excused in the register and tells the parents.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertsOnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count on',
+      one: '1 on',
+      zero: 'All off',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String afterMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'After $count minutes',
+      one: 'After 1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOrLess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars or less',
+      one: '1 star or less',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pointsChange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count points',
+      one: '1 point',
     );
     return '$_temp0';
   }

@@ -74,6 +74,8 @@ export interface Client {
    * the currency Yallapp's prices are shown in, before the request's own.
    */
   country?: string | null;
+  /** 125 The account manager Yallapp chose from its own team (a user with a `StaffProfile` marked account manager); null for none. */
+  accountManagerId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -2620,6 +2622,78 @@ export interface AdminMemberRow {
   user: User;
 }
 
+/** 125 When a Yallapp team member works, for the clients' calls: ISO weekdays (1 Monday … 7 Sunday), from and to ("10:00"), in a time zone. */
+export interface StaffHours {
+  days: number[];
+  from: string;
+  to: string;
+  timezone: string;
+}
+
+/** 125 A Yallapp team member's contact card (Admin › Team), and whether they are an account manager clients can be given. */
+export interface StaffProfile {
+  userId: string;
+  /** The photo's file name (`staff-photos/<name>` in the blob store, served at /api/staff/photo/<name>). */
+  photo: string | null;
+  /** E.164. */
+  whatsapp: string | null;
+  /** E.164. */
+  phone: string | null;
+  hours: StaffHours | null;
+  accountManager: boolean;
+  /** Who last changed it (an email). */
+  updatedBy: string;
+  updatedAt: Date;
+}
+
+export const ACCOUNT_MANAGER_CALL_STATUSES = ["requested", "confirmed", "moved", "cancelled"] as const;
+export type AccountManagerCallStatus = (typeof ACCOUNT_MANAGER_CALL_STATUSES)[number];
+
+/** 125 A call a client asked for with their account manager (Yallapp Business), confirmed or moved in Admin. Date and time in the manager's time zone. */
+export interface AccountManagerCall {
+  id: number;
+  clientId: string;
+  managerId: string;
+  /** The person who asked (the owner or someone on the team); null once their account is gone. */
+  requestedBy: string | null;
+  requesterName: string;
+  date: string;
+  time: string;
+  note: string | null;
+  status: AccountManagerCallStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type AccountManagerCallInput = Omit<AccountManagerCall, "id">;
+export type AccountManagerCallPatch = Partial<Pick<AccountManagerCall, "date" | "time" | "status" | "note" | "updatedAt">>;
+
+/** 125 Prime's smart alerts (Yallapp Business, docs/api/owner.yaml `PrimeAlertKind`). */
+export const PRIME_ALERT_KINDS = ["order_waiting", "shipment_unassigned", "sales_low", "message_unanswered", "low_rating", "ride_no_driver"] as const;
+export type PrimeAlertKind = (typeof PRIME_ALERT_KINDS)[number];
+
+export interface PrimeAlertSetting {
+  kind: PrimeAlertKind;
+  on: boolean;
+  minutes: number | null;
+  amountCents: number | null;
+  /** "18:00", in the app's time zone. */
+  byTime: string | null;
+  stars: number | null;
+}
+
+/** 125 One person's smart alerts and morning brief on one app. */
+export interface PrimeAlerts {
+  userId: string;
+  appId: string;
+  clientId: string;
+  alerts: PrimeAlertSetting[];
+  briefOn: boolean;
+  /** "08:30", in the app's time zone. */
+  briefTime: string;
+  updatedAt: Date;
+}
+
 /** Changed fields of an audit entry, secrets redacted. */
 export interface AuditChanges {
   before: Record<string, unknown> | null;
@@ -4766,7 +4840,23 @@ export interface PlatformSettingValues {
 // 58 Yallapp Business: the owners' own app (lib/owner)
 
 /** 58 The kinds of push Yallapp Business sends to an owner's phone; each can be turned off per device. */
-export const OWNER_PUSH_KINDS = ["new_order", "new_booking", "new_message", "new_chat_message", "new_review", "payment_received", "build_finished", "yallapp_updates", "account_notices"] as const;
+export const OWNER_PUSH_KINDS = [
+  "new_order",
+  "new_booking",
+  "new_message",
+  "new_chat_message",
+  "new_review",
+  "payment_received",
+  "build_finished",
+  "yallapp_updates",
+  "account_notices",
+  // 125 The Studio apps' engines, and Prime's alerts and morning brief.
+  "new_food_order",
+  "shipment_waiting",
+  "new_complaint",
+  "prime_alert",
+  "morning_brief",
+] as const;
 export type OwnerPushKind = (typeof OWNER_PUSH_KINDS)[number];
 /** Missing kinds are on. */
 export type OwnerPushPreferences = Partial<Record<OwnerPushKind, boolean>>;

@@ -3958,6 +3958,1746 @@ abstract class AppLocalizations {
   /// **'Mark as paid'**
   String get markPaid;
 
+  /// No description provided for @foodOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Food orders'**
+  String get foodOrdersTitle;
+
+  /// No description provided for @shipmentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipments'**
+  String get shipmentsTitle;
+
+  /// No description provided for @ridesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides'**
+  String get ridesTitle;
+
+  /// No description provided for @marketTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get marketTab;
+
+  /// No description provided for @marketplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplaceTitle;
+
+  /// No description provided for @schoolTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get schoolTitle;
+
+  /// No description provided for @restaurantsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurants'**
+  String get restaurantsTitle;
+
+  /// No description provided for @couriersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couriers'**
+  String get couriersTitle;
+
+  /// No description provided for @driversTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drivers'**
+  String get driversTitle;
+
+  /// No description provided for @searchAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchAction;
+
+  /// No description provided for @searchFoodHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number, customer or restaurant'**
+  String get searchFoodHint;
+
+  /// No description provided for @searchShipmentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipment number or address'**
+  String get searchShipmentsHint;
+
+  /// No description provided for @searchRidesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride number or rider'**
+  String get searchRidesHint;
+
+  /// No description provided for @searchMarketHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Order number, customer or vendor'**
+  String get searchMarketHint;
+
+  /// No description provided for @closeSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get closeSearch;
+
+  /// No description provided for @filterNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get filterNew;
+
+  /// No description provided for @filterActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get filterActive;
+
+  /// No description provided for @filterDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get filterDone;
+
+  /// No description provided for @filterProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Problems'**
+  String get filterProblems;
+
+  /// No description provided for @filterWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get filterWaiting;
+
+  /// No description provided for @filterNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get filterNow;
+
+  /// No description provided for @filterScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get filterScheduled;
+
+  /// No description provided for @busyUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is busy until {time}'**
+  String busyUntil(String name, String time);
+
+  /// No description provided for @endDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'End delay'**
+  String get endDelay;
+
+  /// No description provided for @openNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now'**
+  String get openNow;
+
+  /// No description provided for @foodRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'{restaurant} → {customer}'**
+  String foodRoute(String restaurant, String customer);
+
+  /// No description provided for @kmShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String kmShort(String km);
+
+  /// No description provided for @kmAway.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km away'**
+  String kmAway(String km);
+
+  /// No description provided for @rejectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectAction;
+
+  /// No description provided for @rejectMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject…'**
+  String get rejectMore;
+
+  /// No description provided for @foodRaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The restaurant accepts too, from its own app. Whoever taps first wins.'**
+  String get foodRaceNote;
+
+  /// No description provided for @noFoodOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No food orders here'**
+  String get noFoodOrders;
+
+  /// No description provided for @noFoodOrdersText.
+  ///
+  /// In en, this message translates to:
+  /// **'New orders show here as customers place them.'**
+  String get noFoodOrdersText;
+
+  /// No description provided for @readyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready in'**
+  String get readyIn;
+
+  /// No description provided for @acceptNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer sees the time. A courier job is made as soon as you accept.'**
+  String get acceptNote;
+
+  /// No description provided for @acceptWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept · {minutes}'**
+  String acceptWith(String minutes);
+
+  /// No description provided for @cashCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery: the courier collects {amount}'**
+  String cashCollect(String amount);
+
+  /// No description provided for @placedWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed {time} · waiting for you or the restaurant'**
+  String placedWaiting(String time);
+
+  /// No description provided for @placedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed {time}'**
+  String placedAt(String time);
+
+  /// No description provided for @readyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready at {time}'**
+  String readyAt(String time);
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// No description provided for @rejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject {reference}?'**
+  String rejectTitle(String reference);
+
+  /// No description provided for @rejectWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why?'**
+  String get rejectWhy;
+
+  /// No description provided for @rejectText.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer is told, and a card payment is given back.'**
+  String get rejectText;
+
+  /// No description provided for @chooseWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose why.'**
+  String get chooseWhy;
+
+  /// No description provided for @noteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get noteOptional;
+
+  /// No description provided for @rejectOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject order'**
+  String get rejectOrder;
+
+  /// No description provided for @cancelFoodOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order…'**
+  String get cancelFoodOrder;
+
+  /// No description provided for @cancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {reference}?'**
+  String cancelTitle(String reference);
+
+  /// No description provided for @cancelFoodText.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer is told. A card payment is refunded.'**
+  String get cancelFoodText;
+
+  /// No description provided for @cancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel it'**
+  String get cancelConfirm;
+
+  /// No description provided for @keepIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get keepIt;
+
+  /// No description provided for @foodAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} accepted · ready in {minutes}'**
+  String foodAccepted(String reference, String minutes);
+
+  /// No description provided for @foodRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} rejected'**
+  String foodRejected(String reference);
+
+  /// No description provided for @foodReadyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is ready'**
+  String foodReadyDone(String reference);
+
+  /// No description provided for @foodCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} cancelled'**
+  String foodCancelled(String reference);
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// No description provided for @delayEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: delay ended'**
+  String delayEnded(String name);
+
+  /// No description provided for @restaurantOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is open'**
+  String restaurantOpened(String name);
+
+  /// No description provided for @opensAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens {time}'**
+  String opensAt(String time);
+
+  /// No description provided for @noRestaurants.
+  ///
+  /// In en, this message translates to:
+  /// **'No restaurants yet'**
+  String get noRestaurants;
+
+  /// No description provided for @refundDue.
+  ///
+  /// In en, this message translates to:
+  /// **'A refund is due on this order.'**
+  String get refundDue;
+
+  /// No description provided for @callCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Call customer'**
+  String get callCustomer;
+
+  /// No description provided for @courierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier'**
+  String get courierLabel;
+
+  /// No description provided for @onDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'On duty'**
+  String get onDuty;
+
+  /// No description provided for @onTheWay.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get onTheWay;
+
+  /// No description provided for @needsCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a courier'**
+  String get needsCourier;
+
+  /// No description provided for @shipFoodOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Food order {reference}'**
+  String shipFoodOrder(String reference);
+
+  /// No description provided for @shipCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'cash {amount} to collect'**
+  String shipCollect(String amount);
+
+  /// No description provided for @giveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {reference} to'**
+  String giveTo(String reference);
+
+  /// No description provided for @closestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest first. Couriers on duty only.'**
+  String get closestFirst;
+
+  /// No description provided for @courierFree.
+  ///
+  /// In en, this message translates to:
+  /// **'free'**
+  String get courierFree;
+
+  /// No description provided for @courierOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off duty'**
+  String get courierOff;
+
+  /// No description provided for @courierPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'paused'**
+  String get courierPaused;
+
+  /// No description provided for @giveItTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it to {name}'**
+  String giveItTo(String name);
+
+  /// No description provided for @noCouriersOnDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'No courier is on duty now.'**
+  String get noCouriersOnDuty;
+
+  /// No description provided for @shipmentGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} given to {name}'**
+  String shipmentGiven(String reference, String name);
+
+  /// No description provided for @pickupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get pickupLabel;
+
+  /// No description provided for @dropoffLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop-off'**
+  String get dropoffLabel;
+
+  /// No description provided for @priceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get priceLabel;
+
+  /// No description provided for @paymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get paymentLabel;
+
+  /// No description provided for @recipientLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get recipientLabel;
+
+  /// No description provided for @giveCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Give to a courier'**
+  String get giveCourier;
+
+  /// No description provided for @giveAnotherCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Give to another courier'**
+  String get giveAnotherCourier;
+
+  /// No description provided for @shipPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get shipPickedUp;
+
+  /// No description provided for @shipDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get shipDelivered;
+
+  /// No description provided for @shipFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t deliver'**
+  String get shipFailed;
+
+  /// No description provided for @shipCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel shipment'**
+  String get shipCancel;
+
+  /// No description provided for @shipMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference}: {status}'**
+  String shipMoved(String reference, String status);
+
+  /// No description provided for @noShipments.
+  ///
+  /// In en, this message translates to:
+  /// **'No shipments here'**
+  String get noShipments;
+
+  /// No description provided for @noShipmentsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier jobs show here as they come.'**
+  String get noShipmentsText;
+
+  /// No description provided for @noCouriers.
+  ///
+  /// In en, this message translates to:
+  /// **'No couriers yet'**
+  String get noCouriers;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteLabel;
+
+  /// No description provided for @freeDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'Free drivers'**
+  String get freeDrivers;
+
+  /// No description provided for @onARide.
+  ///
+  /// In en, this message translates to:
+  /// **'On a ride'**
+  String get onARide;
+
+  /// No description provided for @searchingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching'**
+  String get searchingLabel;
+
+  /// No description provided for @rideQuoted.
+  ///
+  /// In en, this message translates to:
+  /// **'quoted'**
+  String get rideQuoted;
+
+  /// No description provided for @cancelRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel ride'**
+  String get cancelRide;
+
+  /// No description provided for @giveToDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Give to a driver'**
+  String get giveToDriver;
+
+  /// No description provided for @callDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Call driver'**
+  String get callDriver;
+
+  /// No description provided for @arrivesAt.
+  ///
+  /// In en, this message translates to:
+  /// **'arrives {time}'**
+  String arrivesAt(String time);
+
+  /// No description provided for @rideScheduledFor.
+  ///
+  /// In en, this message translates to:
+  /// **'For {time}'**
+  String rideScheduledFor(String time);
+
+  /// No description provided for @closestSameType.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest first. The same vehicle type first.'**
+  String get closestSameType;
+
+  /// No description provided for @driverFree.
+  ///
+  /// In en, this message translates to:
+  /// **'free'**
+  String get driverFree;
+
+  /// No description provided for @driverOnRide.
+  ///
+  /// In en, this message translates to:
+  /// **'on a ride'**
+  String get driverOnRide;
+
+  /// No description provided for @driverOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'offline'**
+  String get driverOffline;
+
+  /// No description provided for @driverSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'suspended'**
+  String get driverSuspended;
+
+  /// No description provided for @cancelRideText.
+  ///
+  /// In en, this message translates to:
+  /// **'The rider is told.'**
+  String get cancelRideText;
+
+  /// No description provided for @rideCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} cancelled'**
+  String rideCancelled(String reference);
+
+  /// No description provided for @rideGiven.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} given to {name}'**
+  String rideGiven(String reference, String name);
+
+  /// No description provided for @noRides.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides here'**
+  String get noRides;
+
+  /// No description provided for @noRidesText.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides show here as riders ask for them.'**
+  String get noRidesText;
+
+  /// No description provided for @noFreeDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'No driver is free now.'**
+  String get noFreeDrivers;
+
+  /// No description provided for @noDrivers.
+  ///
+  /// In en, this message translates to:
+  /// **'No drivers yet'**
+  String get noDrivers;
+
+  /// No description provided for @riderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rider'**
+  String get riderLabel;
+
+  /// No description provided for @finalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get finalPrice;
+
+  /// No description provided for @complaintsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get complaintsTab;
+
+  /// No description provided for @vendorsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendors'**
+  String get vendorsTab;
+
+  /// No description provided for @waitingForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for you'**
+  String get waitingForYou;
+
+  /// No description provided for @withVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'With the vendor'**
+  String get withVendor;
+
+  /// No description provided for @waitingCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the customer'**
+  String get waitingCustomer;
+
+  /// No description provided for @complaintReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get complaintReply;
+
+  /// No description provided for @refundOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund {amount}'**
+  String refundOf(String amount);
+
+  /// No description provided for @marketInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendors move their own orders. You see every order and settle complaints.'**
+  String get marketInfo;
+
+  /// No description provided for @noComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints'**
+  String get noComplaints;
+
+  /// No description provided for @noComplaintsText.
+  ///
+  /// In en, this message translates to:
+  /// **'When a customer complains about an order, it shows here.'**
+  String get noComplaintsText;
+
+  /// No description provided for @noMarketOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders here'**
+  String get noMarketOrders;
+
+  /// No description provided for @noVendors.
+  ///
+  /// In en, this message translates to:
+  /// **'No vendors yet'**
+  String get noVendors;
+
+  /// No description provided for @vendorOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get vendorOpen;
+
+  /// No description provided for @vendorClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get vendorClosed;
+
+  /// No description provided for @vendorInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Not selling'**
+  String get vendorInactive;
+
+  /// No description provided for @amountIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount ({currency})'**
+  String amountIn(String currency);
+
+  /// No description provided for @upToAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount}'**
+  String upToAmount(String amount);
+
+  /// No description provided for @enterAmountUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount up to {amount}.'**
+  String enterAmountUpTo(String amount);
+
+  /// No description provided for @decidedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Done: {label}'**
+  String decidedAs(String label);
+
+  /// No description provided for @replyToCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to the customer'**
+  String get replyToCustomer;
+
+  /// No description provided for @refundConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund {amount}?'**
+  String refundConfirmTitle(String amount);
+
+  /// No description provided for @refundConfirmText.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer gets it back and is told. The complaint is closed.'**
+  String get refundConfirmText;
+
+  /// No description provided for @writeWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Write why, for the customer.'**
+  String get writeWhy;
+
+  /// No description provided for @noteToCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Why (the customer reads it)'**
+  String get noteToCustomer;
+
+  /// No description provided for @moneyGoesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'The money goes to'**
+  String get moneyGoesTo;
+
+  /// No description provided for @toPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'The way they paid'**
+  String get toPayment;
+
+  /// No description provided for @toWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Their app wallet'**
+  String get toWallet;
+
+  /// No description provided for @toCoupon.
+  ///
+  /// In en, this message translates to:
+  /// **'A coupon'**
+  String get toCoupon;
+
+  /// No description provided for @fromCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get fromCustomer;
+
+  /// No description provided for @fromVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get fromVendor;
+
+  /// No description provided for @fromSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get fromSupport;
+
+  /// No description provided for @deliveryBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered by {who}'**
+  String deliveryBy(String who);
+
+  /// No description provided for @fulfilmentDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get fulfilmentDelivery;
+
+  /// No description provided for @fulfilmentPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get fulfilmentPickup;
+
+  /// No description provided for @schoolDateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · check-in closes {time}'**
+  String schoolDateLine(String date, String time);
+
+  /// No description provided for @studentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get studentsTitle;
+
+  /// No description provided for @inAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in all'**
+  String inAll(String count);
+
+  /// No description provided for @studentsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get studentsIn;
+
+  /// No description provided for @studentsLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get studentsLate;
+
+  /// No description provided for @studentsNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in yet'**
+  String get studentsNotYet;
+
+  /// No description provided for @studentsAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get studentsAbsent;
+
+  /// No description provided for @teachersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers'**
+  String get teachersLabel;
+
+  /// No description provided for @staffLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get staffLabel;
+
+  /// No description provided for @countOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total}'**
+  String countOf(String count, String total);
+
+  /// No description provided for @busLate.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} is {minutes} late'**
+  String busLate(String route, String minutes);
+
+  /// No description provided for @busesOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All on time'**
+  String get busesOnTime;
+
+  /// No description provided for @pickupsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else today'**
+  String get pickupsText;
+
+  /// No description provided for @slipLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{yes} yes · {no} no · {waiting} waiting'**
+  String slipLine(String yes, String no, String waiting);
+
+  /// No description provided for @feesDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due'**
+  String feesDue(String amount);
+
+  /// No description provided for @excuseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Absence excuse'**
+  String get excuseTitle;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher’s report'**
+  String get reportTitle;
+
+  /// No description provided for @leaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave request'**
+  String get leaveTitle;
+
+  /// No description provided for @chipExcuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Excuses · {count}'**
+  String chipExcuses(String count);
+
+  /// No description provided for @chipReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports · {count}'**
+  String chipReports(String count);
+
+  /// No description provided for @chipLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave · {count}'**
+  String chipLeave(String count);
+
+  /// No description provided for @daysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get daysLabel;
+
+  /// No description provided for @reasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reasonLabel;
+
+  /// No description provided for @sentByLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent by {name} ({relation}) · {when}'**
+  String sentByLine(String name, String relation, String when);
+
+  /// No description provided for @sentByOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent by {name} · {when}'**
+  String sentByOnly(String name, String when);
+
+  /// No description provided for @sentWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {when}'**
+  String sentWhen(String when);
+
+  /// No description provided for @commentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// No description provided for @noteToParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to the parents'**
+  String get noteToParents;
+
+  /// No description provided for @noteNeededDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed only when you decline'**
+  String get noteNeededDecline;
+
+  /// No description provided for @declineNeedsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a note to the parents to decline.'**
+  String get declineNeedsNote;
+
+  /// No description provided for @excuseAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Excuse accepted. The parents are told.'**
+  String get excuseAccepted;
+
+  /// No description provided for @excuseDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Excuse declined. The parents are told.'**
+  String get excuseDeclined;
+
+  /// No description provided for @noExcuses.
+  ///
+  /// In en, this message translates to:
+  /// **'No excuses waiting'**
+  String get noExcuses;
+
+  /// No description provided for @noReports.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports to read'**
+  String get noReports;
+
+  /// No description provided for @noLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave requests waiting'**
+  String get noLeave;
+
+  /// No description provided for @allAnsweredText.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything here is answered.'**
+  String get allAnsweredText;
+
+  /// No description provided for @openFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {name}'**
+  String openFile(String name);
+
+  /// No description provided for @aboutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutLabel;
+
+  /// No description provided for @reportCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A comment, or what to change'**
+  String get reportCommentHint;
+
+  /// No description provided for @returnReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get returnReport;
+
+  /// No description provided for @approveReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveReport;
+
+  /// No description provided for @sendComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get sendComment;
+
+  /// No description provided for @reportApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Report approved'**
+  String get reportApproved;
+
+  /// No description provided for @reportReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Report returned to {name}'**
+  String reportReturned(String name);
+
+  /// No description provided for @commentSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment sent'**
+  String get commentSent;
+
+  /// No description provided for @writeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Write what to change first.'**
+  String get writeFirst;
+
+  /// No description provided for @refuseLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Refuse'**
+  String get refuseLeave;
+
+  /// No description provided for @approveLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveLeave;
+
+  /// No description provided for @leaveApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave approved'**
+  String get leaveApproved;
+
+  /// No description provided for @leaveRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave refused'**
+  String get leaveRefused;
+
+  /// No description provided for @noteToPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get noteToPerson;
+
+  /// No description provided for @kindClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get kindClass;
+
+  /// No description provided for @kindStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get kindStudent;
+
+  /// No description provided for @primeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime'**
+  String get primeBadge;
+
+  /// No description provided for @changeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'▲ {pct} {label}'**
+  String changeUp(String pct, String label);
+
+  /// No description provided for @changeDown.
+  ///
+  /// In en, this message translates to:
+  /// **'▼ {pct} {label}'**
+  String changeDown(String pct, String label);
+
+  /// No description provided for @changeSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same {label}'**
+  String changeSame(String label);
+
+  /// No description provided for @morningBrief.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning brief'**
+  String get morningBrief;
+
+  /// No description provided for @insightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get insightsTitle;
+
+  /// No description provided for @insightsTileText.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak hours, best sellers'**
+  String get insightsTileText;
+
+  /// No description provided for @smartAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart alerts'**
+  String get smartAlerts;
+
+  /// No description provided for @accountManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account manager'**
+  String get accountManagerTitle;
+
+  /// No description provided for @vipRepliesFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP · replies first'**
+  String get vipRepliesFirst;
+
+  /// No description provided for @messageAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get messageAction;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @vsLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last week'**
+  String get vsLastWeek;
+
+  /// No description provided for @vsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'vs last month'**
+  String get vsLastMonth;
+
+  /// No description provided for @lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get lastWeek;
+
+  /// No description provided for @lastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get lastMonth;
+
+  /// No description provided for @peakHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak hours'**
+  String get peakHours;
+
+  /// No description provided for @busiestLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Busiest: {label}'**
+  String busiestLine(String label);
+
+  /// No description provided for @returningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who came back'**
+  String get returningTitle;
+
+  /// No description provided for @averageOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Average order'**
+  String get averageOrder;
+
+  /// No description provided for @sameAsLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'same as last week'**
+  String get sameAsLastWeek;
+
+  /// No description provided for @sameAsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'same as last month'**
+  String get sameAsLastMonth;
+
+  /// No description provided for @bestSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Best sellers'**
+  String get bestSellers;
+
+  /// No description provided for @noInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough orders yet'**
+  String get noInsights;
+
+  /// No description provided for @noInsightsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights show once the app has orders.'**
+  String get noInsightsText;
+
+  /// No description provided for @percentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}%'**
+  String percentValue(String value);
+
+  /// No description provided for @alertsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on this phone when something needs you. You choose when.'**
+  String get alertsIntro;
+
+  /// No description provided for @alertOrderWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'An order waits to be accepted'**
+  String get alertOrderWaiting;
+
+  /// No description provided for @alertShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'A shipment has no courier'**
+  String get alertShipment;
+
+  /// No description provided for @alertSalesLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales are low today'**
+  String get alertSalesLow;
+
+  /// No description provided for @alertMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A message has no answer'**
+  String get alertMessage;
+
+  /// No description provided for @alertLowRating.
+  ///
+  /// In en, this message translates to:
+  /// **'A low rating'**
+  String get alertLowRating;
+
+  /// No description provided for @alertNoDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'A ride finds no driver'**
+  String get alertNoDriver;
+
+  /// No description provided for @belowBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Below {amount} by {time}'**
+  String belowBy(String amount, String time);
+
+  /// No description provided for @briefWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday in one notification, every day at {time}'**
+  String briefWhen(String time);
+
+  /// No description provided for @alertsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an alert to change its number or time. Each person on the team sets their own.'**
+  String get alertsFooter;
+
+  /// No description provided for @minutesField.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get minutesField;
+
+  /// No description provided for @amountField.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount ({currency})'**
+  String amountField(String currency);
+
+  /// No description provided for @byTimeField.
+  ///
+  /// In en, this message translates to:
+  /// **'By'**
+  String get byTimeField;
+
+  /// No description provided for @starsField.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars'**
+  String get starsField;
+
+  /// No description provided for @chooseTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the time'**
+  String get chooseTime;
+
+  /// No description provided for @lookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Look'**
+  String get lookTitle;
+
+  /// No description provided for @lookClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic'**
+  String get lookClassic;
+
+  /// No description provided for @lookMidnightGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight gold'**
+  String get lookMidnightGold;
+
+  /// No description provided for @lookEmber.
+  ///
+  /// In en, this message translates to:
+  /// **'Ember'**
+  String get lookEmber;
+
+  /// No description provided for @lookSage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sage'**
+  String get lookSage;
+
+  /// No description provided for @primeHeaderOnToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime header on Today'**
+  String get primeHeaderOnToday;
+
+  /// No description provided for @primeHeaderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales and the comparison at the top'**
+  String get primeHeaderHelp;
+
+  /// No description provided for @lightOrDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Light or dark'**
+  String get lightOrDark;
+
+  /// No description provided for @lightOrDarkHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every look has both · {mode}'**
+  String lightOrDarkHelp(String mode);
+
+  /// No description provided for @lookFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'The look is kept on this phone and changes nothing in your customers’ app.'**
+  String get lookFooter;
+
+  /// No description provided for @lookChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, chosen'**
+  String lookChosen(String name);
+
+  /// No description provided for @vipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP service'**
+  String get vipTitle;
+
+  /// No description provided for @vipManagerAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account manager at Yallapp'**
+  String get vipManagerAt;
+
+  /// No description provided for @whatsappAction.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsappAction;
+
+  /// No description provided for @priorityLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority line'**
+  String get priorityLine;
+
+  /// No description provided for @priorityFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'you go first in the queue'**
+  String get priorityFirst;
+
+  /// No description provided for @bookCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Book a call'**
+  String get bookCall;
+
+  /// No description provided for @bookOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Book {day} {time}'**
+  String bookOn(String day, String time);
+
+  /// No description provided for @vipFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'For the Business plan and Studio’s Business plan. Your manager sees the call in their calendar.'**
+  String get vipFooter;
+
+  /// No description provided for @callRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Call asked for {day} {time}. Your manager confirms it.'**
+  String callRequested(String day, String time);
+
+  /// No description provided for @noSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'No free times in the next days. Write on WhatsApp.'**
+  String get noSlots;
+
+  /// No description provided for @vipPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get vipPlan;
+
+  /// No description provided for @primeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime'**
+  String get primeTitle;
+
+  /// No description provided for @primeComes.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime comes with every Yallapp Studio app'**
+  String get primeComes;
+
+  /// No description provided for @primeRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Your app “{name}” is on the regular editor. Apps made in Studio get Prime in Yallapp Business.'**
+  String primeRegular(String name);
+
+  /// No description provided for @insightsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'This week against last, peak hours, best sellers'**
+  String get insightsHelp;
+
+  /// No description provided for @alertsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Told when something waits too long'**
+  String get alertsHelp;
+
+  /// No description provided for @briefHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday in one notification'**
+  String get briefHelp;
+
+  /// No description provided for @primeLooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime looks'**
+  String get primeLooks;
+
+  /// No description provided for @primeLooksHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Four looks for this app, light and dark'**
+  String get primeLooksHelp;
+
+  /// No description provided for @learnMoreWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more on the website'**
+  String get learnMoreWebsite;
+
+  /// No description provided for @nothingSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is sold in this app.'**
+  String get nothingSold;
+
+  /// No description provided for @launchTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Every order, booking and message. One place.'**
+  String get launchTagline;
+
+  /// No description provided for @launchOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening {app}.'**
+  String launchOpening(String app);
+
+  /// No description provided for @launchLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Yallapp Business'**
+  String get launchLoading;
+
+  /// No description provided for @pushFoodOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New food orders'**
+  String get pushFoodOrder;
+
+  /// No description provided for @pushFoodOrderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a customer places a food order.'**
+  String get pushFoodOrderHelp;
+
+  /// No description provided for @pushShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipments without a courier'**
+  String get pushShipment;
+
+  /// No description provided for @pushShipmentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a courier job waits for someone to take it.'**
+  String get pushShipmentHelp;
+
+  /// No description provided for @pushComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace complaints'**
+  String get pushComplaint;
+
+  /// No description provided for @pushComplaintHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a customer complains about an order.'**
+  String get pushComplaintHelp;
+
+  /// No description provided for @pushPrimeAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart alerts'**
+  String get pushPrimeAlert;
+
+  /// No description provided for @pushPrimeAlertHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime: when something waits too long.'**
+  String get pushPrimeAlertHelp;
+
+  /// No description provided for @pushBrief.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning brief'**
+  String get pushBrief;
+
+  /// No description provided for @pushBriefHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Prime: yesterday in one notification.'**
+  String get pushBriefHelp;
+
   /// No description provided for @minutesAgo.
   ///
   /// In en, this message translates to:
@@ -4083,6 +5823,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 member} other{{count} members}}'**
   String chatMembers(int count);
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 min} other{{count} min}}'**
+  String minutesShort(int count);
+
+  /// No description provided for @jobsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 job now} other{{count} jobs now}}'**
+  String jobsNow(int count);
+
+  /// No description provided for @ordersTodayCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No orders today} =1{1 order today} other{{count} orders today}}'**
+  String ordersTodayCount(int count);
+
+  /// No description provided for @needsFoodNew.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new food order} other{{count} new food orders}}'**
+  String needsFoodNew(int count);
+
+  /// No description provided for @needsShipments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 shipment needs a courier} other{{count} shipments need a courier}}'**
+  String needsShipments(int count);
+
+  /// No description provided for @needsRides.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ride needs a driver} other{{count} rides need a driver}}'**
+  String needsRides(int count);
+
+  /// No description provided for @needsComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 complaint waiting for you} other{{count} complaints waiting for you}}'**
+  String needsComplaints(int count);
+
+  /// No description provided for @needsExcuses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 absence excuse} other{{count} absence excuses}}'**
+  String needsExcuses(int count);
+
+  /// No description provided for @needsReports.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 teacher’s report to read} other{{count} teachers’ reports to read}}'**
+  String needsReports(int count);
+
+  /// No description provided for @needsLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 leave request} other{{count} leave requests}}'**
+  String needsLeave(int count);
+
+  /// No description provided for @busesRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No buses running} =1{1 bus running} other{{count} buses running}}'**
+  String busesRunning(int count);
+
+  /// No description provided for @pickupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No pick-ups} =1{1 pick-up} other{{count} pick-ups}}'**
+  String pickupsCount(int count);
+
+  /// No description provided for @feesNotPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 fee not paid} other{{count} fees not paid}}'**
+  String feesNotPaid(int count);
+
+  /// No description provided for @excuseExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Accepting marks the day excused in the register and tells the parents.} =2{Accepting marks both days excused in the register and tells the parents.} other{Accepting marks the {count} days excused in the register and tells the parents.}}'**
+  String excuseExplain(int count);
+
+  /// No description provided for @alertsOnCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{All off} =1{1 on} other{{count} on}}'**
+  String alertsOnCount(int count);
+
+  /// No description provided for @afterMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{After 1 minute} other{After {count} minutes}}'**
+  String afterMinutes(int count);
+
+  /// No description provided for @starsOrLess.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star or less} other{{count} stars or less}}'**
+  String starsOrLess(int count);
+
+  /// No description provided for @pointsChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 point} other{{count} points}}'**
+  String pointsChange(int count);
 }
 
 class _AppLocalizationsDelegate

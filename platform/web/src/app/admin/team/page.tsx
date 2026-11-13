@@ -8,6 +8,7 @@ import { requireAdmin, teamTwoStepRequired } from "@/lib/auth/session";
 import { hasTwoStep } from "@/lib/auth/two-step";
 import { getStore } from "@/lib/data";
 import { InviteForm } from "./forms";
+import { ContactCards } from "./profiles";
 
 export const metadata: Metadata = { title: "Team" };
 export const dynamic = "force-dynamic";
@@ -20,15 +21,19 @@ const DONE: Record<string, string> = {
   optional: "Two-step sign-in is no longer required. Those who have it keep it.",
   own_first: "Turn on two-step sign-in for yourself first (Your account), then require it for the team.",
   two_step_reset: "Their two-step sign-in was reset, and we emailed them. They sign in with their password only, then set it up again when the team must use it.",
+  // 125
+  profile: "Contact card saved.",
 };
 
 /** The admin team and their roles (roadmap 11.7). Owners manage it; everyone sees it. */
 export default async function TeamPage({ searchParams }: PageProps<"/admin/team">) {
   const admin = await requireAdmin();
   const manage = can(admin.adminRole, "team.manage");
-  const { done } = await searchParams;
+  const { done, profile_error: profileError, for: profileFor } = await searchParams;
   const store = await getStore();
   const team = await listTeam(store);
+  // 125 Contact cards and account managers.
+  const profiles = new Map((await store.listStaffProfiles()).map((p) => [p.userId, p]));
   // 70 Who has two-step sign-in, and whether the team must use it.
   const twoStep = new Map(await Promise.all(team.filter((m) => m.userId).map(async (m) => [m.userId!, await hasTwoStep(store, m.userId!)] as const)));
   const required = await teamTwoStepRequired();
@@ -177,6 +182,13 @@ export default async function TeamPage({ searchParams }: PageProps<"/admin/team"
           )}
         </aside>
       </div>
+
+      <ContactCards
+        team={team}
+        profiles={profiles}
+        manage={manage}
+        error={typeof profileError === "string" ? { for: typeof profileFor === "string" ? profileFor : null, text: profileError.slice(0, 300) } : null}
+      />
     </>
   );
 }

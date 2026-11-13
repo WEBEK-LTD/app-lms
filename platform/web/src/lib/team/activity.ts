@@ -38,6 +38,20 @@ export const TEAM_ACTIONS = [
   "complaint.note",
   "complaint.decide",
   "complaint.share",
+  // 125 The Studio apps' engines and the school from Yallapp Business.
+  "food_order.accept",
+  "food_order.reject",
+  "food_order.ready",
+  "food_order.cancel",
+  "restaurant.open",
+  "restaurant.end_delay",
+  "shipment.assign",
+  "shipment.move",
+  "ride.assign",
+  "ride.cancel",
+  "school.excuse",
+  "school.report",
+  "school.leave",
 ] as const;
 export type TeamAction = (typeof TEAM_ACTIONS)[number];
 

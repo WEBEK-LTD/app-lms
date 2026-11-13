@@ -2,6 +2,8 @@ import type { FoodOrder, FoodOrderStage, FoodRejection, Shipment } from "../data
 import { announceWaiting, moveShipment, notifyDeps, settingsOf, type FlowDeps } from "../delivery/flow";
 import { stage } from "../delivery/service";
 import { tellFoodCustomer, tellRestaurant } from "./notify";
+import { pushNewFoodOrder } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 import { DEFAULT_FOOD_TIMEZONE, foodOrderReference, foodStage } from "./service";
 
 /**
@@ -23,6 +25,8 @@ export async function announceOrder(deps: FlowDeps, order: FoodOrder): Promise<v
   const n = notifyDeps(deps);
   await tellFoodCustomer(n, order, await timezoneOf(deps));
   await tellRestaurant(n, order);
+  // 125 And the company's phones on Yallapp Business.
+  await (deps.pushOwner ?? pushOwnerSafely)((d) => pushNewFoodOrder(d, deps.app, order), deps.store).catch(() => undefined);
 }
 
 async function move(deps: FlowDeps, order: FoodOrder, patch: Partial<FoodOrder> & { status: FoodOrder["status"] }, by: FoodOrderStage["by"], note: string | null = null): Promise<FoodMoveResult> {

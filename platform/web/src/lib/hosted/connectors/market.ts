@@ -1,4 +1,6 @@
 import { randomToken, sha256Hex } from "../../crypto/tokens";
+import { pushNewComplaint } from "../../owner/push";
+import { pushOwnerSafely } from "../../owner/push-env";
 import { paymentsSetUp } from "../../catalog/settings";
 import { payUrlFor } from "../../delivery/payment";
 import { courierWho } from "../../delivery/service";
@@ -653,6 +655,8 @@ export class MarketConnector {
       const status = made.code === "invalid" ? 400 : 409;
       return { status, body: { code: made.code === "invalid" ? "invalid_request" : made.code, message: made.error, details: { field: made.field } } };
     }
+    // 125 The support team's phones on Yallapp Business.
+    await pushOwnerSafely((d) => pushNewComplaint(d, this.deps.app, made.complaint, o), this.deps.store);
     return { status: 201, body: complaintJson(made.complaint, o.currency, this.photoUrl) };
   }
 

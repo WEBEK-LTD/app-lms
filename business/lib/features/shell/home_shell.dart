@@ -16,10 +16,21 @@ class NavTab {
   final String label;
 }
 
-/// 59 The app's main tool, the second tab: what its owner does most.
+/// 59 The app's main tool, the second tab: what its owner does most. 125 A
+/// Studio app's engine first: food orders, the marketplace, rides, a
+/// school, then shipments.
 NavTab? workTab(BuildContext context, AppSummary app) {
   final l10n = context.l10n;
   final f = app.features;
+  if (f.foodOrders) {
+    return NavTab(Paths.foodOrders, AppIcons.orders, l10n.orders);
+  }
+  if (f.market) return NavTab(Paths.market, AppIcons.store, l10n.marketTab);
+  if (f.rides) return NavTab(Paths.rides, AppIcons.rides, l10n.ridesTitle);
+  if (f.school) return NavTab(Paths.school, AppIcons.school, l10n.schoolTitle);
+  if (f.shipments) {
+    return NavTab(Paths.shipments, AppIcons.shipments, l10n.shipmentsTitle);
+  }
   if (f.events) return NavTab(Paths.events, AppIcons.events, l10n.events);
   if (f.appointments) {
     return NavTab(Paths.appointments, AppIcons.appointments, l10n.appointments);
@@ -57,18 +68,29 @@ IconData catalogIcon(AppSummary app) {
 
 List<NavTab> tabsFor(BuildContext context, AppSummary app) {
   final l10n = context.l10n;
+  final f = app.features;
   final work = workTab(context, app);
+  // 125 A food app or a marketplace has its shipments beside its orders; a
+  // school sends notifications from a tab (its chat stays in More).
+  final second = [
+    if ((f.foodOrders || f.market) && f.shipments)
+      NavTab(Paths.shipments, AppIcons.shipments, l10n.shipmentsTitle),
+    if (f.school && f.notifications)
+      NavTab(Paths.notifyTab, AppIcons.notify, l10n.actionNotify),
+  ];
   final tabs = [
     NavTab(Paths.today, AppIcons.today, l10n.today),
     ?work,
+    ...second,
     // 77 The app's chat.
-    if (app.features.chat) NavTab(Paths.chat, AppIcons.chat, l10n.chat),
+    if (f.chat && !f.school) NavTab(Paths.chat, AppIcons.chat, l10n.chat),
     // 63 Also course questions and reviews.
-    if (app.features.inbox) NavTab(Paths.inbox, AppIcons.inbox, l10n.inbox),
-    if (app.features.analytics) NavTab(Paths.stats, AppIcons.stats, l10n.stats),
+    if (f.inbox) NavTab(Paths.inbox, AppIcons.inbox, l10n.inbox),
+    if (f.analytics) NavTab(Paths.stats, AppIcons.stats, l10n.stats),
   ];
-  // 77 Five at most with More: Stats goes to More first.
+  // 77 Five at most with More: Stats goes to More first, then the Inbox.
   if (tabs.length > 4) tabs.removeWhere((t) => t.path == Paths.stats);
+  if (tabs.length > 4) tabs.removeWhere((t) => t.path == Paths.inbox);
   return [...tabs, NavTab(Paths.more, AppIcons.more, l10n.more)];
 }
 

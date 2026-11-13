@@ -52,4 +52,62 @@ abstract final class Paths {
 
   // 60 The owner's team.
   static const team = '/team';
+
+  // 125 Studio apps: their tabs…
+  static const foodOrders = '/food-orders';
+  static const shipments = '/shipments';
+  static const rides = '/rides';
+  static const market = '/market';
+  static const school = '/school';
+
+  /// A school's Notify tab (the same screen as [notify]).
+  static const notifyTab = '/send-notification';
+
+  // …and their screens.
+  static String foodOrder(String id) =>
+      '/food-orders/${Uri.encodeComponent(id)}';
+  static const restaurants = '/restaurants';
+  static String shipment(String id) => '/shipments/${Uri.encodeComponent(id)}';
+  static const couriers = '/couriers';
+  static String ride(String id) => '/rides/${Uri.encodeComponent(id)}';
+  static const drivers = '/drivers';
+  static String marketTab(String tab) => '/market?tab=$tab';
+  static String marketOrder(String id) =>
+      '/market/orders/${Uri.encodeComponent(id)}';
+  static String complaint(String id) =>
+      '/market/complaints/${Uri.encodeComponent(id)}';
+
+  /// excuses, reports or leave; [id] opens that one.
+  static String schoolReview(String kind, [String? id]) => id == null
+      ? '/school-review?kind=$kind'
+      : '/school-review?kind=$kind&id=${Uri.encodeComponent(id)}';
+
+  // 125 Prime and VIP.
+  static const prime = '/prime';
+  static const insights = '/prime-insights';
+  static const smartAlerts = '/prime-alerts';
+  static const look = '/prime-look';
+  static const vip = '/vip';
 }
+
+/// The tabs' roots: a link to one of them goes there, any other screen
+/// opens over the current one.
+const tabRoots = {
+  Paths.today,
+  Paths.orders,
+  Paths.appointments,
+  Paths.events,
+  Paths.donations,
+  Paths.catalog,
+  Paths.inbox,
+  Paths.chat,
+  Paths.stats,
+  Paths.more,
+  // 125
+  Paths.foodOrders,
+  Paths.shipments,
+  Paths.rides,
+  Paths.market,
+  Paths.school,
+  Paths.notifyTab,
+};

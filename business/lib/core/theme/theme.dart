@@ -24,6 +24,24 @@ abstract final class Brand {
   static const info = Color(0xFF34336B);
   static const infoBg = Color(0xFFE7E6F3);
   static const scanner = Color(0xFF07061A);
+
+  // 125 Prime's gold.
+  static const gold = Color(0xFF7A5C14);
+  static const goldBg = Color(0xFFF3E6C4);
+  static const goldLight = Color(0xFFE6C26E);
+  static const goldDarkBg = Color(0xFF3A3018);
+}
+
+/// 125 The Prime looks of a Studio app (kept on this phone): Classic is
+/// the app's own theme; each has a light and a dark side.
+enum PrimeLook {
+  classic,
+  midnightGold,
+  ember,
+  sage;
+
+  static PrimeLook parse(String? value) =>
+      values.where((l) => l.name == value).firstOrNull ?? classic;
 }
 
 /// 61 The app's colors for the light and the dark theme, from Yallapp's
@@ -53,6 +71,15 @@ class YbColors extends ThemeExtension<YbColors> {
     required this.onDanger,
     required this.info,
     required this.infoBg,
+    this.gold = Brand.gold,
+    this.goldBg = Brand.goldBg,
+    this.head = Brand.midnight,
+    this.headSurface = const Color(0xFF1B1A38),
+    this.onHead = Brand.ivory,
+    this.onHead2 = const Color(0xFFB8B3C8),
+    this.headUp = const Color(0xFF74D6A0),
+    this.headDown = const Color(0xFFFF8B80),
+    this.headBadge = Brand.goldLight,
   });
 
   /// Pages.
@@ -89,6 +116,20 @@ class YbColors extends ThemeExtension<YbColors> {
   final Color onDanger;
   final Color info;
   final Color infoBg;
+
+  /// 125 Prime's gold text and its quiet fill.
+  final Color gold;
+  final Color goldBg;
+
+  /// 125 The Prime header on Today: its fill, its tiles, its text, the
+  /// comparison's up and down, and the Prime badge.
+  final Color head;
+  final Color headSurface;
+  final Color onHead;
+  final Color onHead2;
+  final Color headUp;
+  final Color headDown;
+  final Color headBadge;
 
   static const light = YbColors(
     background: Brand.ivory,
@@ -132,7 +173,190 @@ class YbColors extends ThemeExtension<YbColors> {
     onDanger: Brand.midnight,
     info: Color(0xFFC3C1F5),
     infoBg: Color(0xFF2A2950),
+    gold: Brand.goldLight,
+    goldBg: Brand.goldDarkBg,
   );
+
+  /// 125 Midnight gold: gold on Midnight.
+  static const midnightGoldLight = YbColors(
+    background: Color(0xFFF5F0E3),
+    surface: Brand.white,
+    ink: Brand.midnight,
+    onInk: Brand.white,
+    ink2: Brand.ink2,
+    line: Color(0xFFE6DDC6),
+    outline: Color(0xFFBDB29A),
+    muted: Color(0xFFEEE5CF),
+    accent: Color(0xFFB8913A),
+    accentText: Brand.gold,
+    success: Brand.success,
+    successBg: Brand.successBg,
+    warning: Brand.warning,
+    warningBg: Brand.warningBg,
+    danger: Brand.danger,
+    dangerBg: Brand.dangerBg,
+    onDanger: Brand.white,
+    info: Brand.info,
+    infoBg: Brand.infoBg,
+  );
+
+  static const midnightGoldDark = YbColors(
+    background: Brand.midnight,
+    surface: Color(0xFF1B1A38),
+    ink: Brand.ivory,
+    onInk: Brand.midnight,
+    ink2: Color(0xFFB8B3C8),
+    line: Color(0xFF33325A),
+    outline: Color(0xFF6B6990),
+    muted: Color(0xFF26254A),
+    accent: Brand.goldLight,
+    accentText: Brand.goldLight,
+    success: Color(0xFF74D6A0),
+    successBg: Color(0xFF12392A),
+    warning: Color(0xFFF4B860),
+    warningBg: Color(0xFF3E2D0F),
+    danger: Color(0xFFFF8B80),
+    dangerBg: Color(0xFF4A1A1C),
+    onDanger: Brand.midnight,
+    info: Color(0xFFC3C1F5),
+    infoBg: Color(0xFF2A2950),
+    gold: Brand.goldLight,
+    goldBg: Brand.goldDarkBg,
+    head: Color(0xFF1B1A38),
+    headSurface: Color(0xFF26254A),
+  );
+
+  /// 125 Ember: warm pages under an Ember header.
+  static const emberLight = YbColors(
+    background: Color(0xFFFFF1EA),
+    surface: Brand.white,
+    ink: Brand.midnight,
+    onInk: Brand.white,
+    ink2: Color(0xFF5A4A4F),
+    line: Color(0xFFF1D9CB),
+    outline: Color(0xFFC9AFA1),
+    muted: Color(0xFFFBE3D6),
+    accent: Brand.ember,
+    accentText: Brand.emberText,
+    success: Brand.success,
+    successBg: Brand.successBg,
+    warning: Brand.warning,
+    warningBg: Brand.warningBg,
+    danger: Brand.danger,
+    dangerBg: Brand.dangerBg,
+    onDanger: Brand.white,
+    info: Brand.info,
+    infoBg: Brand.infoBg,
+    head: Brand.emberText,
+    headSurface: Color(0xFF9E3509),
+    onHead: Color(0xFFFFF1EA),
+    onHead2: Color(0xFFFBD9C8),
+    headUp: Color(0xFFCFF5DF),
+    headDown: Color(0xFFFFE1D6),
+    headBadge: Brand.midnight,
+  );
+
+  static const emberDark = YbColors(
+    background: Color(0xFF1A0F0B),
+    surface: Color(0xFF2A1912),
+    ink: Color(0xFFFFF1EA),
+    onInk: Color(0xFF1A0F0B),
+    ink2: Color(0xFFD6BEB2),
+    line: Color(0xFF45291E),
+    outline: Color(0xFF7A5546),
+    muted: Color(0xFF3A2219),
+    accent: Brand.ember,
+    accentText: Color(0xFFFF8F66),
+    success: Color(0xFF74D6A0),
+    successBg: Color(0xFF12392A),
+    warning: Color(0xFFF4B860),
+    warningBg: Color(0xFF3E2D0F),
+    danger: Color(0xFFFF8B80),
+    dangerBg: Color(0xFF4A1A1C),
+    onDanger: Color(0xFF1A0F0B),
+    info: Color(0xFFC3C1F5),
+    infoBg: Color(0xFF2A2950),
+    gold: Brand.goldLight,
+    goldBg: Brand.goldDarkBg,
+    head: Color(0xFF8F300A),
+    headSurface: Color(0xFF6E2507),
+    onHead: Color(0xFFFFF1EA),
+    onHead2: Color(0xFFFBD9C8),
+    headUp: Color(0xFFCFF5DF),
+    headDown: Color(0xFFFFE1D6),
+    headBadge: Brand.goldLight,
+  );
+
+  /// 125 Sage: green and quiet, with an amber accent.
+  static const sageLight = YbColors(
+    background: Color(0xFFEEF2EC),
+    surface: Brand.white,
+    ink: Color(0xFF1F3B2D),
+    onInk: Brand.white,
+    ink2: Color(0xFF4B5C52),
+    line: Color(0xFFD5DED1),
+    outline: Color(0xFFA9B8AE),
+    muted: Color(0xFFDFE7DB),
+    accent: Color(0xFFB7791F),
+    accentText: Color(0xFF8A5A12),
+    success: Brand.success,
+    successBg: Brand.successBg,
+    warning: Brand.warning,
+    warningBg: Brand.warningBg,
+    danger: Brand.danger,
+    dangerBg: Brand.dangerBg,
+    onDanger: Brand.white,
+    info: Brand.info,
+    infoBg: Brand.infoBg,
+    head: Color(0xFF1F3B2D),
+    headSurface: Color(0xFF2A4A3A),
+    onHead: Color(0xFFEEF2EC),
+    onHead2: Color(0xFFBFD0C5),
+    headUp: Color(0xFF9BE3B9),
+    headDown: Color(0xFFFFB4AA),
+    headBadge: Brand.goldLight,
+  );
+
+  static const sageDark = YbColors(
+    background: Color(0xFF0F1A14),
+    surface: Color(0xFF18271E),
+    ink: Color(0xFFEEF2EC),
+    onInk: Color(0xFF0F1A14),
+    ink2: Color(0xFFB3C3B9),
+    line: Color(0xFF2C4335),
+    outline: Color(0xFF5E7867),
+    muted: Color(0xFF22362A),
+    accent: Color(0xFFE0A548),
+    accentText: Color(0xFFE6B866),
+    success: Color(0xFF74D6A0),
+    successBg: Color(0xFF12392A),
+    warning: Color(0xFFF4B860),
+    warningBg: Color(0xFF3E2D0F),
+    danger: Color(0xFFFF8B80),
+    dangerBg: Color(0xFF4A1A1C),
+    onDanger: Color(0xFF0F1A14),
+    info: Color(0xFFC3C1F5),
+    infoBg: Color(0xFF2A2950),
+    gold: Brand.goldLight,
+    goldBg: Brand.goldDarkBg,
+    head: Color(0xFF18271E),
+    headSurface: Color(0xFF22362A),
+    onHead: Color(0xFFEEF2EC),
+    onHead2: Color(0xFFBFD0C5),
+    headUp: Color(0xFF9BE3B9),
+    headDown: Color(0xFFFFB4AA),
+  );
+
+  /// 125 The colors of a look, light or dark.
+  static YbColors of(PrimeLook look, Brightness brightness) {
+    final dark = brightness == Brightness.dark;
+    return switch (look) {
+      PrimeLook.classic => dark ? YbColors.dark : YbColors.light,
+      PrimeLook.midnightGold => dark ? midnightGoldDark : midnightGoldLight,
+      PrimeLook.ember => dark ? emberDark : emberLight,
+      PrimeLook.sage => dark ? sageDark : sageLight,
+    };
+  }
 
   @override
   YbColors copyWith() => this;
@@ -155,9 +379,11 @@ const arabicFont = 'IBM Plex Sans Arabic';
 ThemeData buildTheme({
   required bool arabic,
   Brightness brightness = Brightness.light,
+  // 125 A Prime app's look (Classic: the app's own colors).
+  PrimeLook look = PrimeLook.classic,
 }) {
   final dark = brightness == Brightness.dark;
-  final c = dark ? YbColors.dark : YbColors.light;
+  final c = YbColors.of(look, brightness);
   const fallback = [arabicFont];
   double? tight(double value) => arabic ? 0 : value;
 
