@@ -19,6 +19,7 @@ export const TEACHERS_HOME_COLORS = {
   surface: "#FFFFFF",
   nightSurface: "#15221C",
   line: "#E2E0D6",
+  nightLine: "#24352D",
   ink: "#15241D",
   nightInk: "#ECF3EF",
   muted: "#5A665F",
@@ -85,6 +86,7 @@ export function teachersPhotoHome(ctx: SectionContext): StudioPage {
             background: C.surface,
             dark_background: C.nightSurface,
             border_color: C.line,
+            dark_border_color: C.nightLine,
             border_width: 1,
             children: [
               {
@@ -108,7 +110,17 @@ export function teachersPhotoHome(ctx: SectionContext): StudioPage {
                 padding: { top: 10, end: 12, bottom: 12, start: 12 },
                 children: [
                   { id: id(), type: "text", bind: "title", max_lines: 2, font: { size: 14, weight: 800 }, color: C.ink, dark_color: C.nightInk },
-                  { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                  {
+                    id: id(),
+                    type: "row",
+                    cross: "center",
+                    gap: 4,
+                    children: [
+                      { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                      // "Omar Farouk · ★ 4.8", as approved: the rating's star drawn as the icon, nothing without a rating.
+                      { id: id(), type: "text", bind: "rating", text: "·", font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                    ],
+                  },
                   { id: id(), type: "text", bind: "price", margin: { top: 3 }, font: { size: 15, weight: 800 }, color: C.primary, dark_color: C.nightLink },
                 ],
               },
