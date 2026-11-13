@@ -34,9 +34,9 @@ export default async function TravelFlightsPage({ searchParams }: { searchParams
   const store = await getStore();
   const now = new Date();
   const [flights, saved, plan] = await Promise.all([store.listTravelFlights(app.id), store.getTravelSettings(app.id), appPlan(store, license, now)]);
-  const settings = travelSettingsOf(saved);
+  const settings = travelSettingsOf(saved, app);
   const past = query.when === "past";
-  const day = today(now);
+  const day = today(now, settings.timeZone);
   const shownAll = flights.filter((f) => (past ? f.departs.slice(0, 10) < day : f.departs.slice(0, 10) >= day));
   if (past) shownAll.reverse();
   const page = Math.max(1, Number(query.page) || 1);

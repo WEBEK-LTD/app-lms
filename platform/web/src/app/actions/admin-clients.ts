@@ -204,7 +204,7 @@ export async function setTravelPartsAction(_: FormState, formData: FormData): Pr
   if (!HOTEL_SOURCES.some((s) => s.id === hotelSource && s.connected) || !FLIGHT_SOURCES.some((s) => s.id === flightSource && s.connected)) {
     return { message: "That source is coming soon: ask Yallapp to connect it. Until then, the dashboard's are used." };
   }
-  const before = travelSettingsOf(await store.getTravelSettings(app.id));
+  const before = travelSettingsOf(await store.getTravelSettings(app.id), app);
   const after = { ...before, hotels, flights, hotelSource: hotelSource as typeof before.hotelSource, flightSource: flightSource as typeof before.flightSource };
   await store.saveTravelSettings(app.id, after, new Date());
   // The project's tabs become the mode's (the app follows Config.travel.mode on its next start either way).

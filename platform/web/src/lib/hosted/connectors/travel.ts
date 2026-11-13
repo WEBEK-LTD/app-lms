@@ -4,6 +4,7 @@ import { parsePrice } from "../../catalog/money";
 import type { DataStore } from "../../data/store";
 import type { App, HostedUser, TravelAlert, TravelBooking, TravelFlight } from "../../data/types";
 import { notifyDeps } from "../../delivery/flow";
+import { signingSecret } from "../../env";
 import { checkAlerts, alertJson, priceAlert } from "../../travel/alerts";
 import {
   bookingFlights,
@@ -15,6 +16,7 @@ import {
   newBooking,
   newReference,
   passesJson,
+  passKey,
   passesOpen,
   priceChoice,
   quoteJson,
@@ -31,7 +33,7 @@ import {
 import { allHolds, explore, flightCalendar, hotelCards, hotelJson, places, readFlightAsk, readStayAsk, searchFlights, searchHotels, seatMapJson, travelConfig, type Refusal, type TravelDeps } from "../../travel/catalog";
 import { tellBooking } from "../../travel/notify";
 import { travelPayLink } from "../../travel/payment";
-import { dueCents, today, wallTime } from "../../travel/pricing";
+import { dueCents, localInstant, today } from "../../travel/pricing";
 import { TRAVEL_LIMITS, travelSettingsOf } from "../../travel/settings";
 import { sourcesFor } from "../../travel/sources";
 import { error } from "./common";
@@ -46,7 +48,7 @@ export interface TravelConnectorDeps {
   travel?: boolean;
   /** Card payments are in the plan (default true). */
   cardPayments?: boolean;
-  /** Signs the boarding passes' codes. */
+  /** Signs the boarding passes' codes and the pay links (each app's key is made from it); read from the environment when left out. */
   signingSecret?: string;
 }
 
@@ -67,8 +69,12 @@ const idOf = (value: string | undefined) => (value && /^\d{1,15}$/.test(value) ?
 export class TravelConnector implements Connector {
   constructor(private readonly deps: TravelConnectorDeps) {}
 
+  private get secret(): string {
+    return this.deps.signingSecret ?? signingSecret();
+  }
+
   private async context(now: Date): Promise<TravelDeps> {
-    const settings = travelSettingsOf(await this.deps.store.getTravelSettings(this.deps.app.id));
+    const settings = travelSettingsOf(await this.deps.store.getTravelSettings(this.deps.app.id), this.deps.app);
     const sources = sourcesFor(this.deps.store, this.deps.app.id, settings);
     return { store: this.deps.store, app: this.deps.app, settings, hotels: sources.hotels, flights: sources.flights, assetUrl: this.deps.assetUrl, platformUrl: this.deps.platformUrl, now };
   }
@@ -192,7 +198,7 @@ export class TravelConnector implements Connector {
   private async hotels(ctx: TravelDeps, request: ConnectorRequest): Promise<ConnectorResult> {
     const off = this.hotelsOff(ctx);
     if (off) return off;
-    const ask = readStayAsk(request.query, request.now);
+    const ask = readStayAsk(request.query, request.now, ctx.settings.timeZone);
     if (isRefusal(ask)) return refusal(ask);
     const q = request.query;
     const minScore = q.get("min_score") ? Number(q.get("min_score")) : null;
@@ -219,7 +225,7 @@ export class TravelConnector implements Connector {
   private async hotel(ctx: TravelDeps, request: ConnectorRequest, id: number): Promise<ConnectorResult> {
     const off = this.hotelsOff(ctx);
     if (off) return off;
-    const ask = readStayAsk(request.query, request.now);
+    const ask = readStayAsk(request.query, request.now, ctx.settings.timeZone);
     if (isRefusal(ask)) return refusal(ask);
     const hotel = await ctx.hotels.hotel(id);
     if (!hotel || !hotel.active) return notFound("Hotel");
@@ -229,7 +235,7 @@ export class TravelConnector implements Connector {
   private async flights(ctx: TravelDeps, request: ConnectorRequest): Promise<ConnectorResult> {
     const off = this.flightsOff(ctx);
     if (off) return off;
-    const ask = readFlightAsk(request.query, request.now);
+    const ask = readFlightAsk(request.query, request.now, ctx.settings.timeZone);
     if (isRefusal(ask)) return refusal(ask);
     return { status: 200, body: await searchFlights(ctx, ask) };
   }
@@ -269,7 +275,7 @@ export class TravelConnector implements Connector {
 
   private async saved(ctx: TravelDeps, request: ConnectorRequest): Promise<ConnectorResult> {
     if (!request.user) return signIn();
-    const ask = readStayAsk(request.query, request.now);
+    const ask = readStayAsk(request.query, request.now, ctx.settings.timeZone);
     if (isRefusal(ask)) return refusal(ask);
     const ids = await this.deps.store.listTravelSaved(this.deps.app.id, request.user.id);
     return { status: 200, body: { items: ctx.settings.hotels ? await hotelCards(ctx, ids, ask, true, new Set(ids)) : [] } };
@@ -308,7 +314,7 @@ export class TravelConnector implements Connector {
     const fresh: TravelBooking[] = [];
     for (const b of items) fresh.push(await refreshBooking(ctx, b));
     const flights = await bookingFlights(ctx, fresh);
-    const day = today(request.now);
+    const day = today(request.now, ctx.settings.timeZone);
     const upcoming = (b: TravelBooking) => b.status !== "cancelled" && b.status !== "completed" && startsOf(b, flights).slice(0, 10) >= day;
     const ongoing = (b: TravelBooking) => b.status === "confirmed" || b.status === "awaiting_payment";
     const shown = fresh
@@ -347,7 +353,7 @@ export class TravelConnector implements Connector {
     if (!booking) return notFound();
     if (dueCents(booking) <= 0) return error(409, "not_payable", "This booking has nothing to pay.");
     if (!this.canTakeCards) return error(503, "payments_unavailable", "Card payments aren't available right now. Please try again later.");
-    const link = await travelPayLink(this.deps.store, this.deps.app, booking, this.deps.platformUrl, request.now);
+    const link = await travelPayLink(this.deps.store, this.deps.app, booking, this.deps.platformUrl, request.now, this.secret);
     return { status: 200, body: { url: link.url } };
   }
 
@@ -356,8 +362,8 @@ export class TravelConnector implements Connector {
     const booking = await this.ownBooking(ctx, request, id);
     if (!booking) return notFound();
     const flights = await bookingFlights(ctx, [booking]);
-    if (!canCancel(booking, flights, request.now)) return error(409, "not_cancellable", "This booking can't be cancelled anymore.");
-    const r = await this.deps.store.updateTravelBooking(this.deps.app.id, id, cancelPatch(booking, "customer", null, request.now), { statuses: ["confirmed", "awaiting_payment"] }, request.now);
+    if (!canCancel(booking, flights, request.now, ctx.settings.timeZone)) return error(409, "not_cancellable", "This booking can't be cancelled anymore.");
+    const r = await this.deps.store.updateTravelBooking(this.deps.app.id, id, cancelPatch(booking, "customer", null, request.now, ctx.settings.timeZone), { statuses: ["confirmed", "awaiting_payment"] }, request.now);
     if (!r.ok) return error(409, "not_cancellable", "This booking changed meanwhile. Pull to refresh.");
     return { status: 200, body: await this.json(ctx, r.booking, flights) };
   }
@@ -367,7 +373,7 @@ export class TravelConnector implements Connector {
     const booking = await this.ownBooking(ctx, request, id);
     if (!booking) return notFound();
     const flights = await bookingFlights(ctx, [booking]);
-    if (!canChange(booking, flights, request.now)) return error(409, "not_changeable", "This booking can't be changed anymore.");
+    if (!canChange(booking, flights, request.now, ctx.settings.timeZone)) return error(409, "not_changeable", "This booking can't be changed anymore.");
     const body = (request.body && typeof request.body === "object" ? request.body : {}) as Record<string, unknown>;
     let patch: Partial<TravelBooking>;
     let room = null;
@@ -404,7 +410,7 @@ export class TravelConnector implements Connector {
     if (booking.status !== "confirmed" && booking.status !== "awaiting_payment") return error(409, "not_changeable", "This booking can't be changed anymore.");
     const part = body.leg === "out" ? booking.flight.outbound : booking.flight.inbound!;
     const flight = await ctx.flights.flight(part.flightId);
-    if (!flight || wallTime(flight.departs) <= request.now.getTime()) return error(409, "not_changeable", "This flight has left.");
+    if (!flight || localInstant(flight.departs, ctx.settings.timeZone) <= request.now.getTime()) return error(409, "not_changeable", "This flight has left.");
     const holds = (await ctx.flights.holds([flight.id], request.now)).filter((b) => b.id !== booking.id);
     const bad = seatsRefusalOf(flight, seats, holds);
     if (bad) return refusal(bad);
@@ -420,8 +426,8 @@ export class TravelConnector implements Connector {
     const booking = await this.ownBooking(ctx, request, id);
     if (!booking) return notFound();
     const flights = await bookingFlights(ctx, [booking]);
-    if (!passesOpen(booking, flights, request.now)) return error(409, "not_open", "Boarding passes show here once check-in opens.");
-    return { status: 200, body: { items: passesJson(booking, flights, this.deps.signingSecret ?? this.deps.app.id, request.now) } };
+    if (!passesOpen(booking, flights, request.now, ctx.settings.timeZone)) return error(409, "not_open", "Boarding passes show here once check-in opens.");
+    return { status: 200, body: { items: passesJson(booking, flights, passKey(this.secret, this.deps.app.id), request.now, ctx.settings.timeZone) } };
   }
 
   private async review(ctx: TravelDeps, request: ConnectorRequest, id: number): Promise<ConnectorResult> {
@@ -477,7 +483,7 @@ export class TravelConnector implements Connector {
     if (kind === "trip" && !ctx.settings.hotels) return error(400, "invalid_request", "This app has no hotels.");
     if (!(typeof travellers === "number" && Number.isInteger(travellers) && travellers >= 1 && travellers <= 9)) return error(400, "invalid_request", "Choose from 1 to 9 travellers.");
     if (nights !== null && !(typeof nights === "number" && Number.isInteger(nights) && nights >= 1 && nights <= 30)) return error(400, "invalid_request", "Choose from 1 to 30 nights.");
-    if ((b.month !== undefined && b.month !== null && !month) || (month && month < today(request.now).slice(0, 7))) return error(400, "invalid_request", "Choose a month ahead.");
+    if ((b.month !== undefined && b.month !== null && !month) || (month && month < today(request.now, ctx.settings.timeZone).slice(0, 7))) return error(400, "invalid_request", "Choose a month ahead.");
     const existing = await this.deps.store.listTravelAlerts(this.deps.app.id, request.user.id);
     if (existing.length >= TRAVEL_LIMITS.alertsPerPerson) return error(409, "too_many_alerts", `You can watch up to ${TRAVEL_LIMITS.alertsPerPerson} prices.`);
     const draft = {
@@ -504,7 +510,7 @@ export class TravelConnector implements Connector {
 
 /** 126 After the company changed its flights: alerts priced again, and their people told of a drop. */
 export async function travelPricesChanged(store: DataStore, app: App, assetUrl: (id: string) => string, platformUrl: string, now: Date): Promise<number> {
-  const settings = travelSettingsOf(await store.getTravelSettings(app.id));
+  const settings = travelSettingsOf(await store.getTravelSettings(app.id), app);
   const sources = sourcesFor(store, app.id, settings);
   return checkAlerts({ store, app, settings, hotels: sources.hotels, flights: sources.flights, assetUrl, platformUrl, now }, notifyDeps({ store, app, now }));
 }

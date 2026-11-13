@@ -3,8 +3,8 @@ import type { DataStore } from "../data/store";
 import type { App, TravelBooking, TravelFare, TravelFareId, TravelFlight, TravelHotel, TravelReview, TravelRoom, TravelSettings } from "../data/types";
 import { TRAVEL_AMENITIES } from "../data/types";
 import { fontFiles } from "../fonts/catalog";
-import { addDays, daysBetween, FARE_ORDER, fareSeatsLeft, freeCancelUntil, freeUnits, fromNightly, isDate, levelOf, percentile, seatIds, stayNights, stayPrice, takenSeats, today, wallTime } from "./pricing";
-import { travelMode } from "./settings";
+import { addDays, daysBetween, FARE_ORDER, fareSeatsLeft, freeCancelUntil, freeUnits, fromNightly, isDate, levelOf, localInstant, percentile, seatIds, stayNights, stayPrice, takenSeats, today, wallTime } from "./pricing";
+import { TRAVEL_LIMITS, travelMode } from "./settings";
 import type { FlightSource, HotelSource } from "./sources";
 
 /**
@@ -85,7 +85,7 @@ export type Refusal = { status: number; code: string; message: string };
 const bad = (message: string): Refusal => ({ status: 400, code: "invalid_request", message });
 
 /** The dates and guests asked for, or why they can't be. */
-export function readStayAsk(query: URLSearchParams, now: Date): StayAsk | Refusal {
+export function readStayAsk(query: URLSearchParams, now: Date, zone: string): StayAsk | Refusal {
   const checkIn = query.get("check_in");
   const checkOut = query.get("check_out");
   const guests = query.get("guests") ? Number(query.get("guests")) : 2;
@@ -94,13 +94,16 @@ export function readStayAsk(query: URLSearchParams, now: Date): StayAsk | Refusa
   if (!Number.isInteger(rooms) || rooms < 1 || rooms > 5) return bad("Choose from 1 to 5 rooms.");
   if (!checkIn && !checkOut) return { checkIn: null, checkOut: null, guests, rooms };
   if (!isDate(checkIn) || !isDate(checkOut)) return bad("Choose the check-in and check-out days.");
-  const refusal = stayDatesRefusal(checkIn, checkOut, now);
+  const refusal = stayDatesRefusal(checkIn, checkOut, now, zone);
   if (refusal) return refusal;
   return { checkIn, checkOut, guests, rooms };
 }
 
-export function stayDatesRefusal(checkIn: string, checkOut: string, now: Date): Refusal | null {
-  if (checkIn < today(now)) return bad("The check-in day has passed.");
+export function stayDatesRefusal(checkIn: string, checkOut: string, now: Date, zone: string): Refusal | null {
+  const day = today(now, zone);
+  if (checkIn < day) return bad("The check-in day has passed.");
+  // 126.10 Rooms are priced up to TRAVEL_LIMITS.priceDays ahead.
+  if (checkIn > addDays(day, TRAVEL_LIMITS.priceDays)) return bad(`Choose a check-in day within ${TRAVEL_LIMITS.priceDays} days.`);
   const nights = daysBetween(checkIn, checkOut);
   if (nights < 1) return bad("Check-out comes after check-in.");
   if (nights > 30) return bad("A stay can be up to 30 nights.");
@@ -227,7 +230,7 @@ export interface HotelFilters {
   sort: "recommended" | "price" | "score" | "stars";
 }
 
-const same = (a: string | null | undefined, b: string | null | undefined) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+export const same = (a: string | null | undefined, b: string | null | undefined) => (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
 
 export async function searchHotels(deps: TravelDeps, ask: StayAsk, filters: HotelFilters, member: boolean, saved: ReadonlySet<number>) {
   const [hotels, rooms, reviews] = await Promise.all([deps.hotels.hotels(), deps.hotels.rooms(), deps.store.listTravelReviews(deps.app.id)]);
@@ -297,8 +300,8 @@ export async function hotelJson(deps: TravelDeps, hotel: TravelHotel, ask: StayA
           id: rate.id,
           name: rate.name,
           board: rate.board,
-          refundable: rate.refundable && (!until || until >= today(deps.now)),
-          free_cancel_until: until && until >= today(deps.now) ? until : null,
+          refundable: rate.refundable && (!until || until >= today(deps.now, deps.settings.timeZone)),
+          free_cancel_until: until && until >= today(deps.now, deps.settings.timeZone) ? until : null,
           pay_now: deps.settings.payNow,
           pay_at_hotel: deps.settings.payAtHotel && hotel.payAtHotel && rate.payAtHotel,
           popular: rate.popular,
@@ -351,9 +354,9 @@ export function legJson(flight: TravelFlight) {
   };
 }
 
-/** Whether a flight can still be sold: active, not cancelled, not left. */
-export function onSale(flight: TravelFlight, now: Date): boolean {
-  return flight.active && flight.status !== "cancelled" && flight.status !== "departed" && flight.status !== "landed" && wallTime(flight.departs) > now.getTime() + 2 * 3_600_000;
+/** Whether a flight can still be sold: active, not cancelled, not leaving within 2 hours (its local time, in the company's time zone). */
+export function onSale(flight: TravelFlight, now: Date, zone: string): boolean {
+  return flight.active && flight.status !== "cancelled" && flight.status !== "departed" && flight.status !== "landed" && localInstant(flight.departs, zone) > now.getTime() + 2 * 3_600_000;
 }
 
 const code = (value: string) => value.trim().toUpperCase();
@@ -405,7 +408,7 @@ export interface FlightAsk {
   direct: boolean;
 }
 
-export function readFlightAsk(query: URLSearchParams, now: Date): FlightAsk | Refusal {
+export function readFlightAsk(query: URLSearchParams, now: Date, zone: string): FlightAsk | Refusal {
   const from = query.get("from") ?? "";
   const to = query.get("to") ?? "";
   const depart = query.get("depart");
@@ -414,19 +417,19 @@ export function readFlightAsk(query: URLSearchParams, now: Date): FlightAsk | Re
   if (!/^[A-Za-z]{3}$/.test(from) || !/^[A-Za-z]{3}$/.test(to)) return bad("Choose where you fly from and to.");
   if (!isDate(depart)) return bad("Choose the day you fly.");
   if (back !== null && (!isDate(back) || back < depart)) return bad("The flight back can't be before the flight out.");
-  if (depart < today(now)) return bad("That day has passed.");
+  if (depart < today(now, zone)) return bad("That day has passed.");
   if (!Number.isInteger(adults) || adults < 1 || adults > 9) return bad("Choose from 1 to 9 travellers.");
   return { from: code(from), to: code(to), depart, back, adults, direct: query.get("direct") === "true" };
 }
 
-function routeFlights(all: readonly TravelFlight[], from: string, to: string, day: string | null, now: Date, direct: boolean): TravelFlight[] {
-  return all.filter((f) => code(f.from.code) === from && code(f.to.code) === to && (!day || f.departs.slice(0, 10) === day) && onSale(f, now) && (!direct || f.stops === 0));
+function routeFlights(all: readonly TravelFlight[], from: string, to: string, day: string | null, now: Date, zone: string, direct: boolean): TravelFlight[] {
+  return all.filter((f) => code(f.from.code) === from && code(f.to.code) === to && (!day || f.departs.slice(0, 10) === day) && onSale(f, now, zone) && (!direct || f.stops === 0));
 }
 
 /** The pairs on a route for the days asked, each with its cheapest available fare for one person. */
 async function pairsFor(deps: TravelDeps, all: readonly TravelFlight[], ask: FlightAsk, known?: readonly TravelBooking[]) {
-  const outs = routeFlights(all, ask.from, ask.to, ask.depart, deps.now, ask.direct);
-  const backs = ask.back ? routeFlights(all, ask.to, ask.from, ask.back, deps.now, ask.direct) : [];
+  const outs = routeFlights(all, ask.from, ask.to, ask.depart, deps.now, deps.settings.timeZone, ask.direct);
+  const backs = ask.back ? routeFlights(all, ask.to, ask.from, ask.back, deps.now, deps.settings.timeZone, ask.direct) : [];
   const holds = known ?? (await deps.flights.holds([...outs, ...backs].map((f) => f.id), deps.now));
   const pairs: { outbound: TravelFlight; inbound: TravelFlight | null; offers: FareOffer[]; cheapest: number | null; minutes: number }[] = [];
   for (const outbound of outs) {
@@ -458,16 +461,16 @@ export async function cheapestOn(
 }
 
 /** The bookings holding seats on any of the flights on sale: read once for a whole month or a route's weeks. */
-export async function allHolds(deps: Pick<TravelDeps, "flights" | "now">, all: readonly TravelFlight[]): Promise<TravelBooking[]> {
-  const ids = all.filter((f) => onSale(f, deps.now)).map((f) => f.id);
+export async function allHolds(deps: Pick<TravelDeps, "flights" | "now" | "settings">, all: readonly TravelFlight[]): Promise<TravelBooking[]> {
+  const ids = all.filter((f) => onSale(f, deps.now, deps.settings.timeZone)).map((f) => f.id);
   return ids.length ? deps.flights.holds(ids, deps.now) : [];
 }
 
 /** The days ahead a route flies, within `days`. */
-function routeDays(all: readonly TravelFlight[], from: string, to: string, now: Date, days: number): string[] {
-  const first = today(now);
+function routeDays(all: readonly TravelFlight[], from: string, to: string, now: Date, zone: string, days: number): string[] {
+  const first = today(now, zone);
   const last = addDays(first, days);
-  return [...new Set(all.filter((f) => code(f.from.code) === from && code(f.to.code) === to && onSale(f, now)).map((f) => f.departs.slice(0, 10)))].filter((d) => d >= first && d <= last).sort();
+  return [...new Set(all.filter((f) => code(f.from.code) === from && code(f.to.code) === to && onSale(f, now, zone)).map((f) => f.departs.slice(0, 10)))].filter((d) => d >= first && d <= last).sort();
 }
 
 export async function searchFlights(deps: TravelDeps, ask: FlightAsk) {
@@ -509,7 +512,7 @@ export async function searchFlights(deps: TravelDeps, ask: FlightAsk) {
     const nights = ask.back ? Math.max(1, daysBetween(ask.depart, ask.back)) : null;
     const prices: number[] = [];
     const holds = await allHolds(deps, all);
-    for (const day of routeDays(all, ask.from, ask.to, deps.now, 56).slice(0, 40)) {
+    for (const day of routeDays(all, ask.from, ask.to, deps.now, deps.settings.timeZone, 56).slice(0, 40)) {
       const c = await cheapestOn(deps, all, ask.from, ask.to, day, nights, ask.adults, holds);
       if (c) prices.push(c.cents);
     }
@@ -542,7 +545,7 @@ export async function flightCalendar(deps: TravelDeps, from: string, to: string,
   const first = `${month}-01`;
   const days: { date: string; cents: number | null }[] = [];
   for (let d = first; d.slice(0, 7) === month; d = addDays(d, 1)) {
-    const c = d < today(deps.now) ? null : await cheapestOn(deps, all, code(from), code(to), d, nights, adults, holds);
+    const c = d < today(deps.now, deps.settings.timeZone) ? null : await cheapestOn(deps, all, code(from), code(to), d, nights, adults, holds);
     days.push({ date: d, cents: c?.cents ?? null });
   }
   const prices = days.flatMap((d) => (d.cents === null ? [] : [d.cents]));
@@ -582,7 +585,7 @@ export async function seatMapJson(deps: TravelDeps, flight: TravelFlight) {
 
 export async function places(deps: TravelDeps) {
   const [hotels, flights] = await Promise.all([deps.settings.hotels ? deps.hotels.hotels() : Promise.resolve([]), deps.settings.flights ? deps.flights.flights() : Promise.resolve([])]);
-  const live = flights.filter((f) => onSale(f, deps.now));
+  const live = flights.filter((f) => onSale(f, deps.now, deps.settings.timeZone));
   const airports = new Map<string, { code: string; city: string; airport: string | null }>();
   for (const f of live) for (const p of [f.from, f.to]) if (!airports.has(code(p.code))) airports.set(code(p.code), { code: code(p.code), city: p.city, airport: p.airport });
   const cities = new Map<string, { city: string; country: string | null; hotels: number; code: string | null }>();
@@ -618,7 +621,7 @@ export async function explore(deps: TravelDeps, from: string | null, nights: num
     deps.settings.hotels ? deps.hotels.rooms() : Promise.resolve([]),
     deps.settings.flights ? deps.flights.flights() : Promise.resolve([]),
   ]);
-  const live = flights.filter((f) => onSale(f, deps.now));
+  const live = flights.filter((f) => onSale(f, deps.now, deps.settings.timeZone));
   const home = homeAirport(live, from);
   const holds = await allHolds(deps, live);
   const active = hotels.filter((h) => h.active);
@@ -633,7 +636,7 @@ export async function explore(deps: TravelDeps, from: string | null, nights: num
     let trip: number | null = null;
     if (airport && home) {
       let fare: number | null = null;
-      for (const day of routeDays(live, home.code, code(airport.code), deps.now, 120).slice(0, 30)) {
+      for (const day of routeDays(live, home.code, code(airport.code), deps.now, deps.settings.timeZone, 120).slice(0, 30)) {
         const c = await cheapestOn(deps, live, home.code, code(airport.code), day, nights, 1, holds);
         if (c && (fare === null || c.cents < fare)) fare = c.cents;
       }

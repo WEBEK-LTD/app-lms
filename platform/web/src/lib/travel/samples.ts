@@ -307,6 +307,7 @@ export async function makeTravelSamples(deps: TravelSampleDeps): Promise<{ hotel
   const { store, app, now, sample } = deps;
   const settings = await store.getTravelSettings(app.id);
   if (!settings) await store.saveTravelSettings(app.id, { ...TRAVEL_DEMO_SETTINGS, samplesAdded: true }, now);
+  const zone = travelSettingsOf(settings ?? TRAVEL_DEMO_SETTINGS, app).timeZone;
   let hotels = 0;
   let flights = 0;
   if (deps.only !== "flights" && (await store.listTravelHotels(app.id)).length === 0) {
@@ -328,11 +329,11 @@ export async function makeTravelSamples(deps: TravelSampleDeps): Promise<{ hotel
       const hotelId = made[r.hotel];
       if (hotelId === undefined) continue;
       // Reviews of stays before the app had bookings: their booking IDs are out of the bookings' range.
-      await store.addTravelReview({ appId: app.id, hotelId, bookingId: 900_000_000 + i, userId: null, name: r.name, score: r.score, staff: r.staff, clean: r.clean, location: r.location, value: r.value, trip: r.trip, text: r.text, stayed: today(now).slice(0, 7), hidden: false, createdAt: new Date(now.getTime() - (i + 1) * 86_400_000) });
+      await store.addTravelReview({ appId: app.id, hotelId, bookingId: 900_000_000 + i, userId: null, name: r.name, score: r.score, staff: r.staff, clean: r.clean, location: r.location, value: r.value, trip: r.trip, text: r.text, stayed: today(now, zone).slice(0, 7), hidden: false, createdAt: new Date(now.getTime() - (i + 1) * 86_400_000) });
     }
   }
   if (deps.only !== "hotels" && (await store.listTravelFlights(app.id)).length === 0) {
-    for (const f of flightsFor(app.id, addDays(today(now), 2), addDays(today(now), TRAVEL_WEEKS * 7), sample)) {
+    for (const f of flightsFor(app.id, addDays(today(now, zone), 2), addDays(today(now, zone), TRAVEL_WEEKS * 7), sample)) {
       await store.createTravelFlight(f, now);
       flights++;
     }
@@ -347,17 +348,18 @@ export async function makeTravelSamples(deps: TravelSampleDeps): Promise<{ hotel
  */
 export async function rollTravelFlights(store: DataStore, app: App, now: Date): Promise<number> {
   const flights = await store.listTravelFlights(app.id);
-  const first = addDays(today(now), 2);
+  const zone = travelSettingsOf(await store.getTravelSettings(app.id), app).timeZone;
+  const first = addDays(today(now, zone), 2);
   let removed = 0;
   for (const f of flights) {
-    if (f.departs.slice(0, 10) >= today(now)) continue;
+    if (f.departs.slice(0, 10) >= today(now, zone)) continue;
     const held = await store.listTravelHolds(app.id, { flightIds: [f.id] }, new Date(0));
     if (held.length) continue;
     await store.deleteTravelFlight(app.id, f.id);
     removed++;
   }
   const last = flights.reduce((max, f) => (f.departs.slice(0, 10) > max ? f.departs.slice(0, 10) : max), addDays(first, -1));
-  const until = addDays(today(now), TRAVEL_WEEKS * 7);
+  const until = addDays(today(now, zone), TRAVEL_WEEKS * 7);
   if (last < until) for (const f of flightsFor(app.id, addDays(last, 1) < first ? first : addDays(last, 1), until, false)) await store.createTravelFlight(f, now);
   return removed;
 }

@@ -245,6 +245,11 @@ class AuthController extends Notifier<AuthState> {
       await ref.read(sharedPreferencesProvider).remove(membershipWalletKey);
       // 112.1 And their Home, Work and recent places.
       await ref.read(sharedPreferencesProvider).remove(savedPlacesKey);
+      // 126.10 And their boarding passes.
+      final prefs = ref.read(sharedPreferencesProvider);
+      for (final key in prefs.getKeys().toList()) {
+        if (key.startsWith(boardingPassesKeyPrefix)) await prefs.remove(key);
+      }
     } on Object {
       // No preferences (tests without them): nothing was kept.
     }

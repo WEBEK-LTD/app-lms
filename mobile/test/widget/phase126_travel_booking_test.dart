@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/core/api/api_exception.dart';
+import 'package:yallapp/core/api/models/models.dart';
+import 'package:yallapp/core/auth/auth_controller.dart';
+import 'package:yallapp/core/config/build_config.dart';
+import 'package:yallapp/core/providers.dart';
+import 'package:yallapp/core/storage/local_settings.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:yallapp/modules/travel/data/travel_providers.dart';
 import 'package:yallapp/modules/travel/travel_paths.dart';
@@ -19,6 +26,16 @@ void usePhone(WidgetTester tester) {
     ..physicalSize = const Size(390, 844) * 2
     ..devicePixelRatio = 2;
   addTearDown(view.reset);
+}
+
+/// 126.10 Where the passes of [booking] are kept for the signed-in person.
+String passesKey(TestApp app, int booking) {
+  final build = app.container.read(appEnvironmentProvider).build;
+  return boardingPassesKey(
+    build.appId ?? apiUrlOf(build),
+    app.container.read(authControllerProvider).user?.id,
+    booking,
+  );
 }
 
 TestApp travelApp({String lang = 'en'}) => TestApp(
@@ -160,15 +177,75 @@ void main() {
     expect(find.text('B12'), findsWidgets);
     expect(find.text('14A'), findsOneWidget);
     expect(find.byType(QrImageView), findsOneWidget);
-    final kept = (await SharedPreferences.getInstance()).getString(
-      'travel.passes.1',
-    );
+    final prefs = await SharedPreferences.getInstance();
+    // 126.10 Kept under this app's, this person's and this booking's key.
+    final key = passesKey(app, 1);
+    expect(key, startsWith('travel.passes.'));
+    expect(key, isNot('travel.passes.1'));
+    final kept = prefs.getString(key);
     expect(kept, contains('YT1.T-SAFRA1.1.1.signed'));
     expect(kept, contains('OMAR HASSAN'));
     // The next traveller's pass.
     await tester.drag(find.byType(PageView), const Offset(-300, 0));
     await TestApp.settle(tester);
     expect(find.text('OMAR HASSAN'), findsOneWidget);
+    // Signing out forgets them.
+    await app.container.read(authControllerProvider.notifier).signOut();
+    expect(
+      prefs.getKeys().where((k) => k.startsWith('travel.passes.')),
+      isEmpty,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('126.10 passes kept for a booking that has none anymore are '
+      'forgotten', (tester) async {
+    usePhone(tester);
+    final app = travelApp();
+    final fake = app.api.travelHandler!;
+    app.api.travelHandler = (method, path, query, body) =>
+        path == '/me/travel/bookings/1/passes'
+        ? throw const ApiException(
+            statusCode: 409,
+            code: 'not_open',
+            message: 'Boarding passes show here once check-in opens.',
+          )
+        : fake(method, path, query, body);
+    await app.pump(tester);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      passesKey(app, 1),
+      jsonEncode(travelJson('passes')['items']),
+    );
+    await open(app, tester, TravelPaths.passes(1));
+    expect(find.text('LAYLA HASSAN'), findsNothing);
+    expect(prefs.containsKey(passesKey(app, 1)), isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('126.10 the trip counts down to the moment the platform gives, '
+      'not the local time read in the phone\'s zone', (tester) async {
+    usePhone(tester);
+    final app = travelApp();
+    final fake = app.api.travelHandler!;
+    final at = DateTime.now().toUtc().add(
+      const Duration(days: 3, hours: 5, minutes: 30),
+    );
+    app.api.travelHandler = (method, path, query, body) =>
+        method == 'GET' && path == '/me/travel/bookings/1'
+        ? {
+            ...travelJson('booking'),
+            'starts': '2020-01-01T09:00',
+            'starts_at': at.toIso8601String(),
+          }
+        : fake(method, path, query, body);
+    await app.pump(tester);
+    await open(app, tester, TravelPaths.trip(1));
+    expect(find.text('Starts in 3 days, 5 h'), findsOneWidget);
+    expect(
+      TravelBooking.fromJson(travelJson('booking')).startsAt,
+      DateTime.parse(travelJson('booking')['starts_at'] as String),
+    );
     expect(tester.takeException(), isNull);
   });
 

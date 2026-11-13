@@ -6,7 +6,7 @@ import { requireClient } from "@/lib/auth/session";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
 import { appPlan } from "@/lib/entitlements";
-import { travelSettingsFormValues } from "@/lib/travel/forms";
+import { TRAVEL_TIMEZONES, travelSettingsFormValues } from "@/lib/travel/forms";
 import { travelMode, travelSettingsOf, travelTabLabels } from "@/lib/travel/settings";
 import { TravelSettingsForm } from "../forms";
 import { isTravel, NotTravel, TravelPlanNotice } from "../parts";
@@ -22,7 +22,7 @@ export default async function TravelSettingsPage() {
   if (!isTravel(app)) return <NotTravel title={t("travel.settings")} t={t} />;
   const store = await getStore();
   const [saved, plan] = await Promise.all([store.getTravelSettings(app.id), appPlan(store, license, new Date())]);
-  const settings = travelSettingsOf(saved);
+  const settings = travelSettingsOf(saved, app);
   const mode = travelMode(settings);
   return (
     <div className="flex flex-col gap-6">
@@ -34,7 +34,7 @@ export default async function TravelSettingsPage() {
         </p>
       </Section>
       <Section titleId="h-settings" title={t("travel.settings")}>
-        <TravelSettingsForm values={travelSettingsFormValues(settings)} />
+        <TravelSettingsForm values={travelSettingsFormValues(settings)} zones={[...new Set([settings.timeZone, ...TRAVEL_TIMEZONES])]} />
       </Section>
     </div>
   );

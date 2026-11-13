@@ -4,7 +4,7 @@ import path from "node:path";
 import { sha256Hex } from "../crypto/tokens";
 import type { DataStore } from "../data/store";
 import type { App, AssetKind, HostedUser, TravelBookingInput } from "../data/types";
-import { linesOf } from "../travel/bookings";
+import { isTrip, linesOf } from "../travel/bookings";
 import { linesTotal, stayNights, addDays, today } from "../travel/pricing";
 import { makeTravelSamples, rollTravelFlights, TRAVEL_DEMO_SETTINGS, type TravelPhoto } from "../travel/samples";
 import { travelSettingsOf } from "../travel/settings";
@@ -54,10 +54,10 @@ export async function syncTravelDemo(deps: PictureDeps, app: App): Promise<void>
  */
 export async function seedDemoTrip(store: DataStore, app: App, user: HostedUser, now: Date): Promise<void> {
   const mine = await store.listTravelBookings({ appId: app.id, userId: user.id, page: 1, perPage: 100 });
-  for (const b of mine.items) if (b.sample && b.stay?.checkIn && b.stay.checkIn >= today(now)) return;
-  const settings = travelSettingsOf(await store.getTravelSettings(app.id));
+  const settings = travelSettingsOf(await store.getTravelSettings(app.id), app);
+  for (const b of mine.items) if (b.sample && b.stay?.checkIn && b.stay.checkIn >= today(now, settings.timeZone)) return;
   const flights = await store.listTravelFlights(app.id);
-  const out = flights.find((f) => f.from.code === "CAI" && f.to.code === "DPS" && f.departs.slice(0, 10) >= addDays(today(now), 2));
+  const out = flights.find((f) => f.from.code === "CAI" && f.to.code === "DPS" && f.departs.slice(0, 10) >= addDays(today(now, settings.timeZone), 2));
   const back = out ? flights.find((f) => f.from.code === "DPS" && f.to.code === "CAI" && f.departs.slice(0, 10) >= addDays(out.arrives.slice(0, 10), 4)) : undefined;
   const hotel = (await store.listTravelHotels(app.id)).find((h) => h.city === "Bali");
   const room = hotel ? (await store.listTravelRooms(app.id, hotel.id))[0] : undefined;
@@ -100,7 +100,7 @@ export async function seedDemoTrip(store: DataStore, app: App, user: HostedUser,
     refundFeeCents: fare.refundFeeCents,
   };
   const transfer = settings.transfer ? { cents: settings.transfer.cents, note: settings.transfer.note } : null;
-  const lines = linesOf({ settings }, { stay, flight, transfer }, true, hotel);
+  const lines = linesOf({ settings }, { stay, flight, transfer }, true, hotel, [], isTrip(stay, hotel, out, back));
   const total = linesTotal(lines);
   const booking: TravelBookingInput = {
     appId: app.id,

@@ -572,6 +572,7 @@ export const SERVER_MESSAGES_AR: Record<string, string> = {
   "The check-in day has passed.": "مضى يوم الوصول.",
   "Check-out comes after check-in.": "تأتي المغادرة بعد الوصول.",
   "A stay can be up to 30 nights.": "يمكن أن تصل الإقامة إلى 30 ليلة.",
+  "Choose a check-in day within {0} days.": "اختر يوم وصول خلال {0} يومًا.",
   "Choose where you fly from and to.": "اختر من أين وإلى أين تسافر.",
   "Choose the day you fly.": "اختر يوم السفر.",
   "The flight back can't be before the flight out.": "لا يمكن أن تكون رحلة العودة قبل رحلة الذهاب.",

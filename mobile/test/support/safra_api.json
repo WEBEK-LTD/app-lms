@@ -254,24 +254,24 @@
     "airport": "Cairo International"
    },
    {
-    "code": "DXB",
-    "city": "Dubai",
-    "airport": "Dubai International"
-   },
-   {
     "code": "IST",
     "city": "Istanbul",
     "airport": "Istanbul Airport"
    },
    {
-    "code": "DPS",
-    "city": "Bali",
-    "airport": "Ngurah Rai International"
-   },
-   {
     "code": "JTR",
     "city": "Santorini",
     "airport": "Santorini (Thira)"
+   },
+   {
+    "code": "DXB",
+    "city": "Dubai",
+    "airport": "Dubai International"
+   },
+   {
+    "code": "DPS",
+    "city": "Bali",
+    "airport": "Ngurah Rai International"
    }
   ]
  },
@@ -526,7 +526,7 @@
    "score": 10,
    "trip": "couple",
    "text": "Sunrise from the pool, and the staff remembered our names on day two.",
-   "stayed": "2027-02"
+   "stayed": "2027-03"
   },
   "reviews_list": [
    {
@@ -534,21 +534,21 @@
     "score": 10,
     "trip": "couple",
     "text": "Sunrise from the pool, and the staff remembered our names on day two.",
-    "stayed": "2027-02"
+    "stayed": "2027-03"
    },
    {
     "name": "Daniel",
     "score": 9,
     "trip": "family",
     "text": "The beach is right there and the children loved the garden.",
-    "stayed": "2027-02"
+    "stayed": "2027-03"
    },
    {
     "name": "Elif",
     "score": 9,
     "trip": "friends",
     "text": null,
-    "stayed": "2027-02"
+    "stayed": "2027-03"
    }
   ],
   "nights": 4,
@@ -707,13 +707,14 @@
   "items": [
    {
     "id": 1,
-    "reference": "T-D270303",
+    "reference": "T-D270306",
     "kind": "trip",
     "status": "confirmed",
     "created_at": "2027-03-01T08:01:01.000Z",
     "hold_until": null,
-    "starts": "2027-03-02T21:05",
-    "ends": "2027-03-08T05:15",
+    "starts": "2027-03-05T21:05",
+    "starts_at": "2027-03-05T18:05:00.000Z",
+    "ends": "2027-03-12T05:15",
     "stay": {
      "hotel": {
       "id": 1,
@@ -730,19 +731,19 @@
      "room_name": "Deluxe Ocean View · King",
      "rate_name": "Breakfast for 2",
      "board": "breakfast",
-     "check_in": "2027-03-03",
-     "check_out": "2027-03-07",
-     "nights": 4,
+     "check_in": "2027-03-06",
+     "check_out": "2027-03-11",
+     "nights": 5,
      "guests": 2,
      "rooms": 1,
      "refundable": true,
-     "free_cancel_until": "2027-02-28",
+     "free_cancel_until": "2027-03-03",
      "can_review": false,
      "review": null
     },
     "flights": [
      {
-      "flight_id": 3,
+      "flight_id": 11,
       "number": "SFR 471",
       "carrier": {
        "name": "Safra Air",
@@ -761,8 +762,8 @@
        "airport": "Ngurah Rai International",
        "terminal": "I"
       },
-      "departs": "2027-03-02T21:05",
-      "arrives": "2027-03-03T14:35",
+      "departs": "2027-03-05T21:05",
+      "arrives": "2027-03-06T14:35",
       "days_later": 1,
       "minutes": 690,
       "stops": 1,
@@ -788,7 +789,7 @@
       ]
      },
      {
-      "flight_id": 22,
+      "flight_id": 33,
       "number": "SFR 472",
       "carrier": {
        "name": "Safra Air",
@@ -807,8 +808,8 @@
        "airport": "Cairo International",
        "terminal": "3"
       },
-      "departs": "2027-03-07T23:15",
-      "arrives": "2027-03-08T05:15",
+      "departs": "2027-03-11T23:15",
+      "arrives": "2027-03-12T05:15",
       "days_later": 1,
       "minutes": 720,
       "stops": 1,
@@ -858,7 +859,7 @@
     "payment": {
      "method": "now",
      "status": "paid",
-     "paid_formatted": "$2,808.80",
+     "paid_formatted": "$3,170.50",
      "due": null,
      "due_formatted": null
     },
@@ -867,37 +868,37 @@
      {
       "kind": "fare",
       "count": 2,
-      "unit_formatted": "$989.00",
-      "amount": "1978.00",
-      "amount_formatted": "$1,978.00"
+      "unit_formatted": "$1,072.00",
+      "amount": "2144.00",
+      "amount_formatted": "$2,144.00"
      },
      {
       "kind": "nights",
-      "count": 4,
+      "count": 5,
       "unit_formatted": "$190.00",
-      "amount": "760.00",
-      "amount_formatted": "$760.00"
+      "amount": "950.00",
+      "amount_formatted": "$950.00"
      },
      {
       "kind": "taxes",
       "count": 1,
       "unit_formatted": null,
-      "amount": "159.60",
-      "amount_formatted": "$159.60"
+      "amount": "199.50",
+      "amount_formatted": "$199.50"
      },
      {
       "kind": "member",
       "count": 1,
       "unit_formatted": null,
-      "amount": "-76.00",
-      "amount_formatted": "−$76.00"
+      "amount": "-95.00",
+      "amount_formatted": "−$95.00"
      },
      {
       "kind": "bundle",
       "count": 1,
       "unit_formatted": null,
-      "amount": "-60.80",
-      "amount_formatted": "−$60.80"
+      "amount": "-76.00",
+      "amount_formatted": "−$76.00"
      },
      {
       "kind": "transfer",
@@ -907,13 +908,13 @@
       "amount_formatted": "$48.00"
      }
     ],
-    "total": "2808.80",
-    "total_formatted": "$2,808.80",
+    "total": "3170.50",
+    "total_formatted": "$3,170.50",
     "cancellation": null,
     "can_cancel": true,
-    "cancel_refund_formatted": "$2,688.80",
+    "cancel_refund_formatted": "$3,050.50",
     "can_change": true,
-    "passes_open": true
+    "passes_open": false
    }
   ],
   "page": 1,
@@ -923,13 +924,14 @@
  },
  "booking": {
   "id": 1,
-  "reference": "T-D270303",
+  "reference": "T-D270306",
   "kind": "trip",
   "status": "confirmed",
   "created_at": "2027-03-01T08:01:01.000Z",
   "hold_until": null,
-  "starts": "2027-03-02T21:05",
-  "ends": "2027-03-08T05:15",
+  "starts": "2027-03-05T21:05",
+  "starts_at": "2027-03-05T18:05:00.000Z",
+  "ends": "2027-03-12T05:15",
   "stay": {
    "hotel": {
     "id": 1,
@@ -946,19 +948,19 @@
    "room_name": "Deluxe Ocean View · King",
    "rate_name": "Breakfast for 2",
    "board": "breakfast",
-   "check_in": "2027-03-03",
-   "check_out": "2027-03-07",
-   "nights": 4,
+   "check_in": "2027-03-06",
+   "check_out": "2027-03-11",
+   "nights": 5,
    "guests": 2,
    "rooms": 1,
    "refundable": true,
-   "free_cancel_until": "2027-02-28",
+   "free_cancel_until": "2027-03-03",
    "can_review": false,
    "review": null
   },
   "flights": [
    {
-    "flight_id": 3,
+    "flight_id": 11,
     "number": "SFR 471",
     "carrier": {
      "name": "Safra Air",
@@ -977,8 +979,8 @@
      "airport": "Ngurah Rai International",
      "terminal": "I"
     },
-    "departs": "2027-03-02T21:05",
-    "arrives": "2027-03-03T14:35",
+    "departs": "2027-03-05T21:05",
+    "arrives": "2027-03-06T14:35",
     "days_later": 1,
     "minutes": 690,
     "stops": 1,
@@ -1004,7 +1006,7 @@
     ]
    },
    {
-    "flight_id": 22,
+    "flight_id": 33,
     "number": "SFR 472",
     "carrier": {
      "name": "Safra Air",
@@ -1023,8 +1025,8 @@
      "airport": "Cairo International",
      "terminal": "3"
     },
-    "departs": "2027-03-07T23:15",
-    "arrives": "2027-03-08T05:15",
+    "departs": "2027-03-11T23:15",
+    "arrives": "2027-03-12T05:15",
     "days_later": 1,
     "minutes": 720,
     "stops": 1,
@@ -1074,7 +1076,7 @@
   "payment": {
    "method": "now",
    "status": "paid",
-   "paid_formatted": "$2,808.80",
+   "paid_formatted": "$3,170.50",
    "due": null,
    "due_formatted": null
   },
@@ -1083,37 +1085,37 @@
    {
     "kind": "fare",
     "count": 2,
-    "unit_formatted": "$989.00",
-    "amount": "1978.00",
-    "amount_formatted": "$1,978.00"
+    "unit_formatted": "$1,072.00",
+    "amount": "2144.00",
+    "amount_formatted": "$2,144.00"
    },
    {
     "kind": "nights",
-    "count": 4,
+    "count": 5,
     "unit_formatted": "$190.00",
-    "amount": "760.00",
-    "amount_formatted": "$760.00"
+    "amount": "950.00",
+    "amount_formatted": "$950.00"
    },
    {
     "kind": "taxes",
     "count": 1,
     "unit_formatted": null,
-    "amount": "159.60",
-    "amount_formatted": "$159.60"
+    "amount": "199.50",
+    "amount_formatted": "$199.50"
    },
    {
     "kind": "member",
     "count": 1,
     "unit_formatted": null,
-    "amount": "-76.00",
-    "amount_formatted": "−$76.00"
+    "amount": "-95.00",
+    "amount_formatted": "−$95.00"
    },
    {
     "kind": "bundle",
     "count": 1,
     "unit_formatted": null,
-    "amount": "-60.80",
-    "amount_formatted": "−$60.80"
+    "amount": "-76.00",
+    "amount_formatted": "−$76.00"
    },
    {
     "kind": "transfer",
@@ -1123,12 +1125,12 @@
     "amount_formatted": "$48.00"
    }
   ],
-  "total": "2808.80",
-  "total_formatted": "$2,808.80",
+  "total": "3170.50",
+  "total_formatted": "$3,170.50",
   "cancellation": null,
   "can_cancel": true,
-  "cancel_refund_formatted": "$2,688.80",
+  "cancel_refund_formatted": "$3,050.50",
   "can_change": true,
-  "passes_open": true
+  "passes_open": false
  }
 }

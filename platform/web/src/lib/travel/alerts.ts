@@ -16,8 +16,8 @@ const code = (value: string) => value.trim().toUpperCase();
 const DEFAULT_NIGHTS = 7;
 
 /** The days an alert looks at: its month, else the next 90 days. */
-function alertDays(alert: Pick<TravelAlert, "month">, now: Date): string[] {
-  const first = today(now);
+function alertDays(alert: Pick<TravelAlert, "month">, now: Date, zone: string): string[] {
+  const first = today(now, zone);
   const days: string[] = [];
   if (alert.month) {
     for (let d = `${alert.month}-01`; d.slice(0, 7) === alert.month; d = addDays(d, 1)) if (d >= first) days.push(d);
@@ -36,9 +36,9 @@ export interface AlertPrice {
 
 async function cheapestRoute(deps: TravelDeps, flights: readonly TravelFlight[], holds: readonly TravelBooking[], alert: TravelAlert, to: string) {
   const nights = alert.roundTrip ? (alert.nights ?? DEFAULT_NIGHTS) : null;
-  const days = new Set(flights.filter((f) => code(f.from.code) === code(alert.from) && code(f.to.code) === to && onSale(f, deps.now)).map((f) => f.departs.slice(0, 10)));
+  const days = new Set(flights.filter((f) => code(f.from.code) === code(alert.from) && code(f.to.code) === to && onSale(f, deps.now, deps.settings.timeZone)).map((f) => f.departs.slice(0, 10)));
   let best: { cents: number; left: number } | null = null;
-  for (const day of alertDays(alert, deps.now)) {
+  for (const day of alertDays(alert, deps.now, deps.settings.timeZone)) {
     if (!days.has(day)) continue;
     const c = await cheapestOn(deps, flights, code(alert.from), to, day, nights, alert.travellers, holds);
     if (c && (!best || c.cents < best.cents)) best = c;
@@ -61,7 +61,7 @@ export async function priceAlert(deps: TravelDeps, alert: TravelAlert, flights?:
   const all = flights ?? (await deps.flights.flights());
   const held = holds ?? (await allHolds(deps, all));
   if (alert.kind === "anywhere") {
-    const tos = [...new Set(all.filter((f) => code(f.from.code) === code(alert.from) && onSale(f, deps.now)).map((f) => code(f.to.code)))];
+    const tos = [...new Set(all.filter((f) => code(f.from.code) === code(alert.from) && onSale(f, deps.now, deps.settings.timeZone)).map((f) => code(f.to.code)))];
     let matches = 0;
     let best: { cents: number; left: number } | null = null;
     let photo: string | null = null;

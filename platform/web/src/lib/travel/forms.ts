@@ -1,3 +1,4 @@
+import { isTimeZone } from "../analytics/zone";
 import { CATALOG_CURRENCIES, centsToDecimal, parsePrice } from "../catalog/money";
 import type { CatalogCurrency, TravelAmenity, TravelBoard, TravelFare, TravelFareId, TravelFlight, TravelFlightAmenity, TravelFlightStatus, TravelHotel, TravelHotelKind, TravelRate, TravelRoom, TravelSeatMap, TravelSettings } from "../data/types";
 import { TRAVEL_AMENITIES, TRAVEL_BOARDS, TRAVEL_FARE_IDS, TRAVEL_FLIGHT_AMENITIES, TRAVEL_FLIGHT_STATUSES, TRAVEL_HOTEL_KINDS } from "../data/types";
@@ -544,6 +545,8 @@ export function parseTravelSettingsForm(form: Record<string, string>): Parsed<Tr
   if (font && !freeFont(font)) errors.displayFont = "Choose a free font by its name, like Fraunces.";
   const email = str(form, "helpEmail");
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.helpEmail = "That email doesn't look right.";
+  const timeZone = str(form, "timeZone");
+  if (!isTimeZone(timeZone)) errors.timeZone = "Choose a time zone.";
   const value: TravelSettingsForm = {
     currency: currency ?? "USD",
     payNow,
@@ -555,6 +558,7 @@ export function parseTravelSettingsForm(form: Record<string, string>): Parsed<Tr
     mealCents: money(form, "meal", errors),
     displayFont: font || null,
     help: { phone: text(form, "helpPhone", 30, errors), email: email || null, whatsapp: text(form, "helpWhatsapp", 30, errors) },
+    timeZone,
   };
   if (on(form, "transferOn") && transferCents === 0) errors.transfer = "Enter the transfer's price.";
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, value };
@@ -576,5 +580,9 @@ export function travelSettingsFormValues(s: TravelSettings): Record<string, stri
     helpPhone: s.help.phone ?? "",
     helpEmail: s.help.email ?? "",
     helpWhatsapp: s.help.whatsapp ?? "",
+    timeZone: s.timeZone,
   };
 }
+
+/** 126.10 The time zones Travel settings offers (the one saved is offered too). */
+export const TRAVEL_TIMEZONES = ["Europe/Istanbul", "Africa/Cairo", "Asia/Riyadh", "Asia/Dubai", "Asia/Qatar", "Asia/Kuwait", "Asia/Amman", "Asia/Beirut", "Asia/Baghdad", "Africa/Casablanca", "Africa/Tunis", "Africa/Algiers", "Europe/London", "Europe/Berlin", "Europe/Paris", "Asia/Makassar"] as const;

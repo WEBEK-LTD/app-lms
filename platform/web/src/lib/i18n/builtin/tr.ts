@@ -573,6 +573,7 @@ export const SERVER_MESSAGES_TR: Record<string, string> = {
   "The check-in day has passed.": "Giriş günü geçti.",
   "Check-out comes after check-in.": "Çıkış, girişten sonra gelir.",
   "A stay can be up to 30 nights.": "Bir konaklama en fazla 30 gece olabilir.",
+  "Choose a check-in day within {0} days.": "{0} gün içinde bir giriş günü seçin.",
   "Choose where you fly from and to.": "Nereden nereye uçacağınızı seçin.",
   "Choose the day you fly.": "Uçacağınız günü seçin.",
   "The flight back can't be before the flight out.": "Dönüş uçuşu gidişten önce olamaz.",

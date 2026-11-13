@@ -4,7 +4,10 @@ import { registerClient } from "@/lib/auth/accounts";
 import { newApp } from "@/lib/app/setup";
 import type { DataStore } from "@/lib/data/store";
 import type { App, TravelBookingInput } from "@/lib/data/types";
-import { freeUnits } from "@/lib/travel/pricing";
+import { sha256Hex } from "@/lib/crypto/tokens";
+import { cancelPatch, refundedPatch, settledPayment } from "@/lib/travel/bookings";
+import { markTravelPaid, payTravelBooking, travelPayLink } from "@/lib/travel/payment";
+import { dueCents, freeUnits } from "@/lib/travel/pricing";
 import { DEFAULT_TRAVEL_SETTINGS } from "@/lib/travel/settings";
 import { flightInput, hotelInput, roomInput } from "./travel-fixtures";
 
@@ -139,6 +142,92 @@ export function travelStoreSuite(storeOf: () => DataStore) {
     const other = await travelApp();
     expect((await store.listTravelBookings({ appId: other.app.id, page: 1, perPage: 10 })).total).toBe(0);
     expect(await store.getTravelBooking(other.app.id, first.booking.id)).toBeNull();
+  });
+
+  it("126.10 refunds only what is paid over the total, and a refund marked done is no longer paid (a later full cancel refunds the rest only)", async () => {
+    const store = storeOf();
+    const t = await travelApp();
+    // 500 paid, the total lowered to 100, then raised again to 500: nothing is due back anymore.
+    expect(settledPayment({ paidCents: 500_00, paymentStatus: "paid" }, 100_00)).toEqual({ refundCents: 400_00, paymentStatus: "refund_due" });
+    expect(settledPayment({ paidCents: 500_00, paymentStatus: "refund_due" }, 500_00)).toEqual({ refundCents: 0, paymentStatus: "paid" });
+    expect(settledPayment({ paidCents: 500_00, paymentStatus: "refund_due" }, 700_00)).toEqual({ refundCents: 0, paymentStatus: "unpaid" });
+    const made = await store.createTravelBooking(booking(t.app.id, t.userId, t.roomId, t.flightId, { paidCents: 500_00, refundCents: 200_00, paymentStatus: "refund_due" }), () => null, NOW);
+    if (!made.ok) throw new Error("not booked");
+    const refunded = await store.updateTravelBooking(t.app.id, made.booking.id, refundedPatch(made.booking, NOW), { statuses: [made.booking.status] }, NOW);
+    expect(refunded).toMatchObject({ ok: true, booking: { paymentStatus: "refunded", paidCents: 300_00, refundCents: 0, changes: [{ what: "Refunded 200 USD" }] } });
+    if (!refunded.ok) return;
+    const cancelled = await store.updateTravelBooking(t.app.id, made.booking.id, cancelPatch(refunded.booking, "company", null, NOW, "Europe/Istanbul", true), { statuses: ["confirmed"] }, NOW);
+    expect(cancelled).toMatchObject({ ok: true, booking: { status: "cancelled", refundCents: 300_00, paymentStatus: "refund_due" } });
+  });
+
+  it("126.10 keeps a booking paid for less than it costs now awaiting the rest, with its hold, and confirms it once all is paid", async () => {
+    const store = storeOf();
+    const t = await travelApp();
+    const made = await store.createTravelBooking(
+      booking(t.app.id, t.userId, t.roomId, t.flightId, { status: "awaiting_payment", paymentStatus: "unpaid", paidCents: 0, holdUntil: new Date(NOW.getTime() + 30 * 60_000) }),
+      () => null,
+      NOW,
+    );
+    if (!made.ok) throw new Error("not booked");
+    const first = await travelPayLink(store, t.app, made.booking, "https://yallapp.test", NOW, "test-signing");
+    expect(first.order.totalCents).toBe(300_00);
+    // The dates changed while the payment page was open: it costs 500 now.
+    await store.updateTravelBooking(t.app.id, made.booking.id, { totalCents: 500_00, lines: [{ kind: "fare", count: 2, unitCents: 250_00, cents: 500_00 }] }, { statuses: ["awaiting_payment"] }, NOW);
+    const later = new Date(NOW.getTime() + 5 * 60_000);
+    const part = await payTravelBooking(store, t.app, { ...first.order, status: "processing" }, later);
+    expect(part).toMatchObject({ status: "awaiting_payment", paidCents: 300_00, paymentStatus: "unpaid", refundCents: 0 });
+    expect(part!.holdUntil).not.toBeNull();
+    expect(dueCents(part!)).toBe(200_00);
+    // Still held: nobody else gets the room meanwhile.
+    expect((await store.listTravelHolds(t.app.id, { roomId: t.roomId, from: "2026-11-14", to: "2026-11-16" }, later)).map((b) => b.id)).toEqual([made.booking.id]);
+    const rest = await travelPayLink(store, t.app, part!, "https://yallapp.test", later, "test-signing");
+    expect(rest.order.totalCents).toBe(200_00);
+    expect(await payTravelBooking(store, t.app, { ...rest.order, status: "processing" }, later)).toMatchObject({ status: "confirmed", holdUntil: null, paidCents: 500_00, paymentStatus: "paid", refundCents: 0 });
+  });
+
+  it("126.10 reuses the open pay link's order, and holds the rooms at most HOLD + PAY_LINK minutes after booking", async () => {
+    const store = storeOf();
+    const t = await travelApp();
+    const made = await store.createTravelBooking(
+      booking(t.app.id, t.userId, t.roomId, t.flightId, { status: "awaiting_payment", paymentStatus: "unpaid", paidCents: 0, holdUntil: new Date(NOW.getTime() + 30 * 60_000) }),
+      () => null,
+      NOW,
+    );
+    if (!made.ok) throw new Error("not booked");
+    const at = (minutes: number) => new Date(NOW.getTime() + minutes * 60_000);
+    const pay = async (minutes: number) => travelPayLink(store, t.app, (await store.getTravelBooking(t.app.id, made.booking.id))!, "https://yallapp.test", at(minutes), "test-signing");
+    const first = await pay(0);
+    expect((await store.getTravelBooking(t.app.id, made.booking.id))!.holdUntil).toEqual(at(60));
+    const again = await pay(10);
+    expect(again.order.id).toBe(first.order.id);
+    expect(again.url).toBe(first.url);
+    expect(again.expiresAt).toEqual(at(60));
+    await pay(59);
+    const cap = at(30 + 60);
+    expect((await store.getTravelBooking(t.app.id, made.booking.id))!.holdUntil).toEqual(cap);
+    // The first link has expired: another order, the hold no longer.
+    const third = await pay(80);
+    expect(third.order.id).not.toBe(first.order.id);
+    expect(third.url).not.toBe(first.url);
+    expect((await store.getTravelBooking(t.app.id, made.booking.id))!).toMatchObject({ holdUntil: cap, orderId: third.order.id });
+    expect(await store.getCatalogOrderByToken(sha256Hex(third.url.split("/").pop()!))).toMatchObject({ id: third.order.id });
+  });
+
+  it("126.10 marks paid a booking whose hold ended only while its room and seats are still free", async () => {
+    const store = storeOf();
+    const t = await travelApp();
+    const expired = { status: "awaiting_payment" as const, paymentStatus: "unpaid" as const, paidCents: 0, holdUntil: new Date(NOW.getTime() - 60_000) };
+    const lapsed = await store.createTravelBooking(booking(t.app.id, t.userId, t.roomId, t.flightId, expired), () => null, NOW);
+    if (!lapsed.ok) throw new Error("not booked");
+    // Someone else booked the last room meanwhile.
+    const other = await store.createTravelBooking(booking(t.app.id, t.userId, t.roomId, t.flightId, { flight: null }), () => null, NOW);
+    expect(other.ok).toBe(true);
+    expect(await markTravelPaid(store, t.app, lapsed.booking, NOW)).toEqual({ ok: false, reason: "not_available" });
+    expect((await store.getTravelBooking(t.app.id, lapsed.booking.id))!.status).toBe("awaiting_payment");
+    const free = await travelApp();
+    const fine = await store.createTravelBooking(booking(free.app.id, free.userId, free.roomId, free.flightId, expired), () => null, NOW);
+    if (!fine.ok) throw new Error("not booked");
+    expect(await markTravelPaid(store, free.app, fine.booking, NOW)).toMatchObject({ ok: true, booking: { status: "confirmed", paymentStatus: "paid", paidCents: 300_00, holdUntil: null } });
   });
 
   it("keeps a person's alerts and their last price", async () => {

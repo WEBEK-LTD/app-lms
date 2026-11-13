@@ -1,4 +1,5 @@
 import type { TravelBooking, TravelFare, TravelFareId, TravelFlight, TravelHotel, TravelLine, TravelRate, TravelRoom, TravelSeatMap, TravelSettings } from "../data/types";
+import { localToUtc, utcToLocal } from "../bookings/time";
 import { flightIdsOf } from "./holds";
 
 /**
@@ -35,14 +36,19 @@ export function nightsOf(checkIn: string, checkOut: string): string[] {
   return out;
 }
 
-/** Today, as the day people book on (the day before in UTC still counts, for places behind it). */
-export function today(now: Date): string {
-  return new Date(now.getTime() - 12 * 3_600_000).toISOString().slice(0, 10);
+/** 126.10 Today at the company: the day in its time zone (Travel settings). */
+export function today(now: Date, zone: string): string {
+  return utcToLocal(now, zone).date;
 }
 
-/** A local wall time "YYYY-MM-DDTHH:MM" read as if it were UTC: close enough to say what is past and how long until it. */
+/** A local wall time "YYYY-MM-DDTHH:MM" read as if it were UTC: only to compare two wall times (which is first, how far apart). */
 export function wallTime(value: string): number {
   return Date.parse(`${value}:00Z`);
+}
+
+/** 126.10 The instant of a local wall time "YYYY-MM-DDTHH:MM" (or a day, at midnight) in the company's time zone: to say what is past and how long until it. */
+export function localInstant(value: string, zone: string): number {
+  return localToUtc(value.slice(0, 10), value.length > 10 ? value.slice(11, 16) : "00:00", zone).getTime();
 }
 
 // Rooms

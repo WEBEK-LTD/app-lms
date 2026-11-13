@@ -34,6 +34,14 @@ const membershipWalletKey = 'bookings.memberships';
 /// phone; forgotten on sign-out.
 const savedPlacesKey = 'rides.places';
 
+/// 126.10 The boarding passes kept on this phone to show offline (travel
+/// apps): one key per app, signed-in person and booking; all forgotten on
+/// sign-out.
+const boardingPassesKeyPrefix = 'travel.passes.';
+
+String boardingPassesKey(String app, Object? user, int bookingId) =>
+    '$boardingPassesKeyPrefix$app.${user ?? '_'}.$bookingId';
+
 String speedLabel(double speed) {
   final text = speed == speed.roundToDouble()
       ? speed.toStringAsFixed(0)

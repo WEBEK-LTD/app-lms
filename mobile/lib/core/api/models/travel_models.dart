@@ -807,6 +807,7 @@ class TravelBooking {
     this.kind = 'stay',
     this.status = 'confirmed',
     this.starts = '',
+    this.startsAt,
     this.ends = '',
     this.stay,
     this.flights = const [],
@@ -839,6 +840,7 @@ class TravelBooking {
       kind: optString(json, 'kind') ?? 'stay',
       status: optString(json, 'status') ?? 'confirmed',
       starts: optString(json, 'starts') ?? '',
+      startsAt: DateTime.tryParse(optString(json, 'starts_at') ?? ''),
       ends: optString(json, 'ends') ?? '',
       stay: optObject(json, 'stay', TravelStay.fromJson),
       flights: listOf(json, 'flights', TravelLeg.fromJson),
@@ -878,6 +880,10 @@ class TravelBooking {
   final String kind;
   final String status;
   final String starts;
+
+  /// 126.10 When it starts, as an instant (read in the company's time zone
+  /// by the platform): the countdown counts to it whatever the phone's zone.
+  final DateTime? startsAt;
   final String ends;
   final TravelStay? stay;
   final List<TravelLeg> flights;

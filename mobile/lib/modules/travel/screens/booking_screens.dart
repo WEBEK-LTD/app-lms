@@ -11,9 +11,12 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/api/models/json.dart';
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/config/build_config.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/providers.dart';
 import '../../../core/routing/paths.dart';
+import '../../../core/storage/local_settings.dart';
 import '../../../core/web/web_page_screen.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
@@ -1340,9 +1343,13 @@ class TripView extends ConsumerWidget {
     final t = base.dark ? base : nightTokens(base);
     final l = context.l10n;
     final b = booking;
-    final starts = DateTime.tryParse(
-      b.starts.length == 10 ? '${b.starts}T00:00' : b.starts,
-    );
+    // 126.10 The instant the platform read in the company's time zone, not
+    // the phone's (the local time only from an older platform).
+    final starts =
+        b.startsAt ??
+        DateTime.tryParse(
+          b.starts.length == 10 ? '${b.starts}T00:00' : b.starts,
+        );
     final left = starts?.difference(DateTime.now());
     final city =
         b.stay?.city ?? (b.flights.isEmpty ? '' : b.flights.first.to.city);
@@ -1860,14 +1867,50 @@ class BoardingPassScreen extends ConsumerStatefulWidget {
 class _BoardingPassScreenState extends ConsumerState<BoardingPassScreen> {
   List<TravelBoardingPass>? _kept;
   int _at = 0;
+  int? _count;
 
-  String get _key => 'travel.passes.${widget.bookingId}';
+  /// 126.10 This app's, this person's and this booking's passes (forgotten
+  /// on sign-out, see [boardingPassesKeyPrefix]).
+  String get _app {
+    final build = ref.read(appEnvironmentProvider).build;
+    return build.appId ?? apiUrlOf(build);
+  }
+
+  String get _key => boardingPassesKey(
+    _app,
+    ref.read(authControllerProvider).user?.id,
+    widget.bookingId,
+  );
+
+  /// The kept passes' key: this person's, or (offline, before the account
+  /// is read) the one kept for the booking in this app, which can only be
+  /// theirs since signing out forgets them all.
+  String? _keptKey(SharedPreferences p) {
+    if (p.containsKey(_key)) return _key;
+    final prefix = '$boardingPassesKeyPrefix$_app.';
+    final suffix = '.${widget.bookingId}';
+    for (final k in p.getKeys()) {
+      if (k.startsWith(prefix) && k.endsWith(suffix)) return k;
+    }
+    return null;
+  }
+
+  /// No passes anymore (the booking is gone or check-in closed): the kept
+  /// ones go too.
+  Future<void> _forget() async {
+    final p = await SharedPreferences.getInstance();
+    for (var k = _keptKey(p); k != null; k = _keptKey(p)) {
+      await p.remove(k);
+    }
+    if (mounted) setState(() => _kept = null);
+  }
 
   @override
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((p) {
-      final raw = p.getString(_key);
+      final key = mounted ? _keptKey(p) : null;
+      final raw = key == null ? null : p.getString(key);
       if (raw == null || !mounted) return;
       try {
         setState(
@@ -1893,8 +1936,22 @@ class _BoardingPassScreenState extends ConsumerState<BoardingPassScreen> {
     final t = base.dark ? base : nightTokens(base);
     final l = context.l10n;
     final fetched = ref.watch(boardingPassesProvider(widget.bookingId));
-    final passes = fetched.value ?? _kept;
+    final gone =
+        fetched.error is ApiException &&
+        const [404, 409].contains((fetched.error! as ApiException).statusCode);
+    final passes = fetched.value ?? (gone ? null : _kept);
+    // 126.10 Another number of passes: from the first one again.
+    if (passes != null && passes.length != _count) {
+      _count = passes.length;
+      _at = 0;
+    }
     ref.listen(boardingPassesProvider(widget.bookingId), (_, next) {
+      final error = next.error;
+      if (error is ApiException &&
+          (error.statusCode == 404 || error.statusCode == 409)) {
+        _forget();
+        return;
+      }
       final value = next.value;
       if (value != null) {
         _keep(value, [
@@ -1954,6 +2011,7 @@ class _BoardingPassScreenState extends ConsumerState<BoardingPassScreen> {
                           )
                         : const Center(child: CircularProgressIndicator()))
                   : PageView(
+                      key: ValueKey(passes.length),
                       onPageChanged: (i) => setState(() => _at = i),
                       children: [
                         for (final p in passes)

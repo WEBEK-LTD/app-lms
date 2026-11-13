@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vitest";
 import { newApp } from "@/lib/app/setup";
 import { deliverPaidOrder } from "@/lib/catalog/payment";
@@ -7,8 +8,10 @@ import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type App, type Trave
 import { TravelConnector } from "@/lib/hosted/connectors/travel";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext, type HostedResult } from "@/lib/hosted/service";
+import { isTrip } from "@/lib/travel/bookings";
+import { parseTravelSettingsForm, travelSettingsFormValues } from "@/lib/travel/forms";
 import { addDays, freeUnits, nightCents, seatCents, stayPrice } from "@/lib/travel/pricing";
-import { DEFAULT_TRAVEL_SETTINGS, screensOff, travelSettingsOf, travelTabLabels } from "@/lib/travel/settings";
+import { DEFAULT_TRAVEL_SETTINGS, screensOff, TRAVEL_LIMITS, travelSettingsOf, travelTabLabels } from "@/lib/travel/settings";
 import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
@@ -325,6 +328,108 @@ describe("126 travel apps on the hosted API", () => {
     const alertId = (alert.body as { id: number }).id;
     expect((await call("DELETE", "/me/travel/alerts/{alert_id}", { token, params: [String(alertId)] })).status).toBe(204);
     expect((await call("GET", "/me/travel/alerts", { token })).body).toMatchObject({ items: [] });
+  });
+
+  it("126.10 lowers the refund again when a change raises the total back, and the pay link is one order", async () => {
+    const token = await signUp("1001112222", "Layla Hassan");
+    const made = await call("POST", "/me/travel/bookings", { token, body: { stay: stay({ check_out: "2026-11-19" }), travellers, contact, payment: "now" } });
+    const id = (made.body as { id: number }).id;
+    const link = await call("POST", "/me/travel/bookings/{booking_id}/pay", { token, params: [String(id)] });
+    // Tapped again: the same link to the same order.
+    expect((await call("POST", "/me/travel/bookings/{booking_id}/pay", { token, params: [String(id)] })).body).toEqual(link.body);
+    const order = (await store.getCatalogOrder(app.id, (await store.getTravelBooking(app.id, id))!.orderId!))!;
+    await deliverPaidOrder(store, app, { ...order, status: "processing" }, now);
+    const paid = (await store.getTravelBooking(app.id, id))!;
+    expect(paid).toMatchObject({ status: "confirmed", paymentStatus: "paid", paidCents: paid.totalCents, refundCents: 0 });
+    const shorter = await call("POST", "/me/travel/bookings/{booking_id}/change", { token, params: [String(id)], body: { check_in: "2026-11-14", check_out: "2026-11-15" } });
+    expect(shorter.body).toMatchObject({ payment: { status: "refund_due" } });
+    const short = (await store.getTravelBooking(app.id, id))!;
+    expect(short.refundCents).toBe(paid.paidCents - short.totalCents);
+    const back = await call("POST", "/me/travel/bookings/{booking_id}/change", { token, params: [String(id)], body: { check_in: "2026-11-14", check_out: "2026-11-19" } });
+    expect(back.body).toMatchObject({ payment: { status: "paid", due: null } });
+    expect((await store.getTravelBooking(app.id, id))!).toMatchObject({ refundCents: 0, paymentStatus: "paid", totalCents: paid.totalCents });
+  });
+
+  it("126.10 prices a stay and a flight as one trip only when the flight lands where and when the stay starts", async () => {
+    const token = await signUp("1001112222", "Layla Hassan");
+    const kinds = async (body: Record<string, unknown>) => ((await call("POST", "/travel/quote", { token, body })).body as { lines: { kind: string }[] }).lines.map((l) => l.kind);
+    const flight = { outbound_id: outId, inbound_id: backId, fare: "standard", travellers: 2 };
+    // Lands the day before check-in, leaves on check-out day: one trip.
+    expect(await kinds({ stay: stay({ check_in: "2026-11-15", check_out: "2026-11-18" }), flight, transfer: true })).toEqual(["fare", "nights", "taxes", "member", "bundle", "transfer"]);
+    // A stay a week later than the flight: no bundle price, no transfer.
+    expect(await kinds({ stay: stay({ check_in: "2026-11-20", check_out: "2026-11-22" }), flight: { ...flight, inbound_id: null }, transfer: true })).toEqual(["fare", "nights", "taxes", "member"]);
+    // Back two days after check-out: not one trip.
+    expect(await kinds({ stay: stay({ check_in: "2026-11-14", check_out: "2026-11-16" }), flight, transfer: true })).toEqual(["fare", "nights", "taxes", "member"]);
+    const city = { city: "Luxor" };
+    const out = { to: { code: "LXR", city: "Luxor", airport: null, terminal: null }, arrives: "2026-11-14T11:20" };
+    const home = { from: { code: "LXR", city: "Luxor", airport: null, terminal: null }, departs: "2026-11-18T18:40" };
+    expect(isTrip({ checkIn: "2026-11-14", checkOut: "2026-11-18" }, city, out, home)).toBe(true);
+    expect(isTrip({ checkIn: "2026-11-16", checkOut: "2026-11-18" }, city, out, home)).toBe(false);
+    expect(isTrip({ checkIn: "2026-11-14", checkOut: "2026-11-18" }, { city: "Aswan" }, out, null)).toBe(false);
+    expect(isTrip({ checkIn: "2026-11-14", checkOut: "2026-11-18" }, city, out, null)).toBe(true);
+  });
+
+  it("126.10 signs the boarding passes with a key made from the platform's signing secret", async () => {
+    let token = await signUp("1001112222", "Layla Hassan");
+    const made = await call("POST", "/me/travel/bookings", { token, body: { flight: { outbound_id: outId, fare: "light", travellers: 1 }, travellers, contact, payment: "now" } });
+    const id = (made.body as { id: number }).id;
+    await store.updateTravelBooking(app.id, id, { status: "confirmed", paymentStatus: "paid", paidCents: 120_00, holdUntil: null }, { statuses: ["awaiting_payment"] }, now);
+    now = new Date("2026-11-13T12:00:00Z");
+    token = await signIn("1001112222");
+    const passes = (await call("GET", "/me/travel/bookings/{booking_id}/passes", { token, params: [String(id)] })).body as { items: { code: string }[] };
+    const reference = (made.body as { reference: string }).reference;
+    const body = `${reference}.${outId}.1`;
+    const key = createHmac("sha256", "test-signing").update(`travel-passes:${app.id}`).digest("base64url");
+    expect(passes.items[0]!.code).toBe(`YT1.${body}.${createHmac("sha256", key).update(`${app.id}.${body}`).digest("base64url").slice(0, 10)}`);
+    expect(passes.items[0]!.code).not.toBe(`YT1.${body}.${createHmac("sha256", `test-signing:${app.id}`).update(body).digest("base64url").slice(0, 10)}`);
+  });
+
+  it("126.10 counts today, the sale and cancel deadlines and the flights' times in the company's time zone", async () => {
+    expect(travelSettingsOf(null).timeZone).toBe("Europe/Istanbul");
+    expect(travelSettingsOf({}, { timeZone: "Asia/Dubai" }).timeZone).toBe("Asia/Dubai");
+    expect(travelSettingsOf({ timeZone: "Africa/Cairo" }, { timeZone: "Asia/Dubai" }).timeZone).toBe("Africa/Cairo");
+    expect(travelSettingsOf({ timeZone: "Mars/Base" }).timeZone).toBe("Europe/Istanbul");
+    const form = travelSettingsFormValues(travelSettingsOf(SETTINGS));
+    expect(parseTravelSettingsForm({ ...form, timeZone: "Africa/Cairo" })).toMatchObject({ ok: true, value: { timeZone: "Africa/Cairo" } });
+    expect(parseTravelSettingsForm({ ...form, timeZone: "Mars/Base" })).toMatchObject({ ok: false, errors: { timeZone: "Choose a time zone." } });
+    // 05:30 UTC is 08:30 in Istanbul: SF 691 leaves at 10:15 there, in less than two hours, so it isn't sold anymore.
+    now = new Date("2026-11-14T05:30:00Z");
+    const search = { from: "CAI", to: "LXR", depart: "2026-11-14" };
+    expect(((await call("GET", "/travel/flights", { query: search })).body as { items: unknown[] }).items).toHaveLength(0);
+    // In Cairo (an hour behind) it leaves in 2 h 45: still sold.
+    await store.saveTravelSettings(app.id, { ...SETTINGS, timeZone: "Africa/Cairo" }, now);
+    expect(((await call("GET", "/travel/flights", { query: search })).body as { items: unknown[] }).items).toHaveLength(1);
+    const token = await signUp("1001112222", "Layla Hassan");
+    const made = await call("POST", "/me/travel/bookings", { token, body: { flight: { outbound_id: outId, fare: "light", travellers: 1 }, travellers, contact, payment: "now" } });
+    expect(made.body).toMatchObject({ starts: "2026-11-14T10:15", starts_at: "2026-11-14T08:15:00.000Z" });
+    // In Auckland it's already the 14th: the 13th has passed.
+    await store.saveTravelSettings(app.id, { ...SETTINGS, timeZone: "Pacific/Auckland" }, now);
+    now = new Date("2026-11-13T12:00:00Z");
+    expect((await call("GET", "/travel/hotels", { query: { check_in: "2026-11-13", check_out: "2026-11-15" } })).status).toBe(400);
+    expect((await call("GET", "/travel/hotels", { query: { check_in: "2026-11-14", check_out: "2026-11-15" } })).status).toBe(200);
+  });
+
+  it("126.10 completes a flight-only booking once it has landed, and keeps a trip with a flight back open after check-out", async () => {
+    let token = await signUp("1001112222", "Layla Hassan");
+    const flightOnly = await call("POST", "/me/travel/bookings", { token, body: { flight: { outbound_id: outId, fare: "light", travellers: 1 }, travellers, contact, payment: "now" } });
+    const trip = await call("POST", "/me/travel/bookings", { token, body: { stay: stay(), flight: { outbound_id: outId, inbound_id: backId, fare: "standard", travellers: 1 }, travellers, contact, payment: "now" } });
+    for (const made of [flightOnly, trip]) {
+      const b = (await store.getTravelBooking(app.id, (made.body as { id: number }).id))!;
+      await store.updateTravelBooking(app.id, b.id, { status: "confirmed", paymentStatus: "paid", paidCents: b.totalCents, holdUntil: null }, { statuses: ["awaiting_payment"] }, now);
+    }
+    // The day after check-out (the 17th), before the flight back leaves at 18:40.
+    now = new Date("2026-11-18T13:00:00Z");
+    token = await signIn("1001112222");
+    expect((await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [String((flightOnly.body as { id: number }).id)] })).body).toMatchObject({ status: "completed" });
+    const tripId = String((trip.body as { id: number }).id);
+    expect((await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [tripId] })).body).toMatchObject({ status: "confirmed", passes_open: true });
+    expect((await call("GET", "/me/travel/bookings/{booking_id}/passes", { token, params: [tripId] })).status).toBe(200);
+  });
+
+  it("126.10 prices stays up to TRAVEL_LIMITS.priceDays ahead", async () => {
+    const last = addDays("2026-10-12", TRAVEL_LIMITS.priceDays);
+    expect((await call("GET", "/travel/hotels", { query: { check_in: last, check_out: addDays(last, 1) } })).status).toBe(200);
+    expect((await call("GET", "/travel/hotels", { query: { check_in: addDays(last, 1), check_out: addDays(last, 2) } })).body).toMatchObject({ code: "invalid_request" });
   });
 
   it("answers feature_disabled when travel isn't in the plan", async () => {

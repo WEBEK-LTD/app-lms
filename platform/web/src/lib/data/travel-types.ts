@@ -50,6 +50,8 @@ export interface TravelSettings {
   /** The large titles' and prices' free font (lib/fonts/catalog.ts); null the app's own. */
   displayFont: string | null;
   help: { phone: string | null; email: string | null; whatsapp: string | null };
+  /** 126.10 IANA: "today", the sale and cancel deadlines and the flights' local times are the company's in it. */
+  timeZone: string;
   /** Templates = demos: the sample entries were added once (lib/samples). */
   samplesAdded?: boolean;
 }

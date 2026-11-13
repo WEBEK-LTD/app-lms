@@ -16,9 +16,10 @@ import { tellTraveller, travelPricesChanged } from "@/lib/hosted/connectors/trav
 import { imageType } from "@/lib/images";
 import { askAfterOwnEntry } from "@/lib/samples/lists";
 import type { TeamPermission } from "@/lib/team/permissions";
-import { cancelPatch } from "@/lib/travel/bookings";
+import { cancelPatch, refundedPatch } from "@/lib/travel/bookings";
 import { parseFlightForm, parseFlightStatusForm, parseHotelForm, parseRoomForm, parseTravelSettingsForm } from "@/lib/travel/forms";
 import { tellFlight } from "@/lib/travel/notify";
+import { markTravelPaid } from "@/lib/travel/payment";
 import { addDays } from "@/lib/travel/pricing";
 import { TRAVEL_LIMITS, travelSettingsOf } from "@/lib/travel/settings";
 
@@ -274,27 +275,22 @@ export async function travelBookingAction(formData: FormData): Promise<void> {
   const now = new Date();
   const op = formData.get("op");
   const say = (what: string) => recordStaffChange(context, `${what} the booking ${booking.reference}`);
-  const note = (what: string) => [...booking.changes, { at: now.toISOString(), what }];
   let done: TravelBooking | null = null;
   if (op === "cancel") {
-    const r = await store.updateTravelBooking(app.id, booking.id, cancelPatch(booking, "company", null, now, true), { statuses: ["confirmed", "awaiting_payment"] }, now);
+    const zone = travelSettingsOf(await store.getTravelSettings(app.id), app).timeZone;
+    const r = await store.updateTravelBooking(app.id, booking.id, cancelPatch(booking, "company", null, now, zone, true), { statuses: ["confirmed", "awaiting_payment"] }, now);
     if (r.ok) {
       done = r.booking;
       await tellTraveller(store, app, r.booking, "cancelled", now);
       await say("Cancelled");
     }
   } else if (op === "refunded") {
-    const r = await store.updateTravelBooking(app.id, booking.id, { paymentStatus: "refunded", changes: note(`Refunded ${booking.refundCents / 100} ${booking.currency}`) }, { statuses: [booking.status] }, now);
+    // 126.10 What was refunded is no longer paid: a later cancel refunds only what is still paid.
+    const r = await store.updateTravelBooking(app.id, booking.id, refundedPatch(booking, now), { statuses: [booking.status] }, now);
     if (r.ok) await say("Marked as refunded");
   } else if (op === "paid") {
-    // Paid at the hotel, or by bank transfer: confirmed and settled.
-    const r = await store.updateTravelBooking(
-      app.id,
-      booking.id,
-      { status: booking.status === "awaiting_payment" ? "confirmed" : booking.status, holdUntil: null, paymentStatus: "paid", paidCents: booking.totalCents, changes: note("Marked as paid by the company") },
-      { statuses: ["awaiting_payment", "confirmed", "completed"] },
-      now,
-    );
+    // Paid at the hotel, or by bank transfer: confirmed and settled (126.10 one whose hold ended, only while its rooms and seats are free).
+    const r = await markTravelPaid(store, app, booking, now);
     if (r.ok) {
       done = r.booking;
       if (booking.status === "awaiting_payment") await tellTraveller(store, app, r.booking, "confirmed", now);
@@ -315,7 +311,7 @@ export async function saveTravelSettingsAction(_: FormState, formData: FormData)
   const now = new Date();
   const parsed = parseTravelSettingsForm(values);
   if (!parsed.ok) return { errors: parsed.errors, values };
-  const saved = travelSettingsOf(await store.getTravelSettings(app.id));
+  const saved = travelSettingsOf(await store.getTravelSettings(app.id), app);
   // Yallapp's switches stay as Yallapp set them (Admin › client › Travel).
   await store.saveTravelSettings(app.id, { ...saved, ...parsed.value }, now);
   await recordStaffChange(context, "Edited the travel settings");

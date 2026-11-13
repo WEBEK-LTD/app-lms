@@ -1,9 +1,10 @@
 import { createHmac } from "node:crypto";
 import { centsToDecimal, formatCents } from "../catalog/money";
+import { hmacSha256 } from "../crypto/tokens";
 import type { HostedUser, TravelBooking, TravelFareId, TravelFlight, TravelFlightPart, TravelHotel, TravelLegPart, TravelLine, TravelRequest, TravelReview, TravelRoom, TravelStayPart } from "../data/types";
 import { TRAVEL_FARE_IDS, TRAVEL_REQUESTS, TRAVEL_TRIP_TYPES } from "../data/types";
-import { fareOf, legJson, onSale, reviewJson, stayDatesRefusal, type Refusal, type TravelDeps } from "./catalog";
-import { addDays, daysBetween, dueCents, fareSeatsLeft, freeCancelUntil, freeUnits, isDate, linesTotal, partsOf, seatCents, seatExists, stayNights, stayPrice, takenSeats, today, wallTime } from "./pricing";
+import { fareOf, legJson, onSale, reviewJson, same, stayDatesRefusal, type Refusal, type TravelDeps } from "./catalog";
+import { addDays, daysBetween, dueCents, fareSeatsLeft, freeCancelUntil, freeUnits, isDate, linesTotal, localInstant, partsOf, seatCents, seatExists, stayNights, stayPrice, takenSeats, today, wallTime } from "./pricing";
 import { HOLD_MINUTES } from "./settings";
 
 /**
@@ -142,17 +143,49 @@ function flightLines(part: TravelFlightPart): TravelLine[] {
   return lines;
 }
 
-/** The lines of a booking from its parts (a change keeps the change fees it had). */
+/**
+ * 126.10 A stay and a flight are one trip (the bundle price, the transfer)
+ * when the flight out lands in the hotel's city on the check-in day or the
+ * day before, and the flight back, if any, leaves that city on the
+ * check-out day or the day after.
+ */
+export function isTrip(
+  stay: Pick<TravelStayPart, "checkIn" | "checkOut"> | null,
+  hotel: Pick<TravelHotel, "city"> | null,
+  outbound: Pick<TravelFlight, "to" | "arrives"> | null,
+  inbound: Pick<TravelFlight, "from" | "departs"> | null,
+): boolean {
+  if (!stay || !hotel || !outbound) return false;
+  const lands = outbound.arrives.slice(0, 10);
+  if (!same(outbound.to.city, hotel.city) || lands > stay.checkIn || lands < addDays(stay.checkIn, -1)) return false;
+  if (!inbound) return true;
+  const leaves = inbound.departs.slice(0, 10);
+  return same(inbound.from.city, hotel.city) && leaves >= stay.checkOut && leaves <= addDays(stay.checkOut, 1);
+}
+
+/** Whether a booking, changed to `stay` and `flight`, is still one trip: its hotel and flights read again (as it was when one can't be). */
+async function stillTrip(deps: TravelDeps, booking: TravelBooking, stay: TravelStayPart | null, flight: TravelFlightPart | null, known: ReadonlyMap<number, TravelFlight> = new Map()): Promise<boolean> {
+  if (!stay || !flight) return false;
+  const flightOf = async (id: number) => known.get(id) ?? (await deps.flights.flight(id));
+  const hotel = await deps.hotels.hotel(stay.hotelId);
+  const outbound = await flightOf(flight.outbound.flightId);
+  const inbound = flight.inbound ? await flightOf(flight.inbound.flightId) : null;
+  if (!hotel || !outbound || (flight.inbound && !inbound)) return booking.lines.some((l) => l.kind === "bundle");
+  return isTrip(stay, hotel, outbound, inbound);
+}
+
+/** The lines of a booking from its parts (a change keeps the change fees it had); `trip`: the stay has the bundle price (isTrip). */
 export function linesOf(
   deps: Pick<TravelDeps, "settings">,
   parts: { stay: TravelStayPart | null; flight: TravelFlightPart | null; transfer: { cents: number } | null },
   member: boolean,
   hotel: Pick<TravelHotel, "taxBp"> | null,
   fees: readonly TravelLine[] = [],
+  trip = false,
 ): TravelLine[] {
   const lines: TravelLine[] = [];
   if (parts.flight) lines.push(...flightLines(parts.flight));
-  if (parts.stay) lines.push(...stayLines(parts.stay.nights, parts.stay.rooms, hotel ?? { taxBp: parts.stay.taxBp }, { member, bundle: parts.flight !== null }, deps));
+  if (parts.stay) lines.push(...stayLines(parts.stay.nights, parts.stay.rooms, hotel ?? { taxBp: parts.stay.taxBp }, { member, bundle: trip && parts.flight !== null }, deps));
   if (parts.transfer) lines.push({ kind: "transfer", count: 1, unitCents: parts.transfer.cents, cents: parts.transfer.cents });
   lines.push(...fees.filter((l) => l.kind === "change_fee"));
   return lines;
@@ -173,7 +206,7 @@ export async function priceChoice(deps: TravelDeps, choice: Choice, member: bool
     room = hotel?.active ? ((await deps.hotels.rooms(hotel.id)).find((r) => r.id === c.roomId && r.active) ?? null) : null;
     const rate = room?.rates.find((r) => r.id === c.rateId) ?? null;
     if (!hotel || !hotel.active || !room || !rate) return notFound("That room isn't offered.");
-    const dates = stayDatesRefusal(c.checkIn, c.checkOut, deps.now);
+    const dates = stayDatesRefusal(c.checkIn, c.checkOut, deps.now, s.timeZone);
     if (dates) return dates;
     if (daysBetween(c.checkIn, c.checkOut) < room.minNights) return bad(`This room is booked for at least ${room.minNights} nights.`);
     if (room.sleeps * c.rooms < c.guests) return bad("Choose more rooms for that many guests.");
@@ -181,7 +214,7 @@ export async function priceChoice(deps: TravelDeps, choice: Choice, member: bool
     const nights = stayNights(room, rate, c.checkIn, c.checkOut);
     if (!nights) return taken();
     until = freeCancelUntil(rate, c.checkIn);
-    if (until && until < today(deps.now)) until = null;
+    if (until && until < today(deps.now, s.timeZone)) until = null;
     refundable = until !== null;
     stay = {
       hotelId: hotel.id,
@@ -209,7 +242,7 @@ export async function priceChoice(deps: TravelDeps, choice: Choice, member: bool
     const c = choice.flight;
     outbound = await deps.flights.flight(c.outboundId);
     inbound = c.inboundId ? await deps.flights.flight(c.inboundId) : null;
-    if (!outbound || !onSale(outbound, deps.now) || (c.inboundId && (!inbound || !onSale(inbound, deps.now)))) return notFound("That flight isn't on sale.");
+    if (!outbound || !onSale(outbound, deps.now, s.timeZone) || (c.inboundId && (!inbound || !onSale(inbound, deps.now, s.timeZone)))) return notFound("That flight isn't on sale.");
     if (inbound && (inbound.from.code.toUpperCase() !== outbound.to.code.toUpperCase() || inbound.to.code.toUpperCase() !== outbound.from.code.toUpperCase() || wallTime(inbound.departs) <= wallTime(outbound.arrives))) {
       return bad("The flight back must leave from where the first one lands, after it.");
     }
@@ -232,8 +265,9 @@ export async function priceChoice(deps: TravelDeps, choice: Choice, member: bool
     if (!outFare.refundable) refundable = false;
     if (stay && !until) refundable = false;
   }
-  const transfer = choice.transfer && s.transfer && stay && flight ? { cents: s.transfer.cents, note: s.transfer.note } : null;
-  const lines = linesOf(deps, { stay, flight, transfer }, member, hotel);
+  const trip = isTrip(stay, hotel, outbound, inbound);
+  const transfer = choice.transfer && s.transfer && trip ? { cents: s.transfer.cents, note: s.transfer.note } : null;
+  const lines = linesOf(deps, { stay, flight, transfer }, member, hotel, [], trip);
   const payAtHotel = Boolean(stay && !flight && s.payAtHotel && hotel?.payAtHotel && room?.rates.find((r) => r.id === stay!.rateId)?.payAtHotel);
   const priced: Priced = {
     stay,
@@ -343,8 +377,8 @@ export function newReference(random: (n: number) => number): string {
   return `T-${out}`;
 }
 
-/** Unpaid bookings past their hold are released; confirmed ones past their last day are completed. Returns the booking as it is now. */
-export async function refreshBooking(deps: Pick<TravelDeps, "store" | "app" | "now">, booking: TravelBooking): Promise<TravelBooking> {
+/** Unpaid bookings past their hold are released; confirmed ones past their last day (the flight back's, when there is one) are completed. Returns the booking as it is now. */
+export async function refreshBooking(deps: Pick<TravelDeps, "store" | "app" | "now" | "flights" | "settings">, booking: TravelBooking): Promise<TravelBooking> {
   if (booking.status === "awaiting_payment" && booking.holdUntil && booking.holdUntil.getTime() <= deps.now.getTime() && booking.paidCents === 0) {
     const r = await deps.store.updateTravelBooking(
       deps.app.id,
@@ -355,7 +389,7 @@ export async function refreshBooking(deps: Pick<TravelDeps, "store" | "app" | "n
     );
     return r.ok ? r.booking : booking;
   }
-  if (booking.status === "confirmed" && endsOf(booking).slice(0, 10) < today(deps.now)) {
+  if (booking.status === "confirmed" && endsOf(booking, await bookingFlights(deps, [booking])).slice(0, 10) < today(deps.now, deps.settings.timeZone)) {
     const r = await deps.store.updateTravelBooking(deps.app.id, booking.id, { status: "completed" }, { statuses: ["confirmed"] }, deps.now);
     return r.ok ? r.booking : booking;
   }
@@ -377,40 +411,40 @@ export function endsOf(booking: Pick<TravelBooking, "stay" | "flight">, flights?
   return out?.arrives ?? startsOf(booking, flights);
 }
 
-/** Whether nothing of it has started yet. */
-function notStarted(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date): boolean {
+/** Whether nothing of it has started yet (in the company's time zone). */
+function notStarted(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date, zone: string): boolean {
   const out = booking.flight ? flights.get(booking.flight.outbound.flightId) : undefined;
-  if (out && wallTime(out.departs) <= now.getTime() + 2 * 3_600_000) return false;
-  if (booking.stay && booking.stay.checkIn <= today(now)) return false;
+  if (out && localInstant(out.departs, zone) <= now.getTime() + 2 * 3_600_000) return false;
+  if (booking.stay && booking.stay.checkIn <= today(now, zone)) return false;
   return true;
 }
 
 /** What cancelling now refunds of what was paid (in the app), and of the whole. */
-export function cancelRefund(booking: TravelBooking, now: Date): number {
+export function cancelRefund(booking: TravelBooking, now: Date, zone: string): number {
   const parts = partsOf(booking.lines);
   let refund = parts.transfer;
-  if (booking.stay) refund += booking.stay.refundable && booking.stay.freeCancelUntil && booking.stay.freeCancelUntil >= today(now) ? parts.stay : 0;
+  if (booking.stay) refund += booking.stay.refundable && booking.stay.freeCancelUntil && booking.stay.freeCancelUntil >= today(now, zone) ? parts.stay : 0;
   if (booking.flight) refund += booking.flight.refundable ? Math.max(0, parts.flight - booking.flight.refundFeeCents * booking.flight.travellers) : 0;
   return Math.max(0, Math.min(booking.paidCents, refund));
 }
 
-export function canCancel(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date): boolean {
-  return (booking.status === "confirmed" || booking.status === "awaiting_payment") && notStarted(booking, flights, now);
+export function canCancel(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date, zone: string): boolean {
+  return (booking.status === "confirmed" || booking.status === "awaiting_payment") && notStarted(booking, flights, now, zone);
 }
 
-export function canChange(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date): boolean {
+export function canChange(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date, zone: string): boolean {
   if (booking.status !== "confirmed" && booking.status !== "awaiting_payment") return false;
-  if (!notStarted(booking, flights, now)) return false;
-  const stayOk = Boolean(booking.stay?.refundable && booking.stay.freeCancelUntil && booking.stay.freeCancelUntil >= today(now));
+  if (!notStarted(booking, flights, now, zone)) return false;
+  const stayOk = Boolean(booking.stay?.refundable && booking.stay.freeCancelUntil && booking.stay.freeCancelUntil >= today(now, zone));
   return stayOk || Boolean(booking.flight?.changeable);
 }
 
 /** Boarding passes open: confirmed, nothing to pay, and check-in open on a flight (by the company, or 48 hours before). */
-export function passesOpen(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date): boolean {
+export function passesOpen(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, now: Date, zone: string): boolean {
   if (booking.status !== "confirmed" || !booking.flight || dueCents(booking) > 0) return false;
   return legsOf(booking).some(({ part }) => {
     const f = flights.get(part.flightId);
-    return Boolean(f && f.status !== "cancelled" && (f.checkInOpen || wallTime(f.departs) - now.getTime() <= 48 * 3_600_000) && wallTime(f.arrives) > now.getTime() - 6 * 3_600_000);
+    return Boolean(f && f.status !== "cancelled" && (f.checkInOpen || localInstant(f.departs, zone) - now.getTime() <= 48 * 3_600_000) && localInstant(f.arrives, zone) > now.getTime() - 6 * 3_600_000);
   });
 }
 
@@ -420,7 +454,7 @@ export function legsOf(booking: Pick<TravelBooking, "flight">): { leg: "out" | "
 }
 
 /** The flights a booking has, by ID. */
-export async function bookingFlights(deps: Pick<TravelDeps, "flights">, bookings: readonly TravelBooking[]): Promise<Map<number, TravelFlight>> {
+export async function bookingFlights(deps: Pick<TravelDeps, "flights">, bookings: readonly Pick<TravelBooking, "flight">[]): Promise<Map<number, TravelFlight>> {
   const ids = [...new Set(bookings.flatMap((b) => legsOf(b).map((l) => l.part.flightId)))];
   const map = new Map<number, TravelFlight>();
   for (const id of ids) {
@@ -436,8 +470,11 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
   const fm = (cents: number) => formatCents(cents, currency);
   const due = dueCents(booking);
   const stay = booking.stay;
-  const ended = stay ? stay.checkOut <= today(deps.now) : false;
-  const refund = canCancel(booking, flights, deps.now) ? cancelRefund(booking, deps.now) : 0;
+  const zone = deps.settings.timeZone;
+  const day = today(deps.now, zone);
+  const ended = stay ? stay.checkOut <= day : false;
+  const refund = canCancel(booking, flights, deps.now, zone) ? cancelRefund(booking, deps.now, zone) : 0;
+  const starts = startsOf(booking, flights);
   return {
     id: booking.id,
     reference: booking.reference,
@@ -445,7 +482,9 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
     status: booking.status,
     created_at: booking.createdAt.toISOString(),
     hold_until: booking.status === "awaiting_payment" && booking.holdUntil ? booking.holdUntil.toISOString() : null,
-    starts: startsOf(booking, flights),
+    starts,
+    // 126.10 The same moment as an instant (the company's time zone), for the trip's countdown on any phone.
+    starts_at: new Date(localInstant(starts, zone)).toISOString(),
     ends: endsOf(booking, flights),
     stay: stay
       ? {
@@ -469,9 +508,9 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
           nights: stay.nights.length,
           guests: stay.guests,
           rooms: stay.rooms,
-          refundable: stay.refundable && Boolean(stay.freeCancelUntil && stay.freeCancelUntil >= today(deps.now)),
+          refundable: stay.refundable && Boolean(stay.freeCancelUntil && stay.freeCancelUntil >= day),
           free_cancel_until: stay.freeCancelUntil,
-          can_review: !review && ended && (booking.status === "completed" || booking.status === "confirmed") && daysBetween(stay.checkOut, today(deps.now)) <= 30,
+          can_review: !review && ended && (booking.status === "completed" || booking.status === "confirmed") && daysBetween(stay.checkOut, day) <= 30,
           review: review ? reviewJson(review) : null,
         }
       : null,
@@ -496,10 +535,10 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
     total: centsToDecimal(booking.totalCents),
     total_formatted: fm(booking.totalCents),
     cancellation: booking.cancellation ? { at: booking.cancellation.at, by: booking.cancellation.by, refund_formatted: booking.refundCents > 0 ? fm(booking.refundCents) : null } : null,
-    can_cancel: canCancel(booking, flights, deps.now),
+    can_cancel: canCancel(booking, flights, deps.now, zone),
     cancel_refund_formatted: refund > 0 ? fm(refund) : null,
-    can_change: canChange(booking, flights, deps.now),
-    passes_open: passesOpen(booking, flights, deps.now),
+    can_change: canChange(booking, flights, deps.now, zone),
+    passes_open: passesOpen(booking, flights, deps.now, zone),
   };
 }
 
@@ -540,8 +579,8 @@ export function newBooking(deps: TravelDeps, user: HostedUser, priced: Priced, e
 // After booking
 
 /** The patch that cancels a booking: what is refunded of what was paid, by whom. */
-export function cancelPatch(booking: TravelBooking, by: "customer" | "company", reason: string | null, now: Date, full = false) {
-  const refund = full ? booking.paidCents : cancelRefund(booking, now);
+export function cancelPatch(booking: TravelBooking, by: "customer" | "company", reason: string | null, now: Date, zone: string, full = false) {
+  const refund = full ? booking.paidCents : cancelRefund(booking, now, zone);
   return {
     status: "cancelled" as const,
     holdUntil: null,
@@ -555,8 +594,9 @@ export function cancelPatch(booking: TravelBooking, by: "customer" | "company", 
 /** The booking with new stay dates, priced again (taxes and prices of the new nights); a refusal when they can't be. */
 export async function changedStay(deps: TravelDeps, booking: TravelBooking, checkIn: string, checkOut: string, member: boolean): Promise<{ patch: Partial<TravelBooking>; room: TravelRoom } | Refusal> {
   const stay = booking.stay!;
-  if (!(stay.refundable && stay.freeCancelUntil && stay.freeCancelUntil >= today(deps.now))) return conflict("not_changeable", "This stay's rate can't be changed.");
-  const dates = stayDatesRefusal(checkIn, checkOut, deps.now);
+  const zone = deps.settings.timeZone;
+  if (!(stay.refundable && stay.freeCancelUntil && stay.freeCancelUntil >= today(deps.now, zone))) return conflict("not_changeable", "This stay's rate can't be changed.");
+  const dates = stayDatesRefusal(checkIn, checkOut, deps.now, zone);
   if (dates) return dates;
   const room = (await deps.hotels.rooms(stay.hotelId)).find((r) => r.id === stay.roomId && r.active) ?? null;
   const rate = room?.rates.find((r) => r.id === stay.rateId) ?? null;
@@ -567,7 +607,8 @@ export async function changedStay(deps: TravelDeps, booking: TravelBooking, chec
   const until = freeCancelUntil(rate, checkIn);
   const nextStay: TravelStayPart = { ...stay, checkIn, checkOut, nights, freeCancelUntil: until, refundable: rate.refundable };
   const hotel = await deps.hotels.hotel(stay.hotelId);
-  const lines = linesOf(deps, { stay: nextStay, flight: booking.flight, transfer: booking.transfer }, member, hotel ?? { taxBp: stay.taxBp }, booking.lines);
+  const trip = await stillTrip(deps, booking, nextStay, booking.flight);
+  const lines = linesOf(deps, { stay: nextStay, flight: booking.flight, transfer: booking.transfer }, member, hotel ?? { taxBp: stay.taxBp }, booking.lines, trip);
   return {
     room,
     patch: withTotal(booking, lines, { stay: nextStay, changes: [...booking.changes, { at: deps.now.toISOString(), what: `Dates changed to ${checkIn} – ${checkOut}` }] }),
@@ -582,7 +623,7 @@ export async function changedLeg(deps: TravelDeps, booking: TravelBooking, leg: 
   if (!current) return bad("This booking has no flight back.");
   const before = await deps.flights.flight(current.flightId);
   const next = await deps.flights.flight(flightId);
-  if (!next || !onSale(next, deps.now)) return notFound("That flight isn't on sale.");
+  if (!next || !onSale(next, deps.now, deps.settings.timeZone)) return notFound("That flight isn't on sale.");
   if (before && (next.from.code.toUpperCase() !== before.from.code.toUpperCase() || next.to.code.toUpperCase() !== before.to.code.toUpperCase())) return bad("Choose a flight on the same route.");
   if (!fareOf(next, current.fareId)) return bad("That fare isn't sold on that flight.");
   const nextLeg = legPart(next, current.fareId, [], part.travellers);
@@ -591,7 +632,8 @@ export async function changedLeg(deps: TravelDeps, booking: TravelBooking, leg: 
   if (other && (leg === "out" ? wallTime(other.departs) <= wallTime(next.arrives) : wallTime(next.departs) <= wallTime(other.arrives))) return bad("The flight back must leave after the flight out lands.");
   const hotel = booking.stay ? await deps.hotels.hotel(booking.stay.hotelId) : null;
   const fee: TravelLine[] = part.changeFeeCents > 0 ? [{ kind: "change_fee", count: part.travellers, unitCents: part.changeFeeCents, cents: part.changeFeeCents * part.travellers }] : [];
-  const lines = linesOf(deps, { stay: booking.stay, flight: nextPart, transfer: booking.transfer }, member, hotel, [...booking.lines, ...fee]);
+  const trip = await stillTrip(deps, booking, booking.stay, nextPart, new Map([[next.id, next], ...(other ? [[other.id, other] as const] : [])]));
+  const lines = linesOf(deps, { stay: booking.stay, flight: nextPart, transfer: booking.transfer }, member, hotel, [...booking.lines, ...fee], trip);
   return { flight: next, patch: withTotal(booking, lines, { flight: nextPart, changes: [...booking.changes, { at: deps.now.toISOString(), what: `Flight ${current.number} changed to ${next.number}` }] }) };
 }
 
@@ -601,19 +643,41 @@ export function seatsPatch(deps: TravelDeps, booking: TravelBooking, leg: "out" 
   const current = leg === "out" ? part.outbound : part.inbound!;
   const nextLeg = legPart(flight, current.fareId, seats, part.travellers);
   const nextPart: TravelFlightPart = leg === "out" ? { ...part, outbound: nextLeg } : { ...part, inbound: nextLeg };
-  const lines = linesOf(deps, { stay: booking.stay, flight: nextPart, transfer: booking.transfer }, member, hotel, booking.lines);
+  // The same flight, other seats: still the trip it was.
+  const lines = linesOf(deps, { stay: booking.stay, flight: nextPart, transfer: booking.transfer }, member, hotel, booking.lines, booking.lines.some((l) => l.kind === "bundle"));
   return withTotal(booking, lines, { flight: nextPart });
+}
+
+/**
+ * 126.10 What a booking paid in the app owes back, from what was paid and
+ * its total now: the refund is always what was paid over the total (none
+ * when the total rose again), the payment status follows it.
+ */
+export function settledPayment(booking: Pick<TravelBooking, "paidCents" | "paymentStatus">, total: number): Pick<TravelBooking, "refundCents" | "paymentStatus"> {
+  const refund = Math.max(0, booking.paidCents - total);
+  if (refund > 0) return { refundCents: refund, paymentStatus: "refund_due" };
+  if (booking.paidCents > 0 && booking.paidCents >= total) return { refundCents: 0, paymentStatus: "paid" };
+  return { refundCents: 0, paymentStatus: booking.paidCents > 0 || booking.paymentStatus === "refund_due" ? "unpaid" : booking.paymentStatus };
 }
 
 /** New lines and total; less than what was paid is refunded by the company. */
 function withTotal(booking: TravelBooking, lines: TravelLine[], patch: Partial<TravelBooking>): Partial<TravelBooking> {
   const total = linesTotal(lines);
-  const over = booking.paymentMethod === "now" ? Math.max(0, booking.paidCents - total) : 0;
   return {
     ...patch,
     lines,
     totalCents: total,
-    ...(over > booking.refundCents ? { refundCents: over, paymentStatus: "refund_due" as const } : {}),
+    ...(booking.paymentMethod === "now" ? settledPayment(booking, total) : {}),
+  };
+}
+
+/** 126.10 The company refunded what was due: it is no longer paid, nothing is due back (a later cancel refunds only what is still paid). */
+export function refundedPatch(booking: TravelBooking, now: Date): Partial<TravelBooking> {
+  return {
+    paymentStatus: "refunded",
+    paidCents: Math.max(0, booking.paidCents - booking.refundCents),
+    refundCents: 0,
+    changes: [...booking.changes, { at: now.toISOString(), what: `Refunded ${booking.refundCents / 100} ${booking.currency}` }],
   };
 }
 
@@ -637,20 +701,26 @@ export function seatsRefusalOf(flight: TravelFlight, seats: readonly (string | n
 
 // Boarding passes
 
-export function passCode(secret: string, booking: TravelBooking, flightId: number, traveller: number): string {
+/** 126.10 The app's key for boarding pass codes, made from the platform's signing secret (as tickets' are). */
+export function passKey(signingSecret: string, appId: string): string {
+  return hmacSha256(signingSecret, `travel-passes:${appId}`);
+}
+
+/** A boarding pass's code, signed with the app's key (passKey). */
+export function passCode(key: string, booking: TravelBooking, flightId: number, traveller: number): string {
   const body = `${booking.reference}.${flightId}.${traveller + 1}`;
-  const mac = createHmac("sha256", `${secret}:${booking.appId}`).update(body).digest("base64url").slice(0, 10);
+  const mac = createHmac("sha256", key).update(`${booking.appId}.${body}`).digest("base64url").slice(0, 10);
   return `YT1.${body}.${mac}`;
 }
 
 const GROUPS: Record<TravelFareId, number> = { flex: 2, standard: 3, light: 4 };
 
-export function passesJson(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, secret: string, now: Date) {
+export function passesJson(booking: TravelBooking, flights: ReadonlyMap<number, TravelFlight>, key: string, now: Date, zone: string) {
   const out = [];
   for (const { leg, part } of legsOf(booking)) {
     const f = flights.get(part.flightId);
     if (!f || f.status === "cancelled") continue;
-    if (!(f.checkInOpen || wallTime(f.departs) - now.getTime() <= 48 * 3_600_000)) continue;
+    if (!(f.checkInOpen || localInstant(f.departs, zone) - now.getTime() <= 48 * 3_600_000)) continue;
     const fare = fareOf(f, part.fareId);
     for (const [i, t] of booking.travellers.entries()) {
       out.push({
@@ -660,7 +730,7 @@ export function passesJson(booking: TravelBooking, flights: ReadonlyMap<number, 
         seat: part.seats[i] ?? null,
         group: fare?.priority ? 1 : GROUPS[part.fareId],
         fare_name: part.fareName,
-        code: passCode(secret, booking, f.id, i),
+        code: passCode(key, booking, f.id, i),
       });
     }
   }

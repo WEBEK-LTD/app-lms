@@ -1,3 +1,4 @@
+import { DEFAULT_ZONE, isTimeZone } from "../analytics/zone";
 import { CATALOG_CURRENCIES } from "../catalog/money";
 import type { App, CatalogCurrency, TravelFlightSource, TravelHotelSource, TravelSettings } from "../data/types";
 import { TRAVEL_FLIGHT_SOURCES, TRAVEL_HOTEL_SOURCES } from "../data/types";
@@ -29,6 +30,7 @@ export const DEFAULT_TRAVEL_SETTINGS: TravelSettings = {
   mealCents: 0,
   displayFont: "Fraunces",
   help: { phone: null, email: null, whatsapp: null },
+  timeZone: DEFAULT_ZONE,
 };
 
 /** How many of each a project may have. */
@@ -37,10 +39,15 @@ export const TRAVEL_LIMITS = { hotels: 200, roomsPerHotel: 40, ratesPerRoom: 6, 
 /** How long rooms and seats are held while the person pays. */
 export const HOLD_MINUTES = 30;
 
+const zoneOf = (zone: unknown): string | null => (isTimeZone(zone) ? zone : null);
+
 const clampPercent = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? Math.min(50, Math.max(0, Math.round(value))) : 0);
 
-/** The saved settings with every field there; sources that aren't connected yet fall back to the dashboard's. */
-export function travelSettingsOf(saved: Partial<TravelSettings> | null | undefined): TravelSettings {
+/**
+ * The saved settings with every field there; sources that aren't connected yet fall back to the dashboard's.
+ * 126.10 The time zone: the company's choice, else the app's (Dashboard › Analytics), else Europe/Istanbul.
+ */
+export function travelSettingsOf(saved: Partial<TravelSettings> | null | undefined, app?: Pick<App, "timeZone"> | null): TravelSettings {
   const s = { ...DEFAULT_TRAVEL_SETTINGS, ...(saved ?? {}) };
   const hotelSource: TravelHotelSource = (TRAVEL_HOTEL_SOURCES as readonly string[]).includes(s.hotelSource) && hotelSourceInfo(s.hotelSource).connected ? s.hotelSource : "dashboard";
   const flightSource: TravelFlightSource = (TRAVEL_FLIGHT_SOURCES as readonly string[]).includes(s.flightSource) && flightSourceInfo(s.flightSource).connected ? s.flightSource : "fixed";
@@ -59,6 +66,7 @@ export function travelSettingsOf(saved: Partial<TravelSettings> | null | undefin
     bagCents: Math.max(0, Math.round(s.bagCents || 0)),
     mealCents: Math.max(0, Math.round(s.mealCents || 0)),
     help: { ...DEFAULT_TRAVEL_SETTINGS.help, ...(s.help ?? {}) },
+    timeZone: zoneOf(saved?.timeZone) ?? zoneOf(app?.timeZone) ?? DEFAULT_ZONE,
   };
 }
 
