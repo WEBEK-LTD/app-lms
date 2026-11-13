@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
@@ -20,6 +20,7 @@ import { AppScreen } from "./app-screens";
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
 // 129 Premium motion & media.
+import { entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { BeforeAfter, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, SliderPill, StoriesRow } from "./premium-motion";
 
 /**
@@ -165,8 +166,11 @@ export function StudioView(viewProps: ViewProps) {
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
+  // 129.8 Each element's entrance plays once when it first comes into view (lib/studio/motion.ts).
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => (root.current ? watchEntrances(root.current, rtl) : undefined), [rtl]);
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
+    <div ref={root} dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
       {page.header ? <Header header={page.header} {...props} /> : null}
       <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
         <Node node={page.body} parentDir="column" {...props} />
@@ -622,7 +626,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     : {};
   const content = Content(locked && !props.lockedAbove ? { ...props, lockedAbove: true } : props);
   return (
-    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} {...handlers}>
+    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} data-studio-enter={entranceMark(node.motion)} {...handlers}>
       {content}
       {selected && editing ? (
         <>

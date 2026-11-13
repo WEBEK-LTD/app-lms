@@ -583,11 +583,11 @@ export const en = {
   enter: "When it shows",
   enterNone: "Nothing",
   enterFade: "Fade in",
-  enterSlideUp: "Slide up",
+  enterSlideUp: "Rise",
   enterSlideDown: "Slide down",
-  enterSlideStart: "From the start",
-  enterSlideEnd: "From the end",
-  enterZoom: "Grow",
+  enterSlideStart: "Slide in from the start",
+  enterSlideEnd: "Slide in from the end",
+  enterZoom: "Scale up",
   duration: "Time (ms)",
   delay: "Wait before (ms)",
   press: "While tapped",
@@ -1505,6 +1505,7 @@ export const en = {
   pmLabel: "Label on the photo",
   pmDividerAt: "Divider starts at",
   pmCompareHint: "In the app the divider follows a finger; the photo before is on the start side.",
+  pmEnterHint: "It plays once, when the element first comes onto the screen: in the app as people scroll, and here on the canvas.",
   // ——— end 129 premium motion & media ———
   known: {
     screensSaved: "Saved. The app shows it the next time it opens; no new build is needed.",
@@ -3021,6 +3022,7 @@ export const ar: Messages = {
   pmLabel: "الكلمة على الصورة",
   pmDividerAt: "الخط الفاصل يبدأ عند",
   pmCompareHint: "في التطبيق الخط الفاصل بيمشي مع الصباع؛ وصورة «قبل» في ناحية البداية.",
+  pmEnterHint: "بتشتغل مرة واحدة، أول ما العنصر يظهر على الشاشة: في التطبيق والناس بتنزل، وهنا على اللوحة.",
   // ——— end 129 premium motion & media ———
   known: {
     screensSaved: "اتحفظ. التطبيق بيعرضه أول ما يتفتح تاني، من غير بناء جديد.",
@@ -4534,6 +4536,7 @@ export const tr: Messages = {
   pmLabel: "Fotoğraftaki etiket",
   pmDividerAt: "Ayırıcının başladığı yer",
   pmCompareHint: "Uygulamada ayırıcı parmağı izler; önceki fotoğraf baş taraftadır.",
+  pmEnterHint: "Öğe ekrana ilk geldiğinde bir kez oynar: uygulamada insanlar kaydırdıkça, burada da tuvalde.",
   // ——— end 129 premium motion & media ———
   known: {
     screensSaved: "Kaydedildi. Uygulama bir sonraki açılışta gösterir; yeni derleme gerekmez.",

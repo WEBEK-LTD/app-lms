@@ -1159,6 +1159,10 @@ function MotionTab(props: Props & { node: StudioNode }) {
       </label>
       {m.enter && m.enter !== "none" ? (
         <>
+          {/* 129.8 Played once when it first shows, in the app and on the canvas. */}
+          <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.pmEnterHint")}
+          </p>
           <RangeField label={t("studio.duration")} value={m.duration_ms ?? 400} scale={1000} min={0.1} max={3} step={0.1} unit={t("studio.unitSeconds")} fallback={400} onChange={(duration_ms) => set({ duration_ms: Math.round(duration_ms) })} />
           <RangeField label={t("studio.delay")} value={m.delay_ms ?? 0} scale={1000} min={0} max={5} step={0.1} unit={t("studio.unitSeconds")} fallback={0} onChange={(delay_ms) => set({ delay_ms: Math.round(delay_ms) })} />
         </>

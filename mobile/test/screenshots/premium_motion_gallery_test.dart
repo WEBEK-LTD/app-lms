@@ -221,8 +221,106 @@ List<Map<String, dynamic>> _galleryImages(Words w, {int from = 0}) => [
     {'image_url': photo(path), 'caption': w(en, ar)},
 ];
 
+/// 129.8 A card that comes in as [enter] says, after [delay] ms.
+Map<String, dynamic> _entering(
+  String id,
+  String enter,
+  int delay,
+  String icon,
+  String title,
+  String line,
+) => {
+  'id': id,
+  'type': 'row',
+  'gap': 14,
+  'cross': 'center',
+  'radius': 22,
+  'background': '#FFFFFF',
+  'dark_background': '#1E1C33',
+  'border_color': '#E8E2D6',
+  'dark_border_color': '#2E2B48',
+  'border_width': 1,
+  'padding': _pad(16, 16, 16, 16),
+  'margin': _pad(0, 16, 12, 16),
+  'motion': {'enter': enter, 'duration_ms': 600, 'delay_ms': delay},
+  'children': [
+    {
+      'id': '$id-i',
+      'type': 'icon',
+      'icon': icon,
+      'icon_size': 26,
+      'width': 48,
+      'height': 48,
+      'radius': 16,
+      'background': '#F5C451',
+      'color': '#0E0D24',
+      'align': 'center',
+      'cross': 'center',
+      'padding': _pad(11, 11, 11, 11),
+    },
+    {
+      'id': '$id-c',
+      'type': 'column',
+      'gap': 2,
+      'width': 'fill',
+      'children': [
+        _text('$id-t', title, size: 16, weight: 800),
+        _text('$id-l', line, size: 13),
+      ],
+    },
+  ],
+};
+
 final premiumShots = <PremiumShot>[
   _storiesShot,
+  // 129.8 Entrances, caught as they play: each card comes in its own way.
+  PremiumShot(
+    'motion',
+    (w) => [
+      ..._heading(
+        w('Entrances', 'الظهور'),
+        w(
+          'Each element can come in once, when it first shows.',
+          'يمكن لكل عنصر أن يظهر مرة واحدة، أول ما يظهر.',
+        ),
+      ),
+      _entering(
+        'e1',
+        'fade',
+        0,
+        'bolt',
+        w('Fade in', 'يتلاشى للداخل'),
+        w('Softly, from nothing.', 'بهدوء، من لا شيء.'),
+      ),
+      _entering(
+        'e2',
+        'slide_up',
+        150,
+        'trending_up',
+        w('Rise', 'يرتفع'),
+        w('Up into its place.', 'إلى مكانه من الأسفل.'),
+      ),
+      _entering(
+        'e3',
+        'zoom',
+        300,
+        'star',
+        w('Scale up', 'يكبر'),
+        w('Growing as it shows.', 'يكبر وهو يظهر.'),
+      ),
+      _entering(
+        'e4',
+        'slide_start',
+        450,
+        'arrow_forward',
+        w('Slide in from the start', 'ينزلق من البداية'),
+        w(
+          'From the left, the right in Arabic.',
+          'من اليسار، ومن اليمين بالعربية.',
+        ),
+      ),
+    ],
+  ),
   // 129.5 A bento with its captions, a filmstrip, and the full-screen viewer.
   PremiumShot(
     'gallery',

@@ -617,6 +617,93 @@ void main() {
     });
   });
 
+  group('129.8 entrances', () {
+    Map<String, dynamic> rising(String id, String words) => {
+      ...text(id, words),
+      'motion': {'enter': 'slide_up', 'duration_ms': 400},
+    };
+    double opacityOf(WidgetTester tester, String words) => tester
+        .widget<Opacity>(
+          find
+              .ancestor(
+                of: find.text(words, skipOffstage: false),
+                matching: find.byType(Opacity),
+              )
+              .first,
+        )
+        .opacity;
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets(
+        'an element rises in once when it first comes onto the screen '
+        '(${dark ? 'dark' : 'light'}, $language)',
+        (tester) async {
+          await open(
+            tester,
+            [
+              rising('top', 'At the top'),
+              {'id': 'tall', 'type': 'spacer', 'height': 1600},
+              rising('below', 'Further down'),
+            ],
+            dark: dark,
+            language: language,
+          );
+          expect(opacityOf(tester, 'At the top'), 1);
+          // Still waiting below the fold.
+          expect(opacityOf(tester, 'Further down'), 0);
+          await tester.scrollUntilVisible(
+            find.text('Further down'),
+            300,
+            scrollable: find.byType(Scrollable).first,
+          );
+          for (var i = 0; i < 4; i++) {
+            await tester.pump(const Duration(milliseconds: 60));
+          }
+          final midway = opacityOf(tester, 'Further down');
+          expect(midway, greaterThan(0));
+          expect(midway, lessThan(1));
+          await TestApp.settle(tester);
+          expect(opacityOf(tester, 'Further down'), 1);
+          // Once: scrolling away and back doesn't play it again.
+          await tester.drag(
+            find.byType(Scrollable).first,
+            const Offset(0, 1500),
+          );
+          await TestApp.settle(tester);
+          await tester.drag(
+            find.byType(Scrollable).first,
+            const Offset(0, -1500),
+          );
+          await tester.pump();
+          expect(opacityOf(tester, 'Further down'), 1);
+        },
+      );
+    }
+
+    testWidgets('nothing moves on a phone that reduces motion', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await open(tester, [
+        {'id': 'tall', 'type': 'spacer', 'height': 1600},
+        rising('below', 'Further down'),
+      ]);
+      expect(
+        find.ancestor(
+          of: find.text('Further down', skipOffstage: false),
+          matching: find.byType(Opacity),
+        ),
+        findsNothing,
+      );
+    });
+  });
+
   group('129.3 the ticker', () {
     Map<String, dynamic> ticker({Map<String, dynamic>? marquee}) => {
       'id': 'tick',

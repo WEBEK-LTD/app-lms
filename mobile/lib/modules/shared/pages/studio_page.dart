@@ -2349,12 +2349,16 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (widget.motion.enter != StudioEnter.none) {
-      _delay = Timer(Duration(milliseconds: widget.motion.delayMs), () {
-        if (mounted) _enter.forward();
-      });
-    }
     if (widget.motion.loop != StudioLoop.none) _loop.repeat();
+  }
+
+  /// 129.8 The entrance plays once, when the element first comes onto the
+  /// screen (as the page scrolls to it), after its wait.
+  void _shown() {
+    if (widget.motion.enter == StudioEnter.none || _delay != null) return;
+    _delay = Timer(Duration(milliseconds: widget.motion.delayMs), () {
+      if (mounted) _enter.forward();
+    });
   }
 
   @override
@@ -2368,7 +2372,7 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    return AnimatedBuilder(
+    final moving = AnimatedBuilder(
       animation: Listenable.merge([_enter, _loop]),
       child: widget.child,
       builder: (context, child) {
@@ -2421,6 +2425,8 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
         );
       },
     );
+    if (widget.motion.enter == StudioEnter.none) return moving;
+    return StudioFirstShown(onShown: _shown, child: moving);
   }
 }
 

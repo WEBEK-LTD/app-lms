@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { entranceFrom, entranceMark, watchEntrances } from "@/lib/studio/motion";
 import { StudioView } from "@/components/studio/view";
 import { newApp } from "@/lib/app/setup";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
@@ -275,6 +276,88 @@ describe("129.6 before and after", () => {
     expect(ar).toContain("clip-path:inset(0 30% 0 0)");
     expect(ar).toContain("data-studio-compare-handle");
     expect(ar).toContain(">Before<");
+  });
+});
+
+describe("129.8 entrances", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("are the app's: fade, rise, come down, slide in from either side (mirrored in Arabic) and scale up", () => {
+    expect(entranceFrom("fade", false)).toEqual({ opacity: 0 });
+    expect(entranceFrom("slide_up", false)).toEqual({ opacity: 0, transform: "translateY(24px)" });
+    expect(entranceFrom("slide_start", false)).toEqual({ opacity: 0, transform: "translateX(-24px)" });
+    expect(entranceFrom("slide_start", true)).toEqual({ opacity: 0, transform: "translateX(24px)" });
+    expect(entranceFrom("zoom", false)).toEqual({ opacity: 0, transform: "scale(0.85)" });
+    expect(entranceFrom("none", false)).toBeNull();
+    expect(entranceMark({ enter: "fade", delay_ms: 200 })).toBe("fade|400|200");
+    expect(entranceMark({ enter: "none", loop: "pulse" })).toBeUndefined();
+  });
+
+  it("marks every element that has one on the canvas, any kind of element", () => {
+    const html = draw([
+      { id: "a", type: "text", text: "Hello", motion: { enter: "slide_up" } },
+      { ...make("marquee"), motion: { enter: "zoom", duration_ms: 600 } },
+      { id: "b", type: "text", text: "Still" },
+    ]);
+    expect(html).toContain('data-studio-enter="slide_up|400|0"');
+    expect(html).toContain('data-studio-enter="zoom|600|0"');
+    expect(html.match(/data-studio-enter/g)).toHaveLength(2);
+  });
+
+  /** A canvas with marked elements, the browser's observers played by hand. */
+  function canvas(reduce: boolean) {
+    const els = ["fade|400|0", "zoom|300|100"].map((mark) => ({ dataset: { studioEnter: mark }, animate: vi.fn() }));
+    let shown: (entries: { isIntersecting: boolean; target: unknown }[]) => void = () => {};
+    let changed: () => void = () => {};
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: typeof shown) {
+          shown = callback;
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    vi.stubGlobal(
+      "MutationObserver",
+      class {
+        constructor(callback: typeof changed) {
+          changed = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.stubGlobal("window", { matchMedia: () => ({ matches: reduce }) });
+    const root = { querySelectorAll: () => els };
+    const stop = watchEntrances(root as unknown as HTMLElement, true);
+    return { els, show: (i: number) => shown([{ isIntersecting: true, target: els[i] }]), changed: () => changed(), stop };
+  }
+
+  it("plays each once when it first comes into view on the canvas, again when it changes", () => {
+    const { els, show, changed, stop } = canvas(false);
+    show(1);
+    expect(els[0]!.animate).not.toHaveBeenCalled();
+    expect(els[1]!.animate).toHaveBeenCalledWith([{ opacity: 0, transform: "scale(0.85)" }, { opacity: 1, transform: "none" }], expect.objectContaining({ duration: 300, delay: 100 }));
+    show(1);
+    expect(els[1]!.animate).toHaveBeenCalledTimes(1);
+    els[1]!.dataset.studioEnter = "slide_start|400|0";
+    changed();
+    show(1);
+    expect(els[1]!.animate).toHaveBeenCalledTimes(2);
+    expect(els[1]!.animate.mock.calls[1]![0][0]).toEqual({ opacity: 0, transform: "translateX(24px)" });
+    stop();
+  });
+
+  it("plays nothing when the computer reduces motion", () => {
+    const { els, show, stop } = canvas(true);
+    show(0);
+    show(1);
+    expect(els[0]!.animate).not.toHaveBeenCalled();
+    expect(els[1]!.animate).not.toHaveBeenCalled();
+    stop();
   });
 });
 

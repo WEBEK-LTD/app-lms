@@ -22,6 +22,7 @@ import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { ELEMENTS, elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
+import { ENTRANCE_EASING, entranceFrom } from "@/lib/studio/motion";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
@@ -699,16 +700,9 @@ export function StudioEditor(props: StudioEditorProps) {
     const m = selected.motion;
     if (!el || !m) return;
     const rtl = editLang === "ar";
-    const from: Record<string, Keyframe> = {
-      fade: { opacity: 0 },
-      slide_up: { opacity: 0, transform: "translateY(24px)" },
-      slide_down: { opacity: 0, transform: "translateY(-24px)" },
-      slide_start: { opacity: 0, transform: `translateX(${rtl ? 24 : -24}px)` },
-      slide_end: { opacity: 0, transform: `translateX(${rtl ? -24 : 24}px)` },
-      zoom: { opacity: 0, transform: "scale(0.85)" },
-    };
-    const first = m.enter && m.enter !== "none" ? from[m.enter] : null;
-    if (first) el.animate([first, { opacity: 1, transform: "none" }], { duration: m.duration_ms ?? 400, delay: m.delay_ms ?? 0, easing: "cubic-bezier(.2,.8,.2,1)" });
+    // 129.8 The entrance as the canvas plays it when the element first shows (lib/studio/motion.ts).
+    const first = entranceFrom(m.enter, rtl);
+    if (first) el.animate([first, { opacity: 1, transform: "none" }], { duration: m.duration_ms ?? 400, delay: m.delay_ms ?? 0, easing: ENTRANCE_EASING });
     const loops: Record<string, Keyframe[]> = {
       pulse: [{ transform: "scale(1)" }, { transform: "scale(1.05)" }, { transform: "scale(1)" }],
       float: [{ transform: "translateY(0)" }, { transform: "translateY(-6px)" }, { transform: "translateY(0)" }],
