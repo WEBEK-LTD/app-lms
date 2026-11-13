@@ -2688,5 +2688,14 @@
   "studioSchoolBusLeaves": "حافلة العودة تنطلق الساعة {time}",
   "studioSchoolBusComing": "الحافلة في الطريق · {minutes} دقيقة",
   "studioSchoolBusRoute": "{route} · محطة {stop}",
-  "studioSchoolDayOff": "لا دراسة اليوم"
+  "studioSchoolDayOff": "لا دراسة اليوم",
+  "studioPremiumMonthly": "شهريًا",
+  "studioPremiumYearly": "سنويًا",
+  "studioPremiumPerMonth": "/ شهر",
+  "studioPremiumPerYear": "/ سنة",
+  "studioPremiumPopular": "الأكثر طلبًا",
+  "studioPremiumStars": "{rating} من 5 نجوم",
+  "studioPremiumProgress": "{label}: {value} بالمئة",
+  "studioPremiumStep": "الخطوة {number} من {count}",
+  "studioPremiumCurrentStep": "الخطوة الحالية"
 }

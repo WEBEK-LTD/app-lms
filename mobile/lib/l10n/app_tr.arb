@@ -2688,5 +2688,14 @@
   "studioSchoolBusLeaves": "Eve dönüş servisi · {time}",
   "studioSchoolBusComing": "Servis yolda · {minutes} dk",
   "studioSchoolBusRoute": "{route} · {stop} durağı",
-  "studioSchoolDayOff": "Bugün okul yok"
+  "studioSchoolDayOff": "Bugün okul yok",
+  "studioPremiumMonthly": "Aylık",
+  "studioPremiumYearly": "Yıllık",
+  "studioPremiumPerMonth": "/ ay",
+  "studioPremiumPerYear": "/ yıl",
+  "studioPremiumPopular": "En popüler",
+  "studioPremiumStars": "5 üzerinden {rating} yıldız",
+  "studioPremiumProgress": "{label}: yüzde {value}",
+  "studioPremiumStep": "{count} adımdan {number}.",
+  "studioPremiumCurrentStep": "Şu anki adım"
 }

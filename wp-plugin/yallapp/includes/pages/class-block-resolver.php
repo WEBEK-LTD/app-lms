@@ -1013,8 +1013,8 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning', /* 129.11–129.20 */ 'testimonials', 'pricing', 'stats', 'progress', 'timeline', 'profile_card', 'bento', 'badge_text', 'cta_bar' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', /* 129.16 */ 'profile_card' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1356,7 +1356,19 @@ class Block_Resolver {
 				);
 				break;
 		}
+		// 129.11–129.20 Studio's premium elements: their lists and options (Studio_Premium).
+		if ( in_array( $type, Studio_Premium::TYPES, true ) ) {
+			$node = Studio_Premium::node( $raw, $node, $language, array( $this, 'action' ) );
+			if ( null === $node ) {
+				return null;
+			}
+		}
 		if ( in_array( $type, self::STUDIO_LAYOUT, true ) ) {
+			// 129.18 A layout's premium card style.
+			$surface = Studio_Premium::surface( $raw['surface'] ?? null );
+			if ( null !== $surface ) {
+				$node['surface'] = $surface;
+			}
 			$children = array();
 			foreach ( array_slice( isset( $raw['children'] ) && is_array( $raw['children'] ) ? $raw['children'] : array(), 0, 60 ) as $child ) {
 				$served = is_array( $child ) ? $this->studio_node( $child, $depth + 1, $language ) : null;

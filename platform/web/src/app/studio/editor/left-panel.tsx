@@ -4,7 +4,7 @@ import { useState, type DragEvent } from "react";
 import { useDashT } from "@/components/dashboard-i18n";
 import type { DashKey } from "@/i18n/dashboard";
 import type { ItemSource, StudioHeader, StudioNode, StudioPage } from "@/lib/pages/types";
-import { ELEMENTS, type ElementGroup, type ElementInfo } from "@/lib/studio/elements";
+import { ELEMENTS, type ElementGroup, type ElementInfo, type ElementPreset } from "@/lib/studio/elements";
 import type { SectionInfo, TemplateInfo } from "@/lib/studio/sections";
 import { holdsChildren } from "@/lib/studio/edit";
 import { PicturesPanel } from "./pictures-panel";
@@ -51,7 +51,8 @@ export function LeftPanel(props: {
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAddElement: (type: StudioNode["type"]) => void;
+  /** 129.18 With a ready look (a glass card). */
+  onAddElement: (type: StudioNode["type"], preset?: ElementPreset) => void;
   onAddSection: (id: string) => void;
   onUseTemplate: (id: string) => void;
   /** Editor audit 3.3: a picture from the pictures tab, added after what's selected. */
@@ -87,7 +88,11 @@ export function LeftPanel(props: {
     { id: "layout", label: t("studio.groupLayout") },
     { id: "content", label: t("studio.groupContent") },
     { id: "more", label: t("studio.groupMore") },
+    // 129 The premium library.
+    { id: "premium", label: t("studio.groupPremium") },
   ];
+  // 129.18 An entry with a ready look is named for it (a glass card).
+  const labelOf = (e: ElementInfo) => (e.preset ? t(`studio.preset_${e.preset}` as DashKey) : elementLabel(t, e.type, props.source));
   const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
   const templates = props.templates.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
 
@@ -119,7 +124,7 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
+              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(labelOf(e), e.keywords));
               if (!items.length) return null;
               return (
                 <div key={group.id}>
@@ -129,17 +134,17 @@ export function LeftPanel(props: {
                   <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
                     {items.map((e) => (
                       <button
-                        key={e.type}
+                        key={e.preset ?? e.type}
                         type="button"
                         draggable
-                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type })}
-                        onClick={() => props.onAddElement(e.type)}
+                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type, ...(e.preset ? { preset: e.preset } : {}) })}
+                        onClick={() => props.onAddElement(e.type, e.preset)}
                         className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
                         style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
-                        data-studio-element={e.type}
+                        data-studio-element={e.preset ?? e.type}
                       >
                         <Glyph name={e.icon} size={20} />
-                        <span className="mt-1">{elementLabel(t, e.type, props.source)}</span>
+                        <span className="mt-1">{labelOf(e)}</span>
                       </button>
                     ))}
                   </div>
@@ -147,7 +152,7 @@ export function LeftPanel(props: {
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(labelOf(e), e.keywords)) ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>

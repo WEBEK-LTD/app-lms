@@ -22,6 +22,9 @@ import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
 import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
+// 129.11–129.20 The premium elements' words.
+import type { PremiumWords } from "@/components/studio/premium";
+import type { PremiumText } from "@/lib/studio/premium-content";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
@@ -183,6 +186,9 @@ export function StudioEditor(props: StudioEditorProps) {
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
   // 128 The live order card's sample words.
   const liveWords = { title: t("studio.lv_title"), minutes: t("studio.lv_min") };
+  // 129.11–129.20 The premium elements' words on the canvas, and their first words when added.
+  const premiumWords = Object.fromEntries((["setPrice", "monthly", "yearly", "perMonth", "perYear", "popular", "addLabel", "reviewsNote"] as const).map((k) => [k, t(`studio.pmw_${k}` as DashKey)])) as unknown as PremiumWords;
+  const premiumText = (key: PremiumText) => t(`studio.pmn_${key}` as DashKey);
   const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
   // 128 The sample family of the school's cards, in Studio's language.
@@ -389,7 +395,7 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function nodeFor(payload: DragPayload): StudioNode | null {
-    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText, orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order" });
+    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText, orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order", premium: premiumText, preset: payload.preset });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
     if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
     return null;
@@ -609,7 +615,7 @@ export function StudioEditor(props: StudioEditorProps) {
     e.dataTransfer.effectAllowed = payload.kind === "move" ? "move" : "copy";
     e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(payload));
     e.dataTransfer.setData("text/plain", "");
-    if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source), elementInfo(payload.type).icon);
+    if (payload.kind === "new") dragGhost(e, payload.preset ? t(`studio.preset_${payload.preset}` as DashKey) : elementLabel(t, payload.type, source), elementInfo(payload.type).icon);
     else if (payload.kind === "section") dragGhost(e, t(`studio.sec_${payload.id}` as DashKey), SECTIONS.find((s) => s.id === payload.id)?.icon ?? "dashboard");
     else if (payload.kind === "move" && studio) {
       const node = findNode(studio.body, payload.id);
@@ -1218,7 +1224,7 @@ export function StudioEditor(props: StudioEditorProps) {
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
-          onAddElement={(type) => add({ kind: "new", type })}
+          onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
           onAddSection={(id) => add({ kind: "section", id })}
           onUseTemplate={applyTemplate}
           onAddPicture={(payload) => add(payload)}
@@ -1301,7 +1307,7 @@ export function StudioEditor(props: StudioEditorProps) {
             <div style={{ width: frame.width, height: frame.height, transform: `scale(${zoom / 100})`, transformOrigin: "top left", borderRadius: frame.radius, background: C.ink, padding: 10, boxSizing: "border-box", boxShadow: "0 30px 60px rgba(14,13,36,0.25)" }} dir="ltr">
               <div className="studio-screen" style={{ width: "100%", height: "100%", borderRadius: frame.radius - 9, overflow: "hidden auto", position: "relative", background: dark ? "#14121F" : "#FBF8F2" }}>
                 {studio ? (
-                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} />
+                  <StudioView page={studio} lang={editLang} defaultLang={def} dark={dark} look={look} pickable={props.pickable} market={props.market} editing={editing} words={words} learningWords={learningWords} liveWords={liveWords} schoolWords={{ ...schoolWords, date: greeting.date }} greeting={greeting} tablet={device === "tablet"} screenPart={screenPart} premiumWords={premiumWords} />
                 ) : page ? (
                   <StartPage title={pageTitle(page)} regular={page.blocks.length > 0} onPick={applyTemplate} templates={kindTemplates} />
                 ) : null}

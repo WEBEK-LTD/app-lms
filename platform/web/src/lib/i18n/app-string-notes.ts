@@ -4488,6 +4488,53 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "فوق اسم التطبيق في شاشة البداية بشكل Editorial.",
     tr: "Editorial görünümlü açılış ekranında uygulamanın adının üstünde.",
   },
+  // ——— 129.11–129.20 Studio's premium elements ———
+  "129.12 The monthly side of the plans' switch on a Studio page's pricing cards.": {
+    en: "The monthly side of the switch over the plans on a page's pricing cards.",
+    ar: "الجانب الشهري من المفتاح فوق الباقات في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarındaki planların üstündeki geçişin aylık tarafı.",
+  },
+  "129.12 The yearly side of the plans' switch on a Studio page's pricing cards.": {
+    en: "The yearly side of the switch over the plans on a page's pricing cards.",
+    ar: "الجانب السنوي من المفتاح فوق الباقات في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarındaki planların üstündeki geçişin yıllık tarafı.",
+  },
+  "129.12 After a plan's monthly price on a Studio page (\"₺450 / month\").": {
+    en: "After a plan's monthly price on a page (\"₺450 / month\").",
+    ar: "بعد السعر الشهري للباقة في الصفحة (\"₺450 / شهر\").",
+    tr: "Bir sayfada planın aylık fiyatından sonra (\"₺450 / ay\").",
+  },
+  "129.12 After a plan's yearly price on a Studio page (\"₺4,500 / year\").": {
+    en: "After a plan's yearly price on a page (\"₺4,500 / year\").",
+    ar: "بعد السعر السنوي للباقة في الصفحة (\"₺4,500 / سنة\").",
+    tr: "Bir sayfada planın yıllık fiyatından sonra (\"₺4,500 / yıl\").",
+  },
+  "129.12 The chip on the highlighted plan of a Studio page's pricing cards.": {
+    en: "The chip on the highlighted plan of a page's pricing cards.",
+    ar: "الشارة على الباقة المميزة في بطاقات الأسعار بالصفحة.",
+    tr: "Bir sayfanın fiyat kartlarında öne çıkan plandaki etiket.",
+  },
+  "129.11 What a screen reader says for the stars on a quote card of a Studio page.": {
+    en: "What a screen reader says for the stars on a quote card of a page.",
+    ar: "ما يقوله قارئ الشاشة عن النجوم في بطاقة رأي بالصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki yorum kartının yıldızları için söylediği.",
+  },
+  "129.14 What a screen reader says for a progress bar or ring on a Studio page.": {
+    en: "What a screen reader says for a progress bar or ring on a page.",
+    ar: "ما يقوله قارئ الشاشة عن شريط أو دائرة التقدم في الصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki ilerleme çubuğu veya halkası için söylediği.",
+  },
+  "129.15 What a screen reader says before a step of a timeline on a Studio page.": {
+    en: "What a screen reader says before a step of a timeline on a page.",
+    ar: "ما يقوله قارئ الشاشة قبل خطوة من الخط الزمني في الصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki zaman çizelgesinin bir adımından önce söylediği.",
+  },
+  "129.15 What a screen reader says for the active step of a timeline on a Studio page.": {
+    en: "What a screen reader says for the current step of a timeline on a page.",
+    ar: "ما يقوله قارئ الشاشة عن الخطوة الحالية في الخط الزمني بالصفحة.",
+    tr: "Ekran okuyucunun bir sayfadaki zaman çizelgesinin şu anki adımı için söylediği.",
+  },
+  // ——— end 129.11–129.20 ———
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

@@ -25,9 +25,15 @@ export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
 /** 128 Content drawn from the signed-in person: their shipment or ride on its way, or the taxis near them (`tracking`), and a greeting with their name (`greeting`). */
 export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
+// ——— 129.11–129.20 Premium content, trust and commerce (types below, "Premium content") ———
+/** 129.11–129.20 Premium elements drawn from their own `entries` and options: quotes, plans, numbers, progress, steps, tiles, badges, a call-to-action bar. */
+export const STUDIO_PREMIUM_CONTENT_TYPES = ["testimonials", "pricing", "stats", "progress", "timeline", "bento", "badge_text", "cta_bar"] as const;
+/** 129.16 A person's or a place's card: its cover, avatar, name and role, then what it holds (badges, two buttons), then its social links. */
+export const STUDIO_PREMIUM_CARD_TYPES = ["profile_card"] as const;
+// ——— end 129.11–129.20 ———
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
-export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", "school", ...STUDIO_LIVE_TYPES] as const;
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES, ...STUDIO_PREMIUM_CARD_TYPES] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", "school", ...STUDIO_LIVE_TYPES, ...STUDIO_PREMIUM_CONTENT_TYPES] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -766,6 +772,119 @@ export interface StudioMap {
   label?: string | null;
 }
 
+// ——— 129.11–129.20 Premium content, trust and commerce ———
+
+/** 129.17 A bento tile's size: one cell, two across, two down, or two by two. */
+export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large"] as const;
+/** 129.11–129.20 The texts of an entry, each at most this long (and translated, `translations`). */
+export const STUDIO_ENTRY_TEXTS = { title: 120, subtitle: 120, text: 600, label: 40, prefix: 8, suffix: 8 } as const;
+export const STUDIO_MAX_ENTRIES = 12;
+
+/**
+ * 129.11–129.20 One entry of a premium element's list (`StudioEntry`): a
+ * testimonial (photo, name, role, stars, quote), a plan (name, prices,
+ * features, button), a number, a progress, a step, a bento tile. Each
+ * element reads the fields it draws (docs/api/openapi.yaml).
+ */
+export interface StudioEntry {
+  title?: string | null;
+  subtitle?: string | null;
+  text?: string | null;
+  /** A button's words (a plan's, a tile's link). */
+  label?: string | null;
+  image_url?: string | null;
+  icon?: string | null;
+  /** Stars 0 to 5 (testimonials), a number (stats), a share 0 to 100 (progress). */
+  value?: number | null;
+  /** 129.12 A plan's price a month and a year, in cents of `pricing.currency`; null: not set yet (the app shows none). */
+  price?: number | null;
+  price_yearly?: number | null;
+  /** 129.13 Before and after a number ("+", "%", "k"). */
+  prefix?: string | null;
+  suffix?: string | null;
+  /** The most popular plan, the active step, a stat drawn in the accent. */
+  highlight?: boolean;
+  size?: (typeof STUDIO_ENTRY_SIZES)[number];
+  gradient?: { from: string; to: string; angle?: number } | null;
+  color?: string | null;
+  action?: Action | null;
+  translations?: Translations;
+}
+
+/** 129.11 Quote cards side by side to swipe, or stacked under each other. */
+export const STUDIO_TESTIMONIAL_STYLES = ["carousel", "stacked"] as const;
+/** 129.11 Whose real reviews the cards can show: a course's or a product's, from the app's own reviews. */
+export const STUDIO_REVIEW_SOURCES = ["courses", "products"] as const;
+export interface StudioTestimonials {
+  style?: (typeof STUDIO_TESTIMONIAL_STYLES)[number];
+  /** The approved reviews of this course or product (4 stars and up, with words), in place of the entries when it has any. */
+  reviews?: { source: (typeof STUDIO_REVIEW_SOURCES)[number]; id: string } | null;
+}
+
+/** 129.12 The currencies of the platform's own prices (lib/catalog/money.ts CATALOG_CURRENCIES). */
+export const STUDIO_PRICING_CURRENCIES = ["TRY", "USD", "EUR", "EGP", "SAR", "AED"] as const;
+export interface StudioPricing {
+  /** Missing, TRY. */
+  currency?: (typeof STUDIO_PRICING_CURRENCIES)[number];
+  /** A monthly / yearly switch over the plans (their `price_yearly`). */
+  yearly?: boolean;
+}
+
+export const STUDIO_STATS_STYLES = ["plain", "cards"] as const;
+export interface StudioStats {
+  style?: (typeof STUDIO_STATS_STYLES)[number];
+  /** Thin lines between the numbers. */
+  dividers?: boolean;
+}
+
+export const STUDIO_PROGRESS_STYLES = ["bars", "rings"] as const;
+export interface StudioProgress {
+  style?: (typeof STUDIO_PROGRESS_STYLES)[number];
+}
+
+export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal"] as const;
+export interface StudioTimeline {
+  style?: (typeof STUDIO_TIMELINE_STYLES)[number];
+}
+
+/** 129.16 A person's round avatar, or a place's rounded square. */
+export const STUDIO_PROFILE_SHAPES = ["round", "square"] as const;
+export interface StudioProfile {
+  cover_url?: string | null;
+  shape?: (typeof STUDIO_PROFILE_SHAPES)[number];
+  /** At most 6 links, each its network's mark. */
+  socials?: { network: SocialNetwork; url: string }[];
+}
+
+/** 129.19 A chip with its words (and icon): filled, outlined, a gradient, frosted, or gradient words without a chip. */
+export const STUDIO_BADGE_STYLES = ["pill", "outline", "gradient", "glass", "text"] as const;
+export interface StudioBadge {
+  style: (typeof STUDIO_BADGE_STYLES)[number];
+}
+
+/** 129.20 A bar across the page's foot with a label (a price) and a button, or a round floating button. */
+export const STUDIO_CTA_STYLES = ["bar", "fab"] as const;
+export interface StudioCta {
+  style: (typeof STUDIO_CTA_STYLES)[number];
+}
+
+/**
+ * 129.18 A premium card style for any layout (`StudioSurface`): frosted
+ * glass blurring what is behind it (a photo), a border in two colours, a
+ * soft glow inside its edge, and soft shadows in three levels. Combined
+ * freely; missing, the layout as it is.
+ */
+export interface StudioSurface {
+  /** The blur behind it, 4 to 40. */
+  glass?: number;
+  /** How white (dark: how dark) the glass is, 0.05 to 0.9; missing, 0.18. */
+  tint?: number;
+  border?: { from: string; to: string; width?: number } | null;
+  glow?: string | null;
+  soft?: 1 | 2 | 3;
+}
+// ——— end 129.11–129.20 ———
+
 /**
  * 103R One element of a Studio page (`StudioNode` in the app API). In the
  * layout an `items` element keeps its `query` (and `categories` its
@@ -859,6 +978,18 @@ export interface StudioNode {
   /** 128 For `school`: which part of the family's school day it is. */
   school?: StudioSchool | null;
   rating?: number | null;
+  // ——— 129.11–129.20 Premium content: each premium element's list and options, and a layout's card style ———
+  entries?: StudioEntry[];
+  testimonials?: StudioTestimonials | null;
+  pricing?: StudioPricing | null;
+  stats?: StudioStats | null;
+  progress?: StudioProgress | null;
+  timeline?: StudioTimeline | null;
+  profile?: StudioProfile | null;
+  badge?: StudioBadge | null;
+  cta?: StudioCta | null;
+  surface?: StudioSurface | null;
+  // ——— end 129.11–129.20 ———
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
   visibility?: (typeof STUDIO_VISIBILITY)[number];

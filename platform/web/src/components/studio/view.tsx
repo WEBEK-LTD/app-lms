@@ -19,6 +19,8 @@ import { AppScreen } from "./app-screens";
 // 128 The cover layouts and the live elements.
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
+// 129.11–129.20 The premium content elements, and a layout's premium card style.
+import { isPremiumContent, PREMIUM_WORDS_EN, PremiumElement, surfaceStyle, type PremiumWords } from "./premium";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -86,6 +88,8 @@ interface ViewProps {
   market?: MarketCanvas | null;
   /** 120 For a page drawn around one of the app's screens: 124.8 the screen as the app draws it, or what the canvas says in its place. */
   screenPart?: ScreenPartInfo;
+  /** 129.11–129.20 The editor's words of the premium elements (an empty price, the plans' switch); missing, English. */
+  premiumWords?: PremiumWords;
 }
 
 /** 124.8 The app's screen under a page's elements in the canvas. */
@@ -565,6 +569,17 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   if (node.type === "photo_hero" || node.type === "map_header") {
     for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
   }
+  // ——— 129.11–129.20 The premium elements draw their own cards and corners; a layout's premium card style. ———
+  if (isPremiumContent(node.type)) {
+    for (const key of ["borderRadius", "overflow"] as const) delete style[key];
+    if (node.type === "profile_card" || node.type === "cta_bar" || node.type === "badge_text") {
+      for (const key of ["background", "backgroundImage", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "border", "boxShadow"] as const) delete style[key];
+    }
+    // 129.20 The bar stays at the foot of the page while it scrolls, above the tabs.
+    if (node.type === "cta_bar") Object.assign(style, { position: "sticky", bottom: 0, zIndex: 3 });
+  }
+  if (node.surface) Object.assign(style, surfaceStyle(node.surface, dark, typeof style.background === "string" ? style.background : undefined));
+  // ——— end 129.11–129.20 ———
   if (parentDir === "stack") {
     // 124.6 As the app's layers: after the first, an element filling the height fills the layer; any other is as tall as
     // what it holds, at its own alignment or the layer's (and as wide, when it hugs or has a width).
@@ -683,6 +698,30 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
       case "greeting":
         return <GreetingText lang={lang} sample={p.greeting?.hello} />;
+      // 129.11–129.20 The premium elements; a profile card's own elements under the person.
+      case "testimonials":
+      case "pricing":
+      case "stats":
+      case "progress":
+      case "timeline":
+      case "bento":
+      case "badge_text":
+      case "cta_bar":
+      case "profile_card":
+        return (
+          <PremiumElement
+            node={n}
+            lang={lang}
+            defaultLang={defaultLang}
+            dark={dark}
+            brand={look.brand}
+            accent={look.accent}
+            color={color}
+            words={p.premiumWords ?? PREMIUM_WORDS_EN}
+            editing={!!editing}
+            front={n.type === "profile_card" ? Children({ ...p, node: { ...n, type: "column" } }) : undefined}
+          />
+        );
       case "text":
         // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
         return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;

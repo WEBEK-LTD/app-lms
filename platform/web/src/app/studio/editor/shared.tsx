@@ -1,9 +1,11 @@
 import { Logo } from "@/components/brand";
 import type { StudioNodeType } from "@/lib/pages/types";
+import type { ElementPreset } from "@/lib/studio/elements";
 
 /** 103R What is being dragged in the editor: a new element, a ready section, or an element of the page. */
 export type DragPayload =
-  | { kind: "new"; type: StudioNodeType }
+  // 129.18 `preset`: a layout with a ready look (a glass card).
+  | { kind: "new"; type: StudioNodeType; preset?: ElementPreset }
   | { kind: "section"; id: string }
   | { kind: "move"; id: string }
   // Editor audit 3.3: a picture from the pictures panel; `share` is the project's file to make public first.

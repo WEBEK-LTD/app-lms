@@ -10249,4 +10249,37 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get studioSchoolDayOff => 'لا دراسة اليوم';
+
+  @override
+  String get studioPremiumMonthly => 'شهريًا';
+
+  @override
+  String get studioPremiumYearly => 'سنويًا';
+
+  @override
+  String get studioPremiumPerMonth => '/ شهر';
+
+  @override
+  String get studioPremiumPerYear => '/ سنة';
+
+  @override
+  String get studioPremiumPopular => 'الأكثر طلبًا';
+
+  @override
+  String studioPremiumStars(int rating) {
+    return '$rating من 5 نجوم';
+  }
+
+  @override
+  String studioPremiumProgress(String label, int value) {
+    return '$label: $value بالمئة';
+  }
+
+  @override
+  String studioPremiumStep(int number, int count) {
+    return 'الخطوة $number من $count';
+  }
+
+  @override
+  String get studioPremiumCurrentStep => 'الخطوة الحالية';
 }

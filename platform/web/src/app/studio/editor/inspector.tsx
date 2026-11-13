@@ -52,6 +52,8 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
+// 129.11–129.20 The premium elements' options and lists, and a layout's premium card style.
+import { PremiumControls, SurfaceControls } from "./premium-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -740,6 +742,16 @@ function DesignTab(props: Props & { node: StudioNode }) {
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
+      {/* 129.11–129.20 The premium elements, and (129.18) any layout's premium card style. */}
+      <PremiumControls
+        node={node}
+        onChange={onChange}
+        lang={props.lang}
+        defaultLang={props.defaultLang}
+        pickable={props.pickable}
+        actionFor={(id, action, change) => <TapAction id={id} action={action} onChange={change} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />}
+      />
+      {layout ? <SurfaceControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}

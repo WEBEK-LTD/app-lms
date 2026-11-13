@@ -9936,4 +9936,37 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get studioSchoolDayOff => 'Bugün okul yok';
+
+  @override
+  String get studioPremiumMonthly => 'Aylık';
+
+  @override
+  String get studioPremiumYearly => 'Yıllık';
+
+  @override
+  String get studioPremiumPerMonth => '/ ay';
+
+  @override
+  String get studioPremiumPerYear => '/ yıl';
+
+  @override
+  String get studioPremiumPopular => 'En popüler';
+
+  @override
+  String studioPremiumStars(int rating) {
+    return '5 üzerinden $rating yıldız';
+  }
+
+  @override
+  String studioPremiumProgress(String label, int value) {
+    return '$label: yüzde $value';
+  }
+
+  @override
+  String studioPremiumStep(int number, int count) {
+    return '$count adımdan $number.';
+  }
+
+  @override
+  String get studioPremiumCurrentStep => 'Şu anki adım';
 }
