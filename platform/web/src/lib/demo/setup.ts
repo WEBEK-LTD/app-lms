@@ -44,6 +44,7 @@ import {
 } from "./content";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
+import { isZadPhoto, saveZadPhoto } from "./zad-photos";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
@@ -248,7 +249,8 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
 
 /** The demo's entries, made by the generators an app started from the demo gets its samples from (lib/demo/entries.ts). */
 function entryDeps(deps: DemoSetupDeps, clientId: string): EntryDeps {
-  return { store: deps.store, now: deps.now, picture: (name, size) => picture(deps, clientId, name, size, "product_image"), sample: false };
+  // 128 The demos' real photos too (Sofra Eats's dishes), saved as Zad's are.
+  return { store: deps.store, now: deps.now, picture: (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, { clientId }, name, "product_image") : picture(deps, clientId, name, size, "product_image")), sample: false };
 }
 
 /** Courses with fixed IDs, so enrolments and progress keep pointing at the same course and lesson. */

@@ -98,6 +98,7 @@ class AppNavBar extends StatelessWidget {
     TabBarDesign.bubble,
     TabBarDesign.island,
     TabBarDesign.segment,
+    TabBarDesign.float,
   }.contains(design);
 
   /// 109 The raised round button, or 119 with the notch, the middle tab.
@@ -130,6 +131,10 @@ class AppNavBar extends StatelessWidget {
       case TabBarDesign.island:
         if (margin == 0) margin = 14;
         radius = 999;
+      // 128 The floating pill: floats of itself, 22 round unless set.
+      case TabBarDesign.float:
+        if (margin == 0) margin = 12;
+        if (radius == 0) radius = 22;
       default:
         break;
     }
@@ -206,6 +211,11 @@ class AppNavBar extends StatelessWidget {
         null,
       ),
       TabBarDesign.segment => (64.0, const EdgeInsets.all(5), null),
+      TabBarDesign.float => (
+        62.0,
+        const EdgeInsets.fromLTRB(10, 11, 10, 11),
+        null,
+      ),
       TabBarDesign.folder => (
         76.0,
         const EdgeInsets.fromLTRB(8, 14, 8, 10),
@@ -449,6 +459,7 @@ class AppNavBar extends StatelessWidget {
         case TabBarDesign.bubble:
         case TabBarDesign.island:
         case TabBarDesign.segment:
+        case TabBarDesign.float:
           // The open tab with its name beside its icon: filled (pill, and
           // lit on the island), in a soft bubble, or a raised segment; the
           // others icons only.
@@ -489,13 +500,19 @@ class AppNavBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: fill,
                     borderRadius: BorderRadius.circular(
-                      design == TabBarDesign.segment ? 14 : 18,
+                      design == TabBarDesign.segment
+                          ? 14
+                          : design == TabBarDesign.float
+                          ? 20
+                          : 18,
                     ),
                     boxShadow: lift,
                   ),
                   // 38 Room between the label and the pill's edges.
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: design == TabBarDesign.float ? 14 : 10,
+                    ),
                     child: Center(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,

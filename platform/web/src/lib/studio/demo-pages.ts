@@ -1,4 +1,5 @@
-import type { LayoutTab, StudioNode, StudioPage, StudioPageScreen, Translations } from "../pages/types";
+import type { LayoutTab, StudioHeader, StudioNode, StudioPage, StudioPageScreen, Translations } from "../pages/types";
+import type { StudioDemoId } from "../demo/constants";
 import { STUDIO_PAGE_SCREENS } from "../pages/types";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
 import type { App } from "../data/types";
@@ -6,6 +7,9 @@ import { innerScreen, innerScreenName, innerScreensFor, OWN_SCREEN_TITLES } from
 import { pageScreenOptionsFor } from "../pages/sources";
 import { newNodeId } from "./elements";
 import type { SectionContext, SectionWord } from "./sections";
+import { translating } from "./demo-templates";
+import { FOOD_PHOTO_PAGE_HEADER, foodPhotoPage } from "./photo-food";
+import { marketPhotoPage, marketPhotoTabs, marketShopsPage } from "./photo-market";
 
 /**
  * 120 Templates = demos, every page of them: a Studio demo's tabs after its
@@ -44,7 +48,48 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Blog: "tabBlog",
   Explore: "acTabExplore",
   "Your courses": "acTabMine",
+  // 128 Zad's Shops and Cart.
+  Shops: "tabShops",
+  Cart: "tabCart",
 };
+
+/**
+ * 128 A demo's own design of its pages after the home, as the owner
+ * approved them with its home (lib/studio/photo-food.ts, photo-market.ts):
+ * its tabs, what lies over a screen in place of the usual word, the pages
+ * of its own a tab opens, and its pages' header colours. A demo without one
+ * keeps the usual pages.
+ */
+interface DemoPagesDesign {
+  tabs?: (tabs: readonly LayoutTab[]) => LayoutTab[];
+  over?: (screen: string, ctx: SectionContext) => StudioNode[] | null;
+  pages?: (ctx: SectionContext) => { slug: string; title: SectionWord; studio: StudioPage }[];
+  header?: Pick<StudioHeader, "background" | "color" | "dark_background" | "dark_color">;
+}
+
+const DEMO_PAGE_DESIGNS: Partial<Record<StudioDemoId, DemoPagesDesign>> = {
+  food: { over: foodPhotoPage, header: FOOD_PHOTO_PAGE_HEADER },
+  marketplace: { tabs: marketPhotoTabs, over: marketPhotoPage, pages: (ctx) => [{ slug: "shops", title: "tabShops", studio: marketShopsPage(ctx) }] },
+};
+
+/** The demo's tabs as its own design has them (the kind's, for a demo without one). */
+export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo">): readonly LayoutTab[] {
+  const own = ctx.demo ? DEMO_PAGE_DESIGNS[ctx.demo]?.tabs : undefined;
+  return own ? own(tabs) : tabs;
+}
+
+/** What the demo's design lays over a screen, in Studio's languages; null when it has nothing of its own there. */
+function designedOver(screen: string, ctx: SectionContext): StudioNode[] | null {
+  const over = ctx.demo ? DEMO_PAGE_DESIGNS[ctx.demo]?.over : undefined;
+  if (!over) return null;
+  const { ctx: words, translate } = translating(ctx);
+  return over(screen, words)?.map(translate) ?? null;
+}
+
+/** The header colours of the demo's pages after its home. */
+function designedHeader(ctx: Pick<SectionContext, "demo">): DemoPagesDesign["header"] {
+  return ctx.demo ? DEMO_PAGE_DESIGNS[ctx.demo]?.header : undefined;
+}
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */
 const TIPS: Partial<Record<StudioPageScreen, { icon: string; word: SectionWord }>> = {
@@ -98,7 +143,10 @@ export function demoTabPage(tab: LayoutTab, ctx: SectionContext): DemoTabPage {
   const title = named ? wordIn(ctx, named, "title") : { text: tab.label };
   const tip = TIPS[screen];
   const children: StudioNode[] = [];
-  if (tip) {
+  // 128 The demo's own design over the screen, in place of the word.
+  const designed = designedOver(screen, ctx);
+  if (designed) children.push(...designed);
+  else if (tip) {
     const text = wordIn(ctx, tip.word, "text");
     children.push({
       id: newId(),
@@ -123,22 +171,31 @@ export function demoTabPage(tab: LayoutTab, ctx: SectionContext): DemoTabPage {
     title: title.text,
     ...(title.translations ? { translations: title.translations } : {}),
     studio: {
-      ...(account ? {} : { header: { type: "title" as const, title: title.text, buttons: ["notifications" as const], ...(title.translations ? { translations: title.translations } : {}) } }),
+      ...(account ? {} : { header: { type: "title" as const, title: title.text, buttons: ["notifications" as const], ...(title.translations ? { translations: title.translations } : {}), ...designedHeader(ctx) } }),
       body: { id: newId(), type: "column", children },
       screen,
     },
   };
 }
 
-/** The demo's pages after its home, one per tab opening one of the app's screens. */
+/** The demo's pages after its home, one per tab opening one of the app's screens; 128 then the pages of its own its tabs open. */
 export function demoTabPages(tabs: readonly LayoutTab[], ctx: SectionContext): DemoTabPage[] {
-  return demoTabsWithPages(tabs).map((t) => demoTabPage(t, ctx));
+  const own = ctx.demo ? DEMO_PAGE_DESIGNS[ctx.demo]?.pages : undefined;
+  const { ctx: words, translate } = translating(ctx);
+  const pages = own
+    ? own(words).map(({ slug, title, studio }) => {
+        const named = wordIn(ctx, title, "title");
+        const header = studio.header ? { ...studio.header, title: named.text, ...(named.translations ? { translations: named.translations } : {}), ...designedHeader(ctx) } : studio.header;
+        return { slug, title: named.text, ...(named.translations ? { translations: named.translations } : {}), studio: { ...studio, header, body: translate(studio.body) } };
+      })
+    : [];
+  return [...demoTabsWithPages(designedTabs(tabs, ctx)).map((t) => demoTabPage(t, ctx)), ...pages];
 }
 
 /** The demo's tabs opening their pages instead of the bare screens, each with its name in Studio's languages. */
-export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang">): LayoutTab[] {
+export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang" | "demo">): LayoutTab[] {
   const lang: DemoLang = ctx.lang ?? "en";
-  return tabs.map((tab) => {
+  return designedTabs(tabs, ctx).map((tab) => {
     const word = TAB_WORDS[tab.label];
     const label = word ? String(WORDS[lang][`w_${word}`]) : tab.label;
     const translations: Record<string, Record<string, string>> = {};
@@ -165,7 +222,7 @@ function screenPage(slug: string, screen: string, title: { en: string; ar: strin
     title: text,
     ...(translations ? { translations } : {}),
     studio: {
-      ...(title ? { header: { type: "title" as const, title: text, ...(translations ? { translations } : {}) } } : {}),
+      ...(title ? { header: { type: "title" as const, title: text, ...(translations ? { translations } : {}), ...designedHeader(ctx) } } : {}),
       body: { id: newId(), type: "column", children: [] },
       screen,
     },
@@ -180,7 +237,7 @@ function screenPage(slug: string, screen: string, title: { en: string; ar: strin
  * school's parts), so each can be changed in Studio.
  */
 export function demoScreenPages(app: { appType: string; vertical?: string | null }, tabs: readonly LayoutTab[], ctx: SectionContext, taken: ReadonlySet<string> = new Set()): DemoTabPage[] {
-  const onTabs = new Set(tabs.map(tabScreen).filter((s): s is StudioPageScreen => s !== null));
+  const onTabs = new Set(designedTabs(tabs, ctx).map(tabScreen).filter((s): s is StudioPageScreen => s !== null));
   const used = new Set(taken);
   const slugFor = (id: string) => {
     let slug = id.replace(/_/g, "-");

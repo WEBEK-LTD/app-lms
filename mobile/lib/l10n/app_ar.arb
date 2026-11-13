@@ -2642,5 +2642,14 @@
   "chooseCard": "اختر بطاقة",
   "anotherCard": "بطاقة أخرى في صفحة الدفع",
   "webPageMediaRefused": "اسمح باستخدام الكاميرا والميكروفون من إعدادات هاتفك لتتمكن هذه الصفحة من استخدامهما.",
-  "launchWelcome": "مرحبًا بكم في"
+  "launchWelcome": "مرحبًا بكم في",
+  "liveOrderPlaced": "طلبك لدى {place}",
+  "liveOrderCooking": "{place} يُحضّر طلبك من {dish}",
+  "liveOrderReady": "طلبك من {dish} جاهز للمندوب",
+  "liveOrderOnTheWay": "طلبك من {dish} في الطريق إليك",
+  "liveOrderPicking": "{place} يجهّز طلبك",
+  "liveMarketReady": "طلبك من {place} جاهز",
+  "liveMarketOnTheWay": "طلبك من {place} في الطريق إليك",
+  "liveOrderMin": "د",
+  "marketMinutes": "{min} د"
 }

@@ -2642,5 +2642,14 @@
   "chooseCard": "Bir kart seç",
   "anotherCard": "Ödeme sayfasında başka bir kart",
   "webPageMediaRefused": "Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin.",
-  "launchWelcome": "Hoş geldiniz"
+  "launchWelcome": "Hoş geldiniz",
+  "liveOrderPlaced": "Siparişiniz iletildi: {place}",
+  "liveOrderCooking": "{place} {dish} siparişinizi hazırlıyor",
+  "liveOrderReady": "{dish} siparişiniz kuryeyi bekliyor",
+  "liveOrderOnTheWay": "{dish} siparişiniz yolda",
+  "liveOrderPicking": "{place} siparişinizi hazırlıyor",
+  "liveMarketReady": "{place} siparişiniz hazır",
+  "liveMarketOnTheWay": "{place} siparişiniz yolda",
+  "liveOrderMin": "dk",
+  "marketMinutes": "{min} dk"
 }

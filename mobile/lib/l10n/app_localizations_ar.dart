@@ -10043,4 +10043,47 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get launchWelcome => 'مرحبًا بكم في';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'طلبك لدى $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place يُحضّر طلبك من $dish';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return 'طلبك من $dish جاهز للمندوب';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return 'طلبك من $dish في الطريق إليك';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place يجهّز طلبك';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return 'طلبك من $place جاهز';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return 'طلبك من $place في الطريق إليك';
+  }
+
+  @override
+  String get liveOrderMin => 'د';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min د';
+  }
 }

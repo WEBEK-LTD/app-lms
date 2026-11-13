@@ -30,6 +30,8 @@ import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'recently_viewed.dart';
 import 'side_menu.dart';
+import 'studio_live_status.dart';
+import 'studio_scrim.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -267,6 +269,7 @@ StudioNode _withChildren(StudioNode node, List<StudioNode> children) =>
       radius: node.radius,
       corners: node.corners,
       overlay: node.overlay,
+      scrim: node.scrim,
       font: node.font,
     );
 
@@ -712,6 +715,14 @@ class StudioNodeView extends ConsumerWidget {
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
+      // 128 The person's order, while one is on its way.
+      StudioNodeType.liveStatus => switch (node.liveStatus) {
+        StudioLiveSource.foodOrder =>
+          ref.watch(liveFoodOrderProvider).value != null,
+        StudioLiveSource.marketOrder =>
+          ref.watch(liveMarketOrderProvider).value != null,
+        null => false,
+      },
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -775,6 +786,8 @@ class StudioNodeView extends ConsumerWidget {
                 color: overlay,
               ),
             ),
+          // 128 The shade for the words on it.
+          if (node.scrim case final scrim?) studioScrimLayer(node, scrim),
           child,
         ],
       );
@@ -1077,18 +1090,22 @@ class StudioNodeView extends ConsumerWidget {
           clearPlaceholder: node.contain,
         );
         final overlay = _overlayOf(node);
-        final shown = overlay == null
+        final scrim = node.scrim;
+        final shown = overlay == null && scrim == null
             ? image
             : Stack(
                 fit: StackFit.passthrough,
                 children: [
                   image,
-                  Positioned.fill(
-                    child: ColoredBox(
-                      key: ValueKey('studio-overlay-${node.id}'),
-                      color: overlay,
+                  if (overlay != null)
+                    Positioned.fill(
+                      child: ColoredBox(
+                        key: ValueKey('studio-overlay-${node.id}'),
+                        color: overlay,
+                      ),
                     ),
-                  ),
+                  // 128 The shade for the words on it.
+                  if (scrim != null) studioScrimLayer(node, scrim),
                 ],
               );
         if (node.height?.fixed == null && node.aspectRatio == null) {
@@ -1120,6 +1137,13 @@ class StudioNodeView extends ConsumerWidget {
           title: node.title,
           dark: scope.dark,
         );
+      case StudioNodeType.liveStatus:
+        final source = node.liveStatus;
+        final order = source == null
+            ? null
+            : watchLiveOrder(context, ref, source);
+        if (order == null) return const SizedBox.shrink();
+        return StudioLiveStatusCard(node: node, order: order, color: color);
       case StudioNodeType.market:
         final market = node.market;
         if (market == null) return const SizedBox.shrink();

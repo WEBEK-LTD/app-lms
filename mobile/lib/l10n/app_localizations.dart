@@ -15967,6 +15967,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Welcome to'**
   String get launchWelcome;
+
+  /// 128 A live order card: the order was sent to the restaurant or shop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is with {place}'**
+  String liveOrderPlaced(String place);
+
+  /// 128 A live order card: the restaurant accepted it and is cooking the dish (its first dish, in a sentence).
+  ///
+  /// In en, this message translates to:
+  /// **'{place} is preparing your {dish}'**
+  String liveOrderCooking(String place, String dish);
+
+  /// 128 A live order card: the food is ready, waiting for the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {dish} is ready for the courier'**
+  String liveOrderReady(String dish);
+
+  /// 128 A live order card: the courier has the food.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {dish} is on its way'**
+  String liveOrderOnTheWay(String dish);
+
+  /// 128 A live order card: a marketplace shop accepted it and is picking it.
+  ///
+  /// In en, this message translates to:
+  /// **'{place} is getting your order ready'**
+  String liveOrderPicking(String place);
+
+  /// 128 A live order card: a marketplace order is ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order from {place} is ready'**
+  String liveMarketReady(String place);
+
+  /// 128 A live order card: a marketplace order is with the courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order from {place} is on its way'**
+  String liveMarketOnTheWay(String place);
+
+  /// 128 After the minutes left on a live order card ("12 min").
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get liveOrderMin;
+
+  /// 128 The soonest a place delivers, in minutes (a place's chip, the address bar).
+  ///
+  /// In en, this message translates to:
+  /// **'{min} min'**
+  String marketMinutes(String min);
 }
 
 class _AppLocalizationsDelegate

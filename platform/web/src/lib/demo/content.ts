@@ -3,6 +3,7 @@ import type { DemoId } from "./constants";
 import type { AppFont } from "../build-config/types";
 import type { CardStyle, Corners, LanguageCode } from "../pages/types";
 import type { PictureName } from "./pictures";
+import type { ZadPhoto } from "./zad-photos";
 import type { DesignDrawing } from "./picture-assets";
 import type { AppScreen } from "../marketing";
 
@@ -576,16 +577,17 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#FCE9DE",
     secondaryColor: "#2E7D5B",
     template: "bold",
-    font: "Outfit",
+    // 128 The approved boards' font, one of the app's own.
+    font: "Manrope",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
     icon: "icon-food",
-    banner: { picture: "banner-food", heading: "Hungry? It's on its way", subheading: "Koshary, grills and pizza from restaurants near you." },
+    banner: { picture: "banner-food", heading: "Tonight’s table is set.", subheading: "Grills, pizza and koshary from the restaurants near you." },
     androidPackage: "com.yallapp.demo.food",
     storeTitle: "Sofra Eats",
     shortDescription: "Order from the restaurants near you and follow your food to the door.",
-    fullDescription: `Sofra Eats brings food from the restaurants near you: koshary, grills, pizza and desserts.\n\nPick your dishes the way you like them, pay in cash and follow your order from the kitchen to your door.\n\n${PRIVACY_NOTE}`,
+    fullDescription: `Sofra Eats brings food from the restaurants near you: grills, pizza, koshary and desserts.\n\nPick your dishes the way you like them, pay in cash and follow your order from the kitchen to your door.\n\n${PRIVACY_NOTE}`,
     welcome: "Three kitchens, one app. Order in a few taps.",
   },
   // 115.15 No photos in this demo (requirePhotos is off for it): the food demo's icon and banner.
@@ -596,7 +598,8 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#E5F2EC",
     secondaryColor: "#F2A93B",
     template: "bold",
-    font: "Outfit",
+    // 128 The approved boards' font, one of the app's own.
+    font: "Manrope",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
@@ -1646,7 +1649,8 @@ export interface DemoDish {
   name: string;
   description: string;
   priceCents: number;
-  picture: PictureName;
+  /** 128 One of the demos' real photos (lib/demo/zad-photos.ts), else its drawing. */
+  picture: PictureName | ZadPhoto;
   popular?: boolean;
   /** A group of choices: name, min, max, then each choice with its extra. */
   choices?: { name: string; min: number; max: number; options: [string, number][] };
@@ -1659,68 +1663,87 @@ export interface DemoRestaurant {
   address: string;
   prepMinutes: number;
   minOrderCents: number;
-  logo: PictureName;
+  logo: PictureName | ZadPhoto;
+  /** 128 Its cover photo, as the app's lists and its page show it. */
+  cover?: ZadPhoto;
+  /** 128 What its customers gave it so far (the demo's; an app's samples start with none). */
+  rating?: { average: number; count: number };
   sections: { name: string; dishes: DemoDish[] }[];
 }
 
 export const DEMO_RESTAURANTS: DemoRestaurant[] = [
+  // 128 Sofra Eats's kitchens in their real photos (public/demo-photos, credited in its CREDITS.json); the grill and the pizza first, as its approved home shows them.
+  {
+    name: "Sahara Grill",
+    description: "Kofta, shish tawook and mixed grills over charcoal, with tahini and salads.",
+    cuisines: ["grill"],
+    address: "52 Mosaddak Street, Dokki",
+    prepMinutes: 25,
+    minOrderCents: 100_00,
+    logo: "mixed-grill",
+    cover: "cover-grill",
+    rating: { average: 4.6, count: 1240 },
+    sections: [
+      {
+        name: "Grills",
+        dishes: [
+          { name: "Mixed grill", description: "Kofta, shish tawook and lamb chops, with rice and salads.", priceCents: 240_00, picture: "mixed-grill", popular: true, choices: { name: "Sides", min: 0, max: 2, options: [["Extra tahini", 10_00], ["Grilled vegetables", 25_00], ["Fries", 20_00]] } },
+          { name: "Kofta", description: "Half a kilo of charcoal kofta with grilled tomatoes and onions.", priceCents: 190_00, picture: "kofta", popular: true, choices: { name: "Weight", min: 1, max: 1, options: [["Half a kilo", 0], ["A kilo", 170_00]] } },
+          { name: "Shish tawook", description: "Marinated chicken skewers with garlic sauce.", priceCents: 150_00, picture: "shish-tawook" },
+        ],
+      },
+      {
+        name: "Sides",
+        dishes: [
+          { name: "Baba ghanoush", description: "Smoked aubergine with olive oil.", priceCents: 35_00, picture: "baba-ghanoush" },
+          { name: "Tahini", description: "With lemon and cumin.", priceCents: 25_00, picture: "tahini" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Forno Zamalek",
+    description: "Stone-baked pizza, pasta and a warm brownie to finish.",
+    cuisines: ["pizza", "desserts"],
+    address: "9 Brazil Street, Zamalek",
+    prepMinutes: 20,
+    minOrderCents: 80_00,
+    logo: "margherita",
+    cover: "cover-pizza",
+    rating: { average: 4.8, count: 860 },
+    sections: [
+      {
+        name: "Pizza",
+        dishes: [
+          { name: "Margherita", description: "Tomato, mozzarella and basil.", priceCents: 140_00, picture: "margherita", popular: true, choices: { name: "Size", min: 1, max: 1, options: [["Medium", 0], ["Large", 40_00]] } },
+          { name: "Pepperoni", description: "Beef pepperoni and mozzarella.", priceCents: 170_00, picture: "pepperoni-pizza" },
+          { name: "Garden vegetables", description: "Peppers, olives, mushrooms and onions.", priceCents: 155_00, picture: "vegetable-pizza" },
+        ],
+      },
+      { name: "Pasta", dishes: [{ name: "Penne arrabbiata", description: "Spicy tomato sauce and parmesan.", priceCents: 110_00, picture: "penne-arrabbiata" }] },
+      { name: "Desserts", dishes: [{ name: "Chocolate brownie", description: "Warm, with a scoop of vanilla.", priceCents: 60_00, picture: "chocolate-brownie" }] },
+    ],
+  },
   {
     name: "Bayt El Koshary",
-    description: "Koshary, liver sandwiches and rice pudding, the way they are made at home.",
+    description: "Koshary, liver sandwiches and lentil soup, the way they are made at home.",
     cuisines: ["egyptian", "desserts"],
     address: "14 Sherif Street, Downtown Cairo",
     prepMinutes: 15,
     minOrderCents: 50_00,
-    logo: "dish-soup",
+    logo: "baladi-bread",
+    cover: "alexandrian-liver",
+    rating: { average: 4.7, count: 2310 },
     sections: [
       {
         name: "Mains",
         dishes: [
           { name: "Koshary", description: "Rice, lentils, pasta, chickpeas, crispy onions and spicy tomato sauce.", priceCents: 55_00, picture: "dish-soup", popular: true, choices: { name: "Size", min: 1, max: 1, options: [["Regular", 0], ["Large", 20_00]] } },
-          { name: "Liver sandwich", description: "Alexandrian liver with chili and garlic, in a baladi bread.", priceCents: 35_00, picture: "dish-wrap" },
-          { name: "Lentil soup", description: "With lemon and crispy bread.", priceCents: 30_00, picture: "dish-soup" },
+          { name: "Liver sandwich", description: "Alexandrian liver with chili and garlic, in a baladi bread.", priceCents: 35_00, picture: "alexandrian-liver" },
+          { name: "Lentil soup", description: "With lemon and crispy bread.", priceCents: 30_00, picture: "yellow-lentils" },
         ],
       },
-      { name: "Desserts", dishes: [{ name: "Rice pudding", description: "Baked, with nuts on top.", priceCents: 25_00, picture: "dish-cheesecake" }] },
-    ],
-  },
-  {
-    name: "Sahara Grill",
-    description: "Kofta, chicken and mixed grills over charcoal, with salads and tahini.",
-    cuisines: ["grill"],
-    address: "52 Mosaddak Street, Dokki",
-    prepMinutes: 25,
-    minOrderCents: 100_00,
-    logo: "dish-burger",
-    sections: [
-      {
-        name: "Grills",
-        dishes: [
-          { name: "Mixed grill", description: "Kofta, chicken and lamb chops, with rice and salads.", priceCents: 240_00, picture: "dish-burger", popular: true, choices: { name: "Sides", min: 0, max: 2, options: [["Extra tahini", 10_00], ["Grilled vegetables", 25_00], ["Fries", 20_00]] } },
-          { name: "Kofta wrap", description: "Kofta with onions and parsley in a warm wrap.", priceCents: 85_00, picture: "dish-wrap" },
-          { name: "Chicken shish", description: "Marinated chicken skewers with garlic sauce.", priceCents: 150_00, picture: "dish-breakfast" },
-        ],
-      },
-      { name: "Drinks", dishes: [{ name: "Fresh lemonade", description: "With mint.", priceCents: 35_00, picture: "drink-juice" }] },
-    ],
-  },
-  {
-    name: "Forno Zamalek",
-    description: "Stone-baked pizza, feteer and a slice of something sweet.",
-    cuisines: ["pizza", "desserts"],
-    address: "9 Brazil Street, Zamalek",
-    prepMinutes: 20,
-    minOrderCents: 80_00,
-    logo: "dish-cheesecake",
-    sections: [
-      {
-        name: "Pizza",
-        dishes: [
-          { name: "Margherita", description: "Tomato, mozzarella and basil.", priceCents: 140_00, picture: "dish-breakfast", popular: true, choices: { name: "Size", min: 1, max: 1, options: [["Medium", 0], ["Large", 40_00]] } },
-          { name: "Sweet feteer", description: "Flaky pastry with honey and cream.", priceCents: 95_00, picture: "dish-simit" },
-        ],
-      },
-      { name: "Desserts", dishes: [{ name: "Basbousa", description: "Semolina cake with syrup.", priceCents: 45_00, picture: "dish-baklava" }] },
+      { name: "Drinks", dishes: [{ name: "Laban rayeb", description: "Cold and tangy, as it is in the countryside.", priceCents: 25_00, picture: "laban-rayeb" }] },
     ],
   },
 ];

@@ -11,6 +11,8 @@ import { splitTabs } from "@/lib/pages/tab-bar";
 import type { MarketCanvas } from "@/lib/studio/market-canvas";
 import { MarketSection } from "./market";
 import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
+import { LIVE_STATUS_WORDS_EN, LiveStatusCard, type LiveStatusWords } from "./live-status";
+import { scrimCss } from "@/lib/studio/scrim";
 import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
 import { AppScreen } from "./app-screens";
 
@@ -70,6 +72,8 @@ interface ViewProps {
   words: { price: string; addPicture: string; addVideo: string; send: string; search: string; days: string; hours: string; minutes: string; seconds: string; copy: string };
   /** 123 The sample words of the student's cards (`learning`); missing, English. */
   learningWords?: LearningWords;
+  /** 128 The sample words of a live order card (`live_status`); missing, English. */
+  liveWords?: LiveStatusWords;
   /** 123 The sample greeting header: today's date and a greeting with a name. */
   greeting?: { date: string; hello: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
@@ -296,9 +300,10 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
   const labels = style.labels ?? "always";
   const middleOf = tabs.length % 2 === 1 && tabs.length >= 3 ? (tabs.length - 1) / 2 : -1;
   const center = design === "notch" ? middleOf : middleOf >= 0 && style.center && tabs[middleOf]?.id === style.center ? middleOf : -1;
-  const floatsItself = design === "glass" || design === "island" || design === "segment";
+  // 128 The floating pill floats too, 22 round unless the owner chose its corners.
+  const floatsItself = design === "glass" || design === "island" || design === "segment" || design === "float";
   const margin = style.margin ?? (floatsItself ? 12 : 0);
-  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : 0));
+  const radius = design === "island" ? 999 : (style.radius ?? (design === "glass" ? 26 : design === "segment" ? 18 : design === "float" ? 22 : 0));
   const selected = editing?.selectedId === "tabs";
   const onBar = design === "folder" ? "rgba(255,255,255,0.78)" : design === "island" ? "#8F9A95" : inactiveColour;
   const colours = ["#1F6F5C", "#B26A00", "#2F4FB5", "#7A2E8E"].map((c) => (dark ? readableOnDark(c) : c));
@@ -311,12 +316,12 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         position: "relative",
         // The usual bar sits a little in from the phone's edges.
         margin: design === "island" ? `0 48px ${Math.max(margin, 12)}px` : margin ? `0 ${margin}px ${margin}px` : "0 10px 12px",
-        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : "8px 6px",
+        padding: design === "segment" ? "5px" : design === "folder" ? "14px 6px 8px" : design === "float" ? "11px 6px" : "8px 6px",
         borderRadius: margin || design === "island" ? radius : radius || 18,
         background,
         backdropFilter: design === "glass" ? "blur(18px)" : undefined,
         border: design === "glass" ? `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)"}` : undefined,
-        boxShadow: design === "notch" ? undefined : "0 -2px 10px rgba(14,13,36,0.08)",
+        boxShadow: design === "notch" ? undefined : design === "float" ? "0 10px 30px rgba(0,0,0,0.18)" : "0 -2px 10px rgba(14,13,36,0.08)",
         // 119 The notch: a curved cut in the bar's top for the middle button.
         WebkitMaskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
         maskImage: design === "notch" && center >= 0 ? "radial-gradient(circle 30px at 50% -6px, transparent 29px, #000 30px)" : undefined,
@@ -359,7 +364,7 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
         const key = tab?.id ?? "more";
         const tabKey = tab ? tab.id : "more";
         // 119 The open tab with its name beside its icon: a filled pill (lit on the island), a soft bubble or a raised segment; the others icons only.
-        if (design === "pill" || design === "bubble" || design === "island" || design === "segment") {
+        if (design === "pill" || design === "bubble" || design === "island" || design === "segment" || design === "float") {
           if (!active) {
             return (
               <div key={key} data-studio-tab={tabKey} title={label} style={{ display: "flex", flex: 1, justifyContent: "center", minWidth: 0 }}>
@@ -371,7 +376,7 @@ function Tabs({ look, dark, lang, defaultLang, editing }: ViewProps) {
           const ink = design === "bubble" || design === "segment" ? activeColour : onFill(activeColour);
           return (
             <div key={key} data-studio-tab={tabKey} data-studio-tab-design={design} title={label} style={{ display: "flex", flex: 1.6, justifyContent: "center", minWidth: 0 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", borderRadius: design === "segment" ? 12 : 16, minWidth: 0, background: fill, color: ink, fontWeight: 700, boxShadow: design === "segment" ? "0 2px 6px rgba(14,13,36,0.15)" : undefined }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4, padding: design === "float" ? "8px 14px" : "5px 10px", borderRadius: design === "segment" ? 12 : design === "float" ? 20 : 16, minWidth: 0, background: fill, color: ink, fontWeight: 700, boxShadow: design === "segment" ? "0 2px 6px rgba(14,13,36,0.15)" : undefined }}>
                 {glyph}
                 {labels !== "never" ? name : null}
               </span>
@@ -511,6 +516,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   // 107.2 A hidden element shows only in the editor, faded.
   if (node.hidden && !editing) return null;
   const overlay = node.overlay ? tint(node.overlay.color, node.overlay.opacity) : null;
+  const scrim = node.scrim ? scrimCss(node.scrim, lang === "ar") : null;
   const decoration = [node.font?.underline ? "underline" : "", node.font?.strike ? "line-through" : ""].filter(Boolean).join(" ");
   const background = (dark ? (node.dark_background ?? node.background) : node.background) ?? undefined;
   const color = (dark ? (node.dark_color ?? node.color) : node.color) ?? undefined;
@@ -524,7 +530,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     minHeight: node.min_height,
     aspectRatio: node.aspect_ratio ?? undefined,
     background: node.gradient ? `linear-gradient(${node.gradient.angle ?? 180}deg, ${node.gradient.from}, ${node.gradient.to})` : background,
-    backgroundImage: node.image_background_url ? `${overlay ? `linear-gradient(${overlay}, ${overlay}), ` : ""}url("${node.image_background_url}")` : undefined,
+    // 128 The shade for the words over it, then the colour over it, then the picture.
+    backgroundImage: node.image_background_url ? `${scrim ? `${scrim}, ` : ""}${overlay ? `linear-gradient(${overlay}, ${overlay}), ` : ""}url("${node.image_background_url}")` : undefined,
     backgroundSize: node.image_background_url ? "cover" : undefined,
     backgroundPosition: "center",
     color,
@@ -640,6 +647,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "learning":
         // 123 The student's card as the app draws it, with sample learning.
         return <LearningCard node={n} dark={dark} color={color ?? null} words={p.learningWords ?? LEARNING_WORDS_EN} title={((lang !== defaultLang ? (n.translations?.[lang]?.title as string | undefined) : undefined) ?? n.title) || null} />;
+      case "live_status":
+        // 128 The person's order on its way, with sample words.
+        return <LiveStatusCard node={n} color={color ?? null} words={p.liveWords ?? LIVE_STATUS_WORDS_EN} />;
       case "market":
         // 115.14 The section as the app draws it, from the project's marketplace (the app's samples where it has none).
         return <MarketSection node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} color={color} data={p.market} />;
@@ -671,6 +681,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
             {/* eslint-disable-next-line @next/next/no-img-element -- any picture's link, drawn as the app draws it */}
             <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: n.fit ?? "cover", display: "block" }} />
             {overlay ? <span aria-hidden="true" data-studio-overlay="" style={{ position: "absolute", inset: 0, background: overlay }} /> : null}
+            {scrim ? <span aria-hidden="true" data-studio-scrim="" style={{ position: "absolute", inset: 0, background: scrim }} /> : null}
           </>
         ) : (
           <Placeholder icon="image" text={p.words.addPicture} />

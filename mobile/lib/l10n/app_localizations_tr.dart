@@ -9730,4 +9730,47 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get launchWelcome => 'Hoş geldiniz';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'Siparişiniz iletildi: $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place $dish siparişinizi hazırlıyor';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return '$dish siparişiniz kuryeyi bekliyor';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return '$dish siparişiniz yolda';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place siparişinizi hazırlıyor';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return '$place siparişiniz hazır';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return '$place siparişiniz yolda';
+  }
+
+  @override
+  String get liveOrderMin => 'dk';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min dk';
+  }
 }

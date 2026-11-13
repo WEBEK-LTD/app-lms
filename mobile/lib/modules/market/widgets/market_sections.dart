@@ -19,6 +19,7 @@ import '../../delivery/data/delivery_providers.dart' show LocateProblem;
 import '../data/market_place.dart';
 import '../data/market_providers.dart';
 import '../screens/market_orders_screen.dart' show orderAgain;
+import 'market_compact.dart';
 import 'market_look.dart';
 
 /// 115 A Studio `market` element: one marketplace section, drawn from the
@@ -49,6 +50,9 @@ class MarketSectionView extends ConsumerWidget {
 
   Widget _section(MarketHome home, Color accent) {
     return switch (market.section) {
+      // 128 Or as a flat bar with the soonest time.
+      StudioMarketSection.address when market.style == StudioMarketStyle.bar =>
+        MarketAddressBar(node: node, home: home, color: accent),
       StudioMarketSection.address => _Hero(
         node: node,
         home: home,
@@ -1044,6 +1048,33 @@ class _Vendors extends StatelessWidget {
           children: [
             head,
             for (final v in vendors) _VendorRow(vendor: v),
+          ],
+        );
+      // 128 Small chips in a row; `bar` is the address's, drawn as cards here.
+      case StudioMarketStyle.chips:
+        final card = MarketCardLook.of(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            head,
+            MarketVendorChips(
+              vendors: vendors,
+              radius: card.radius,
+              showRating: !card.hide.contains(StudioMarketFact.rating),
+              showTime: !card.hide.contains(StudioMarketFact.time),
+            ),
+          ],
+        );
+      case StudioMarketStyle.bar:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            head,
+            for (final v in vendors)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: MarketVendorCard(vendor: v, tall: true),
+              ),
           ],
         );
     }

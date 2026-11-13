@@ -280,6 +280,54 @@ function Hero({ node, data, color, title, text, c }: { node: StudioNode; data: M
   );
 }
 
+/**
+ * 128 The address as a flat bar (`style: "bar"`): where it delivers, the
+ * soonest time any open place delivers in, and the search under them, on
+ * the element's colour with its foot rounded.
+ */
+function AddressBar({ node, data, color, text, c }: { node: StudioNode; data: MarketCanvas; color: string; text: string; c: Ctx }) {
+  const { p, w } = c;
+  const soonest = data.vendors.filter((v) => v.state !== "closed" && v.etaMin !== null).reduce<number | null>((min, v) => (min === null || v.etaMin! < min ? v.etaMin : min), null);
+  return (
+    <div data-market-bar={node.id} style={{ padding: "22px 16px 12px", background: color, color: "#FFFFFF", borderRadius: "0 0 28px 28px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ width: 40, height: 40, borderRadius: 20, background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+          <Icon name="location_on" size={22} color="#FFFFFF" />
+        </span>
+        <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+          <div style={{ fontSize: 12, opacity: 0.8 }}>{w.deliverTo}</div>
+          <div style={{ ...oneLine, fontSize: 15, fontWeight: 800 }}>{data.address ?? w.chooseAddress}</div>
+        </div>
+        {soonest !== null ? (
+          <span data-market-soonest="" style={{ height: 32, padding: "0 12px", borderRadius: 16, background: p.accent, color: "#1B2A20", fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", gap: 4, flex: "none" }}>
+            <Icon name="bolt" size={16} color="#1B2A20" filled />
+            {fill(w.minutes, { min: soonest })}
+          </span>
+        ) : null}
+      </div>
+      <div style={{ marginTop: 14, height: 50, borderRadius: 16, background: "#FFFFFF", color: "#5D6B63", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 15 }}>
+        <Icon name="search" size={22} color="#5D6B63" />
+        <span style={oneLine}>{text || w.searchHint}</span>
+      </div>
+    </div>
+  );
+}
+
+/** 128 A place as a small chip (`style: "chips"`): its photo, its name, its rating and soonest time. */
+function VendorChip({ vendor, c }: { vendor: MarketCanvasVendor; c: Ctx }) {
+  const { p, w } = c;
+  const facts = [vendor.rating !== null && c.card.shows("rating") ? `★ ${vendor.rating.toFixed(1)}` : null, vendor.etaMin !== null && c.card.shows("time") ? fill(w.minutes, { min: vendor.etaMin }) : null].filter(Boolean).join(" · ");
+  return (
+    <div data-market-chip={vendor.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px 8px 8px", paddingInlineStart: 8, paddingInlineEnd: 12, borderRadius: c.card.radius ?? 16, background: p.surface, border: `1px solid ${p.border}`, flex: "none" }}>
+      <Picture url={vendor.coverUrl} seed={vendor.id} p={p} icon={18} style={{ width: 40, height: 40, borderRadius: 12, flex: "none" }} />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ ...oneLine, fontSize: 13, fontWeight: 800, color: p.text }}>{vendor.name}</div>
+        {facts ? <div style={{ fontSize: 11, color: p.textSecondary }}>{facts}</div> : null}
+      </div>
+    </div>
+  );
+}
+
 // Kinds
 
 function KindTile({ kind, large, index, c }: { kind: MarketCanvasKind; large: boolean; index: number; c: Ctx }) {
@@ -605,6 +653,17 @@ function Vendors({ market, vendors, title, text, c }: { market: StudioMarket; ve
           </div>
         </div>
       );
+    case "chips":
+      return (
+        <div>
+          {head}
+          <div style={{ ...scrollRow(58, 10), alignItems: "center" }}>
+            {vendors.map((v) => (
+              <VendorChip key={v.id} vendor={v} c={c} />
+            ))}
+          </div>
+        </div>
+      );
     case "tiles":
       return (
         <div>
@@ -721,6 +780,7 @@ export function MarketSection({
   const body = (() => {
     switch (market.section) {
       case "address":
+        if (market.style === "bar") return <AddressBar node={node} data={shown} color={color && rgbOf(color) ? color : p.primary} text={text} c={c} />;
         return <Hero node={node} data={shown} color={color && rgbOf(color) ? color : p.primary} title={title} text={text} c={c} />;
       case "kinds":
         return <Kinds data={shown} title={title} text={text} c={c} />;

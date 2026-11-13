@@ -16,6 +16,7 @@ import {
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
+  STUDIO_LIVE_SOURCES,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -45,6 +46,7 @@ import {
 import { holdsChildren, placeOf } from "@/lib/studio/edit";
 import { newNodeId } from "@/lib/studio/elements";
 import { followStyle } from "@/lib/studio/text-styles";
+import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { Glyph } from "./shared";
@@ -669,10 +671,10 @@ function DesignTab(props: Props & { node: StudioNode }) {
           <Segments label={t("studio.fit")} value={node.fit ?? "cover"} onChange={(fit) => onChange({ fit })} options={[{ value: "cover", label: t("studio.fitCover") }, { value: "contain", label: t("studio.fitContain") }]} />
         </div>
       ) : null}
-      {node.type === "icon" || node.type === "button" ? (
+      {node.type === "icon" || node.type === "button" || node.type === "live_status" ? (
         <div className="flex flex-col gap-2">
-          <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional={node.type === "button"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
-          {node.icon ? <RangeField label={t("studio.iconSize")} value={node.icon_size ?? 24} min={12} max={96} step={2} unit="px" fallback={24} presets={[{ value: 16 }, { value: 24 }, { value: 32 }, { value: 48 }]} onChange={(icon_size) => onChange({ icon_size })} /> : null}
+          <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional={node.type !== "icon"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
+          {node.icon && node.type !== "live_status" ? <RangeField label={t("studio.iconSize")} value={node.icon_size ?? 24} min={12} max={96} step={2} unit="px" fallback={24} presets={[{ value: 16 }, { value: 24 }, { value: 32 }, { value: 48 }]} onChange={(icon_size) => onChange({ icon_size })} /> : null}
           {node.type === "button" && node.icon ? (
             <Segments label={t("studio.icon")} value={node.icon_position ?? "end"} onChange={(icon_position) => onChange({ icon_position })} options={[{ value: "start", label: t("studio.iconStart") }, { value: "end", label: t("studio.iconEnd") }]} />
           ) : null}
@@ -725,6 +727,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
       ) : null}
       {node.type === "market" ? <MarketControls node={node} onChange={onChange} /> : null}
       {node.type === "learning" ? <LearningControls node={node} onChange={onChange} /> : null}
+      {node.type === "live_status" ? <LiveStatusControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -891,6 +894,18 @@ function DesignTab(props: Props & { node: StudioNode }) {
         <div className="flex flex-col gap-2">
           <Colors palette={props.palette} rows={[{ label: t("studio.overlay"), value: node.overlay?.color, onChange: (color) => onChange({ overlay: color ? { color, opacity: node.overlay?.opacity ?? 0.4 } : undefined }) }]} />
           {node.overlay ? <RangeField label={t("studio.overlayStrength")} value={node.overlay.opacity} scale={0.01} min={5} max={95} unit="%" onChange={(opacity) => onChange({ overlay: { ...node.overlay!, opacity } })} /> : null}
+          {/* 128 A shade darker at its ends, so words on the picture read. */}
+          <Colors palette={props.palette} rows={[{ label: t("studio.scrim"), value: node.scrim?.color, onChange: (color) => onChange({ scrim: color ? { ...(node.scrim ?? SCRIM_DEFAULT), color } : undefined }) }]} />
+          {node.scrim ? (
+            <>
+              <RangeField label={t("studio.scrimFrom")} value={node.scrim.from} scale={0.01} min={0} max={95} unit="%" onChange={(from) => onChange({ scrim: { ...node.scrim!, from } })} />
+              <RangeField label={t("studio.scrimTo")} value={node.scrim.to} scale={0.01} min={0} max={95} unit="%" onChange={(to) => onChange({ scrim: { ...node.scrim!, to } })} />
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={node.scrim.angle === 90} onChange={(e) => onChange({ scrim: { ...node.scrim!, angle: e.target.checked ? 90 : undefined } })} />
+                {t("studio.scrimAcross")}
+              </label>
+            </>
+          ) : null}
         </div>
       ) : null}
       {layout || node.type === "button" ? (
@@ -1570,6 +1585,7 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
     switch (design) {
       case "pill":
       case "island":
+      case "float":
         return open ? <span key={key} style={{ display: "flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 8, background: brand }}><span style={{ width: 7, height: 7, borderRadius: 2, background: "#FFFFFF" }} /><span style={{ width: 12, height: 3, borderRadius: 2, background: "#FFFFFF" }} /></span> : <span key={key} style={{ width: 9, height: 9, borderRadius: 3, background: design === "island" ? "#6F7A75" : grey }} />;
       case "bubble":
       case "segment":
@@ -1609,6 +1625,8 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
   const track: CSSProperties =
     design === "island"
       ? { margin: "0 14px", borderRadius: 999, background: "#121614" }
+      : design === "float"
+        ? { margin: "0 4px", borderRadius: 9, background: "#2A1810", boxShadow: "0 3px 8px rgba(0,0,0,.18)" }
       : design === "segment"
         ? { margin: "0 4px", borderRadius: 8, background: "#E3E7E5" }
         : design === "folder"
@@ -1693,6 +1711,26 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
   );
 }
 
+/** 128 Whose order a live order card follows. */
+function LiveStatusControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  return (
+    <label className="flex flex-col gap-1 font-bold">
+      {t("studio.liveSource")}
+      <select value={node.live_status?.source ?? "food_order"} onChange={(e) => onChange({ live_status: { source: e.target.value as NonNullable<StudioNode["live_status"]>["source"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        {STUDIO_LIVE_SOURCES.map((s) => (
+          <option key={s} value={s}>
+            {t(`studio.live_${s}` as DashKey)}
+          </option>
+        ))}
+      </select>
+      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.liveHint")}
+      </span>
+    </label>
+  );
+}
+
 function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
   const market: StudioMarket = node.market ?? { section: "vendors" };
@@ -1719,9 +1757,13 @@ function MarketControls({ node, onChange }: { node: StudioNode; onChange: (patch
           {t("studio.marketHint")}
         </span>
       </label>
+      {market.section === "address" ? (
+        // 128 The big greeting with the search, or a flat bar with the soonest delivery time.
+        <Segments label={t("studio.marketStyle")} value={market.style === "bar" ? "bar" : "cards"} onChange={(style) => set({ style: style === "bar" ? "bar" : undefined })} options={(["cards", "bar"] as const).map((v) => ({ value: v, label: t(v === "bar" ? "studio.marketStyle_bar" : "studio.marketStyle_hero") }))} />
+      ) : null}
       {places ? (
         <>
-          <Segments label={t("studio.marketStyle")} value={market.style ?? "cards"} onChange={(style) => set({ style: style === "cards" ? undefined : style })} options={STUDIO_MARKET_STYLES.map((v) => ({ value: v, label: t(`studio.marketStyle_${v}` as DashKey) }))} />
+          <Segments label={t("studio.marketStyle")} value={market.style ?? "cards"} onChange={(style) => set({ style: style === "cards" ? undefined : style })} options={STUDIO_MARKET_STYLES.filter((v) => v !== "bar").map((v) => ({ value: v, label: t(`studio.marketStyle_${v}` as DashKey) }))} />
           <Segments label={t("studio.marketKind")} value={market.kind ?? "all"} onChange={(kind) => set({ kind: kind === "all" ? undefined : kind })} options={STUDIO_MARKET_KINDS.map((v) => ({ value: v, label: t(`studio.marketKind_${v}` as DashKey) }))} />
           <label className="flex flex-col gap-1 font-bold">
             {t("studio.marketSort")}

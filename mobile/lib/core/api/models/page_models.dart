@@ -84,6 +84,9 @@ enum TabBarDesign {
   drop,
   glow,
   colours,
+  // 128 A floating bar in its own colours, the open tab a filled pill with
+  // its name, the others icons only.
+  float,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left
@@ -1966,6 +1969,50 @@ enum StudioNodeType {
   market,
   // 123 One of the student's own cards in an academy (StudioLearning).
   learning,
+  // 128 The person's order on its way (StudioLiveStatus).
+  liveStatus,
+}
+
+/// 128 Whose order a `live_status` element follows: a food delivery order
+/// or a marketplace order.
+enum StudioLiveSource { foodOrder, marketOrder }
+
+/// 128 A shade over a picture so the words on it read (`StudioScrim`): its
+/// colour at [from] at the start of [angle] (CSS: 180 from the top down, 90
+/// across from the start), [middle] at [at] percent, and [to] at its end.
+class StudioScrim {
+  const StudioScrim({
+    required this.color,
+    required this.from,
+    required this.to,
+    this.middle,
+    this.at = 50,
+    this.angle = 180,
+  });
+
+  static StudioScrim? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final color = optString(json, 'color');
+    final from = optDouble(json, 'from');
+    final to = optDouble(json, 'to');
+    if (color == null || from == null || to == null) return null;
+    return StudioScrim(
+      color: color,
+      from: from.clamp(0, 1).toDouble(),
+      to: to.clamp(0, 1).toDouble(),
+      middle: optDouble(json, 'middle')?.clamp(0, 1).toDouble(),
+      at: (optDouble(json, 'at') ?? 50).clamp(1, 99).toDouble(),
+      angle: (optDouble(json, 'angle') ?? 180).clamp(0, 360).toDouble(),
+    );
+  }
+
+  final String color;
+  final double from;
+  final double to;
+  final double? middle;
+  final double at;
+  final double angle;
 }
 
 /// 123 Which of the student's cards a `learning` element is: the course
@@ -1993,7 +2040,8 @@ enum StudioMarketSection {
 }
 
 /// 115 How a vendors section draws its vendors.
-enum StudioMarketStyle { spotlight, cards, tiles, list }
+/// 128 `chips`: small chips in a row; `bar`: the address as a flat bar.
+enum StudioMarketStyle { spotlight, cards, tiles, list, chips, bar }
 
 /// 115 What a vendors section shows.
 enum StudioMarketKind { all, restaurant, grocery }
@@ -2414,6 +2462,8 @@ class StudioNode {
     this.hidden = false,
     this.market,
     this.learning,
+    this.scrim,
+    this.liveStatus,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2522,6 +2572,13 @@ class StudioNode {
         market: StudioMarket.tryParse(json['market']),
         learning: json['learning'] is Map
             ? studioLearningSection((json['learning'] as Map)['section'])
+            : null,
+        scrim: StudioScrim.tryParse(json['scrim']),
+        liveStatus: json['live_status'] is Map
+            ? enumOrNull(
+                StudioLiveSource.values,
+                (json['live_status'] as Map)['source'],
+              )
             : null,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
@@ -2668,6 +2725,12 @@ class StudioNode {
 
   /// 123 For [StudioNodeType.learning]: which of the student's cards it is.
   final StudioLearningSection? learning;
+
+  /// 128 A shade over its picture, darker at its ends.
+  final StudioScrim? scrim;
+
+  /// 128 For [StudioNodeType.liveStatus]: whose order it follows.
+  final StudioLiveSource? liveStatus;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

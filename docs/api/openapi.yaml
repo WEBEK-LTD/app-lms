@@ -14517,7 +14517,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -14537,7 +14537,10 @@ components:
             tab rising out of it like a folder's tab in the page's colour. `drop`:
             a drop of its colour hangs from the bar's edge over the open tab.
             `glow`: the open tab glows in its colour. `colours`: each tab its own
-            colour in a soft circle, the open one ringed. Every design works in
+            colour in a soft circle, the open one ringed. 128 `float`: a bar
+            floating over the page in its own colours (22 round unless
+            `radius` says), the open tab a filled pill with its name, the
+            others icons only. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
@@ -14696,7 +14699,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14725,6 +14728,7 @@ components:
         corners: { $ref: '#/components/schemas/StudioCorners' }
         rotation: { type: number, minimum: -180, maximum: 180, default: 0, description: "107.2 Turned by this many degrees, clockwise; what it holds turns with it." }
         overlay: { $ref: '#/components/schemas/StudioOverlay' }
+        scrim: { $ref: '#/components/schemas/StudioScrim' }
         border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
         shadow: { type: string, enum: [none, light, medium, strong], default: none }
@@ -14775,6 +14779,7 @@ components:
         map: { $ref: '#/components/schemas/StudioMap' }
         market: { $ref: '#/components/schemas/StudioMarket' }
         learning: { $ref: '#/components/schemas/StudioLearning' }
+        live_status: { $ref: '#/components/schemas/StudioLiveStatus' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -14822,6 +14827,24 @@ components:
       properties:
         color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
         opacity: { type: number, minimum: 0, maximum: 1 }
+
+    StudioScrim:
+      type: [object, 'null']
+      description: |
+        128 A shade over the element's picture (an `image`, or the
+        `image_background_url` behind what it holds) so the words on it
+        read: `color` at `from` (0 to 1) at the start of its direction,
+        `middle` at `at` percent of the way, and `to` at its end, blended in
+        between. `angle` as in CSS: 180 from the top down (missing), 90
+        across from the start (the right in Arabic).
+      required: [color, from, to]
+      properties:
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        from: { type: number, minimum: 0, maximum: 1 }
+        to: { type: number, minimum: 0, maximum: 1 }
+        middle: { type: number, minimum: 0, maximum: 1 }
+        at: { type: number, minimum: 1, maximum: 99, default: 50 }
+        angle: { type: number, minimum: 0, maximum: 360, default: 180 }
 
     StudioSize:
       description: "103R `fill` the space the parent gives, `hug` the content, or a number of logical pixels. Missing: `fill` across a column, `hug` along a row."
@@ -14907,6 +14930,23 @@ components:
       properties:
         section: { type: string, enum: [continue, streak, live, week] }
 
+    StudioLiveStatus:
+      type: [object, 'null']
+      description: |
+        128 For `live_status`, in food delivery apps and marketplaces: the
+        signed-in person's latest order still on its way, drawn by the app
+        from its own data: `food_order` a food delivery order
+        (`GET /me/food-orders`), `market_order` a marketplace order
+        (`GET /me/market-orders`). The card shows what it is and where it
+        is ("Your kofta is on its way"), a bar for how far along it is and
+        the minutes left when known, on the element's colours and with its
+        `icon` (missing, the app's own); a tap opens the order. Nothing is
+        drawn signed out, or with no order on its way. Apps leave out a
+        source they don't know.
+      required: [source]
+      properties:
+        source: { type: string, enum: [food_order, market_order] }
+
     StudioMarket:
       type: [object, 'null']
       description: |
@@ -14922,7 +14962,7 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [address, kinds, offers, cuisines, club, vendors, reorder] }
-        style: { type: string, enum: [spotlight, cards, tiles, list], default: cards, description: For `vendors` and `offers`. }
+        style: { type: string, enum: [spotlight, cards, tiles, list, chips, bar], default: cards, description: "For `vendors` and `offers`; 128 `chips` small chips in a row (the place's photo, name, rating and soonest time). For `address`, 128 `bar`: a flat bar on the element's colour with the address, the soonest time an open place delivers in and the search under them (missing, the large greeting)." }
         kind: { type: string, enum: [all, restaurant, grocery], default: all }
         sort: { type: string, enum: [recommended, fastest, rating, nearest, newest], default: recommended }
         tag: { type: [string, 'null'], maxLength: 60, description: Only the places with this cuisine or department. }

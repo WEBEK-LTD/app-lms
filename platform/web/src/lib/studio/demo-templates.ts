@@ -1,4 +1,4 @@
-import type { LayoutBlock, StudioMarket, StudioNode, StudioPage } from "../pages/types";
+import type { LayoutBlock, StudioNode, StudioPage } from "../pages/types";
 import type { StudioDemoId } from "../demo/constants";
 import { ar as studioAr, en as studioEn, tr as studioTr } from "../../i18n/dashboard/studio";
 import { newNodeId } from "./elements";
@@ -7,10 +7,10 @@ import type { SectionContext, SectionWord } from "./sections";
 /**
  * Templates = demos, for Yallapp Studio. Each Studio demo is made from its
  * kind's own designed page (lib/studio/sections.ts `demoStudioPage`), never
- * from a page generated for it: Zad's home is the marketplace home approved
- * in 115.14 (`marketHome`), the others their kind's first template (the
- * delivery company's, the restaurants', the ride company's, the school's,
- * the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
+ * from a page generated for it: 128 Sofra Eats's and Zad's homes are the
+ * photo-first templates approved on 13 November 2026 (lib/studio/photo-food.ts,
+ * photo-market.ts), the others their kind's first template (the delivery
+ * company's, the ride company's, the school's, the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
  * project starts from and the "Like our demo" whole design
  * (lib/studio/designs.ts) are that one page, so a client gets what the demo
  * shows. tests/unit/studio-demo-templates.test.ts fails when they drift
@@ -24,10 +24,11 @@ function idOf(ctx: SectionContext): string {
 }
 
 /** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES); Zad's is the approved marketplace home. */
-export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string | "market_home"> = {
+export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   delivery: "delivery",
-  food: "food",
-  marketplace: "market_home",
+  // 128 The approved photo-first homes.
+  food: "food_photo",
+  marketplace: "market_photo",
   rides: "ride",
   taxi: "ride",
   school: "school",
@@ -35,46 +36,6 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string | "market_home"> =
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };
-
-/**
- * 115.14 The marketplace's home as it was approved (the market-home picture
- * of mobile/test/screenshots/market_screenshots_test.dart, from
- * mobile/test/support/market_fixtures.dart `homePage`): the address and
- * search on top under "Hungry? Order in minutes.", the kinds, today's
- * offers, the fastest places near you, the cuisines, the club, the
- * supermarkets and shops, ordering again and every restaurant. Each a
- * `market` element the app draws from the marketplace's data; the page
- * draws its own top, so it has no header.
- */
-export function marketHome(ctx: SectionContext): StudioPage {
-  const market = (section: StudioMarket, title: SectionWord | null, words: SectionWord | null = null, top = 26): StudioNode => ({
-    id: idOf(ctx),
-    type: "market",
-    market: section,
-    ...(title ? { title: ctx.w(title) } : {}),
-    ...(words ? { text: ctx.w(words) } : {}),
-    margin: { top, end: 0, bottom: 0, start: 0 },
-  });
-  return {
-    background: "#F6F3EE",
-    dark_background: "#0F0E1A",
-    body: {
-      id: idOf(ctx),
-      type: "column",
-      children: [
-        market({ section: "address" }, "mHungry", null, 0),
-        market({ section: "kinds" }, null, null, 14),
-        market({ section: "offers" }, "mOffers"),
-        market({ section: "vendors", style: "spotlight", kind: "restaurant", sort: "fastest", limit: 6 }, "mFastNear", "mFastNearText"),
-        market({ section: "cuisines" }, "mMood"),
-        market({ section: "club" }, "mClubFree", "mClubFreeText"),
-        market({ section: "vendors", style: "tiles", kind: "grocery", limit: 6 }, "mShops", "mShopsText"),
-        market({ section: "reorder" }, "mReorder"),
-        market({ section: "vendors", style: "list", kind: "restaurant" }, "mAll"),
-      ],
-    },
-  };
-}
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" };
 
@@ -213,6 +174,14 @@ export function studioDemoOf(kind: { type: string; vertical?: string | null } | 
  * instead: no brackets left in its editor.
  */
 export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord, Record<"en" | "ar" | "tr", string>>>>> = {
+  // 128 Sofra Eats delivers to the demo number's home in Zamalek, as its orders go.
+  food: {
+    fpArea: { en: "Home · Zamalek", ar: "المنزل · الزمالك", tr: "Ev · Zamalek" },
+  },
+  // 128 Zad Market's own offer this week (lib/demo/marketplace.ts).
+  marketplace: {
+    mpOffer: { en: "Fresh fruit, 15% off", ar: "فاكهة طازجة بخصم 15%", tr: "Taze meyve %15 indirimli" },
+  },
   // Sahm Express by Tahrir Square, where its contact map is; open as late as its same-day parcels arrive.
   delivery: {
     contactText: {

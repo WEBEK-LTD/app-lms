@@ -1162,7 +1162,8 @@ export const KINDS: readonly KindInfo[] = [
     },
     // The marketplace's own tabs after Home, as the approved home has them: Search (its places, dishes and products), Orders and Club.
     tabs: [...MARKETPLACE_TABS],
-    screens: ["search", "club"],
+    // 128 And the basket, a tab of its own on Zad's approved bar.
+    screens: ["search", "club", "cart"],
     reviewNote:
       "This app has two roles. Customers order from the restaurants, supermarkets and shops. A vendor's staff sign in with a number the company or the vendor added and see a Vendor tab with its orders. The company's couriers work in its separate courier app, which has its own store listing and notes.",
   },

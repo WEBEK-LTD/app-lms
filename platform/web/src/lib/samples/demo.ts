@@ -7,6 +7,7 @@ import { studioDemoOf } from "../studio/demo-templates";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
+import { isZadPhoto, saveZadPhoto } from "../demo/zad-photos";
 import { syncSchoolStructure } from "../demo/school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers } from "../demo/teachers";
 import { donationSettingsOf } from "../donations/service";
@@ -164,7 +165,8 @@ export async function seedDemoSamples(deps: SampleDeps, appId: string, demo: Dem
       store: deps.store,
       now: deps.now,
       // The demo's own pictures, saved as the app's (removing its samples never takes another app's).
-      picture: (name, size) => savePicture(deps, { clientId: app!.clientId, appId: app!.id }, name, size, "product_image"),
+      // 128 And its real photos (Sofra Eats's dishes), as the app's own.
+      picture: (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, { clientId: app!.clientId, appId: app!.id }, name, "product_image") : savePicture(deps, { clientId: app!.clientId, appId: app!.id }, name, size, "product_image")),
       sample: true,
     };
     if (await seeder({ deps, app, entries })) filled.push(list);

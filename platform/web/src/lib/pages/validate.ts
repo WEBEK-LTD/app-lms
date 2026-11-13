@@ -71,6 +71,7 @@ import {
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
+  STUDIO_LIVE_SOURCES,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -89,6 +90,7 @@ import {
   type HeaderIcon,
   type StudioHeader,
   type StudioMarket,
+  type StudioScrim,
   type StudioNode,
   type StudioFont,
   type StudioPage,
@@ -193,8 +195,9 @@ class Checker {
     } catch {
       url = null;
     }
-    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http).
-    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures)\//.test(url.pathname);
+    // 97.5 The platform's own files too, 99.1 and the designs' pictures (https in production; local tests serve them over http),
+    // 128 and Yallapp's own photos the demos' templates use (public/demo-photos, demo-screens, stories).
+    const own = url !== null && url.origin === new URL(appUrl()).origin && /^\/(api\/v1\/assets|design-pictures|demo-photos|demo-screens|stories)\//.test(url.pathname);
     if (!url || (url.protocol !== "https:" && !own) || text.length > 2000 || /\s/.test(text)) {
       this.fail(where, `${what} must be a full https address.`);
       return null;
@@ -1058,6 +1061,22 @@ function studioNumber(value: unknown, min: number, max: number): number | undefi
   return Math.round(value * 10) / 10;
 }
 
+/** 128 A shade over a picture (`StudioScrim`), checked: its colour, how dark at each end and in the middle (hundredths), where the middle sits and its angle; "bad" when wrong. */
+function parseStudioScrim(c: Checker, where: string, value: unknown): StudioScrim | "bad" | null {
+  const s = record(value);
+  if (!s) return "bad";
+  const color = optionalColor(c, where, s.color, "the shade's colour");
+  const share = (x: unknown): number | undefined => (x === undefined || x === null ? undefined : typeof x === "number" && Number.isFinite(x) && x >= 0 && x <= 1 ? Math.round(x * 100) / 100 : NaN);
+  const from = share(s.from);
+  const to = share(s.to);
+  const middle = share(s.middle);
+  const at = studioNumber(s.at, 1, 99);
+  const angle = studioNumber(s.angle, 0, 360);
+  if (!color || from === undefined || to === undefined || [from, to, middle, at, angle].some((n) => n !== undefined && Number.isNaN(n))) return "bad";
+  if (!from && !to && !middle) return null;
+  return { color, from, to, ...(middle !== undefined ? { middle } : {}), ...(middle !== undefined && at !== undefined && at !== 50 ? { at } : {}), ...(angle !== undefined && angle !== 180 ? { angle } : {}) };
+}
+
 function parseSize(c: Checker, where: string, value: unknown, what: string): StudioSize | undefined {
   if (value === undefined || value === null) return undefined;
   if (value === "fill" || value === "hug") return value;
@@ -1260,6 +1279,12 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     if (!color || Number.isNaN(strength)) bad("the colour over the picture needs a colour and how strong it is, 0 to 1.");
     else if (strength > 0) node.overlay = { color, opacity: strength };
   }
+  // 128 A shade over the picture, darker at its ends, so words on it read.
+  if (v.scrim !== undefined && v.scrim !== null) {
+    const scrim = parseStudioScrim(c, where, v.scrim);
+    if (scrim === "bad") bad("the shade over the picture needs a colour and how dark it is at each end, 0 to 1.");
+    else if (scrim) node.scrim = scrim;
+  }
   const border = num("border_width", 0, L.maxBorder, "the border");
   if (border && node.border_color) node.border_width = border;
   else delete node.border_color;
@@ -1452,6 +1477,20 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         break;
       }
       node.learning = { section: l.section };
+      break;
+    }
+    case "live_status": {
+      // 128 The person's order on its way, drawn by the app from the engine's data.
+      const l = record(v.live_status);
+      if (!l || !oneOf(STUDIO_LIVE_SOURCES, l.source)) {
+        bad("choose whose order it follows.");
+        break;
+      }
+      node.live_status = { source: l.source };
+      if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+        if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+        else node.icon = v.icon;
+      }
       break;
     }
     case "market": {

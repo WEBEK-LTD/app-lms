@@ -9774,4 +9774,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchWelcome => 'Welcome to';
+
+  @override
+  String liveOrderPlaced(String place) {
+    return 'Your order is with $place';
+  }
+
+  @override
+  String liveOrderCooking(String place, String dish) {
+    return '$place is preparing your $dish';
+  }
+
+  @override
+  String liveOrderReady(String dish) {
+    return 'Your $dish is ready for the courier';
+  }
+
+  @override
+  String liveOrderOnTheWay(String dish) {
+    return 'Your $dish is on its way';
+  }
+
+  @override
+  String liveOrderPicking(String place) {
+    return '$place is getting your order ready';
+  }
+
+  @override
+  String liveMarketReady(String place) {
+    return 'Your order from $place is ready';
+  }
+
+  @override
+  String liveMarketOnTheWay(String place) {
+    return 'Your order from $place is on its way';
+  }
+
+  @override
+  String get liveOrderMin => 'min';
+
+  @override
+  String marketMinutes(String min) {
+    return '$min min';
+  }
 }

@@ -36,6 +36,8 @@ export function LeftPanel(props: {
   marketplace?: boolean;
   /** 123 An academy: the student's own cards are offered too. */
   academy?: boolean;
+  /** 128 A food delivery project or a marketplace: the live order card is offered too. */
+  orders?: boolean;
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -107,7 +109,7 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : props.academy)) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
+              const items = ELEMENTS.filter((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : e.only === "orders" ? props.orders : props.academy)) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
               if (!items.length) return null;
               return (
                 <div key={group.id}>
@@ -135,7 +137,7 @@ export function LeftPanel(props: {
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : props.academy)) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => (!e.only || (e.only === "marketplace" ? props.marketplace : e.only === "orders" ? props.orders : props.academy)) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>

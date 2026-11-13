@@ -1,4 +1,4 @@
-import type { ItemSource, StudioNode, StudioNodeType } from "../pages/types";
+import type { ItemSource, StudioLiveStatus, StudioNode, StudioNodeType } from "../pages/types";
 
 /**
  * 103R The editor's Elements panel (the approved design): layout elements,
@@ -16,7 +16,7 @@ export interface ElementInfo {
   /** Words people search for, besides its name, in English. */
   keywords: string;
   /** 115.14 Offered only in projects of this kind (a marketplace's sections). */
-  only?: "marketplace" | "academy";
+  only?: "marketplace" | "academy" | "orders";
 }
 
 export const ELEMENTS: readonly ElementInfo[] = [
@@ -46,6 +46,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // 123 The student's own cards: the course they are taking, their streak, their next live class, this week's learning.
   { type: "learning", group: "content", icon: "school", keywords: "learning continue course progress streak live class week time student", only: "academy" },
   { type: "market", group: "content", icon: "storefront", keywords: "marketplace vendors restaurants supermarket shops offers club cuisines address reorder", only: "marketplace" },
+  // 128 The person's order on its way (food delivery and marketplaces), from the app's own data.
+  { type: "live_status", group: "content", icon: "two_wheeler", keywords: "live status order on its way tracking delivery minutes progress", only: "orders" },
   { type: "icon", group: "more", icon: "emoji_symbols", keywords: "icon symbol" },
   { type: "categories", group: "more", icon: "label", keywords: "categories chips tags filter" },
   { type: "search", group: "more", icon: "search", keywords: "search field" },
@@ -68,7 +70,10 @@ export function newNodeId(): string {
  */
 export type NewText = "text" | "button" | "search" | "ratings" | "field" | "question" | "answer" | "tab" | "ended" | "bullets";
 
-export function newNode(type: StudioNodeType, options: { source: ItemSource | null; brand: string; text: (key: NewText) => string; newId?: () => string; now?: Date }): StudioNode {
+export function newNode(
+  type: StudioNodeType,
+  options: { source: ItemSource | null; brand: string; text: (key: NewText) => string; newId?: () => string; now?: Date; /** 128 Whose orders a live status card follows: a marketplace's, else food delivery's. */ orders?: StudioLiveStatus["source"] },
+): StudioNode {
   const id = (options.newId ?? newNodeId)();
   const child = (title: string, text: string): StudioNode => ({
     id: (options.newId ?? newNodeId)(),
@@ -143,6 +148,8 @@ export function newNode(type: StudioNodeType, options: { source: ItemSource | nu
       return { id, type, code: "SAVE10", radius: 10, color: options.brand, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "market":
       return { id, type, market: { section: "vendors" }, margin: { top: 8, end: 0, bottom: 8, start: 0 } };
+    case "live_status":
+      return { id, type, live_status: { source: options.orders ?? "food_order" }, radius: 18, background: options.brand, color: "#FFFFFF", padding: { top: 12, end: 14, bottom: 12, start: 14 }, margin: { top: 10, end: 16, bottom: 0, start: 16 } };
     case "learning":
       return { id, type, learning: { section: "continue" }, radius: 30, margin: { top: 8, end: 16, bottom: 8, start: 16 }, gradient: { from: "#141A3A", to: "#3B2A6B", angle: 140 } };
   }

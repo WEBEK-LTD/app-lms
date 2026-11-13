@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { KINDS } from "@/lib/app/kinds";
 import { newApp } from "@/lib/app/setup";
-import { ar as studioAr, en as studioEn, tr as studioTr } from "@/i18n/dashboard/studio";
+import { ar as studioAr, en as studioEn } from "@/i18n/dashboard/studio";
 import { demoKind, PREMIUM_ACADEMY_DEMO, PREMIUM_ACADEMY_TEMPLATE, STUDIO_DEMO_TYPES, type StudioDemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
 import { demoDesign, demoStudioContext } from "@/lib/demo/look";
@@ -21,8 +21,9 @@ import { itemSourcesFor, screenOptionsFor, categorySourcesFor } from "@/lib/page
 import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
-import { designPages } from "@/lib/studio/design-file";
-import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, marketHome, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
+import { designPages, picturesIn } from "@/lib/studio/design-file";
+import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
+import { designedTabs } from "@/lib/studio/demo-pages";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
@@ -136,10 +137,9 @@ describe("Studio templates = Studio demos", () => {
     const note = home.studio!.body.children![1]!;
     expect(note.visibility).toBe("signed_out");
     expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
-    // Without it: the kind's own template (Zad's the approved marketplace home), as it is.
+    // Without it: the kind's own template (128 Sofra Eats's and Zad's the approved photo-first homes), as it is.
     const ctx = demoStudioContext(id, appUrl(), source);
-    const own = DEMO_HOME_TEMPLATES[id];
-    const designed = own === "market_home" ? marketHome(ctx) : TEMPLATES.find((t) => t.id === own)!.make(ctx);
+    const designed = TEMPLATES.find((t) => t.id === DEMO_HOME_TEMPLATES[id])!.make(ctx);
     const page = withoutNote(home.studio!);
     const facts = withDemoFacts(id, designed);
     expect(withoutIds({ ...page, body: untranslated(page.body) })).toEqual(withoutIds({ ...facts, body: untranslated(facts.body) }));
@@ -180,7 +180,9 @@ describe("Studio templates = Studio demos", () => {
     const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS, demoTabs);
     expect(file.demo).toBe(id);
     let n = 0;
-    const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures: new Map(), now: NOW.toISOString() });
+    // 128 Pictures already at an address (Yallapp's photos) stay there, as the editor keeps them.
+    const pictures = new Map(file.pages.flatMap((p) => picturesIn(p.studio)).map((url) => [url, url] as const));
+    const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures, now: NOW.toISOString() });
     const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demoTabs), designSlugs: file.pages.map((p) => p.slug) });
     // 120 Every page of the demo, its tabs' pages too, each where its tab opens it.
     const studioOf = (l: LayoutContent, slug: string) => whole(l).pages.find((p) => p.slug === slug)?.studio ?? null;
@@ -198,7 +200,8 @@ describe("Studio templates = Studio demos", () => {
   it.each(KIND_DEMOS)("every tab of the %s demo opens a Studio page, those after the home drawn around the tab's screen", async (id) => {
     const demo = await demoOf(id);
     const app = demoApp(id);
-    const before = designLayout(app, demoDesign(id), demo, NOW).tabs;
+    // 128 The tabs as the demo's own design has them (Zad's Shops and Cart).
+    const before = designedTabs(designLayout(app, demoDesign(id), demo, NOW).tabs, { demo: id });
     expect(demo.tabs.map((t) => t.id)).toEqual(before.map((t) => t.id));
     demo.tabs.forEach((tab, i) => {
       expect(tab.target.type, tab.id).toBe("page");
@@ -210,9 +213,15 @@ describe("Studio templates = Studio demos", () => {
         expect(page!.studio!.screen).toBeUndefined();
         return;
       }
-      // The screen the tab opened before, now under the page's elements.
-      expect(was.type).toBe("screen");
-      expect(page!.studio!.screen).toBe(was.type === "screen" ? was.screen : null);
+      // The screen the tab opened before, now under the page's elements; 128 or a page of the demo's own (Zad's Shops).
+      if (was.type === "page") {
+        expect(page!.slug).toBe(was.page_slug);
+        expect(page!.studio!.screen).toBeUndefined();
+        expect(page!.studio!.header).toMatchObject({ type: "title", title: page!.title });
+      } else {
+        expect(was.type).toBe("screen");
+        expect(page!.studio!.screen).toBe(was.type === "screen" ? was.screen : null);
+      }
       if (page!.studio!.screen === "account") {
         // The account screen keeps its own top, set with the sign-in screen.
         expect(page!.studio!.header ?? null).toBeNull();
@@ -294,6 +303,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
   it.each([
     ["delivery", "sahm"],
     ["food", "sofra"],
+    // 128 Zad's whole project too, not only its home.
+    ["marketplace", "zad"],
     ["rides", "masar"],
     ["taxi", "lamha"],
     ["school", "nakhla"],
@@ -334,38 +345,66 @@ describe("123 The premium academy's demo: the project its template starts", () =
   });
 });
 
-describe("Zad: the approved marketplace home", () => {
-  /** The approved picture (mobile/test/screenshots/market_screenshots_test.dart), top to bottom. */
-  const APPROVED = [
-    { market: { section: "address" }, title: "Hungry? Order in minutes." },
-    { market: { section: "kinds" } },
-    { market: { section: "offers" }, title: "Today's offers" },
-    { market: { section: "vendors", style: "spotlight", kind: "restaurant", sort: "fastest", limit: 6 }, title: "Fastest near you", text: "Hot food at your door in under 30 min" },
-    { market: { section: "cuisines" }, title: "What's your mood?" },
-    { market: { section: "club" }, title: "Free delivery on every order", text: "Join the club for free delivery and members' offers." },
-    { market: { section: "vendors", style: "tiles", kind: "grocery", limit: 6 }, title: "Supermarkets & shops", text: "Groceries in about 20 minutes" },
-    { market: { section: "reorder" }, title: "Order again" },
-    { market: { section: "vendors", style: "list", kind: "restaurant" }, title: "All restaurants" },
-  ];
+describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 2026", () => {
+  const photos = (page: StudioPage) => allNodes(page).flatMap((n) => [n.image_url, n.image_background_url].filter((u): u is string => Boolean(u)));
 
-  it("shows every part of the approved home, in its order, in Zad's colour and font, with the demo's tabs", async () => {
+  it("Sofra Eats: the photo hero with the search over its edge, the cuisines, the order on its way, the restaurants loved near you, the floating pill", async () => {
+    const layout = await demoOf("food");
+    const page = layout.pages[0]!.studio!;
+    expect(page.header ?? null).toBeNull();
+    expect(page).toMatchObject({ background: "#FBF7F2", dark_background: "#17100C" });
+    const [hero, note, cuisines, live, head, loved] = page.body.children!;
+    expect(note!.visibility).toBe("signed_out");
+    // The table's photo under a shade, its words at the foot, the search card over its edge.
+    const photo = allNodes({ body: hero! }).find((n) => n.image_background_url)!;
+    expect(photo).toMatchObject({ height: 330, scrim: { color: "#140A05", from: 0.55, middle: 0.05, at: 38, to: 0.75 } });
+    expect(photo.image_background_url).toMatch(/\/demo-screens\/sofra-mezze\.jpg$/);
+    expect(texts({ body: hero! })).toEqual(expect.arrayContaining(["Deliver to", "Home · Zamalek", "Sofra Eats", "Tonight’s table\nis set.", "Dishes, restaurants or cuisines"]));
+    expect(texts({ body: cuisines! })).toEqual(["Grill", "Pizza", "Kofta", "Tawook", "Sweets"]);
+    expect(allNodes({ body: cuisines! }).filter((n) => n.type === "image").map((n) => n.radius)).toEqual([29, 29, 29, 29, 29]);
+    expect(live).toMatchObject({ type: "live_status", live_status: { source: "food_order" }, background: "#D2552B", visibility: "signed_in" });
+    expect(texts({ body: head! })).toEqual(["Loved near you", "See all"]);
+    expect(loved).toMatchObject({ type: "items", source: "restaurants", layout: "carousel" });
+    // Every photo one of Yallapp's own, served by the platform.
+    for (const url of photos(page)) expect(url).toMatch(/^https?:\/\/[^/]+\/demo-(photos|screens)\/[a-z-]+\.jpg$/);
+    expect(layout.tab_bar).toMatchObject({ design: "float", background: "#2A1810", dark_background: "#F7EDE6", active: "#D2552B", labels: "active", radius: 22, margin: 12 });
+    expect(layout.appearance.font).toBe("Manrope");
+    // The pages after it in its language: the cuisines over the restaurants, the order on its way over the orders.
+    const over = (screen: string) => layout.pages.find((p) => p.studio?.screen === screen)!.studio!;
+    expect(over("restaurants").body.children!.map((n) => n.type)).toEqual(["row"]);
+    expect(over("food_orders").body.children!.map((n) => n.type)).toEqual(["live_status"]);
+    expect(over("food_orders").header).toMatchObject({ background: "#FBF7F2", dark_background: "#17100C" });
+  });
+
+  it("Zad: the green bar with the soonest time, this week's offer on a photo, the department tiles, the places as chips, five named tabs", async () => {
     const layout = await demoOf("marketplace");
     const page = layout.pages[0]!.studio!;
     expect(page.header ?? null).toBeNull();
-    expect(page).toMatchObject({ background: "#F6F3EE", dark_background: "#0F0E1A" });
-    const markets = page.body.children!.filter((n) => n.type === "market");
-    expect(markets.map((n) => ({ market: n.market, ...(n.title ? { title: n.title } : {}), ...(n.text ? { text: n.text } : {}) }))).toEqual(APPROVED);
-    // Only the note on how to sign in besides them, under the top.
-    expect(page.body.children!.map((n) => n.type)).toEqual(["market", "column", ...APPROVED.slice(1).map(() => "market")]);
-    expect(page.body.children![1]!.visibility).toBe("signed_out");
-    expect(layout.appearance).toMatchObject({ font: DEMO_BRANDS.marketplace.font, template: DEMO_BRANDS.marketplace.template, secondary_color: DEMO_BRANDS.marketplace.secondaryColor });
+    expect(page).toMatchObject({ background: "#F6F3EE", dark_background: "#0D1712" });
+    const [bar, note, offer, tiles, head, places] = page.body.children!;
+    expect(bar).toMatchObject({ type: "market", market: { section: "address", style: "bar" }, text: "Search products and shops", color: "#1E6B52" });
+    expect(note!.visibility).toBe("signed_out");
+    expect(offer).toMatchObject({ type: "stack", height: 150, radius: 22, scrim: { angle: 90 } });
+    expect(texts({ body: offer! })).toEqual(["This week", "Fresh fruit, 15% off", "Shop now"]);
+    expect(tiles).toMatchObject({ type: "grid", columns: 2 });
+    expect(texts({ body: tiles! })).toEqual(["Fruit", "Picked this morning", "Vegetables", "Farm fresh", "Bakery", "Baked today", "Dairy", "Milk, cheese, eggs"]);
+    expect(texts({ body: head! })).toEqual(["Places near you", "See all"]);
+    expect(places).toMatchObject({ type: "market", market: { section: "vendors", style: "chips", sort: "nearest" } });
+    expect(layout.appearance.font).toBe("Manrope");
     expect(demoApp("marketplace").primaryColor).toBe("#1E6B52");
-    // 120 Each tab a Studio page, those after the home drawn around the tab's screen.
-    expect(layout.tabs.map((t) => (t.target.type === "page" ? t.target.page_slug : t.target.screen))).toEqual(["home", "search", "orders", "club", "account"]);
-    expect(layout.pages.slice(0, 5).map((p) => p.studio?.screen ?? null)).toEqual([null, "search", "food_orders", "club", "account"]);
-    // Its titles in Arabic and Turkish as well.
-    const hungry = markets[0]!;
-    expect(hungry.translations).toEqual({ ar: { title: studioAr.w_mHungry }, tr: { title: studioTr.w_mHungry } });
+    // Home, Shops (a page of its own), Cart, Orders and Account, every tab named.
+    expect(layout.tabs.map((t) => [t.label, t.icon])).toEqual([
+      ["Home", "home"],
+      ["Shops", "grid_view"],
+      ["Cart", "shopping_bag"],
+      ["Orders", "receipt_long"],
+      ["Account", "person"],
+    ]);
+    expect(layout.tab_bar).toMatchObject({ design: "classic", active: "#1E6B52", labels: "always" });
+    const shops = layout.pages.find((p) => p.slug === "shops")!.studio!;
+    expect(shops.body.children!.map((n) => n.market?.section)).toEqual(["kinds", "vendors", "club"]);
+    expect(layout.pages.find((p) => p.studio?.screen === "cart")).toBeTruthy();
+    expect(layout.pages.find((p) => p.studio?.screen === "food_orders")!.studio!.body.children!.map((n) => n.live_status?.source)).toEqual(["market_order"]);
     // Its places are the restaurants' list: a project started from it gets Zad's places as samples.
     expect(sourcesIn(page).has("restaurants")).toBe(true);
   });
@@ -377,6 +416,18 @@ describe("Zad: the approved marketplace home", () => {
     if (process.env.YALLAPP_WRITE_ZAD_HOME) writeFileSync(file, page);
     expect(readFileSync(file, "utf8")).toBe(page);
   });
+
+  it("offers both homes to every food delivery project and every marketplace, which the platform takes", () => {
+    for (const [id, tpl] of [["food", "food_photo"], ["marketplace", "market_photo"]] as const) {
+      const app = { ...projectApp(id), appName: "Corner Kitchen" };
+      expect(templatesFor(kindOf(id)).map((t) => t.id)).toContain(tpl);
+      const page = TEMPLATES.find((t) => t.id === tpl)!.make(englishContext(app));
+      const parsed = parseStudioPage(page, app, LANGS);
+      expect(parsed.ok ? [] : parsed.errors, id).toEqual([]);
+      // The owner's own words go in the brackets.
+      expect(JSON.stringify(page)).toMatch(/\[[^\]]+\]/);
+    }
+  });
 });
 
 describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
@@ -386,7 +437,8 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       const app = { ...demoApp(id), appName: "Nour" };
       const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(studioAr[`w_${word}`]).replaceAll("{app}", "Nour") };
       const page = demoStudioPage(id, ctx);
-      const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items");
+      // 128 The app's name (Sofra Eats's home writes it over its photo) is the same in every language.
+      const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour");
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
         // Arabic on the Arabic page, with English and Turkish kept.
@@ -402,7 +454,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
       const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
-      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text)) || (n.type === "market" && n.title));
+      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName) || (n.type === "market" && n.title));
       for (const n of titled) {
         expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
         expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);

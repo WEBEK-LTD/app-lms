@@ -10416,4 +10416,46 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get launchWelcome =>
       overlay.text('launchWelcome') ?? base.launchWelcome;
+
+  @override
+  String liveOrderPlaced(String place) =>
+      overlay.format('liveOrderPlaced', {'place': place}) ??
+      base.liveOrderPlaced(place);
+
+  @override
+  String liveOrderCooking(String place, String dish) =>
+      overlay.format('liveOrderCooking', {'place': place, 'dish': dish}) ??
+      base.liveOrderCooking(place, dish);
+
+  @override
+  String liveOrderReady(String dish) =>
+      overlay.format('liveOrderReady', {'dish': dish}) ??
+      base.liveOrderReady(dish);
+
+  @override
+  String liveOrderOnTheWay(String dish) =>
+      overlay.format('liveOrderOnTheWay', {'dish': dish}) ??
+      base.liveOrderOnTheWay(dish);
+
+  @override
+  String liveOrderPicking(String place) =>
+      overlay.format('liveOrderPicking', {'place': place}) ??
+      base.liveOrderPicking(place);
+
+  @override
+  String liveMarketReady(String place) =>
+      overlay.format('liveMarketReady', {'place': place}) ??
+      base.liveMarketReady(place);
+
+  @override
+  String liveMarketOnTheWay(String place) =>
+      overlay.format('liveMarketOnTheWay', {'place': place}) ??
+      base.liveMarketOnTheWay(place);
+
+  @override
+  String get liveOrderMin => overlay.text('liveOrderMin') ?? base.liveOrderMin;
+
+  @override
+  String marketMinutes(String min) =>
+      overlay.format('marketMinutes', {'min': min}) ?? base.marketMinutes(min);
 }

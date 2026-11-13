@@ -10957,5 +10957,84 @@
   "@launchWelcome": {
     "description": "124.15 Over the app's name on the Editorial launch screen."
   },
-  "launchWelcome": "Welcome to"
+  "launchWelcome": "Welcome to",
+  "liveOrderPlaced": "Your order is with {place}",
+  "@liveOrderPlaced": {
+    "description": "128 A live order card: the order was sent to the restaurant or shop.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderCooking": "{place} is preparing your {dish}",
+  "@liveOrderCooking": {
+    "description": "128 A live order card: the restaurant accepted it and is cooking the dish (its first dish, in a sentence).",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderReady": "Your {dish} is ready for the courier",
+  "@liveOrderReady": {
+    "description": "128 A live order card: the food is ready, waiting for the courier.",
+    "placeholders": {
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderOnTheWay": "Your {dish} is on its way",
+  "@liveOrderOnTheWay": {
+    "description": "128 A live order card: the courier has the food.",
+    "placeholders": {
+      "dish": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderPicking": "{place} is getting your order ready",
+  "@liveOrderPicking": {
+    "description": "128 A live order card: a marketplace shop accepted it and is picking it.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMarketReady": "Your order from {place} is ready",
+  "@liveMarketReady": {
+    "description": "128 A live order card: a marketplace order is ready.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMarketOnTheWay": "Your order from {place} is on its way",
+  "@liveMarketOnTheWay": {
+    "description": "128 A live order card: a marketplace order is with the courier.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "liveOrderMin": "min",
+  "@liveOrderMin": {
+    "description": "128 After the minutes left on a live order card (\"12 min\")."
+  },
+  "marketMinutes": "{min} min",
+  "@marketMinutes": {
+    "description": "128 The soonest a place delivers, in minutes (a place's chip, the address bar).",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  }
 }

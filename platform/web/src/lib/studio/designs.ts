@@ -73,7 +73,7 @@ export function demoProjectLook(demo: StudioDemoId, tabs: readonly LayoutTab[], 
   const brand = DEMO_BRANDS[demo];
   return {
     appearance: { template: brand.template, font: brand.font, corners: brand.corners, cards: brand.cards, secondary_color: brand.secondaryColor },
-    tabs: demoPageTabs(tabs, { lang }),
+    tabs: demoPageTabs(tabs, { lang, demo }),
     tab_bar: structuredClone(DEMO_TAB_BARS[demo]),
   };
 }
@@ -117,7 +117,7 @@ export function designsFor(kind: ProjectKind | null): WholeDesign[] {
 /** 120.4 How many pages a whole design has: a demo's, its home, its tabs' pages and those around its other screens. */
 export function designPageCount(design: WholeDesign, demoTabs?: readonly LayoutTab[] | null): number {
   if (!design.demo || !demoTabs) return design.templates.length;
-  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n" };
+  const ctx: SectionContext = { brand: "#000000", source: null, w: () => "", newId: () => "n", demo: design.demo };
   return design.templates.length + demoTabPages(demoTabs, ctx).length + demoScreenPages(design.kind ?? { appType: "" }, demoTabs, ctx, new Set(["home", ...demoTabs.map((t) => t.id)])).length;
 }
 
@@ -181,7 +181,7 @@ export function designName(design: WholeDesign, words: DesignWords): string {
  * home too, one per tab of `demoTabs` (the demo's own) opening a screen.
  */
 export function makeDesign(design: WholeDesign, ctx: SectionContext, words: DesignWords, languages: Languages, demoTabs?: readonly LayoutTab[] | null): DesignFile {
-  const made = { ...ctx, brand: design.theme.accent };
+  const made = { ...ctx, brand: design.theme.accent, ...(design.demo ? { demo: design.demo } : {}) };
   const pages: DesignFile["pages"] = design.templates.map((id, i) => {
     const tpl = TEMPLATES.find((x) => x.id === id)!;
     return { slug: i === 0 ? "home" : id, title: i === 0 ? words.home : words.template(id), studio: themedPage(tpl.make(made), design.theme) };

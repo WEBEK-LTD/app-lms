@@ -1,6 +1,8 @@
 import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
+import { FOOD_PHOTO_TAB_BAR } from "../studio/photo-food";
+import { MARKET_PHOTO_TAB_BAR } from "../studio/photo-market";
 import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
 
 /**
@@ -35,28 +37,30 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     },
     menu: "tiles",
   },
+  // 128 The approved home's photo and words: tonight's table.
   food: {
     style: "photo",
     photo: "/demo-screens/sofra-mezze.jpg",
-    title: { en: "Hungry? We're on our way", ar: "جائع؟ نحن في الطريق", tr: "Acıktınız mı? Yoldayız" },
+    title: { en: "Tonight’s table is set.", ar: "سفرة الليلة جاهزة.", tr: "Bu akşamın sofrası hazır." },
     subtitle: {
-      en: "Sign in to order from your favourite restaurants.",
-      ar: "سجّل الدخول لتطلب من مطاعمك المفضلة.",
-      tr: "En sevdiğiniz restoranlardan sipariş vermek için giriş yapın.",
+      en: "Sign in to order from the restaurants near you.",
+      ar: "سجّل الدخول لتطلب من المطاعم القريبة منك.",
+      tr: "Yakınınızdaki restoranlardan sipariş vermek için giriş yapın.",
     },
     menu: "cover",
   },
+  // 128 The approved home's market photo, its green and amber.
   marketplace: {
-    style: "card",
-    photo: "/stories/multi-vendor/zad-market-aisle.jpg",
+    style: "photo",
+    photo: "/demo-photos/cover-market.jpg",
     title: { en: "Your neighbourhood, in one app", ar: "حيّك كله في تطبيق واحد", tr: "Mahalleniz tek bir uygulamada" },
     subtitle: {
-      en: "Restaurants and the supermarket, delivered to your door.",
-      ar: "المطاعم والسوبرماركت حتى باب بيتك.",
-      tr: "Restoranlar ve market, kapınıza kadar.",
+      en: "Fresh food and groceries from the places near you, at your door.",
+      ar: "طعام طازج وبقالة من الأماكن القريبة منك حتى باب بيتك.",
+      tr: "Yakınınızdaki yerlerden taze yemek ve market, kapınıza kadar.",
     },
     menu: "night",
-    accent: "#D9B36C",
+    accent: "#F2A93B",
   },
   rides: {
     style: "card",
@@ -130,8 +134,9 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
  */
 export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   delivery: { design: "line" },
-  food: { design: "bubble" },
-  marketplace: { design: "glass" },
+  // 128 The approved bars: Sofra Eats's floating pill, Zad's five named tabs.
+  food: FOOD_PHOTO_TAB_BAR,
+  marketplace: MARKET_PHOTO_TAB_BAR,
   rides: { design: "lift" },
   taxi: { design: "island", dark_active: "#F5B700" },
   school: { design: "classic", avatar: true },

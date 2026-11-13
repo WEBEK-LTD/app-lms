@@ -17,8 +17,10 @@ import type { SectionContext, TemplateInfo } from "./sections";
  * template for the whole project (lib/studio/academy.ts) the same, with its
  * own tabs, bar and look; `site` is the owner's website, when known.
  */
-export function startLayout(app: App, template: TemplateInfo, ready: LayoutContent, now: Date, ctx: SectionContext, site: string | null = null): LayoutContent {
+export function startLayout(app: App, template: TemplateInfo, ready: LayoutContent, now: Date, made: SectionContext, site: string | null = null): LayoutContent {
   const project = template.project ?? null;
+  // 128 A demo's template is the demo, its own pages after the home too.
+  const ctx: SectionContext = template.demo ? { ...made, demo: template.demo } : made;
   const designed = template.demo ? designLayout(app, demoDesign(template.demo), ready, now) : ready;
   // 123 A template for the whole project: its tabs (a Blog tab with the site's blog, when the site is known) and its look.
   const layout = project

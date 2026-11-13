@@ -379,7 +379,7 @@ export const MARKET_COURIER = { name: "Karim Adel", phone: "+12025550171", vehic
 export const DEMO_HOME: ShipmentPlace = { address: "8 Kasr El Ainy Street, Garden City", details: "Building 8, 3rd floor, flat 6", lat: 30.0349, lng: 31.2316 };
 
 export const OWNER_COUPON = "ZAD20";
-export const MARKET_COUPON = "FRESH10";
+export const MARKET_COUPON = "FRESH15";
 const PIZZA_OFFER = "Free delivery from Nile Pizza Co. over EGP 250";
 const GRILL_OFFER = "Free delivery on grills over EGP 300";
 const WELCOME_KEY = "demo:welcome";
@@ -871,7 +871,8 @@ async function syncOffers(store: DataStore, appId: string, vendors: Map<VendorKe
   const own: { vendor: Restaurant; form: Record<string, string>; match: (c: (typeof coupons)[number]) => boolean }[] = [
     {
       vendor: market,
-      form: { title: "10% off fruit and vegetables", code: MARKET_COUPON, kind: "percent", value: "10", min_order: "100", [`group_${fruit.id}`]: "1" },
+      // 128 Fresh fruit (and vegetables) 15% off this week, as Zad's home says.
+      form: { title: "15% off fruit and vegetables", code: MARKET_COUPON, kind: "percent", value: "15", min_order: "100", [`group_${fruit.id}`]: "1" },
       match: (c) => c.code === MARKET_COUPON,
     },
     {

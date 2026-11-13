@@ -134,6 +134,8 @@ const symbolsByName = <String, IconData>{
   'restaurant': Symbols.restaurant_rounded,
   'directions_car': Symbols.directions_car_rounded,
   'arrow_back': Symbols.arrow_back_rounded,
+  // 128 Sofra Eats's photo hero: where it delivers, opening the list.
+  'expand_more': Symbols.expand_more_rounded,
 };
 
 /// Shown for a name the app doesn't have.

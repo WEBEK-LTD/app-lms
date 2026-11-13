@@ -18,7 +18,7 @@ export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning"] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status"] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -630,9 +630,43 @@ export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
 }
 
+/**
+ * 128 For `live_status`: the signed-in person's order on its way, drawn by
+ * the app from the engine's own data (`StudioLiveStatus`): a food delivery
+ * order, or a marketplace order. Nothing shows signed out, or with no order
+ * on its way.
+ */
+export const STUDIO_LIVE_SOURCES = ["food_order", "market_order"] as const;
+export interface StudioLiveStatus {
+  source: (typeof STUDIO_LIVE_SOURCES)[number];
+}
+
+/**
+ * 128 A shade over the element's picture so the words on it read
+ * (`StudioScrim`): its colour at `from` (0 to 1) at the start of `angle`
+ * (CSS: 180 top to bottom, 90 start to end), `middle` at `at` percent, and
+ * `to` at the end. A photo hero with its words on it, a photo tile's
+ * caption.
+ */
+export interface StudioScrim {
+  color: string;
+  from: number;
+  to: number;
+  middle?: number;
+  /** Where `middle` sits, 1 to 99 (%); missing, half way. */
+  at?: number;
+  /** 0 to 360; missing, 180 (top to bottom). */
+  angle?: number;
+}
+
 /** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
 export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
-export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list"] as const;
+/**
+ * 128 `chips`: places as small chips in a row, the place's photo beside its
+ * name, rating and time; `bar`: the address (its section) as a flat bar with
+ * the soonest delivery time and the search under it.
+ */
+export const STUDIO_MARKET_STYLES = ["spotlight", "cards", "tiles", "list", "chips", "bar"] as const;
 /** Editor audit 3.4: facts a place's card can leave out. */
 export const STUDIO_MARKET_CARD_FACTS = ["offer", "rating", "time", "fee", "min_order"] as const;
 export const STUDIO_MARKET_KINDS = ["all", "restaurant", "grocery"] as const;
@@ -702,6 +736,8 @@ export interface StudioNode {
   corners?: StudioCorners | null;
   rotation?: number;
   overlay?: StudioOverlay | null;
+  /** 128 A shade over its picture, darker at its ends, so words on it read. */
+  scrim?: StudioScrim | null;
   border_color?: string | null;
   border_width?: number;
   shadow?: StudioShadow;
@@ -747,6 +783,8 @@ export interface StudioNode {
   market?: StudioMarket | null;
   /** 123 For `learning`: which of the student's cards it is. */
   learning?: StudioLearning | null;
+  /** 128 For `live_status`: whose order it follows. */
+  live_status?: StudioLiveStatus | null;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];
@@ -864,6 +902,8 @@ export const TAB_BAR_DESIGNS = [
   "drop",
   "glow",
   "colours",
+  // 128 A floating bar with its own colours, the open tab a filled pill with its name, the others icons only.
+  "float",
 ] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];

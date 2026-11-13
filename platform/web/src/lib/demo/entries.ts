@@ -58,7 +58,7 @@ import {
   type DemoService,
   type DemoStaff,
 } from "./content";
-import type { PictureName } from "./pictures";
+import type { ZadPhoto } from "./zad-photos";
 import type { DemoPicture, PictureSize } from "./picture-assets";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
@@ -77,8 +77,8 @@ import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teache
 export interface EntryDeps {
   store: DataStore;
   now: Date;
-  /** A drawn picture of the demo's as an asset: the demo account's, or the app's own for samples. */
-  picture: (name: DemoPicture, size: PictureSize) => Promise<string>;
+  /** A drawn picture of the demo's as an asset (128 or one of its real photos): the demo account's, or the app's own for samples. */
+  picture: (name: DemoPicture | ZadPhoto, size: PictureSize) => Promise<string>;
   /** Samples for an app started from the demo, rather than the demo app itself. */
   sample: boolean;
 }
@@ -463,7 +463,7 @@ export async function demoDeliveryServices(deps: EntryDeps, app: App, currency: 
 }
 
 /** A restaurant's menu with fixed IDs, so carts and orders keep pointing at the same dishes. */
-export function demoMenu(restaurant: DemoRestaurant, pictureIds: Map<PictureName, string>, money: (cents: number) => number = (c) => c): RestaurantMenu {
+export function demoMenu(restaurant: DemoRestaurant, pictureIds: Map<string, string>, money: (cents: number) => number = (c) => c): RestaurantMenu {
   let next = 1;
   const id = () => next++;
   const sections: MenuSection[] = restaurant.sections.map((section) => ({
@@ -511,17 +511,19 @@ export async function demoRestaurants(deps: EntryDeps, app: App, currency: strin
   const restaurants = await store.listRestaurants(app.id);
   const after = deps.sample ? Math.max(0, ...restaurants.map((r) => r.position)) : 0;
   for (const [position, restaurant] of DEMO_RESTAURANTS.entries()) {
-    const pictureIds = new Map<PictureName, string>();
+    const pictureIds = new Map<string, string>();
     for (const dish of restaurant.sections.flatMap((s) => s.dishes)) {
       if (!pictureIds.has(dish.picture)) pictureIds.set(dish.picture, await deps.picture(dish.picture, "product"));
     }
     const logoAssetId = await deps.picture(restaurant.logo, "avatar");
+    // 128 Its cover photo, as the restaurants' list and its page show it.
+    const coverAssetId = restaurant.cover ? await deps.picture(restaurant.cover, "home") : null;
     const input = {
       appId: app.id,
       name: restaurant.name,
       description: restaurant.description,
       logoAssetId,
-      coverAssetId: null,
+      coverAssetId,
       cuisines: restaurant.cuisines.map((c) => cuisineIds.get(c) ?? c),
       address: { address: restaurant.address, details: null, lat: null, lng: null },
       phone: null,
@@ -536,12 +538,16 @@ export async function demoRestaurants(deps: EntryDeps, app: App, currency: strin
     };
     const menu = demoMenu(restaurant, pictureIds, money);
     const found = deps.sample ? undefined : restaurants.find((r) => r.name === restaurant.name);
+    let id: number;
     if (found) {
       await store.updateRestaurant(app.id, found.id, input, now);
       await store.saveRestaurantMenu(app.id, found.id, menu, now);
+      id = found.id;
     } else {
-      await store.createRestaurant(input, menu, now);
+      id = (await store.createRestaurant(input, menu, now)).id;
     }
+    // 128 The demo's own ratings, back to the demo's each time (an app's samples start with none).
+    if (!deps.sample && restaurant.rating) await store.updateRestaurant(app.id, id, { ratingSum: Math.round(restaurant.rating.average * restaurant.rating.count), ratingCount: restaurant.rating.count }, now);
   }
 }
 
