@@ -10,6 +10,7 @@ import '../../../core/routing/paths.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/star_text.dart';
 import '../data/market_models.dart';
 import '../data/market_place.dart';
 
@@ -249,7 +250,7 @@ class MarketVendorChips extends StatelessWidget {
                           ),
                         ),
                         if (_facts(v, l10n) case final facts?)
-                          Text(
+                          StarText(
                             facts,
                             style: TextStyle(
                               fontSize: 11,
