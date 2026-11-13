@@ -352,10 +352,10 @@ export function StoriesRow({ node, lang, defaultLang, dark, brand, accent }: { n
               width: size + 8,
               height: size + 8,
               borderRadius: "50%",
-              padding: 3,
+              padding: story.ring === "dashed" ? 1 : 3,
               boxSizing: "border-box",
               ...(story.ring === "dashed"
-                ? { border: `2px dashed ${dark ? "rgba(255,255,255,0.35)" : "#B9B2A3"}`, padding: 1 }
+                ? { border: `2px dashed ${dark ? "rgba(255,255,255,0.35)" : "#B9B2A3"}` }
                 : { background: story.ring === "plain" ? (dark ? "#3B3858" : "#DDD8CC") : story.ring === "highlight" ? (story.ring_color ?? accent ?? "#F5B700") : story.ring_color ? story.ring_color : `linear-gradient(45deg, ${accent ?? "#F5B700"}, ${brand})` }),
             }}
           >
