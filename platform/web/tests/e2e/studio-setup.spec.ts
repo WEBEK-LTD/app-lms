@@ -438,6 +438,15 @@ test("124.11 a project's file brings the whole app into another project: pages, 
   await expect(own.getByRole("radio", { name: /Premium/ }).first()).toBeChecked();
 });
 
+test("124.12 Studio's menu leads to how people sign in", async () => {
+  await own.goto("/studio/project");
+  await own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "How people sign in", exact: true }).click();
+  await expect(own).toHaveURL(/\/studio\/project\/app-sign-in$/);
+  await expect(own.getByRole("heading", { name: "App sign-in", level: 1 })).toBeVisible();
+  await expect(own.getByRole("heading", { name: "How people sign in", level: 2 })).toBeVisible();
+  await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "How people sign in", exact: true })).toHaveAttribute("aria-current", "page");
+});
+
 test("in Arabic: the designs' names, the messages in place, and every step on a phone", async () => {
   await newProject("Live taxi on the map", "Lamha");
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);

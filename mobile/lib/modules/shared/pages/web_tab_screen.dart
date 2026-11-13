@@ -78,6 +78,10 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
     );
     if (url != null) _open(url, look, signedIn);
     final shown = _shown;
+    // 124.12 A frosted bar floats over the tabs' screens (MainShell's
+    // `extendBody`), and a web page can't make room for it itself: the page
+    // ends above the bar, so its last lines and buttons can be reached.
+    final underBar = MediaQuery.paddingOf(context).bottom;
     return Scaffold(
       backgroundColor: p.surface,
       body: SafeArea(
@@ -130,37 +134,41 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
                   : null,
             ),
             Expanded(
-              child: url == null || _failed
-                  ? ErrorView(
-                      error: const FormatException('page'),
-                      onRetry: () => setState(() {
-                        _load += 1;
-                        _failed = false;
-                        _loading = true;
-                      }),
-                    )
-                  : shown == null
-                  ? const SizedBox.shrink()
-                  : KeyedSubtree(
-                      key: ValueKey('web-tab-${widget.tabId}-$_opened'),
-                      child: builder(
-                        WebViewRequest(
-                          url: shown,
-                          pageHost: shown == url ? null : url.host,
-                          onMediaRequest: pageMediaRequests(context, ref),
-                          // Only the site's own pages stay, unless every link should.
-                          openLinksOutside: !(look?.linksInside ?? false),
-                          injectCss: look?.css,
-                          onPageFinished: () {
-                            if (mounted) setState(() => _loading = false);
-                          },
-                          onMainFrameError: () {
-                            if (mounted) setState(() => _failed = true);
-                          },
-                          debugLabel: 'web-tab',
+              child: Padding(
+                key: const ValueKey('web-tab-page'),
+                padding: EdgeInsets.only(bottom: underBar),
+                child: url == null || _failed
+                    ? ErrorView(
+                        error: const FormatException('page'),
+                        onRetry: () => setState(() {
+                          _load += 1;
+                          _failed = false;
+                          _loading = true;
+                        }),
+                      )
+                    : shown == null
+                    ? const SizedBox.shrink()
+                    : KeyedSubtree(
+                        key: ValueKey('web-tab-${widget.tabId}-$_opened'),
+                        child: builder(
+                          WebViewRequest(
+                            url: shown,
+                            pageHost: shown == url ? null : url.host,
+                            onMediaRequest: pageMediaRequests(context, ref),
+                            // Only the site's own pages stay, unless every link should.
+                            openLinksOutside: !(look?.linksInside ?? false),
+                            injectCss: look?.css,
+                            onPageFinished: () {
+                              if (mounted) setState(() => _loading = false);
+                            },
+                            onMainFrameError: () {
+                              if (mounted) setState(() => _failed = true);
+                            },
+                            debugLabel: 'web-tab',
+                          ),
                         ),
                       ),
-                    ),
+              ),
             ),
           ],
         ),
