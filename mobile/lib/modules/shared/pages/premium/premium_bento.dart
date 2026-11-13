@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +33,8 @@ List<({int column, int row, int across, int down})> bentoPlaces(
       () {
         final a = math.min(columns, switch (size) {
           StudioTileSize.wide || StudioTileSize.large => 2,
+          // 129 Across every column.
+          StudioTileSize.full => columns,
           _ => 1,
         });
         final d = switch (size) {
@@ -63,11 +66,11 @@ class PremiumBento extends ConsumerWidget {
   final StudioNode node;
   final bool dark;
 
-  static const rowHeight = 112.0;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tones = PremiumTones.of(context, dark: dark);
+    final rowHeight = node.premium?.rowHeight ?? 112.0;
+    final glass = node.premium?.glassCaptions ?? false;
     final columns = node.columns.clamp(1, 4);
     final gap = node.gap > 0 ? node.gap : 10.0;
     final places = bentoPlaces([for (final e in node.entries) e.size], columns);
@@ -88,7 +91,12 @@ class PremiumBento extends ConsumerWidget {
                   width: places[i].across * cell + (places[i].across - 1) * gap,
                   height:
                       places[i].down * rowHeight + (places[i].down - 1) * gap,
-                  child: _Tile(entry: e, tones: tones, radius: radius),
+                  child: _Tile(
+                    entry: e,
+                    tones: tones,
+                    radius: radius,
+                    glass: glass,
+                  ),
                 ),
             ],
           ),
@@ -99,7 +107,15 @@ class PremiumBento extends ConsumerWidget {
 }
 
 class _Tile extends ConsumerWidget {
-  const _Tile({required this.entry, required this.tones, required this.radius});
+  const _Tile({
+    required this.entry,
+    required this.tones,
+    required this.radius,
+    this.glass = false,
+  });
+
+  /// 129 The words on a frosted glass label.
+  final bool glass;
 
   final StudioEntry entry;
   final PremiumTones tones;
@@ -171,59 +187,94 @@ class _Tile extends ConsumerWidget {
                   ),
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    e.title ?? '',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: large ? 20 : 15,
-                      height: 1.2,
+            // 129 Its chip at its top.
+            if ((e.subtitle ?? '').isNotEmpty)
+              PositionedDirectional(
+                top: 12,
+                end: 12,
+                child: Container(
+                  key: ValueKey('premium-tile-chip-${e.subtitle}'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorOr(e.color, tones.accent),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    e.subtitle!,
+                    style: const TextStyle(
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: ink,
+                      color: Color(0xFF0E0D24),
                     ),
                   ),
-                  if ((e.text ?? '').isNotEmpty)
-                    Text(
-                      e.text!,
-                      maxLines: large ? 3 : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: filled
-                            ? Colors.white.withValues(alpha: 0.88)
-                            : tones.muted,
+                ),
+              ),
+            // At the tile's foot, cut off rather than squeezed in a short row.
+            PositionedDirectional(
+              start: 0,
+              end: 0,
+              bottom: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (glass)
+                      _glassCaption(e)
+                    else ...[
+                      Text(
+                        e.title ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: large ? 20 : 15,
+                          height: 1.2,
+                          fontWeight: FontWeight.w800,
+                          color: ink,
+                        ),
                       ),
-                    ),
-                  if ((e.label ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                      if ((e.text ?? '').isNotEmpty)
                         Text(
-                          e.label!,
+                          e.text!,
+                          maxLines: large ? 3 : 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: filled ? Colors.white : tones.brand,
+                            color: filled
+                                ? Colors.white.withValues(alpha: 0.88)
+                                : tones.muted,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        // Pointing the other way right to left, of itself.
-                        Icon(
-                          Symbols.arrow_forward_rounded,
-                          size: 15,
-                          color: filled ? Colors.white : tones.brand,
+                      if ((e.label ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              e.label!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: filled ? Colors.white : tones.brand,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            // Pointing the other way right to left, of itself.
+                            Icon(
+                              Symbols.arrow_forward_rounded,
+                              size: 15,
+                              color: filled ? Colors.white : tones.brand,
+                            ),
+                          ],
                         ),
                       ],
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ],
@@ -241,4 +292,44 @@ class _Tile extends ConsumerWidget {
     }
     return tile;
   }
+
+  /// 129 The title and text on a frosted glass label at the tile's foot.
+  Widget _glassCaption(StudioEntry e) => ClipRRect(
+    borderRadius: BorderRadius.circular(16),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0x6B141220),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0x2EFFFFFF)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              e.title ?? '',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: e.size == StudioTileSize.large ? 20 : 15,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+            if ((e.text ?? '').isNotEmpty)
+              Text(
+                e.text!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, color: Color(0xE0FFFFFF)),
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

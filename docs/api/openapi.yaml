@@ -14517,7 +14517,7 @@ components:
       properties:
         design:
           type: string
-          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float]
+          enum: [classic, pill, minimal, dot, line, bubble, glass, notch, lift, outline, square, text, island, segment, folder, drop, glow, colours, float, dock]
           description: |
             119 The bar's design; missing, the app template's own (Classic,
             Bold's pill, Minimal). `classic`: the open tab's icon in a soft
@@ -14541,7 +14541,9 @@ components:
             62 high floating over the page in its own colours (22 round and
             12 in from the edges unless `radius` and `margin` say), the page
             going on under it, the open tab a filled pill with its name, the
-            others icons only. Every design works in
+            others icons only. 129 `dock`: a small capsule floating in
+            the middle, as wide as its icons, no names, the open tab a filled
+            circle. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The bar's colour; null, the app's surface colour." }
@@ -14822,6 +14824,7 @@ components:
         profile: { $ref: '#/components/schemas/StudioProfile' }
         badge: { $ref: '#/components/schemas/StudioBadge' }
         cta: { $ref: '#/components/schemas/StudioCta' }
+        bento: { $ref: '#/components/schemas/StudioBento' }
         surface: { $ref: '#/components/schemas/StudioSurface' }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -14883,7 +14886,7 @@ components:
         prefix: { type: [string, 'null'], maxLength: 8 }
         suffix: { type: [string, 'null'], maxLength: 8 }
         highlight: { type: boolean, default: false }
-        size: { type: string, enum: [small, wide, tall, large], default: small, description: "For a bento tile: one cell, two across, two down, or two by two." }
+        size: { type: string, enum: [small, wide, tall, large, full], default: small, description: "For a bento tile: one cell, two across, two down, two by two, or 129 across every column." }
         gradient: { $ref: '#/components/schemas/StudioGradient' }
         color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         action: { $ref: '#/components/schemas/Action' }
@@ -14909,22 +14912,46 @@ components:
 
     StudioStats:
       type: [object, 'null']
-      description: "129.13 For `stats`: `plain` (missing) or each number in a card; `dividers`, thin lines between them."
+      description: "129.13 For `stats`: `plain` (missing) or each number in a card; `dividers`, thin lines between them; `still`, the values at once, not counting up. The numbers are in the element's `font`, centred (with `start`, at the start); from a size of 40, the `prefix` and `suffix` are small beside them (\"6 min\")."
       properties:
         style: { type: string, enum: [plain, cards], default: plain }
         dividers: { type: boolean, default: false }
+        still: { type: boolean, default: false }
+        start: { type: boolean, default: false, description: "At the start instead of centred." }
 
     StudioProgress:
       type: [object, 'null']
-      description: "129.14 For `progress`: bars (missing) or rings."
+      description: |
+        129.14 For `progress`: bars (missing), rings or `segments` (a row of
+        `segments` short bars per entry, as many filled as its share). A
+        ring is `size` across (missing, 76) and `stroke` thick (missing, 8;
+        a bar's or segment's height), with `ticks` marks around it and a
+        `knob` at its end; it holds the entry's `image_url` (its `subtitle`
+        a chip over the photo's foot), else its `icon`, else the share. An
+        entry's `gradient` or `color` fills it.
       properties:
-        style: { type: string, enum: [bars, rings], default: bars }
+        style: { type: string, enum: [bars, rings, segments], default: bars }
+        size: { type: integer, minimum: 40, maximum: 320 }
+        stroke: { type: integer, minimum: 2, maximum: 24 }
+        ticks: { type: integer, minimum: 0, maximum: 60 }
+        knob: { type: boolean, default: false }
+        segments: { type: integer, minimum: 2, maximum: 40, default: 4 }
 
     StudioTimeline:
       type: [object, 'null']
-      description: "129.15 For `timeline`: down the page (missing) or across it."
+      description: "129.15 For `timeline`: down the page (missing), across it, or `bars`, across with a bar over each step filled up to the active one (a trip's legs). Down the page, `times` puts each step's `subtitle` in a column at the start, and `card` draws the active step as a card with its `label` as a chip and its `value` (0 to 100) as a bar; `mono` writes the dates in a monospaced font."
       properties:
-        style: { type: string, enum: [vertical, horizontal], default: vertical }
+        style: { type: string, enum: [vertical, horizontal, bars], default: vertical }
+        times: { type: boolean, default: false }
+        mono: { type: boolean, default: false }
+        card: { type: boolean, default: false }
+
+    StudioBento:
+      type: [object, 'null']
+      description: "129.17 For `bento`: the tiles' words on their shade (missing) or on a frosted `glass` label, and a row's height (missing, 112). A tile's `subtitle` is a chip at its top."
+      properties:
+        caption: { type: string, enum: [plain, glass], default: plain }
+        row: { type: integer, minimum: 60, maximum: 240, default: 112 }
 
     StudioProfile:
       type: [object, 'null']
@@ -14951,10 +14978,11 @@ components:
 
     StudioCta:
       type: [object, 'null']
-      description: "129.20 For `cta_bar`: a `bar` across the page's foot with `title` (a label or a price the owner writes) and a button of `text` and `icon`, or a `fab`, a round floating button at the end side (with `text`, a wide one); `action` is the tap. Pinned to the bottom (`pin`), it stays above the tabs while the page scrolls."
+      description: "129.20 For `cta_bar`: a `bar` across the page's foot with `title` (a label or a price the owner writes; its first line the title, the next ones under it, smaller) and a button of `text` and `icon`, a floating rounded `card` holding the same, or a `fab`, a round floating button at the end side (with `text`, a wide one); `lead`, an icon on a soft tile at the start of a bar or a card; `action` is the tap. Pinned to the bottom (`pin`), it stays above the tabs while the page scrolls."
       required: [style]
       properties:
-        style: { type: string, enum: [bar, fab] }
+        style: { type: string, enum: [bar, fab, card] }
+        lead: { type: [string, 'null'], description: "A Google Material Symbols (Rounded) name." }
 
     StudioSurface:
       type: [object, 'null']
@@ -14971,6 +14999,16 @@ components:
             width: { type: number, minimum: 1, maximum: 6, default: 1.5 }
         glow: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         soft: { type: integer, enum: [1, 2, 3] }
+        ticket:
+          type: [object, 'null']
+          description: "129 A ticket: a round notch cut from both edges at `at` percent along it (across the card, or with `axis` vertical down it), a dashed line between them (a pass, a waybill, a stub beside a photo)."
+          required: [at]
+          properties:
+            at: { type: integer, minimum: 5, maximum: 95 }
+            axis: { type: string, enum: [horizontal, vertical], default: horizontal }
+            notch: { type: integer, minimum: 4, maximum: 24, default: 10 }
+        pattern: { type: string, enum: [grain, dots, grid, stripes], description: "129 A texture over it in the text's colour: fine grain, a dot grid, a square grid or diagonal stripes." }
+        pattern_strength: { type: number, minimum: 0.02, maximum: 0.4, default: 0.08 }
 
     StudioCorners:
       type: [object, 'null']

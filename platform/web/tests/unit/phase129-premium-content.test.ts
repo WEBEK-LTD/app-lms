@@ -143,7 +143,7 @@ describe("129.11–129.20 checked strictly, kept from known fields only", () => 
   it("needs a badge's words and look, and a bar's look", () => {
     expect(errors([{ id: "b", type: "badge_text", badge: { style: "pill" } }])).toContain("add the badge's words.");
     expect(errors([{ id: "b", type: "badge_text", text: "New", badge: { style: "neon" } }])).toContain("choose how the badge looks.");
-    expect(errors([{ id: "c", type: "cta_bar", text: "Go" }])).toContain("choose a bar or a floating button.");
+    expect(errors([{ id: "c", type: "cta_bar", text: "Go" }])).toContain("choose a bar, a card or a floating button.");
     const [badge, bar] = kept([
       { id: "b", type: "badge_text", text: "New", icon: "bolt", badge: { style: "text" }, translations: { ar: { text: "جديد" } } },
       { id: "c", type: "cta_bar", title: "₺450", text: "Order", cta: { style: "fab" }, pin: "bottom", action: { type: "screen", screen: "courses" } },
@@ -222,5 +222,83 @@ describe("129.11–129.20 served and drawn", () => {
     expect(html).toContain('aria-current="step"');
     expect(html).toMatch(/data-studio-node="g"/);
     expect(html).toContain("backdrop-filter:blur(18px)");
+  });
+});
+
+describe("129 what the Signature boards need, as generic options", () => {
+  it("keeps a ring's size, ticks and knob, segments, and bounds them", () => {
+    const [ring, lessons] = kept([
+      { id: "r", type: "progress", progress: { style: "rings", size: 226, stroke: 8, ticks: 18, knob: true }, entries: [{ value: 61, image_url: "https://example.com/p.jpg", subtitle: "Lesson 12 of 18", gradient: { from: "#E6C26E", to: "#B8862F" } }] },
+      { id: "s", type: "progress", progress: { style: "segments", segments: 18 }, entries: [{ value: 61 }] },
+    ]);
+    expect(ring!.progress).toEqual({ style: "rings", size: 226, stroke: 8, ticks: 18, knob: true });
+    expect(ring!.entries![0]).toMatchObject({ image_url: "https://example.com/p.jpg", subtitle: "Lesson 12 of 18" });
+    expect(lessons!.progress).toEqual({ style: "segments", segments: 18 });
+    expect(errors([{ id: "r", type: "progress", progress: { size: 600 }, entries: [{ value: 1 }] }])).toContain("a ring's size must be 40 to 320.");
+    expect(errors([{ id: "r", type: "progress", progress: { ticks: 100 }, entries: [{ value: 1 }] }])).toContain("the tick marks must be 0 to 60.");
+  });
+
+  it("keeps a day's times column, its active card, monospaced dates, and a trip's legs", () => {
+    const [day, trip] = kept([
+      { id: "d", type: "timeline", timeline: { times: true, card: true, mono: true }, entries: [{ title: "Maths", subtitle: "08:00", label: "NOW", value: 40, highlight: true }] },
+      { id: "t", type: "timeline", timeline: { style: "bars" }, entries: [{ title: "Tue 17", subtitle: "SFR 471", icon: "flight" }] },
+    ]);
+    expect(day!.timeline).toEqual({ times: true, mono: true, card: true });
+    expect(day!.entries![0]).toMatchObject({ label: "NOW", value: 40 });
+    expect(trip!.timeline).toEqual({ style: "bars" });
+  });
+
+  it("keeps a hero number's options, bento captions and rows, a card bar's icon", () => {
+    const [hero, grid, sign] = kept([
+      { id: "h", type: "stats", stats: { still: true, start: true }, font: { size: 96, weight: 900 }, entries: [{ value: 6, suffix: " min" }] },
+      { id: "b", type: "bento", bento: { caption: "glass", row: 96 }, columns: 3, entries: [{ title: "Grill", size: "full", subtitle: "EGP 240" }] },
+      { id: "c", type: "cta_bar", cta: { style: "card", lead: "draw" }, title: "Sign: Science museum trip\nNext Thursday", text: "Sign" },
+    ]);
+    expect(hero!.stats).toEqual({ still: true, start: true });
+    expect(hero!.font).toMatchObject({ size: 96 });
+    expect(grid!.bento).toEqual({ caption: "glass", row: 96 });
+    expect(grid!.entries![0]!.size).toBe("full");
+    expect(sign!.cta).toEqual({ style: "card", lead: "draw" });
+    expect(sign!.title).toBe("Sign: Science museum trip\nNext Thursday");
+    expect(errors([{ id: "b", type: "bento", bento: { caption: "neon" }, entries: [{ title: "x" }] }])).toContain("choose how the tiles' words sit.");
+  });
+
+  it("keeps a ticket's perforation and a texture on any layout, bounded", () => {
+    const [pass] = kept([{ id: "p", type: "column", surface: { ticket: { at: 58, axis: "vertical", notch: 12 }, pattern: "grain", pattern_strength: 0.12 }, children: [] }]);
+    expect(pass!.surface).toEqual({ ticket: { at: 58, axis: "vertical", notch: 12 }, pattern: "grain", pattern_strength: 0.12 });
+    expect(errors([{ id: "p", type: "column", surface: { ticket: { at: 100 } }, children: [] }])).toContain("a ticket needs where its perforation is");
+    expect(errors([{ id: "p", type: "column", surface: { pattern: "plaid" }, children: [] }])).toContain("choose the texture.");
+  });
+
+  it("draws a ring's ticks and knob around its photo, segments, a ticket's notches and line, and a texture", () => {
+    const html = draw([
+      { id: "r", type: "progress", progress: { style: "rings", size: 226, ticks: 18, knob: true }, entries: [{ value: 61, image_url: "https://example.com/p.jpg", subtitle: "Lesson 12 of 18" }] },
+      { id: "s", type: "progress", progress: { style: "segments", segments: 18 }, entries: [{ value: 61 }] },
+      { id: "p", type: "column", surface: { ticket: { at: 58 }, pattern: "dots" }, children: [] },
+      { id: "t", type: "timeline", timeline: { times: true, card: true, mono: true }, entries: [{ title: "Maths", subtitle: "08:00", label: "NOW", value: 40, highlight: true }] },
+      { id: "c", type: "cta_bar", cta: { style: "card", lead: "draw" }, title: "Sign\nNext Thursday", text: "Sign" },
+    ]);
+    expect(html.match(/<line /g)).toHaveLength(18);
+    expect(html).toContain("data-studio-progress-knob");
+    expect(html).toContain("Lesson 12 of 18");
+    expect(html).toContain('data-studio-progress="segments"');
+    expect(html).toContain('data-studio-ticket="horizontal"');
+    expect(html).toContain("radial-gradient(circle at 0 58%");
+    expect(html).toContain('data-studio-pattern="dots"');
+    expect(html).toContain("data-studio-step-card");
+    expect(html).toContain("JetBrains Mono");
+    expect(html).toContain('data-studio-cta="card"');
+  });
+
+  it("draws the small dock: icons only, the open one a filled circle", () => {
+    const page: StudioPage = { body: { id: "root", type: "column", children: [] } };
+    const tabs = [
+      { id: "home", label: "Home", icon: "home", target: { type: "page" as const, page_slug: "home" } },
+      { id: "me", label: "Account", icon: "person", target: { type: "screen" as const, screen: "account" as const } },
+    ];
+    const html = renderToStaticMarkup(createElement(StudioView, { page, lang: "en", defaultLang: "en", dark: false, look: { ...LOOK, tabs, activeTab: "home", tabBar: { design: "dock" } }, pickable: { items: {}, categories: {} }, words: WORDS }));
+    expect(html).toContain('data-studio-tab-bar-design="dock"');
+    expect(html.match(/data-studio-tab-design="dock"/g)).toHaveLength(2);
+    expect(html).not.toContain("data-studio-tab-name");
   });
 });

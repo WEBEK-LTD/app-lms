@@ -20,6 +20,8 @@ import {
   STUDIO_STATS_STYLES,
   STUDIO_TESTIMONIAL_STYLES,
   STUDIO_TIMELINE_STYLES,
+  STUDIO_BENTO_CAPTIONS,
+  STUDIO_PATTERNS,
   type Action,
   type LanguageCode,
   type StudioEntry,
@@ -126,9 +128,10 @@ const ENTRY_FIELDS: Record<string, { texts: { field: EntryField; key: string; ro
   testimonials: { texts: [{ field: "text", key: "pm_quote", rows: 3 }, { field: "title", key: "pm_personName" }, { field: "subtitle", key: "pm_personRole" }], value: { key: "pm_stars", min: 0, max: 5, step: 1, unit: "★" }, picture: "pm_photo" },
   pricing: { texts: [{ field: "title", key: "pm_planName" }, { field: "text", key: "pm_features", rows: 4 }, { field: "label", key: "pm_buttonWords" }], prices: true, highlight: "pm_popular", action: true },
   stats: { texts: [{ field: "title", key: "pm_label" }, { field: "prefix", key: "pm_prefix" }, { field: "suffix", key: "pm_suffix" }], value: { key: "pm_number", min: -1e9, max: 1e9, step: 1 }, icon: true, highlight: "pm_accentNumber", color: true },
-  progress: { texts: [{ field: "title", key: "pm_label" }], value: { key: "pm_share", min: 0, max: 100, step: 1, unit: "%" }, color: true },
-  timeline: { texts: [{ field: "subtitle", key: "pm_date" }, { field: "title", key: "pm_stepTitle" }, { field: "text", key: "pm_stepText", rows: 2 }], icon: true, highlight: "pm_activeStep" },
-  bento: { texts: [{ field: "title", key: "pm_tileTitle" }, { field: "text", key: "pm_tileText", rows: 2 }, { field: "label", key: "pm_linkWords" }], picture: "pm_tilePhoto", icon: true, size: true, gradient: true, color: true, action: true },
+  // 129 A ring's photo, icon and chip; a step's chip and share on its card; a tile's chip.
+  progress: { texts: [{ field: "title", key: "pm_label" }, { field: "subtitle", key: "pm_ringChip" }], value: { key: "pm_share", min: 0, max: 100, step: 1, unit: "%" }, picture: "pm_ringPhoto", icon: true, gradient: true, color: true },
+  timeline: { texts: [{ field: "subtitle", key: "pm_date" }, { field: "title", key: "pm_stepTitle" }, { field: "text", key: "pm_stepText", rows: 2 }, { field: "label", key: "pm_stepChip" }], value: { key: "pm_stepShare", min: 0, max: 100, step: 1, unit: "%" }, icon: true, highlight: "pm_activeStep" },
+  bento: { texts: [{ field: "title", key: "pm_tileTitle" }, { field: "text", key: "pm_tileText", rows: 2 }, { field: "subtitle", key: "pm_tileChip" }, { field: "label", key: "pm_linkWords" }], picture: "pm_tilePhoto", icon: true, size: true, gradient: true, color: true, action: true },
 };
 
 /** A new entry of the element's kind, as its first one was. */
@@ -275,7 +278,7 @@ function PriceIn({ label, cents, onChange }: { label: string; cents: number | nu
 }
 
 /** The element's own title or text in the language being edited. */
-function OwnText({ node, onChange, lang, defaultLang, field, label, max }: Props & { field: "title" | "text"; label: string; max: number }) {
+function OwnText({ node, onChange, lang, defaultLang, field, label, max, rows }: Props & { field: "title" | "text"; label: string; max: number; rows?: number }) {
   const other = lang !== defaultLang;
   const value = other ? ((node.translations?.[lang]?.[field] as string | undefined) ?? "") : (node[field] ?? "");
   return (
@@ -283,6 +286,7 @@ function OwnText({ node, onChange, lang, defaultLang, field, label, max }: Props
       label={label}
       value={value}
       max={max}
+      rows={rows}
       hint={other ? (node[field] ?? "") : undefined}
       onChange={(v) => onChange(other ? { translations: { ...node.translations, [lang]: { ...node.translations?.[lang], [field]: v } } } : { [field]: v || null })}
     />
@@ -329,8 +333,10 @@ export function PremiumControls(props: Props) {
         <div className="flex flex-col gap-2">
           <Choice label={t("studio.pm_look")} value={node.stats?.style ?? "plain"} options={styles("pm_stats", STUDIO_STATS_STYLES)} onChange={(style) => onChange({ stats: { ...node.stats, style: style === "plain" ? undefined : style } })} />
           <Toggle label={t("studio.pm_dividers")} checked={node.stats?.dividers === true} onChange={(dividers) => onChange({ stats: { ...node.stats, dividers: dividers || undefined } })} />
+          <Toggle label={t("studio.pm_still")} checked={node.stats?.still === true} onChange={(still) => onChange({ stats: { ...node.stats, still: still || undefined } })} />
+          <Toggle label={t("studio.pm_statsStart")} checked={node.stats?.start === true} onChange={(start) => onChange({ stats: { ...node.stats, start: start || undefined } })} />
           <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
-            {t("studio.pm_countHint")}
+            {t("studio.pm_countHint")} {t("studio.pm_statsFontHint")}
           </span>
           <EntriesEditor {...props} />
         </div>
@@ -338,14 +344,30 @@ export function PremiumControls(props: Props) {
     case "progress":
       return (
         <div className="flex flex-col gap-2">
-          <Choice label={t("studio.pm_look")} value={node.progress?.style ?? "bars"} options={styles("pm_progress", STUDIO_PROGRESS_STYLES)} onChange={(style) => onChange({ progress: style === "bars" ? undefined : { style } })} />
+          <Choice label={t("studio.pm_look")} value={node.progress?.style ?? "bars"} options={styles("pm_progress", STUDIO_PROGRESS_STYLES)} onChange={(style) => onChange({ progress: { ...node.progress, style: style === "bars" ? undefined : style } })} />
+          {node.progress?.style === "rings" ? (
+            <>
+              <RangeField label={t("studio.pm_ringSize")} value={node.progress.size ?? 76} min={40} max={320} step={2} unit="px" fallback={76} onChange={(size) => onChange({ progress: { ...node.progress, size: size === 76 ? undefined : size } })} />
+              <RangeField label={t("studio.pm_ticks")} value={node.progress.ticks ?? 0} min={0} max={60} unit="" fallback={0} onChange={(ticks) => onChange({ progress: { ...node.progress, ticks: ticks || undefined } })} />
+              <Toggle label={t("studio.pm_knob")} checked={node.progress.knob === true} onChange={(knob) => onChange({ progress: { ...node.progress, knob: knob || undefined } })} />
+            </>
+          ) : null}
+          {node.progress?.style === "segments" ? <RangeField label={t("studio.pm_segments")} value={node.progress.segments ?? 4} min={2} max={40} unit="" fallback={4} onChange={(segments) => onChange({ progress: { ...node.progress, segments: segments === 4 ? undefined : segments } })} /> : null}
+          <RangeField label={t("studio.pm_stroke")} value={node.progress?.stroke ?? (node.progress?.style === "segments" ? 4 : node.progress?.style === "rings" ? 8 : 10)} min={2} max={24} unit="px" onChange={(stroke) => onChange({ progress: { ...node.progress, stroke } })} />
           <EntriesEditor {...props} />
         </div>
       );
     case "timeline":
       return (
         <div className="flex flex-col gap-2">
-          <Choice label={t("studio.pm_direction")} value={node.timeline?.style ?? "vertical"} options={styles("pm_timeline", STUDIO_TIMELINE_STYLES)} onChange={(style) => onChange({ timeline: style === "vertical" ? undefined : { style } })} />
+          <Choice label={t("studio.pm_direction")} value={node.timeline?.style ?? "vertical"} options={styles("pm_timeline", STUDIO_TIMELINE_STYLES)} onChange={(style) => onChange({ timeline: { ...node.timeline, style: style === "vertical" ? undefined : style } })} />
+          {(node.timeline?.style ?? "vertical") === "vertical" ? (
+            <>
+              <Toggle label={t("studio.pm_times")} checked={node.timeline?.times === true} onChange={(times) => onChange({ timeline: { ...node.timeline, times: times || undefined } })} />
+              <Toggle label={t("studio.pm_activeCard")} checked={node.timeline?.card === true} onChange={(card) => onChange({ timeline: { ...node.timeline, card: card || undefined } })} />
+            </>
+          ) : null}
+          <Toggle label={t("studio.pm_mono")} checked={node.timeline?.mono === true} onChange={(mono) => onChange({ timeline: { ...node.timeline, mono: mono || undefined } })} />
           <EntriesEditor {...props} />
         </div>
       );
@@ -353,6 +375,8 @@ export function PremiumControls(props: Props) {
       return (
         <div className="flex flex-col gap-2">
           <RangeField label={t("studio.columns")} value={node.columns ?? 2} min={1} max={4} unit="" fallback={2} onChange={(columns) => onChange({ columns })} />
+          <RangeField label={t("studio.pm_rowHeight")} value={node.bento?.row ?? 112} min={60} max={240} step={4} unit="px" fallback={112} onChange={(row) => onChange({ bento: { ...node.bento, row: row === 112 ? undefined : row } })} />
+          <Choice label={t("studio.pm_caption")} value={node.bento?.caption ?? "plain"} options={styles("pm_caption", STUDIO_BENTO_CAPTIONS)} onChange={(caption) => onChange({ bento: { ...node.bento, caption: caption === "plain" ? undefined : caption } })} />
           <EntriesEditor {...props} />
         </div>
       );
@@ -409,8 +433,16 @@ export function PremiumControls(props: Props) {
     case "cta_bar":
       return (
         <div className="flex flex-col gap-2">
-          <Choice label={t("studio.pm_look")} value={node.cta?.style ?? "bar"} options={styles("pm_cta", STUDIO_CTA_STYLES)} onChange={(style) => onChange({ cta: { style } })} />
-          {node.cta?.style !== "fab" ? <OwnText {...props} field="title" label={t("studio.pm_ctaLabel")} max={120} /> : null}
+          <Choice label={t("studio.pm_look")} value={node.cta?.style ?? "bar"} options={styles("pm_cta", STUDIO_CTA_STYLES)} onChange={(style) => onChange({ cta: { ...node.cta, style } })} />
+          {node.cta?.style !== "fab" ? (
+            <>
+              <OwnText {...props} field="title" label={t("studio.pm_ctaLabel")} max={120} rows={2} />
+              <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
+                {t("studio.pm_ctaLabelHint")}
+              </span>
+              <IconPicker id={`lead-${node.id}`} label={t("studio.pm_ctaLead")} value={node.cta?.lead ?? null} optional onChange={(lead) => onChange({ cta: { style: node.cta?.style ?? "bar", lead: lead ?? undefined } })} />
+            </>
+          ) : null}
           <OwnText {...props} field="text" label={t("studio.pm_buttonWords")} max={200} />
           <IconPicker id={`icon-${node.id}`} label={t("studio.icon")} value={node.icon ?? null} optional={node.cta?.style !== "fab"} onChange={(icon) => onChange({ icon: icon ?? undefined })} />
           <Toggle label={t("studio.pm_ctaPinned")} checked={node.pin === "bottom"} onChange={(on) => onChange({ pin: on ? "bottom" : undefined })} />
@@ -454,6 +486,17 @@ export function SurfaceControls({ node, onChange }: { node: StudioNode; onChange
         ) : null}
         <ColorIn label={t("studio.pm_glow")} value={s.glow} onChange={(glow) => set({ glow })} />
         <Choice label={t("studio.pm_soft")} value={String(s.soft ?? 0)} options={["0", "1", "2", "3"].map((v) => ({ value: v, label: v === "0" ? t("studio.none") : `${t("studio.pm_level")} ${v}` }))} onChange={(v) => set({ soft: v === "0" ? undefined : (Number(v) as 1 | 2 | 3) })} />
+        {/* 129 A ticket's perforation, and a texture. */}
+        <Toggle label={t("studio.pm_ticket")} checked={!!s.ticket} onChange={(on) => set({ ticket: on ? { at: 60 } : undefined })} />
+        {s.ticket ? (
+          <>
+            <RangeField label={t("studio.pm_ticketAt")} value={s.ticket.at} min={5} max={95} unit="%" onChange={(at) => set({ ticket: { ...s.ticket!, at } })} />
+            <RangeField label={t("studio.pm_notch")} value={s.ticket.notch ?? 10} min={4} max={24} unit="px" fallback={10} onChange={(notch) => set({ ticket: { ...s.ticket!, notch: notch === 10 ? undefined : notch } })} />
+            <Toggle label={t("studio.pm_ticketDown")} checked={s.ticket.axis === "vertical"} onChange={(down) => set({ ticket: { ...s.ticket!, axis: down ? "vertical" : undefined } })} />
+          </>
+        ) : null}
+        <Choice label={t("studio.pm_pattern")} value={s.pattern ?? "none"} options={(["none", ...STUDIO_PATTERNS] as const).map((v) => ({ value: v, label: t(`studio.pm_pattern_${v}` as DashKey) }))} onChange={(v) => set({ pattern: v === "none" ? undefined : v, pattern_strength: v === "none" ? undefined : s.pattern_strength })} />
+        {s.pattern ? <RangeField label={t("studio.pm_patternStrength")} value={s.pattern_strength ?? 0.08} scale={0.01} min={2} max={40} unit="%" fallback={0.08} onChange={(v) => set({ pattern_strength: v === 0.08 ? undefined : v })} /> : null}
         <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
           {t("studio.pm_cardStyleHint")}
         </span>

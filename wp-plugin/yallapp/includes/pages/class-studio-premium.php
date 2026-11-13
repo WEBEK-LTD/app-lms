@@ -40,10 +40,34 @@ class Studio_Premium {
 	const STYLES = array(
 		'testimonials' => array( 'testimonials', array( 'carousel', 'stacked' ) ),
 		'stats'        => array( 'stats', array( 'plain', 'cards' ) ),
-		'progress'     => array( 'progress', array( 'bars', 'rings' ) ),
-		'timeline'     => array( 'timeline', array( 'vertical', 'horizontal' ) ),
+		'progress'     => array( 'progress', array( 'bars', 'rings', 'segments' ) ),
+		'timeline'     => array( 'timeline', array( 'vertical', 'horizontal', 'bars' ) ),
 		'badge_text'   => array( 'badge', array( 'pill', 'outline', 'gradient', 'glass', 'text' ) ),
-		'cta_bar'      => array( 'cta', array( 'bar', 'fab' ) ),
+		'cta_bar'      => array( 'cta', array( 'bar', 'fab', 'card' ) ),
+		'bento'        => array( 'bento', array( 'plain', 'glass' ), 'caption' ),
+	);
+
+	/**
+	 * 129 Each element's other options: a range for a number, true for a switch.
+	 */
+	const OPTIONS = array(
+		'stats'    => array(
+			'still' => true,
+			'start' => true,
+		),
+		'progress' => array(
+			'size'     => array( 40, 320 ),
+			'stroke'   => array( 2, 24 ),
+			'ticks'    => array( 0, 60 ),
+			'segments' => array( 2, 40 ),
+			'knob'     => true,
+		),
+		'timeline' => array(
+			'times' => true,
+			'mono'  => true,
+			'card'  => true,
+		),
+		'bento'    => array( 'row' => array( 60, 240 ) ),
 	);
 
 	const CURRENCIES = array( 'TRY', 'USD', 'EUR', 'EGP', 'SAR', 'AED' );
@@ -61,14 +85,33 @@ class Studio_Premium {
 	public static function node( array $raw, array $node, $language, callable $action ) {
 		$type = $node['type'];
 		if ( isset( self::STYLES[ $type ] ) ) {
-			list( $field, $styles ) = self::STYLES[ $type ];
-			$style                  = $raw[ $field ]['style'] ?? null;
-			$required               = 'badge_text' === $type || 'cta_bar' === $type;
+			$field    = self::STYLES[ $type ][0];
+			$styles   = self::STYLES[ $type ][1];
+			$key      = self::STYLES[ $type ][2] ?? 'style';
+			$style    = $raw[ $field ][ $key ] ?? null;
+			$required = 'badge_text' === $type || 'cta_bar' === $type;
 			if ( in_array( $style, $styles, true ) && ( $required || $styles[0] !== $style ) ) {
-				$node[ $field ] = array( 'style' => $style );
+				$node[ $field ] = array( $key => $style );
 			} elseif ( $required ) {
-				$node[ $field ] = array( 'style' => $styles[0] );
+				$node[ $field ] = array( $key => $styles[0] );
 			}
+		}
+		// 129 The Signature boards' options: bounded numbers and switches of each element's own.
+		foreach ( self::OPTIONS[ $type ] ?? array() as $option => $range ) {
+			$field = self::STYLES[ $type ][0];
+			$value = $raw[ $field ][ $option ] ?? null;
+			if ( true === $range ) {
+				if ( true === $value ) {
+					$node[ $field ]            = $node[ $field ] ?? array();
+					$node[ $field ][ $option ] = true;
+				}
+			} elseif ( is_numeric( $value ) ) {
+				$node[ $field ]            = $node[ $field ] ?? array();
+				$node[ $field ][ $option ] = (int) round( max( $range[0], min( $range[1], (float) $value ) ) );
+			}
+		}
+		if ( 'cta_bar' === $type && isset( $raw['cta']['lead'] ) && is_string( $raw['cta']['lead'] ) && preg_match( '/^[a-z0-9_]{1,64}$/', $raw['cta']['lead'] ) ) {
+			$node['cta']['lead'] = $raw['cta']['lead'];
 		}
 		switch ( $type ) {
 			case 'testimonials':
@@ -187,7 +230,7 @@ class Studio_Premium {
 			if ( true === ( $entry['highlight'] ?? false ) ) {
 				$item['highlight'] = true;
 			}
-			if ( in_array( $entry['size'] ?? null, array( 'wide', 'tall', 'large' ), true ) ) {
+			if ( in_array( $entry['size'] ?? null, array( 'wide', 'tall', 'large', 'full' ), true ) ) {
 				$item['size'] = $entry['size'];
 			}
 			$from = self::hex( $entry['gradient']['from'] ?? null );
@@ -244,6 +287,18 @@ class Studio_Premium {
 		}
 		if ( in_array( $raw['soft'] ?? null, array( 1, 2, 3 ), true ) ) {
 			$out['soft'] = $raw['soft'];
+		}
+		// 129 A ticket's perforation, and a texture.
+		if ( isset( $raw['ticket']['at'] ) && is_numeric( $raw['ticket']['at'] ) ) {
+			$out['ticket'] = array(
+				'at'    => (int) round( max( 5, min( 95, (float) $raw['ticket']['at'] ) ) ),
+				'axis'  => 'vertical' === ( $raw['ticket']['axis'] ?? null ) ? 'vertical' : 'horizontal',
+				'notch' => isset( $raw['ticket']['notch'] ) && is_numeric( $raw['ticket']['notch'] ) ? (int) round( max( 4, min( 24, (float) $raw['ticket']['notch'] ) ) ) : 10,
+			);
+		}
+		if ( in_array( $raw['pattern'] ?? null, array( 'grain', 'dots', 'grid', 'stripes' ), true ) ) {
+			$out['pattern']          = $raw['pattern'];
+			$out['pattern_strength'] = isset( $raw['pattern_strength'] ) && is_numeric( $raw['pattern_strength'] ) ? round( max( 0.02, min( 0.4, (float) $raw['pattern_strength'] ) ), 2 ) : 0.08;
 		}
 		return $out ? $out : null;
 	}

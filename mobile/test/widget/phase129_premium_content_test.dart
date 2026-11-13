@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yallapp/core/api/models/models.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/modules/shared/pages/premium/premium_bento.dart';
+import 'package:yallapp/modules/shared/pages/premium/premium_progress.dart';
 import 'package:yallapp/modules/shared/pages/premium/premium_surface.dart';
 
 import '../support/fake_api.dart';
@@ -18,30 +19,36 @@ import '../support/test_app.dart';
 /// its cover; the bento grid's places; glass over a photo; a call-to-action
 /// bar above the tabs; and a page without them drawn as before.
 void main() {
-  FakeApi api(List<Map<String, dynamic>> children, {bool arabic = false}) =>
-      FakeApi(config: configJson(languages: languagesJson()))
-        ..navigation = navigationJson(
-          tabs: [
-            navTabJson('home', 'Home', 'home', {
-              'type': 'page',
-              'page_slug': 'home',
-            }),
-            navTabJson('account', 'Account', 'person', {
-              'type': 'screen',
-              'screen': 'account',
-            }),
-          ],
-        )
-        ..pages = {
-          'home': {
-            ...appPageJson(blocks: [], showTitle: false),
-            'studio': {
-              'background': '#F6F3EE',
-              'dark_background': '#0E0D1A',
-              'body': {'id': 'root', 'type': 'column', 'children': children},
-            },
-          },
-        };
+  FakeApi api(
+    List<Map<String, dynamic>> children, {
+    bool arabic = false,
+    Map<String, dynamic>? tabBar,
+  }) => FakeApi(config: configJson(languages: languagesJson()))
+    ..navigation = {
+      ...navigationJson(
+        tabs: [
+          navTabJson('home', 'Home', 'home', {
+            'type': 'page',
+            'page_slug': 'home',
+          }),
+          navTabJson('account', 'Account', 'person', {
+            'type': 'screen',
+            'screen': 'account',
+          }),
+        ],
+      ),
+      'tab_bar': ?tabBar,
+    }
+    ..pages = {
+      'home': {
+        ...appPageJson(blocks: [], showTitle: false),
+        'studio': {
+          'background': '#F6F3EE',
+          'dark_background': '#0E0D1A',
+          'body': {'id': 'root', 'type': 'column', 'children': children},
+        },
+      },
+    };
 
   Future<TestApp> open(
     WidgetTester tester,
@@ -213,7 +220,10 @@ void main() {
     );
     expect(find.bySemanticsLabel(RegExp(r'12,500\+')), findsOneWidget);
     final bar = tester.widget<FractionallySizedBox>(
-      find.byKey(const ValueKey('premium-bar-bars-0')),
+      find.descendant(
+        of: find.byKey(const ValueKey('premium-bar-bars-0')),
+        matching: find.byType(FractionallySizedBox),
+      ),
     );
     expect(bar.widthFactor, closeTo(0.86, 0.001));
     expect(find.bySemanticsLabel(RegExp('Arabic: 86 percent')), findsOneWidget);
@@ -238,7 +248,10 @@ void main() {
     expect(
       tester
           .widget<FractionallySizedBox>(
-            find.byKey(const ValueKey('premium-bar-bars-1')),
+            find.descendant(
+              of: find.byKey(const ValueKey('premium-bar-bars-1')),
+              matching: find.byType(FractionallySizedBox),
+            ),
           )
           .widthFactor,
       closeTo(0.72, 0.001),
@@ -249,9 +262,8 @@ void main() {
     tester,
   ) async {
     await open(tester, api(premiumChildren('timeline')));
-    expect(find.text('On the way'), findsNWidgets(2));
     expect(
-      find.bySemanticsLabel(RegExp('Step 3 of 4, Current step')),
+      find.bySemanticsLabel(RegExp('Step 2 of 4, Current step')),
       findsOneWidget,
     );
     final down = tester.getRect(
@@ -261,13 +273,36 @@ void main() {
       find.byKey(const ValueKey('premium-step-down-1')),
     );
     expect(next.top, greaterThan(down.bottom));
-    final across0 = tester.getRect(
-      find.byKey(const ValueKey('premium-step-across-0')),
+    // 129 The times in a column at the start, monospaced; the class now a
+    // card with its chip and its bar.
+    final time = tester.getRect(find.text('07:42'));
+    expect(time.right, lessThanOrEqualTo(down.left));
+    expect(
+      tester.widget<Text>(find.text('07:42')).style?.fontFamily,
+      'JetBrains Mono',
     );
-    final across1 = tester.getRect(
-      find.byKey(const ValueKey('premium-step-across-1')),
+    final card = find.byKey(const ValueKey('premium-step-card-down'));
+    expect(
+      find.descendant(of: card, matching: find.text('NOW')),
+      findsOneWidget,
     );
-    expect(across1.left, greaterThan(across0.right));
+    expect(
+      tester
+          .widget<LinearProgressIndicator>(
+            find.byKey(const ValueKey('premium-step-bar-down')),
+          )
+          .value,
+      closeTo(0.4, 0.001),
+    );
+    // A trip's legs: a bar over each, the first done.
+    final leg0 = tester.getRect(
+      find.byKey(const ValueKey('premium-leg-across-0')),
+    );
+    final leg1 = tester.getRect(
+      find.byKey(const ValueKey('premium-leg-across-1')),
+    );
+    expect(leg1.left, greaterThan(leg0.right));
+    expect(find.text('SFR 471'), findsOneWidget);
   });
 
   testWidgets('steps across run from the right in Arabic', (tester) async {
@@ -277,12 +312,68 @@ void main() {
       language: 'ar',
     );
     final first = tester.getRect(
-      find.byKey(const ValueKey('premium-step-across-0')),
+      find.byKey(const ValueKey('premium-leg-across-0')),
     );
     final second = tester.getRect(
-      find.byKey(const ValueKey('premium-step-across-1')),
+      find.byKey(const ValueKey('premium-leg-across-1')),
     );
     expect(second.right, lessThan(first.left));
+    // The times' column at the start: on the right.
+    final time = tester.getRect(find.text('07:42'));
+    final dot = tester.getRect(
+      find.byKey(const ValueKey('premium-step-down-0')),
+    );
+    expect(time.left, greaterThanOrEqualTo(dot.right));
+  });
+
+  testWidgets('a gold ring around a photo: its ticks, knob and chip', (
+    tester,
+  ) async {
+    await open(tester, api(premiumChildren('progress')));
+    final ring = tester.widget<CustomPaint>(
+      find.byKey(const ValueKey('premium-ring-hero-0')),
+    );
+    final painter = ring.painter! as PremiumRingPainter;
+    expect(painter.ticks, 18);
+    expect(painter.knob, isNotNull);
+    expect(painter.share, closeTo(0.61, 0.001));
+    expect(
+      tester.getSize(find.byKey(const ValueKey('premium-ring-hero-0'))).width,
+      226,
+    );
+    expect(find.text('Lesson 12 of 18'), findsOneWidget);
+    // 18 segments, 11 of them full.
+    final segments = find.descendant(
+      of: find.byKey(const ValueKey('premium-segments-lessons-0')),
+      matching: find.byType(FractionallySizedBox),
+    );
+    expect(segments, findsNWidgets(18));
+    final shares = tester
+        .widgetList<FractionallySizedBox>(segments)
+        .map((f) => f.widthFactor!)
+        .toList();
+    expect(shares.where((s) => s == 1).length, 10);
+    expect(shares[10], greaterThan(0));
+    expect(shares[11], 0);
+  });
+
+  testWidgets('a hero number at its font, its words small beside it', (
+    tester,
+  ) async {
+    await open(tester, api(premiumChildren('stats')));
+    final hero = tester.widget<Text>(
+      find.byKey(const ValueKey('premium-stat-hero-0')),
+    );
+    final span = hero.textSpan! as TextSpan;
+    expect(hero.style?.fontSize, 72);
+    expect(span.toPlainText(), '6 min');
+    final suffix = (span.children!.last as TextSpan).style!;
+    expect(suffix.fontSize, lessThan(30));
+    // At the start of the page (16 and its 6 inside), not centred.
+    expect(
+      tester.getRect(find.byKey(const ValueKey('premium-stat-hero-0'))).left,
+      closeTo(22, 1),
+    );
   });
 
   testWidgets(
@@ -336,11 +427,18 @@ void main() {
     final small = tester.getRect(
       find.byKey(const ValueKey('premium-tile-grid-1')),
     );
+    final full = tester.getRect(
+      find.byKey(const ValueKey('premium-tile-grid-3')),
+    );
+    // 129 The large tile two by two of three columns, the
+    // next beside it; the last across all.
     expect(large.height, closeTo(2 * 112 + 10, 0.5));
-    // Two columns: the large tile across both, the next under it.
-    expect(large.width, closeTo(328, 0.5));
-    expect(small.top, closeTo(large.bottom + 10, 0.5));
-    expect(find.text('Shop now'), findsOneWidget);
+    expect(small.left, greaterThan(large.right));
+    expect(full.width, closeTo(328, 0.5));
+    expect(full.top, greaterThan(large.bottom));
+    expect(find.text('Zad Club · free over EGP 150'), findsOneWidget);
+    // Their words on frosted glass.
+    expect(find.byType(BackdropFilter), findsNWidgets(4));
   });
 
   testWidgets('glass over a photo, a gradient border with a glow', (
@@ -349,7 +447,19 @@ void main() {
     await open(tester, api(premiumChildren('glass_card')));
     expect(find.byKey(const ValueKey('premium-glass')), findsOneWidget);
     expect(find.byType(BackdropFilter), findsOneWidget);
-    expect(find.byType(PremiumSurface), findsNWidgets(2));
+    expect(find.byType(PremiumSurface), findsNWidgets(3));
+    // 129 A pass perforated as a ticket, with its grain.
+    final ticket = tester.widget<PhysicalShape>(
+      find.byKey(const ValueKey('premium-ticket')),
+    );
+    final shape = ticket.clipper as PremiumTicketClipper;
+    expect(shape.at, 58);
+    final pass = tester.getSize(find.byKey(const ValueKey('premium-ticket')));
+    final path = shape.getClip(pass);
+    // The notch at the start edge is cut out; inside the card is not.
+    expect(path.contains(Offset(2, pass.height * 0.58)), isFalse);
+    expect(path.contains(Offset(40, pass.height * 0.58)), isTrue);
+    expect(find.byKey(const ValueKey('premium-pattern-grain')), findsOneWidget);
   });
 
   testWidgets('gradient words and badges', (tester) async {
@@ -375,6 +485,49 @@ void main() {
       expect(fab.right, greaterThan(bar.center.dx));
       expect(find.text('₺450'), findsOneWidget);
       expect(find.text('Order now'), findsOneWidget);
+    },
+  );
+
+  testWidgets('a floating card with its icon tile and its two lines', (
+    tester,
+  ) async {
+    await open(tester, api(premiumChildren('cta_bar')));
+    final card = find.byKey(const ValueKey('premium-cta-sign'));
+    expect(
+      find.descendant(
+        of: card,
+        matching: find.byKey(const ValueKey('premium-cta-lead-sign')),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Sign: Science museum trip'), findsOneWidget);
+    expect(find.text('Next Thursday, 9:00–13:00 · E£350'), findsOneWidget);
+    // In from the page's edges: the tile 16, its border and 14 in.
+    expect(
+      tester.getRect(find.byKey(const ValueKey('premium-cta-lead-sign'))).left,
+      closeTo(31, 0.5),
+    );
+  });
+
+  testWidgets(
+    'the small dock: icons only, in the middle, as wide as they are',
+    (tester) async {
+      await open(
+        tester,
+        api(
+          [
+            {'id': 't', 'type': 'text', 'text': 'Docked'},
+          ],
+          tabBar: {'design': 'dock', 'active': '#E6C26E'},
+        ),
+      );
+      final dock = tester.getRect(find.byKey(const ValueKey('nav-dock')));
+      final open0 = tester.getRect(find.byKey(const ValueKey('nav-0-dock')));
+      expect(open0.width, 46);
+      expect(open0.center.dx, lessThan(180));
+      expect(dock.center.dx, closeTo(180, 1));
+      // No names under the icons.
+      expect(find.text('Home'), findsNothing);
     },
   );
 

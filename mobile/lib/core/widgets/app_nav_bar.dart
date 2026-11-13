@@ -135,6 +135,10 @@ class AppNavBar extends StatelessWidget {
       case TabBarDesign.float:
         if (margin == 0) margin = 12;
         if (radius == 0) radius = 22;
+      // 129 The small dock: a capsule in the middle.
+      case TabBarDesign.dock:
+        if (margin == 0) margin = 12;
+        radius = 999;
       default:
         break;
     }
@@ -216,6 +220,7 @@ class AppNavBar extends StatelessWidget {
         const EdgeInsets.fromLTRB(10, 11, 10, 11),
         null,
       ),
+      TabBarDesign.dock => (62.0, const EdgeInsets.all(8), null),
       TabBarDesign.folder => (
         76.0,
         const EdgeInsets.fromLTRB(8, 14, 8, 10),
@@ -232,6 +237,18 @@ class AppNavBar extends StatelessWidget {
             // pill gets twice the room, so its label fits
             // ("Membership"); a tablet's tabs are wide enough.
             final widen = _wide && box.maxWidth / destinations.length < 110;
+            // 129 The dock: each tab a round button, as wide as they are.
+            if (design == TabBarDesign.dock) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < destinations.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 6),
+                    SizedBox(width: 46, child: _item(context, i)),
+                  ],
+                ],
+              );
+            }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -299,6 +316,13 @@ class AppNavBar extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: bar,
         ),
+      );
+    }
+    if (design == TabBarDesign.dock) {
+      bar = Center(
+        key: const ValueKey('nav-dock'),
+        heightFactor: 1,
+        child: bar,
       );
     }
     if (design == TabBarDesign.island) {
@@ -540,6 +564,27 @@ class AppNavBar extends StatelessWidget {
                   ),
                 )
               : Center(child: icon(24, other));
+        // 129 The dock: icons only, the open tab a filled circle.
+        case TabBarDesign.dock:
+          content = Center(
+            child: selected
+                ? Container(
+                    key: mark,
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: tone,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: icon(
+                      22,
+                      active == null ? p.onPrimary : onFill(active),
+                      filled: true,
+                    ),
+                  )
+                : icon(22, quiet),
+          );
         case TabBarDesign.dot:
         case TabBarDesign.line:
           // 119 A dot under the open tab's icon, or a line over the open tab.

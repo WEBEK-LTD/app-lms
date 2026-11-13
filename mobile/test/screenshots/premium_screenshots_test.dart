@@ -31,22 +31,33 @@ const _ratio = 2.0;
 
 FakeApi _api(String element, {required bool arabic}) =>
     FakeApi(config: configJson(languages: languagesJson()))
-      ..navigation = navigationJson(
-        tabs: [
-          navTabJson('home', arabic ? 'الرئيسية' : 'Home', 'home', {
-            'type': 'page',
-            'page_slug': 'home',
-          }),
-          navTabJson('search', arabic ? 'بحث' : 'Search', 'search', {
-            'type': 'screen',
-            'screen': 'search',
-          }),
-          navTabJson('account', arabic ? 'حسابي' : 'Account', 'person', {
-            'type': 'screen',
-            'screen': 'account',
-          }),
-        ],
-      )
+      ..navigation = {
+        ...navigationJson(
+          tabs: [
+            navTabJson('home', arabic ? 'الرئيسية' : 'Home', 'home', {
+              'type': 'page',
+              'page_slug': 'home',
+            }),
+            navTabJson('search', arabic ? 'بحث' : 'Search', 'search', {
+              'type': 'screen',
+              'screen': 'search',
+            }),
+            navTabJson('account', arabic ? 'حسابي' : 'Account', 'person', {
+              'type': 'screen',
+              'screen': 'account',
+            }),
+          ],
+        ),
+        // 129 The progress page under the small dock (the gold ring's board).
+        if (element == 'progress')
+          'tab_bar': {
+            'design': 'dock',
+            'active': '#B8862F',
+            'dark_active': '#E6C26E',
+            'background': '#FFFFFF',
+            'dark_background': '#1D1B2C',
+          },
+      }
       ..pages = {'home': premiumPage(element, arabic: arabic)};
 
 /// Yallapp's photos the pages show, in the image cache at their addresses.

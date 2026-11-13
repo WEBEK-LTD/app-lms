@@ -96,33 +96,71 @@ class PremiumCtaBar extends ConsumerWidget {
       );
     }
     final radius = Radius.circular(node.radius > 0 ? node.radius : 22);
+    // 129 A floating card instead of a bar; the label's first line its
+    // title, the others under it; an icon on a soft tile at the start.
+    final card = node.premium?.ctaCard ?? false;
+    final lines = label.split('\n');
+    final lead = node.premium?.lead;
     return Container(
       key: ValueKey('premium-cta-${node.id}'),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      margin: card ? const EdgeInsets.fromLTRB(16, 8, 16, 12) : null,
+      padding: card
+          ? const EdgeInsets.all(14)
+          : const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
         color: tones.card,
-        borderRadius: BorderRadius.only(topLeft: radius, topRight: radius),
-        border: Border(top: BorderSide(color: tones.edge)),
-        boxShadow: const [
+        borderRadius: card
+            ? BorderRadius.all(radius)
+            : BorderRadius.only(topLeft: radius, topRight: radius),
+        border: card
+            ? Border.all(color: tones.edge)
+            : Border(top: BorderSide(color: tones.edge)),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x1A0E0D24),
-            blurRadius: 28,
-            offset: Offset(0, -10),
+            color: card ? const Color(0x240E0D24) : const Color(0x1A0E0D24),
+            blurRadius: card ? 32 : 28,
+            offset: Offset(0, card ? 14 : -10),
           ),
         ],
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: ink,
+          if (lead != null) ...[
+            Container(
+              key: ValueKey('premium-cta-lead-${node.id}'),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: tones.brand.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
               ),
+              child: Icon(symbolByName(lead), size: 24, color: tones.brand),
+            ),
+            const SizedBox(width: 12),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  lines.first,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: lines.length > 1 ? 16 : 18,
+                    fontWeight: FontWeight.w900,
+                    color: ink,
+                  ),
+                ),
+                if (lines.length > 1)
+                  Text(
+                    lines.skip(1).join(' '),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, color: tones.muted),
+                  ),
+              ],
             ),
           ),
           const SizedBox(width: 12),

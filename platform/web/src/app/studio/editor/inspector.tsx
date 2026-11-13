@@ -1630,6 +1630,9 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
         return <span key={key} style={{ position: "relative" }}>{open ? <span style={{ position: "absolute", top: -9, left: -3, width: 15, height: 5, borderRadius: "0 0 6px 6px", background: brand }} /> : null}{col(<>{box(open)}{name(open)}</>)}</span>;
       case "glow":
         return <span key={key}>{col(<><span style={{ width: 9, height: 9, borderRadius: 3, background: open ? brand : grey, boxShadow: open ? `0 0 6px ${brand}` : undefined }} />{name(open)}</>)}</span>;
+      // 129 The dock: icons only, the open one a filled circle.
+      case "dock":
+        return open ? <span key={key} style={{ width: 14, height: 14, borderRadius: "50%", background: brand }} /> : <span key={key} style={{ width: 8, height: 8, borderRadius: 3, background: grey }} />;
       case "colours": {
         const c = ["#1F6F5C", "#B26A00", "#2F4FB5"][key] ?? brand;
         return <span key={key} style={{ width: 13, height: 13, borderRadius: "50%", background: `${c}26`, border: open ? `1.5px solid ${c}` : "1.5px solid transparent", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ width: 5, height: 5, borderRadius: 2, background: c }} /></span>;
@@ -1641,6 +1644,8 @@ function TabDesignSample({ design, brand }: { design: TabBarDesign | undefined; 
   const track: CSSProperties =
     design === "island"
       ? { margin: "0 14px", borderRadius: 999, background: "#121614" }
+      : design === "dock"
+        ? { margin: "0 22px", borderRadius: 999, background: "#FFFFFF", boxShadow: "0 3px 8px rgba(0,0,0,.18)" }
       : design === "float"
         ? { margin: "0 4px", borderRadius: 9, background: "#2A1810", boxShadow: "0 3px 8px rgba(0,0,0,.18)" }
       : design === "segment"

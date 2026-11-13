@@ -137,6 +137,9 @@ import {
   STUDIO_STATS_STYLES,
   STUDIO_TESTIMONIAL_STYLES,
   STUDIO_TIMELINE_STYLES,
+  STUDIO_BENTO_CAPTIONS,
+  STUDIO_PATTERNS,
+  STUDIO_TICKET_AXES,
   type StudioEntry,
   type StudioSurface,
 } from "./types";
@@ -2004,23 +2007,60 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
           else if (o.style !== "plain") st.style = o.style;
         }
         if (o.dividers === true) st.dividers = true;
+        if (o.still === true) st.still = true;
+        if (o.start === true) st.start = true;
         if (Object.keys(st).length) out.stats = st;
       }
       break;
     }
     case "progress": {
       const o = optionsOf("progress");
-      if (o?.style !== undefined && o.style !== null) {
-        if (!oneOf(STUDIO_PROGRESS_STYLES, o.style)) bad("choose bars or rings.");
-        else if (o.style !== "bars") out.progress = { style: o.style };
+      if (o) {
+        const pr: NonNullable<StudioNode["progress"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_PROGRESS_STYLES, o.style)) bad("choose bars, rings or segments.");
+          else if (o.style !== "bars") pr.style = o.style;
+        }
+        for (const [key, lo, hi, what] of [
+          ["size", 40, 320, "a ring's size"],
+          ["stroke", 2, 24, "the ring's or bar's thickness"],
+          ["ticks", 0, 60, "the tick marks"],
+          ["segments", 2, 40, "the segments"],
+        ] as const) {
+          const n = studioNumber(o[key], lo, hi);
+          if (n !== undefined && Number.isNaN(n)) bad(`${what} must be ${lo} to ${hi}.`);
+          else if (n) pr[key] = Math.round(n);
+        }
+        if (o.knob === true) pr.knob = true;
+        if (Object.keys(pr).length) out.progress = pr;
       }
       break;
     }
     case "timeline": {
       const o = optionsOf("timeline");
-      if (o?.style !== undefined && o.style !== null) {
-        if (!oneOf(STUDIO_TIMELINE_STYLES, o.style)) bad("choose whether the steps go down or across.");
-        else if (o.style !== "vertical") out.timeline = { style: o.style };
+      if (o) {
+        const tl: NonNullable<StudioNode["timeline"]> = {};
+        if (o.style !== undefined && o.style !== null) {
+          if (!oneOf(STUDIO_TIMELINE_STYLES, o.style)) bad("choose whether the steps go down or across.");
+          else if (o.style !== "vertical") tl.style = o.style;
+        }
+        for (const key of ["times", "mono", "card"] as const) if (o[key] === true) tl[key] = true;
+        if (Object.keys(tl).length) out.timeline = tl;
+      }
+      break;
+    }
+    case "bento": {
+      const o = optionsOf("bento");
+      if (o) {
+        const b: NonNullable<StudioNode["bento"]> = {};
+        if (o.caption !== undefined && o.caption !== null) {
+          if (!oneOf(STUDIO_BENTO_CAPTIONS, o.caption)) bad("choose how the tiles' words sit.");
+          else if (o.caption !== "plain") b.caption = o.caption;
+        }
+        const row = studioNumber(o.row, 60, 240);
+        if (row !== undefined && Number.isNaN(row)) bad("a row's height must be 60 to 240.");
+        else if (row) b.row = Math.round(row);
+        if (Object.keys(b).length) out.bento = b;
       }
       break;
     }
@@ -2064,8 +2104,14 @@ function parsePremium(ctx: Context, where: string, v: Record<string, unknown>, t
     }
     case "cta_bar": {
       const o = optionsOf("cta");
-      if (!o || !oneOf(STUDIO_CTA_STYLES, o.style)) bad("choose a bar or a floating button.");
-      else out.cta = { style: o.style };
+      if (!o || !oneOf(STUDIO_CTA_STYLES, o.style)) bad("choose a bar, a card or a floating button.");
+      else {
+        out.cta = { style: o.style };
+        if (o.lead !== undefined && o.lead !== null && o.lead !== "") {
+          if (!(typeof o.lead === "string" && ICON_NAME.test(o.lead))) bad("choose the icon at its start.");
+          else out.cta.lead = o.lead;
+        }
+      }
       break;
     }
     default:
@@ -2172,6 +2218,26 @@ function parseSurface(c: Checker, where: string, value: unknown, bad: (what: str
   if (s.soft !== undefined && s.soft !== null) {
     if (s.soft !== 1 && s.soft !== 2 && s.soft !== 3) bad("choose a soft shadow of level 1, 2 or 3.");
     else out.soft = s.soft;
+  }
+  // 129 Signature boards: a ticket's perforation, and a texture.
+  if (s.ticket !== undefined && s.ticket !== null) {
+    const t = record(s.ticket);
+    const at = studioNumber(t?.at, 5, 95);
+    const notch = studioNumber(t?.notch, 4, 24);
+    if (!t || at === undefined || Number.isNaN(at) || (notch !== undefined && Number.isNaN(notch)) || (t.axis !== undefined && t.axis !== null && !oneOf(STUDIO_TICKET_AXES, t.axis))) {
+      bad("a ticket needs where its perforation is (5 to 95%), across or down, and notches of 4 to 24.");
+    } else {
+      out.ticket = { at: Math.round(at), ...(t.axis === "vertical" ? { axis: "vertical" as const } : {}), ...(notch !== undefined && notch !== 10 ? { notch: Math.round(notch) } : {}) };
+    }
+  }
+  if (s.pattern !== undefined && s.pattern !== null) {
+    if (!oneOf(STUDIO_PATTERNS, s.pattern)) bad("choose the texture.");
+    else {
+      out.pattern = s.pattern;
+      const strength = typeof s.pattern_strength === "number" && Number.isFinite(s.pattern_strength) && s.pattern_strength >= 0.02 && s.pattern_strength <= 0.4 ? Math.round(s.pattern_strength * 100) / 100 : s.pattern_strength === undefined || s.pattern_strength === null ? undefined : NaN;
+      if (strength !== undefined && Number.isNaN(strength)) bad("the texture's strength must be 2 to 40%.");
+      else if (strength !== undefined && strength !== 0.08) out.pattern_strength = strength;
+    }
   }
   return Object.keys(out).length ? out : null;
 }

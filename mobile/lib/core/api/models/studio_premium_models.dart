@@ -83,9 +83,9 @@ class StudioEntry {
   final PageAction? action;
 }
 
-/// 129.17 How many cells a bento tile takes: one, two across, two down, or
-/// two by two.
-enum StudioTileSize { small, wide, tall, large }
+/// 129.17 How many cells a bento tile takes: one, two across, two down, two
+/// by two, or 129 across every column.
+enum StudioTileSize { small, wide, tall, large, full }
 
 /// 129.19 How a badge looks.
 enum StudioBadgeStyle { pill, outline, gradient, glass, text }
@@ -109,6 +109,22 @@ class StudioPremium {
     this.socials = const [],
     this.badge = StudioBadgeStyle.pill,
     this.fab = false,
+    this.still = false,
+    this.start = false,
+    this.segments = false,
+    this.ringSize = 76,
+    this.stroke,
+    this.ticks = 0,
+    this.knob = false,
+    this.segmentCount = 4,
+    this.bars = false,
+    this.times = false,
+    this.mono = false,
+    this.activeCard = false,
+    this.glassCaptions = false,
+    this.rowHeight = 112,
+    this.ctaCard = false,
+    this.lead,
   });
 
   static StudioPremium? tryParse(Json json) {
@@ -128,9 +144,15 @@ class StudioPremium {
         of('timeline') == null &&
         profile == null &&
         of('badge') == null &&
-        of('cta') == null) {
+        of('cta') == null &&
+        of('bento') == null) {
       return null;
     }
+    final progress = of('progress') ?? const <String, dynamic>{};
+    final timeline = of('timeline') ?? const <String, dynamic>{};
+    final bento = of('bento') ?? const <String, dynamic>{};
+    double? number(Json j, String key, double lo, double hi) =>
+        optDouble(j, key)?.clamp(lo, hi).toDouble();
     final source = reviews?['source'];
     return StudioPremium(
       stacked: testimonials?['style'] == 'stacked',
@@ -156,8 +178,52 @@ class StudioPremium {
         StudioBadgeStyle.pill,
       ),
       fab: of('cta')?['style'] == 'fab',
+      still: stats?['still'] == true,
+      start: stats?['start'] == true,
+      segments: progress['style'] == 'segments',
+      ringSize: number(progress, 'size', 40, 320) ?? 76,
+      stroke: number(progress, 'stroke', 2, 24),
+      ticks: (number(progress, 'ticks', 0, 60) ?? 0).round(),
+      knob: progress['knob'] == true,
+      segmentCount: (number(progress, 'segments', 2, 40) ?? 4).round(),
+      bars: timeline['style'] == 'bars',
+      times: timeline['times'] == true,
+      mono: timeline['mono'] == true,
+      activeCard: timeline['card'] == true,
+      glassCaptions: bento['caption'] == 'glass',
+      rowHeight: number(bento, 'row', 60, 240) ?? 112,
+      ctaCard: of('cta')?['style'] == 'card',
+      lead: of('cta') == null ? null : optString(of('cta')!, 'lead'),
     );
   }
+
+  /// 129.13 The values at once, not counting up; the numbers at the start.
+  final bool still;
+  final bool start;
+
+  /// 129.14 Rows of short segments; a ring's size, the stroke (a bar's
+  /// height), tick marks, a knob at its end; how many segments.
+  final bool segments;
+  final double ringSize;
+  final double? stroke;
+  final int ticks;
+  final bool knob;
+  final int segmentCount;
+
+  /// 129.15 Across with a bar over each step; times in a column at the
+  /// start; dates monospaced; the active step as a card.
+  final bool bars;
+  final bool times;
+  final bool mono;
+  final bool activeCard;
+
+  /// 129.17 Tiles' words on frosted glass; a row's height.
+  final bool glassCaptions;
+  final double rowHeight;
+
+  /// 129.20 A floating card; an icon on a tile at its start.
+  final bool ctaCard;
+  final String? lead;
 
   /// 129.11 Quote cards under each other instead of side by side.
   final bool stacked;
@@ -192,6 +258,10 @@ class StudioPremium {
   final bool fab;
 }
 
+/// 129 A texture over a layout: fine grain, a dot grid, a square grid or
+/// diagonal stripes.
+enum StudioPattern { grain, dots, grid, stripes }
+
 /// 129.18 A layout's premium card style: frosted glass over what is behind
 /// it, a border in two colours, a glow inside its edge, soft shadows.
 class StudioSurface {
@@ -203,12 +273,18 @@ class StudioSurface {
     this.borderWidth = 1.5,
     this.glow,
     this.soft = 0,
+    this.ticketAt,
+    this.ticketDown = false,
+    this.notch = 10,
+    this.pattern,
+    this.patternStrength = 0.08,
   });
 
   static StudioSurface? tryParse(Object? value) {
     if (value is! Map) return null;
     final json = asJson(value);
     final border = json['border'] is Map ? asJson(json['border']) : null;
+    final ticket = json['ticket'] is Map ? asJson(json['ticket']) : null;
     final from = border == null ? null : optString(border, 'from');
     final to = border == null ? null : optString(border, 'to');
     return StudioSurface(
@@ -223,8 +299,31 @@ class StudioSurface {
           1.5,
       glow: optString(json, 'glow'),
       soft: (optInt(json, 'soft') ?? 0).clamp(0, 3),
+      ticketAt: ticket == null
+          ? null
+          : optDouble(ticket, 'at')?.clamp(5, 95).toDouble(),
+      ticketDown: ticket?['axis'] == 'vertical',
+      notch:
+          (ticket == null ? null : optDouble(ticket, 'notch'))
+              ?.clamp(4, 24)
+              .toDouble() ??
+          10,
+      pattern: enumOrNull(StudioPattern.values, json['pattern']),
+      patternStrength: (optDouble(json, 'pattern_strength') ?? 0.08)
+          .clamp(0.02, 0.4)
+          .toDouble(),
     );
   }
+
+  /// 129 A ticket: notches cut at [ticketAt] percent along it (down it when
+  /// [ticketDown]), a dashed line between them.
+  final double? ticketAt;
+  final bool ticketDown;
+  final double notch;
+
+  /// 129 A texture over it in the text's colour.
+  final StudioPattern? pattern;
+  final double patternStrength;
 
   final double? glass;
   final double tint;

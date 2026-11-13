@@ -14,7 +14,10 @@ String premiumNumber(double value) {
 
 /// 129.13 Big numbers with their labels, counting up once when they first
 /// show (their final values at once on phones that reduce motion): an icon
-/// over each when it has one, thin lines between them, or each in a card.
+/// over each when it has one, thin lines between them, or each in a card;
+/// at the element's font (from 40 up, the text before and after is small
+/// beside the number: "6 min") and where its text sits; `still`, without
+/// counting.
 class PremiumStats extends StatelessWidget {
   const PremiumStats({super.key, required this.node, required this.dark});
 
@@ -27,7 +30,9 @@ class PremiumStats extends StatelessWidget {
     final cards = node.premium?.cards ?? false;
     final dividers = node.premium?.dividers ?? false;
     final entries = node.entries;
+    final still = node.premium?.still ?? false;
     return PremiumReveal(
+      duration: still ? Duration.zero : const Duration(milliseconds: 1200),
       builder: (context, t) => IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,8 +58,54 @@ class PremiumStats extends StatelessWidget {
           : (value * t * 10).round() / 10,
     );
     final full = '${e.prefix ?? ''}${premiumNumber(value)}${e.suffix ?? ''}';
+    final size = node.font?.size ?? 28;
+    final big = size >= 40;
+    final start = node.premium?.start ?? false;
+    final align = start ? TextAlign.start : TextAlign.center;
+    final across = start ? CrossAxisAlignment.start : CrossAxisAlignment.center;
+    final numberStyle = TextStyle(
+      fontSize: size,
+      height: big ? 1 : null,
+      fontWeight: premiumWeight(node.font?.weight) ?? FontWeight.w900,
+      letterSpacing: big ? -1.5 : -0.5,
+      color: e.highlight ? tone : tones.ink,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final smallStyle = TextStyle(
+      fontSize: (size * 0.36).clamp(12, 40).toDouble(),
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0,
+    );
+    final key = ValueKey('premium-stat-${node.id}-${node.entries.indexOf(e)}');
+    final number = big
+        ? Text.rich(
+            TextSpan(
+              children: [
+                if ((e.prefix ?? '').isNotEmpty)
+                  TextSpan(text: e.prefix, style: smallStyle),
+                TextSpan(text: shown),
+                if ((e.suffix ?? '').isNotEmpty)
+                  TextSpan(text: e.suffix, style: smallStyle),
+              ],
+            ),
+            key: key,
+            textDirection: TextDirection.ltr,
+            style: numberStyle,
+            maxLines: 1,
+            softWrap: false,
+          )
+        : Text(
+            '${e.prefix ?? ''}$shown${e.suffix ?? ''}',
+            key: key,
+            textDirection: TextDirection.ltr,
+            style: numberStyle,
+            maxLines: 1,
+            softWrap: false,
+            textAlign: align,
+          );
     final body = Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: across,
       children: [
         if (e.icon != null) ...[
           Container(
@@ -70,30 +121,12 @@ class PremiumStats extends StatelessWidget {
         ],
         Semantics(
           label: full,
-          child: ExcludeSemantics(
-            child: Text(
-              '${e.prefix ?? ''}$shown${e.suffix ?? ''}',
-              key: ValueKey(
-                'premium-stat-${node.id}-${node.entries.indexOf(e)}',
-              ),
-              textDirection: TextDirection.ltr,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-                color: e.highlight ? tone : tones.ink,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-              maxLines: 1,
-              softWrap: false,
-              textAlign: TextAlign.center,
-            ),
-          ),
+          child: ExcludeSemantics(child: number),
         ),
         const SizedBox(height: 2),
         Text(
           e.title ?? '',
-          textAlign: TextAlign.center,
+          textAlign: align,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,

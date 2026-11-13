@@ -59,6 +59,18 @@ class PremiumTones {
         ];
 }
 
+/// A Studio font's weight (300 to 900), or null.
+FontWeight? premiumWeight(int? weight) => switch (weight) {
+  300 => FontWeight.w300,
+  400 => FontWeight.w400,
+  500 => FontWeight.w500,
+  600 => FontWeight.w600,
+  700 => FontWeight.w700,
+  800 => FontWeight.w800,
+  900 => FontWeight.w900,
+  _ => null,
+};
+
 /// An entry's own colour, else [fallback].
 Color colorOr(String? hex, Color fallback) => parseHexColor(hex) ?? fallback;
 

@@ -198,4 +198,91 @@ class StudioPremiumContent129Test extends TestCase {
 		// A look it doesn't know: a pill.
 		$this->assertSame( array( 'style' => 'pill' ), $card['children'][0]['badge'] );
 	}
+
+	public function test_keeps_the_signature_options_bounded() {
+		$nodes = $this->served(
+			array(
+				array(
+					'id'       => 'ring',
+					'type'     => 'progress',
+					'progress' => array(
+						'style' => 'rings',
+						'size'  => 999,
+						'ticks' => 18,
+						'knob'  => true,
+						'odd'   => 1,
+					),
+					'entries'  => array(
+						array(
+							'title' => 'Lesson',
+							'value' => 61,
+						),
+					),
+				),
+				array(
+					'id'       => 'day',
+					'type'     => 'timeline',
+					'timeline' => array(
+						'times' => true,
+						'card'  => true,
+						'mono'  => 'yes',
+					),
+					'entries'  => array( array( 'title' => 'Maths' ) ),
+				),
+				array(
+					'id'    => 'sign',
+					'type'  => 'cta_bar',
+					'text'  => 'Sign',
+					'cta'   => array(
+						'style' => 'card',
+						'lead'  => 'draw',
+					),
+				),
+				array(
+					'id'       => 'pass',
+					'type'     => 'column',
+					'surface'  => array(
+						'ticket'  => array( 'at' => 62 ),
+						'pattern' => 'grain',
+					),
+					'children' => array(),
+				),
+			)
+		);
+		$this->assertSame(
+			array(
+				'style' => 'rings',
+				'size'  => 320,
+				'ticks' => 18,
+				'knob'  => true,
+			),
+			$nodes[0]['progress']
+		);
+		$this->assertSame(
+			array(
+				'times' => true,
+				'card'  => true,
+			),
+			$nodes[1]['timeline']
+		);
+		$this->assertSame(
+			array(
+				'style' => 'card',
+				'lead'  => 'draw',
+			),
+			$nodes[2]['cta']
+		);
+		$this->assertSame(
+			array(
+				'ticket'           => array(
+					'at'    => 62,
+					'axis'  => 'horizontal',
+					'notch' => 10,
+				),
+				'pattern'          => 'grain',
+				'pattern_strength' => 0.08,
+			),
+			$nodes[3]['surface']
+		);
+	}
 }

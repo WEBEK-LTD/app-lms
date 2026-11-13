@@ -89,6 +89,8 @@ enum TabBarDesign {
   // 128 A floating bar in its own colours, the open tab a filled pill with
   // its name, the others icons only.
   float,
+  // 129 A small dock in the middle, icons only, the open tab a filled circle.
+  dock,
 }
 
 /// 109 How the bottom tabs look, set by the owner (`TabBar`); a field left

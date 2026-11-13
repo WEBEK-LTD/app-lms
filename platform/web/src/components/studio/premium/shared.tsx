@@ -82,7 +82,7 @@ export function Placeholder({ text, color }: { text: string; color: string }) {
  * 129.18 A layout's premium card style as CSS: frosted glass over what is
  * behind it, a border in two colours, a glow inside its edge, soft shadows.
  */
-export function surfaceStyle(s: StudioSurface, dark: boolean, background: string | undefined): CSSProperties {
+export function surfaceStyle(s: StudioSurface, dark: boolean, background: string | undefined, rtl = false): CSSProperties {
   const out: CSSProperties = {};
   const tint = s.tint ?? 0.18;
   const fill = s.glass !== undefined ? (dark ? `rgba(18,16,30,${Math.min(0.95, tint + 0.25)})` : `rgba(255,255,255,${tint})`) : background;
@@ -105,5 +105,55 @@ export function surfaceStyle(s: StudioSurface, dark: boolean, background: string
   if (s.soft) shadows.push(["0 4px 12px rgba(14,13,36,0.06)", "0 10px 28px rgba(14,13,36,0.10)", "0 18px 48px rgba(14,13,36,0.14)"][s.soft - 1]!);
   if (s.glow) shadows.push(`inset 0 0 0 1px ${alpha(s.glow, 0.35)}`, `inset 0 1px 22px ${alpha(s.glow, 0.32)}`);
   if (shadows.length) out.boxShadow = shadows.join(", ");
+  // 129 A ticket: a notch cut from each edge where it is perforated.
+  if (s.ticket) {
+    const n = s.ticket.notch ?? 10;
+    // Down a ticket, the perforation is that far from its start side.
+    const at = s.ticket.axis === "vertical" && rtl ? 100 - s.ticket.at : s.ticket.at;
+    const hole = (where: string) => `radial-gradient(circle at ${where}, transparent ${n}px, #000 ${n + 0.5}px)`;
+    const mask =
+      s.ticket.axis === "vertical"
+        ? `${hole(`${at}% 0`)} top / 100% 51% no-repeat, ${hole(`${at}% 100%`)} bottom / 100% 51% no-repeat`
+        : `${hole(`0 ${at}%`)} left / 51% 100% no-repeat, ${hole(`100% ${at}%`)} right / 51% 100% no-repeat`;
+    out.mask = mask;
+    out.WebkitMask = mask;
+  }
   return out;
+}
+
+/** 129 Grain as an SVG noise, drawn once. */
+const GRAIN = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter><rect width="160" height="160" filter="url(#g)"/></svg>')}")`;
+
+/**
+ * 129 What a premium card style draws over the layout without taking room:
+ * a ticket's dashed perforation, and a texture (grain, a dot grid, a square
+ * grid, stripes) in the text's colour.
+ */
+export function SurfaceExtras({ s, dark }: { s: StudioSurface; dark: boolean }) {
+  const ink = dark ? "#FFFFFF" : "#0E0D24";
+  const strength = s.pattern_strength ?? 0.08;
+  const line = alpha(ink, 0.22);
+  const n = s.ticket?.notch ?? 10;
+  const background: Record<string, string> = {
+    dots: `radial-gradient(${alpha(ink, strength * 2)} 1px, transparent 1.3px) 0 0 / 12px 12px`,
+    grid: `linear-gradient(${alpha(ink, strength)} 1px, transparent 1px) 0 0 / 24px 24px, linear-gradient(90deg, ${alpha(ink, strength)} 1px, transparent 1px) 0 0 / 24px 24px`,
+    stripes: `repeating-linear-gradient(135deg, ${alpha(ink, strength * 1.5)} 0 1.5px, transparent 1.5px 9px)`,
+    grain: `${GRAIN} 0 0 / 160px 160px`,
+  };
+  return (
+    <>
+      {s.pattern ? <span aria-hidden="true" data-studio-pattern={s.pattern} style={{ position: "absolute", inset: 0, borderRadius: "inherit", pointerEvents: "none", background: background[s.pattern], opacity: s.pattern === "grain" ? strength * 2.5 : 1 }} /> : null}
+      {s.ticket ? (
+        <span
+          aria-hidden="true"
+          data-studio-ticket={s.ticket.axis ?? "horizontal"}
+          style={
+            s.ticket.axis === "vertical"
+              ? { position: "absolute", insetInlineStart: `${s.ticket.at}%`, top: n + 4, bottom: n + 4, borderInlineStart: `1.5px dashed ${line}`, pointerEvents: "none" }
+              : { position: "absolute", top: `${s.ticket.at}%`, insetInline: n + 4, borderTop: `1.5px dashed ${line}`, pointerEvents: "none" }
+          }
+        />
+      ) : null}
+    </>
+  );
 }

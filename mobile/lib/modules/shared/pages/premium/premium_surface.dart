@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -81,6 +82,52 @@ class PremiumSurface extends StatelessWidget {
         ),
       );
     }
+    // 129 A texture over it, in the text's colour.
+    if (s.pattern case final pattern?) {
+      out = CustomPaint(
+        key: ValueKey('premium-pattern-${pattern.name}'),
+        foregroundPainter: PremiumPatternPainter(
+          pattern: pattern,
+          color: (dark ? Colors.white : const Color(0xFF0E0D24)).withValues(
+            alpha: s.patternStrength,
+          ),
+          radius: radius,
+        ),
+        child: out,
+      );
+    }
+    // 129 A ticket: its notches cut out, a dashed line between them, its
+    // soft shadow following its shape.
+    if (s.ticketAt case final at?) {
+      final rtl = Directionality.of(context) == TextDirection.rtl;
+      final clipper = PremiumTicketClipper(
+        radius: radius,
+        at: at,
+        down: s.ticketDown,
+        notch: s.notch,
+        rtl: rtl,
+      );
+      return PhysicalShape(
+        key: const ValueKey('premium-ticket'),
+        clipper: clipper,
+        clipBehavior: Clip.antiAlias,
+        color: Colors.transparent,
+        elevation: s.soft > 0 && !dark ? s.soft * 3.0 : 0,
+        shadowColor: const Color(0x590E0D24),
+        child: CustomPaint(
+          foregroundPainter: _Perforation(
+            at: at,
+            down: s.ticketDown,
+            notch: s.notch,
+            rtl: rtl,
+            color: (dark ? Colors.white : const Color(0xFF0E0D24)).withValues(
+              alpha: 0.22,
+            ),
+          ),
+          child: out,
+        ),
+      );
+    }
     if (s.soft > 0 && !dark) {
       out = DecoratedBox(
         decoration: BoxDecoration(
@@ -92,6 +139,177 @@ class PremiumSurface extends StatelessWidget {
     }
     return out;
   }
+}
+
+/// 129 A ticket's shape: its rounded box with a round notch cut from each
+/// edge at [at] percent along it (down it when [down]).
+class PremiumTicketClipper extends CustomClipper<Path> {
+  const PremiumTicketClipper({
+    required this.radius,
+    required this.at,
+    required this.down,
+    required this.notch,
+    required this.rtl,
+  });
+
+  final BorderRadius radius;
+  final double at;
+  final bool down;
+  final double notch;
+  final bool rtl;
+
+  @override
+  Path getClip(Size size) {
+    final box = Path()..addRRect(radius.toRRect(Offset.zero & size));
+    final holes = Path();
+    if (down) {
+      final x = size.width * (rtl ? 100 - at : at) / 100;
+      holes
+        ..addOval(Rect.fromCircle(center: Offset(x, 0), radius: notch))
+        ..addOval(
+          Rect.fromCircle(center: Offset(x, size.height), radius: notch),
+        );
+    } else {
+      final y = size.height * at / 100;
+      holes
+        ..addOval(Rect.fromCircle(center: Offset(0, y), radius: notch))
+        ..addOval(
+          Rect.fromCircle(center: Offset(size.width, y), radius: notch),
+        );
+    }
+    return Path.combine(PathOperation.difference, box, holes);
+  }
+
+  @override
+  bool shouldReclip(PremiumTicketClipper old) =>
+      old.radius != radius ||
+      old.at != at ||
+      old.down != down ||
+      old.notch != notch ||
+      old.rtl != rtl;
+}
+
+/// The dashed line between a ticket's notches.
+class _Perforation extends CustomPainter {
+  _Perforation({
+    required this.at,
+    required this.down,
+    required this.notch,
+    required this.rtl,
+    required this.color,
+  });
+
+  final double at;
+  final bool down;
+  final double notch;
+  final bool rtl;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5;
+    final Offset from;
+    final Offset to;
+    if (down) {
+      final x = size.width * (rtl ? 100 - at : at) / 100;
+      from = Offset(x, notch + 4);
+      to = Offset(x, size.height - notch - 4);
+    } else {
+      final y = size.height * at / 100;
+      from = Offset(notch + 4, y);
+      to = Offset(size.width - notch - 4, y);
+    }
+    final length = (to - from).distance;
+    final step = (to - from) / length;
+    for (var d = 0.0; d < length; d += 9) {
+      canvas.drawLine(
+        from + step * d,
+        from + step * (d + 5).clamp(0, length),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Perforation old) =>
+      old.at != at ||
+      old.down != down ||
+      old.notch != notch ||
+      old.rtl != rtl ||
+      old.color != color;
+}
+
+/// 129 A texture: fine grain, a dot grid, a square grid or diagonal
+/// stripes, clipped to the layout's corners.
+class PremiumPatternPainter extends CustomPainter {
+  PremiumPatternPainter({
+    required this.pattern,
+    required this.color,
+    required this.radius,
+  });
+
+  final StudioPattern pattern;
+  final Color color;
+  final BorderRadius radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.clipRRect(radius.toRRect(Offset.zero & size));
+    final paint = Paint()..color = color;
+    switch (pattern) {
+      case StudioPattern.dots:
+        final dots = Paint()..color = color.withValues(alpha: color.a * 2);
+        for (var y = 6.0; y < size.height; y += 12) {
+          for (var x = 6.0; x < size.width; x += 12) {
+            canvas.drawCircle(Offset(x, y), 1, dots);
+          }
+        }
+      case StudioPattern.grid:
+        paint.strokeWidth = 1;
+        for (var x = 0.0; x < size.width; x += 24) {
+          canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+        }
+        for (var y = 0.0; y < size.height; y += 24) {
+          canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+        }
+      case StudioPattern.stripes:
+        paint
+          ..strokeWidth = 1.5
+          ..color = color.withValues(alpha: (color.a * 1.5).clamp(0, 1));
+        for (var d = -size.height; d < size.width; d += 9) {
+          canvas.drawLine(
+            Offset(d, size.height),
+            Offset(d + size.height, 0),
+            paint,
+          );
+        }
+      case StudioPattern.grain:
+        // A fixed scatter of specks, the same on every phone.
+        final random = math.Random(7);
+        final specks = (size.width * size.height / 40).clamp(0, 30000).toInt();
+        final grain = Paint()
+          ..color = color.withValues(alpha: (color.a * 1.4).clamp(0, 1));
+        for (var k = 0; k < specks; k++) {
+          canvas.drawRect(
+            Rect.fromLTWH(
+              random.nextDouble() * size.width,
+              random.nextDouble() * size.height,
+              1,
+              1,
+            ),
+            grain,
+          );
+        }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(PremiumPatternPainter old) =>
+      old.pattern != pattern || old.color != color || old.radius != radius;
 }
 
 /// The border in two colours, and a glow just inside it.

@@ -170,12 +170,29 @@ List<Map<String, dynamic>> premiumChildren(
       ];
     case 'stats':
       return [
-        _text('h', w('In numbers', 'بالأرقام'), size: 22, weight: 800),
+        // 129 A hero number at the element's font, its words small beside it.
+        {
+          'id': 'hero',
+          'type': 'stats',
+          'stats': {'start': true, 'still': true},
+          'font': {'size': 72, 'weight': 900},
+          'margin': _side,
+          'entries': [
+            {
+              'value': 6,
+              'suffix': w(' min', ' د'),
+              'title': w(
+                'Karim is 6 min from Maadi',
+                'كريم على بعد 6 دقائق من المعادي',
+              ),
+            },
+          ],
+        },
         {
           'id': 'plain',
           'type': 'stats',
           'stats': {'dividers': true},
-          'margin': _side,
+          'margin': {'top': 10, 'end': 16, 'bottom': 0, 'start': 16},
           'entries': [
             {
               'value': 12500,
@@ -201,26 +218,73 @@ List<Map<String, dynamic>> premiumChildren(
           'id': 'cards',
           'type': 'stats',
           'stats': {'style': 'cards'},
+          'font': {'size': 40, 'weight': 900},
           'margin': {'top': 14, 'end': 16, 'bottom': 0, 'start': 16},
           'gap': 10,
           'entries': [
-            {'value': 120, 'title': w('Shops', 'متجر')},
-            {'value': 98, 'suffix': '%', 'title': w('On time', 'في الموعد')},
+            {
+              'value': 35,
+              'prefix': 'E£',
+              'title': w('Economy · 4 seats', 'اقتصادي · 4 مقاعد'),
+            },
+            {
+              'value': 50,
+              'prefix': 'E£',
+              'title': w('Comfort · 4 seats', 'مريح · 4 مقاعد'),
+              'highlight': true,
+            },
+            {
+              'value': 80,
+              'prefix': 'E£',
+              'title': w('Van · 7 seats', 'فان · 7 مقاعد'),
+            },
           ],
         },
       ];
     case 'progress':
       return [
-        _text('h', w('This term', 'هذا الفصل'), size: 22, weight: 800),
+        // 129 A gold ring around a photo with its tick marks and knob.
+        {
+          'id': 'hero',
+          'type': 'progress',
+          'progress': {
+            'style': 'rings',
+            'size': 226,
+            'stroke': 8,
+            'ticks': 18,
+            'knob': true,
+          },
+          'margin': _side,
+          'entries': [
+            {
+              'value': 61,
+              'image_url': premiumPhoto('academy/academy-desk.jpg'),
+              'subtitle': w('Lesson 12 of 18', 'الدرس 12 من 18'),
+              'gradient': {'from': '#E6C26E', 'to': '#B8862F'},
+            },
+          ],
+        },
+        {
+          'id': 'lessons',
+          'type': 'progress',
+          'progress': {'style': 'segments', 'segments': 18, 'stroke': 4},
+          'margin': {'top': 10, 'end': 16, 'bottom': 0, 'start': 16},
+          'entries': [
+            {
+              'title': w('11 of 18 lessons done', '11 من 18 درسًا'),
+              'value': 61,
+              'gradient': {'from': '#E6C26E', 'to': '#B8862F'},
+            },
+          ],
+        },
         {
           'id': 'bars',
           'type': 'progress',
-          'margin': _side,
+          'margin': {'top': 14, 'end': 16, 'bottom': 0, 'start': 16},
           'gap': 14,
           'entries': [
             {'title': w('Arabic', 'اللغة العربية'), 'value': 86},
             {'title': w('Maths', 'الرياضيات'), 'value': 72},
-            {'title': w('Science', 'العلوم'), 'value': 58, 'color': '#2F8A5B'},
           ],
         },
         {
@@ -230,7 +294,11 @@ List<Map<String, dynamic>> premiumChildren(
           'margin': {'top': 18, 'end': 16, 'bottom': 0, 'start': 16},
           'entries': [
             {'title': w('Lessons', 'الدروس'), 'value': 80},
-            {'title': w('Homework', 'الواجبات'), 'value': 64},
+            {
+              'title': w('Homework', 'الواجبات'),
+              'value': 64,
+              'icon': 'description',
+            },
             {
               'title': w('Attendance', 'الحضور'),
               'value': 96,
@@ -240,56 +308,76 @@ List<Map<String, dynamic>> premiumChildren(
         },
       ];
     case 'timeline':
-      final steps = [
-        (
-          w('Ordered', 'تم الطلب'),
-          '09:10',
-          w('We have your order.', 'وصلنا طلبك.'),
-        ),
-        (
-          w('Packed', 'تم التجهيز'),
-          '09:25',
-          w('Packed with care.', 'جُهّز بعناية.'),
-        ),
-        (
-          w('On the way', 'في الطريق'),
-          '09:40',
-          w('Karim is bringing it.', 'كريم في الطريق إليك.'),
-        ),
-        (
-          w('Delivered', 'تم التوصيل'),
-          '10:05',
-          w('At your door.', 'عند بابك.'),
-        ),
-      ];
       return [
-        _text('h', w('Your order', 'طلبك'), size: 22, weight: 800),
+        _text('h', w("Lina's day", 'يوم لينا'), size: 22, weight: 800),
+        // 129 A school day: the times at the start, the class now as a card.
         {
           'id': 'down',
           'type': 'timeline',
+          'timeline': {'times': true, 'mono': true, 'card': true},
           'margin': _side,
           'entries': [
-            for (final (i, s) in steps.indexed)
-              {
-                'title': s.$1,
-                'subtitle': s.$2,
-                'text': s.$3,
-                'highlight': ?(i == 2 ? true : null),
-              },
+            {
+              'subtitle': '07:42',
+              'title': w(
+                'Checked in at the main gate',
+                'وصلت من البوابة الرئيسية',
+              ),
+              'text': w(
+                'Bus Route 1 from Road 9, Maadi',
+                'حافلة الخط 1 من شارع 9، المعادي',
+              ),
+            },
+            {
+              'subtitle': '08:00',
+              'title': w('Maths with Ms. Mona', 'الرياضيات مع أ. منى'),
+              'label': w('NOW', 'الآن'),
+              'value': 40,
+              'text': w(
+                'Next: Arabic with Mr. Tarek at 08:50',
+                'التالية: العربية مع أ. طارق 08:50',
+              ),
+              'highlight': true,
+            },
+            {
+              'subtitle': '13:55',
+              'title': w(
+                'Grandfather Samir picks Lina up',
+                'الجد سمير يأخذ لينا',
+              ),
+              'icon': 'home',
+            },
+            {'subtitle': '14:30', 'title': w('Home', 'في البيت')},
           ],
         },
+        // 129 A trip's legs, a bar over each.
         {
           'id': 'across',
           'type': 'timeline',
-          'timeline': {'style': 'horizontal'},
+          'timeline': {'style': 'bars', 'mono': true},
           'margin': {'top': 6, 'end': 16, 'bottom': 0, 'start': 16},
           'entries': [
-            for (final (i, s) in steps.indexed)
-              {
-                'title': s.$1,
-                'subtitle': s.$2,
-                'highlight': ?(i == 1 ? true : null),
-              },
+            {
+              'title': w('Tue 17', 'الثلاثاء 17'),
+              'subtitle': 'SFR 471',
+              'icon': 'flight',
+              'highlight': true,
+            },
+            {
+              'title': w('Wed 18', 'الأربعاء 18'),
+              'subtitle': w('Transfer', 'انتقال'),
+              'icon': 'directions_car',
+            },
+            {
+              'title': w('4 nights', '4 ليالٍ'),
+              'subtitle': 'Seminyak',
+              'icon': 'bed',
+            },
+            {
+              'title': w('Sun 22', 'الأحد 22'),
+              'subtitle': 'SFR 472',
+              'icon': 'flight',
+            },
           ],
         },
       ];
@@ -382,24 +470,28 @@ List<Map<String, dynamic>> premiumChildren(
       return [
         _text(
           'h',
-          w('Why people choose us', 'لماذا يختارنا الناس'),
+          w("What's for dinner?", 'ماذا على العشاء؟'),
           size: 22,
           weight: 800,
         ),
         {
           'id': 'grid',
           'type': 'bento',
-          'columns': 2,
+          'columns': 3,
           'gap': 10,
+          // 129 Frosted labels, a chip at a tile's top, a tile across all.
+          'bento': {'caption': 'glass', 'row': 112},
           'margin': _side,
           'entries': [
             {
               'title': w('Fresh every morning', 'طازج كل صباح'),
               'text': w('From the market to your door.', 'من السوق إلى بابك.'),
+              'subtitle': w(
+                'Zad Club · free over EGP 150',
+                'نادي زاد · مجاني فوق 150',
+              ),
               'image_url': premiumPhoto('multi-vendor/zad-market-aisle.jpg'),
               'size': 'large',
-              'label': w('Shop now', 'تسوّق الآن'),
-              'icon': 'storefront',
             },
             {
               'title': w('30 min', '30 دقيقة'),
@@ -407,11 +499,18 @@ List<Map<String, dynamic>> premiumChildren(
               'icon': 'bolt',
               'gradient': {'from': '#1F3A5F', 'to': '#E8B04B', 'angle': 135},
             },
-            {'title': w('Rated 4.9', 'تقييم 4.9'), 'icon': 'star'},
+            {
+              'title': w('Café', 'مقهى'),
+              'image_url': premiumPhoto('multi-vendor/zad-cafe.jpg'),
+            },
             {
               'title': w('Your café, one tap away', 'مقهاك بلمسة واحدة'),
+              'text': w(
+                'Bayt El Koshary · Koshary EGP 55',
+                'بيت الكشري · كشري 55',
+              ),
               'image_url': premiumPhoto('multi-vendor/zad-cafe.jpg'),
-              'size': 'wide',
+              'size': 'full',
             },
           ],
         },
@@ -422,7 +521,7 @@ List<Map<String, dynamic>> premiumChildren(
           'id': 'hero',
           'type': 'photo_hero',
           'image_url': premiumPhoto('rides/rides-night-city.jpg'),
-          'height': 330,
+          'height': 250,
           'radius': 26,
           'background': '#0E1A2B',
           'align': 'end',
@@ -495,6 +594,43 @@ List<Map<String, dynamic>> premiumChildren(
                 'أي صف أو عمود أو طبقة يمكن أن يأخذ هذا الشكل.',
               ),
               size: 13,
+              margin: const {},
+            ),
+          ],
+        },
+        // 129 A pass: perforated as a ticket, its texture a fine grain.
+        {
+          'id': 'pass',
+          'type': 'column',
+          'gap': 4,
+          'radius': 24,
+          'background': '#FFFFFF',
+          'dark_background': '#1D1B2C',
+          'padding': {'top': 16, 'end': 18, 'bottom': 16, 'start': 18},
+          'margin': {'top': 16, 'end': 16, 'bottom': 0, 'start': 16},
+          'surface': {
+            'ticket': {'at': 58},
+            'pattern': 'grain',
+            'soft': 2,
+          },
+          'children': [
+            _text(
+              'pk',
+              w('CHECKED IN', 'تم الحضور'),
+              size: 12,
+              weight: 700,
+              margin: const {},
+            ),
+            _text('pt', '07:42', size: 44, weight: 900, margin: const {}),
+            {'id': 'pgap', 'type': 'spacer', 'height': 22},
+            _text(
+              'pn',
+              w(
+                'Maths with Ms. Mona · until 08:45',
+                'الرياضيات مع أ. منى · حتى 08:45',
+              ),
+              size: 14,
+              weight: 700,
               margin: const {},
             ),
           ],
@@ -595,7 +731,7 @@ List<Map<String, dynamic>> premiumChildren(
           'id': 'photo',
           'type': 'image',
           'image_url': premiumPhoto('multi-vendor/zad-cafe.jpg'),
-          'height': 230,
+          'height': 150,
           'radius': 24,
           'margin': _side,
         },
@@ -614,6 +750,18 @@ List<Map<String, dynamic>> premiumChildren(
           ),
           margin: {'top': 4, 'end': 16, 'bottom': 0, 'start': 16},
         ),
+        // 129 A floating card with its icon tile and two lines.
+        {
+          'id': 'sign',
+          'type': 'cta_bar',
+          'cta': {'style': 'card', 'lead': 'description'},
+          'title': w(
+            'Sign: Science museum trip\nNext Thursday, 9:00–13:00 · E£350',
+            'وقّع: رحلة متحف العلوم\nالخميس القادم، 9:00–13:00 · 350 ج.م',
+          ),
+          'text': w('Sign', 'وقّع'),
+          'margin': {'top': 10, 'end': 0, 'bottom': 0, 'start': 0},
+        },
         {
           'id': 'fab',
           'type': 'cta_bar',

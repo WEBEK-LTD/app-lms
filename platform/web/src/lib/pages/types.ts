@@ -775,7 +775,8 @@ export interface StudioMap {
 // ——— 129.11–129.20 Premium content, trust and commerce ———
 
 /** 129.17 A bento tile's size: one cell, two across, two down, or two by two. */
-export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large"] as const;
+/** 129.17 `full`: across every column (129 Signature boards). */
+export const STUDIO_ENTRY_SIZES = ["small", "wide", "tall", "large", "full"] as const;
 /** 129.11–129.20 The texts of an entry, each at most this long (and translated, `translations`). */
 export const STUDIO_ENTRY_TEXTS = { title: 120, subtitle: 120, text: 600, label: 40, prefix: 8, suffix: 8 } as const;
 export const STUDIO_MAX_ENTRIES = 12;
@@ -831,20 +832,57 @@ export interface StudioPricing {
 }
 
 export const STUDIO_STATS_STYLES = ["plain", "cards"] as const;
+/**
+ * 129.13 The numbers take the element's `font` (a hero number of 96 is a
+ * stat); from 40 up their text before and after is small beside them
+ * ("6 min", "E£ 35"). Centred, or at the start with `start`.
+ */
 export interface StudioStats {
   style?: (typeof STUDIO_STATS_STYLES)[number];
   /** Thin lines between the numbers. */
   dividers?: boolean;
+  /** Shown at their values at once, without counting up. */
+  still?: boolean;
+  /** At the start instead of centred. */
+  start?: boolean;
 }
 
-export const STUDIO_PROGRESS_STYLES = ["bars", "rings"] as const;
+/** 129.14 `segments`: each entry a row of short bars, as many filled as its share (lessons done, an order's stages). */
+export const STUDIO_PROGRESS_STYLES = ["bars", "rings", "segments"] as const;
 export interface StudioProgress {
   style?: (typeof STUDIO_PROGRESS_STYLES)[number];
+  /** A ring's width across, 40 to 320 (missing, 76), and its stroke, 2 to 24 (missing, 8; a bar's height). */
+  size?: number;
+  stroke?: number;
+  /** Tick marks around a ring, 0 to 60. */
+  ticks?: number;
+  /** A round knob at the ring's end. */
+  knob?: boolean;
+  /** For `segments`: how many, 2 to 40; missing, 4. */
+  segments?: number;
 }
 
-export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal"] as const;
+/**
+ * 129.15 `bars`: across, a bar over each step (filled to the active one)
+ * with its icon, title and date, as a trip's legs.
+ */
+export const STUDIO_TIMELINE_STYLES = ["vertical", "horizontal", "bars"] as const;
 export interface StudioTimeline {
   style?: (typeof STUDIO_TIMELINE_STYLES)[number];
+  /** Down the page: each step's date (a time) in a column at its start. */
+  times?: boolean;
+  /** Dates in a monospaced font ("07:42", "SFR 471"). */
+  mono?: boolean;
+  /** The active step drawn as a card: its `label` as a chip ("NOW") and its `value` (0 to 100) as a bar. */
+  card?: boolean;
+}
+
+/** 129.17 How a tile's words sit: on its shade, or on a frosted glass label. */
+export const STUDIO_BENTO_CAPTIONS = ["plain", "glass"] as const;
+export interface StudioBento {
+  caption?: (typeof STUDIO_BENTO_CAPTIONS)[number];
+  /** A row's height, 60 to 240; missing, 112. */
+  row?: number;
 }
 
 /** 129.16 A person's round avatar, or a place's rounded square. */
@@ -863,10 +901,18 @@ export interface StudioBadge {
 }
 
 /** 129.20 A bar across the page's foot with a label (a price) and a button, or a round floating button. */
-export const STUDIO_CTA_STYLES = ["bar", "fab"] as const;
+/** 129.20 `card`: a floating rounded card at the foot (a form to sign, the nearest taxi) instead of a bar across it. */
+export const STUDIO_CTA_STYLES = ["bar", "fab", "card"] as const;
 export interface StudioCta {
   style: (typeof STUDIO_CTA_STYLES)[number];
+  /** An icon on a soft tile at the start (a bar or a card). */
+  lead?: string | null;
 }
+
+/** 129.18 A ticket's perforation: across (a pass, a waybill) or down (a stub beside a photo). */
+export const STUDIO_TICKET_AXES = ["horizontal", "vertical"] as const;
+/** 129.18 A texture over a layout: fine grain, a dot grid, a square grid or diagonal stripes. */
+export const STUDIO_PATTERNS = ["grain", "dots", "grid", "stripes"] as const;
 
 /**
  * 129.18 A premium card style for any layout (`StudioSurface`): frosted
@@ -882,6 +928,11 @@ export interface StudioSurface {
   border?: { from: string; to: string; width?: number } | null;
   glow?: string | null;
   soft?: 1 | 2 | 3;
+  /** A ticket: notches cut from both edges at `at` percent along it, a dashed line between them. */
+  ticket?: { at: number; axis?: (typeof STUDIO_TICKET_AXES)[number]; notch?: number } | null;
+  /** A texture in the text colour, `pattern_strength` 0.02 to 0.4 (missing, 0.08). */
+  pattern?: (typeof STUDIO_PATTERNS)[number];
+  pattern_strength?: number;
 }
 // ——— end 129.11–129.20 ———
 
@@ -988,6 +1039,7 @@ export interface StudioNode {
   profile?: StudioProfile | null;
   badge?: StudioBadge | null;
   cta?: StudioCta | null;
+  bento?: StudioBento | null;
   surface?: StudioSurface | null;
   // ——— end 129.11–129.20 ———
   action?: Action | null;
@@ -1108,6 +1160,8 @@ export const TAB_BAR_DESIGNS = [
   "colours",
   // 128 A floating bar with its own colours, the open tab a filled pill with its name, the others icons only.
   "float",
+  // 129 A small dock in the middle, icons only, the open tab a filled circle.
+  "dock",
 ] as const;
 export type TabBarDesign = (typeof TAB_BAR_DESIGNS)[number];
 export type TabLabels = (typeof TAB_LABELS)[number];

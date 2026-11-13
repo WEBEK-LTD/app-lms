@@ -10,7 +10,7 @@ import { Stats } from "./stats";
 import { Testimonials } from "./testimonials";
 import { Timeline } from "./timeline";
 
-export { PREMIUM_WORDS_EN, surfaceStyle, type PremiumWords } from "./shared";
+export { PREMIUM_WORDS_EN, SurfaceExtras, surfaceStyle, type PremiumWords } from "./shared";
 
 /** 129.11–129.20 The premium content elements, each drawn as the app draws it (null for any other type). */
 export function PremiumElement(p: PremiumProps & { front?: ReactNode }): ReactNode {
