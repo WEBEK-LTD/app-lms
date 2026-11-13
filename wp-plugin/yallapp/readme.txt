@@ -38,6 +38,7 @@ Digits if you prefer (with its REST API add-on). Digits is optional.
 * Paid courses and memberships bought in the app through Google Play and the App Store, when your Yallapp plan has it: the student gets the course or membership on your site.
 * Push notifications through Firebase for new lessons, announcements and enrollments.
 * The pages, tabs, look and languages you publish in your Yallapp dashboard, filled with your own courses, products and posts.
+* For an academy designed in Yallapp Studio: its pages, sign-in screen, account menu, launch screen and premium screens, the student's cards on a photo (the course in progress, the next live class and the streak), each course card's rating from your reviews, and borders in dark mode. The guide: [Premium elements in Studio](https://yallapp.com.tr/docs/studio-premium-elements).
 
 = Privacy =
 

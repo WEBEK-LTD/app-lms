@@ -1550,6 +1550,23 @@ routine every few years):
       that takes the signed notices: a purchase reaches it as
       `purchase.completed`, a refund as `purchase.revoked`.
 
+## 7z5. The documentation up to date (129.30)
+
+Nothing to migrate or set: the articles are in the code, and the team's
+edits in Admin › Website content still show over them.
+
+- [ ] After the deploy, open `/docs/studio-elements`,
+      `/docs/studio-premium-elements`, `/docs/studio-templates` and
+      `/docs/travel` in English, Arabic and Turkish (`/ar/docs/…`,
+      `/tr/docs/…`): each is in the menu, the search finds it ("seat map",
+      "Prime"), and its pictures show.
+- [ ] `/docs/travel` describes Phase 126: check it once Travel is deployed
+      (Dashboard › Hotels' Help opens it).
+- [ ] In Studio, **Help** opens `/docs/yallapp-studio` and the editor's
+      **Help** opens `/docs/studio-elements` in the dashboard's language.
+- [ ] Plugin 0.4.39's readme (WordPress.org) names the Studio academy's
+      screens; publish it with the plugin's release.
+
 ## 8. Accounts the remaining roadmap steps wait on
 
 | Step | What we need |

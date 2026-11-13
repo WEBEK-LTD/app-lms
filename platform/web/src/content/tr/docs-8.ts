@@ -354,7 +354,7 @@ Kapatıp **Kaydet**'i seçin: uygulama bir sonraki açılışında göndermeyi b
   },
   "yallapp-business": {
     title: "Yallapp Business, size özel uygulama",
-    description: "Yallapp Business ile uygulamanızı telefonunuzdan yönetin: giriş yapmak, gösterdikleri, size gönderdiği bildirimler ve Telefonlarınız sayfasından bir telefonun oturumunu kapatmak.",
+    description: "Yallapp Business ile uygulamanızı telefonunuzdan yönetin: giriş yapmak, gösterdikleri, Yallapp Studio'da yapılan uygulamaların araçları, Prime ve VIP, size gönderdiği bildirimler ve Telefonlarınız sayfasından bir telefonun oturumunu kapatmak.",
     body: `Yallapp Business, Yallapp'te bir uygulama yöneten kişiler için Yallapp'in kendi uygulamasıdır: telefonunuzdaki paneliniz, Android telefonlar ve iPhone'lar için. Panelle aynı hesap ve aynı verilerle çalışır; birinde yaptığınız diğerinde görünür. İçinde hiçbir şey satın alınmaz veya ödenmez: paketiniz ve depolama alanınız olduğu gibi gösterilir, **yallapp.com.tr'de yönetin** web sitesini açar.
 
 ## Giriş yapmak
@@ -376,9 +376,35 @@ Ekibinizdeki kişiler kendi e-posta ve şifreleriyle giriş yapar ve yalnızca r
 
 Her ekran yalnızca uygulamanızda varsa ve rolünüz izin veriyorsa görünür. Birden fazla uygulamanız varsa üstten birini seçin.
 
+## Yallapp Studio'da yapılan uygulamalar
+
+1.0.2 sürümünden itibaren [Yallapp Studio](/docs/yallapp-studio)'da yapılan uygulamaların, panellerindekiyle aynı sözcüklerle kendi araçları vardır:
+
+- **Yemek teslimatı** (Bugün, Siparişler, Gönderiler, Sohbet ve Diğer): **Yeni**, **Devam eden**, **Tamamlanan** ve **Sorunlu** yemek siparişleri. Bir siparişi gereken dakikalarla (**Hazır olma süresi**) kabul edin, bir nedenle reddedin, hazır olarak işaretleyin ya da iptal edin: müşteriye haber verilir ve kuryenin işi oluşturulur. Restoranlarınız açık, yoğun ya da gecikmeli görünür; bir gecikmeyi bitirin ya da yoğun bir restoranı yeniden açın.
+- **Gönderiler**: kim görevde, kim yolda ve neler bekliyor. Bekleyen bir gönderiyi, önce görevdeki en yakın olmak üzere bir kuryeye verin ve her kuryeyi boş, meşgul, görev dışı ya da duraklatılmış olarak görün.
+- **Yolculuklar ve taksiler** (Bugün, Yolculuklar, Sohbet, Analitik ve Diğer): şimdiki, planlanmış, tamamlanmış ve sorunlu yolculuklar. Sürücü arayan bir yolculuğu, önce en yakın olmak üzere boş bir sürücüye verin ya da ücretsiz iptal edin.
+- **Çok satıcılı uygulamalar** (Bugün, Pazar, Gönderiler, Sohbet ve Diğer): her yerin siparişleri (her yer kendi siparişlerini ilerletir), sizi ya da müşteriyi bekleyen şikâyetler, eksik, yanlış ya da hasarlı ürünler için önerilen bir iade, yanıtınız ve kararınız; ve bugünün siparişleriyle açık olan ya da olmayan yerleriniz.
+- **Okullar** (Bugün, Okul, Bildir, Analitik ve Diğer): kapıdaki gün (gelen, geç kalan, henüz gelmeyen, devamsız ya da mazeretli öğrenciler ve öğretmenler ve personel), çalışan ve geciken servisler, bugünün teslim notları, izin belgeleri ve ödenecek ücretler. Velilerin devamsızlık mazeretlerini kabul edin ya da reddedin (reddetmek için bir not gerekir), öğretmen raporlarına yorum yapın, geri gönderin ya da onaylayın ve izin taleplerini onaylayın ya da reddedin.
+
+**Bugün** bu uygulamaların kendi siparişlerini ve satışlarını sayar; **Şimdi sizi bekleyenler** bekleyenleri gösterir: yeni yemek siparişleri, kuryesiz gönderiler, sürücü arayan yolculuklar, şikâyetler, mazeretler, raporlar ve izinler.
+
+## Prime
+
+**Prime**, Studio planlarından birindeki her uygulamayla gelir: satın alınacak ya da açılacak bir şey yoktur. Normal bir plandaki uygulama Prime'ın ne olduğunu web sitesine bir bağlantıyla görür.
+
+- **Bugün** günün şu ana kadarını geçen haftanın aynı günüyle karşılaştırır.
+- **Analizler**: bu hafta ya da bu ay, bir öncekine karşı: satışlar, siparişler, her gün, haftanın günlerine göre yoğun saatler, geri gelen müşteriler, ortalama sipariş ve en çok satan beş ürün.
+- **Akıllı uyarılar**: bir şey çok beklediğinde telefonunuza bir bildirim: kabul bekleyen bir sipariş, kuryesi olmayan bir gönderi, seçtiğiniz saate kadar düşük satışlar, yanıtsız bir mesaj, düşük bir puan ya da sürücü bulamayan bir yolculuk. Yalnızca uygulamanızda olanlar görünür, siz açana kadar hepsi kapalıdır ve ekibinizdeki herkes kendininkini ayarlar.
+- **Sabah özeti**: dün, tek bir bildirimde, her gün sizin saatinizde.
+- **Prime görünümleri**: Klasik, Gece altını, Köz ve Adaçayı; açık ve koyu, bu telefonda saklanır. Görünüm müşterilerinizin uygulamasında hiçbir şeyi değiştirmez.
+
+## VIP: hesap yöneticiniz
+
+Uygulamalarınızdan birinin planı bir hesap yöneticisiyle geliyorsa (Business planı ve içerdiğinde Studio'nun Business planı), Yallapp Business Yallapp'teki **hesap yöneticinizi** gösterir: fotoğrafı, WhatsApp'ı, telefonu ve görüşme kabul ettiği gün ve saatler; mesajlarınız önce yanıtlanır. **Görüşme ayarla** önümüzdeki beş iş günündeki boş zamanlarını yarım saatlik aralıklarla sunar. Hesap yöneticiniz görüşmeyi onaylar ve gerekirse saatini değiştirebilir.
+
 ## Telefonunuzdaki bildirimler
 
-Giriş yaptıktan sonra uygulama size bildirim göndermek için izin ister. **Diğer › Bildirimler** altında bu telefonun hangilerini alacağını seçersiniz: **Yeni siparişler**, **Yeni randevular**, **Yeni mesajlar**, **Sohbet mesajları**, **Yeni değerlendirmeler**, **Ödemeler**, **Derlemeler**, **Yallapp'ten haberler** ve **Hesap bildirimleri**. Hesap bildirimleri; paketinizin bitişini, depolama alanınızı, uygulama kullanıcılarınızın paket sınırına yaklaşmasını ve web sitenizin ya da bir bağlantının ilgi beklediğini haber verir: web siteniz, ödeme anahtarlarınız veya bildirim anahtarlarınız günlük kontrolü geçemediğinde bildirim telefonunuza, panelinizin **Genel bakış** sayfasına ve e-postanıza gelir. Ekranını açmak için bir bildirime dokunun.
+Giriş yaptıktan sonra uygulama size bildirim göndermek için izin ister. **Diğer › Bildirimler** altında bu telefonun hangilerini alacağını seçersiniz: **Yeni siparişler**, **Yeni randevular**, **Yeni mesajlar**, **Sohbet mesajları**, **Yeni değerlendirmeler**, **Ödemeler**, **Derlemeler**, **Yallapp'ten haberler** ve **Hesap bildirimleri**; Studio'da yapılan uygulamalarda da **Yeni yemek siparişleri**, **Kuryesiz gönderiler**, şikâyetler, **Akıllı uyarılar** ve **Sabah özeti**. Hesap bildirimleri; paketinizin bitişini, depolama alanınızı, uygulama kullanıcılarınızın paket sınırına yaklaşmasını ve web sitenizin ya da bir bağlantının ilgi beklediğini haber verir: web siteniz, ödeme anahtarlarınız veya bildirim anahtarlarınız günlük kontrolü geçemediğinde bildirim telefonunuza, panelinizin **Genel bakış** sayfasına ve e-postanıza gelir. Ekranını açmak için bir bildirime dokunun.
 
 Birden fazla işletme için çalışıyorsanız başka bir işletmenin bildirimleri o işletmenin adıyla başlar ve birine dokunmak o işletmeye geçer.
 

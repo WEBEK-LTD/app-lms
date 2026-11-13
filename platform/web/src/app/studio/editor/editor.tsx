@@ -27,6 +27,7 @@ import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode, studioPageOpeners } from "@/lib/studio/tree";
 import { formatList } from "@/i18n/format";
+import { localePath } from "@/i18n/paths";
 import { applyTextStyle, textStylesOf, textStyleUse } from "@/lib/studio/text-styles";
 import { forTablet, tabletPatch } from "@/lib/studio/tablet";
 import { DESIGN_FILE_EXTENSION, designPages, designSection, fontsIn, picturesIn, readDesignFile, withoutFonts, withPictures, writeDesignFile, type DesignFile, type DesignFileFont, type DesignFilePicture, type DesignKind } from "@/lib/studio/design-file";
@@ -1194,6 +1195,12 @@ export function StudioEditor(props: StudioEditorProps) {
             {t("studio.saveNow")}
           </button>
         ) : null}
+        {/* 129.30 The editor's help: every element and its settings, in the dashboard's language. */}
+        <a href={localePath(dashLang, "/docs/studio-elements")} target="_blank" rel="noopener" title={t("studio.help")} className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-2.5 text-sm font-semibold no-underline" style={{ color: C.barMuted }}>
+          <Glyph name="help" size={18} />
+          {t("studio.help")}
+          <span className="sr-only">{t("common.opensInNewTab")}</span>
+        </a>
         <a href={props.previewHref} target="_blank" rel="noopener" className="flex h-[38px] items-center gap-1.5 rounded-[10px] px-3.5 text-sm font-semibold no-underline" style={{ border: `1px solid ${C.barLine}`, color: C.ivory }}>
           <Glyph name="play_arrow" size={18} />
           {t("studio.previewOnPhone")}

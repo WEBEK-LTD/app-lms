@@ -48,6 +48,8 @@ export const DASHBOARD_HELP: Record<string, string> = {
   "/dashboard/members": "fitness",
   "/dashboard/memberships": "fitness",
   "/dashboard/timetable": "fitness",
+  // 129.30 Travel's Hotels, Flights, Bookings and Travel settings (Phase 126).
+  "/dashboard/travel": "travel",
 };
 
 /** The article's slug for a dashboard address, or null. */
