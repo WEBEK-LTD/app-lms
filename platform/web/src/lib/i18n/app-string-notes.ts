@@ -4251,6 +4251,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "الدفع ببطاقة غير محفوظة بعد، في سلة الدورات.",
     tr: "Kurs sepetinde henüz kaydedilmemiş bir kartla öder.",
   },
+  "124.15 Over the app's name on the Editorial launch screen.": {
+    en: "Over the app's name on the launch screen in the Editorial look.",
+    ar: "فوق اسم التطبيق في شاشة البداية بشكل Editorial.",
+    tr: "Editorial görünümlü açılış ekranında uygulamanın adının üstünde.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */
