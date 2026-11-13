@@ -90,27 +90,29 @@ void main() {
   test('the demo page has the approved parts, in their order', () {
     expect(page.header, isNull);
     final types = [for (final n in page.body.children) n.type];
+    // 128 The demo's sign-in note last, after the approved design.
     expect(types, [
       StudioNodeType.market,
-      StudioNodeType.column,
       StudioNodeType.stack,
       StudioNodeType.grid,
       StudioNodeType.row,
       StudioNodeType.market,
+      StudioNodeType.row,
     ]);
+    expect(page.body.children.last.visibility, StudioVisibility.signedOut);
     final bar = page.body.children.first.market!;
     expect(bar.section, StudioMarketSection.address);
     expect(bar.style, StudioMarketStyle.bar);
-    final places = page.body.children.last.market!;
+    final places = page.body.children[4].market!;
     expect(places.section, StudioMarketSection.vendors);
     expect(places.style, StudioMarketStyle.chips);
     expect(places.sort, StudioMarketSort.nearest);
     // The offer's words read over a shade from the start.
-    final offer = page.body.children[2];
+    final offer = page.body.children[1];
     expect(offer.scrim?.angle, 90);
     expect(offer.imageBackgroundUrl, endsWith('/demo-photos/cover-market.jpg'));
     // Four photo tiles, each with a shade at its foot.
-    final tiles = page.body.children[3].children;
+    final tiles = page.body.children[2].children;
     expect(tiles, hasLength(4));
     for (final t in tiles) {
       expect(t.scrim?.to, 0.7);
