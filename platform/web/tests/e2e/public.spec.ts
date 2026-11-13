@@ -57,6 +57,25 @@ for (const width of [360, 1280]) {
   });
 }
 
+// The site's header fits a 1280 px laptop in every language: Turkish's longer labels once pushed it 19 px past the edge,
+// so every Turkish page scrolled sideways.
+for (const path of ["/", "/ar", "/tr"]) {
+  test(`the header of ${path} fits at 1280 px`, async ({ page: tab }) => {
+    await tab.setViewportSize({ width: 1280, height: 900 });
+    await tab.goto(path);
+    const over = await tab.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      let most = document.documentElement.scrollWidth - width;
+      for (const el of document.querySelectorAll("header *")) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0) most = Math.max(most, r.right - width, -r.left);
+      }
+      return most;
+    });
+    expect(over).toBeLessThanOrEqual(0);
+  });
+}
+
 test("the landing page has the plans, the steps and the full footer", async ({ page }) => {
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Main" });
