@@ -41,9 +41,14 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
+/** 128.9 Whether Yallapp's page is dark now (the visitor's choice, else the system's), following changes; false on the server. */
+export function useSiteDark(): boolean {
+  return useSyncExternalStore(subscribe, isDark, () => false);
+}
+
 export function ThemeSwitch({ label, className = "" }: { label: string; className?: string }) {
   // On the server (and until the page is live) it shows as off: the script already painted the right theme.
-  const dark = useSyncExternalStore(subscribe, isDark, () => false);
+  const dark = useSiteDark();
   const toggle = () => {
     const next = dark ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
