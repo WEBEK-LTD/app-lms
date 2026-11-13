@@ -4,11 +4,13 @@ import 'api_exception.dart';
 import 'models.dart';
 import 'owner_api.dart';
 
+part 'fake_studio_api.dart';
+
 /// 59 The Owner API in memory: sample apps of every kind, with the rules the
 /// contract describes (features per app, next statuses, check-in outcomes,
 /// limits). The widget tests drive it, and `--dart-define=YB_DEMO=true` runs
 /// the app on it.
-class FakeOwnerApi implements OwnerApi {
+class FakeOwnerApi with _FakeStudio implements OwnerApi {
   FakeOwnerApi({DateTime? now, this.latency = Duration.zero})
     : now = now ?? DateTime.now() {
     _seed();
@@ -18,6 +20,7 @@ class FakeOwnerApi implements OwnerApi {
   static const demoPassword = 'yallapp-demo';
 
   /// Everything relative to this moment.
+  @override
   final DateTime now;
 
   /// Time each call takes (the demo shows its loading states).
@@ -97,6 +100,15 @@ class FakeOwnerApi implements OwnerApi {
   static const newsId = '77777777-7777-4777-8777-777777777777';
   // 63 A gym, for members at the door.
   static const gymId = '88888888-8888-4888-8888-888888888888';
+  // 125 Studio apps: food, a marketplace, deliveries, a taxi app, a school.
+  static const foodId = _FakeStudio.foodId;
+  static const marketId = _FakeStudio.marketId;
+  static const deliveryId = _FakeStudio.deliveryId;
+  static const ridesId = _FakeStudio.ridesId;
+  static const schoolId = _FakeStudio.schoolId;
+
+  @override
+  List<AppSummary> get _appsForVip => apps;
 
   /// Sara Adel's member code (membership 1 of the gym), typed and as a QR.
   static const memberCode = 'Q4MZ7KP2XH9D';
@@ -104,6 +116,7 @@ class FakeOwnerApi implements OwnerApi {
 
   static const ticketCode = 'YT1.A7K2-9QXM.3f9a1c';
 
+  @override
   Future<void> _call(String name, {bool needsActive = true}) async {
     calls.add(name);
     if (latency > Duration.zero) await Future<void>.delayed(latency);
@@ -123,6 +136,7 @@ class FakeOwnerApi implements OwnerApi {
     }
   }
 
+  @override
   AppSummary _app(String appId, [bool Function(AppFeatures f)? feature]) {
     final app = apps.where((a) => a.id == appId).firstOrNull;
     if (app == null) {
@@ -348,8 +362,11 @@ class FakeOwnerApi implements OwnerApi {
         ),
       ),
     );
+    // 125 The Studio apps.
+    apps.addAll(_studioApps());
     _seedCommunity();
     _seedGym();
+    _seedStudio();
 
     devicesList
       ..clear()
@@ -1046,6 +1063,8 @@ class FakeOwnerApi implements OwnerApi {
               orElse: () => businesses.first,
             ),
       businesses: businesses,
+      // 125 VIP.
+      accountManager: state.blocked ? null : _accountManager(apps),
       links: const MeLinks(
         dashboard: 'https://yallapp.com.tr/dashboard',
         supportWhatsapp: 'https://wa.me/201000000000',
@@ -1150,6 +1169,16 @@ class FakeOwnerApi implements OwnerApi {
             analytics: a.features.analytics && has('analytics'),
             preview: a.features.preview,
             builds: a.features.builds && settings,
+            // 125 Studio apps: the engines are Orders; a school, Settings;
+            // Prime, Analytics.
+            foodOrders: a.features.foodOrders && has('orders'),
+            restaurants: a.features.restaurants && has('orders'),
+            shipments: a.features.shipments && has('orders'),
+            rides: a.features.rides && has('orders'),
+            market: a.features.market && has('orders'),
+            school: a.features.school && settings,
+            prime: a.features.prime && has('analytics'),
+            vip: a.features.vip,
           ),
           access: AppAccess(
             role: role,
@@ -1335,6 +1364,9 @@ class FakeOwnerApi implements OwnerApi {
   Future<Today> today(String appId) async {
     await _call('today');
     final app = _app(appId);
+    // 125 A Studio app counts its engine.
+    final studio = _studioToday(app);
+    if (studio != null) return studio;
     final f = app.features;
     final orders = _orders[appId] ?? const [];
     final processing = orders.where((o) => o.status == 'processing').length;

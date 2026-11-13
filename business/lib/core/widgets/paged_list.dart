@@ -13,6 +13,7 @@ class PagedList<T> extends StatefulWidget {
     required this.itemBuilder,
     required this.empty,
     this.header,
+    this.footer,
     this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 24),
     this.spacing = 10,
   });
@@ -23,6 +24,9 @@ class PagedList<T> extends StatefulWidget {
 
   /// Shown above the items once the first page is in (totals, a count).
   final Widget? header;
+
+  /// 125 Shown under the items (a note about the list).
+  final Widget? footer;
   final EdgeInsets padding;
   final double spacing;
 
@@ -107,8 +111,12 @@ class PagedListState<T> extends State<PagedList<T>> {
     } else {
       final hasMore = _last?.hasMore ?? false;
       final header = widget.header;
+      final footer = widget.footer;
       final count =
-          _items.length + (header == null ? 0 : 1) + (hasMore ? 1 : 0);
+          _items.length +
+          (header == null ? 0 : 1) +
+          (hasMore ? 1 : 0) +
+          (footer == null ? 0 : 1);
       body = ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: widget.padding,
@@ -119,8 +127,10 @@ class PagedListState<T> extends State<PagedList<T>> {
             i -= 1;
           }
           if (i == _items.length) {
-            return LoadMore(onPressed: _loadMore, busy: _more);
+            if (hasMore) return LoadMore(onPressed: _loadMore, busy: _more);
+            return footer!;
           }
+          if (i > _items.length) return footer!;
           return Padding(
             padding: EdgeInsets.only(bottom: widget.spacing),
             child: widget.itemBuilder(context, _items[i]),

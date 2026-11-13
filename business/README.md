@@ -85,8 +85,8 @@ goes to the Firebase project (LAUNCH-CHECKLIST 7l).
 | `lib/core/auth/` | Tokens in the keychain / encrypted storage (`flutter_secure_storage`), refresh |
 | `lib/core/session.dart` | Sign in, the biometric lock, pending/suspended states, the app switcher's choice, the language |
 | `lib/core/routing/` | Routes for every screen; the redirect from the session; pushes' deep links |
-| `lib/features/` | One folder per screen group: auth, account, today, orders (and Kitchen mode), appointments, events (and the scanner), donations, catalog, media, inbox, users, stats, notify, preview, builds, more |
-| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages; Phase 61's in `strings_d.py`, Phase 60's in `strings_e.py`, Phase 63's in `strings_f.py`, Phase 64's in `strings_g.py`, Phase 64b's in `strings_h.py`), then `flutter gen-l10n` |
+| `lib/features/` | One folder per screen group: auth, account, today, orders (and Kitchen mode), appointments, events (and the scanner), donations, catalog, media, inbox, users, stats, notify, preview, builds, more; 125 food, shipments, rides, market, school, prime, vip, launch (the opening) and studio (their shared pieces) |
+| `lib/l10n/` | `app_{en,ar,tr}.arb`, written by `tool/build_arb.py` from `tool/strings_*.py` (one row per string in the three languages; Phase 61's in `strings_d.py`, Phase 60's in `strings_e.py`, Phase 63's in `strings_f.py`, Phase 64's in `strings_g.py`, Phase 64b's in `strings_h.py`, Phase 125's in `strings_p125.py`), then `flutter gen-l10n` |
 
 Roadmap 61 added the dark theme (Settings › Appearance: the phone's setting,
 light or dark, kept on the phone; colors from `YbColors` in
@@ -113,6 +113,38 @@ app); Members freezes a membership from a day until the day it's back or
 until unfrozen, and unfreezes it (the door says "Frozen until …"); a tapped
 push of another business the person is on switches to it first. The demo
 has a hidden question and answer, and a frozen member (Nour Hany).
+
+Roadmap 125 (Yallapp Business 1.0.2): apps made in Yallapp Studio get
+their own tools, as the 1.0.2 designs draw them, light and dark. A food app
+(tabs Today, Orders, Shipments, Chat, More) takes its food orders (New,
+Active, Done, Problems): accepted with the time to prepare (the "Ready in"
+sheet), rejected with why, marked ready or cancelled; its restaurants' delays
+end and busy ones open again. Shipments show who is on duty, on the way and
+waiting, and a waiting one goes to the closest courier on duty (the courier
+sheet); couriers have a list of their own. A rides or taxi app (Today, Rides,
+Chat, Stats, More) gives a searching ride to a free driver or cancels it. A
+marketplace (Today, Market, Shipments, Chat, More) shows its orders, settles
+complaints (a reply, the suggested refund, every decision the server allows,
+with where the money goes) and lists its vendors. A school (Today, School,
+Notify, Stats, More) has its day (who is in, buses, pick-ups, slips, fees)
+and answers absence excuses (a note is needed to decline), teachers' reports
+(comment, return, approve) and leave, one at a time. These engines never show
+the catalog's Orders tab (the 1.0.1 bug: the server no longer sends
+`orders=true` for them). Prime (every Studio app, `features.prime`): Today's
+dark header with today against the same weekday last week, the morning brief,
+Insights (this week or month against the last, peak hours, customers who came
+back, the average order, best sellers), Smart alerts (each person's own, on
+the server) and four Looks (Classic, Midnight gold, Ember, Sage; light and
+dark; kept on this phone per app, with the Prime header's switch); an app on
+a regular plan sees what Prime is with a link to the website and nothing to
+buy. VIP (`Me.account_manager`): the account manager, WhatsApp, a call, and a
+call booked in their free times. The app opens with a 1.2-second motion from
+the launch screen's Ember dot (Android `launch_background`, `values-night`,
+Android 12's splash in `values-v31`, iOS `LaunchScreen` with the
+`LaunchBackground` color), still with the phone's reduced motion, gold for a
+Prime app. Pushes open food orders, shipments, rides, complaints, market
+orders and the school's excuses, reports and leave. The demo has Yalla Food,
+Yalla Market, Hızlı Kurye, Yalla Taxi and Green Hill School.
 
 Each screen and quick action is shown only when the app has it
 (`AppSummary.features`): the second tab is the app's main tool (Events,

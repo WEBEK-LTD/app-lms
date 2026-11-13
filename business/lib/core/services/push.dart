@@ -77,7 +77,33 @@ PushTarget pushTarget(Map<String, dynamic> data) {
   final review = value('review_id');
   // 77 A chat message opens its conversation.
   final conversation = value('conversation_id');
-  final location = order != null
+  // 125 Studio apps: a food order, a shipment, a ride, a complaint, a
+  // school's excuse, report or leave request.
+  final foodOrder = value('food_order_id');
+  final shipment = value('shipment_id');
+  final ride = value('ride_id');
+  final complaint = value('complaint_id');
+  final marketOrder = value('market_order_id');
+  final excuse = value('school_excuse_id');
+  final report = value('school_report_id');
+  final leave = value('leave_id');
+  final location = foodOrder != null
+      ? Paths.foodOrder(foodOrder)
+      : shipment != null
+      ? Paths.shipment(shipment)
+      : ride != null
+      ? Paths.ride(ride)
+      : complaint != null
+      ? Paths.complaint(complaint)
+      : marketOrder != null
+      ? Paths.marketOrder(marketOrder)
+      : excuse != null
+      ? Paths.schoolReview('excuses', excuse)
+      : report != null
+      ? Paths.schoolReview('reports', report)
+      : leave != null
+      ? Paths.schoolReview('leave', leave)
+      : order != null
       ? Paths.order(order)
       : appointment != null
       ? Paths.appointments
@@ -103,6 +129,18 @@ PushTarget pushTarget(Map<String, dynamic> data) {
           'build_finished' => Paths.builds,
           'yallapp_updates' || 'account_notices' => Paths.updates,
           'payment_received' => Paths.updates,
+          // 125
+          'new_food_order' => Paths.foodOrders,
+          'shipment_waiting' => Paths.shipments,
+          'new_complaint' => Paths.marketTab('complaints'),
+          'prime_alert' => switch (value('alert')) {
+            'order_waiting' => Paths.foodOrders,
+            'shipment_unassigned' => Paths.shipments,
+            'ride_no_driver' => Paths.rides,
+            'message_unanswered' => Paths.chat,
+            _ => Paths.today,
+          },
+          'morning_brief' => Paths.today,
           _ => Paths.today,
         };
   return PushTarget(

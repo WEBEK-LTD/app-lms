@@ -885,6 +885,403 @@ class HttpOwnerApi implements OwnerApi {
   Future<void> cancelScheduledNotification(String appId, int id) =>
       _delete('${_app(appId)}/notifications/scheduled/$id');
 
+  // 125 Studio apps: food orders and restaurants.
+
+  String _id(String id) => Uri.encodeComponent(id);
+
+  Map<String, dynamic> _listQuery(
+    String key,
+    String value,
+    String? q,
+    int page,
+  ) => {
+    key: value,
+    if (q != null && q.trim().isNotEmpty) 'q': q.trim(),
+    'page': page,
+    'per_page': 20,
+  };
+
+  Map<String, dynamic> _withNote(Map<String, dynamic> body, String? note) => {
+    ...body,
+    if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+  };
+
+  @override
+  Future<Paged<FoodOrder>> foodOrders(
+    String appId, {
+    String filter = 'new',
+    String? query,
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/food-orders',
+      query: _listQuery('filter', filter, query, page),
+    ),
+    FoodOrder.fromJson,
+  );
+
+  @override
+  Future<FoodOrderDetail> foodOrder(String appId, String id) async =>
+      FoodOrderDetail.fromJson(
+        await _get('${_app(appId)}/food-orders/${_id(id)}'),
+      );
+
+  @override
+  Future<FoodOrderDetail> foodOrderStep(
+    String appId,
+    String id, {
+    required String step,
+    int? prepMinutes,
+    String? reason,
+    String? note,
+  }) async => FoodOrderDetail.fromJson(
+    await _post(
+      '${_app(appId)}/food-orders/${_id(id)}/step',
+      _withNote({
+        'step': step,
+        'prep_minutes': ?prepMinutes,
+        'reason': ?reason,
+      }, note),
+    ),
+  );
+
+  @override
+  Future<List<Restaurant>> restaurants(String appId) async => listOf(
+    await _get('${_app(appId)}/restaurants'),
+    'items',
+    Restaurant.fromJson,
+  );
+
+  @override
+  Future<Restaurant> openRestaurant(String appId, String id) async =>
+      Restaurant.fromJson(
+        await _post('${_app(appId)}/restaurants/${_id(id)}/open'),
+      );
+
+  @override
+  Future<Restaurant> endRestaurantDelay(String appId, String id) async =>
+      Restaurant.fromJson(
+        await _post('${_app(appId)}/restaurants/${_id(id)}/end-delay'),
+      );
+
+  // 125 Shipments and couriers.
+
+  @override
+  Future<Paged<Shipment>> shipments(
+    String appId, {
+    String filter = 'waiting',
+    String? query,
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/shipments',
+      query: _listQuery('filter', filter, query, page),
+    ),
+    Shipment.fromJson,
+  );
+
+  @override
+  Future<ShipmentDetail> shipment(String appId, String id) async =>
+      ShipmentDetail.fromJson(
+        await _get('${_app(appId)}/shipments/${_id(id)}'),
+      );
+
+  @override
+  Future<ShipmentDetail> assignShipment(
+    String appId,
+    String id,
+    String courierId,
+  ) async => ShipmentDetail.fromJson(
+    await _post('${_app(appId)}/shipments/${_id(id)}/assign', {
+      'courier_id': wireId(courierId),
+    }),
+  );
+
+  @override
+  Future<ShipmentDetail> moveShipment(
+    String appId,
+    String id,
+    String status, {
+    String? note,
+  }) async => ShipmentDetail.fromJson(
+    await _post(
+      '${_app(appId)}/shipments/${_id(id)}/move',
+      _withNote({'status': status}, note),
+    ),
+  );
+
+  @override
+  Future<List<Courier>> couriers(String appId, {String? shipmentId}) async =>
+      listOf(
+        await _get(
+          '${_app(appId)}/couriers',
+          query: {'shipment_id': shipmentId},
+        ),
+        'items',
+        Courier.fromJson,
+      );
+
+  // 125 Rides and drivers.
+
+  @override
+  Future<Paged<Ride>> rides(
+    String appId, {
+    String filter = 'now',
+    String? query,
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/rides',
+      query: _listQuery('filter', filter, query, page),
+    ),
+    Ride.fromJson,
+  );
+
+  @override
+  Future<RideDetail> ride(String appId, String id) async =>
+      RideDetail.fromJson(await _get('${_app(appId)}/rides/${_id(id)}'));
+
+  @override
+  Future<RideDetail> assignRide(
+    String appId,
+    String id,
+    String driverId,
+  ) async => RideDetail.fromJson(
+    await _post('${_app(appId)}/rides/${_id(id)}/assign', {
+      'driver_id': wireId(driverId),
+    }),
+  );
+
+  @override
+  Future<RideDetail> cancelRide(
+    String appId,
+    String id, {
+    String? note,
+  }) async => RideDetail.fromJson(
+    await _post('${_app(appId)}/rides/${_id(id)}/cancel', _withNote({}, note)),
+  );
+
+  @override
+  Future<List<Driver>> drivers(String appId, {String? rideId}) async => listOf(
+    await _get('${_app(appId)}/drivers', query: {'ride_id': rideId}),
+    'items',
+    Driver.fromJson,
+  );
+
+  // 125 The marketplace.
+
+  @override
+  Future<Paged<MarketOrder>> marketOrders(
+    String appId, {
+    String filter = 'active',
+    String? query,
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/market/orders',
+      query: _listQuery('filter', filter, query, page),
+    ),
+    MarketOrder.fromJson,
+  );
+
+  @override
+  Future<MarketOrderDetail> marketOrder(String appId, String id) async =>
+      MarketOrderDetail.fromJson(
+        await _get('${_app(appId)}/market/orders/${_id(id)}'),
+      );
+
+  @override
+  Future<Paged<Complaint>> complaints(
+    String appId, {
+    String queue = 'all',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/market/complaints',
+      query: _listQuery('queue', queue, null, page),
+    ),
+    Complaint.fromJson,
+  );
+
+  @override
+  Future<ComplaintDetail> complaint(String appId, String id) async =>
+      ComplaintDetail.fromJson(
+        await _get('${_app(appId)}/market/complaints/${_id(id)}'),
+      );
+
+  @override
+  Future<ComplaintDetail> replyComplaint(
+    String appId,
+    String id,
+    String text,
+  ) async => ComplaintDetail.fromJson(
+    await _post('${_app(appId)}/market/complaints/${_id(id)}/reply', {
+      'text': text,
+    }),
+  );
+
+  @override
+  Future<ComplaintDetail> decideComplaint(
+    String appId,
+    String id, {
+    required String decision,
+    int? amountCents,
+    String? note,
+    String? to,
+    String funder = 'owner',
+    bool shareWithVendor = false,
+  }) async => ComplaintDetail.fromJson(
+    await _post(
+      '${_app(appId)}/market/complaints/${_id(id)}/decide',
+      _withNote({
+        'decision': decision,
+        'amount_cents': ?amountCents,
+        'to': ?to,
+        'funder': funder,
+        'share_with_vendor': shareWithVendor,
+      }, note),
+    ),
+  );
+
+  @override
+  Future<List<Vendor>> vendors(String appId) async => listOf(
+    await _get('${_app(appId)}/market/vendors'),
+    'items',
+    Vendor.fromJson,
+  );
+
+  // 125 A school's day.
+
+  @override
+  Future<SchoolToday> schoolToday(String appId) async =>
+      SchoolToday.fromJson(await _get('${_app(appId)}/school/today'));
+
+  @override
+  Future<Paged<Excuse>> excuses(
+    String appId, {
+    String status = 'pending',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/school/excuses',
+      query: _listQuery('status', status, null, page),
+    ),
+    Excuse.fromJson,
+  );
+
+  @override
+  Future<Excuse> excuse(String appId, String id) async =>
+      Excuse.fromJson(await _get('${_app(appId)}/school/excuses/${_id(id)}'));
+
+  @override
+  Future<Excuse> answerExcuse(
+    String appId,
+    String id, {
+    required String answer,
+    String? note,
+  }) async => Excuse.fromJson(
+    await _post(
+      '${_app(appId)}/school/excuses/${_id(id)}/answer',
+      _withNote({'answer': answer}, note),
+    ),
+  );
+
+  @override
+  Future<Paged<SchoolReport>> reports(
+    String appId, {
+    String status = 'sent',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/school/reports',
+      query: _listQuery('status', status, null, page),
+    ),
+    SchoolReport.fromJson,
+  );
+
+  @override
+  Future<SchoolReport> report(String appId, String id) async =>
+      SchoolReport.fromJson(
+        await _get('${_app(appId)}/school/reports/${_id(id)}'),
+      );
+
+  @override
+  Future<SchoolReport> reviewReport(
+    String appId,
+    String id, {
+    required String action,
+    String? text,
+  }) async => SchoolReport.fromJson(
+    await _post('${_app(appId)}/school/reports/${_id(id)}/review', {
+      'action': action,
+      if (text != null && text.trim().isNotEmpty) 'text': text.trim(),
+    }),
+  );
+
+  @override
+  Future<Paged<LeaveRequest>> leaveRequests(
+    String appId, {
+    String status = 'pending',
+    int page = 1,
+  }) async => Paged.fromJson(
+    await _get(
+      '${_app(appId)}/school/leave',
+      query: _listQuery('status', status, null, page),
+    ),
+    LeaveRequest.fromJson,
+  );
+
+  @override
+  Future<LeaveRequest> answerLeave(
+    String appId,
+    String id, {
+    required String answer,
+    String? note,
+  }) async => LeaveRequest.fromJson(
+    await _post(
+      '${_app(appId)}/school/leave/${_id(id)}/answer',
+      _withNote({'answer': answer}, note),
+    ),
+  );
+
+  // 125 Prime.
+
+  @override
+  Future<PrimeInsights> primeInsights(
+    String appId, {
+    String period = 'week',
+  }) async => PrimeInsights.fromJson(
+    await _get('${_app(appId)}/prime/insights', query: {'period': period}),
+  );
+
+  @override
+  Future<PrimeAlerts> primeAlerts(String appId) async =>
+      PrimeAlerts.fromJson(await _get('${_app(appId)}/prime/alerts'));
+
+  @override
+  Future<PrimeAlerts> setPrimeAlerts(String appId, PrimeAlerts alerts) async =>
+      PrimeAlerts.fromJson(
+        await _put('${_app(appId)}/prime/alerts', alerts.toJson()),
+      );
+
+  // 125 VIP.
+
+  @override
+  Future<List<CallDay>> accountManagerSlots() async =>
+      listOf(await _get('/me/account-manager/slots'), 'days', CallDay.fromJson);
+
+  @override
+  Future<BookedCall> bookAccountManagerCall({
+    required String date,
+    required String time,
+    String? note,
+  }) async => BookedCall.fromJson(
+    await _post(
+      '/me/account-manager/calls',
+      _withNote({'date': date, 'time': time}, note),
+    ),
+  );
+
   // Publishing and license
 
   @override

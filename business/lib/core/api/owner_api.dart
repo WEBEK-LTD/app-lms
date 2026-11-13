@@ -301,6 +301,149 @@ abstract class OwnerApi {
   });
   Future<void> cancelScheduledNotification(String appId, int id);
 
+  // 125 Studio apps: food orders and restaurants.
+  Future<Paged<FoodOrder>> foodOrders(
+    String appId, {
+    String filter = 'new',
+    String? query,
+    int page = 1,
+  });
+  Future<FoodOrderDetail> foodOrder(String appId, String id);
+
+  /// accept (with [prepMinutes]), reject (with [reason]), ready or cancel.
+  Future<FoodOrderDetail> foodOrderStep(
+    String appId,
+    String id, {
+    required String step,
+    int? prepMinutes,
+    String? reason,
+    String? note,
+  });
+  Future<List<Restaurant>> restaurants(String appId);
+  Future<Restaurant> openRestaurant(String appId, String id);
+  Future<Restaurant> endRestaurantDelay(String appId, String id);
+
+  // 125 Shipments and couriers.
+  Future<Paged<Shipment>> shipments(
+    String appId, {
+    String filter = 'waiting',
+    String? query,
+    int page = 1,
+  });
+  Future<ShipmentDetail> shipment(String appId, String id);
+  Future<ShipmentDetail> assignShipment(
+    String appId,
+    String id,
+    String courierId,
+  );
+  Future<ShipmentDetail> moveShipment(
+    String appId,
+    String id,
+    String status, {
+    String? note,
+  });
+  Future<List<Courier>> couriers(String appId, {String? shipmentId});
+
+  // 125 Rides and drivers.
+  Future<Paged<Ride>> rides(
+    String appId, {
+    String filter = 'now',
+    String? query,
+    int page = 1,
+  });
+  Future<RideDetail> ride(String appId, String id);
+  Future<RideDetail> assignRide(String appId, String id, String driverId);
+  Future<RideDetail> cancelRide(String appId, String id, {String? note});
+  Future<List<Driver>> drivers(String appId, {String? rideId});
+
+  // 125 The marketplace.
+  Future<Paged<MarketOrder>> marketOrders(
+    String appId, {
+    String filter = 'active',
+    String? query,
+    int page = 1,
+  });
+  Future<MarketOrderDetail> marketOrder(String appId, String id);
+  Future<Paged<Complaint>> complaints(
+    String appId, {
+    String queue = 'all',
+    int page = 1,
+  });
+  Future<ComplaintDetail> complaint(String appId, String id);
+  Future<ComplaintDetail> replyComplaint(String appId, String id, String text);
+
+  /// [to]: payment, wallet or coupon; [funder]: owner or vendor.
+  Future<ComplaintDetail> decideComplaint(
+    String appId,
+    String id, {
+    required String decision,
+    int? amountCents,
+    String? note,
+    String? to,
+    String funder = 'owner',
+    bool shareWithVendor = false,
+  });
+  Future<List<Vendor>> vendors(String appId);
+
+  // 125 A school's day.
+  Future<SchoolToday> schoolToday(String appId);
+  Future<Paged<Excuse>> excuses(
+    String appId, {
+    String status = 'pending',
+    int page = 1,
+  });
+  Future<Excuse> excuse(String appId, String id);
+
+  /// accepted, or declined with a [note] to the parents.
+  Future<Excuse> answerExcuse(
+    String appId,
+    String id, {
+    required String answer,
+    String? note,
+  });
+  Future<Paged<SchoolReport>> reports(
+    String appId, {
+    String status = 'sent',
+    int page = 1,
+  });
+
+  /// Reading it marks it read.
+  Future<SchoolReport> report(String appId, String id);
+
+  /// comment, return (with what to change) or approve.
+  Future<SchoolReport> reviewReport(
+    String appId,
+    String id, {
+    required String action,
+    String? text,
+  });
+  Future<Paged<LeaveRequest>> leaveRequests(
+    String appId, {
+    String status = 'pending',
+    int page = 1,
+  });
+
+  /// approved or refused.
+  Future<LeaveRequest> answerLeave(
+    String appId,
+    String id, {
+    required String answer,
+    String? note,
+  });
+
+  // 125 Prime.
+  Future<PrimeInsights> primeInsights(String appId, {String period = 'week'});
+  Future<PrimeAlerts> primeAlerts(String appId);
+  Future<PrimeAlerts> setPrimeAlerts(String appId, PrimeAlerts alerts);
+
+  // 125 VIP: the account manager's free times, and a call booked.
+  Future<List<CallDay>> accountManagerSlots();
+  Future<BookedCall> bookAccountManagerCall({
+    required String date,
+    required String time,
+    String? note,
+  });
+
   // Publishing and license
   Future<Preview> preview(String appId, {bool draft = false});
   Future<Builds> builds(String appId);

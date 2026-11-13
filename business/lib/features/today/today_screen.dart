@@ -11,6 +11,9 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
 import '../../core/widgets/states.dart';
 import '../account/apps_screen.dart';
+import '../prime/prime_state.dart';
+import '../prime/prime_today.dart';
+import '../studio/studio_widgets.dart';
 
 final todayProvider = FutureProvider.autoDispose<Today>(
   (ref) => ref.watch(apiProvider).today(ref.watch(appIdProvider)),
@@ -32,22 +35,36 @@ class TodayScreen extends ConsumerWidget {
     // Signing out: the screen goes as the router moves on.
     if (me == null || app == null) return const SizedBox.shrink();
     final today = ref.watch(todayProvider);
+    // 125 A Prime app: the dark header (unless turned off in Look), the
+    // morning brief, Insights and Smart alerts, the account manager.
+    final prime = app.features.prime;
+    final header = prime && ref.watch(primeHeaderProvider);
+    final unread = ref.watch(updatesProvider).value?.unread ?? 0;
 
     Future<void> refresh() async {
       ref.invalidate(updatesProvider);
+      if (prime) ref.invalidate(primeAlertsProvider);
       await ref.read(sessionProvider.notifier).refreshMe();
       return ref.refresh(todayProvider.future).then((_) {});
     }
 
     return Scaffold(
       body: SafeArea(
+        top: !header,
         bottom: false,
         child: RefreshIndicator(
           onRefresh: pullToRefresh(context, refresh),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: _Header(app: app, me: me),
+                child: header
+                    ? PrimeHeader(
+                        app: app,
+                        me: me,
+                        today: today.value,
+                        unread: unread,
+                      )
+                    : _Header(app: app, me: me),
               ),
               if (app.state == AccountState.expired)
                 SliverToBoxAdapter(
@@ -57,13 +74,20 @@ class TodayScreen extends ConsumerWidget {
                 skipLoadingOnRefresh: true,
                 skipError: true,
                 data: (data) => [
-                  SliverToBoxAdapter(
-                    child: _Kpis(app: app, today: data),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SectionTitle(context.l10n.needsYouNow),
-                  ),
-                  SliverToBoxAdapter(child: _NeedsYou(items: data.needsYou)),
+                  if (!header)
+                    SliverToBoxAdapter(
+                      child: _Kpis(app: app, today: data),
+                    ),
+                  if (prime)
+                    SliverToBoxAdapter(
+                      child: _PrimeToday(app: app, me: me, today: data),
+                    )
+                  else ...[
+                    SliverToBoxAdapter(
+                      child: SectionTitle(context.l10n.needsYouNow),
+                    ),
+                    SliverToBoxAdapter(child: _NeedsYou(items: data.needsYou)),
+                  ],
                 ],
                 loading: () => const [
                   SliverFillRemaining(child: LoadingState()),
@@ -236,7 +260,8 @@ class _Kpis extends StatelessWidget {
         : list.map((m) => isolate(m.formatted)).join(' · ');
     String count(int? n) => n == null ? '—' : context.number(n);
     final tiles = [
-      if (app.features.orders)
+      // 125 A Studio app's engine counts its own sales.
+      if (app.features.orders || today.sales.isNotEmpty)
         Kpi(AppIcons.sales, l10n.salesToday, money(today.sales)),
       if (c.orders != null)
         Kpi(AppIcons.orders, l10n.ordersToday, count(c.orders)),
@@ -349,13 +374,7 @@ class _NeedsYou extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Panel(
-                onTap: () => context.go(switch (item.kind) {
-                  'orders_in_progress' => '${Paths.orders}?status=processing',
-                  'appointments_to_confirm' => Paths.appointments,
-                  'unanswered_messages' => Paths.inboxTab('messages'),
-                  'questions_to_answer' => Paths.inboxTab('questions'),
-                  _ => Paths.updates,
-                }),
+                onTap: () => openLocation(context, needsTarget(item.kind)),
                 child: Row(
                   children: [
                     Container(
@@ -365,13 +384,7 @@ class _NeedsYou extends StatelessWidget {
                         color: context.yb.muted,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(switch (item.kind) {
-                        'orders_in_progress' => AppIcons.orders,
-                        'appointments_to_confirm' => AppIcons.appointments,
-                        'unanswered_messages' => AppIcons.inbox,
-                        'questions_to_answer' => AppIcons.question,
-                        _ => AppIcons.notice,
-                      }),
+                      child: Icon(needsIcon(item.kind)),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -417,8 +430,120 @@ String needsYouTitle(BuildContext context, NeedsYou item) {
     'appointments_to_confirm' => l10n.needsToConfirm(item.count),
     'unanswered_messages' => l10n.needsUnanswered(item.count),
     'questions_to_answer' => l10n.needsQuestions(item.count),
+    // 125 Studio apps.
+    'food_orders_new' => l10n.needsFoodNew(item.count),
+    'shipments_waiting' => l10n.needsShipments(item.count),
+    'rides_searching' => l10n.needsRides(item.count),
+    'complaints_waiting' => l10n.needsComplaints(item.count),
+    'school_excuses' => l10n.needsExcuses(item.count),
+    'school_reports' => l10n.needsReports(item.count),
+    'school_leave' => l10n.needsLeave(item.count),
     _ => item.title,
   };
+}
+
+/// Where a "Needs you now" item opens.
+String needsTarget(String kind) => switch (kind) {
+  'orders_in_progress' => '${Paths.orders}?status=processing',
+  'appointments_to_confirm' => Paths.appointments,
+  'unanswered_messages' => Paths.inboxTab('messages'),
+  'questions_to_answer' => Paths.inboxTab('questions'),
+  // 125 Studio apps.
+  'food_orders_new' => Paths.foodOrders,
+  'shipments_waiting' => Paths.shipments,
+  'rides_searching' => Paths.rides,
+  'complaints_waiting' => Paths.marketTab('complaints'),
+  'school_excuses' => Paths.schoolReview('excuses'),
+  'school_reports' => Paths.schoolReview('reports'),
+  'school_leave' => Paths.schoolReview('leave'),
+  _ => Paths.updates,
+};
+
+IconData needsIcon(String kind) => switch (kind) {
+  'orders_in_progress' || 'food_orders_new' => AppIcons.orders,
+  'appointments_to_confirm' => AppIcons.appointments,
+  'unanswered_messages' => AppIcons.inbox,
+  'questions_to_answer' => AppIcons.question,
+  'shipments_waiting' => AppIcons.shipments,
+  'rides_searching' => AppIcons.rides,
+  'complaints_waiting' => AppIcons.complaint,
+  'school_excuses' => AppIcons.excuse,
+  'school_reports' => AppIcons.report,
+  'school_leave' => AppIcons.leave,
+  _ => AppIcons.notice,
+};
+
+/// 125 A Prime app's Today under its header: the morning brief, what needs
+/// the owner (one card), Insights and Smart alerts, the account manager.
+class _PrimeToday extends ConsumerWidget {
+  const _PrimeToday({required this.app, required this.me, required this.today});
+
+  final AppSummary app;
+  final Me me;
+  final Today today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final brief = today.morningBrief ?? ref.watch(lastBriefProvider)[app.id];
+    final manager = me.accountManager;
+    final needs = today.needsYou;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (brief != null) ...[
+            BriefCard(text: brief),
+            const SizedBox(height: 12),
+          ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Semantics(
+              header: true,
+              child: Text(
+                l10n.needsYouNow,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (needs.isEmpty)
+            Panel(
+              child: Row(
+                children: [
+                  Icon(AppIcons.checkCircle, color: context.yb.success),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(l10n.allCaughtUp)),
+                ],
+              ),
+            )
+          else
+            NeedsList(
+              chevron: false,
+              rows: [
+                for (final item in needs)
+                  NeedRow(
+                    icon: needsIcon(item.kind),
+                    title: needsYouTitle(context, item),
+                    count: item.kind == 'notice' ? 0 : item.count,
+                    onTap: () => openLocation(context, needsTarget(item.kind)),
+                  ),
+              ],
+            ),
+          const SizedBox(height: 12),
+          const PrimeTiles(),
+          if (manager != null) ...[
+            const SizedBox(height: 12),
+            ManagerCard(manager: manager),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _QuickActions extends StatelessWidget {

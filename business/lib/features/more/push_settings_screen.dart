@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api/models.dart';
 import '../../core/providers.dart';
+import '../../core/session.dart';
 import '../../core/theme/icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/l10n.dart';
@@ -21,6 +22,10 @@ class PushSettingsScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final prefs = ref.watch(pushPreferencesProvider);
     final pushOn = ref.watch(pushServiceProvider).available;
+    // 125 Studio apps' and Prime's pushes, when the person has such an app.
+    final apps = ref.watch(meProvider)?.apps ?? const <AppSummary>[];
+    bool any(bool Function(AppFeatures f) test) =>
+        apps.any((a) => test(a.features));
     final kinds = [
       (PushKind.newOrder, l10n.pushNewOrder, l10n.pushNewOrderHelp),
       (PushKind.newBooking, l10n.pushNewBooking, l10n.pushNewBookingHelp),
@@ -33,6 +38,16 @@ class PushSettingsScreen extends ConsumerWidget {
       (PushKind.buildFinished, l10n.pushBuild, l10n.pushBuildHelp),
       (PushKind.yallappUpdates, l10n.pushUpdates, l10n.pushUpdatesHelp),
       (PushKind.accountNotices, l10n.pushNotices, l10n.pushNoticesHelp),
+      if (any((f) => f.foodOrders))
+        (PushKind.newFoodOrder, l10n.pushFoodOrder, l10n.pushFoodOrderHelp),
+      if (any((f) => f.shipments))
+        (PushKind.shipmentWaiting, l10n.pushShipment, l10n.pushShipmentHelp),
+      if (any((f) => f.market))
+        (PushKind.newComplaint, l10n.pushComplaint, l10n.pushComplaintHelp),
+      if (any((f) => f.prime)) ...[
+        (PushKind.primeAlert, l10n.pushPrimeAlert, l10n.pushPrimeAlertHelp),
+        (PushKind.morningBrief, l10n.pushBrief, l10n.pushBriefHelp),
+      ],
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.notificationSettings)),
