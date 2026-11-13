@@ -122,7 +122,28 @@ class Lesson_Renderer {
 		wp_reset_postdata();
 		$GLOBALS['post'] = $saved_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_query        = $saved_query; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		return (string) $html;
+		return self::or_saved( (string) $html, (string) $post->post_content );
+	}
+
+	/**
+	 * 124.12 What the website shows, or, when a plugin of the site leaves the
+	 * content empty outside its own pages (the app reads it through the REST
+	 * API), the content as it is saved, formatted as WordPress formats it.
+	 * The app has already let the student in, as the LMS does.
+	 *
+	 * @param string        $shown  The content after the `the_content` filters.
+	 * @param string        $saved  The content as saved.
+	 * @param callable|null $format Formats the saved content; WordPress's own by default.
+	 * @return string
+	 */
+	public static function or_saved( $shown, $saved, $format = null ) {
+		if ( '' !== trim( $shown ) || '' === trim( $saved ) ) {
+			return $shown;
+		}
+		$format = $format ?? static function ( $text ) {
+			return do_shortcode( shortcode_unautop( wpautop( wptexturize( $text ) ) ) );
+		};
+		return (string) $format( $saved );
 	}
 
 	/**

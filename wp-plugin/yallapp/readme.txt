@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.36
+Stable tag: 0.4.37
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,6 +140,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.37 =
+* A lesson's content (its text, links and embedded frames) reaches the app even when another plugin of your site leaves it empty outside the website's own pages: the app then shows the content as it is saved, formatted as WordPress formats it.
 
 = 0.4.36 =
 * A page of your website opened in the app (a tab, a button or a banner) opens with the student signed in on the site: the app asks for a one-time link that works once, for 5 minutes, and only for pages on your site's own address.
