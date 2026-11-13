@@ -14762,7 +14762,8 @@ components:
         interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000 }
         per_view: { type: number, minimum: 1, maximum: 4, default: 1, description: "For `slider`, how many show at a time (1.2 peeks at the next)." }
         dots: { type: boolean, default: true, description: "For `slider`: whether it shows where it is (`indicator`)." }
-        indicator: { type: string, enum: [dots, progress, count], default: dots, description: "112.4 For `slider`: `dots` under the slides; `progress`, a line per slide over their bottom, the one showing filling while it waits (with `autoplay`); `count`, \"2 / 5\" over their top corner. Apps that don't know it show dots." }
+        indicator: { type: string, enum: [dots, progress, count, pill], default: dots, description: "112.4 For `slider`: `dots` under the slides; `progress`, a line per slide over their bottom, the one showing filling while it waits (with `autoplay`); `count`, \"2 / 5\" over their top corner. 129.1 `pill`, the dots in a frosted pill over the slides' foot. Apps that don't know it show dots." }
+        ken_burns: { type: boolean, default: false, description: "129.1 For `slider`: the photo of the slide showing grows slowly while it shows (a photo hero's, a picture's or a background picture), started again on each slide. Still on phones set to reduce motion. A slider stops moving on by itself while it is off the screen." }
         place:
           type: [object, 'null']
           description: "112.4 For a child of `stack`: where it sits, in percent of the stack from its `start` (`x`) and its top (`y`); the child's own point at the same share sits there (0 its start or top, 50 its middle, 100 its end or bottom). Spots on a picture that open a product (shop the look). Null, by `self_align`."

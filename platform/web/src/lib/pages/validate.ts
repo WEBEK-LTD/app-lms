@@ -67,6 +67,7 @@ import {
   SLIDER_RATIOS,
   SLIDER_SECONDS,
   STUDIO_INDICATORS,
+  STUDIO_SLIDER_INDICATORS,
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
@@ -1415,8 +1416,10 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (perView && perView !== 1) node.per_view = perView;
       if (v.dots === false) node.dots = false;
       // 112.4 Lines filling over it, or "2 / 5".
-      const indicator = pick("indicator", STUDIO_INDICATORS, "choose how the slider shows where it is.");
+      const indicator = pick("indicator", STUDIO_SLIDER_INDICATORS, "choose how the slider shows where it is.");
       if (indicator && indicator !== "dots") node.indicator = indicator;
+      // 129.1 The open slide's photo zooming slowly.
+      if (v.ken_burns === true) node.ken_burns = true;
       break;
     }
     case "coupon": {

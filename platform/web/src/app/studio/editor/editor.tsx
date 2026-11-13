@@ -21,7 +21,7 @@ import { uniqueSlug } from "@/lib/pages/model";
 import { moreLabel } from "@/lib/pages/tab-bar";
 import { STUDIO_HEADER_TYPES, type ItemSource, type LanguageCode, type LayoutContent, type LayoutPage, type LayoutTab, type StudioHeader, type StudioNode, type StudioPage } from "@/lib/pages/types";
 import { duplicateNode, historyOf, holdsChildren, insertNode, isInside, moveNode, placeOf, pushHistory, redo, removeNode, undo, updateNode, wrapNode, type History } from "@/lib/studio/edit";
-import { elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
+import { ELEMENTS, elementInfo, newNode, newNodeId, type NewText } from "@/lib/studio/elements";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
@@ -389,7 +389,16 @@ export function StudioEditor(props: StudioEditorProps) {
   }
 
   function nodeFor(payload: DragPayload): StudioNode | null {
-    if (payload.kind === "new") return newNode(payload.type, { source, brand: app.brand, text: newText, orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order" });
+    if (payload.kind === "new")
+      return newNode(payload.type, {
+        source,
+        brand: app.brand,
+        text: newText,
+        orders: props.kind.vertical === "marketplace" ? "market_order" : "food_order",
+        // 129 A premium look, and the premium elements' sample words in the dashboard's language.
+        preset: payload.preset,
+        premiumWords: (key) => t(`studio.pmNew_${key}` as DashKey),
+      });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
     if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
     return null;
@@ -609,7 +618,7 @@ export function StudioEditor(props: StudioEditorProps) {
     e.dataTransfer.effectAllowed = payload.kind === "move" ? "move" : "copy";
     e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(payload));
     e.dataTransfer.setData("text/plain", "");
-    if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source), elementInfo(payload.type).icon);
+    if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source, payload.preset), (ELEMENTS.find((x) => x.type === payload.type && x.preset === payload.preset) ?? elementInfo(payload.type)).icon);
     else if (payload.kind === "section") dragGhost(e, t(`studio.sec_${payload.id}` as DashKey), SECTIONS.find((s) => s.id === payload.id)?.icon ?? "dashboard");
     else if (payload.kind === "move" && studio) {
       const node = findNode(studio.body, payload.id);
@@ -1218,7 +1227,7 @@ export function StudioEditor(props: StudioEditorProps) {
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
-          onAddElement={(type) => add({ kind: "new", type })}
+          onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
           onAddSection={(id) => add({ kind: "section", id })}
           onUseTemplate={applyTemplate}
           onAddPicture={(payload) => add(payload)}

@@ -56,6 +56,10 @@ export const STUDIO_PLATFORMS = ["android", "ios"] as const;
 export const STUDIO_VISIBILITY = ["everyone", "signed_in", "signed_out"] as const;
 /** 112.4 How a slider shows where it is: dots under it, lines filling over it (stories), or "2 / 5" over it. */
 export const STUDIO_INDICATORS = ["dots", "progress", "count"] as const;
+// ——— 129.1–129.8 Premium motion & media ———
+/** 129.1 A Studio slider's indicators: the block's, and `pill`, the dots in a frosted pill over the slides' foot. */
+export const STUDIO_SLIDER_INDICATORS = [...STUDIO_INDICATORS, "pill"] as const;
+// ——— end 129 premium motion & media ———
 /** 112.4 How a categories element draws them: chips, tiles, pictures in a grid, or round pictures in a row. */
 export const STUDIO_CATEGORY_STYLES = ["chips", "tiles", "pictures", "circles"] as const;
 export const STUDIO_LIMITS = {
@@ -827,8 +831,12 @@ export interface StudioNode {
   dots?: boolean;
   /** 107.2 A row that scrolls sideways. */
   scroll?: boolean;
-  /** 112.4 For `slider`: how it shows where it is; missing, dots. */
-  indicator?: (typeof STUDIO_INDICATORS)[number];
+  /** 112.4 For `slider`: how it shows where it is; missing, dots. 129.1 `pill` too. */
+  indicator?: (typeof STUDIO_SLIDER_INDICATORS)[number];
+  // ——— 129.1–129.8 Premium motion & media ———
+  /** 129.1 For `slider`: the open slide's photo grows slowly (Ken Burns). */
+  ken_burns?: boolean;
+  // ——— end 129 premium motion & media ———
   /** 112.4 For a child of `stack`: its place in percent from the start and the top (a shop-the-look spot). */
   place?: StudioPlace | null;
   /** 112.4 For `categories`: how they're drawn; missing, chips. */

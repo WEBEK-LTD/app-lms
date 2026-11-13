@@ -11,7 +11,7 @@ import type { ScreenOption } from "@/lib/pages/sources";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import {
   ITEMS_SORTS,
-  STUDIO_INDICATORS,
+  STUDIO_SLIDER_INDICATORS,
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
@@ -722,9 +722,11 @@ function DesignTab(props: Props & { node: StudioNode }) {
               label={t("studio.indicator")}
               value={node.indicator ?? "dots"}
               onChange={(indicator) => onChange({ indicator: indicator === "dots" ? undefined : indicator })}
-              options={STUDIO_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
+              options={STUDIO_SLIDER_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
             />
           ) : null}
+          {/* 129.1 The open slide's photo zooming slowly. */}
+          <Check label={t("studio.kenBurns")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} />
           {node.children?.length ? <SlidesControl node={node} onChange={onChange} /> : null}
         </div>
       ) : null}

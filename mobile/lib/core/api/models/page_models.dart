@@ -2186,7 +2186,9 @@ class StudioMarketCard {
 
 /// 112.4 How a slider shows where it is: dots under it, a line per slide
 /// filling over it, or "2 / 5" over it.
-enum StudioIndicator { dots, progress, count }
+/// 129.1 `pill`: the dots in a frosted pill over the slides' foot (Studio
+/// sliders only).
+enum StudioIndicator { dots, progress, count, pill }
 
 /// 112.4 Where a child of a stack sits, in percent from its start and top.
 class StudioPlace {
@@ -2504,6 +2506,8 @@ class StudioNode {
     this.overlap = 0,
     this.school,
     this.learningStyle = StudioLearningStyle.card,
+    // 129 Premium motion & media.
+    this.kenBurns = false,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2648,6 +2652,8 @@ class StudioNode {
         ),
         motion: StudioMotion.tryParse(json['motion']),
         hidden: boolOr(json, 'hidden', false),
+        // 129 Premium motion & media.
+        kenBurns: boolOr(json, 'ken_burns', false),
       );
     } on FormatException {
       return null;
@@ -2751,6 +2757,9 @@ class StudioNode {
 
   /// 107.2 For a row: it scrolls sideways, its children keeping their widths.
   final bool scroll;
+
+  /// 129.1 For a slider: the open slide's photo grows slowly (Ken Burns).
+  final bool kenBurns;
   final ItemSource? source;
   final ItemsLayout layout;
 

@@ -3,7 +3,7 @@ import type { StudioNodeType } from "@/lib/pages/types";
 
 /** 103R What is being dragged in the editor: a new element, a ready section, or an element of the page. */
 export type DragPayload =
-  | { kind: "new"; type: StudioNodeType }
+  | { kind: "new"; type: StudioNodeType; /** 129 A premium look of it (ElementInfo.preset). */ preset?: string }
   | { kind: "section"; id: string }
   | { kind: "move"; id: string }
   // Editor audit 3.3: a picture from the pictures panel; `share` is the project's file to make public first.

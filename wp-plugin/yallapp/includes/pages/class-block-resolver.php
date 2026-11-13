@@ -1155,7 +1155,7 @@ class Block_Resolver {
 			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
 			// 112.4 How a slider shows where it is, and how categories look.
-			'indicator'     => array( 'dots', 'progress', 'count' ),
+			'indicator'     => array( 'dots', 'progress', 'count', 'pill' ),
 			'style'         => array( 'chips', 'tiles', 'pictures', 'circles' ),
 		);
 		foreach ( $choices as $field => $values ) {
@@ -1175,7 +1175,8 @@ class Block_Resolver {
 				$node[ $field ] = $sides;
 			}
 		}
-		foreach ( array( 'autoplay', 'dots' ) as $field ) {
+		// 129.1 A slider's slow zoom over its photos.
+		foreach ( array( 'autoplay', 'dots', 'ken_burns' ) as $field ) {
 			if ( isset( $raw[ $field ] ) && is_bool( $raw[ $field ] ) ) {
 				$node[ $field ] = $raw[ $field ];
 			}

@@ -19,6 +19,8 @@ import { AppScreen } from "./app-screens";
 // 128 The cover layouts and the live elements.
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
+// 129 Premium motion & media.
+import { PremiumMotionStyles, SliderPill } from "./premium-motion";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -171,6 +173,8 @@ export function StudioView(viewProps: ViewProps) {
         {page.screen ? <ScreenPart {...props} /> : null}
       </div>
       {showTabs ? <Tabs {...props} /> : null}
+      {/* 129 The premium elements' keyframes. */}
+      <PremiumMotionStyles />
     </div>
   );
 }
@@ -884,7 +888,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     return (
       <>
         <span style={{ position: "relative", display: "block", height: slides?.height ?? (slides?.aspectRatio ? undefined : 180), aspectRatio: slides?.aspectRatio }}>
-          <span style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>{Children(p)}</span>
+          <span data-studio-ken-burns={n.ken_burns ? "" : undefined} style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>
+            {Children(p)}
+          </span>
+          {/* 129.1 The dots in a frosted pill over the slides' foot. */}
+          {indicator === "pill" ? <SliderPill count={count} /> : null}
           {indicator === "progress" ? (
             <span data-studio-indicator="progress" aria-hidden="true" style={{ position: "absolute", insetInline: 16, bottom: 12, display: "flex", gap: 4 }}>
               {Array.from({ length: count }, (_, i) => (
