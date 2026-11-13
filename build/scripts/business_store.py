@@ -52,6 +52,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 STORE = ROOT / "business" / "store"
 BRAND = ROOT / "brand" / "stores"
+# 124.16 The store icon: Yallapp Business's "y.", Yallapp Courier's own (App Review 4.3a: no two apps with one icon).
+ICONS = BRAND
 PACKAGE = "tr.com.yallapp.business"
 # The prefix of App Review's variables and secrets.
 PREFIX = "YB"
@@ -59,14 +61,15 @@ PREFIX = "YB"
 # 104.8.6 The apps Yallapp publishes under its own accounts.
 APPS = {
     "business": {"store": ROOT / "business" / "store", "package": "tr.com.yallapp.business", "prefix": "YB"},
-    "courier": {"store": ROOT / "mobile" / "store" / "courier", "package": "tr.com.yallapp.courier", "prefix": "YC"},
+    "courier": {"store": ROOT / "mobile" / "store" / "courier", "package": "tr.com.yallapp.courier", "prefix": "YC", "icons": BRAND / "courier"},
 }
 
 
 def use(app):
     """Points the listing, the package and the variables at one of APPS."""
-    global STORE, PACKAGE, PREFIX
+    global STORE, PACKAGE, PREFIX, ICONS
     STORE, PACKAGE, PREFIX = APPS[app]["store"], APPS[app]["package"], APPS[app]["prefix"]
+    ICONS = APPS[app].get("icons", BRAND)
 
 # The app's languages: (screenshots folder, Google Play locale, App Store locale).
 LANGUAGES = [("en", "en-US", "en-US"), ("ar", "ar", "ar-SA"), ("tr", "tr-TR", "tr")]
@@ -245,7 +248,7 @@ def cmd_play(out, shots):
         copy_texts(STORE / "android" / play, target, PLAY_FILES)
         images = target / "images"
         images.mkdir(parents=True, exist_ok=True)
-        shutil.copy(BRAND / "google-play-icon-512.png", images / "icon.png")
+        shutil.copy(ICONS / "google-play-icon-512.png", images / "icon.png")
         shutil.copy(BRAND / "google-play-feature-graphic-1024x500.png", images / "featureGraphic.png")
         counts = []
         for device, folders in PLAY_SHOTS.items():
@@ -340,9 +343,9 @@ def problems():
             check(STORE / "ios" / locale / name, limit)
     for name in APPSTORE_SHARED + ["review_notes.txt"]:
         check(STORE / "ios" / name, 4000)
-    for image in ("google-play-icon-512.png", "google-play-feature-graphic-1024x500.png"):
-        if not (BRAND / image).is_file():
-            found.append(f"missing: brand/stores/{image}")
+    for folder, image in ((ICONS, "google-play-icon-512.png"), (BRAND, "google-play-feature-graphic-1024x500.png")):
+        if not (folder / image).is_file():
+            found.append(f"missing: {folder.relative_to(ROOT)}/{image}")
     try:
         json.loads((STORE / "ios" / "age_rating.json").read_text())
     except (OSError, ValueError) as error:
