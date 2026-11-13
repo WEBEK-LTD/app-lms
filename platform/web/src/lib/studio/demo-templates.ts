@@ -26,14 +26,14 @@ function idOf(ctx: SectionContext): string {
 
 /** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES). */
 export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
-  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs): Sofra Eats's and Zad's photo-first, Sahm's courier in the city, Masar's ride at night, Lamha's taxi map.
+  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs): Sofra Eats's and Zad's photo-first, Sahm's courier in the city, Masar's ride at night, Lamha's taxi map, Nakhla School's day, Rawaq Academy's teachers.
   delivery: "delivery_city",
   food: "food_photo",
   marketplace: "market_photo",
   rides: "ride_night",
   taxi: "taxi_map",
-  school: "school",
-  instructors: "teachers",
+  school: "school_today",
+  instructors: "teachers_photo",
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };

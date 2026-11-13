@@ -656,7 +656,8 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#E6EEF6",
     secondaryColor: "#F2B544",
     template: "classic",
-    font: "Plus Jakarta Sans",
+    // 128 The approved board's Manrope, bundled with the app.
+    font: "Manrope",
     corners: "soft",
     cards: "outlined",
     languages: ["en", "ar", "tr"],
@@ -675,7 +676,8 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#E7F1EC",
     secondaryColor: "#F2B544",
     template: "classic",
-    font: "Outfit",
+    // 128 The approved board's Manrope, bundled with the app.
+    font: "Manrope",
     corners: "soft",
     cards: "outlined",
     languages: ["en", "ar", "tr"],

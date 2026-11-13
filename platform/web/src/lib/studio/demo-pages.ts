@@ -49,6 +49,8 @@ const TAB_WORDS: Record<string, SectionWord> = {
   // 128 Zad's Shops and Cart.
   Shops: "tabShops",
   Cart: "tabCart",
+  // 128 Rawaq Academy's teachers, its second tab.
+  Teachers: "tabTeachers",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */
@@ -61,6 +63,7 @@ const TIPS: Partial<Record<StudioPageScreen, { icon: string; word: SectionWord }
   school: { icon: "school", word: "tipSchool" },
   courses: { icon: "school", word: "tipCourses" },
   my_courses: { icon: "play_circle", word: "tipMyCourses" },
+  teachers: { icon: "co_present", word: "tipTeachers" },
 };
 
 /** A word in the dashboard's language, with Studio's own other languages as translations of `field`. */

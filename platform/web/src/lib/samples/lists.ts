@@ -93,6 +93,8 @@ export function sourcesIn(value: unknown, found = new Set<string>()): Set<string
     // 128 A Studio page drawn around a screen that lists entries (sending a parcel lists the services, the ride the car types).
     const screen = (value as { screen?: unknown; body?: unknown }).body ? (value as { screen?: unknown }).screen : null;
     if (typeof screen === "string" && SCREEN_LISTS[screen]) found.add(SCREEN_LISTS[screen]);
+    // 128 A school's `school` element shows its classes' day and news: the school's lists.
+    if ((value as { type?: unknown }).type === "school") found.add("school_news");
     for (const [key, item] of Object.entries(value)) {
       if (key === "source" && typeof item === "string") found.add(item);
       else sourcesIn(item, found);

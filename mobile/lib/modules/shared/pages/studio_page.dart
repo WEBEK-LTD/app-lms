@@ -23,6 +23,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
 import '../../lms/home/learning_cards.dart';
+import '../../school/widgets/studio_school.dart';
 import '../../market/widgets/market_sections.dart';
 import 'app_header.dart';
 import 'content_blocks.dart' show pageClockProvider;
@@ -110,7 +111,10 @@ class StudioPageView extends ConsumerWidget {
     final list = ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
-        top: bleed == null && (header == null || overlay) ? top : 0,
+        // 128 Under a transparent header the first element starts at the
+        // very top (a photo under the status bar), as the canvas draws it;
+        // a cover first on a page without a header reaches under it too.
+        top: bleed == null && header == null ? top : 0,
         bottom: 16,
       ),
       children: [
@@ -514,7 +518,8 @@ class StudioHeaderView extends ConsumerWidget {
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: transparent ? const SizedBox.shrink() : mark,
+                // 128 Over the photo, the app's name too, as the canvas draws it.
+                child: mark,
               ),
             ),
             if (buttons.isNotEmpty) end,
@@ -763,6 +768,9 @@ class StudioNodeView extends ConsumerWidget {
       },
       // 128 The person's shipment, ride or the taxis near them, once there is one.
       StudioNodeType.tracking => studioLiveShows(node, ref),
+      // 128 A part of the family's school day, with something to show.
+      StudioNodeType.school =>
+        node.school != null && studioSchoolShows(node.school!, ref),
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -1212,6 +1220,13 @@ class StudioNodeView extends ConsumerWidget {
         return StudioTrackingView(node: node);
       case StudioNodeType.greeting:
         return const StudioGreetingView();
+      case StudioNodeType.school:
+        return StudioSchoolPart(
+          section: node.school!,
+          color: color,
+          text: _text(),
+          dark: scope.dark,
+        );
       case StudioNodeType.market:
         final market = node.market;
         if (market == null) return const SizedBox.shrink();

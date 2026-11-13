@@ -13,12 +13,13 @@ import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
  * a welcome in each of the demo's languages (the app's Arabic is formal).
  */
 interface DemoScreens {
-  style: "photo" | "card" | "minimal";
+  /** 128 `premium`: the welcome large over the photo, the form on a card (Nakhla School, Rawaq Academy). */
+  style: "photo" | "card" | "minimal" | "premium";
   /** Under public/, served by the platform. */
   photo?: string;
   title: Record<"en" | "ar" | "tr", string>;
   subtitle: Record<"en" | "ar" | "tr", string>;
-  menu: "plain" | "card" | "cover" | "tiles" | "night";
+  menu: "plain" | "card" | "cover" | "tiles" | "night" | "academy";
   /** `night`: the membership card's colour. */
   accent?: string;
 }
@@ -85,7 +86,8 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     accent: "#F5B700",
   },
   school: {
-    style: "card",
+    // 128 In the approved home's language: the welcome large over the school's photo.
+    style: "premium",
     // The school's building: no photo of real children.
     photo: "/demo-screens/nakhla-school.jpg",
     title: { en: "Every school day, in one place", ar: "كل يوم دراسي في مكان واحد", tr: "Her okul günü tek bir yerde" },
@@ -94,10 +96,11 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
       ar: "الحصص والواجبات والدرجات والرسوم للطلاب وأولياء الأمور والمعلمين.",
       tr: "Öğrenciler, veliler ve öğretmenler için dersler, ödevler, notlar ve ücretler.",
     },
-    menu: "card",
+    menu: "cover",
   },
   instructors: {
-    style: "card",
+    // 128 In the approved home's language: the welcome large over the library, the student's card in the account.
+    style: "premium",
     photo: "/demo-screens/rawaq-library.jpg",
     title: { en: "Learn from the best teachers", ar: "تعلّم من أفضل المدرّسين", tr: "En iyi öğretmenlerden öğrenin" },
     subtitle: {
@@ -105,7 +108,7 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
       ar: "تابع مدرّسيك وأكمل من حيث توقفت.",
       tr: "Öğretmenlerinizi takip edin, kaldığınız yerden devam edin.",
     },
-    menu: "tiles",
+    menu: "academy",
   },
 };
 
@@ -122,6 +125,14 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
       show_logo: true,
     },
     account_menu: { header: d.menu, ...(d.accent ? { accent: d.accent } : {}), items: [] },
+    // 128 Rawaq Academy's courses, lessons and cart in the premium screens' looks, in its own green and gold.
+    ...(id === "instructors"
+      ? {
+          course_card: { style: "premium" as const, radius: 18, hide: [] },
+          course_page: { cover: "full" as const, bar: "glass" as const, hide: [], look: "premium" as const },
+          looks: { catalog: "explore" as const, my_courses: "premium" as const, lesson: "premium" as const, code: "premium" as const, cart: "premium" as const },
+        }
+      : {}),
   };
 }
 
@@ -138,8 +149,9 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   marketplace: demoDesignBar("marketplace"),
   rides: demoDesignBar("rides"),
   taxi: { design: "island", dark_active: "#F5B700" },
-  school: { design: "classic", avatar: true },
-  instructors: { design: "segment" },
+  // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
+  school: demoDesignBar("school"),
+  instructors: demoDesignBar("instructors"),
   // 123 The premium academy's frosted floating bar, as its template has it.
   premium_academy: ACADEMY_PROJECT.tab_bar,
 };

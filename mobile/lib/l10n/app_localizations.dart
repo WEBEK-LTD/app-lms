@@ -16099,6 +16099,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Call {name}'**
   String studioRideCall(String name);
+
+  /// 128 The school's greeting on its home in the morning, to the family of the parent's first child (the photo hero).
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning,\n{name}\'s family'**
+  String studioSchoolMorning(String name);
+
+  /// 128 The school's greeting on its home after noon, to the family of the parent's first child.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening,\n{name}\'s family'**
+  String studioSchoolEvening(String name);
+
+  /// 128 Today's card on a school's home: the child came in through the gate at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} checked in at {time}'**
+  String studioSchoolCheckedIn(String name, String time);
+
+  /// 128 Today's card: the child left the school at this time.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} left at {time}'**
+  String studioSchoolLeft(String name, String time);
+
+  /// 128 Today's card: the child hasn't come in through the gate yet today.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} isn\'t at school yet'**
+  String studioSchoolNotYet(String name);
+
+  /// 128 Today's card: the child is absent, excused or on leave today.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is away today'**
+  String studioSchoolAway(String name);
+
+  /// 128 Today's card, under the check-in: the child came in on time, at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'On time · the gate'**
+  String get studioSchoolOnTime;
+
+  /// 128 Today's card, under the check-in: the child came in late, at the school's gate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late · the gate'**
+  String get studioSchoolLate;
+
+  /// 128 Today's card: the lesson going on now and its teacher.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {subject} with {teacher}'**
+  String studioSchoolNow(String subject, String teacher);
+
+  /// 128 Today's card: the lesson going on now, without a teacher's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Now · {subject}'**
+  String studioSchoolNowAlone(String subject);
+
+  /// 128 Today's card, under the lesson now: the next lesson and when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {subject} at {time}'**
+  String studioSchoolNext(String subject, String time);
+
+  /// 128 Today's card before school: the day's first lesson and when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'First · {subject} at {time}'**
+  String studioSchoolFirst(String subject, String time);
+
+  /// 128 Today's card, under the lesson now when no lesson follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'The day\'s last lesson'**
+  String get studioSchoolLastLesson;
+
+  /// 128 Today's card once the day's lessons have ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons are over for today'**
+  String get studioSchoolLessonsOver;
+
+  /// 128 Today's card once the lessons are over: when the last one ended.
+  ///
+  /// In en, this message translates to:
+  /// **'The last ended at {time}'**
+  String studioSchoolLessonsEnded(String time);
+
+  /// 128 Today's card: when the afternoon school bus leaves for home.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus home leaves {time}'**
+  String studioSchoolBusLeaves(String time);
+
+  /// 128 Today's card: the child's school bus is running, this many minutes from their stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus on its way · {minutes} min'**
+  String studioSchoolBusComing(String minutes);
+
+  /// 128 Today's card, under the bus: its route and the child's stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} · {stop} stop'**
+  String studioSchoolBusRoute(String route, String stop);
+
+  /// 128 Today's card on a holiday or break; its name is under it.
+  ///
+  /// In en, this message translates to:
+  /// **'No school today'**
+  String get studioSchoolDayOff;
 }
 
 class _AppLocalizationsDelegate

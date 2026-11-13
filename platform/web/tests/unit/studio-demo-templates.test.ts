@@ -21,7 +21,7 @@ import { itemSourcesFor, screenOptionsFor, categorySourcesFor } from "@/lib/page
 import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pages/types";
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
-import { designPages, picturesIn } from "@/lib/studio/design-file";
+import { designPages, picturesIn, type DesignFile } from "@/lib/studio/design-file";
 import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
 import { designedTabs } from "@/lib/studio/demo-designs";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
@@ -102,6 +102,9 @@ function withFacts(id: StudioDemoId, layout: LayoutContent): LayoutContent {
 
 const demoOf = async (id: StudioDemoId) => demoLayout({ assetUrl: (a) => `https://files.test/${a}`, now: NOW }, demoApp(id), "banner-asset");
 
+/** 128 A design's pictures on the web kept where they are, as the editor keeps them (app/studio/editor/editor.tsx): the demos' photos. */
+const platformPictures = (file: DesignFile) => new Map(file.pages.flatMap((p) => picturesIn(p.studio)).filter((u) => /^https?:\/\//.test(u)).map((u) => [u, u] as const));
+
 const texts = (page: StudioPage) => allNodes(page).flatMap((n) => [n.text, n.title].filter((x): x is string => Boolean(x)));
 
 describe("Studio templates = Studio demos", () => {
@@ -180,9 +183,7 @@ describe("Studio templates = Studio demos", () => {
     const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS, demoTabs);
     expect(file.demo).toBe(id);
     let n = 0;
-    // 128 The demo's photos kept at their addresses, as the editor keeps a design's https pictures (app/studio/editor/editor.tsx applyDesign).
-    const pictures = new Map(file.pages.flatMap((p) => picturesIn(p.studio)).filter((url) => /^https?:\/\//.test(url)).map((url) => [url, url] as const));
-    const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures, now: NOW.toISOString() });
+    const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures: platformPictures(file), now: NOW.toISOString() });
     const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demoTabs), designSlugs: file.pages.map((p) => p.slug) });
     // 120 Every page of the demo, its tabs' pages too, each where its tab opens it.
     const studioOf = (l: LayoutContent, slug: string) => whole(l).pages.find((p) => p.slug === slug)?.studio ?? null;
@@ -320,16 +321,49 @@ describe("123 The premium academy's demo: the project its template starts", () =
   });
 
   it("lists a school's news as cards of words, never as picture tiles (school news has no pictures)", async () => {
-    const layout = await demoOf("school");
-    const lists = allNodes(layout.pages[0]!.studio!).filter((n) => n.type === "items");
-    expect(lists.map((n) => n.source)).toEqual(["school_news"]);
-    const news = lists[0]!;
-    expect(news).toMatchObject({ layout: "list" });
+    // The school template's news: cards of words.
+    const template = TEMPLATES.find((t) => t.id === "school")!.make(englishContext(projectApp("school")));
+    const news = allNodes(template).find((n) => n.type === "items")!;
+    expect(news).toMatchObject({ source: "school_news", layout: "list" });
     const binds = allNodes({ body: news.card! }).map((n) => n.bind).filter(Boolean);
     expect(binds).toEqual(["badge", "title", "subtitle"]);
-    // A new school project's template too.
-    const template = TEMPLATES.find((t) => t.id === "school")!.make(englishContext(projectApp("school")));
-    expect(allNodes(template).find((n) => n.type === "items")?.card).toBeTruthy();
+  });
+
+  it("128 is the home approved for Nakhla School: the photo, the family's greeting, the children, today's card, this week in photos", async () => {
+    const layout = await demoOf("school");
+    const page = layout.pages[0]!.studio!;
+    expect(page.header).toEqual({ type: "transparent", buttons: ["notifications"] });
+    expect(page).toMatchObject({ background: "#F4F6F9", dark_background: "#09131F" });
+    const [hero, note, children, today, week, tiles] = page.body.children!;
+    expect(hero).toMatchObject({ type: "stack", height: 250, image_background_url: `${appUrl()}/demo-screens/nakhla-school.jpg`, scrim: { color: "#0A1E34", from: 0.5, middle: 0.15, at: 40, to: 0.9 } });
+    expect(allNodes({ body: hero! }).find((n) => n.type === "school")).toMatchObject({ school: { section: "greeting" }, text: "Welcome to Nakhla School" });
+    expect(note!.visibility).toBe("signed_out");
+    expect(children).toMatchObject({ type: "school", school: { section: "children" }, visibility: "signed_in" });
+    expect(today).toMatchObject({ type: "school", school: { section: "today" }, visibility: "signed_in", radius: 22, background: "#FFFFFF", dark_background: "#122033" });
+    expect(texts({ body: week! })).toEqual(["At school this week", "All news"]);
+    expect(tiles).toMatchObject({ type: "row", scroll: true });
+    expect(tiles!.children!.map((t) => t.image_background_url)).toEqual([`${appUrl()}/stories/school/school-graduation-1.jpg`, `${appUrl()}/stories/school/school-teacher.jpg`]);
+    expect(texts({ body: tiles! })).toEqual(["Science fair on Friday", "Parents' evening"]);
+    // The approved bar and font.
+    expect(layout.tab_bar).toMatchObject({ design: "classic", active: "#1F4E79", dark_active: "#9CC3EA" });
+    expect(layout.appearance.font).toBe("Manrope");
+  });
+
+  it("128 is the home approved for Rawaq Academy: the library, the teachers in circles, this month's popular courses, and its Teachers tab", async () => {
+    const layout = await demoOf("instructors");
+    const page = layout.pages[0]!.studio!;
+    expect(page.header).toEqual({ type: "transparent", buttons: ["search"] });
+    const [hero, , meet, people, popular, courses] = page.body.children!;
+    expect(hero).toMatchObject({ type: "stack", height: 300, image_background_url: `${appUrl()}/demo-screens/rawaq-library.jpg` });
+    expect(texts({ body: hero! })).toEqual(["Learn from people who do it", "Real teachers.\nReal skills."]);
+    expect(texts({ body: meet! })).toEqual(["Meet the teachers", "All teachers"]);
+    expect(texts({ body: people! })).toEqual(["DK", "Deniz", "HC", "Hannah", "OF", "Omar", "YA", "Yasmin"]);
+    expect(texts({ body: popular! })).toEqual(["Popular this month"]);
+    expect(courses).toMatchObject({ type: "items", source: "courses", layout: "carousel" });
+    expect(layout.tabs.map((t) => t.id)).toEqual(["home", "teachers", "learning", "account"]);
+    expect(layout.pages.find((p) => p.slug === "teachers")!.studio).toMatchObject({ screen: "teachers", background: "#F5F4EE", header: { title: "Teachers", background: "#FFFFFF", dark_background: "#15221C" } });
+    // Its courses, lessons and cart in the premium looks.
+    expect(demoStudioScreens("instructors", appUrl())).toMatchObject({ sign_in: { style: "premium" }, account_menu: { header: "academy" }, looks: { catalog: "explore", my_courses: "premium", lesson: "premium" } });
   });
 
   it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in the app (mobile/lib/core/theme/symbol_names.dart)", async (id) => {

@@ -14710,7 +14710,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, photo_hero, map_header, tracking, greeting]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14794,6 +14794,7 @@ components:
         tracking: { $ref: '#/components/schemas/StudioTracking' }
         map_drawing: { $ref: '#/components/schemas/StudioMapDrawing' }
         overlap: { type: number, minimum: 0, maximum: 400, description: "128 For `photo_hero` and `map_header`: how far their last element hangs up over the cover's foot; 0 or missing, it lies over the cover with the others." }
+        school: { $ref: '#/components/schemas/StudioSchool' }
         rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "For `ratings`, the stars shown with `text` (like \"4.8 · 320 reviews\")." }
         action: { $ref: '#/components/schemas/Action' }
         platforms:
@@ -15005,6 +15006,26 @@ components:
       required: [source]
       properties:
         source: { type: string, enum: [food_order, market_order] }
+
+    StudioSchool:
+      type: [object, 'null']
+      description: |
+        128 For `school`, in schools: one part of the family's school day
+        the app draws from the signed-in parent's own children (the Parent
+        tag). `greeting` today's date over a greeting to the family of the
+        parent's first child (a student's own name; signed out, the
+        element's `text`); `children` the parent's children as chips, the
+        chosen one filled, a tap choosing another for the Parent tab and the
+        school's screens too; `today` the chosen child's day: in at the gate
+        (on time or late, away, not yet), the lesson now and the next (or
+        the first, or that lessons are over) and the bus home (when it
+        leaves, or on its way with the minutes to the child's stop). The
+        element's colours, corners and background are the card's. Nothing
+        but the greeting is drawn signed out or without anything to show.
+        Apps leave out a section they don't know.
+      required: [section]
+      properties:
+        section: { type: string, enum: [greeting, children, today] }
 
     StudioMarket:
       type: [object, 'null']

@@ -10522,4 +10522,97 @@ class OverlayLocalizations extends AppLocalizations {
   String studioRideCall(String name) =>
       overlay.format('studioRideCall', {'name': name}) ??
       base.studioRideCall(name);
+
+  @override
+  String studioSchoolMorning(String name) =>
+      overlay.format('studioSchoolMorning', {'name': name}) ??
+      base.studioSchoolMorning(name);
+
+  @override
+  String studioSchoolEvening(String name) =>
+      overlay.format('studioSchoolEvening', {'name': name}) ??
+      base.studioSchoolEvening(name);
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) =>
+      overlay.format('studioSchoolCheckedIn', {'name': name, 'time': time}) ??
+      base.studioSchoolCheckedIn(name, time);
+
+  @override
+  String studioSchoolLeft(String name, String time) =>
+      overlay.format('studioSchoolLeft', {'name': name, 'time': time}) ??
+      base.studioSchoolLeft(name, time);
+
+  @override
+  String studioSchoolNotYet(String name) =>
+      overlay.format('studioSchoolNotYet', {'name': name}) ??
+      base.studioSchoolNotYet(name);
+
+  @override
+  String studioSchoolAway(String name) =>
+      overlay.format('studioSchoolAway', {'name': name}) ??
+      base.studioSchoolAway(name);
+
+  @override
+  String get studioSchoolOnTime =>
+      overlay.text('studioSchoolOnTime') ?? base.studioSchoolOnTime;
+
+  @override
+  String get studioSchoolLate =>
+      overlay.text('studioSchoolLate') ?? base.studioSchoolLate;
+
+  @override
+  String studioSchoolNow(String subject, String teacher) =>
+      overlay.format('studioSchoolNow', {
+        'subject': subject,
+        'teacher': teacher,
+      }) ??
+      base.studioSchoolNow(subject, teacher);
+
+  @override
+  String studioSchoolNowAlone(String subject) =>
+      overlay.format('studioSchoolNowAlone', {'subject': subject}) ??
+      base.studioSchoolNowAlone(subject);
+
+  @override
+  String studioSchoolNext(String subject, String time) =>
+      overlay.format('studioSchoolNext', {'subject': subject, 'time': time}) ??
+      base.studioSchoolNext(subject, time);
+
+  @override
+  String studioSchoolFirst(String subject, String time) =>
+      overlay.format('studioSchoolFirst', {'subject': subject, 'time': time}) ??
+      base.studioSchoolFirst(subject, time);
+
+  @override
+  String get studioSchoolLastLesson =>
+      overlay.text('studioSchoolLastLesson') ?? base.studioSchoolLastLesson;
+
+  @override
+  String get studioSchoolLessonsOver =>
+      overlay.text('studioSchoolLessonsOver') ?? base.studioSchoolLessonsOver;
+
+  @override
+  String studioSchoolLessonsEnded(String time) =>
+      overlay.format('studioSchoolLessonsEnded', {'time': time}) ??
+      base.studioSchoolLessonsEnded(time);
+
+  @override
+  String studioSchoolBusLeaves(String time) =>
+      overlay.format('studioSchoolBusLeaves', {'time': time}) ??
+      base.studioSchoolBusLeaves(time);
+
+  @override
+  String studioSchoolBusComing(String minutes) =>
+      overlay.format('studioSchoolBusComing', {'minutes': minutes}) ??
+      base.studioSchoolBusComing(minutes);
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) =>
+      overlay.format('studioSchoolBusRoute', {'route': route, 'stop': stop}) ??
+      base.studioSchoolBusRoute(route, stop);
+
+  @override
+  String get studioSchoolDayOff =>
+      overlay.text('studioSchoolDayOff') ?? base.studioSchoolDayOff;
 }

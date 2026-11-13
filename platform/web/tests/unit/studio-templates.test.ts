@@ -100,13 +100,13 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(allNodes(welcome).map((n) => n.action?.screen).filter(Boolean)).toEqual(["ride", "my_rides", "ride"]);
   });
 
-  it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first", () => {
-    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "brand", "contact", "blank"]);
+  it("105.3 gives an academy with many teachers three designs that open its teachers, its welcome section first (128 and the approved Rawaq home)", () => {
+    expect(ownTemplates(kindOf("instructors")).map((t) => t.id)).toEqual(["teachers", "teachers_offers", "teachers_brand", "teachers_photo", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("instructors"))[0]!.id).toBe("teachers");
     // A plain academy has neither.
     expect(ownTemplates(kindOf("academy")).map((t) => t.id)).not.toContain("teachers");
     // 105.4 A school's own three, with its welcome first.
-    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "university", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("school")).map((t) => t.id)).toEqual(["school", "school_news", "school_brand", "school_today", "university", "brand", "contact", "blank"]);
     // A university's own template: its welcome in a university's words, its steps too.
     const uni = ownTemplates(kindOf("school")).find((t) => t.id === "university")!.make({ brand: "#1F4E5F", source: "school_news", w: (word) => word });
     const uniWords = allNodes(uni).map((n) => n.text).filter(Boolean);

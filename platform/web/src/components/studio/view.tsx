@@ -13,6 +13,7 @@ import { MarketSection } from "./market";
 import { LEARNING_WORDS_EN, LearningCard, type LearningWords } from "./learning";
 import { LIVE_STATUS_WORDS_EN, LiveStatusCard, type LiveStatusWords } from "./live-status";
 import { scrimCss } from "@/lib/studio/scrim";
+import { SCHOOL_WORDS_EN, SchoolCard, type SchoolWords } from "./school";
 import type { ScreenDrawing } from "@/lib/studio/screen-drawing";
 import { AppScreen } from "./app-screens";
 // 128 The cover layouts and the live elements.
@@ -77,6 +78,8 @@ interface ViewProps {
   learningWords?: LearningWords;
   /** 128 The sample words of a live order card (`live_status`); missing, English. */
   liveWords?: LiveStatusWords;
+  /** 128 The sample family of the school's cards (`school`); missing, English. */
+  schoolWords?: SchoolWords;
   /** 123 The sample greeting header: today's date and a greeting with a name. */
   greeting?: { date: string; hello: string };
   /** 115.14 The marketplace's places, offers, cuisines and orders its `market` elements show; missing, the app's samples. */
@@ -659,6 +662,9 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "live_status":
         // 128 The person's order on its way, with sample words.
         return <LiveStatusCard node={n} color={color ?? null} words={p.liveWords ?? LIVE_STATUS_WORDS_EN} />;
+      case "school":
+        // 128 The family's school day as the app draws it, with a sample family.
+        return <SchoolCard node={n} dark={dark} brand={look.brand} color={color ?? null} words={{ ...(p.schoolWords ?? SCHOOL_WORDS_EN), ...(p.greeting ? { date: p.greeting.date } : {}) }} title={text || null} />;
       case "market":
         // 115.14 The section as the app draws it, from the project's marketplace (the app's samples where it has none).
         return <MarketSection node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} color={color} data={p.market} />;

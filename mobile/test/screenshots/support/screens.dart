@@ -7,6 +7,8 @@ import 'package:yallapp/core/config/build_config_data.dart';
 import 'package:yallapp/core/routing/app_router.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:yallapp/modules/delivery/data/delivery_providers.dart';
+import 'package:yallapp/modules/shared/pages/content_blocks.dart'
+    show pageClockProvider;
 import 'package:yallapp/modules/store/data/cart_controller.dart';
 
 import '../../support/fake_api.dart';
@@ -1018,16 +1020,19 @@ final websiteShots = <Shot>[
     shadows: true,
     after: (tester, router) async => router.go('/driver'),
   ),
+  // 128 The approved home: Maths now, at 08:10, the staff app's teachers
+  // elsewhere.
   Shot(
     'nakhla-home',
-    api: nakhlaStudioApi,
+    api: () => nakhlaStudioApi(staffApp: true),
     appName: 'Nakhla School',
     appType: AppType.school,
     prepare: StudioDemo.nakhla.prepare,
+    overrides: _nakhlaMorning,
   ),
   Shot(
     'nakhla-parent',
-    api: nakhlaStudioApi,
+    api: () => nakhlaStudioApi(staffApp: true),
     appName: 'Nakhla School',
     appType: AppType.school,
     prepare: StudioDemo.nakhla.prepare,
@@ -1043,14 +1048,14 @@ final websiteShots = <Shot>[
   ),
   Shot(
     'rawaq-home',
-    api: rawaqStudioApi,
+    api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
     prepare: StudioDemo.rawaq.prepare,
   ),
   Shot(
     'rawaq-teacher',
-    api: rawaqStudioApi,
+    api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
     prepare: StudioDemo.rawaq.prepare,
@@ -1064,4 +1069,13 @@ final websiteShots = <Shot>[
     prepare: StudioDemo.rawaq.prepare,
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+];
+
+/// 128 Nakhla School's approved home at 08:10 on a school day: Maths now,
+/// Arabic next.
+final _nakhlaMorning = <Override>[
+  pageClockProvider.overrideWithValue(() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, 8, 10);
+  }),
 ];

@@ -27,7 +27,7 @@ export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
 export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
 export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", ...STUDIO_LIVE_TYPES] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", "school", ...STUDIO_LIVE_TYPES] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -668,6 +668,18 @@ export interface StudioScrim {
   angle?: number;
 }
 
+/**
+ * 128 For `school`, in schools: one part of a family's school day drawn
+ * from the signed-in parent's own children (`StudioSchool`): the greeting
+ * with today's date, the children to switch between, or today's card (the
+ * chosen child's check-in at the gate, the class now and next, the bus
+ * home).
+ */
+export const STUDIO_SCHOOL_SECTIONS = ["greeting", "children", "today"] as const;
+export interface StudioSchool {
+  section: (typeof STUDIO_SCHOOL_SECTIONS)[number];
+}
+
 /** 115.14 For `market`: which marketplace section it is, drawn from the marketplace's data (`StudioMarket`). */
 export const STUDIO_MARKET_SECTIONS = ["address", "kinds", "offers", "cuisines", "club", "vendors", "reorder"] as const;
 /**
@@ -825,6 +837,8 @@ export interface StudioNode {
   map_drawing?: StudioMapDrawing | null;
   /** 128 For `photo_hero` and `map_header`: how far its last element hangs up over the cover's foot. */
   overlap?: number;
+  /** 128 For `school`: which part of the family's school day it is. */
+  school?: StudioSchool | null;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];

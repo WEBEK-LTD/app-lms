@@ -9830,4 +9830,89 @@ class AppLocalizationsTr extends AppLocalizations {
   String studioRideCall(String name) {
     return 'Ara: $name';
   }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'Günaydın,\n$name ve ailesi';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'İyi akşamlar,\n$name ve ailesi';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name okulda · giriş $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name okuldan çıktı · $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return '$name henüz okula gelmedi';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name bugün okulda değil';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'Zamanında · kapı';
+
+  @override
+  String get studioSchoolLate => 'Geç · kapı';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'Şimdi · $teacher ile $subject';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'Şimdi · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'Sonra: $subject · $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'İlk ders: $subject · $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'Günün son dersi';
+
+  @override
+  String get studioSchoolLessonsOver => 'Bugünün dersleri bitti';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'Son ders bitti · $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'Eve dönüş servisi · $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'Servis yolda · $minutes dk';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · $stop durağı';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'Bugün okul yok';
 }

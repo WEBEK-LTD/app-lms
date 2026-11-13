@@ -17,6 +17,7 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  STUDIO_SCHOOL_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -737,6 +738,7 @@ function DesignTab(props: Props & { node: StudioNode }) {
         </div>
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
+      {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -1726,6 +1728,26 @@ function ScrimFields({ node, onChange, palette }: { node: StudioNode; onChange: 
         </>
       ) : null}
     </>
+  );
+}
+
+/** 128 Which part of the family's school day a `school` element is. */
+function SchoolControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
+  const t = useDashT();
+  return (
+    <label className="flex flex-col gap-1 font-bold">
+      {t("studio.schoolSection")}
+      <select value={node.school?.section ?? "today"} onChange={(e) => onChange({ school: { section: e.target.value as NonNullable<StudioNode["school"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
+        {STUDIO_SCHOOL_SECTIONS.map((s) => (
+          <option key={s} value={s}>
+            {t(`studio.school_${s}` as DashKey)}
+          </option>
+        ))}
+      </select>
+      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.schoolHint")}
+      </span>
+    </label>
   );
 }
 

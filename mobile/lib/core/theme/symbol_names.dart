@@ -144,6 +144,9 @@ const symbolsByName = <String, IconData>{
   'airline_seat_recline_extra': Symbols.airline_seat_recline_extra_rounded,
   'airport_shuttle': Symbols.airport_shuttle_rounded,
   'waving_hand': Symbols.waving_hand_rounded,
+  // 128 Rawaq Academy's Teachers tab, and the school's day.
+  'co_present': Symbols.co_present_rounded,
+  'family_restroom': Symbols.family_restroom_rounded,
 };
 
 /// Shown for a name the app doesn't have.

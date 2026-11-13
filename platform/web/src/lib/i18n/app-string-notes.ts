@@ -3951,6 +3951,102 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عدد النقاط التي ما زال الشخص يحتاجها ليستخدم نقاطه، على بطاقة العضوية.",
     tr: "Kişinin puanlarını kullanabilmesi için gereken puan sayısı, üyelik kartında.",
   },
+  // 128 The school day on a school's Studio home.
+  "128 The school's greeting on its home in the morning, to the family of the parent's first child (the photo hero).": {
+    en: "The school's greeting on its home in the morning, to the family of the parent's first child.",
+    ar: "تحية المدرسة في صفحتها الرئيسية صباحًا، لعائلة أول أبناء ولي الأمر.",
+    tr: "Okulun ana sayfasındaki sabah selamı, velinin ilk çocuğunun ailesine.",
+  },
+  "128 The school's greeting on its home after noon, to the family of the parent's first child.": {
+    en: "The school's greeting on its home after noon, to the family of the parent's first child.",
+    ar: "تحية المدرسة في صفحتها الرئيسية بعد الظهر، لعائلة أول أبناء ولي الأمر.",
+    tr: "Okulun ana sayfasındaki öğleden sonra selamı, velinin ilk çocuğunun ailesine.",
+  },
+  "128 Today's card on a school's home: the child came in through the gate at this time.": {
+    en: "Today's card on a school's home: the child came in through the gate at this time.",
+    ar: "بطاقة اليوم في الصفحة الرئيسية للمدرسة: دخل الطفل من البوابة في هذا الوقت.",
+    tr: "Okulun ana sayfasındaki bugün kartı: çocuk bu saatte kapıdan girdi.",
+  },
+  "128 Today's card: the child left the school at this time.": {
+    en: "Today's card: the child left the school at this time.",
+    ar: "بطاقة اليوم: غادر الطفل المدرسة في هذا الوقت.",
+    tr: "Bugün kartı: çocuk bu saatte okuldan çıktı.",
+  },
+  "128 Today's card: the child hasn't come in through the gate yet today.": {
+    en: "Today's card: the child hasn't come in through the gate yet today.",
+    ar: "بطاقة اليوم: لم يدخل الطفل من البوابة بعد اليوم.",
+    tr: "Bugün kartı: çocuk bugün henüz kapıdan girmedi.",
+  },
+  "128 Today's card: the child is absent, excused or on leave today.": {
+    en: "Today's card: the child is absent, excused or on leave today.",
+    ar: "بطاقة اليوم: الطفل غائب أو معذور أو في إجازة اليوم.",
+    tr: "Bugün kartı: çocuk bugün yok, izinli ya da mazeretli.",
+  },
+  "128 Today's card, under the check-in: the child came in on time, at the school's gate.": {
+    en: "Today's card, under the check-in: the child came in on time, at the school's gate.",
+    ar: "بطاقة اليوم تحت الحضور: دخل الطفل في الموعد من بوابة المدرسة.",
+    tr: "Bugün kartı, girişin altında: çocuk okul kapısından zamanında girdi.",
+  },
+  "128 Today's card, under the check-in: the child came in late, at the school's gate.": {
+    en: "Today's card, under the check-in: the child came in late, at the school's gate.",
+    ar: "بطاقة اليوم تحت الحضور: دخل الطفل متأخرًا من بوابة المدرسة.",
+    tr: "Bugün kartı, girişin altında: çocuk okul kapısından geç girdi.",
+  },
+  "128 Today's card: the lesson going on now and its teacher.": {
+    en: "Today's card: the lesson going on now and its teacher.",
+    ar: "بطاقة اليوم: الحصة الجارية الآن ومعلمها.",
+    tr: "Bugün kartı: şu anki ders ve öğretmeni.",
+  },
+  "128 Today's card: the lesson going on now, without a teacher's name.": {
+    en: "Today's card: the lesson going on now, without a teacher's name.",
+    ar: "بطاقة اليوم: الحصة الجارية الآن، دون اسم المعلم.",
+    tr: "Bugün kartı: şu anki ders, öğretmen adı olmadan.",
+  },
+  "128 Today's card, under the lesson now: the next lesson and when it starts.": {
+    en: "Today's card, under the lesson now: the next lesson and when it starts.",
+    ar: "بطاقة اليوم تحت الحصة الحالية: الحصة التالية وموعد بدئها.",
+    tr: "Bugün kartı, şu anki dersin altında: sonraki ders ve başlama saati.",
+  },
+  "128 Today's card before school: the day's first lesson and when it starts.": {
+    en: "Today's card before school: the day's first lesson and when it starts.",
+    ar: "بطاقة اليوم قبل المدرسة: أول حصة في اليوم وموعد بدئها.",
+    tr: "Okuldan önce bugün kartı: günün ilk dersi ve başlama saati.",
+  },
+  "128 Today's card, under the lesson now when no lesson follows it.": {
+    en: "Today's card, under the lesson now when no lesson follows it.",
+    ar: "بطاقة اليوم تحت الحصة الحالية حين لا تليها حصة.",
+    tr: "Bugün kartı, ardından ders gelmeyen şu anki dersin altında.",
+  },
+  "128 Today's card once the day's lessons have ended.": {
+    en: "Today's card once the day's lessons have ended.",
+    ar: "بطاقة اليوم بعد انتهاء حصص اليوم.",
+    tr: "Günün dersleri bittiğinde bugün kartı.",
+  },
+  "128 Today's card once the lessons are over: when the last one ended.": {
+    en: "Today's card once the lessons are over: when the last one ended.",
+    ar: "بطاقة اليوم بعد انتهاء الحصص: متى انتهت آخرها.",
+    tr: "Dersler bittiğinde bugün kartı: sonuncusunun bittiği saat.",
+  },
+  "128 Today's card: when the afternoon school bus leaves for home.": {
+    en: "Today's card: when the afternoon school bus leaves for home.",
+    ar: "بطاقة اليوم: موعد انطلاق حافلة العودة إلى البيت.",
+    tr: "Bugün kartı: öğleden sonra eve dönüş servisinin kalkış saati.",
+  },
+  "128 Today's card: the child's school bus is running, this many minutes from their stop.": {
+    en: "Today's card: the child's school bus is on its way, this many minutes from their stop.",
+    ar: "بطاقة اليوم: حافلة الطفل في الطريق، على بُعد هذه الدقائق من محطته.",
+    tr: "Bugün kartı: çocuğun servisi yolda, durağına bu kadar dakika var.",
+  },
+  "128 Today's card, under the bus: its route and the child's stop.": {
+    en: "Today's card, under the bus: its route and the child's stop.",
+    ar: "بطاقة اليوم تحت الحافلة: خطها ومحطة الطفل.",
+    tr: "Bugün kartı, servisin altında: hattı ve çocuğun durağı.",
+  },
+  "128 Today's card on a holiday or break; its name is under it.": {
+    en: "Today's card on a holiday or break; its name is under it.",
+    ar: "بطاقة اليوم في عطلة أو إجازة؛ واسمها تحتها.",
+    tr: "Tatil ya da arada bugün kartı; adı altında yazar.",
+  },
   "123 The greeting header in the morning, with the person's first name.": {
     en: "The greeting at the top of the home in the morning, with the person's first name.",
     ar: "التحية أعلى الصفحة الرئيسية صباحًا، مع الاسم الأول للشخص.",

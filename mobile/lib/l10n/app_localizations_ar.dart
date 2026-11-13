@@ -10143,4 +10143,89 @@ class AppLocalizationsAr extends AppLocalizations {
   String studioRideCall(String name) {
     return 'اتصل بـ$name';
   }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'صباح الخير،\nعائلة $name';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'مساء الخير،\nعائلة $name';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name في المدرسة منذ $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name خارج المدرسة منذ $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return 'لم يُسجَّل حضور $name بعد';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name: غياب اليوم';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'حضور في الموعد · البوابة';
+
+  @override
+  String get studioSchoolLate => 'حضور متأخر · البوابة';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'الآن · $subject مع $teacher';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'الآن · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'التالية: $subject الساعة $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'أولًا · $subject الساعة $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'آخر حصة اليوم';
+
+  @override
+  String get studioSchoolLessonsOver => 'انتهت حصص اليوم';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'انتهت آخرها الساعة $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'حافلة العودة تنطلق الساعة $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'الحافلة في الطريق · $minutes دقيقة';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · محطة $stop';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'لا دراسة اليوم';
 }

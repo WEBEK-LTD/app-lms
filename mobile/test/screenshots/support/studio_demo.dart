@@ -200,7 +200,8 @@ class StudioDemo {
   }
 
   /// Puts the demo's drawn pictures (platform/web/public/design-pictures)
-  /// in the image cache at the addresses the demo serves them from.
+  /// in the image cache at the addresses the demo serves them from; 128
+  /// and the photos its pages show.
   Future<void> prepare(
     WidgetTester tester, [
     Iterable<String> extra = const [],
@@ -649,8 +650,11 @@ DemoApi lamhaStudioApi({
   },
 );
 
-/// Nakhla School (Studio's school demo): the school's news on its home.
-DemoApi nakhlaStudioApi({bool map = false}) {
+/// Nakhla School (Studio's school demo). 128 Its approved home: Lina in at
+/// the gate at 07:42, Maths now and the bus home at 14:20; with
+/// [staffApp] its teachers work in the staff app, so this app has no
+/// Classroom tab (the approved bar).
+DemoApi nakhlaStudioApi({bool map = false, bool staffApp = false}) {
   String day(int ago) => DateTime.now()
       .subtract(Duration(days: ago, hours: 2))
       .toUtc()
@@ -665,8 +669,52 @@ DemoApi nakhlaStudioApi({bool map = false}) {
         badge: day(ago),
         action: {'type': 'screen', 'screen': 'school'},
       );
+  final api = DemoApi.school(map: map);
+  if (staffApp) {
+    api.config = {
+      ...api.config,
+      'school': {
+        ...(api.config['school'] as Map<String, dynamic>),
+        'staff_app': 'bundle',
+      },
+    };
+  }
+  final stop = {
+    'id': 3,
+    'name': 'Road 9',
+    'lat': 29.9602,
+    'lng': 31.2569,
+    'time': '14:45',
+    'passed': false,
+  };
+  api.childDay = {
+    ...api.childDay,
+    'checkin': {
+      ...(api.childDay['checkin'] as Map<String, dynamic>),
+      'in_time': '07:42',
+    },
+    'bus': [
+      {
+        'trip': 'afternoon',
+        'route': {'id': 1, 'name': 'Route 1', 'plate': 'ن ق ص 2741'},
+        'stop': stop,
+        'stops': [
+          {
+            'id': 9,
+            'name': 'Nakhla School',
+            'lat': 30.0911,
+            'lng': 31.3225,
+            'time': '14:20',
+            'passed': false,
+          },
+          stop,
+        ],
+        'run': null,
+      },
+    ],
+  };
   return StudioDemo.nakhla.apply(
-    DemoApi.school(map: map),
+    api,
     appName: 'Nakhla School',
     primaryColor: '#1F4E79',
     items: {
@@ -698,8 +746,10 @@ DemoApi nakhlaStudioApi({bool map = false}) {
 }
 
 /// Rawaq Academy (Studio's academy with many teachers): its newest courses
-/// on its home, each with its teacher and its picture.
-DemoApi rawaqStudioApi() {
+/// on its home, each with its teacher and its picture. 128 With [staffApp]
+/// its teachers work in the staff app, so this app has no Teacher tab (the
+/// approved bar).
+DemoApi rawaqStudioApi({bool staffApp = false}) {
   final demo = StudioDemo.rawaq;
   Map<String, dynamic> course(
     int id,
@@ -717,6 +767,15 @@ DemoApi rawaqStudioApi() {
     action: {'type': 'course', 'course_id': id},
   );
   final api = DemoApi.teachers();
+  if (staffApp) {
+    api.config = {
+      ...api.config,
+      'instructors': {
+        ...(api.config['instructors'] as Map<String, dynamic>),
+        'staff_app': 'bundle',
+      },
+    };
+  }
   // Deniz Kaya's course in its drawing, at the demo's price.
   final teacher = api.teacher;
   api.teacher = {
@@ -743,28 +802,28 @@ DemoApi rawaqStudioApi() {
         course(
           8,
           'Start Your Own Small Business',
-          'Omar Farouk',
+          'Omar Farouk · 4.8/5',
           'E£630.00',
           'course-business',
         ),
         course(
           7,
           'Arabic for Beginners',
-          'Salma Nasser',
+          'Salma Nasser · 4.9/5',
           'E£475.00',
           'course-arabic',
         ),
         course(
           6,
           'Python for Data Analysis',
-          'Mert Şahin',
+          'Mert Şahin · 4.7/5',
           'E£1,010.00',
           'course-python',
         ),
         course(
           5,
           'Everyday English Conversation',
-          'Hannah Clarke',
+          'Hannah Clarke · 4.9/5',
           'E£410.00',
           'course-english',
         ),

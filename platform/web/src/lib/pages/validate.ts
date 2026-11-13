@@ -72,6 +72,7 @@ import {
   STUDIO_MARKET_SECTIONS,
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
+  STUDIO_SCHOOL_SECTIONS,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -1357,7 +1358,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
   // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning";
+  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning" || node.type === "school";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1542,6 +1543,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
         else node.icon = v.icon;
       }
+      break;
+    }
+    case "school": {
+      // 128 A part of the family's school day, drawn by the app from the parent's own children.
+      const sc = record(v.school);
+      if (!sc || !oneOf(STUDIO_SCHOOL_SECTIONS, sc.section)) {
+        bad("choose which part of the school day it is.");
+        break;
+      }
+      node.school = { section: sc.section };
       break;
     }
     case "market": {

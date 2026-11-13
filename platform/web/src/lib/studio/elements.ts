@@ -16,7 +16,7 @@ export interface ElementInfo {
   /** Words people search for, besides its name, in English. */
   keywords: string;
   /** 115.14 Offered only in projects of this kind (a marketplace's sections). */
-  only?: "marketplace" | "academy" | "orders" | "trips";
+  only?: "marketplace" | "academy" | "orders" | "trips" | "school";
 }
 
 export const ELEMENTS: readonly ElementInfo[] = [
@@ -45,6 +45,8 @@ export const ELEMENTS: readonly ElementInfo[] = [
   // 115.14 One marketplace section from the marketplace's data: the address, kinds, offers, cuisines, the club, places, order again.
   // 123 The student's own cards: the course they are taking, their streak, their next live class, this week's learning.
   { type: "learning", group: "content", icon: "school", keywords: "learning continue course progress streak live class week time student", only: "academy" },
+  // 128 The family's school day: the greeting with today's date, the children to switch between, today's card.
+  { type: "school", group: "content", icon: "family_restroom", keywords: "school family parent child children today check in class bus greeting", only: "school" },
   { type: "market", group: "content", icon: "storefront", keywords: "marketplace vendors restaurants supermarket shops offers club cuisines address reorder", only: "marketplace" },
   // 128 The person's order on its way (food delivery and marketplaces), from the app's own data.
   { type: "live_status", group: "content", icon: "two_wheeler", keywords: "live status order on its way tracking delivery minutes progress", only: "orders" },
@@ -156,6 +158,8 @@ export function newNode(
       return { id, type, market: { section: "vendors" }, margin: { top: 8, end: 0, bottom: 8, start: 0 } };
     case "live_status":
       return { id, type, live_status: { source: options.orders ?? "food_order" }, radius: 18, background: options.brand, color: "#FFFFFF", padding: { top: 12, end: 14, bottom: 12, start: 14 }, margin: { top: 10, end: 16, bottom: 0, start: 16 } };
+    case "school":
+      return { id, type, school: { section: "today" }, radius: 22, margin: { top: 14, end: 16, bottom: 0, start: 16 } };
     case "learning":
       return { id, type, learning: { section: "continue" }, radius: 30, margin: { top: 8, end: 16, bottom: 8, start: 16 }, gradient: { from: "#141A3A", to: "#3B2A6B", angle: 140 } };
     // 128 The covers start with words over them, ready to change.

@@ -1980,6 +1980,8 @@ enum StudioNodeType {
   // a greeting with their first name.
   tracking,
   greeting,
+  // 128 A part of the family's school day in a school (StudioSchool).
+  school,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2024,6 +2026,12 @@ class StudioScrim {
   final double at;
   final double angle;
 }
+
+/// 128 Which part of the family's school day a `school` element is: the
+/// greeting with today's date, the children to switch between, or today's
+/// card of the chosen child (in at the gate, the class now and next, the
+/// bus home).
+enum StudioSchoolSection { greeting, children, today }
 
 /// 123 Which of the student's cards a `learning` element is: the course
 /// they are taking, their streak, their next live class, or this week's
@@ -2477,6 +2485,7 @@ class StudioNode {
     this.tracking,
     this.mapDrawing,
     this.overlap = 0,
+    this.school,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2596,6 +2605,12 @@ class StudioNode {
         tracking: StudioTracking.tryParse(json['tracking']),
         mapDrawing: StudioMapDrawing.tryParse(json['map_drawing']),
         overlap: n('overlap', 0, 0, 400),
+        school: json['school'] is Map
+            ? enumOrNull(
+                StudioSchoolSection.values,
+                (json['school'] as Map)['section'],
+              )
+            : null,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2757,6 +2772,9 @@ class StudioNode {
 
   /// 128 For the covers: how far their last element hangs over their foot.
   final double overlap;
+
+  /// 128 For [StudioNodeType.school]: which part of the school day it is.
+  final StudioSchoolSection? school;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

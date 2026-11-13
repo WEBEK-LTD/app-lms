@@ -6,6 +6,7 @@ import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTe
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 import { demoDesignTemplate } from "./demo-designs";
+import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -259,7 +260,28 @@ export type SectionWord =
   | "taxiWhereTo"
   | "taxiAirportTitle"
   | "taxiBook"
-  | "taxiRidesBanner";
+  | "taxiRidesBanner"
+  // 128 The approved Studio demos' homes: the school's (Nakhla School) and the teachers' (Rawaq Academy), and their pages.
+  | "sdWelcome"
+  | "sdWeek"
+  | "sdAllNews"
+  | "sdFair"
+  | "sdParents"
+  | "rqKicker"
+  | "rqTitle"
+  | "rqMeet"
+  | "rqAllTeachers"
+  | "rqPopular"
+  | "rqP1"
+  | "rqP1i"
+  | "rqP2"
+  | "rqP2i"
+  | "rqP3"
+  | "rqP3i"
+  | "rqP4"
+  | "rqP4i"
+  | "tabTeachers"
+  | "tipTeachers";
 
 export interface SectionContext {
   brand: string;
@@ -985,6 +1007,55 @@ export const SECTIONS: readonly SectionInfo[] = [
   // 112.4 A store's own sections, then the sliders.
   ...STORE_SECTIONS,
   ...SLIDER_SECTIONS,
+  // 128 Photo sections for every project (lib/studio/photo-sections.ts): a photo with words over a scrim, photo tiles with captions, people in circles.
+  {
+    id: "photo_hero",
+    icon: "panorama",
+    make: (ctx) =>
+      photoHero(
+        ctx,
+        {
+          photo: photoOf(ctx, "/stories/school/school-gate.jpg"),
+          height: 240,
+          shade: "#101828",
+          radius: 24,
+          margin: pad(10, 16),
+          words: [
+            text(ctx, ctx.w("heroTitle"), { color: "#FFFFFF", font: { size: 26, weight: 800, line_height: 1.1 } }),
+            text(ctx, ctx.w("heroText"), { color: "#FFFFFF", opacity: 0.9, font: { size: 14 } }),
+          ],
+        },
+        ctx.w("heroTitle"),
+      ),
+  },
+  {
+    id: "photo_tiles",
+    icon: "photo_library",
+    make: (ctx) =>
+      photoTiles(
+        ctx,
+        [
+          { photo: photoOf(ctx, "/stories/academy/academy-desk.jpg"), caption: "bannerOne" },
+          { photo: photoOf(ctx, "/stories/academy/academy-breakfast.jpg"), caption: "bannerTwo" },
+        ],
+        ctx.w("bannerOne"),
+      ),
+  },
+  {
+    id: "people_row",
+    icon: "groups",
+    make: (ctx) =>
+      peopleRow(
+        ctx,
+        [
+          { initials: "rqP1i", name: "rqP1", color: "#2E5E4E" },
+          { initials: "rqP2i", name: "rqP2", color: "#B8893A" },
+          { initials: "rqP3i", name: "rqP3", color: "#34336B" },
+          { initials: "rqP4i", name: "rqP4", color: "#B4235A" },
+        ],
+        ctx.w("rqMeet"),
+      ),
+  },
 ];
 
 /** 103R.7 Whether a section or template is made for this project (or for every project). */
@@ -1116,10 +1187,14 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("teachers", "groups", TEACHERS, ["teachers", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
   typed("teachers_offers", "local_offer", TEACHERS, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, { word: "ctaLearn", action: screen("courses") }),
   typed("teachers_brand", "school", TEACHERS, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, TEACHERS_BUTTON, TEACHERS_STEPS),
+  // 128 The teachers' home approved for Rawaq Academy: the library's photo, the teachers in circles, this month's popular courses.
+  demoDesignTemplate("instructors"),
   // 105.4 Three ready-made designs for a school.
   typed("school", "school", SCHOOL, ["school", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
   typed("school_news", "campaign", SCHOOL, ["hero", "products", "review", "contact"], { type: "logo_center", buttons: ["menu", "notifications"] }, SCHOOL_BUTTON),
   typed("school_brand", "workspace_premium", SCHOOL, ["hero", "stats", "features", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, SCHOOL_BUTTON, SCHOOL_STEPS),
+  // 128 The school's home approved for Nakhla School: the photo, the family's greeting, the children, today's card, this week in photos.
+  demoDesignTemplate("school"),
   // A university's own: its welcome, its news and how students follow it.
   typed("university", "apartment", SCHOOL, ["university", "products", "steps", "contact"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, SCHOOL_BUTTON, ["uniStepOne", "uniStepTwo", "uniStepThree"]),
   // 115.14 Three ready-made designs for a marketplace: the search on top, the kinds, offers, the club and the places.

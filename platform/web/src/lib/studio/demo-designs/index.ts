@@ -8,6 +8,9 @@ import { lamhaHome, lamhaPage, LAMHA_INK } from "./lamha-taxi";
 import { masarHome, masarPage, MASAR_INK } from "./masar-rides";
 import type { DemoInk } from "./parts";
 import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
+import { schoolTodayHome } from "../school-home";
+import { teachersPhotoHome } from "../teachers-home";
+import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -17,9 +20,10 @@ import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
  * in the demo's colours by day and by night, over the screens of its tabs
  * the demo's own elements (a banner of its photos, the person's order,
  * shipment or ride), the pages of its own a tab opens (Zad's Shops) and its
- * bar. Sofra Eats and Zad (lib/studio/photo-food.ts, photo-market.ts) and
- * Sahm Express, Masar Rides and Lamha Taxi (this folder) are made the same
- * way. The demo app (lib/demo/setup.ts), a project its template starts
+ * bar. Sofra Eats and Zad (lib/studio/photo-food.ts, photo-market.ts),
+ * Sahm Express, Masar Rides and Lamha Taxi (this folder), Nakhla School and
+ * Rawaq Academy (lib/studio/school-home.ts, teachers-home.ts, this folder's
+ * school-looks.ts) are made the same way. The demo app (lib/demo/setup.ts), a project its template starts
  * (lib/studio/start.ts) and its whole design (lib/studio/designs.ts) all
  * make their pages here, through `ctx.demo` (lib/studio/demo-pages.ts), so
  * they stay the same (tests/unit/studio-demo-templates.test.ts).
@@ -30,6 +34,8 @@ export interface DemoPageLook {
   header: Pick<StudioHeader, "background" | "color" | "dark_background" | "dark_color">;
   background?: string;
   dark_background?: string;
+  /** Only on the pages with a header (the account's screen keeps the look its sign-in sets); missing, every page after the home. */
+  headed?: boolean;
 }
 
 export interface DemoDesign {
@@ -95,6 +101,9 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
   },
   rides: { template: { id: "ride_night", icon: "nightlife", fits: { types: ["rides"] } }, home: masarHome, over: masarPage, look: inkLook(MASAR_INK), tabs: rideTabs, bar: classicBar(MASAR_INK) },
   taxi: { template: { id: "taxi_map", icon: "map", fits: { types: ["rides"] } }, home: lamhaHome, over: lamhaPage, look: inkLook(LAMHA_INK), tabs: rideTabs },
+  // 128.6 128.7 The family's school day; the teachers in circles, its Teachers tab.
+  school: { template: { id: "school_today", icon: "family_restroom", fits: { types: ["school"] } }, home: schoolTodayHome, over: schoolPage(NAKHLA_LOOK), look: NAKHLA_LOOK, bar: { design: "classic", background: "#FFFFFF", dark_background: "#122033", active: "#1F4E79", dark_active: "#9CC3EA", inactive: "#56657A", dark_inactive: "#A6B3C3" } },
+  instructors: { template: { id: "teachers_photo", icon: "co_present", fits: { types: ["lms"], verticals: ["instructors"] } }, home: teachersPhotoHome, over: schoolPage(RAWAQ_LOOK), look: RAWAQ_LOOK, tabs: rawaqTabs, bar: { design: "classic", background: "#FFFFFF", dark_background: "#15221C", active: "#2E5E4E", dark_active: "#8FD1B6", inactive: "#5A665F", dark_inactive: "#A9B7AF" } },
 };
 
 /** The demo's own design, when it has one. */
@@ -143,7 +152,7 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
   const { ctx: words, translate } = translating(ctx);
   const own = page.studio.screen ? design.over(page.studio.screen, words) : null;
   const { header: was, ...studio } = page.studio;
-  const look = design.look;
+  const look = design.look && (!design.look.headed || was) ? design.look : undefined;
   const header = was && look ? { ...was, ...look.header } : was;
   return {
     ...page,

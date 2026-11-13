@@ -260,11 +260,13 @@ function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item |
   const id = Number(course.id);
   if (!Number.isSafeInteger(id) || typeof course.title !== "string") return null;
   const price = (course.price ?? {}) as { is_free?: boolean; formatted?: string | null };
+  // 128 The teacher, and the course's rating once it has one ("Omar Farouk · 4.8/5"; a star isn't in every app font).
+  const rating = typeof course.rating === "number" && course.rating > 0 ? `${course.rating.toFixed(1)}/5` : null;
   return {
     source: "courses",
     id: String(id),
     title: course.title,
-    subtitle: str((course.instructor as { name?: unknown } | undefined)?.name),
+    subtitle: [str((course.instructor as { name?: unknown } | undefined)?.name), rating].filter(Boolean).join(" · ") || null,
     image_url: str(course.image_url),
     // Display text only: there's never a purchase action in a list.
     // 38 In the app's language, like every word on a card.

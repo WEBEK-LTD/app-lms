@@ -9874,4 +9874,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String studioRideCall(String name) {
     return 'Call $name';
   }
+
+  @override
+  String studioSchoolMorning(String name) {
+    return 'Good morning,\n$name\'s family';
+  }
+
+  @override
+  String studioSchoolEvening(String name) {
+    return 'Good evening,\n$name\'s family';
+  }
+
+  @override
+  String studioSchoolCheckedIn(String name, String time) {
+    return '$name checked in at $time';
+  }
+
+  @override
+  String studioSchoolLeft(String name, String time) {
+    return '$name left at $time';
+  }
+
+  @override
+  String studioSchoolNotYet(String name) {
+    return '$name isn\'t at school yet';
+  }
+
+  @override
+  String studioSchoolAway(String name) {
+    return '$name is away today';
+  }
+
+  @override
+  String get studioSchoolOnTime => 'On time · the gate';
+
+  @override
+  String get studioSchoolLate => 'Late · the gate';
+
+  @override
+  String studioSchoolNow(String subject, String teacher) {
+    return 'Now · $subject with $teacher';
+  }
+
+  @override
+  String studioSchoolNowAlone(String subject) {
+    return 'Now · $subject';
+  }
+
+  @override
+  String studioSchoolNext(String subject, String time) {
+    return 'Next: $subject at $time';
+  }
+
+  @override
+  String studioSchoolFirst(String subject, String time) {
+    return 'First · $subject at $time';
+  }
+
+  @override
+  String get studioSchoolLastLesson => 'The day\'s last lesson';
+
+  @override
+  String get studioSchoolLessonsOver => 'Lessons are over for today';
+
+  @override
+  String studioSchoolLessonsEnded(String time) {
+    return 'The last ended at $time';
+  }
+
+  @override
+  String studioSchoolBusLeaves(String time) {
+    return 'Bus home leaves $time';
+  }
+
+  @override
+  String studioSchoolBusComing(String minutes) {
+    return 'Bus on its way · $minutes min';
+  }
+
+  @override
+  String studioSchoolBusRoute(String route, String stop) {
+    return '$route · $stop stop';
+  }
+
+  @override
+  String get studioSchoolDayOff => 'No school today';
 }
