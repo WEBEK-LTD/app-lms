@@ -897,6 +897,67 @@ export interface StudioMapDrawing {
   me?: boolean;
   /** In the app, the free taxis near the person instead of the markers (the markers show in Studio). */
   live?: boolean;
+  // 129.21–129.24 Premium looks of the drawn map (all optional: missing, the map drawn as before).
+  /** How the map is drawn; missing, the plain map (a river, four roads and two parks). */
+  style?: StudioMapStyle | null;
+  /** How the markers look; missing, the style's own (plain a tile, natural and horizon a car, two-ink a roof sign, lens a token). */
+  marker?: (typeof STUDIO_MAP_MARKERS)[number] | null;
+  /** The word on a roof-sign marker; missing, "TAXI" in the page's language. */
+  sign?: string | null;
+  /** Where the person's dot is, in percent from the start and the top; missing, a little under the middle (a lens's centre). */
+  me_at?: StudioPlace | null;
+  /** Labelled pins: the person's saved places (Home, Office). */
+  places?: StudioMapPin[];
+  /** Words on the map: districts, a river. */
+  labels?: StudioMapLabel[];
+  /** A route: done solid, the rest dashed, with the vehicle where it is. */
+  route?: StudioMapRoute | null;
+}
+
+/** 129.21–129.24 The drawn map's looks: a living map, a horizon in perspective, two inks, a radar lens. */
+export const STUDIO_MAP_STYLES = ["natural", "horizon", "two_ink", "lens"] as const;
+export type StudioMapStyle = (typeof STUDIO_MAP_STYLES)[number];
+/** 129.21 How the map's markers look: a tile with the icon, a car from above, a roof sign, a round token with a trail. */
+export const STUDIO_MAP_MARKERS = ["tile", "car", "sign", "token"] as const;
+/** 129.24 What a live route follows in the app: the person's ride or shipment on its way. */
+export const STUDIO_MAP_ROUTE_LIVE = ["ride", "shipment"] as const;
+export const STUDIO_MAP_LIMITS = { places: 6, labels: 8, routePoints: 6, label: 40, sign: 8 } as const;
+
+/** 129.21 A labelled pin, in percent from the start and the top of the map (a lens: of the lens). */
+export interface StudioMapPin {
+  x: number;
+  y: number;
+  label: string;
+  /** A Material Symbols name; missing, a place. */
+  icon?: string | null;
+}
+
+/** 129.21 A word on the map, its start at the spot. */
+export interface StudioMapLabel {
+  x: number;
+  y: number;
+  text: string;
+}
+
+/** 129.24 A route on the map: through its points (from the first to the last), done up to `at` percent of the way. */
+export interface StudioMapRoute {
+  points: StudioPlace[];
+  /** Where the vehicle is along the way, 0 to 100; missing, at the start. */
+  at?: number;
+  /** A chip over the start, and over the end. */
+  from_label?: string | null;
+  to_label?: string | null;
+  /** The bubble by the vehicle ("3 min", "Karim · 6 min"). */
+  eta?: string | null;
+  /** The vehicle's icon; missing, the markers'. */
+  icon?: string | null;
+  /** The line's colour by day and by night; missing, the markers' accent. */
+  color?: string | null;
+  dark_color?: string | null;
+  /** The vehicle drives on along the rest of the way, again and again (a sample; still with reduced motion). */
+  moving?: boolean;
+  /** In the app, the person's ride or shipment on its way instead (nothing when there is none; Studio shows these points). */
+  live?: (typeof STUDIO_MAP_ROUTE_LIVE)[number] | null;
 }
 
 export interface StudioMap {

@@ -28,6 +28,8 @@ import type { PremiumWords } from "@/components/studio/premium";
 import type { PremiumText } from "@/lib/studio/premium-content";
 import { SECTIONS, sectionsFor, TEMPLATES, templatesFor, type ProjectKind, type SectionContext, type SectionWord, type TemplateInfo } from "@/lib/studio/sections";
 import { PAGE_TEMPLATES } from "@/lib/studio/page-templates";
+// 129.21–129.24 The Premium group's maps.
+import { PREMIUM_MAPS, type PremiumMapWords } from "@/lib/studio/premium-maps";
 import { CLIPBOARD_KEY, forPaste, readCopied, readStyle, STYLE_CLIPBOARD_KEY, styleOf, stylePatch } from "@/lib/studio/clipboard";
 import { findNode, studioPageOpeners } from "@/lib/studio/tree";
 import { formatList } from "@/i18n/format";
@@ -224,6 +226,8 @@ export function StudioEditor(props: StudioEditorProps) {
     picture: (file: string) => `${props.pictureBase}/design-pictures/${file}`,
     entries: source === "products" ? (props.pickable.items.products ?? []).slice(0, 3) : undefined,
   };
+  // 129.21–129.24 A premium map's sample words.
+  const premiumMapWords: PremiumMapWords = (key) => t(`studio.pmapWord_${key}` as DashKey);
   const newText = (key: NewText) =>
     t(
       (
@@ -410,6 +414,8 @@ export function StudioEditor(props: StudioEditorProps) {
       });
     if (payload.kind === "section") return SECTIONS.find((s) => s.id === payload.id)?.make(sectionContext) ?? null;
     if (payload.kind === "picture") return { ...newNode("image", { source, brand: app.brand, text: newText }), image_url: payload.url };
+    // 129.21–129.24 A premium map, its sample words in the editor's language.
+    if (payload.kind === "premium_map") return PREMIUM_MAPS.find((m) => m.id === payload.id)?.make({ newId: newNodeId, words: premiumMapWords }) ?? null;
     return null;
   }
 
@@ -628,6 +634,7 @@ export function StudioEditor(props: StudioEditorProps) {
     e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(payload));
     e.dataTransfer.setData("text/plain", "");
     if (payload.kind === "new") dragGhost(e, elementLabel(t, payload.type, source, payload.preset), (ELEMENTS.find((x) => x.type === payload.type && x.preset === payload.preset) ?? elementInfo(payload.type)).icon);
+    else if (payload.kind === "premium_map") dragGhost(e, t(`studio.pmap_${payload.id}` as DashKey), PREMIUM_MAPS.find((m) => m.id === payload.id)?.icon ?? "map");
     else if (payload.kind === "section") dragGhost(e, t(`studio.sec_${payload.id}` as DashKey), SECTIONS.find((s) => s.id === payload.id)?.icon ?? "dashboard");
     else if (payload.kind === "move" && studio) {
       const node = findNode(studio.body, payload.id);
@@ -1230,6 +1237,7 @@ export function StudioEditor(props: StudioEditorProps) {
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}
           onAddElement={(type, preset) => add({ kind: "new", type, ...(preset ? { preset } : {}) })}
+          onAddPremiumMap={(id) => add({ kind: "premium_map", id })}
           onAddSection={(id) => add({ kind: "section", id })}
           onUseTemplate={applyTemplate}
           onAddPicture={(payload) => add(payload)}

@@ -3073,5 +3073,9 @@
   "studioPremiumStars": "{rating} من 5 نجوم",
   "studioPremiumProgress": "{label}: {value} بالمئة",
   "studioPremiumStep": "الخطوة {number} من {count}",
-  "studioPremiumCurrentStep": "الخطوة الحالية"
+  "studioPremiumCurrentStep": "الخطوة الحالية",
+  "studioMapSign": "تاكسي",
+  "studioMapMinutes": "{minutes} د",
+  "studioMapPickup": "نقطة الركوب",
+  "studioMapEta": "{name} · {minutes} د"
 }

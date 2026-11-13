@@ -12240,4 +12240,22 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get studioPremiumCurrentStep =>
       overlay.text('studioPremiumCurrentStep') ?? base.studioPremiumCurrentStep;
+
+  @override
+  String get studioMapSign =>
+      overlay.text('studioMapSign') ?? base.studioMapSign;
+
+  @override
+  String studioMapMinutes(int minutes) =>
+      overlay.format('studioMapMinutes', {'minutes': minutes}) ??
+      base.studioMapMinutes(minutes);
+
+  @override
+  String get studioMapPickup =>
+      overlay.text('studioMapPickup') ?? base.studioMapPickup;
+
+  @override
+  String studioMapEta(String name, int minutes) =>
+      overlay.format('studioMapEta', {'name': name, 'minutes': minutes}) ??
+      base.studioMapEta(name, minutes);
 }

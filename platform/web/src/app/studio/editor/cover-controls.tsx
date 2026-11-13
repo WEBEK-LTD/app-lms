@@ -7,6 +7,8 @@ import { IconPicker } from "@/app/dashboard/pages/controls";
 import { STUDIO_TRACKING_KINDS, STUDIO_TRACKING_STYLES, type StudioMapDrawing, type StudioNode } from "@/lib/pages/types";
 import { RangeField } from "./controls";
 import { MAP_COLORS } from "@/components/studio/covers";
+// 129.21–129.24 The map's premium looks.
+import { MapLooksControls } from "./map-looks-controls";
 
 /**
  * 128 The inspector's part for the cover layouts and the live card: a
@@ -71,6 +73,8 @@ export function CoverControls({ node, onChange }: { node: StudioNode; onChange: 
         <ColorIn label={t("studio.mapLandDark")} value={node.dark_background ?? MAP_COLORS.dark.land} onChange={(dark_background) => onChange({ dark_background })} />
         <Toggle label={t("studio.mapMe")} checked={drawing.me === true} onChange={(me) => set({ me: me || undefined })} />
         <Toggle label={t("studio.mapLive")} checked={drawing.live === true} onChange={(live) => set({ live: live || undefined })} />
+        {/* 129.21–129.24 Its premium look, pins, words and route. */}
+        <MapLooksControls drawing={drawing} set={set} id={node.id} />
         {overlap}
         <span className="text-xs" style={{ color: "var(--studio-muted)" }}>
           {t("studio.coverHint")}

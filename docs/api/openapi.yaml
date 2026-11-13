@@ -15991,6 +15991,40 @@ components:
         `chip`, and with `me` the person's dot a little under the middle.
         With `live`, a taxi app draws the free taxis near the person instead
         of the markers, once the phone says where they are.
+
+        129.21–129.24 Premium looks, all optional (missing, the map as
+        above). `style`: `natural` a living map (a curved river with an
+        island, cased streets and avenues, parks, a soft vignette);
+        `horizon` the city tilted in perspective to a foggy horizon (fog at
+        the top for a headline, pins standing on it); `two_ink` printed in
+        the two marker colours (`chip` on `accent` by day, `accent` on a
+        deeper `chip` by night) with hatched water, dotted parks, a
+        roundabout and a checker band at its foot; `lens` a round radar lens
+        at the element's foot with dashed 1, 3 and 5 minute rings and a slow
+        sweep (places on it are in percent of the lens). `marker` how the
+        markers look (missing, the style's own: a tile, a car from above, a
+        roof sign with `sign` on it, missing "TAXI" in the app's language,
+        or a token with a motion trail). `me_at` where the person's dot is
+        (missing, a little under the middle; a lens's centre). `places`
+        labelled pins (Home, Office), `labels` words on the map (districts,
+        a river), drawn as written. `route` a line through its `points`
+        (from the first to the last), done solid up to `at` percent of the
+        way and dashed after it, with the vehicle there (its `icon`, missing
+        the markers'; the element's `image_url` as the courier's or
+        driver's photo), `from_label` and `to_label` chips at its ends and
+        `eta` in a bubble by the vehicle, in `color` (by night
+        `dark_color`; missing, `accent`); with `moving` the vehicle drives
+        on along the rest of the way, again and again. With `live`, the app
+        draws the signed-in person's ride (`ride`: the driver to the pickup,
+        then the pickup to the drop-off) or shipment (`shipment`: the
+        pickup to the drop-off, the courier where the last position says)
+        on its way instead, with their real places, positions and names,
+        and no route when there is none. Positions are from the start (they
+        turn with a right-to-left language, the drawing too); live taxis
+        and live routes are where they really are. The sweep, the pulse and
+        a moving vehicle stand still with reduced motion. Apps leave out a
+        style or marker look they don't know (drawing the plain map and
+        tiles).
       properties:
         markers:
           type: array
@@ -16006,6 +16040,68 @@ components:
         chip: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         me: { type: boolean }
         live: { type: boolean }
+        style: { type: [string, 'null'], enum: [natural, horizon, two_ink, lens, null] }
+        marker: { type: [string, 'null'], enum: [tile, car, sign, token, null] }
+        sign: { type: [string, 'null'], maxLength: 8 }
+        me_at:
+          type: [object, 'null']
+          required: [x, y]
+          properties:
+            x: { type: number, minimum: 0, maximum: 100 }
+            y: { type: number, minimum: 0, maximum: 100 }
+        places:
+          type: array
+          maxItems: 6
+          items:
+            type: object
+            required: [x, y, label]
+            properties:
+              x: { type: number, minimum: 0, maximum: 100 }
+              y: { type: number, minimum: 0, maximum: 100 }
+              label: { type: string, minLength: 1, maxLength: 40 }
+              icon: { type: [string, 'null'], pattern: '^[a-z0-9_]{1,40}$' }
+        labels:
+          type: array
+          maxItems: 8
+          items:
+            type: object
+            required: [x, y, text]
+            properties:
+              x: { type: number, minimum: 0, maximum: 100 }
+              y: { type: number, minimum: 0, maximum: 100 }
+              text: { type: string, minLength: 1, maxLength: 40 }
+        route:
+          $ref: '#/components/schemas/StudioMapRoute'
+
+    StudioMapRoute:
+      type: [object, 'null']
+      description: |
+        129.24 A route on a `map_header`'s drawn map (`StudioMapDrawing`):
+        through `points` in percent from the start and the top, done solid
+        up to `at` percent of the way, dashed after it, with the vehicle
+        there. With `live` the app draws the person's ride or shipment on
+        its way instead, and nothing when there is none.
+      required: [points]
+      properties:
+        points:
+          type: array
+          minItems: 2
+          maxItems: 6
+          items:
+            type: object
+            required: [x, y]
+            properties:
+              x: { type: number, minimum: 0, maximum: 100 }
+              y: { type: number, minimum: 0, maximum: 100 }
+        at: { type: number, minimum: 0, maximum: 100 }
+        from_label: { type: [string, 'null'], maxLength: 40 }
+        to_label: { type: [string, 'null'], maxLength: 40 }
+        eta: { type: [string, 'null'], maxLength: 40 }
+        icon: { type: [string, 'null'], pattern: '^[a-z0-9_]{1,40}$' }
+        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        moving: { type: boolean }
+        live: { type: [string, 'null'], enum: [ride, shipment, null] }
 
     StudioLiveStatus:
       type: [object, 'null']

@@ -12491,5 +12491,34 @@
   "studioPremiumCurrentStep": "Current step",
   "@studioPremiumCurrentStep": {
     "description": "129.15 What a screen reader says for the active step of a timeline on a Studio page."
+  },
+  "studioMapSign": "TAXI",
+  "@studioMapSign": {
+    "description": "129.23 The word on a two-ink map's roof-sign markers when the Studio element has none."
+  },
+  "studioMapMinutes": "{minutes} min",
+  "@studioMapMinutes": {
+    "description": "129.23 A radar lens's minute ring on a Studio map, and a live route's minutes without a name.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "studioMapPickup": "Pickup",
+  "@studioMapPickup": {
+    "description": "129.24 The chip over the pickup on a Studio map's live route while the driver comes."
+  },
+  "studioMapEta": "{name} · {minutes} min",
+  "@studioMapEta": {
+    "description": "129.24 The bubble by the driver on a Studio map's live route: their first name and the minutes to the pickup.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -3073,5 +3073,9 @@
   "studioPremiumStars": "5 üzerinden {rating} yıldız",
   "studioPremiumProgress": "{label}: yüzde {value}",
   "studioPremiumStep": "{count} adımdan {number}.",
-  "studioPremiumCurrentStep": "Şu anki adım"
+  "studioPremiumCurrentStep": "Şu anki adım",
+  "studioMapSign": "TAKSİ",
+  "studioMapMinutes": "{minutes} dk",
+  "studioMapPickup": "Biniş",
+  "studioMapEta": "{name} · {minutes} dk"
 }

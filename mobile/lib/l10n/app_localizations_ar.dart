@@ -11951,4 +11951,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get studioPremiumCurrentStep => 'الخطوة الحالية';
+
+  @override
+  String get studioMapSign => 'تاكسي';
+
+  @override
+  String studioMapMinutes(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String get studioMapPickup => 'نقطة الركوب';
+
+  @override
+  String studioMapEta(String name, int minutes) {
+    return '$name · $minutes د';
+  }
 }

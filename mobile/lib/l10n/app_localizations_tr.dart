@@ -11492,4 +11492,20 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get studioPremiumCurrentStep => 'Şu anki adım';
+
+  @override
+  String get studioMapSign => 'TAKSİ';
+
+  @override
+  String studioMapMinutes(int minutes) {
+    return '$minutes dk';
+  }
+
+  @override
+  String get studioMapPickup => 'Biniş';
+
+  @override
+  String studioMapEta(String name, int minutes) {
+    return '$name · $minutes dk';
+  }
 }

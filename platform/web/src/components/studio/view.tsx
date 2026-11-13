@@ -745,7 +745,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         // 128.10 What it holds may be see-through on it (a frosted button).
         const inside = { ...p, inCover: true };
         const front = Children({ ...inside, node: { ...n, type: "column", children: hang ? kids.slice(0, -1) : kids } });
-        return <Cover node={n} dark={dark} rtl={lang === "ar"} front={front} last={hang ? <Node {...inside} node={hang} parentDir="column" /> : null} />;
+        return <Cover node={n} dark={dark} rtl={lang === "ar"} lang={lang} front={front} last={hang ? <Node {...inside} node={hang} parentDir="column" /> : null} />;
       }
       // 128 The person's shipment or ride on its way, or the taxis near them, and a greeting: samples here.
       case "tracking":

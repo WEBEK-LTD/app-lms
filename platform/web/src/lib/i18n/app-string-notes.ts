@@ -4577,6 +4577,28 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     tr: "Ekran okuyucunun bir sayfadaki zaman çizelgesinin şu anki adımı için söylediği.",
   },
   // ——— end 129.11–129.20 ———
+  // ——— 129.21–129.24 Studio's premium maps ———
+  "129.23 The word on a two-ink map's roof-sign markers when the Studio element has none.": {
+    en: "The word on the markers of a page's two-colour map, shaped like a taxi's roof sign, when the owner wrote none.",
+    ar: "الكلمة على علامات خريطة الصفحة ذات اللونين، على شكل لافتة سقف التاكسي، لما صاحب التطبيق ما يكتبش كلمة.",
+    tr: "Bir sayfadaki iki renkli haritanın taksi tepe lambası biçimindeki işaretlerinde, sahibi bir şey yazmadığında görünen sözcük.",
+  },
+  "129.23 A radar lens's minute ring on a Studio map, and a live route's minutes without a name.": {
+    en: "The minutes on a page map's radar ring, and on a live route when the driver has no name.",
+    ar: "الدقايق على دايرة الرادار في خريطة الصفحة، وعلى المشوار المباشر لما السواق ما لوش اسم.",
+    tr: "Bir sayfa haritasındaki radar halkasında ve sürücünün adı yokken canlı rotada görünen dakikalar.",
+  },
+  "129.24 The chip over the pickup on a Studio map's live route while the driver comes.": {
+    en: "The chip over the pickup point on a page map's live route while the driver is on the way.",
+    ar: "الشارة فوق مكان الركوب على المشوار المباشر في خريطة الصفحة، والسواق جاي.",
+    tr: "Sürücü yoldayken bir sayfa haritasındaki canlı rotada alış noktasının üstündeki etiket.",
+  },
+  "129.24 The bubble by the driver on a Studio map's live route: their first name and the minutes to the pickup.": {
+    en: "The bubble by the driver on a page map's live route: their first name and the minutes until they reach the pickup.",
+    ar: "الفقاعة جنب السواق على المشوار المباشر في خريطة الصفحة: اسمه الأول والدقايق لحد ما يوصل لمكان الركوب.",
+    tr: "Bir sayfa haritasındaki canlı rotada sürücünün yanındaki balon: adı ve alış noktasına kalan dakikalar.",
+  },
+  // ——— end 129.21–129.24 ———
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

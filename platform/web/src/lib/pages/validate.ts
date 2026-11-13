@@ -90,6 +90,11 @@ import {
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
   STUDIO_TRACKING_KINDS,
+  // 129.21–129.24 The drawn map's premium looks.
+  STUDIO_MAP_LIMITS,
+  STUDIO_MAP_MARKERS,
+  STUDIO_MAP_ROUTE_LIVE,
+  STUDIO_MAP_STYLES,
   STUDIO_TRACKING_STYLES,
   TAB_LABELS,
   THEME_MODES,
@@ -107,6 +112,10 @@ import {
   type StudioHeader,
   type StudioMarket,
   type StudioScrim,
+  // 129.21–129.24
+  type StudioMapDrawing,
+  type StudioMapRoute,
+  type StudioPlace,
   type StudioNode,
   type StudioFont,
   type StudioPage,
@@ -1233,6 +1242,7 @@ function parseCover(ctx: Context, where: string, v: Record<string, unknown>, typ
       if (chip) drawing.chip = chip;
       if (m.me === true) drawing.me = true;
       if (m.live === true) drawing.live = true;
+      Object.assign(drawing, parseMapLooks(c, where, m, bad));
       out.map_drawing = drawing;
     }
   }
@@ -1412,6 +1422,117 @@ function parsePremiumImages(ctx: Context, where: string, value: unknown, min: nu
   });
 }
 // ——— end 129 premium motion & media ———
+
+// 129.21–129.24 The drawn map's premium looks: its style and markers, the person's dot, labelled pins, words and a route.
+function parseMapLooks(c: Checker, where: string, m: Record<string, unknown>, bad: (what: string) => void): Partial<StudioMapDrawing> {
+  const out: Partial<StudioMapDrawing> = {};
+  const L = STUDIO_MAP_LIMITS;
+  const spot = (value: unknown, what: string): StudioPlace | null => {
+    const at = record(value);
+    const x = studioNumber(at?.x, 0, 100);
+    const y = studioNumber(at?.y, 0, 100);
+    if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) {
+      bad(`${what} needs a spot across and down, 0 to 100%.`);
+      return null;
+    }
+    return { x, y };
+  };
+  const words = (value: unknown, max: number, what: string): string | null => {
+    if (value === undefined || value === null || value === "") return null;
+    if (typeof value !== "string" || !value.trim()) {
+      bad(`${what} must be text.`);
+      return null;
+    }
+    if (value.trim().length > max) bad(`${what} can have at most ${max} characters.`);
+    return value.trim().slice(0, max);
+  };
+  const icon = (value: unknown, what: string): string | null => {
+    if (value === undefined || value === null || value === "") return null;
+    if (typeof value === "string" && ICON_NAME.test(value)) return value;
+    bad(`choose ${what}.`);
+    return null;
+  };
+  if (m.style !== undefined && m.style !== null) {
+    if (!oneOf(STUDIO_MAP_STYLES, m.style)) bad("choose how the map looks.");
+    else out.style = m.style;
+  }
+  if (m.marker !== undefined && m.marker !== null) {
+    if (!oneOf(STUDIO_MAP_MARKERS, m.marker)) bad("choose how the markers look.");
+    else out.marker = m.marker;
+  }
+  const sign = words(m.sign, L.sign, "the word on the markers");
+  if (sign) out.sign = sign;
+  if (m.me_at !== undefined && m.me_at !== null) {
+    const at = spot(m.me_at, "the person's dot");
+    if (at) out.me_at = at;
+  }
+  const list = (value: unknown, max: number, what: string): Record<string, unknown>[] => {
+    if (value === undefined || value === null) return [];
+    if (!Array.isArray(value)) {
+      bad(`${what} must be a list.`);
+      return [];
+    }
+    if (value.length > max) bad(`a map has at most ${max} ${what}.`);
+    return value.slice(0, max).flatMap((v) => {
+      const r = record(v);
+      if (!r) bad(`${what} aren't valid.`);
+      return r ? [r] : [];
+    });
+  };
+  const places = list(m.places, L.places, "labelled pins").flatMap((p) => {
+    const at = spot(p, "each labelled pin");
+    const label = words(p.label, L.label, "a pin's label");
+    if (!label) bad("each labelled pin needs its label.");
+    if (!at || !label) return [];
+    const glyph = icon(p.icon, "the pin's icon");
+    return [{ ...at, label, ...(glyph ? { icon: glyph } : {}) }];
+  });
+  if (places.length) out.places = places;
+  const labels = list(m.labels, L.labels, "words").flatMap((p) => {
+    const at = spot(p, "each word on the map");
+    const text = words(p.text, L.label, "a word on the map");
+    if (!text) bad("each word on the map needs its text.");
+    return at && text ? [{ ...at, text }] : [];
+  });
+  if (labels.length) out.labels = labels;
+  if (m.route !== undefined && m.route !== null) {
+    const r = record(m.route);
+    if (!r) bad("the route isn't valid.");
+    else {
+      const raw = Array.isArray(r.points) ? r.points : [];
+      if (raw.length < 2 || raw.length > L.routePoints) bad(`a route goes through 2 to ${L.routePoints} points.`);
+      const points = raw.slice(0, L.routePoints).flatMap((p) => {
+        const at = spot(p, "each point of the route");
+        return at ? [at] : [];
+      });
+      if (points.length >= 2) {
+        const route: StudioMapRoute = { points };
+        const at = studioNumber(r.at, 0, 100);
+        if (at !== undefined && Number.isNaN(at)) bad("where the vehicle is must be 0 to 100%.");
+        else if (at) route.at = at;
+        const from = words(r.from_label, L.label, "the chip over the route's start");
+        if (from) route.from_label = from;
+        const to = words(r.to_label, L.label, "the chip over the route's end");
+        if (to) route.to_label = to;
+        const eta = words(r.eta, L.label, "the bubble by the vehicle");
+        if (eta) route.eta = eta;
+        const glyph = icon(r.icon, "the vehicle's icon");
+        if (glyph) route.icon = glyph;
+        const color = optionalColor(c, where, r.color, "the route's colour");
+        if (color) route.color = color;
+        const dark = optionalColor(c, where, r.dark_color, "the route's colour by night");
+        if (dark) route.dark_color = dark;
+        if (r.moving === true) route.moving = true;
+        if (r.live !== undefined && r.live !== null) {
+          if (!oneOf(STUDIO_MAP_ROUTE_LIVE, r.live)) bad("choose what the route follows.");
+          else route.live = r.live;
+        }
+        out.route = route;
+      }
+    }
+  }
+  return out;
+}
 
 function parseNode(ctx: Context, where: string, value: unknown, state: { count: number; ids: Set<string> }, depth: number, card: boolean): StudioNode | null {
   const { c } = ctx;
