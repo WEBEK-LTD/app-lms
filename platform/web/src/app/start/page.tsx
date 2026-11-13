@@ -7,6 +7,7 @@ import { MAX_APPS_PER_CLIENT } from "@/lib/app/label";
 import { getAdminRole, getClientContext, getCurrentUser, signInPath } from "@/lib/auth/session";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import type { DemoId } from "@/lib/demo/constants";
+import { demoLoop } from "@/lib/demo/loops";
 import { pickerPath, pickerSections } from "@/lib/demo/picker";
 import { cardWords, demoScreens, Phone, PickerShell, ProductBadge, STUDIO, tintStyle } from "./parts";
 import { PickerFilter, type PickerShow } from "./filter";
@@ -23,6 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * (`new=1&for=editor`) and in Studio (`new=1&for=studio`) open it too, the
  * product's switch chosen. Someone who already has an app and didn't ask
  * for a new one goes to it; a suspended account to the page that says so.
+ * 128.9 Each card's phone plays the demo's short loop while in view
+ * (public/loops, scripts/demo-loops.sh), its screenshot the poster.
  */
 export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const user = await getCurrentUser();
@@ -58,13 +61,14 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
         studio={<StudioSection text={text} ids={sections.studio} adding={adding} />}
         after={<NotSure text={text} adding={adding} />}
       />
-      <p className="m-0 flex flex-wrap items-center gap-1 text-sm text-[var(--pk-ink2)]">
+      {/* A div, not a p: the sign-out button is a form, which can't be inside a p (a full load wouldn't hydrate). */}
+      <div className="m-0 flex flex-wrap items-center gap-1 text-sm text-[var(--pk-ink2)]">
         <span className="break-all" dir="ltr">
           {t("start.signedIn", { email: user.email })}
         </span>
         ·
         <SignOutButton className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-[var(--pk-accent-text)] hover:underline">{t("nav.signOut")}</SignOutButton>
-      </p>
+      </div>
     </PickerShell>
   );
 }
@@ -94,7 +98,7 @@ function EditorSection({ text, ids, adding }: { text: DashboardText; ids: readon
                 className="flex w-full flex-col overflow-hidden rounded-[26px] border border-[var(--pk-line)] bg-[var(--pk-surface)] text-[var(--pk-ink)] no-underline transition-shadow hover:shadow-[0_20px_40px_-28px_rgba(14,13,36,0.45)]"
               >
                 <div className="pk-tint relative h-[200px] overflow-hidden" style={tintStyle(i)}>
-                  <Phone src={shot.src} alt={shot.alt} width={152} height={330} border={6} radius={24} className="absolute top-6 left-1/2 -ml-[76px] shadow-[0_18px_40px_rgba(14,13,36,0.18)]" />
+                  <Phone src={shot.src} alt={shot.alt} loop={demoLoop(id)} width={152} height={330} border={6} radius={24} className="absolute top-6 left-1/2 -ml-[76px] shadow-[0_18px_40px_rgba(14,13,36,0.18)]" />
                   <span className="absolute start-3.5 top-3.5">
                     <ProductBadge text={text} id={id} />
                   </span>
@@ -141,11 +145,12 @@ function StudioSection({ text, ids, adding }: { text: DashboardText; ids: readon
               <Link
                 href={pickerPath({ demo: id, adding })}
                 data-demo={id}
-                className="flex w-full flex-col overflow-hidden rounded-[26px] no-underline"
+                className="flex w-full flex-col overflow-hidden rounded-[26px] no-underline transition-shadow hover:shadow-[0_24px_48px_-26px_rgba(230,194,110,0.45)]"
                 style={{ background: STUDIO.card, border: `1px solid ${STUDIO.cardLine}`, color: STUDIO.text }}
               >
-                <div className="relative h-[200px] overflow-hidden" style={{ background: STUDIO.tile }}>
-                  <Phone src={shot.src} alt={shot.alt} width={152} height={330} border={6} radius={24} frame={STUDIO.frame} className="absolute top-6 left-1/2 -ml-[76px] shadow-[0_18px_40px_rgba(0,0,0,0.35)]" />
+                {/* 128.9 A soft gold light behind the phone. */}
+                <div className="relative h-[200px] overflow-hidden" style={{ background: `radial-gradient(circle at 50% 38%, rgba(230,194,110,0.24), rgba(230,194,110,0) 62%), ${STUDIO.tile}` }}>
+                  <Phone src={shot.src} alt={shot.alt} loop={demoLoop(id)} width={152} height={330} border={6} radius={24} frame={STUDIO.frame} className="absolute top-6 left-1/2 -ml-[76px] shadow-[0_18px_40px_rgba(0,0,0,0.35)]" />
                   <span className="absolute start-3.5 top-3.5">
                     <ProductBadge text={text} id={id} />
                   </span>

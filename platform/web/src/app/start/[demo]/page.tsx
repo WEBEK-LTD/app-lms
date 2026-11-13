@@ -8,14 +8,19 @@ import type { DashKey } from "@/i18n/dashboard";
 import { richText } from "@/i18n/rich";
 import { dashboardText, type DashboardText } from "@/lib/dashboard-lang";
 import { getStore } from "@/lib/data";
+import type { DataStore } from "@/lib/data/store";
+import { demoAppOfType } from "@/lib/demo/apps";
 import { DEMO_SIGN_IN, demoKind, type DemoId } from "@/lib/demo/constants";
 import { DEMO_BRANDS } from "@/lib/demo/content";
+import { liveLanguage } from "@/lib/demo/loops";
 import { demoFacts, demoOfSlug, pickerPath, productOf, sameBusiness, slugOf } from "@/lib/demo/picker";
-import { appUrl } from "@/lib/env";
+import { appUrl, signingSecret } from "@/lib/env";
 import { demoGuideFor } from "@/lib/marketing-lang";
+import { createPreviewToken, previewAppPath, previewKey } from "@/lib/preview/token";
 import { appTypeOn, getSwitches } from "@/lib/switches";
 import { demoDownloads } from "@/site/demo";
 import { pickerContext } from "../context";
+import { LivePhone, type LiveApp } from "../live-phone";
 import { BackLink, businessName, cardWords, demoScreens, PickerShell, ProductBadge, STUDIO } from "../parts";
 
 export async function generateMetadata({ params }: PageProps<"/start/[demo]">): Promise<Metadata> {
@@ -31,7 +36,8 @@ export const dynamic = "force-dynamic";
  * where it opens (the App editor or Yallapp Studio, on their plans), "Start
  * with this app", the demo's download to try it on a phone (as /demo has
  * it), and the other demos of the same business, Studio's in their dark
- * section.
+ * section. 128.9 The middle phone runs the real demo app (the app
+ * preview), its screenshot shown until it is ready (live-phone.tsx).
  */
 export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
   const { demo, adding, context } = await pickerContext((await params).demo);
@@ -45,17 +51,20 @@ export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
   const guide = demoGuideFor(lang, demo);
   const ready = (await demoDownloads())[demo] ?? false;
   const license = context.apps.length ? null : context.license;
-  const offered = appTypeOn(await getSwitches(await getStore()), demoKind(demo).engine, license?.plan ?? null);
+  const store = await getStore();
+  const offered = appTypeOn(await getSwitches(store), demoKind(demo).engine, license?.plan ?? null);
+  const live = await liveApp(store, demo, lang, t("start.liveFrame", { app: brand.appName }));
   const others = sameBusiness(demo);
   const business = businessName(text, demo);
-  const side = "h-[174px] w-[80px] rounded-[16px] border-[4px] md:h-[368px] md:w-[170px] md:rounded-[28px] md:border-[6px] translate-y-[18px]";
-  const middle = "h-[234px] w-[108px] rounded-[20px] border-[5px] md:h-[446px] md:w-[206px] md:rounded-[32px] md:border-[7px] shadow-[0_30px_60px_rgba(14,13,36,0.25)]";
+  const side = "h-[150px] w-[68px] rounded-[14px] border-[4px] md:h-[368px] md:w-[170px] md:rounded-[28px] md:border-[6px] translate-y-[18px]";
+  // 128.9 The live phone: its height is the app's (360 × 780) at the frame's width.
+  const middle = "w-[150px] rounded-[22px] border-[5px] md:w-[224px] md:rounded-[34px] md:border-[7px] shadow-[0_30px_60px_rgba(14,13,36,0.25)]";
   return (
     <PickerShell step={2} back={<BackLink href={pickerPath({ adding, product: productOf(demo) })} label={business} />}>
       <div className="flex flex-wrap items-center gap-10 rounded-[32px] bg-[var(--pk-hero)] p-5 sm:p-9" data-demo-page={demo} data-product={productOf(demo)}>
         <div className="flex min-w-0 flex-[1_1_520px] items-end justify-center gap-2.5 sm:gap-[18px]">
           {left ? <Shot {...left} className={side} /> : null}
-          <Shot {...center} className={middle} />
+          <LivePhone shot={center} live={live} labels={{ tryLive: t("start.liveTry"), opening: t("start.liveOpening") }} className={middle} />
           {right ? <Shot {...right} className={side} /> : null}
         </div>
         <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-4">
@@ -65,6 +74,12 @@ export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
           </div>
           <h1 className="m-0 text-[36px] leading-[1.02] font-extrabold tracking-[-0.03em] break-words sm:text-[48px]">{brand.appName}</h1>
           <p className="m-0 text-lg leading-normal text-[var(--pk-ink2)]">{guide.summary}</p>
+          {live ? (
+            <a href={live.src} target="_blank" rel="noopener" data-live-full="" className="flex min-h-11 items-center gap-1.5 self-start text-[15px] font-semibold text-[var(--pk-accent-text)] no-underline hover:underline">
+              <Icon name="open_in_new" size={18} />
+              {t("start.liveFull")}
+            </a>
+          ) : null}
           <dl className="m-0 grid grid-cols-3 gap-2.5">
             {(
               [
@@ -104,6 +119,19 @@ export default async function PickPage({ params }: PageProps<"/start/[demo]">) {
       </div>
     </PickerShell>
   );
+}
+
+/**
+ * 128.9 The demo app in the app preview: a preview link to the demo app the
+ * team made (Admin › Demo apps), its published pages, in the dashboard's
+ * language when the demo has it. Null before the demo apps are made: the
+ * phone keeps the screenshot.
+ */
+async function liveApp(store: DataStore, demo: DemoId, lang: string, title: string): Promise<LiveApp | null> {
+  const app = await demoAppOfType(store, demo);
+  if (!app) return null;
+  const token = createPreviewToken({ appId: app.id, draft: false }, previewKey(signingSecret()));
+  return { src: `${previewAppPath(token)}&lang=${liveLanguage(DEMO_BRANDS[demo].languages, lang)}`, appId: app.id, title };
 }
 
 function Shot({ src, alt, className }: { src: string; alt: string; className: string }) {
