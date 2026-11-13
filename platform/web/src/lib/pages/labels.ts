@@ -73,4 +73,11 @@ export const SCREEN_LABELS: Record<ScreenName, string> = {
   teacher: "Teacher",
   school: "My school",
   classroom: "Classroom",
+  // 126
+  explore: "Explore",
+  stays: "Stays",
+  flights: "Flights",
+  trips: "Trips",
+  saved: "Saved hotels",
+  price_alerts: "Price alerts",
 };

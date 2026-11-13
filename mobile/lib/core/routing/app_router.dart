@@ -21,6 +21,8 @@ import '../../modules/rides/data/rides_providers.dart';
 import '../../modules/rides/rides_routes.dart';
 import '../../modules/shared/shared_routes.dart';
 import '../../modules/store/store_routes.dart';
+import '../../modules/travel/travel_paths.dart';
+import '../../modules/travel/travel_routes.dart';
 import '../../modules/shared/staff_app.dart';
 import '../../modules/vendor/data/vendor_providers.dart';
 import '../api/models/models.dart';
@@ -90,6 +92,7 @@ final appModuleProvider = Provider<AppModule>(
     AppType.food => foodModule,
     AppType.rides => ridesModule,
     AppType.school => schoolModule,
+    AppType.travel => travelModule,
   },
 );
 
@@ -155,9 +158,13 @@ final shellTabsProvider = Provider<List<ShellTab>>((ref) {
     ),
     staff,
   );
-  // 112.1 Ride apps open on the map, like Uber: the Ride tab first.
-  List<ShellTab> mapFirst(List<ShellTab> tabs) =>
-      appType == AppType.rides ? rideTabFirst(tabs) : tabs;
+  // 112.1 Ride apps open on the map, like Uber: the Ride tab first. 126 A
+  // travel app of one hotel opens on the hotel's page.
+  List<ShellTab> mapFirst(List<ShellTab> tabs) => appType == AppType.rides
+      ? rideTabFirst(tabs)
+      : appType == AppType.travel
+      ? oneHotelFirst(tabs, config)
+      : tabs;
   if (navigation != null) {
     final tabs = tabsFromNavigation(navigation, module, config);
     if (tabs.length >= Navigation.minTabs &&
@@ -184,6 +191,31 @@ List<ShellTab> staffAppTabs(Ref ref) {
   final teacher = ref.watch(isSchoolTeacherProvider) ?? false;
   final staff = ref.watch(isSchoolStaffProvider) ?? false;
   return [if (teacher) classroomTab, if (staff || !teacher) staffTab, account];
+}
+
+/// 126 A travel app with hotels only and one hotel: its first tab opens
+/// Explore, which is the hotel's page, whatever page the tab had.
+List<ShellTab> oneHotelFirst(List<ShellTab> tabs, AppConfig? config) {
+  final travel = config?.travel;
+  if (travel == null ||
+      travel.mode != TravelMode.hotels ||
+      travel.singleHotelId == null ||
+      tabs.isEmpty ||
+      tabs.first.path == TravelPaths.explore ||
+      tabs.first.location == null) {
+    return tabs;
+  }
+  final first = tabs.first;
+  return [
+    ShellTab(
+      icon: first.icon,
+      iconUrl: first.iconUrl,
+      id: first.id,
+      label: first.label,
+      location: TravelPaths.explore,
+    ),
+    ...tabs.skip(1),
+  ];
 }
 
 /// 112.1 A ride app's tabs with the Ride tab (the map) first, where the app

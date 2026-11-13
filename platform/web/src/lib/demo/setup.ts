@@ -48,6 +48,7 @@ import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
 import { staffAppKindOf } from "../school/staff-app";
+import { seedDemoTrip, syncTravelDemo } from "./travel";
 
 /**
  * Creates or refreshes the demo apps (roadmap 16, the admin's Demo apps
@@ -185,6 +186,9 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   } else if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
     patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup, id === PREMIUM_ACADEMY_DEMO);
+  } else if (content === "travel") {
+    // 126 Safra's bookings paid now, on the demo payment page.
+    patch.catalogSettings = { currency: "USD", shippingCents: 0, freeShippingOverCents: null, payment: null };
   } else if (content === "school") {
     // 110.5 Nakhla School's fees, paid on the demo payment page.
     patch.catalogSettings = { currency: "EGP", shippingCents: 0, freeShippingOverCents: null, payment: null };
@@ -237,12 +241,19 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
   if (id === "fitness") await syncClassSessions(store, saved, now);
   if (content === "events") await syncEvents(deps, client.id, saved);
   if (content === "campaigns") await syncCampaigns(deps, client.id, saved);
+  // 126 Safra: its hotels, rooms and twelve weeks of flights.
+  if (content === "travel") await syncTravelDemo(deps, saved);
   await publishPages(deps, client.id, saved);
 
   // The account every visitor signs in to.
   const user = await store.getHostedUserByPhone(saved.id, DEMO_SIGN_IN.e164);
   if (!user) await store.createHostedUser({ appId: saved.id, phone: DEMO_SIGN_IN.e164, name: DEMO_USER_NAME, email: null, city: null, now });
   else if (user.name !== DEMO_USER_NAME) await store.updateHostedUser(saved.id, user.id, { name: DEMO_USER_NAME, email: null, city: null }, now);
+  // 126 The demo number's trip to Bali, in Trips.
+  if (content === "travel") {
+    const visitor = await store.getHostedUserByPhone(saved.id, DEMO_SIGN_IN.e164);
+    if (visitor) await seedDemoTrip(store, saved, visitor, now);
+  }
   return { app: saved, created: !existing };
 }
 

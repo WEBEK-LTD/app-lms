@@ -27,7 +27,10 @@ enum AppType {
   rides,
 
   /// 105.4 Schools: students, parents and teachers.
-  school;
+  school,
+
+  /// 126 Travel: hotels and flights.
+  travel;
 
   /// The value as the build config writes it (`app_type`).
   String get wire => this == realEstate ? 'real_estate' : name;

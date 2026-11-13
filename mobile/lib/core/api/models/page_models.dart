@@ -430,6 +430,15 @@ enum BuiltInScreen {
   /// Classroom.
   school,
   classroom,
+
+  /// 126 Travel: Explore, the hotels' and flights' searches, the trips,
+  /// saved hotels and price alerts.
+  explore,
+  stays,
+  flights,
+  trips,
+  saved,
+  priceAlerts,
 }
 
 enum OpenIn { inApp, browser }
@@ -571,6 +580,9 @@ enum ItemSource {
 
   /// 113.1 An academy's course bundles.
   bundles,
+
+  /// 126 A travel company's hotels.
+  hotels,
 }
 
 /// An entry from a list source, for `item` actions.

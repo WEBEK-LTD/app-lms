@@ -11,7 +11,7 @@ import type { SectionContext, SectionWord } from "./sections";
  * Masar Rides's and Lamha Taxi's homes are the premium templates approved on
  * 13 November 2026 (lib/studio/demo-designs, with lib/studio/photo-food.ts
  * and photo-market.ts), the others their kind's first template (the
- * school's, the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
+ * school's, the teachers'; 126 Safra's travel's own, in the same registry). The demo app (lib/demo/setup.ts), the demo's template a
  * project starts from and the "Like our demo" whole design
  * (lib/studio/designs.ts) are that one page, so a client gets what the demo
  * shows. tests/unit/studio-demo-templates.test.ts fails when they drift
@@ -34,6 +34,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   taxi: "taxi_map",
   school: "school_today",
   instructors: "teachers_photo",
+  // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
+  travel: "travel",
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };
@@ -92,6 +94,8 @@ export const DEMO_NOTE_COLORS: Record<StudioDemoId, { surface: string; nightSurf
   school: { surface: "#FFFFFF", nightSurface: "#122033", line: "#DFE5EC", nightLine: "#22334A", muted: "#56657A", nightMuted: "#A6B3C3" },
   instructors: { surface: "#FFFFFF", nightSurface: "#15221C", line: "#E2E0D6", nightLine: "#24352D", muted: "#5A665F", nightMuted: "#A9B7AF" },
   premium_academy: { surface: "#FFFFFF", nightSurface: "#161C33", line: "#E3DFD6", nightLine: "#262D48", muted: "#5A5F73", nightMuted: "#A8AEC4" },
+  // 126 Safra's, its pages' (lib/studio/demo-designs/safra-travel.ts SAFRA_INK).
+  travel: { surface: "#FFFFFF", nightSurface: "#1B2338", line: "#E6DFD2", nightLine: "#2A3350", muted: "#5F6472", nightMuted: "#B4B8C6" },
 };
 
 /**
@@ -193,6 +197,7 @@ export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy">, string
   taxi: "map",
   school: "school",
   instructors: "groups",
+  travel: "travel_explore",
 };
 
 /** The Studio template id of a demo: `demo_<demo>`. */
@@ -201,7 +206,7 @@ export function demoTemplateId(id: StudioDemoId): string {
 }
 
 const DEMO_VERTICALS: readonly string[] = ["taxi", "instructors", "marketplace"];
-const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school"];
+const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school", "travel"];
 
 /** The Studio demo of a project's kind: its vertical's, else its type's; none for a kind without one. */
 export function studioDemoOf(kind: { type: string; vertical?: string | null } | null): StudioDemoId | null {

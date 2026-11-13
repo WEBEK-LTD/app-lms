@@ -7,6 +7,8 @@ import { payFee } from "../school/fees";
 import { tellFeePaid } from "../school/flow";
 import { settleFee } from "../rides/flow";
 import { payRide } from "../rides/payment";
+import { payTravelBooking } from "../travel/payment";
+import { tellTraveller } from "../hosted/connectors/travel";
 import { membershipEnd } from "../bookings/memberships";
 import { spendOrderPoints } from "./loyalty";
 import { taxLabel } from "./tax";
@@ -375,6 +377,9 @@ export async function deliverPaidOrder(store: DataStore, app: App, order: Catalo
   // 105.2 A card ride's fare is paid, and the cancellation fee it carried with it.
   const ride = await payRide(store, app, order, now);
   if (ride) await settleFee({ store, app, now }, ride);
+  // 126 A travel booking paid online is confirmed, and the traveller told.
+  const trip = await payTravelBooking(store, app, order, now);
+  if (trip?.status === "confirmed") await tellTraveller(store, app, trip, "confirmed", now);
   // 105.4 A school fee is paid, with its receipt, and the family is told.
   const fee = await payFee(store, app, order, now);
   if (fee) await tellFeePaid({ store, app, now }, fee).catch(() => undefined);

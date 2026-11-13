@@ -4488,6 +4488,11 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "فوق اسم التطبيق في شاشة البداية بشكل Editorial.",
     tr: "Editorial görünümlü açılış ekranında uygulamanın adının üstünde.",
   },
+  "126 Travel (hotels and flights): the module's words, from here on.": {
+    en: "A travel app's words: hotels, flights, booking and the trip.",
+    ar: "كلمات تطبيق السفر: الفنادق والطيران والحجز والرحلة.",
+    tr: "Seyahat uygulamasının sözcükleri: oteller, uçuşlar, rezervasyon ve seyahat.",
+  },
 };
 
 /** A developer's description without the app's code names: "… lib/core/x.dart uses it …", "(vertical_wording.dart)", a leading roadmap number. */

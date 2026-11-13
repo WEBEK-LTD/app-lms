@@ -175,11 +175,12 @@ const appOf = (appType: AppType, patch: Partial<App> = {}): App => ({ ...newApp(
 
 describe("20 app kinds registry", () => {
   it("lists the four engines and kinds with the values they had", () => {
-    expect(APP_TYPES).toEqual([...FOUR, "news", "events", "donations", "delivery", "food", "rides", "school"]);
+    // 126 Travel, last.
+    expect(APP_TYPES).toEqual([...FOUR, "news", "events", "donations", "delivery", "food", "rides", "school", "travel"]);
     // 21 Clinic is the first kind with a vertical; the four default kinds are as they were. 23 News is a new engine. 26 Restaurant & café after Store.
     // 27 Gym & fitness: the bookings engine with the fitness vertical, after Clinic. 28 Events & tickets, a new engine. 29 Charity & donations, a new
     // engine whose only kind has the charity vertical, last. 84.1 Services & companies: the bookings engine, after Gym & fitness.
-    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "services", "real_estate", "news", "events", "charity", "delivery", "food", "marketplace", "rides", "taxi", "school", "instructors"]);
+    expect(KINDS.map((k) => k.id)).toEqual(["academy", "store", "restaurant", "bookings", "clinic", "fitness", "services", "real_estate", "news", "events", "charity", "delivery", "food", "marketplace", "rides", "taxi", "school", "instructors", "travel"]);
     for (const type of FOUR) {
       expect(ENGINES[type].name).toBe(BEFORE.names[type]);
       expect(ENGINES[type].icon).toBe(BEFORE.icons[type]);
@@ -200,14 +201,14 @@ describe("20 app kinds registry", () => {
       expect(suggestedCategories({ appType: type })).toEqual(BEFORE.categories[type]);
       expect(noWebsiteFor(type)).toBe(BEFORE.noWebsite[type]);
     }
-    expect(KINDS.filter((k) => k.vertical === null && k.engine !== "news" && k.engine !== "events" && k.engine !== "delivery" && k.engine !== "food" && k.engine !== "rides" && k.engine !== "school").map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
+    expect(KINDS.filter((k) => k.vertical === null && k.engine !== "news" && k.engine !== "events" && k.engine !== "delivery" && k.engine !== "food" && k.engine !== "rides" && k.engine !== "school" && k.engine !== "travel").map((k) => [k.engine, k.name, k.icon, k.tile, k.description, k.requires])).toEqual(BEFORE.picker);
   });
 
   it("gives the same demo slugs, switches, sidebar groups and admin labels", () => {
     // 21 One more demo: the clinic, after Bookings. 23 The news app. 26 The café, after the shop. 27 The gym, after the clinic. 28 The events app.
     // 29 The charity, last: the donations engine's demo, its default kind. 110.5 Studio's live taxi app, school and academy with many teachers. 123 The premium academy.
     expect(DEMO_TYPES).toEqual(["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events", "donations"]);
-    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity", delivery: "delivery", food: "food-delivery", marketplace: "multi-vendor", rides: "rides", taxi: "taxi", school: "school", instructors: "teachers", premium_academy: "premium-academy" });
+    expect(DEMO_SLUGS).toEqual({ ...BEFORE.demoSlugs, clinic: "clinic", news: "news", restaurant: "restaurant", fitness: "fitness", events: "events", donations: "charity", delivery: "delivery", food: "food-delivery", marketplace: "multi-vendor", rides: "rides", taxi: "taxi", school: "school", instructors: "teachers", premium_academy: "premium-academy", travel: "travel" });
     expect(demoTypeOfSlug("fitness")).toBe("fitness");
     expect(demoTypeOfSlug("charity")).toBe("donations");
     expect(engineOfDemoSlug("charity")).toBe("donations");
@@ -218,7 +219,7 @@ describe("20 app kinds registry", () => {
       expect(engineOfDemoSlug(slug)).toBe(type);
     }
     expect(demoTypeOfSlug("salon")).toBeNull();
-    expect(APP_TYPE_SWITCHES).toEqual([...Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })), { id: "news", label: "News & blog" }, { id: "events", label: "Events & tickets" }, { id: "donations", label: "Charity & donations" }, { id: "delivery", label: "Delivery & couriers" }, { id: "food", label: "Food delivery" }, { id: "rides", label: "Ride hailing" }, { id: "school", label: "School" }]);
+    expect(APP_TYPE_SWITCHES).toEqual([...Object.entries(BEFORE.names).map(([id, label]) => ({ id, label })), { id: "news", label: "News & blog" }, { id: "events", label: "Events & tickets" }, { id: "donations", label: "Charity & donations" }, { id: "delivery", label: "Delivery & couriers" }, { id: "food", label: "Food delivery" }, { id: "rides", label: "Ride hailing" }, { id: "school", label: "School" }, { id: "travel", label: "Travel" }]);
     const websites = switchGroups().find((g) => g.kind === "website")!.items;
     expect(Object.fromEntries(websites.filter((w) => isOwnContent(w.id)).map((w) => [w.id, w.label]))).toEqual({
       catalog: "No website: products in the dashboard",
@@ -232,6 +233,7 @@ describe("20 app kinds registry", () => {
       restaurants: "No website: restaurants in the dashboard",
       rides: "No website: rides in the dashboard",
       school: "No website: the school in the dashboard",
+      travel: "No website: hotels and flights in the dashboard",
     });
     for (const [kind, [label, ...items]] of Object.entries(BEFORE.contentNav)) {
       const nav = engineOfContent(kind)!.ownContent.nav;
@@ -299,7 +301,7 @@ describe("20 app kinds registry", () => {
 
   it("keeps Real estate on the hosted API only", () => {
     // 28 Events & tickets and 29 Charity & donations are hosted only too, for now.
-    expect(APP_TYPES.filter(hostedOnly)).toEqual(["real_estate", "events", "donations", "delivery", "food", "rides", "school"]);
+    expect(APP_TYPES.filter(hostedOnly)).toEqual(["real_estate", "events", "donations", "delivery", "food", "rides", "school", "travel"]);
     const wordpress = appOf("real_estate", { websiteDoneAt: NOW });
     expect(websiteReady(wordpress)).toBe(false);
     expect(previewContentSource(wordpress, true)).toBe("none");
@@ -374,6 +376,7 @@ describe("20 app kinds registry", () => {
       { id: "food", label: "Food delivery" },
       { id: "rides", label: "Ride hailing" },
       { id: "school", label: "School" },
+      { id: "travel", label: "Travel" },
     ]);
     expect(describeAudience({ kind: "app_type", appTypes: ["real_estate", "store"] }, planNames)).toBe("App types: Real estate, Store");
   });
@@ -506,6 +509,7 @@ describe("31 each engine's screens match its Flutter module", () => {
     food: "food",
     rides: "rides",
     school: "school",
+    travel: "travel",
   };
   const snake = (name: string) => name.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 

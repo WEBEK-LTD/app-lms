@@ -45,6 +45,12 @@ final schoolModule = AppModule(
   screenLocation: (screen, config) => switch (screen) {
     BuiltInScreen.school => Paths.school,
     BuiltInScreen.classroom => Paths.classroom,
+    BuiltInScreen.explore ||
+    BuiltInScreen.stays ||
+    BuiltInScreen.flights ||
+    BuiltInScreen.trips ||
+    BuiltInScreen.saved ||
+    BuiltInScreen.priceAlerts => null,
     BuiltInScreen.account => Paths.account,
     BuiltInScreen.settings => Paths.settings,
     BuiltInScreen.notifications => Paths.notifications,

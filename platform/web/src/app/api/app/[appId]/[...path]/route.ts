@@ -190,6 +190,8 @@ async function answer(request: Request, { params }: RouteContext<"/api/app/[appI
         marketplace: marketplaceOn(app, plan),
         // 105.2 Ride apps; 105.9 live taxi apps (the same engine) with their own feature.
         rides: isTaxiApp(app) ? taxiOn(app, plan) : hasFeature(plan, "rides") || app.demo === true,
+        // 126 Travel apps.
+        travel: hasFeature(plan, "travel") || app.demo === true,
         // 45 Lessons saved for offline viewing: offline mode in the plan and the owner's choice.
         downloads: hostedDownloadsOn(app, plan),
         // 51 Lesson videos from the Media library, signed for each request.

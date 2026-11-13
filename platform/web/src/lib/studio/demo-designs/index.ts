@@ -7,6 +7,7 @@ import { MARKET_PHOTO_TAB_BAR, marketPhotoHome, marketPhotoPage, marketPhotoTabs
 import { lamhaHome, lamhaPage, LAMHA_INK } from "./lamha-taxi";
 import { masarHome, masarPage, MASAR_INK } from "./masar-rides";
 import type { DemoInk } from "./parts";
+import { safraHome, safraPage, SAFRA_INK } from "./safra-travel";
 import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
 import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
@@ -23,7 +24,9 @@ import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
  * bar. Sofra Eats and Zad (lib/studio/photo-food.ts, photo-market.ts),
  * Sahm Express, Masar Rides and Lamha Taxi (this folder), Nakhla School and
  * Rawaq Academy (lib/studio/school-home.ts, teachers-home.ts, this folder's
- * school-looks.ts) are made the same way. The demo app (lib/demo/setup.ts), a project its template starts
+ * school-looks.ts) are made the same way, and 126 Safra (this folder's
+ * safra-travel.ts: travel's own template, its pages on the travel module's
+ * paper, its kind's tabs and the dot bar). The demo app (lib/demo/setup.ts), a project its template starts
  * (lib/studio/start.ts) and its whole design (lib/studio/designs.ts) all
  * make their pages here, through `ctx.demo` (lib/studio/demo-pages.ts), so
  * they stay the same (tests/unit/studio-demo-templates.test.ts).
@@ -103,6 +106,14 @@ const STUDIO_DEMO_DESIGNS: Partial<Record<StudioDemoId, DemoDesign>> = {
   taxi: { template: { id: "taxi_map", icon: "map", fits: { types: ["rides"] } }, home: lamhaHome, over: lamhaPage, look: inkLook(LAMHA_INK), tabs: rideTabs },
   // 128.6 128.7 The family's school day; the teachers in circles, its Teachers tab.
   school: { template: { id: "school_today", icon: "family_restroom", fits: { types: ["school"] } }, home: schoolTodayHome, over: schoolPage(NAKHLA_LOOK), look: NAKHLA_LOOK, bar: { design: "classic", background: "#FFFFFF", dark_background: "#122033", active: "#1F4E79", dark_active: "#9CC3EA", inactive: "#56657A", dark_inactive: "#A6B3C3" } },
+  // 126 Safra: travel's own template as its Explore, the pages after it on the travel module's paper (its header too), its kind's tabs, the dot under the open tab.
+  travel: {
+    template: { id: "travel", icon: "travel_explore", fits: { types: ["travel"] } },
+    home: safraHome,
+    over: safraPage,
+    look: { header: { background: SAFRA_INK.page, color: SAFRA_INK.ink, dark_background: SAFRA_INK.darkPage, dark_color: SAFRA_INK.darkInk }, background: SAFRA_INK.page, dark_background: SAFRA_INK.darkPage },
+    bar: { design: "dot", active: SAFRA_INK.ink, dark_active: "#C9A063" },
+  },
   instructors: { template: { id: "teachers_photo", icon: "co_present", fits: { types: ["lms"], verticals: ["instructors"] } }, home: teachersPhotoHome, over: schoolPage(RAWAQ_LOOK), look: RAWAQ_LOOK, tabs: rawaqTabs, bar: { design: "classic", background: "#FFFFFF", dark_background: "#15221C", active: "#2E5E4E", dark_active: "#8FD1B6", inactive: "#5A665F", dark_inactive: "#A9B7AF" } },
 };
 

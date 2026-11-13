@@ -11,6 +11,7 @@ import { DonationsConnector } from "./donations";
 import { DeliveryConnector } from "./delivery";
 import { FoodConnector } from "./food";
 import { TaxiConnector } from "./taxi";
+import { TravelConnector } from "./travel";
 import { serviceAccountOf } from "../notify";
 import { ListingsConnector, type ListingsDeps } from "./listings";
 import { platformConnector } from "./platforms";
@@ -83,6 +84,8 @@ export function connectorFor(
     marketplace?: boolean;
     /** 105.2 Ride apps are in the app's plan (105.9 live taxi apps: `taxi`). */
     rides?: boolean;
+    /** 126 Travel apps are in the app's plan. */
+    travel?: boolean;
     /** 91.3 A customer asked to return an order. */
     onReturnRequested?: CatalogDeps["onReturnRequested"];
     /** 45 Lessons of courses managed in Yallapp may be saved for offline viewing (lib/courses/downloads.ts). */
@@ -111,6 +114,8 @@ export function connectorFor(
     // 105.9 A live taxi app: the rides engine with the live map; 112.1 ride hailing apps on the same map.
     return new TaxiConnector({ ...deps, app, fetcher, key, account: serviceAccountOf(app, key), maps: { fetcher } });
   }
+  // 126 Hotels and flights from the dashboard (lib/travel/sources.ts).
+  if (app.connector?.kind === "travel") return new TravelConnector({ ...deps, app });
   if (app.connector?.kind === "platform") return platformConnector(app, key, deps, fetcher);
   if (app.connector?.kind === "shopify") {
     const token = shopifyToken(app, key);

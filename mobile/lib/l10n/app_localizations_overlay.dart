@@ -10641,4 +10641,1528 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get studioSchoolDayOff =>
       overlay.text('studioSchoolDayOff') ?? base.studioSchoolDayOff;
+
+  @override
+  String get travelTabExplore =>
+      overlay.text('travelTabExplore') ?? base.travelTabExplore;
+
+  @override
+  String get travelTabStays =>
+      overlay.text('travelTabStays') ?? base.travelTabStays;
+
+  @override
+  String get travelTabFlights =>
+      overlay.text('travelTabFlights') ?? base.travelTabFlights;
+
+  @override
+  String get travelTabTrips =>
+      overlay.text('travelTabTrips') ?? base.travelTabTrips;
+
+  @override
+  String get travelTabSaved =>
+      overlay.text('travelTabSaved') ?? base.travelTabSaved;
+
+  @override
+  String get travelTabBookings =>
+      overlay.text('travelTabBookings') ?? base.travelTabBookings;
+
+  @override
+  String get travelTabAlerts =>
+      overlay.text('travelTabAlerts') ?? base.travelTabAlerts;
+
+  @override
+  String get travelTabSearch =>
+      overlay.text('travelTabSearch') ?? base.travelTabSearch;
+
+  @override
+  String get travelTabHelp =>
+      overlay.text('travelTabHelp') ?? base.travelTabHelp;
+
+  @override
+  String get travelMorning =>
+      overlay.text('travelMorning') ?? base.travelMorning;
+
+  @override
+  String get travelAfternoon =>
+      overlay.text('travelAfternoon') ?? base.travelAfternoon;
+
+  @override
+  String get travelEvening =>
+      overlay.text('travelEvening') ?? base.travelEvening;
+
+  @override
+  String travelGreeting(String part, String name) =>
+      overlay.format('travelGreeting', {'part': part, 'name': name}) ??
+      base.travelGreeting(part, name);
+
+  @override
+  String get travelExploreTitle =>
+      overlay.text('travelExploreTitle') ?? base.travelExploreTitle;
+
+  @override
+  String get travelHeroPhoto =>
+      overlay.text('travelHeroPhoto') ?? base.travelHeroPhoto;
+
+  @override
+  String get travelStayFlight =>
+      overlay.text('travelStayFlight') ?? base.travelStayFlight;
+
+  @override
+  String get travelFrom => overlay.text('travelFrom') ?? base.travelFrom;
+
+  @override
+  String get travelTo => overlay.text('travelTo') ?? base.travelTo;
+
+  @override
+  String get travelWhereTo =>
+      overlay.text('travelWhereTo') ?? base.travelWhereTo;
+
+  @override
+  String get travelAnywhere =>
+      overlay.text('travelAnywhere') ?? base.travelAnywhere;
+
+  @override
+  String get travelDates => overlay.text('travelDates') ?? base.travelDates;
+
+  @override
+  String travelDatesNights(int count) =>
+      overlay.format('travelDatesNights', {'count': count}) ??
+      base.travelDatesNights(count);
+
+  @override
+  String get travelTravellers =>
+      overlay.text('travelTravellers') ?? base.travelTravellers;
+
+  @override
+  String get travelGuestsLabel =>
+      overlay.text('travelGuestsLabel') ?? base.travelGuestsLabel;
+
+  @override
+  String get travelRoomsLabel =>
+      overlay.text('travelRoomsLabel') ?? base.travelRoomsLabel;
+
+  @override
+  String get travelTravellersLabel =>
+      overlay.text('travelTravellersLabel') ?? base.travelTravellersLabel;
+
+  @override
+  String get travelPeopleLabel =>
+      overlay.text('travelPeopleLabel') ?? base.travelPeopleLabel;
+
+  @override
+  String get travelNightsLabel =>
+      overlay.text('travelNightsLabel') ?? base.travelNightsLabel;
+
+  @override
+  String get travelFindTrip =>
+      overlay.text('travelFindTrip') ?? base.travelFindTrip;
+
+  @override
+  String get travelSearchStays =>
+      overlay.text('travelSearchStays') ?? base.travelSearchStays;
+
+  @override
+  String get travelSearchFlights =>
+      overlay.text('travelSearchFlights') ?? base.travelSearchFlights;
+
+  @override
+  String get travelTogether =>
+      overlay.text('travelTogether') ?? base.travelTogether;
+
+  @override
+  String get travelOneBooking =>
+      overlay.text('travelOneBooking') ?? base.travelOneBooking;
+
+  @override
+  String get travelTrending =>
+      overlay.text('travelTrending') ?? base.travelTrending;
+
+  @override
+  String get travelSeeAll => overlay.text('travelSeeAll') ?? base.travelSeeAll;
+
+  @override
+  String travelTripFrom(String price) =>
+      overlay.format('travelTripFrom', {'price': price}) ??
+      base.travelTripFrom(price);
+
+  @override
+  String travelNightFrom(String price) =>
+      overlay.format('travelNightFrom', {'price': price}) ??
+      base.travelNightFrom(price);
+
+  @override
+  String travelHotelsCount(int count) =>
+      overlay.format('travelHotelsCount', {'count': count}) ??
+      base.travelHotelsCount(count);
+
+  @override
+  String travelAlertDropped(String route, String amount) =>
+      overlay.format('travelAlertDropped', {
+        'route': route,
+        'amount': amount,
+      }) ??
+      base.travelAlertDropped(route, amount);
+
+  @override
+  String travelAlertNow(String price) =>
+      overlay.format('travelAlertNow', {'price': price}) ??
+      base.travelAlertNow(price);
+
+  @override
+  String get travelPriceAlerts =>
+      overlay.text('travelPriceAlerts') ?? base.travelPriceAlerts;
+
+  @override
+  String get travelMember => overlay.text('travelMember') ?? base.travelMember;
+
+  @override
+  String travelMemberPrices(int percent) =>
+      overlay.format('travelMemberPrices', {'percent': percent}) ??
+      base.travelMemberPrices(percent);
+
+  @override
+  String travelMemberOff(int percent) =>
+      overlay.format('travelMemberOff', {'percent': percent}) ??
+      base.travelMemberOff(percent);
+
+  @override
+  String get travelMemberPrice =>
+      overlay.text('travelMemberPrice') ?? base.travelMemberPrice;
+
+  @override
+  String get travelStaysTitle =>
+      overlay.text('travelStaysTitle') ?? base.travelStaysTitle;
+
+  @override
+  String get travelStaysTitleEnd =>
+      overlay.text('travelStaysTitleEnd') ?? base.travelStaysTitleEnd;
+
+  @override
+  String get travelFlightsTitle =>
+      overlay.text('travelFlightsTitle') ?? base.travelFlightsTitle;
+
+  @override
+  String get travelFlightsTitleEnd =>
+      overlay.text('travelFlightsTitleEnd') ?? base.travelFlightsTitleEnd;
+
+  @override
+  String get travelAll => overlay.text('travelAll') ?? base.travelAll;
+
+  @override
+  String travelFeaturedIn(String city) =>
+      overlay.format('travelFeaturedIn', {'city': city}) ??
+      base.travelFeaturedIn(city);
+
+  @override
+  String travelPerNight(String price) =>
+      overlay.format('travelPerNight', {'price': price}) ??
+      base.travelPerNight(price);
+
+  @override
+  String get travelReturn => overlay.text('travelReturn') ?? base.travelReturn;
+
+  @override
+  String get travelOneWay => overlay.text('travelOneWay') ?? base.travelOneWay;
+
+  @override
+  String get travelDepart => overlay.text('travelDepart') ?? base.travelDepart;
+
+  @override
+  String get travelSwap => overlay.text('travelSwap') ?? base.travelSwap;
+
+  @override
+  String get travelDirectOnly =>
+      overlay.text('travelDirectOnly') ?? base.travelDirectOnly;
+
+  @override
+  String travelAdults(int count) =>
+      overlay.format('travelAdults', {'count': count}) ??
+      base.travelAdults(count);
+
+  @override
+  String travelAdultsEconomy(int count) =>
+      overlay.format('travelAdultsEconomy', {'count': count}) ??
+      base.travelAdultsEconomy(count);
+
+  @override
+  String travelGuests(int count) =>
+      overlay.format('travelGuests', {'count': count}) ??
+      base.travelGuests(count);
+
+  @override
+  String travelRooms(int count) =>
+      overlay.format('travelRooms', {'count': count}) ??
+      base.travelRooms(count);
+
+  @override
+  String travelGuestsRooms(int guests, int rooms) =>
+      overlay.format('travelGuestsRooms', {'guests': guests, 'rooms': rooms}) ??
+      base.travelGuestsRooms(guests, rooms);
+
+  @override
+  String travelPeople(int count) =>
+      overlay.format('travelPeople', {'count': count}) ??
+      base.travelPeople(count);
+
+  @override
+  String travelTravellersCount(int count) =>
+      overlay.format('travelTravellersCount', {'count': count}) ??
+      base.travelTravellersCount(count);
+
+  @override
+  String travelNights(int count) =>
+      overlay.format('travelNights', {'count': count}) ??
+      base.travelNights(count);
+
+  @override
+  String get travelPickDates =>
+      overlay.text('travelPickDates') ?? base.travelPickDates;
+
+  @override
+  String get travelLess => overlay.text('travelLess') ?? base.travelLess;
+
+  @override
+  String get travelMore => overlay.text('travelMore') ?? base.travelMore;
+
+  @override
+  String get travelDone => overlay.text('travelDone') ?? base.travelDone;
+
+  @override
+  String get travelChoose => overlay.text('travelChoose') ?? base.travelChoose;
+
+  @override
+  String get travelSearchPlaces =>
+      overlay.text('travelSearchPlaces') ?? base.travelSearchPlaces;
+
+  @override
+  String get travelNoPlaces =>
+      overlay.text('travelNoPlaces') ?? base.travelNoPlaces;
+
+  @override
+  String get travelAmenityPool =>
+      overlay.text('travelAmenityPool') ?? base.travelAmenityPool;
+
+  @override
+  String get travelAmenitySpa =>
+      overlay.text('travelAmenitySpa') ?? base.travelAmenitySpa;
+
+  @override
+  String get travelAmenityWifi =>
+      overlay.text('travelAmenityWifi') ?? base.travelAmenityWifi;
+
+  @override
+  String get travelAmenityBreakfast =>
+      overlay.text('travelAmenityBreakfast') ?? base.travelAmenityBreakfast;
+
+  @override
+  String get travelAmenityShuttle =>
+      overlay.text('travelAmenityShuttle') ?? base.travelAmenityShuttle;
+
+  @override
+  String get travelAmenityGym =>
+      overlay.text('travelAmenityGym') ?? base.travelAmenityGym;
+
+  @override
+  String get travelAmenityParking =>
+      overlay.text('travelAmenityParking') ?? base.travelAmenityParking;
+
+  @override
+  String get travelAmenityBeach =>
+      overlay.text('travelAmenityBeach') ?? base.travelAmenityBeach;
+
+  @override
+  String get travelAmenityRestaurant =>
+      overlay.text('travelAmenityRestaurant') ?? base.travelAmenityRestaurant;
+
+  @override
+  String get travelAmenityBar =>
+      overlay.text('travelAmenityBar') ?? base.travelAmenityBar;
+
+  @override
+  String get travelAmenityAirConditioning =>
+      overlay.text('travelAmenityAirConditioning') ??
+      base.travelAmenityAirConditioning;
+
+  @override
+  String get travelAmenityFamily =>
+      overlay.text('travelAmenityFamily') ?? base.travelAmenityFamily;
+
+  @override
+  String get travelAmenityPets =>
+      overlay.text('travelAmenityPets') ?? base.travelAmenityPets;
+
+  @override
+  String get travelAmenityAccessible =>
+      overlay.text('travelAmenityAccessible') ?? base.travelAmenityAccessible;
+
+  @override
+  String get travelAmenityKitchen =>
+      overlay.text('travelAmenityKitchen') ?? base.travelAmenityKitchen;
+
+  @override
+  String get travelAmenityView =>
+      overlay.text('travelAmenityView') ?? base.travelAmenityView;
+
+  @override
+  String get travelKindResort =>
+      overlay.text('travelKindResort') ?? base.travelKindResort;
+
+  @override
+  String get travelKindBoutique =>
+      overlay.text('travelKindBoutique') ?? base.travelKindBoutique;
+
+  @override
+  String get travelKindApartments =>
+      overlay.text('travelKindApartments') ?? base.travelKindApartments;
+
+  @override
+  String get travelKindVilla =>
+      overlay.text('travelKindVilla') ?? base.travelKindVilla;
+
+  @override
+  String get travelKindHostel =>
+      overlay.text('travelKindHostel') ?? base.travelKindHostel;
+
+  @override
+  String get travelKindGuesthouse =>
+      overlay.text('travelKindGuesthouse') ?? base.travelKindGuesthouse;
+
+  @override
+  String get travelKindHotel =>
+      overlay.text('travelKindHotel') ?? base.travelKindHotel;
+
+  @override
+  String get travelBoardBreakfast =>
+      overlay.text('travelBoardBreakfast') ?? base.travelBoardBreakfast;
+
+  @override
+  String get travelBoardHalf =>
+      overlay.text('travelBoardHalf') ?? base.travelBoardHalf;
+
+  @override
+  String get travelBoardFull =>
+      overlay.text('travelBoardFull') ?? base.travelBoardFull;
+
+  @override
+  String get travelBoardAll =>
+      overlay.text('travelBoardAll') ?? base.travelBoardAll;
+
+  @override
+  String get travelBoardRoomOnly =>
+      overlay.text('travelBoardRoomOnly') ?? base.travelBoardRoomOnly;
+
+  @override
+  String get travelStatusOnTime =>
+      overlay.text('travelStatusOnTime') ?? base.travelStatusOnTime;
+
+  @override
+  String get travelStatusDelayed =>
+      overlay.text('travelStatusDelayed') ?? base.travelStatusDelayed;
+
+  @override
+  String get travelStatusBoarding =>
+      overlay.text('travelStatusBoarding') ?? base.travelStatusBoarding;
+
+  @override
+  String get travelStatusDeparted =>
+      overlay.text('travelStatusDeparted') ?? base.travelStatusDeparted;
+
+  @override
+  String get travelStatusLanded =>
+      overlay.text('travelStatusLanded') ?? base.travelStatusLanded;
+
+  @override
+  String get travelStatusCancelled =>
+      overlay.text('travelStatusCancelled') ?? base.travelStatusCancelled;
+
+  @override
+  String get travelStatusScheduled =>
+      overlay.text('travelStatusScheduled') ?? base.travelStatusScheduled;
+
+  @override
+  String get travelRequestLate =>
+      overlay.text('travelRequestLate') ?? base.travelRequestLate;
+
+  @override
+  String get travelRequestEarly =>
+      overlay.text('travelRequestEarly') ?? base.travelRequestEarly;
+
+  @override
+  String get travelRequestHighFloor =>
+      overlay.text('travelRequestHighFloor') ?? base.travelRequestHighFloor;
+
+  @override
+  String get travelRequestQuiet =>
+      overlay.text('travelRequestQuiet') ?? base.travelRequestQuiet;
+
+  @override
+  String get travelRequestPickup =>
+      overlay.text('travelRequestPickup') ?? base.travelRequestPickup;
+
+  @override
+  String get travelRequestTwin =>
+      overlay.text('travelRequestTwin') ?? base.travelRequestTwin;
+
+  @override
+  String get travelRequestAccessible =>
+      overlay.text('travelRequestAccessible') ?? base.travelRequestAccessible;
+
+  @override
+  String travelLineNights(int count, String unit) =>
+      overlay.format('travelLineNights', {'count': count, 'unit': unit}) ??
+      base.travelLineNights(count, unit);
+
+  @override
+  String travelLineFare(int count) =>
+      overlay.format('travelLineFare', {'count': count}) ??
+      base.travelLineFare(count);
+
+  @override
+  String get travelLineSeats =>
+      overlay.text('travelLineSeats') ?? base.travelLineSeats;
+
+  @override
+  String travelLineBags(int count) =>
+      overlay.format('travelLineBags', {'count': count}) ??
+      base.travelLineBags(count);
+
+  @override
+  String travelLineMeals(int count) =>
+      overlay.format('travelLineMeals', {'count': count}) ??
+      base.travelLineMeals(count);
+
+  @override
+  String get travelLineTransfer =>
+      overlay.text('travelLineTransfer') ?? base.travelLineTransfer;
+
+  @override
+  String get travelLineTaxes =>
+      overlay.text('travelLineTaxes') ?? base.travelLineTaxes;
+
+  @override
+  String get travelLineMember =>
+      overlay.text('travelLineMember') ?? base.travelLineMember;
+
+  @override
+  String get travelLineBundle =>
+      overlay.text('travelLineBundle') ?? base.travelLineBundle;
+
+  @override
+  String get travelLineChangeFee =>
+      overlay.text('travelLineChangeFee') ?? base.travelLineChangeFee;
+
+  @override
+  String get travelSaveHotel =>
+      overlay.text('travelSaveHotel') ?? base.travelSaveHotel;
+
+  @override
+  String get travelUnsave => overlay.text('travelUnsave') ?? base.travelUnsave;
+
+  @override
+  String get travelScoreExceptional =>
+      overlay.text('travelScoreExceptional') ?? base.travelScoreExceptional;
+
+  @override
+  String get travelScoreSuperb =>
+      overlay.text('travelScoreSuperb') ?? base.travelScoreSuperb;
+
+  @override
+  String get travelScoreVeryGood =>
+      overlay.text('travelScoreVeryGood') ?? base.travelScoreVeryGood;
+
+  @override
+  String get travelScoreGood =>
+      overlay.text('travelScoreGood') ?? base.travelScoreGood;
+
+  @override
+  String get travelScorePleasant =>
+      overlay.text('travelScorePleasant') ?? base.travelScorePleasant;
+
+  @override
+  String travelReviews(int count) =>
+      overlay.format('travelReviews', {'count': count}) ??
+      base.travelReviews(count);
+
+  @override
+  String travelStars(int count) =>
+      overlay.format('travelStars', {'count': count}) ??
+      base.travelStars(count);
+
+  @override
+  String get travelFreeCancellation =>
+      overlay.text('travelFreeCancellation') ?? base.travelFreeCancellation;
+
+  @override
+  String travelNightsTaxes(int count) =>
+      overlay.format('travelNightsTaxes', {'count': count}) ??
+      base.travelNightsTaxes(count);
+
+  @override
+  String travelNightsAtHotel(int count) =>
+      overlay.format('travelNightsAtHotel', {'count': count}) ??
+      base.travelNightsAtHotel(count);
+
+  @override
+  String get travelANight => overlay.text('travelANight') ?? base.travelANight;
+
+  @override
+  String travelStaysCount(int count) =>
+      overlay.format('travelStaysCount', {'count': count}) ??
+      base.travelStaysCount(count);
+
+  @override
+  String travelSortedBy(String sort) =>
+      overlay.format('travelSortedBy', {'sort': sort}) ??
+      base.travelSortedBy(sort);
+
+  @override
+  String get travelSort => overlay.text('travelSort') ?? base.travelSort;
+
+  @override
+  String get travelSortRecommended =>
+      overlay.text('travelSortRecommended') ?? base.travelSortRecommended;
+
+  @override
+  String get travelSortPrice =>
+      overlay.text('travelSortPrice') ?? base.travelSortPrice;
+
+  @override
+  String get travelSortScore =>
+      overlay.text('travelSortScore') ?? base.travelSortScore;
+
+  @override
+  String get travelSortStars =>
+      overlay.text('travelSortStars') ?? base.travelSortStars;
+
+  @override
+  String get travelSuperbPlus =>
+      overlay.text('travelSuperbPlus') ?? base.travelSuperbPlus;
+
+  @override
+  String get travelShowMap =>
+      overlay.text('travelShowMap') ?? base.travelShowMap;
+
+  @override
+  String get travelBackToList =>
+      overlay.text('travelBackToList') ?? base.travelBackToList;
+
+  @override
+  String travelMapCount(int count, int nights) =>
+      overlay.format('travelMapCount', {'count': count, 'nights': nights}) ??
+      base.travelMapCount(count, nights);
+
+  @override
+  String travelPinNights(String price, int nights) =>
+      overlay.format('travelPinNights', {'price': price, 'nights': nights}) ??
+      base.travelPinNights(price, nights);
+
+  @override
+  String get travelView => overlay.text('travelView') ?? base.travelView;
+
+  @override
+  String travelPhotosCount(int count) =>
+      overlay.format('travelPhotosCount', {'count': count}) ??
+      base.travelPhotosCount(count);
+
+  @override
+  String travelQuoteBy(String name, String stayed) =>
+      overlay.format('travelQuoteBy', {'name': name, 'stayed': stayed}) ??
+      base.travelQuoteBy(name, stayed);
+
+  @override
+  String get travelOverall =>
+      overlay.text('travelOverall') ?? base.travelOverall;
+
+  @override
+  String get travelScoreStaff =>
+      overlay.text('travelScoreStaff') ?? base.travelScoreStaff;
+
+  @override
+  String get travelScoreClean =>
+      overlay.text('travelScoreClean') ?? base.travelScoreClean;
+
+  @override
+  String get travelScoreLocation =>
+      overlay.text('travelScoreLocation') ?? base.travelScoreLocation;
+
+  @override
+  String get travelScoreValue =>
+      overlay.text('travelScoreValue') ?? base.travelScoreValue;
+
+  @override
+  String travelCheckInOut(String checkIn, String checkOut) =>
+      overlay.format('travelCheckInOut', {
+        'checkIn': checkIn,
+        'checkOut': checkOut,
+      }) ??
+      base.travelCheckInOut(checkIn, checkOut);
+
+  @override
+  String get travelChooseRoom =>
+      overlay.text('travelChooseRoom') ?? base.travelChooseRoom;
+
+  @override
+  String get travelChooseYourRoom =>
+      overlay.text('travelChooseYourRoom') ?? base.travelChooseYourRoom;
+
+  @override
+  String get travelFromANight =>
+      overlay.text('travelFromANight') ?? base.travelFromANight;
+
+  @override
+  String travelSleeps(int count) =>
+      overlay.format('travelSleeps', {'count': count}) ??
+      base.travelSleeps(count);
+
+  @override
+  String travelLeftAtPrice(int count) =>
+      overlay.format('travelLeftAtPrice', {'count': count}) ??
+      base.travelLeftAtPrice(count);
+
+  @override
+  String get travelMostChosen =>
+      overlay.text('travelMostChosen') ?? base.travelMostChosen;
+
+  @override
+  String get travelSoldOut =>
+      overlay.text('travelSoldOut') ?? base.travelSoldOut;
+
+  @override
+  String get travelNoRooms =>
+      overlay.text('travelNoRooms') ?? base.travelNoRooms;
+
+  @override
+  String get travelNonRefundable =>
+      overlay.text('travelNonRefundable') ?? base.travelNonRefundable;
+
+  @override
+  String travelFreeCancelUntil(String day) =>
+      overlay.format('travelFreeCancelUntil', {'day': day}) ??
+      base.travelFreeCancelUntil(day);
+
+  @override
+  String get travelPayNowOrAtHotel =>
+      overlay.text('travelPayNowOrAtHotel') ?? base.travelPayNowOrAtHotel;
+
+  @override
+  String get travelPayAtHotel =>
+      overlay.text('travelPayAtHotel') ?? base.travelPayAtHotel;
+
+  @override
+  String get travelPayNow => overlay.text('travelPayNow') ?? base.travelPayNow;
+
+  @override
+  String get travelReserve =>
+      overlay.text('travelReserve') ?? base.travelReserve;
+
+  @override
+  String get travelTotalPrice =>
+      overlay.text('travelTotalPrice') ?? base.travelTotalPrice;
+
+  @override
+  String get travelNoStays =>
+      overlay.text('travelNoStays') ?? base.travelNoStays;
+
+  @override
+  String get travelNoStaysText =>
+      overlay.text('travelNoStaysText') ?? base.travelNoStaysText;
+
+  @override
+  String get travelNoSaved =>
+      overlay.text('travelNoSaved') ?? base.travelNoSaved;
+
+  @override
+  String get travelNoSavedText =>
+      overlay.text('travelNoSavedText') ?? base.travelNoSavedText;
+
+  @override
+  String get travelSavedSignIn =>
+      overlay.text('travelSavedSignIn') ?? base.travelSavedSignIn;
+
+  @override
+  String get travelSavedSignInText =>
+      overlay.text('travelSavedSignInText') ?? base.travelSavedSignInText;
+
+  @override
+  String get travelMessageHotel =>
+      overlay.text('travelMessageHotel') ?? base.travelMessageHotel;
+
+  @override
+  String get travelDirect => overlay.text('travelDirect') ?? base.travelDirect;
+
+  @override
+  String travelStops(int count) =>
+      overlay.format('travelStops', {'count': count}) ??
+      base.travelStops(count);
+
+  @override
+  String travelStopsVia(int count, String via) =>
+      overlay.format('travelStopsVia', {'count': count, 'via': via}) ??
+      base.travelStopsVia(count, via);
+
+  @override
+  String travelViaTime(String via, String time) =>
+      overlay.format('travelViaTime', {'via': via, 'time': time}) ??
+      base.travelViaTime(via, time);
+
+  @override
+  String travelDuration(int hours, String minutes) =>
+      overlay.format('travelDuration', {'hours': hours, 'minutes': minutes}) ??
+      base.travelDuration(hours, minutes);
+
+  @override
+  String travelBothWays(String stops) =>
+      overlay.format('travelBothWays', {'stops': stops}) ??
+      base.travelBothWays(stops);
+
+  @override
+  String get travelCalendar =>
+      overlay.text('travelCalendar') ?? base.travelCalendar;
+
+  @override
+  String get travelPriceGraph =>
+      overlay.text('travelPriceGraph') ?? base.travelPriceGraph;
+
+  @override
+  String travelReturnPricesFor(int count) =>
+      overlay.format('travelReturnPricesFor', {'count': count}) ??
+      base.travelReturnPricesFor(count);
+
+  @override
+  String travelOneWayPricesFor(int count) =>
+      overlay.format('travelOneWayPricesFor', {'count': count}) ??
+      base.travelOneWayPricesFor(count);
+
+  @override
+  String get travelPreviousMonth =>
+      overlay.text('travelPreviousMonth') ?? base.travelPreviousMonth;
+
+  @override
+  String get travelNextMonth =>
+      overlay.text('travelNextMonth') ?? base.travelNextMonth;
+
+  @override
+  String get travelLowest => overlay.text('travelLowest') ?? base.travelLowest;
+
+  @override
+  String get travelAverage =>
+      overlay.text('travelAverage') ?? base.travelAverage;
+
+  @override
+  String get travelHigher => overlay.text('travelHigher') ?? base.travelHigher;
+
+  @override
+  String travelLeaveInstead(String day, String saving) =>
+      overlay.format('travelLeaveInstead', {'day': day, 'saving': saving}) ??
+      base.travelLeaveInstead(day, saving);
+
+  @override
+  String travelSameNights(int count) =>
+      overlay.format('travelSameNights', {'count': count}) ??
+      base.travelSameNights(count);
+
+  @override
+  String travelFromPerPerson(String price) =>
+      overlay.format('travelFromPerPerson', {'price': price}) ??
+      base.travelFromPerPerson(price);
+
+  @override
+  String get travelShowFlights =>
+      overlay.text('travelShowFlights') ?? base.travelShowFlights;
+
+  @override
+  String get travelNoFlightsMonth =>
+      overlay.text('travelNoFlightsMonth') ?? base.travelNoFlightsMonth;
+
+  @override
+  String get travelPricesAre =>
+      overlay.text('travelPricesAre') ?? base.travelPricesAre;
+
+  @override
+  String get travelLow => overlay.text('travelLow') ?? base.travelLow;
+
+  @override
+  String get travelHigh => overlay.text('travelHigh') ?? base.travelHigh;
+
+  @override
+  String get travelTypical =>
+      overlay.text('travelTypical') ?? base.travelTypical;
+
+  @override
+  String get travelForYourDates =>
+      overlay.text('travelForYourDates') ?? base.travelForYourDates;
+
+  @override
+  String travelUsually(String from, String to) =>
+      overlay.format('travelUsually', {'from': from, 'to': to}) ??
+      base.travelUsually(from, to);
+
+  @override
+  String get travelBest => overlay.text('travelBest') ?? base.travelBest;
+
+  @override
+  String get travelCheapest =>
+      overlay.text('travelCheapest') ?? base.travelCheapest;
+
+  @override
+  String get travelFastest =>
+      overlay.text('travelFastest') ?? base.travelFastest;
+
+  @override
+  String get travelTrack => overlay.text('travelTrack') ?? base.travelTrack;
+
+  @override
+  String get travelTracking =>
+      overlay.text('travelTracking') ?? base.travelTracking;
+
+  @override
+  String get travelSignInToWatch =>
+      overlay.text('travelSignInToWatch') ?? base.travelSignInToWatch;
+
+  @override
+  String get travelPerPerson =>
+      overlay.text('travelPerPerson') ?? base.travelPerPerson;
+
+  @override
+  String get travelPerPersonReturn =>
+      overlay.text('travelPerPersonReturn') ?? base.travelPerPersonReturn;
+
+  @override
+  String get travelFreeChanges =>
+      overlay.text('travelFreeChanges') ?? base.travelFreeChanges;
+
+  @override
+  String get travelCabinOnly =>
+      overlay.text('travelCabinOnly') ?? base.travelCabinOnly;
+
+  @override
+  String travelCabinBag(int kg) =>
+      overlay.format('travelCabinBag', {'kg': kg}) ?? base.travelCabinBag(kg);
+
+  @override
+  String get travelNoFlights =>
+      overlay.text('travelNoFlights') ?? base.travelNoFlights;
+
+  @override
+  String get travelNoFlightsText =>
+      overlay.text('travelNoFlightsText') ?? base.travelNoFlightsText;
+
+  @override
+  String get travelOut => overlay.text('travelOut') ?? base.travelOut;
+
+  @override
+  String get travelWifi => overlay.text('travelWifi') ?? base.travelWifi;
+
+  @override
+  String get travelMeal => overlay.text('travelMeal') ?? base.travelMeal;
+
+  @override
+  String travelTerminal(String terminal) =>
+      overlay.format('travelTerminal', {'terminal': terminal}) ??
+      base.travelTerminal(terminal);
+
+  @override
+  String get travelChooseFare =>
+      overlay.text('travelChooseFare') ?? base.travelChooseFare;
+
+  @override
+  String get travelBestValue =>
+      overlay.text('travelBestValue') ?? base.travelBestValue;
+
+  @override
+  String travelSeatsLeft(int count) =>
+      overlay.format('travelSeatsLeft', {'count': count}) ??
+      base.travelSeatsLeft(count);
+
+  @override
+  String travelCabinKg(int kg) =>
+      overlay.format('travelCabinKg', {'kg': kg}) ?? base.travelCabinKg(kg);
+
+  @override
+  String travelBagsKg(int count, int kg) =>
+      overlay.format('travelBagsKg', {'count': count, 'kg': kg}) ??
+      base.travelBagsKg(count, kg);
+
+  @override
+  String get travelNoCheckedBag =>
+      overlay.text('travelNoCheckedBag') ?? base.travelNoCheckedBag;
+
+  @override
+  String travelChangeFor(String fee) =>
+      overlay.format('travelChangeFor', {'fee': fee}) ??
+      base.travelChangeFor(fee);
+
+  @override
+  String get travelNoChanges =>
+      overlay.text('travelNoChanges') ?? base.travelNoChanges;
+
+  @override
+  String get travelFullRefund =>
+      overlay.text('travelFullRefund') ?? base.travelFullRefund;
+
+  @override
+  String get travelRefundAtFee =>
+      overlay.text('travelRefundAtFee') ?? base.travelRefundAtFee;
+
+  @override
+  String get travelNoRefund =>
+      overlay.text('travelNoRefund') ?? base.travelNoRefund;
+
+  @override
+  String get travelAnySeat =>
+      overlay.text('travelAnySeat') ?? base.travelAnySeat;
+
+  @override
+  String get travelStandardSeat =>
+      overlay.text('travelStandardSeat') ?? base.travelStandardSeat;
+
+  @override
+  String get travelSeatAtFee =>
+      overlay.text('travelSeatAtFee') ?? base.travelSeatAtFee;
+
+  @override
+  String travelFareTravellers(String fare, int count) =>
+      overlay.format('travelFareTravellers', {'fare': fare, 'count': count}) ??
+      base.travelFareTravellers(fare, count);
+
+  @override
+  String get travelChooseSeats =>
+      overlay.text('travelChooseSeats') ?? base.travelChooseSeats;
+
+  @override
+  String get travelContinue =>
+      overlay.text('travelContinue') ?? base.travelContinue;
+
+  @override
+  String get travelChooseFlightFirst =>
+      overlay.text('travelChooseFlightFirst') ?? base.travelChooseFlightFirst;
+
+  @override
+  String travelSeatsOn(String route) =>
+      overlay.format('travelSeatsOn', {'route': route}) ??
+      base.travelSeatsOn(route);
+
+  @override
+  String get travelSeatsAtAirport =>
+      overlay.text('travelSeatsAtAirport') ?? base.travelSeatsAtAirport;
+
+  @override
+  String get travelFree => overlay.text('travelFree') ?? base.travelFree;
+
+  @override
+  String get travelTaken => overlay.text('travelTaken') ?? base.travelTaken;
+
+  @override
+  String travelExtraLegroom(String price) =>
+      overlay.format('travelExtraLegroom', {'price': price}) ??
+      base.travelExtraLegroom(price);
+
+  @override
+  String travelSeatTaken(String id) =>
+      overlay.format('travelSeatTaken', {'id': id}) ?? base.travelSeatTaken(id);
+
+  @override
+  String travelSeatExtra(String id) =>
+      overlay.format('travelSeatExtra', {'id': id}) ?? base.travelSeatExtra(id);
+
+  @override
+  String travelSeatFee(String price) =>
+      overlay.format('travelSeatFee', {'price': price}) ??
+      base.travelSeatFee(price);
+
+  @override
+  String get travelSeatsNext =>
+      overlay.text('travelSeatsNext') ?? base.travelSeatsNext;
+
+  @override
+  String get travelBagsMeals =>
+      overlay.text('travelBagsMeals') ?? base.travelBagsMeals;
+
+  @override
+  String get travelBagsMealsText =>
+      overlay.text('travelBagsMealsText') ?? base.travelBagsMealsText;
+
+  @override
+  String get travelExtraBags =>
+      overlay.text('travelExtraBags') ?? base.travelExtraBags;
+
+  @override
+  String travelExtraBagsText(int legs) =>
+      overlay.format('travelExtraBagsText', {'legs': legs}) ??
+      base.travelExtraBagsText(legs);
+
+  @override
+  String get travelMeals => overlay.text('travelMeals') ?? base.travelMeals;
+
+  @override
+  String travelMealsText(int legs) =>
+      overlay.format('travelMealsText', {'legs': legs}) ??
+      base.travelMealsText(legs);
+
+  @override
+  String get travelAtAirport =>
+      overlay.text('travelAtAirport') ?? base.travelAtAirport;
+
+  @override
+  String get travelNoTripFlight =>
+      overlay.text('travelNoTripFlight') ?? base.travelNoTripFlight;
+
+  @override
+  String get travelNoTripStay =>
+      overlay.text('travelNoTripStay') ?? base.travelNoTripStay;
+
+  @override
+  String get travelWatchTrip =>
+      overlay.text('travelWatchTrip') ?? base.travelWatchTrip;
+
+  @override
+  String get travelOnePrice =>
+      overlay.text('travelOnePrice') ?? base.travelOnePrice;
+
+  @override
+  String travelOnePriceText(int count, int nights) =>
+      overlay.format('travelOnePriceText', {
+        'count': count,
+        'nights': nights,
+      }) ??
+      base.travelOnePriceText(count, nights);
+
+  @override
+  String travelSave(String amount) =>
+      overlay.format('travelSave', {'amount': amount}) ??
+      base.travelSave(amount);
+
+  @override
+  String get travelChange => overlay.text('travelChange') ?? base.travelChange;
+
+  @override
+  String travelBagIncluded(int kg) =>
+      overlay.format('travelBagIncluded', {'kg': kg}) ??
+      base.travelBagIncluded(kg);
+
+  @override
+  String get travelStay => overlay.text('travelStay') ?? base.travelStay;
+
+  @override
+  String get travelTransfer =>
+      overlay.text('travelTransfer') ?? base.travelTransfer;
+
+  @override
+  String travelTotalFor(int count) =>
+      overlay.format('travelTotalFor', {'count': count}) ??
+      base.travelTotalFor(count);
+
+  @override
+  String get travelReserveTrip =>
+      overlay.text('travelReserveTrip') ?? base.travelReserveTrip;
+
+  @override
+  String get travelConfirmPay =>
+      overlay.text('travelConfirmPay') ?? base.travelConfirmPay;
+
+  @override
+  String get travelSecureCheckout =>
+      overlay.text('travelSecureCheckout') ?? base.travelSecureCheckout;
+
+  @override
+  String get travelGuest => overlay.text('travelGuest') ?? base.travelGuest;
+
+  @override
+  String get travelTravellersAsPassport =>
+      overlay.text('travelTravellersAsPassport') ??
+      base.travelTravellersAsPassport;
+
+  @override
+  String get travelSavedTraveller =>
+      overlay.text('travelSavedTraveller') ?? base.travelSavedTraveller;
+
+  @override
+  String travelFirstName(int n) =>
+      overlay.format('travelFirstName', {'n': n}) ?? base.travelFirstName(n);
+
+  @override
+  String get travelLastName =>
+      overlay.text('travelLastName') ?? base.travelLastName;
+
+  @override
+  String get travelNamesNeeded =>
+      overlay.text('travelNamesNeeded') ?? base.travelNamesNeeded;
+
+  @override
+  String get travelAtHotelText =>
+      overlay.text('travelAtHotelText') ?? base.travelAtHotelText;
+
+  @override
+  String get travelPayNowText =>
+      overlay.text('travelPayNowText') ?? base.travelPayNowText;
+
+  @override
+  String get travelConfirmAtHotel =>
+      overlay.text('travelConfirmAtHotel') ?? base.travelConfirmAtHotel;
+
+  @override
+  String travelConfirmAndPay(String total) =>
+      overlay.format('travelConfirmAndPay', {'total': total}) ??
+      base.travelConfirmAndPay(total);
+
+  @override
+  String get travelTotal => overlay.text('travelTotal') ?? base.travelTotal;
+
+  @override
+  String travelFreeCancelUntilHotel(String day) =>
+      overlay.format('travelFreeCancelUntilHotel', {'day': day}) ??
+      base.travelFreeCancelUntilHotel(day);
+
+  @override
+  String get travelBooked => overlay.text('travelBooked') ?? base.travelBooked;
+
+  @override
+  String get travelTripsSignIn =>
+      overlay.text('travelTripsSignIn') ?? base.travelTripsSignIn;
+
+  @override
+  String get travelBookingsSignIn =>
+      overlay.text('travelBookingsSignIn') ?? base.travelBookingsSignIn;
+
+  @override
+  String get travelTripsSignInText =>
+      overlay.text('travelTripsSignInText') ?? base.travelTripsSignInText;
+
+  @override
+  String get travelNoTrips =>
+      overlay.text('travelNoTrips') ?? base.travelNoTrips;
+
+  @override
+  String get travelNoTripsText =>
+      overlay.text('travelNoTripsText') ?? base.travelNoTripsText;
+
+  @override
+  String get travelAwaitingPayment =>
+      overlay.text('travelAwaitingPayment') ?? base.travelAwaitingPayment;
+
+  @override
+  String get travelCancelled =>
+      overlay.text('travelCancelled') ?? base.travelCancelled;
+
+  @override
+  String get travelCompleted =>
+      overlay.text('travelCompleted') ?? base.travelCompleted;
+
+  @override
+  String get travelConfirmed =>
+      overlay.text('travelConfirmed') ?? base.travelConfirmed;
+
+  @override
+  String get travelCheckIn =>
+      overlay.text('travelCheckIn') ?? base.travelCheckIn;
+
+  @override
+  String get travelBack => overlay.text('travelBack') ?? base.travelBack;
+
+  @override
+  String travelTripsUpcoming(int count) =>
+      overlay.format('travelTripsUpcoming', {'count': count}) ??
+      base.travelTripsUpcoming(count);
+
+  @override
+  String get travelManage => overlay.text('travelManage') ?? base.travelManage;
+
+  @override
+  String travelStartsIn(int days, int hours) =>
+      overlay.format('travelStartsIn', {'days': days, 'hours': hours}) ??
+      base.travelStartsIn(days, hours);
+
+  @override
+  String travelPayDue(String amount) =>
+      overlay.format('travelPayDue', {'amount': amount}) ??
+      base.travelPayDue(amount);
+
+  @override
+  String get travelReviewStay =>
+      overlay.text('travelReviewStay') ?? base.travelReviewStay;
+
+  @override
+  String get travelTerminalLabel =>
+      overlay.text('travelTerminalLabel') ?? base.travelTerminalLabel;
+
+  @override
+  String get travelGate => overlay.text('travelGate') ?? base.travelGate;
+
+  @override
+  String get travelSeatsLabel =>
+      overlay.text('travelSeatsLabel') ?? base.travelSeatsLabel;
+
+  @override
+  String get travelBoards => overlay.text('travelBoards') ?? base.travelBoards;
+
+  @override
+  String get travelBoardingPasses =>
+      overlay.text('travelBoardingPasses') ?? base.travelBoardingPasses;
+
+  @override
+  String get travelPassesLater =>
+      overlay.text('travelPassesLater') ?? base.travelPassesLater;
+
+  @override
+  String travelPassOf(int n, int total) =>
+      overlay.format('travelPassOf', {'n': n, 'total': total}) ??
+      base.travelPassOf(n, total);
+
+  @override
+  String travelGateStatus(String gate, String status) =>
+      overlay.format('travelGateStatus', {'gate': gate, 'status': status}) ??
+      base.travelGateStatus(gate, status);
+
+  @override
+  String get travelSeat => overlay.text('travelSeat') ?? base.travelSeat;
+
+  @override
+  String get travelGroup => overlay.text('travelGroup') ?? base.travelGroup;
+
+  @override
+  String get travelPassenger =>
+      overlay.text('travelPassenger') ?? base.travelPassenger;
+
+  @override
+  String get travelClass => overlay.text('travelClass') ?? base.travelClass;
+
+  @override
+  String get travelPassCode =>
+      overlay.text('travelPassCode') ?? base.travelPassCode;
+
+  @override
+  String get travelWorksOffline =>
+      overlay.text('travelWorksOffline') ?? base.travelWorksOffline;
+
+  @override
+  String get travelKeptOffline =>
+      overlay.text('travelKeptOffline') ?? base.travelKeptOffline;
+
+  @override
+  String get travelChangeSeat =>
+      overlay.text('travelChangeSeat') ?? base.travelChangeSeat;
+
+  @override
+  String travelPaid(String amount) =>
+      overlay.format('travelPaid', {'amount': amount}) ??
+      base.travelPaid(amount);
+
+  @override
+  String travelDue(String amount) =>
+      overlay.format('travelDue', {'amount': amount}) ?? base.travelDue(amount);
+
+  @override
+  String travelRefund(String amount) =>
+      overlay.format('travelRefund', {'amount': amount}) ??
+      base.travelRefund(amount);
+
+  @override
+  String get travelChangeDates =>
+      overlay.text('travelChangeDates') ?? base.travelChangeDates;
+
+  @override
+  String get travelChangeDatesText =>
+      overlay.text('travelChangeDatesText') ?? base.travelChangeDatesText;
+
+  @override
+  String get travelChanged =>
+      overlay.text('travelChanged') ?? base.travelChanged;
+
+  @override
+  String travelChangeSeatOn(String number) =>
+      overlay.format('travelChangeSeatOn', {'number': number}) ??
+      base.travelChangeSeatOn(number);
+
+  @override
+  String travelSeatsOf(String seats) =>
+      overlay.format('travelSeatsOf', {'seats': seats}) ??
+      base.travelSeatsOf(seats);
+
+  @override
+  String get travelCancelTitle =>
+      overlay.text('travelCancelTitle') ?? base.travelCancelTitle;
+
+  @override
+  String get travelCancelNoRefund =>
+      overlay.text('travelCancelNoRefund') ?? base.travelCancelNoRefund;
+
+  @override
+  String travelCancelRefund(String amount) =>
+      overlay.format('travelCancelRefund', {'amount': amount}) ??
+      base.travelCancelRefund(amount);
+
+  @override
+  String get travelCancelBooking =>
+      overlay.text('travelCancelBooking') ?? base.travelCancelBooking;
+
+  @override
+  String get travelCancelledDone =>
+      overlay.text('travelCancelledDone') ?? base.travelCancelledDone;
+
+  @override
+  String travelCancelledRefund(String amount) =>
+      overlay.format('travelCancelledRefund', {'amount': amount}) ??
+      base.travelCancelledRefund(amount);
+
+  @override
+  String travelTravellerN(int n) =>
+      overlay.format('travelTravellerN', {'n': n}) ?? base.travelTravellerN(n);
+
+  @override
+  String get travelTripCouple =>
+      overlay.text('travelTripCouple') ?? base.travelTripCouple;
+
+  @override
+  String get travelTripFamily =>
+      overlay.text('travelTripFamily') ?? base.travelTripFamily;
+
+  @override
+  String get travelTripFriends =>
+      overlay.text('travelTripFriends') ?? base.travelTripFriends;
+
+  @override
+  String get travelTripSolo =>
+      overlay.text('travelTripSolo') ?? base.travelTripSolo;
+
+  @override
+  String get travelTripBusiness =>
+      overlay.text('travelTripBusiness') ?? base.travelTripBusiness;
+
+  @override
+  String get travelReviewWords =>
+      overlay.text('travelReviewWords') ?? base.travelReviewWords;
+
+  @override
+  String get travelSendReview =>
+      overlay.text('travelSendReview') ?? base.travelSendReview;
+
+  @override
+  String get travelThanksReview =>
+      overlay.text('travelThanksReview') ?? base.travelThanksReview;
+
+  @override
+  String get travelAlertsSignIn =>
+      overlay.text('travelAlertsSignIn') ?? base.travelAlertsSignIn;
+
+  @override
+  String get travelAlertsSignInText =>
+      overlay.text('travelAlertsSignInText') ?? base.travelAlertsSignInText;
+
+  @override
+  String get travelAlertsEyebrow =>
+      overlay.text('travelAlertsEyebrow') ?? base.travelAlertsEyebrow;
+
+  @override
+  String get travelNewAlert =>
+      overlay.text('travelNewAlert') ?? base.travelNewAlert;
+
+  @override
+  String get travelNoAlerts =>
+      overlay.text('travelNoAlerts') ?? base.travelNoAlerts;
+
+  @override
+  String get travelNoAlertsText =>
+      overlay.text('travelNoAlertsText') ?? base.travelNoAlertsText;
+
+  @override
+  String travelAnywhereUnder(String price) =>
+      overlay.format('travelAnywhereUnder', {'price': price}) ??
+      base.travelAnywhereUnder(price);
+
+  @override
+  String travelStayAndFlightTo(String city) =>
+      overlay.format('travelStayAndFlightTo', {'city': city}) ??
+      base.travelStayAndFlightTo(city);
+
+  @override
+  String travelFromCity(String city) =>
+      overlay.format('travelFromCity', {'city': city}) ??
+      base.travelFromCity(city);
+
+  @override
+  String get travelAnyDates =>
+      overlay.text('travelAnyDates') ?? base.travelAnyDates;
+
+  @override
+  String travelAnyDatesIn(String month) =>
+      overlay.format('travelAnyDatesIn', {'month': month}) ??
+      base.travelAnyDatesIn(month);
+
+  @override
+  String travelChangeSince(String change) =>
+      overlay.format('travelChangeSince', {'change': change}) ??
+      base.travelChangeSince(change);
+
+  @override
+  String get travelNothingOnSale =>
+      overlay.text('travelNothingOnSale') ?? base.travelNothingOnSale;
+
+  @override
+  String get travelFewSeatsAtPrice =>
+      overlay.text('travelFewSeatsAtPrice') ?? base.travelFewSeatsAtPrice;
+
+  @override
+  String get travelPriceDropped =>
+      overlay.text('travelPriceDropped') ?? base.travelPriceDropped;
+
+  @override
+  String get travelWeWatch =>
+      overlay.text('travelWeWatch') ?? base.travelWeWatch;
+
+  @override
+  String get travelGoodTimeToBook =>
+      overlay.text('travelGoodTimeToBook') ?? base.travelGoodTimeToBook;
+
+  @override
+  String get travelSeeTrip =>
+      overlay.text('travelSeeTrip') ?? base.travelSeeTrip;
+
+  @override
+  String get travelSeeFlights =>
+      overlay.text('travelSeeFlights') ?? base.travelSeeFlights;
+
+  @override
+  String travelNewMatches(int count) =>
+      overlay.format('travelNewMatches', {'count': count}) ??
+      base.travelNewMatches(count);
+
+  @override
+  String get travelStopWatching =>
+      overlay.text('travelStopWatching') ?? base.travelStopWatching;
+
+  @override
+  String get travelChooseRoute =>
+      overlay.text('travelChooseRoute') ?? base.travelChooseRoute;
+
+  @override
+  String get travelChooseMax =>
+      overlay.text('travelChooseMax') ?? base.travelChooseMax;
+
+  @override
+  String get travelAlertRoute =>
+      overlay.text('travelAlertRoute') ?? base.travelAlertRoute;
+
+  @override
+  String get travelAlertTrip =>
+      overlay.text('travelAlertTrip') ?? base.travelAlertTrip;
+
+  @override
+  String get travelAlertAnywhere =>
+      overlay.text('travelAlertAnywhere') ?? base.travelAlertAnywhere;
+
+  @override
+  String travelMaxPrice(String currency) =>
+      overlay.format('travelMaxPrice', {'currency': currency}) ??
+      base.travelMaxPrice(currency);
+
+  @override
+  String get travelWhen => overlay.text('travelWhen') ?? base.travelWhen;
+
+  @override
+  String get travelWatchPrice =>
+      overlay.text('travelWatchPrice') ?? base.travelWatchPrice;
+
+  @override
+  String get travelTravellersCabin =>
+      overlay.text('travelTravellersCabin') ?? base.travelTravellersCabin;
 }

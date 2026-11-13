@@ -34,6 +34,7 @@ class StudioDemo {
   static final rawaq = StudioDemo._load('rawaq_demo.json');
   // 128 Zad's whole project too: its photo-first home, its five tabs.
   static final zad = StudioDemo._load('zad_demo.json');
+  static final safra = StudioDemo._load('safra_demo.json');
 
   final Map<String, dynamic> _demo;
 
@@ -872,4 +873,61 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
       ],
     },
   );
+}
+
+/// 126 Safra (Studio's travel demo) as its app is: its hotels on its home,
+/// with their photos.
+DemoApi safraStudioApi() {
+  final data = jsonDecode(
+    File('test/support/safra_api.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final hotels = ((data['hotels'] as Map)['items'] as List)
+      .cast<Map<String, dynamic>>();
+  return StudioDemo.safra.apply(
+    DemoApi.travel(),
+    appName: 'Safra',
+    primaryColor: '#0E1424',
+    items: {
+      'hotels': [
+        for (final h in hotels)
+          _item(
+            'hotels',
+            h['id'] as int,
+            h['name'] as String,
+            '${h['area'] ?? h['city']} · ${h['city']}',
+            image: (h['photo_urls'] as List).first as String,
+            price: (h['price'] as Map?)?['total_formatted'] as String?,
+          ),
+      ],
+    },
+  );
+}
+
+final _safraPhotos = <String, ui.Image>{};
+
+/// Safra's drawn pictures, and its hotels' photos
+/// (platform/web/public/travel-photos) in the image cache at the addresses
+/// test/support/safra_api.json serves them from.
+Future<void> prepareSafra(WidgetTester tester) async {
+  await StudioDemo.safra.prepare(tester);
+  if (_safraPhotos.isEmpty) {
+    await tester.runAsync(() async {
+      final folder = Directory('../platform/web/public/travel-photos');
+      for (final file in folder.listSync().whereType<File>()) {
+        final name = file.uri.pathSegments.last;
+        if (!name.endsWith('.jpg')) continue;
+        final codec = await ui.instantiateImageCodec(file.readAsBytesSync());
+        _safraPhotos[name] = (await codec.getNextFrame()).image;
+      }
+    });
+  }
+  final cache = PaintingBinding.instance.imageCache;
+  for (final MapEntry(:key, :value) in _safraPhotos.entries) {
+    cache.putIfAbsent(
+      NetworkImage('https://demo.yallapp.test/travel-photos/$key'),
+      () => OneFrameImageStreamCompleter(
+        SynchronousFuture(ImageInfo(image: value.clone())),
+      ),
+    );
+  }
 }

@@ -46,7 +46,8 @@ describe("demo apps' cards in the app's language", { timeout: 30_000 }, () => {
       now: NOW,
     });
     apps = (await Promise.all(result.apps.map((a) => store.getAppById(a.appId)))) as App[];
-  });
+    // 126 Nineteen demo apps now, Safra's flights twelve weeks ahead among them: the hook gets the tests' time.
+  }, 30_000);
 
   const context = (app: App): HostedContext => ({
     store,

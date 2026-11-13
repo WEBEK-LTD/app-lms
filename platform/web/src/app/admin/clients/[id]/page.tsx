@@ -59,6 +59,11 @@ import { appStorage } from "@/lib/media/usage";
 import { platformSetting } from "@/lib/settings/platform";
 import { buildTimeline } from "@/lib/admin/timeline";
 import { APP_ERROR_DAYS, APP_ERROR_SOURCE_LABEL } from "@/lib/watch/app-errors";
+import { CATALOG_CURRENCIES } from "@/lib/catalog/money";
+import { travelSettingsOf } from "@/lib/travel/settings";
+import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
+import { LANGUAGE_NAMES } from "@/lib/pages/types";
+import { TravelPartsForm } from "./travel-form";
 
 export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
@@ -871,6 +876,30 @@ async function AppEntry({
           })
         : null}
 
+      {/* 126 A travel project's parts: hotels, flights or both, and where each comes from. */}
+      {app?.connector?.kind === "travel"
+        ? await panel(client.id, { id: `h-travel-${app.id}`, title: "Travel", level: 3 }, async () => {
+            const travel = travelSettingsOf(await store.getTravelSettings(app.id));
+            const layout = await store.getAppLayout(app.id);
+            const languages = ((layout?.published ?? layout?.draft)?.languages.available ?? ["en"]).map((l) => LANGUAGE_NAMES[l] ?? l).join(" · ");
+            return (
+              <Card id={`h-travel-${app.id}`} title="Travel" level={3}>
+                <TravelPartsForm
+                  clientId={client.id}
+                  appId={app.id}
+                  hotels={travel.hotels}
+                  flights={travel.flights}
+                  hotelSource={travel.hotelSource}
+                  flightSource={travel.flightSource}
+                  hotelSources={HOTEL_SOURCES.map((s) => ({ ...s }))}
+                  flightSources={FLIGHT_SOURCES.map((s) => ({ ...s }))}
+                  currency={CATALOG_CURRENCIES.join(" · ")}
+                  languages={languages}
+                />
+              </Card>
+            );
+          })
+        : null}
       {app ? await panel(client.id, { id: `h-analytics-${app.id}`, title: "Analytics, last 30 days", level: 3 }, () => AnalyticsCard({ app, now })) : null}
       {app
         ? await panel(client.id, { id: `h-switches-${entry.key}`, title: "App switches", level: 3 }, () => (

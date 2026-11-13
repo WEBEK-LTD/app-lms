@@ -9,7 +9,7 @@ import type { ItemSource } from "../pages/types";
  * products, a salon's services, its team, …).
  */
 
-export const SAMPLE_LISTS = ["teachers", "courses", "products", "services", "staff", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school", "school_news"] as const;
+export const SAMPLE_LISTS = ["teachers", "courses", "products", "services", "staff", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school", "school_news", "hotels", "flights"] as const;
 export type SampleList = (typeof SAMPLE_LISTS)[number];
 
 export function isSampleList(value: unknown): value is SampleList {
@@ -30,6 +30,8 @@ const LISTS_OF_SOURCE: Partial<Record<ItemSource, SampleList[]>> = {
   vehicle_types: ["vehicle_types"],
   // Templates = demos: a school started from the school demo gets its classes, subjects and people too (lib/samples/demo.ts).
   school_news: ["school", "school_news"],
+  // 126 A travel project's hotels (with their rooms) and its flights.
+  hotels: ["hotels", "flights"],
 };
 
 /** The dashboard page of each list, where its banner shows. */
@@ -48,6 +50,8 @@ export const LIST_PAGE: Record<SampleList, string> = {
   vehicle_types: "/dashboard/vehicle-types",
   school: "/dashboard/school/people",
   school_news: "/dashboard/school/news",
+  hotels: "/dashboard/travel/hotels",
+  flights: "/dashboard/travel/flights",
 };
 
 /**
@@ -151,6 +155,10 @@ export async function countList(store: DataStore, app: App, list: SampleList): P
     }
     case "school_news":
       return counted(await store.listSchoolAnnouncements(app.id));
+    case "hotels":
+      return counted(await store.listTravelHotels(app.id));
+    case "flights":
+      return counted(await store.listTravelFlights(app.id));
   }
 }
 

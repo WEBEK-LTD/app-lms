@@ -1,4 +1,5 @@
 import 'market_api_models.dart';
+import 'travel_models.dart';
 import 'screens_models.dart';
 import 'billing_models.dart';
 import 'bookings_models.dart';
@@ -44,6 +45,7 @@ class AppConfig {
     this.rides,
     this.instructors,
     this.school,
+    this.travel,
     this.taxi,
     this.vertical,
     this.shareBaseUrl,
@@ -77,6 +79,7 @@ class AppConfig {
     rides: optObject(json, 'rides', RidesConfig.fromJson),
     instructors: optObject(json, 'instructors', InstructorsConfig.fromJson),
     school: optObject(json, 'school', SchoolConfig.fromJson),
+    travel: optObject(json, 'travel', TravelConfig.fromJson),
     taxi: optObject(json, 'taxi', TaxiConfig.fromJson),
     vertical: AppVertical.fromWire(json['vertical']),
     shareBaseUrl: _shareBase(json['links']),
@@ -200,6 +203,9 @@ class AppConfig {
 
   /// 105.4 A school: its time zone, term, and whether fees are paid by card.
   final SchoolConfig? school;
+
+  /// 126 A travel app: hotels, flights or both, and the company's choices.
+  final TravelConfig? travel;
 
   /// 105.9 A live taxi app: its map and live database (its rides are [rides]).
   final TaxiConfig? taxi;

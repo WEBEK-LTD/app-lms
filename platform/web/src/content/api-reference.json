@@ -1552,6 +1552,173 @@
       ]
     },
     {
+      "name": "Travel",
+      "description": "Roadmap 126. Travel apps (hotels, flights or both), on Yallapp's hosted API. The company enters its hotels (rooms, nightly prices, open dates, photos, amenities, rules and taxes) and its flights with a fixed number of seats (charters, Umrah, packages: routes, dates, light, standard and flex fares, an optional seat map) in the dashboard. People search, choose a room and rate or a flight and fare (seats, bags, meals), book a stay, a flight or both as one trip with one price, pay now on the company's payment page (into its own account, no commission to Yallapp) or at the hotel, follow their trip in one place (the flight's status as the company updates it, the boarding passes, the stay), change or cancel it, review the stay, save hotels and watch a route's price. Messages with the company use the chat (`/chat`). Connecting a hotel's own system, a hotel supplier or a live flight provider comes later; until then everything comes from the dashboard.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/travel/explore",
+          "summary": "Where to go, with the whole trip's price",
+          "description": "Roadmap 126. The Explore tab: the destinations the company sells, each with how many hotels it has there and, when flights are on too, the price of the whole trip (the cheapest return flight for one person in the next months plus the cheapest stay of `nights` nights for two, the company's bundle saving taken off), its featured hotels, and the signed-in person's price alert that went down most.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/places",
+          "summary": "The cities and airports the company sells",
+          "description": "The cities of its hotels and the airports of its flights, for the search's suggestions. The app filters them as the person types.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/hotels",
+          "summary": "Search the hotels",
+          "description": "The company's active hotels in `city` (all of them without it), each with its cheapest available room and rate for the dates and guests (`price`, the whole stay with taxes and fees; null without dates or when nothing is free then). `sort`: `recommended` (featured first, then the best rated), `price`, `score`, `stars`. The filters keep hotels with a rate of free cancellation, a rate paid at the hotel, a score of at least `min_score`, every amenity named. A signed-in person sees the member price where the company gives one.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/hotels/{hotel_id}",
+          "summary": "A hotel, with its rooms for the dates",
+          "description": "Its photos, scores, amenities, place and rules, and each of its rooms with every rate's price for the dates and guests (null prices without dates). `left` is how many rooms of the type are still free at that price when only a few are.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/flights",
+          "summary": "Search the flights",
+          "description": "The company's flights from `from` to `to` on `depart` (with `return`, each paired with a flight back on that day), each option with its fares for one person (the light, standard and flex fares the company sells on them, the same fare both ways). The best (price and time together) first; `tags` name the best, the cheapest and the fastest. `price_level` says how the cheapest price compares with the route's usual prices over the coming weeks.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/flights/calendar",
+          "summary": "The price of each day of a month",
+          "description": "For each day of `month`, the cheapest fare for one person leaving that day (with `nights`, and back that many nights later), null when nothing flies; `level` compares it with the month's prices. `tip` is a nearby day cheaper than `depart`, when there is one.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/travel/flights/{flight_id}/seats",
+          "summary": "A flight's seats",
+          "description": "The seat map the company drew for the flight, with the seats already taken. `404` when the flight has none (seats are given at the airport).",
+          "access": "optional"
+        },
+        {
+          "method": "POST",
+          "path": "/travel/quote",
+          "summary": "What a stay, a flight or both would cost",
+          "description": "The price of what the person chose, as the booking would charge it: each line (the nights, the fares, the seats, the extra bags and meals, the airport transfer, the taxes and fees, the member price, the saving of a stay and a flight booked together), the total and how it can be paid. `409` (`not_available`) when a room or a seat is no longer free.",
+          "access": "optional"
+        },
+        {
+          "method": "GET",
+          "path": "/me/travel/saved",
+          "summary": "The hotels the person saved",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/travel/saved/{hotel_id}",
+          "summary": "Save a hotel",
+          "description": null,
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me/travel/saved/{hotel_id}",
+          "summary": "Remove a saved hotel",
+          "description": "A hotel the person hasn't saved, and that isn't one of this app's, is not found.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/travel/bookings",
+          "summary": "The person's bookings",
+          "description": "`upcoming`: not over yet (the soonest first), cancelled ones left out; `past`: over or cancelled (the latest first).",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/bookings",
+          "summary": "Book a stay, a flight or both",
+          "description": "Books what the person chose (one stay, a flight there and maybe back, or both as one trip with one price), for the travellers named (one per seat). `payment: now` holds the rooms and seats for 30 minutes while the person pays on the company's payment page (`POST /me/travel/bookings/{booking_id}/pay`), into the company's own account; then the booking is confirmed, or released. `at_hotel`, for a stay alone at a hotel that takes it, is confirmed at once and paid at the hotel. `409`: `not_available` (a room or seat was taken meanwhile), `payment_not_offered`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/travel/bookings/{booking_id}",
+          "summary": "A booking, its trip in one place",
+          "description": "The stay, the flights with their live status (as the company updates them), the transfer, the travellers, what was paid and what can still be changed or cancelled.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/bookings/{booking_id}/pay",
+          "summary": "Pay a booking",
+          "description": "For a booking with something to pay now (`payment.due`), the company's payment page (good for 60 minutes). `not_payable` (409) otherwise.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/bookings/{booking_id}/cancel",
+          "summary": "Cancel a booking",
+          "description": "While nothing of it has started. A stay is free to cancel until its rate's free cancellation ends, then not refunded; a flight's fare is refunded less its fee when the fare allows it, else not. What was paid online and is refunded shows in `cancellation.refund`; the company refunds it from its payment account. `not_cancellable` (409) otherwise.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/bookings/{booking_id}/change",
+          "summary": "Change a booking's dates or flight",
+          "description": "New dates for the stay (while its free cancellation lasts and the room is free on them), or another flight on the same route for one leg (when its fare allows changes, for the fare's change fee). The price is worked out again; more to pay shows in `payment.due` (paid with `/pay`), less is refunded by the company. `not_changeable` or `not_available` (409) otherwise.",
+          "access": "signed-in"
+        },
+        {
+          "method": "PUT",
+          "path": "/me/travel/bookings/{booking_id}/seats",
+          "summary": "Choose or change seats",
+          "description": "One seat per traveller on the leg (null leaves one to the airport), each free on the flight's map. A seat with extra legroom costs the company's price, and a light fare pays its seat fee; the difference shows in `payment.due`.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/travel/bookings/{booking_id}/passes",
+          "summary": "The boarding passes",
+          "description": "One per traveller and flight once check-in is open (the company opens it, or 48 hours before the flight leaves) for a confirmed, paid booking; `code` is what the QR code holds. The app keeps them to show without a connection. `not_open` (409) before.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/bookings/{booking_id}/review",
+          "summary": "Review the stay",
+          "description": "Once, after check-out, within 30 days. The scores (1 to 10) count in the hotel's scores; the text is shown on the hotel's page with the first name.",
+          "access": "signed-in"
+        },
+        {
+          "method": "GET",
+          "path": "/me/travel/alerts",
+          "summary": "The person's price alerts",
+          "description": "Each with today's price and how it moved since the alert was made, and a word on booking now when few seats are left; an \"anywhere\" alert with how many destinations are under its price.",
+          "access": "signed-in"
+        },
+        {
+          "method": "POST",
+          "path": "/me/travel/alerts",
+          "summary": "Watch a route's price",
+          "description": "A route (with `to`), a stay and flight to a city (`kind` trip), or anywhere under a price (`to` null, `max_price`). The person is told on their phone when the price goes down. At most 20.",
+          "access": "signed-in"
+        },
+        {
+          "method": "DELETE",
+          "path": "/me/travel/alerts/{alert_id}",
+          "summary": "Stop an alert",
+          "description": null,
+          "access": "signed-in"
+        }
+      ]
+    },
+    {
       "name": "Rides",
       "description": "Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the pickup and the drop-off, sees each of the company's vehicle types with its fare (`POST /rides/estimate`) and asks for a ride now or, when the company allows it, at a later time (`POST /rides`). The company's drivers get the request one at a time, nearest first, each with a few seconds to accept (`RidesConfig.matching`), or the company gives it to a driver from the dashboard. The rider follows the driver to the pickup and along the ride on the map, can share the ride with a link, call the company's emergency number, cancel (with the company's fee once the free minutes after a driver accepted are over), pay the fare in cash to the driver or by card on the company's payment page, and rate the driver. Fares, fees and the company's share are the company's: Yallapp sets none of them.",
       "endpoints": [

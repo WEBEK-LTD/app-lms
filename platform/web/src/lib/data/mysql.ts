@@ -60,6 +60,26 @@ import type {
 } from "./types";
 import { dishNamesOf } from "../food/menu";
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
+import type {
+  TravelAlert,
+  TravelAlertInput,
+  TravelBooking,
+  TravelBookingInput,
+  TravelBookingPatch,
+  TravelBookingQuery,
+  TravelBookingStatus,
+  TravelFlight,
+  TravelFlightInput,
+  TravelHotel,
+  TravelHotelInput,
+  TravelReview,
+  TravelReviewInput,
+  TravelRoom,
+  TravelRoomInput,
+  TravelSettings,
+} from "./types";
+import { holdsOf, holdsOn } from "../travel/holds";
+import { alertData, bookingColumns, bookingData, flightData, hotelData, reviewData, roomData, type TravelAlertData, type TravelBookingData, type TravelFlightData, type TravelHotelData, type TravelReviewData, type TravelRoomData } from "../travel/rows";
 import type { AppDeletion, AppDeletionStatus, KeptBillingRecord } from "./types";
 import type { CourierAccount, CourierChallenge, CourierDevice, CourierDevicePatch } from "./types";
 // 114 Email campaigns
@@ -249,6 +269,8 @@ import type { Campaign, CampaignInput, Donation, DonationInput, DonationPatch, D
 import type { Listing, ListingFavorite, ListingInput, ListingInquiry, ListingInquiryMessage, ListingInquiryRow, ListingInquiryStatus, ListingSettings } from "./types";
 
 type Db = MySql2Database<typeof schema>;
+/** 126 A transaction, for the helpers that run inside one. */
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 /** 27 Rolls a class booking back when the class has no spot left. */
 class ClassFullError extends Error {}
@@ -7028,7 +7050,7 @@ export class MysqlStore implements DataStore {
     const s = schema;
     // Each statement is limited to these apps (all the demo apps at once: one query per table); messages and refresh tokens cascade.
     const ids = typeof appId === "string" ? [appId] : [...new Set(appId)];
-    if (ids.length === 0) return { teacherFollows: 0, teacherReviews: 0, shipments: 0, foodOrders: 0, rides: 0, questions: 0, reviews: 0, donations: 0, orders: 0, appointments: 0, inquiries: 0, favorites: 0, enrollments: 0, progress: 0, devices: 0, notifications: 0, classBookings: 0, memberships: 0, tickets: 0 };
+    if (ids.length === 0) return { travelBookings: 0, teacherFollows: 0, teacherReviews: 0, shipments: 0, foodOrders: 0, rides: 0, questions: 0, reviews: 0, donations: 0, orders: 0, appointments: 0, inquiries: 0, favorites: 0, enrollments: 0, progress: 0, devices: 0, notifications: 0, classBookings: 0, memberships: 0, tickets: 0 };
     // 28 Tickets first: a ticket of a deleted order goes with it.
     const [tickets] = await this.run((db) => db.delete(s.eventTickets).where(and(inArray(s.eventTickets.appId, ids), lt(s.eventTickets.createdAt, before))));
     const [orders] = await this.run((db) => db.delete(s.catalogOrders).where(and(inArray(s.catalogOrders.appId, ids), lt(s.catalogOrders.createdAt, before))));
@@ -7083,7 +7105,14 @@ export class MysqlStore implements DataStore {
     // 110.5 Teachers visitors followed and rated.
     const [teacherFollows] = await this.run((db) => db.delete(s.teacherFollows).where(and(inArray(s.teacherFollows.appId, ids), lt(s.teacherFollows.createdAt, before))));
     const [teacherReviews] = await this.run((db) => db.delete(s.teacherReviews).where(and(inArray(s.teacherReviews.appId, ids), lt(s.teacherReviews.createdAt, before))));
+    // 126 Visitors' travel bookings, saved hotels and alerts (the company's own sample bookings stay).
+    const [travelBookings] = await this.run((db) =>
+      db.delete(s.travelBookings).where(and(inArray(s.travelBookings.appId, ids), eq(s.travelBookings.sample, false), lt(s.travelBookings.createdAt, before))),
+    );
+    await this.run((db) => db.delete(s.travelSaved).where(and(inArray(s.travelSaved.appId, ids), lt(s.travelSaved.createdAt, before))));
+    await this.run((db) => db.delete(s.travelAlerts).where(and(inArray(s.travelAlerts.appId, ids), lt(s.travelAlerts.createdAt, before))));
     return {
+      travelBookings: travelBookings.affectedRows,
       teacherFollows: teacherFollows.affectedRows,
       teacherReviews: teacherReviews.affectedRows,
       shipments: shipments.affectedRows,
@@ -7104,6 +7133,400 @@ export class MysqlStore implements DataStore {
       memberships: memberships.affectedRows,
       tickets: tickets.affectedRows,
     };
+  }
+
+  // 126 Travel: hotels and flights
+
+  async getTravelSettings(appId: string): Promise<TravelSettings | null> {
+    const t = schema.travelSettings;
+    const [row] = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).limit(1));
+    return row?.settings ?? null;
+  }
+
+  async saveTravelSettings(appId: string, settings: TravelSettings, now: Date): Promise<void> {
+    const t = schema.travelSettings;
+    await this.run((db) => db.insert(t).values({ appId, settings, updatedAt: now }).onDuplicateKeyUpdate({ set: { settings, updatedAt: now } }));
+  }
+
+  private travelHotelOf(row: typeof schema.travelHotels.$inferSelect): TravelHotel {
+    return { ...row.data, id: row.id, appId: row.appId, position: row.position, active: row.active, sample: row.sample, createdAt: row.createdAt, updatedAt: row.updatedAt };
+  }
+
+  async listTravelHotels(appId: string): Promise<TravelHotel[]> {
+    const t = schema.travelHotels;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.position), asc(t.id)));
+    return rows.map((r) => this.travelHotelOf(r));
+  }
+
+  async getTravelHotel(appId: string, id: number): Promise<TravelHotel | null> {
+    const t = schema.travelHotels;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.travelHotelOf(row) : null;
+  }
+
+  async createTravelHotel(input: TravelHotelInput, now: Date): Promise<TravelHotel> {
+    const [result] = await this.run((db) =>
+      db.insert(schema.travelHotels).values({ appId: input.appId, position: input.position, active: input.active, sample: input.sample, data: hotelData(input) as TravelHotelData, createdAt: now, updatedAt: now }),
+    );
+    return { ...input, id: Number(result.insertId), createdAt: now, updatedAt: now };
+  }
+
+  async updateTravelHotel(appId: string, id: number, patch: Partial<TravelHotelInput>, now: Date): Promise<void> {
+    const current = await this.getTravelHotel(appId, id);
+    if (!current) return;
+    const next = { ...current, ...patch, id, appId };
+    const t = schema.travelHotels;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ position: next.position, active: next.active, sample: next.sample, data: hotelData(next) as TravelHotelData, updatedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteTravelHotel(appId: string, id: number): Promise<void> {
+    // Its rooms, reviews and saves go with it (foreign keys).
+    const t = schema.travelHotels;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  private travelRoomOf(row: typeof schema.travelRooms.$inferSelect): TravelRoom {
+    return { ...row.data, id: row.id, appId: row.appId, hotelId: row.hotelId, position: row.position, active: row.active, sample: row.sample, createdAt: row.createdAt, updatedAt: row.updatedAt };
+  }
+
+  async listTravelRooms(appId: string, hotelId?: number): Promise<TravelRoom[]> {
+    const t = schema.travelRooms;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), hotelId === undefined ? undefined : eq(t.hotelId, hotelId)))
+        .orderBy(asc(t.hotelId), asc(t.position), asc(t.id)),
+    );
+    return rows.map((r) => this.travelRoomOf(r));
+  }
+
+  async getTravelRoom(appId: string, id: number): Promise<TravelRoom | null> {
+    const t = schema.travelRooms;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.travelRoomOf(row) : null;
+  }
+
+  async createTravelRoom(input: TravelRoomInput, now: Date): Promise<TravelRoom> {
+    const [result] = await this.run((db) =>
+      db
+        .insert(schema.travelRooms)
+        .values({ appId: input.appId, hotelId: input.hotelId, position: input.position, active: input.active, sample: input.sample, data: roomData(input) as TravelRoomData, createdAt: now, updatedAt: now }),
+    );
+    return { ...input, id: Number(result.insertId), createdAt: now, updatedAt: now };
+  }
+
+  async updateTravelRoom(appId: string, id: number, patch: Partial<TravelRoomInput>, now: Date): Promise<void> {
+    const current = await this.getTravelRoom(appId, id);
+    if (!current) return;
+    const next = { ...current, ...patch, id, appId, hotelId: current.hotelId };
+    const t = schema.travelRooms;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ position: next.position, active: next.active, sample: next.sample, data: roomData(next) as TravelRoomData, updatedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteTravelRoom(appId: string, id: number): Promise<void> {
+    const t = schema.travelRooms;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  private travelFlightOf(row: typeof schema.travelFlights.$inferSelect): TravelFlight {
+    return { ...row.data, id: row.id, appId: row.appId, departs: row.departs, active: row.active, sample: row.sample, createdAt: row.createdAt, updatedAt: row.updatedAt };
+  }
+
+  async listTravelFlights(appId: string): Promise<TravelFlight[]> {
+    const t = schema.travelFlights;
+    const rows = await this.run((db) => db.select().from(t).where(eq(t.appId, appId)).orderBy(asc(t.departs), asc(t.id)));
+    return rows.map((r) => this.travelFlightOf(r));
+  }
+
+  async getTravelFlight(appId: string, id: number): Promise<TravelFlight | null> {
+    const t = schema.travelFlights;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    return row ? this.travelFlightOf(row) : null;
+  }
+
+  async createTravelFlight(input: TravelFlightInput, now: Date): Promise<TravelFlight> {
+    const [result] = await this.run((db) =>
+      db
+        .insert(schema.travelFlights)
+        .values({ appId: input.appId, departs: input.departs, active: input.active, sample: input.sample, data: flightData(input) as TravelFlightData, createdAt: now, updatedAt: now }),
+    );
+    return { ...input, id: Number(result.insertId), createdAt: now, updatedAt: now };
+  }
+
+  async updateTravelFlight(appId: string, id: number, patch: Partial<TravelFlightInput>, now: Date): Promise<void> {
+    const current = await this.getTravelFlight(appId, id);
+    if (!current) return;
+    const next = { ...current, ...patch, id, appId };
+    const t = schema.travelFlights;
+    await this.run((db) =>
+      db
+        .update(t)
+        .set({ departs: next.departs, active: next.active, sample: next.sample, data: flightData(next) as TravelFlightData, updatedAt: now })
+        .where(and(eq(t.appId, appId), eq(t.id, id))),
+    );
+  }
+
+  async deleteTravelFlight(appId: string, id: number): Promise<void> {
+    const t = schema.travelFlights;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  private travelBookingOf(row: typeof schema.travelBookings.$inferSelect): TravelBooking {
+    return {
+      ...row.data,
+      id: row.id,
+      appId: row.appId,
+      userId: row.userId,
+      reference: row.reference,
+      status: row.status,
+      holdUntil: row.holdUntil,
+      sample: row.sample,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  private travelBookingValues(booking: Omit<TravelBooking, "id">) {
+    return {
+      appId: booking.appId,
+      userId: booking.userId,
+      reference: booking.reference,
+      status: booking.status,
+      ...bookingColumns(booking),
+      holdUntil: booking.holdUntil,
+      sample: booking.sample,
+      data: bookingData(booking) as TravelBookingData,
+      createdAt: booking.createdAt,
+      updatedAt: booking.updatedAt,
+    };
+  }
+
+  /** Locks the room's and the flights' rows, then reads the bookings holding them now (not `except`). */
+  private async travelHoldsLocked(tx: Tx, appId: string, on: { roomId?: number; from?: string; to?: string; flightIds?: number[] }, now: Date, except?: number): Promise<TravelBooking[]> {
+    const b = schema.travelBookings;
+    const flightIds = on.flightIds ?? [];
+    if (on.roomId !== undefined) {
+      await tx.select({ id: schema.travelRooms.id }).from(schema.travelRooms).where(and(eq(schema.travelRooms.appId, appId), eq(schema.travelRooms.id, on.roomId))).for("update");
+    }
+    if (flightIds.length) {
+      await tx.select({ id: schema.travelFlights.id }).from(schema.travelFlights).where(and(eq(schema.travelFlights.appId, appId), inArray(schema.travelFlights.id, flightIds))).for("update");
+    }
+    const which: SQL[] = [];
+    if (on.roomId !== undefined) which.push(and(eq(b.roomId, on.roomId), lt(b.checkIn, on.to ?? "9999-12-31"), gt(b.checkOut, on.from ?? "0000-01-01"))!);
+    if (flightIds.length) which.push(or(inArray(b.outFlightId, flightIds), inArray(b.inFlightId, flightIds))!);
+    if (!which.length) return [];
+    const rows = await tx
+      .select()
+      .from(b)
+      .where(and(eq(b.appId, appId), inArray(b.status, ["awaiting_payment", "confirmed", "completed"]), or(...which), except === undefined ? undefined : ne(b.id, except)));
+    return rows.map((r) => this.travelBookingOf(r)).filter((booking) => holdsOn(booking, on, now));
+  }
+
+  async createTravelBooking(input: TravelBookingInput, check: (others: TravelBooking[]) => string | null, now: Date): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }> {
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const refused = check(await this.travelHoldsLocked(tx, input.appId, holdsOf(input), now));
+        if (refused) return { ok: false as const, reason: refused };
+        const [result] = await tx.insert(schema.travelBookings).values(this.travelBookingValues(input));
+        return { ok: true as const, booking: { ...input, id: Number(result.insertId) } };
+      }),
+    );
+  }
+
+  async updateTravelBooking(
+    appId: string,
+    id: number,
+    patch: TravelBookingPatch,
+    expect: { statuses: TravelBookingStatus[]; check?: (others: TravelBooking[], next: TravelBooking) => string | null },
+    now: Date,
+  ): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }> {
+    const b = schema.travelBookings;
+    return this.run((db) =>
+      db.transaction(async (tx) => {
+        const [row] = await tx
+          .select()
+          .from(b)
+          .where(and(eq(b.appId, appId), eq(b.id, id)))
+          .for("update");
+        if (!row) return { ok: false as const, reason: "not_found" };
+        const current = this.travelBookingOf(row);
+        if (!expect.statuses.includes(current.status)) return { ok: false as const, reason: "invalid_status" };
+        const next: TravelBooking = { ...current, ...patch, id, appId, createdAt: current.createdAt, updatedAt: now };
+        if (expect.check) {
+          const refused = expect.check(await this.travelHoldsLocked(tx, appId, holdsOf(next), now, id), next);
+          if (refused) return { ok: false as const, reason: refused };
+        }
+        const { appId: _app, createdAt: _created, ...values } = this.travelBookingValues(next);
+        void _app;
+        void _created;
+        await tx.update(b).set(values).where(and(eq(b.appId, appId), eq(b.id, id)));
+        return { ok: true as const, booking: next };
+      }),
+    );
+  }
+
+  async getTravelBooking(appId: string, id: number): Promise<TravelBooking | null> {
+    const b = schema.travelBookings;
+    const [row] = await this.run((db) => db.select().from(b).where(and(eq(b.appId, appId), eq(b.id, id))).limit(1));
+    return row ? this.travelBookingOf(row) : null;
+  }
+
+  async listTravelBookings(query: TravelBookingQuery): Promise<{ items: TravelBooking[]; total: number }> {
+    const b = schema.travelBookings;
+    const search = query.search?.trim() ?? "";
+    const where = and(
+      eq(b.appId, query.appId),
+      query.userId === undefined ? undefined : eq(b.userId, query.userId),
+      query.statuses ? inArray(b.status, query.statuses) : undefined,
+      query.hotelId === undefined ? undefined : eq(b.hotelId, query.hotelId),
+      query.flightId === undefined ? undefined : or(eq(b.outFlightId, query.flightId), eq(b.inFlightId, query.flightId)),
+      search ? or(like(b.reference, `%${search.replace(/[%_\\]/g, "\\$&")}%`), like(b.data, `%${search.replace(/[%_\\"]/g, "\\$&")}%`)) : undefined,
+    );
+    const [rows, [total]] = await Promise.all([
+      this.run((db) =>
+        db
+          .select()
+          .from(b)
+          .where(where)
+          .orderBy(desc(b.createdAt), desc(b.id))
+          .limit(query.perPage)
+          .offset((query.page - 1) * query.perPage),
+      ),
+      this.run((db) => db.select({ n: count() }).from(b).where(where)),
+    ]);
+    return { items: rows.map((r) => this.travelBookingOf(r)), total: total?.n ?? 0 };
+  }
+
+  async listTravelHolds(appId: string, on: { roomId?: number; from?: string; to?: string; flightIds?: number[] }, now: Date): Promise<TravelBooking[]> {
+    const b = schema.travelBookings;
+    const flightIds = on.flightIds ?? [];
+    const which: SQL[] = [];
+    if (on.roomId !== undefined) which.push(and(eq(b.roomId, on.roomId), lt(b.checkIn, on.to ?? "9999-12-31"), gt(b.checkOut, on.from ?? "0000-01-01"))!);
+    if (flightIds.length) which.push(or(inArray(b.outFlightId, flightIds), inArray(b.inFlightId, flightIds))!);
+    if (!which.length) return [];
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(b)
+        .where(and(eq(b.appId, appId), inArray(b.status, ["awaiting_payment", "confirmed", "completed"]), or(...which))),
+    );
+    return rows.map((r) => this.travelBookingOf(r)).filter((booking) => holdsOn(booking, on, now));
+  }
+
+  private travelReviewOf(row: typeof schema.travelReviews.$inferSelect): TravelReview {
+    return { ...row.data, id: row.id, appId: row.appId, hotelId: row.hotelId, bookingId: row.bookingId, userId: row.userId, hidden: row.hidden, createdAt: row.createdAt };
+  }
+
+  async addTravelReview(input: TravelReviewInput): Promise<TravelReview | null> {
+    try {
+      const [result] = await this.run((db) =>
+        db.insert(schema.travelReviews).values({
+          appId: input.appId,
+          hotelId: input.hotelId,
+          bookingId: input.bookingId,
+          userId: input.userId,
+          hidden: input.hidden,
+          data: reviewData(input) as TravelReviewData,
+          createdAt: input.createdAt,
+        }),
+      );
+      return { ...input, id: Number(result.insertId) };
+    } catch (error) {
+      // The booking's review is already there (the unique key).
+      if ((error as { errno?: number }).errno === 1062 || (error as { cause?: { errno?: number } }).cause?.errno === 1062) return null;
+      throw error;
+    }
+  }
+
+  async listTravelReviews(appId: string, hotelId?: number): Promise<TravelReview[]> {
+    const t = schema.travelReviews;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), hotelId === undefined ? undefined : eq(t.hotelId, hotelId)))
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+    return rows.map((r) => this.travelReviewOf(r));
+  }
+
+  async getTravelReviewOfBooking(appId: string, bookingId: number): Promise<TravelReview | null> {
+    const t = schema.travelReviews;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.bookingId, bookingId))).limit(1));
+    return row ? this.travelReviewOf(row) : null;
+  }
+
+  async setTravelReviewHidden(appId: string, id: number, hidden: boolean): Promise<void> {
+    const t = schema.travelReviews;
+    await this.run((db) => db.update(t).set({ hidden }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async listTravelSaved(appId: string, userId: number): Promise<number[]> {
+    const t = schema.travelSaved;
+    const rows = await this.run((db) =>
+      db
+        .select({ hotelId: t.hotelId })
+        .from(t)
+        .where(and(eq(t.appId, appId), eq(t.userId, userId)))
+        .orderBy(desc(t.createdAt)),
+    );
+    return rows.map((r) => r.hotelId);
+  }
+
+  async setTravelSaved(appId: string, userId: number, hotelId: number, saved: boolean, now: Date): Promise<void> {
+    const t = schema.travelSaved;
+    if (!saved) {
+      await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.hotelId, hotelId))));
+      return;
+    }
+    await this.run((db) => db.insert(t).values({ appId, userId, hotelId, createdAt: now }).onDuplicateKeyUpdate({ set: { hotelId } }));
+  }
+
+  private travelAlertOf(row: typeof schema.travelAlerts.$inferSelect): TravelAlert {
+    return { ...row.data, id: row.id, appId: row.appId, userId: row.userId, createdAt: row.createdAt, updatedAt: row.updatedAt };
+  }
+
+  async listTravelAlerts(appId: string, userId?: number): Promise<TravelAlert[]> {
+    const t = schema.travelAlerts;
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(and(eq(t.appId, appId), userId === undefined ? undefined : eq(t.userId, userId)))
+        .orderBy(desc(t.createdAt), desc(t.id)),
+    );
+    return rows.map((r) => this.travelAlertOf(r));
+  }
+
+  async createTravelAlert(input: TravelAlertInput): Promise<TravelAlert> {
+    const [result] = await this.run((db) =>
+      db.insert(schema.travelAlerts).values({ appId: input.appId, userId: input.userId, data: alertData(input) as TravelAlertData, createdAt: input.createdAt, updatedAt: input.updatedAt }),
+    );
+    return { ...input, id: Number(result.insertId) };
+  }
+
+  async updateTravelAlert(appId: string, id: number, patch: Partial<Pick<TravelAlert, "lastCents" | "updatedAt">>): Promise<void> {
+    const t = schema.travelAlerts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.appId, appId), eq(t.id, id))).limit(1));
+    if (!row) return;
+    const next = { ...this.travelAlertOf(row), ...patch };
+    await this.run((db) => db.update(t).set({ data: alertData(next) as TravelAlertData, updatedAt: next.updatedAt }).where(and(eq(t.appId, appId), eq(t.id, id))));
+  }
+
+  async deleteTravelAlert(appId: string, userId: number, id: number): Promise<void> {
+    const t = schema.travelAlerts;
+    await this.run((db) => db.delete(t).where(and(eq(t.appId, appId), eq(t.userId, userId), eq(t.id, id))));
   }
 
   // 14.1 We publish for you

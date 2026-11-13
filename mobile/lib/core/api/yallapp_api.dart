@@ -1039,6 +1039,17 @@ abstract class YallappApi {
   /// 115.16 The complaints the app's support shared with the vendor.
   Future<List<VendorComplaint>> listVendorComplaints();
 
+  /// 126 Travel: the hosted API's /travel and /me/travel endpoints, as they
+  /// answer (lib/modules/travel/data/travel_api.dart types them). [signedIn]
+  /// for the person's own (`/me/travel`).
+  Future<dynamic> travel(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  });
+
   // 105.2 Ride hailing.
   Future<RideEstimate> estimateRide(RideRequest request);
   Future<Ride> requestRide(RideRequest request);
@@ -3618,6 +3629,24 @@ class HttpYallappApi implements YallappApi {
     '/vendor/complaints',
     _required,
     (json) => reqListOf(json, 'items', VendorComplaint.fromJson),
+  );
+
+  // 126 Travel.
+
+  @override
+  Future<dynamic> travel(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  }) => _send(
+    method,
+    path,
+    signedIn ? _required : _optional,
+    (data) => data,
+    body: body,
+    query: query,
   );
 
   // 105.2 Ride hailing.

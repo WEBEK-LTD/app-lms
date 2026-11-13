@@ -1,0 +1,1079 @@
+{
+ "screens": {
+  "sign_in": {
+   "style": "photo",
+   "image_url": "http://localhost:3000/demo-screens/safra-caldera.jpg",
+   "title": {
+    "en": "Where does the next story begin?",
+    "ar": "من أين تبدأ حكايتك القادمة؟",
+    "tr": "Sıradaki hikâye nerede başlıyor?"
+   },
+   "subtitle": {
+    "en": "Sign in to book hotels and flights, together for one price.",
+    "ar": "سجّل الدخول لتحجز الفنادق والطيران معًا بسعر واحد.",
+    "tr": "Otelleri ve uçuşları tek fiyata birlikte ayırtmak için giriş yapın."
+   },
+   "show_logo": true
+  },
+  "account_menu": {
+   "header": "night",
+   "accent": "#C9A063",
+   "items": []
+  }
+ },
+ "layout": {
+  "appearance": {
+   "template": "classic",
+   "theme_mode": "system",
+   "user_can_change_mode": true,
+   "secondary_color": "#C9A063",
+   "font": "Manrope",
+   "corners": "round",
+   "cards": "outlined"
+  },
+  "languages": {
+   "default": "en",
+   "available": [
+    "en",
+    "ar",
+    "tr"
+   ]
+  },
+  "tabs": [
+   {
+    "id": "home",
+    "label": "Explore",
+    "icon": "travel_explore",
+    "target": {
+     "type": "page",
+     "page_slug": "home"
+    },
+    "translations": {
+     "ar": {
+      "label": "استكشف"
+     },
+     "tr": {
+      "label": "Keşfet"
+     }
+    }
+   },
+   {
+    "id": "stays",
+    "label": "Stays",
+    "icon": "bed",
+    "target": {
+     "type": "page",
+     "page_slug": "stays"
+    },
+    "translations": {
+     "ar": {
+      "label": "الإقامة"
+     },
+     "tr": {
+      "label": "Konaklama"
+     }
+    }
+   },
+   {
+    "id": "flights",
+    "label": "Flights",
+    "icon": "flight",
+    "target": {
+     "type": "page",
+     "page_slug": "flights"
+    },
+    "translations": {
+     "ar": {
+      "label": "الطيران"
+     },
+     "tr": {
+      "label": "Uçuşlar"
+     }
+    }
+   },
+   {
+    "id": "trips",
+    "label": "Trips",
+    "icon": "luggage",
+    "target": {
+     "type": "page",
+     "page_slug": "trips"
+    },
+    "translations": {
+     "ar": {
+      "label": "الرحلات"
+     },
+     "tr": {
+      "label": "Seyahatler"
+     }
+    }
+   },
+   {
+    "id": "account",
+    "label": "Account",
+    "icon": "person",
+    "target": {
+     "type": "page",
+     "page_slug": "account"
+    },
+    "translations": {
+     "ar": {
+      "label": "حسابي"
+     },
+     "tr": {
+      "label": "Hesabım"
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "slug": "home",
+    "title": "Home",
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": [],
+    "studio": {
+     "header": {
+      "type": "logo_actions",
+      "buttons": [
+       "menu",
+       "notifications",
+       "account"
+      ],
+      "background": "#0E1424",
+      "color": "#FFFFFF",
+      "dark_background": "#1B2338",
+      "dark_color": "#F4EFE6"
+     },
+     "body": {
+      "id": "demo-1",
+      "type": "column",
+      "gap": 4,
+      "padding": {
+       "bottom": 16
+      },
+      "children": [
+       {
+        "id": "demo-2",
+        "type": "column",
+        "name": "Where does the next story begin?",
+        "gap": 10,
+        "padding": {
+         "top": 24,
+         "end": 18,
+         "bottom": 24,
+         "start": 18
+        },
+        "margin": {
+         "top": 12,
+         "end": 10,
+         "bottom": 12,
+         "start": 10
+        },
+        "radius": 24,
+        "background": "#0E1424",
+        "dark_background": "#1B2338",
+        "color": "#FFFFFF",
+        "children": [
+         {
+          "id": "demo-3",
+          "type": "icon",
+          "icon": "travel_explore",
+          "icon_size": 30,
+          "color": "#C9A063"
+         },
+         {
+          "id": "demo-4",
+          "type": "text",
+          "text": "Where does the next story begin?",
+          "font": {
+           "size": 26,
+           "weight": 700,
+           "line_height": 1.2
+          },
+          "translations": {
+           "ar": {
+            "text": "رحلتك الجاية تبدأ منين؟"
+           },
+           "tr": {
+            "text": "Bir sonraki hikâye nerede başlıyor?"
+           }
+          }
+         },
+         {
+          "id": "demo-5",
+          "type": "text",
+          "text": "Stays, flights, or both as one trip at one price. Your trip and boarding pass stay in the app.",
+          "font": {
+           "size": 14
+          },
+          "opacity": 0.85,
+          "translations": {
+           "ar": {
+            "text": "فنادق وطيران، أو الاتنين في رحلة واحدة بسعر واحد. رحلتك وكارت الصعود جوه الأبلكيشن."
+           },
+           "tr": {
+            "text": "Konaklama, uçuş ya da ikisi tek seyahatte, tek fiyata. Seyahatiniz ve biniş kartınız uygulamada."
+           }
+          }
+         },
+         {
+          "id": "demo-6",
+          "type": "row",
+          "gap": 8,
+          "children": [
+           {
+            "id": "demo-7",
+            "type": "button",
+            "text": "Find a stay",
+            "width": "hug",
+            "height": 44,
+            "radius": 14,
+            "background": "#C9A063",
+            "color": "#0E1424",
+            "font": {
+             "weight": 800,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 18,
+             "bottom": 0,
+             "start": 18
+            },
+            "action": {
+             "type": "screen",
+             "screen": "stays"
+            },
+            "motion": {
+             "press": "shrink"
+            },
+            "translations": {
+             "ar": {
+              "text": "دوّر على فندق"
+             },
+             "tr": {
+              "text": "Konaklama bul"
+             }
+            }
+           },
+           {
+            "id": "demo-8",
+            "type": "button",
+            "text": "Flights",
+            "width": "hug",
+            "height": 44,
+            "radius": 14,
+            "background": "#0E1424",
+            "dark_background": "#1B2338",
+            "border_color": "#FFFFFF",
+            "border_width": 1.5,
+            "color": "#FFFFFF",
+            "font": {
+             "weight": 700,
+             "size": 14
+            },
+            "padding": {
+             "top": 0,
+             "end": 16,
+             "bottom": 0,
+             "start": 16
+            },
+            "action": {
+             "type": "screen",
+             "screen": "flights"
+            },
+            "translations": {
+             "ar": {
+              "text": "الطيران"
+             },
+             "tr": {
+              "text": "Uçuşlar"
+             }
+            }
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "id": "demo-9",
+        "type": "column",
+        "name": "Featured stays",
+        "gap": 8,
+        "padding": {
+         "top": 6,
+         "end": 10,
+         "bottom": 6,
+         "start": 10
+        },
+        "children": [
+         {
+          "id": "demo-10",
+          "type": "text",
+          "text": "Featured stays",
+          "font": {
+           "size": 19,
+           "weight": 800
+          },
+          "translations": {
+           "ar": {
+            "text": "إقامات مختارة"
+           },
+           "tr": {
+            "text": "Öne çıkan konaklamalar"
+           }
+          }
+         },
+         {
+          "id": "demo-11",
+          "type": "items",
+          "source": "hotels",
+          "layout": "carousel",
+          "gap": 12,
+          "query": {
+           "limit": 6,
+           "category_id": null,
+           "featured": false,
+           "sort": "newest",
+           "ids": []
+          }
+         }
+        ]
+       },
+       {
+        "id": "demo-12",
+        "type": "row",
+        "gap": 10,
+        "cross": "start",
+        "padding": {
+         "top": 12,
+         "end": 14,
+         "bottom": 12,
+         "start": 14
+        },
+        "margin": {
+         "top": 18,
+         "end": 16,
+         "bottom": 8,
+         "start": 16
+        },
+        "radius": 16,
+        "background": "#FFFFFF",
+        "dark_background": "#1B2338",
+        "border_color": "#E6DFD2",
+        "dark_border_color": "#2A3350",
+        "border_width": 1,
+        "visibility": "signed_out",
+        "children": [
+         {
+          "id": "demo-13",
+          "type": "icon",
+          "icon": "info",
+          "icon_size": 18,
+          "color": "#5F6472",
+          "dark_color": "#B4B8C6"
+         },
+         {
+          "id": "demo-14",
+          "type": "text",
+          "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
+          "width": "fill",
+          "font": {
+           "size": 13,
+           "line_height": 1.45
+          },
+          "color": "#5F6472",
+          "dark_color": "#B4B8C6",
+          "translations": {
+           "ar": {
+            "text": "هذا تطبيق تجريبي. سجّل الدخول بالرقم ⁦+1 202 555 0123⁩ والرمز 246810. يُحذف كل ما تضيفه بعد يوم."
+           },
+           "tr": {
+            "text": "Bu bir demo uygulamasıdır. +1 202 555 0123 numarası ve 246810 koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir."
+           }
+          }
+         }
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "slug": "stays",
+    "title": "Stays",
+    "translations": {
+     "ar": {
+      "title": "الإقامة"
+     },
+     "tr": {
+      "title": "Konaklama"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-15",
+      "type": "column",
+      "children": []
+     },
+     "screen": "stays",
+     "header": {
+      "type": "title",
+      "title": "Stays",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الإقامة"
+       },
+       "tr": {
+        "title": "Konaklama"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flights",
+    "title": "Flights",
+    "translations": {
+     "ar": {
+      "title": "الطيران"
+     },
+     "tr": {
+      "title": "Uçuşlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-16",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flights",
+     "header": {
+      "type": "title",
+      "title": "Flights",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطيران"
+       },
+       "tr": {
+        "title": "Uçuşlar"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "trips",
+    "title": "Trips",
+    "translations": {
+     "ar": {
+      "title": "الرحلات"
+     },
+     "tr": {
+      "title": "Seyahatler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-17",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trips",
+     "header": {
+      "type": "title",
+      "title": "Trips",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الرحلات"
+       },
+       "tr": {
+        "title": "Seyahatler"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "account",
+    "title": "Account",
+    "translations": {
+     "ar": {
+      "title": "حسابي"
+     },
+     "tr": {
+      "title": "Hesabım"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-18",
+      "type": "column",
+      "children": []
+     },
+     "screen": "account",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "messages",
+    "title": "Messages",
+    "translations": {
+     "ar": {
+      "title": "الرسائل"
+     },
+     "tr": {
+      "title": "Mesajlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-19",
+      "type": "column",
+      "children": []
+     },
+     "screen": "messages",
+     "header": {
+      "type": "title",
+      "title": "Messages",
+      "translations": {
+       "ar": {
+        "title": "الرسائل"
+       },
+       "tr": {
+        "title": "Mesajlar"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "settings",
+    "title": "Settings",
+    "translations": {
+     "ar": {
+      "title": "الإعدادات"
+     },
+     "tr": {
+      "title": "Ayarlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-20",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
+     "header": {
+      "type": "title",
+      "title": "Settings",
+      "translations": {
+       "ar": {
+        "title": "الإعدادات"
+       },
+       "tr": {
+        "title": "Ayarlar"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "notifications",
+    "title": "Notifications",
+    "translations": {
+     "ar": {
+      "title": "الإشعارات"
+     },
+     "tr": {
+      "title": "Bildirimler"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-21",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
+     "header": {
+      "type": "title",
+      "title": "Notifications",
+      "translations": {
+       "ar": {
+        "title": "الإشعارات"
+       },
+       "tr": {
+        "title": "Bildirimler"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "edit-profile",
+    "title": "Edit profile",
+    "translations": {
+     "ar": {
+      "title": "تعديل الملف الشخصي"
+     },
+     "tr": {
+      "title": "Profili düzenle"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-22",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
+     "header": {
+      "type": "title",
+      "title": "Edit profile",
+      "translations": {
+       "ar": {
+        "title": "تعديل الملف الشخصي"
+       },
+       "tr": {
+        "title": "Profili düzenle"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "devices",
+    "title": "Devices",
+    "translations": {
+     "ar": {
+      "title": "الأجهزة"
+     },
+     "tr": {
+      "title": "Cihazlar"
+     }
+    },
+    "studio": {
+     "body": {
+      "id": "demo-23",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
+     "header": {
+      "type": "title",
+      "title": "Devices",
+      "translations": {
+       "ar": {
+        "title": "الأجهزة"
+       },
+       "tr": {
+        "title": "Cihazlar"
+       }
+      },
+      "background": "#F7F3EC",
+      "color": "#0E1424",
+      "dark_background": "#0E1424",
+      "dark_color": "#F4EFE6"
+     },
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "change-password",
+    "title": "Change password",
+    "studio": {
+     "body": {
+      "id": "demo-24",
+      "type": "column",
+      "children": []
+     },
+     "screen": "change_password",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "chat-conversation",
+    "title": "A conversation",
+    "studio": {
+     "body": {
+      "id": "demo-25",
+      "type": "column",
+      "children": []
+     },
+     "screen": "chat_conversation",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "travel-hotel",
+    "title": "A hotel's page",
+    "studio": {
+     "body": {
+      "id": "demo-26",
+      "type": "column",
+      "children": []
+     },
+     "screen": "travel_hotel",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-results",
+    "title": "Hotels found",
+    "studio": {
+     "body": {
+      "id": "demo-27",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_results",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-map",
+    "title": "Hotels on the map",
+    "studio": {
+     "body": {
+      "id": "demo-28",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_map",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-rooms",
+    "title": "A hotel's rooms",
+    "studio": {
+     "body": {
+      "id": "demo-29",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_rooms",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "hotel-checkout",
+    "title": "Booking a stay",
+    "studio": {
+     "body": {
+      "id": "demo-30",
+      "type": "column",
+      "children": []
+     },
+     "screen": "hotel_checkout",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-results",
+    "title": "Flights found",
+    "studio": {
+     "body": {
+      "id": "demo-31",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_results",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-fares",
+    "title": "A flight's fares",
+    "studio": {
+     "body": {
+      "id": "demo-32",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_fares",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "price-calendar",
+    "title": "Prices by date",
+    "studio": {
+     "body": {
+      "id": "demo-33",
+      "type": "column",
+      "children": []
+     },
+     "screen": "price_calendar",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "seat-map",
+    "title": "Choosing seats",
+    "studio": {
+     "body": {
+      "id": "demo-34",
+      "type": "column",
+      "children": []
+     },
+     "screen": "seat_map",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "flight-extras",
+    "title": "Bags and meals",
+    "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "flight_extras",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "trip-bundle",
+    "title": "Stay + Flight",
+    "studio": {
+     "body": {
+      "id": "demo-36",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trip_bundle",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "trip-checkout",
+    "title": "Booking a trip",
+    "studio": {
+     "body": {
+      "id": "demo-37",
+      "type": "column",
+      "children": []
+     },
+     "screen": "trip_checkout",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "travel-trip",
+    "title": "A trip",
+    "studio": {
+     "body": {
+      "id": "demo-38",
+      "type": "column",
+      "children": []
+     },
+     "screen": "travel_trip",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "boarding-pass",
+    "title": "Boarding passes",
+    "studio": {
+     "body": {
+      "id": "demo-39",
+      "type": "column",
+      "children": []
+     },
+     "screen": "boarding_pass",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "manage-booking",
+    "title": "Changing a booking",
+    "studio": {
+     "body": {
+      "id": "demo-40",
+      "type": "column",
+      "children": []
+     },
+     "screen": "manage_booking",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   },
+   {
+    "slug": "review-stay",
+    "title": "Reviewing a stay",
+    "studio": {
+     "body": {
+      "id": "demo-41",
+      "type": "column",
+      "children": []
+     },
+     "screen": "review_stay",
+     "background": "#F7F3EC",
+     "dark_background": "#0E1424"
+    },
+    "show_title": false,
+    "updated_at": "2026-11-09T10:00:00.000Z",
+    "blocks": []
+   }
+  ],
+  "tab_bar": {
+   "design": "dot",
+   "active": "#0E1424",
+   "dark_active": "#C9A063"
+  }
+ }
+}

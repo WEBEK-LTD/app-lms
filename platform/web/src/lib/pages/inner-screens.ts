@@ -27,6 +27,7 @@ export interface InnerScreen {
 const t = (en: string, ar: string, tr: string) => ({ en, ar, tr });
 const LMS = ["lms"] as const;
 const SCHOOL = ["school"] as const;
+const TRAVEL = ["travel"] as const;
 
 export const INNER_SCREENS: readonly InnerScreen[] = [
   // Every app's account.
@@ -98,6 +99,23 @@ export const INNER_SCREENS: readonly InnerScreen[] = [
   { id: "uni_results", path: "/school/uni-results", types: SCHOOL, title: t("Results", "النتائج", "Sonuçlar") },
   { id: "uni_transcript", path: "/school/uni-transcript", types: SCHOOL, title: t("Transcript", "كشف الدرجات", "Transkript") },
   { id: "uni_plan", path: "/school/uni-plan", types: SCHOOL, title: t("Study plan", "الخطة الدراسية", "Ders planı") },
+  // 126 Travel: the hotels, the flights, booking and the trip (each screen's top is its own).
+  { id: "travel_hotel", path: "/travel/hotel/:id", types: TRAVEL, title: null },
+  { id: "hotel_results", path: "/travel/hotels", types: TRAVEL, title: null },
+  { id: "hotel_map", path: "/travel/hotel-map", types: TRAVEL, title: null },
+  { id: "hotel_rooms", path: "/travel/hotel/:id/rooms", types: TRAVEL, title: null },
+  { id: "hotel_checkout", path: "/travel/checkout", types: TRAVEL, title: null },
+  { id: "flight_results", path: "/travel/flights", types: TRAVEL, title: null },
+  { id: "flight_fares", path: "/travel/fares", types: TRAVEL, title: null },
+  { id: "price_calendar", path: "/travel/calendar", types: TRAVEL, title: null },
+  { id: "seat_map", path: "/travel/seats", types: TRAVEL, title: null },
+  { id: "flight_extras", path: "/travel/extras", types: TRAVEL, title: null },
+  { id: "trip_bundle", path: "/travel/bundle", types: TRAVEL, title: null },
+  { id: "trip_checkout", path: "/travel/book", types: TRAVEL, title: null },
+  { id: "travel_trip", path: "/travel/trip/:id", types: TRAVEL, title: null },
+  { id: "boarding_pass", path: "/travel/trip/:id/passes", types: TRAVEL, title: null },
+  { id: "manage_booking", path: "/travel/trip/:id/manage", types: TRAVEL, title: null },
+  { id: "review_stay", path: "/travel/trip/:id/review", types: TRAVEL, title: null },
 ];
 
 export const INNER_SCREEN_IDS = INNER_SCREENS.map((s) => s.id);
@@ -125,6 +143,22 @@ const NAMES: Record<string, string> = {
   teacher_profile: "A teacher's page",
   parent: "Parent",
   school_library_book: "A library book",
+  travel_hotel: "A hotel's page",
+  hotel_results: "Hotels found",
+  hotel_map: "Hotels on the map",
+  hotel_rooms: "A hotel's rooms",
+  hotel_checkout: "Booking a stay",
+  flight_results: "Flights found",
+  flight_fares: "A flight's fares",
+  price_calendar: "Prices by date",
+  seat_map: "Choosing seats",
+  flight_extras: "Bags and meals",
+  trip_bundle: "Stay + Flight",
+  trip_checkout: "Booking a trip",
+  travel_trip: "A trip",
+  boarding_pass: "Boarding passes",
+  manage_booking: "Changing a booking",
+  review_stay: "Reviewing a stay",
 };
 
 /** A screen's name in the editor and in messages. */

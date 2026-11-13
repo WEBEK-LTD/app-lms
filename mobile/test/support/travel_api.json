@@ -1,0 +1,1916 @@
+{
+ "config": {
+  "mode": "both",
+  "hotels": true,
+  "flights": true,
+  "currency": "USD",
+  "single_hotel_id": null,
+  "payment": {
+   "now": true,
+   "at_hotel": true
+  },
+  "member_off_percent": 5,
+  "bundle_off_percent": 10,
+  "transfer": {
+   "price": "48.00",
+   "price_formatted": "$48.00",
+   "note": "Driver waits with your name"
+  },
+  "display_font": {
+   "family": "Fraunces",
+   "files": [
+    {
+     "url": "https://yallapp.test/api/v1/fonts/ofl/fraunces/Fraunces%5BSOFT%2CWONK%2Copsz%2Cwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "themes": [
+   "Desert",
+   "Spa"
+  ],
+  "amenities": [
+   {
+    "id": "pool",
+    "icon": "pool"
+   },
+   {
+    "id": "spa",
+    "icon": "spa"
+   },
+   {
+    "id": "wifi",
+    "icon": "wifi"
+   },
+   {
+    "id": "breakfast",
+    "icon": "free_breakfast"
+   },
+   {
+    "id": "shuttle",
+    "icon": "airport_shuttle"
+   }
+  ],
+  "help": {
+   "phone": null,
+   "email": null,
+   "whatsapp": null
+  }
+ },
+ "explore": {
+  "from": {
+   "code": "CAI",
+   "city": "Cairo",
+   "airport": "Cairo International"
+  },
+  "nights": 4,
+  "destinations": [
+   {
+    "city": "Luxor",
+    "country": "Egypt",
+    "code": "LXR",
+    "photo_url": "https://yallapp.test/api/v1/assets/pool-1",
+    "hotels": 2,
+    "stay_from_formatted": "$90.00",
+    "trip_from": "867.00",
+    "trip_from_formatted": "$867.00"
+   }
+  ],
+  "featured": [
+   {
+    "id": 1,
+    "name": "Nile Garden Resort",
+    "kind": "resort",
+    "stars": 5,
+    "city": "Luxor",
+    "country": "Egypt",
+    "area": "West Bank",
+    "landmark": "2.1 km from the Valley of the Kings",
+    "lat": 25.7,
+    "lng": 32.6,
+    "photo_urls": [
+     "https://yallapp.test/api/v1/assets/pool-1",
+     "https://yallapp.test/api/v1/assets/suite-1"
+    ],
+    "score": null,
+    "reviews": 0,
+    "badge": null,
+    "themes": [
+     "Desert",
+     "Spa"
+    ],
+    "amenities": [
+     "pool",
+     "spa",
+     "wifi",
+     "breakfast",
+     "shuttle"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$150.00",
+    "price": null,
+    "saved": false
+   }
+  ],
+  "alert": null
+ },
+ "places": {
+  "cities": [
+   {
+    "city": "Luxor",
+    "country": "Egypt",
+    "hotels": 2,
+    "code": "LXR"
+   }
+  ],
+  "airports": [
+   {
+    "code": "CAI",
+    "city": "Cairo",
+    "airport": "Cairo International"
+   },
+   {
+    "code": "LXR",
+    "city": "Luxor",
+    "airport": "Luxor International"
+   }
+  ]
+ },
+ "hotels": {
+  "items": [
+   {
+    "id": 1,
+    "name": "Nile Garden Resort",
+    "kind": "resort",
+    "stars": 5,
+    "city": "Luxor",
+    "country": "Egypt",
+    "area": "West Bank",
+    "landmark": "2.1 km from the Valley of the Kings",
+    "lat": 25.7,
+    "lng": 32.6,
+    "photo_urls": [
+     "https://yallapp.test/api/v1/assets/pool-1",
+     "https://yallapp.test/api/v1/assets/suite-1"
+    ],
+    "score": null,
+    "reviews": 0,
+    "badge": null,
+    "themes": [
+     "Desert",
+     "Spa"
+    ],
+    "amenities": [
+     "pool",
+     "spa",
+     "wifi",
+     "breakfast",
+     "shuttle"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$150.00",
+    "price": {
+     "nights": 3,
+     "total": "506.25",
+     "total_formatted": "$506.25",
+     "nightly_formatted": "$168.75",
+     "was_total_formatted": "$528.75",
+     "member": true
+    },
+    "saved": false
+   },
+   {
+    "id": 2,
+    "name": "Old Town House",
+    "kind": "boutique",
+    "stars": 4,
+    "city": "Luxor",
+    "country": "Egypt",
+    "area": "West Bank",
+    "landmark": "2.1 km from the Valley of the Kings",
+    "lat": 25.7,
+    "lng": 32.6,
+    "photo_urls": [
+     "https://yallapp.test/api/v1/assets/pool-1",
+     "https://yallapp.test/api/v1/assets/suite-1"
+    ],
+    "score": null,
+    "reviews": 0,
+    "badge": null,
+    "themes": [
+     "Desert",
+     "Spa"
+    ],
+    "amenities": [
+     "pool",
+     "spa",
+     "wifi",
+     "breakfast",
+     "shuttle"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$90.00",
+    "price": {
+     "nights": 3,
+     "total": "303.75",
+     "total_formatted": "$303.75",
+     "nightly_formatted": "$101.25",
+     "was_total_formatted": "$317.25",
+     "member": true
+    },
+    "saved": false
+   }
+  ],
+  "total": 2,
+  "nights": 3
+ },
+ "hotel": {
+  "id": 1,
+  "name": "Nile Garden Resort",
+  "kind": "resort",
+  "stars": 5,
+  "city": "Luxor",
+  "country": "Egypt",
+  "area": "West Bank",
+  "landmark": "2.1 km from the Valley of the Kings",
+  "lat": 25.7,
+  "lng": 32.6,
+  "photo_urls": [
+   "https://yallapp.test/api/v1/assets/pool-1",
+   "https://yallapp.test/api/v1/assets/suite-1"
+  ],
+  "score": null,
+  "reviews": 0,
+  "badge": null,
+  "themes": [
+   "Desert",
+   "Spa"
+  ],
+  "amenities": [
+   "pool",
+   "spa",
+   "wifi",
+   "breakfast",
+   "shuttle"
+  ],
+  "free_cancellation": true,
+  "breakfast": true,
+  "pay_at_hotel": true,
+  "member_price": true,
+  "from_nightly_formatted": "$150.00",
+  "price": {
+   "nights": 3,
+   "total": "506.25",
+   "total_formatted": "$506.25",
+   "nightly_formatted": "$168.75",
+   "was_total_formatted": "$528.75",
+   "member": true
+  },
+  "saved": false,
+  "description": "An infinity pool above the river.",
+  "address": "West Bank, Luxor",
+  "phone": "+20 95 000 0000",
+  "check_in_time": "15:00",
+  "check_out_time": "12:00",
+  "policies": null,
+  "scores": {
+   "staff": null,
+   "clean": null,
+   "location": null,
+   "value": null
+  },
+  "quote": null,
+  "reviews_list": [],
+  "nights": 3,
+  "rooms": [
+   {
+    "id": 2,
+    "name": "Deluxe Nile View · King",
+    "description": null,
+    "photo_urls": [
+     "https://yallapp.test/api/v1/assets/bed-1"
+    ],
+    "size_m2": 42,
+    "beds": "King",
+    "sleeps": 2,
+    "features": [
+     "balcony",
+     "rain shower"
+    ],
+    "available": true,
+    "left": 2,
+    "rates": [
+     {
+      "id": "room",
+      "name": "Room only",
+      "board": "room_only",
+      "refundable": false,
+      "free_cancel_until": null,
+      "pay_now": true,
+      "pay_at_hotel": false,
+      "popular": false,
+      "price": {
+       "nights": 3,
+       "total": "506.25",
+       "total_formatted": "$506.25",
+       "nightly_formatted": "$168.75",
+       "was_total_formatted": "$528.75",
+       "member": true
+      }
+     },
+     {
+      "id": "bb",
+      "name": "Breakfast for 2",
+      "board": "breakfast",
+      "refundable": true,
+      "free_cancel_until": "2026-11-12",
+      "pay_now": true,
+      "pay_at_hotel": true,
+      "popular": true,
+      "price": {
+       "nights": 3,
+       "total": "567.00",
+       "total_formatted": "$567.00",
+       "nightly_formatted": "$189.00",
+       "was_total_formatted": "$592.20",
+       "member": true
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "flights": {
+  "items": [
+   {
+    "id": "1-2",
+    "outbound": {
+     "flight_id": 1,
+     "number": "SF 691",
+     "carrier": {
+      "name": "Safra Air",
+      "code": "SF",
+      "color": "#0E1424"
+     },
+     "from": {
+      "code": "CAI",
+      "city": "Cairo",
+      "airport": "Cairo International",
+      "terminal": "3"
+     },
+     "to": {
+      "code": "LXR",
+      "city": "Luxor",
+      "airport": "Luxor International",
+      "terminal": null
+     },
+     "departs": "2026-11-14T10:15",
+     "arrives": "2026-11-14T11:20",
+     "days_later": 0,
+     "minutes": 65,
+     "stops": 0,
+     "via": null,
+     "aircraft": "Airbus A321neo",
+     "amenities": [
+      "wifi",
+      "meal"
+     ],
+     "status": "on_time",
+     "status_note": null,
+     "gate": "B12",
+     "boards_at": "09:35",
+     "delayed_departs": null,
+     "has_seat_map": true
+    },
+    "inbound": {
+     "flight_id": 2,
+     "number": "SF 690",
+     "carrier": {
+      "name": "Safra Air",
+      "code": "SF",
+      "color": "#0E1424"
+     },
+     "from": {
+      "code": "LXR",
+      "city": "Luxor",
+      "airport": "Luxor International",
+      "terminal": null
+     },
+     "to": {
+      "code": "CAI",
+      "city": "Cairo",
+      "airport": "Cairo International",
+      "terminal": "3"
+     },
+     "departs": "2026-11-18T18:40",
+     "arrives": "2026-11-18T19:45",
+     "days_later": 0,
+     "minutes": 65,
+     "stops": 0,
+     "via": null,
+     "aircraft": "Airbus A321neo",
+     "amenities": [
+      "wifi",
+      "meal"
+     ],
+     "status": "scheduled",
+     "status_note": null,
+     "gate": null,
+     "boards_at": null,
+     "delayed_departs": null,
+     "has_seat_map": true
+    },
+    "fares": [
+     {
+      "id": "light",
+      "name": "Light",
+      "price": "240.00",
+      "price_formatted": "$240.00",
+      "available": true,
+      "seats_left": 3,
+      "cabin_kg": 8,
+      "bags": 0,
+      "bag_kg": 0,
+      "change": {
+       "allowed": false,
+       "fee_formatted": null
+      },
+      "refund": {
+       "allowed": false,
+       "fee_formatted": null
+      },
+      "seat": "fee",
+      "priority": false
+     },
+     {
+      "id": "standard",
+      "name": "Classic",
+      "price": "300.00",
+      "price_formatted": "$300.00",
+      "available": true,
+      "seats_left": null,
+      "cabin_kg": 8,
+      "bags": 1,
+      "bag_kg": 23,
+      "change": {
+       "allowed": true,
+       "fee_formatted": "$40.00"
+      },
+      "refund": {
+       "allowed": true,
+       "fee_formatted": "$50.00"
+      },
+      "seat": "standard",
+      "priority": false
+     },
+     {
+      "id": "flex",
+      "name": "Flex",
+      "price": "400.00",
+      "price_formatted": "$400.00",
+      "available": true,
+      "seats_left": 4,
+      "cabin_kg": 8,
+      "bags": 2,
+      "bag_kg": 23,
+      "change": {
+       "allowed": true,
+       "fee_formatted": null
+      },
+      "refund": {
+       "allowed": true,
+       "fee_formatted": null
+      },
+      "seat": "any",
+      "priority": true
+     }
+    ],
+    "from_price": "240.00",
+    "from_price_formatted": "$240.00",
+    "minutes": 130,
+    "tags": [
+     "best",
+     "cheapest",
+     "fastest"
+    ]
+   }
+  ],
+  "best_formatted": "$240.00",
+  "cheapest_formatted": "$240.00",
+  "fastest_minutes": 130,
+  "price_level": null
+ },
+ "calendar": {
+  "month": "2026-11",
+  "days": [
+   {
+    "date": "2026-11-01",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-02",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-03",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-04",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-05",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-06",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-07",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-08",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-09",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-10",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-11",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-12",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-13",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-14",
+    "price": "240.00",
+    "price_formatted": "$240.00",
+    "level": "typical"
+   },
+   {
+    "date": "2026-11-15",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-16",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-17",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-18",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-19",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-20",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-21",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-22",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-23",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-24",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-25",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-26",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-27",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-28",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-29",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   },
+   {
+    "date": "2026-11-30",
+    "price": null,
+    "price_formatted": null,
+    "level": null
+   }
+  ],
+  "tip": null
+ },
+ "seats": {
+  "flight_id": 1,
+  "columns": [
+   "A",
+   "B",
+   "C",
+   "",
+   "D",
+   "E",
+   "F"
+  ],
+  "rows": [
+   {
+    "number": 10,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "10A",
+      "taken": true
+     },
+     {
+      "id": "10B",
+      "taken": false
+     },
+     {
+      "id": "10C",
+      "taken": false
+     },
+     {
+      "id": "10D",
+      "taken": false
+     },
+     {
+      "id": "10E",
+      "taken": false
+     },
+     {
+      "id": "10F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 11,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "11A",
+      "taken": false
+     },
+     {
+      "id": "11B",
+      "taken": false
+     },
+     {
+      "id": "11C",
+      "taken": false
+     },
+     {
+      "id": "11D",
+      "taken": false
+     },
+     {
+      "id": "11E",
+      "taken": false
+     },
+     {
+      "id": "11F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 12,
+    "extra_legroom": true,
+    "seats": [
+     {
+      "id": "12A",
+      "taken": false
+     },
+     {
+      "id": "12B",
+      "taken": false
+     },
+     {
+      "id": "12C",
+      "taken": false
+     },
+     {
+      "id": "12D",
+      "taken": false
+     },
+     {
+      "id": "12E",
+      "taken": false
+     },
+     {
+      "id": "12F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 13,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "13A",
+      "taken": false
+     },
+     {
+      "id": "13B",
+      "taken": false
+     },
+     {
+      "id": "13C",
+      "taken": false
+     },
+     {
+      "id": "13D",
+      "taken": false
+     },
+     {
+      "id": "13E",
+      "taken": false
+     },
+     {
+      "id": "13F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 14,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "14A",
+      "taken": false
+     },
+     {
+      "id": "14B",
+      "taken": false
+     },
+     {
+      "id": "14C",
+      "taken": false
+     },
+     {
+      "id": "14D",
+      "taken": false
+     },
+     {
+      "id": "14E",
+      "taken": false
+     },
+     {
+      "id": "14F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 15,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "15A",
+      "taken": false
+     },
+     {
+      "id": "15B",
+      "taken": false
+     },
+     {
+      "id": "15C",
+      "taken": false
+     },
+     {
+      "id": "15D",
+      "taken": false
+     },
+     {
+      "id": "15E",
+      "taken": false
+     },
+     {
+      "id": "15F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 16,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "16A",
+      "taken": false
+     },
+     {
+      "id": "16B",
+      "taken": false
+     },
+     {
+      "id": "16C",
+      "taken": false
+     },
+     {
+      "id": "16D",
+      "taken": false
+     },
+     {
+      "id": "16E",
+      "taken": false
+     },
+     {
+      "id": "16F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 17,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "17A",
+      "taken": false
+     },
+     {
+      "id": "17B",
+      "taken": false
+     },
+     {
+      "id": "17C",
+      "taken": false
+     },
+     {
+      "id": "17D",
+      "taken": false
+     },
+     {
+      "id": "17E",
+      "taken": false
+     },
+     {
+      "id": "17F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 18,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "18A",
+      "taken": false
+     },
+     {
+      "id": "18B",
+      "taken": false
+     },
+     {
+      "id": "18C",
+      "taken": false
+     },
+     {
+      "id": "18D",
+      "taken": false
+     },
+     {
+      "id": "18E",
+      "taken": false
+     },
+     {
+      "id": "18F",
+      "taken": false
+     }
+    ]
+   },
+   {
+    "number": 19,
+    "extra_legroom": false,
+    "seats": [
+     {
+      "id": "19A",
+      "taken": false
+     },
+     {
+      "id": "19B",
+      "taken": false
+     },
+     {
+      "id": "19C",
+      "taken": false
+     },
+     {
+      "id": "19D",
+      "taken": false
+     },
+     {
+      "id": "19E",
+      "taken": false
+     },
+     {
+      "id": "19F",
+      "taken": false
+     }
+    ]
+   }
+  ],
+  "seat_price_formatted": "$10.00",
+  "extra_price_formatted": "$24.00"
+ },
+ "quote": {
+  "currency": "USD",
+  "lines": [
+   {
+    "kind": "fare",
+    "count": 2,
+    "unit_formatted": "$300.00",
+    "amount": "600.00",
+    "amount_formatted": "$600.00"
+   },
+   {
+    "kind": "bags",
+    "count": 1,
+    "unit_formatted": "$30.00",
+    "amount": "30.00",
+    "amount_formatted": "$30.00"
+   },
+   {
+    "kind": "nights",
+    "count": 4,
+    "unit_formatted": "$168.00",
+    "amount": "672.00",
+    "amount_formatted": "$672.00"
+   },
+   {
+    "kind": "taxes",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "117.60",
+    "amount_formatted": "$117.60"
+   },
+   {
+    "kind": "member",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-33.60",
+    "amount_formatted": "−$33.60"
+   },
+   {
+    "kind": "bundle",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-67.20",
+    "amount_formatted": "−$67.20"
+   },
+   {
+    "kind": "transfer",
+    "count": 1,
+    "unit_formatted": "$48.00",
+    "amount": "48.00",
+    "amount_formatted": "$48.00"
+   }
+  ],
+  "total": "1366.80",
+  "total_formatted": "$1,366.80",
+  "saving_formatted": "$100.80",
+  "refundable": true,
+  "free_cancel_until": "2026-11-12",
+  "payment": {
+   "now": true,
+   "at_hotel": false
+  }
+ },
+ "stayQuote": {
+  "currency": "USD",
+  "lines": [
+   {
+    "kind": "nights",
+    "count": 4,
+    "unit_formatted": "$168.00",
+    "amount": "672.00",
+    "amount_formatted": "$672.00"
+   },
+   {
+    "kind": "taxes",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "117.60",
+    "amount_formatted": "$117.60"
+   },
+   {
+    "kind": "member",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-33.60",
+    "amount_formatted": "−$33.60"
+   }
+  ],
+  "total": "756.00",
+  "total_formatted": "$756.00",
+  "saving_formatted": "$33.60",
+  "refundable": true,
+  "free_cancel_until": "2026-11-12",
+  "payment": {
+   "now": true,
+   "at_hotel": true
+  }
+ },
+ "unpaid": {
+  "id": 1,
+  "reference": "T-SAFRA1",
+  "kind": "trip",
+  "status": "awaiting_payment",
+  "created_at": "2026-10-12T10:01:01.000Z",
+  "hold_until": "2026-10-12T10:31:01.000Z",
+  "starts": "2026-11-14T10:15",
+  "starts_at": "2026-11-14T07:15:00.000Z",
+  "ends": "2026-11-18T19:45",
+  "stay": {
+   "hotel": {
+    "id": 1,
+    "name": "Nile Garden Resort",
+    "city": "Luxor",
+    "photo_url": "https://yallapp.test/api/v1/assets/pool-1",
+    "lat": 25.7,
+    "lng": 32.6,
+    "phone": "+20 95 000 0000",
+    "address": "West Bank, Luxor",
+    "check_in_time": "15:00",
+    "check_out_time": "12:00"
+   },
+   "room_name": "Deluxe Nile View · King",
+   "rate_name": "Breakfast for 2",
+   "board": "breakfast",
+   "check_in": "2026-11-14",
+   "check_out": "2026-11-18",
+   "nights": 4,
+   "guests": 2,
+   "rooms": 1,
+   "refundable": true,
+   "free_cancel_until": "2026-11-12",
+   "can_review": false,
+   "review": null
+  },
+  "flights": [
+   {
+    "flight_id": 1,
+    "number": "SF 691",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SF",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "to": {
+     "code": "LXR",
+     "city": "Luxor",
+     "airport": "Luxor International",
+     "terminal": null
+    },
+    "departs": "2026-11-14T10:15",
+    "arrives": "2026-11-14T11:20",
+    "days_later": 0,
+    "minutes": 65,
+    "stops": 0,
+    "via": null,
+    "aircraft": "Airbus A321neo",
+    "amenities": [
+     "wifi",
+     "meal"
+    ],
+    "status": "on_time",
+    "status_note": null,
+    "gate": "B12",
+    "boards_at": "09:35",
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "out",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     "14A",
+     "14B"
+    ]
+   },
+   {
+    "flight_id": 2,
+    "number": "SF 690",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SF",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "LXR",
+     "city": "Luxor",
+     "airport": "Luxor International",
+     "terminal": null
+    },
+    "to": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "departs": "2026-11-18T18:40",
+    "arrives": "2026-11-18T19:45",
+    "days_later": 0,
+    "minutes": 65,
+    "stops": 0,
+    "via": null,
+    "aircraft": "Airbus A321neo",
+    "amenities": [
+     "wifi",
+     "meal"
+    ],
+    "status": "scheduled",
+    "status_note": null,
+    "gate": null,
+    "boards_at": null,
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "back",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     null,
+     null
+    ]
+   }
+  ],
+  "transfer": {
+   "note": "Driver waits with your name"
+  },
+  "travellers": [
+   {
+    "first_name": "Layla",
+    "last_name": "Hassan"
+   },
+   {
+    "first_name": "Omar",
+    "last_name": "Hassan"
+   }
+  ],
+  "contact": {
+   "name": "Layla Hassan",
+   "email": "layla@example.com",
+   "phone": "+201001112222"
+  },
+  "requests": [
+   "late_arrival"
+  ],
+  "payment": {
+   "method": "now",
+   "status": "unpaid",
+   "paid_formatted": null,
+   "due": "1366.80",
+   "due_formatted": "$1,366.80"
+  },
+  "currency": "USD",
+  "lines": [
+   {
+    "kind": "fare",
+    "count": 2,
+    "unit_formatted": "$300.00",
+    "amount": "600.00",
+    "amount_formatted": "$600.00"
+   },
+   {
+    "kind": "bags",
+    "count": 1,
+    "unit_formatted": "$30.00",
+    "amount": "30.00",
+    "amount_formatted": "$30.00"
+   },
+   {
+    "kind": "nights",
+    "count": 4,
+    "unit_formatted": "$168.00",
+    "amount": "672.00",
+    "amount_formatted": "$672.00"
+   },
+   {
+    "kind": "taxes",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "117.60",
+    "amount_formatted": "$117.60"
+   },
+   {
+    "kind": "member",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-33.60",
+    "amount_formatted": "−$33.60"
+   },
+   {
+    "kind": "bundle",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-67.20",
+    "amount_formatted": "−$67.20"
+   },
+   {
+    "kind": "transfer",
+    "count": 1,
+    "unit_formatted": "$48.00",
+    "amount": "48.00",
+    "amount_formatted": "$48.00"
+   }
+  ],
+  "total": "1366.80",
+  "total_formatted": "$1,366.80",
+  "cancellation": null,
+  "can_cancel": true,
+  "cancel_refund_formatted": null,
+  "can_change": true,
+  "passes_open": false
+ },
+ "booking": {
+  "id": 1,
+  "reference": "T-SAFRA1",
+  "kind": "trip",
+  "status": "confirmed",
+  "created_at": "2026-10-12T10:01:01.000Z",
+  "hold_until": null,
+  "starts": "2026-11-14T10:15",
+  "starts_at": "2026-11-14T07:15:00.000Z",
+  "ends": "2026-11-18T19:45",
+  "stay": {
+   "hotel": {
+    "id": 1,
+    "name": "Nile Garden Resort",
+    "city": "Luxor",
+    "photo_url": "https://yallapp.test/api/v1/assets/pool-1",
+    "lat": 25.7,
+    "lng": 32.6,
+    "phone": "+20 95 000 0000",
+    "address": "West Bank, Luxor",
+    "check_in_time": "15:00",
+    "check_out_time": "12:00"
+   },
+   "room_name": "Deluxe Nile View · King",
+   "rate_name": "Breakfast for 2",
+   "board": "breakfast",
+   "check_in": "2026-11-14",
+   "check_out": "2026-11-18",
+   "nights": 4,
+   "guests": 2,
+   "rooms": 1,
+   "refundable": true,
+   "free_cancel_until": "2026-11-12",
+   "can_review": false,
+   "review": null
+  },
+  "flights": [
+   {
+    "flight_id": 1,
+    "number": "SF 691",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SF",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "to": {
+     "code": "LXR",
+     "city": "Luxor",
+     "airport": "Luxor International",
+     "terminal": null
+    },
+    "departs": "2026-11-14T10:15",
+    "arrives": "2026-11-14T11:20",
+    "days_later": 0,
+    "minutes": 65,
+    "stops": 0,
+    "via": null,
+    "aircraft": "Airbus A321neo",
+    "amenities": [
+     "wifi",
+     "meal"
+    ],
+    "status": "on_time",
+    "status_note": null,
+    "gate": "B12",
+    "boards_at": "09:35",
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "out",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     "14A",
+     "14B"
+    ]
+   },
+   {
+    "flight_id": 2,
+    "number": "SF 690",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SF",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "LXR",
+     "city": "Luxor",
+     "airport": "Luxor International",
+     "terminal": null
+    },
+    "to": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "departs": "2026-11-18T18:40",
+    "arrives": "2026-11-18T19:45",
+    "days_later": 0,
+    "minutes": 65,
+    "stops": 0,
+    "via": null,
+    "aircraft": "Airbus A321neo",
+    "amenities": [
+     "wifi",
+     "meal"
+    ],
+    "status": "scheduled",
+    "status_note": null,
+    "gate": null,
+    "boards_at": null,
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "back",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     null,
+     null
+    ]
+   }
+  ],
+  "transfer": {
+   "note": "Driver waits with your name"
+  },
+  "travellers": [
+   {
+    "first_name": "Layla",
+    "last_name": "Hassan"
+   },
+   {
+    "first_name": "Omar",
+    "last_name": "Hassan"
+   }
+  ],
+  "contact": {
+   "name": "Layla Hassan",
+   "email": "layla@example.com",
+   "phone": "+201001112222"
+  },
+  "requests": [
+   "late_arrival"
+  ],
+  "payment": {
+   "method": "now",
+   "status": "paid",
+   "paid_formatted": "$1,366.80",
+   "due": null,
+   "due_formatted": null
+  },
+  "currency": "USD",
+  "lines": [
+   {
+    "kind": "fare",
+    "count": 2,
+    "unit_formatted": "$300.00",
+    "amount": "600.00",
+    "amount_formatted": "$600.00"
+   },
+   {
+    "kind": "bags",
+    "count": 1,
+    "unit_formatted": "$30.00",
+    "amount": "30.00",
+    "amount_formatted": "$30.00"
+   },
+   {
+    "kind": "nights",
+    "count": 4,
+    "unit_formatted": "$168.00",
+    "amount": "672.00",
+    "amount_formatted": "$672.00"
+   },
+   {
+    "kind": "taxes",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "117.60",
+    "amount_formatted": "$117.60"
+   },
+   {
+    "kind": "member",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-33.60",
+    "amount_formatted": "−$33.60"
+   },
+   {
+    "kind": "bundle",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-67.20",
+    "amount_formatted": "−$67.20"
+   },
+   {
+    "kind": "transfer",
+    "count": 1,
+    "unit_formatted": "$48.00",
+    "amount": "48.00",
+    "amount_formatted": "$48.00"
+   }
+  ],
+  "total": "1366.80",
+  "total_formatted": "$1,366.80",
+  "cancellation": null,
+  "can_cancel": true,
+  "cancel_refund_formatted": "$1,266.80",
+  "can_change": true,
+  "passes_open": true
+ },
+ "bookings": {
+  "items": [
+   {
+    "id": 1,
+    "reference": "T-SAFRA1",
+    "kind": "trip",
+    "status": "confirmed",
+    "created_at": "2026-10-12T10:01:01.000Z",
+    "hold_until": null,
+    "starts": "2026-11-14T10:15",
+    "starts_at": "2026-11-14T07:15:00.000Z",
+    "ends": "2026-11-18T19:45",
+    "stay": {
+     "hotel": {
+      "id": 1,
+      "name": "Nile Garden Resort",
+      "city": "Luxor",
+      "photo_url": "https://yallapp.test/api/v1/assets/pool-1",
+      "lat": 25.7,
+      "lng": 32.6,
+      "phone": "+20 95 000 0000",
+      "address": "West Bank, Luxor",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00"
+     },
+     "room_name": "Deluxe Nile View · King",
+     "rate_name": "Breakfast for 2",
+     "board": "breakfast",
+     "check_in": "2026-11-14",
+     "check_out": "2026-11-18",
+     "nights": 4,
+     "guests": 2,
+     "rooms": 1,
+     "refundable": true,
+     "free_cancel_until": "2026-11-12",
+     "can_review": false,
+     "review": null
+    },
+    "flights": [
+     {
+      "flight_id": 1,
+      "number": "SF 691",
+      "carrier": {
+       "name": "Safra Air",
+       "code": "SF",
+       "color": "#0E1424"
+      },
+      "from": {
+       "code": "CAI",
+       "city": "Cairo",
+       "airport": "Cairo International",
+       "terminal": "3"
+      },
+      "to": {
+       "code": "LXR",
+       "city": "Luxor",
+       "airport": "Luxor International",
+       "terminal": null
+      },
+      "departs": "2026-11-14T10:15",
+      "arrives": "2026-11-14T11:20",
+      "days_later": 0,
+      "minutes": 65,
+      "stops": 0,
+      "via": null,
+      "aircraft": "Airbus A321neo",
+      "amenities": [
+       "wifi",
+       "meal"
+      ],
+      "status": "on_time",
+      "status_note": null,
+      "gate": "B12",
+      "boards_at": "09:35",
+      "delayed_departs": null,
+      "has_seat_map": true,
+      "leg": "out",
+      "fare_id": "standard",
+      "fare_name": "Classic",
+      "seats": [
+       "14A",
+       "14B"
+      ]
+     },
+     {
+      "flight_id": 2,
+      "number": "SF 690",
+      "carrier": {
+       "name": "Safra Air",
+       "code": "SF",
+       "color": "#0E1424"
+      },
+      "from": {
+       "code": "LXR",
+       "city": "Luxor",
+       "airport": "Luxor International",
+       "terminal": null
+      },
+      "to": {
+       "code": "CAI",
+       "city": "Cairo",
+       "airport": "Cairo International",
+       "terminal": "3"
+      },
+      "departs": "2026-11-18T18:40",
+      "arrives": "2026-11-18T19:45",
+      "days_later": 0,
+      "minutes": 65,
+      "stops": 0,
+      "via": null,
+      "aircraft": "Airbus A321neo",
+      "amenities": [
+       "wifi",
+       "meal"
+      ],
+      "status": "scheduled",
+      "status_note": null,
+      "gate": null,
+      "boards_at": null,
+      "delayed_departs": null,
+      "has_seat_map": true,
+      "leg": "back",
+      "fare_id": "standard",
+      "fare_name": "Classic",
+      "seats": [
+       null,
+       null
+      ]
+     }
+    ],
+    "transfer": {
+     "note": "Driver waits with your name"
+    },
+    "travellers": [
+     {
+      "first_name": "Layla",
+      "last_name": "Hassan"
+     },
+     {
+      "first_name": "Omar",
+      "last_name": "Hassan"
+     }
+    ],
+    "contact": {
+     "name": "Layla Hassan",
+     "email": "layla@example.com",
+     "phone": "+201001112222"
+    },
+    "requests": [
+     "late_arrival"
+    ],
+    "payment": {
+     "method": "now",
+     "status": "paid",
+     "paid_formatted": "$1,366.80",
+     "due": null,
+     "due_formatted": null
+    },
+    "currency": "USD",
+    "lines": [
+     {
+      "kind": "fare",
+      "count": 2,
+      "unit_formatted": "$300.00",
+      "amount": "600.00",
+      "amount_formatted": "$600.00"
+     },
+     {
+      "kind": "bags",
+      "count": 1,
+      "unit_formatted": "$30.00",
+      "amount": "30.00",
+      "amount_formatted": "$30.00"
+     },
+     {
+      "kind": "nights",
+      "count": 4,
+      "unit_formatted": "$168.00",
+      "amount": "672.00",
+      "amount_formatted": "$672.00"
+     },
+     {
+      "kind": "taxes",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "117.60",
+      "amount_formatted": "$117.60"
+     },
+     {
+      "kind": "member",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "-33.60",
+      "amount_formatted": "−$33.60"
+     },
+     {
+      "kind": "bundle",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "-67.20",
+      "amount_formatted": "−$67.20"
+     },
+     {
+      "kind": "transfer",
+      "count": 1,
+      "unit_formatted": "$48.00",
+      "amount": "48.00",
+      "amount_formatted": "$48.00"
+     }
+    ],
+    "total": "1366.80",
+    "total_formatted": "$1,366.80",
+    "cancellation": null,
+    "can_cancel": true,
+    "cancel_refund_formatted": "$1,266.80",
+    "can_change": true,
+    "passes_open": true
+   }
+  ],
+  "page": 1,
+  "per_page": 20,
+  "total": 1,
+  "total_pages": 1
+ },
+ "passes": {
+  "items": [
+   {
+    "leg": "out",
+    "flight": {
+     "flight_id": 1,
+     "number": "SF 691",
+     "carrier": {
+      "name": "Safra Air",
+      "code": "SF",
+      "color": "#0E1424"
+     },
+     "from": {
+      "code": "CAI",
+      "city": "Cairo",
+      "airport": "Cairo International",
+      "terminal": "3"
+     },
+     "to": {
+      "code": "LXR",
+      "city": "Luxor",
+      "airport": "Luxor International",
+      "terminal": null
+     },
+     "departs": "2026-11-14T10:15",
+     "arrives": "2026-11-14T11:20",
+     "days_later": 0,
+     "minutes": 65,
+     "stops": 0,
+     "via": null,
+     "aircraft": "Airbus A321neo",
+     "amenities": [
+      "wifi",
+      "meal"
+     ],
+     "status": "on_time",
+     "status_note": null,
+     "gate": "B12",
+     "boards_at": "09:35",
+     "delayed_departs": null,
+     "has_seat_map": true
+    },
+    "passenger": "LAYLA HASSAN",
+    "seat": "14A",
+    "group": 3,
+    "fare_name": "Classic",
+    "code": "YT1.T-SAFRA1.1.1.signed"
+   },
+   {
+    "leg": "out",
+    "flight": {
+     "flight_id": 1,
+     "number": "SF 691",
+     "carrier": {
+      "name": "Safra Air",
+      "code": "SF",
+      "color": "#0E1424"
+     },
+     "from": {
+      "code": "CAI",
+      "city": "Cairo",
+      "airport": "Cairo International",
+      "terminal": "3"
+     },
+     "to": {
+      "code": "LXR",
+      "city": "Luxor",
+      "airport": "Luxor International",
+      "terminal": null
+     },
+     "departs": "2026-11-14T10:15",
+     "arrives": "2026-11-14T11:20",
+     "days_later": 0,
+     "minutes": 65,
+     "stops": 0,
+     "via": null,
+     "aircraft": "Airbus A321neo",
+     "amenities": [
+      "wifi",
+      "meal"
+     ],
+     "status": "on_time",
+     "status_note": null,
+     "gate": "B12",
+     "boards_at": "09:35",
+     "delayed_departs": null,
+     "has_seat_map": true
+    },
+    "passenger": "OMAR HASSAN",
+    "seat": "14B",
+    "group": 3,
+    "fare_name": "Classic",
+    "code": "YT1.T-SAFRA1.1.2.signed"
+   }
+  ]
+ },
+ "alerts": {
+  "items": [
+   {
+    "id": 2,
+    "kind": "anywhere",
+    "from": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International"
+    },
+    "to": null,
+    "month": null,
+    "return": true,
+    "nights": null,
+    "travellers": 1,
+    "price": null,
+    "price_formatted": null,
+    "change_formatted": null,
+    "direction": null,
+    "advice": null,
+    "max_price_formatted": "$600.00",
+    "matches": 0,
+    "photo_url": null
+   },
+   {
+    "id": 1,
+    "kind": "flight",
+    "from": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International"
+    },
+    "to": {
+     "code": "LXR",
+     "city": "Luxor",
+     "airport": "Luxor International"
+    },
+    "month": "2026-11",
+    "return": true,
+    "nights": 4,
+    "travellers": 2,
+    "price": "480.00",
+    "price_formatted": "$480.00",
+    "change_formatted": null,
+    "direction": "same",
+    "advice": "book_now",
+    "max_price_formatted": null,
+    "matches": null,
+    "photo_url": "https://yallapp.test/api/v1/assets/pool-1"
+   }
+  ]
+ }
+}

@@ -248,6 +248,13 @@ export const ICON_NAMES = [
   "airline_seat_recline_extra",
   "co_present",
   "how_to_reg",
+  // 126 Travel: hotels and flights.
+  "travel_explore",
+  "luggage",
+  "bed",
+  "flight_takeoff",
+  "airline_seat_recline_normal",
+  "hotel_class",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

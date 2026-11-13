@@ -1,3 +1,6 @@
+// 126
+import { makeTravelSamples } from "../travel/samples";
+import { saveTravelPhoto } from "../demo/travel";
 import { bookingSetup } from "../bookings/setup";
 import { courseSetup } from "../courses/setup";
 import type { App } from "../data/types";
@@ -124,6 +127,13 @@ const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
     },
   },
   rides: { vehicle_types: vehicleTypes(false) },
+  // 126 Safra's hotels, rooms and flights.
+  travel: {
+    hotels: async (m) => {
+      const made = await makeTravelSamples({ store: m.deps.store, app: m.app, now: m.deps.now, sample: true, photo: (name) => saveTravelPhoto(m.deps, { clientId: m.app.clientId, appId: m.app.id }, name, "product_image") });
+      return made.hotels + made.flights > 0;
+    },
+  },
   taxi: { vehicle_types: vehicleTypes(true) },
   // Its news are 110.2's school news, the ones the demo has, in the app's language.
   school: { school },

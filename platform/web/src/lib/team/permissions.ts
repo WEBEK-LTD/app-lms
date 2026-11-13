@@ -153,6 +153,9 @@ export const DASHBOARD_PATHS: readonly (readonly [string, TeamPermission])[] = [
   // 112.2 A delivery or food company's live map shows its jobs.
   ["/dashboard/delivery/live", "orders"],
   ["/dashboard/delivery", "settings"],
+  // 126 A travel company's bookings are its orders; its hotels, flights and travel settings are its settings.
+  ["/dashboard/travel/bookings", "orders"],
+  ["/dashboard/travel", "settings"],
   ["/dashboard/notifications", "notifications"],
   // 113.12 A school's salaries: only those given them (the owner and managers have every area).
   ["/dashboard/school/salaries", "salaries"],

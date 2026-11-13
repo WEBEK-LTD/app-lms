@@ -147,6 +147,12 @@ const symbolsByName = <String, IconData>{
   // 128 Rawaq Academy's Teachers tab, and the school's day.
   'co_present': Symbols.co_present_rounded,
   'family_restroom': Symbols.family_restroom_rounded,
+  // 126 Travel: its tabs (Stays, Flights, Trips) and the demo's buttons
+  // ('flight' is above, with the ride demos).
+  'luggage': Symbols.luggage_rounded,
+  'flight_takeoff': Symbols.flight_takeoff_rounded,
+  'hotel_class': Symbols.hotel_class_rounded,
+  'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
 };
 
 /// Shown for a name the app doesn't have.
