@@ -115,6 +115,11 @@ function kindFor(pattern: string[]): keyof Kinds {
   if (part === "courses" || part === "questions" || part === "reviews") return "school";
   if (part === "articles") return "news";
   if (part === "listings" || part === "inquiries") return "estate";
+  // 125 The Studio apps' tools.
+  if (part === "food-orders" || part === "restaurants" || part === "market") return "food";
+  if (part === "shipments" || part === "couriers") return "delivery";
+  if (part === "rides" || part === "drivers") return "rides";
+  if (part === "school") return "k12";
   return "shop";
 }
 
@@ -363,6 +368,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     const scheduled = await scheduleAppNotification({ store, now: NOW }, theirs.shop, { title: `${MARK} title`, body: `${MARK} body`, date: "2026-10-20", time: "14:00", createdBy: null });
     if (!scheduled.ok) throw new Error("scheduled");
     ids.scheduled_id = String(scheduled.notification.id);
+
 
     const invited = await inviteMember(
       { store, now: NOW, baseUrl: "https://yallapp.test", mail: async () => undefined, words: () => ({ role: (r) => r, date: (d) => d.toISOString().slice(0, 10) }) },
@@ -746,6 +752,18 @@ describe("79.3 one client never reaches another's data through the Owner API", (
       shipment_id: String(shipment.id),
       // 113.9
       section_id: String(theirSection.id),
+    });
+    // 125 The Studio apps' objects of the other client, for the Owner API's paths.
+    Object.assign(ids, {
+      food_order_id: String(foodOrder.id),
+      restaurant_id: String(restaurant.id),
+      shipment_id: String(shipment.id),
+      ride_id: String(ride.id),
+      market_order_id: String(theirMarketOrder.id),
+      complaint_id: String(theirComplaint.id),
+      excuse_id: String(theirExcuse.id),
+      school_report_id: String(theirReport.id),
+      leave_id: String(leave.id),
     });
     theirCustomerIds = [customerDevice, conversation.id];
   });

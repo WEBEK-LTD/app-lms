@@ -10,6 +10,8 @@ import 'core/routing/router.dart';
 import 'core/services/push.dart';
 import 'core/session.dart';
 import 'core/theme/theme.dart';
+import 'features/prime/prime_state.dart';
+import 'features/prime/prime_today.dart';
 import 'l10n/app_localizations.dart';
 
 /// 59 Yallapp Business.
@@ -80,6 +82,13 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
   void _foreground(RemoteNotice notice) {
     // Screens that show what the push is about load it again.
     ref.read(pushEventsProvider.notifier).add(notice);
+    // 125 The morning brief also shows on Today.
+    final appId = '${notice.data['app_id'] ?? ''}';
+    if (notice.data['kind'] == 'morning_brief' &&
+        appId.isNotEmpty &&
+        notice.body.isNotEmpty) {
+      ref.read(lastBriefProvider.notifier).put(appId, notice.body);
+    }
     final l10n = _messenger.currentContext == null
         ? null
         : AppLocalizations.of(_messenger.currentContext!);
@@ -104,6 +113,8 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
     final arabic = locale.languageCode == 'ar';
+    // 125 A Prime app's look (Classic otherwise).
+    final look = ref.watch(activeLookProvider);
     return MaterialApp.router(
       title: 'Yallapp Business',
       debugShowCheckedModeBanner: false,
@@ -117,9 +128,13 @@ class _BusinessAppState extends ConsumerState<BusinessApp>
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: buildTheme(arabic: arabic),
+      theme: buildTheme(arabic: arabic, look: look),
       // 61 The dark theme, following the phone unless chosen in Settings.
-      darkTheme: buildTheme(arabic: arabic, brightness: Brightness.dark),
+      darkTheme: buildTheme(
+        arabic: arabic,
+        brightness: Brightness.dark,
+        look: look,
+      ),
       themeMode: ref.watch(themeModeProvider),
     );
   }
@@ -147,6 +162,13 @@ const _tabs = {
   Paths.inbox,
   Paths.stats,
   Paths.more,
+  // 125 Studio apps' tabs.
+  Paths.foodOrders,
+  Paths.shipments,
+  Paths.rides,
+  Paths.market,
+  Paths.school,
+  Paths.notifyTab,
 };
 
 /// Opens a push's screen on its app; 64 first switches to the push's

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 59 Launch screen: Ivory with the Yallapp mark. -->
+<!-- 125 Launch screen: Ivory (Midnight at night) with one Ember dot in the
+     middle, 48dp: the first frame of the opening motion. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/yallapp_ivory" />
-    <item android:width="96dp" android:height="96dp" android:gravity="center"
-        android:drawable="@mipmap/ic_launcher" />
+    <item android:drawable="@color/launch_background" />
+    <item android:width="48dp" android:height="48dp" android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/yallapp_ember" />
+        </shape>
+    </item>
 </layer-list>

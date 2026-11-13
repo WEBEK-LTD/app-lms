@@ -53,6 +53,10 @@ export const AUDIT_ACTIONS = {
   // 70 Two-step sign-in
   "team.two_step_required": "Two-step sign-in for the team changed",
   "team.two_step_reset": "Team member's two-step sign-in reset",
+  // 125 VIP: account managers and the calls clients ask for
+  "team.profile": "Team member's contact card saved",
+  "client.account_manager": "Account manager chosen",
+  "client.call": "Call with the account manager confirmed, moved or cancelled",
   "content.update": "Website content saved",
   "content.reset": "Website content back to default",
   "email_template.update": "Email template saved",

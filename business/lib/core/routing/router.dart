@@ -40,7 +40,22 @@ import '../../features/stats/stats_screen.dart';
 import '../../features/today/today_screen.dart';
 import '../../features/today/updates_screen.dart';
 import '../../features/users/users_screen.dart';
-import '../../app.dart' show SplashScreen;
+import '../../features/food/food_order_screen.dart';
+import '../../features/food/food_orders_screen.dart';
+import '../../features/launch/opening_screen.dart';
+import '../../features/market/complaint_screen.dart';
+import '../../features/market/market_screen.dart';
+import '../../features/prime/alerts_screen.dart';
+import '../../features/prime/insights_screen.dart';
+import '../../features/prime/look_screen.dart';
+import '../../features/prime/prime_locked_screen.dart';
+import '../../features/rides/ride_screen.dart';
+import '../../features/rides/rides_screen.dart';
+import '../../features/school/school_review_screen.dart';
+import '../../features/school/school_screen.dart';
+import '../../features/shipments/shipment_screen.dart';
+import '../../features/shipments/shipments_screen.dart';
+import '../../features/vip/vip_screen.dart';
 import '../api/models.dart';
 import '../session.dart';
 import 'paths.dart';
@@ -71,6 +86,12 @@ const _gates = {
 String? gateFor(Ref ref, String location) {
   final session = ref.read(sessionProvider);
   final path = Uri.parse(location).path;
+  // 125 The opening plays to its end before anything else opens.
+  if (path == Paths.splash &&
+      ref.read(openingMotionProvider) &&
+      !ref.read(openingDoneProvider)) {
+    return null;
+  }
   switch (session) {
     case SessionLoading():
       return path == Paths.splash ? null : Paths.splash;
@@ -102,6 +123,7 @@ String? gateFor(Ref ref, String location) {
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
   ref.listen(sessionProvider, (_, _) => refresh.value++);
+  ref.listen(openingDoneProvider, (_, _) => refresh.value++);
   ref.listen(currentAppProvider, (previous, next) {
     if (previous?.id != next?.id) refresh.value++;
   });
@@ -119,7 +141,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) => gateFor(ref, state.uri.toString()),
     routes: [
-      GoRoute(path: Paths.splash, builder: (_, _) => const SplashScreen()),
+      GoRoute(path: Paths.splash, builder: (_, _) => const OpeningScreen()),
       GoRoute(path: Paths.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: Paths.lock, builder: (_, _) => const LockScreen()),
       GoRoute(
@@ -213,6 +235,70 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // 125 Studio apps' tabs.
+          GoRoute(
+            path: Paths.foodOrders,
+            builder: (_, s) => FoodOrdersScreen(
+              initialFilter: s.uri.queryParameters['filter'],
+            ),
+            routes: [
+              GoRoute(
+                path: ':id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) =>
+                    FoodOrderScreen(orderId: s.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: Paths.shipments,
+            builder: (_, s) =>
+                ShipmentsScreen(initialFilter: s.uri.queryParameters['filter']),
+            routes: [
+              GoRoute(
+                path: ':id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) =>
+                    ShipmentScreen(shipmentId: s.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: Paths.rides,
+            builder: (_, s) =>
+                RidesScreen(initialFilter: s.uri.queryParameters['filter']),
+            routes: [
+              GoRoute(
+                path: ':id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) => RideScreen(rideId: s.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: Paths.market,
+            builder: (_, s) =>
+                MarketScreen(initialTab: s.uri.queryParameters['tab']),
+            routes: [
+              GoRoute(
+                path: 'orders/:id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) =>
+                    MarketOrderScreen(orderId: s.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: 'complaints/:id',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (_, s) =>
+                    ComplaintScreen(complaintId: s.pathParameters['id']!),
+              ),
+            ],
+          ),
+          GoRoute(path: Paths.school, builder: (_, _) => const SchoolScreen()),
+          GoRoute(
+            path: Paths.notifyTab,
+            builder: (_, _) => const NotifyScreen(),
+          ),
           GoRoute(path: Paths.stats, builder: (_, _) => const StatsScreen()),
           GoRoute(path: Paths.more, builder: (_, _) => const MoreScreen()),
         ],
@@ -246,6 +332,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       full(Paths.notifications, (_) => const PushSettingsScreen()),
       full(Paths.devices, (_) => const DevicesScreen()),
       full(Paths.team, (_) => const TeamScreen()),
+      // 125 Studio apps' screens, Prime and VIP.
+      full(Paths.restaurants, (_) => const RestaurantsScreen()),
+      full(Paths.couriers, (_) => const CouriersScreen()),
+      full(Paths.drivers, (_) => const DriversScreen()),
+      full(
+        '/school-review',
+        (s) => SchoolReviewScreen(
+          kind: s.uri.queryParameters['kind'],
+          itemId: s.uri.queryParameters['id'],
+        ),
+      ),
+      full(Paths.prime, (_) => const PrimeLockedScreen()),
+      full(Paths.insights, (_) => const InsightsScreen()),
+      full(Paths.smartAlerts, (_) => const AlertsScreen()),
+      full(Paths.look, (_) => const LookScreen()),
+      full(Paths.vip, (_) => const VipScreen()),
     ],
   );
   ref.onDispose(router.dispose);
