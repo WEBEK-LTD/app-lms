@@ -60,6 +60,9 @@ const TAB_WORDS: Record<string, SectionWord> = {
   Cart: "tabCart",
   // 128 Rawaq Academy's teachers, its second tab.
   Teachers: "tabTeachers",
+  // 130 The Signature looks' own tabs: a school's Parent, an academy's live classes.
+  Parent: "tabParent",
+  Live: "tabLive",
 };
 
 /** The word over a screen and its icon; a screen that is all its own (the search, the club, the ride map) has none. */
@@ -164,7 +167,7 @@ export function demoTabPages(tabs: readonly LayoutTab[], ctx: SectionContext): D
 }
 
 /** The demo's tabs opening their pages instead of the bare screens, each with its name in Studio's languages. */
-export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang" | "demo">): LayoutTab[] {
+export function demoPageTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "lang" | "demo" | "look">): LayoutTab[] {
   const lang: DemoLang = ctx.lang ?? "en";
   return designedTabs(tabs, ctx).map((tab) => {
     const word = TAB_WORDS[tab.label];

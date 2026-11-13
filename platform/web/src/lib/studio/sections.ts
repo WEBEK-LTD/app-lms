@@ -6,6 +6,7 @@ import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTe
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
 import { demoDesignTemplate } from "./demo-designs";
+import { SIGNATURE_TEMPLATES } from "./demo-designs/signatures";
 import { peopleRow, photoHero, photoOf, photoTiles } from "./photo-sections";
 
 /**
@@ -295,7 +296,17 @@ export type SectionWord =
   | "rqP4"
   | "rqP4i"
   | "tabTeachers"
-  | "tipTeachers";
+  | "tipTeachers"
+  // 130.13–130.18 The Signature looks' words.
+  | "nkKicker"
+  | "nkNewsLabel"
+  | "nkNewsLines"
+  | "nkToday"
+  | "nkTimetable"
+  | "nkSign"
+  | "nkSignLines"
+  | "tabParent"
+  | "tabLive";
 
 export interface SectionContext {
   brand: string;
@@ -317,6 +328,8 @@ export interface SectionContext {
   lang?: "en" | "ar" | "tr";
   /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
   demo?: StudioDemoId;
+  /** 130 The Signature look whose pages these are (a project started from it): its pages after the home in the look (lib/studio/demo-designs/signature.ts); missing, none. */
+  look?: string;
 }
 
 /** 103R.7 The project types a section or template is made for; none: every type. */
@@ -1097,6 +1110,8 @@ export interface TemplateInfo {
   recommended?: boolean;
   /** 123 What the template sets for the whole project besides its home: its bar, tabs, screens and colours (lib/studio/academy.ts). */
   project?: TemplateProject;
+  /** 130 A Signature look (lib/studio/demo-designs/signature.ts): the project's pages after the home are in it. */
+  look?: string;
 }
 
 function pageOf(ctx: SectionContext, sections: string[], header: StudioPage["header"]): StudioPage {
@@ -1161,6 +1176,8 @@ const DEMO_TEMPLATES: readonly TemplateInfo[] = (Object.keys(DEMO_ICONS) as (key
 export const TEMPLATES: readonly TemplateInfo[] = [
   // Templates = demos: each Studio demo's home, offered first for its kind.
   ...DEMO_TEMPLATES,
+  // 130 The Signature looks (two for each Studio demo), first among their kind's own.
+  ...SIGNATURE_TEMPLATES,
   // 103R.7 Each project type's own templates come first in the lists.
   // 112.4 Three for a store: a full shop, one for offers and one for looks and brands.
   typed("shop", "storefront", STORE, ["search", "hero_slider", "category_circles", "flash_sale", "new_arrivals", "coupon", "best_sellers", "brands", "trust", "recent"], SHOP_HEADER, { word: "cta", action: screen("cart") }),

@@ -1,4 +1,4 @@
-import type { LayoutTab, StudioHeader, StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
+import type { LayoutTab, StudioHeader, StudioHeaderStyle, StudioNode, StudioPage, TabBarStyle } from "../../pages/types";
 import type { StudioDemoId } from "../../demo/constants";
 import { translating } from "../demo-templates";
 import type { Fits, SectionContext, SectionWord, TemplateInfo } from "../sections";
@@ -12,6 +12,7 @@ import { sahmHome, sahmPage, SAHM_INK } from "./sahm-express";
 import { schoolTodayHome } from "../school-home";
 import { teachersPhotoHome } from "../teachers-home";
 import { NAKHLA_LOOK, RAWAQ_LOOK, rawaqTabs, schoolPage } from "./school-looks";
+import { signatureLook } from "./signatures";
 
 /**
  * 128 The Studio demos made premium and complete (the owner, 13 November
@@ -55,6 +56,8 @@ export interface DemoDesign {
   pages?: (ctx: SectionContext) => { slug: string; title: SectionWord; studio: StudioPage }[];
   /** Its bar, as approved (lib/demo/screens.ts DEMO_TAB_BARS); missing, the demo's own there (the taxi's dark island). */
   bar?: TabBarStyle;
+  /** 130 The premium style of the headers of its pages after the home (a Signature look's); missing, none. */
+  headerStyle?: StudioHeaderStyle;
 }
 
 /** A tab opening `screen`, made over. */
@@ -122,6 +125,14 @@ export function studioDemoDesign(demo: StudioDemoId | undefined): DemoDesign | u
   return demo ? STUDIO_DEMO_DESIGNS[demo] : undefined;
 }
 
+// ——— 130 The Signature looks: a project started from one (`ctx.look`) has its pages in the look (./signature.ts) ———
+type PagesDesign = Omit<DemoDesign, "template" | "home">;
+/** The design of the pages after the home: the project's Signature look's, else its demo's. */
+function designOf(ctx: Pick<SectionContext, "demo" | "look">): PagesDesign | undefined {
+  return (ctx.look ? signatureLook(ctx.look)?.design : undefined) ?? studioDemoDesign(ctx.demo);
+}
+// ——— end 130 ———
+
 /** A demo's home as a template of its kind (lib/studio/sections.ts TEMPLATES), in the dashboard's language with Studio's others as translations. */
 export function demoDesignTemplate(demo: StudioDemoId): TemplateInfo {
   const d = STUDIO_DEMO_DESIGNS[demo]!;
@@ -145,8 +156,8 @@ export function demoDesignBar(demo: StudioDemoId): TabBarStyle {
 }
 
 /** The demo's tabs as its own design has them (the kind's, for a demo without one or a project not made from a demo). */
-export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo">): readonly LayoutTab[] {
-  const own = studioDemoDesign(ctx.demo)?.tabs;
+export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContext, "demo" | "look">): readonly LayoutTab[] {
+  const own = designOf(ctx)?.tabs;
   return own ? own(tabs) : tabs;
 }
 
@@ -158,13 +169,15 @@ export function designedTabs(tabs: readonly LayoutTab[], ctx: Pick<SectionContex
  * their own, as they are.
  */
 export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionContext, page: P): P {
-  const design = studioDemoDesign(ctx.demo);
+  const design = designOf(ctx);
   if (!design) return page;
   const { ctx: words, translate } = translating(ctx);
   const own = page.studio.screen ? design.over(page.studio.screen, words) : null;
   const { header: was, ...studio } = page.studio;
   const look = design.look && (!design.look.headed || was) ? design.look : undefined;
-  const header = was && look ? { ...was, ...look.header } : was;
+  const coloured = was && look ? { ...was, ...look.header } : was;
+  // 130 A Signature look's premium header on every page that has one.
+  const header = coloured && design.headerStyle ? { ...coloured, style: design.headerStyle } : coloured;
   return {
     ...page,
     studio: {
@@ -179,5 +192,5 @@ export function designedDemoPage<P extends { studio: StudioPage }>(ctx: SectionC
 
 /** The pages of its own the demo's tabs open (Zad's Shops), made with `ctx` (its words, in Studio's languages through `translate`). */
 export function designedOwnPages(ctx: SectionContext): { slug: string; title: SectionWord; studio: StudioPage }[] {
-  return studioDemoDesign(ctx.demo)?.pages?.(ctx) ?? [];
+  return designOf(ctx)?.pages?.(ctx) ?? [];
 }

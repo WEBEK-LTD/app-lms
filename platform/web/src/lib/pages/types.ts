@@ -1282,9 +1282,23 @@ export interface StudioNode {
 export const STUDIO_TABLET_FIELDS = ["width", "height", "min_height", "padding", "margin", "gap", "columns", "per_view", "font", "text_align"] as const;
 export type StudioTablet = Partial<Pick<StudioNode, (typeof STUDIO_TABLET_FIELDS)[number]>>;
 
+// ——— 130 Premium page headers (the premium chrome engineer's: contract, validation, canvas and app; the Signature looks set them) ———
+/**
+ * 130 How a header is drawn over its type: `large` a big title that folds
+ * into a compact bar on scroll, `glass` a frosted bar over the content,
+ * `photo` a photo or brand cover with a scrim and the title, `brand` the
+ * logo or name centred with round glass buttons, `search` the title over a
+ * search pill. Missing, the type as it is drawn today.
+ */
+export const STUDIO_HEADER_STYLES = ["large", "glass", "photo", "brand", "search"] as const;
+export type StudioHeaderStyle = (typeof STUDIO_HEADER_STYLES)[number];
+// ——— end 130 premium page headers ———
+
 /** 103R The bar at the top of a Studio page (`StudioHeader`). */
 export interface StudioHeader {
   type: StudioHeaderType;
+  /** 130 Its premium style (`STUDIO_HEADER_STYLES`); missing, the type's own. */
+  style?: StudioHeaderStyle;
   title?: string | null;
   logo_url?: string | null;
   buttons?: StudioHeaderButton[];

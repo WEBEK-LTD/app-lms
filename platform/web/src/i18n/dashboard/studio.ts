@@ -1833,6 +1833,18 @@ export const en = {
     templateName: "Give the template a name of up to 60 characters.",
     templateLimit: "You can keep up to {max} templates. Delete one first.",
   },
+  // ——— 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
+  tpl_school_signature_a: "Morning edition",
+  w_nkKicker: "{app} · this morning",
+  w_nkNewsLabel: "News",
+  w_nkNewsLines: "[This week's news, a line each]\n[A trip, a holiday or an evening for parents]",
+  w_nkToday: "Today at school",
+  w_nkTimetable: "Timetable",
+  w_nkSign: "Sign",
+  w_nkSignLines: "Forms to sign\nTrips and permission slips from the school",
+  w_tabParent: "Parent",
+  w_tabLive: "Live",
+  // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 } as const;
 
 type Messages = Strings<typeof en>;
@@ -3649,6 +3661,18 @@ export const ar: Messages = {
     templateName: "اكتب اسم للقالب، لحد 60 حرف.",
     templateLimit: "تقدر تحتفظ بـ {max} قالب بالكتير. امسح واحد الأول.",
   },
+  // ——— 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
+  tpl_school_signature_a: "طبعة الصبح",
+  w_nkKicker: "{app} · هذا الصباح",
+  w_nkNewsLabel: "أخبار",
+  w_nkNewsLines: "[أخبار هذا الأسبوع، كل خبر في سطر]\n[رحلة أو عطلة أو لقاء لأولياء الأمور]",
+  w_nkToday: "اليوم في المدرسة",
+  w_nkTimetable: "الجدول",
+  w_nkSign: "وقّع",
+  w_nkSignLines: "نماذج للتوقيع\nالرحلات وأذونات المدرسة",
+  w_tabParent: "وليّ الأمر",
+  w_tabLive: "مباشر",
+  // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
 
 export const tr: Messages = {
@@ -5463,4 +5487,16 @@ export const tr: Messages = {
     templateName: "Şablona en fazla 60 karakterlik bir ad verin.",
     templateLimit: "En fazla {max} şablon tutabilirsiniz. Önce birini silin.",
   },
+  // ——— 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
+  tpl_school_signature_a: "Sabah baskısı",
+  w_nkKicker: "{app} · bu sabah",
+  w_nkNewsLabel: "Haberler",
+  w_nkNewsLines: "[Bu haftanın haberleri, her biri bir satırda]\n[Bir gezi, bir tatil ya da veli akşamı]",
+  w_nkToday: "Bugün okulda",
+  w_nkTimetable: "Ders programı",
+  w_nkSign: "İmzala",
+  w_nkSignLines: "İmzalanacak formlar\nOkuldan gezi ve izin formları",
+  w_tabParent: "Veli",
+  w_tabLive: "Canlı",
+  // ——— end 130.13–130.18 The Signature looks of Nakhla School, Rawaq Academy and Ufuq Academy ———
 };
