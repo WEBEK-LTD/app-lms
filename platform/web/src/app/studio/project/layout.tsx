@@ -60,6 +60,8 @@ export default async function StudioProjectLayout({ children }: { children: Reac
         item("/dashboard/languages", t("studio.navLanguages"), "translate"),
         // 118.3 The sign-in screen and the account menu (on Yallapp's server, or an own API Yallapp signs people in to).
         ...(studioScreensOn(app) ? [item("/dashboard/screens", t("studio.navScreens"), "account_circle")] : []),
+        // 124.12 How people sign in and who sends their codes (on WordPress: the site's accounts, Digits or WhatsApp).
+        item("/dashboard/app-sign-in", t("studio.navSignIn"), "login"),
         ...(app.backend === "hosted"
           ? [item("/dashboard/notifications", t("studio.navNotifications"), "notifications")]
           : app.backend === "wordpress"

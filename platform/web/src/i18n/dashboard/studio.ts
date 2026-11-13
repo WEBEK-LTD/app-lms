@@ -1128,6 +1128,7 @@ export const en = {
   errUnavailable: "This kind of app isn't offered right now. Choose another one.",
   // 118.3 Sign-in and account.
   navScreens: "Sign-in and account",
+  navSignIn: "How people sign in",
   screensTitle: "Sign-in screen and account menu",
   screensIntro: "Design how your app's sign-in screen looks and what its account menu shows. The app shows it the next time it opens; no new build is needed.",
   screensOnlyStudio: "This is for Yallapp Studio projects on Yallapp's server, or on your own API when Yallapp signs people in. Another API of yours can send them in Config.screens.",
@@ -2347,6 +2348,7 @@ export const ar: Messages = {
   errUnavailable: "النوع ده مش متاح دلوقتي. اختار نوع تاني.",
   // 118.3 Sign-in and account.
   navScreens: "الدخول والحساب",
+  navSignIn: "طريقة تسجيل الدخول",
   screensTitle: "شاشة الدخول ومنيو الحساب",
   screensIntro: "صمّم شكل شاشة الدخول في تطبيقك، واختار منيو الحساب يظهر فيه إيه. التطبيق بيعرضه أول ما يتفتح تاني، من غير بناء جديد.",
   screensOnlyStudio: "دي لمشاريع Yallapp Studio اللي على سيرفر Yallapp، أو على الـ API بتاعك لما Yallapp هي اللي بتسجّل دخول الناس. أي API تاني بتاعك يقدر يبعتها في Config.screens.",
@@ -3563,6 +3565,7 @@ export const tr: Messages = {
   errUnavailable: "Bu uygulama türü şu anda sunulmuyor. Başka birini seçin.",
   // 118.3 Sign-in and account.
   navScreens: "Giriş ve hesap",
+  navSignIn: "Giriş yöntemi",
   screensTitle: "Giriş ekranı ve hesap menüsü",
   screensIntro: "Uygulamanızın giriş ekranının nasıl görüneceğini ve hesap menüsünde neler olacağını tasarlayın. Uygulama bir sonraki açılışta gösterir; yeni derleme gerekmez.",
   screensOnlyStudio: "Bu, Yallapp sunucusundaki veya girişleri Yallapp'in yaptığı kendi API'nizdeki Yallapp Studio projeleri içindir. Başka bir API'niz bunları Config.screens içinde gönderebilir.",
