@@ -480,6 +480,10 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 120
     env:
+      # A slow Mac runner can take longer than fastlane's default 3 seconds to
+      # list the build settings after Swift packages resolve.
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: '120'
+      FASTLANE_XCODEBUILD_SETTINGS_RETRIES: '4'
       LC_ALL: en_US.UTF-8
       LANG: en_US.UTF-8
       VERSION: ${{ needs.prepare.outputs.version }}
