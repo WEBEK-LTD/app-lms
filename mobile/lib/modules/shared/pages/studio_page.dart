@@ -37,7 +37,16 @@ import 'side_menu.dart';
 import 'studio_covers.dart';
 import 'studio_live.dart';
 import 'studio_live_status.dart';
+// 129 Premium motion & media: the slider's looks, stories, a ticker, a video
+// or parallax banner, a gallery, before and after, entrances on first show.
+import 'studio_before_after.dart';
+import 'studio_gallery.dart';
+import 'studio_marquee.dart';
+import 'studio_media_covers.dart';
+import 'studio_motion.dart';
 import 'studio_scrim.dart';
+import 'studio_segments.dart';
+import 'studio_stories.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -856,6 +865,13 @@ class StudioNodeView extends ConsumerWidget {
         node.source == ItemSource.products &&
             ref.watch(recentlyViewedProvider).isNotEmpty,
       StudioNodeType.coupon => (node.code ?? '').isNotEmpty,
+      // 129 Premium motion & media, with something to show.
+      StudioNodeType.stories => node.slides.isNotEmpty,
+      StudioNodeType.marquee =>
+        (node.text ?? '').trim().isNotEmpty || node.images.isNotEmpty,
+      StudioNodeType.gallery => node.images.isNotEmpty,
+      StudioNodeType.beforeAfter => node.images.length >= 2,
+      StudioNodeType.segments => StudioSegments.shows(node, ref),
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
@@ -909,10 +925,17 @@ class StudioNodeView extends ConsumerWidget {
     final rounded = node.radius > 0 || node.corners != null;
     final overlay = _overlayOf(node);
     // 128 A cover draws its own height, space inside, colours and corners.
+    // 129.4 and 129.7 The video and parallax banners too.
+    final banner =
+        node.type == StudioNodeType.videoHero ||
+        node.type == StudioNodeType.parallaxBanner;
     final cover =
+        banner ||
         node.type == StudioNodeType.photoHero ||
         node.type == StudioNodeType.mapHeader;
-    Widget child = cover
+    Widget child = banner
+        ? StudioMediaCover(node: node, scope: scope)
+        : cover
         ? StudioCoverView(
             node: node,
             scope: scope,
@@ -950,7 +973,11 @@ class StudioNodeView extends ConsumerWidget {
         fit: StackFit.passthrough,
         children: [
           Positioned.fill(
-            child: AppNetworkImage(url: url, seed: node.id.hashCode),
+            // 129.1 Growing slowly in a slider's open slide (Ken Burns).
+            child: StudioKenBurns.wrap(
+              context,
+              AppNetworkImage(url: url, seed: node.id.hashCode),
+            ),
           ),
           if (overlay != null)
             Positioned.fill(
@@ -1030,6 +1057,10 @@ class StudioNodeView extends ConsumerWidget {
         motion.moves &&
         !MediaQuery.disableAnimationsOf(context)) {
       child = _Moving(motion: motion, child: child);
+    }
+    // 129.1 A photo growing slowly again and again.
+    if (node.kenBurns && node.type != StudioNodeType.slider) {
+      child = StudioKenBurnsLoop(on: true, child: child);
     }
     // 107.2 Turned, with what it holds.
     if (node.rotation != 0) {
@@ -1263,13 +1294,17 @@ class StudioNodeView extends ConsumerWidget {
         final url = entry != null && node.bind == StudioBind.image
             ? entry.imageUrl
             : node.imageUrl;
-        final image = AppNetworkImage(
-          url: url,
-          seed: node.id.hashCode,
-          fit: node.contain ? BoxFit.contain : BoxFit.cover,
-          width: double.infinity,
-          height: node.height?.fixed,
-          clearPlaceholder: node.contain,
+        // 129.1 Growing slowly in a slider's open slide (Ken Burns).
+        final image = StudioKenBurns.wrap(
+          context,
+          AppNetworkImage(
+            url: url,
+            seed: node.id.hashCode,
+            fit: node.contain ? BoxFit.contain : BoxFit.cover,
+            width: double.infinity,
+            height: node.height?.fixed,
+            clearPlaceholder: node.contain,
+          ),
         );
         final overlay = _overlayOf(node);
         final scrim = node.scrim;
@@ -1347,6 +1382,20 @@ class StudioNodeView extends ConsumerWidget {
         final market = node.market;
         if (market == null) return const SizedBox.shrink();
         return MarketSectionView(node: node, market: market, color: color);
+      // 129 Premium motion & media.
+      case StudioNodeType.stories:
+        return StudioStoriesRow(node: node, scope: scope);
+      case StudioNodeType.marquee:
+        return StudioMarquee(node: node, color: color);
+      case StudioNodeType.gallery:
+        return StudioGallery(node: node);
+      case StudioNodeType.beforeAfter:
+        return StudioBeforeAfter(node: node);
+      case StudioNodeType.segments:
+        return StudioSegments(node: node, color: color);
+      // Drawn by [StudioMediaCover] in [build].
+      case StudioNodeType.videoHero || StudioNodeType.parallaxBanner:
+        return const SizedBox.shrink();
       case StudioNodeType.coupon:
         return _StudioCoupon(
           code: node.code ?? '',
@@ -1909,7 +1958,8 @@ class _StudioSlider extends ConsumerStatefulWidget {
   ConsumerState<_StudioSlider> createState() => _StudioSliderState();
 }
 
-class _StudioSliderState extends ConsumerState<_StudioSlider> {
+class _StudioSliderState extends ConsumerState<_StudioSlider>
+    with SingleTickerProviderStateMixin {
   late final PageController _controller = PageController(
     viewportFraction: 1 / widget.node.perView,
   );
@@ -1919,10 +1969,35 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
   /// Counts the slides' turns, so the open slide's line starts again.
   int _turn = 0;
 
+  /// 129.1 The open slide's photo growing slowly (Ken Burns), started again
+  /// on each slide.
+  late final AnimationController? _zoom = widget.node.kenBurns
+      ? AnimationController(
+          vsync: this,
+          duration: Duration(
+            milliseconds: widget.node.autoplay
+                ? widget.node.intervalMs + 600
+                : 8000,
+          ),
+        )
+      : null;
+
   @override
   void initState() {
     super.initState();
     _wait();
+    _zoomAgain();
+  }
+
+  void _zoomAgain() {
+    final zoom = _zoom;
+    if (zoom == null) return;
+    zoom.value = 0;
+    if (widget.node.autoplay) {
+      zoom.forward();
+    } else {
+      zoom.repeat(reverse: true);
+    }
   }
 
   /// The next slide after the owner's seconds; a swipe starts them again.
@@ -1941,6 +2016,8 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
   void _next() {
     if (!mounted || !_controller.hasClients) return;
     if (MediaQuery.disableAnimationsOf(context)) return;
+    // 129.1 Still while it is off the screen.
+    if (!studioOnScreen(context)) return;
     final count = _kids.length;
     if (count < 2) return;
     final next = (_page + 1) % count;
@@ -1960,6 +2037,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _zoom?.dispose();
     super.dispose();
   }
 
@@ -1985,15 +2063,20 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
             _page = i;
             _turn++;
             _wait();
+            _zoomAgain();
           }),
           itemBuilder: (context, i) => Padding(
             padding: EdgeInsetsDirectional.only(
               end: i < kids.length - 1 ? node.gap : 0,
             ),
-            child: StudioNodeView(
-              node: kids[i],
-              scope: widget.scope,
-              parent: node,
+            // 129.1 The open slide's photo zooms slowly.
+            child: StudioKenBurns(
+              zoom: i == _page ? _zoom : null,
+              child: StudioNodeView(
+                node: kids[i],
+                scope: widget.scope,
+                parent: node,
+              ),
             ),
           ),
         );
@@ -2003,14 +2086,16 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
           children: [
             SizedBox(
               height: height,
-              child: switch (shown) {
+              child: _counted(switch (shown) {
                 StudioIndicator.progress => Stack(
                   children: [
                     Positioned.fill(child: pages),
+                    // 129.1 At the top or the foot, as far from it as set.
                     PositionedDirectional(
                       start: 16,
                       end: 16 + node.gap,
-                      bottom: 12,
+                      top: node.indicatorTop ? node.indicatorInset : null,
+                      bottom: node.indicatorTop ? null : node.indicatorInset,
                       child: SliderLines(
                         key: ValueKey('studio-lines-${node.id}'),
                         count: kids.length,
@@ -2019,6 +2104,28 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
                         wait: _moving
                             ? Duration(milliseconds: node.intervalMs)
                             : null,
+                        fill:
+                            parseHexColor(node.indicatorColor) ?? Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+                // 129.1 The dots in a frosted pill over the slides' foot.
+                StudioIndicator.pill => Stack(
+                  children: [
+                    Positioned.fill(child: pages),
+                    PositionedDirectional(
+                      start: 0,
+                      end: node.gap,
+                      top: node.indicatorTop ? node.indicatorInset : null,
+                      bottom: node.indicatorTop ? null : node.indicatorInset,
+                      child: Center(
+                        child: StudioSliderPill(
+                          key: ValueKey('studio-pill-${node.id}'),
+                          count: kids.length,
+                          page: _page,
+                          color: parseHexColor(node.indicatorColor),
+                        ),
                       ),
                     ),
                   ],
@@ -2038,7 +2145,7 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
                   ],
                 ),
                 _ => pages,
-              },
+              }, kids.length),
             ),
             if (shown == StudioIndicator.dots) ...[
               const SizedBox(height: 8),
@@ -2047,6 +2154,41 @@ class _StudioSliderState extends ConsumerState<_StudioSlider> {
           ],
         );
       },
+    );
+  }
+}
+
+extension on _StudioSliderState {
+  /// 129.1 "1/3" or "01/03" at the end side beside the indicator.
+  Widget _counted(Widget slides, int count) {
+    final node = widget.node;
+    final padded = node.slideCount;
+    if (padded == null || count < 2) return slides;
+    String n(int i) => padded ? '$i'.padLeft(2, '0') : '$i';
+    final at = node.indicatorInset + 18;
+    return Stack(
+      children: [
+        Positioned.fill(child: slides),
+        PositionedDirectional(
+          end: 16 + node.gap,
+          top: node.indicatorTop ? at : null,
+          bottom: node.indicatorTop ? null : at,
+          child: ExcludeSemantics(
+            child: Text(
+              '${n(_page + 1)}/${n(count)}',
+              key: ValueKey('studio-slide-count-${node.id}'),
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                color: parseHexColor(node.indicatorColor) ?? Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -2090,12 +2232,16 @@ class SliderLines extends StatelessWidget {
     required this.page,
     required this.turn,
     required this.wait,
+    this.fill = const Color(0xFFFFFFFF),
   });
 
   final int count;
   final int page;
   final int turn;
   final Duration? wait;
+
+  /// 129.1 The open and seen slides' lines; missing, white.
+  final Color fill;
 
   @override
   Widget build(BuildContext context) {
@@ -2110,7 +2256,7 @@ class SliderLines extends StatelessWidget {
             FractionallySizedBox(
               alignment: AlignmentDirectional.centerStart,
               widthFactor: filled,
-              child: const ColoredBox(color: Color(0xFFFFFFFF)),
+              child: ColoredBox(color: fill),
             ),
           ],
         ),
@@ -2376,12 +2522,16 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (widget.motion.enter != StudioEnter.none) {
-      _delay = Timer(Duration(milliseconds: widget.motion.delayMs), () {
-        if (mounted) _enter.forward();
-      });
-    }
     if (widget.motion.loop != StudioLoop.none) _loop.repeat();
+  }
+
+  /// 129.8 The entrance plays once, when the element first comes onto the
+  /// screen (as the page scrolls to it), after its wait.
+  void _shown() {
+    if (widget.motion.enter == StudioEnter.none || _delay != null) return;
+    _delay = Timer(Duration(milliseconds: widget.motion.delayMs), () {
+      if (mounted) _enter.forward();
+    });
   }
 
   @override
@@ -2395,7 +2545,7 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    return AnimatedBuilder(
+    final moving = AnimatedBuilder(
       animation: Listenable.merge([_enter, _loop]),
       child: widget.child,
       builder: (context, child) {
@@ -2448,6 +2598,8 @@ class _MovingState extends State<_Moving> with TickerProviderStateMixin {
         );
       },
     );
+    if (widget.motion.enter == StudioEnter.none) return moving;
+    return StudioFirstShown(onShown: _shown, child: moving);
   }
 }
 

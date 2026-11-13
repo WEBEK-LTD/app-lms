@@ -3055,4 +3055,11 @@
 {"key":"travelMaxPrice","en":"Most you'd pay ({currency})","ar":"أقصى مبلغ تدفعه ({currency})","tr":"Ödeyeceğiniz en yüksek tutar ({currency})","placeholders":{"currency":"String"}},
 {"key":"travelWhen","en":"When","ar":"متى","tr":"Ne zaman"},
 {"key":"travelWatchPrice","en":"Watch the price","ar":"تابع السعر","tr":"Fiyatı takip et"},
-{"key":"travelTravellersCabin","en":"Travellers and cabin","ar":"المسافرون والدرجة","tr":"Yolcular ve kabin"}]}
+{"key":"travelTravellersCabin","en":"Travellers and cabin","ar":"المسافرون والدرجة","tr":"Yolcular ve kabin"},
+{"key":"studioStoryOf","en":"Story {index} of {total}","ar":"القصة {index} من {total}","tr":"Hikâye {index} / {total}","description":"129.2 A story's spoken name in a row of stories and full screen.","placeholders":{"index":"int","total":"int"}},
+{"key":"studioStoryOpen","en":"Open","ar":"افتح","tr":"Aç","description":"129.2 The button over a story that opens its link."},
+{"key":"studioTickerPaused","en":"Paused","ar":"متوقّف","tr":"Durduruldu","description":"129.3 Spoken while a ticker is held still."},
+{"key":"studioVideoPlay","en":"Play the video","ar":"شغّل الفيديو","tr":"Videoyu oynat","description":"129.4 The button over a video banner that plays it."},
+{"key":"studioVideoPause","en":"Pause the video","ar":"أوقف الفيديو مؤقتًا","tr":"Videoyu duraklat","description":"129.4 The button over a video banner that pauses it."},
+{"key":"studioCompareLabel","en":"Before and after: {before} and {after}","ar":"قبل وبعد: {before} و{after}","tr":"Önce ve sonra: {before} ve {after}","description":"129.6 The spoken name of a before and after photo.","placeholders":{"before":"String","after":"String"}},
+{"key":"studioCompareHandle","en":"Drag to compare","ar":"اسحب للمقارنة","tr":"Karşılaştırmak için sürükleyin","description":"129.6 The spoken hint of the handle between the two photos."}]}

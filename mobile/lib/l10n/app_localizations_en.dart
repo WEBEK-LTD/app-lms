@@ -11513,4 +11513,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get travelTravellersCabin => 'Travellers and cabin';
+
+  @override
+  String studioStoryOf(int index, int total) {
+    return 'Story $index of $total';
+  }
+
+  @override
+  String get studioStoryOpen => 'Open';
+
+  @override
+  String get studioTickerPaused => 'Paused';
+
+  @override
+  String get studioVideoPlay => 'Play the video';
+
+  @override
+  String get studioVideoPause => 'Pause the video';
+
+  @override
+  String studioCompareLabel(String before, String after) {
+    return 'Before and after: $before and $after';
+  }
+
+  @override
+  String get studioCompareHandle => 'Drag to compare';
 }

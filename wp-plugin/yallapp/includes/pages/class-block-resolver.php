@@ -1016,8 +1016,47 @@ class Block_Resolver {
 	 * a shipment or ride, a greeting), which the app draws from the person's own data and
 	 * leaves out when it has none.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning', 'live_status', 'school', 'photo_hero', 'map_header', 'tracking', 'greeting' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header' );
+	const STUDIO_TYPES  = array(
+		'row',
+		'column',
+		'stack',
+		'grid',
+		'slider',
+		'spacer',
+		'accordion',
+		'tabs',
+		'text',
+		'image',
+		'button',
+		'icon',
+		'items',
+		'categories',
+		'video',
+		'form',
+		'map',
+		'ratings',
+		'search',
+		'divider',
+		'countdown',
+		'bullets',
+		'coupon',
+		'learning',
+		'live_status',
+		'school',
+		'photo_hero',
+		'map_header',
+		'tracking',
+		'greeting',
+		// 129 Premium motion & media (Studio_Premium_Motion::TYPES).
+		'stories',
+		'marquee',
+		'video_hero',
+		'parallax_banner',
+		'gallery',
+		'before_after',
+		'segments',
+	);
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header', 'video_hero', 'parallax_banner' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1158,7 +1197,7 @@ class Block_Resolver {
 			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
 			// 112.4 How a slider shows where it is, and how categories look.
-			'indicator'     => array( 'dots', 'progress', 'count' ),
+			'indicator'     => array( 'dots', 'progress', 'count', 'pill' ),
 			'style'         => array( 'chips', 'tiles', 'pictures', 'circles' ),
 		);
 		foreach ( $choices as $field => $values ) {
@@ -1178,7 +1217,8 @@ class Block_Resolver {
 				$node[ $field ] = $sides;
 			}
 		}
-		foreach ( array( 'autoplay', 'dots' ) as $field ) {
+		// 129.1 A slider's slow zoom over its photos.
+		foreach ( array( 'autoplay', 'dots', 'ken_burns' ) as $field ) {
 			if ( isset( $raw[ $field ] ) && is_bool( $raw[ $field ] ) ) {
 				$node[ $field ] = $raw[ $field ];
 			}
@@ -1392,6 +1432,23 @@ class Block_Resolver {
 				}
 				$node['form'] = $form;
 				return $node;
+			// 129 Premium motion & media: what they hold (Studio_Premium_Motion).
+			case 'stories':
+			case 'marquee':
+			case 'video_hero':
+			case 'parallax_banner':
+			case 'gallery':
+			case 'before_after':
+			case 'segments':
+				$node = Studio_Premium_Motion::node( $type, $raw, $node, array( $this, 'action' ) );
+				if ( null === $node ) {
+					return null;
+				}
+				break;
+			// 129.1 Where a slider's indicator sits, its colour and a count.
+			case 'slider':
+				$node = Studio_Premium_Motion::slider( $raw, $node );
+				break;
 			case 'map':
 				$map = $raw['map'] ?? null;
 				if ( ! is_array( $map ) || ! isset( $map['lat'], $map['lng'] ) || ! is_numeric( $map['lat'] ) || ! is_numeric( $map['lng'] ) || abs( (float) $map['lat'] ) > 90 || abs( (float) $map['lng'] ) > 180 ) {

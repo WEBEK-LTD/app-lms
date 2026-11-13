@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import type { LanguageCode } from "@/lib/pages/types";
 import { resized, snapped } from "@/lib/studio/resize";
 import { forTablet } from "@/lib/studio/tablet";
@@ -19,6 +19,9 @@ import { AppScreen } from "./app-screens";
 // 128 The cover layouts and the live elements.
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
+// 129 Premium motion & media.
+import { entranceMark, watchEntrances } from "@/lib/studio/motion";
+import { BeforeAfter, edge, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, Segments, SliderCount, SliderPill, StoriesRow } from "./premium-motion";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -189,14 +192,19 @@ export function StudioView(viewProps: ViewProps) {
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
   // 128.10 Under a transparent header a page starting with anything but a cover starts below the status bar, as the app draws it.
   const belowBar = page.header?.type === "transparent" && !startsWithCover(page.body);
+  // 129.8 Each element's entrance plays once when it first comes into view (lib/studio/motion.ts).
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => (root.current ? watchEntrances(root.current, rtl) : undefined), [rtl]);
   return (
-    <div dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
+    <div ref={root} dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
       {page.header ? <Header header={page.header} {...props} /> : null}
       <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", paddingTop: belowBar ? 30 : undefined }} data-studio-below-bar={belowBar ? "" : undefined}>
         <Node node={page.body} parentDir="column" {...props} />
         {page.screen ? <ScreenPart {...props} /> : null}
       </div>
       {showTabs ? <Tabs {...props} /> : null}
+      {/* 129 The premium elements' keyframes. */}
+      <PremiumMotionStyles />
     </div>
   );
 }
@@ -592,7 +600,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   // 128.10 In a row, its one text cut to its lines gives way to what follows it; the rest keep their width, as the app's.
   if (parentDir === "row" && props.rowGivesWay) Object.assign(style, node.id === props.rowGivesWay ? { minWidth: 0, flexShrink: 1 } : { flexShrink: 0 });
   // 128 A cover draws its own height, space inside, colour and corners (lib/pages/types.ts STUDIO_COVER_TYPES).
-  if (node.type === "photo_hero" || node.type === "map_header") {
+  if (node.type === "photo_hero" || node.type === "map_header" || node.type === "video_hero" || node.type === "parallax_banner") {
     for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
   }
   if (parentDir === "stack") {
@@ -648,7 +656,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     : {};
   const content = Content(locked && !props.lockedAbove ? { ...props, lockedAbove: true } : props);
   return (
-    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} {...handlers}>
+    <div style={{ ...style, ...layoutStyle(node) }} data-studio-node={node.id} data-studio-enter={entranceMark(node.motion)} data-studio-ken-burns={node.ken_burns && node.type !== "slider" ? "" : undefined} {...handlers}>
       {content}
       {selected && editing ? (
         <>
@@ -715,6 +723,20 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
       case "greeting":
         return <GreetingText lang={lang} sample={p.greeting?.hello} />;
+      // 129 Premium motion & media.
+      case "stories":
+        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;
+      case "marquee":
+        return <Marquee node={n} text={text} rtl={lang === "ar"} accent={look.accent} dark={dark} />;
+      case "before_after":
+        return <BeforeAfter node={n} lang={lang} defaultLang={defaultLang} dark={dark} words={p.words} />;
+      case "segments":
+        return <Segments node={n} dark={dark} rtl={lang === "ar"} />;
+      case "gallery":
+        return <GalleryGrid node={n} lang={lang} defaultLang={defaultLang} dark={dark} words={p.words} />;
+      case "video_hero":
+      case "parallax_banner":
+        return <MediaBanner node={n} dark={dark} rtl={lang === "ar"} front={Children({ ...p, node: { ...n, type: "column" } })} />;
       case "text":
         // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
         return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;
@@ -918,14 +940,20 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     return (
       <>
         <span style={{ position: "relative", display: "block", height: slides?.height ?? (slides?.aspectRatio ? undefined : 180), aspectRatio: slides?.aspectRatio }}>
-          <span style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>{Children(p)}</span>
+          <span data-studio-ken-burns={n.ken_burns ? "" : undefined} style={{ display: "flex", gap: n.gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", height: "100%" }}>
+            {Children(p)}
+          </span>
+          {/* 129.1 The dots in a frosted pill over the slides' foot. */}
+          {indicator === "pill" ? <SliderPill count={count} look={n.indicator_look} /> : null}
           {indicator === "progress" ? (
-            <span data-studio-indicator="progress" aria-hidden="true" style={{ position: "absolute", insetInline: 16, bottom: 12, display: "flex", gap: 4 }}>
+            // 129.1 At the top or the foot, as far from it as the owner set, in their colour.
+            <span data-studio-indicator="progress" aria-hidden="true" style={{ position: "absolute", insetInline: 16, ...edge(n.indicator_look), display: "flex", gap: 4 }}>
               {Array.from({ length: count }, (_, i) => (
-                <span key={i} style={{ flex: "1 1 0", height: 3, borderRadius: 2, background: i === 0 ? "linear-gradient(90deg, #FFFFFF 55%, rgba(255,255,255,0.45) 55%)" : "rgba(255,255,255,0.45)" }} />
+                <span key={i} style={{ flex: "1 1 0", height: 3, borderRadius: 2, background: i === 0 ? `linear-gradient(${lang === "ar" ? 270 : 90}deg, ${n.indicator_look?.color ?? "#FFFFFF"} 55%, rgba(255,255,255,0.45) 55%)` : "rgba(255,255,255,0.45)" }} />
               ))}
             </span>
           ) : null}
+          {n.indicator_look?.count && count > 1 ? <SliderCount count={count} look={n.indicator_look} /> : null}
           {indicator === "count" ? (
             <span data-studio-indicator="count" style={{ position: "absolute", insetInlineEnd: 10, top: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(14,13,36,0.55)", color: "#FFFFFF", fontSize: 11, fontWeight: 700 }}>
               <bdi>1 / {count}</bdi>

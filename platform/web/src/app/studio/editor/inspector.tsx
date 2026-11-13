@@ -11,7 +11,7 @@ import type { ScreenOption } from "@/lib/pages/sources";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
 import {
   ITEMS_SORTS,
-  STUDIO_INDICATORS,
+  STUDIO_SLIDER_INDICATORS,
   STUDIO_ENTERS,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
@@ -52,6 +52,8 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
+// 129 Premium motion & media.
+import { BannerControls, BeforeAfterControls, GalleryControls, IndicatorLookControls, SegmentsControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -722,9 +724,12 @@ function DesignTab(props: Props & { node: StudioNode }) {
               label={t("studio.indicator")}
               value={node.indicator ?? "dots"}
               onChange={(indicator) => onChange({ indicator: indicator === "dots" ? undefined : indicator })}
-              options={STUDIO_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
+              options={STUDIO_SLIDER_INDICATORS.map((v) => ({ value: v, label: t(`studio.indicator_${v}` as DashKey) }))}
             />
           ) : null}
+          {/* 129.1 The open slide's photo zooming slowly; where the indicator sits, its colour and a count. */}
+          <Check label={t("studio.kenBurns")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} />
+          <IndicatorLookControls {...premiumProps(props, node)} />
           {node.children?.length ? <SlidesControl node={node} onChange={onChange} /> : null}
         </div>
       ) : null}
@@ -733,12 +738,21 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "live_status" ? <LiveStatusControls node={node} onChange={onChange} /> : null}
       {node.type === "photo_hero" || node.type === "map_header" ? <CoverControls node={node} onChange={onChange} /> : null}
       {/* 128 The shade over a photo hero's photo, as over any picture. */}
-      {node.type === "photo_hero" ? (
+      {node.type === "photo_hero" || node.type === "video_hero" || node.type === "parallax_banner" ? (
         <div className="flex flex-col gap-2">
           <ScrimFields node={node} onChange={onChange} palette={props.palette} />
         </div>
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
+      {/* 129 Premium motion & media. */}
+      {node.type === "stories" ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
+      {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
+      {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}
+      {node.type === "before_after" ? <BeforeAfterControls {...premiumProps(props, node)} /> : null}
+      {node.type === "segments" ? <SegmentsControls {...premiumProps(props, node)} /> : null}
+      {/* 129.1 A photo growing slowly, again and again. */}
+      {node.type === "photo_hero" || node.type === "image" || node.type === "video_hero" || node.type === "parallax_banner" ? <Check label={t("studio.pmKenBurnsLoop")} checked={Boolean(node.ken_burns)} onChange={(on) => onChange({ ken_burns: on || undefined })} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
@@ -1114,6 +1128,17 @@ function FormEditor({ node, onChange }: { node: StudioNode; onChange: (patch: Pa
   );
 }
 
+/** 129 What the premium elements' controls get: the element, the language being edited and the inspector's link picker. */
+function premiumProps(props: Props, node: StudioNode): PremiumControlsProps {
+  return {
+    node,
+    onChange: props.onChange,
+    lang: props.lang,
+    defaultLang: props.defaultLang,
+    link: (id, action, onChange) => <TapAction id={id} action={action} onChange={onChange} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />,
+  };
+}
+
 function MotionTab(props: Props & { node: StudioNode }) {
   const t = useDashT();
   const { node, onChange } = props;
@@ -1138,6 +1163,10 @@ function MotionTab(props: Props & { node: StudioNode }) {
       </label>
       {m.enter && m.enter !== "none" ? (
         <>
+          {/* 129.8 Played once when it first shows, in the app and on the canvas. */}
+          <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+            {t("studio.pmEnterHint")}
+          </p>
           <RangeField label={t("studio.duration")} value={m.duration_ms ?? 400} scale={1000} min={0.1} max={3} step={0.1} unit={t("studio.unitSeconds")} fallback={400} onChange={(duration_ms) => set({ duration_ms: Math.round(duration_ms) })} />
           <RangeField label={t("studio.delay")} value={m.delay_ms ?? 0} scale={1000} min={0} max={5} step={0.1} unit={t("studio.unitSeconds")} fallback={0} onChange={(delay_ms) => set({ delay_ms: Math.round(delay_ms) })} />
         </>

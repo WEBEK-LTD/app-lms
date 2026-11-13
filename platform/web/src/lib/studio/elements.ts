@@ -1,4 +1,6 @@
 import type { ItemSource, StudioLiveStatus, StudioNode, StudioNodeType } from "../pages/types";
+// 129 Premium motion & media.
+import { PREMIUM_MOTION_ELEMENTS, premiumMotionNode, type PremiumWord } from "./premium-motion";
 
 /**
  * 103R The editor's Elements panel (the approved design): layout elements,
@@ -6,7 +8,8 @@ import type { ItemSource, StudioLiveStatus, StudioNode, StudioNodeType } from ".
  * new one starts as.
  */
 
-export type ElementGroup = "layout" | "content" | "more";
+/** 129 `premium`: the premium elements and looks (lib/studio/premium-*.ts). */
+export type ElementGroup = "layout" | "content" | "more" | "premium";
 
 export interface ElementInfo {
   type: StudioNodeType;
@@ -17,6 +20,8 @@ export interface ElementInfo {
   keywords: string;
   /** 115.14 Offered only in projects of this kind (a marketplace's sections). */
   only?: "marketplace" | "academy" | "orders" | "trips" | "school";
+  /** 129 A premium look of an existing element (a hero slider): its name is `studio.el_<preset>`. */
+  preset?: string;
 }
 
 export const ELEMENTS: readonly ElementInfo[] = [
@@ -60,10 +65,12 @@ export const ELEMENTS: readonly ElementInfo[] = [
   { type: "categories", group: "more", icon: "label", keywords: "categories chips tags filter" },
   { type: "search", group: "more", icon: "search", keywords: "search field" },
   { type: "divider", group: "more", icon: "horizontal_rule", keywords: "divider line separator" },
+  // 129 Premium motion & media.
+  ...PREMIUM_MOTION_ELEMENTS,
 ];
 
 export function elementInfo(type: StudioNodeType): ElementInfo {
-  return ELEMENTS.find((e) => e.type === type) ?? ELEMENTS[0]!;
+  return ELEMENTS.find((e) => e.type === type && !e.preset) ?? ELEMENTS.find((e) => e.type === type) ?? ELEMENTS[0]!;
 }
 
 /** A short random ID for a new element. */
@@ -80,8 +87,21 @@ export type NewText = "text" | "button" | "search" | "ratings" | "field" | "ques
 
 export function newNode(
   type: StudioNodeType,
-  options: { source: ItemSource | null; brand: string; text: (key: NewText) => string; newId?: () => string; now?: Date; /** 128 Whose orders a live status card follows: a marketplace's, else food delivery's. */ orders?: StudioLiveStatus["source"] },
+  options: {
+    source: ItemSource | null;
+    brand: string;
+    text: (key: NewText) => string;
+    newId?: () => string;
+    now?: Date;
+    /** 128 Whose orders a live status card follows: a marketplace's, else food delivery's. */ orders?: StudioLiveStatus["source"];
+    /** 129 A premium look of the element (ElementInfo.preset), and the premium elements' sample words. */
+    preset?: string;
+    premiumWords?: (key: PremiumWord) => string;
+  },
 ): StudioNode {
+  // 129 Premium motion & media: its looks and elements start as lib/studio/premium-motion.ts makes them.
+  const premium = premiumMotionNode(type, options.preset, { brand: options.brand, newId: options.newId ?? newNodeId, words: options.premiumWords });
+  if (premium) return premium;
   const id = (options.newId ?? newNodeId)();
   const child = (title: string, text: string): StudioNode => ({
     id: (options.newId ?? newNodeId)(),
@@ -183,5 +203,8 @@ export function newNode(
       return { id, type, font: { size: 18, weight: 700 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "tracking":
       return { id, type, tracking: { kind: "shipment" }, radius: 20, padding: { top: 14, end: 14, bottom: 14, start: 14 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    // 129 The premium elements are made above (lib/studio/premium-motion.ts).
+    default:
+      return { id, type };
   }
 }

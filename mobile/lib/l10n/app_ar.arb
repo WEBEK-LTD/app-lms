@@ -3057,5 +3057,12 @@
   "travelMaxPrice": "أقصى مبلغ تدفعه ({currency})",
   "travelWhen": "متى",
   "travelWatchPrice": "تابع السعر",
-  "travelTravellersCabin": "المسافرون والدرجة"
+  "travelTravellersCabin": "المسافرون والدرجة",
+  "studioStoryOf": "القصة {index} من {total}",
+  "studioStoryOpen": "افتح",
+  "studioTickerPaused": "متوقّف",
+  "studioVideoPlay": "شغّل الفيديو",
+  "studioVideoPause": "أوقف الفيديو مؤقتًا",
+  "studioCompareLabel": "قبل وبعد: {before} و{after}",
+  "studioCompareHandle": "اسحب للمقارنة"
 }

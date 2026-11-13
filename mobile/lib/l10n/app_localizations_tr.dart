@@ -11434,4 +11434,29 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get travelTravellersCabin => 'Yolcular ve kabin';
+
+  @override
+  String studioStoryOf(int index, int total) {
+    return 'Hikâye $index / $total';
+  }
+
+  @override
+  String get studioStoryOpen => 'Aç';
+
+  @override
+  String get studioTickerPaused => 'Durduruldu';
+
+  @override
+  String get studioVideoPlay => 'Videoyu oynat';
+
+  @override
+  String get studioVideoPause => 'Videoyu duraklat';
+
+  @override
+  String studioCompareLabel(String before, String after) {
+    return 'Önce ve sonra: $before ve $after';
+  }
+
+  @override
+  String get studioCompareHandle => 'Karşılaştırmak için sürükleyin';
 }

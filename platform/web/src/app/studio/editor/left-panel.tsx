@@ -23,7 +23,9 @@ export interface MyTemplate {
   page: StudioPage;
 }
 
-export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined): string {
+export function elementLabel(t: ReturnType<typeof useDashT>, type: StudioNode["type"], source: ItemSource | null | undefined, preset?: string): string {
+  // 129 A premium look of an element (a hero slider) has its own name.
+  if (preset) return t(`studio.el_${preset}` as DashKey);
   if (type === "items" && source) return t(`studio.el_items_${source}` as DashKey);
   return t(`studio.el_${type}` as DashKey);
 }
@@ -51,7 +53,7 @@ export function LeftPanel(props: {
   page: StudioPage | null;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onAddElement: (type: StudioNode["type"]) => void;
+  onAddElement: (type: StudioNode["type"], preset?: string) => void;
   onAddSection: (id: string) => void;
   onUseTemplate: (id: string) => void;
   /** Editor audit 3.3: a picture from the pictures tab, added after what's selected. */
@@ -87,6 +89,8 @@ export function LeftPanel(props: {
     { id: "layout", label: t("studio.groupLayout") },
     { id: "content", label: t("studio.groupContent") },
     { id: "more", label: t("studio.groupMore") },
+    // 129 The premium elements and looks.
+    { id: "premium", label: t("studio.groupPremium") },
   ];
   const sections = props.sections.filter((s) => matches(t(`studio.sec_${s.id}` as DashKey), s.id));
   const templates = props.templates.filter((tpl) => matches(t(`studio.tpl_${tpl.id}` as DashKey), tpl.id));
@@ -119,7 +123,7 @@ export function LeftPanel(props: {
       <div className="min-h-0 flex-1 overflow-y-auto">
         {props.tab === "elements"
           ? groups.map((group) => {
-              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source), e.keywords));
+              const items = ELEMENTS.filter((e) => offered(e.only, props) && e.group === group.id && matches(elementLabel(t, e.type, props.source, e.preset), e.keywords));
               if (!items.length) return null;
               return (
                 <div key={group.id}>
@@ -129,17 +133,17 @@ export function LeftPanel(props: {
                   <div className="grid grid-cols-3 gap-2 px-3 pt-2 pb-3">
                     {items.map((e) => (
                       <button
-                        key={e.type}
+                        key={e.preset ?? e.type}
                         type="button"
                         draggable
-                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type })}
-                        onClick={() => props.onAddElement(e.type)}
+                        onDragStart={(ev) => props.onDragStart(ev, { kind: "new", type: e.type, ...(e.preset ? { preset: e.preset } : {}) })}
+                        onClick={() => props.onAddElement(e.type, e.preset)}
                         className="studio-tile flex flex-col items-center rounded-[10px] bg-white px-1 py-2.5 text-center text-xs"
                         style={{ border: "1px solid var(--studio-line)", cursor: "grab" }}
-                        data-studio-element={e.type}
+                        data-studio-element={e.preset ?? e.type}
                       >
                         <Glyph name={e.icon} size={20} />
-                        <span className="mt-1">{elementLabel(t, e.type, props.source)}</span>
+                        <span className="mt-1">{elementLabel(t, e.type, props.source, e.preset)}</span>
                       </button>
                     ))}
                   </div>
@@ -147,7 +151,7 @@ export function LeftPanel(props: {
               );
             })
           : null}
-        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source), e.keywords)) ? (
+        {props.tab === "elements" && q && !ELEMENTS.some((e) => offered(e.only, props) && matches(elementLabel(t, e.type, props.source, e.preset), e.keywords)) ? (
           <p className="m-0 px-3 pb-3 text-[13px]" style={{ color: "var(--studio-muted)" }}>
             {t("studio.noResults", { query })}
           </p>

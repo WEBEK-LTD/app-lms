@@ -44,6 +44,8 @@ class MainActivity : FlutterActivity() {
             }
         // 53 Course PDFs in the app's own viewer.
         PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        // 129.4 Data Saver, for Studio's video banners.
+        DataSaverChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // 124.9 A page in the app (a video call, an identity check) asked
         // for the camera or the microphone: Android asks the person, once
         // the app may use them the page gets them (lib/core/web/media_permission.dart).

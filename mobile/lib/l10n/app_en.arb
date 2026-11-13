@@ -12390,5 +12390,49 @@
   },
   "travelWhen": "When",
   "travelWatchPrice": "Watch the price",
-  "travelTravellersCabin": "Travellers and cabin"
+  "travelTravellersCabin": "Travellers and cabin",
+  "studioStoryOf": "Story {index} of {total}",
+  "@studioStoryOf": {
+    "description": "129.2 A story's spoken name in a row of stories and full screen.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "studioStoryOpen": "Open",
+  "@studioStoryOpen": {
+    "description": "129.2 The button over a story that opens its link."
+  },
+  "studioTickerPaused": "Paused",
+  "@studioTickerPaused": {
+    "description": "129.3 Spoken while a ticker is held still."
+  },
+  "studioVideoPlay": "Play the video",
+  "@studioVideoPlay": {
+    "description": "129.4 The button over a video banner that plays it."
+  },
+  "studioVideoPause": "Pause the video",
+  "@studioVideoPause": {
+    "description": "129.4 The button over a video banner that pauses it."
+  },
+  "studioCompareLabel": "Before and after: {before} and {after}",
+  "@studioCompareLabel": {
+    "description": "129.6 The spoken name of a before and after photo.",
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "studioCompareHandle": "Drag to compare",
+  "@studioCompareHandle": {
+    "description": "129.6 The spoken hint of the handle between the two photos."
+  }
 }

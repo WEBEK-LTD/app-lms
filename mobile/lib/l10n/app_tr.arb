@@ -3057,5 +3057,12 @@
   "travelMaxPrice": "Ödeyeceğiniz en yüksek tutar ({currency})",
   "travelWhen": "Ne zaman",
   "travelWatchPrice": "Fiyatı takip et",
-  "travelTravellersCabin": "Yolcular ve kabin"
+  "travelTravellersCabin": "Yolcular ve kabin",
+  "studioStoryOf": "Hikâye {index} / {total}",
+  "studioStoryOpen": "Aç",
+  "studioTickerPaused": "Durduruldu",
+  "studioVideoPlay": "Videoyu oynat",
+  "studioVideoPause": "Videoyu duraklat",
+  "studioCompareLabel": "Önce ve sonra: {before} ve {after}",
+  "studioCompareHandle": "Karşılaştırmak için sürükleyin"
 }

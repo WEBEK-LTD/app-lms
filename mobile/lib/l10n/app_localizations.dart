@@ -18457,6 +18457,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Travellers and cabin'**
   String get travelTravellersCabin;
+
+  /// 129.2 A story's spoken name in a row of stories and full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Story {index} of {total}'**
+  String studioStoryOf(int index, int total);
+
+  /// 129.2 The button over a story that opens its link.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get studioStoryOpen;
+
+  /// 129.3 Spoken while a ticker is held still.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get studioTickerPaused;
+
+  /// 129.4 The button over a video banner that plays it.
+  ///
+  /// In en, this message translates to:
+  /// **'Play the video'**
+  String get studioVideoPlay;
+
+  /// 129.4 The button over a video banner that pauses it.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the video'**
+  String get studioVideoPause;
+
+  /// 129.6 The spoken name of a before and after photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Before and after: {before} and {after}'**
+  String studioCompareLabel(String before, String after);
+
+  /// 129.6 The spoken hint of the handle between the two photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to compare'**
+  String get studioCompareHandle;
 }
 
 class _AppLocalizationsDelegate

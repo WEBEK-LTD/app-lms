@@ -9,6 +9,7 @@ import '../../../core/theme/symbol_names.dart';
 import '../../../core/widgets/common.dart';
 import '../../taxi/data/taxi_providers.dart';
 import 'studio_live.dart';
+import 'studio_motion.dart';
 import 'studio_page.dart';
 import 'studio_scrim.dart';
 
@@ -82,7 +83,11 @@ class StudioCoverView extends ConsumerWidget {
         else ...[
           ColoredBox(color: background ?? const Color(0xFF1F2A37)),
           if (node.imageUrl case final url?)
-            AppNetworkImage(url: url, seed: node.id.hashCode),
+            // 129.1 Growing slowly in a slider's open slide (Ken Burns).
+            StudioKenBurns.wrap(
+              context,
+              AppNetworkImage(url: url, seed: node.id.hashCode),
+            ),
           // The shade any picture can have (studio_scrim.dart).
           if (node.scrim case final scrim?)
             DecoratedBox(

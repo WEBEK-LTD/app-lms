@@ -67,6 +67,19 @@ import {
   SLIDER_RATIOS,
   SLIDER_SECONDS,
   STUDIO_INDICATORS,
+  STUDIO_SLIDER_INDICATORS,
+  STUDIO_PREMIUM_LIMITS,
+  STUDIO_MARQUEE_DIRECTIONS,
+  STUDIO_GALLERY_LAYOUTS,
+  STUDIO_STORY_RINGS,
+  STUDIO_CAPTION_STYLES,
+  STUDIO_KEN_BURNS_TYPES,
+  type StudioStory,
+  type StudioPhoto,
+  type StudioIndicatorLook,
+  type StudioSegments,
+  type StudioGallery,
+  type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
   STUDIO_MARKET_SECTIONS,
@@ -1211,6 +1224,177 @@ function parseCover(ctx: Context, where: string, v: Record<string, unknown>, typ
   return out;
 }
 
+// ——— 129.1–129.8 Premium motion & media ———
+/**
+ * 129 What the premium elements hold besides any element's look: the
+ * stories (129.2). `num` is the element's own bounded number reader.
+ */
+function parsePremiumMotion(ctx: Context, where: string, v: Record<string, unknown>, node: StudioNode, num: (key: string, min: number, max: number, what: string) => number | undefined, bad: (what: string) => void): void {
+  const { c } = ctx;
+  const P = STUDIO_PREMIUM_LIMITS;
+  if (node.type === "stories") {
+    const raw = Array.isArray(v.slides) ? v.slides : [];
+    if (!raw.length) bad("add a story.");
+    if (raw.length > P.stories) bad(`a row of stories can have at most ${P.stories}.`);
+    node.slides = raw.slice(0, P.stories).map((value, i) => {
+      const s = record(value) ?? {};
+      const at = `${where}, story ${i + 1}`;
+      const translations = parseTranslations(ctx, at, s.translations, ["heading", "subheading"], { heading: P.storyTitle, subheading: P.storyLine });
+      // What a story has; what it hasn't is left out.
+      const story = {
+        image_url: c.mediaUrl(at, s.image_url, "the story's photo's address", false),
+        heading: c.optionalText(at, s.heading, P.storyTitle, "The story's title"),
+        subheading: c.optionalText(at, s.subheading, P.storyLine, "The line under it"),
+        action: parseAction(ctx, at, s.action, false),
+      };
+      // How its round photo is drawn: its ring, the ring's colour, and without a photo a colour with initials or an icon.
+      const look: Partial<StudioStory> = {};
+      if (s.ring !== undefined && s.ring !== null && !oneOf(STUDIO_STORY_RINGS, s.ring)) bad("choose how the story's ring looks.");
+      else if (s.ring && s.ring !== "auto") look.ring = s.ring as StudioStory["ring"];
+      for (const key of ["ring_color", "color"] as const) {
+        const color = optionalColor(c, at, s[key], key === "color" ? "the story's colour" : "the ring's colour");
+        if (color) look[key] = color;
+      }
+      const label = c.optionalText(at, s.label, 3, "The letters in the circle");
+      if (label) look.label = label;
+      if (s.icon !== undefined && s.icon !== null && s.icon !== "") {
+        if (!(typeof s.icon === "string" && ICON_NAME.test(s.icon))) bad("choose the story's icon.");
+        else look.icon = s.icon;
+      }
+      return { ...(Object.fromEntries(Object.entries(story).filter(([, x]) => x !== null)) as Partial<typeof story>), ...look, ...(translations ? { translations } : {}) } as StudioStory;
+    });
+    const interval = num("interval_ms", 2000, 15000, "the time each story shows");
+    if (interval) node.interval_ms = Math.round(interval);
+    if (v.stories !== undefined && v.stories !== null) {
+      const o = record(v.stories);
+      const size = studioNumber(o?.size, P.ringMin, P.ringMax);
+      if (!o || (size !== undefined && Number.isNaN(size))) bad(`the stories' rings are ${P.ringMin} to ${P.ringMax} across.`);
+      else if (size !== undefined && size !== 68) node.stories = { size: Math.round(size) };
+    }
+  }
+  if (node.type === "video_hero" || node.type === "parallax_banner") parsePremiumBanner(ctx, where, v, node, bad);
+  if (node.type === "gallery") {
+    // 129.5 One to 30 photos, each with its caption, laid out as the owner chose.
+    node.images = parsePremiumImages(ctx, where, v.images, 1, true);
+    const g = record(v.gallery);
+    if (!g || !oneOf(STUDIO_GALLERY_LAYOUTS, g.layout)) bad("choose how the gallery lays out its photos.");
+    else {
+      const gallery: StudioGallery = { layout: g.layout };
+      const radius = studioNumber(g.radius, 0, 40);
+      if (radius !== undefined && Number.isNaN(radius)) bad("the photos' corners must be 0 to 40.");
+      else if (radius !== undefined && radius !== 16) gallery.radius = Math.round(radius);
+      if (g.captions === true) gallery.captions = true;
+      if (v.caption_style !== undefined && v.caption_style !== null && !oneOf(STUDIO_CAPTION_STYLES, v.caption_style)) bad("choose how the captions look.");
+      else if (v.caption_style === "pill") node.caption_style = "pill";
+      node.gallery = gallery;
+    }
+    const columns = num("columns", 2, 3, "the gallery's columns");
+    if (columns && columns !== 2) node.columns = Math.round(columns);
+  }
+  if (node.type === "segments") {
+    // 129.1 A bar of segments, some of them filled; or the student's course's lessons.
+    const s = record(v.segments) ?? {};
+    const segments: StudioSegments = {};
+    const count = studioNumber(s.count, 2, 40);
+    if (count !== undefined && Number.isNaN(count)) bad("a bar has 2 to 40 segments.");
+    else if (count !== undefined) segments.count = Math.round(count);
+    const done = studioNumber(s.done, 0, segments.count ?? 40);
+    if (done !== undefined && Number.isNaN(done)) bad("the segments done are 0 to how many there are.");
+    else if (done !== undefined) segments.done = Math.round(done);
+    const part = typeof s.part === "number" && s.part >= 0 && s.part <= 1 ? Math.round(s.part * 100) / 100 : s.part === undefined || s.part === null ? undefined : NaN;
+    if (part !== undefined && Number.isNaN(part)) bad("the next segment is filled 0 to 1.");
+    else if (part) segments.part = part;
+    const height = studioNumber(s.height, 2, 10);
+    if (height !== undefined && Number.isNaN(height)) bad("the bar is 2 to 10 tall.");
+    else if (height !== undefined && height !== 3) segments.height = height;
+    if (s.source === "course") segments.source = "course";
+    else if (s.source !== undefined && s.source !== null) bad("choose where the bar's progress comes from.");
+    if (Object.keys(segments).length) node.segments = segments;
+  }
+  if (node.type === "before_after") {
+    // 129.6 The photo before and the photo after, their captions the labels; where the divider starts.
+    const raw = Array.isArray(v.images) ? v.images : [];
+    if (raw.length !== 2) bad("add the photo before and the photo after.");
+    node.images = parsePremiumImages(ctx, where, raw.slice(0, 2), 0);
+    if (v.compare !== undefined && v.compare !== null) {
+      const at = studioNumber(record(v.compare)?.at, 5, 95);
+      if (at !== undefined && Number.isNaN(at)) bad("the divider starts 5 to 95% of the way.");
+      else if (at !== undefined && at !== 50) node.compare = { at: Math.round(at) };
+    }
+  }
+  if (node.type === "marquee") {
+    const images = parsePremiumImages(ctx, where, v.images, 0);
+    if (images.length) node.images = images;
+    if (!node.text?.trim() && !images.length) bad("add the ticker's words or pictures.");
+    if (v.icon !== undefined && v.icon !== null && v.icon !== "") {
+      if (!(typeof v.icon === "string" && ICON_NAME.test(v.icon))) bad("choose an icon.");
+      else node.icon = v.icon;
+    }
+    if (v.marquee !== undefined && v.marquee !== null) {
+      const m = record(v.marquee);
+      if (!m) bad("the ticker's settings aren't valid.");
+      else {
+        const marquee: StudioMarquee = {};
+        const speed = studioNumber(m.speed, P.speedMin, P.speedMax);
+        if (speed !== undefined && Number.isNaN(speed)) bad(`the ticker's speed must be ${P.speedMin} to ${P.speedMax}.`);
+        else if (speed !== undefined && speed !== 40) marquee.speed = Math.round(speed);
+        if (m.direction !== undefined && m.direction !== null && !oneOf(STUDIO_MARQUEE_DIRECTIONS, m.direction)) bad("choose which way the ticker runs.");
+        else if (m.direction === "end") marquee.direction = "end";
+        if (m.pause_on_press === false) marquee.pause_on_press = false;
+        const size = studioNumber(m.size, P.logoMin, P.logoMax);
+        if (size !== undefined && Number.isNaN(size)) bad(`the ticker's pictures must be ${P.logoMin} to ${P.logoMax} tall.`);
+        else if (size !== undefined && size !== 36) marquee.size = Math.round(size);
+        const tilt = studioNumber(m.tilt, -8, 8);
+        if (tilt !== undefined && Number.isNaN(tilt)) bad("the band turns -8 to 8 degrees.");
+        else if (tilt) marquee.tilt = tilt;
+        if (m.dot === true) marquee.dot = true;
+        if (m.chips === true) marquee.chips = true;
+        if (Object.keys(marquee).length) node.marquee = marquee;
+      }
+    }
+  }
+}
+
+/** 129.4 and 129.7 A video banner's video, poster and playing by itself; a parallax banner's photo and speed; either's frosted panel. */
+function parsePremiumBanner(ctx: Context, where: string, v: Record<string, unknown>, node: StudioNode, bad: (what: string) => void): void {
+  const { c } = ctx;
+  const photo = c.mediaUrl(where, v.image_url, node.type === "video_hero" ? "the poster's address" : "the photo's address", false);
+  if (photo) node.image_url = photo;
+  if (node.type === "video_hero") {
+    // An MP4 from the media library (https); without one, the poster shows.
+    const video = c.mediaUrl(where, v.video_url, "the video's address", false);
+    if (video) node.video_url = video;
+    if (v.autoplay === true) node.autoplay = true;
+  } else if (v.parallax !== undefined && v.parallax !== null) {
+    const p = record(v.parallax);
+    // In hundredths, as the inspector's slider sets it.
+    const speed = p?.speed === undefined || p.speed === null ? undefined : typeof p.speed === "number" && p.speed >= 0.1 && p.speed <= 0.9 ? p.speed : NaN;
+    if (!p || (speed !== undefined && Number.isNaN(speed))) bad("the photo moves 0.1 to 0.9 as fast as the page.");
+    else if (speed !== undefined && speed !== 0.5) node.parallax = { speed: Math.round(speed * 100) / 100 };
+  }
+  if (v.glass === true) node.glass = true;
+}
+
+/** 129 Photos of a premium element (a ticker's logos, a gallery's photos): each one's address and caption, `min` to 30. */
+function parsePremiumImages(ctx: Context, where: string, value: unknown, min: number, withLinks = false): StudioPhoto[] {
+  const { c } = ctx;
+  const P = STUDIO_PREMIUM_LIMITS;
+  const raw = Array.isArray(value) ? value : [];
+  if (raw.length < min) c.fail(where, min === 1 ? "add a photo." : `add ${min} photos.`);
+  if (raw.length > P.images) c.fail(where, `add at most ${P.images} photos.`);
+  return raw.slice(0, P.images).map((one, i) => {
+    const o = record(one) ?? {};
+    const at = `${where}, photo ${i + 1}`;
+    const caption = c.optionalText(at, o.caption, P.caption, "The caption");
+    const translations = parseTranslations(ctx, at, o.translations, ["caption"], { caption: P.caption });
+    // A photo without a caption has none.
+    // 129.5 A gallery's photo can open a link instead of the viewer.
+    const action = withLinks ? parseAction(ctx, at, o.action, false) : null;
+    return { image_url: c.mediaUrl(at, o.image_url, "the photo", true), ...(caption ? { caption } : {}), ...(action ? { action } : {}), ...(translations ? { translations } : {}) } as StudioPhoto;
+  });
+}
+// ——— end 129 premium motion & media ———
+
 function parseNode(ctx: Context, where: string, value: unknown, state: { count: number; ids: Set<string> }, depth: number, card: boolean): StudioNode | null {
   const { c } = ctx;
   const L = STUDIO_LIMITS;
@@ -1362,7 +1546,18 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   const textAlign = pick("text_align", STUDIO_TEXT_ALIGNS, "choose where the text sits.");
   if (textAlign && textAlign !== "start") node.text_align = textAlign;
   // 115.14 A marketplace section keeps its own title and text (under the title, or the search box's hint).
-  const textual = node.type === "text" || node.type === "button" || node.type === "ratings" || node.type === "search" || node.type === "countdown" || node.type === "bullets" || node.type === "market" || node.type === "learning" || node.type === "school";
+  const textual =
+    node.type === "text" ||
+    node.type === "button" ||
+    node.type === "ratings" ||
+    node.type === "search" ||
+    node.type === "countdown" ||
+    node.type === "bullets" ||
+    node.type === "market" ||
+    node.type === "learning" ||
+    node.type === "school" ||
+    // 129.3 A ticker's words, a line each.
+    node.type === "marquee";
   if (textual) {
     const text =
       (node.type === "text" || node.type === "bullets") && !card ? c.text(where, v.text, L.textChars, node.type === "bullets" ? "the list's lines" : "a text") : c.optionalText(where, v.text, L.textChars, node.type === "countdown" ? "The text once the time is up" : "The text");
@@ -1415,8 +1610,26 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       if (perView && perView !== 1) node.per_view = perView;
       if (v.dots === false) node.dots = false;
       // 112.4 Lines filling over it, or "2 / 5".
-      const indicator = pick("indicator", STUDIO_INDICATORS, "choose how the slider shows where it is.");
+      const indicator = pick("indicator", STUDIO_SLIDER_INDICATORS, "choose how the slider shows where it is.");
       if (indicator && indicator !== "dots") node.indicator = indicator;
+      // 129.1 Where its indicator sits, its colour and a count beside it.
+      if (v.indicator_look !== undefined && v.indicator_look !== null) {
+        const l = record(v.indicator_look);
+        const look: StudioIndicatorLook = {};
+        if (!l) bad("the indicator's look isn't valid.");
+        else {
+          if (l.at === "top") look.at = "top";
+          else if (l.at !== undefined && l.at !== null && l.at !== "bottom") bad("put the indicator at the top or the foot.");
+          const inset = studioNumber(l.inset, 0, 400);
+          if (inset !== undefined && Number.isNaN(inset)) bad("the indicator sits 0 to 400 from its edge.");
+          else if (inset !== undefined) look.inset = Math.round(inset);
+          const color = optionalColor(c, where, l.color, "the indicator's colour");
+          if (color) look.color = color;
+          if (l.count === "plain" || l.count === "padded") look.count = l.count;
+          else if (l.count !== undefined && l.count !== null) bad("choose how the slides are counted.");
+          if (Object.keys(look).length) node.indicator_look = look;
+        }
+      }
       break;
     }
     case "coupon": {
@@ -1612,6 +1825,16 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
       Object.assign(node, parseCover(ctx, where, v, node.type, bad));
       break;
     }
+    // 129 Premium motion & media.
+    case "stories":
+    case "marquee":
+    case "video_hero":
+    case "parallax_banner":
+    case "gallery":
+    case "before_after":
+    case "segments":
+      parsePremiumMotion(ctx, where, v, node, num, bad);
+      break;
     // 128 The signed-in person's shipment or ride on its way, or the taxis near them.
     case "tracking": {
       const t = record(v.tracking);
@@ -1632,6 +1855,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     default:
       break;
   }
+  // 129.1 A photo growing slowly: a slider's open slide's, a photo hero's, a picture's or a banner's.
+  if (v.ken_burns === true && (STUDIO_KEN_BURNS_TYPES as readonly string[]).includes(node.type)) node.ken_burns = true;
   if (node.type === "button" || node.type === "icon" || node.type === "bullets") {
     const iconSize = num("icon_size", 8, 200, "the icon's size");
     if (iconSize && iconSize !== 24) node.icon_size = iconSize;
