@@ -1,5 +1,6 @@
 import { Logo } from "@/components/brand";
 import type { StudioNodeType } from "@/lib/pages/types";
+import type { PremiumMapId } from "@/lib/studio/premium-maps";
 
 /** 103R What is being dragged in the editor: a new element, a ready section, or an element of the page. */
 export type DragPayload =
@@ -7,7 +8,9 @@ export type DragPayload =
   | { kind: "section"; id: string }
   | { kind: "move"; id: string }
   // Editor audit 3.3: a picture from the pictures panel; `share` is the project's file to make public first.
-  | { kind: "picture"; url: string; share?: string };
+  | { kind: "picture"; url: string; share?: string }
+  // 129.21–129.24 One of the Premium group's maps (lib/studio/premium-maps.ts).
+  | { kind: "premium_map"; id: PremiumMapId };
 
 export const DRAG_TYPE = "application/x-yallapp-studio";
 

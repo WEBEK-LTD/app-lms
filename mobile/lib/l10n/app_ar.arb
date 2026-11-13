@@ -2688,5 +2688,9 @@
   "studioSchoolBusLeaves": "حافلة العودة تنطلق الساعة {time}",
   "studioSchoolBusComing": "الحافلة في الطريق · {minutes} دقيقة",
   "studioSchoolBusRoute": "{route} · محطة {stop}",
-  "studioSchoolDayOff": "لا دراسة اليوم"
+  "studioSchoolDayOff": "لا دراسة اليوم",
+  "studioMapSign": "تاكسي",
+  "studioMapMinutes": "{minutes} د",
+  "studioMapPickup": "نقطة الركوب",
+  "studioMapEta": "{name} · {minutes} د"
 }

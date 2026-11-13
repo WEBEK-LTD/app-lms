@@ -16,6 +16,13 @@ class StudioMapDrawing {
     this.chip,
     this.me = false,
     this.live = false,
+    this.style,
+    this.marker,
+    this.sign,
+    this.meAt,
+    this.places = const [],
+    this.labels = const [],
+    this.route,
   });
 
   static StudioMapDrawing? tryParse(Object? value) {
@@ -32,8 +39,24 @@ class StudioMapDrawing {
       chip: optString(json, 'chip'),
       me: boolOr(json, 'me', false),
       live: boolOr(json, 'live', false),
+      // 129.21–129.24 Its premium look; a look or marker this app doesn't
+      // know is the plain map and its tiles.
+      style: enumOrNull(StudioMapStyle.values, json['style']),
+      marker: enumOrNull(StudioMapMarker.values, json['marker']),
+      sign: optString(json, 'sign'),
+      meAt: StudioPlace.tryParse(json['me_at']),
+      places: [
+        for (final p in _list(json['places'], 6)) ?StudioMapPin.tryParse(p),
+      ],
+      labels: [
+        for (final l in _list(json['labels'], 8)) ?StudioMapLabel.tryParse(l),
+      ],
+      route: StudioMapRoute.tryParse(json['route']),
     );
   }
+
+  static Iterable<Object?> _list(Object? raw, int most) =>
+      raw is List ? raw.take(most) : const [];
 
   /// In percent from the start and the top.
   final List<StudioPlace> markers;
@@ -46,6 +69,147 @@ class StudioMapDrawing {
   final String? chip;
   final bool me;
   final bool live;
+
+  /// 129.21–129.24 How the map is drawn; null, the plain map.
+  final StudioMapStyle? style;
+
+  /// How the markers look; null, the style's own.
+  final StudioMapMarker? marker;
+
+  /// The word on a roof-sign marker; null, "TAXI" in the app's language.
+  final String? sign;
+
+  /// Where the person's dot is; null, a little under the middle.
+  final StudioPlace? meAt;
+  final List<StudioMapPin> places;
+  final List<StudioMapLabel> labels;
+  final StudioMapRoute? route;
+
+  /// Whether there is more than 128's plain map to draw.
+  bool get premium =>
+      style != null ||
+      marker != null ||
+      sign != null ||
+      meAt != null ||
+      places.isNotEmpty ||
+      labels.isNotEmpty ||
+      route != null;
+
+  /// The markers' look: the element's, else its style's own.
+  StudioMapMarker get markerLook =>
+      marker ??
+      switch (style) {
+        StudioMapStyle.natural || StudioMapStyle.horizon => StudioMapMarker.car,
+        StudioMapStyle.twoInk => StudioMapMarker.sign,
+        StudioMapStyle.lens => StudioMapMarker.token,
+        null => StudioMapMarker.tile,
+      };
+}
+
+/// 129.21–129.24 The drawn map's premium looks: a living map, a horizon in
+/// perspective, two inks, a radar lens.
+enum StudioMapStyle { natural, horizon, twoInk, lens }
+
+/// How a map's markers look: a tile with the icon, a car from above, a roof
+/// sign, a round token with a trail.
+enum StudioMapMarker { tile, car, sign, token }
+
+/// What a live route follows: the person's ride or shipment on its way.
+enum StudioMapRouteLive { ride, shipment }
+
+/// 129.21 A labelled pin (Home, Office), in percent from the start and the
+/// top.
+class StudioMapPin {
+  const StudioMapPin({required this.at, required this.label, this.icon});
+
+  static StudioMapPin? tryParse(Object? value) {
+    final at = StudioPlace.tryParse(value);
+    if (at == null || value is! Map) return null;
+    final json = asJson(value);
+    final label = optString(json, 'label')?.trim();
+    if (label == null || label.isEmpty) return null;
+    return StudioMapPin(at: at, label: label, icon: optString(json, 'icon'));
+  }
+
+  final StudioPlace at;
+  final String label;
+  final String? icon;
+}
+
+/// 129.21 A word on the map (a district, a river), its start at the spot.
+class StudioMapLabel {
+  const StudioMapLabel({required this.at, required this.text});
+
+  static StudioMapLabel? tryParse(Object? value) {
+    final at = StudioPlace.tryParse(value);
+    if (at == null || value is! Map) return null;
+    final text = optString(asJson(value), 'text')?.trim();
+    if (text == null || text.isEmpty) return null;
+    return StudioMapLabel(at: at, text: text);
+  }
+
+  final StudioPlace at;
+  final String text;
+}
+
+/// 129.24 A route on the map: through its points, done up to [at] percent
+/// of the way, with the vehicle there.
+class StudioMapRoute {
+  const StudioMapRoute({
+    required this.points,
+    this.at = 0,
+    this.fromLabel,
+    this.toLabel,
+    this.eta,
+    this.icon,
+    this.color,
+    this.darkColor,
+    this.moving = false,
+    this.live,
+  });
+
+  static StudioMapRoute? tryParse(Object? value) {
+    if (value is! Map) return null;
+    final json = asJson(value);
+    final raw = json['points'];
+    final points = [
+      for (final p in raw is List ? raw.take(6) : const [])
+        ?StudioPlace.tryParse(p),
+    ];
+    if (points.length < 2) return null;
+    return StudioMapRoute(
+      points: points,
+      at: (optDouble(json, 'at') ?? 0).clamp(0, 100).toDouble(),
+      fromLabel: optString(json, 'from_label'),
+      toLabel: optString(json, 'to_label'),
+      eta: optString(json, 'eta'),
+      icon: optString(json, 'icon'),
+      color: optString(json, 'color'),
+      darkColor: optString(json, 'dark_color'),
+      moving: boolOr(json, 'moving', false),
+      live: enumOrNull(StudioMapRouteLive.values, json['live']),
+    );
+  }
+
+  /// In percent from the start and the top.
+  final List<StudioPlace> points;
+
+  /// Where the vehicle is along the way, 0 to 100.
+  final double at;
+  final String? fromLabel;
+  final String? toLabel;
+  final String? eta;
+  final String? icon;
+
+  /// #RRGGBB; null, the markers' accent.
+  final String? color;
+  final String? darkColor;
+
+  /// The vehicle drives on along the rest of the way (a sample).
+  final bool moving;
+
+  /// In the app, the person's ride or shipment on its way instead.
+  final StudioMapRouteLive? live;
 }
 
 /// What a `tracking` element follows: the person's shipment or ride on its

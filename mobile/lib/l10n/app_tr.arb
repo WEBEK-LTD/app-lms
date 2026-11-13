@@ -2688,5 +2688,9 @@
   "studioSchoolBusLeaves": "Eve dönüş servisi · {time}",
   "studioSchoolBusComing": "Servis yolda · {minutes} dk",
   "studioSchoolBusRoute": "{route} · {stop} durağı",
-  "studioSchoolDayOff": "Bugün okul yok"
+  "studioSchoolDayOff": "Bugün okul yok",
+  "studioMapSign": "TAKSİ",
+  "studioMapMinutes": "{minutes} dk",
+  "studioMapPickup": "Biniş",
+  "studioMapEta": "{name} · {minutes} dk"
 }

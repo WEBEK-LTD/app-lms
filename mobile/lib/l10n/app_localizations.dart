@@ -16243,6 +16243,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No school today'**
   String get studioSchoolDayOff;
+
+  /// 129.23 The word on a two-ink map's roof-sign markers when the Studio element has none.
+  ///
+  /// In en, this message translates to:
+  /// **'TAXI'**
+  String get studioMapSign;
+
+  /// 129.23 A radar lens's minute ring on a Studio map, and a live route's minutes without a name.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String studioMapMinutes(int minutes);
+
+  /// 129.24 The chip over the pickup on a Studio map's live route while the driver comes.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get studioMapPickup;
+
+  /// 129.24 The bubble by the driver on a Studio map's live route: their first name and the minutes to the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {minutes} min'**
+  String studioMapEta(String name, int minutes);
 }
 
 class _AppLocalizationsDelegate

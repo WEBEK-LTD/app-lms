@@ -9980,4 +9980,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studioSchoolDayOff => 'No school today';
+
+  @override
+  String get studioMapSign => 'TAXI';
+
+  @override
+  String studioMapMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get studioMapPickup => 'Pickup';
+
+  @override
+  String studioMapEta(String name, int minutes) {
+    return '$name · $minutes min';
+  }
 }
