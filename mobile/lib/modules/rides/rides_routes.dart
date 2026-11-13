@@ -56,7 +56,13 @@ final ridesModule = AppModule(
     BuiltInScreen.teachers ||
     BuiltInScreen.teacher ||
     BuiltInScreen.school ||
-    BuiltInScreen.classroom => null,
+    BuiltInScreen.classroom ||
+    BuiltInScreen.explore ||
+    BuiltInScreen.stays ||
+    BuiltInScreen.flights ||
+    BuiltInScreen.trips ||
+    BuiltInScreen.saved ||
+    BuiltInScreen.priceAlerts => null,
   },
   routes: _pushedRoutes,
 );

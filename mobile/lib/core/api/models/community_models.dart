@@ -71,6 +71,11 @@ enum NotificationType {
   schoolBehaviour,
   schoolBus,
   schoolLibrary,
+
+  /// 126 A travel app's: a booking or its flight changed; a watched price
+  /// went down.
+  travelUpdate,
+  travelAlert,
   unknown,
 }
 
@@ -99,6 +104,7 @@ class InboxNotification {
     this.studentId,
     this.homeworkId,
     this.reportId,
+    this.bookingId,
   });
 
   factory InboxNotification.fromJson(Json json) => InboxNotification(
@@ -126,6 +132,7 @@ class InboxNotification {
     studentId: optInt(json, 'student_id'),
     homeworkId: optInt(json, 'homework_id'),
     reportId: optInt(json, 'report_id'),
+    bookingId: optInt(json, 'booking_id'),
     createdAt: reqDate(json, 'created_at'),
     read: reqBool(json, 'read'),
   );
@@ -179,6 +186,9 @@ class InboxNotification {
   /// 113.5 For a teacher's report: the report.
   final int? reportId;
 
+  /// 126 For a travel update: the trip.
+  final int? bookingId;
+
   Map<String, dynamic> get target => {
     'type': snake(type),
     'course_id': ?courseId,
@@ -196,6 +206,7 @@ class InboxNotification {
     'student_id': ?studentId,
     'report_id': ?reportId,
     'homework_id': ?homeworkId,
+    'booking_id': ?bookingId,
   };
 }
 

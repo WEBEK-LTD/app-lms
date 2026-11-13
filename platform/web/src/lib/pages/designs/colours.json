@@ -218,5 +218,17 @@
   "taxi-night": {
     "primary": "#0B1020",
     "secondary": "#F2C14E"
+  },
+  "travel-explore": {
+    "primary": "#0E1424",
+    "secondary": "#C9A063"
+  },
+  "travel-escape": {
+    "primary": "#1F6F8B",
+    "secondary": "#FF6B3D"
+  },
+  "travel-calm": {
+    "primary": "#2A3350",
+    "secondary": "#1F6F8B"
   }
 }

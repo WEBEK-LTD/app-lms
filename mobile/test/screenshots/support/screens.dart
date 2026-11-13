@@ -1072,6 +1072,30 @@ final websiteShots = <Shot>[
     prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
+  // 126 Safra, Studio's travel demo: its home, a hotel and the trip.
+  Shot(
+    'safra-explore',
+    api: safraStudioApi,
+    appName: 'Safra',
+    appType: AppType.travel,
+    prepare: prepareSafra,
+  ),
+  Shot(
+    'safra-hotel',
+    api: safraStudioApi,
+    appName: 'Safra',
+    appType: AppType.travel,
+    prepare: prepareSafra,
+    location: '/travel/hotel/1',
+  ),
+  Shot(
+    'safra-trip',
+    api: safraStudioApi,
+    appName: 'Safra',
+    appType: AppType.travel,
+    prepare: prepareSafra,
+    after: (tester, router) async => router.go('/trips'),
+  ),
 ];
 
 /// 128 Nakhla School's approved home at 08:10 on a school day: Maths now,

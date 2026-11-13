@@ -9936,4 +9936,1502 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get studioSchoolDayOff => 'Bugün okul yok';
+
+  @override
+  String get travelTabExplore => 'Keşfet';
+
+  @override
+  String get travelTabStays => 'Konaklama';
+
+  @override
+  String get travelTabFlights => 'Uçuşlar';
+
+  @override
+  String get travelTabTrips => 'Seyahatler';
+
+  @override
+  String get travelTabSaved => 'Kaydedilenler';
+
+  @override
+  String get travelTabBookings => 'Rezervasyonlar';
+
+  @override
+  String get travelTabAlerts => 'Alarmlar';
+
+  @override
+  String get travelTabSearch => 'Ara';
+
+  @override
+  String get travelTabHelp => 'Yardım';
+
+  @override
+  String get travelMorning => 'Günaydın';
+
+  @override
+  String get travelAfternoon => 'Tünaydın';
+
+  @override
+  String get travelEvening => 'İyi akşamlar';
+
+  @override
+  String travelGreeting(String part, String name) {
+    return '$part, $name';
+  }
+
+  @override
+  String get travelExploreTitle => 'Bir sonraki hikâye nerede başlıyor?';
+
+  @override
+  String get travelHeroPhoto => 'Gidilecek bir yer';
+
+  @override
+  String get travelStayFlight => 'Konaklama + Uçuş';
+
+  @override
+  String get travelFrom => 'Nereden';
+
+  @override
+  String get travelTo => 'Nereye';
+
+  @override
+  String get travelWhereTo => 'Nereye?';
+
+  @override
+  String get travelAnywhere => 'Her yer';
+
+  @override
+  String get travelDates => 'Tarihler';
+
+  @override
+  String travelDatesNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tarihler · $count gece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelTravellers => 'Yolcular';
+
+  @override
+  String get travelGuestsLabel => 'Misafirler';
+
+  @override
+  String get travelRoomsLabel => 'Odalar';
+
+  @override
+  String get travelTravellersLabel => 'Yolcular';
+
+  @override
+  String get travelPeopleLabel => 'Kişiler';
+
+  @override
+  String get travelNightsLabel => 'Geceler';
+
+  @override
+  String get travelFindTrip => 'Seyahatimi bul';
+
+  @override
+  String get travelSearchStays => 'Konaklama ara';
+
+  @override
+  String get travelSearchFlights => 'Uçuş ara';
+
+  @override
+  String get travelTogether => 'Uçuş + otel bir arada';
+
+  @override
+  String get travelOneBooking => 'tek rezervasyon, tek fiyat';
+
+  @override
+  String get travelTrending => 'Bu ayın gözdeleri';
+
+  @override
+  String get travelSeeAll => 'Tümünü gör';
+
+  @override
+  String travelTripFrom(String price) {
+    return 'Konaklama + uçuş, en az $price';
+  }
+
+  @override
+  String travelNightFrom(String price) {
+    return 'Konaklama gecelik en az $price';
+  }
+
+  @override
+  String travelHotelsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count otel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelAlertDropped(String route, String amount) {
+    return '$route fiyatı $amount düştü';
+  }
+
+  @override
+  String travelAlertNow(String price) {
+    return 'Alarmınız · şu an en düşük $price';
+  }
+
+  @override
+  String get travelPriceAlerts => 'Fiyat alarmları';
+
+  @override
+  String get travelMember => 'Üye';
+
+  @override
+  String travelMemberPrices(int percent) {
+    return 'Üye fiyatları · −%$percent';
+  }
+
+  @override
+  String travelMemberOff(int percent) {
+    return 'Üye fiyatı · −%$percent';
+  }
+
+  @override
+  String get travelMemberPrice => 'Üye fiyatı';
+
+  @override
+  String get travelStaysTitle => 'Unutulmaz bir yerde';
+
+  @override
+  String get travelStaysTitleEnd => 'konaklayın.';
+
+  @override
+  String get travelFlightsTitle => 'Bütün gökyüzü,';
+
+  @override
+  String get travelFlightsTitleEnd => 'tek aramada.';
+
+  @override
+  String get travelAll => 'Tümü';
+
+  @override
+  String travelFeaturedIn(String city) {
+    return 'Öne çıkan · $city';
+  }
+
+  @override
+  String travelPerNight(String price) {
+    return '$price / gece';
+  }
+
+  @override
+  String get travelReturn => 'Gidiş-dönüş';
+
+  @override
+  String get travelOneWay => 'Tek yön';
+
+  @override
+  String get travelDepart => 'Gidiş';
+
+  @override
+  String get travelSwap => 'Değiştir';
+
+  @override
+  String get travelDirectOnly => 'Yalnızca aktarmasız';
+
+  @override
+  String travelAdults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yetişkin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelAdultsEconomy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yetişkin · Ekonomi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelGuests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count misafir',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelRooms(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count oda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelGuestsRooms(int guests, int rooms) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rooms,
+      locale: localeName,
+      other: '$guests · $rooms oda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelTravellersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yolcu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelPickDates => 'Fiyatları görmek için tarihlerinizi seçin.';
+
+  @override
+  String get travelLess => 'Azalt';
+
+  @override
+  String get travelMore => 'Artır';
+
+  @override
+  String get travelDone => 'Tamam';
+
+  @override
+  String get travelChoose => 'Seçin';
+
+  @override
+  String get travelSearchPlaces => 'Şehir veya havalimanı';
+
+  @override
+  String get travelNoPlaces => 'Eşleşen bir sonuç yok. Başka bir ad deneyin.';
+
+  @override
+  String get travelAmenityPool => 'Havuz';
+
+  @override
+  String get travelAmenitySpa => 'Spa';
+
+  @override
+  String get travelAmenityWifi => 'Ücretsiz Wi-Fi';
+
+  @override
+  String get travelAmenityBreakfast => 'Kahvaltı';
+
+  @override
+  String get travelAmenityShuttle => 'Havalimanı servisi';
+
+  @override
+  String get travelAmenityGym => 'Spor salonu';
+
+  @override
+  String get travelAmenityParking => 'Otopark';
+
+  @override
+  String get travelAmenityBeach => 'Plaj';
+
+  @override
+  String get travelAmenityRestaurant => 'Restoran';
+
+  @override
+  String get travelAmenityBar => 'Bar';
+
+  @override
+  String get travelAmenityAirConditioning => 'Klima';
+
+  @override
+  String get travelAmenityFamily => 'Aile odaları';
+
+  @override
+  String get travelAmenityPets => 'Evcil hayvan kabul edilir';
+
+  @override
+  String get travelAmenityAccessible => 'Erişilebilir';
+
+  @override
+  String get travelAmenityKitchen => 'Mutfak';
+
+  @override
+  String get travelAmenityView => 'Manzara';
+
+  @override
+  String get travelKindResort => 'Tatil köyü';
+
+  @override
+  String get travelKindBoutique => 'Butik otel';
+
+  @override
+  String get travelKindApartments => 'Daireler';
+
+  @override
+  String get travelKindVilla => 'Villa';
+
+  @override
+  String get travelKindHostel => 'Hostel';
+
+  @override
+  String get travelKindGuesthouse => 'Pansiyon';
+
+  @override
+  String get travelKindHotel => 'Otel';
+
+  @override
+  String get travelBoardBreakfast => 'Kahvaltı dahil';
+
+  @override
+  String get travelBoardHalf => 'Yarım pansiyon';
+
+  @override
+  String get travelBoardFull => 'Tam pansiyon';
+
+  @override
+  String get travelBoardAll => 'Her şey dahil';
+
+  @override
+  String get travelBoardRoomOnly => 'Yalnızca oda';
+
+  @override
+  String get travelStatusOnTime => 'Zamanında';
+
+  @override
+  String get travelStatusDelayed => 'Rötarlı';
+
+  @override
+  String get travelStatusBoarding => 'Biniş başladı';
+
+  @override
+  String get travelStatusDeparted => 'Kalktı';
+
+  @override
+  String get travelStatusLanded => 'İndi';
+
+  @override
+  String get travelStatusCancelled => 'İptal edildi';
+
+  @override
+  String get travelStatusScheduled => 'Planlandı';
+
+  @override
+  String get travelRequestLate => 'Geç varış';
+
+  @override
+  String get travelRequestEarly => 'Erken varış';
+
+  @override
+  String get travelRequestHighFloor => 'Yüksek kat';
+
+  @override
+  String get travelRequestQuiet => 'Sessiz oda';
+
+  @override
+  String get travelRequestPickup => 'Havalimanından karşılama';
+
+  @override
+  String get travelRequestTwin => 'İki ayrı yatak';
+
+  @override
+  String get travelRequestAccessible => 'Erişilebilir oda';
+
+  @override
+  String travelLineNights(int count, String unit) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gece × $unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLineFare(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ücret · $count yolcu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelLineSeats => 'Koltuklar';
+
+  @override
+  String travelLineBags(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ek bagaj',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLineMeals(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yemek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelLineTransfer => 'Havalimanı transferi';
+
+  @override
+  String get travelLineTaxes => 'Vergi ve harçlar';
+
+  @override
+  String get travelLineMember => 'Üye indirimi';
+
+  @override
+  String get travelLineBundle => 'Konaklama + uçuş indirimi';
+
+  @override
+  String get travelLineChangeFee => 'Değişiklik ücreti';
+
+  @override
+  String get travelSaveHotel => 'Kaydet';
+
+  @override
+  String get travelUnsave => 'Kaydedilenlerden çıkar';
+
+  @override
+  String get travelScoreExceptional => 'Olağanüstü';
+
+  @override
+  String get travelScoreSuperb => 'Harika';
+
+  @override
+  String get travelScoreVeryGood => 'Çok iyi';
+
+  @override
+  String get travelScoreGood => 'İyi';
+
+  @override
+  String get travelScorePleasant => 'Hoş';
+
+  @override
+  String travelReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count değerlendirme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yıldız',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelFreeCancellation => 'Ücretsiz iptal';
+
+  @override
+  String travelNightsTaxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gece, vergiler dahil',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelNightsAtHotel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gece · otelde ödeme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelANight => 'gecelik';
+
+  @override
+  String travelStaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count konaklama',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelSortedBy(String sort) {
+    return 'sıralama: $sort';
+  }
+
+  @override
+  String get travelSort => 'Sırala';
+
+  @override
+  String get travelSortRecommended => 'Önerilen';
+
+  @override
+  String get travelSortPrice => 'En düşük fiyat';
+
+  @override
+  String get travelSortScore => 'Misafir puanı';
+
+  @override
+  String get travelSortStars => 'Yıldız';
+
+  @override
+  String get travelSuperbPlus => 'Harika 9+';
+
+  @override
+  String get travelShowMap => 'Harita';
+
+  @override
+  String get travelBackToList => 'Liste';
+
+  @override
+  String travelMapCount(int count, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count konaklama · $nights gecelik toplam',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPinNights(String price, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      nights,
+      locale: localeName,
+      other: '$price · $nights gece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelView => 'Gör';
+
+  @override
+  String travelPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotoğraf',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelQuoteBy(String name, String stayed) {
+    return '$name · $stayed konakladı';
+  }
+
+  @override
+  String get travelOverall => 'Genel';
+
+  @override
+  String get travelScoreStaff => 'Personel';
+
+  @override
+  String get travelScoreClean => 'Temizlik';
+
+  @override
+  String get travelScoreLocation => 'Konum';
+
+  @override
+  String get travelScoreValue => 'Fiyat/performans';
+
+  @override
+  String travelCheckInOut(String checkIn, String checkOut) {
+    return 'Giriş: $checkIn · Çıkış: $checkOut';
+  }
+
+  @override
+  String get travelChooseRoom => 'Oda seçin';
+
+  @override
+  String get travelChooseYourRoom => 'Odanızı seçin';
+
+  @override
+  String get travelFromANight => 'gecelik, başlayan';
+
+  @override
+  String travelSleeps(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişilik',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelLeftAtPrice(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu fiyattan $count oda kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelMostChosen => 'En çok tercih edilen';
+
+  @override
+  String get travelSoldOut => 'Tarihleriniz için dolu';
+
+  @override
+  String get travelNoRooms => 'Bu tarihler için açık oda yok.';
+
+  @override
+  String get travelNonRefundable => 'İade edilemez';
+
+  @override
+  String travelFreeCancelUntil(String day) {
+    return '$day tarihine kadar ücretsiz iptal';
+  }
+
+  @override
+  String get travelPayNowOrAtHotel => 'Şimdi veya otelde ödeyin';
+
+  @override
+  String get travelPayAtHotel => 'Otelde öde';
+
+  @override
+  String get travelPayNow => 'Şimdi öde';
+
+  @override
+  String get travelReserve => 'Rezerve et';
+
+  @override
+  String get travelTotalPrice => 'Toplam fiyat';
+
+  @override
+  String get travelNoStays => 'Konaklama bulunamadı';
+
+  @override
+  String get travelNoStaysText => 'Başka tarihler veya daha az filtre deneyin.';
+
+  @override
+  String get travelNoSaved => 'Henüz kaydedilen yok';
+
+  @override
+  String get travelNoSavedText =>
+      'Bir konaklamayı burada tutmak için kalbe dokunun.';
+
+  @override
+  String get travelSavedSignIn =>
+      'Kaydettiğiniz konaklamaları görmek için giriş yapın';
+
+  @override
+  String get travelSavedSignInText =>
+      'Kaydettiğiniz konaklamalar her telefonda sizinle.';
+
+  @override
+  String get travelMessageHotel => 'Otele mesaj gönder';
+
+  @override
+  String get travelDirect => 'Aktarmasız';
+
+  @override
+  String travelStops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktarma',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelStopsVia(int count, String via) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktarma · $via',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelViaTime(String via, String time) {
+    return '$via aktarmalı · $time';
+  }
+
+  @override
+  String travelDuration(int hours, String minutes) {
+    return '$hours sa $minutes dk';
+  }
+
+  @override
+  String travelBothWays(String stops) {
+    return 'her iki yönde $stops';
+  }
+
+  @override
+  String get travelCalendar => 'Takvim';
+
+  @override
+  String get travelPriceGraph => 'Fiyat grafiği';
+
+  @override
+  String travelReturnPricesFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi için gidiş-dönüş fiyatları · Ekonomi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelOneWayPricesFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kişi için tek yön fiyatları · Ekonomi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelPreviousMonth => 'Önceki ay';
+
+  @override
+  String get travelNextMonth => 'Sonraki ay';
+
+  @override
+  String get travelLowest => 'En düşük';
+
+  @override
+  String get travelAverage => 'Ortalama';
+
+  @override
+  String get travelHigher => 'Daha yüksek';
+
+  @override
+  String travelLeaveInstead(String day, String saving) {
+    return 'Bunun yerine $day günü gidin, $saving tasarruf edin';
+  }
+
+  @override
+  String travelSameNights(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Aynı $count gece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelFromPerPerson(String price) {
+    return 'kişi başı en az $price';
+  }
+
+  @override
+  String get travelShowFlights => 'Uçuşları göster';
+
+  @override
+  String get travelNoFlightsMonth => 'Bu ay uçuş yok';
+
+  @override
+  String get travelPricesAre => 'Tarihleriniz için fiyatlar';
+
+  @override
+  String get travelLow => 'düşük';
+
+  @override
+  String get travelHigh => 'yüksek';
+
+  @override
+  String get travelTypical => 'normal';
+
+  @override
+  String get travelForYourDates => 'seviyede';
+
+  @override
+  String travelUsually(String from, String to) {
+    return 'Bu tarihler için genellikle $from–$to';
+  }
+
+  @override
+  String get travelBest => 'En iyi';
+
+  @override
+  String get travelCheapest => 'En ucuz';
+
+  @override
+  String get travelFastest => 'En hızlı';
+
+  @override
+  String get travelTrack => 'Takip et';
+
+  @override
+  String get travelTracking => 'Fiyat düştüğünde size haber vereceğiz.';
+
+  @override
+  String get travelSignInToWatch => 'Fiyatları takip etmek için giriş yapın.';
+
+  @override
+  String get travelPerPerson => 'kişi başı';
+
+  @override
+  String get travelPerPersonReturn => 'kişi başı, gidiş-dönüş';
+
+  @override
+  String get travelFreeChanges => 'Ücretsiz değişiklik';
+
+  @override
+  String get travelCabinOnly => 'Yalnızca kabin bagajı';
+
+  @override
+  String travelCabinBag(int kg) {
+    return 'Kabin + $kg kg bagaj';
+  }
+
+  @override
+  String get travelNoFlights => 'Uçuş bulunamadı';
+
+  @override
+  String get travelNoFlightsText =>
+      'Başka tarihler veya başka bir havalimanı deneyin.';
+
+  @override
+  String get travelOut => 'Gidiş';
+
+  @override
+  String get travelWifi => 'Wi-Fi';
+
+  @override
+  String get travelMeal => 'Yemek';
+
+  @override
+  String travelTerminal(String terminal) {
+    return 'Terminal $terminal';
+  }
+
+  @override
+  String get travelChooseFare => 'Tarifenizi seçin';
+
+  @override
+  String get travelBestValue => 'En iyi değer';
+
+  @override
+  String travelSeatsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count koltuk kaldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelCabinKg(int kg) {
+    return '$kg kg kabin bagajı';
+  }
+
+  @override
+  String travelBagsKg(int count, int kg) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kayıtlı bagaj · her biri $kg kg',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelNoCheckedBag => 'Kayıtlı bagaj yok';
+
+  @override
+  String travelChangeFor(String fee) {
+    return '$fee karşılığında değişiklik';
+  }
+
+  @override
+  String get travelNoChanges => 'Değişiklik yapılamaz';
+
+  @override
+  String get travelFullRefund => 'Tam iade';
+
+  @override
+  String get travelRefundAtFee => 'Ücret karşılığında iade';
+
+  @override
+  String get travelNoRefund => 'İade yok';
+
+  @override
+  String get travelAnySeat => 'Her koltuk dahil';
+
+  @override
+  String get travelStandardSeat => 'Standart koltuk dahil';
+
+  @override
+  String get travelSeatAtFee => 'Ücretli koltuk';
+
+  @override
+  String travelFareTravellers(String fare, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$fare · $count yolcu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelChooseSeats => 'Koltuk seçin';
+
+  @override
+  String get travelContinue => 'Devam';
+
+  @override
+  String get travelChooseFlightFirst => 'Önce bir uçuş seçin';
+
+  @override
+  String travelSeatsOn(String route) {
+    return 'Koltuklar · $route';
+  }
+
+  @override
+  String get travelSeatsAtAirport =>
+      'Bu uçuşta koltuklar havalimanında verilir';
+
+  @override
+  String get travelFree => 'Boş';
+
+  @override
+  String get travelTaken => 'Dolu';
+
+  @override
+  String travelExtraLegroom(String price) {
+    return 'Ekstra bacak mesafesi · $price';
+  }
+
+  @override
+  String travelSeatTaken(String id) {
+    return '$id, dolu';
+  }
+
+  @override
+  String travelSeatExtra(String id) {
+    return '$id, ekstra bacak mesafesi';
+  }
+
+  @override
+  String travelSeatFee(String price) {
+    return 'Bu tarifede koltuk seçimi $price';
+  }
+
+  @override
+  String get travelSeatsNext =>
+      'Bunu atlayabilirsiniz: koltuklar check-in\'de verilir.';
+
+  @override
+  String get travelBagsMeals => 'Bagaj ve yemek';
+
+  @override
+  String get travelBagsMealsText => 'Şimdi ekleyin, havalimanından daha uygun.';
+
+  @override
+  String get travelExtraBags => 'Ek kayıtlı bagaj';
+
+  @override
+  String travelExtraBagsText(int legs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      legs,
+      locale: localeName,
+      other: 'Her uçuş için, bagaj başına',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelMeals => 'Yemekler';
+
+  @override
+  String travelMealsText(int legs) {
+    String _temp0 = intl.Intl.pluralLogic(
+      legs,
+      locale: localeName,
+      other: 'Her uçuşta sıcak yemek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelAtAirport => 'Havalimanında';
+
+  @override
+  String get travelNoTripFlight =>
+      'Bu tarihlerde uçuş yok. Başka tarihler deneyin.';
+
+  @override
+  String get travelNoTripStay => 'Bu tarihlerde o şehirde açık konaklama yok.';
+
+  @override
+  String get travelWatchTrip => 'Bu seyahatin fiyatını takip et';
+
+  @override
+  String get travelOnePrice => 'Tek fiyat';
+
+  @override
+  String travelOnePriceText(int count, int nights) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yolcu · uçuşlar, $nights gecelik konaklama ve vergiler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelSave(String amount) {
+    return '$amount tasarruf';
+  }
+
+  @override
+  String get travelChange => 'Değiştir';
+
+  @override
+  String travelBagIncluded(int kg) {
+    return '$kg kg bagaj dahil';
+  }
+
+  @override
+  String get travelStay => 'Konaklama';
+
+  @override
+  String get travelTransfer => 'Havalimanı transferi';
+
+  @override
+  String travelTotalFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yolcu için toplam',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelReserveTrip => 'Seyahati rezerve et';
+
+  @override
+  String get travelConfirmPay => 'Onayla ve öde';
+
+  @override
+  String get travelSecureCheckout => 'Güvenli ödeme';
+
+  @override
+  String get travelGuest => 'Misafir';
+
+  @override
+  String get travelTravellersAsPassport => 'Yolcular, pasaporttaki gibi';
+
+  @override
+  String get travelSavedTraveller => 'Kayıtlı';
+
+  @override
+  String travelFirstName(int n) {
+    return 'Ad ($n. yolcu)';
+  }
+
+  @override
+  String get travelLastName => 'Soyadı';
+
+  @override
+  String get travelNamesNeeded => 'Her yolcunun adını girin.';
+
+  @override
+  String get travelAtHotelText => 'Şimdi ödeme yok. Otelde ödersiniz.';
+
+  @override
+  String get travelPayNowText =>
+      'Bir sonraki güvenli ödeme sayfasında ödersiniz.';
+
+  @override
+  String get travelConfirmAtHotel => 'Rezervasyonu onayla';
+
+  @override
+  String travelConfirmAndPay(String total) {
+    return 'Onayla ve öde: $total';
+  }
+
+  @override
+  String get travelTotal => 'Toplam';
+
+  @override
+  String travelFreeCancelUntilHotel(String day) {
+    return '$day tarihine kadar ücretsiz iptal · tam iade';
+  }
+
+  @override
+  String get travelBooked => 'Rezervasyon tamam. İyi yolculuklar!';
+
+  @override
+  String get travelTripsSignIn => 'Seyahatlerinizi görmek için giriş yapın';
+
+  @override
+  String get travelBookingsSignIn =>
+      'Rezervasyonlarınızı görmek için giriş yapın';
+
+  @override
+  String get travelTripsSignInText =>
+      'Rezervasyonlarınız, biniş kartlarınız ve değişiklikler tek yerde.';
+
+  @override
+  String get travelNoTrips => 'Henüz seyahat yok';
+
+  @override
+  String get travelNoTripsText =>
+      'Rezervasyon yaptığınızda seyahatiniz burada görünür.';
+
+  @override
+  String get travelAwaitingPayment => 'Ödeme bekleniyor';
+
+  @override
+  String get travelCancelled => 'İptal edildi';
+
+  @override
+  String get travelCompleted => 'Tamamlandı';
+
+  @override
+  String get travelConfirmed => 'Onaylandı';
+
+  @override
+  String get travelCheckIn => 'Giriş';
+
+  @override
+  String get travelBack => 'Geri';
+
+  @override
+  String travelTripsUpcoming(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sıradaki seyahatiniz · $count yaklaşan',
+      one: 'Sıradaki seyahatiniz',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelManage => 'Rezervasyonu yönet';
+
+  @override
+  String travelStartsIn(int days, int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days gün $hours saat sonra başlıyor',
+      zero: '$hours saat sonra başlıyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String travelPayDue(String amount) {
+    return '$amount öde';
+  }
+
+  @override
+  String get travelReviewStay => 'Konaklamanızı değerlendirin';
+
+  @override
+  String get travelTerminalLabel => 'Terminal';
+
+  @override
+  String get travelGate => 'Kapı';
+
+  @override
+  String get travelSeatsLabel => 'Koltuklar';
+
+  @override
+  String get travelBoards => 'Biniş';
+
+  @override
+  String get travelBoardingPasses => 'Biniş kartları';
+
+  @override
+  String get travelPassesLater => 'Uçuştan 48 saat önce açılır.';
+
+  @override
+  String travelPassOf(int n, int total) {
+    return '$n / $total';
+  }
+
+  @override
+  String travelGateStatus(String gate, String status) {
+    return 'Kapı $gate · $status';
+  }
+
+  @override
+  String get travelSeat => 'Koltuk';
+
+  @override
+  String get travelGroup => 'Grup';
+
+  @override
+  String get travelPassenger => 'Yolcu';
+
+  @override
+  String get travelClass => 'Tarife';
+
+  @override
+  String get travelPassCode => 'Biniş kartı kodu';
+
+  @override
+  String get travelWorksOffline => 'Çevrimdışı çalışır';
+
+  @override
+  String get travelKeptOffline =>
+      'Bu telefonda saklandı: bağlantı olmadan da görünür.';
+
+  @override
+  String get travelChangeSeat => 'Koltuk değiştir';
+
+  @override
+  String travelPaid(String amount) {
+    return 'Ödenen: $amount';
+  }
+
+  @override
+  String travelDue(String amount) {
+    return 'Ödenecek: $amount';
+  }
+
+  @override
+  String travelRefund(String amount) {
+    return 'İade: $amount';
+  }
+
+  @override
+  String get travelChangeDates => 'Tarihleri değiştir';
+
+  @override
+  String get travelChangeDatesText => 'Yeni tarihlerde boşsa aynı oda.';
+
+  @override
+  String get travelChanged => 'Rezervasyonunuz değiştirildi.';
+
+  @override
+  String travelChangeSeatOn(String number) {
+    return '$number uçuşunda koltuk değiştir';
+  }
+
+  @override
+  String travelSeatsOf(String seats) {
+    return 'Koltuklar: $seats';
+  }
+
+  @override
+  String get travelCancelTitle => 'Bu rezervasyon iptal edilsin mi?';
+
+  @override
+  String get travelCancelNoRefund => 'Bu rezervasyonda iade yapılmaz.';
+
+  @override
+  String travelCancelRefund(String amount) {
+    return '$amount iade edilecek.';
+  }
+
+  @override
+  String get travelCancelBooking => 'Rezervasyonu iptal et';
+
+  @override
+  String get travelCancelledDone => 'Rezervasyonunuz iptal edildi.';
+
+  @override
+  String travelCancelledRefund(String amount) {
+    return 'İptal edildi · $amount iade edildi';
+  }
+
+  @override
+  String travelTravellerN(int n) {
+    return '$n. yolcu';
+  }
+
+  @override
+  String get travelTripCouple => 'Çift';
+
+  @override
+  String get travelTripFamily => 'Aile';
+
+  @override
+  String get travelTripFriends => 'Arkadaşlar';
+
+  @override
+  String get travelTripSolo => 'Tek başına';
+
+  @override
+  String get travelTripBusiness => 'İş';
+
+  @override
+  String get travelReviewWords => 'Diğer misafirler için birkaç söz';
+
+  @override
+  String get travelSendReview => 'Değerlendirmeyi gönder';
+
+  @override
+  String get travelThanksReview => 'Değerlendirmeniz için teşekkürler.';
+
+  @override
+  String get travelAlertsSignIn => 'Fiyatları takip etmek için giriş yapın';
+
+  @override
+  String get travelAlertsSignInText =>
+      'Seçtiğiniz rotaları izler, fiyat düştüğünde size haber veririz.';
+
+  @override
+  String get travelAlertsEyebrow => 'Biz izleriz, siz dinlenin';
+
+  @override
+  String get travelNewAlert => 'Yeni';
+
+  @override
+  String get travelNoAlerts => 'Henüz fiyat alarmı yok';
+
+  @override
+  String get travelNoAlertsText =>
+      'Bir rotayı takip edin, ucuzladığında haber verelim.';
+
+  @override
+  String travelAnywhereUnder(String price) {
+    return '$price altında her yer';
+  }
+
+  @override
+  String travelStayAndFlightTo(String city) {
+    return '$city · konaklama + uçuş';
+  }
+
+  @override
+  String travelFromCity(String city) {
+    return 'Kalkış: $city';
+  }
+
+  @override
+  String get travelAnyDates => 'herhangi bir tarih';
+
+  @override
+  String travelAnyDatesIn(String month) {
+    return '$month içinde herhangi bir tarih';
+  }
+
+  @override
+  String travelChangeSince(String change) {
+    return 'şu ana kadar $change';
+  }
+
+  @override
+  String get travelNothingOnSale => 'Şu anda satışta bir şey yok';
+
+  @override
+  String get travelFewSeatsAtPrice => 'Bu fiyattan az koltuk kaldı.';
+
+  @override
+  String get travelPriceDropped => 'Fiyat düştü.';
+
+  @override
+  String get travelWeWatch =>
+      'Fiyatı her gün kontrol eder, düştüğünde haber veririz.';
+
+  @override
+  String get travelGoodTimeToBook => 'Rezervasyon için iyi bir zaman.';
+
+  @override
+  String get travelSeeTrip => 'Seyahati gör';
+
+  @override
+  String get travelSeeFlights => 'Uçuşları gör';
+
+  @override
+  String travelNewMatches(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yeni',
+      zero: 'Henüz yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get travelStopWatching => 'Takibi bırak';
+
+  @override
+  String get travelChooseRoute => 'Takip edilecek rotayı seçin.';
+
+  @override
+  String get travelChooseMax => 'Ödeyeceğiniz en yüksek tutarı girin.';
+
+  @override
+  String get travelAlertRoute => 'Rota';
+
+  @override
+  String get travelAlertTrip => 'Konaklama + uçuş';
+
+  @override
+  String get travelAlertAnywhere => 'Her yer';
+
+  @override
+  String travelMaxPrice(String currency) {
+    return 'Ödeyeceğiniz en yüksek tutar ($currency)';
+  }
+
+  @override
+  String get travelWhen => 'Ne zaman';
+
+  @override
+  String get travelWatchPrice => 'Fiyatı takip et';
+
+  @override
+  String get travelTravellersCabin => 'Yolcular ve kabin';
 }

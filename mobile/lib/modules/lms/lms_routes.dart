@@ -71,7 +71,14 @@ final lmsModule = AppModule(
     BuiltInScreen.bookmarks => null,
     BuiltInScreen.classes || BuiltInScreen.memberships => null,
     BuiltInScreen.events || BuiltInScreen.tickets => null,
-    BuiltInScreen.school || BuiltInScreen.classroom => null,
+    BuiltInScreen.school ||
+    BuiltInScreen.classroom ||
+    BuiltInScreen.explore ||
+    BuiltInScreen.stays ||
+    BuiltInScreen.flights ||
+    BuiltInScreen.trips ||
+    BuiltInScreen.saved ||
+    BuiltInScreen.priceAlerts => null,
     BuiltInScreen.sendParcel ||
     BuiltInScreen.shipments ||
     BuiltInScreen.courier ||

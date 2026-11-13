@@ -23,6 +23,14 @@ export type SectionWord =
   | "acForYou"
   | "acSeeAll"
   | "acTabExplore"
+  | "travTabStays"
+  | "travTabFlights"
+  | "travTabTrips"
+  | "travTabSaved"
+  | "travTabBookings"
+  | "travTabMessages"
+  | "travTabAlerts"
+  | "travTabHelp"
   | "acTabMine"
   | "acHeroTitle"
   | "acHeroButton"
@@ -107,6 +115,12 @@ export type SectionWord =
   | "schoolStepTwo"
   | "schoolStepThree"
   | "ctaSchool"
+  // 126 A travel app's welcome and its stays.
+  | "travelTitle"
+  | "travelText"
+  | "travelStays"
+  | "travelFlights"
+  | "travelFeatured"
   // 107.3 Questions and answers, and an offer counting down.
   | "faqTitle"
   | "faqOneQ"
@@ -1153,6 +1167,8 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  // 126 A travel app's home: Explore as approved (the welcome, a stay or a flight, the featured stays), drawn by the app; the owner adds to it. 128 Safra's home, in the demos' registry (lib/studio/demo-designs/safra-travel.ts).
+  demoDesignTemplate("travel"),
   // 123 The premium academy: the whole project, its home, bar, tabs, screens and colours.
   {
     id: "academy_premium",

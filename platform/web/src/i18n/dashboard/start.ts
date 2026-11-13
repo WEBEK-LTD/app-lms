@@ -56,6 +56,7 @@ export const en = {
     rides: { name: "Rides", line: "Book a ride, drivers and prices" },
     taxi: { name: "Taxi on the map", line: "Live map, nearest driver, fares" },
     school: { name: "School", line: "Parents, teachers, classes, fees and the bus" },
+    travel: { name: "Hotels and flights", line: "Stays, your own flights and both as one trip" },
   },
   business: {
     teaching: "Teaching and courses",
@@ -71,6 +72,7 @@ export const en = {
     delivery: "Couriers and shipping",
     rides: "Rides and taxis",
     school: "Schools",
+    travel: "Travel, hotels and flights",
   },
   backTo: "Back to every app",
   live: "Real app · live now",
@@ -155,6 +157,7 @@ export const en = {
     places: { count: "{count, plural, one {{count} place with its menu} other {{count} places: restaurants and a supermarket}}", inside: "{count, plural, one {place inside} other {places inside}}", own: "Put in your own places", open: "Open my places", has: "{count, plural, one {{count} place} other {{count} places}}" },
     carTypes: { count: "{count, plural, one {{count} car type with fares} other {{count} car types with fares}}", inside: "{count, plural, one {car type} other {car types}}", own: "Put in your own car types and fares", open: "Open my car types", has: "{count, plural, one {{count} car type} other {{count} car types}}" },
     schoolClasses: { count: "{count, plural, one {{count} class with its people} other {{count} classes with their people}}", inside: "{count, plural, one {class inside} other {classes inside}}", own: "Put in your own school", open: "Open my school's people", has: "{count, plural, one {{count} class} other {{count} classes}}" },
+    hotels: { count: "{count, plural, one {{count} hotel with its rooms and flights} other {{count} hotels with their rooms and flights}}", inside: "{count, plural, one {hotel inside} other {hotels inside}}", own: "Put in your own hotels and flights", open: "Open my hotels", has: "{count, plural, one {{count} hotel} other {{count} hotels}}" },
   },
   first: {
     title: "Your first steps",
@@ -229,6 +232,7 @@ export const ar: Messages = {
     rides: { name: "مشاوير", line: "اطلب مشوار وسواقين وأسعار" },
     taxi: { name: "تاكسي على الخريطة", line: "خريطة لايف وأقرب سواق والأجرة" },
     school: { name: "مدرسة", line: "أولياء أمور ومدرسين وفصول ومصاريف والباص" },
+    travel: { name: "فنادق وطيران", line: "إقامة وطياراتك وجوه رحلة واحدة" },
   },
   business: {
     teaching: "تعليم وكورسات",
@@ -244,6 +248,7 @@ export const ar: Messages = {
     delivery: "مناديب وشحن",
     rides: "مشاوير وتاكسي",
     school: "مدارس",
+    travel: "سفر وفنادق وطيران",
   },
   backTo: "ارجع لكل التطبيقات",
   live: "تطبيق حقيقي · شغال دلوقتي",
@@ -327,6 +332,7 @@ export const ar: Messages = {
     places: { count: "{count, plural, one {مكان واحد بالمنيو بتاعه} two {مكانين: مطاعم وسوبر ماركت} few {{count} أماكن: مطاعم وسوبر ماركت} many {{count} مكان: مطاعم وسوبر ماركت} other {{count} مكان: مطاعم وسوبر ماركت}}", inside: "{count, plural, one {مكان جاهز} two {مكانين جاهزين} few {أماكن جاهزة} many {مكان جاهز} other {مكان جاهز}}", own: "حط أماكنك إنت", open: "افتح أماكني", has: "{count, plural, one {مكان واحد} two {مكانين} few {{count} أماكن} many {{count} مكان} other {{count} مكان}}" },
     carTypes: { count: "{count, plural, one {نوع عربية واحد بأسعاره} two {نوعين عربيات بالأسعار} few {{count} أنواع عربيات بالأسعار} many {{count} نوع عربية بالأسعار} other {{count} نوع عربية بالأسعار}}", inside: "{count, plural, one {نوع عربية} two {نوعين عربيات} few {أنواع عربيات} many {نوع عربية} other {نوع عربية}}", own: "حط أنواع عربياتك وأسعارك", open: "افتح أنواع العربيات بتاعتي", has: "{count, plural, one {نوع عربية واحد} two {نوعين عربيات} few {{count} أنواع عربيات} many {{count} نوع عربية} other {{count} نوع عربية}}" },
     schoolClasses: { count: "{count, plural, one {فصل واحد بناسه} two {فصلين بناسهم} few {{count} فصول بناسها} many {{count} فصل بناسهم} other {{count} فصل بناسهم}}", inside: "{count, plural, one {فصل جاهز} two {فصلين جاهزين} few {فصول جاهزة} many {فصل جاهز} other {فصل جاهز}}", own: "حط مدرستك إنت", open: "افتح ناس مدرستي", has: "{count, plural, one {فصل واحد} two {فصلين} few {{count} فصول} many {{count} فصل} other {{count} فصل}}" },
+    hotels: { count: "{count, plural, one {فندق واحد بأوضه ورحلاته} two {فندقين بأوضهم ورحلاتهم} few {{count} فنادق بأوضها ورحلاتها} many {{count} فندق بأوضهم ورحلاتهم} other {{count} فندق بأوضهم ورحلاتهم}}", inside: "{count, plural, one {فندق جاهز} two {فندقين جاهزين} few {فنادق جاهزة} many {فندق جاهز} other {فندق جاهز}}", own: "حط فنادقك ورحلاتك إنت", open: "افتح فنادقي", has: "{count, plural, one {فندق واحد} two {فندقين} few {{count} فنادق} many {{count} فندق} other {{count} فندق}}" },
   },
   first: {
     title: "أول خطواتك",
@@ -399,6 +405,7 @@ export const tr: Messages = {
     rides: { name: "Yolculuklar", line: "Yolculuk isteyin, sürücüler ve fiyatlar" },
     taxi: { name: "Haritada taksi", line: "Canlı harita, en yakın sürücü, ücretler" },
     school: { name: "Okul", line: "Veliler, öğretmenler, sınıflar, ücretler ve servis" },
+    travel: { name: "Otel ve uçuş", line: "Konaklama, kendi uçuşlarınız ve ikisi tek seyahatte" },
   },
   business: {
     teaching: "Eğitim ve kurslar",
@@ -414,6 +421,7 @@ export const tr: Messages = {
     delivery: "Kurye ve kargo",
     rides: "Yolculuk ve taksi",
     school: "Okullar",
+    travel: "Seyahat, otel ve uçuş",
   },
   backTo: "Tüm uygulamalara dön",
   live: "Gerçek uygulama · şu an yayında",
@@ -497,6 +505,7 @@ export const tr: Messages = {
     places: { count: "{count, plural, other {{count} yer: restoranlar ve bir süpermarket}}", inside: "{count, plural, other {hazır yer}}", own: "Kendi yerlerinizi koyun", open: "Yerlerimi aç", has: "{count, plural, other {{count} yer}}" },
     carTypes: { count: "{count, plural, other {ücretleriyle {count} araç tipi}}", inside: "{count, plural, other {araç tipi}}", own: "Kendi araç tiplerinizi ve ücretlerinizi koyun", open: "Araç tiplerimi aç", has: "{count, plural, other {{count} araç tipi}}" },
     schoolClasses: { count: "{count, plural, other {insanlarıyla {count} sınıf}}", inside: "{count, plural, other {hazır sınıf}}", own: "Kendi okulunuzu koyun", open: "Okulumun kişilerini aç", has: "{count, plural, other {{count} sınıf}}" },
+    hotels: { count: "{count, plural, other {odaları ve uçuşlarıyla {count} otel}}", inside: "{count, plural, other {hazır otel}}", own: "Kendi otellerinizi ve uçuşlarınızı koyun", open: "Otellerimi aç", has: "{count, plural, other {{count} otel}}" },
   },
   first: {
     title: "İlk adımlarınız",

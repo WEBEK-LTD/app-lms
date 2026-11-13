@@ -203,6 +203,24 @@ const REMOVERS: Record<SampleList, (deps: RemoveDeps, app: App) => Promise<Remov
     for (const a of samples) await store.deleteSchoolAnnouncement(app.id, a.id);
     return { removed: samples.length, assets: [] };
   },
+  // 126 A sample hotel goes with its rooms and reviews; the photos with it.
+  async hotels({ store }, app) {
+    const samples = (await store.listTravelHotels(app.id)).filter((h) => h.sample);
+    const rooms = (await store.listTravelRooms(app.id)).filter((r) => samples.some((h) => h.id === r.hotelId));
+    for (const h of samples) await store.deleteTravelHotel(app.id, h.id);
+    return { removed: samples.length, assets: [...samples.flatMap((h) => h.photos), ...rooms.flatMap((r) => r.photos)] };
+  },
+  async flights({ store, now }, app) {
+    // A sample flight someone booked stays, the booking's.
+    const samples = (await store.listTravelFlights(app.id)).filter((f) => f.sample);
+    let removed = 0;
+    for (const f of samples) {
+      if ((await store.listTravelHolds(app.id, { flightIds: [f.id] }, now)).length) continue;
+      await store.deleteTravelFlight(app.id, f.id);
+      removed++;
+    }
+    return { removed, assets: [] };
+  },
 };
 
 /** The removed entries' files that nothing of the account names any more (its apps' rows and pages, deleted apps' too). */

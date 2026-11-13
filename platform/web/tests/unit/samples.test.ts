@@ -58,6 +58,9 @@ const EXPECTED: Record<SampleList, [number, number]> = {
   // Templates = demos: a sample school comes only from the school demo (tests/unit/demo-samples.test.ts).
   school: [0, 0],
   school_news: [6, 6],
+  // 126 Safra's four hotels, and twelve weeks of its flights.
+  hotels: [4, 4],
+  flights: [295, 320],
 };
 
 /** The lists 110.2's samples fill: all but the school demo's own. */

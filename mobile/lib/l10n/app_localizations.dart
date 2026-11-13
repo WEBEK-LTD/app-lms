@@ -16243,6 +16243,2220 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No school today'**
   String get studioSchoolDayOff;
+
+  /// 126 Travel (hotels and flights): the module's words, from here on.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get travelTabExplore;
+
+  /// No description provided for @travelTabStays.
+  ///
+  /// In en, this message translates to:
+  /// **'Stays'**
+  String get travelTabStays;
+
+  /// No description provided for @travelTabFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Flights'**
+  String get travelTabFlights;
+
+  /// No description provided for @travelTabTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get travelTabTrips;
+
+  /// No description provided for @travelTabSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get travelTabSaved;
+
+  /// No description provided for @travelTabBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get travelTabBookings;
+
+  /// No description provided for @travelTabAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get travelTabAlerts;
+
+  /// No description provided for @travelTabSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get travelTabSearch;
+
+  /// No description provided for @travelTabHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get travelTabHelp;
+
+  /// No description provided for @travelMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get travelMorning;
+
+  /// No description provided for @travelAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get travelAfternoon;
+
+  /// No description provided for @travelEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get travelEvening;
+
+  /// No description provided for @travelGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'{part}, {name}'**
+  String travelGreeting(String part, String name);
+
+  /// No description provided for @travelExploreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where does the next story begin?'**
+  String get travelExploreTitle;
+
+  /// No description provided for @travelHeroPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'A place to travel to'**
+  String get travelHeroPhoto;
+
+  /// No description provided for @travelStayFlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay + Flight'**
+  String get travelStayFlight;
+
+  /// No description provided for @travelFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get travelFrom;
+
+  /// No description provided for @travelTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get travelTo;
+
+  /// No description provided for @travelWhereTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to?'**
+  String get travelWhereTo;
+
+  /// No description provided for @travelAnywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Anywhere'**
+  String get travelAnywhere;
+
+  /// No description provided for @travelDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get travelDates;
+
+  /// No description provided for @travelDatesNights.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Dates · 1 night} other{Dates · {count} nights}}'**
+  String travelDatesNights(int count);
+
+  /// No description provided for @travelTravellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Travellers'**
+  String get travelTravellers;
+
+  /// No description provided for @travelGuestsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Guests'**
+  String get travelGuestsLabel;
+
+  /// No description provided for @travelRoomsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooms'**
+  String get travelRoomsLabel;
+
+  /// No description provided for @travelTravellersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travellers'**
+  String get travelTravellersLabel;
+
+  /// No description provided for @travelPeopleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get travelPeopleLabel;
+
+  /// No description provided for @travelNightsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nights'**
+  String get travelNightsLabel;
+
+  /// No description provided for @travelFindTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Find my trip'**
+  String get travelFindTrip;
+
+  /// No description provided for @travelSearchStays.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stays'**
+  String get travelSearchStays;
+
+  /// No description provided for @travelSearchFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Search flights'**
+  String get travelSearchFlights;
+
+  /// No description provided for @travelTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Flight + hotel together'**
+  String get travelTogether;
+
+  /// No description provided for @travelOneBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'one booking, one price'**
+  String get travelOneBooking;
+
+  /// No description provided for @travelTrending.
+  ///
+  /// In en, this message translates to:
+  /// **'Trending this month'**
+  String get travelTrending;
+
+  /// No description provided for @travelSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get travelSeeAll;
+
+  /// No description provided for @travelTripFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay + flight from {price}'**
+  String travelTripFrom(String price);
+
+  /// No description provided for @travelNightFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Stays from {price} a night'**
+  String travelNightFrom(String price);
+
+  /// No description provided for @travelHotelsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hotel} other{{count} hotels}}'**
+  String travelHotelsCount(int count);
+
+  /// No description provided for @travelAlertDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'{route} dropped {amount}'**
+  String travelAlertDropped(String route, String amount);
+
+  /// No description provided for @travelAlertNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your alert · now from {price}'**
+  String travelAlertNow(String price);
+
+  /// No description provided for @travelPriceAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Price alerts'**
+  String get travelPriceAlerts;
+
+  /// No description provided for @travelMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get travelMember;
+
+  /// No description provided for @travelMemberPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Member prices · −{percent}%'**
+  String travelMemberPrices(int percent);
+
+  /// No description provided for @travelMemberOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Member price · −{percent}%'**
+  String travelMemberOff(int percent);
+
+  /// No description provided for @travelMemberPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Member price'**
+  String get travelMemberPrice;
+
+  /// No description provided for @travelStaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay somewhere'**
+  String get travelStaysTitle;
+
+  /// No description provided for @travelStaysTitleEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'unforgettable.'**
+  String get travelStaysTitleEnd;
+
+  /// No description provided for @travelFlightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole sky,'**
+  String get travelFlightsTitle;
+
+  /// No description provided for @travelFlightsTitleEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'one search.'**
+  String get travelFlightsTitleEnd;
+
+  /// No description provided for @travelAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get travelAll;
+
+  /// No description provided for @travelFeaturedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured · {city}'**
+  String travelFeaturedIn(String city);
+
+  /// No description provided for @travelPerNight.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / night'**
+  String travelPerNight(String price);
+
+  /// No description provided for @travelReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Return'**
+  String get travelReturn;
+
+  /// No description provided for @travelOneWay.
+  ///
+  /// In en, this message translates to:
+  /// **'One way'**
+  String get travelOneWay;
+
+  /// No description provided for @travelDepart.
+  ///
+  /// In en, this message translates to:
+  /// **'Depart'**
+  String get travelDepart;
+
+  /// No description provided for @travelSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get travelSwap;
+
+  /// No description provided for @travelDirectOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct only'**
+  String get travelDirectOnly;
+
+  /// No description provided for @travelAdults.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 adult} other{{count} adults}}'**
+  String travelAdults(int count);
+
+  /// No description provided for @travelAdultsEconomy.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 adult · Economy} other{{count} adults · Economy}}'**
+  String travelAdultsEconomy(int count);
+
+  /// No description provided for @travelGuests.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 guest} other{{count} guests}}'**
+  String travelGuests(int count);
+
+  /// No description provided for @travelRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 room} other{{count} rooms}}'**
+  String travelRooms(int count);
+
+  /// No description provided for @travelGuestsRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'{rooms, plural, =1{{guests} · 1 room} other{{guests} · {rooms} rooms}}'**
+  String travelGuestsRooms(int guests, int rooms);
+
+  /// No description provided for @travelPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
+  String travelPeople(int count);
+
+  /// No description provided for @travelTravellersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 traveller} other{{count} travellers}}'**
+  String travelTravellersCount(int count);
+
+  /// No description provided for @travelNights.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 night} other{{count} nights}}'**
+  String travelNights(int count);
+
+  /// No description provided for @travelPickDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your dates to see the prices.'**
+  String get travelPickDates;
+
+  /// No description provided for @travelLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get travelLess;
+
+  /// No description provided for @travelMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get travelMore;
+
+  /// No description provided for @travelDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get travelDone;
+
+  /// No description provided for @travelChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get travelChoose;
+
+  /// No description provided for @travelSearchPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'City or airport'**
+  String get travelSearchPlaces;
+
+  /// No description provided for @travelNoPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches. Try another name.'**
+  String get travelNoPlaces;
+
+  /// No description provided for @travelAmenityPool.
+  ///
+  /// In en, this message translates to:
+  /// **'Pool'**
+  String get travelAmenityPool;
+
+  /// No description provided for @travelAmenitySpa.
+  ///
+  /// In en, this message translates to:
+  /// **'Spa'**
+  String get travelAmenitySpa;
+
+  /// No description provided for @travelAmenityWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Wi-Fi'**
+  String get travelAmenityWifi;
+
+  /// No description provided for @travelAmenityBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast'**
+  String get travelAmenityBreakfast;
+
+  /// No description provided for @travelAmenityShuttle.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport shuttle'**
+  String get travelAmenityShuttle;
+
+  /// No description provided for @travelAmenityGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get travelAmenityGym;
+
+  /// No description provided for @travelAmenityParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get travelAmenityParking;
+
+  /// No description provided for @travelAmenityBeach.
+  ///
+  /// In en, this message translates to:
+  /// **'Beach'**
+  String get travelAmenityBeach;
+
+  /// No description provided for @travelAmenityRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get travelAmenityRestaurant;
+
+  /// No description provided for @travelAmenityBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get travelAmenityBar;
+
+  /// No description provided for @travelAmenityAirConditioning.
+  ///
+  /// In en, this message translates to:
+  /// **'Air conditioning'**
+  String get travelAmenityAirConditioning;
+
+  /// No description provided for @travelAmenityFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family rooms'**
+  String get travelAmenityFamily;
+
+  /// No description provided for @travelAmenityPets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets allowed'**
+  String get travelAmenityPets;
+
+  /// No description provided for @travelAmenityAccessible.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible'**
+  String get travelAmenityAccessible;
+
+  /// No description provided for @travelAmenityKitchen.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen'**
+  String get travelAmenityKitchen;
+
+  /// No description provided for @travelAmenityView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get travelAmenityView;
+
+  /// No description provided for @travelKindResort.
+  ///
+  /// In en, this message translates to:
+  /// **'Resort'**
+  String get travelKindResort;
+
+  /// No description provided for @travelKindBoutique.
+  ///
+  /// In en, this message translates to:
+  /// **'Boutique hotel'**
+  String get travelKindBoutique;
+
+  /// No description provided for @travelKindApartments.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartments'**
+  String get travelKindApartments;
+
+  /// No description provided for @travelKindVilla.
+  ///
+  /// In en, this message translates to:
+  /// **'Villa'**
+  String get travelKindVilla;
+
+  /// No description provided for @travelKindHostel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hostel'**
+  String get travelKindHostel;
+
+  /// No description provided for @travelKindGuesthouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Guesthouse'**
+  String get travelKindGuesthouse;
+
+  /// No description provided for @travelKindHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotel'**
+  String get travelKindHotel;
+
+  /// No description provided for @travelBoardBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast included'**
+  String get travelBoardBreakfast;
+
+  /// No description provided for @travelBoardHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'Half board'**
+  String get travelBoardHalf;
+
+  /// No description provided for @travelBoardFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full board'**
+  String get travelBoardFull;
+
+  /// No description provided for @travelBoardAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All inclusive'**
+  String get travelBoardAll;
+
+  /// No description provided for @travelBoardRoomOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Room only'**
+  String get travelBoardRoomOnly;
+
+  /// No description provided for @travelStatusOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get travelStatusOnTime;
+
+  /// No description provided for @travelStatusDelayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delayed'**
+  String get travelStatusDelayed;
+
+  /// No description provided for @travelStatusBoarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding'**
+  String get travelStatusBoarding;
+
+  /// No description provided for @travelStatusDeparted.
+  ///
+  /// In en, this message translates to:
+  /// **'Departed'**
+  String get travelStatusDeparted;
+
+  /// No description provided for @travelStatusLanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Landed'**
+  String get travelStatusLanded;
+
+  /// No description provided for @travelStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get travelStatusCancelled;
+
+  /// No description provided for @travelStatusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get travelStatusScheduled;
+
+  /// No description provided for @travelRequestLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late arrival'**
+  String get travelRequestLate;
+
+  /// No description provided for @travelRequestEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Early arrival'**
+  String get travelRequestEarly;
+
+  /// No description provided for @travelRequestHighFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'High floor'**
+  String get travelRequestHighFloor;
+
+  /// No description provided for @travelRequestQuiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet room'**
+  String get travelRequestQuiet;
+
+  /// No description provided for @travelRequestPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport pickup'**
+  String get travelRequestPickup;
+
+  /// No description provided for @travelRequestTwin.
+  ///
+  /// In en, this message translates to:
+  /// **'Twin beds'**
+  String get travelRequestTwin;
+
+  /// No description provided for @travelRequestAccessible.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible room'**
+  String get travelRequestAccessible;
+
+  /// No description provided for @travelLineNights.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 night × {unit}} other{{count} nights × {unit}}}'**
+  String travelLineNights(int count, String unit);
+
+  /// No description provided for @travelLineFare.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Fare · 1 traveller} other{Fare · {count} travellers}}'**
+  String travelLineFare(int count);
+
+  /// No description provided for @travelLineSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats'**
+  String get travelLineSeats;
+
+  /// No description provided for @travelLineBags.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 extra bag} other{{count} extra bags}}'**
+  String travelLineBags(int count);
+
+  /// No description provided for @travelLineMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 meal} other{{count} meals}}'**
+  String travelLineMeals(int count);
+
+  /// No description provided for @travelLineTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport transfer'**
+  String get travelLineTransfer;
+
+  /// No description provided for @travelLineTaxes.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxes and fees'**
+  String get travelLineTaxes;
+
+  /// No description provided for @travelLineMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member price'**
+  String get travelLineMember;
+
+  /// No description provided for @travelLineBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay + flight saving'**
+  String get travelLineBundle;
+
+  /// No description provided for @travelLineChangeFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Change fee'**
+  String get travelLineChangeFee;
+
+  /// No description provided for @travelSaveHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get travelSaveHotel;
+
+  /// No description provided for @travelUnsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get travelUnsave;
+
+  /// No description provided for @travelScoreExceptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Exceptional'**
+  String get travelScoreExceptional;
+
+  /// No description provided for @travelScoreSuperb.
+  ///
+  /// In en, this message translates to:
+  /// **'Superb'**
+  String get travelScoreSuperb;
+
+  /// No description provided for @travelScoreVeryGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Very good'**
+  String get travelScoreVeryGood;
+
+  /// No description provided for @travelScoreGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get travelScoreGood;
+
+  /// No description provided for @travelScorePleasant.
+  ///
+  /// In en, this message translates to:
+  /// **'Pleasant'**
+  String get travelScorePleasant;
+
+  /// No description provided for @travelReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
+  String travelReviews(int count);
+
+  /// No description provided for @travelStars.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star} other{{count} stars}}'**
+  String travelStars(int count);
+
+  /// No description provided for @travelFreeCancellation.
+  ///
+  /// In en, this message translates to:
+  /// **'Free cancellation'**
+  String get travelFreeCancellation;
+
+  /// No description provided for @travelNightsTaxes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 night, taxes included} other{{count} nights, taxes included}}'**
+  String travelNightsTaxes(int count);
+
+  /// No description provided for @travelNightsAtHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 night · pay at the hotel} other{{count} nights · pay at the hotel}}'**
+  String travelNightsAtHotel(int count);
+
+  /// No description provided for @travelANight.
+  ///
+  /// In en, this message translates to:
+  /// **'a night'**
+  String get travelANight;
+
+  /// No description provided for @travelStaysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No stays} =1{1 stay} other{{count} stays}}'**
+  String travelStaysCount(int count);
+
+  /// No description provided for @travelSortedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'sorted by {sort}'**
+  String travelSortedBy(String sort);
+
+  /// No description provided for @travelSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get travelSort;
+
+  /// No description provided for @travelSortRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get travelSortRecommended;
+
+  /// No description provided for @travelSortPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest price'**
+  String get travelSortPrice;
+
+  /// No description provided for @travelSortScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest score'**
+  String get travelSortScore;
+
+  /// No description provided for @travelSortStars.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars'**
+  String get travelSortStars;
+
+  /// No description provided for @travelSuperbPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Superb 9+'**
+  String get travelSuperbPlus;
+
+  /// No description provided for @travelShowMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get travelShowMap;
+
+  /// No description provided for @travelBackToList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get travelBackToList;
+
+  /// No description provided for @travelMapCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No stays} =1{1 stay · {nights}-night totals} other{{count} stays · {nights}-night totals}}'**
+  String travelMapCount(int count, int nights);
+
+  /// No description provided for @travelPinNights.
+  ///
+  /// In en, this message translates to:
+  /// **'{nights, plural, =1{{price} · 1 night} other{{price} · {nights} nights}}'**
+  String travelPinNights(String price, int nights);
+
+  /// No description provided for @travelView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get travelView;
+
+  /// No description provided for @travelPhotosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String travelPhotosCount(int count);
+
+  /// No description provided for @travelQuoteBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · stayed {stayed}'**
+  String travelQuoteBy(String name, String stayed);
+
+  /// No description provided for @travelOverall.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get travelOverall;
+
+  /// No description provided for @travelScoreStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get travelScoreStaff;
+
+  /// No description provided for @travelScoreClean.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleanliness'**
+  String get travelScoreClean;
+
+  /// No description provided for @travelScoreLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get travelScoreLocation;
+
+  /// No description provided for @travelScoreValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value for money'**
+  String get travelScoreValue;
+
+  /// No description provided for @travelCheckInOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in from {checkIn} · check-out by {checkOut}'**
+  String travelCheckInOut(String checkIn, String checkOut);
+
+  /// No description provided for @travelChooseRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a room'**
+  String get travelChooseRoom;
+
+  /// No description provided for @travelChooseYourRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your room'**
+  String get travelChooseYourRoom;
+
+  /// No description provided for @travelFromANight.
+  ///
+  /// In en, this message translates to:
+  /// **'from, a night'**
+  String get travelFromANight;
+
+  /// No description provided for @travelSleeps.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Sleeps 1} other{Sleeps {count}}}'**
+  String travelSleeps(int count);
+
+  /// No description provided for @travelLeftAtPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 left at this price} other{{count} left at this price}}'**
+  String travelLeftAtPrice(int count);
+
+  /// No description provided for @travelMostChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Most chosen'**
+  String get travelMostChosen;
+
+  /// No description provided for @travelSoldOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold out for your dates'**
+  String get travelSoldOut;
+
+  /// No description provided for @travelNoRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'No rooms are open for these dates.'**
+  String get travelNoRooms;
+
+  /// No description provided for @travelNonRefundable.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-refundable'**
+  String get travelNonRefundable;
+
+  /// No description provided for @travelFreeCancelUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Free cancellation until {day}'**
+  String travelFreeCancelUntil(String day);
+
+  /// No description provided for @travelPayNowOrAtHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now or at the hotel'**
+  String get travelPayNowOrAtHotel;
+
+  /// No description provided for @travelPayAtHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay at the hotel'**
+  String get travelPayAtHotel;
+
+  /// No description provided for @travelPayNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get travelPayNow;
+
+  /// No description provided for @travelReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve'**
+  String get travelReserve;
+
+  /// No description provided for @travelTotalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Total price'**
+  String get travelTotalPrice;
+
+  /// No description provided for @travelNoStays.
+  ///
+  /// In en, this message translates to:
+  /// **'No stays found'**
+  String get travelNoStays;
+
+  /// No description provided for @travelNoStaysText.
+  ///
+  /// In en, this message translates to:
+  /// **'Try other dates or fewer filters.'**
+  String get travelNoStaysText;
+
+  /// No description provided for @travelNoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get travelNoSaved;
+
+  /// No description provided for @travelNoSavedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart on a stay to keep it here.'**
+  String get travelNoSavedText;
+
+  /// No description provided for @travelSavedSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your saved stays'**
+  String get travelSavedSignIn;
+
+  /// No description provided for @travelSavedSignInText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved stays follow you on every phone.'**
+  String get travelSavedSignInText;
+
+  /// No description provided for @travelMessageHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message the hotel'**
+  String get travelMessageHotel;
+
+  /// No description provided for @travelDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get travelDirect;
+
+  /// No description provided for @travelStops.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stop} other{{count} stops}}'**
+  String travelStops(int count);
+
+  /// No description provided for @travelStopsVia.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stop · {via}} other{{count} stops · {via}}}'**
+  String travelStopsVia(int count, String via);
+
+  /// No description provided for @travelViaTime.
+  ///
+  /// In en, this message translates to:
+  /// **'via {via} · {time}'**
+  String travelViaTime(String via, String time);
+
+  /// No description provided for @travelDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String travelDuration(int hours, String minutes);
+
+  /// No description provided for @travelBothWays.
+  ///
+  /// In en, this message translates to:
+  /// **'{stops} both ways'**
+  String travelBothWays(String stops);
+
+  /// No description provided for @travelCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get travelCalendar;
+
+  /// No description provided for @travelPriceGraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Price graph'**
+  String get travelPriceGraph;
+
+  /// No description provided for @travelReturnPricesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Return prices for 1 · Economy} other{Return prices for {count} · Economy}}'**
+  String travelReturnPricesFor(int count);
+
+  /// No description provided for @travelOneWayPricesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One-way prices for 1 · Economy} other{One-way prices for {count} · Economy}}'**
+  String travelOneWayPricesFor(int count);
+
+  /// No description provided for @travelPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get travelPreviousMonth;
+
+  /// No description provided for @travelNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get travelNextMonth;
+
+  /// No description provided for @travelLowest.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest'**
+  String get travelLowest;
+
+  /// No description provided for @travelAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get travelAverage;
+
+  /// No description provided for @travelHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher'**
+  String get travelHigher;
+
+  /// No description provided for @travelLeaveInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave {day} instead and save {saving}'**
+  String travelLeaveInstead(String day, String saving);
+
+  /// No description provided for @travelSameNights.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Same night} other{Same {count} nights}}'**
+  String travelSameNights(int count);
+
+  /// No description provided for @travelFromPerPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'from {price} per person'**
+  String travelFromPerPerson(String price);
+
+  /// No description provided for @travelShowFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Show flights'**
+  String get travelShowFlights;
+
+  /// No description provided for @travelNoFlightsMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No flights this month'**
+  String get travelNoFlightsMonth;
+
+  /// No description provided for @travelPricesAre.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices are'**
+  String get travelPricesAre;
+
+  /// No description provided for @travelLow.
+  ///
+  /// In en, this message translates to:
+  /// **'low'**
+  String get travelLow;
+
+  /// No description provided for @travelHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'high'**
+  String get travelHigh;
+
+  /// No description provided for @travelTypical.
+  ///
+  /// In en, this message translates to:
+  /// **'typical'**
+  String get travelTypical;
+
+  /// No description provided for @travelForYourDates.
+  ///
+  /// In en, this message translates to:
+  /// **'for your dates'**
+  String get travelForYourDates;
+
+  /// No description provided for @travelUsually.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually {from}–{to} for these dates'**
+  String travelUsually(String from, String to);
+
+  /// No description provided for @travelBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get travelBest;
+
+  /// No description provided for @travelCheapest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheapest'**
+  String get travelCheapest;
+
+  /// No description provided for @travelFastest.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastest'**
+  String get travelFastest;
+
+  /// No description provided for @travelTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Track'**
+  String get travelTrack;
+
+  /// No description provided for @travelTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll tell you when the price drops.'**
+  String get travelTracking;
+
+  /// No description provided for @travelSignInToWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to watch prices.'**
+  String get travelSignInToWatch;
+
+  /// No description provided for @travelPerPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'per person'**
+  String get travelPerPerson;
+
+  /// No description provided for @travelPerPersonReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'per person, return'**
+  String get travelPerPersonReturn;
+
+  /// No description provided for @travelFreeChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Free changes'**
+  String get travelFreeChanges;
+
+  /// No description provided for @travelCabinOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabin bag only'**
+  String get travelCabinOnly;
+
+  /// No description provided for @travelCabinBag.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabin + {kg} kg bag'**
+  String travelCabinBag(int kg);
+
+  /// No description provided for @travelNoFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'No flights found'**
+  String get travelNoFlights;
+
+  /// No description provided for @travelNoFlightsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Try other dates or another airport.'**
+  String get travelNoFlightsText;
+
+  /// No description provided for @travelOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Outbound'**
+  String get travelOut;
+
+  /// No description provided for @travelWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi'**
+  String get travelWifi;
+
+  /// No description provided for @travelMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal'**
+  String get travelMeal;
+
+  /// No description provided for @travelTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'Terminal {terminal}'**
+  String travelTerminal(String terminal);
+
+  /// No description provided for @travelChooseFare.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your fare'**
+  String get travelChooseFare;
+
+  /// No description provided for @travelBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best value'**
+  String get travelBestValue;
+
+  /// No description provided for @travelSeatsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 seat left} other{{count} seats left}}'**
+  String travelSeatsLeft(int count);
+
+  /// No description provided for @travelCabinKg.
+  ///
+  /// In en, this message translates to:
+  /// **'Cabin bag {kg} kg'**
+  String travelCabinKg(int kg);
+
+  /// No description provided for @travelBagsKg.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 checked bag · {kg} kg} other{{count} checked bags · {kg} kg each}}'**
+  String travelBagsKg(int count, int kg);
+
+  /// No description provided for @travelNoCheckedBag.
+  ///
+  /// In en, this message translates to:
+  /// **'No checked bag'**
+  String get travelNoCheckedBag;
+
+  /// No description provided for @travelChangeFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes for {fee}'**
+  String travelChangeFor(String fee);
+
+  /// No description provided for @travelNoChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes'**
+  String get travelNoChanges;
+
+  /// No description provided for @travelFullRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Full refund'**
+  String get travelFullRefund;
+
+  /// No description provided for @travelRefundAtFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund for a fee'**
+  String get travelRefundAtFee;
+
+  /// No description provided for @travelNoRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'No refund'**
+  String get travelNoRefund;
+
+  /// No description provided for @travelAnySeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Any seat included'**
+  String get travelAnySeat;
+
+  /// No description provided for @travelStandardSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard seat included'**
+  String get travelStandardSeat;
+
+  /// No description provided for @travelSeatAtFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat for a fee'**
+  String get travelSeatAtFee;
+
+  /// No description provided for @travelFareTravellers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{fare} · 1 traveller} other{{fare} · {count} travellers}}'**
+  String travelFareTravellers(String fare, int count);
+
+  /// No description provided for @travelChooseSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose seats'**
+  String get travelChooseSeats;
+
+  /// No description provided for @travelContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get travelContinue;
+
+  /// No description provided for @travelChooseFlightFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a flight first'**
+  String get travelChooseFlightFirst;
+
+  /// No description provided for @travelSeatsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats · {route}'**
+  String travelSeatsOn(String route);
+
+  /// No description provided for @travelSeatsAtAirport.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats are given at the airport on this flight'**
+  String get travelSeatsAtAirport;
+
+  /// No description provided for @travelFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get travelFree;
+
+  /// No description provided for @travelTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken'**
+  String get travelTaken;
+
+  /// No description provided for @travelExtraLegroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra legroom · {price}'**
+  String travelExtraLegroom(String price);
+
+  /// No description provided for @travelSeatTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{id}, taken'**
+  String travelSeatTaken(String id);
+
+  /// No description provided for @travelSeatExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'{id}, extra legroom'**
+  String travelSeatExtra(String id);
+
+  /// No description provided for @travelSeatFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing a seat costs {price} on this fare'**
+  String travelSeatFee(String price);
+
+  /// No description provided for @travelSeatsNext.
+  ///
+  /// In en, this message translates to:
+  /// **'You can skip this: seats are given at check-in.'**
+  String get travelSeatsNext;
+
+  /// No description provided for @travelBagsMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Bags and meals'**
+  String get travelBagsMeals;
+
+  /// No description provided for @travelBagsMealsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add them now, for less than at the airport.'**
+  String get travelBagsMealsText;
+
+  /// No description provided for @travelExtraBags.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra checked bags'**
+  String get travelExtraBags;
+
+  /// No description provided for @travelExtraBagsText.
+  ///
+  /// In en, this message translates to:
+  /// **'{legs, plural, =1{For the flight, per bag} other{For each flight, per bag}}'**
+  String travelExtraBagsText(int legs);
+
+  /// No description provided for @travelMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals'**
+  String get travelMeals;
+
+  /// No description provided for @travelMealsText.
+  ///
+  /// In en, this message translates to:
+  /// **'{legs, plural, =1{A hot meal on the flight} other{A hot meal on each flight}}'**
+  String travelMealsText(int legs);
+
+  /// No description provided for @travelAtAirport.
+  ///
+  /// In en, this message translates to:
+  /// **'At the airport'**
+  String get travelAtAirport;
+
+  /// No description provided for @travelNoTripFlight.
+  ///
+  /// In en, this message translates to:
+  /// **'No flight on these dates. Try other dates.'**
+  String get travelNoTripFlight;
+
+  /// No description provided for @travelNoTripStay.
+  ///
+  /// In en, this message translates to:
+  /// **'No stay open in that city on these dates.'**
+  String get travelNoTripStay;
+
+  /// No description provided for @travelWatchTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch this trip\'s price'**
+  String get travelWatchTrip;
+
+  /// No description provided for @travelOnePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'One price'**
+  String get travelOnePrice;
+
+  /// No description provided for @travelOnePriceText.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 traveller · flights, {nights}-night stay and taxes} other{{count} travellers · flights, {nights}-night stay and taxes}}'**
+  String travelOnePriceText(int count, int nights);
+
+  /// No description provided for @travelSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {amount}'**
+  String travelSave(String amount);
+
+  /// No description provided for @travelChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get travelChange;
+
+  /// No description provided for @travelBagIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'{kg} kg bag included'**
+  String travelBagIncluded(int kg);
+
+  /// No description provided for @travelStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get travelStay;
+
+  /// No description provided for @travelTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Airport transfer'**
+  String get travelTransfer;
+
+  /// No description provided for @travelTotalFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Total for 1 traveller} other{Total for {count} travellers}}'**
+  String travelTotalFor(int count);
+
+  /// No description provided for @travelReserveTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve trip'**
+  String get travelReserveTrip;
+
+  /// No description provided for @travelConfirmPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and pay'**
+  String get travelConfirmPay;
+
+  /// No description provided for @travelSecureCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure checkout'**
+  String get travelSecureCheckout;
+
+  /// No description provided for @travelGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get travelGuest;
+
+  /// No description provided for @travelTravellersAsPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Travellers, as on the passport'**
+  String get travelTravellersAsPassport;
+
+  /// No description provided for @travelSavedTraveller.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get travelSavedTraveller;
+
+  /// No description provided for @travelFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name (traveller {n})'**
+  String travelFirstName(int n);
+
+  /// No description provided for @travelLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get travelLastName;
+
+  /// No description provided for @travelNamesNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter every traveller\'s name.'**
+  String get travelNamesNeeded;
+
+  /// No description provided for @travelAtHotelText.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to pay now. You pay at the hotel.'**
+  String get travelAtHotelText;
+
+  /// No description provided for @travelPayNowText.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay on the secure payment page next.'**
+  String get travelPayNowText;
+
+  /// No description provided for @travelConfirmAtHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm booking'**
+  String get travelConfirmAtHotel;
+
+  /// No description provided for @travelConfirmAndPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and pay {total}'**
+  String travelConfirmAndPay(String total);
+
+  /// No description provided for @travelTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get travelTotal;
+
+  /// No description provided for @travelFreeCancelUntilHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free cancellation until {day} · full refund'**
+  String travelFreeCancelUntilHotel(String day);
+
+  /// No description provided for @travelBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked. Have a good trip!'**
+  String get travelBooked;
+
+  /// No description provided for @travelTripsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your trips'**
+  String get travelTripsSignIn;
+
+  /// No description provided for @travelBookingsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see your bookings'**
+  String get travelBookingsSignIn;
+
+  /// No description provided for @travelTripsSignInText.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bookings, boarding passes and changes, in one place.'**
+  String get travelTripsSignInText;
+
+  /// No description provided for @travelNoTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips yet'**
+  String get travelNoTrips;
+
+  /// No description provided for @travelNoTripsText.
+  ///
+  /// In en, this message translates to:
+  /// **'When you book, your trip shows here.'**
+  String get travelNoTripsText;
+
+  /// No description provided for @travelAwaitingPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting payment'**
+  String get travelAwaitingPayment;
+
+  /// No description provided for @travelCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get travelCancelled;
+
+  /// No description provided for @travelCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get travelCompleted;
+
+  /// No description provided for @travelConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get travelConfirmed;
+
+  /// No description provided for @travelCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in'**
+  String get travelCheckIn;
+
+  /// No description provided for @travelBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get travelBack;
+
+  /// No description provided for @travelTripsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Your next trip} other{Your next trip · {count} coming up}}'**
+  String travelTripsUpcoming(int count);
+
+  /// No description provided for @travelManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage booking'**
+  String get travelManage;
+
+  /// No description provided for @travelStartsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Starts in {hours} h} =1{Starts in 1 day, {hours} h} other{Starts in {days} days, {hours} h}}'**
+  String travelStartsIn(int days, int hours);
+
+  /// No description provided for @travelPayDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String travelPayDue(String amount);
+
+  /// No description provided for @travelReviewStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your stay'**
+  String get travelReviewStay;
+
+  /// No description provided for @travelTerminalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Terminal'**
+  String get travelTerminalLabel;
+
+  /// No description provided for @travelGate.
+  ///
+  /// In en, this message translates to:
+  /// **'Gate'**
+  String get travelGate;
+
+  /// No description provided for @travelSeatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats'**
+  String get travelSeatsLabel;
+
+  /// No description provided for @travelBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Boards'**
+  String get travelBoards;
+
+  /// No description provided for @travelBoardingPasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding passes'**
+  String get travelBoardingPasses;
+
+  /// No description provided for @travelPassesLater.
+  ///
+  /// In en, this message translates to:
+  /// **'They open 48 hours before the flight.'**
+  String get travelPassesLater;
+
+  /// No description provided for @travelPassOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total}'**
+  String travelPassOf(int n, int total);
+
+  /// No description provided for @travelGateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Gate {gate} · {status}'**
+  String travelGateStatus(String gate, String status);
+
+  /// No description provided for @travelSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat'**
+  String get travelSeat;
+
+  /// No description provided for @travelGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get travelGroup;
+
+  /// No description provided for @travelPassenger.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger'**
+  String get travelPassenger;
+
+  /// No description provided for @travelClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Fare'**
+  String get travelClass;
+
+  /// No description provided for @travelPassCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding pass code'**
+  String get travelPassCode;
+
+  /// No description provided for @travelWorksOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline'**
+  String get travelWorksOffline;
+
+  /// No description provided for @travelKeptOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on this phone: it shows without a connection.'**
+  String get travelKeptOffline;
+
+  /// No description provided for @travelChangeSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Change seat'**
+  String get travelChangeSeat;
+
+  /// No description provided for @travelPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid: {amount}'**
+  String travelPaid(String amount);
+
+  /// No description provided for @travelDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: {amount}'**
+  String travelDue(String amount);
+
+  /// No description provided for @travelRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund: {amount}'**
+  String travelRefund(String amount);
+
+  /// No description provided for @travelChangeDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Change dates'**
+  String get travelChangeDates;
+
+  /// No description provided for @travelChangeDatesText.
+  ///
+  /// In en, this message translates to:
+  /// **'Same room, if it is free on the new dates.'**
+  String get travelChangeDatesText;
+
+  /// No description provided for @travelChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking is changed.'**
+  String get travelChanged;
+
+  /// No description provided for @travelChangeSeatOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Change seats on {number}'**
+  String travelChangeSeatOn(String number);
+
+  /// No description provided for @travelSeatsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats: {seats}'**
+  String travelSeatsOf(String seats);
+
+  /// No description provided for @travelCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get travelCancelTitle;
+
+  /// No description provided for @travelCancelNoRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is refunded on this booking.'**
+  String get travelCancelNoRefund;
+
+  /// No description provided for @travelCancelRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll get {amount} back.'**
+  String travelCancelRefund(String amount);
+
+  /// No description provided for @travelCancelBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get travelCancelBooking;
+
+  /// No description provided for @travelCancelledDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking is cancelled.'**
+  String get travelCancelledDone;
+
+  /// No description provided for @travelCancelledRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled · {amount} refunded'**
+  String travelCancelledRefund(String amount);
+
+  /// No description provided for @travelTravellerN.
+  ///
+  /// In en, this message translates to:
+  /// **'Traveller {n}'**
+  String travelTravellerN(int n);
+
+  /// No description provided for @travelTripCouple.
+  ///
+  /// In en, this message translates to:
+  /// **'Couple'**
+  String get travelTripCouple;
+
+  /// No description provided for @travelTripFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get travelTripFamily;
+
+  /// No description provided for @travelTripFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get travelTripFriends;
+
+  /// No description provided for @travelTripSolo.
+  ///
+  /// In en, this message translates to:
+  /// **'Solo'**
+  String get travelTripSolo;
+
+  /// No description provided for @travelTripBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get travelTripBusiness;
+
+  /// No description provided for @travelReviewWords.
+  ///
+  /// In en, this message translates to:
+  /// **'A few words for other guests'**
+  String get travelReviewWords;
+
+  /// No description provided for @travelSendReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Send review'**
+  String get travelSendReview;
+
+  /// No description provided for @travelThanksReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your review.'**
+  String get travelThanksReview;
+
+  /// No description provided for @travelAlertsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to watch prices'**
+  String get travelAlertsSignIn;
+
+  /// No description provided for @travelAlertsSignInText.
+  ///
+  /// In en, this message translates to:
+  /// **'We watch the routes you choose and tell you when the price drops.'**
+  String get travelAlertsSignInText;
+
+  /// No description provided for @travelAlertsEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'We watch, you relax'**
+  String get travelAlertsEyebrow;
+
+  /// No description provided for @travelNewAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get travelNewAlert;
+
+  /// No description provided for @travelNoAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No price alerts yet'**
+  String get travelNoAlerts;
+
+  /// No description provided for @travelNoAlertsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a route and we\'ll tell you when it gets cheaper.'**
+  String get travelNoAlertsText;
+
+  /// No description provided for @travelAnywhereUnder.
+  ///
+  /// In en, this message translates to:
+  /// **'Anywhere under {price}'**
+  String travelAnywhereUnder(String price);
+
+  /// No description provided for @travelStayAndFlightTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} · stay + flight'**
+  String travelStayAndFlightTo(String city);
+
+  /// No description provided for @travelFromCity.
+  ///
+  /// In en, this message translates to:
+  /// **'From {city}'**
+  String travelFromCity(String city);
+
+  /// No description provided for @travelAnyDates.
+  ///
+  /// In en, this message translates to:
+  /// **'any dates'**
+  String get travelAnyDates;
+
+  /// No description provided for @travelAnyDatesIn.
+  ///
+  /// In en, this message translates to:
+  /// **'any dates in {month}'**
+  String travelAnyDatesIn(String month);
+
+  /// No description provided for @travelChangeSince.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} so far'**
+  String travelChangeSince(String change);
+
+  /// No description provided for @travelNothingOnSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on sale right now'**
+  String get travelNothingOnSale;
+
+  /// No description provided for @travelFewSeatsAtPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Few seats left at this price.'**
+  String get travelFewSeatsAtPrice;
+
+  /// No description provided for @travelPriceDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'The price went down.'**
+  String get travelPriceDropped;
+
+  /// No description provided for @travelWeWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'We check the price every day and tell you when it drops.'**
+  String get travelWeWatch;
+
+  /// No description provided for @travelGoodTimeToBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Good time to book.'**
+  String get travelGoodTimeToBook;
+
+  /// No description provided for @travelSeeTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'See the trip'**
+  String get travelSeeTrip;
+
+  /// No description provided for @travelSeeFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'See flights'**
+  String get travelSeeFlights;
+
+  /// No description provided for @travelNewMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None yet} =1{1 new} other{{count} new}}'**
+  String travelNewMatches(int count);
+
+  /// No description provided for @travelStopWatching.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop watching'**
+  String get travelStopWatching;
+
+  /// No description provided for @travelChooseRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the route to watch.'**
+  String get travelChooseRoute;
+
+  /// No description provided for @travelChooseMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the most you\'d pay.'**
+  String get travelChooseMax;
+
+  /// No description provided for @travelAlertRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get travelAlertRoute;
+
+  /// No description provided for @travelAlertTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay + flight'**
+  String get travelAlertTrip;
+
+  /// No description provided for @travelAlertAnywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Anywhere'**
+  String get travelAlertAnywhere;
+
+  /// No description provided for @travelMaxPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Most you\'d pay ({currency})'**
+  String travelMaxPrice(String currency);
+
+  /// No description provided for @travelWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get travelWhen;
+
+  /// No description provided for @travelWatchPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the price'**
+  String get travelWatchPrice;
+
+  /// No description provided for @travelTravellersCabin.
+  ///
+  /// In en, this message translates to:
+  /// **'Travellers and cabin'**
+  String get travelTravellersCabin;
 }
 
 class _AppLocalizationsDelegate

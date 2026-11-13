@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../modules/travel/travel_paths.dart';
 import '../api/models/models.dart';
 import '../config/build_config.dart';
 import '../routing/paths.dart';
@@ -69,6 +70,8 @@ abstract class PushService {
 ///   113.9 a university's: `uni_registration` and `uni_seat` the student's
 ///   registration, `uni_results` their results, `uni_advisee` the advisee
 ///   in the Classroom tab;
+/// - 126 a travel app's: `travel_update` the trip, `travel_alert` the price
+///   alerts;
 /// - 85.3 the app's own: an appointment, the classes, an event, the
 ///   memberships, the cart or My courses;
 /// - anything else opens Home.
@@ -177,6 +180,12 @@ String pushTargetLocation(Map<String, dynamic> data) {
       return Paths.schoolPart('exams', student: id('student_id'));
     case 'school_behaviour':
       return Paths.schoolPart('behaviour', student: id('student_id'));
+    // 126 A trip changed (its flight too); a watched price went down.
+    case 'travel_update':
+      final booking = id('booking_id');
+      return booking != null ? TravelPaths.trip(booking) : TravelPaths.trips;
+    case 'travel_alert':
+      return TravelPaths.alerts;
     case 'chat':
       final conversation = '${data['conversation_id'] ?? ''}'.trim();
       if (conversation.isNotEmpty) return Paths.chatConversation(conversation);

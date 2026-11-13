@@ -308,6 +308,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
     ["taxi", "lamha"],
     ["school", "nakhla"],
     ["instructors", "rawaq"],
+    // 126 Safra.
+    ["travel", "safra"],
   ] as const)("the %s demo is the project the app's website pictures draw (mobile/test/support/%s_demo.json)", async (id, brand) => {
     const layout = await demoOf(id);
     const file = join(process.cwd(), "..", "..", "mobile", "test", "support", `${brand}_demo.json`);

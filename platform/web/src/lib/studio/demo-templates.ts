@@ -11,7 +11,7 @@ import type { SectionContext, SectionWord } from "./sections";
  * Masar Rides's and Lamha Taxi's homes are the premium templates approved on
  * 13 November 2026 (lib/studio/demo-designs, with lib/studio/photo-food.ts
  * and photo-market.ts), the others their kind's first template (the
- * school's, the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
+ * school's, the teachers'; 126 Safra's travel's own, in the same registry). The demo app (lib/demo/setup.ts), the demo's template a
  * project starts from and the "Like our demo" whole design
  * (lib/studio/designs.ts) are that one page, so a client gets what the demo
  * shows. tests/unit/studio-demo-templates.test.ts fails when they drift
@@ -34,6 +34,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
   taxi: "taxi_map",
   school: "school_today",
   instructors: "teachers_photo",
+  // 126 Safra's Explore: travel's own template (128 in the same registry, lib/studio/demo-designs/safra-travel.ts).
+  travel: "travel",
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };
@@ -149,6 +151,7 @@ export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy">, string
   taxi: "map",
   school: "school",
   instructors: "groups",
+  travel: "travel_explore",
 };
 
 /** The Studio template id of a demo: `demo_<demo>`. */
@@ -157,7 +160,7 @@ export function demoTemplateId(id: StudioDemoId): string {
 }
 
 const DEMO_VERTICALS: readonly string[] = ["taxi", "instructors", "marketplace"];
-const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school"];
+const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school", "travel"];
 
 /** The Studio demo of a project's kind: its vertical's, else its type's; none for a kind without one. */
 export function studioDemoOf(kind: { type: string; vertical?: string | null } | null): StudioDemoId | null {

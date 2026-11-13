@@ -313,6 +313,8 @@ abstract final class Paths {
       location.startsWith(account) ||
       location.startsWith(notifications) ||
       location.startsWith('$chat/') ||
+      // 126 A trip, its boarding passes and its changes are the traveller's.
+      location.startsWith('/travel/trip/') ||
       location.startsWith('/appointment') ||
       location.startsWith('/question/') ||
       location.startsWith('/quiz/') ||

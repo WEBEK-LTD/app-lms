@@ -98,6 +98,19 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     },
     menu: "cover",
   },
+  // 126 Safra: the resort's pool at dusk, ink and gold.
+  travel: {
+    style: "photo",
+    photo: "/demo-screens/safra-caldera.jpg",
+    title: { en: "Where does the next story begin?", ar: "من أين تبدأ حكايتك القادمة؟", tr: "Sıradaki hikâye nerede başlıyor?" },
+    subtitle: {
+      en: "Sign in to book hotels and flights, together for one price.",
+      ar: "سجّل الدخول لتحجز الفنادق والطيران معًا بسعر واحد.",
+      tr: "Otelleri ve uçuşları tek fiyata birlikte ayırtmak için giriş yapın.",
+    },
+    menu: "night",
+    accent: "#C9A063",
+  },
   instructors: {
     // 128 In the approved home's language: the welcome large over the library, the student's card in the account.
     style: "premium",
@@ -152,6 +165,8 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
   school: demoDesignBar("school"),
   instructors: demoDesignBar("instructors"),
+  // 126 Safra's: the dot under the open tab, as the travel designs have it (128 from its design, lib/studio/demo-designs).
+  travel: demoDesignBar("travel"),
   // 123 The premium academy's bar as its template has it (128.8 a floating navy pill, the open tab on gold).
   premium_academy: ACADEMY_PROJECT.tab_bar,
 };

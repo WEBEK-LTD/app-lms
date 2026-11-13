@@ -235,6 +235,25 @@ import type { CouponClaimLimits, UserSession, UserTwoFactor } from "./types";
 import { mergeCrash } from "../crashes/report";
 // 51 Media and storage
 import type { MediaFile, MediaFilePatch, MediaKind, MediaStatus, StoragePack, StoragePackPatch } from "./types";
+import type {
+  TravelAlert,
+  TravelAlertInput,
+  TravelBooking,
+  TravelBookingInput,
+  TravelBookingPatch,
+  TravelBookingQuery,
+  TravelBookingStatus,
+  TravelFlight,
+  TravelFlightInput,
+  TravelHotel,
+  TravelHotelInput,
+  TravelReview,
+  TravelReviewInput,
+  TravelRoom,
+  TravelRoomInput,
+  TravelSettings,
+} from "./types";
+import { flightIdsOf, holdsOf, holdsOn } from "../travel/holds";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -4702,6 +4721,227 @@ export class MemoryStore implements DataStore {
 
   // 105.2 Ride hailing
 
+  // 126 Travel: hotels and flights
+
+  private travelSettings = new Map<string, TravelSettings>();
+  private travelHotels = new Map<number, TravelHotel>();
+  private travelRooms = new Map<number, TravelRoom>();
+  private travelFlights = new Map<number, TravelFlight>();
+  private travelBookings = new Map<number, TravelBooking>();
+  private travelReviews = new Map<number, TravelReview>();
+  private travelSaved = new Map<string, { appId: string; userId: number; hotelId: number; at: Date }>();
+  private travelAlerts = new Map<number, TravelAlert>();
+  private nextTravelId = { hotel: 1, room: 1, flight: 1, booking: 1, review: 1, alert: 1 };
+
+  async getTravelSettings(appId: string): Promise<TravelSettings | null> {
+    const saved = this.travelSettings.get(appId);
+    return saved ? clone(saved) : null;
+  }
+
+  async saveTravelSettings(appId: string, settings: TravelSettings, _now?: Date): Promise<void> {
+    void _now;
+    this.travelSettings.set(appId, clone(settings));
+  }
+
+  async listTravelHotels(appId: string): Promise<TravelHotel[]> {
+    return [...this.travelHotels.values()].filter((h) => h.appId === appId).sort((a, b) => a.position - b.position || a.id - b.id).map(clone);
+  }
+
+  async getTravelHotel(appId: string, id: number): Promise<TravelHotel | null> {
+    const hotel = this.travelHotels.get(id);
+    return hotel && hotel.appId === appId ? clone(hotel) : null;
+  }
+
+  async createTravelHotel(input: TravelHotelInput, now: Date): Promise<TravelHotel> {
+    const hotel: TravelHotel = { ...clone(input), id: this.nextTravelId.hotel++, createdAt: now, updatedAt: now };
+    this.travelHotels.set(hotel.id, clone(hotel));
+    return hotel;
+  }
+
+  async updateTravelHotel(appId: string, id: number, patch: Partial<TravelHotelInput>, now: Date): Promise<void> {
+    const hotel = this.travelHotels.get(id);
+    if (hotel && hotel.appId === appId) this.travelHotels.set(id, clone({ ...hotel, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteTravelHotel(appId: string, id: number): Promise<void> {
+    if (this.travelHotels.get(id)?.appId !== appId) return;
+    this.travelHotels.delete(id);
+    for (const [key, room] of this.travelRooms) if (room.hotelId === id) this.travelRooms.delete(key);
+    for (const [key, review] of this.travelReviews) if (review.hotelId === id) this.travelReviews.delete(key);
+    for (const [key, saved] of this.travelSaved) if (saved.hotelId === id) this.travelSaved.delete(key);
+  }
+
+  async listTravelRooms(appId: string, hotelId?: number): Promise<TravelRoom[]> {
+    return [...this.travelRooms.values()]
+      .filter((r) => r.appId === appId && (hotelId === undefined || r.hotelId === hotelId))
+      .sort((a, b) => a.hotelId - b.hotelId || a.position - b.position || a.id - b.id)
+      .map(clone);
+  }
+
+  async getTravelRoom(appId: string, id: number): Promise<TravelRoom | null> {
+    const room = this.travelRooms.get(id);
+    return room && room.appId === appId ? clone(room) : null;
+  }
+
+  async createTravelRoom(input: TravelRoomInput, now: Date): Promise<TravelRoom> {
+    const room: TravelRoom = { ...clone(input), id: this.nextTravelId.room++, createdAt: now, updatedAt: now };
+    this.travelRooms.set(room.id, clone(room));
+    return room;
+  }
+
+  async updateTravelRoom(appId: string, id: number, patch: Partial<TravelRoomInput>, now: Date): Promise<void> {
+    const room = this.travelRooms.get(id);
+    if (room && room.appId === appId) this.travelRooms.set(id, clone({ ...room, ...patch, appId, id, hotelId: room.hotelId, updatedAt: now }));
+  }
+
+  async deleteTravelRoom(appId: string, id: number): Promise<void> {
+    if (this.travelRooms.get(id)?.appId === appId) this.travelRooms.delete(id);
+  }
+
+  async listTravelFlights(appId: string): Promise<TravelFlight[]> {
+    return [...this.travelFlights.values()]
+      .filter((f) => f.appId === appId)
+      .sort((a, b) => a.departs.localeCompare(b.departs) || a.id - b.id)
+      .map(clone);
+  }
+
+  async getTravelFlight(appId: string, id: number): Promise<TravelFlight | null> {
+    const flight = this.travelFlights.get(id);
+    return flight && flight.appId === appId ? clone(flight) : null;
+  }
+
+  async createTravelFlight(input: TravelFlightInput, now: Date): Promise<TravelFlight> {
+    const flight: TravelFlight = { ...clone(input), id: this.nextTravelId.flight++, createdAt: now, updatedAt: now };
+    this.travelFlights.set(flight.id, clone(flight));
+    return flight;
+  }
+
+  async updateTravelFlight(appId: string, id: number, patch: Partial<TravelFlightInput>, now: Date): Promise<void> {
+    const flight = this.travelFlights.get(id);
+    if (flight && flight.appId === appId) this.travelFlights.set(id, clone({ ...flight, ...patch, appId, id, updatedAt: now }));
+  }
+
+  async deleteTravelFlight(appId: string, id: number): Promise<void> {
+    if (this.travelFlights.get(id)?.appId === appId) this.travelFlights.delete(id);
+  }
+
+  private travelHoldsNow(appId: string, on: { roomId?: number; from?: string; to?: string; flightIds?: number[] }, now: Date, except?: number): TravelBooking[] {
+    return [...this.travelBookings.values()].filter((b) => b.appId === appId && b.id !== except && holdsOn(b, on, now)).map(clone);
+  }
+
+  async createTravelBooking(input: TravelBookingInput, check: (others: TravelBooking[]) => string | null, now: Date): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }> {
+    const refused = check(this.travelHoldsNow(input.appId, holdsOf(input), now));
+    if (refused) return { ok: false, reason: refused };
+    const booking: TravelBooking = { ...clone(input), id: this.nextTravelId.booking++ };
+    this.travelBookings.set(booking.id, clone(booking));
+    return { ok: true, booking };
+  }
+
+  async updateTravelBooking(
+    appId: string,
+    id: number,
+    patch: TravelBookingPatch,
+    expect: { statuses: TravelBookingStatus[]; check?: (others: TravelBooking[], next: TravelBooking) => string | null },
+    now: Date,
+  ): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }> {
+    const booking = this.travelBookings.get(id);
+    if (!booking || booking.appId !== appId) return { ok: false, reason: "not_found" };
+    if (!expect.statuses.includes(booking.status)) return { ok: false, reason: "invalid_status" };
+    const next: TravelBooking = clone({ ...booking, ...patch, id, appId, createdAt: booking.createdAt, updatedAt: now });
+    if (expect.check) {
+      const refused = expect.check(this.travelHoldsNow(appId, holdsOf(next), now, id), next);
+      if (refused) return { ok: false, reason: refused };
+    }
+    this.travelBookings.set(id, clone(next));
+    return { ok: true, booking: next };
+  }
+
+  async getTravelBooking(appId: string, id: number): Promise<TravelBooking | null> {
+    const booking = this.travelBookings.get(id);
+    return booking && booking.appId === appId ? clone(booking) : null;
+  }
+
+  async listTravelBookings(query: TravelBookingQuery): Promise<{ items: TravelBooking[]; total: number }> {
+    const search = query.search?.trim().toLowerCase() ?? "";
+    const all = [...this.travelBookings.values()]
+      .filter(
+        (b) =>
+          b.appId === query.appId &&
+          (query.userId === undefined || b.userId === query.userId) &&
+          (!query.statuses || query.statuses.includes(b.status)) &&
+          (query.hotelId === undefined || b.stay?.hotelId === query.hotelId) &&
+          (query.flightId === undefined || flightIdsOf(b).includes(query.flightId)) &&
+          (!search || b.reference.toLowerCase().includes(search) || b.contact.name.toLowerCase().includes(search) || (b.contact.phone ?? "").includes(search)),
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id);
+    const start = (query.page - 1) * query.perPage;
+    return { items: all.slice(start, start + query.perPage).map(clone), total: all.length };
+  }
+
+  async listTravelHolds(appId: string, on: { roomId?: number; from?: string; to?: string; flightIds?: number[] }, now: Date): Promise<TravelBooking[]> {
+    return this.travelHoldsNow(appId, on, now);
+  }
+
+  async addTravelReview(input: TravelReviewInput): Promise<TravelReview | null> {
+    if ([...this.travelReviews.values()].some((r) => r.appId === input.appId && r.bookingId === input.bookingId)) return null;
+    const review: TravelReview = { ...clone(input), id: this.nextTravelId.review++ };
+    this.travelReviews.set(review.id, clone(review));
+    return review;
+  }
+
+  async listTravelReviews(appId: string, hotelId?: number): Promise<TravelReview[]> {
+    return [...this.travelReviews.values()]
+      .filter((r) => r.appId === appId && (hotelId === undefined || r.hotelId === hotelId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async getTravelReviewOfBooking(appId: string, bookingId: number): Promise<TravelReview | null> {
+    const review = [...this.travelReviews.values()].find((r) => r.appId === appId && r.bookingId === bookingId);
+    return review ? clone(review) : null;
+  }
+
+  async setTravelReviewHidden(appId: string, id: number, hidden: boolean): Promise<void> {
+    const review = this.travelReviews.get(id);
+    if (review && review.appId === appId) review.hidden = hidden;
+  }
+
+  async listTravelSaved(appId: string, userId: number): Promise<number[]> {
+    return [...this.travelSaved.values()]
+      .filter((s) => s.appId === appId && s.userId === userId)
+      .sort((a, b) => b.at.getTime() - a.at.getTime())
+      .map((s) => s.hotelId);
+  }
+
+  async setTravelSaved(appId: string, userId: number, hotelId: number, saved: boolean, now: Date): Promise<void> {
+    const key = `${appId}:${userId}:${hotelId}`;
+    if (!saved) this.travelSaved.delete(key);
+    else if (!this.travelSaved.has(key)) this.travelSaved.set(key, { appId, userId, hotelId, at: now });
+  }
+
+  async listTravelAlerts(appId: string, userId?: number): Promise<TravelAlert[]> {
+    return [...this.travelAlerts.values()]
+      .filter((a) => a.appId === appId && (userId === undefined || a.userId === userId))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id)
+      .map(clone);
+  }
+
+  async createTravelAlert(input: TravelAlertInput): Promise<TravelAlert> {
+    const alert: TravelAlert = { ...clone(input), id: this.nextTravelId.alert++ };
+    this.travelAlerts.set(alert.id, clone(alert));
+    return alert;
+  }
+
+  async updateTravelAlert(appId: string, id: number, patch: Partial<Pick<TravelAlert, "lastCents" | "updatedAt">>): Promise<void> {
+    const alert = this.travelAlerts.get(id);
+    if (alert && alert.appId === appId) this.travelAlerts.set(id, clone({ ...alert, ...patch }));
+  }
+
+  async deleteTravelAlert(appId: string, userId: number, id: number): Promise<void> {
+    const alert = this.travelAlerts.get(id);
+    if (alert && alert.appId === appId && alert.userId === userId) this.travelAlerts.delete(id);
+  }
+
   private vehicleTypes = new Map<number, VehicleType>();
   private nextVehicleTypeId = 1;
   private rides = new Map<number, Ride>();
@@ -5659,7 +5899,17 @@ export class MemoryStore implements DataStore {
       rides: 0,
       teacherFollows: 0,
       teacherReviews: 0,
+      travelBookings: 0,
     };
+    // 126 Visitors' travel bookings, saved hotels and alerts (the company's own sample bookings stay).
+    for (const [id, booking] of this.travelBookings) {
+      if (booking.appId === appId && !booking.sample && old(booking.createdAt)) {
+        this.travelBookings.delete(id);
+        counts.travelBookings++;
+      }
+    }
+    for (const [key, saved] of this.travelSaved) if (saved.appId === appId && old(saved.at)) this.travelSaved.delete(key);
+    for (const [id, alert] of this.travelAlerts) if (alert.appId === appId && old(alert.createdAt)) this.travelAlerts.delete(id);
     // 110.5 Teachers visitors followed and rated.
     for (const [key, follow] of this.teacherFollows) {
       if (follow.appId === appId && old(follow.createdAt)) {

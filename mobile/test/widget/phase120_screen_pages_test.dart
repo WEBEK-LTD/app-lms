@@ -17,6 +17,7 @@ import 'package:yallapp/modules/food/food_routes.dart';
 import 'package:yallapp/modules/lms/lms_routes.dart';
 import 'package:yallapp/modules/rides/rides_routes.dart';
 import 'package:yallapp/modules/school/school_routes.dart';
+import 'package:yallapp/modules/travel/travel_routes.dart';
 import 'package:yallapp/modules/shared/shared_routes.dart';
 
 import '../support/fake_api.dart';
@@ -108,6 +109,7 @@ void main() {
         ridesModule,
         schoolModule,
         lmsModule,
+        travelModule,
       ]) {
         walk(tabbedRoutes(module: module, tabs: module.defaultTabs(null)), '/');
       }

@@ -10,7 +10,7 @@ import type { PlanFeature, PlanLimits, SupportLevel } from "./plans";
 export type HighlightLang = "en" | "ar" | "tr";
 
 /** The project types a Studio plan may have, in the order they're named. */
-const KINDS = ["delivery", "food", "rides", "instructors", "school"] as const satisfies readonly PlanFeature[];
+const KINDS = ["delivery", "food", "rides", "instructors", "school", "travel"] as const satisfies readonly PlanFeature[];
 
 const WORDS: Record<
   HighlightLang,
@@ -41,7 +41,7 @@ const WORDS: Record<
     users: (n) => (n === null ? "Unlimited app users" : `Up to ${n.toLocaleString("en")} app users`),
     languages: (n) => (n === null ? "Every app language" : n === 1 ? "1 app language" : `${n} app languages`),
     kinds: "Projects: ",
-    kind: { delivery: "delivery", food: "food delivery", rides: "rides", instructors: "academies", school: "schools" },
+    kind: { delivery: "delivery", food: "food delivery", rides: "rides", instructors: "academies", school: "schools", travel: "travel" },
     and: " and ",
     ios: "Android and iOS apps",
     android: "An Android app",
@@ -60,7 +60,7 @@ const WORDS: Record<
     users: (n) => (n === null ? "مستخدمون بلا حد للتطبيق" : `حتى ${ar(n, "مستخدمين", "مستخدم")} للتطبيق`),
     languages: (n) => (n === null ? "كل لغات التطبيق" : n === 1 ? "لغة واحدة للتطبيق" : `${ar(n, "لغات", "لغة")} للتطبيق`),
     kinds: "المشاريع: ",
-    kind: { delivery: "التوصيل", food: "توصيل الطعام", rides: "الرحلات", instructors: "الأكاديميات", school: "المدارس" },
+    kind: { delivery: "التوصيل", food: "توصيل الطعام", rides: "الرحلات", instructors: "الأكاديميات", school: "المدارس", travel: "السفر" },
     and: " و",
     ios: "تطبيق أندرويد وiOS",
     android: "تطبيق أندرويد",
@@ -79,7 +79,7 @@ const WORDS: Record<
     users: (n) => (n === null ? "Sınırsız uygulama kullanıcısı" : `${n.toLocaleString("en")} uygulama kullanıcısına kadar`),
     languages: (n) => (n === null ? "Tüm uygulama dilleri" : `${n} uygulama dili`),
     kinds: "Projeler: ",
-    kind: { delivery: "teslimat", food: "yemek teslimatı", rides: "yolculuk", instructors: "akademiler", school: "okullar" },
+    kind: { delivery: "teslimat", food: "yemek teslimatı", rides: "yolculuk", instructors: "akademiler", school: "okullar", travel: "seyahat" },
     and: " ve ",
     ios: "Android ve iOS uygulaması",
     android: "Android uygulaması",

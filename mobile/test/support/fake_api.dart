@@ -2588,6 +2588,42 @@ class FakeApi implements YallappApi {
   final driverLocations = <({double lat, double lng})>[];
   final driverMoves = <({int id, String move, String? pin})>[];
 
+  /// 126 Travel: what each travel request answers, by its method and path
+  /// ("GET /travel/explore"); the requests made, in order.
+  Object? Function(
+    String method,
+    String path,
+    Map<String, dynamic>? query,
+    Object? body,
+  )?
+  travelHandler;
+  final travelRequests =
+      <
+        ({
+          String method,
+          String path,
+          Map<String, dynamic>? query,
+          Object? body,
+        })
+      >[];
+
+  @override
+  Future<dynamic> travel(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+    bool signedIn = false,
+  }) {
+    travelRequests.add((method: method, path: path, query: query, body: body));
+    return _answer(
+      'travel',
+      () =>
+          travelHandler?.call(method, path, query, body) ??
+          const <String, dynamic>{},
+    );
+  }
+
   @override
   Future<RideEstimate> estimateRide(RideRequest request) {
     rideEstimates.add(request);

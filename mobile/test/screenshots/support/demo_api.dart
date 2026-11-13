@@ -2296,6 +2296,45 @@ class DemoApi extends FakeApi {
 
   final bool arabic;
 
+  /// 126 Yallapp Studio's travel demo (Safra): its hotels with their
+  /// photos, a hotel's page and the demo number's trip to Bali, as the API
+  /// serves them (test/support/safra_api.json, written by
+  /// platform/web/tests/unit/travel-app-fixture.test.ts).
+  factory DemoApi.travel() {
+    final data = jsonDecode(
+      File('test/support/safra_api.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    Map<String, dynamic> part(String name) =>
+        jsonDecode(jsonEncode(data[name])) as Map<String, dynamic>;
+    final api = DemoApi._(
+      config: {
+        ...configJson(lms: null, languages: _languages),
+        'site': _site('Safra'),
+        'branding': {'logo_url': null, 'primary_color': '#0E1424'},
+        // The display font is fetched from the platform: offline, the app's.
+        'travel': part('config')..remove('display_font'),
+      },
+    );
+    api.me = {...userJson(), 'name': 'Layla Hassan'};
+    const none = {'items': <Object>[], 'total': 0, 'page': 1, 'per_page': 30};
+    api.travelHandler = (method, path, query, body) {
+      if (RegExp(r'^/travel/hotels/\d+$').hasMatch(path)) return part('hotel');
+      if (RegExp(r'^/me/travel/bookings/\d+$').hasMatch(path)) {
+        return part('booking');
+      }
+      return switch (path) {
+        '/travel/explore' => part('explore'),
+        '/travel/places' => part('places'),
+        '/travel/hotels' => part('hotels'),
+        '/me/travel/bookings' when query?['scope'] == 'past' => none,
+        '/me/travel/bookings' => part('bookings'),
+        '/me/travel/saved' || '/me/travel/alerts' => {'items': <Object>[]},
+        _ => none,
+      };
+    };
+    return api;
+  }
+
   static const _languages = {
     'default': 'en',
     'available': ['en', 'ar', 'tr'],

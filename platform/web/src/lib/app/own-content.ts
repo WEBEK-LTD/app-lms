@@ -22,6 +22,8 @@ export function ownContentSetup(kind: OwnContentKind, app: App): AppPatch {
     case "rides":
     // 105.4 And a school's fees.
     case "school":
+    // 126 And a travel company's bookings paid now.
+    case "travel":
       return { connector: { kind }, catalogSettings: app.catalogSettings ?? DEFAULT_CATALOG_SETTINGS };
     case "listings":
     case "articles":
