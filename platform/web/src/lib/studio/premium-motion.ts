@@ -12,7 +12,7 @@ import type { ElementInfo } from "./elements";
  */
 
 /** The sample words a new premium element starts with, in the dashboard's language. */
-export type PremiumWord = "kicker" | "headline" | "headline2" | "headline3" | "cta" | "story" | "ticker" | "before" | "after" | "caption" | "videoTitle" | "videoText" | "parallaxTitle" | "parallaxText";
+export type PremiumWord = "kicker" | "headline" | "headline2" | "headline3" | "cta" | "story" | "story2" | "story3" | "story4" | "ticker" | "before" | "after" | "caption" | "videoTitle" | "videoText" | "parallaxTitle" | "parallaxText";
 
 export const PREMIUM_WORDS_EN: Record<PremiumWord, string> = {
   kicker: "New season",
@@ -21,6 +21,9 @@ export const PREMIUM_WORDS_EN: Record<PremiumWord, string> = {
   headline3: "Your city, delivered",
   cta: "Discover",
   story: "New",
+  story2: "Offers",
+  story3: "Today",
+  story4: "Tips",
   ticker: "Free delivery\nNew arrivals every week\nMembers save 10%",
   before: "Before",
   after: "After",
@@ -35,6 +38,10 @@ export const PREMIUM_WORDS_EN: Record<PremiumWord, string> = {
 export const PREMIUM_MOTION_ELEMENTS: readonly ElementInfo[] = [
   { type: "slider", preset: "hero_slider", group: "premium", icon: "view_carousel", keywords: "hero slider slideshow banner autoplay ken burns zoom stories progress premium" },
   { type: "slider", preset: "card_carousel", group: "premium", icon: "view_week", keywords: "carousel cards peek next swipe snap premium" },
+  { type: "stories", group: "premium", icon: "amp_stories", keywords: "stories rings circles story viewer full screen highlights premium" },
+  { type: "video_hero", group: "premium", icon: "movie", keywords: "video hero banner background loop muted poster play cover premium" },
+  { type: "parallax_banner", group: "premium", icon: "wallpaper", keywords: "parallax banner photo scroll depth glass frosted panel premium" },
+  { type: "marquee", group: "premium", icon: "text_rotation_none", keywords: "marquee ticker scrolling words logos band news running text premium" },
 ];
 
 /** The scrim of a photo with its words at its foot. */
@@ -91,6 +98,58 @@ export function premiumMotionNode(type: StudioNodeType, preset: string | undefin
   if (type === "slider" && preset === "card_carousel") {
     // 129.1 Rounded photo cards, the next one peeking, snapping one at a time, the dots in a frosted pill.
     return { id: id(), type, height: 260, per_view: 1.2, gap: 12, indicator: "pill", padding: pad(0, 0, 0, 16), margin: pad(8, 0, 8, 0), children: [0, 1, 2].map((i) => slide(i, 260, 24)) };
+  }
+  if (type === "video_hero" || type === "parallax_banner") {
+    // 129.4 A muted looping video (its poster first) under a scrim, its words and buttons over it;
+    // 129.7 a photo moving slower than the page, its words in a frosted panel.
+    const video = type === "video_hero";
+    return {
+      id: id(),
+      type,
+      ...(video ? { video_url: null, autoplay: true } : { parallax: { speed: 0.5 }, glass: true }),
+      image_url: null,
+      height: video ? 440 : 320,
+      ...(video ? {} : { radius: 26, margin: pad(8, 16, 8, 16) }),
+      background: video ? "#10131F" : "#1F2A37",
+      scrim: video ? FOOT_SCRIM : { color: "#000000", from: 0.1, to: 0.45 },
+      align: video ? "end" : "center",
+      gap: 10,
+      padding: video ? pad(24, 22, 40, 22) : pad(22, 22, 22, 22),
+      children: [
+        { id: id(), type: "text", text: w(video ? "videoTitle" : "parallaxTitle"), color: "#FFFFFF", font: { size: video ? 30 : 24, weight: 800, line_height: 1.15 } },
+        { id: id(), type: "text", text: w(video ? "videoText" : "parallaxText"), color: "#FFFFFF", opacity: 0.9, font: { size: 15 } },
+        { id: id(), type: "button", text: w("cta"), width: "hug", height: 44, radius: 22, background: "#FFFFFF", color: "#0E0D24", font: { size: 14, weight: 800 }, padding: pad(0, 22, 0, 22), margin: pad(6, 0, 0, 0) },
+      ],
+    };
+  }
+  if (type === "marquee") {
+    // 129.3 A dark band of words running toward the start, a gold star between them, light by night.
+    return {
+      id: id(),
+      type,
+      text: w("ticker"),
+      icon: "star",
+      icon_size: 16,
+      gap: 18,
+      background: "#0E0D24",
+      color: "#FFFFFF",
+      dark_background: "#F4EFE6",
+      dark_color: "#0E0D24",
+      font: { size: 15, weight: 700 },
+      padding: pad(12, 0, 12, 0),
+      margin: pad(8, 0, 8, 0),
+      marquee: { speed: 40 },
+    };
+  }
+  if (type === "stories") {
+    // 129.2 Round photos in rings that open full screen, one after another; their photos are the owner's to add.
+    return {
+      id: id(),
+      type,
+      interval_ms: 5000,
+      padding: pad(10, 16, 10, 16),
+      slides: (["story", "story2", "story3", "story4"] as const).map((key) => ({ image_url: null, heading: w(key), subheading: null, action: null })),
+    };
   }
   return null;
 }

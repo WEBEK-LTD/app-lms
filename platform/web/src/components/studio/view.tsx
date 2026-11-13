@@ -20,7 +20,7 @@ import { AppScreen } from "./app-screens";
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
 // 129 Premium motion & media.
-import { PremiumMotionStyles, SliderPill } from "./premium-motion";
+import { MediaBanner, Marquee, PremiumMotionStyles, SliderPill, StoriesRow } from "./premium-motion";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -566,7 +566,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
   // 128 A colour over an element without a picture is its see-through background (a frosted button over a photo).
   if (overlay && !node.image_background_url && !node.gradient && !background) style.background = overlay;
   // 128 A cover draws its own height, space inside, colour and corners (lib/pages/types.ts STUDIO_COVER_TYPES).
-  if (node.type === "photo_hero" || node.type === "map_header") {
+  if (node.type === "photo_hero" || node.type === "map_header" || node.type === "video_hero" || node.type === "parallax_banner") {
     for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
   }
   if (parentDir === "stack") {
@@ -687,6 +687,14 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <TrackingCard node={n} lang={lang} dark={dark} brand={look.brand} second={look.accent} color={color} />;
       case "greeting":
         return <GreetingText lang={lang} sample={p.greeting?.hello} />;
+      // 129 Premium motion & media.
+      case "stories":
+        return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;
+      case "marquee":
+        return <Marquee node={n} text={text} rtl={lang === "ar"} accent={look.accent} />;
+      case "video_hero":
+      case "parallax_banner":
+        return <MediaBanner node={n} dark={dark} rtl={lang === "ar"} front={Children({ ...p, node: { ...n, type: "column" } })} />;
       case "text":
         // 124.6 Its lines at most, the rest cut off as the app does (a line clamp needs the box).
         return <span style={{ display: n.max_lines ? "-webkit-box" : "block", WebkitBoxOrient: n.max_lines ? "vertical" : undefined, whiteSpace: "pre-wrap", WebkitLineClamp: n.max_lines ?? undefined, overflow: n.max_lines ? "hidden" : undefined }}>{text}</span>;

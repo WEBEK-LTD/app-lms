@@ -2688,5 +2688,12 @@
   "studioSchoolBusLeaves": "Eve dönüş servisi · {time}",
   "studioSchoolBusComing": "Servis yolda · {minutes} dk",
   "studioSchoolBusRoute": "{route} · {stop} durağı",
-  "studioSchoolDayOff": "Bugün okul yok"
+  "studioSchoolDayOff": "Bugün okul yok",
+  "studioStoryOf": "Hikâye {index} / {total}",
+  "studioStoryOpen": "Aç",
+  "studioTickerPaused": "Durduruldu",
+  "studioVideoPlay": "Videoyu oynat",
+  "studioVideoPause": "Videoyu duraklat",
+  "studioCompareLabel": "Önce ve sonra: {before} ve {after}",
+  "studioCompareHandle": "Karşılaştırmak için sürükleyin"
 }

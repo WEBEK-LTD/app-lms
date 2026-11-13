@@ -56,11 +56,15 @@ class _StudioFirstShownState extends State<StudioFirstShown> {
     if (_shown) return;
     var scrollable = Scrollable.maybeOf(context);
     while (scrollable != null) {
-      _positions.add(scrollable.position..addListener(_check));
+      _positions.add(scrollable.position..addListener(_later));
       scrollable = Scrollable.maybeOf(scrollable.context);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => _check());
   }
+
+  /// Checks once the page has been laid out where it scrolled to.
+  void _later() =>
+      WidgetsBinding.instance.addPostFrameCallback((_) => _check());
 
   void _check() {
     if (_shown || !mounted || !studioOnScreen(context)) return;
@@ -71,7 +75,68 @@ class _StudioFirstShownState extends State<StudioFirstShown> {
 
   void _unlisten() {
     for (final p in _positions) {
-      p.removeListener(_check);
+      p.removeListener(_later);
+    }
+    _positions.clear();
+  }
+
+  @override
+  void dispose() {
+    _unlisten();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// Tells [onChange] each time its child comes on or goes off the screen
+/// (a scrolling view that holds it moved), and once when it first lays out.
+class StudioOnScreen extends StatefulWidget {
+  const StudioOnScreen({
+    super.key,
+    required this.onChange,
+    required this.child,
+  });
+
+  final ValueChanged<bool> onChange;
+  final Widget child;
+
+  @override
+  State<StudioOnScreen> createState() => _StudioOnScreenState();
+}
+
+class _StudioOnScreenState extends State<StudioOnScreen> {
+  final _positions = <ScrollPosition>[];
+  bool? _on;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _unlisten();
+    var scrollable = Scrollable.maybeOf(context);
+    while (scrollable != null) {
+      _positions.add(scrollable.position..addListener(_later));
+      scrollable = Scrollable.maybeOf(scrollable.context);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _check());
+  }
+
+  /// Checks once the page has been laid out where it scrolled to.
+  void _later() =>
+      WidgetsBinding.instance.addPostFrameCallback((_) => _check());
+
+  void _check() {
+    if (!mounted) return;
+    final on = studioOnScreen(context);
+    if (on == _on) return;
+    _on = on;
+    widget.onChange(on);
+  }
+
+  void _unlisten() {
+    for (final p in _positions) {
+      p.removeListener(_later);
     }
     _positions.clear();
   }

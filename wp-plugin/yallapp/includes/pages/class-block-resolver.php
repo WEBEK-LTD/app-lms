@@ -1013,8 +1013,38 @@ class Block_Resolver {
 	/**
 	 * 103R The element types of a Studio page, and those that hold others.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
+	const STUDIO_TYPES  = array(
+		'row',
+		'column',
+		'stack',
+		'grid',
+		'slider',
+		'spacer',
+		'accordion',
+		'tabs',
+		'text',
+		'image',
+		'button',
+		'icon',
+		'items',
+		'categories',
+		'video',
+		'form',
+		'map',
+		'ratings',
+		'search',
+		'divider',
+		'countdown',
+		'bullets',
+		'coupon',
+		'learning',
+		// 129 Premium motion & media (Studio_Premium_Motion::TYPES).
+		'stories',
+		'marquee',
+		'video_hero',
+		'parallax_banner',
+	);
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'video_hero', 'parallax_banner' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1344,6 +1374,16 @@ class Block_Resolver {
 				}
 				$node['form'] = $form;
 				return $node;
+			// 129 Premium motion & media: what they hold (Studio_Premium_Motion).
+			case 'stories':
+			case 'marquee':
+			case 'video_hero':
+			case 'parallax_banner':
+				$node = Studio_Premium_Motion::node( $type, $raw, $node, array( $this, 'action' ) );
+				if ( null === $node ) {
+					return null;
+				}
+				break;
 			case 'map':
 				$map = $raw['map'] ?? null;
 				if ( ! is_array( $map ) || ! isset( $map['lat'], $map['lng'] ) || ! is_numeric( $map['lat'] ) || ! is_numeric( $map['lng'] ) || abs( (float) $map['lat'] ) > 90 || abs( (float) $map['lng'] ) > 180 ) {

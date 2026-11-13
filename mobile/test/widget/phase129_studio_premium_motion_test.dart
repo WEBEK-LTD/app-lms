@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+import 'package:yallapp/core/services/data_saver.dart';
 import 'package:yallapp/core/config/build_config_data.dart';
+import 'package:yallapp/core/storage/local_settings.dart';
 
 import '../support/fake_api.dart';
 import '../support/fixtures.dart';
@@ -50,11 +55,13 @@ void main() {
     List<Map<String, dynamic>> children, {
     bool dark = false,
     String language = 'en',
+    List<Override> overrides = const [],
   }) async {
     final app = TestApp(
       appType: AppType.lms,
       api: api(children),
       signedIn: true,
+      overrides: overrides,
       preferences: {
         'settings.theme_mode': dark ? 'dark' : 'light',
         'settings.language': language,
@@ -152,4 +159,451 @@ void main() {
       expect(find.text('Second slide', skipOffstage: false), findsNothing);
     });
   });
+
+  group('129.2 stories', () {
+    Map<String, dynamic> stories() => {
+      'id': 'st',
+      'type': 'stories',
+      'interval_ms': 3000,
+      'slides': [
+        {
+          'image_url': 'https://cdn.example.com/a.jpg',
+          'heading': 'New',
+          'subheading': 'This week only',
+          'action': {'type': 'url', 'url': 'https://example.com/new'},
+        },
+        {'image_url': 'https://cdn.example.com/b.jpg', 'heading': 'Offers'},
+        {'image_url': 'https://cdn.example.com/c.jpg', 'heading': 'Tips'},
+      ],
+    };
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets(
+        'a row of rings that opens them full screen, one after another '
+        '(${dark ? 'dark' : 'light'}, $language)',
+        (tester) async {
+          await open(tester, [stories()], dark: dark, language: language);
+          expect(find.text('Offers'), findsOneWidget);
+          final first = tester.getRect(
+            find.byKey(const ValueKey('studio-story-ring-st-0')),
+          );
+          final second = tester.getRect(
+            find.byKey(const ValueKey('studio-story-ring-st-1')),
+          );
+          // The first story at the start: the right in Arabic.
+          expect(
+            language == 'ar'
+                ? first.left > second.left
+                : first.left < second.left,
+            isTrue,
+          );
+          expect(first.width, 76);
+          await tester.tap(find.byKey(const ValueKey('studio-story-st-0')));
+          await TestApp.settle(tester);
+          expect(
+            find.byKey(const ValueKey('studio-story-viewer-st')),
+            findsOneWidget,
+          );
+          expect(find.text('This week only'), findsOneWidget);
+          expect(find.byKey(const ValueKey('studio-story-open')), findsOne);
+          // A tap on the end side moves on.
+          final size = tester.getSize(find.byType(Scaffold).last);
+          final end = language == 'ar' ? 40.0 : size.width - 40;
+          await tester.tapAt(Offset(end, size.height / 2));
+          await TestApp.settle(tester);
+          expect(find.byKey(const ValueKey('studio-story-photo-1')), findsOne);
+          // On its own after its time, then closing after the last.
+          await tester.pump(const Duration(milliseconds: 3100));
+          await TestApp.settle(tester);
+          expect(find.byKey(const ValueKey('studio-story-photo-2')), findsOne);
+          await tester.pump(const Duration(milliseconds: 3100));
+          await TestApp.settle(tester, 20);
+          expect(
+            find.byKey(const ValueKey('studio-story-viewer-st')),
+            findsNothing,
+          );
+        },
+      );
+    }
+
+    testWidgets('holding pauses, swiping down closes, seen rings turn quiet', (
+      tester,
+    ) async {
+      final app = await open(tester, [stories()]);
+      await tester.tap(find.byKey(const ValueKey('studio-story-st-0')));
+      await TestApp.settle(tester);
+      final center = tester.getCenter(find.byType(Scaffold).last);
+      final hold = await tester.startGesture(center);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(seconds: 4));
+      expect(find.byKey(const ValueKey('studio-story-photo-0')), findsOne);
+      await hold.up();
+      await TestApp.settle(tester);
+      await tester.fling(find.byType(Scaffold).last, const Offset(0, 300), 900);
+      await TestApp.settle(tester, 20);
+      expect(
+        find.byKey(const ValueKey('studio-story-viewer-st')),
+        findsNothing,
+      );
+      final prefs = app.container.read(sharedPreferencesProvider);
+      expect(prefs.getStringList('studio.stories_seen'), [
+        'st|https://cdn.example.com/a.jpg',
+      ]);
+      final ring = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byKey(const ValueKey('studio-story-ring-st-0')),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect((ring.decoration! as BoxDecoration).gradient, isNull);
+      final unseen = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byKey(const ValueKey('studio-story-ring-st-1')),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      expect((unseen.decoration! as BoxDecoration).gradient, isNotNull);
+    });
+
+    testWidgets('moves on only when tapped on a phone that reduces motion', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await open(tester, [stories()]);
+      await tester.tap(find.byKey(const ValueKey('studio-story-st-0')));
+      await TestApp.settle(tester);
+      await tester.pump(const Duration(seconds: 4));
+      expect(find.byKey(const ValueKey('studio-story-photo-0')), findsOne);
+      await tester.tap(find.byKey(const ValueKey('studio-story-close')));
+      await TestApp.settle(tester);
+      expect(
+        find.byKey(const ValueKey('studio-story-viewer-st')),
+        findsNothing,
+      );
+    });
+  });
+
+  group('129.4 the video banner', () {
+    late _Video video;
+    setUp(() => VideoPlayerPlatform.instance = video = _Video());
+
+    Map<String, dynamic> banner({bool autoplay = true}) => {
+      'id': 'vid',
+      'type': 'video_hero',
+      'video_url': 'https://cdn.example.com/loop.mp4',
+      'image_url': 'https://cdn.example.com/poster.jpg',
+      'autoplay': autoplay,
+      'height': 400,
+      'scrim': {'color': '#000000', 'from': 0.2, 'to': 0.8},
+      'align': 'end',
+      'padding': {'top': 20, 'end': 20, 'bottom': 30, 'start': 20},
+      'children': [text('v-title', 'See it in motion')],
+    };
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets(
+        'plays muted and looping by itself, its words over it, a button to '
+        'pause (${dark ? 'dark' : 'light'}, $language)',
+        (tester) async {
+          await open(tester, [banner()], dark: dark, language: language);
+          expect(find.text('See it in motion'), findsOneWidget);
+          expect(find.byKey(const ValueKey('studio-scrim-vid')), findsOne);
+          expect(find.byKey(const ValueKey('studio-video-vid')), findsOne);
+          expect(
+            video.calls,
+            containsAllInOrder(['loop', 'volume 0.0', 'play']),
+          );
+          final button = find.byKey(const ValueKey('studio-video-button-vid'));
+          final cover = tester.getRect(
+            find.byKey(const ValueKey('studio-media-cover-vid')),
+          );
+          // In its top end corner: the right, or the left in Arabic.
+          final at = tester.getRect(button);
+          expect(
+            language == 'ar'
+                ? at.left - cover.left < 70
+                : cover.right - at.right < 70,
+            isTrue,
+          );
+          if (language == 'en') {
+            expect(find.byTooltip('Pause the video'), findsOneWidget);
+          }
+          await tester.tap(button);
+          await TestApp.settle(tester);
+          expect(video.calls.last, 'pause');
+          expect(find.byKey(const ValueKey('studio-video-vid')), findsNothing);
+        },
+      );
+    }
+
+    testWidgets('waits on its poster on a phone that saves data', (
+      tester,
+    ) async {
+      await open(
+        tester,
+        [banner()],
+        overrides: [dataSaverProvider.overrideWith((ref) async => true)],
+      );
+      expect(video.calls, isNot(contains('play')));
+      expect(find.byKey(const ValueKey('studio-video-vid')), findsNothing);
+      await tester.tap(find.byTooltip('Play the video'));
+      await TestApp.settle(tester);
+      expect(video.calls.last, 'play');
+    });
+
+    testWidgets('waits on a phone that reduces motion, and below the fold', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await open(tester, [banner()]);
+      expect(video.calls, isNot(contains('play')));
+    });
+
+    testWidgets('plays only once scrolled onto the screen', (tester) async {
+      await open(tester, [
+        {'id': 'tall', 'type': 'spacer', 'height': 1400},
+        banner(),
+      ]);
+      expect(video.calls, isNot(contains('play')));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -1200));
+      await TestApp.settle(tester, 20);
+      expect(video.calls, contains('play'));
+    });
+  });
+
+  group('129.7 the parallax banner', () {
+    Map<String, dynamic> banner({bool glass = true}) => {
+      'id': 'par',
+      'type': 'parallax_banner',
+      'image_url': 'https://cdn.example.com/photo.jpg',
+      'height': 300,
+      'glass': glass,
+      'parallax': {'speed': 0.5},
+      'align': 'center',
+      'padding': {'top': 20, 'end': 20, 'bottom': 20, 'start': 20},
+      'children': [text('p-title', 'Crafted with care')],
+    };
+
+    double offset(WidgetTester tester) => tester
+        .widget<Transform>(find.byKey(const ValueKey('studio-parallax-photo')))
+        .transform
+        .getTranslation()
+        .y;
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets(
+        'its photo moves slower than the page, its words in a frosted '
+        'panel (${dark ? 'dark' : 'light'}, $language)',
+        (tester) async {
+          await open(
+            tester,
+            [
+              {'id': 'top', 'type': 'spacer', 'height': 500},
+              banner(),
+              {'id': 'foot', 'type': 'spacer', 'height': 1200},
+            ],
+            dark: dark,
+            language: language,
+          );
+          expect(find.byKey(const ValueKey('studio-glass')), findsOneWidget);
+          expect(find.text('Crafted with care'), findsOneWidget);
+          final before = offset(tester);
+          final photoBefore = tester.getRect(
+            find.descendant(
+              of: find.byKey(const ValueKey('studio-parallax-photo')),
+              matching: find.byType(Image),
+            ),
+          );
+          await tester.drag(
+            find.byType(Scrollable).first,
+            const Offset(0, -200),
+          );
+          await TestApp.settle(tester);
+          final moved = offset(tester) - before;
+          final photoAfter = tester.getRect(
+            find.descendant(
+              of: find.byKey(const ValueKey('studio-parallax-photo')),
+              matching: find.byType(Image),
+            ),
+          );
+          // The page moved up 200; the photo less than that.
+          expect(moved, greaterThan(0));
+          final travelled = photoBefore.top - photoAfter.top;
+          expect(travelled, greaterThan(100));
+          expect(travelled, lessThan(200));
+        },
+      );
+    }
+
+    testWidgets('stands still on a phone that reduces motion', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await open(tester, [
+        {'id': 'top', 'type': 'spacer', 'height': 500},
+        banner(glass: false),
+        {'id': 'foot', 'type': 'spacer', 'height': 1200},
+      ]);
+      expect(find.byKey(const ValueKey('studio-glass')), findsNothing);
+      final before = offset(tester);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
+      await TestApp.settle(tester);
+      expect(offset(tester), before);
+    });
+  });
+
+  group('129.3 the ticker', () {
+    Map<String, dynamic> ticker({Map<String, dynamic>? marquee}) => {
+      'id': 'tick',
+      'type': 'marquee',
+      'text': 'Free delivery\nNew every week',
+      'icon': 'star',
+      'gap': 18,
+      'marquee': ?marquee,
+    };
+
+    double shift(WidgetTester tester) => tester
+        .widget<Transform>(
+          find.byKey(const ValueKey('studio-marquee-run-tick')),
+        )
+        .transform
+        .getTranslation()
+        .x;
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets('runs toward the start, its words read once '
+          '(${dark ? 'dark' : 'light'}, $language)', (tester) async {
+        await open(tester, [ticker()], dark: dark, language: language);
+        expect(find.text('Free delivery'), findsWidgets);
+        expect(
+          find.bySemanticsLabel('Free delivery, New every week'),
+          findsOneWidget,
+        );
+        final before = shift(tester);
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pump(const Duration(milliseconds: 500));
+        final after = shift(tester);
+        // 40 points a second, leftwards in English, rightwards in Arabic.
+        expect((after - before).abs(), closeTo(40, 6));
+        expect(after < before, language == 'en');
+      });
+    }
+
+    testWidgets('runs toward the end, held still while pressed', (
+      tester,
+    ) async {
+      await open(tester, [
+        ticker(marquee: {'direction': 'end', 'speed': 80}),
+      ]);
+      final before = shift(tester);
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pump(const Duration(milliseconds: 250));
+      expect(shift(tester), greaterThan(before));
+      final press = await tester.startGesture(
+        tester.getCenter(find.byKey(const ValueKey('studio-marquee-tick'))),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      final held = shift(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(shift(tester), held);
+      await press.up();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(shift(tester), isNot(held));
+    });
+
+    testWidgets('a still row on a phone that reduces motion', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await open(tester, [ticker()]);
+      expect(find.text('Free delivery'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      expect(shift(tester), 0);
+    });
+
+    testWidgets('waits below the fold', (tester) async {
+      await open(tester, [
+        {'id': 'tall', 'type': 'spacer', 'height': 2000},
+        ticker(),
+      ]);
+      final before = shift(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(shift(tester), before);
+    });
+  });
+}
+
+/// A video that is ready at once, keeping what it was asked to do.
+class _Video extends VideoPlayerPlatform with MockPlatformInterfaceMixin {
+  final calls = <String>[];
+  @override
+  Future<void> init() async {}
+  @override
+  Future<int?> create(DataSource dataSource) async => 1;
+  @override
+  Future<int?> createWithOptions(VideoCreationOptions options) async => 1;
+  @override
+  Stream<VideoEvent> videoEventsFor(int playerId) => Stream.value(
+    VideoEvent(
+      eventType: VideoEventType.initialized,
+      duration: const Duration(seconds: 20),
+      size: const Size(1280, 720),
+    ),
+  );
+  @override
+  Future<void> dispose(int playerId) async {}
+  @override
+  Future<void> setLooping(int playerId, bool looping) async =>
+      calls.add('loop');
+  @override
+  Future<void> play(int playerId) async => calls.add('play');
+  @override
+  Future<void> pause(int playerId) async => calls.add('pause');
+  @override
+  Future<void> setVolume(int playerId, double volume) async =>
+      calls.add('volume $volume');
+  @override
+  Future<void> seekTo(int playerId, Duration position) async {}
+  @override
+  Future<void> setPlaybackSpeed(int playerId, double speed) async {}
+  @override
+  Future<Duration> getPosition(int playerId) async => Duration.zero;
+  @override
+  Future<void> setMixWithOthers(bool mixWithOthers) async {}
+  @override
+  Widget buildView(int playerId) => const ColoredBox(color: Color(0xFF223344));
+  @override
+  Widget buildViewWithOptions(VideoViewOptions options) => buildView(1);
 }

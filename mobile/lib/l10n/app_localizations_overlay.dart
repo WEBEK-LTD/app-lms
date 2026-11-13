@@ -10641,4 +10641,37 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get studioSchoolDayOff =>
       overlay.text('studioSchoolDayOff') ?? base.studioSchoolDayOff;
+
+  @override
+  String studioStoryOf(int index, int total) =>
+      overlay.format('studioStoryOf', {'index': index, 'total': total}) ??
+      base.studioStoryOf(index, total);
+
+  @override
+  String get studioStoryOpen =>
+      overlay.text('studioStoryOpen') ?? base.studioStoryOpen;
+
+  @override
+  String get studioTickerPaused =>
+      overlay.text('studioTickerPaused') ?? base.studioTickerPaused;
+
+  @override
+  String get studioVideoPlay =>
+      overlay.text('studioVideoPlay') ?? base.studioVideoPlay;
+
+  @override
+  String get studioVideoPause =>
+      overlay.text('studioVideoPause') ?? base.studioVideoPause;
+
+  @override
+  String studioCompareLabel(String before, String after) =>
+      overlay.format('studioCompareLabel', {
+        'before': before,
+        'after': after,
+      }) ??
+      base.studioCompareLabel(before, after);
+
+  @override
+  String get studioCompareHandle =>
+      overlay.text('studioCompareHandle') ?? base.studioCompareHandle;
 }

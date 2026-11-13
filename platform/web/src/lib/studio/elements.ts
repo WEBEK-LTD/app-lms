@@ -203,5 +203,8 @@ export function newNode(
       return { id, type, font: { size: 18, weight: 700 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
     case "tracking":
       return { id, type, tracking: { kind: "shipment" }, radius: 20, padding: { top: 14, end: 14, bottom: 14, start: 14 }, margin: { top: 8, end: 16, bottom: 8, start: 16 } };
+    // 129 The premium elements are made above (lib/studio/premium-motion.ts).
+    default:
+      return { id, type };
   }
 }

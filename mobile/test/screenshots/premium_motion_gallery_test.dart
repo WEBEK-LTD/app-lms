@@ -39,11 +39,24 @@ typedef Words = String Function(String en, String ar);
 
 /// An element's page: its elements, in English or Arabic.
 class PremiumShot {
-  const PremiumShot(this.name, this.children, {this.background});
+  const PremiumShot(
+    this.name,
+    this.children, {
+    this.background,
+    this.preferences = const {},
+    this.then,
+  });
 
   final String name;
   final List<Map<String, dynamic>> Function(Words words) children;
   final String? background;
+
+  /// What the phone already keeps (stories seen).
+  final Map<String, Object> preferences;
+
+  /// A second picture after a tap (`<name>-open-<variant>.png`): the
+  /// stories full screen, the gallery's viewer.
+  final Future<void> Function(WidgetTester tester)? then;
 }
 
 Map<String, dynamic> _text(
@@ -142,7 +155,187 @@ Map<String, dynamic> _slide(
   ],
 };
 
+Map<String, dynamic> _banner(
+  String id,
+  String type,
+  String photoPath, {
+  required String title,
+  required String line,
+  required String cta,
+  double height = 300,
+  bool glass = false,
+  double radius = 26,
+  Map<String, dynamic>? margin,
+  String align = 'end',
+}) => {
+  'id': id,
+  'type': type,
+  'image_url': photo(photoPath),
+  if (type == 'video_hero') ...{
+    'video_url': 'https://yallapp.test/videos/loop.mp4',
+    'autoplay': true,
+  },
+  if (type == 'parallax_banner') 'parallax': {'speed': 0.5},
+  'glass': ?(glass ? true : null),
+  'height': height,
+  'radius': ?(radius > 0 ? radius : null),
+  'margin': ?margin,
+  'background': '#10131F',
+  'scrim': glass
+      ? {'color': '#000000', 'from': 0.1, 'to': 0.45}
+      : {'color': '#000000', 'from': 0.3, 'middle': 0.05, 'at': 40, 'to': 0.85},
+  'align': align,
+  'gap': 10,
+  'padding': _pad(22, 22, glass ? 22 : 34, 22),
+  'children': [
+    _text('$id-t', title, size: 28, weight: 800, color: '#FFFFFF'),
+    _text('$id-l', line, size: 15, color: '#FFFFFF'),
+    {
+      'id': '$id-b',
+      'type': 'button',
+      'text': cta,
+      'width': 'hug',
+      'height': 44,
+      'radius': 22,
+      'background': '#FFFFFF',
+      'color': '#0E0D24',
+      'font': {'size': 14, 'weight': 800},
+      'padding': _pad(0, 22, 0, 22),
+      'margin': _pad(6, 0, 0, 0),
+    },
+  ],
+};
+
 final premiumShots = <PremiumShot>[
+  _storiesShot,
+  // 129.4 A video banner on its poster, its play button in the corner.
+  PremiumShot(
+    'video_hero',
+    (w) => [
+      _banner(
+        'vh',
+        'video_hero',
+        'stories/rides/rides-night-city.jpg',
+        title: w('See the city move', 'شاهد المدينة تتحرك'),
+        line: w(
+          'A minute that says it all, muted and looping.',
+          'دقيقة تقول كل شيء، بلا صوت وتتكرر.',
+        ),
+        cta: w('Ride now', 'اطلب رحلة'),
+        height: 520,
+        radius: 0,
+      ),
+      ..._heading(
+        w('Video banner', 'بانر فيديو'),
+        w(
+          'Poster first; it waits on phones that save data.',
+          'الغلاف أولًا؛ وينتظر في الهواتف التي توفر البيانات.',
+        ),
+      ),
+    ],
+  ),
+  // 129.7 A parallax banner, its words in a frosted panel, and one without.
+  PremiumShot(
+    'parallax_banner',
+    (w) => [
+      ..._heading(
+        w('Parallax banner', 'بانر بعمق'),
+        w(
+          'The photo moves slower than the page.',
+          'الصورة تتحرك أبطأ من الصفحة.',
+        ),
+      ),
+      _banner(
+        'pb1',
+        'parallax_banner',
+        'stories/academy/academy-desk.jpg',
+        title: w('Crafted with care', 'صُنع بعناية'),
+        line: w('Every detail, by hand.', 'كل تفصيلة باليد.'),
+        cta: w('Discover', 'اكتشف'),
+        glass: true,
+        align: 'center',
+        margin: _pad(0, 16, 12, 16),
+      ),
+      _banner(
+        'pb2',
+        'parallax_banner',
+        'stories/school/school-dawn.jpg',
+        title: w('Mornings at school', 'صباح المدرسة'),
+        line: w('Where every day starts.', 'حيث يبدأ كل يوم.'),
+        cta: w('Visit', 'زُرنا'),
+        height: 220,
+        margin: _pad(0, 16, 12, 16),
+      ),
+    ],
+  ),
+  // 129.3 Tickers: words on a dark band, photos, big words toward the end.
+  PremiumShot(
+    'marquee',
+    (w) => [
+      ..._heading(
+        w('Ticker', 'شريط متحرك'),
+        w(
+          'Words, logos or photos running endlessly; held while pressed.',
+          'كلمات أو شعارات أو صور تمر بلا توقف، وتقف عند الضغط عليها.',
+        ),
+      ),
+      {
+        'id': 'm1',
+        'type': 'marquee',
+        'text': w(
+          'Free delivery\nNew arrivals every week\nMembers save 10%',
+          'توصيل مجاني\nجديد كل أسبوع\nالأعضاء يوفرون ١٠٪',
+        ),
+        'icon': 'star',
+        'icon_size': 16,
+        'gap': 18,
+        'background': '#0E0D24',
+        'color': '#FFFFFF',
+        'dark_background': '#F4EFE6',
+        'dark_color': '#0E0D24',
+        'font': {'size': 15, 'weight': 700},
+        'padding': _pad(12, 0, 12, 0),
+        'margin': _pad(8, 0, 8, 0),
+      },
+      _text(
+        'm-photos',
+        w('From the market', 'من السوق'),
+        size: 18,
+        weight: 800,
+        margin: _pad(18, 20, 10, 20),
+      ),
+      {
+        'id': 'm2',
+        'type': 'marquee',
+        'gap': 12,
+        'marquee': {'size': 64, 'speed': 30},
+        'images': [
+          for (final name in [
+            'mangoes',
+            'oranges',
+            'tomatoes',
+            'croissants',
+            'cheese',
+            'lemons',
+          ])
+            {'image_url': photo('demo-photos/$name.jpg'), 'caption': name},
+        ],
+      },
+      {
+        'id': 'm3',
+        'type': 'marquee',
+        'text': w('Fresh  Local  Daily', 'طازج  محلي  يومي'),
+        'icon': 'spa',
+        'icon_size': 28,
+        'gap': 22,
+        'color': '#1F7A4D',
+        'dark_color': '#8FD3AE',
+        'font': {'size': 40, 'weight': 900},
+        'margin': _pad(24, 0, 8, 0),
+        'marquee': {'direction': 'end'},
+      },
+    ],
+  ),
   // 129.1 The hero slider and the card carousel.
   PremiumShot(
     'slider',
@@ -223,11 +416,73 @@ final premiumShots = <PremiumShot>[
   ),
 ];
 
+// 129.2 Stories over the page's top, two of them already seen.
+const _stories = [
+  ('stories/multi-vendor/zad-friday.jpg', 'New', 'جديد'),
+  ('stories/multi-vendor/zad-grill.jpg', 'Grill', 'مشويات'),
+  ('stories/multi-vendor/zad-kitchen-rush.jpg', 'Kitchen', 'المطبخ'),
+  ('stories/academy/academy-breakfast.jpg', 'Mornings', 'الصباح'),
+  ('stories/delivery/delivery-rider.jpg', 'On the way', 'في الطريق'),
+];
+
+final _storiesShot = PremiumShot(
+  'stories',
+  (w) => [
+    ..._heading(
+      w('Stories', 'القصص'),
+      w(
+        'Round photos in a ring; a tap opens them full screen.',
+        'صور دائرية في حلقة؛ تفتحها لمسة على الشاشة كلها.',
+      ),
+    ),
+    {
+      'id': 'st',
+      'type': 'stories',
+      'interval_ms': 5000,
+      'padding': _pad(4, 16, 10, 16),
+      'slides': [
+        for (final (path, en, ar) in _stories)
+          {
+            'image_url': photo(path),
+            'heading': w(en, ar),
+            'subheading': w(
+              'Fresh from the kitchen, this week only.',
+              'طازج من المطبخ، هذا الأسبوع فقط.',
+            ),
+            'action': {'type': 'url', 'url': 'https://example.com/new'},
+          },
+      ],
+    },
+    _slide(
+      'st-hero',
+      'stories/multi-vendor/zad-cafe.jpg',
+      w('Today', 'اليوم'),
+      w('Coffee and something sweet', 'قهوة وشيء حلو'),
+      null,
+      height: 300,
+      radius: 24,
+    )..['margin'] = _pad(14, 16, 0, 16),
+  ],
+  preferences: {
+    'studio.stories_seen': [
+      for (final (path, _, _) in _stories.skip(3)) 'st|${photo(path)}',
+    ],
+  },
+  then: (tester) async {
+    await tester.tap(find.byKey(const ValueKey('studio-story-st-0')));
+    await TestApp.settle(tester, 10);
+    await tester.pump(const Duration(milliseconds: 2000));
+    await tester.pump();
+  },
+);
+
 /// The photos [json] names, put in the image cache at their addresses.
 Future<void> _seedPhotos(WidgetTester tester, Object? json) async {
   final paths = <String>{};
   void walk(Object? v) {
-    if (v is String && v.startsWith('$_host/')) paths.add(v);
+    if (v is String && v.startsWith('$_host/') && !v.endsWith('.mp4')) {
+      paths.add(v);
+    }
     if (v is Map) v.values.forEach(walk);
     if (v is List) v.forEach(walk);
   }
@@ -315,31 +570,41 @@ void main() {
           preferences: {
             'settings.theme_mode': dark ? 'dark' : 'light',
             'settings.language': ar ? 'ar' : 'en',
+            ...shot.preferences,
           },
           wrap: (app) => withStatusBar(app, lightIcons: lightIcons),
         );
         await app.pump(tester);
         await TestApp.settle(tester, 30);
         await tester.pump(const Duration(milliseconds: 1500));
-        lightIcons.value = appWantsLightStatusBar(tester);
-        await tester.pump();
-        final boundary = tester.renderObject<RenderRepaintBoundary>(
-          find.byKey(shotKey),
-        );
-        final png = await tester.runAsync(() async {
-          final image = await boundary.toImage(pixelRatio: _ratio);
-          final data = await image.toByteData(format: ui.ImageByteFormat.png);
-          image.dispose();
-          return Uint8List.view(data!.buffer);
-        });
-        final file = Uri.parse('$_out/${shot.name}-$variant.png');
-        await tester.runAsync(() async {
-          if (autoUpdateGoldenFiles) {
-            await goldenFileComparator.update(file, png!);
-          } else {
-            expect(await goldenFileComparator.compare(png!, file), isTrue);
-          }
-        });
+        Future<void> capture(String name) async {
+          lightIcons.value = appWantsLightStatusBar(tester);
+          await tester.pump();
+          expect(tester.takeException(), isNull, reason: name);
+          final boundary = tester.renderObject<RenderRepaintBoundary>(
+            find.byKey(shotKey),
+          );
+          final png = await tester.runAsync(() async {
+            final image = await boundary.toImage(pixelRatio: _ratio);
+            final data = await image.toByteData(format: ui.ImageByteFormat.png);
+            image.dispose();
+            return Uint8List.view(data!.buffer);
+          });
+          final file = Uri.parse('$_out/$name-$variant.png');
+          await tester.runAsync(() async {
+            if (autoUpdateGoldenFiles) {
+              await goldenFileComparator.update(file, png!);
+            } else {
+              expect(await goldenFileComparator.compare(png!, file), isTrue);
+            }
+          });
+        }
+
+        await capture(shot.name);
+        if (shot.then case final then?) {
+          await then(tester);
+          await capture('${shot.name}-open');
+        }
         await tester.pumpWidget(const SizedBox());
         app.container.dispose();
         await TestApp.settle(tester, 2);

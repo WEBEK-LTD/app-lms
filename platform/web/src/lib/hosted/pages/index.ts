@@ -7,7 +7,7 @@ import { etagValues } from "../../pages/plugin";
 import { itemSourcesFor } from "../../pages/sources";
 import { moreTab, splitTabs } from "../../pages/tab-bar";
 import { pickLanguage, translated, translatedBlock } from "../../pages/translate";
-import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type StudioPage } from "../../pages/types";
+import { ENTRY_LISTS, STUDIO_PAGE_SCREENS, type ScreenName, type EntryList, type ItemSource, type ItemsQuery, type LanguageCode, type Layout, type LayoutBlock, type LayoutTab, type StudioNode, type Translations, type StudioPage } from "../../pages/types";
 import { ConnectorError, type Connector } from "../connectors/types";
 import type { HostedContext, HostedRequest, HostedResult } from "../service";
 import { durationLabel, itemWords } from "./item-words";
@@ -84,6 +84,11 @@ async function servedStudio(pc: PageContext, studio: StudioPage): Promise<Studio
     if (node.hidden) return null;
     const { query, translations: _t, ...shown } = translated(node, pc.lang, def);
     void _t;
+    // 129 The premium elements' entries (stories, photos) in the language asked for too.
+    for (const list of ["slides", "images"] as const) {
+      const entries = shown[list] as { translations?: Translations }[] | undefined;
+      if (entries) (shown as Record<string, unknown>)[list] = entries.map((entry) => (({ translations: _e, ...rest }) => (void _e, rest))(translated(entry, pc.lang, def) as { translations?: Translations }));
+    }
     // 112.4 What this person opened lately is kept on the phone: sent without entries.
     if (node.type === "items" && node.recent) return node.source === "products" && servable(pc.ctx.app, pc.ctx.connector, "products") ? ({ ...shown, items: [] } as StudioNode) : null;
     if (node.type === "items") {

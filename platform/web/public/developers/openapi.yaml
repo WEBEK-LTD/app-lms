@@ -14697,7 +14697,26 @@ components:
         `height`: `photo_hero` a photo (`image_url`) with a colour over it
         (`scrim`), `map_header` a drawn map with markers (`map_drawing`);
         with `overlap`, their last element hangs that far up over the
-        cover's foot (a card, a bottom sheet). The first element of a page
+        cover's foot (a card, a bottom sheet). 129 Premium motion and media:
+        `stories` is a row of round photos in a ring (`slides`: each one's
+        photo, title as `heading`, a line over the photo as `subheading`
+        and a link as `action`) that open full screen one after another
+        (`interval_ms` each; a tap moves on, holding pauses, swiping down
+        closes); the ring is the app's second colour into its main one
+        until the person has seen the story on this phone. `marquee` is an
+        endless ticker of its `text`'s lines and its `images` (logos,
+        photos), the `icon` between them, running at `marquee.speed` toward
+        its `direction`, held still while pressed; a still row on phones
+        that reduce motion, and still while it is off the screen. Two
+        premium banners hold what lies over them as a cover does (their
+        `padding`, `gap`, `align` and `cross`, at their `height`, under their
+        `scrim`): `video_hero` a muted looping video (`video_url`, an MP4 from
+        the media library) over its poster (`image_url`, shown first), with a
+        play and pause button; with `autoplay` it plays by itself while on
+        the screen, except on phones that reduce motion or save data.
+        `parallax_banner` a photo (`image_url`) that moves slower than the
+        page as it scrolls (`parallax.speed`), still on phones that reduce
+        motion. With `glass`, what either holds sits in a frosted panel. The first element of a page
         without a header reaches under the status bar when it is a cover.
         `tracking` is the signed-in person's own shipment or ride on its way,
         or the free taxis near them (`tracking`), and `greeting` good morning
@@ -14711,7 +14730,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14759,10 +14778,51 @@ components:
         icon_size: { type: number, minimum: 8, maximum: 200, default: 24 }
         video_url: { type: [string, 'null'], format: uri, description: "For `video`, a YouTube, Vimeo or MP4 address." }
         autoplay: { type: boolean, default: false, description: "For `video` (muted) and `slider` (every `interval_ms`)." }
-        interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000 }
+        interval_ms: { type: integer, minimum: 1500, maximum: 20000, default: 4000, description: "For `slider`: each slide's time; 129.2 for `stories`, each story's (2000 to 15000, 5000 missing)." }
         per_view: { type: number, minimum: 1, maximum: 4, default: 1, description: "For `slider`, how many show at a time (1.2 peeks at the next)." }
         dots: { type: boolean, default: true, description: "For `slider`: whether it shows where it is (`indicator`)." }
         indicator: { type: string, enum: [dots, progress, count, pill], default: dots, description: "112.4 For `slider`: `dots` under the slides; `progress`, a line per slide over their bottom, the one showing filling while it waits (with `autoplay`); `count`, \"2 / 5\" over their top corner. 129.1 `pill`, the dots in a frosted pill over the slides' foot. Apps that don't know it show dots." }
+        slides:
+          type: array
+          minItems: 1
+          maxItems: 20
+          description: "129.2 For `stories`: the stories, in order. A story without a photo shows a colour."
+          items:
+            type: object
+            properties:
+              image_url: { type: [string, 'null'], format: uri }
+              heading: { type: [string, 'null'], maxLength: 40, description: "Its title, under its ring and over its photo." }
+              subheading: { type: [string, 'null'], maxLength: 120, description: "A line over its photo." }
+              action: { $ref: '#/components/schemas/Action' }
+        images:
+          type: array
+          maxItems: 30
+          description: "129.3 For `marquee`: its logos or photos, after its words (`caption`: what each shows, for screen readers)."
+          items:
+            type: object
+            required: [image_url]
+            properties:
+              image_url: { type: string, format: uri }
+              caption: { type: [string, 'null'], maxLength: 120 }
+        marquee:
+          type: [object, 'null']
+          description: "129.3 For `marquee`: how it runs."
+          properties:
+            speed: { type: integer, minimum: 10, maximum: 200, default: 40, description: "Points a second." }
+            direction: { type: string, enum: [start, end], default: start, description: "Toward the start (the left in a left-to-right language, the right in Arabic) or the end." }
+            pause_on_press: { type: boolean, default: true, description: "Held still while pressed." }
+            size: { type: integer, minimum: 16, maximum: 120, default: 36, description: "How tall its pictures are." }
+        glass: { type: boolean, default: false, description: "129.4 and 129.7 For `video_hero` and `parallax_banner`: what it holds sits in a frosted panel." }
+        parallax:
+          type: [object, 'null']
+          description: "129.7 For `parallax_banner`: how its photo moves."
+          properties:
+            speed: { type: number, minimum: 0.1, maximum: 0.9, default: 0.5, description: "How much slower than the page: its photo moves this share of the page's scroll." }
+        stories:
+          type: [object, 'null']
+          description: "129.2 For `stories`: how they're drawn."
+          properties:
+            size: { type: integer, minimum: 52, maximum: 96, default: 68, description: "Each round photo's size across." }
         ken_burns: { type: boolean, default: false, description: "129.1 For `slider`: the photo of the slide showing grows slowly while it shows (a photo hero's, a picture's or a background picture), started again on each slide. Still on phones set to reduce motion. A slider stops moving on by itself while it is off the screen." }
         place:
           type: [object, 'null']

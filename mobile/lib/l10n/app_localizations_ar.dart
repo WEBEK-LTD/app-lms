@@ -10249,4 +10249,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get studioSchoolDayOff => 'لا دراسة اليوم';
+
+  @override
+  String studioStoryOf(int index, int total) {
+    return 'القصة $index من $total';
+  }
+
+  @override
+  String get studioStoryOpen => 'افتح';
+
+  @override
+  String get studioTickerPaused => 'متوقّف';
+
+  @override
+  String get studioVideoPlay => 'شغّل الفيديو';
+
+  @override
+  String get studioVideoPause => 'أوقف الفيديو مؤقتًا';
+
+  @override
+  String studioCompareLabel(String before, String after) {
+    return 'قبل وبعد: $before و$after';
+  }
+
+  @override
+  String get studioCompareHandle => 'اسحب للمقارنة';
 }

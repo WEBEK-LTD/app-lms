@@ -2686,4 +2686,11 @@
 {"key":"studioSchoolBusLeaves","en":"Bus home leaves {time}","ar":"حافلة العودة تنطلق الساعة {time}","tr":"Eve dönüş servisi · {time}","description":"128 Today's card: when the afternoon school bus leaves for home.","placeholders":{"time":"String"}},
 {"key":"studioSchoolBusComing","en":"Bus on its way · {minutes} min","ar":"الحافلة في الطريق · {minutes} دقيقة","tr":"Servis yolda · {minutes} dk","description":"128 Today's card: the child's school bus is running, this many minutes from their stop.","placeholders":{"minutes":"String"}},
 {"key":"studioSchoolBusRoute","en":"{route} · {stop} stop","ar":"{route} · محطة {stop}","tr":"{route} · {stop} durağı","description":"128 Today's card, under the bus: its route and the child's stop.","placeholders":{"route":"String","stop":"String"}},
-{"key":"studioSchoolDayOff","en":"No school today","ar":"لا دراسة اليوم","tr":"Bugün okul yok","description":"128 Today's card on a holiday or break; its name is under it."}]}
+{"key":"studioSchoolDayOff","en":"No school today","ar":"لا دراسة اليوم","tr":"Bugün okul yok","description":"128 Today's card on a holiday or break; its name is under it."},
+{"key":"studioStoryOf","en":"Story {index} of {total}","ar":"القصة {index} من {total}","tr":"Hikâye {index} / {total}","description":"129.2 A story's spoken name in a row of stories and full screen.","placeholders":{"index":"int","total":"int"}},
+{"key":"studioStoryOpen","en":"Open","ar":"افتح","tr":"Aç","description":"129.2 The button over a story that opens its link."},
+{"key":"studioTickerPaused","en":"Paused","ar":"متوقّف","tr":"Durduruldu","description":"129.3 Spoken while a ticker is held still."},
+{"key":"studioVideoPlay","en":"Play the video","ar":"شغّل الفيديو","tr":"Videoyu oynat","description":"129.4 The button over a video banner that plays it."},
+{"key":"studioVideoPause","en":"Pause the video","ar":"أوقف الفيديو مؤقتًا","tr":"Videoyu duraklat","description":"129.4 The button over a video banner that pauses it."},
+{"key":"studioCompareLabel","en":"Before and after: {before} and {after}","ar":"قبل وبعد: {before} و{after}","tr":"Önce ve sonra: {before} ve {after}","description":"129.6 The spoken name of a before and after photo.","placeholders":{"before":"String","after":"String"}},
+{"key":"studioCompareHandle","en":"Drag to compare","ar":"اسحب للمقارنة","tr":"Karşılaştırmak için sürükleyin","description":"129.6 The spoken hint of the handle between the two photos."}]}

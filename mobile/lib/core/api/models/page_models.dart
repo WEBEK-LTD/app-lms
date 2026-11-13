@@ -1990,6 +1990,12 @@ enum StudioNodeType {
   greeting,
   // 128 A part of the family's school day in a school (StudioSchool).
   school,
+  // 129 Premium motion & media: a row of stories, a ticker, a video banner
+  // and a parallax banner holding what lies over them.
+  stories,
+  marquee,
+  videoHero,
+  parallaxBanner,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2508,6 +2514,15 @@ class StudioNode {
     this.learningStyle = StudioLearningStyle.card,
     // 129 Premium motion & media.
     this.kenBurns = false,
+    this.slides = const [],
+    this.storySize = 68,
+    this.images = const [],
+    this.marqueeSpeed = 40,
+    this.marqueeToStart = true,
+    this.marqueePauses = true,
+    this.marqueeSize = 36,
+    this.glass = false,
+    this.parallaxSpeed = 0.5,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2654,10 +2669,42 @@ class StudioNode {
         hidden: boolOr(json, 'hidden', false),
         // 129 Premium motion & media.
         kenBurns: boolOr(json, 'ken_burns', false),
+        slides: _entries(json, 'slides', Slide.tryParse),
+        storySize: json['stories'] is Map
+            ? (optDouble(asJson(json['stories']), 'size') ?? 68)
+                  .clamp(52, 96)
+                  .toDouble()
+            : 68,
+        images: _entries(json, 'images', GalleryImage.tryParse),
+        marqueeSpeed: _premium(json, 'marquee', 'speed', 40, 10, 200),
+        marqueeToStart:
+            !(json['marquee'] is Map &&
+                (json['marquee'] as Map)['direction'] == 'end'),
+        marqueePauses:
+            !(json['marquee'] is Map &&
+                (json['marquee'] as Map)['pause_on_press'] == false),
+        marqueeSize: _premium(json, 'marquee', 'size', 36, 16, 120),
+        glass: boolOr(json, 'glass', false),
+        parallaxSpeed: _premium(json, 'parallax', 'speed', 0.5, 0.1, 0.9),
       );
     } on FormatException {
       return null;
     }
+  }
+
+  /// 129 A number of a premium element's settings (`marquee.speed`), kept
+  /// within its bounds; [fallback] when missing.
+  static double _premium(
+    Json json,
+    String object,
+    String key,
+    double fallback,
+    double min,
+    double max,
+  ) {
+    final o = json[object];
+    if (o is! Map) return fallback;
+    return (optDouble(asJson(o), key) ?? fallback).clamp(min, max).toDouble();
   }
 
   /// Editor audit 3.3: the element with its tablet changes (`tablet`) put
@@ -2760,6 +2807,37 @@ class StudioNode {
 
   /// 129.1 For a slider: the open slide's photo grows slowly (Ken Burns).
   final bool kenBurns;
+
+  /// 129.2 For [StudioNodeType.stories]: the stories, in order.
+  final List<Slide> slides;
+
+  /// 129.2 For [StudioNodeType.stories]: each round photo's size across.
+  final double storySize;
+
+  /// 129.3 For [StudioNodeType.marquee]: its logos or photos, after its
+  /// words.
+  final List<GalleryImage> images;
+
+  /// 129.3 For [StudioNodeType.marquee]: points a second.
+  final double marqueeSpeed;
+
+  /// 129.3 For [StudioNodeType.marquee]: it runs toward the start (else
+  /// the end).
+  final bool marqueeToStart;
+
+  /// 129.3 For [StudioNodeType.marquee]: held still while pressed.
+  final bool marqueePauses;
+
+  /// 129.3 For [StudioNodeType.marquee]: how tall its pictures are.
+  final double marqueeSize;
+
+  /// 129.4 and 129.7 For a video or parallax banner: its words in a
+  /// frosted panel.
+  final bool glass;
+
+  /// 129.7 For [StudioNodeType.parallaxBanner]: how much slower than the
+  /// page its photo moves, 0.1 to 0.9.
+  final double parallaxSpeed;
   final ItemSource? source;
   final ItemsLayout layout;
 

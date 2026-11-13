@@ -52,6 +52,8 @@ import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
+// 129 Premium motion & media.
+import { BannerControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -735,12 +737,16 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "live_status" ? <LiveStatusControls node={node} onChange={onChange} /> : null}
       {node.type === "photo_hero" || node.type === "map_header" ? <CoverControls node={node} onChange={onChange} /> : null}
       {/* 128 The shade over a photo hero's photo, as over any picture. */}
-      {node.type === "photo_hero" ? (
+      {node.type === "photo_hero" || node.type === "video_hero" || node.type === "parallax_banner" ? (
         <div className="flex flex-col gap-2">
           <ScrimFields node={node} onChange={onChange} palette={props.palette} />
         </div>
       ) : null}
       {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
+      {/* 129 Premium motion & media. */}
+      {node.type === "stories" ? <StoriesControls {...premiumProps(props, node)} /> : null}
+      {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
+      {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
@@ -1114,6 +1120,17 @@ function FormEditor({ node, onChange }: { node: StudioNode; onChange: (patch: Pa
       <input aria-label={t("studio.successText")} placeholder={t("studio.successText")} value={form.success_text ?? ""} onChange={(e) => set({ success_text: e.target.value || null })} className="h-8 rounded-md px-2" style={{ border: "1px solid var(--studio-line)" }} />
     </div>
   );
+}
+
+/** 129 What the premium elements' controls get: the element, the language being edited and the inspector's link picker. */
+function premiumProps(props: Props, node: StudioNode): PremiumControlsProps {
+  return {
+    node,
+    onChange: props.onChange,
+    lang: props.lang,
+    defaultLang: props.defaultLang,
+    link: (id, action, onChange) => <TapAction id={id} action={action} onChange={onChange} pages={props.pages} sources={props.sources} screens={props.screens} pickable={props.pickable} />,
+  };
 }
 
 function MotionTab(props: Props & { node: StudioNode }) {

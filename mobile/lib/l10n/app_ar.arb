@@ -2688,5 +2688,12 @@
   "studioSchoolBusLeaves": "حافلة العودة تنطلق الساعة {time}",
   "studioSchoolBusComing": "الحافلة في الطريق · {minutes} دقيقة",
   "studioSchoolBusRoute": "{route} · محطة {stop}",
-  "studioSchoolDayOff": "لا دراسة اليوم"
+  "studioSchoolDayOff": "لا دراسة اليوم",
+  "studioStoryOf": "القصة {index} من {total}",
+  "studioStoryOpen": "افتح",
+  "studioTickerPaused": "متوقّف",
+  "studioVideoPlay": "شغّل الفيديو",
+  "studioVideoPause": "أوقف الفيديو مؤقتًا",
+  "studioCompareLabel": "قبل وبعد: {before} و{after}",
+  "studioCompareHandle": "اسحب للمقارنة"
 }

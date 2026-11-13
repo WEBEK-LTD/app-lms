@@ -37,8 +37,11 @@ import 'studio_live.dart';
 import 'studio_live_status.dart';
 // 129 Premium motion & media: the slider's looks, stories, a ticker, a video
 // or parallax banner, a gallery, before and after, entrances on first show.
+import 'studio_marquee.dart';
+import 'studio_media_covers.dart';
 import 'studio_motion.dart';
 import 'studio_scrim.dart';
+import 'studio_stories.dart';
 
 /// 103R A page designed in Yallapp Studio, drawn from its tree of elements:
 /// rows, columns, layers, grids and sliders sized to fill, hug or a fixed
@@ -800,6 +803,10 @@ class StudioNodeView extends ConsumerWidget {
         node.source == ItemSource.products &&
             ref.watch(recentlyViewedProvider).isNotEmpty,
       StudioNodeType.coupon => (node.code ?? '').isNotEmpty,
+      // 129 Premium motion & media, with something to show.
+      StudioNodeType.stories => node.slides.isNotEmpty,
+      StudioNodeType.marquee =>
+        (node.text ?? '').trim().isNotEmpty || node.images.isNotEmpty,
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
@@ -853,10 +860,17 @@ class StudioNodeView extends ConsumerWidget {
     final rounded = node.radius > 0 || node.corners != null;
     final overlay = _overlayOf(node);
     // 128 A cover draws its own height, space inside, colours and corners.
+    // 129.4 and 129.7 The video and parallax banners too.
+    final banner =
+        node.type == StudioNodeType.videoHero ||
+        node.type == StudioNodeType.parallaxBanner;
     final cover =
+        banner ||
         node.type == StudioNodeType.photoHero ||
         node.type == StudioNodeType.mapHeader;
-    Widget child = cover
+    Widget child = banner
+        ? StudioMediaCover(node: node, scope: scope)
+        : cover
         ? StudioCoverView(
             node: node,
             scope: scope,
@@ -1297,6 +1311,14 @@ class StudioNodeView extends ConsumerWidget {
         final market = node.market;
         if (market == null) return const SizedBox.shrink();
         return MarketSectionView(node: node, market: market, color: color);
+      // 129 Premium motion & media.
+      case StudioNodeType.stories:
+        return StudioStoriesRow(node: node, scope: scope);
+      case StudioNodeType.marquee:
+        return StudioMarquee(node: node, color: color);
+      // Drawn by [StudioMediaCover] in [build].
+      case StudioNodeType.videoHero || StudioNodeType.parallaxBanner:
+        return const SizedBox.shrink();
       case StudioNodeType.coupon:
         return _StudioCoupon(
           code: node.code ?? '',
