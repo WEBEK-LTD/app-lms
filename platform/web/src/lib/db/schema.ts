@@ -77,6 +77,9 @@ import type { DemoId } from "../demo/constants";
 import type { ReviewRating } from "../reviews/types";
 import type { ReviewSource } from "../brands";
 import type { AccountManagerCallStatus, PrimeAlertSetting, StaffHours } from "../data/types";
+// 126 Travel
+import type { TravelAlertData, TravelBookingData, TravelFlightData, TravelHotelData, TravelReviewData, TravelRoomData } from "../travel/rows";
+import type { TravelBookingStatus, TravelSettings } from "../data/types";
 import {
   type AnyMySqlColumn,
   bigint,
@@ -5188,4 +5191,152 @@ export const accountManagerCalls = mysqlTable(
     index("account_manager_calls_client_idx").on(t.clientId, t.date),
     index("account_manager_calls_manager_idx").on(t.managerId, t.date),
   ],
+);
+
+// 126 Travel: hotels and flights. Each row's own fields are in `data` (JSON); the columns are what is looked up.
+
+export const travelSettings = mysqlTable("travel_settings", {
+  appId: id("app_id")
+    .primaryKey()
+    .references(() => apps.id, { onDelete: "cascade" }),
+  settings: jsonText<TravelSettings>("settings").notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+export const travelHotels = mysqlTable(
+  "travel_hotels",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    position: int("position").notNull(),
+    active: boolean("active").notNull(),
+    sample: boolean("sample").notNull().default(false),
+    data: jsonText<TravelHotelData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("travel_hotels_app_idx").on(t.appId, t.position)],
+);
+
+export const travelRooms = mysqlTable(
+  "travel_rooms",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    hotelId: bigint("hotel_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => travelHotels.id, { onDelete: "cascade" }),
+    position: int("position").notNull(),
+    active: boolean("active").notNull(),
+    sample: boolean("sample").notNull().default(false),
+    data: jsonText<TravelRoomData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("travel_rooms_hotel_idx").on(t.appId, t.hotelId, t.position)],
+);
+
+export const travelFlights = mysqlTable(
+  "travel_flights",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    departs: varchar("departs", { length: 16 }).notNull(),
+    active: boolean("active").notNull(),
+    sample: boolean("sample").notNull().default(false),
+    data: jsonText<TravelFlightData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("travel_flights_app_idx").on(t.appId, t.departs)],
+);
+
+export const travelBookings = mysqlTable(
+  "travel_bookings",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    reference: varchar("reference", { length: 16 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().$type<TravelBookingStatus>(),
+    hotelId: bigint("hotel_id", { mode: "number", unsigned: true }),
+    roomId: bigint("room_id", { mode: "number", unsigned: true }),
+    checkIn: varchar("check_in", { length: 10 }),
+    checkOut: varchar("check_out", { length: 10 }),
+    outFlightId: bigint("out_flight_id", { mode: "number", unsigned: true }),
+    inFlightId: bigint("in_flight_id", { mode: "number", unsigned: true }),
+    holdUntil: time("hold_until"),
+    sample: boolean("sample").notNull().default(false),
+    data: jsonText<TravelBookingData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("travel_bookings_reference_idx").on(t.appId, t.reference),
+    index("travel_bookings_user_idx").on(t.appId, t.userId, t.createdAt),
+    index("travel_bookings_room_idx").on(t.appId, t.roomId, t.checkIn),
+    index("travel_bookings_out_idx").on(t.appId, t.outFlightId),
+    index("travel_bookings_in_idx").on(t.appId, t.inFlightId),
+  ],
+);
+
+export const travelReviews = mysqlTable(
+  "travel_reviews",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    hotelId: bigint("hotel_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => travelHotels.id, { onDelete: "cascade" }),
+    bookingId: bigint("booking_id", { mode: "number", unsigned: true }).notNull(),
+    userId: bigint("user_id", { mode: "number", unsigned: true }).references(() => hostedUsers.id, { onDelete: "set null" }),
+    hidden: boolean("hidden").notNull().default(false),
+    data: jsonText<TravelReviewData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [uniqueIndex("travel_reviews_booking_idx").on(t.appId, t.bookingId), index("travel_reviews_hotel_idx").on(t.appId, t.hotelId, t.createdAt)],
+);
+
+export const travelSaved = mysqlTable(
+  "travel_saved",
+  {
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    hotelId: bigint("hotel_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => travelHotels.id, { onDelete: "cascade" }),
+    createdAt: time("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.appId, t.userId, t.hotelId] })],
+);
+
+export const travelAlerts = mysqlTable(
+  "travel_alerts",
+  {
+    id: autoId("id").primaryKey(),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    userId: bigint("user_id", { mode: "number", unsigned: true })
+      .notNull()
+      .references(() => hostedUsers.id, { onDelete: "cascade" }),
+    data: jsonText<TravelAlertData>("data").notNull(),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [index("travel_alerts_user_idx").on(t.appId, t.userId)],
 );

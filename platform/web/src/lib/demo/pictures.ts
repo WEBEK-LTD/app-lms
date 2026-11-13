@@ -971,6 +971,25 @@ export const PICTURES = {
   "teacher-emre": { from: "#E3EEF8", to: "#8DB8DF", shapes: avatar("#E0B896", "#4A78A8", "#5A361E") },
   "teacher-mert": { from: "#E2F0F6", to: "#9CC7DB", shapes: avatar("#C99B7D", "#2B6A8F", "#1E1A17") },
   "teacher-salma": { from: "#F7E9D7", to: "#E1B582", shapes: avatar("#B98466", "#2F6B3A", "#1E1A17") },
+
+  // 126 Safra, the travel demo: a plane over the horizon in ink and gold.
+  "icon-travel": { from: "#1B2338", to: "#0E1424", shapes: plane("#C9A063", 0, 0) },
+  "banner-travel": {
+    from: "#F7F3EC",
+    to: "#C9A063",
+    shapes: [c(116, 30, 16, "#FFFFFF", 0.7), r(-80, 74, 260, 30, 0, "#0E1424", 0.85), ...[0, 1, 2, 3].map((i) => r(-40 + i * 52, 84, 30, 2.5, 1.2, "#C9A063", 0.8)), ...plane("#0E1424", -26, -14)],
+  },
 } satisfies Record<string, Art>;
+
+/** 126 A plane seen from above, nose to the top right. */
+function plane(color: string, dx: number, dy: number): Shape[] {
+  return [
+    p([[30 + dx, 70 + dy], [70 + dx, 30 + dy], [76 + dx, 24 + dy], [80 + dx, 28 + dy], [74 + dx, 34 + dy], [34 + dx, 74 + dy]], color),
+    p([[52 + dx, 48 + dy], [30 + dx, 40 + dy], [26 + dx, 44 + dy], [46 + dx, 56 + dy]], color),
+    p([[52 + dx, 48 + dy], [60 + dx, 70 + dy], [56 + dx, 74 + dy], [44 + dx, 54 + dy]], color),
+    p([[36 + dx, 64 + dy], [26 + dx, 62 + dy], [24 + dx, 64 + dy], [34 + dx, 68 + dy]], color),
+    p([[36 + dx, 64 + dy], [38 + dx, 74 + dy], [36 + dx, 76 + dy], [32 + dx, 66 + dy]], color),
+  ];
+}
 
 export type PictureName = keyof typeof PICTURES;

@@ -21,7 +21,7 @@ import type { BlockType, ItemSource, LayoutBlock, LayoutTab, ScreenName } from "
 export const APP_VERTICALS = ["restaurant", "clinic", "fitness", "charity", "services", "instructors", "taxi", "marketplace"] as const satisfies readonly AppVertical[];
 
 /** Content the client manages in the dashboard, served by the hosted API (a connector kind). */
-export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school">;
+export type OwnContentKind = Extract<ConnectorConfig["kind"], "catalog" | "courses" | "bookings" | "listings" | "articles" | "events" | "campaigns" | "deliveries" | "restaurants" | "rides" | "school" | "travel">;
 
 /** The Website step's choices: where the app's content comes from. */
 export type WebsiteChoice = "wordpress" | "custom_api" | "setup_requested" | "shopify" | "catalog" | "platform";
@@ -897,6 +897,69 @@ export const ENGINES: Record<AppType, EngineInfo> = {
     // 110.5 On /demo/studio.
     demo: { slug: "school" },
   },
+  // 126 Travel: hotels, flights or both, set in the dashboard, on the hosted API only.
+  travel: {
+    id: "travel",
+    name: "Travel",
+    icon: "travel_explore",
+    homePath: "/travel/explore",
+    configCheck: { label: "Config has the travel settings", fix: "Add `travel` to /config.", key: "travel", in: "root", type: "object" },
+    websites: ["catalog"],
+    sitePlaceholder: "https://your-travel-app.com",
+    platformChoice: { title: "Another platform", text: "Your hotels and flights come from another platform." },
+    platformPhoneNote: null,
+    ownContent: {
+      kind: "travel",
+      choice: {
+        title: "Hotels and flights managed in Yallapp",
+        text: "Add your hotels with their rooms, prices and open dates, and your flights with their fares and seats, here in the dashboard. People book in the app and pay into your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or at the hotel.",
+      },
+      next: "After this step, add your hotels and their rooms on the **Hotels** page and your flights on the **Flights** page, then set taxes, payments and the trip saving on the **Travel settings** page; every booking shows on the **Bookings** page. Travellers sign in to the app with",
+      switchLabel: "No website: hotels and flights in the dashboard",
+      adminLabel: "Travel: hotels and flights in the dashboard",
+      nav: {
+        label: "Your travel",
+        items: [
+          { href: "/dashboard/travel/bookings", label: "Bookings", icon: "luggage" },
+          { href: "/dashboard/travel/hotels", label: "Hotels", icon: "bed" },
+          { href: "/dashboard/travel/flights", label: "Flights", icon: "flight" },
+          { href: "/dashboard/orders", label: "Paid orders", icon: "payments" },
+          { href: "/dashboard/chat", label: "Messages", icon: "chat" },
+          { href: "/dashboard/travel/settings", label: "Travel settings", icon: "tune" },
+        ],
+      },
+    },
+    pages: {
+      source: "hotels",
+      read: null,
+      blocks: [],
+      screens: ["explore", "stays", "flights", "trips", "saved", "price_alerts", "messages", "account", "settings", "notifications"],
+      aliases: { orders: "trips" },
+      tabs: [tab("stays", "Stays", "bed", "stays"), tab("flights", "Flights", "flight", "flights"), tab("trips", "Trips", "luggage", "trips")],
+      home: [
+        {
+          id: "hotels",
+          type: "items",
+          visibility: "everyone",
+          title: "Featured stays",
+          source: "hotels",
+          layout: "carousel",
+          see_all: { type: "screen", screen: "stays" },
+          query: newest(10, true),
+        },
+      ],
+    },
+    categories: { play: "Travel & Local", appStore: "Travel" },
+    words: {
+      items: "hotels and flights",
+      storeDescription: "Describe your travel company: your hotels and flights, and how people book a stay, a flight or both and follow their trip in the app.",
+      ratingExample: "For example: a travel agency's hotels and charter flights. No violence, gambling or dating. People can message the company. No ads.",
+      iphone: null,
+      cardPayments: "Take bookings by card, through your payment page.",
+    },
+    // On /demo/studio.
+    demo: { slug: "travel" },
+  },
 };
 
 /** What the app type picker offers, in its order. The first kind of each engine is its default (vertical null). */
@@ -1269,6 +1332,20 @@ export const KINDS: readonly KindInfo[] = [
     reviewNote:
       "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher. When the academy has its staff app, its teachers work in that separate app, which has its own store listing, and this app has no Teacher tab.",
     screens: ["teachers", "teacher"],
+  },
+  {
+    // 126 The travel engine's one kind: hotels, flights or both (Admin › client › Travel).
+    id: "travel",
+    engine: "travel",
+    vertical: null,
+    name: "Travel: hotels and flights",
+    description: "People search your hotels and flights, book a stay, a flight or both as one trip, and follow it in the app: the boarding pass, the flight's status, the stay.",
+    requires: "No website needed: you add your hotels, rooms and flights here in the dashboard · Your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or pay at the hotel",
+    icon: "travel_explore",
+    tile: "bg-tile-2 text-[#7F5B1C]",
+    marketing: { slug: "travel", icon: "travel_explore" },
+    reviewNote:
+      "People search the company's hotels and flights, book a stay, a flight or both and pay on the company's payment page or at the hotel. The review account sees the sample hotels and flights, and can book and cancel a stay; its trips show under Trips. No account is needed to search.",
   },
 ];
 

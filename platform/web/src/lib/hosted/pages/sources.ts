@@ -6,6 +6,7 @@ import { restaurantPageItems } from "../../food/page-items";
 import { listingPageItems } from "../listings/page-items";
 import { vehicleTypePageItems } from "../../rides/page-items";
 import { schoolNewsPageItems } from "../../school/page-items";
+import { hotelPageItems } from "../../travel/page-items";
 import { registerItemSource } from "./items";
 
 /**
@@ -28,6 +29,8 @@ export function registerPlatformItemSources(): void {
   registerItemSource("school_news", (ctx, query) => schoolNewsPageItems(ctx.appId, query, { store: ctx.store }));
   // 113.1 An academy's bundles, in the language the app asked for.
   registerItemSource("bundles", (ctx, query) => bundlePageItems(ctx.appId, query, { store: ctx.store, lang: ctx.lang }));
+  // 126 A travel company's hotels.
+  registerItemSource("hotels", (ctx, query) => hotelPageItems(ctx.appId, query, { store: ctx.store }));
 }
 
 registerPlatformItemSources();

@@ -21,6 +21,14 @@ export type SectionWord =
   | "acForYou"
   | "acSeeAll"
   | "acTabExplore"
+  | "travTabStays"
+  | "travTabFlights"
+  | "travTabTrips"
+  | "travTabSaved"
+  | "travTabBookings"
+  | "travTabMessages"
+  | "travTabAlerts"
+  | "travTabHelp"
   | "acTabMine"
   | "acHeroTitle"
   | "acHeroButton"
@@ -105,6 +113,12 @@ export type SectionWord =
   | "schoolStepTwo"
   | "schoolStepThree"
   | "ctaSchool"
+  // 126 A travel app's welcome and its stays.
+  | "travelTitle"
+  | "travelText"
+  | "travelStays"
+  | "travelFlights"
+  | "travelFeatured"
   // 107.3 Questions and answers, and an offer counting down.
   | "faqTitle"
   | "faqOneQ"
@@ -364,6 +378,51 @@ function schoolWelcome(ctx: SectionContext, words: { title: SectionWord; text: S
           } as StudioNode,
         ],
       },
+    ],
+  };
+}
+
+/** 126 A travel app's welcome, as Explore has it: the question, what the app does, a stay or a flight. */
+function travelWelcome(ctx: SectionContext): StudioNode {
+  const id = () => (ctx.newId ?? newNodeId)();
+  return {
+    id: id(),
+    type: "column",
+    name: ctx.w("travelTitle"),
+    gap: 10,
+    padding: pad(24, 18),
+    margin: pad(12, 10),
+    radius: 24,
+    background: "#0E1424",
+    color: "#FFFFFF",
+    children: [
+      { id: id(), type: "icon", icon: "travel_explore", icon_size: 30, color: "#C9A063" },
+      text(ctx, ctx.w("travelTitle"), { font: { size: 26, weight: 700, line_height: 1.2 } }),
+      text(ctx, ctx.w("travelText"), { font: { size: 14 }, opacity: 0.85 }),
+      {
+        id: id(),
+        type: "row",
+        gap: 8,
+        children: [
+          { id: id(), type: "button", text: ctx.w("travelStays"), width: "hug", height: 44, radius: 14, background: "#C9A063", color: "#0E1424", font: { weight: 800, size: 14 }, padding: pad(0, 18), action: screen("stays"), motion: { press: "shrink" } },
+          { id: id(), type: "button", text: ctx.w("travelFlights"), width: "hug", height: 44, radius: 14, border: { width: 1.5, color: "#FFFFFF" }, color: "#FFFFFF", font: { weight: 700, size: 14 }, padding: pad(0, 16), action: screen("flights") } as StudioNode,
+        ],
+      },
+    ],
+  };
+}
+
+/** 126 The stays the company features, as cards across. */
+function travelStays(ctx: SectionContext): StudioNode {
+  return {
+    id: (ctx.newId ?? newNodeId)(),
+    type: "column",
+    name: ctx.w("travelFeatured"),
+    gap: 8,
+    padding: pad(6, 10),
+    children: [
+      text(ctx, ctx.w("travelFeatured"), { font: { size: 19, weight: 800 } }),
+      { id: (ctx.newId ?? newNodeId)(), type: "items", source: "hotels", layout: "carousel", gap: 12, query: { limit: 6, category_id: null, featured: false, sort: "newest", ids: [] } },
     ],
   };
 }
@@ -1016,6 +1075,16 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  // 126 A travel app's home: Explore as approved (the photo, the search for stays, flights or both, the destinations with the whole trip's price), drawn by the app; the owner adds to it.
+  {
+    id: "travel",
+    icon: "travel_explore",
+    fits: { types: ["travel"] },
+    make: (ctx) => ({
+      header: { type: "logo_actions", buttons: ["menu", "notifications", "account"] },
+      body: { id: (ctx.newId ?? newNodeId)(), type: "column", gap: 4, padding: { bottom: 16 }, children: [travelWelcome(ctx), travelStays(ctx)] },
+    }),
+  },
   // 123 The premium academy: the whole project, its home, bar, tabs, screens and colours.
   {
     id: "academy_premium",

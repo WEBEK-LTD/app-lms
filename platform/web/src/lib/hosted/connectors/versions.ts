@@ -33,6 +33,8 @@ export const CONNECTOR_VERSIONS: Record<ConnectorId, ConnectorVersion> = {
   restaurants: { name: "Restaurants and food orders", version: "1.0.0", api: "Yallapp" },
   rides: { name: "Rides and drivers", version: "1.0.0", api: "Yallapp" },
   school: { name: "School: classes, people, homework, grades and fees", version: "1.0.0", api: "Yallapp" },
+  // 126
+  travel: { name: "Travel: hotels, rooms, flights and bookings", version: "1.0.0", api: "Yallapp" },
   // Platforms.
   shopify: { name: "Shopify", version: "1.0.0", api: `Storefront API and Admin API (GraphQL, ${SHOPIFY_API_VERSION})` },
   ikas: { name: "ikas", version: "1.0.0", api: "ikas Admin API (GraphQL, v1)" },

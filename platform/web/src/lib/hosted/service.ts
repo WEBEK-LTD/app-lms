@@ -611,6 +611,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.market ? { market: extra.market } : {}),
     // 105.2 Ride hailing
     ...(extra.rides ? { rides: extra.rides } : {}),
+    // 126 Travel: hotels and flights
+    ...(extra.travel ? { travel: extra.travel } : {}),
     // 105.9 Live taxi on the map
     ...(extra.taxi ? { taxi: extra.taxi } : {}),
     // 105.3 Academies with many teachers
@@ -1485,6 +1487,9 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.data?.note_id ? { note_id: numberOf(n.data.note_id) } : {}),
     // 113.4 The permission slip it opens.
     ...(n.data?.slip_id ? { slip_id: numberOf(n.data.slip_id) } : {}),
+    // 126 The trip and the price alert they open.
+    ...(n.data?.booking_id ? { booking_id: numberOf(n.data.booking_id) } : {}),
+    ...(n.data?.alert_id ? { alert_id: numberOf(n.data.alert_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

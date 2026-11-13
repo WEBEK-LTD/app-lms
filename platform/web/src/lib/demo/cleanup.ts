@@ -5,6 +5,7 @@ import { DEMO_RETENTION_HOURS, DEMO_SIGN_IN, DEMO_USER_NAME, demoIdOf } from "./
 import { refreshMarketplaceDemo, savedZadPictures } from "./marketplace";
 import { refreshSchoolDay } from "./school";
 import { cleanDemoTeacher } from "./teachers";
+import { refreshTravelDemo } from "./travel";
 
 /**
  * Keeping the demo apps tidy (roadmap 16). Visitors share one account in
@@ -38,6 +39,8 @@ export async function cleanDemoActivity(store: DataStore, now: Date): Promise<De
     if (id === "instructors") report.deleted += await cleanDemoTeacher(store, app, now);
     // 115.15 Zad: visitors' orders after a day; the seeded orders, complaints and refunds from today.
     if (id === "marketplace") report.deleted += await refreshMarketplaceDemo(store, app, now, { picture: savedZadPictures(store, { clientId: app.clientId }) });
+    // 126 Safra: the flights twelve weeks ahead, and the demo number's trip from today.
+    if (id === "travel") report.deleted += await refreshTravelDemo(store, app, await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164), now);
     // The shared account goes back to its name, should anything have changed it.
     const user = await store.getHostedUserByPhone(app.id, DEMO_SIGN_IN.e164);
     if (user && (user.name !== DEMO_USER_NAME || user.email !== null || user.city !== null)) {

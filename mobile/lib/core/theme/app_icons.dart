@@ -80,6 +80,8 @@ abstract final class AppIcons {
   static const live = Symbols.live_tv_rounded;
   static const article = Symbols.article_rounded;
   static const chat = Symbols.chat_rounded;
+  // 126 A trip (hotels and flights).
+  static const trip = Symbols.luggage_rounded;
   static const empty = Symbols.inbox_rounded;
   static const speed = Symbols.speed_rounded;
   static const visibilityOff = Symbols.visibility_off_rounded;

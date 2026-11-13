@@ -354,6 +354,16 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
       "Switch the app to Arabic or to dark mode in the account",
     ],
     screens: ["premium-home", "premium-course", "premium-lesson"],
+  },  // 126 Safra: a travel company's hotels and charter flights, stay and flight as one trip.
+  travel: {
+    summary: "A travel company's app: its hotels and its own flights, a stay and a flight booked together for one price, and the whole trip in one place. Its hotel photos are CC0, from Wikimedia Commons.",
+    tryThis: [
+      "On the home, open a featured stay, or tap Find a stay and choose a room with breakfast and free cancellation",
+      "Open Flights, see the month's prices, choose a fare and your seats, and book: the demo checkout takes no card",
+      "Open Trips: the flight with its gate, the transfer, the hotel and your boarding pass",
+      "In the flights found, turn on Track to watch the route's price, and switch the app to Arabic or to dark mode in the account",
+    ],
+    screens: ["safra-explore", "safra-hotel", "safra-trip"],
   },
 };
 
@@ -704,6 +714,25 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     shortDescription: "Courses with the best teachers: design, business, languages and code.",
     fullDescription: `Ufuq Academy brings its courses to your phone: design, business, languages, photography and programming.\n\nPick up the course you're taking where you stopped, keep your learning streak, see this week's learning, write notes at any moment of a lesson and follow the teachers you like.\n\n${PRIVACY_NOTE}`,
     welcome: "Courses with the best teachers, wherever you are.",
+  },  // 126 Safra: ink and gold, as the travel designs were approved.
+  travel: {
+    appName: "Safra",
+    shortName: "Safra",
+    primaryColor: "#0E1424",
+    splashColor: "#F7F3EC",
+    secondaryColor: "#C9A063",
+    template: "classic",
+    font: "Manrope",
+    corners: "round",
+    cards: "outlined",
+    languages: ["en", "ar", "tr"],
+    icon: "icon-travel",
+    banner: { picture: "banner-travel", heading: "Your next trip, in one app", subheading: "Hotels and flights, together for one price." },
+    androidPackage: "com.yallapp.demo.travel",
+    storeTitle: "Safra Travel",
+    shortDescription: "Hotels and flights, booked together for one price.",
+    fullDescription: `Safra brings its hotels and its own flights to your phone.\n\nSearch a stay by place and dates, on a list or the map, choose a room with breakfast and free cancellation, and pay now or at the hotel. Find a flight on the month's price calendar, choose your fare and your seat, and keep your boarding pass in the app. Book a stay and a flight together for one price, follow the whole trip in one place and watch a route's price.\n\n${PRIVACY_NOTE}`,
+    welcome: "Hotels and flights, together for one price.",
   },
 };
 

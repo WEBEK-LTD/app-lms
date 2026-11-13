@@ -24,9 +24,9 @@ const extraHTTPHeaders = { "x-forwarded-for": "198.51.100.127" };
 let own: Page;
 const problems: string[] = [];
 
-/** The App editor's ten demos and Studio's eight, as the code has them (lib/demo/constants.ts). */
+/** The App editor's ten demos and Studio's nine, as the code has them (lib/demo/constants.ts). */
 const EDITOR = ["lms", "store", "restaurant", "booking", "clinic", "fitness", "real_estate", "news", "events", "donations"];
-const STUDIO = ["premium_academy", "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school"];
+const STUDIO = ["premium_academy", "instructors", "food", "marketplace", "delivery", "rides", "taxi", "school", "travel"];
 
 test.beforeAll(async ({ browser }) => {
   // 128.9 The team has made the demo apps (Admin › Demo apps): the demos' pages run them live.
@@ -86,7 +86,7 @@ test("a new account chooses Nour Academy and gets the whole demo in the app edit
   expect(await demosIn(own, "studio")).toEqual(STUDIO);
   expect(await own.locator("a[data-demo]").count()).toBe(EDITOR.length + STUDIO.length);
   await expect(own.locator('[data-section="editor"]').getByText("10 apps")).toBeVisible();
-  await expect(own.locator('[data-section="studio"]').getByText("8 apps")).toBeVisible();
+  await expect(own.locator('[data-section="studio"]').getByText("9 apps")).toBeVisible();
   // Each card says its product, and shows the demo's own screenshot.
   for (const id of EDITOR) await expect(own.locator(`[data-section="editor"] a[data-demo="${id}"]`)).toContainText("App editor");
   for (const id of STUDIO) await expect(own.locator(`[data-section="studio"] a[data-demo="${id}"]`)).toContainText("STUDIO");

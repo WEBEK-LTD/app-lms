@@ -134,6 +134,12 @@ const symbolsByName = <String, IconData>{
   'restaurant': Symbols.restaurant_rounded,
   'directions_car': Symbols.directions_car_rounded,
   'arrow_back': Symbols.arrow_back_rounded,
+  // 126 Travel: its tabs (Stays, Flights, Trips) and the demo's buttons.
+  'luggage': Symbols.luggage_rounded,
+  'flight': Symbols.flight_rounded,
+  'flight_takeoff': Symbols.flight_takeoff_rounded,
+  'hotel_class': Symbols.hotel_class_rounded,
+  'airline_seat_recline_normal': Symbols.airline_seat_recline_normal_rounded,
 };
 
 /// Shown for a name the app doesn't have.

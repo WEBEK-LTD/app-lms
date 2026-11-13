@@ -122,6 +122,10 @@ export const APP_SCREENS = [
   "rawaq-home",
   "rawaq-teacher",
   "rawaq-desk",
+  // 126 Safra, the travel demo.
+  "safra-explore",
+  "safra-hotel",
+  "safra-trip",
 ] as const;
 export type AppScreen = (typeof APP_SCREENS)[number];
 
@@ -220,6 +224,9 @@ export const SCREEN_ALT: Record<AppScreen | DashboardScreen, string> = {
   "rawaq-home": "An academy's home designed in Yallapp Studio: meeting its teachers, and its newest courses with their teachers and prices",
   "rawaq-teacher": "A teacher's page: their subjects, rating, students and followers, about them and their course",
   "rawaq-desk": "A teacher's own tab: their share, their courses with their stage, questions, grading and earnings",
+  "safra-explore": "A travel app's home designed in Yallapp Studio: where to next, a stay or a flight a tap away, and the featured stays with their photos",
+  "safra-hotel": "A hotel's page: its photos, the guests' scores by staff, cleanliness, location and value, its amenities and the price per night",
+  "safra-trip": "The trip in one place: the flight with its gate and seats, the transfer, the hotel's check-in and the boarding passes",
   "studio-editor": "The Yallapp Studio editor: elements on the left, the page on the phone, its settings on the right",
   "studio-home": "Yallapp Studio's home with the account's projects",
   "studio-project": "A Studio project's dashboard",

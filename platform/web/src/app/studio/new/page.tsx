@@ -56,6 +56,7 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
   const taxi = kindById("taxi");
   const instructors = kindById("instructors");
   const school = kindById("school");
+  const travel = kindById("travel");
   const academy = kindById("academy");
   // 124.6 The premium academy: an academy with its template for the whole project already chosen (step 3 still offers the others).
   const premium = academy && offered.includes(academy) ? premiumAcademyChoice(choiceOf(academy), t("studio.tpl_academy_premium"), t("studio.kindPremiumAcademyText")) : null;
@@ -87,6 +88,10 @@ export default async function NewStudioProjectPage({ searchParams }: PageProps<"
     school && offered.includes(school)
       ? { ...choiceOf(school), name: t("studio.kindSchool"), icon: "school", text: t("studio.kindSchoolText"), soon: false }
       : { id: "school", name: t("studio.kindSchool"), icon: "school", sources: [], text: t("studio.soon"), soon: true },
+    // 126
+    travel && offered.includes(travel)
+      ? { ...choiceOf(travel), name: t("studio.kindTravel"), icon: "travel_explore", text: t("studio.kindTravelText"), soon: false }
+      : { id: "travel", name: t("studio.kindTravel"), icon: "travel_explore", sources: [], text: t("studio.soon"), soon: true },
   ];
   const problem = typeof query.error === "string" ? query.error : null;
   const error = problem === "name" ? k("Give the project a name of up to 30 characters.") : problem && ERRORS[problem] ? t(ERRORS[problem]) : null;

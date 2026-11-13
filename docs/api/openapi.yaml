@@ -338,6 +338,22 @@ tags:
       over, and, when delivering themselves, mark it on the way and
       delivered; they set the vendor busy or paused, and items in or out of
       stock.
+  - name: Travel
+    description: |
+      Roadmap 126. Travel apps (hotels, flights or both), on Yallapp's hosted
+      API. The company enters its hotels (rooms, nightly prices, open dates,
+      photos, amenities, rules and taxes) and its flights with a fixed number
+      of seats (charters, Umrah, packages: routes, dates, light, standard and
+      flex fares, an optional seat map) in the dashboard. People search,
+      choose a room and rate or a flight and fare (seats, bags, meals), book a
+      stay, a flight or both as one trip with one price, pay now on the
+      company's payment page (into its own account, no commission to
+      Yallapp) or at the hotel, follow their trip in one place (the flight's
+      status as the company updates it, the boarding passes, the stay),
+      change or cancel it, review the stay, save hotels and watch a route's
+      price. Messages with the company use the chat (`/chat`). Connecting a
+      hotel's own system, a hotel supplier or a live flight provider comes
+      later; until then everything comes from the dashboard.
   - name: Rides
     description: |
       Roadmap 105.2. Ride hailing, on Yallapp's hosted API. The rider sets the
@@ -6938,6 +6954,651 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /travel/explore:
+    get:
+      tags: [Travel]
+      operationId: travelExplore
+      summary: Where to go, with the whole trip's price
+      description: |
+        Roadmap 126. The Explore tab: the destinations the company sells,
+        each with how many hotels it has there and, when flights are on too,
+        the price of the whole trip (the cheapest return flight for one
+        person in the next months plus the cheapest stay of `nights` nights
+        for two, the company's bundle saving taken off), its featured hotels,
+        and the signed-in person's price alert that went down most.
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - { name: from, in: query, description: "The airport code trips start from; missing: the airport most of the company's flights leave.", schema: { type: string, pattern: '^[A-Za-z]{3}$' } }
+        - { name: nights, in: query, schema: { type: integer, minimum: 1, maximum: 30, default: 4 } }
+      responses:
+        '200':
+          description: Destinations
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelExplore' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /travel/places:
+    get:
+      tags: [Travel]
+      operationId: travelPlaces
+      summary: The cities and airports the company sells
+      description: The cities of its hotels and the airports of its flights, for the search's suggestions. The app filters them as the person types.
+      security:
+        - {}
+      responses:
+        '200':
+          description: Places
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cities, airports]
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      type: object
+                      required: [city, country, hotels, code]
+                      properties:
+                        city: { type: string, example: Luxor }
+                        country: { type: [string, 'null'], example: Egypt }
+                        hotels: { type: integer, description: Active hotels there. }
+                        code: { type: [string, 'null'], description: "An airport there the company flies to, when it does." }
+                  airports:
+                    type: array
+                    items: { $ref: '#/components/schemas/TravelAirport' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /travel/hotels:
+    get:
+      tags: [Travel]
+      operationId: searchTravelHotels
+      summary: Search the hotels
+      description: |
+        The company's active hotels in `city` (all of them without it), each
+        with its cheapest available room and rate for the dates and guests
+        (`price`, the whole stay with taxes and fees; null without dates or
+        when nothing is free then). `sort`: `recommended` (featured first,
+        then the best rated), `price`, `score`, `stars`. The filters keep
+        hotels with a rate of free cancellation, a rate paid at the hotel, a
+        score of at least `min_score`, every amenity named. A signed-in
+        person sees the member price where the company gives one.
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - { name: city, in: query, schema: { type: string, maxLength: 80 } }
+        - $ref: '#/components/parameters/TravelCheckIn'
+        - $ref: '#/components/parameters/TravelCheckOut'
+        - $ref: '#/components/parameters/TravelGuests'
+        - $ref: '#/components/parameters/TravelRooms'
+        - { name: theme, in: query, schema: { type: string, maxLength: 40 } }
+        - { name: free_cancellation, in: query, schema: { type: boolean } }
+        - { name: pay_at_hotel, in: query, schema: { type: boolean } }
+        - { name: min_score, in: query, schema: { type: number, minimum: 0, maximum: 10 } }
+        - { name: amenity, in: query, description: Comma-separated amenity ids., schema: { type: string } }
+        - { name: sort, in: query, schema: { type: string, enum: [recommended, price, score, stars], default: recommended } }
+      responses:
+        '200':
+          description: Hotels
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, nights]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TravelHotelCard' }
+                  total: { type: integer }
+                  nights: { type: [integer, 'null'], description: 'The nights between the dates; null without dates.' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /travel/hotels/{hotel_id}:
+    get:
+      tags: [Travel]
+      operationId: getTravelHotel
+      summary: A hotel, with its rooms for the dates
+      description: |
+        Its photos, scores, amenities, place and rules, and each of its
+        rooms with every rate's price for the dates and guests (null prices
+        without dates). `left` is how many rooms of the type are still free
+        at that price when only a few are.
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TravelHotelId'
+        - $ref: '#/components/parameters/TravelCheckIn'
+        - $ref: '#/components/parameters/TravelCheckOut'
+        - $ref: '#/components/parameters/TravelGuests'
+        - $ref: '#/components/parameters/TravelRooms'
+      responses:
+        '200':
+          description: The hotel
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelHotel' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /travel/flights:
+    get:
+      tags: [Travel]
+      operationId: searchTravelFlights
+      summary: Search the flights
+      description: |
+        The company's flights from `from` to `to` on `depart` (with
+        `return`, each paired with a flight back on that day), each option
+        with its fares for one person (the light, standard and flex fares
+        the company sells on them, the same fare both ways). The best (price
+        and time together) first; `tags` name the best, the cheapest and the
+        fastest. `price_level` says how the cheapest price compares with the
+        route's usual prices over the coming weeks.
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, pattern: '^[A-Za-z]{3}$' } }
+        - { name: to, in: query, required: true, schema: { type: string, pattern: '^[A-Za-z]{3}$' } }
+        - { name: depart, in: query, required: true, schema: { type: string, format: date } }
+        - { name: return, in: query, schema: { type: string, format: date } }
+        - { name: adults, in: query, schema: { type: integer, minimum: 1, maximum: 9, default: 1 } }
+        - { name: direct, in: query, description: Direct flights only., schema: { type: boolean } }
+      responses:
+        '200':
+          description: Flights
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelFlightSearch' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /travel/flights/calendar:
+    get:
+      tags: [Travel]
+      operationId: travelFlightCalendar
+      summary: The price of each day of a month
+      description: |
+        For each day of `month`, the cheapest fare for one person leaving
+        that day (with `nights`, and back that many nights later), null when
+        nothing flies; `level` compares it with the month's prices. `tip`
+        is a nearby day cheaper than `depart`, when there is one.
+      security:
+        - {}
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, pattern: '^[A-Za-z]{3}$' } }
+        - { name: to, in: query, required: true, schema: { type: string, pattern: '^[A-Za-z]{3}$' } }
+        - { name: month, in: query, required: true, schema: { type: string, pattern: '^\d{4}-\d{2}$' } }
+        - { name: nights, in: query, schema: { type: integer, minimum: 1, maximum: 60 } }
+        - { name: depart, in: query, schema: { type: string, format: date } }
+        - { name: adults, in: query, schema: { type: integer, minimum: 1, maximum: 9, default: 1 } }
+      responses:
+        '200':
+          description: The month
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelCalendar' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /travel/flights/{flight_id}/seats:
+    get:
+      tags: [Travel]
+      operationId: travelSeatMap
+      summary: A flight's seats
+      description: The seat map the company drew for the flight, with the seats already taken. `404` when the flight has none (seats are given at the airport).
+      security:
+        - {}
+      parameters:
+        - $ref: '#/components/parameters/TravelFlightId'
+      responses:
+        '200':
+          description: The seats
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelSeatMap' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /travel/quote:
+    post:
+      tags: [Travel]
+      operationId: travelQuote
+      summary: What a stay, a flight or both would cost
+      description: |
+        The price of what the person chose, as the booking would charge it:
+        each line (the nights, the fares, the seats, the extra bags and
+        meals, the airport transfer, the taxes and fees, the member price,
+        the saving of a stay and a flight booked together), the total and
+        how it can be paid. `409` (`not_available`) when a room or a seat is
+        no longer free.
+      security:
+        - {}
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TravelChoice' }
+      responses:
+        '200':
+          description: The price
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelQuote' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/saved:
+    get:
+      tags: [Travel]
+      operationId: listSavedHotels
+      summary: The hotels the person saved
+      parameters:
+        - $ref: '#/components/parameters/TravelCheckIn'
+        - $ref: '#/components/parameters/TravelCheckOut'
+        - $ref: '#/components/parameters/TravelGuests'
+      responses:
+        '200':
+          description: Saved hotels
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TravelHotelCard' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /me/travel/saved/{hotel_id}:
+    put:
+      tags: [Travel]
+      operationId: saveHotel
+      summary: Save a hotel
+      parameters:
+        - $ref: '#/components/parameters/TravelHotelId'
+      responses:
+        '204': { description: Saved }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Travel]
+      operationId: unsaveHotel
+      summary: Remove a saved hotel
+      description: A hotel the person hasn't saved, and that isn't one of this app's, is not found.
+      parameters:
+        - $ref: '#/components/parameters/TravelHotelId'
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/travel/bookings:
+    get:
+      tags: [Travel]
+      operationId: listTravelBookings
+      summary: The person's bookings
+      description: '`upcoming`: not over yet (the soonest first), cancelled ones left out; `past`: over or cancelled (the latest first).'
+      parameters:
+        - { name: scope, in: query, schema: { type: string, enum: [upcoming, past], default: upcoming } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Bookings
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/TravelBooking' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Travel]
+      operationId: bookTravel
+      summary: Book a stay, a flight or both
+      description: |
+        Books what the person chose (one stay, a flight there and maybe back,
+        or both as one trip with one price), for the travellers named (one
+        per seat). `payment: now` holds the rooms and seats for 30 minutes
+        while the person pays on the company's payment page
+        (`POST /me/travel/bookings/{booking_id}/pay`), into the company's own
+        account; then the booking is confirmed, or released. `at_hotel`, for
+        a stay alone at a hotel that takes it, is confirmed at once and paid
+        at the hotel. `409`: `not_available` (a room or seat was taken
+        meanwhile), `payment_not_offered`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/TravelChoice'
+                - type: object
+                  required: [travellers, contact, payment]
+                  properties:
+                    travellers:
+                      type: array
+                      minItems: 1
+                      maxItems: 9
+                      items:
+                        type: object
+                        required: [first_name, last_name]
+                        properties:
+                          first_name: { type: string, minLength: 1, maxLength: 60 }
+                          last_name: { type: string, minLength: 1, maxLength: 60 }
+                    contact:
+                      type: object
+                      required: [name]
+                      properties:
+                        name: { type: string, minLength: 1, maxLength: 120 }
+                        email: { type: [string, 'null'], format: email }
+                        phone: { type: [string, 'null'], maxLength: 24 }
+                    requests:
+                      type: array
+                      items: { type: string, enum: [late_arrival, early_arrival, high_floor, quiet_room, airport_pickup, twin_beds, accessible] }
+                    note: { type: [string, 'null'], maxLength: 500 }
+                    payment: { type: string, enum: [now, at_hotel] }
+      responses:
+        '201':
+          description: The booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/bookings/{booking_id}:
+    get:
+      tags: [Travel]
+      operationId: getTravelBooking
+      summary: A booking, its trip in one place
+      description: The stay, the flights with their live status (as the company updates them), the transfer, the travellers, what was paid and what can still be changed or cancelled.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      responses:
+        '200':
+          description: The booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/travel/bookings/{booking_id}/pay:
+    post:
+      tags: [Travel]
+      operationId: payTravelBooking
+      summary: Pay a booking
+      description: For a booking with something to pay now (`payment.due`), the company's payment page (good for 60 minutes). `not_payable` (409) otherwise.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      responses:
+        '200':
+          description: The payment page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url: { type: string, format: uri }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+
+  /me/travel/bookings/{booking_id}/cancel:
+    post:
+      tags: [Travel]
+      operationId: cancelTravelBooking
+      summary: Cancel a booking
+      description: |
+        While nothing of it has started. A stay is free to cancel until its
+        rate's free cancellation ends, then not refunded; a flight's fare
+        is refunded less its fee when the fare allows it, else not. What was
+        paid online and is refunded shows in `cancellation.refund`; the
+        company refunds it from its payment account. `not_cancellable`
+        (409) otherwise.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      responses:
+        '200':
+          description: The cancelled booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/bookings/{booking_id}/change:
+    post:
+      tags: [Travel]
+      operationId: changeTravelBooking
+      summary: Change a booking's dates or flight
+      description: |
+        New dates for the stay (while its free cancellation lasts and the
+        room is free on them), or another flight on the same route for one
+        leg (when its fare allows changes, for the fare's change fee). The
+        price is worked out again; more to pay shows in `payment.due` (paid
+        with `/pay`), less is refunded by the company. `not_changeable` or
+        `not_available` (409) otherwise.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                check_in: { type: string, format: date }
+                check_out: { type: string, format: date }
+                leg: { type: string, enum: [out, back] }
+                flight_id: { type: integer }
+      responses:
+        '200':
+          description: The changed booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/bookings/{booking_id}/seats:
+    put:
+      tags: [Travel]
+      operationId: changeTravelSeats
+      summary: Choose or change seats
+      description: One seat per traveller on the leg (null leaves one to the airport), each free on the flight's map. A seat with extra legroom costs the company's price, and a light fare pays its seat fee; the difference shows in `payment.due`.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [leg, seats]
+              properties:
+                leg: { type: string, enum: [out, back] }
+                seats:
+                  type: array
+                  items: { type: [string, 'null'], pattern: '^\d{1,2}[A-K]$' }
+      responses:
+        '200':
+          description: The booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/bookings/{booking_id}/passes:
+    get:
+      tags: [Travel]
+      operationId: travelBoardingPasses
+      summary: The boarding passes
+      description: |
+        One per traveller and flight once check-in is open (the company opens
+        it, or 48 hours before the flight leaves) for a confirmed, paid
+        booking; `code` is what the QR code holds. The app keeps them to show
+        without a connection. `not_open` (409) before.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      responses:
+        '200':
+          description: Boarding passes
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TravelBoardingPass' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/bookings/{booking_id}/review:
+    post:
+      tags: [Travel]
+      operationId: reviewTravelStay
+      summary: Review the stay
+      description: Once, after check-out, within 30 days. The scores (1 to 10) count in the hotel's scores; the text is shown on the hotel's page with the first name.
+      parameters:
+        - $ref: '#/components/parameters/TravelBookingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score]
+              properties:
+                score: { type: integer, minimum: 1, maximum: 10 }
+                staff: { type: integer, minimum: 1, maximum: 10 }
+                clean: { type: integer, minimum: 1, maximum: 10 }
+                location: { type: integer, minimum: 1, maximum: 10 }
+                value: { type: integer, minimum: 1, maximum: 10 }
+                trip: { type: [string, 'null'], enum: [couple, family, friends, solo, business, null] }
+                text: { type: [string, 'null'], maxLength: 600 }
+      responses:
+        '200':
+          description: The booking
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelBooking' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/alerts:
+    get:
+      tags: [Travel]
+      operationId: listTravelAlerts
+      summary: The person's price alerts
+      description: Each with today's price and how it moved since the alert was made, and a word on booking now when few seats are left; an "anywhere" alert with how many destinations are under its price.
+      responses:
+        '200':
+          description: Alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TravelAlert' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Travel]
+      operationId: createTravelAlert
+      summary: Watch a route's price
+      description: A route (with `to`), a stay and flight to a city (`kind` trip), or anywhere under a price (`to` null, `max_price`). The person is told on their phone when the price goes down. At most 20.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, from]
+              properties:
+                kind: { type: string, enum: [flight, trip, anywhere] }
+                from: { type: string, pattern: '^[A-Za-z]{3}$' }
+                to: { type: [string, 'null'], pattern: '^[A-Za-z]{3}$' }
+                month: { type: [string, 'null'], pattern: '^\d{4}-\d{2}$' }
+                return: { type: boolean, default: true }
+                nights: { type: [integer, 'null'], minimum: 1, maximum: 30 }
+                travellers: { type: integer, minimum: 1, maximum: 9, default: 1 }
+                max_price: { type: [string, 'null'], pattern: '^\d+(\.\d{1,2})?$' }
+      responses:
+        '201':
+          description: The alert
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TravelAlert' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /me/travel/alerts/{alert_id}:
+    delete:
+      tags: [Travel]
+      operationId: deleteTravelAlert
+      summary: Stop an alert
+      parameters:
+        - { name: alert_id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Stopped }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /rides/estimate:
     post:
       tags: [Rides]
@@ -11054,7 +11715,7 @@ components:
       description: >-
         The type of the app asking (its build config's `app_type`). Default pages are built
         for it. Unknown values are ignored.
-      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school] }
+      schema: { type: string, enum: [lms, store, booking, real_estate, news, events, donations, delivery, food, rides, school, travel] }
     ConversationId:
       name: conversation_id
       in: path
@@ -11304,6 +11965,38 @@ components:
       in: path
       required: true
       schema: { type: integer }
+    TravelHotelId:
+      name: hotel_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TravelFlightId:
+      name: flight_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TravelBookingId:
+      name: booking_id
+      in: path
+      required: true
+      schema: { type: integer }
+    TravelCheckIn:
+      name: check_in
+      in: query
+      schema: { type: string, format: date }
+    TravelCheckOut:
+      name: check_out
+      in: query
+      description: After `check_in`, at most 30 nights later.
+      schema: { type: string, format: date }
+    TravelGuests:
+      name: guests
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 12, default: 2 }
+    TravelRooms:
+      name: rooms
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 5, default: 1 }
     InquiryId:
       name: inquiry_id
       in: path
@@ -11887,6 +12580,7 @@ components:
         market: { $ref: '#/components/schemas/MarketConfig', description: 'Roadmap 115. Present for marketplace apps (Studio projects of the kind `marketplace`, the vertical `marketplace` on the food engine, whose plan has the `market` feature); such apps also have `food`.' }
         rides: { $ref: '#/components/schemas/RidesConfig' }
         school: { $ref: '#/components/schemas/SchoolConfig' }
+        travel: { $ref: '#/components/schemas/TravelConfig' }
         taxi:
           description: Roadmap 105.9. Ride apps' map (live taxi apps, and 112.1 ride hailing apps too); null or missing for other apps.
           oneOf:
@@ -13279,7 +13973,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, market_order_update, vendor_order, complaint_update, club_renewal, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, market_order_update, vendor_order, complaint_update, club_renewal, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee, travel_update, travel_alert]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -13348,6 +14042,10 @@ components:
             opens the student's results (the student's and their parents' pushes alike);
             `uni_advisee` (with `term_id`), an advisee's registration waits for the advisor,
             and opens that advisee in the Classroom tab.
+            126 A travel app's: `travel_update` (with `booking_id`, and `flight_id` for a flight's
+            news), a booking confirmed, changed or cancelled or its flight delayed, its gate or
+            status changed, and opens the trip; `travel_alert` (with `alert_id`), a watched price
+            went down, and opens the price alerts.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -13370,6 +14068,8 @@ components:
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         report_id: { type: [integer, 'null'], description: "113.5 For school_report and school_report_shared, the teacher's report to open. Missing on older servers." }
+        booking_id: { type: [integer, 'null'], description: "126 For travel_update, the trip to open. Missing on older servers." }
+        alert_id: { type: [integer, 'null'], description: "126 For travel_alert, the price alert. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -14629,7 +15329,7 @@ components:
         show_tabs: { type: boolean, default: true, description: "The app's bottom tabs under the page, when it is one of them." }
         screen:
           type: string
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school, edit_profile, devices, change_password, chat_conversation, shipment, restaurant_menu, food_order, food_cart, market_vendor, market_list, market_checkout, market_orders, market_order, market_wallet, market_complain, market_complaint, ride_follow, course, bundle, lesson, quiz, assignment, live, question, learning_paths, learning_path, leaderboard, course_notes, lesson_discussion, teacher_profile, teach_apply, certificates, quiz_results, live_classes, achievements, downloads, parent, parent_slips, parent_excuses, parent_excuse_new, parent_pickup, school_checkin, school_timetable, school_homework, school_grades, school_attendance, school_fees, school_news, school_report_card, school_messages, school_bus, school_library, school_library_loans, school_library_book, school_calendar, school_exams, school_behaviour, school_reports, uni_registration, uni_timetable, uni_results, uni_transcript, uni_plan]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, club, ride, my_rides, driver, teachers, school, explore, stays, flights, trips, saved, price_alerts, edit_profile, devices, change_password, chat_conversation, shipment, restaurant_menu, food_order, food_cart, market_vendor, market_list, market_checkout, market_orders, market_order, market_wallet, market_complain, market_complaint, ride_follow, course, bundle, lesson, quiz, assignment, live, question, learning_paths, learning_path, leaderboard, course_notes, lesson_discussion, teacher_profile, teach_apply, certificates, quiz_results, live_classes, achievements, downloads, parent, parent_slips, parent_excuses, parent_excuse_new, parent_pickup, school_checkin, school_timetable, school_homework, school_grades, school_attendance, school_fees, school_news, school_report_card, school_messages, school_bus, school_library, school_library_loans, school_library_book, school_calendar, school_exams, school_behaviour, school_reports, uni_registration, uni_timetable, uni_results, uni_transcript, uni_plan, travel_hotel, hotel_results, hotel_map, hotel_rooms, hotel_checkout, flight_results, flight_fares, price_calendar, seat_map, flight_extras, trip_bundle, trip_checkout, travel_trip, boarding_pass, manage_booking, review_stay]
           description: |
             120.4 After the screens a tab or a button opens come those opened
             from them, which show one thing (`shipment`, `restaurant_menu`,
@@ -14958,7 +15658,7 @@ components:
         screen:
           type: [string, 'null']
           description: For `screen`, a built-in screen.
-          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, market, market_orders, vendor, complaints, wallet, club, ride, my_rides, driver, teachers, teacher, school, classroom, null]
+          enum: [courses, my_courses, search, favorites, messages, account, settings, notifications, cart, orders, services, appointments, articles, bookmarks, classes, memberships, events, tickets, campaigns, my_donations, send_parcel, shipments, courier, restaurants, food_orders, restaurant, market, market_orders, vendor, complaints, wallet, club, ride, my_rides, driver, teachers, teacher, school, classroom, explore, stays, flights, trips, saved, price_alerts, null]
         course_id: { type: [integer, 'null'], description: For `course`. }
         item: { $ref: '#/components/schemas/ItemRef' }
         url: { type: [string, 'null'], format: uri, description: For `url`. }
@@ -14997,7 +15697,7 @@ components:
     ItemSource:
       type: string
       description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only); 113.1 `bundles` are an academy's course bundles, each opening the bundle's page (courses managed in Yallapp).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vendors, market_products, vehicle_types, school_news, bundles]
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vendors, market_products, vehicle_types, school_news, bundles, hotels]
 
     Item:
       type: object
@@ -20000,3 +20700,624 @@ components:
           type: array
           items: { $ref: '#/components/schemas/UniHeldSection' }
         can_decide: { type: boolean }
+
+    TravelConfig:
+      type: object
+      description: |
+        Roadmap 126. Travel apps (Studio projects of the type `travel`): what
+        Yallapp turned on for the project (Admin › client › Travel), which
+        decides the app's tabs, and the company's choices. `mode`: `both`
+        (Explore, Stays, Flights, Trips, Account), `hotels` (Explore, Saved,
+        Bookings, Messages, Account) or `flights` (Search, Alerts, Trips,
+        Help, Account); the app never shows the screens of a part that is
+        off. Every amount is the company's; Yallapp takes no commission.
+      required: [mode, hotels, flights, currency, single_hotel_id, payment, member_off_percent, bundle_off_percent, transfer, display_font, themes, amenities, help]
+      properties:
+        mode: { type: string, enum: [both, hotels, flights] }
+        hotels: { type: boolean }
+        flights: { type: boolean }
+        currency: { type: string, enum: [TRY, USD, EUR, EGP, SAR, AED] }
+        single_hotel_id: { type: [integer, 'null'], description: 'The one hotel of a company with only one: the app opens on its page instead of the search, which then asks for the dates only.' }
+        payment:
+          type: object
+          required: [now, at_hotel]
+          properties:
+            now: { type: boolean, description: "Paid in the app, on the company's payment page." }
+            at_hotel: { type: boolean, description: 'A stay alone may be paid at the hotel (where the hotel and the rate take it).' }
+        member_off_percent: { type: integer, minimum: 0, maximum: 50, description: 'Taken off stays for people signed in (the member price); 0 for none.' }
+        bundle_off_percent: { type: integer, minimum: 0, maximum: 50, description: 'Taken off a stay booked with a flight, as one trip; 0 for none.' }
+        transfer:
+          description: The airport transfer offered with a trip; null when there is none.
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [price, price_formatted, note]
+              properties:
+                price: { type: string, example: '48.00' }
+                price_formatted: { type: string, example: '$48.00' }
+                note: { type: [string, 'null'], example: 'Driver waits with your name' }
+        display_font:
+          description: The font of the travel screens' large titles and prices (a free font the app downloads once); null for the app's own font.
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [family, files]
+              properties:
+                family: { type: string, example: Fraunces }
+                files:
+                  type: array
+                  items: { $ref: '#/components/schemas/FontFile' }
+        themes:
+          type: array
+          description: The kinds of stay the search offers as chips (from the hotels' own), in the company's words.
+          items: { type: string, example: Beach }
+        amenities:
+          type: array
+          description: The amenities the hotels have, for the search's filters.
+          items: { $ref: '#/components/schemas/TravelAmenity' }
+        help:
+          type: object
+          required: [phone, email, whatsapp]
+          properties:
+            phone: { type: [string, 'null'] }
+            email: { type: [string, 'null'] }
+            whatsapp: { type: [string, 'null'] }
+
+    TravelAmenity:
+      type: object
+      required: [id, icon]
+      properties:
+        id: { type: string, enum: [pool, spa, wifi, breakfast, shuttle, gym, parking, beach, restaurant, bar, air_conditioning, family, pets, accessible, kitchen, view] }
+        icon: { type: string, description: A Material Symbols (Rounded) name. }
+
+    TravelAirport:
+      type: object
+      required: [code, city, airport]
+      properties:
+        code: { type: string, example: CAI }
+        city: { type: string, example: Cairo }
+        airport: { type: [string, 'null'], example: Cairo International }
+
+    TravelExplore:
+      type: object
+      required: [from, nights, destinations, featured, alert]
+      properties:
+        from:
+          oneOf:
+            - $ref: '#/components/schemas/TravelAirport'
+            - type: 'null'
+        nights: { type: integer }
+        destinations:
+          type: array
+          items:
+            type: object
+            required: [city, country, code, photo_url, hotels, stay_from_formatted, trip_from, trip_from_formatted]
+            properties:
+              city: { type: string }
+              country: { type: [string, 'null'] }
+              code: { type: [string, 'null'], description: 'The airport there, when the company flies to it.' }
+              photo_url: { type: [string, 'null'], format: uri }
+              hotels: { type: integer }
+              stay_from_formatted: { type: [string, 'null'], description: 'The cheapest night there.' }
+              trip_from: { type: [string, 'null'], description: 'Stay and flight for two for `nights` nights, from `from`; null when there is no flight.' }
+              trip_from_formatted: { type: [string, 'null'] }
+        featured:
+          type: array
+          items: { $ref: '#/components/schemas/TravelHotelCard' }
+        alert:
+          description: The signed-in person's alert whose price went down most; null for none.
+          oneOf:
+            - $ref: '#/components/schemas/TravelAlert'
+            - type: 'null'
+
+    TravelPrice:
+      type: object
+      description: A stay's price for the dates, taxes and fees included.
+      required: [nights, total, total_formatted, nightly_formatted, was_total_formatted, member]
+      properties:
+        nights: { type: integer }
+        total: { type: string, example: '564.00' }
+        total_formatted: { type: string, example: '$564.00' }
+        nightly_formatted: { type: string, description: 'The average night, taxes included.' }
+        was_total_formatted: { type: [string, 'null'], description: 'The price before the member price, when one applies.' }
+        member: { type: boolean, description: The member price is in it. }
+
+    TravelHotelCard:
+      type: object
+      required: [id, name, kind, stars, city, country, area, landmark, lat, lng, photo_urls, score, reviews, badge, themes, amenities, free_cancellation, breakfast, pay_at_hotel, member_price, from_nightly_formatted, price, saved]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        kind: { type: string, enum: [hotel, resort, boutique, apartments, villa, hostel, guesthouse] }
+        stars: { type: integer, minimum: 0, maximum: 5 }
+        city: { type: string }
+        country: { type: [string, 'null'] }
+        area: { type: [string, 'null'], example: West Bank }
+        landmark: { type: [string, 'null'], example: 2.1 km from the Valley of the Kings }
+        lat: { type: [number, 'null'] }
+        lng: { type: [number, 'null'] }
+        photo_urls:
+          type: array
+          items: { type: string, format: uri }
+        score: { type: [number, 'null'], description: 'Guests'' average, out of 10, one decimal; null before the first review.' }
+        reviews: { type: integer }
+        badge: { type: [string, 'null'], description: "The company's word on the card (\"Only with us\")." }
+        themes:
+          type: array
+          items: { type: string }
+        amenities:
+          type: array
+          items: { type: string }
+        free_cancellation: { type: boolean, description: A rate with free cancellation. }
+        breakfast: { type: boolean, description: A rate with breakfast. }
+        pay_at_hotel: { type: boolean, description: A rate paid at the hotel. }
+        member_price: { type: boolean, description: 'The company gives signed-in people a member price.' }
+        from_nightly_formatted: { type: [string, 'null'], description: 'The cheapest night of any room, before taxes.' }
+        price:
+          oneOf:
+            - $ref: '#/components/schemas/TravelPrice'
+            - type: 'null'
+        saved: { type: boolean }
+
+    TravelHotel:
+      allOf:
+        - $ref: '#/components/schemas/TravelHotelCard'
+        - type: object
+          required: [description, address, phone, check_in_time, check_out_time, policies, scores, quote, reviews_list, rooms, nights]
+          properties:
+            description: { type: [string, 'null'] }
+            address: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+            check_in_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+            check_out_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+            policies: { type: [string, 'null'], description: "The hotel's own rules, in its words." }
+            scores:
+              type: object
+              required: [staff, clean, location, value]
+              properties:
+                staff: { type: [number, 'null'] }
+                clean: { type: [number, 'null'] }
+                location: { type: [number, 'null'] }
+                value: { type: [number, 'null'] }
+            quote:
+              description: The best recent review with words; null for none.
+              oneOf:
+                - $ref: '#/components/schemas/TravelReview'
+                - type: 'null'
+            reviews_list:
+              type: array
+              maxItems: 10
+              items: { $ref: '#/components/schemas/TravelReview' }
+            nights: { type: [integer, 'null'] }
+            rooms:
+              type: array
+              items: { $ref: '#/components/schemas/TravelRoom' }
+
+    TravelReview:
+      type: object
+      required: [name, score, trip, text, stayed]
+      properties:
+        name: { type: string, description: First name. }
+        score: { type: integer, minimum: 1, maximum: 10 }
+        trip: { type: [string, 'null'], enum: [couple, family, friends, solo, business, null] }
+        text: { type: [string, 'null'] }
+        stayed: { type: string, pattern: '^\d{4}-\d{2}$', description: The month of the stay. }
+
+    TravelRoom:
+      type: object
+      required: [id, name, description, photo_urls, size_m2, beds, sleeps, features, available, left, rates]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        photo_urls:
+          type: array
+          items: { type: string, format: uri }
+        size_m2: { type: [integer, 'null'] }
+        beds: { type: [string, 'null'], example: King }
+        sleeps: { type: integer }
+        features:
+          type: array
+          items: { type: string, example: balcony }
+        available: { type: boolean, description: 'Free on every night for the rooms and guests asked (true without dates).' }
+        left: { type: [integer, 'null'], description: 'How many are still free, when 3 or fewer.' }
+        rates:
+          type: array
+          items: { $ref: '#/components/schemas/TravelRate' }
+
+    TravelRate:
+      type: object
+      required: [id, name, board, refundable, free_cancel_until, pay_now, pay_at_hotel, popular, price]
+      properties:
+        id: { type: string }
+        name: { type: string, example: Breakfast for 2 }
+        board: { type: string, enum: [room_only, breakfast, half_board, full_board, all_inclusive] }
+        refundable: { type: boolean }
+        free_cancel_until: { type: [string, 'null'], format: date, description: 'The last day to cancel for free (until 23:59 at the hotel); null when not refundable or without dates.' }
+        pay_now: { type: boolean }
+        pay_at_hotel: { type: boolean }
+        popular: { type: boolean, description: '"Most chosen".' }
+        price:
+          oneOf:
+            - $ref: '#/components/schemas/TravelPrice'
+            - type: 'null'
+
+    TravelPlace:
+      type: object
+      required: [code, city, airport, terminal]
+      properties:
+        code: { type: string, example: CAI }
+        city: { type: string, example: Cairo }
+        airport: { type: [string, 'null'] }
+        terminal: { type: [string, 'null'] }
+
+    TravelCarrier:
+      type: object
+      required: [name, code, color]
+      properties:
+        name: { type: string, description: "The airline or charter the company sells, in the company's words." }
+        code: { type: string, maxLength: 3, example: SF }
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+
+    TravelLeg:
+      type: object
+      required: [flight_id, number, carrier, from, to, departs, arrives, days_later, minutes, stops, via, aircraft, amenities, status, status_note, gate, boards_at, delayed_departs, has_seat_map]
+      properties:
+        flight_id: { type: integer }
+        number: { type: string, example: SF 691 }
+        carrier: { $ref: '#/components/schemas/TravelCarrier' }
+        from: { $ref: '#/components/schemas/TravelPlace' }
+        to: { $ref: '#/components/schemas/TravelPlace' }
+        departs: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', description: Local time where it leaves. }
+        arrives: { type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$', description: Local time where it lands. }
+        days_later: { type: integer, description: 'Lands this many days after the day it leaves (+1).' }
+        minutes: { type: integer }
+        stops: { type: integer }
+        via: { type: [string, 'null'], example: ATH }
+        aircraft: { type: [string, 'null'] }
+        amenities:
+          type: array
+          items: { type: string, enum: [wifi, meal, power, entertainment, lounge] }
+        status: { type: string, enum: [scheduled, on_time, delayed, boarding, departed, landed, cancelled] }
+        status_note: { type: [string, 'null'], description: "The company's words (\"Gate changed to B12\")." }
+        gate: { type: [string, 'null'] }
+        boards_at: { type: [string, 'null'], pattern: '^\d{2}:\d{2}$' }
+        delayed_departs: { type: [string, 'null'], pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$' }
+        has_seat_map: { type: boolean, description: 'Travellers choose their seats on it.' }
+
+    TravelFare:
+      type: object
+      required: [id, name, price, price_formatted, available, seats_left, cabin_kg, bags, bag_kg, change, refund, seat, priority]
+      properties:
+        id: { type: string, enum: [light, standard, flex] }
+        name: { type: string, description: "The company's name for it (\"Classic\")." }
+        price: { type: string, description: 'For one person, both ways for a return.' }
+        price_formatted: { type: string }
+        available: { type: boolean }
+        seats_left: { type: [integer, 'null'], description: 'When 9 or fewer.' }
+        cabin_kg: { type: integer }
+        bags: { type: integer, description: Checked bags. }
+        bag_kg: { type: integer }
+        change:
+          type: object
+          required: [allowed, fee_formatted]
+          properties:
+            allowed: { type: boolean }
+            fee_formatted: { type: [string, 'null'], description: 'null: free.' }
+        refund:
+          type: object
+          required: [allowed, fee_formatted]
+          properties:
+            allowed: { type: boolean }
+            fee_formatted: { type: [string, 'null'], description: 'null: in full.' }
+        seat: { type: string, enum: [fee, standard, any], description: '`fee`: a seat costs the flight''s seat price; `standard`: any seat but extra legroom is included; `any`: every seat.' }
+        priority: { type: boolean }
+
+    TravelFlightOption:
+      type: object
+      required: [id, outbound, inbound, fares, from_price, from_price_formatted, minutes, tags]
+      properties:
+        id: { type: string, example: '12-15', description: 'The outbound flight''s ID, and the one back.' }
+        outbound: { $ref: '#/components/schemas/TravelLeg' }
+        inbound:
+          oneOf:
+            - $ref: '#/components/schemas/TravelLeg'
+            - type: 'null'
+        fares:
+          type: array
+          items: { $ref: '#/components/schemas/TravelFare' }
+        from_price: { type: string }
+        from_price_formatted: { type: string }
+        minutes: { type: integer, description: Both legs' time. }
+        tags:
+          type: array
+          items: { type: string, enum: [best, cheapest, fastest] }
+
+    TravelFlightSearch:
+      type: object
+      required: [items, best_formatted, cheapest_formatted, fastest_minutes, price_level]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/TravelFlightOption' }
+        best_formatted: { type: [string, 'null'] }
+        cheapest_formatted: { type: [string, 'null'] }
+        fastest_minutes: { type: [integer, 'null'] }
+        price_level:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [level, position, usual_from_formatted, usual_to_formatted]
+              properties:
+                level: { type: string, enum: [low, typical, high] }
+                position: { type: number, minimum: 0, maximum: 1, description: 'Where the cheapest price is between the usual lowest (0) and highest (1).' }
+                usual_from_formatted: { type: string }
+                usual_to_formatted: { type: string }
+
+    TravelCalendar:
+      type: object
+      required: [month, days, tip]
+      properties:
+        month: { type: string, pattern: '^\d{4}-\d{2}$' }
+        days:
+          type: array
+          items:
+            type: object
+            required: [date, price, price_formatted, level]
+            properties:
+              date: { type: string, format: date }
+              price: { type: [string, 'null'] }
+              price_formatted: { type: [string, 'null'] }
+              level: { type: [string, 'null'], enum: [low, typical, high, null] }
+        tip:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [date, saving_formatted]
+              properties:
+                date: { type: string, format: date }
+                saving_formatted: { type: string }
+
+    TravelSeatMap:
+      type: object
+      required: [flight_id, columns, rows, seat_price_formatted, extra_price_formatted]
+      properties:
+        flight_id: { type: integer }
+        columns:
+          type: array
+          description: The seats' letters across, an empty string for the aisle.
+          items: { type: string, maxLength: 1 }
+        rows:
+          type: array
+          items:
+            type: object
+            required: [number, extra_legroom, seats]
+            properties:
+              number: { type: integer }
+              extra_legroom: { type: boolean }
+              seats:
+                type: array
+                items:
+                  type: object
+                  required: [id, taken]
+                  properties:
+                    id: { type: string, example: 14A }
+                    taken: { type: boolean }
+        seat_price_formatted: { type: [string, 'null'], description: 'What a seat costs on a light fare; null: free.' }
+        extra_price_formatted: { type: [string, 'null'], description: 'What a seat with extra legroom costs; null: no such seats.' }
+
+    TravelChoice:
+      type: object
+      description: What the person chose. A stay, a flight, or both (a trip).
+      properties:
+        stay:
+          type: object
+          required: [hotel_id, room_id, rate_id, check_in, check_out]
+          properties:
+            hotel_id: { type: integer }
+            room_id: { type: integer }
+            rate_id: { type: string }
+            check_in: { type: string, format: date }
+            check_out: { type: string, format: date }
+            guests: { type: integer, minimum: 1, maximum: 12, default: 2 }
+            rooms: { type: integer, minimum: 1, maximum: 5, default: 1 }
+        flight:
+          type: object
+          required: [outbound_id, fare]
+          properties:
+            outbound_id: { type: integer }
+            inbound_id: { type: [integer, 'null'] }
+            fare: { type: string, enum: [light, standard, flex] }
+            travellers: { type: integer, minimum: 1, maximum: 9, default: 1 }
+            seats_out:
+              type: array
+              items: { type: [string, 'null'], pattern: '^\d{1,2}[A-K]$' }
+            seats_back:
+              type: array
+              items: { type: [string, 'null'], pattern: '^\d{1,2}[A-K]$' }
+            bags: { type: integer, minimum: 0, maximum: 18, default: 0, description: Extra checked bags in all. }
+            meals: { type: integer, minimum: 0, maximum: 18, default: 0, description: Meals in all. }
+        transfer: { type: boolean, default: false }
+
+    TravelQuoteLine:
+      type: object
+      required: [kind, count, unit_formatted, amount, amount_formatted]
+      properties:
+        kind: { type: string, enum: [nights, fare, seats, bags, meals, transfer, taxes, member, bundle, change_fee] }
+        count: { type: integer, description: 'Nights, travellers, seats, bags or meals; 1 otherwise.' }
+        unit_formatted: { type: [string, 'null'], description: 'The price of one (a night, a fare).' }
+        amount: { type: string, description: 'Negative for what is taken off.', example: '-28.00' }
+        amount_formatted: { type: string }
+
+    TravelQuote:
+      type: object
+      required: [currency, lines, total, total_formatted, saving_formatted, refundable, free_cancel_until, payment]
+      properties:
+        currency: { type: string }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/TravelQuoteLine' }
+        total: { type: string }
+        total_formatted: { type: string }
+        saving_formatted: { type: [string, 'null'], description: 'What the bundle and member prices take off.' }
+        refundable: { type: boolean }
+        free_cancel_until: { type: [string, 'null'], format: date }
+        payment:
+          type: object
+          required: [now, at_hotel]
+          properties:
+            now: { type: boolean }
+            at_hotel: { type: boolean }
+
+    TravelBooking:
+      type: object
+      required: [id, reference, kind, status, created_at, starts, starts_at, ends, stay, flights, transfer, travellers, contact, requests, payment, currency, lines, total, total_formatted, cancellation, can_cancel, cancel_refund_formatted, can_change, passes_open]
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: SF-4K7Q2 }
+        kind: { type: string, enum: [stay, flight, trip] }
+        status: { type: string, enum: [awaiting_payment, confirmed, cancelled, completed] }
+        created_at: { type: string, format: date-time }
+        hold_until: { type: [string, 'null'], format: date-time, description: 'Unpaid bookings are released then.' }
+        starts_at: { type: string, format: date-time, description: 'Roadmap 126.10. The same moment as an instant, read in the company''s time zone (Travel settings): what the trip''s countdown counts to on any phone.' }
+        starts: { type: string, pattern: '^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$', description: 'The first thing of it: the flight out, else the check-in day (local).' }
+        ends: { type: string, pattern: '^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$' }
+        stay:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [hotel, room_name, rate_name, board, check_in, check_out, nights, guests, rooms, refundable, free_cancel_until, can_review, review]
+              properties:
+                hotel:
+                  type: object
+                  required: [id, name, city, photo_url, lat, lng, phone, address, check_in_time, check_out_time]
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+                    city: { type: string }
+                    photo_url: { type: [string, 'null'], format: uri }
+                    lat: { type: [number, 'null'] }
+                    lng: { type: [number, 'null'] }
+                    phone: { type: [string, 'null'] }
+                    address: { type: [string, 'null'] }
+                    check_in_time: { type: string }
+                    check_out_time: { type: string }
+                room_name: { type: string }
+                rate_name: { type: string }
+                board: { type: string, enum: [room_only, breakfast, half_board, full_board, all_inclusive] }
+                check_in: { type: string, format: date }
+                check_out: { type: string, format: date }
+                nights: { type: integer }
+                guests: { type: integer }
+                rooms: { type: integer }
+                refundable: { type: boolean }
+                free_cancel_until: { type: [string, 'null'], format: date }
+                can_review: { type: boolean }
+                review:
+                  oneOf:
+                    - $ref: '#/components/schemas/TravelReview'
+                    - type: 'null'
+        flights:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/TravelLeg'
+              - type: object
+                required: [leg, fare_id, fare_name, seats]
+                properties:
+                  leg: { type: string, enum: [out, back] }
+                  fare_id: { type: string, enum: [light, standard, flex] }
+                  fare_name: { type: string }
+                  seats:
+                    type: array
+                    description: One per traveller, null while not chosen.
+                    items: { type: [string, 'null'] }
+        transfer:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [note]
+              properties:
+                note: { type: [string, 'null'] }
+        travellers:
+          type: array
+          items:
+            type: object
+            required: [first_name, last_name]
+            properties:
+              first_name: { type: string }
+              last_name: { type: string }
+        contact:
+          type: object
+          required: [name, email, phone]
+          properties:
+            name: { type: string }
+            email: { type: [string, 'null'] }
+            phone: { type: [string, 'null'] }
+        requests:
+          type: array
+          items: { type: string }
+        payment:
+          type: object
+          required: [method, status, paid_formatted, due, due_formatted]
+          properties:
+            method: { type: string, enum: [now, at_hotel] }
+            status: { type: string, enum: [unpaid, paid, at_hotel, refund_due, refunded] }
+            paid_formatted: { type: [string, 'null'] }
+            due: { type: [string, 'null'], description: 'What is still to pay in the app (after a change too); null for nothing.' }
+            due_formatted: { type: [string, 'null'] }
+        currency: { type: string }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/TravelQuoteLine' }
+        total: { type: string }
+        total_formatted: { type: string }
+        cancellation:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [at, by, refund_formatted]
+              properties:
+                at: { type: string, format: date-time }
+                by: { type: string, enum: [customer, company, unpaid] }
+                refund_formatted: { type: [string, 'null'] }
+        can_cancel: { type: boolean }
+        cancel_refund_formatted: { type: [string, 'null'], description: 'What cancelling now would refund of what was paid.' }
+        can_change: { type: boolean }
+        passes_open: { type: boolean, description: 'The boarding passes can be shown (`/passes`).' }
+
+    TravelBoardingPass:
+      type: object
+      required: [leg, flight, passenger, seat, group, fare_name, code]
+      properties:
+        leg: { type: string, enum: [out, back] }
+        flight: { $ref: '#/components/schemas/TravelLeg' }
+        passenger: { type: string, example: LAYLA HASSAN }
+        seat: { type: [string, 'null'] }
+        group: { type: integer, minimum: 1, maximum: 5 }
+        fare_name: { type: string }
+        code: { type: string, description: What the QR code holds. }
+
+    TravelAlert:
+      type: object
+      required: [id, kind, from, to, month, return, nights, travellers, price, price_formatted, change_formatted, direction, advice, max_price_formatted, matches, photo_url]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [flight, trip, anywhere] }
+        from: { $ref: '#/components/schemas/TravelAirport' }
+        to:
+          oneOf:
+            - $ref: '#/components/schemas/TravelAirport'
+            - type: 'null'
+        month: { type: [string, 'null'] }
+        return: { type: boolean }
+        nights: { type: [integer, 'null'] }
+        travellers: { type: integer }
+        price: { type: [string, 'null'], description: "Today's lowest; null when nothing is on sale." }
+        price_formatted: { type: [string, 'null'] }
+        change_formatted: { type: [string, 'null'], description: 'Since the alert was made, signed ("−$46").' }
+        direction: { type: [string, 'null'], enum: [down, up, same, null] }
+        advice: { type: [string, 'null'], enum: [book_now, null], description: '`book_now`: few seats are left at this price.' }
+        max_price_formatted: { type: [string, 'null'] }
+        matches: { type: [integer, 'null'], description: 'For `anywhere`: destinations under the price now.' }
+        photo_url: { type: [string, 'null'], format: uri }

@@ -10,6 +10,7 @@ import '../../../core/routing/app_router.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/services/external_links.dart';
 import '../../../core/web/web_page_screen.dart';
+import '../../travel/travel_paths.dart';
 import 'more_tabs.dart';
 import 'screen_page.dart';
 
@@ -150,6 +151,8 @@ String? itemLocation(ItemRef item, AppType appType) {
     (ItemSource.vehicleTypes, AppType.rides) => Paths.ride,
     // 105.4 The school's news opens with the rest of it.
     (ItemSource.schoolNews, AppType.school) => Paths.schoolPart('news'),
+    // 126 A hotel opens on its page.
+    (ItemSource.hotels, AppType.travel) => TravelPaths.hotel(id),
     _ => null,
   };
 }
@@ -165,6 +168,7 @@ String? searchLocation(ItemSource? source, AppType appType) => switch ((
   (ItemSource.listings, AppType.realEstate) => '${Paths.search}?focus=1',
   (ItemSource.articles, AppType.news) => Paths.articlesFiltered(focus: true),
   (ItemSource.events, AppType.events) => Paths.eventsFiltered(focus: true),
+  (ItemSource.hotels, AppType.travel) => TravelPaths.hotels,
   _ => null,
 };
 

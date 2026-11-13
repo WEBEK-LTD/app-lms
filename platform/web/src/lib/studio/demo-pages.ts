@@ -43,6 +43,15 @@ const TAB_WORDS: Record<string, SectionWord> = {
   // 123 The premium academy's tab with the site's blog.
   Blog: "tabBlog",
   Explore: "acTabExplore",
+  // 126 Safra's tabs.
+  Stays: "travTabStays",
+  Flights: "travTabFlights",
+  Trips: "travTabTrips",
+  Saved: "travTabSaved",
+  Bookings: "travTabBookings",
+  Messages: "travTabMessages",
+  Alerts: "travTabAlerts",
+  Help: "travTabHelp",
   "Your courses": "acTabMine",
 };
 
