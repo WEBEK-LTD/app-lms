@@ -3,6 +3,9 @@ import { removeAllSamplesAction, removeSamplesAction } from "@/app/actions/sampl
 import { SubmitButton } from "@/components/form";
 import { Badge, Notice, btn } from "@/components/ui";
 import { getStore } from "@/lib/data";
+import { getClientContext } from "@/lib/auth/session";
+import { DEMO_BRANDS } from "@/lib/demo/content";
+import { startedFromDemo } from "@/lib/demo/start";
 import type { App } from "@/lib/data/types";
 import { dashboardText } from "@/lib/dashboard-lang";
 import { richText } from "@/i18n/rich";
@@ -70,10 +73,23 @@ export async function SampleEntries({ app, list, query }: { app: App; list: Samp
   );
 }
 
-/** The "Sample" badge of an entry in a dashboard list. */
+/**
+ * The "Sample" badge of an entry in a dashboard list. 127 In an app started
+ * from a demo on /start, its entries are the demo's: "From <demo> · change"
+ * (the row opens the entry to change it).
+ */
 export async function SampleBadge({ sample }: { sample: boolean | undefined }) {
   if (!sample) return null;
   const { t } = await dashboardText();
+  const app = (await getClientContext())?.app ?? null;
+  const demo = app ? startedFromDemo(app) : null;
+  if (demo) {
+    return (
+      <span data-from-demo={demo}>
+        <Badge tone="info">{t("start.first.from", { demo: DEMO_BRANDS[demo].appName })}</Badge>
+      </span>
+    );
+  }
   return <Badge tone="info">{t("samples.badge")}</Badge>;
 }
 

@@ -178,6 +178,6 @@ test("73 the owner deletes the app; our team restores it, then deletes it for go
   await own.goto("/dashboard");
   // 121 Without an app yet: the choice of editor or Studio first.
   await expect(own).toHaveURL(/\/start$/);
-  await own.getByRole("link", { name: /The app editor/ }).click();
+  await own.getByRole("link", { name: "Start from an empty app" }).click();
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
 });

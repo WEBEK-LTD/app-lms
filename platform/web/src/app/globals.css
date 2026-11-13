@@ -1167,3 +1167,52 @@ html {
     translate: none !important;
   }
 }
+
+/*
+ * 127 Choosing your app (/start) and the editors' first steps, in the
+ * colours approved on 13 November 2026, light and dark. Yallapp Studio's
+ * section and cards are Midnight with gold in both.
+ */
+.picker {
+  --pk-bg: #f4efe6;
+  --pk-surface: #ffffff;
+  --pk-ink: #0e0d24;
+  --pk-on-ink: #ffffff;
+  --pk-ink2: #55536b;
+  --pk-line: #e4ddd0;
+  --pk-accent-text: #c2410c;
+  --pk-seg: #eae3d6;
+  --pk-hero: #eae3d6;
+  --pk-soft: #e7e6f3;
+  --pk-ok-soft: #e3f2e9;
+  --pk-steps-soft: #eae3d6;
+  --pk-ok: #1f7a4d;
+  --pk-canvas: #efe8dc;
+  color: var(--pk-ink);
+  @variant in-dark {
+    --pk-bg: #0e0d24;
+    --pk-surface: #1b1a38;
+    --pk-ink: #f4efe6;
+    --pk-on-ink: #0e0d24;
+    --pk-ink2: #b8b3c8;
+    --pk-line: #33325a;
+    --pk-accent-text: #ff8f66;
+    --pk-seg: #26254a;
+    --pk-hero: #1b1a38;
+    --pk-soft: #2a2950;
+    --pk-ok-soft: #2a2950;
+    --pk-steps-soft: #2a2950;
+    --pk-ok: #74d6a0;
+    --pk-canvas: #13122c;
+  }
+}
+.picker-page {
+  background: var(--pk-bg);
+}
+/* A card's tint: its own in light (--tint), the dark one in dark (--tint-dark). */
+.pk-tint {
+  background: var(--tint);
+  @variant in-dark {
+    background: var(--tint-dark);
+  }
+}

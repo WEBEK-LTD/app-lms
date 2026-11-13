@@ -170,7 +170,7 @@ test("a shop with its own Kashier keys takes an order", async ({ page, request }
 
   // 121 Without an app yet: the choice of editor or Studio first.
 
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await page.getByText("Store", { exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByText("I don't have a website").click();

@@ -16,6 +16,7 @@ import { designLayout, designSamples, hasUnpublishedChanges, layoutHistory, load
 import { appVersionsInUse } from "@/lib/pages/reach";
 import { blockTypesFor, categorySourcesFor, itemSourcesFor, screenOptionsFor } from "@/lib/pages/sources";
 import { PagesEditor } from "./editor";
+import { FirstSteps, TapHint } from "@/components/first-steps";
 import { currentPlanId } from "@/lib/billing/plan-change";
 import { effectivePlans } from "@/lib/entitlements";
 import { defaultLayout } from "@/lib/pages/defaults";
@@ -74,7 +75,13 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="flex max-w-[680px] flex-[1_1_320px] flex-col gap-2">
-          <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("pages.title")}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="m-0 text-[26px] leading-tight font-extrabold tracking-[-0.5px] break-words sm:text-[30px]">{t("pages.title")}</h1>
+            {/* 127 The product the app is made in, on every step and in the editor. */}
+            <span className="flex h-[26px] items-center rounded-[13px] border-2 border-midnight px-2.5 text-xs font-extrabold text-midnight" data-product="editor">
+              {t("start.badgeEditorLong")}
+            </span>
+          </div>
           <p className="m-0 text-[15px] leading-relaxed text-ink-4">{t("pages.intro")}</p>
         </div>
         {/* 17 The real app: with the saved draft on the hosted API, else with what's published. A new tab keeps the editor (and its autosave) open. */}
@@ -104,6 +111,9 @@ export default async function PagesPage({ searchParams }: PageProps<"/dashboard/
           {t("pages.ownApi")}
         </Notice>
       )}
+      {/* 127 An app started from a demo on /start: its first steps, until done or hidden. */}
+      <FirstSteps app={app} editor="/dashboard/pages" />
+      <TapHint app={app} />
       <PagesEditor
         initial={{
           draft: withoutStrings(record.draft),

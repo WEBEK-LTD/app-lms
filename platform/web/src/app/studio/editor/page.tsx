@@ -23,6 +23,7 @@ import { studioDemoOf } from "@/lib/studio/demo-templates";
 import { screensConfig, studioScreensOn } from "@/lib/studio/screens";
 import { demoDesign } from "@/lib/demo/look";
 import { StudioEditor } from "./editor";
+import { FirstSteps } from "@/components/first-steps";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await dashboardText();
@@ -54,6 +55,7 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
     })),
   );
   return (
+    <>
     <StudioEditor
       initial={{
         draft: withoutStrings(record.draft),
@@ -89,5 +91,8 @@ export default async function StudioEditorPage({ searchParams }: PageProps<"/stu
       studioScreens={screensConfig(app).screens ?? null}
       screensHref={studioScreensOn(app) ? "/studio/project/screens" : null}
     />
+    {/* 127 A project started from a demo on /start: its first steps over the canvas, until done or hidden. */}
+    <FirstSteps app={app} editor="/studio/editor" />
+    </>
   );
 }

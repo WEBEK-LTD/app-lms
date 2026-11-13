@@ -45,11 +45,11 @@ test("a new client signs up and waits for activation", async ({ page }) => {
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Create account" }).click();
 
-  // 121 Active from the start: no waiting, the choice of how to make the app.
+  // 121 Active from the start: no waiting. 127 What the business does, and our real demos for it; today's empty starts stay.
   await expect(page).toHaveURL(/\/start$/);
-  await expect(page.getByRole("heading", { name: "How do you want to make your app?" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /The app editor/ })).toHaveAttribute("href", "/dashboard/app-type");
-  await expect(page.getByRole("link", { name: /Yallapp Studio/ })).toHaveAttribute("href", "/studio/new");
+  await expect(page.getByRole("heading", { level: 1, name: "What does your business do?" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start from an empty app" })).toHaveAttribute("href", "/dashboard/app-type");
+  await expect(page.getByRole("link", { name: "Start an empty Studio project" })).toHaveAttribute("href", "/studio/new");
   // The waiting page is for a suspended account only: an active one is sent on.
   await page.goto("/pending");
   await expect(page).toHaveURL(/\/start$/);
@@ -85,7 +85,7 @@ test("the client completes the setup wizard and the first build is queued", asyn
   await signIn(page, client.email, client.password);
   // 121 Without an app yet: the choice of editor or Studio first.
   await expect(page).toHaveURL(/\/start$/);
-  await page.getByRole("link", { name: /The app editor/ }).click();
+  await page.getByRole("link", { name: "Start from an empty app" }).click();
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
   await page.goto("/dashboard/app-type");
   await expect(page).toHaveURL(/\/dashboard\/app-type$/);
