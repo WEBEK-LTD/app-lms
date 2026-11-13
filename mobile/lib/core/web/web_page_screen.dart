@@ -9,6 +9,7 @@ import '../theme/app_icons.dart';
 import '../theme/palette.dart';
 import '../widgets/buttons.dart';
 import 'media_permission.dart';
+import 'web_files.dart';
 import 'site_sign_in.dart';
 import 'web_view.dart';
 import '../l10n/l10n.dart';
@@ -92,6 +93,7 @@ class _WebPageScreenState extends ConsumerState<WebPageScreen> {
     onMediaRequest: widget.args.ownerPage
         ? pageMediaRequests(context, ref)
         : null,
+    onFileSelect: widget.args.ownerPage ? pageFileChooser(context, ref) : null,
   );
 
   void _onUrl(Uri url) {

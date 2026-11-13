@@ -9,6 +9,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/web/media_permission.dart';
+import '../../../core/web/web_files.dart';
 import '../../../core/web/site_sign_in.dart';
 import '../../../core/web/web_view.dart';
 import '../../../core/widgets/buttons.dart';
@@ -155,6 +156,7 @@ class _WebTabScreenState extends ConsumerState<WebTabScreen> {
                             url: shown,
                             pageHost: shown == url ? null : url.host,
                             onMediaRequest: pageMediaRequests(context, ref),
+                            onFileSelect: pageFileChooser(context, ref),
                             // Only the site's own pages stay, unless every link should.
                             openLinksOutside: !(look?.linksInside ?? false),
                             injectCss: look?.css,
