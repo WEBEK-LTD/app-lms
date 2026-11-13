@@ -37,6 +37,23 @@ class StudioDemo {
 
   final Map<String, dynamic> _demo;
 
+  /// The language the demo's texts are served in, as the hosted API picks
+  /// it from the app's language (lib/pages/translate.ts `translated`).
+  static String language = 'en';
+
+  /// [node]'s texts in [language], without its translations.
+  static Map<String, dynamic> localized(Map<String, dynamic> node) {
+    final out = {...node}..remove('translations');
+    final texts = (node['translations'] as Map?)?[language] as Map?;
+    if (texts == null) return out;
+    for (final MapEntry(:key, :value) in texts.entries) {
+      if (value is String && value.trim().isNotEmpty && out.containsKey(key)) {
+        out[key as String] = value;
+      }
+    }
+    return out;
+  }
+
   Map<String, dynamic> get _layout => _demo['layout'] as Map<String, dynamic>;
 
   /// The demo's look (its template, colour, font, corners and cards).
@@ -100,9 +117,7 @@ class StudioDemo {
     };
 
     Map<String, dynamic> served(Map<String, dynamic> node) {
-      final out = {...node}
-        ..remove('translations')
-        ..remove('query');
+      final out = localized(node)..remove('query');
       if (node['type'] == 'items') {
         final q = node['query'] as Map<String, dynamic>;
         out['items'] = (items[node['source']] ?? const [])
@@ -130,7 +145,10 @@ class StudioDemo {
     api.navigation = {
       'version': '1',
       'tabs': [
-        for (final t in (_layout['tabs'] as List).cast<Map<String, dynamic>>())
+        for (final t
+            in (_layout['tabs'] as List).cast<Map<String, dynamic>>().map(
+              localized,
+            ))
           {
             'id': t['id'],
             'label': t['label'],
@@ -166,7 +184,7 @@ class StudioDemo {
             'studio': {
               ...studio,
               if (studio['header'] case final Map<String, dynamic> header)
-                'header': {...header}..remove('translations'),
+                'header': localized(header),
               'body': served(studio['body'] as Map<String, dynamic>),
             },
         },
@@ -265,6 +283,7 @@ Map<String, dynamic> _item(
   String? image,
   String? price,
   String? badge,
+  double? rating,
   Map<String, dynamic>? action,
 }) => {
   'source': source,
@@ -274,6 +293,7 @@ Map<String, dynamic> _item(
   'image_url': image,
   'price_label': price,
   'badge': badge,
+  'rating': ?rating,
   'action':
       action ??
       {
@@ -544,6 +564,8 @@ DemoApi sofraStudioApi() {
 const rawaqPhotos = [
   '/stories/academy/academy-desk.jpg',
   '/stories/academy/academy-live.jpg',
+  '/stories/academy/academy-phone.jpg',
+  '/stories/academy/academy-graduation.jpg',
 ];
 
 const sofraPhotos = [
@@ -761,6 +783,7 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
     int id,
     String title,
     String teacher,
+    double rating,
     String price,
     String picture,
   ) => _item(
@@ -769,12 +792,13 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
     title,
     teacher,
     // 128.7 The popular courses' real photos, the academy story's
-    // (platform/web/src/lib/demo/teachers.ts ACADEMY_COVERS), the others'
-    // drawings.
+    // (platform/web/src/lib/demo/teachers.ts ACADEMY_COVERS), 128 the
+    // others' too.
     image: picture.startsWith('academy-')
         ? '${demo.base}/stories/academy/$picture.jpg'
         : demo.picture(picture),
     price: price,
+    rating: rating,
     action: {'type': 'course', 'course_id': id},
   );
   final api = DemoApi.teachers();
@@ -787,14 +811,17 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
       },
     };
   }
-  // Deniz Kaya's course in its drawing, at the demo's price.
+  // Deniz Kaya's course in its photo (128 every Rawaq course has one,
+  // platform/web/src/lib/demo/teachers.ts ACADEMY_COVERS), at the demo's
+  // price.
   final teacher = api.teacher;
   api.teacher = {
     ...teacher,
     'courses': [
       for (final c in (teacher['courses'] as List).cast<Map<String, dynamic>>())
         {
-          ...demo.drawn(c),
+          ...c,
+          'image_url': '${demo.base}/stories/academy/academy-phone.jpg',
           'price': {
             ...(c['price'] as Map<String, dynamic>),
             'amount': '920.00',
@@ -813,30 +840,34 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
         course(
           8,
           'Start Your Own Small Business',
-          'Omar Farouk · 4.8/5',
+          'Omar Farouk',
+          4.8,
           'E£630.00',
           'academy-desk',
         ),
         course(
           7,
           'Arabic for Beginners',
-          'Salma Nasser · 4.9/5',
+          'Salma Nasser',
+          4.9,
           'E£475.00',
           'academy-live',
         ),
         course(
           6,
           'Python for Data Analysis',
-          'Mert Şahin · 4.7/5',
+          'Mert Şahin',
+          4.7,
           'E£1,010.00',
-          'course-python',
+          'academy-desk',
         ),
         course(
           5,
           'Everyday English Conversation',
-          'Hannah Clarke · 4.9/5',
+          'Hannah Clarke',
+          4.9,
           'E£410.00',
-          'course-english',
+          'academy-graduation',
         ),
       ],
     },
