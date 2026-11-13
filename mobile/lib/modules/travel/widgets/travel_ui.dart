@@ -358,7 +358,9 @@ class TravelButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: t.ui(15, weight: FontWeight.w800),
+          // The app's font, as the theme's buttons have it.
+          textStyle: Theme.of(context).textTheme.labelLarge
+              ?.merge(t.ui(15, weight: FontWeight.w800)),
         ),
         onPressed: busy ? null : onPressed,
         child: busy
@@ -374,11 +376,11 @@ class TravelButton extends StatelessWidget {
                     Icon(icon, size: 20),
                     const SizedBox(width: 8),
                   ],
+                  // A long label (or a long language) gets smaller, not cut.
                   Flexible(
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(label, maxLines: 1),
                     ),
                   ),
                 ],

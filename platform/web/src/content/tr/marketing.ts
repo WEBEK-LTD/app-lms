@@ -97,7 +97,7 @@ export const TR_MARKETING: MarketingTranslation = {
     "rawaq-home": "Yallapp Studio'da tasarlanmış bir akademinin ana sayfası: eğitmenleriyle tanışma, eğitmenleri ve fiyatlarıyla en yeni kursları",
     "rawaq-teacher": "Bir eğitmenin sayfası: dersleri, puanı, öğrencileri ve takipçileri, tanıtımı ve kursu",
     "rawaq-desk": "Eğitmenin kendi sekmesi: payı, aşamalarıyla kursları, sorular, değerlendirme ve kazançlar",
-    "safra-explore": "Yallapp Studio'da tasarlanmış bir seyahat uygulamasının Keşfet sayfası: tek aramada konaklama, uçuş ya da ikisi, ve tüm seyahatin fiyatıyla destinasyonlar",
+    "safra-explore": "Yallapp Studio'da tasarlanmış bir seyahat uygulamasının ana sayfası: sıradaki yer, bir dokunuşta konaklama ya da uçuş ve fotoğraflarıyla öne çıkan konaklamalar",
     "safra-hotel": "Bir otelin sayfası: fotoğrafları, misafirlerin personel, temizlik, konum ve fiyat puanları, olanakları ve gecelik fiyatı",
     "safra-trip": "Tek yerde seyahat: kapısı ve koltuklarıyla uçuş, transfer, otelde giriş ve biniş kartları",
     "studio-editor": "Yallapp Studio düzenleyicisi: solda öğeler, telefonda sayfa, sağda ayarları",

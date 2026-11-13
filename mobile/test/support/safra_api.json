@@ -1,0 +1,1134 @@
+{
+ "config": {
+  "mode": "both",
+  "hotels": true,
+  "flights": true,
+  "currency": "USD",
+  "single_hotel_id": null,
+  "payment": {
+   "now": true,
+   "at_hotel": true
+  },
+  "member_off_percent": 10,
+  "bundle_off_percent": 8,
+  "transfer": {
+   "price": "48.00",
+   "price_formatted": "$48.00",
+   "note": "Driver waits with your name"
+  },
+  "display_font": {
+   "family": "Fraunces",
+   "files": [
+    {
+     "url": "https://yallapp.test/api/v1/fonts/ofl/fraunces/Fraunces%5BSOFT%2CWONK%2Copsz%2Cwght%5D.ttf",
+     "weight": null
+    }
+   ]
+  },
+  "themes": [
+   "Beach",
+   "Spa",
+   "City",
+   "Islands"
+  ],
+  "amenities": [
+   {
+    "id": "pool",
+    "icon": "pool"
+   },
+   {
+    "id": "spa",
+    "icon": "spa"
+   },
+   {
+    "id": "wifi",
+    "icon": "wifi"
+   },
+   {
+    "id": "breakfast",
+    "icon": "free_breakfast"
+   },
+   {
+    "id": "shuttle",
+    "icon": "airport_shuttle"
+   },
+   {
+    "id": "gym",
+    "icon": "fitness_center"
+   },
+   {
+    "id": "parking",
+    "icon": "local_parking"
+   },
+   {
+    "id": "beach",
+    "icon": "beach_access"
+   },
+   {
+    "id": "restaurant",
+    "icon": "restaurant"
+   },
+   {
+    "id": "bar",
+    "icon": "local_bar"
+   },
+   {
+    "id": "air_conditioning",
+    "icon": "ac_unit"
+   },
+   {
+    "id": "view",
+    "icon": "landscape"
+   }
+  ],
+  "help": {
+   "phone": null,
+   "email": null,
+   "whatsapp": null
+  }
+ },
+ "explore": {
+  "from": {
+   "code": "CAI",
+   "city": "Cairo",
+   "airport": "Cairo International"
+  },
+  "nights": 4,
+  "destinations": [
+   {
+    "city": "Bali",
+    "country": "Indonesia",
+    "code": "DPS",
+    "photo_url": "https://demo.yallapp.test/travel-photos/room.jpg",
+    "hotels": 1,
+    "stay_from_formatted": "$168.00",
+    "trip_from": null,
+    "trip_from_formatted": null
+   },
+   {
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "code": "DXB",
+    "photo_url": "https://demo.yallapp.test/travel-photos/skyline.jpg",
+    "hotels": 1,
+    "stay_from_formatted": "$134.00",
+    "trip_from": "1231.92",
+    "trip_from_formatted": "$1,231.92"
+   },
+   {
+    "city": "Istanbul",
+    "country": "Türkiye",
+    "code": "IST",
+    "photo_url": "https://demo.yallapp.test/travel-photos/city.jpg",
+    "hotels": 1,
+    "stay_from_formatted": "$96.00",
+    "trip_from": "851.28",
+    "trip_from_formatted": "$851.28"
+   },
+   {
+    "city": "Santorini",
+    "country": "Greece",
+    "code": "JTR",
+    "photo_url": "https://demo.yallapp.test/travel-photos/oia.jpg",
+    "hotels": 1,
+    "stay_from_formatted": "$262.00",
+    "trip_from": "2028.08",
+    "trip_from_formatted": "$2,028.08"
+   }
+  ],
+  "featured": [
+   {
+    "id": 1,
+    "name": "Safra Bay Resort",
+    "kind": "resort",
+    "stars": 5,
+    "city": "Bali",
+    "country": "Indonesia",
+    "area": "Seminyak",
+    "landmark": "On the beach, 20 minutes from the airport",
+    "lat": -8.6913,
+    "lng": 115.1567,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/room.jpg",
+     "https://demo.yallapp.test/travel-photos/beach.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 9.3,
+    "reviews": 3,
+    "badge": "Only with us",
+    "themes": [
+     "Beach",
+     "Spa"
+    ],
+    "amenities": [
+     "pool",
+     "spa",
+     "wifi",
+     "breakfast",
+     "beach",
+     "restaurant",
+     "bar",
+     "shuttle"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$168.00",
+    "price": null,
+    "saved": false
+   },
+   {
+    "id": 2,
+    "name": "Safra Skyline Hotel",
+    "kind": "hotel",
+    "stars": 5,
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "area": "Downtown",
+    "landmark": "800 m from the city's tallest tower",
+    "lat": 25.1972,
+    "lng": 55.2744,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/skyline.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 8.5,
+    "reviews": 2,
+    "badge": null,
+    "themes": [
+     "City"
+    ],
+    "amenities": [
+     "pool",
+     "wifi",
+     "gym",
+     "restaurant",
+     "bar",
+     "parking",
+     "air_conditioning",
+     "view"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$134.00",
+    "price": null,
+    "saved": false
+   }
+  ],
+  "alert": null
+ },
+ "places": {
+  "cities": [
+   {
+    "city": "Bali",
+    "country": "Indonesia",
+    "hotels": 1,
+    "code": "DPS"
+   },
+   {
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "hotels": 1,
+    "code": "DXB"
+   },
+   {
+    "city": "Istanbul",
+    "country": "Türkiye",
+    "hotels": 1,
+    "code": "IST"
+   },
+   {
+    "city": "Santorini",
+    "country": "Greece",
+    "hotels": 1,
+    "code": "JTR"
+   }
+  ],
+  "airports": [
+   {
+    "code": "CAI",
+    "city": "Cairo",
+    "airport": "Cairo International"
+   },
+   {
+    "code": "DXB",
+    "city": "Dubai",
+    "airport": "Dubai International"
+   },
+   {
+    "code": "IST",
+    "city": "Istanbul",
+    "airport": "Istanbul Airport"
+   },
+   {
+    "code": "DPS",
+    "city": "Bali",
+    "airport": "Ngurah Rai International"
+   },
+   {
+    "code": "JTR",
+    "city": "Santorini",
+    "airport": "Santorini (Thira)"
+   }
+  ]
+ },
+ "hotels": {
+  "items": [
+   {
+    "id": 1,
+    "name": "Safra Bay Resort",
+    "kind": "resort",
+    "stars": 5,
+    "city": "Bali",
+    "country": "Indonesia",
+    "area": "Seminyak",
+    "landmark": "On the beach, 20 minutes from the airport",
+    "lat": -8.6913,
+    "lng": 115.1567,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/room.jpg",
+     "https://demo.yallapp.test/travel-photos/beach.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 9.3,
+    "reviews": 3,
+    "badge": "Only with us",
+    "themes": [
+     "Beach",
+     "Spa"
+    ],
+    "amenities": [
+     "pool",
+     "spa",
+     "wifi",
+     "breakfast",
+     "beach",
+     "restaurant",
+     "bar",
+     "shuttle"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$168.00",
+    "price": {
+     "nights": 4,
+     "total": "745.92",
+     "total_formatted": "$745.92",
+     "nightly_formatted": "$186.48",
+     "was_total_formatted": "$813.12",
+     "member": true
+    },
+    "saved": false
+   },
+   {
+    "id": 2,
+    "name": "Safra Skyline Hotel",
+    "kind": "hotel",
+    "stars": 5,
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "area": "Downtown",
+    "landmark": "800 m from the city's tallest tower",
+    "lat": 25.1972,
+    "lng": 55.2744,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/skyline.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 8.5,
+    "reviews": 2,
+    "badge": null,
+    "themes": [
+     "City"
+    ],
+    "amenities": [
+     "pool",
+     "wifi",
+     "gym",
+     "restaurant",
+     "bar",
+     "parking",
+     "air_conditioning",
+     "view"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$134.00",
+    "price": {
+     "nights": 4,
+     "total": "562.80",
+     "total_formatted": "$562.80",
+     "nightly_formatted": "$140.70",
+     "was_total_formatted": "$616.40",
+     "member": true
+    },
+    "saved": false
+   },
+   {
+    "id": 4,
+    "name": "Safra Caldera Suites",
+    "kind": "boutique",
+    "stars": 5,
+    "city": "Santorini",
+    "country": "Greece",
+    "area": "Oia",
+    "landmark": "On the caldera, 5 minutes' walk from the village",
+    "lat": 36.4618,
+    "lng": 25.3753,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/oia.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 10,
+    "reviews": 1,
+    "badge": null,
+    "themes": [
+     "Beach",
+     "Islands"
+    ],
+    "amenities": [
+     "pool",
+     "wifi",
+     "breakfast",
+     "shuttle",
+     "view",
+     "air_conditioning"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$262.00",
+    "price": {
+     "nights": 4,
+     "total": "1089.92",
+     "total_formatted": "$1,089.92",
+     "nightly_formatted": "$272.48",
+     "was_total_formatted": "$1,194.72",
+     "member": true
+    },
+    "saved": false
+   },
+   {
+    "id": 3,
+    "name": "Safra Old Town House",
+    "kind": "boutique",
+    "stars": 4,
+    "city": "Istanbul",
+    "country": "Türkiye",
+    "area": "Sultanahmet",
+    "landmark": "600 m from the old city's mosques",
+    "lat": 41.0067,
+    "lng": 28.9769,
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/city.jpg",
+     "https://demo.yallapp.test/travel-photos/suite.jpg"
+    ],
+    "score": 9,
+    "reviews": 1,
+    "badge": null,
+    "themes": [
+     "City"
+    ],
+    "amenities": [
+     "wifi",
+     "breakfast",
+     "air_conditioning",
+     "view"
+    ],
+    "free_cancellation": true,
+    "breakfast": true,
+    "pay_at_hotel": true,
+    "member_price": true,
+    "from_nightly_formatted": "$96.00",
+    "price": {
+     "nights": 4,
+     "total": "384.00",
+     "total_formatted": "$384.00",
+     "nightly_formatted": "$96.00",
+     "was_total_formatted": "$422.40",
+     "member": true
+    },
+    "saved": false
+   }
+  ],
+  "total": 4,
+  "nights": 4
+ },
+ "hotel": {
+  "id": 1,
+  "name": "Safra Bay Resort",
+  "kind": "resort",
+  "stars": 5,
+  "city": "Bali",
+  "country": "Indonesia",
+  "area": "Seminyak",
+  "landmark": "On the beach, 20 minutes from the airport",
+  "lat": -8.6913,
+  "lng": 115.1567,
+  "photo_urls": [
+   "https://demo.yallapp.test/travel-photos/room.jpg",
+   "https://demo.yallapp.test/travel-photos/beach.jpg",
+   "https://demo.yallapp.test/travel-photos/suite.jpg"
+  ],
+  "score": 9.3,
+  "reviews": 3,
+  "badge": "Only with us",
+  "themes": [
+   "Beach",
+   "Spa"
+  ],
+  "amenities": [
+   "pool",
+   "spa",
+   "wifi",
+   "breakfast",
+   "beach",
+   "restaurant",
+   "bar",
+   "shuttle"
+  ],
+  "free_cancellation": true,
+  "breakfast": true,
+  "pay_at_hotel": true,
+  "member_price": true,
+  "from_nightly_formatted": "$168.00",
+  "price": {
+   "nights": 4,
+   "total": "745.92",
+   "total_formatted": "$745.92",
+   "nightly_formatted": "$186.48",
+   "was_total_formatted": "$813.12",
+   "member": true
+  },
+  "saved": false,
+  "description": "Villas and suites around a long pool that runs to the sand, a spa in the garden and breakfast by the sea.",
+  "address": "Jalan Pantai, Seminyak, Bali",
+  "phone": null,
+  "check_in_time": "15:00",
+  "check_out_time": "12:00",
+  "policies": "Children of every age are welcome. Pets are not allowed. Quiet hours from 22:00.",
+  "scores": {
+   "staff": 9.7,
+   "clean": 9.3,
+   "location": 9.3,
+   "value": 8.3
+  },
+  "quote": {
+   "name": "Mariam",
+   "score": 10,
+   "trip": "couple",
+   "text": "Sunrise from the pool, and the staff remembered our names on day two.",
+   "stayed": "2027-02"
+  },
+  "reviews_list": [
+   {
+    "name": "Mariam",
+    "score": 10,
+    "trip": "couple",
+    "text": "Sunrise from the pool, and the staff remembered our names on day two.",
+    "stayed": "2027-02"
+   },
+   {
+    "name": "Daniel",
+    "score": 9,
+    "trip": "family",
+    "text": "The beach is right there and the children loved the garden.",
+    "stayed": "2027-02"
+   },
+   {
+    "name": "Elif",
+    "score": 9,
+    "trip": "friends",
+    "text": null,
+    "stayed": "2027-02"
+   }
+  ],
+  "nights": 4,
+  "rooms": [
+   {
+    "id": 1,
+    "name": "Deluxe Ocean View · King",
+    "description": "A balcony over the sea, a rain shower and a king bed.",
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/room.jpg"
+    ],
+    "size_m2": 42,
+    "beds": "King",
+    "sleeps": 2,
+    "features": [
+     "balcony",
+     "rain shower",
+     "sea view"
+    ],
+    "available": true,
+    "left": null,
+    "rates": [
+     {
+      "id": "room",
+      "name": "Room only",
+      "board": "room_only",
+      "refundable": false,
+      "free_cancel_until": null,
+      "pay_now": true,
+      "pay_at_hotel": false,
+      "popular": false,
+      "price": {
+       "nights": 4,
+       "total": "745.92",
+       "total_formatted": "$745.92",
+       "nightly_formatted": "$186.48",
+       "was_total_formatted": "$813.12",
+       "member": true
+      }
+     },
+     {
+      "id": "breakfast",
+      "name": "Breakfast for 2",
+      "board": "breakfast",
+      "refundable": true,
+      "free_cancel_until": "2027-03-12",
+      "pay_now": true,
+      "pay_at_hotel": true,
+      "popular": true,
+      "price": {
+       "nights": 4,
+       "total": "843.60",
+       "total_formatted": "$843.60",
+       "nightly_formatted": "$210.90",
+       "was_total_formatted": "$919.60",
+       "member": true
+      }
+     },
+     {
+      "id": "half",
+      "name": "Breakfast and dinner",
+      "board": "half_board",
+      "refundable": true,
+      "free_cancel_until": "2027-03-12",
+      "pay_now": true,
+      "pay_at_hotel": true,
+      "popular": false,
+      "price": {
+       "nights": 4,
+       "total": "950.16",
+       "total_formatted": "$950.16",
+       "nightly_formatted": "$237.54",
+       "was_total_formatted": "$1,035.76",
+       "member": true
+      }
+     }
+    ]
+   },
+   {
+    "id": 2,
+    "name": "Garden Suite · private pool",
+    "description": "Its own plunge pool in a walled garden.",
+    "photo_urls": [
+     "https://demo.yallapp.test/travel-photos/beach.jpg"
+    ],
+    "size_m2": 68,
+    "beds": "King + sofa bed",
+    "sleeps": 3,
+    "features": [
+     "private pool",
+     "garden",
+     "bathtub"
+    ],
+    "available": true,
+    "left": 3,
+    "rates": [
+     {
+      "id": "room",
+      "name": "Room only",
+      "board": "room_only",
+      "refundable": false,
+      "free_cancel_until": null,
+      "pay_now": true,
+      "pay_at_hotel": false,
+      "popular": false,
+      "price": {
+       "nights": 4,
+       "total": "1065.60",
+       "total_formatted": "$1,065.60",
+       "nightly_formatted": "$266.40",
+       "was_total_formatted": "$1,161.60",
+       "member": true
+      }
+     },
+     {
+      "id": "breakfast",
+      "name": "Breakfast for 2",
+      "board": "breakfast",
+      "refundable": true,
+      "free_cancel_until": "2027-03-12",
+      "pay_now": true,
+      "pay_at_hotel": true,
+      "popular": true,
+      "price": {
+       "nights": 4,
+       "total": "1163.28",
+       "total_formatted": "$1,163.28",
+       "nightly_formatted": "$290.82",
+       "was_total_formatted": "$1,268.08",
+       "member": true
+      }
+     },
+     {
+      "id": "half",
+      "name": "Breakfast and dinner",
+      "board": "half_board",
+      "refundable": true,
+      "free_cancel_until": "2027-03-12",
+      "pay_now": true,
+      "pay_at_hotel": true,
+      "popular": false,
+      "price": {
+       "nights": 4,
+       "total": "1269.84",
+       "total_formatted": "$1,269.84",
+       "nightly_formatted": "$317.46",
+       "was_total_formatted": "$1,384.24",
+       "member": true
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "bookings": {
+  "items": [
+   {
+    "id": 1,
+    "reference": "T-D270303",
+    "kind": "trip",
+    "status": "confirmed",
+    "created_at": "2027-03-01T08:01:01.000Z",
+    "hold_until": null,
+    "starts": "2027-03-02T21:05",
+    "ends": "2027-03-08T05:15",
+    "stay": {
+     "hotel": {
+      "id": 1,
+      "name": "Safra Bay Resort",
+      "city": "Bali",
+      "photo_url": "https://demo.yallapp.test/travel-photos/room.jpg",
+      "lat": -8.6913,
+      "lng": 115.1567,
+      "phone": null,
+      "address": "Jalan Pantai, Seminyak, Bali",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00"
+     },
+     "room_name": "Deluxe Ocean View · King",
+     "rate_name": "Breakfast for 2",
+     "board": "breakfast",
+     "check_in": "2027-03-03",
+     "check_out": "2027-03-07",
+     "nights": 4,
+     "guests": 2,
+     "rooms": 1,
+     "refundable": true,
+     "free_cancel_until": "2027-02-28",
+     "can_review": false,
+     "review": null
+    },
+    "flights": [
+     {
+      "flight_id": 3,
+      "number": "SFR 471",
+      "carrier": {
+       "name": "Safra Air",
+       "code": "SFR",
+       "color": "#0E1424"
+      },
+      "from": {
+       "code": "CAI",
+       "city": "Cairo",
+       "airport": "Cairo International",
+       "terminal": "3"
+      },
+      "to": {
+       "code": "DPS",
+       "city": "Bali",
+       "airport": "Ngurah Rai International",
+       "terminal": "I"
+      },
+      "departs": "2027-03-02T21:05",
+      "arrives": "2027-03-03T14:35",
+      "days_later": 1,
+      "minutes": 690,
+      "stops": 1,
+      "via": "DXB",
+      "aircraft": "Airbus A330",
+      "amenities": [
+       "wifi",
+       "meal",
+       "power"
+      ],
+      "status": "scheduled",
+      "status_note": null,
+      "gate": null,
+      "boards_at": null,
+      "delayed_departs": null,
+      "has_seat_map": true,
+      "leg": "out",
+      "fare_id": "standard",
+      "fare_name": "Classic",
+      "seats": [
+       "14A",
+       "14B"
+      ]
+     },
+     {
+      "flight_id": 22,
+      "number": "SFR 472",
+      "carrier": {
+       "name": "Safra Air",
+       "code": "SFR",
+       "color": "#0E1424"
+      },
+      "from": {
+       "code": "DPS",
+       "city": "Bali",
+       "airport": "Ngurah Rai International",
+       "terminal": "I"
+      },
+      "to": {
+       "code": "CAI",
+       "city": "Cairo",
+       "airport": "Cairo International",
+       "terminal": "3"
+      },
+      "departs": "2027-03-07T23:15",
+      "arrives": "2027-03-08T05:15",
+      "days_later": 1,
+      "minutes": 720,
+      "stops": 1,
+      "via": "DXB",
+      "aircraft": "Airbus A330",
+      "amenities": [
+       "wifi",
+       "meal",
+       "power"
+      ],
+      "status": "scheduled",
+      "status_note": null,
+      "gate": null,
+      "boards_at": null,
+      "delayed_departs": null,
+      "has_seat_map": true,
+      "leg": "back",
+      "fare_id": "standard",
+      "fare_name": "Classic",
+      "seats": [
+       null,
+       null
+      ]
+     }
+    ],
+    "transfer": {
+     "note": "Driver waits with your name"
+    },
+    "travellers": [
+     {
+      "first_name": "Layla",
+      "last_name": "Hassan"
+     },
+     {
+      "first_name": "Omar",
+      "last_name": "Hassan"
+     }
+    ],
+    "contact": {
+     "name": "Layla Hassan",
+     "email": null,
+     "phone": null
+    },
+    "requests": [
+     "late_arrival"
+    ],
+    "payment": {
+     "method": "now",
+     "status": "paid",
+     "paid_formatted": "$2,808.80",
+     "due": null,
+     "due_formatted": null
+    },
+    "currency": "USD",
+    "lines": [
+     {
+      "kind": "fare",
+      "count": 2,
+      "unit_formatted": "$989.00",
+      "amount": "1978.00",
+      "amount_formatted": "$1,978.00"
+     },
+     {
+      "kind": "nights",
+      "count": 4,
+      "unit_formatted": "$190.00",
+      "amount": "760.00",
+      "amount_formatted": "$760.00"
+     },
+     {
+      "kind": "taxes",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "159.60",
+      "amount_formatted": "$159.60"
+     },
+     {
+      "kind": "member",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "-76.00",
+      "amount_formatted": "−$76.00"
+     },
+     {
+      "kind": "bundle",
+      "count": 1,
+      "unit_formatted": null,
+      "amount": "-60.80",
+      "amount_formatted": "−$60.80"
+     },
+     {
+      "kind": "transfer",
+      "count": 1,
+      "unit_formatted": "$48.00",
+      "amount": "48.00",
+      "amount_formatted": "$48.00"
+     }
+    ],
+    "total": "2808.80",
+    "total_formatted": "$2,808.80",
+    "cancellation": null,
+    "can_cancel": true,
+    "cancel_refund_formatted": "$2,688.80",
+    "can_change": true,
+    "passes_open": true
+   }
+  ],
+  "page": 1,
+  "per_page": 20,
+  "total": 1,
+  "total_pages": 1
+ },
+ "booking": {
+  "id": 1,
+  "reference": "T-D270303",
+  "kind": "trip",
+  "status": "confirmed",
+  "created_at": "2027-03-01T08:01:01.000Z",
+  "hold_until": null,
+  "starts": "2027-03-02T21:05",
+  "ends": "2027-03-08T05:15",
+  "stay": {
+   "hotel": {
+    "id": 1,
+    "name": "Safra Bay Resort",
+    "city": "Bali",
+    "photo_url": "https://demo.yallapp.test/travel-photos/room.jpg",
+    "lat": -8.6913,
+    "lng": 115.1567,
+    "phone": null,
+    "address": "Jalan Pantai, Seminyak, Bali",
+    "check_in_time": "15:00",
+    "check_out_time": "12:00"
+   },
+   "room_name": "Deluxe Ocean View · King",
+   "rate_name": "Breakfast for 2",
+   "board": "breakfast",
+   "check_in": "2027-03-03",
+   "check_out": "2027-03-07",
+   "nights": 4,
+   "guests": 2,
+   "rooms": 1,
+   "refundable": true,
+   "free_cancel_until": "2027-02-28",
+   "can_review": false,
+   "review": null
+  },
+  "flights": [
+   {
+    "flight_id": 3,
+    "number": "SFR 471",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SFR",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "to": {
+     "code": "DPS",
+     "city": "Bali",
+     "airport": "Ngurah Rai International",
+     "terminal": "I"
+    },
+    "departs": "2027-03-02T21:05",
+    "arrives": "2027-03-03T14:35",
+    "days_later": 1,
+    "minutes": 690,
+    "stops": 1,
+    "via": "DXB",
+    "aircraft": "Airbus A330",
+    "amenities": [
+     "wifi",
+     "meal",
+     "power"
+    ],
+    "status": "scheduled",
+    "status_note": null,
+    "gate": null,
+    "boards_at": null,
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "out",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     "14A",
+     "14B"
+    ]
+   },
+   {
+    "flight_id": 22,
+    "number": "SFR 472",
+    "carrier": {
+     "name": "Safra Air",
+     "code": "SFR",
+     "color": "#0E1424"
+    },
+    "from": {
+     "code": "DPS",
+     "city": "Bali",
+     "airport": "Ngurah Rai International",
+     "terminal": "I"
+    },
+    "to": {
+     "code": "CAI",
+     "city": "Cairo",
+     "airport": "Cairo International",
+     "terminal": "3"
+    },
+    "departs": "2027-03-07T23:15",
+    "arrives": "2027-03-08T05:15",
+    "days_later": 1,
+    "minutes": 720,
+    "stops": 1,
+    "via": "DXB",
+    "aircraft": "Airbus A330",
+    "amenities": [
+     "wifi",
+     "meal",
+     "power"
+    ],
+    "status": "scheduled",
+    "status_note": null,
+    "gate": null,
+    "boards_at": null,
+    "delayed_departs": null,
+    "has_seat_map": true,
+    "leg": "back",
+    "fare_id": "standard",
+    "fare_name": "Classic",
+    "seats": [
+     null,
+     null
+    ]
+   }
+  ],
+  "transfer": {
+   "note": "Driver waits with your name"
+  },
+  "travellers": [
+   {
+    "first_name": "Layla",
+    "last_name": "Hassan"
+   },
+   {
+    "first_name": "Omar",
+    "last_name": "Hassan"
+   }
+  ],
+  "contact": {
+   "name": "Layla Hassan",
+   "email": null,
+   "phone": null
+  },
+  "requests": [
+   "late_arrival"
+  ],
+  "payment": {
+   "method": "now",
+   "status": "paid",
+   "paid_formatted": "$2,808.80",
+   "due": null,
+   "due_formatted": null
+  },
+  "currency": "USD",
+  "lines": [
+   {
+    "kind": "fare",
+    "count": 2,
+    "unit_formatted": "$989.00",
+    "amount": "1978.00",
+    "amount_formatted": "$1,978.00"
+   },
+   {
+    "kind": "nights",
+    "count": 4,
+    "unit_formatted": "$190.00",
+    "amount": "760.00",
+    "amount_formatted": "$760.00"
+   },
+   {
+    "kind": "taxes",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "159.60",
+    "amount_formatted": "$159.60"
+   },
+   {
+    "kind": "member",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-76.00",
+    "amount_formatted": "−$76.00"
+   },
+   {
+    "kind": "bundle",
+    "count": 1,
+    "unit_formatted": null,
+    "amount": "-60.80",
+    "amount_formatted": "−$60.80"
+   },
+   {
+    "kind": "transfer",
+    "count": 1,
+    "unit_formatted": "$48.00",
+    "amount": "48.00",
+    "amount_formatted": "$48.00"
+   }
+  ],
+  "total": "2808.80",
+  "total_formatted": "$2,808.80",
+  "cancellation": null,
+  "can_cancel": true,
+  "cancel_refund_formatted": "$2,688.80",
+  "can_change": true,
+  "passes_open": true
+ }
+}

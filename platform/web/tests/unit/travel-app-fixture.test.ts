@@ -7,6 +7,8 @@ import { DEFAULT_CATALOG_SETTINGS, DEFAULT_HOSTED_SETTINGS, type TravelSettings 
 import { TravelConnector } from "@/lib/hosted/connectors/travel";
 import { LogSender } from "@/lib/hosted/otp-sender";
 import { handleHosted, type HostedContext } from "@/lib/hosted/service";
+import { seedDemoTrip } from "@/lib/demo/travel";
+import { makeTravelSamples } from "@/lib/travel/samples";
 import { DEFAULT_TRAVEL_SETTINGS } from "@/lib/travel/settings";
 import { expectContract } from "./contract";
 import { KEY, NOW, setupClient } from "./helpers";
@@ -103,6 +105,78 @@ it("is what the app's travel tests show (mobile/test/support/travel_api.json)", 
   // The booking's reference is drawn at random (and the passes' codes sign it): the file has its own.
   const data = `${JSON.stringify(out, null, 1)}\n`.replaceAll(booking.reference as string, "T-SAFRA1").replace(/"YT1\.T-SAFRA1\.(\d+)\.(\d+)\.[A-Za-z0-9_-]+"/g, '"YT1.T-SAFRA1.$1.$2.signed"');
   const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "travel_api.json");
+  if (process.env.YALLAPP_WRITE_TRAVEL_API) writeFileSync(file, data);
+  expect(readFileSync(file, "utf8")).toBe(data);
+});
+
+/**
+ * 126 Safra, the travel demo, as its app shows it on the website's pictures
+ * (mobile/test/support/safra_api.json, read by
+ * mobile/test/screenshots/support/safra.dart): its hotels with their photos
+ * (public/travel-photos, at the address the pictures are drawn from), the
+ * explore page and the demo number's trip to Bali. On a fixed day, so the
+ * file stays the same. YALLAPP_WRITE_TRAVEL_API=1 writes it again.
+ */
+it("is what the website's pictures of Safra show (mobile/test/support/safra_api.json)", async () => {
+  const now = new Date("2027-03-01T08:00:00Z");
+  const { store } = await setupClient();
+  const client = (await store.listClients({ filter: "all", now }))[0]!.client;
+  const base = newApp(client.id, null, now, "travel");
+  const app = {
+    ...base,
+    backend: "hosted" as const,
+    appName: "Safra",
+    websiteDoneAt: now,
+    connector: { kind: "travel" as const },
+    hostedSettings: { ...DEFAULT_HOSTED_SETTINGS, ...base.hostedSettings, defaultCountryCode: "+20" },
+    catalogSettings: { ...DEFAULT_CATALOG_SETTINGS, payment: encryptPaymentKeys(base.id, "sandbox-api", "sandbox-secret", true, KEY) },
+  };
+  await store.createApp(app);
+  await makeTravelSamples({ store, app, now, sample: false, photo: async (name) => name });
+  const photos = (id: string) => `https://demo.yallapp.test/travel-photos/${id}.jpg`;
+  const sender = new LogSender();
+  let at = now;
+  const call = async (method: string, route: string, options: { query?: Record<string, string>; params?: string[]; token?: string; body?: unknown } = {}) => {
+    let concrete = route;
+    for (const param of options.params ?? []) concrete = concrete.replace(/\{[^}]+\}/, param);
+    const context: HostedContext = {
+      store,
+      app,
+      active: true,
+      now: at,
+      ip: "203.0.113.9",
+      secret: "test-hosted-secret",
+      sender,
+      push: false,
+      assetUrl: photos,
+      platformUrl: "https://yallapp.test",
+      connector: new TravelConnector({ store, app, assetUrl: photos, platformUrl: "https://yallapp.test", travel: true, signingSecret: "test-signing" }),
+    };
+    const result = await handleHosted(context, { method, path: concrete.split("/").filter(Boolean), query: new URLSearchParams(options.query ?? {}), body: options.body, token: options.token ?? null });
+    expectContract(method, route, result);
+    return result.body as Record<string, unknown>;
+  };
+  const device = { id: "install-1", platform: "android", name: "Pixel 8", app_version: "1.0.0" };
+  at = new Date(at.getTime() + 61_000);
+  const requested = await call("POST", "/auth/otp/request", { body: { country_code: "+20", phone: "1001112222" } });
+  const verified = await call("POST", "/auth/otp/verify", { body: { request_id: requested.request_id, code: sender.sent.get("+201001112222")!, device } });
+  const token = (await call("POST", "/auth/register", { body: { signup_token: verified.signup_token, name: "Layla Hassan", device } })).access_token as string;
+  const user = (await store.getHostedUserByPhone(app.id, "+201001112222"))!;
+  await seedDemoTrip(store, app, user, at);
+  const out: Record<string, unknown> = {};
+  out.config = (await call("GET", "/config", { query: { platform: "android", app_version: "1.0.0" } })).travel;
+  out.explore = await call("GET", "/travel/explore", { token, query: { from: "CAI" } });
+  out.places = await call("GET", "/travel/places");
+  const stay = { check_in: "2027-03-15", check_out: "2027-03-19", guests: "2" };
+  const hotels = await call("GET", "/travel/hotels", { token, query: stay });
+  out.hotels = hotels;
+  const bay = (hotels.items as { id: number; name: string }[]).find((h) => h.name === "Safra Bay Resort")!;
+  out.hotel = await call("GET", "/travel/hotels/{hotel_id}", { token, params: [String(bay.id)], query: stay });
+  out.bookings = await call("GET", "/me/travel/bookings", { token });
+  const trip = (out.bookings as { items: { id: number }[] }).items[0]!;
+  out.booking = await call("GET", "/me/travel/bookings/{booking_id}", { token, params: [String(trip.id)] });
+  const data = `${JSON.stringify(out, null, 1)}\n`;
+  const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "safra_api.json");
   if (process.env.YALLAPP_WRITE_TRAVEL_API) writeFileSync(file, data);
   expect(readFileSync(file, "utf8")).toBe(data);
 });
