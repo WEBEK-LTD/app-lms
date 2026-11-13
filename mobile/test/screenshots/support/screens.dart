@@ -1054,14 +1054,14 @@ final websiteShots = <Shot>[
     api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
   ),
   Shot(
     'rawaq-teacher',
     api: () => rawaqStudioApi(staffApp: true),
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     location: '/teachers/1',
   ),
   Shot(
@@ -1069,7 +1069,7 @@ final websiteShots = <Shot>[
     api: rawaqStudioApi,
     appName: 'Rawaq Academy',
     appType: AppType.lms,
-    prepare: StudioDemo.rawaq.prepare,
+    prepare: (tester) => StudioDemo.rawaq.prepare(tester, rawaqPhotos),
     after: (tester, router) async => router.go('/teacher-desk'),
   ),
 ];

@@ -540,6 +540,12 @@ DemoApi sofraStudioApi() {
 
 /// The photos Sofra Eats's screens show besides its pages' (its kitchens'
 /// covers and dishes).
+/// 128.7 The photos of Rawaq Academy's popular courses its home shows.
+const rawaqPhotos = [
+  '/stories/academy/academy-desk.jpg',
+  '/stories/academy/academy-live.jpg',
+];
+
 const sofraPhotos = [
   '/demo-photos/mixed-grill.jpg',
   '/demo-photos/margherita.jpg',
@@ -762,7 +768,12 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
     id,
     title,
     teacher,
-    image: demo.picture(picture),
+    // 128.7 The popular courses' real photos, the academy story's
+    // (platform/web/src/lib/demo/teachers.ts ACADEMY_COVERS), the others'
+    // drawings.
+    image: picture.startsWith('academy-')
+        ? '${demo.base}/stories/academy/$picture.jpg'
+        : demo.picture(picture),
     price: price,
     action: {'type': 'course', 'course_id': id},
   );
@@ -804,14 +815,14 @@ DemoApi rawaqStudioApi({bool staffApp = false}) {
           'Start Your Own Small Business',
           'Omar Farouk · 4.8/5',
           'E£630.00',
-          'course-business',
+          'academy-desk',
         ),
         course(
           7,
           'Arabic for Beginners',
           'Salma Nasser · 4.9/5',
           'E£475.00',
-          'course-arabic',
+          'academy-live',
         ),
         course(
           6,
