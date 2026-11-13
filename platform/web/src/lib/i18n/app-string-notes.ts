@@ -3951,6 +3951,142 @@ export const APP_STRING_NOTES: Record<string, { en?: string; ar: string; tr: str
     ar: "عدد النقاط التي ما زال الشخص يحتاجها ليستخدم نقاطه، على بطاقة العضوية.",
     tr: "Kişinin puanlarını kullanabilmesi için gereken puan sayısı, üyelik kartında.",
   },
+  // 128 The Studio demos' live cards (orders, shipments, rides) and 128.8 the academy's cards on photos.
+  "128 A live order card: the order was sent to the restaurant or shop.": {
+    en: "The live order card on a Studio page: the order was sent to the restaurant or shop.",
+    ar: "بطاقة الطلب المباشر في صفحة الاستوديو: أُرسل الطلب إلى المطعم أو المتجر.",
+    tr: "Studio sayfasındaki canlı sipariş kartı: sipariş restorana veya mağazaya gönderildi.",
+  },
+  "128 A live order card: the restaurant accepted it and is cooking the dish (its first dish, in a sentence).": {
+    en: "The live order card: the restaurant accepted the order and is cooking its first dish.",
+    ar: "بطاقة الطلب المباشر: قبل المطعم الطلب ويحضّر أول أطباقه.",
+    tr: "Canlı sipariş kartı: restoran siparişi kabul etti ve ilk yemeğini hazırlıyor.",
+  },
+  "128 A live order card: the food is ready, waiting for the courier.": {
+    en: "The live order card: the food is ready and waiting for the courier.",
+    ar: "بطاقة الطلب المباشر: الطعام جاهز وينتظر المندوب.",
+    tr: "Canlı sipariş kartı: yemek hazır, kuryeyi bekliyor.",
+  },
+  "128 A live order card: the courier has the food.": {
+    en: "The live order card: the courier has the food and is on the way.",
+    ar: "بطاقة الطلب المباشر: الطعام مع المندوب وهو في الطريق.",
+    tr: "Canlı sipariş kartı: yemek kuryede, yolda.",
+  },
+  "128 A live order card: a marketplace shop accepted it and is picking it.": {
+    en: "The live order card: a shop accepted the order and is getting it ready.",
+    ar: "بطاقة الطلب المباشر: قبل المتجر الطلب ويجهّزه.",
+    tr: "Canlı sipariş kartı: mağaza siparişi kabul etti ve hazırlıyor.",
+  },
+  "128 A live order card: a marketplace order is ready.": {
+    en: "The live order card: a shop's order is ready.",
+    ar: "بطاقة الطلب المباشر: طلب المتجر جاهز.",
+    tr: "Canlı sipariş kartı: mağaza siparişi hazır.",
+  },
+  "128 A live order card: a marketplace order is with the courier.": {
+    en: "The live order card: a shop's order is with the courier.",
+    ar: "بطاقة الطلب المباشر: طلب المتجر مع المندوب.",
+    tr: "Canlı sipariş kartı: mağaza siparişi kuryede.",
+  },
+  "128 After the minutes left on a live order card (\"12 min\").": {
+    en: "After the minutes left on the live order card (\"12 min\").",
+    ar: "بعد الدقائق المتبقية على بطاقة الطلب المباشر («12 د»).",
+    tr: "Canlı sipariş kartında kalan dakikalardan sonra (\"12 dk\").",
+  },
+  "128 The soonest a place delivers, in minutes (a place's chip, the address bar).": {
+    en: "How soon a place delivers, in minutes, on its chip and in the address bar.",
+    ar: "أقرب وقت يوصّل فيه المكان، بالدقائق، على بطاقته الصغيرة وفي شريط العنوان.",
+    tr: "Bir yerin en erken teslim süresi, dakika olarak, kartında ve adres çubuğunda.",
+  },
+  "128 The live card of the person's shipment on a Studio page, before a courier has it.": {
+    en: "The live card of the person's shipment on a Studio page, before a courier has it.",
+    ar: "البطاقة المباشرة لشحنة الشخص في صفحة الاستوديو، قبل أن يستلمها مندوب.",
+    tr: "Studio sayfasında kişinin gönderisinin canlı kartı, henüz bir kurye almadan.",
+  },
+  "128 The live shipment card once a courier has the shipment, before the pickup.": {
+    en: "The live shipment card once a courier has the shipment, before the pickup.",
+    ar: "بطاقة الشحنة المباشرة بعد أن يتولاها مندوب، قبل الاستلام.",
+    tr: "Canlı gönderi kartı: bir kurye gönderiyi üstlendi, henüz teslim almadı.",
+  },
+  "128 The live shipment card once the courier has the parcel.": {
+    en: "The live shipment card once the courier has picked up the parcel.",
+    ar: "بطاقة الشحنة المباشرة بعد أن استلم المندوب الطرد.",
+    tr: "Canlı gönderi kartı: kurye paketi teslim aldı.",
+  },
+  "128 The live shipment card while the parcel is on its way to the drop-off.": {
+    en: "The live shipment card while the parcel is on its way to the drop-off.",
+    ar: "بطاقة الشحنة المباشرة والطرد في الطريق إلى عنوان التسليم.",
+    tr: "Canlı gönderi kartı: paket teslim adresine doğru yolda.",
+  },
+  "128 Under the live shipment card's title: the courier's first name and the drop-off.": {
+    en: "Under the live shipment card's title: the courier's first name and the drop-off.",
+    ar: "تحت عنوان بطاقة الشحنة المباشرة: الاسم الأول للمندوب وعنوان التسليم.",
+    tr: "Canlı gönderi kartının başlığının altında: kuryenin adı ve teslim adresi.",
+  },
+  "128 Under the live shipment card's title before a courier has it: the drop-off.": {
+    en: "Under the live shipment card's title before a courier has it: the drop-off.",
+    ar: "تحت عنوان بطاقة الشحنة المباشرة قبل أن يتولاها مندوب: عنوان التسليم.",
+    tr: "Canlı gönderi kartının başlığının altında, kurye almadan önce: teslim adresi.",
+  },
+  "128 The live shipment card's button, opening the shipment.": {
+    en: "The live shipment card's button, which opens the shipment.",
+    ar: "زر بطاقة الشحنة المباشرة، يفتح الشحنة.",
+    tr: "Canlı gönderi kartının düğmesi: gönderiyi açar.",
+  },
+  "128 The live ride card while the driver comes to the pickup.": {
+    en: "The live ride card while the driver comes to the pickup, with the minutes.",
+    ar: "بطاقة الرحلة المباشرة والسائق في طريقه إلى نقطة الركوب، بالدقائق.",
+    tr: "Canlı yolculuk kartı: sürücü alış noktasına geliyor, dakikalarıyla.",
+  },
+  "128 The live ride card while the driver comes, without the minutes.": {
+    en: "The live ride card while the driver comes, without the minutes.",
+    ar: "بطاقة الرحلة المباشرة والسائق في الطريق، دون الدقائق.",
+    tr: "Canlı yolculuk kartı: sürücü geliyor, dakikasız.",
+  },
+  "128 The live ride card once the driver is at the pickup.": {
+    en: "The live ride card once the driver is at the pickup.",
+    ar: "بطاقة الرحلة المباشرة بعد وصول السائق إلى نقطة الركوب.",
+    tr: "Canlı yolculuk kartı: sürücü alış noktasında.",
+  },
+  "128 The live ride card during the ride.": {
+    en: "The live ride card during the ride.",
+    ar: "بطاقة الرحلة المباشرة أثناء الرحلة.",
+    tr: "Canlı yolculuk kartı: yolculuk sırasında.",
+  },
+  "128 The live ride card while the ride looks for a driver.": {
+    en: "The live ride card while the ride looks for a driver.",
+    ar: "بطاقة الرحلة المباشرة أثناء البحث عن سائق.",
+    tr: "Canlı yolculuk kartı: sürücü aranırken.",
+  },
+  "128 The call button on the live ride card, read out.": {
+    en: "The call button on the live ride card, as screen readers say it.",
+    ar: "زر الاتصال في بطاقة الرحلة المباشرة، كما تقرؤه قارئات الشاشة.",
+    tr: "Canlı yolculuk kartındaki arama düğmesi, ekran okuyucuların okuduğu biçimiyle.",
+  },
+  "128.8 The course the student is taking on its photo: the lesson they are on.": {
+    en: "The course the student is taking, on its photo: the lesson they are on.",
+    ar: "الدورة التي يتابعها الطالب على صورتها: الدرس الذي وصل إليه.",
+    tr: "Öğrencinin aldığı kurs, fotoğrafının üstünde: bulunduğu ders.",
+  },
+  "128.8 The student's live class today on its photo, in capitals: when it starts.": {
+    en: "The student's live class today, on its photo, in capitals: when it starts.",
+    ar: "الحصة المباشرة للطالب اليوم على صورتها، بأحرف كبيرة: موعد بدايتها.",
+    tr: "Öğrencinin bugünkü canlı dersi, fotoğrafının üstünde, büyük harflerle: başlama saati.",
+  },
+  "128.8 The student's live class on its photo, once it has started.": {
+    en: "The student's live class, on its photo, once it has started.",
+    ar: "الحصة المباشرة للطالب على صورتها، بعد أن تبدأ.",
+    tr: "Öğrencinin canlı dersi, fotoğrafının üstünde, başladıktan sonra.",
+  },
+  "128.8 The compact streak card's title.": {
+    en: "The title of the small card with the student's streak.",
+    ar: "عنوان البطاقة الصغيرة لسلسلة أيام الطالب.",
+    tr: "Öğrencinin seri gün sayısını gösteren küçük kartın başlığı.",
+  },
+  "128.8 A card's rating, read out by screen readers.": {
+    en: "An entry's rating on its card, as screen readers say it.",
+    ar: "تقييم العنصر على بطاقته، كما تقرؤه قارئات الشاشة.",
+    tr: "Bir kartın puanı, ekran okuyucuların okuduğu biçimiyle.",
+  },
   // 128 The school day on a school's Studio home.
   "128 The school's greeting on its home in the morning, to the family of the parent's first child (the photo hero).": {
     en: "The school's greeting on its home in the morning, to the family of the parent's first child.",

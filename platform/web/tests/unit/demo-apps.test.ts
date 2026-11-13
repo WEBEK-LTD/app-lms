@@ -18,7 +18,7 @@ import { PICTURES } from "@/lib/demo/pictures";
 import { SCHOOL_CLASSES, SCHOOL_HOMEWORK, SCHOOL_STAFF, SCHOOL_SUBJECTS, SCHOOL_TEACHERS } from "@/lib/demo/school";
 import { ACADEMY_COURSES, ACADEMY_TEACHERS } from "@/lib/demo/teachers";
 import { DemoSetupError, setupDemoApps, type DemoSetupDeps } from "@/lib/demo/setup";
-import { DEMO_SCREENS } from "@/lib/demo/screens";
+import { DEMO_SCREENS, DEMO_TAB_BARS } from "@/lib/demo/screens";
 import type { StudioScreens } from "@/lib/studio/screens";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -571,17 +571,17 @@ describe("signing in to a demo app", () => {
       if (screens.sign_in?.style !== "minimal") expect(screens.sign_in?.image_url, id).toMatch(/^https:\/\/yallapp\.test\/(stories|demo-screens|demo-photos|design-pictures)\/.+\.jpg$/);
     }
     expect((await config("taxi"))?.account_menu).toMatchObject({ header: "night", accent: "#F5B700" });
-    // 119 Their bars in their own designs.
+    // 119 Their bars in their own designs; 128 as their approved boards have them (several the same classic bar in their own colours).
     const bars = new Set<string>();
     for (const id of STUDIO_DEMO_TYPES) {
       const app = (await store.getAppById(result.apps.find((a) => a.type === id)!.appId))!;
       const res = await handleHosted(context(app), { method: "GET", path: ["pages"], query: new URLSearchParams({ platform: "android", app_version: "1.0.0" }), body: undefined, token: null });
       expectContract("GET", "/pages", res);
       const bar = (res.body as { tab_bar?: { design?: string } }).tab_bar;
-      expect(bar?.design, id).toBeTruthy();
+      expect(bar?.design, id).toBe(DEMO_TAB_BARS[id].design);
       bars.add(bar!.design!);
     }
-    expect(bars.size).toBeGreaterThanOrEqual(5);
+    expect([...bars].sort()).toEqual(["classic", "float", "island"]);
     expect(await config("store")).toBeUndefined();
     for (const d of Object.values(DEMO_SCREENS)) if (d.photo) expect(existsSync(join(process.cwd(), "public", d.photo)), d.photo).toBe(true);
   });
