@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
 import { APP_SWITCHES, appSwitches, storedSwitches, SWITCH_INFO } from "@/lib/app/switches";
+import { travelSettingsOf } from "@/lib/travel/settings";
+import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { revealLicenseKey } from "@/lib/admin/clients";
 import { checkConnection, type ConnectionStatus } from "@/lib/admin/connection";
@@ -182,6 +184,39 @@ export async function setAppSwitchesAction(_: FormState, formData: FormData): Pr
   if (app.backend === "wordpress") refreshSitesSoon([app.id]);
   revalidatePath(`/admin/clients/${client.id}`);
   return { ok: true, message: "Saved. The app follows them from its next start." };
+}
+
+/**
+ * 126 A travel project's parts (Admin › client › Travel): hotels and
+ * flights on or off, each with where it comes from. At least one stays on;
+ * a source that isn't connected yet can't be chosen. The app builds its
+ * tabs from them on its next start.
+ */
+export async function setTravelPartsAction(_: FormState, formData: FormData): Promise<FormState> {
+  const { admin, store, client, app, apps } = await clientFrom(formData, "switches.edit");
+  if (!app || app.connector?.kind !== "travel") return { message: "This app isn't a travel project." };
+  const hotels = formData.get("hotels") === "on";
+  const flights = formData.get("flights") === "on";
+  if (!hotels && !flights) return { message: "At least one part stays on: the app needs hotels or flights.", values: { hotels: "", flights: "" } };
+  const hotelSource = String(formData.get("hotelSource") ?? "dashboard");
+  const flightSource = String(formData.get("flightSource") ?? "fixed");
+  if (!HOTEL_SOURCES.some((s) => s.id === hotelSource && s.connected) || !FLIGHT_SOURCES.some((s) => s.id === flightSource && s.connected)) {
+    return { message: "That source is coming soon: ask Yallapp to connect it. Until then, the dashboard's are used." };
+  }
+  const before = travelSettingsOf(await store.getTravelSettings(app.id));
+  const after = { ...before, hotels, flights, hotelSource: hotelSource as typeof before.hotelSource, flightSource: flightSource as typeof before.flightSource };
+  await store.saveTravelSettings(app.id, after, new Date());
+  await recordAudit({
+    actor: admin,
+    action: "client.travel_parts",
+    target: { type: "app", id: app.id },
+    clientId: client.id,
+    summary: `Travel: hotels ${hotels ? "on" : "off"}, flights ${flights ? "on" : "off"}${onApp(app, apps)}`,
+    before: { hotels: before.hotels, flights: before.flights, hotelSource: before.hotelSource, flightSource: before.flightSource },
+    after: { hotels, flights, hotelSource, flightSource },
+  });
+  revalidatePath(`/admin/clients/${client.id}`);
+  return { ok: true, message: "Saved. The app builds its tabs from them on its next start." };
 }
 
 /** The activation email again: with the license key for an app on WordPress (75). */
