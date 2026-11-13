@@ -5,7 +5,8 @@ import { useDashT } from "@/components/dashboard-i18n";
 import { MediaPicker } from "@/components/media-picker";
 import { IconPicker } from "@/app/dashboard/pages/controls";
 import type { Action, LanguageCode, StudioNode, Translations } from "@/lib/pages/types";
-import { STUDIO_PREMIUM_LIMITS } from "@/lib/pages/types";
+import { STUDIO_GALLERY_LAYOUTS, STUDIO_PREMIUM_LIMITS } from "@/lib/pages/types";
+import type { DashKey } from "@/i18n/dashboard";
 import { RangeField } from "./controls";
 import { Glyph } from "./shared";
 
@@ -221,6 +222,66 @@ export function BannerControls({ node, onChange }: PremiumControlsProps) {
         </>
       )}
       <Tick label={t("studio.pmGlass")} checked={Boolean(node.glass)} onChange={(on) => onChange({ glass: on || undefined })} />
+    </div>
+  );
+}
+
+/** 129.5 The gallery: its photos and their captions, its layout, columns, corners and captions over the photos. */
+export function GalleryControls(props: PremiumControlsProps) {
+  const t = useDashT();
+  const { node, onChange } = props;
+  const g = node.gallery ?? { layout: "masonry" as const };
+  const set = (patch: Partial<NonNullable<StudioNode["gallery"]>>) => onChange({ gallery: { ...g, ...patch } });
+  return (
+    <div className="flex flex-col gap-2" data-studio-premium="gallery">
+      <Choice label={t("studio.pmGalleryLayout")} value={g.layout} onChange={(layout) => set({ layout })} options={STUDIO_GALLERY_LAYOUTS.map((value) => ({ value, label: t(`studio.pmGallery_${value}` as DashKey) }))} />
+      {g.layout === "masonry" ? <RangeField label={t("studio.pmColumns")} value={node.columns ?? 2} min={2} max={3} fallback={2} onChange={(columns) => onChange({ columns: columns === 2 ? undefined : columns })} /> : null}
+      <RangeField label={t("studio.pmCorners")} value={g.radius ?? 16} min={0} max={40} unit="px" fallback={16} onChange={(radius) => set({ radius: radius === 16 ? undefined : radius })} />
+      <Tick label={t("studio.pmShowCaptions")} checked={Boolean(g.captions)} onChange={(on) => set({ captions: on || undefined })} />
+      <div className="flex flex-col gap-1 font-bold">
+        {t("studio.pmPhotos")}
+        <PhotosList {...props} min={1} captionLabel={t("studio.pmCaption")} />
+      </div>
+      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.pmGalleryHint")}
+      </p>
+    </div>
+  );
+}
+
+/** 129.6 Before and after: each photo and its label, and where the divider starts. */
+export function BeforeAfterControls({ node, onChange, lang, defaultLang }: PremiumControlsProps) {
+  const t = useDashT();
+  const images = node.images ?? [];
+  const slot = (i: 0 | 1) => {
+    const image = images[i];
+    const setImage = (next: NonNullable<StudioNode["images"]>[number]) => {
+      const list = [images[0] ?? null, images[1] ?? null];
+      list[i] = next;
+      onChange({ images: list.filter((x): x is NonNullable<typeof x> => x !== null) });
+    };
+    return (
+      <div className="flex flex-col gap-1.5 rounded-lg p-2" style={box}>
+        <span className="font-bold">{t(i === 0 ? "studio.pmBefore" : "studio.pmAfter")}</span>
+        <div className="flex items-center gap-2">
+          {image ? (
+            // eslint-disable-next-line @next/next/no-img-element -- the element's own photo
+            <img src={image.image_url} alt="" className="h-10 w-14 rounded-md object-cover" />
+          ) : null}
+          <MediaPicker kind="image" share library onPick={(url) => setImage({ ...(image ?? { caption: null }), image_url: url })} label={t("studio.choosePicture")} />
+        </div>
+        {image ? <input aria-label={t("studio.pmLabel")} placeholder={t("studio.pmLabel")} maxLength={STUDIO_PREMIUM_LIMITS.caption} value={textOf(image, "caption", lang, defaultLang)} onChange={(e) => setImage(withText(image, "caption", e.target.value, lang, defaultLang))} className="h-8 rounded-md px-2" style={box} /> : null}
+      </div>
+    );
+  };
+  return (
+    <div className="flex flex-col gap-2" data-studio-premium="before_after">
+      {slot(0)}
+      {slot(1)}
+      <RangeField label={t("studio.pmDividerAt")} value={node.compare?.at ?? 50} min={5} max={95} unit="%" fallback={50} onChange={(at) => onChange({ compare: at === 50 ? undefined : { at } })} />
+      <p className="m-0 text-xs" style={{ color: "var(--studio-muted)" }}>
+        {t("studio.pmCompareHint")}
+      </p>
     </div>
   );
 }

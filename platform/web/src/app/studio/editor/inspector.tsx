@@ -53,7 +53,7 @@ import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
 import { CoverControls, TrackingControls } from "./cover-controls";
 // 129 Premium motion & media.
-import { BannerControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
+import { BannerControls, BeforeAfterControls, GalleryControls, MarqueeControls, StoriesControls, type PremiumControlsProps } from "./premium-motion-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -747,6 +747,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "stories" ? <StoriesControls {...premiumProps(props, node)} /> : null}
       {node.type === "marquee" ? <MarqueeControls {...premiumProps(props, node)} /> : null}
       {node.type === "video_hero" || node.type === "parallax_banner" ? <BannerControls {...premiumProps(props, node)} /> : null}
+      {node.type === "gallery" ? <GalleryControls {...premiumProps(props, node)} /> : null}
+      {node.type === "before_after" ? <BeforeAfterControls {...premiumProps(props, node)} /> : null}
       {node.type === "school" ? <SchoolControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">

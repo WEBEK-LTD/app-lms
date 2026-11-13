@@ -70,6 +70,8 @@ import {
   STUDIO_SLIDER_INDICATORS,
   STUDIO_PREMIUM_LIMITS,
   STUDIO_MARQUEE_DIRECTIONS,
+  STUDIO_GALLERY_LAYOUTS,
+  type StudioGallery,
   type StudioMarquee,
   STUDIO_CATEGORY_STYLES,
   STUDIO_MARKET_KINDS,
@@ -1250,6 +1252,33 @@ function parsePremiumMotion(ctx: Context, where: string, v: Record<string, unkno
     }
   }
   if (node.type === "video_hero" || node.type === "parallax_banner") parsePremiumBanner(ctx, where, v, node, bad);
+  if (node.type === "gallery") {
+    // 129.5 One to 30 photos, each with its caption, laid out as the owner chose.
+    node.images = parsePremiumImages(ctx, where, v.images, 1);
+    const g = record(v.gallery);
+    if (!g || !oneOf(STUDIO_GALLERY_LAYOUTS, g.layout)) bad("choose how the gallery lays out its photos.");
+    else {
+      const gallery: StudioGallery = { layout: g.layout };
+      const radius = studioNumber(g.radius, 0, 40);
+      if (radius !== undefined && Number.isNaN(radius)) bad("the photos' corners must be 0 to 40.");
+      else if (radius !== undefined && radius !== 16) gallery.radius = Math.round(radius);
+      if (g.captions === true) gallery.captions = true;
+      node.gallery = gallery;
+    }
+    const columns = num("columns", 2, 3, "the gallery's columns");
+    if (columns && columns !== 2) node.columns = Math.round(columns);
+  }
+  if (node.type === "before_after") {
+    // 129.6 The photo before and the photo after, their captions the labels; where the divider starts.
+    const raw = Array.isArray(v.images) ? v.images : [];
+    if (raw.length !== 2) bad("add the photo before and the photo after.");
+    node.images = parsePremiumImages(ctx, where, raw.slice(0, 2), 0);
+    if (v.compare !== undefined && v.compare !== null) {
+      const at = studioNumber(record(v.compare)?.at, 5, 95);
+      if (at !== undefined && Number.isNaN(at)) bad("the divider starts 5 to 95% of the way.");
+      else if (at !== undefined && at !== 50) node.compare = { at: Math.round(at) };
+    }
+  }
   if (node.type === "marquee") {
     const images = parsePremiumImages(ctx, where, v.images, 0);
     if (images.length) node.images = images;
@@ -1735,6 +1764,8 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     case "marquee":
     case "video_hero":
     case "parallax_banner":
+    case "gallery":
+    case "before_after":
       parsePremiumMotion(ctx, where, v, node, num, bad);
       break;
     // 128 The signed-in person's shipment or ride on its way, or the taxis near them.

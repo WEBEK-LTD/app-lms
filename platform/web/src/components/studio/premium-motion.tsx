@@ -163,6 +163,116 @@ export function MediaBanner({ node, dark, rtl, front }: { node: StudioNode; dark
   );
 }
 
+/**
+ * 129.6 Before and after: the photo after over the photo before, shown
+ * from the divider to the end (the start in Arabic is the right), the
+ * divider a white line with a round handle, each photo's label in a pill
+ * at its top corner; dragged in the app.
+ */
+export function BeforeAfter({ node, lang, defaultLang, dark, words }: { node: StudioNode; lang: string; defaultLang: string; dark: boolean; words: { addPicture: string } }) {
+  const [before, after] = node.images ?? [];
+  const at = node.compare?.at ?? 50;
+  const rtl = lang === "ar";
+  const ratio = node.aspect_ratio ?? 1.33;
+  const photo = (image: typeof before, shade: string) =>
+    image ? (
+      // eslint-disable-next-line @next/next/no-img-element -- the owner's photo, drawn as the app draws it
+      <img src={image.image_url} alt={entryText(image, "caption", lang, defaultLang)} draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+    ) : (
+      <span style={{ position: "absolute", inset: 0, background: shade }} />
+    );
+  const label = (image: typeof before, end: boolean) => {
+    const text = image ? entryText(image, "caption", lang, defaultLang) : "";
+    return text ? <span style={{ position: "absolute", top: 12, ...(end ? { insetInlineEnd: 12 } : { insetInlineStart: 12 }), padding: "4px 10px", borderRadius: 999, background: "rgba(14,13,36,0.55)", color: "#FFFFFF", fontSize: 12, fontWeight: 700, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>{text}</span> : null;
+  };
+  // The after photo shows from the divider to the end side.
+  const clip = rtl ? `inset(0 ${at}% 0 0)` : `inset(0 0 0 ${at}%)`;
+  return (
+    <span data-studio-before-after="" style={{ position: "relative", display: "block", width: "100%", aspectRatio: typeof node.height === "number" ? undefined : `${ratio}`, height: typeof node.height === "number" ? node.height : undefined, overflow: "hidden", borderRadius: "inherit" }}>
+      {photo(before, dark ? "#2A2742" : "#E8E2D6")}
+      <span style={{ position: "absolute", inset: 0, clipPath: clip }}>{photo(after, dark ? "#3B3858" : "#D4CBB8")}</span>
+      {label(before, false)}
+      {label(after, true)}
+      <span aria-hidden="true" style={{ position: "absolute", top: 0, bottom: 0, insetInlineStart: `${at}%`, width: 3, marginInlineStart: -1.5, background: "#FFFFFF", boxShadow: "0 0 8px rgba(0,0,0,0.35)" }} />
+      <span data-studio-compare-handle="" aria-hidden="true" style={{ position: "absolute", top: "50%", insetInlineStart: `${at}%`, width: 40, height: 40, marginInlineStart: -20, marginTop: -20, borderRadius: "50%", background: "#FFFFFF", boxShadow: "0 4px 14px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0E0D24" }}>
+        <span className="material-symbols-rounded" style={{ fontSize: 22 }}>
+          arrow_range
+        </span>
+      </span>
+      {!before || !after ? <span style={{ position: "absolute", insetInline: 0, bottom: 10, textAlign: "center", fontSize: 12, opacity: 0.75 }}>{words.addPicture}</span> : null}
+    </span>
+  );
+}
+
+/** 129.5 A masonry tile's shape (width over height) by its place, so the columns' heights differ as the app draws them. */
+export const MASONRY_RATIOS = [0.8, 1.15, 1, 0.75, 1.25, 0.9] as const;
+
+/**
+ * 129.5 A gallery: the photos in masonry columns, as a bento (a big tile
+ * beside two small ones, then a wide one) or a filmstrip that scrolls
+ * sideways, their captions over them when asked; a tap opens them full
+ * screen in the app. Without photos, three soft tiles say to add them.
+ */
+export function GalleryGrid({ node, lang, defaultLang, dark, words }: { node: StudioNode; lang: string; defaultLang: string; dark: boolean; words: { addPicture: string } }) {
+  const g = node.gallery ?? { layout: "masonry" as const };
+  const gap = node.gap ?? 8;
+  const radius = g.radius ?? 16;
+  const shades = dark ? ["#2A2742", "#33304F", "#3B3858"] : ["#F3E3C3", "#E8EEF6", "#F6E3E7"];
+  const images = node.images ?? [];
+  const shown = images.length ? images : [0, 1, 2].map(() => null);
+  const tile = (image: (typeof images)[number] | null, i: number, style: CSSProperties) => {
+    const caption = image ? entryText(image, "caption", lang, defaultLang) : "";
+    return (
+      <span key={i} data-studio-gallery-photo="" style={{ position: "relative", display: "block", overflow: "hidden", borderRadius: radius, background: shades[i % 3], ...style }}>
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element -- the owner's photo, drawn as the app draws it
+          <img src={image.image_url} alt={caption} draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ) : (
+          <span className="material-symbols-rounded" aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: 28, opacity: 0.45 }}>
+            add_photo_alternate
+          </span>
+        )}
+        {g.captions && caption ? <span style={{ position: "absolute", insetInline: 0, bottom: 0, padding: "18px 10px 8px", background: "linear-gradient(transparent, rgba(0,0,0,0.6))", color: "#FFFFFF", fontSize: 12, fontWeight: 700 }}>{caption}</span> : null}
+      </span>
+    );
+  };
+  const hint = images.length ? null : <span style={{ display: "block", marginTop: 6, fontSize: 12, opacity: 0.7, textAlign: "center" }}>{words.addPicture}</span>;
+  if (g.layout === "filmstrip") {
+    const height = typeof node.height === "number" ? node.height : 220;
+    return (
+      <span data-studio-gallery="filmstrip" style={{ display: "block" }}>
+        <span style={{ display: "flex", gap, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none" }}>{shown.map((image, i) => tile(image, i, { flex: "0 0 auto", width: height * 0.75, height, scrollSnapAlign: "start" }))}</span>
+        {hint}
+      </span>
+    );
+  }
+  if (g.layout === "bento") {
+    // Each four: a big tile over two rows beside two small ones, then a wide one.
+    return (
+      <span data-studio-gallery="bento" style={{ display: "block", containerType: "inline-size" }}>
+        {/* Square small tiles, as the app draws them: a third of the width a row. */}
+        <span style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gridAutoRows: `calc((100cqw - ${gap * 2}px) / 3)`, gridAutoFlow: "dense", gap }}>
+          {shown.map((image, i) => tile(image, i, i % 4 === 0 ? { gridColumn: "span 2", gridRow: "span 2" } : i % 4 === 3 ? { gridColumn: "span 3" } : {}))}
+        </span>
+        {hint}
+      </span>
+    );
+  }
+  const columns = node.columns ?? 2;
+  return (
+    <span data-studio-gallery="masonry" style={{ display: "block" }}>
+      <span style={{ display: "flex", gap, alignItems: "flex-start" }}>
+        {Array.from({ length: columns }, (_, c) => (
+          <span key={c} style={{ flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", gap }}>
+            {shown.map((image, i) => (i % columns === c ? tile(image, i, { width: "100%", aspectRatio: `${MASONRY_RATIOS[i % MASONRY_RATIOS.length]}` }) : null))}
+          </span>
+        ))}
+      </span>
+      {hint}
+    </span>
+  );
+}
+
 /** An entry's text (a story's title, a photo's caption) in the language being edited. */
 export function entryText(entry: { translations?: Translations } | null | undefined, field: string, lang: string, def: string): string {
   if (!entry) return "";

@@ -14716,7 +14716,16 @@ components:
         the screen, except on phones that reduce motion or save data.
         `parallax_banner` a photo (`image_url`) that moves slower than the
         page as it scrolls (`parallax.speed`), still on phones that reduce
-        motion. With `glass`, what either holds sits in a frosted panel. The first element of a page
+        motion. With `glass`, what either holds sits in a frosted panel.
+        `gallery` lays out its `images` as `gallery.layout` says (masonry
+        columns, a bento or a filmstrip that scrolls sideways), their
+        captions over them with `gallery.captions`; a tap opens them full
+        screen, to swipe through and pinch to zoom, each with its caption.
+        `before_after` shows its two `images` (the photo before, then the
+        photo after, their captions the labels at their top corners) one
+        over the other with a divider people drag (a white line with a round
+        handle), starting `compare.at` percent from the start side, the
+        photo before on the start side (the right in Arabic). The first element of a page
         without a header reaches under the status bar when it is a cover.
         `tracking` is the signed-in person's own shipment or ride on its way,
         or the free taxis near them (`tracking`), and `greeting` good morning
@@ -14730,7 +14739,7 @@ components:
         id: { type: string, maxLength: 64 }
         type:
           type: string
-          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner]
+          enum: [row, column, stack, grid, slider, spacer, accordion, tabs, text, image, button, icon, items, categories, video, form, map, ratings, search, divider, countdown, bullets, coupon, market, learning, live_status, school, photo_hero, map_header, tracking, greeting, stories, marquee, video_hero, parallax_banner, gallery, before_after]
         name: { type: [string, 'null'], maxLength: 80, description: "The owner's name for it in the editor's layers; not shown in the app." }
         children:
           type: array
@@ -14747,7 +14756,7 @@ components:
         align: { type: string, enum: [start, center, end, between, around], default: start, description: "Along a row or column: where its children go." }
         cross: { type: string, enum: [start, center, end, stretch], default: stretch, description: "Across a row or column; across the parent for a child of a stack." }
         self_align: { type: [string, 'null'], enum: [start, center, end, stretch, null], description: "This element across its parent, instead of the parent's `cross`." }
-        columns: { type: integer, minimum: 1, maximum: 6, default: 2, description: "For `grid`." }
+        columns: { type: integer, minimum: 1, maximum: 6, default: 2, description: "For `grid`; 129.5 for a masonry `gallery`, 2 or 3." }
         pin: { type: string, enum: [none, top, bottom], default: none, description: "Kept on the screen while the page scrolls (a button pinned at the bottom)." }
         background: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
         color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Text and icon colour; null, inherited." }
@@ -14797,7 +14806,7 @@ components:
         images:
           type: array
           maxItems: 30
-          description: "129.3 For `marquee`: its logos or photos, after its words (`caption`: what each shows, for screen readers)."
+          description: "129.3 For `marquee`: its logos or photos, after its words (`caption`: what each shows, for screen readers). 129.5 For `gallery`: its photos, 1 to 30, each with its caption. 129.6 For `before_after`: the photo before and the photo after, their captions their labels."
           items:
             type: object
             required: [image_url]
@@ -14812,6 +14821,19 @@ components:
             direction: { type: string, enum: [start, end], default: start, description: "Toward the start (the left in a left-to-right language, the right in Arabic) or the end." }
             pause_on_press: { type: boolean, default: true, description: "Held still while pressed." }
             size: { type: integer, minimum: 16, maximum: 120, default: 36, description: "How tall its pictures are." }
+        gallery:
+          type: [object, 'null']
+          description: "129.5 For `gallery`: how it lays out its photos."
+          required: [layout]
+          properties:
+            layout: { type: string, enum: [masonry, bento, filmstrip], description: "`masonry` in `columns` (2 or 3) of different heights; `bento` a big tile beside two small ones, then a wide one; `filmstrip` tall tiles in a row that scrolls sideways, as tall as the element's `height` (220 missing). Apps that don't know one draw masonry." }
+            radius: { type: integer, minimum: 0, maximum: 40, default: 16, description: "Each photo's corners." }
+            captions: { type: boolean, default: false, description: "Each photo's caption over its foot." }
+        compare:
+          type: [object, 'null']
+          description: "129.6 For `before_after`: where its divider starts."
+          properties:
+            at: { type: integer, minimum: 5, maximum: 95, default: 50, description: "Percent of the way from the start side." }
         glass: { type: boolean, default: false, description: "129.4 and 129.7 For `video_hero` and `parallax_banner`: what it holds sits in a frosted panel." }
         parallax:
           type: [object, 'null']

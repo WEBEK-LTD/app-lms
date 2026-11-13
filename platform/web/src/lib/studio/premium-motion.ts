@@ -41,6 +41,8 @@ export const PREMIUM_MOTION_ELEMENTS: readonly ElementInfo[] = [
   { type: "stories", group: "premium", icon: "amp_stories", keywords: "stories rings circles story viewer full screen highlights premium" },
   { type: "video_hero", group: "premium", icon: "movie", keywords: "video hero banner background loop muted poster play cover premium" },
   { type: "parallax_banner", group: "premium", icon: "wallpaper", keywords: "parallax banner photo scroll depth glass frosted panel premium" },
+  { type: "before_after", group: "premium", icon: "compare", keywords: "before after compare slider divider photos transformation premium" },
+  { type: "gallery", group: "premium", icon: "photo_library", keywords: "gallery photos masonry bento filmstrip lightbox full screen zoom captions premium" },
   { type: "marquee", group: "premium", icon: "text_rotation_none", keywords: "marquee ticker scrolling words logos band news running text premium" },
 ];
 
@@ -121,6 +123,14 @@ export function premiumMotionNode(type: StudioNodeType, preset: string | undefin
         { id: id(), type: "button", text: w("cta"), width: "hug", height: 44, radius: 22, background: "#FFFFFF", color: "#0E0D24", font: { size: 14, weight: 800 }, padding: pad(0, 22, 0, 22), margin: pad(6, 0, 0, 0) },
       ],
     };
+  }
+  if (type === "before_after") {
+    // 129.6 Two of the owner's photos with a divider to drag, labelled; they're added in the inspector.
+    return { id: id(), type, images: [], aspect_ratio: 1.33, radius: 22, margin: pad(8, 16, 8, 16) };
+  }
+  if (type === "gallery") {
+    // 129.5 A bento of the owner's photos with a full-screen viewer; it needs its first photo to be saved.
+    return { id: id(), type, gallery: { layout: "bento", radius: 18 }, images: [], gap: 8, padding: pad(8, 16, 8, 16) };
   }
   if (type === "marquee") {
     // 129.3 A dark band of words running toward the start, a gold star between them, light by night.

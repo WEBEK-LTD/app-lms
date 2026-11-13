@@ -165,6 +165,62 @@ class StudioPremiumMotion129Test extends TestCase {
 		$this->assertSame( array(), $served[1]['children'] );
 	}
 
+	public function test_serves_the_gallery_and_before_and_after() {
+		$photo  = static function ( $name, $caption = null ) {
+			return array_filter(
+				array(
+					'image_url' => 'https://cdn.example.com/' . $name . '.jpg',
+					'caption'   => $caption,
+				)
+			);
+		};
+		$served = $this->served(
+			array(
+				array(
+					'id'      => 'gal',
+					'type'    => 'gallery',
+					'columns' => 6,
+					'gallery' => array(
+						'layout'   => 'masonry',
+						'radius'   => 90,
+						'captions' => true,
+					),
+					'images'  => array( $photo( 'one', 'Garden' ), $photo( 'two' ) ),
+				),
+				array(
+					'id'      => 'odd',
+					'type'    => 'gallery',
+					'gallery' => array( 'layout' => 'carousel' ),
+					'images'  => array( $photo( 'one' ) ),
+				),
+				array(
+					'id'      => 'ba',
+					'type'    => 'before_after',
+					'compare' => array( 'at' => 3 ),
+					'images'  => array( $photo( 'b', 'Before' ), $photo( 'a', 'After' ), $photo( 'x' ) ),
+				),
+				array(
+					'id'     => 'half',
+					'type'   => 'before_after',
+					'images' => array( $photo( 'b' ) ),
+				),
+			)
+		);
+		$this->assertSame( array( 'gal', 'ba' ), array_column( $served, 'id' ) );
+		$this->assertSame(
+			array(
+				'layout'   => 'masonry',
+				'radius'   => 40,
+				'captions' => true,
+			),
+			$served[0]['gallery']
+		);
+		$this->assertSame( 3, $served[0]['columns'] );
+		$this->assertSame( array( $photo( 'one', 'Garden' ), $photo( 'two' ) ), $served[0]['images'] );
+		$this->assertSame( array( 'at' => 5 ), $served[1]['compare'] );
+		$this->assertSame( array( $photo( 'b', 'Before' ), $photo( 'a', 'After' ) ), $served[1]['images'] );
+	}
+
 	public function test_serves_the_ticker_with_its_words_and_pictures() {
 		$ticker = array(
 			'id'           => 'tick',

@@ -478,6 +478,145 @@ void main() {
     });
   });
 
+  group('129.5 the gallery', () {
+    Map<String, dynamic> gallery(String layout, {int count = 5}) => {
+      'id': 'gal',
+      'type': 'gallery',
+      'gap': 8,
+      'gallery': {'layout': layout, 'radius': 18, 'captions': true},
+      'images': [
+        for (var i = 0; i < count; i++)
+          {
+            'image_url': 'https://cdn.example.com/p$i.jpg',
+            'caption': 'Photo $i',
+          },
+      ],
+    };
+    Rect tile(WidgetTester tester, int i) =>
+        tester.getRect(find.byKey(ValueKey('studio-gallery-gal-$i')));
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets(
+        'a bento: a big photo beside two small ones, then a wide one, '
+        'opened full screen (${dark ? 'dark' : 'light'}, $language)',
+        (tester) async {
+          await open(
+            tester,
+            [gallery('bento')],
+            dark: dark,
+            language: language,
+          );
+          final big = tile(tester, 0);
+          final small = tile(tester, 1);
+          final wide = tile(tester, 3);
+          expect(big.height, closeTo(small.height * 2 + 8, 1));
+          expect(wide.width, greaterThan(big.width));
+          // The big one at the start: the right in Arabic.
+          expect(
+            language == 'ar' ? big.left > small.left : big.left < small.left,
+            isTrue,
+          );
+          expect(find.text('Photo 0'), findsOneWidget);
+          await tester.tap(find.byKey(const ValueKey('studio-gallery-gal-2')));
+          await TestApp.settle(tester);
+          expect(find.byKey(const ValueKey('gallery-viewer')), findsOne);
+          expect(find.text('3 / 5'), findsOneWidget);
+          await tester.tap(find.byKey(const ValueKey('gallery-close')));
+          await TestApp.settle(tester);
+          expect(find.byKey(const ValueKey('gallery-viewer')), findsNothing);
+        },
+      );
+    }
+
+    testWidgets('masonry columns of different heights', (tester) async {
+      await open(tester, [gallery('masonry', count: 4)]);
+      expect(tile(tester, 0).left, lessThan(tile(tester, 1).left));
+      expect(tile(tester, 0).height, isNot(tile(tester, 1).height));
+      expect(tile(tester, 2).top, greaterThan(tile(tester, 0).bottom));
+    });
+
+    testWidgets('a filmstrip of tall photos in a row', (tester) async {
+      await open(tester, [gallery('filmstrip', count: 6)]);
+      final first = tile(tester, 0);
+      expect(first.height, 220);
+      expect(first.width, closeTo(165, 1));
+      expect(tile(tester, 1).top, first.top);
+    });
+  });
+
+  group('129.6 before and after', () {
+    Map<String, dynamic> compare() => {
+      'id': 'ba',
+      'type': 'before_after',
+      'aspect_ratio': 1.5,
+      'radius': 20,
+      'compare': {'at': 30},
+      'images': [
+        {'image_url': 'https://cdn.example.com/b.jpg', 'caption': 'Before'},
+        {'image_url': 'https://cdn.example.com/a.jpg', 'caption': 'After'},
+      ],
+    };
+
+    for (final (dark, language) in [
+      (false, 'en'),
+      (true, 'en'),
+      (false, 'ar'),
+    ]) {
+      testWidgets('a divider a finger drags, the labels at the corners '
+          '(${dark ? 'dark' : 'light'}, $language)', (tester) async {
+        await open(tester, [compare()], dark: dark, language: language);
+        final box = tester.getRect(
+          find.byKey(const ValueKey('studio-before-after-ba')),
+        );
+        Offset handle() => tester.getCenter(
+          find.byKey(const ValueKey('studio-compare-handle-ba')),
+        );
+        final start = language == 'ar'
+            ? box.right - box.width * 0.3
+            : box.left + box.width * 0.3;
+        expect(handle().dx, closeTo(start, 1));
+        expect(find.text('Before'), findsOneWidget);
+        expect(
+          language == 'ar'
+              ? tester.getRect(find.text('Before')).right > box.center.dx
+              : tester.getRect(find.text('Before')).left < box.center.dx,
+          isTrue,
+        );
+        await tester.drag(
+          find.byKey(const ValueKey('studio-compare-handle-ba')),
+          Offset(language == 'ar' ? -80 : 80, 0),
+        );
+        await TestApp.settle(tester);
+        expect((handle().dx - start).abs(), greaterThan(40));
+      });
+    }
+
+    testWidgets('screen readers move the divider as a slider', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await open(tester, [compare()]);
+      expect(
+        tester.getSemantics(
+          find.byKey(const ValueKey('studio-before-after-ba')),
+        ),
+        matchesSemantics(
+          isSlider: true,
+          label: 'Before and after: Before and After',
+          hint: 'Drag to compare',
+          value: '30%',
+          increasedValue: '40%',
+          decreasedValue: '20%',
+          hasIncreaseAction: true,
+          hasDecreaseAction: true,
+        ),
+      );
+      semantics.dispose();
+    });
+  });
+
   group('129.3 the ticker', () {
     Map<String, dynamic> ticker({Map<String, dynamic>? marquee}) => {
       'id': 'tick',

@@ -43,6 +43,8 @@ const PREMIUM_PAGE: unknown[] = [
   { id: "st", type: "stories", slides: [{ image_url: "https://cdn.example.com/a.jpg", heading: "New", translations: { ar: { heading: "جديد" } } }] },
   { id: "vid", type: "video_hero", video_url: "https://cdn.example.com/loop.mp4", image_url: "https://cdn.example.com/poster.jpg", autoplay: true, glass: true, height: 400, scrim: { color: "#000000", from: 0.2, to: 0.8 }, children: [{ id: "vt", type: "text", text: "In motion", translations: { ar: { text: "بالحركة" } } }] },
   { id: "par", type: "parallax_banner", image_url: "https://cdn.example.com/photo.jpg", parallax: { speed: 0.3 }, children: [{ id: "pt", type: "text", text: "Crafted" }] },
+  { id: "gal", type: "gallery", gallery: { layout: "bento", captions: true }, images: [{ image_url: "https://cdn.example.com/1.jpg", caption: "Garden", translations: { ar: { caption: "الحديقة" } } }] },
+  { id: "ba", type: "before_after", compare: { at: 40 }, images: [{ image_url: "https://cdn.example.com/b.jpg", caption: "Before", translations: { ar: { caption: "قبل" } } }, { image_url: "https://cdn.example.com/a.jpg", caption: "After" }] },
   { id: "tick", type: "marquee", text: "Free delivery\nNew", translations: { ar: { text: "توصيل مجاني\nجديد" } }, images: [{ image_url: "https://cdn.example.com/logo.png", caption: "Logo", translations: { ar: { caption: "الشعار" } } }], marquee: { speed: 60, direction: "end" } },
 ];
 type ServedNode = StudioNode & Record<string, unknown>;
@@ -53,6 +55,11 @@ function servedChecks(en: ServedNode[], ar: ServedNode[]) {
   // 129.3 The ticker's words and its pictures' names.
   expect(of(en, "marquee")).toMatchObject({ text: "Free delivery\nNew", marquee: { speed: 60, direction: "end" }, images: [{ image_url: "https://cdn.example.com/logo.png", caption: "Logo" }] });
   expect(of(ar, "marquee")).toMatchObject({ text: "توصيل مجاني\nجديد", images: [{ caption: "الشعار" }] });
+  // 129.5 and 129.6 The photos with their captions.
+  expect(of(en, "gallery")).toMatchObject({ gallery: { layout: "bento", captions: true }, images: [{ caption: "Garden" }] });
+  expect(of(ar, "gallery").images![0]!.caption).toBe("الحديقة");
+  expect(of(en, "before_after")).toMatchObject({ compare: { at: 40 }, images: [{ caption: "Before" }, { caption: "After" }] });
+  expect(of(ar, "before_after").images![0]!.caption).toBe("قبل");
   // 129.4 and 129.7 The banners with what lies over them.
   expect(of(en, "video_hero")).toMatchObject({ video_url: "https://cdn.example.com/loop.mp4", image_url: "https://cdn.example.com/poster.jpg", autoplay: true, glass: true, scrim: { color: "#000000", from: 0.2, to: 0.8 } });
   expect(of(ar, "video_hero").children![0]!.text).toBe("بالحركة");
@@ -211,6 +218,63 @@ describe("129.4 and 129.7 the video and parallax banners", () => {
     expect(html).toContain("data-studio-video-button");
     expect(html).toContain("data-studio-glass");
     expect(html).toContain("See it in motion");
+  });
+});
+
+describe("129.5 the gallery", () => {
+  const photos = (n: number) => Array.from({ length: n }, (_, i) => ({ image_url: `https://cdn.example.com/${i}.jpg`, caption: `Photo ${i}` }));
+
+  it("is offered in the Premium group and starts as a bento waiting for its photos", () => {
+    expect(ELEMENTS.find((e) => e.type === "gallery")?.group).toBe("premium");
+    const node = make("gallery");
+    expect(node.gallery).toEqual({ layout: "bento", radius: 18 });
+    expect(errors([node])).toContain("add a photo.");
+    expect(ok([{ ...node, images: photos(3) }])[0]).toMatchObject({ gallery: { layout: "bento", radius: 18 }, images: photos(3) });
+  });
+
+  it("keeps its layout, columns, corners and captions, bounded", () => {
+    expect(ok([{ id: "g", type: "gallery", columns: 3, gallery: { layout: "masonry", captions: true, radius: 16 }, images: photos(2) }])[0]).toEqual({ id: "g", type: "gallery", columns: 3, gallery: { layout: "masonry", captions: true }, images: photos(2) });
+    expect(errors([{ id: "g", type: "gallery", gallery: { layout: "carousel" }, images: photos(1) }])).toContain("choose how the gallery lays out its photos.");
+    expect(errors([{ id: "g", type: "gallery", gallery: { layout: "bento", radius: 80 }, images: photos(1) }])).toContain("0 to 40");
+    expect(errors([{ id: "g", type: "gallery", columns: 5, gallery: { layout: "masonry" }, images: photos(1) }])).toContain("2 to 3");
+    expect(errors([{ id: "g", type: "gallery", gallery: { layout: "bento" }, images: photos(31) }])).toContain("at most 30");
+  });
+
+  it("draws each layout on the canvas, the captions over the photos", () => {
+    const html = draw(
+      (["masonry", "bento", "filmstrip"] as const).map((layout) => ({ id: `g-${layout}`, type: "gallery", gallery: { layout, captions: true }, images: photos(4) }) as StudioNode),
+      { lang: "ar" },
+    );
+    for (const layout of ["masonry", "bento", "filmstrip"]) expect(html).toContain(`data-studio-gallery="${layout}"`);
+    expect(html.match(/data-studio-gallery-photo/g)).toHaveLength(12);
+    expect(html).toContain("Photo 3");
+    expect(html).toContain("grid-column:span 2");
+  });
+});
+
+describe("129.6 before and after", () => {
+  const pair = [
+    { image_url: "https://cdn.example.com/b.jpg", caption: "Before" },
+    { image_url: "https://cdn.example.com/a.jpg", caption: "After" },
+  ];
+
+  it("is offered in the Premium group, two photos and where the divider starts", () => {
+    expect(ELEMENTS.find((e) => e.type === "before_after")?.group).toBe("premium");
+    expect(make("before_after")).toMatchObject({ aspect_ratio: 1.33, radius: 22, images: [] });
+    expect(ok([{ id: "c", type: "before_after", compare: { at: 35 }, images: pair }])[0]).toEqual({ id: "c", type: "before_after", compare: { at: 35 }, images: pair });
+    expect(ok([{ id: "c", type: "before_after", compare: { at: 50 }, images: pair }])[0]).not.toHaveProperty("compare");
+    expect(errors([{ id: "c", type: "before_after", images: pair.slice(0, 1) }])).toContain("add the photo before and the photo after.");
+    expect(errors([{ id: "c", type: "before_after", images: [...pair, pair[0]] }])).toContain("add the photo before and the photo after.");
+    expect(errors([{ id: "c", type: "before_after", compare: { at: 99 }, images: pair }])).toContain("5 to 95%");
+  });
+
+  it("draws the photo after from the divider to the end side, mirrored in Arabic", () => {
+    const node = { id: "c", type: "before_after", compare: { at: 30 }, images: pair } as StudioNode;
+    expect(draw([node])).toContain("clip-path:inset(0 0 0 30%)");
+    const ar = draw([node], { lang: "ar" });
+    expect(ar).toContain("clip-path:inset(0 30% 0 0)");
+    expect(ar).toContain("data-studio-compare-handle");
+    expect(ar).toContain(">Before<");
   });
 });
 

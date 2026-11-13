@@ -1043,6 +1043,8 @@ class Block_Resolver {
 		'marquee',
 		'video_hero',
 		'parallax_banner',
+		'gallery',
+		'before_after',
 	);
 	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'video_hero', 'parallax_banner' );
 
@@ -1379,6 +1381,8 @@ class Block_Resolver {
 			case 'marquee':
 			case 'video_hero':
 			case 'parallax_banner':
+			case 'gallery':
+			case 'before_after':
 				$node = Studio_Premium_Motion::node( $type, $raw, $node, array( $this, 'action' ) );
 				if ( null === $node ) {
 					return null;

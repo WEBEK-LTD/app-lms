@@ -37,6 +37,8 @@ import 'studio_live.dart';
 import 'studio_live_status.dart';
 // 129 Premium motion & media: the slider's looks, stories, a ticker, a video
 // or parallax banner, a gallery, before and after, entrances on first show.
+import 'studio_before_after.dart';
+import 'studio_gallery.dart';
 import 'studio_marquee.dart';
 import 'studio_media_covers.dart';
 import 'studio_motion.dart';
@@ -807,6 +809,8 @@ class StudioNodeView extends ConsumerWidget {
       StudioNodeType.stories => node.slides.isNotEmpty,
       StudioNodeType.marquee =>
         (node.text ?? '').trim().isNotEmpty || node.images.isNotEmpty,
+      StudioNodeType.gallery => node.images.isNotEmpty,
+      StudioNodeType.beforeAfter => node.images.length >= 2,
       // 123 A student's card, signed in and with something to show.
       StudioNodeType.learning =>
         node.learning != null && learningCardShows(node.learning!, ref),
@@ -1316,6 +1320,10 @@ class StudioNodeView extends ConsumerWidget {
         return StudioStoriesRow(node: node, scope: scope);
       case StudioNodeType.marquee:
         return StudioMarquee(node: node, color: color);
+      case StudioNodeType.gallery:
+        return StudioGallery(node: node);
+      case StudioNodeType.beforeAfter:
+        return StudioBeforeAfter(node: node);
       // Drawn by [StudioMediaCover] in [build].
       case StudioNodeType.videoHero || StudioNodeType.parallaxBanner:
         return const SizedBox.shrink();

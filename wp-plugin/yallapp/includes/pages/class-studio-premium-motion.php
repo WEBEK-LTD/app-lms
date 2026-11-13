@@ -21,7 +21,7 @@ class Studio_Premium_Motion {
 	/**
 	 * 129 The premium element types.
 	 */
-	const TYPES = array( 'stories', 'marquee', 'video_hero', 'parallax_banner' );
+	const TYPES = array( 'stories', 'marquee', 'video_hero', 'parallax_banner', 'gallery', 'before_after' );
 
 	/**
 	 * 129.2 At most this many stories in a row.
@@ -46,6 +46,58 @@ class Studio_Premium_Motion {
 		}
 		if ( 'video_hero' === $type || 'parallax_banner' === $type ) {
 			return self::banner( $type, $raw, $node );
+		}
+		if ( 'gallery' === $type ) {
+			return self::gallery( $raw, $node );
+		}
+		if ( 'before_after' === $type ) {
+			return self::compare( $raw, $node );
+		}
+		return $node;
+	}
+
+	/**
+	 * 129.6 Before and after: its two photos with their labels and where its divider starts.
+	 *
+	 * @param array $raw  The stored element.
+	 * @param array $node The element served so far.
+	 * @return array|null
+	 */
+	private static function compare( array $raw, array $node ) {
+		$images = array_slice( self::images( $raw ), 0, 2 );
+		if ( count( $images ) < 2 ) {
+			return null;
+		}
+		$node['images'] = $images;
+		if ( isset( $raw['compare']['at'] ) && is_numeric( $raw['compare']['at'] ) ) {
+			$node['compare'] = array( 'at' => (int) max( 5, min( 95, (float) $raw['compare']['at'] ) ) );
+		}
+		return $node;
+	}
+
+	/**
+	 * 129.5 The gallery: its photos with their captions, its layout, corners and captions over them.
+	 *
+	 * @param array $raw  The stored element.
+	 * @param array $node The element served so far.
+	 * @return array|null
+	 */
+	private static function gallery( array $raw, array $node ) {
+		$images = self::images( $raw );
+		$layout = $raw['gallery']['layout'] ?? null;
+		if ( ! $images || ! in_array( $layout, array( 'masonry', 'bento', 'filmstrip' ), true ) ) {
+			return null;
+		}
+		$node['images']  = $images;
+		$node['gallery'] = array( 'layout' => $layout );
+		if ( isset( $raw['gallery']['radius'] ) && is_numeric( $raw['gallery']['radius'] ) ) {
+			$node['gallery']['radius'] = (int) max( 0, min( 40, (float) $raw['gallery']['radius'] ) );
+		}
+		if ( true === ( $raw['gallery']['captions'] ?? false ) ) {
+			$node['gallery']['captions'] = true;
+		}
+		if ( isset( $node['columns'] ) ) {
+			$node['columns'] = max( 2, min( 3, $node['columns'] ) );
 		}
 		return $node;
 	}

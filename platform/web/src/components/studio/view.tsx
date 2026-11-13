@@ -20,7 +20,7 @@ import { AppScreen } from "./app-screens";
 import { Cover } from "./covers";
 import { GreetingText, TrackingCard } from "./tracking";
 // 129 Premium motion & media.
-import { MediaBanner, Marquee, PremiumMotionStyles, SliderPill, StoriesRow } from "./premium-motion";
+import { BeforeAfter, GalleryGrid, MediaBanner, Marquee, PremiumMotionStyles, SliderPill, StoriesRow } from "./premium-motion";
 
 /**
  * 103R A Studio page drawn in the editor's phone, as the app draws it: rows,
@@ -692,6 +692,10 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         return <StoriesRow node={n} lang={lang} defaultLang={defaultLang} dark={dark} brand={look.brand} accent={look.accent} />;
       case "marquee":
         return <Marquee node={n} text={text} rtl={lang === "ar"} accent={look.accent} />;
+      case "before_after":
+        return <BeforeAfter node={n} lang={lang} defaultLang={defaultLang} dark={dark} words={p.words} />;
+      case "gallery":
+        return <GalleryGrid node={n} lang={lang} defaultLang={defaultLang} dark={dark} words={p.words} />;
       case "video_hero":
       case "parallax_banner":
         return <MediaBanner node={n} dark={dark} rtl={lang === "ar"} front={Children({ ...p, node: { ...n, type: "column" } })} />;

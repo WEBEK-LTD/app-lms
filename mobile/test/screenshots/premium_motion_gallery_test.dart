@@ -206,8 +206,88 @@ Map<String, dynamic> _banner(
   ],
 };
 
+const _galleryPhotos = [
+  ('demo-photos/mixed-grill.jpg', 'Mixed grill', 'مشويات مشكلة'),
+  ('demo-photos/margherita.jpg', 'Margherita', 'مارغريتا'),
+  ('demo-photos/kofta.jpg', 'Kofta', 'كفتة'),
+  ('demo-photos/cover-market.jpg', 'The market', 'السوق'),
+  ('demo-photos/croissants.jpg', 'Croissants', 'كرواسون'),
+  ('demo-photos/shish-tawook.jpg', 'Shish tawook', 'شيش طاووق'),
+  ('demo-photos/fruit.jpg', 'Fruit', 'فاكهة'),
+];
+
+List<Map<String, dynamic>> _galleryImages(Words w, {int from = 0}) => [
+  for (final (path, en, ar) in _galleryPhotos.skip(from))
+    {'image_url': photo(path), 'caption': w(en, ar)},
+];
+
 final premiumShots = <PremiumShot>[
   _storiesShot,
+  // 129.5 A bento with its captions, a filmstrip, and the full-screen viewer.
+  PremiumShot(
+    'gallery',
+    (w) => [
+      ..._heading(
+        w('Gallery', 'معرض الصور'),
+        w(
+          'Masonry, bento or filmstrip; a tap opens them full screen.',
+          'أعمدة أو بنتو أو شريط؛ تفتحها لمسة على الشاشة كلها.',
+        ),
+      ),
+      {
+        'id': 'g1',
+        'type': 'gallery',
+        'gap': 8,
+        'padding': _pad(0, 16, 12, 16),
+        'gallery': {'layout': 'bento', 'radius': 18, 'captions': true},
+        'images': _galleryImages(w).take(4).toList(),
+      },
+      {
+        'id': 'g2',
+        'type': 'gallery',
+        'gap': 10,
+        'height': 170,
+        'padding': _pad(4, 0, 8, 16),
+        'gallery': {'layout': 'filmstrip', 'radius': 16},
+        'images': _galleryImages(w, from: 3),
+      },
+    ],
+    then: (tester) async {
+      await tester.tap(find.byKey(const ValueKey('studio-gallery-g1-0')));
+      await TestApp.settle(tester, 20);
+    },
+  ),
+  // 129.6 Before and after, its divider a third of the way.
+  PremiumShot(
+    'before_after',
+    (w) => [
+      ..._heading(
+        w('Before and after', 'قبل وبعد'),
+        w(
+          'Drag the divider to compare the two photos.',
+          'اسحب الخط الفاصل لتقارن بين الصورتين.',
+        ),
+      ),
+      {
+        'id': 'ba',
+        'type': 'before_after',
+        'aspect_ratio': 0.8,
+        'radius': 24,
+        'margin': _pad(0, 16, 8, 16),
+        'compare': {'at': 45},
+        'images': [
+          {
+            'image_url': photo('demo-photos/vegetables.jpg'),
+            'caption': w('Before', 'قبل'),
+          },
+          {
+            'image_url': photo('demo-photos/vegetable-pizza.jpg'),
+            'caption': w('After', 'بعد'),
+          },
+        ],
+      },
+    ],
+  ),
   // 129.4 A video banner on its poster, its play button in the corner.
   PremiumShot(
     'video_hero',

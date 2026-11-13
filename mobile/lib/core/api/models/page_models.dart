@@ -1996,6 +1996,10 @@ enum StudioNodeType {
   marquee,
   videoHero,
   parallaxBanner,
+  // 129.5 Photos laid out as the owner chose, opened full screen.
+  gallery,
+  // 129.6 Two photos with a divider to drag.
+  beforeAfter,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
@@ -2192,6 +2196,11 @@ class StudioMarketCard {
 
 /// 112.4 How a slider shows where it is: dots under it, a line per slide
 /// filling over it, or "2 / 5" over it.
+/// 129.5 How a Studio gallery lays out its photos: in columns of different
+/// heights, a big tile beside two small ones then a wide one, or a row of
+/// tall tiles that scrolls sideways.
+enum StudioGalleryLayout { masonry, bento, filmstrip }
+
 /// 129.1 `pill`: the dots in a frosted pill over the slides' foot (Studio
 /// sliders only).
 enum StudioIndicator { dots, progress, count, pill }
@@ -2523,6 +2532,10 @@ class StudioNode {
     this.marqueeSize = 36,
     this.glass = false,
     this.parallaxSpeed = 0.5,
+    this.galleryLayout = StudioGalleryLayout.masonry,
+    this.galleryRadius = 16,
+    this.galleryCaptions = false,
+    this.compareAt = 50,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2686,6 +2699,18 @@ class StudioNode {
         marqueeSize: _premium(json, 'marquee', 'size', 36, 16, 120),
         glass: boolOr(json, 'glass', false),
         parallaxSpeed: _premium(json, 'parallax', 'speed', 0.5, 0.1, 0.9),
+        galleryLayout: json['gallery'] is Map
+            ? enumFrom(
+                StudioGalleryLayout.values,
+                (json['gallery'] as Map)['layout'],
+                StudioGalleryLayout.masonry,
+              )
+            : StudioGalleryLayout.masonry,
+        galleryRadius: _premium(json, 'gallery', 'radius', 16, 0, 40),
+        galleryCaptions:
+            json['gallery'] is Map &&
+            (json['gallery'] as Map)['captions'] == true,
+        compareAt: _premium(json, 'compare', 'at', 50, 5, 95),
       );
     } on FormatException {
       return null;
@@ -2838,6 +2863,22 @@ class StudioNode {
   /// 129.7 For [StudioNodeType.parallaxBanner]: how much slower than the
   /// page its photo moves, 0.1 to 0.9.
   final double parallaxSpeed;
+
+  /// 129.5 For [StudioNodeType.gallery]: how it lays out its photos.
+  final StudioGalleryLayout galleryLayout;
+
+  /// 129.5 For [StudioNodeType.gallery]: each photo's corners.
+  final double galleryRadius;
+
+  /// 129.5 For [StudioNodeType.gallery]: each photo's caption over it.
+  final bool galleryCaptions;
+
+  /// 129.6 For [StudioNodeType.beforeAfter]: where the divider starts, in
+  /// percent from the start side.
+  final double compareAt;
+
+  /// 129.5 A masonry gallery's columns: 2 or 3.
+  int get galleryColumns => columns.clamp(2, 3);
   final ItemSource? source;
   final ItemsLayout layout;
 

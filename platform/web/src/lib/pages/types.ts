@@ -57,6 +57,8 @@ export const STUDIO_CONTENT_TYPES = [
   // 129 Premium motion & media (stories, a ticker, a gallery, before and after).
   "stories",
   "marquee",
+  "gallery",
+  "before_after",
 ] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
@@ -90,7 +92,20 @@ export const STUDIO_INDICATORS = ["dots", "progress", "count"] as const;
 /** 129.1 A Studio slider's indicators: the block's, and `pill`, the dots in a frosted pill over the slides' foot. */
 export const STUDIO_SLIDER_INDICATORS = [...STUDIO_INDICATORS, "pill"] as const;
 /** 129 The premium content elements: a row of stories (129.2). */
-export const STUDIO_PREMIUM_MOTION_CONTENT = ["stories", "marquee"] as const;
+export const STUDIO_PREMIUM_MOTION_CONTENT = ["stories", "marquee", "gallery", "before_after"] as const;
+/**
+ * 129.5 How a gallery lays out its photos: `masonry` in columns of
+ * different heights, `bento` a big tile beside two small ones over a wide
+ * one, `filmstrip` tall tiles in a row that scrolls sideways.
+ */
+export const STUDIO_GALLERY_LAYOUTS = ["masonry", "bento", "filmstrip"] as const;
+/** 129.5 For `gallery`: its layout, its tiles' corners and whether their captions show over them; a tap opens them full screen. */
+export interface StudioGallery {
+  layout: (typeof STUDIO_GALLERY_LAYOUTS)[number];
+  /** 0 to 40; missing, 16. */
+  radius?: number;
+  captions?: boolean;
+}
 /** 129 Their bounds. */
 export const STUDIO_PREMIUM_LIMITS = { stories: 20, storyTitle: 40, storyLine: 120, ringMin: 52, ringMax: 96, images: 30, caption: 120, speedMin: 10, speedMax: 200, logoMin: 16, logoMax: 120 } as const;
 /** 129.3 Which way a ticker runs: toward the start (the left in English, the right in Arabic) or the end. */
@@ -892,7 +907,11 @@ export interface StudioNode {
   slides?: Slide[];
   /** 129.2 For `stories`: the rings' size. */
   stories?: StudioStories | null;
-  /** 129.3 For `marquee`: its logos or photos (`caption`: what they show, for screen readers). */
+  /** 129.5 For `gallery`: how it lays them out. */
+  gallery?: StudioGallery | null;
+  /** 129.6 For `before_after` (its two `images`, before then after, their captions the labels): where the divider starts, 5 to 95 (%) from the start; missing, 50. */
+  compare?: { at?: number } | null;
+  /** 129.3 For `marquee`: its logos or photos (`caption`: what they show, for screen readers). 129.5 A gallery's photos. */
   images?: GalleryImage[];
   /** 129.3 For `marquee`: its speed, direction and size. */
   marquee?: StudioMarquee | null;
