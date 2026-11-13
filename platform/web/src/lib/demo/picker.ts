@@ -16,6 +16,7 @@ import { demoCourseSeeds } from "./entries";
 import { demoDesign } from "./look";
 import { MARKET_VENDORS } from "./marketplace";
 import { SCHOOL_CLASSES } from "./school";
+import { TRAVEL_HOTELS } from "@/lib/travel/samples";
 
 /**
  * 127 Choosing an app from our real demos (/start): every demo we have, the
@@ -71,6 +72,7 @@ const DEMO_BUSINESS: Partial<Record<DemoId, string>> = {
   rides: "rides",
   taxi: "rides",
   school: "school",
+  travel: "travel",
 };
 
 export function businessOf(id: DemoId): string {
@@ -113,7 +115,8 @@ export type ItemNoun =
   | "restaurants"
   | "places"
   | "carTypes"
-  | "schoolClasses";
+  | "schoolClasses"
+  | "hotels";
 
 export interface DemoItems {
   /** The dashboard's list they are in (lib/samples/lists.ts), which "Put in your own" opens. */
@@ -142,6 +145,8 @@ const DEMO_ITEMS: Record<DemoId, () => DemoItems> = {
   rides: () => ({ list: "vehicle_types", noun: "carTypes", count: RIDES_DEMO_TYPES.length }),
   taxi: () => ({ list: "vehicle_types", noun: "carTypes", count: TAXI_DEMO_TYPES.length }),
   school: () => ({ list: "school", noun: "schoolClasses", count: SCHOOL_CLASSES.length }),
+  // 126 Safra: its hotels (each with its rooms; its flights come with them).
+  travel: () => ({ list: "hotels", noun: "hotels", count: TRAVEL_HOTELS.length }),
 };
 
 export function demoItems(id: DemoId): DemoItems {
