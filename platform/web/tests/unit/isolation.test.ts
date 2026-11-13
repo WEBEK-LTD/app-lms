@@ -22,6 +22,7 @@ import { PLAN_INFO } from "@/lib/plans";
 import { teamInviteSchema } from "@/lib/validation";
 import { uniSettingsOf } from "@/lib/university/settings";
 import { KEY, NOW, days } from "./helpers";
+import { flightInput, hotelInput, roomInput } from "./travel-fixtures";
 
 /**
  * 79.3 Isolation between clients, route by route: every Owner API path that
@@ -75,7 +76,7 @@ async function addApp(store: MemoryStore, client: Client, app: Partial<App> & Pi
 }
 
 /** One app of each kind the Owner API serves. */
-type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides" | "k12" | "taxi", App>;
+type Kinds = Record<"shop" | "clinic" | "gym" | "school" | "news" | "estate" | "events" | "donations" | "delivery" | "food" | "rides" | "k12" | "taxi" | "travel", App>;
 
 async function appsOf(store: MemoryStore, client: Client, name: string, courses: CourseSetup["courses"]): Promise<Kinds> {
   return {
@@ -104,6 +105,8 @@ async function appsOf(store: MemoryStore, client: Client, name: string, courses:
     k12: await addApp(store, client, { appType: "school", appName: `${name} k12`, connector: { kind: "school" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
     // 105.9 A live taxi company: the rides engine on the live map.
     taxi: await addApp(store, client, { appType: "rides", vertical: "taxi", appName: `${name} taxi`, connector: { kind: "rides" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
+    // 126 A travel company: hotels and flights.
+    travel: await addApp(store, client, { appType: "travel", appName: `${name} travel`, connector: { kind: "travel" }, catalogSettings: { ...DEFAULT_CATALOG_SETTINGS } }),
   };
 }
 
@@ -683,7 +686,30 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (!theirCourse.ok) throw new Error("course");
     const theirSection = (await store.saveUniSection({ appId: k12, id: null, termId: theirTerm.id, courseId: theirCourse.course.id, code: MARK, lecturerId: null, seats: 10, meetings: [], resultsPublishedAt: NOW }, NOW))!;
     await store.createUniEnrolment({ appId: k12, termId: theirTerm.id, sectionId: theirSection.id, courseId: theirCourse.course.id, studentId: theirStudent.person.id, status: "enrolled", addedBy: "office", addedAt: NOW, droppedAt: null, grade: "A", mark: 95, gradedAt: NOW, updatedAt: NOW });
+    // 126 Their hotel, room and flight, a trip of their customer's and a price alert.
+    const trip = theirs.travel.id;
+    const theirHotel = await store.createTravelHotel({ ...hotelInput(trip), name: `${MARK} hotel` }, NOW);
+    const theirRoom = await store.createTravelRoom({ ...roomInput(trip, theirHotel.id), name: `${MARK} room` }, NOW);
+    const theirFlight = await store.createTravelFlight({ ...flightInput(trip), number: MARK.slice(0, 12) }, NOW);
+    const traveller = (await store.createHostedUser({ appId: trip, phone: "+201004445555", name: `${MARK} traveller`, email: null, city: null, now: NOW }))!;
+    const theirTrip = await store.createTravelBooking(
+      {
+        appId: trip, userId: traveller.id, reference: "T-THEIRS", kind: "stay", status: "confirmed",
+        stay: { hotelId: theirHotel.id, hotelName: `${MARK} hotel`, roomId: theirRoom.id, roomName: MARK, rateId: "bb", rateName: MARK, board: "breakfast", checkIn: "2026-11-14", checkOut: "2026-11-15", guests: 2, rooms: 1, nights: [{ date: "2026-11-14", cents: 150_00 }], refundable: true, freeCancelUntil: "2026-11-12", taxBp: 0 },
+        flight: null, transfer: null, travellers: [{ firstName: MARK, lastName: MARK }], contact: { name: MARK, email: null, phone: null }, requests: [], note: MARK,
+        currency: "USD", lines: [{ kind: "nights", count: 1, unitCents: 150_00, cents: 150_00 }], totalCents: 150_00, paymentMethod: "at_hotel", paymentStatus: "unpaid", paidCents: 0, refundCents: 0,
+        orderId: null, holdUntil: null, cancellation: null, changes: [], lang: "en", sample: false, createdAt: NOW, updatedAt: NOW,
+      },
+      () => null,
+      NOW,
+    );
+    if (!theirTrip.ok) throw new Error("trip");
+    const theirAlert = await store.createTravelAlert({ appId: trip, userId: traveller.id, kind: "flight", from: "CAI", to: "LXR", month: null, roundTrip: true, nights: 4, travellers: 1, maxCents: null, firstCents: null, lastCents: null, createdAt: NOW, updatedAt: NOW });
     Object.assign(hostedIds, {
+      hotel_id: String(theirHotel.id),
+      flight_id: String(theirFlight.id),
+      booking_id: String(theirTrip.booking.id),
+      alert_id: String(theirAlert.id),
       student_id: String(theirStudent.person.id),
       homework_id: String(homework.id),
       assessment_id: String(assessment.id),
@@ -797,6 +823,7 @@ describe("79.3 one client never reaches another's data through the Owner API", (
     if (/^\/(rides|driver|me\/rides)/.test(route)) return "rides";
     if (/^\/(school|classroom|staff|parent)\//.test(route)) return "k12";
     if (/^\/taxi\//.test(route)) return "taxi";
+    if (/^\/(travel|me\/travel)\//.test(route)) return "travel";
     return "shop";
   }
 

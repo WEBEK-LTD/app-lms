@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { recordAudit } from "@/lib/admin/audit";
 import { APP_SWITCHES, appSwitches, storedSwitches, SWITCH_INFO } from "@/lib/app/switches";
-import { travelSettingsOf } from "@/lib/travel/settings";
+import { applyTravelTabs } from "@/lib/travel/layout";
+import { travelMode, travelSettingsOf } from "@/lib/travel/settings";
 import { FLIGHT_SOURCES, HOTEL_SOURCES } from "@/lib/travel/sources";
 import { refreshSitesSoon } from "@/lib/license/refresh-soon";
 import { revealLicenseKey } from "@/lib/admin/clients";
@@ -206,6 +207,8 @@ export async function setTravelPartsAction(_: FormState, formData: FormData): Pr
   const before = travelSettingsOf(await store.getTravelSettings(app.id));
   const after = { ...before, hotels, flights, hotelSource: hotelSource as typeof before.hotelSource, flightSource: flightSource as typeof before.flightSource };
   await store.saveTravelSettings(app.id, after, new Date());
+  // The project's tabs become the mode's (the app follows Config.travel.mode on its next start either way).
+  await applyTravelTabs(store, app.id, travelMode(after), new Date());
   await recordAudit({
     actor: admin,
     action: "client.travel_parts",

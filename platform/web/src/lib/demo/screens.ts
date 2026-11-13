@@ -96,7 +96,7 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
   // 126 Safra: the resort's pool at dusk, ink and gold.
   travel: {
     style: "photo",
-    photo: "/demo-screens/safra-resort.jpg",
+    photo: "/demo-screens/safra-caldera.jpg",
     title: { en: "Where does the next story begin?", ar: "من أين تبدأ حكايتك القادمة؟", tr: "Sıradaki hikâye nerede başlıyor?" },
     subtitle: {
       en: "Sign in to book hotels and flights, together for one price.",

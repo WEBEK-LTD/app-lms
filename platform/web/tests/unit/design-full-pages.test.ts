@@ -35,6 +35,8 @@ const OWN_PAGES: Record<string, string[]> = {
   rides: ["how-it-works", "join"],
   taxi: ["how-it-works", "join"],
   school: ["admissions"],
+  // 126 Umrah, holidays and groups.
+  travel: ["packages"],
 };
 
 const words = (html: string) => html.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;

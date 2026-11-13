@@ -12,16 +12,16 @@ import { idFrom, savePicture, type PictureDeps } from "./picture-assets";
 
 /**
  * 126 Safra, the travel demo: the hotels, rooms and flights of
- * lib/travel/samples.ts with their photos (public/demo-photos/travel-*.jpg,
- * CC0 or public domain, credited in public/demo-photos/CREDITS.md; a
- * drawing where a photo isn't there), and the demo number's trip to Bali in
+ * lib/travel/samples.ts with their photos (public/travel-photos, CC0,
+ * credited in its CREDITS.md and CREDITS.json; a drawing where a photo
+ * isn't there), and the demo number's trip to Bali in
  * two days, which the daily job moves along with the flights.
  */
 
 const files = new Map<string, Buffer>();
 
 function photoPath(name: TravelPhoto): string {
-  return path.join(process.cwd(), "public/demo-photos", `travel-${name}.jpg`);
+  return path.join(process.cwd(), "public/travel-photos", `${name}.jpg`);
 }
 
 /** The asset of one of Safra's photos, saved the first time; the demo's drawing when the photo isn't in the bundle. */

@@ -9,6 +9,7 @@ import { BOOKINGS_DESIGNS, CLINIC_DESIGNS, FITNESS_DESIGNS, SERVICES_DESIGNS } f
 import { aboutPage, contactPage, page, PALETTES, PICTURE, tab, type Design, type Palette } from "./build";
 import { CHARITY_DESIGNS, EVENTS_DESIGNS, NEWS_DESIGNS, REAL_ESTATE_DESIGNS } from "./more";
 import { SCHOOL_DESIGNS } from "./school";
+import { TRAVEL_DESIGNS } from "./travel";
 import { DELIVERY_DESIGNS, FOOD_DESIGNS, MARKET_DESIGNS, RIDES_DESIGNS, TAXI_DESIGNS } from "./transport";
 import { RESTAURANT_DESIGNS, STORE_DESIGNS } from "./store";
 
@@ -50,6 +51,7 @@ const MENU_ICONS: Record<string, string> = {
   join: "groups",
   admissions: "school",
   teach: "school",
+  packages: "luggage",
 };
 
 export const DESIGNS: readonly Design[] = [
@@ -71,6 +73,7 @@ export const DESIGNS: readonly Design[] = [
   ...TAXI_DESIGNS,
   ...INSTRUCTORS_DESIGNS,
   ...SCHOOL_DESIGNS,
+  ...TRAVEL_DESIGNS,
 ]
   .map(withHeader)
   .map(withCompanyPages);

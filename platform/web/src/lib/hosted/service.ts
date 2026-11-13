@@ -1487,6 +1487,9 @@ export function notificationJson(n: HostedNotification, readAt: Date | null) {
     ...(n.data?.note_id ? { note_id: numberOf(n.data.note_id) } : {}),
     // 113.4 The permission slip it opens.
     ...(n.data?.slip_id ? { slip_id: numberOf(n.data.slip_id) } : {}),
+    // 126 The trip and the price alert they open.
+    ...(n.data?.booking_id ? { booking_id: numberOf(n.data.booking_id) } : {}),
+    ...(n.data?.alert_id ? { alert_id: numberOf(n.data.alert_id) } : {}),
     ...(n.articleId ? { article_id: n.articleId } : {}),
     ...(n.eventId ? { event_id: n.eventId } : {}),
     ...(n.campaignId ? { campaign_id: n.campaignId } : {}),

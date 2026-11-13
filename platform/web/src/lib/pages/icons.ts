@@ -72,6 +72,11 @@ export const PAGE_ICONS = [
   "two_wheeler",
   // 105.2 Ride hailing.
   "local_taxi",
+  // 126 Travel: Explore, Stays, Flights and Trips.
+  "travel_explore",
+  "bed",
+  "flight",
+  "luggage",
 ] as const;
 
 /** A Material Symbols name: lowercase letters, digits and underscores. */

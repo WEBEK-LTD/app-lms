@@ -62,7 +62,8 @@ export function defaultLayout(
     appearance: defaultAppearance(app, defaults),
     languages: { default: defaults.languages.default, available: [...defaults.languages.available] },
   };
-  const homeTab = tab("home", "Home", "home", { type: "page", page_slug: "home" });
+  // 126 A travel app's home is its Explore.
+  const homeTab = app.appType === "travel" ? tab("home", "Explore", "travel_explore", { type: "page", page_slug: "home" }) : tab("home", "Home", "home", { type: "page", page_slug: "home" });
   const accountTab = tab("account", "Account", "person", { type: "screen", screen: "account" });
   // 20 The engine's usual tabs and home blocks (lib/app/kinds.ts); an unknown type gets Home and Account.
   const engine = isAppType(app.appType) ? ENGINES[app.appType].pages : null;

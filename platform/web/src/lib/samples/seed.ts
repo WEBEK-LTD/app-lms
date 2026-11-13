@@ -117,12 +117,13 @@ const SEEDERS: Record<SampleList, (s: Seeding) => Promise<boolean>> = {
   school: async () => false,
   school_news: seedSchoolNews,
   // 126 Safra's hotels, rooms and flights (lib/travel/samples.ts), in a travel project.
-  hotels: seedTravel,
-  flights: seedTravel,
+  hotels: (s) => seedTravel(s, "hotels"),
+  flights: (s) => seedTravel(s, "flights"),
 };
 
-async function seedTravel(s: Seeding): Promise<boolean> {
+async function seedTravel(s: Seeding, only: "hotels" | "flights"): Promise<boolean> {
   const made = await makeTravelSamples({
+    only,
     store: s.deps.store,
     app: s.app,
     now: s.deps.now,

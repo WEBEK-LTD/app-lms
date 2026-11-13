@@ -12,8 +12,8 @@ import { DEFAULT_TRAVEL_SETTINGS, travelSettingsOf } from "./settings";
  * twelve weeks; the demo's daily job keeps them going.
  */
 
-/** The photos the entries name (public/demo-photos/travel-<name>.jpg, CC0 or public domain, credited in CREDITS.md). */
-export const TRAVEL_PHOTOS = ["resort", "beach", "skyline", "city", "oia", "suite", "room", "terminal"] as const;
+/** The photos the entries name (public/travel-photos/<name>.jpg, CC0, credited in its CREDITS.md). */
+export const TRAVEL_PHOTOS = ["beach", "skyline", "city", "oia", "suite", "room"] as const;
 export type TravelPhoto = (typeof TRAVEL_PHOTOS)[number];
 
 export interface TravelSampleDeps {
@@ -24,6 +24,8 @@ export interface TravelSampleDeps {
   photo: (name: TravelPhoto) => Promise<string | null>;
   /** 110.2 Marked as samples. */
   sample: boolean;
+  /** Only the hotels (with their rooms) or only the flights; both without it. */
+  only?: "hotels" | "flights";
 }
 
 export const TRAVEL_DEMO_SETTINGS: TravelSettings = {
@@ -71,7 +73,7 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       lat: -8.6913,
       lng: 115.1567,
       description: "Villas and suites around a long pool that runs to the sand, a spa in the garden and breakfast by the sea.",
-      photos: ["resort", "beach", "suite"],
+      photos: ["room", "beach", "suite"],
       amenities: ["pool", "spa", "wifi", "breakfast", "beach", "restaurant", "bar", "shuttle"],
       themes: ["Beach", "Spa"],
       checkInTime: "15:00",
@@ -84,8 +86,8 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       featured: true,
     },
     rooms: [
-      { name: "Deluxe Ocean View · King", description: "A balcony over the sea, a rain shower and a king bed.", photos: ["suite"], sizeM2: 42, beds: "King", sleeps: 2, features: ["balcony", "rain shower", "sea view"], units: 6, nightlyCents: 168_00, minNights: 1 },
-      { name: "Garden Suite · private pool", description: "Its own plunge pool in a walled garden.", photos: ["resort"], sizeM2: 68, beds: "King + sofa bed", sleeps: 3, features: ["private pool", "garden", "bathtub"], units: 3, nightlyCents: 240_00, minNights: 2 },
+      { name: "Deluxe Ocean View · King", description: "A balcony over the sea, a rain shower and a king bed.", photos: ["room"], sizeM2: 42, beds: "King", sleeps: 2, features: ["balcony", "rain shower", "sea view"], units: 6, nightlyCents: 168_00, minNights: 1 },
+      { name: "Garden Suite · private pool", description: "Its own plunge pool in a walled garden.", photos: ["beach"], sizeM2: 68, beds: "King + sofa bed", sleeps: 3, features: ["private pool", "garden", "bathtub"], units: 3, nightlyCents: 240_00, minNights: 2 },
     ],
   },
   {
@@ -101,7 +103,7 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       lat: 25.1972,
       lng: 55.2744,
       description: "High floors over the skyline, a rooftop pool and the metro at the door.",
-      photos: ["skyline", "room"],
+      photos: ["skyline", "suite"],
       amenities: ["pool", "wifi", "gym", "restaurant", "bar", "parking", "air_conditioning", "view"],
       themes: ["City"],
       checkInTime: "14:00",
@@ -114,7 +116,7 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       featured: true,
     },
     rooms: [
-      { name: "Skyline Room · King", description: "Floor-to-ceiling windows on the towers.", photos: ["room"], sizeM2: 36, beds: "King", sleeps: 2, features: ["city view", "rain shower"], units: 8, nightlyCents: 134_00, minNights: 1 },
+      { name: "Skyline Room · King", description: "Floor-to-ceiling windows on the towers.", photos: ["suite"], sizeM2: 36, beds: "King", sleeps: 2, features: ["city view", "rain shower"], units: 8, nightlyCents: 134_00, minNights: 1 },
       { name: "Family Room · two queens", description: "Room for four, and a view of the fountain.", photos: ["suite"], sizeM2: 48, beds: "2 Queen", sleeps: 4, features: ["city view", "bathtub"], units: 4, nightlyCents: 188_00, minNights: 1 },
     ],
   },
@@ -131,7 +133,7 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       lat: 41.0067,
       lng: 28.9769,
       description: "A wooden town house of twelve rooms with a rooftop for breakfast over the Bosphorus.",
-      photos: ["city", "room"],
+      photos: ["city", "suite"],
       amenities: ["wifi", "breakfast", "air_conditioning", "view"],
       themes: ["City"],
       checkInTime: "14:00",
@@ -143,7 +145,7 @@ export const TRAVEL_HOTELS: readonly HotelSeed[] = [
       badge: null,
       featured: false,
     },
-    rooms: [{ name: "Classic Double", description: "Under the wooden beams, on a quiet lane.", photos: ["room"], sizeM2: 22, beds: "Double", sleeps: 2, features: ["rain shower"], units: 5, nightlyCents: 96_00, minNights: 1 }],
+    rooms: [{ name: "Classic Double", description: "Under the wooden beams, on a quiet lane.", photos: ["suite"], sizeM2: 22, beds: "Double", sleeps: 2, features: ["rain shower"], units: 5, nightlyCents: 96_00, minNights: 1 }],
   },
   {
     hotel: {
@@ -307,7 +309,7 @@ export async function makeTravelSamples(deps: TravelSampleDeps): Promise<{ hotel
   if (!settings) await store.saveTravelSettings(app.id, { ...TRAVEL_DEMO_SETTINGS, samplesAdded: true }, now);
   let hotels = 0;
   let flights = 0;
-  if ((await store.listTravelHotels(app.id)).length === 0) {
+  if (deps.only !== "flights" && (await store.listTravelHotels(app.id)).length === 0) {
     const made: number[] = [];
     for (const [i, seed] of TRAVEL_HOTELS.entries()) {
       const photos = (await Promise.all(seed.hotel.photos.map((p) => deps.photo(p)))).filter((id): id is string => id !== null);
@@ -329,7 +331,7 @@ export async function makeTravelSamples(deps: TravelSampleDeps): Promise<{ hotel
       await store.addTravelReview({ appId: app.id, hotelId, bookingId: 900_000_000 + i, userId: null, name: r.name, score: r.score, staff: r.staff, clean: r.clean, location: r.location, value: r.value, trip: r.trip, text: r.text, stayed: today(now).slice(0, 7), hidden: false, createdAt: new Date(now.getTime() - (i + 1) * 86_400_000) });
     }
   }
-  if ((await store.listTravelFlights(app.id)).length === 0) {
+  if (deps.only !== "hotels" && (await store.listTravelFlights(app.id)).length === 0) {
     for (const f of flightsFor(app.id, addDays(today(now), 2), addDays(today(now), TRAVEL_WEEKS * 7), sample)) {
       await store.createTravelFlight(f, now);
       flights++;

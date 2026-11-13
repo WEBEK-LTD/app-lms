@@ -51,7 +51,8 @@ export interface TravelConnectorDeps {
 }
 
 const signIn = () => error(401, "invalid_token", "Your session has ended. Please sign in again.");
-const notFound = (what = "Booking") => error(404, "not_found", `${what} not found.`);
+const NOT_FOUND = { Booking: "Booking not found.", Hotel: "Hotel not found.", Flight: "Flight not found.", Alert: "Alert not found.", "Seat map": "This flight has no seat map: seats are given at the airport." } as const;
+const notFound = (what: keyof typeof NOT_FOUND = "Booking") => error(404, "not_found", NOT_FOUND[what]);
 const refusal = (r: Refusal) => error(r.status, r.code, r.message);
 const isRefusal = (v: unknown): v is Refusal => Boolean(v && typeof v === "object" && "code" in v && "status" in v && "message" in v);
 const idOf = (value: string | undefined) => (value && /^\d{1,15}$/.test(value) ? Number(value) : null);
@@ -129,7 +130,9 @@ export class TravelConnector implements Connector {
     if (mine && path[2] === "alerts" && path.length === 4 && request.method === "DELETE") {
       const id = idOf(path[3]);
       if (!request.user) return signIn();
-      if (id !== null) await this.deps.store.deleteTravelAlert(this.deps.app.id, request.user.id, id);
+      const mine = id === null ? [] : await this.deps.store.listTravelAlerts(this.deps.app.id, request.user.id);
+      if (id === null || !mine.some((a) => a.id === id)) return notFound("Alert");
+      await this.deps.store.deleteTravelAlert(this.deps.app.id, request.user.id, id);
       return { status: 204 };
     }
     if (mine && path[2] === "bookings" && path.length >= 4) {
@@ -274,10 +277,10 @@ export class TravelConnector implements Connector {
 
   private async save(ctx: TravelDeps, request: ConnectorRequest, id: number, saved: boolean): Promise<ConnectorResult> {
     if (!request.user) return signIn();
-    if (saved) {
-      const hotel = await ctx.hotels.hotel(id);
-      if (!hotel || !hotel.active) return notFound("Hotel");
-    }
+    const hotel = await ctx.hotels.hotel(id);
+    if (saved && (!hotel || !hotel.active)) return notFound("Hotel");
+    // Unsaving: one the person saved (even if the hotel closed since), or one of this app's.
+    if (!saved && !hotel && !(await this.deps.store.listTravelSaved(this.deps.app.id, request.user.id)).includes(id)) return notFound("Hotel");
     await this.deps.store.setTravelSaved(this.deps.app.id, request.user.id, id, saved, request.now);
     return { status: 204 };
   }

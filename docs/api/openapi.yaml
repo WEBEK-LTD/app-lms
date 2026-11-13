@@ -7240,12 +7240,14 @@ paths:
       tags: [Travel]
       operationId: unsaveHotel
       summary: Remove a saved hotel
+      description: A hotel the person hasn't saved, and that isn't one of this app's, is not found.
       parameters:
         - $ref: '#/components/parameters/TravelHotelId'
       responses:
         '204': { description: Removed }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /me/travel/bookings:
     get:
@@ -7595,6 +7597,7 @@ paths:
         '204': { description: Stopped }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /rides/estimate:
     post:
@@ -13970,7 +13973,7 @@ components:
         body: { type: string }
         type:
           type: string
-          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, market_order_update, vendor_order, complaint_update, club_renewal, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee]
+          enum: [new_lesson, announcement, enrolled, qna_answer, article, event, campaign_update, appointment_confirmed, appointment_reminder, class_soon, event_soon, membership_ending, cart_left, study_reminder, order_update, shipment_update, courier_job, food_order_update, restaurant_order, market_order_update, vendor_order, complaint_update, club_renewal, ride_update, ride_offer, new_course, teacher_course, teacher_question, school_absence, school_homework, school_grade, school_announcement, school_fee, live_class_soon, assignment_graded, school_exam, school_behaviour, school_bus, school_library, school_checkin, school_staff, school_leave, school_report, school_report_shared, school_slip, school_excuse, uni_registration, uni_seat, uni_results, uni_advisee, travel_update, travel_alert]
           description: >-
             85.3 Automatic notifications on Yallapp's hosted API have their own types:
             `appointment_confirmed` and `appointment_reminder` (with `appointment_id`), `class_soon`,
@@ -14039,6 +14042,10 @@ components:
             opens the student's results (the student's and their parents' pushes alike);
             `uni_advisee` (with `term_id`), an advisee's registration waits for the advisor,
             and opens that advisee in the Classroom tab.
+            126 A travel app's: `travel_update` (with `booking_id`, and `flight_id` for a flight's
+            news), a booking confirmed, changed or cancelled or its flight delayed, its gate or
+            status changed, and opens the trip; `travel_alert` (with `alert_id`), a watched price
+            went down, and opens the price alerts.
             An app that doesn't know a type opens Home.
         course_id: { type: [integer, 'null'] }
         lesson_id: { type: [integer, 'null'] }
@@ -14061,6 +14068,8 @@ components:
         live_id: { type: [integer, 'null'], description: "112.5 For live_class_soon, the live class to open. Missing on older servers." }
         assignment_id: { type: [integer, 'null'], description: "112.5 For assignment_graded, the assignment to open. Missing on older servers." }
         report_id: { type: [integer, 'null'], description: "113.5 For school_report and school_report_shared, the teacher's report to open. Missing on older servers." }
+        booking_id: { type: [integer, 'null'], description: "126 For travel_update, the trip to open. Missing on older servers." }
+        alert_id: { type: [integer, 'null'], description: "126 For travel_alert, the price alert. Missing on older servers." }
         link: { type: [string, 'null'], format: uri, description: "46 A link in the format of the Links tag (`<base>/<kind>/<id>`): what the notification opens when no other field here says. 85.2 Or another `https` address (a campaign's web page), which the app opens in the browser. Push notifications carry it in their data too. Missing on older servers." }
         image_url:
           type: [string, 'null']
@@ -20952,7 +20961,7 @@ components:
 
     TravelLeg:
       type: object
-      required: [flight_id, number, carrier, from, to, departs, arrives, days_later, minutes, stops, via, aircraft, amenities, status, status_note, gate, boards_at, delayed_departs]
+      required: [flight_id, number, carrier, from, to, departs, arrives, days_later, minutes, stops, via, aircraft, amenities, status, status_note, gate, boards_at, delayed_departs, has_seat_map]
       properties:
         flight_id: { type: integer }
         number: { type: string, example: SF 691 }
@@ -20974,6 +20983,7 @@ components:
         gate: { type: [string, 'null'] }
         boards_at: { type: [string, 'null'], pattern: '^\d{2}:\d{2}$' }
         delayed_departs: { type: [string, 'null'], pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$' }
+        has_seat_map: { type: boolean, description: 'Travellers choose their seats on it.' }
 
     TravelFare:
       type: object
@@ -21212,7 +21222,7 @@ components:
             allOf:
               - $ref: '#/components/schemas/TravelLeg'
               - type: object
-                required: [leg, fare_id, fare_name, seats, has_seat_map]
+                required: [leg, fare_id, fare_name, seats]
                 properties:
                   leg: { type: string, enum: [out, back] }
                   fare_id: { type: string, enum: [light, standard, flex] }
@@ -21221,7 +21231,6 @@ components:
                     type: array
                     description: One per traveller, null while not chosen.
                     items: { type: [string, 'null'] }
-                  has_seat_map: { type: boolean }
         transfer:
           oneOf:
             - type: 'null'

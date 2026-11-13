@@ -1296,20 +1296,6 @@ export const KINDS: readonly KindInfo[] = [
       "This app has three roles. Students see their timetable, homework, grades, attendance and the school's news. Parents see the same for each of their children and pay fees. Teachers of the school sign in with a number the school added and see a Classroom tab where they take attendance, give homework and enter scores. When the school has its staff app, its teachers and staff work in that separate app, which has its own store listing, and this app shows only the students' and parents' screens.",
   },
   {
-    // 126 The travel engine's one kind: hotels, flights or both (Admin › client › Travel).
-    id: "travel",
-    engine: "travel",
-    vertical: null,
-    name: "Travel: hotels and flights",
-    description: "People search your hotels and flights, book a stay, a flight or both as one trip, and follow it in the app: the boarding pass, the flight's status, the stay.",
-    requires: "No website needed: you add your hotels, rooms and flights here in the dashboard · Your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or pay at the hotel",
-    icon: "travel_explore",
-    tile: "bg-tile-2 text-[#7F5B1C]",
-    marketing: { slug: "travel", icon: "travel_explore" },
-    reviewNote:
-      "People search the company's hotels and flights, book a stay, a flight or both and pay on the company's payment page or at the hotel. The review account sees the sample hotels and flights, and can book and cancel a stay; its trips show under Trips. No account is needed to search.",
-  },
-  {
     // 105.3 An academy with many teachers: the courses engine, each course possibly a teacher's.
     id: "instructors",
     engine: "lms",
@@ -1346,6 +1332,20 @@ export const KINDS: readonly KindInfo[] = [
     reviewNote:
       "This app has two roles. Students browse the academy's teachers and courses. Teachers of the academy sign in with a number the academy added and see a Teacher tab with their courses, students' questions and earnings. The review account is both: a student, and a test teacher (\"App Review\") whose Teacher tab makes a course and sends it to the academy for review. Students never see the test teacher. When the academy has its staff app, its teachers work in that separate app, which has its own store listing, and this app has no Teacher tab.",
     screens: ["teachers", "teacher"],
+  },
+  {
+    // 126 The travel engine's one kind: hotels, flights or both (Admin › client › Travel).
+    id: "travel",
+    engine: "travel",
+    vertical: null,
+    name: "Travel: hotels and flights",
+    description: "People search your hotels and flights, book a stay, a flight or both as one trip, and follow it in the app: the boarding pass, the flight's status, the stay.",
+    requires: "No website needed: you add your hotels, rooms and flights here in the dashboard · Your own iyzico, Kashier, Fawaterk, Stripe or PayPal account, or pay at the hotel",
+    icon: "travel_explore",
+    tile: "bg-tile-2 text-[#7F5B1C]",
+    marketing: { slug: "travel", icon: "travel_explore" },
+    reviewNote:
+      "People search the company's hotels and flights, book a stay, a flight or both and pay on the company's payment page or at the hotel. The review account sees the sample hotels and flights, and can book and cancel a stay; its trips show under Trips. No account is needed to search.",
   },
 ];
 

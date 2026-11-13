@@ -478,7 +478,7 @@ export async function bookingJson(deps: TravelDeps, booking: TravelBooking, flig
     flights: legsOf(booking).flatMap(({ leg, part }) => {
       const f = flights.get(part.flightId);
       if (!f) return [];
-      return [{ ...legJson(f), leg, fare_id: part.fareId, fare_name: part.fareName, seats: part.seats, has_seat_map: f.seatMap !== null }];
+      return [{ ...legJson(f), leg, fare_id: part.fareId, fare_name: part.fareName, seats: part.seats }];
     }),
     transfer: booking.transfer ? { note: booking.transfer.note } : null,
     travellers: booking.travellers.map((t) => ({ first_name: t.firstName, last_name: t.lastName })),

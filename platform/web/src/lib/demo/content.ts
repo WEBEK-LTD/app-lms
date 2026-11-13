@@ -727,7 +727,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     cards: "outlined",
     languages: ["en", "ar", "tr"],
     icon: "icon-travel",
-    banner: { picture: "banner-travel", heading: "Where does the next story begin?", subheading: "Hotels and flights, together for one price." },
+    banner: { picture: "banner-travel", heading: "Your next trip, in one app", subheading: "Hotels and flights, together for one price." },
     androidPackage: "com.yallapp.demo.travel",
     storeTitle: "Safra Travel",
     shortDescription: "Hotels and flights, booked together for one price.",

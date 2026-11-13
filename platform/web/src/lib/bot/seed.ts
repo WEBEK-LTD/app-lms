@@ -246,6 +246,17 @@ const SEED: Record<string, Words> = {
     "ar-maghreb": "تبرعات|جمعية|صدقة",
     "ar-sd": "تبرعات|خيرية|صدقة|نفير",
   },
+  "kind.travel": {
+    en: "hotel|hotels|resort|travel agency|travel|flights|flight booking|charter flights|umrah|umrah packages|hajj|holiday packages|tour operator|airline",
+    tr: "otel|oteller|tatil köyü|seyahat acentesi|seyahat|uçuş|uçak bileti|charter|umre|umre turu|tatil paketi|tur operatörü|havayolu",
+    ar: "فندق|فنادق|منتجع|وكالة سفر|سفر وسياحة|سياحة|رحلات طيران|حجز طيران|تذاكر طيران|طيران عارض|عمرة|رحلات عمرة|حج|باقات سفر|شركة طيران",
+    "ar-eg": "فندق|أوتيل|شركة سياحة|سياحة|طيران|تذاكر طيران|عمرة|رحلات طيران",
+    "ar-gulf": "فندق|منتجع|سفريات|مكتب سفريات|تذاكر طيران|طيران|عمرة",
+    "ar-lev": "فندق|أوتيل|مكتب سياحة|سفر|طيران|عمرة",
+    "ar-iq": "فندق|شركة سفر|سفرات|طيران|عمرة|زيارات",
+    "ar-maghreb": "أوطيل|فندق|وكالة أسفار|سفر|طيارة|عمرة",
+    "ar-sd": "فندق|وكالة سفر|طيران|تذاكر طيران|عمرة",
+  },
 
   // ——— Features ———
   "feature.chat": {

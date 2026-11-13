@@ -347,6 +347,7 @@ export function legJson(flight: TravelFlight) {
     gate: flight.gate,
     boards_at: flight.boardsAt,
     delayed_departs: flight.delayedDeparts,
+    has_seat_map: flight.seatMap !== null,
   };
 }
 
