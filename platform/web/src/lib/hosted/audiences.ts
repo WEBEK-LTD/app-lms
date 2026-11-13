@@ -1,4 +1,4 @@
-import { appAreas } from "../app/areas";
+import { appAreas, ORDER_KINDS } from "../app/areas";
 import type { DataStore } from "../data/store";
 import type { App, HostedDevice } from "../data/types";
 
@@ -46,7 +46,8 @@ export function isEveryone(audience: Audience): boolean {
 export function audienceKinds(app: Pick<App, "connector" | "backend" | "vertical" | "catalogSettings">): AudienceKind[] {
   const areas = appAreas(app);
   return AUDIENCE_KINDS.filter((kind) => {
-    if (kind === "buyers") return areas.orders;
+    // 125 Delivery, food and ride apps' customers paid through catalog orders (payment links) too.
+    if (kind === "buyers") return ORDER_KINDS.has(app.connector?.kind ?? "");
     if (kind === "students") return areas.courses;
     if (kind === "members") return areas.memberCheckIn;
     return true;

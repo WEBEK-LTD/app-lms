@@ -1,6 +1,5 @@
 import { isLang } from "@/i18n/config";
 import { contextFor } from "./auth";
-import { appAreas } from "../app/areas";
 import { appLabel } from "../app/label";
 import { chatAvailable } from "../chat/access";
 import { planOfLicense } from "../entitlements";
@@ -17,6 +16,8 @@ import { bellWords, dashboardTextFor } from "../dashboard-words";
 import { bodyObject, invalid, notFound, OwnerError, type OwnerContext, type OwnerResult } from "./http";
 import { allowedAreas, areasOf, teamCan } from "../team/permissions";
 import { businessName } from "../team/service";
+import { ownerAreas } from "./sales";
+import { accountManagerJson } from "./vip";
 
 /**
  * 58 The account: who is signed in, their apps (with what each has, as the
@@ -43,7 +44,8 @@ export function appStateOf(ctx: OwnerContext, app: App): AccountState {
 /** `AppSummary` in docs/api/owner.yaml. */
 export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, PlanInfo>) {
   // 60 What the app has and the person's role allows.
-  const areas = allowedAreas(appAreas(app), ctx.access, app.id);
+  const areas = allowedAreas(ownerAreas(ctx, app), ctx.access, app.id);
+  const plan = planOfLicense(plans, ctx.licenses.find((l) => l.appId === app.id) ?? null, ctx.deps.now);
   const license = ctx.licenses.find((l) => l.appId === app.id) ?? null;
   const name = appLabel(app);
   return {
@@ -79,6 +81,15 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
       analytics: areas.analytics,
       preview: areas.preview,
       builds: areas.builds,
+      // 125 The Studio apps' tools, Prime (a Studio plan) and VIP (a plan with an account manager).
+      food_orders: areas.foodOrders,
+      restaurants: areas.restaurants,
+      shipments: areas.shipments,
+      rides: areas.rides,
+      market: areas.market,
+      school: areas.school,
+      prime: areas.prime,
+      vip: plan?.limits.accountManager === true,
     },
     access: {
       role: ctx.access.role,
@@ -91,13 +102,21 @@ export function appSummaryJson(ctx: OwnerContext, app: App, plans: Record<Plan, 
 }
 
 /** 60 `Business` in docs/api/owner.yaml. */
-async function businessesJson(ctx: OwnerContext) {
+async function businessesJson(ctx: OwnerContext, plans: Record<Plan, PlanInfo>) {
   const { store, now } = ctx.deps;
   return Promise.all(
     ctx.businesses.map(async (b) => {
       const [apps, licenses] = await Promise.all([store.listAppsByClient(b.client.id), store.listLicensesByClient(b.client.id)]);
-      const name = businessName(b.owner, apps.filter((a) => b.access.appIds === null || b.access.role === "owner" || b.access.appIds.includes(a.id)));
-      return { id: b.client.id, name: name === "Untitled app" ? ctx.k(name) : name, role: b.access.role, state: clientAccountState(b.client, licenses, now) };
+      const theirs = apps.filter((a) => b.access.appIds === null || b.access.role === "owner" || b.access.appIds.includes(a.id));
+      const name = businessName(b.owner, theirs);
+      return {
+        id: b.client.id,
+        name: name === "Untitled app" ? ctx.k(name) : name,
+        role: b.access.role,
+        state: clientAccountState(b.client, licenses, now),
+        // 125 VIP: the business's account manager.
+        account_manager: b.client.status === "active" ? await accountManagerJson(ctx, b.client, theirs, licenses, plans) : null,
+      };
     }),
   );
 }
@@ -108,10 +127,12 @@ export async function meJson(ctx: OwnerContext) {
   const [plans, contact] = await Promise.all([getPlans(store), platformSetting(store, "contact")]);
   // 72 The number for the account's country (Egypt's in Egypt), and both for the help screen.
   const support = contactFrom(contact?.value ?? DEFAULT_CONTACT, ctx.client.country || null);
-  const businesses = await businessesJson(ctx);
+  const businesses = await businessesJson(ctx, plans);
   return {
     user: { id: ctx.user.id, name: ctx.user.name, email: ctx.user.email, language: isLang(ctx.user.language) ? ctx.user.language : null },
     business: businesses.find((b) => b.id === ctx.client.id) ?? null,
+    // 125 VIP: the current business's account manager, when one of the person's apps has one.
+    account_manager: active ? await accountManagerJson(ctx, ctx.client, ctx.apps, ctx.licenses, plans) : null,
     businesses,
     account: {
       state: ctx.state,

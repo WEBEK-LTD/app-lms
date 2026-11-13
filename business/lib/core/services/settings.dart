@@ -35,6 +35,17 @@ class LocalSettings {
   Future<void> setTheme(String? mode) =>
       mode == null ? _prefs.remove(_theme) : _prefs.setString(_theme, mode);
 
+  /// 125 A Prime app's look (classic, midnightGold, ember, sage), per app.
+  String? primeLook(String appId) => _prefs.getString('yb.prime_look.$appId');
+  Future<void> setPrimeLook(String appId, String look) =>
+      _prefs.setString('yb.prime_look.$appId', look);
+
+  /// 125 The Prime header on Today (on unless turned off), per app.
+  bool primeHeader(String appId) =>
+      _prefs.getBool('yb.prime_header.$appId') ?? true;
+  Future<void> setPrimeHeader(String appId, bool on) =>
+      _prefs.setBool('yb.prime_header.$appId', on);
+
   /// Uploads to Media that haven't finished, so they can carry on later.
   List<PendingUpload> get pendingUploads {
     final raw = _prefs.getString(_uploads);

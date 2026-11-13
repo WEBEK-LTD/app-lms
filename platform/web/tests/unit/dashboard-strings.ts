@@ -132,10 +132,14 @@ export function dashboardFiles(root: string): string[] {
     "plan-payment-form",
     "updates-bell",
     "upgrade",
+    // 127 The editors' first steps after starting from a demo.
+    "first-steps",
   ];
   return [
     ...filesUnder(join(root, "src/app/dashboard")),
     ...filesUnder(join(root, "src/app/pending")),
+    // 127 Choosing your app from our demos.
+    ...filesUnder(join(root, "src/app/start")),
     ...components.map((name) => join(root, `src/components/${name}.tsx`)),
   ];
 }

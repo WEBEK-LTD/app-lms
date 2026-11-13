@@ -66,6 +66,7 @@ platform :android do
   #          app (104.8.6 "courier" for Yallapp Courier; Yallapp Business by default)
   lane :business_play do |options|
     package = release_app(options)[:id]
+    once_per_screenshot
     upload = lambda do |status|
       upload_to_play_store(
         package_name: package,
@@ -134,6 +135,27 @@ RELEASE_APPS = {
   "business" => { id: BUSINESS_ID, name: "Yallapp Business", ipa: "YallappBusiness", keychain: "yallapp-business.keychain", entitlements: false },
   "courier" => { id: "tr.com.yallapp.courier", name: "Yallapp Courier", ipa: "YallappCourier", keychain: "yallapp-courier.keychain", entitlements: true },
 }.freeze
+
+# 125 Google Play can list one screenshot twice under the same id. supply's sync then deletes it
+# twice in one edit and the second delete fails ("Image not found"), stopping the release. Each
+# screenshot is deleted once per edit.
+def once_per_screenshot
+  require "supply"
+  return if Supply::Client.method_defined?(:clear_screenshot_before_once)
+
+  Supply::Client.class_eval do
+    alias_method :clear_screenshot_before_once, :clear_screenshot
+
+    def clear_screenshot(image_type: nil, language: nil, image_id: nil)
+      @screenshots_cleared ||= {}
+      key = [current_edit&.id, language, image_type, image_id]
+      return if @screenshots_cleared[key]
+
+      @screenshots_cleared[key] = true
+      clear_screenshot_before_once(image_type: image_type, language: language, image_id: image_id)
+    end
+  end
+end
 
 def release_app(options)
   RELEASE_APPS.fetch((options[:app] || "business").to_s) { |name| UI.user_error!("No app #{name}: business or courier.") }
@@ -317,7 +339,8 @@ platform :ios do
   #     (business_old_certificate), so every update just runs.
   #
   # options: asc, business (path to business/; 104.8.6 or project: the Flutter project), out, status,
-  #          cert_out, app (as business_play), push (Yallapp Courier: "false" without Firebase)
+  #          cert_out, cert_save (125.13: where to write the certificate made here, to be saved as
+  #          the secrets), app (as business_play), push (Yallapp Courier: "false" without Firebase)
   lane :business_ipa do |options|
     app = release_app(options)
     app_id = app[:id]
@@ -358,6 +381,17 @@ platform :ios do
       end
       cert_id = lane_context[SharedValues::CERT_CERTIFICATE_ID].to_s
       File.write(options[:cert_out], cert_id)
+      # 125.13 With options[:cert_save] (the workflow has YB_SECRETS_TOKEN), this certificate with
+      # its key goes to that file ({p12_base64, password}, only the runner can read it); the
+      # workflow saves it as YB_IOS_DISTRIBUTION_P12 and YB_IOS_DISTRIBUTION_PASSWORD, so every
+      # later run of both apps signs with it and Apple's few certificates stop filling up.
+      unless options[:cert_save].to_s.empty?
+        password = SecureRandom.hex(24)
+        p12 = File.join(options[:out], "distribution.p12")
+        sh("security", "export", "-k", "#{Dir.home}/Library/Keychains/#{keychain}-db", "-t", "identities", "-f", "pkcs12", "-P", password, "-o", p12, log: false)
+        File.open(options[:cert_save], "w", 0o600) { |f| f.write(JSON.generate("p12_base64" => Base64.strict_encode64(File.binread(p12)), "password" => password)) }
+        File.delete(p12)
+      end
     else
       p12 = File.join(options[:out], "distribution.p12")
       File.binwrite(p12, Base64.decode64(p12_base64))

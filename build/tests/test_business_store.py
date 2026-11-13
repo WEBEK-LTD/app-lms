@@ -129,6 +129,29 @@ class AssembleTest(unittest.TestCase):
             with Image.open(out / "ar" / "images" / "phoneScreenshots" / "1_ar.png") as image:
                 self.assertEqual("RGB", image.mode)  # no alpha
 
+    def test_play_takes_the_first_eight_in_their_order(self):
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for device, size in (("android-phone", (108, 192)), ("android-tablet", (160, 256))):
+                for lang in ("en", "ar", "tr"):
+                    path = Path(tmp) / "shots" / device / lang
+                    path.mkdir(parents=True)
+                    for index in range(1, 11):
+                        Image.new("RGB", size, (index * 20, 13, 36)).save(path / f"{index}_shot{index}.png")
+            self.assertEqual(
+                [f"{i}_shot{i}.png" for i in range(1, 11)],
+                [p.name for p in store.screenshots(Path(tmp) / "shots", "android-phone", "en")],
+            )
+            out = Path(tmp) / "play"
+            store.cmd_play(out, Path(tmp) / "shots")
+            for folder in ("phoneScreenshots", "sevenInchScreenshots", "tenInchScreenshots"):
+                names = sorted((out / "en-US" / "images" / folder).iterdir(), key=lambda p: int(p.name.split("_")[0]))
+                self.assertEqual(8, len(names), folder)
+            # The 8th Play screenshot is the 8th one drawn, not 10_ sorted among the 1_s.
+            with Image.open(out / "en-US" / "images" / "phoneScreenshots" / "8_en-US.png") as image:
+                self.assertEqual((160, 13, 36), image.getpixel((0, 0)))
+
     def test_appstore_layout_and_review_details(self):
         env = {
             "YB_APP_REVIEW_FIRST_NAME": "Layla",

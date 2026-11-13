@@ -35,7 +35,9 @@ import { signInCodesSentToday } from "@/lib/license/sign-in-codes";
 import { ACCOUNT_STATE_LABEL, appState, clientAccountState, type AccountState } from "@/lib/license/status";
 import { formatLimit, planName, planNamesOf, plansShown, plansWith, type Plan, type PlanInfo } from "@/lib/plans";
 import { currentPlanId, scheduledPlan } from "@/lib/billing/plan-change";
-import { effectivePlans } from "@/lib/entitlements";
+import { effectivePlans, planOfLicense } from "@/lib/entitlements";
+import { callRows } from "@/lib/admin/calls";
+import { CallList, ManagerPicker } from "../../calls/parts";
 import { getPlans } from "@/lib/settings/platform";
 import { getSwitches, websiteOf, websiteOn } from "@/lib/switches";
 import { appTypeName, wordsOf } from "@/lib/app/kinds";
@@ -67,6 +69,9 @@ export const metadata: Metadata = { title: "Client" };
 export const dynamic = "force-dynamic";
 
 const DONE: Record<string, string> = {
+  // 125 VIP
+  manager: "Account manager saved.",
+  call: "Call saved.",
   // 51 Storage packs added or removed by the team.
   "storage-added": "Storage pack added.",
   "storage-removed": "Storage pack removed.",
@@ -319,6 +324,37 @@ export default async function ClientPage({ params, searchParams }: PageProps<"/a
             ) : null}
           </Card>
         ))}
+
+        {/* 125 VIP: the client's account manager, and the calls its people asked for. */}
+        {await panel(client.id, { id: "h-manager", title: "Account manager" }, async () => {
+          const [profiles, calls] = await Promise.all([store.listStaffProfiles(), store.listAccountManagerCalls({ clientId: client.id, limit: 50 })]);
+          const managers = (await Promise.all(profiles.filter((p) => p.accountManager).map((p) => store.getUserById(p.userId)))).filter((u) => u !== null).map((u) => ({ id: u.id, name: u.name, email: u.email }));
+          const vip = apps.some((a) => planOfLicense(plans, licenses.find((l) => l.appId === a.id) ?? null, now)?.limits.accountManager === true);
+          return (
+            <Card id="h-manager" title="Account manager">
+              <p className="m-0 text-sm text-muted">
+                {vip
+                  ? "One of this client's plans comes with an account manager: they see the one chosen here in Yallapp Business, and ask for calls at their free times."
+                  : "None of this client's plans comes with an account manager. One chosen here shows once a plan with one is active."}
+              </p>
+              {typeof query.manager_error === "string" ? (
+                <p role="alert" className="m-0 text-sm font-semibold text-danger">
+                  {query.manager_error.slice(0, 300)}
+                </p>
+              ) : null}
+              <ManagerPicker clientId={client.id} current={client.accountManagerId ?? null} managers={managers} edit={may("clients.edit")} />
+              <div className="flex flex-col gap-2 border-t border-line-soft pt-3.5">
+                <h3 className="m-0 text-[15px] font-bold">Calls asked for</h3>
+                {typeof query.call_error === "string" ? (
+                  <p role="alert" className="m-0 text-sm font-semibold text-danger">
+                    {query.call_error.slice(0, 300)}
+                  </p>
+                ) : null}
+                <CallList rows={await callRows(store, [...calls].reverse().slice(0, 20).reverse())} back={`/admin/clients/${client.id}`} edit={may("clients.edit")} showClient={false} />
+              </div>
+            </Card>
+          );
+        })}
 
         {await panel(client.id, { id: "h-account", title: "Account" }, () => (
           <Card id="h-account" title="Account">

@@ -32,6 +32,8 @@ export interface OwnerDeps {
   mail: RefundDeps["mail"];
   /** 60 The `team_invitation` email (lib/email/send.ts sendTemplate). */
   teamMail?: (to: string, values: Record<string, string>, lang: Lang) => Promise<unknown>;
+  /** 125 The `account_manager_call` email to the account manager (Yallapp's team, English). */
+  staffMail?: (to: string, values: Record<string, string>) => Promise<unknown>;
   /** Pushes to the app's own users (the kitchen's steps, inquiry replies, notifications); tests pass a fake. */
   sendPush?: typeof sendPush;
   /** 77 Tells the app's people about the business's chat replies (lib/chat/push-env.ts); none in tests. */

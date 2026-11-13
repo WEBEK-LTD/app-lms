@@ -23,7 +23,7 @@ Flutter screenshot test, the dashboard's (`studio-editor`, `studio-home`,
 
 Phase 126 (Travel: hotels and flights, phase 1) is complete: a Yallapp
 Studio app type for a travel company's hotels, its fixed-seat flights or
-both (migration 0128; `lib/travel`, the hosted API's Travel tag, the app's
+both (migration 0127; `lib/travel`, the hosted API's Travel tag, the app's
 `lib/modules/travel`). The team switches Hotels and Flights in Admin ›
 client › Travel, which sets the app's tabs; the company adds its hotels,
 rooms, rates, prices, open dates and flights in the dashboard (in Studio at

@@ -203,6 +203,14 @@ export const APP_AREA_PERMISSION: Record<keyof AppAreas, TeamPermission> = {
   analytics: "analytics",
   preview: "dashboard",
   builds: "settings",
+  // 125 The Studio apps' engines are their orders; a school's day is its settings (owners and managers); Prime's insights are analytics.
+  foodOrders: "orders",
+  restaurants: "orders",
+  shipments: "orders",
+  rides: "orders",
+  market: "orders",
+  school: "settings",
+  prime: "analytics",
 };
 
 /** What the app has and they may use: the parts they may not are false. */
@@ -225,6 +233,12 @@ export const PUSH_PERMISSION: Record<OwnerPushKind, TeamPermission> = {
   build_finished: "settings",
   yallapp_updates: "dashboard",
   account_notices: "settings",
+  // 125
+  new_food_order: "orders",
+  shipment_waiting: "orders",
+  new_complaint: "orders",
+  prime_alert: "analytics",
+  morning_brief: "analytics",
 };
 
 // The owner's choices on the Team page and in the Owner API

@@ -244,6 +244,14 @@ import type {
   StoreListing,
   User,
   AdminMember,
+  AccountManagerCall,
+  AccountManagerCallInput,
+  AccountManagerCallPatch,
+  AccountManagerCallStatus,
+  PrimeAlerts,
+  PrimeAlertSetting,
+  StaffHours,
+  StaffProfile,
   AdminMemberRow,
   AuditEntry,
   AuditQuery,
@@ -10214,10 +10222,117 @@ export class MysqlStore implements DataStore {
     return result.affectedRows > 0;
   }
 
+  // 125 Prime's smart alerts, and VIP's account managers
+
+  async getPrimeAlerts(userId: string, appId: string): Promise<PrimeAlerts | null> {
+    const t = schema.primeAlerts;
+    const [row] = await this.run((db) => db.select().from(t).where(and(eq(t.userId, userId), eq(t.appId, appId))).limit(1));
+    return row ? { ...row, alerts: row.alerts as PrimeAlertSetting[] } : null;
+  }
+
+  async savePrimeAlerts(alerts: PrimeAlerts): Promise<void> {
+    const { userId, appId, ...rest } = alerts;
+    void userId;
+    void appId;
+    await this.run((db) => db.insert(schema.primeAlerts).values(alerts).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async listPrimeAlerts(): Promise<PrimeAlerts[]> {
+    const rows = await this.run((db) => db.select().from(schema.primeAlerts));
+    return rows.map((row) => ({ ...row, alerts: row.alerts as PrimeAlertSetting[] })).filter((a) => a.briefOn || a.alerts.some((x) => x.on));
+  }
+
+  async claimPrimeSend(key: string, now: Date): Promise<boolean> {
+    // The key is the primary key: of two runs at once, one inserts it.
+    const [result] = await this.run((db) => db.insert(schema.primeSends).ignore().values({ key: key.slice(0, 191), sentAt: now }));
+    return result.affectedRows === 1;
+  }
+
+  async deletePrimeSendsBefore(before: Date): Promise<number> {
+    const [result] = await this.run((db) => db.delete(schema.primeSends).where(lt(schema.primeSends.sentAt, before)));
+    return result.affectedRows;
+  }
+
+  async getStaffProfile(userId: string): Promise<StaffProfile | null> {
+    const [row] = await this.run((db) => db.select().from(schema.staffProfiles).where(eq(schema.staffProfiles.userId, userId)).limit(1));
+    return row ? { ...row, hours: (row.hours as StaffHours | null) ?? null } : null;
+  }
+
+  async listStaffProfiles(): Promise<StaffProfile[]> {
+    const rows = await this.run((db) => db.select().from(schema.staffProfiles));
+    return rows.map((row) => ({ ...row, hours: (row.hours as StaffHours | null) ?? null }));
+  }
+
+  async saveStaffProfile(profile: StaffProfile): Promise<void> {
+    const { userId, ...rest } = profile;
+    void userId;
+    await this.run((db) => db.insert(schema.staffProfiles).values(profile).onDuplicateKeyUpdate({ set: rest }));
+  }
+
+  async createAccountManagerCall(input: AccountManagerCallInput): Promise<AccountManagerCall | null> {
+    try {
+      // `slot` is unique while the call holds its time: two people asking for the same time at once make one call.
+      const [result] = await this.run((db) => db.insert(schema.accountManagerCalls).values({ ...input, slot: callSlot(input) }));
+      return { ...input, id: Number(result.insertId) };
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return null;
+      throw error;
+    }
+  }
+
+  async getAccountManagerCall(id: number): Promise<AccountManagerCall | null> {
+    const [row] = await this.run((db) => db.select().from(schema.accountManagerCalls).where(eq(schema.accountManagerCalls.id, id)).limit(1));
+    return row ? managerCallOf(row) : null;
+  }
+
+  async listAccountManagerCalls(filter: { clientId?: string; managerId?: string; statuses?: AccountManagerCallStatus[]; fromDate?: string; limit?: number }): Promise<AccountManagerCall[]> {
+    const t = schema.accountManagerCalls;
+    if (filter.statuses && filter.statuses.length === 0) return [];
+    const rows = await this.run((db) =>
+      db
+        .select()
+        .from(t)
+        .where(
+          and(
+            filter.clientId ? eq(t.clientId, filter.clientId) : undefined,
+            filter.managerId ? eq(t.managerId, filter.managerId) : undefined,
+            filter.statuses ? inArray(t.status, filter.statuses) : undefined,
+            filter.fromDate ? gte(t.date, filter.fromDate) : undefined,
+          ),
+        )
+        .orderBy(asc(t.date), asc(t.time), asc(t.id))
+        .limit(filter.limit ?? 500),
+    );
+    return rows.map(managerCallOf);
+  }
+
+  async updateAccountManagerCall(id: number, patch: AccountManagerCallPatch): Promise<boolean> {
+    const current = await this.getAccountManagerCall(id);
+    if (!current) return false;
+    const next = { ...current, ...patch };
+    try {
+      const [result] = await this.run((db) => db.update(schema.accountManagerCalls).set({ ...patch, slot: callSlot(next) }).where(eq(schema.accountManagerCalls.id, id)));
+      return result.affectedRows > 0;
+    } catch (error) {
+      if (errorCode(error) === "ER_DUP_ENTRY") return false;
+      throw error;
+    }
+  }
 
 
 
 
+
+}
+
+/** 125 The time a call holds while it isn't cancelled (unique in the table); null frees it. */
+function callSlot(call: Pick<AccountManagerCall, "managerId" | "date" | "time" | "status">): string | null {
+  return call.status === "cancelled" ? null : `${call.managerId}|${call.date}|${call.time}`;
+}
+
+function managerCallOf({ slot: _slot, ...row }: typeof schema.accountManagerCalls.$inferSelect): AccountManagerCall {
+  void _slot;
+  return row;
 }
 
 /** 73 Apps that aren't deleted. */

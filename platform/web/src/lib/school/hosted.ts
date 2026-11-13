@@ -68,6 +68,8 @@ import { classroomLifeRoute, registerDayOff, schoolCalendar, studentBehaviour, s
 // 113.4 The parent's area.
 import { handleParentRoute } from "./parent-hosted";
 import { excusedNote } from "./parent";
+import { pushLeaveRequested } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 import { universityClassroomRoute, universityStudentRoute } from "../university/hosted";
 import { loadUniSettings, universityOn } from "../university/settings";
 
@@ -912,6 +914,8 @@ async function requestLeave(ctx: SchoolContext, request: ConnectorRequest, worke
     createdAt: request.now,
     updatedAt: request.now,
   });
+  // 125 The administration's phones on Yallapp Business (`leave_id`).
+  await pushOwnerSafely((d) => pushLeaveRequested(d, ctx.app, leave, worker), ctx.store);
   return ok(leaveJson(leave, ctx.platformUrl), 201);
 }
 

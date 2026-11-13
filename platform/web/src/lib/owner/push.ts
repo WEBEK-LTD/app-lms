@@ -1,12 +1,37 @@
 import type { Lang } from "@/i18n/config";
 import { formatDate } from "@/i18n/format";
-import { getDashT, knownTranslator, type DashT } from "@/i18n/dashboard";
+import { getDashT, knownTranslator, type DashKey, type DashT } from "@/i18n/dashboard";
 import { announcementText, audienceRecipients, isLive } from "../announcements";
 import { appLabel } from "../app/label";
+import { appAreas } from "../app/areas";
 import { formatCents } from "../catalog/money";
 import { orderNumber } from "../catalog/settings";
 import type { DataStore } from "../data/store";
-import type { Announcement, App, BookingAppointment, Build, CatalogOrder, Course, CourseQuestion, CourseReview, Donation, Listing, OwnerDevice, OwnerNotice, OwnerPushKind, User } from "../data/types";
+import type {
+  Announcement,
+  App,
+  BookingAppointment,
+  Build,
+  CatalogOrder,
+  Course,
+  CourseQuestion,
+  CourseReview,
+  Donation,
+  FoodOrder,
+  Listing,
+  MarketComplaint,
+  MarketOrder,
+  OwnerDevice,
+  OwnerNotice,
+  OwnerPushKind,
+  SchoolLeave,
+  SchoolPerson,
+  Shipment,
+  User,
+} from "../data/types";
+import { shipmentReference } from "../delivery/service";
+import { foodOrderReference } from "../food/service";
+import { marketOrderReference } from "../market/json";
 import { OWNER_ACCESS, PUSH_PERMISSION, teamCan, type TeamAccess, type TeamPermission } from "../team/permissions";
 import { businessFor, businessName, memberAccess } from "../team/service";
 import { failureReason } from "../builds/view";
@@ -66,7 +91,7 @@ interface Recipient {
  * the person still works on), so someone on several businesses hears of all
  * of them. Each with its person's language and the business's name.
  */
-async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, permission: TeamPermission, appId: string | null, now: Date): Promise<Recipient[]> {
+async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKind, permission: TeamPermission, appId: string | null, now: Date, only: readonly string[] | null = null): Promise<Recipient[]> {
   const client = await store.getClientById(clientId);
   const owner = client ? await store.getUserById(client.userId) : null;
   if (!client || !owner) return [];
@@ -78,6 +103,8 @@ async function devicesFor(store: DataStore, clientId: string, kind: OwnerPushKin
   const out: Recipient[] = [];
   const seen = new Set<string>();
   for (const { user, access } of people) {
+    // 125 A person's own alerts and brief go to them only.
+    if (only && !only.includes(user.id)) continue;
     if (!teamCan(access, permission, appId)) continue;
     const name = businessName(owner, access.role === "owner" || access.appIds === null ? apps : apps.filter((a) => access.appIds!.includes(a.id)));
     const works = new Map<string, boolean>([[clientId, true]]);
@@ -103,9 +130,11 @@ export async function pushToOwner(
   data: Record<string, string>,
   /** 60 Who may get it; by default the kind's (PUSH_PERMISSION). */
   permission: TeamPermission = PUSH_PERMISSION[kind],
+  /** 125 Only these people (user IDs): a person's own Prime alerts. */
+  only: readonly string[] | null = null,
 ): Promise<number> {
   try {
-    const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now);
+    const found = await devicesFor(deps.store, clientId, kind, permission, data.app_id ?? null, deps.now, only);
     if (found.length === 0) return 0;
     // 64 One message per language and business name, with the name first on phones working on another business.
     const groups = new Map<string, { lang: Lang; business: string; other: boolean; devices: OwnerDevice[] }>();
@@ -149,9 +178,26 @@ function appName(app: Pick<App, "appName">, words: Words): string {
 
 // What each moment says
 
-/** An order was paid (settle.ts, the moment the dashboard's "New order" email goes). */
+/**
+ * An order was paid (settle.ts, the moment the dashboard's "New order" email
+ * goes). 125 Only for apps whose orders are catalog orders (Yallapp Business
+ * opens them on Orders): a school's fee paid by card is a payment received,
+ * and delivery, food and ride apps' payment links are their engines' own
+ * (`new_food_order`, `shipment_waiting`), so nothing is pushed for them here.
+ */
 export function pushNewOrder(deps: OwnerPushDeps, app: App, order: CatalogOrder): Promise<number> {
   if (app.demo) return Promise.resolve(0);
+  if (!appAreas(app).orders) {
+    if (app.connector?.kind !== "school") return Promise.resolve(0);
+    return pushToOwner(
+      deps,
+      app.clientId,
+      "payment_received",
+      (w) => ({ title: w.t("owner.push.schoolFee"), body: w.t("owner.push.schoolFeeBody", { app: appName(app, w), amount: formatCents(order.totalCents, order.currency) }) }),
+      { app_id: app.id },
+      "settings",
+    );
+  }
   return pushToOwner(
     deps,
     app.clientId,
@@ -326,4 +372,74 @@ export async function pushStartedAnnouncements(deps: OwnerPushDeps): Promise<{ a
     announcements += 1;
   }
   return { announcements, phones };
+}
+
+// 125 The Studio apps' engines
+
+/** A food order reached the restaurants (paid by card, or cash on delivery). */
+export function pushNewFoodOrder(deps: OwnerPushDeps, app: App, order: FoodOrder): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_food_order",
+    (w) => ({
+      title: w.t("owner.push.newFoodOrder", { reference: foodOrderReference(order) }),
+      body: w.t("owner.push.newFoodOrderBody", { restaurant: order.restaurantName, total: formatCents(order.totalCents, order.currency) }),
+    }),
+    { app_id: app.id, food_order_id: String(order.id) },
+  );
+}
+
+/** A shipment (or a food order's courier job) waits for a courier. */
+export function pushShipmentWaiting(deps: OwnerPushDeps, app: App, shipment: Shipment): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "shipment_waiting",
+    (w) => ({
+      title: w.t("owner.push.shipmentWaiting", { reference: shipmentReference(shipment) }),
+      body: w.t("owner.push.shipmentWaitingBody", { from: shipment.pickup.address, to: shipment.dropoff.address }),
+    }),
+    { app_id: app.id, shipment_id: String(shipment.id) },
+  );
+}
+
+/** A customer opened a complaint on a marketplace order. */
+export function pushNewComplaint(deps: OwnerPushDeps, app: App, complaint: Pick<MarketComplaint, "id" | "reason" | "text">, order: Pick<MarketOrder, "id">): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_complaint",
+    (w) => ({
+      title: w.t("owner.push.newComplaint", { reference: marketOrderReference(order) }),
+      body: [w.t(`market.r_${complaint.reason}` as DashKey), clip(complaint.text, 140)].filter(Boolean).join(": "),
+    }),
+    { app_id: app.id, complaint_id: String(complaint.id) },
+  );
+}
+
+/** A teacher or staff member asked for leave: the administration's phones (the app's settings), as excuses do. */
+export function pushLeaveRequested(deps: OwnerPushDeps, app: App, leave: SchoolLeave, person: Pick<SchoolPerson, "name">): Promise<number> {
+  if (app.demo) return Promise.resolve(0);
+  return pushToOwner(
+    deps,
+    app.clientId,
+    "new_message",
+    (w) => ({ title: w.t("owner.push.leave", { name: person.name }), body: leave.startsOn === leave.endsOn ? leave.startsOn : `${leave.startsOn} – ${leave.endsOn}` }),
+    { app_id: app.id, leave_id: String(leave.id) },
+    "settings",
+  );
+}
+
+/** 125 One of a person's Prime alerts (`alert` its kind, `ids` the item's), to them only. */
+export function pushPrimeAlert(deps: OwnerPushDeps, app: App, userId: string, alert: string, word: (words: Words) => { title: string; body: string }, ids: Record<string, string>): Promise<number> {
+  return pushToOwner(deps, app.clientId, "prime_alert", word, { app_id: app.id, alert, ...ids }, PUSH_PERMISSION.prime_alert, [userId]);
+}
+
+/** 125 A person's morning brief, to them only. */
+export function pushMorningBrief(deps: OwnerPushDeps, app: App, userId: string, word: (words: Words) => { title: string; body: string }): Promise<number> {
+  return pushToOwner(deps, app.clientId, "morning_brief", word, { app_id: app.id, alert: "morning_brief" }, PUSH_PERMISSION.morning_brief, [userId]);
 }

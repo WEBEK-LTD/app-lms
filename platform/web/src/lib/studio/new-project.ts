@@ -17,6 +17,8 @@ import type { SectionWord, TemplateInfo } from "./sections";
 import type { StudioSource } from "./section";
 import { siteAddress } from "./academy";
 import { startLayout } from "./start";
+import { withDemoFacts } from "./demo-templates";
+import type { StudioDemoId } from "../demo/constants";
 
 export interface NewStudioProject {
   clientId: string;
@@ -31,6 +33,12 @@ export interface NewStudioProject {
   extra?: Pick<Partial<App>, "primaryColor" | "splashColor" | "logoAssetId" | "brandingDoneAt" | "reviewPrompt" | "chatSettings" | "catalogSettings">;
   /** The app's languages, when chosen (else the defaults'). */
   languages?: Languages;
+  /**
+   * 127 Started from this demo on /start: the demo's own words where its
+   * template asks for the owner's in brackets (lib/studio/demo-templates.ts
+   * DEMO_FACTS), and the demo's entries in its lists.
+   */
+  fromDemo?: StudioDemoId | null;
 }
 
 /**
@@ -78,10 +86,12 @@ export async function makeStudioProject(store: DataStore, input: NewStudioProjec
     // 112.4 Yallapp's pictures in the template's sliders and sections.
     picture: (file: string) => `${appUrl()}/design-pictures/${file}`,
   }, site);
-  const saved = await saveDraft(store, app, layout, now);
+  const fromDemo = input.fromDemo ?? null;
+  const filled = fromDemo ? { ...layout, pages: layout.pages.map((p) => (p.studio ? { ...p, studio: withDemoFacts(fromDemo, p.studio, input.lang) } : p)) } : layout;
+  const saved = await saveDraft(store, app, filled, now);
   // The ready-made pages then; the project is made all the same.
   if (!saved.ok) console.error("[studio] new project draft", saved.errors.slice(0, 3).join("; "));
   // 110.2 Content kept in Yallapp: the empty lists its pages show get sample entries, a demo's own when it starts from the demo.
-  else await seedForDesign(store, app.id, saved.value.draft.pages, now, demo);
+  else await seedForDesign(store, app.id, saved.value.draft.pages, now, demo ?? fromDemo);
   return app;
 }

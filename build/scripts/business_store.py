@@ -103,6 +103,8 @@ PLAY_SHOTS = {
     "android-tablet": ["sevenInchScreenshots", "tenInchScreenshots"],
 }
 APPSTORE_SHOTS = ["iphone", "iphone-65", "ipad"]
+# 125 Google Play takes at most 8 screenshots per device type (the App Store takes 10): the first 8.
+PLAY_MAX_SHOTS = 8
 
 
 def read(path):
@@ -230,7 +232,15 @@ def copy_texts(source, target, files):
 
 
 def screenshots(folder, device, lang):
-    return sorted((Path(folder) / device / lang).glob("*.png")) if folder else []
+    """The screenshots in their order: by the number they start with (10_media after 9_kitchen)."""
+    if not folder:
+        return []
+
+    def order(path):
+        head = path.name.split("_", 1)[0]
+        return (int(head) if head.isdigit() else 10**6, path.name)
+
+    return sorted((Path(folder) / device / lang).glob("*.png"), key=order)
 
 
 def copy_screenshot(source, target):
@@ -252,7 +262,7 @@ def cmd_play(out, shots):
         shutil.copy(BRAND / "google-play-feature-graphic-1024x500.png", images / "featureGraphic.png")
         counts = []
         for device, folders in PLAY_SHOTS.items():
-            found = screenshots(shots, device, lang)
+            found = screenshots(shots, device, lang)[:PLAY_MAX_SHOTS]
             for folder in folders if found else []:
                 (images / folder).mkdir(exist_ok=True)
                 for index, shot in enumerate(found, 1):

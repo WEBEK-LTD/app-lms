@@ -88,6 +88,8 @@ export interface ScreenPartInfo {
   looksHref: string | null;
   /** In the dashboard's language. */
   words: { drawnLook: string; drawnOwn: string; open: string; hint: string };
+  /** 127 What the screen lists, the project's own entries (else its samples): shown in place of grey rows. */
+  entries?: PickableEntry[];
 }
 
 const SHADOWS: Record<string, string> = {
@@ -1030,6 +1032,30 @@ function ScreenPart(props: ViewProps) {
   }
   const row = dark ? "#26233A" : "#ECE6DA";
   const line = dark ? "#34314A" : "#DDD5C6";
+  const entries = (part.entries ?? []).slice(0, 6);
+  if (entries.length) {
+    // 127 The screen's real content where the project has it: its entries, as rows the app lists.
+    const ink = dark ? "#F4EFE6" : "#0E0D24";
+    const soft = dark ? "#B8B3C8" : "#5E5B70";
+    return (
+      <div data-studio-screen="" data-studio-screen-name={part.name} data-studio-screen-entries={entries.length} style={{ position: "relative", flex: "1 0 auto", minHeight: 300, display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px 18px", pointerEvents: "none" }}>
+        {entries.map((e, i) => (
+          <span key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, minHeight: 64, borderRadius: 16, background: row, padding: "8px 12px" }}>
+            {e.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- the project's own entry's picture
+              <img src={e.imageUrl} alt="" style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", flex: "none" }} />
+            ) : (
+              <span style={{ width: 44, height: 44, borderRadius: 12, background: line, flex: "none", opacity: 0.6 + (i % 3) * 0.1 }} />
+            )}
+            <span style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minWidth: 0 }}>
+              <b style={{ fontSize: 13.5, fontWeight: 700, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.title}</b>
+              {e.subtitle || e.price ? <span style={{ fontSize: 12, color: soft, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{[e.subtitle, e.price].filter(Boolean).join(" · ")}</span> : null}
+            </span>
+          </span>
+        ))}
+      </div>
+    );
+  }
   return (
     <div data-studio-screen="" data-studio-screen-name={part.name} style={{ position: "relative", flex: "1 0 auto", minHeight: 300, display: "flex", flexDirection: "column", gap: 10, padding: "14px 16px 18px", pointerEvents: "none" }}>
       {[0, 1, 2, 3].map((i) => (

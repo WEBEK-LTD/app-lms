@@ -50,7 +50,8 @@ export async function removeAllSamplesAction(formData: FormData): Promise<void> 
   revalidatePath("/dashboard", "layout");
   revalidatePath("/studio", "layout");
   const back = String(formData.get("back") ?? "");
-  redirect(`${back === "/studio/project" ? back : "/dashboard"}?samplesRemoved=all.${removed}`);
+  // 127 Also from the editors' first steps ("Remove the demo's things").
+  redirect(`${["/studio/project", "/dashboard/pages", "/studio/editor"].includes(back) ? back : "/dashboard"}?samplesRemoved=all.${removed}`);
 }
 
 /**

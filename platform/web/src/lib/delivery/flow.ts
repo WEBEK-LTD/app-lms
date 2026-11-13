@@ -8,6 +8,8 @@ import { followCourierJob } from "../food/sync";
 import { courierMayHave, reviewUserId } from "./review";
 import { COURIER_ACTIVE, LIVE_STATUSES, stage } from "./service";
 import { deliverySettingsOf } from "./settings";
+import { pushShipmentWaiting } from "../owner/push";
+import { pushOwnerSafely } from "../owner/push-env";
 
 /**
  * 104 How a shipment moves, whoever moves it (the customer, a courier, the
@@ -25,6 +27,8 @@ export interface FlowDeps {
   /** 104.8.2 Yallapp Courier's push account; read from the environment when left out. */
   courierAccount?: ServiceAccount | null;
   send?: typeof sendPush;
+  /** 125 The pushes to the owners' phones (Yallapp Business); tests pass a fake. */
+  pushOwner?: typeof pushOwnerSafely;
 }
 
 export function notifyDeps(deps: FlowDeps): DeliveryNotifyDeps {
@@ -63,6 +67,8 @@ export async function settingsOf(deps: FlowDeps): Promise<DeliverySettings> {
 export async function announceWaiting(deps: FlowDeps, shipment: Shipment): Promise<void> {
   const n = notifyDeps(deps);
   await tellCustomer(n, shipment);
+  // 125 And the company's phones on Yallapp Business: a job waits for a courier.
+  await (deps.pushOwner ?? pushOwnerSafely)((d) => pushShipmentWaiting(d, deps.app, shipment), deps.store).catch(() => undefined);
   const settings = await settingsOf(deps);
   if (settings.assignment !== "open") return;
   await tellCouriers(n, shipment, await waitingCouriers(deps, shipment), "waiting");

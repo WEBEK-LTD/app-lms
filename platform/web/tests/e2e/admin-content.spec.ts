@@ -247,7 +247,7 @@ test("the team publishes an announcement; the client sees it, gets the email and
   await own.goto("/dashboard");
   // 121 Without an app yet: the choice of editor or Studio first.
   await expect(own).toHaveURL(/\/start$/);
-  await own.getByRole("link", { name: /The app editor/ }).click();
+  await own.getByRole("link", { name: "Start from an empty app" }).click();
   await expect(own).toHaveURL(/\/dashboard\/app-type$/);
   await own.getByRole("button", { name: "Continue" }).click();
   await expect(own.getByRole("heading", { name: "Website" })).toBeVisible();

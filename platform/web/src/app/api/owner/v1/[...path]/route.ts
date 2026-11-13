@@ -41,6 +41,7 @@ async function handle(request: Request, { params }: RouteContext<"/api/owner/v1/
       media: getMediaStorage(),
       mail: (key, to, values, app) => sendTemplate(key, to, values, { app }),
       teamMail: (to, values, lang) => sendTemplate("team_invitation", to, values, { lang }),
+      staffMail: (to, values) => sendTemplate("account_manager_call", to, values),
       chatPushes,
       refreshSites: refreshSitesSoon,
     },
