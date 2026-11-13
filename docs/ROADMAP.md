@@ -3192,7 +3192,7 @@ The owner (13 November) approved new home screens for the eight Studio demos and
 
 ## Phase 129: Studio's premium library
 
-The owner (13 November) asked for very many premium elements and sections in Studio's editor.
+The owner (13 November) asked for very many premium elements and sections in Studio's editor. The WordPress plugin serves all of them, motion & media, content & commerce and the maps' looks (plugin 0.4.40).
 
 | Status | Item | Tests |
 |---|---|---|
