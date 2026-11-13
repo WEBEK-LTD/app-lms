@@ -11,6 +11,7 @@ import { runScheduledNotifications, type ScheduledRunReport } from "../hosted/sc
 import type { sendPush } from "../hosted/push";
 import { refreshEndedSites, type EndedRefreshResult, type RefreshDeps } from "../license/refresh";
 import { pushStartedAnnouncements, type OwnerPushDeps } from "../owner/push";
+import { runPrimeChecks, type PrimeRunReport } from "../owner/prime-jobs";
 import { planHasStoreBilling } from "../store-billing/access";
 import { runStoreProductSync, type StoreProductsRunReport } from "../store-billing/sync";
 import { runStorePurchases, type PurchasesRunReport } from "../store-billing/jobs";
@@ -56,6 +57,8 @@ export interface FrequentReport {
   school: { exams: number; slips: number };
   /** 114 Email campaigns started on time, and a few seconds of their emails (the minute job sends the rest). */
   mail: MailRunReport | null;
+  /** 125 Prime: the people whose smart alerts were checked, the alerts pushed and the morning briefs sent. */
+  prime: PrimeRunReport;
 }
 
 export async function runFrequentJobs(deps: {
@@ -181,5 +184,12 @@ export async function runFrequentJobs(deps: {
       console.error("[frequent] email campaigns", error instanceof Error ? error.message : String(error));
     }
   }
-  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail };
+  // 125 Prime's smart alerts and morning briefs, each once.
+  let prime: PrimeRunReport = { people: 0, alerts: 0, briefs: 0 };
+  try {
+    prime = await runPrimeChecks(deps.ownerPush);
+  } catch (error) {
+    console.error("[frequent] prime", error instanceof Error ? error.message : String(error));
+  }
+  return { notifications, announcements, ended, campaigns, automatic, builds, reviews, orders, storeProducts, storePurchases, rides, library, school, mail, prime };
 }

@@ -29,6 +29,11 @@ import type { AccountState } from "../license/status";
 import { appStateOf, requireActive } from "./account";
 import { bodyObject, intParam, invalid, iso, notAllowed, notAvailable, notFound, OwnerError, pageJson, paging, type OwnerContext, type OwnerResult } from "./http";
 import { allowedAreas, APP_AREA_PERMISSION, teamCan } from "../team/permissions";
+import { currentPlanId } from "../billing/plan-change";
+import { CATALOG_CURRENCIES } from "../catalog/money";
+import { formatMinor } from "../market/currency";
+import { isPlan, planFamily } from "../plans";
+import { saleEvents, todayCompare } from "./prime";
 import { recordAppointmentStatus, recordOrderStatus, recordRefund } from "../team/activity";
 
 /**
@@ -45,21 +50,35 @@ export interface AppScope {
   areas: AppAreas;
 }
 
+/** 125 Prime: the app's license is on a Studio plan (no subscription of its own, no switch). */
+export function isPrimeLicense(license: Pick<License, "plan" | "nextPlan" | "nextPlanAt"> | null, now: Date): boolean {
+  if (!license) return false;
+  const plan = currentPlanId(license, now);
+  return isPlan(plan) && planFamily(plan) === "studio";
+}
+
+/** What the app has (lib/app/areas.ts), with 125 Prime from its license. */
+export function ownerAreas(ctx: Pick<OwnerContext, "licenses" | "deps">, app: App): AppAreas {
+  return { ...appAreas(app), prime: isPrimeLicense(ctx.licenses.find((l) => l.appId === app.id) ?? null, ctx.deps.now) };
+}
+
 /** The client's own app, or 404; with `area`, one the app has, or 404 `not_available`. */
 export function appScope(ctx: OwnerContext, appId: string | undefined, area?: keyof AppAreas): AppScope {
   requireActive(ctx);
   // 60 Only the apps the person works on (a member may be limited to some).
   const app = ctx.apps.find((a) => a.id === appId);
   if (!app) throw notFound();
-  const has = appAreas(app);
+  const has = ownerAreas(ctx, app);
   if (area && !has[area]) throw notAvailable();
   // 60 What the app has and the person's role allows; the rest is 403 "Ask the owner".
   if (area && !teamCan(ctx.access, APP_AREA_PERMISSION[area], app.id)) throw notAllowed();
   return { app, license: ctx.licenses.find((l) => l.appId === app.id) ?? null, state: appStateOf(ctx, app), areas: allowedAreas(has, ctx.access, app.id) };
 }
 
+/** `Money`: 125 a currency outside the catalog's (a marketplace's: any ISO currency, 0, 2 or 3 decimals) is written with its own decimals. */
 export function money(cents: number, currency: string) {
-  return { amount_cents: cents, currency, formatted: formatCents(cents, currency as CatalogCurrency) };
+  const catalog = (CATALOG_CURRENCIES as readonly string[]).includes(currency);
+  return { amount_cents: cents, currency, formatted: catalog ? formatCents(cents, currency as CatalogCurrency) : formatMinor(cents, currency) };
 }
 
 function addTo(totals: Map<string, number>, currency: string, cents: number) {
@@ -130,6 +149,8 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
     if (open) needs.push({ kind: "questions_to_answer", count: open, title: ctx.t("owner.needs.questions", { count: open }), notice_id: null });
   }
   if (areas.appUsers) counts.new_users = await store.countHostedUsersCreated(app.id, day.start, day.end);
+  // 125 The Studio apps sell through their engines: their own orders today, and what waits.
+  await engineToday(ctx, app, areas, day, { counts, sales, needs });
   // 44 Opens today, from the app's own usage statistics (counted at read, like Analytics).
   await refreshAnalytics(store, app.id, now, [], day.zone);
   const sessions = await store.listAnalyticsDaily(app.id, day.date, day.date, ["sessions"]);
@@ -138,8 +159,71 @@ export async function today(ctx: OwnerContext, params: Record<string, string>): 
   for (const notice of teamCan(ctx.access, "settings", app.id) ? await store.listOwnerNotices({ clientId: ctx.client.id, appId: app.id, open: true, limit: 10 }) : []) {
     needs.push({ kind: "notice", count: 1, title: ctx.k(notice.title), notice_id: notice.id });
   }
-  return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), in_app_sales: totalsJson(inApp), counts, needs_you: needs } };
+  // 125 A Prime app compares today with the same weekday last week.
+  const compare = areas.prime ? { compare: await todayCompare(ctx, app, ownerAreas(ctx, app), day) } : {};
+  return { status: 200, body: { date: day.date, time_zone: day.zone, sales: totalsJson(sales), donations: totalsJson(given), in_app_sales: totalsJson(inApp), counts, needs_you: needs, ...compare } };
 }
+
+type Need = { kind: string; count: number; title: string; notice_id: number | null };
+
+/**
+ * 125 Today for the Studio apps: a food company's orders placed today (not
+ * turned down or cancelled, cash and card), a delivery company's shipments,
+ * a ride company's completed rides, a marketplace's orders; `counts.orders`
+ * is the engine's orders too, for the app's tiles. And what waits: new food
+ * orders, shipments without a courier, rides looking for a driver,
+ * complaints waiting on support, a school's excuses, reports and leave.
+ */
+async function engineToday(
+  ctx: OwnerContext,
+  app: App,
+  areas: AppAreas,
+  day: { start: Date; end: Date },
+  out: { counts: Record<string, number | null>; sales: Map<string, number>; needs: Need[] },
+): Promise<void> {
+  const { store } = ctx.deps;
+  const need = (kind: string, count: number, title: string) => {
+    if (count > 0) out.needs.push({ kind, count, title, notice_id: null });
+  };
+  const sold = (events: { cents: number; currency: string }[], name: string) => {
+    for (const e of events) addTo(out.sales, e.currency, e.cents);
+    out.counts[name] = events.length;
+    out.counts.orders = (out.counts.orders ?? 0) + events.length;
+  };
+  if (areas.foodOrders) {
+    const placed = await saleEvents(store, app, { ...NO_SALES, foodOrders: true }, day.start, day.end);
+    sold(placed, "food_orders");
+    const fresh = (await store.listFoodOrders({ appId: app.id, statuses: ["placed"], order: "newest", offset: 0, limit: 1 })).total;
+    need("food_orders_new", fresh, ctx.t("owner.needs.foodOrders", { count: fresh }));
+  }
+  if (areas.shipments) {
+    if (app.connector?.kind === "deliveries") sold(await saleEvents(store, app, { ...NO_SALES, shipments: true }, day.start, day.end), "shipments");
+    const waiting = (await store.listShipments({ appId: app.id, statuses: ["pending"], order: "oldest", offset: 0, limit: 1 })).total;
+    need("shipments_waiting", waiting, ctx.t("owner.needs.shipments", { count: waiting }));
+  }
+  if (areas.rides) {
+    sold(await saleEvents(store, app, { ...NO_SALES, rides: true }, day.start, day.end), "rides");
+    const searching = (await store.listRides({ appId: app.id, statuses: ["searching"], order: "oldest", offset: 0, limit: 1 })).total;
+    need("rides_searching", searching, ctx.t("owner.needs.rides", { count: searching }));
+  }
+  if (areas.market) {
+    sold(await saleEvents(store, app, { ...NO_SALES, market: true }, day.start, day.end), "market_orders");
+    const waiting = (await store.listMarketComplaints({ appId: app.id, statuses: ["open", "in_review"], limit: 1, offset: 0 })).total;
+    need("complaints_waiting", waiting, ctx.t("owner.needs.complaints", { count: waiting }));
+  }
+  if (areas.school) {
+    const [excuses, reports, leave] = await Promise.all([
+      store.listSchoolExcuses(app.id, { statuses: ["pending"] }),
+      store.listSchoolReports(app.id, { statuses: ["sent"] }),
+      store.listSchoolLeave(app.id, { statuses: ["pending"] }),
+    ]);
+    need("school_excuses", excuses.length, ctx.t("owner.needs.excuses", { count: excuses.length }));
+    need("school_reports", reports.length, ctx.t("owner.needs.reports", { count: reports.length }));
+    need("school_leave", leave.length, ctx.t("owner.needs.leave", { count: leave.length }));
+  }
+}
+
+const NO_SALES = { orders: false, appointments: false, donations: false, foodOrders: false, rides: false, market: false, shipments: false };
 
 // Orders
 

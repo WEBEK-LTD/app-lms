@@ -78,6 +78,12 @@ import type {
   LessonNote,
   CatalogCoupon,
   AdminMember,
+  AccountManagerCall,
+  AccountManagerCallInput,
+  AccountManagerCallPatch,
+  AccountManagerCallStatus,
+  PrimeAlerts,
+  StaffProfile,
   AdminMemberRow,
   AuditEntry,
   AuditQuery,
@@ -8111,6 +8117,90 @@ export class MemoryStore implements DataStore {
     return this.siteReviews.delete(id);
   }
 
+  // 125 Prime's smart alerts, and VIP's account managers
+  private primeAlerts = new Map<string, PrimeAlerts>();
+  private primeSends = new Map<string, Date>();
+  private staffProfiles = new Map<string, StaffProfile>();
+  private managerCalls = new Map<number, AccountManagerCall>();
+  private managerCallNext = 1;
+
+  async getPrimeAlerts(userId: string, appId: string): Promise<PrimeAlerts | null> {
+    const row = this.primeAlerts.get(`${userId}:${appId}`);
+    return row ? clone(row) : null;
+  }
+
+  async savePrimeAlerts(alerts: PrimeAlerts): Promise<void> {
+    this.primeAlerts.set(`${alerts.userId}:${alerts.appId}`, clone(alerts));
+  }
+
+  async listPrimeAlerts(): Promise<PrimeAlerts[]> {
+    return [...this.primeAlerts.values()].filter((a) => a.briefOn || a.alerts.some((x) => x.on)).map(clone);
+  }
+
+  async claimPrimeSend(key: string, now: Date): Promise<boolean> {
+    if (this.primeSends.has(key)) return false;
+    this.primeSends.set(key, now);
+    return true;
+  }
+
+  async deletePrimeSendsBefore(before: Date): Promise<number> {
+    let n = 0;
+    for (const [key, at] of this.primeSends) {
+      if (at.getTime() < before.getTime()) {
+        this.primeSends.delete(key);
+        n += 1;
+      }
+    }
+    return n;
+  }
+
+  async getStaffProfile(userId: string): Promise<StaffProfile | null> {
+    const profile = this.staffProfiles.get(userId);
+    return profile ? clone(profile) : null;
+  }
+
+  async listStaffProfiles(): Promise<StaffProfile[]> {
+    return [...this.staffProfiles.values()].map(clone);
+  }
+
+  async saveStaffProfile(profile: StaffProfile): Promise<void> {
+    this.staffProfiles.set(profile.userId, clone(profile));
+  }
+
+  /** A call that holds its time: not cancelled. */
+  private holdsTime(call: Pick<AccountManagerCall, "managerId" | "date" | "time" | "status">, except: number | null): boolean {
+    return [...this.managerCalls.values()].some((c) => c.id !== except && c.status !== "cancelled" && c.managerId === call.managerId && c.date === call.date && c.time === call.time);
+  }
+
+  async createAccountManagerCall(input: AccountManagerCallInput): Promise<AccountManagerCall | null> {
+    if (input.status !== "cancelled" && this.holdsTime(input, null)) return null;
+    const call: AccountManagerCall = { ...clone(input), id: this.managerCallNext++ };
+    this.managerCalls.set(call.id, call);
+    return clone(call);
+  }
+
+  async getAccountManagerCall(id: number): Promise<AccountManagerCall | null> {
+    const call = this.managerCalls.get(id);
+    return call ? clone(call) : null;
+  }
+
+  async listAccountManagerCalls(filter: { clientId?: string; managerId?: string; statuses?: AccountManagerCallStatus[]; fromDate?: string; limit?: number }): Promise<AccountManagerCall[]> {
+    return [...this.managerCalls.values()]
+      .filter((c) => (!filter.clientId || c.clientId === filter.clientId) && (!filter.managerId || c.managerId === filter.managerId))
+      .filter((c) => (!filter.statuses || filter.statuses.includes(c.status)) && (!filter.fromDate || c.date >= filter.fromDate))
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time) || a.id - b.id)
+      .slice(0, filter.limit ?? 500)
+      .map(clone);
+  }
+
+  async updateAccountManagerCall(id: number, patch: AccountManagerCallPatch): Promise<boolean> {
+    const call = this.managerCalls.get(id);
+    if (!call) return false;
+    const next = { ...call, ...clone(patch) };
+    if (next.status !== "cancelled" && this.holdsTime(next, id)) return false;
+    this.managerCalls.set(id, next);
+    return true;
+  }
 }
 
 /** 61 Whether `at` is in [from, to). */

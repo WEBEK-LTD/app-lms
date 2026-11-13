@@ -12,6 +12,11 @@ import * as community from "./community";
 import * as members from "./members";
 import * as sales from "./sales";
 import * as team from "./team";
+import * as engines from "./engines";
+import * as market from "./market";
+import * as prime from "./prime";
+import * as school from "./school";
+import * as vip from "./vip";
 import { teamCan } from "../team/permissions";
 import { getPlans } from "../settings/platform";
 
@@ -36,6 +41,9 @@ export const ROUTES: Route[] = [
   route("DELETE", "me/push-token", account.deletePushToken, { anyState: true }),
   route("GET", "me/push-preferences", account.getPushPreferences, { anyState: true }),
   route("PUT", "me/push-preferences", account.setPushPreferences, { anyState: true }),
+  // 125 VIP: a call with the account manager.
+  route("GET", "me/account-manager/slots", vip.listSlots),
+  route("POST", "me/account-manager/calls", vip.requestCall),
   route("GET", "updates", account.listUpdates),
   route("POST", "updates/read", account.markUpdates),
   route("GET", "apps/:app_id", async (ctx, params) => {
@@ -114,6 +122,42 @@ export const ROUTES: Route[] = [
   route("POST", "apps/:app_id/preview", insights.preview),
   route("GET", "apps/:app_id/builds", insights.builds),
   route("GET", "apps/:app_id/license", insights.license, { permission: "billing" }),
+  // 125 The Studio apps' tools (each checks its area: appScope), Prime.
+  route("GET", "apps/:app_id/food-orders", engines.listFoodOrders),
+  route("GET", "apps/:app_id/food-orders/:food_order_id", engines.getFoodOrder),
+  route("POST", "apps/:app_id/food-orders/:food_order_id/step", engines.stepFoodOrder),
+  route("GET", "apps/:app_id/restaurants", engines.listRestaurants),
+  route("POST", "apps/:app_id/restaurants/:restaurant_id/open", engines.openRestaurant),
+  route("POST", "apps/:app_id/restaurants/:restaurant_id/end-delay", engines.endRestaurantDelay),
+  route("GET", "apps/:app_id/shipments", engines.listShipments),
+  route("GET", "apps/:app_id/shipments/:shipment_id", engines.getShipment),
+  route("POST", "apps/:app_id/shipments/:shipment_id/assign", engines.assignOneShipment),
+  route("POST", "apps/:app_id/shipments/:shipment_id/move", engines.moveOneShipment),
+  route("GET", "apps/:app_id/couriers", engines.listCouriers),
+  route("GET", "apps/:app_id/rides", engines.listRides),
+  route("GET", "apps/:app_id/rides/:ride_id", engines.getRide),
+  route("POST", "apps/:app_id/rides/:ride_id/assign", engines.assignOneRide),
+  route("POST", "apps/:app_id/rides/:ride_id/cancel", engines.cancelOneRide),
+  route("GET", "apps/:app_id/drivers", engines.listDrivers),
+  route("GET", "apps/:app_id/market/orders", market.listMarketOrders),
+  route("GET", "apps/:app_id/market/orders/:market_order_id", market.getMarketOrder),
+  route("GET", "apps/:app_id/market/complaints", market.listComplaints),
+  route("GET", "apps/:app_id/market/complaints/:complaint_id", market.getComplaint),
+  route("POST", "apps/:app_id/market/complaints/:complaint_id/reply", market.replyComplaint),
+  route("POST", "apps/:app_id/market/complaints/:complaint_id/decide", market.decideOneComplaint),
+  route("GET", "apps/:app_id/market/vendors", market.listVendors),
+  route("GET", "apps/:app_id/school/today", school.getSchoolToday),
+  route("GET", "apps/:app_id/school/excuses", school.listExcuses),
+  route("GET", "apps/:app_id/school/excuses/:excuse_id", school.getExcuse),
+  route("POST", "apps/:app_id/school/excuses/:excuse_id/answer", school.answerOneExcuse),
+  route("GET", "apps/:app_id/school/reports", school.listTeacherReports),
+  route("GET", "apps/:app_id/school/reports/:school_report_id", school.getTeacherReport),
+  route("POST", "apps/:app_id/school/reports/:school_report_id/review", school.reviewTeacherReport),
+  route("GET", "apps/:app_id/school/leave", school.listLeave),
+  route("POST", "apps/:app_id/school/leave/:leave_id/answer", school.answerOneLeave),
+  route("GET", "apps/:app_id/prime/insights", prime.getPrimeInsights),
+  route("GET", "apps/:app_id/prime/alerts", prime.getPrimeAlerts),
+  route("PUT", "apps/:app_id/prime/alerts", prime.setPrimeAlerts),
   // 60 The owner's team.
   route("GET", "team", team.getTeam, { permission: "team" }),
   route("POST", "team/invitations", team.invite, { permission: "team" }),

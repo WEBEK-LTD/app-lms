@@ -1,4 +1,4 @@
-import { appAreas } from "../app/areas";
+import { appAreas, ORDER_KINDS } from "../app/areas";
 import { addDays, localToUtc } from "../bookings/time";
 import type { DataStore } from "../data/store";
 import type { App, PaidTotals } from "../data/types";
@@ -78,9 +78,11 @@ export async function inAppFigures(store: Pick<DataStore, "listStorePurchaseEven
 
 export function salesShows(app: Pick<App, "connector" | "backend" | "vertical" | "catalogSettings" | "appType" | "storeBilling" | "apiBaseUrl" | "hostedSettings">): SalesReport["shows"] {
   const areas = appAreas(app);
+  // 125 Dashboard › Analytics keeps the paid orders of delivery, food and ride apps (their payment links), as Dashboard › Orders does.
+  const orders = ORDER_KINDS.has(app.connector?.kind ?? "");
   return {
-    orders: areas.orders,
-    refunds: areas.orders || areas.donations,
+    orders,
+    refunds: orders || areas.donations,
     enrolments: areas.courses,
     bookings: areas.appointments,
     tickets: areas.events,

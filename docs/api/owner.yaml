@@ -4207,7 +4207,7 @@ components:
           type: object
           description: Only what the app has.
           properties:
-            orders: { type: integer, description: Orders paid today. }
+            orders: { type: integer, description: 'Orders paid today. 125: for delivery, food, ride and marketplace apps, their own orders today (the sum of food_orders, shipments, rides and market_orders).' }
             appointments: { type: integer, description: Appointments today (pending or confirmed). }
             tickets: { type: integer, description: Tickets issued today. }
             check_ins: { type: integer, description: Tickets used today. }

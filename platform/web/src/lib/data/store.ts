@@ -58,6 +58,12 @@ import type {
   ResetToken,
   User,
   AdminMember,
+  AccountManagerCall,
+  AccountManagerCallInput,
+  AccountManagerCallPatch,
+  AccountManagerCallStatus,
+  PrimeAlerts,
+  StaffProfile,
   AdminMemberRow,
   AuditEntry,
   AuditQuery,
@@ -278,7 +284,7 @@ export type HostedDevicePatch = Partial<Pick<HostedDevice, "platform" | "name" |
 export type ClaimResult = { ok: true; activation: Activation } | { ok: false; existing: Activation };
 
 export type UserPatch = Partial<Pick<User, "name" | "passwordHash" | "sessionVersion" | "lastSignInAt" | "language">>;
-export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country">>;
+export type ClientPatch = Partial<Pick<Client, "whatsapp" | "siteUrl" | "status" | "paymentNote" | "activatedAt" | "country" | "accountManagerId">>;
 export type LicensePatch = Partial<Pick<License, "plan" | "expiresAt" | "keyHash" | "keyEncrypted" | "keyLast4" | "nextPlan" | "nextPlanAt">>;
 export type AppPatch = Partial<Omit<App, "id" | "clientId" | "createdAt" | SigningKeyColumn>>;
 
@@ -2248,4 +2254,27 @@ export interface DataStore {
   saveSiteReview(review: SiteReview): Promise<void>;
   /** False when it wasn't there. */
   deleteSiteReview(id: string): Promise<boolean>;
+
+  // 125 Prime's smart alerts, and VIP's account managers (Yallapp Business 1.0.2)
+  /** A person's alerts on an app; null until they saved them. */
+  getPrimeAlerts(userId: string, appId: string): Promise<PrimeAlerts | null>;
+  /** Adds or replaces them. */
+  savePrimeAlerts(alerts: PrimeAlerts): Promise<void>;
+  /** Everyone's saved alerts with something on (an alert or the brief), for the frequent job. */
+  listPrimeAlerts(): Promise<PrimeAlerts[]>;
+  /** Takes a push (an item's alert on a day, a person's brief on a day) once: false when it was taken already. */
+  claimPrimeSend(key: string, now: Date): Promise<boolean>;
+  /** Taken pushes from before then go. How many. */
+  deletePrimeSendsBefore(before: Date): Promise<number>;
+  getStaffProfile(userId: string): Promise<StaffProfile | null>;
+  listStaffProfiles(): Promise<StaffProfile[]>;
+  /** Adds or replaces it. */
+  saveStaffProfile(profile: StaffProfile): Promise<void>;
+  /** A call at a free time of the manager: null when another call (not cancelled) has the time already. */
+  createAccountManagerCall(input: AccountManagerCallInput): Promise<AccountManagerCall | null>;
+  getAccountManagerCall(id: number): Promise<AccountManagerCall | null>;
+  /** Soonest first. */
+  listAccountManagerCalls(filter: { clientId?: string; managerId?: string; statuses?: AccountManagerCallStatus[]; fromDate?: string; limit?: number }): Promise<AccountManagerCall[]>;
+  /** False when it isn't there, or (moved) another call has the new time. */
+  updateAccountManagerCall(id: number, patch: AccountManagerCallPatch): Promise<boolean>;
 }

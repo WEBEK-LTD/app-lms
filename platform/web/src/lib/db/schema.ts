@@ -76,6 +76,7 @@ import type { AdminRole } from "../admin/permissions";
 import type { DemoId } from "../demo/constants";
 import type { ReviewRating } from "../reviews/types";
 import type { ReviewSource } from "../brands";
+import type { AccountManagerCallStatus, PrimeAlertSetting, StaffHours } from "../data/types";
 import {
   type AnyMySqlColumn,
   bigint,
@@ -241,6 +242,8 @@ export const clients = mysqlTable(
     activatedAt: time("activated_at"),
     // 52 The account's country: the currency Yallapp's prices are shown in.
     country: varchar("country", { length: 2 }),
+    // 125 The account manager Yallapp chose from its team (VIP).
+    accountManagerId: id("account_manager_id").references((): AnyMySqlColumn => users.id, { onDelete: "set null" }),
     createdAt: time("created_at").notNull(),
     updatedAt: time("updated_at").notNull(),
   },
@@ -5110,4 +5113,79 @@ export const siteReviews = mysqlTable(
     createdAt: time("created_at").notNull(),
   },
   (t) => [index("site_reviews_position_idx").on(t.position)],
+);
+
+// 125 Prime's smart alerts and VIP's account managers (Yallapp Business 1.0.2)
+
+/** One person's smart alerts and morning brief on one app (Yallapp Business › Prime). */
+export const primeAlerts = mysqlTable(
+  "prime_alerts",
+  {
+    userId: id("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    appId: id("app_id")
+      .notNull()
+      .references(() => apps.id, { onDelete: "cascade" }),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    alerts: jsonText<PrimeAlertSetting[]>("alerts").notNull(),
+    briefOn: boolean("brief_on").notNull(),
+    briefTime: varchar("brief_time", { length: 5 }).notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.appId] }), index("prime_alerts_app_idx").on(t.appId)],
+);
+
+/** The alerts and briefs pushed, each once (an item's alert on a day, a person's brief on a day); kept a few days. */
+export const primeSends = mysqlTable(
+  "prime_sends",
+  {
+    key: varchar("send_key", { length: 191 }).primaryKey(),
+    sentAt: time("sent_at").notNull(),
+  },
+  (t) => [index("prime_sends_at_idx").on(t.sentAt)],
+);
+
+/** A Yallapp team member's contact card (Admin › Team) and whether they are an account manager. */
+export const staffProfiles = mysqlTable("staff_profiles", {
+  userId: id("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  photo: varchar("photo", { length: 64 }),
+  whatsapp: varchar("whatsapp", { length: 32 }),
+  phone: varchar("phone", { length: 32 }),
+  hours: jsonText<StaffHours | null>("hours"),
+  accountManager: boolean("account_manager").notNull().default(false),
+  updatedBy: varchar("updated_by", { length: 191 }).notNull(),
+  updatedAt: time("updated_at").notNull(),
+});
+
+/** Calls clients asked for with their account manager; `slot` (unique) holds the time while the call isn't cancelled. */
+export const accountManagerCalls = mysqlTable(
+  "account_manager_calls",
+  {
+    id: autoId("id").primaryKey(),
+    clientId: id("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    managerId: id("manager_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    requestedBy: id("requested_by").references(() => users.id, { onDelete: "set null" }),
+    requesterName: varchar("requester_name", { length: 120 }).notNull(),
+    date: varchar("date", { length: 10 }).notNull(),
+    time: varchar("time", { length: 5 }).notNull(),
+    note: text("note"),
+    status: varchar("status", { length: 16 }).notNull().$type<AccountManagerCallStatus>(),
+    slot: varchar("slot", { length: 64 }),
+    createdAt: time("created_at").notNull(),
+    updatedAt: time("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("account_manager_calls_slot_unique").on(t.slot),
+    index("account_manager_calls_client_idx").on(t.clientId, t.date),
+    index("account_manager_calls_manager_idx").on(t.managerId, t.date),
+  ],
 );

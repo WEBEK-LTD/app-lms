@@ -76,6 +76,8 @@ export type EmailTemplateKey =
   | "two_step_off"
   // 78.3 Watching
   | "team_alert"
+  // 125 VIP: a client asked for a call with their account manager
+  | "account_manager_call"
   // 86.4 The weekly summary
   | "weekly_summary";
 
@@ -269,6 +271,27 @@ export const EMAIL_TEMPLATES: EmailTemplateDefinition[] = [
     ],
     subject: "Yallapp: {{title}}",
     body: "{{title}}\n\n{{detail}}\n\nOpen: {{alert_url}}\n\nEvery alert is in Admin › Watching; it closes by itself when the problem goes.",
+  },
+  {
+    key: "account_manager_call",
+    name: "Call asked for (account manager)",
+    description:
+      "125 To a client's account manager (Yallapp's team) when someone of the client asks for a call at one of the manager's free times in Yallapp Business. Confirm or move it in Admin › Clients or Admin › Calls.",
+    placeholders: [
+      { name: "manager", description: "The account manager's name", sample: "Selin Aydın" },
+      { name: "business", description: "The client's business", sample: "Moda Café" },
+      { name: "requester", description: "Who asked", sample: "Leyla Kaya" },
+      { name: "requester_email", description: "Their email", sample: "leyla@cafe.example" },
+      { name: "date", description: "The day (YYYY-MM-DD)", sample: "2026-11-17" },
+      { name: "time", description: "The time", sample: "14:30" },
+      { name: "time_zone", description: "The manager's time zone", sample: "Europe/Istanbul" },
+      { name: "note", description: "What they want to talk about", sample: "Our new menu" },
+      { name: "link", description: "The client's admin page", sample: "https://yallapp.com.tr/admin/clients/sample" },
+    ],
+    subject: "Call asked for: {{business}}, {{date}} {{time}}",
+    body:
+      "Hello {{manager}},\n\n{{requester}} ({{requester_email}}) of {{business}} asked for a call with you on {{date}} at {{time}} ({{time_zone}}).\n\n" +
+      "What about: {{note}}\n\nConfirm the call or move it here:\n{{link}}",
   },
   {
     key: "setup_request",

@@ -20,6 +20,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const openPublishing = openPublishingCount(await store.listManagedPublishingRequests());
   // 66 Requests to delete an account that wait for us.
   const openDeletions = (await store.listAccountDeletionRequests(["pending"], 200)).length;
+  // 125 Calls clients asked for with their account manager, not answered yet.
+  const callsAsked = (await store.listAccountManagerCalls({ statuses: ["requested"], fromDate: new Date().toISOString().slice(0, 10), limit: 200 })).length;
   // 73 Apps their owners deleted, still restorable.
   const deletedApps = (await store.listAppDeletions({ statuses: ["waiting"], limit: 200 })).length;
   // 78.3 The bell: open alerts of the platform's watch.
@@ -49,6 +51,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               label: "Clients and apps",
               items: [
                 { href: "/admin/clients", label: "Clients", icon: "groups" },
+                // 125 VIP: calls with the account managers.
+                { href: "/admin/calls", label: "Calls", icon: "call", badge: { count: callsAsked, label: callsAsked === 1 ? "call to confirm" : "calls to confirm" } },
                 { href: "/admin/builds", label: "Build queue", icon: "build" },
                 { href: "/admin/crashes", label: "Crashes", icon: "warning" },
                 { href: "/admin/publishing", label: "Publishing", icon: "publish", badge: { count: openPublishing, label: openPublishing === 1 ? "open request" : "open requests" } },
