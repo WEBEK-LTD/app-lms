@@ -156,8 +156,8 @@ void main() {
     'plans: the price written as the shop writes it, the switch, the popular one',
     (tester) async {
       await open(tester, api(premiumChildren('pricing')));
-      expect(find.text('₺249'), findsOneWidget);
-      expect(find.text('₺599'), findsOneWidget);
+      expect(find.text('₺850'), findsOneWidget);
+      expect(find.text('₺1,350'), findsOneWidget);
       expect(find.text('/ month'), findsNWidgets(3));
       expect(find.text('Most popular'), findsOneWidget);
       expect(
@@ -166,9 +166,9 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('premium-period-year')));
       await tester.pump();
-      expect(find.text('₺5,990'), findsOneWidget);
+      expect(find.text('₺13,500'), findsOneWidget);
       expect(find.text('/ year'), findsNWidgets(3));
-      expect(find.text('₺599'), findsNothing);
+      expect(find.text('₺1,350'), findsNothing);
     },
   );
 

@@ -15,7 +15,7 @@ export type PremiumText =
   | "quoteName"
   | "quoteRole"
   | "planBasic"
-  | "planPro"
+  | "planPlus"
   | "planPremium"
   | "planFeatures"
   | "planButton"
@@ -46,7 +46,7 @@ const WORDS_EN: Record<PremiumText, string> = {
   quoteName: "Customer name",
   quoteRole: "Their role or city",
   planBasic: "Basic",
-  planPro: "Pro",
+  planPlus: "Plus",
   planPremium: "Premium",
   planFeatures: "What this plan includes\nAnother thing it includes\nOne more",
   planButton: "Choose",
@@ -123,7 +123,7 @@ export function newPremiumNode(
         pricing: { yearly: true },
         entries: [
           { title: w("planBasic"), text: w("planFeatures"), label: w("planButton"), price: null, price_yearly: null },
-          { title: w("planPro"), text: w("planFeatures"), label: w("planButton"), price: null, price_yearly: null, highlight: true },
+          { title: w("planPlus"), text: w("planFeatures"), label: w("planButton"), price: null, price_yearly: null, highlight: true },
           { title: w("planPremium"), text: w("planFeatures"), label: w("planButton"), price: null, price_yearly: null },
         ],
       };

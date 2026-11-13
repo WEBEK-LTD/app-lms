@@ -126,7 +126,13 @@ List<Map<String, dynamic>> premiumChildren(
       ];
     case 'pricing':
       return [
-        _text('h', w('Choose your plan', 'اختر باقتك'), size: 22, weight: 800),
+        // 129.12 A gym's own passes (Atlas Fitness, made up), at its own prices.
+        _text(
+          'h',
+          w('Choose your pass', 'اختر اشتراكك'),
+          size: 22,
+          weight: 800,
+        ),
         {
           'id': 'plans',
           'type': 'pricing',
@@ -135,35 +141,35 @@ List<Map<String, dynamic>> premiumChildren(
           'gap': 12,
           'entries': [
             {
-              'title': w('Starter', 'البداية'),
-              'price': 24900,
-              'price_yearly': 249000,
+              'title': w('Monthly pass', 'اشتراك شهري'),
+              'price': 85000,
+              'price_yearly': 850000,
               'text': w(
-                'One shop\nOrders and payments\nEmail support',
-                'متجر واحد\nالطلبات والمدفوعات\nدعم بالبريد',
+                'The gym floor, 6 am to 11 pm\nLockers and showers\nOne trainer session',
+                'صالة الأجهزة من ٦ الصبح لـ ١١ بالليل\nلوكرات ودُش\nحصة واحدة مع مدرب',
               ),
-              'label': w('Start', 'ابدأ'),
+              'label': w('Join', 'اشترك'),
             },
             {
-              'title': w('Growth', 'النمو'),
-              'price': 59900,
-              'price_yearly': 599000,
+              'title': w('Gold pass', 'الاشتراك الذهبي'),
+              'price': 135000,
+              'price_yearly': 1350000,
               'highlight': true,
               'text': w(
-                'Three shops\nDelivery and coupons\nPriority support',
-                'ثلاثة متاجر\nالتوصيل والقسائم\nدعم أولوية',
+                'Every class, every day\nThe pool and the sauna\nA trainer session a week',
+                'كل الكلاسات كل يوم\nحمام السباحة والساونا\nحصة مع مدرب كل أسبوع',
               ),
-              'label': w('Choose Growth', 'اختر النمو'),
+              'label': w('Go gold', 'اختار الذهبي'),
             },
             {
-              'title': w('Scale', 'التوسع'),
-              'price': 119900,
-              'price_yearly': 1199000,
+              'title': w('Family pass', 'اشتراك العيلة'),
+              'price': 220000,
+              'price_yearly': 2200000,
               'text': w(
-                'Every branch\nYour own app\nA manager for you',
-                'كل الفروع\nتطبيقك الخاص\nمدير حساب لك',
+                'Up to four people\nKids\' swimming lessons\nEvery class and the pool',
+                'لحد ٤ أفراد\nدروس سباحة للأطفال\nكل الكلاسات وحمام السباحة',
               ),
-              'label': w('Talk to us', 'تواصل معنا'),
+              'label': w('Join together', 'اشتركوا سوا'),
             },
           ],
         },

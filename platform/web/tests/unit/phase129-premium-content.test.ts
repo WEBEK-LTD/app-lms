@@ -116,13 +116,13 @@ describe("129.11–129.20 checked strictly, kept from known fields only", () => 
   });
 
   it("keeps prices as whole cents in a platform currency, and refuses others", () => {
-    const [node] = kept([{ id: "p", type: "pricing", pricing: { currency: "EGP", yearly: true }, entries: [{ title: "Pro", price: 45000, price_yearly: null, highlight: true }] }]);
+    const [node] = kept([{ id: "p", type: "pricing", pricing: { currency: "EGP", yearly: true }, entries: [{ title: "Gold pass", price: 45000, price_yearly: null, highlight: true }] }]);
     expect(node!.pricing).toEqual({ currency: "EGP", yearly: true });
-    expect(node!.entries).toEqual([{ title: "Pro", price: 45000, highlight: true }]);
-    expect(errors([{ id: "p", type: "pricing", entries: [{ title: "Pro", price: 4.5 }] }])).toContain("a price is a whole number of cents");
-    expect(errors([{ id: "p", type: "pricing", pricing: { currency: "XYZ" }, entries: [{ title: "Pro" }] }])).toContain("choose the plans' currency.");
+    expect(node!.entries).toEqual([{ title: "Gold pass", price: 45000, highlight: true }]);
+    expect(errors([{ id: "p", type: "pricing", entries: [{ title: "Gold pass", price: 4.5 }] }])).toContain("a price is a whole number of cents");
+    expect(errors([{ id: "p", type: "pricing", pricing: { currency: "XYZ" }, entries: [{ title: "Gold pass" }] }])).toContain("choose the plans' currency.");
     // The default currency is left out.
-    expect(kept([{ id: "p", type: "pricing", pricing: { currency: "TRY" }, entries: [{ title: "Pro" }] }])[0]!.pricing).toBeUndefined();
+    expect(kept([{ id: "p", type: "pricing", pricing: { currency: "TRY" }, entries: [{ title: "Gold pass" }] }])[0]!.pricing).toBeUndefined();
   });
 
   it("bounds the lists: 12 entries, texts by their limits, shares 0 to 100", () => {
@@ -170,8 +170,8 @@ describe("129.11–129.20 checked strictly, kept from known fields only", () => 
 
 describe("129.11–129.20 served and drawn", () => {
   it("serves each entry's texts in the language asked for", () => {
-    const entry = { title: "Pro", text: "One", translations: { ar: { title: "برو", text: "" } } };
-    expect(translated(entry, "ar", "en")).toEqual({ title: "برو", text: "One" });
+    const entry = { title: "Gold pass", text: "One", translations: { ar: { title: "الذهبي", text: "" } } };
+    expect(translated(entry, "ar", "en")).toEqual({ title: "الذهبي", text: "One" });
     const hosted = readFileSync(path.resolve(__dirname, "../../src/lib/hosted/pages/index.ts"), "utf8");
     expect(hosted).toContain("entries: own.entries.map((entry) => translated(entry, pc.lang, def))");
   });
@@ -211,12 +211,12 @@ describe("129.11–129.20 served and drawn", () => {
 
   it("draws a set price, the popular plan, rings, steps across and a glass card", () => {
     const html = draw([
-      { id: "p", type: "pricing", entries: [{ title: "Pro", price: 59900, highlight: true, text: "A\nB" }] },
+      { id: "p", type: "pricing", entries: [{ title: "Gold pass", price: 135000, highlight: true, text: "A\nB" }] },
       { id: "r", type: "progress", progress: { style: "rings" }, entries: [{ title: "Lessons", value: 80 }] },
       { id: "t", type: "timeline", timeline: { style: "horizontal" }, entries: [{ title: "A", highlight: true }, { title: "B" }] },
       { ...make("column", "glass_card"), id: "g" },
     ]);
-    expect(html).toContain("₺599");
+    expect(html).toContain("₺1,350");
     expect(html).toContain('data-studio-plan="popular"');
     expect(html).toContain('data-studio-progress="rings"');
     expect(html).toContain('data-studio-timeline="horizontal"');

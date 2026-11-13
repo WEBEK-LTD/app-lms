@@ -70,7 +70,7 @@ class StudioPremiumContent129Test extends TestCase {
 					),
 					'entries' => array(
 						array(
-							'title'     => 'Pro',
+							'title'     => 'Gold pass',
 							'price'     => 45000,
 							'highlight' => true,
 						),
