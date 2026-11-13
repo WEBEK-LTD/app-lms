@@ -7057,6 +7057,7 @@ paths:
                   nights: { type: [integer, 'null'], description: 'The nights between the dates; null without dates.' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /travel/hotels/{hotel_id}:
     get:
@@ -7118,6 +7119,7 @@ paths:
               schema: { $ref: '#/components/schemas/TravelFlightSearch' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /travel/flights/calendar:
     get:
@@ -7146,6 +7148,7 @@ paths:
               schema: { $ref: '#/components/schemas/TravelCalendar' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
 
   /travel/flights/{flight_id}/seats:
     get:
@@ -7578,6 +7581,7 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
 
   /me/travel/alerts/{alert_id}:
@@ -15684,7 +15688,7 @@ components:
     ItemSource:
       type: string
       description: Where a list comes from. `courses` needs an LMS; `products` needs WooCommerce or a hosted store; `services` needs a bookings plugin or hosted bookings; `listings` is hosted only; `articles` are a News & blog app's articles (posts on WordPress), opened in the app, while `posts` open on the website; `events` are an Events & tickets app's upcoming events (hosted only); `campaigns` are a Charity & donations app's campaigns (hosted only); 104 `delivery_services` are a delivery company's services, each opening the send screen with it chosen (hosted only); 105.1 `restaurants` are a food app's restaurants, each opening its menu (hosted only); 105.2 `vehicle_types` are a ride app's vehicle types, each opening the ride screen with it chosen (hosted only); 105.4 `school_news` is a school's news to the whole school, newest first, each opening the school's news (hosted only); 113.1 `bundles` are an academy's course bundles, each opening the bundle's page (courses managed in Yallapp).
-      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vendors, market_products, vehicle_types, school_news, bundles]
+      enum: [courses, products, services, posts, listings, articles, events, campaigns, delivery_services, restaurants, vendors, market_products, vehicle_types, school_news, bundles, hotels]
 
     Item:
       type: object

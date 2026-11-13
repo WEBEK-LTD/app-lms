@@ -114,6 +114,10 @@ export async function pickableContent(
     if (engine.source === "vehicle_types") {
       out.items.vehicle_types = offeredTypes(await deps.store.listVehicleTypes(app.id)).map((t) => ({ id: String(t.id), title: t.name }));
     }
+    // 126 A travel company's hotels.
+    if (engine.source === "hotels") {
+      out.items.hotels = (await deps.store.listTravelHotels(app.id)).filter((h) => h.active).map((h) => ({ id: String(h.id), title: h.name }));
+    }
     // 105.4 A school's news to the whole school.
     if (engine.source === "school_news") {
       out.items.school_news = (await deps.store.listSchoolAnnouncements(app.id)).filter((a) => a.audience === "school").slice(0, 200).map((a) => ({ id: String(a.id), title: a.title }));

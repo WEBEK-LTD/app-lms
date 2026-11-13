@@ -69,7 +69,7 @@ export const HEADER_ICONS = ["search", "cart", "notifications", "chat", "account
 export const MAX_HEADER_ICONS = 4;
 /** 43 The languages Yallapp ships its own translations in; an app can offer any of `LOCALES` (lib/i18n/locales.ts). */
 export const LANGUAGE_CODES = BUILT_IN_LANGUAGES;
-export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school_news", "bundles"] as const;
+export const ITEM_SOURCES = ["courses", "products", "services", "posts", "listings", "articles", "events", "campaigns", "delivery_services", "restaurants", "vehicle_types", "school_news", "bundles", "hotels"] as const;
 export const BLOCK_TYPES = [
   "banner",
   "text",
@@ -145,6 +145,13 @@ export const SCREENS = [
   // 105.4 Schools
   "school",
   "classroom",
+  // 126 Travel: Explore, the hotels' and flights' searches, the trips, saved hotels and price alerts.
+  "explore",
+  "stays",
+  "flights",
+  "trips",
+  "saved",
+  "price_alerts",
 ] as const;
 /**
  * 120 The app's screens a Studio page can be drawn around (`StudioPage.screen`):

@@ -194,6 +194,25 @@ import type {
 } from "./types";
 // 105.2 Ride hailing
 import type { Ride, RideInput, RidePatch, RideQuery, RideStatementRow, RideStatus, VehicleType, VehicleTypeInput } from "./types";
+// 126 Travel
+import type {
+  TravelAlert,
+  TravelAlertInput,
+  TravelBooking,
+  TravelBookingInput,
+  TravelBookingPatch,
+  TravelBookingQuery,
+  TravelBookingStatus,
+  TravelFlight,
+  TravelFlightInput,
+  TravelHotel,
+  TravelHotelInput,
+  TravelReview,
+  TravelReviewInput,
+  TravelRoom,
+  TravelRoomInput,
+  TravelSettings,
+} from "./types";
 // 46 Links and crash reports
 import type { AppLinkTarget, CrashIssue, CrashIssueStatus, CrashReportInput } from "./types";
 // 49
@@ -1410,6 +1429,66 @@ export interface DataStore {
   addDriverRating(appId: string, courierId: number, stars: number, now: Date): Promise<void>;
   /** Completed rides created in `[since, until)`, per driver: for the drivers' statements. */
   rideStatement(appId: string, since: Date, until: Date): Promise<RideStatementRow[]>;
+
+  // 126 Travel: hotels and flights
+  getTravelSettings(appId: string): Promise<TravelSettings | null>;
+  saveTravelSettings(appId: string, settings: TravelSettings, now: Date): Promise<void>;
+  /** In the company's order. */
+  listTravelHotels(appId: string): Promise<TravelHotel[]>;
+  getTravelHotel(appId: string, id: number): Promise<TravelHotel | null>;
+  createTravelHotel(input: TravelHotelInput, now: Date): Promise<TravelHotel>;
+  updateTravelHotel(appId: string, id: number, patch: Partial<TravelHotelInput>, now: Date): Promise<void>;
+  /** Its rooms, reviews and saves go with it; bookings keep its name. */
+  deleteTravelHotel(appId: string, id: number): Promise<void>;
+  /** A hotel's rooms (every hotel's without `hotelId`), in its order. */
+  listTravelRooms(appId: string, hotelId?: number): Promise<TravelRoom[]>;
+  getTravelRoom(appId: string, id: number): Promise<TravelRoom | null>;
+  createTravelRoom(input: TravelRoomInput, now: Date): Promise<TravelRoom>;
+  updateTravelRoom(appId: string, id: number, patch: Partial<TravelRoomInput>, now: Date): Promise<void>;
+  deleteTravelRoom(appId: string, id: number): Promise<void>;
+  /** Departing first. */
+  listTravelFlights(appId: string): Promise<TravelFlight[]>;
+  getTravelFlight(appId: string, id: number): Promise<TravelFlight | null>;
+  createTravelFlight(input: TravelFlightInput, now: Date): Promise<TravelFlight>;
+  updateTravelFlight(appId: string, id: number, patch: Partial<TravelFlightInput>, now: Date): Promise<void>;
+  deleteTravelFlight(appId: string, id: number): Promise<void>;
+  /**
+   * Books only when `check` (given the app's other bookings holding the same
+   * room or flights now: confirmed, completed, or awaiting payment until
+   * their hold ends) finds the rooms and seats free; the check and the insert
+   * are one step, so two people never get the last room or the same seat.
+   * Returns the booking, or the check's refusal.
+   */
+  createTravelBooking(input: TravelBookingInput, check: (others: TravelBooking[]) => string | null, now: Date): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }>;
+  /**
+   * Changes the booking only while its status is one of `expect` (and, with
+   * `check`, only when the change still fits the others holding the same
+   * room or flights). False when it didn't.
+   */
+  updateTravelBooking(
+    appId: string,
+    id: number,
+    patch: TravelBookingPatch,
+    expect: { statuses: TravelBookingStatus[]; check?: (others: TravelBooking[], next: TravelBooking) => string | null },
+    now: Date,
+  ): Promise<{ ok: true; booking: TravelBooking } | { ok: false; reason: string }>;
+  getTravelBooking(appId: string, id: number): Promise<TravelBooking | null>;
+  /** Newest first. */
+  listTravelBookings(query: TravelBookingQuery): Promise<{ items: TravelBooking[]; total: number }>;
+  /** The bookings holding a room's nights in `[from, to)` or seats on a flight now. */
+  listTravelHolds(appId: string, on: { roomId?: number; from?: string; to?: string; flightIds?: number[] }, now: Date): Promise<TravelBooking[]>;
+  /** One review per booking. */
+  addTravelReview(input: TravelReviewInput): Promise<TravelReview | null>;
+  listTravelReviews(appId: string, hotelId?: number): Promise<TravelReview[]>;
+  getTravelReviewOfBooking(appId: string, bookingId: number): Promise<TravelReview | null>;
+  setTravelReviewHidden(appId: string, id: number, hidden: boolean): Promise<void>;
+  /** The hotels the person saved, newest first. */
+  listTravelSaved(appId: string, userId: number): Promise<number[]>;
+  setTravelSaved(appId: string, userId: number, hotelId: number, saved: boolean, now: Date): Promise<void>;
+  listTravelAlerts(appId: string, userId?: number): Promise<TravelAlert[]>;
+  createTravelAlert(input: TravelAlertInput): Promise<TravelAlert>;
+  updateTravelAlert(appId: string, id: number, patch: Partial<Pick<TravelAlert, "lastCents" | "updatedAt">>): Promise<void>;
+  deleteTravelAlert(appId: string, userId: number, id: number): Promise<void>;
 
   // 10.4 Pages, looks and languages
   getAppLayout(appId: string): Promise<AppLayoutRecord | null>;

@@ -1016,6 +1016,13 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("shop_deals", "local_offer", STORE, ["banner_slider", "flash_sale", "deal", "category_pictures", "on_sale", "coupon", "trust"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
   typed("shop_looks", "checkroom", STORE, ["peek_slider", "new_arrivals", "shop_look", "brands", "split_slider", "best_sellers", "recent"], { type: "logo_center", buttons: ["menu", "search", "cart"] }, { word: "cta", action: screen("cart") }),
   typed("menu", "restaurant_menu", { types: ["store"], verticals: ["restaurant"] }, ["hero", "categories", "products", "cta"], SHOP_HEADER, { word: "cta", action: screen("cart") }),
+  // 126 A travel app's home: Explore as approved (the photo, the search for stays, flights or both, the destinations with the whole trip's price), drawn by the app; the owner adds to it.
+  {
+    id: "travel",
+    icon: "travel_explore",
+    fits: { types: ["travel"] },
+    make: (ctx) => ({ body: { id: (ctx.newId ?? newNodeId)(), type: "column", children: [] }, screen: "explore" }),
+  },
   // 123 The premium academy: the whole project, its home, bar, tabs, screens and colours.
   {
     id: "academy_premium",

@@ -1,3 +1,6 @@
+// 126 A travel project's samples.
+import { makeTravelSamples } from "../travel/samples";
+import { saveTravelPhoto } from "../demo/travel";
 import { addDays, localToUtc, utcToLocal } from "../bookings/time";
 import { bookingSetup } from "../bookings/setup";
 import { catalogSettings } from "../catalog/settings";
@@ -113,7 +116,21 @@ const SEEDERS: Record<SampleList, (s: Seeding) => Promise<boolean>> = {
   // A sample school (its classes, subjects and people) comes only from the school demo (lib/samples/demo.ts).
   school: async () => false,
   school_news: seedSchoolNews,
+  // 126 Safra's hotels, rooms and flights (lib/travel/samples.ts), in a travel project.
+  hotels: seedTravel,
+  flights: seedTravel,
 };
+
+async function seedTravel(s: Seeding): Promise<boolean> {
+  const made = await makeTravelSamples({
+    store: s.deps.store,
+    app: s.app,
+    now: s.deps.now,
+    sample: true,
+    photo: (name) => saveTravelPhoto(s.deps, { clientId: s.app.clientId, appId: s.app.id }, name, "product_image"),
+  });
+  return made.hotels + made.flights > 0;
+}
 
 // ——— Courses ———
 

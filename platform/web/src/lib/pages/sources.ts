@@ -22,12 +22,12 @@ export function itemSourcesFor(app: Pick<App, "appType" | "backend"> & Partial<P
 
 /** Sources with categories the app can show (29 campaigns have none). */
 export function categorySourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles");
+  return itemSourcesFor(app).filter((s) => s !== "listings" && s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles" && s !== "hotels");
 }
 
 /** 29 Sources the app can search: campaigns are a short list, without a search. */
 export function searchSourcesFor(app: Pick<App, "appType" | "backend"> & Partial<Pick<App, "connector">>): ItemSource[] {
-  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles");
+  return itemSourcesFor(app).filter((s) => s !== "campaigns" && s !== "delivery_services" && s !== "restaurants" && s !== "vehicle_types" && s !== "school_news" && s !== "bundles" && s !== "hotels");
 }
 
 /** Block types the app's pages can use. */
@@ -58,6 +58,7 @@ export const SOURCE_NAMES: Record<ItemSource, string> = {
   restaurants: "Restaurants",
   vehicle_types: "Vehicle types",
   school_news: "School news",
+  hotels: "Hotels",
   bundles: "Course bundles",
 };
 
@@ -147,6 +148,8 @@ export const SOURCE_SORTS: Record<ItemSource, readonly ItemsSort[]> = {
   vehicle_types: ["newest"],
   // 105.4 Newest first.
   school_news: ["newest"],
+  // 126 Featured first, in the company's order.
+  hotels: ["newest"],
   // 113.1 In the owner's order.
   bundles: ["newest"],
 };

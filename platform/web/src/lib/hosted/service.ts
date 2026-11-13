@@ -611,6 +611,8 @@ async function config(ctx: HostedContext, req: HostedRequest): Promise<HostedRes
     ...(extra.market ? { market: extra.market } : {}),
     // 105.2 Ride hailing
     ...(extra.rides ? { rides: extra.rides } : {}),
+    // 126 Travel: hotels and flights
+    ...(extra.travel ? { travel: extra.travel } : {}),
     // 105.9 Live taxi on the map
     ...(extra.taxi ? { taxi: extra.taxi } : {}),
     // 105.3 Academies with many teachers

@@ -32,6 +32,8 @@ export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string | "market_home"> =
   taxi: "ride",
   school: "school",
   instructors: "teachers",
+  // 126 Safra's Explore.
+  travel: "travel",
   // 123 The premium academy's home is its template's.
   premium_academy: "academy_premium",
 };
@@ -187,6 +189,7 @@ export const DEMO_ICONS: Record<Exclude<StudioDemoId, "premium_academy">, string
   taxi: "map",
   school: "school",
   instructors: "groups",
+  travel: "travel_explore",
 };
 
 /** The Studio template id of a demo: `demo_<demo>`. */
@@ -195,7 +198,7 @@ export function demoTemplateId(id: StudioDemoId): string {
 }
 
 const DEMO_VERTICALS: readonly string[] = ["taxi", "instructors", "marketplace"];
-const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school"];
+const DEMO_TYPES: readonly string[] = ["delivery", "food", "rides", "school", "travel"];
 
 /** The Studio demo of a project's kind: its vertical's, else its type's; none for a kind without one. */
 export function studioDemoOf(kind: { type: string; vertical?: string | null } | null): StudioDemoId | null {

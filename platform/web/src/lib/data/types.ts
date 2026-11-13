@@ -186,7 +186,7 @@ export interface ScreenshotFrame {
  * donations app (29, hosted API only). What each engine is and offers is in
  * lib/app/kinds.ts.
  */
-export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school";
+export type AppType = "lms" | "store" | "booking" | "real_estate" | "news" | "events" | "donations" | "delivery" | "food" | "rides" | "school" | "travel";
 
 /** 20 The kind of business, on top of the engine: wording, defaults, the demo and marketing, never routes (lib/app/kinds.ts). */
 export type AppVertical = "restaurant" | "clinic" | "fitness" | "charity" | "services" | "instructors" | "taxi" | "marketplace";
@@ -228,6 +228,8 @@ export type ConnectorConfig =
   | { kind: "rides" }
   /** 105.4 Schools: classes, people, timetable, attendance, homework, grades, news and fees in the school_* tables. */
   | { kind: "school" }
+  /** 126 Travel: hotels, rooms, flights, bookings and alerts in the travel_* tables (lib/travel). */
+  | { kind: "travel" }
   /**
    * A platform connected with keys (ikas, Ticimax, IdeaSoft, Wix, Teachable,
    * Thinkific, SimplyBook) or with OAuth through Yallapp's partner app
@@ -3099,6 +3101,8 @@ export interface DemoPurgeCounts {
   /** 110.5 The academy with many teachers: teachers visitors followed and rated. */
   teacherFollows: number;
   teacherReviews: number;
+  /** 126 Visitors' travel bookings, saved hotels and price alerts. */
+  travelBookings: number;
 }
 
 // 23 News & blog apps: articles written in the dashboard
@@ -6672,3 +6676,6 @@ export interface UniAttendance {
   takenBy: number | null;
   updatedAt: Date;
 }
+
+// 126 Travel: hotels and flights
+export * from "./travel-types";

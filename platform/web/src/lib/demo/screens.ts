@@ -93,6 +93,19 @@ export const DEMO_SCREENS: Record<Exclude<StudioDemoId, typeof PREMIUM_ACADEMY_D
     },
     menu: "card",
   },
+  // 126 Safra: the resort's pool at dusk, ink and gold.
+  travel: {
+    style: "photo",
+    photo: "/demo-screens/safra-resort.jpg",
+    title: { en: "Where does the next story begin?", ar: "من أين تبدأ حكايتك القادمة؟", tr: "Sıradaki hikâye nerede başlıyor?" },
+    subtitle: {
+      en: "Sign in to book hotels and flights, together for one price.",
+      ar: "سجّل الدخول لتحجز الفنادق والطيران معًا بسعر واحد.",
+      tr: "Otelleri ve uçuşları tek fiyata birlikte ayırtmak için giriş yapın.",
+    },
+    menu: "night",
+    accent: "#C9A063",
+  },
   instructors: {
     style: "card",
     photo: "/demo-screens/rawaq-library.jpg",
@@ -136,6 +149,8 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   taxi: { design: "island", dark_active: "#F5B700" },
   school: { design: "classic", avatar: true },
   instructors: { design: "segment" },
+  // 126 The dot under the open tab, as the travel designs have it.
+  travel: { design: "dot", active: "#0E1424", dark_active: "#C9A063" },
   // 123 The premium academy's frosted floating bar, as its template has it.
   premium_academy: ACADEMY_PROJECT.tab_bar,
 };
