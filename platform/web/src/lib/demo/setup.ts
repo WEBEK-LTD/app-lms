@@ -403,14 +403,23 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 }
 
-/** How to sign in to a demo, shown to people not signed in, after the welcome banner. */
+/**
+ * How to sign in to a demo, shown to people not signed in, after the welcome
+ * banner (128 at the end of a Studio demo's home), in the demo's languages.
+ * The number is kept left to right and on one line in the Arabic.
+ */
 export function demoSignInBlock(): LayoutBlock {
+  const phone = escapeHtml(DEMO_SIGN_IN.display);
   return {
     id: "demo-sign-in",
     type: "text",
     visibility: "signed_out",
     title: null,
-    html: `<p><strong>This is a demo app.</strong> Sign in with ${escapeHtml(DEMO_SIGN_IN.display)} and the code ${DEMO_SIGN_IN.code}. Anything you add is deleted after a day.</p>`,
+    html: `<p><strong>This is a demo app.</strong> Sign in with ${phone} and the code ${DEMO_SIGN_IN.code}. Anything you add is deleted after a day.</p>`,
+    translations: {
+      ar: { html: `<p><strong>هذا تطبيق تجريبي.</strong> سجّل الدخول بالرقم \u2066${phone.replaceAll(" ", "\u00A0")}\u2069 والرمز ${DEMO_SIGN_IN.code}. يُحذف كل ما تضيفه بعد يوم.</p>` },
+      tr: { html: `<p><strong>Bu bir demo uygulamasıdır.</strong> ${phone} numarası ve ${DEMO_SIGN_IN.code} koduyla giriş yapın. Eklediğiniz her şey bir gün sonra silinir.</p>` },
+    },
   };
 }
 
@@ -424,7 +433,7 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const base = defaultLayout({ ...app, brandingDoneAt: deps.now }, BUILT_IN_APP_DEFAULTS, deps.now);
   const designed = designLayout({ ...app, appName: brand.appName }, demoDesign(demoIdOf(app)), base, deps.now);
   const signIn = demoSignInBlock();
-  // 123 The premium academy: the project its template starts, with how to sign in to the demo on its home.
+  // 123 The premium academy: the project its template starts, with how to sign in to the demo on its home (128 at its end).
   if (demoIdOf(app) === PREMIUM_ACADEMY_DEMO) return premiumAcademyLayout(deps, { ...app, appName: brand.appName }, base, signIn);
   const [home, ...rest] = designed.pages;
   // After the welcome banner, as before.
@@ -459,8 +468,8 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
 /**
  * 123 The premium academy's demo is the project its template starts
  * (lib/studio/start.ts): its tabs, bar, screens' pages and look, with how
- * to sign in to the demo after its home's first element, in the demo's
- * languages.
+ * to sign in to the demo at the end of its home (128 after the approved
+ * design), in the demo's languages.
  */
 function premiumAcademyLayout(deps: Pick<DemoSetupDeps, "now">, app: App, base: LayoutContent, signIn: LayoutBlock): LayoutContent {
   const brand = DEMO_BRANDS[PREMIUM_ACADEMY_DEMO];

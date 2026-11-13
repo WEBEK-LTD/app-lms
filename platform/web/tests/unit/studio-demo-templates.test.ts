@@ -21,7 +21,7 @@ import type { LayoutContent, LayoutPage, StudioNode, StudioPage } from "@/lib/pa
 import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
 import { designPages, picturesIn, type DesignFile } from "@/lib/studio/design-file";
-import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
+import { DEMO_FACTS, DEMO_HOME_TEMPLATES, DEMO_NOTE_COLORS, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
 import { designedTabs } from "@/lib/studio/demo-designs";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
@@ -135,10 +135,14 @@ describe("Studio templates = Studio demos", () => {
     const source = itemSourcesFor(demoApp(id))[0] ?? null;
     // 124.7 With the demo's own words where the template asks the owner for theirs.
     expect(home.studio).toEqual(withDemoFacts(id, demoStudioPage(id, demoStudioContext(id, appUrl(), source), [demoSignInBlock()])));
-    // The note, for people not signed in, right after the page's first element.
-    const note = home.studio!.body.children![1]!;
-    expect(note.visibility).toBe("signed_out");
+    // 128 The note, for people not signed in, last: a quiet card in the demo's colours by day and by night, in its languages.
+    const note = home.studio!.body.children!.at(-1)!;
+    expect(note).toMatchObject({ visibility: "signed_out", type: "row", background: DEMO_NOTE_COLORS[id].surface, dark_background: DEMO_NOTE_COLORS[id].nightSurface, border_color: DEMO_NOTE_COLORS[id].line, dark_border_color: DEMO_NOTE_COLORS[id].nightLine });
     expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
+    const words = allNodes({ body: note }).find((n) => n.type === "text")!;
+    expect(words).toMatchObject({ color: DEMO_NOTE_COLORS[id].muted, dark_color: DEMO_NOTE_COLORS[id].nightMuted });
+    expect(words.translations?.ar?.text).toMatch(/^هذا تطبيق تجريبي\..*\u2066\+1\u00A0202\u00A0555\u00A00123\u2069/);
+    expect(words.translations?.tr?.text).toMatch(/^Bu bir demo uygulamasıdır\./);
     // Without it: the kind's own template (128 Sofra Eats's and Zad's the approved photo-first homes), as it is.
     const ctx = demoStudioContext(id, appUrl(), source);
     const designed = TEMPLATES.find((t) => t.id === DEMO_HOME_TEMPLATES[id])!.make(ctx);
@@ -277,8 +281,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const project = startLayout(app, template, defaultLayout(app, BUILT_IN_APP_DEFAULTS, NOW), NOW, ctx, null);
     expect(whole(demo)).toEqual(whole(project));
     expect(demo.tab_bar).toEqual(project.tab_bar);
-    // The note, for people not signed in, right after the home's first element.
-    const note = demo.pages[0]!.studio!.body.children![1]!;
+    // The note, for people not signed in, 128 at the end of the home (after the approved design).
+    const note = demo.pages[0]!.studio!.body.children!.at(-1)!;
     expect(note.visibility).toBe("signed_out");
     expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
     // 128.8 In the template's Manrope (Arabic in Alexandria) and gold, in the demo's languages.
@@ -332,7 +336,7 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const page = layout.pages[0]!.studio!;
     expect(page.header).toEqual({ type: "transparent", buttons: ["notifications"] });
     expect(page).toMatchObject({ background: "#F4F6F9", dark_background: "#09131F" });
-    const [hero, note, children, today, week, tiles] = page.body.children!;
+    const [hero, children, today, week, tiles, note] = page.body.children!;
     expect(hero).toMatchObject({ type: "stack", height: 250, image_background_url: `${appUrl()}/demo-screens/nakhla-school.jpg`, scrim: { color: "#0A1E34", from: 0.5, middle: 0.15, at: 40, to: 0.9 } });
     expect(allNodes({ body: hero! }).find((n) => n.type === "school")).toMatchObject({ school: { section: "greeting" }, text: "Welcome to Nakhla School" });
     expect(note!.visibility).toBe("signed_out");
@@ -351,7 +355,7 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const layout = await demoOf("instructors");
     const page = layout.pages[0]!.studio!;
     expect(page.header).toEqual({ type: "transparent", buttons: ["search"] });
-    const [hero, , meet, people, popular, courses] = page.body.children!;
+    const [hero, meet, people, popular, courses] = page.body.children!;
     expect(hero).toMatchObject({ type: "stack", height: 300, image_background_url: `${appUrl()}/demo-screens/rawaq-library.jpg` });
     expect(texts({ body: hero! })).toEqual(["Learn from people who do it", "Real teachers.\nReal skills."]);
     expect(texts({ body: meet! })).toEqual(["Meet the teachers", "All teachers"]);
@@ -385,7 +389,7 @@ describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 
     const page = layout.pages[0]!.studio!;
     expect(page.header ?? null).toBeNull();
     expect(page).toMatchObject({ background: "#FBF7F2", dark_background: "#17100C" });
-    const [hero, note, cuisines, live, head, loved] = page.body.children!;
+    const [hero, cuisines, live, head, loved, note] = page.body.children!;
     expect(note!.visibility).toBe("signed_out");
     // The table's photo under a shade, its words at the foot, the search card over its edge.
     const photo = allNodes({ body: hero! }).find((n) => n.image_background_url)!;
@@ -413,7 +417,7 @@ describe("128 Sofra Eats and Zad: the photo-first homes approved on 13 November 
     const page = layout.pages[0]!.studio!;
     expect(page.header ?? null).toBeNull();
     expect(page).toMatchObject({ background: "#F6F3EE", dark_background: "#0D1712" });
-    const [bar, note, offer, tiles, head, places] = page.body.children!;
+    const [bar, offer, tiles, head, places, note] = page.body.children!;
     expect(bar).toMatchObject({ type: "market", market: { section: "address", style: "bar" }, text: "Search products and shops", color: "#1E6B52" });
     expect(note!.visibility).toBe("signed_out");
     expect(offer).toMatchObject({ type: "stack", height: 150, radius: 22, scrim: { angle: 90 } });
