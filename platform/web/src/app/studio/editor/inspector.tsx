@@ -49,6 +49,7 @@ import { followStyle } from "@/lib/studio/text-styles";
 import { SCRIM_DEFAULT } from "@/lib/studio/scrim";
 import { elementLabel } from "./left-panel";
 import { RangeField, SidesField } from "./controls";
+import { CoverControls, TrackingControls } from "./cover-controls";
 import { Glyph } from "./shared";
 
 /**
@@ -728,6 +729,14 @@ function DesignTab(props: Props & { node: StudioNode }) {
       {node.type === "market" ? <MarketControls node={node} onChange={onChange} /> : null}
       {node.type === "learning" ? <LearningControls node={node} onChange={onChange} /> : null}
       {node.type === "live_status" ? <LiveStatusControls node={node} onChange={onChange} /> : null}
+      {node.type === "photo_hero" || node.type === "map_header" ? <CoverControls node={node} onChange={onChange} /> : null}
+      {/* 128 The shade over a photo hero's photo, as over any picture. */}
+      {node.type === "photo_hero" ? (
+        <div className="flex flex-col gap-2">
+          <ScrimFields node={node} onChange={onChange} palette={props.palette} />
+        </div>
+      ) : null}
+      {node.type === "tracking" ? <TrackingControls node={node} onChange={onChange} /> : null}
       {node.type === "coupon" ? (
         <label className="flex flex-col gap-1 font-bold">
           {t("studio.couponCode")}
@@ -890,22 +899,11 @@ function DesignTab(props: Props & { node: StudioNode }) {
           {node.gradient ? <RangeField label={t("studio.angle")} value={node.gradient.angle ?? 180} min={0} max={360} step={5} unit="°" fallback={180} presets={[{ value: 0, label: "↑" }, { value: 90, label: "→" }, { value: 180, label: "↓" }, { value: 270, label: "←" }, { value: 135, label: "↘" }]} onChange={(angle) => onChange({ gradient: { ...node.gradient!, angle } })} /> : null}
         </div>
       </details>
-      {node.image_background_url || (node.type === "image" && (node.image_url || node.bind === "image")) ? (
+      {node.image_background_url || node.overlay || (node.type === "image" && (node.image_url || node.bind === "image")) ? (
         <div className="flex flex-col gap-2">
           <Colors palette={props.palette} rows={[{ label: t("studio.overlay"), value: node.overlay?.color, onChange: (color) => onChange({ overlay: color ? { color, opacity: node.overlay?.opacity ?? 0.4 } : undefined }) }]} />
           {node.overlay ? <RangeField label={t("studio.overlayStrength")} value={node.overlay.opacity} scale={0.01} min={5} max={95} unit="%" onChange={(opacity) => onChange({ overlay: { ...node.overlay!, opacity } })} /> : null}
-          {/* 128 A shade darker at its ends, so words on the picture read. */}
-          <Colors palette={props.palette} rows={[{ label: t("studio.scrim"), value: node.scrim?.color, onChange: (color) => onChange({ scrim: color ? { ...(node.scrim ?? SCRIM_DEFAULT), color } : undefined }) }]} />
-          {node.scrim ? (
-            <>
-              <RangeField label={t("studio.scrimFrom")} value={node.scrim.from} scale={0.01} min={0} max={95} unit="%" onChange={(from) => onChange({ scrim: { ...node.scrim!, from } })} />
-              <RangeField label={t("studio.scrimTo")} value={node.scrim.to} scale={0.01} min={0} max={95} unit="%" onChange={(to) => onChange({ scrim: { ...node.scrim!, to } })} />
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={node.scrim.angle === 90} onChange={(e) => onChange({ scrim: { ...node.scrim!, angle: e.target.checked ? 90 : undefined } })} />
-                {t("studio.scrimAcross")}
-              </label>
-            </>
-          ) : null}
+          <ScrimFields node={node} onChange={onChange} palette={props.palette} />
         </div>
       ) : null}
       {layout || node.type === "button" ? (
@@ -1708,6 +1706,26 @@ function LearningControls({ node, onChange }: { node: StudioNode; onChange: (pat
         {t("studio.learningHint")}
       </span>
     </label>
+  );
+}
+
+/** 128 A shade over the element's picture (an image, a background picture, a photo hero's photo), darker at its ends, so words on it read. */
+function ScrimFields({ node, onChange, palette }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void; palette: string[] }) {
+  const t = useDashT();
+  return (
+    <>
+      <Colors palette={palette} rows={[{ label: t("studio.scrim"), value: node.scrim?.color, onChange: (color) => onChange({ scrim: color ? { ...(node.scrim ?? SCRIM_DEFAULT), color } : undefined }) }]} />
+      {node.scrim ? (
+        <>
+          <RangeField label={t("studio.scrimFrom")} value={node.scrim.from} scale={0.01} min={0} max={95} unit="%" onChange={(from) => onChange({ scrim: { ...node.scrim!, from } })} />
+          <RangeField label={t("studio.scrimTo")} value={node.scrim.to} scale={0.01} min={0} max={95} unit="%" onChange={(to) => onChange({ scrim: { ...node.scrim!, to } })} />
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={node.scrim.angle === 90} onChange={(e) => onChange({ scrim: { ...node.scrim!, angle: e.target.checked ? 90 : undefined } })} />
+            {t("studio.scrimAcross")}
+          </label>
+        </>
+      ) : null}
+    </>
   );
 }
 

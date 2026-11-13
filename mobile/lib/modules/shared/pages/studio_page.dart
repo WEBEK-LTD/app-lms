@@ -30,6 +30,8 @@ import 'page_actions.dart';
 import 'page_blocks.dart';
 import 'recently_viewed.dart';
 import 'side_menu.dart';
+import 'studio_covers.dart';
+import 'studio_live.dart';
 import 'studio_live_status.dart';
 import 'studio_scrim.dart';
 
@@ -68,11 +70,28 @@ class StudioPageView extends ConsumerWidget {
           dark ? (page.darkBackground ?? page.background) : page.background,
         ) ??
         p.background;
-    final scope = StudioScope(pageSlug: pageSlug, dark: dark);
     final header = page.header;
     final overlay = header?.type == StudioHeaderType.transparent;
     // Elements pinned at the top or bottom of the page's own column.
     final body = page.bodyFor(MediaQuery.sizeOf(context).shortestSide);
+    // 128 A page without a header that starts with a cover (a photo hero, a
+    // map) has it under the status bar, its elements below the bar.
+    final first = header == null
+        ? body.children.where((n) => n.pin == StudioPin.none).firstOrNull
+        : null;
+    final bleed =
+        first != null &&
+            (first.type == StudioNodeType.photoHero ||
+                first.type == StudioNodeType.mapHeader) &&
+            first.margin == null
+        ? first
+        : null;
+    final scope = StudioScope(
+      pageSlug: pageSlug,
+      dark: dark,
+      bleedId: bleed?.id,
+      topInset: bleed == null ? 0 : top,
+    );
     bool pinned(StudioNode n) => n.pin != StudioPin.none;
     final pinnedTop = [
       for (final n in body.children)
@@ -91,7 +110,7 @@ class StudioPageView extends ConsumerWidget {
     final list = ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
-        top: header == null || overlay ? top : 0,
+        top: bleed == null && (header == null || overlay) ? top : 0,
         bottom: 16,
       ),
       children: [
@@ -106,7 +125,15 @@ class StudioPageView extends ConsumerWidget {
         children: [
           // 110 Without a header, nothing scrolls under the status bar.
           Positioned.fill(
-            child: header == null
+            child: bleed != null
+                // 128 Light icons over a photo; over the map, as on its land.
+                ? AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: bleed.type == StudioNodeType.photoHero
+                        ? SystemUiOverlayStyle.light
+                        : overlayStyleOn(background),
+                    child: list,
+                  )
+                : header == null
                 ? StatusBarBackdrop(color: background, child: list)
                 : list,
           ),
@@ -281,6 +308,8 @@ class StudioScope {
     required this.dark,
     this.entry,
     this.uppercase = false,
+    this.bleedId,
+    this.topInset = 0,
   });
 
   final String pageSlug;
@@ -290,11 +319,18 @@ class StudioScope {
   /// 107.2 Texts in capitals, as the element holding them asked.
   final bool uppercase;
 
+  /// 128 The cover at the top of a page without a header, reaching under
+  /// the status bar ([topInset] high).
+  final String? bleedId;
+  final double topInset;
+
   StudioScope withEntry(PageItem entry) => StudioScope(
     pageSlug: pageSlug,
     dark: dark,
     entry: entry,
     uppercase: uppercase,
+    bleedId: bleedId,
+    topInset: topInset,
   );
 
   StudioScope inCapitals() => StudioScope(
@@ -302,6 +338,8 @@ class StudioScope {
     dark: dark,
     entry: entry,
     uppercase: true,
+    bleedId: bleedId,
+    topInset: topInset,
   );
 }
 
@@ -723,6 +761,8 @@ class StudioNodeView extends ConsumerWidget {
           ref.watch(liveMarketOrderProvider).value != null,
         null => false,
       },
+      // 128 The person's shipment, ride or the taxis near them, once there is one.
+      StudioNodeType.tracking => studioLiveShows(node, ref),
       StudioNodeType.items =>
         node.card != null
             ? node.items.isNotEmpty
@@ -759,17 +799,37 @@ class StudioNodeView extends ConsumerWidget {
     final radius = _radiusOf(node).resolve(Directionality.of(context));
     final rounded = node.radius > 0 || node.corners != null;
     final overlay = _overlayOf(node);
-    Widget child = _content(context, ref, color);
-    final padding = _insets(node.padding);
+    // 128 A cover draws its own height, space inside, colours and corners.
+    final cover =
+        node.type == StudioNodeType.photoHero ||
+        node.type == StudioNodeType.mapHeader;
+    Widget child = cover
+        ? StudioCoverView(
+            node: node,
+            scope: scope,
+            topInset: scope.bleedId == node.id ? scope.topInset : 0,
+          )
+        : _content(context, ref, color);
+    final padding = cover ? null : _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
     final border = parseHexColor(node.borderColor);
     final gradient = node.gradient;
+    // 128 A colour over an element without a picture is its see-through
+    // background (a frosted button over a photo).
+    final seeThrough =
+        background == null &&
+            gradient == null &&
+            node.imageBackgroundUrl == null
+        ? overlay
+        : null;
     final decorated =
-        background != null ||
-        gradient != null ||
-        node.imageBackgroundUrl != null ||
-        node.shadow != StudioShadow.none ||
-        (border != null && node.borderWidth > 0);
+        !cover &&
+        (background != null ||
+            seeThrough != null ||
+            gradient != null ||
+            node.imageBackgroundUrl != null ||
+            node.shadow != StudioShadow.none ||
+            (border != null && node.borderWidth > 0));
     if (node.imageBackgroundUrl case final url?) {
       // 112.4 What lies on the picture fills it when the element's size is
       // set (a slide), so its own alignment holds.
@@ -795,7 +855,7 @@ class StudioNodeView extends ConsumerWidget {
     if (decorated) {
       child = DecoratedBox(
         decoration: BoxDecoration(
-          color: gradient == null ? background : null,
+          color: gradient == null ? (background ?? seeThrough) : null,
           gradient: gradient == null ? null : _linear(gradient, background),
           borderRadius: radius,
           border: border != null && node.borderWidth > 0
@@ -812,7 +872,7 @@ class StudioNodeView extends ConsumerWidget {
             node.type == StudioNodeType.image)) {
       child = ClipRRect(borderRadius: radius, child: child);
     }
-    child = _sized(child);
+    if (!cover) child = _sized(child);
     // The text's colour and font for what this element holds.
     if (color != null || node.font != null) {
       child = DefaultTextStyle.merge(
@@ -1144,6 +1204,14 @@ class StudioNodeView extends ConsumerWidget {
             : watchLiveOrder(context, ref, source);
         if (order == null) return const SizedBox.shrink();
         return StudioLiveStatusCard(node: node, order: order, color: color);
+      // 128 The covers are drawn whole by StudioCoverView (build), the live
+      // elements from the person's own shipment, ride, taxis and name.
+      case StudioNodeType.photoHero || StudioNodeType.mapHeader:
+        return const SizedBox.shrink();
+      case StudioNodeType.tracking:
+        return StudioTrackingView(node: node);
+      case StudioNodeType.greeting:
+        return const StudioGreetingView();
       case StudioNodeType.market:
         final market = node.market;
         if (market == null) return const SizedBox.shrink();

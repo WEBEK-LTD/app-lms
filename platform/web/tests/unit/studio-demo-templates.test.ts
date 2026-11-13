@@ -23,7 +23,7 @@ import { parseLayoutContent, parseStudioPage } from "@/lib/pages/validate";
 import { sourcesIn } from "@/lib/samples/lists";
 import { designPages, picturesIn } from "@/lib/studio/design-file";
 import { DEMO_FACTS, DEMO_HOME_TEMPLATES, demoTemplateId, paragraphsOf, studioDemoOf, withDemoFacts } from "@/lib/studio/demo-templates";
-import { designedTabs } from "@/lib/studio/demo-pages";
+import { designedTabs } from "@/lib/studio/demo-designs";
 import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib/studio/designs";
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
@@ -180,8 +180,8 @@ describe("Studio templates = Studio demos", () => {
     const file = makeDesign(design, { ...englishContext(app), brand: "#123456" }, { home: "Home", template: (t) => t, theme: (t) => t }, LANGS, demoTabs);
     expect(file.demo).toBe(id);
     let n = 0;
-    // 128 Pictures already at an address (Yallapp's photos) stay there, as the editor keeps them.
-    const pictures = new Map(file.pages.flatMap((p) => picturesIn(p.studio)).map((url) => [url, url] as const));
+    // 128 The demo's photos kept at their addresses, as the editor keeps a design's https pictures (app/studio/editor/editor.tsx applyDesign).
+    const pictures = new Map(file.pages.flatMap((p) => picturesIn(p.studio)).filter((url) => /^https?:\/\//.test(url)).map((url) => [url, url] as const));
     const fitted = designPages(file, { sources: itemSourcesFor(app), categorySources: categorySourcesFor(app), screens: screenOptionsFor(app).map((s) => s.value), newId: () => `n${++n}`, pages: current.pages, languages: LANGS, pictures, now: NOW.toISOString() });
     const applied = applyWholeDesign(current, fitted, file.look, { mode: "project", openSlug: "home", pageIndex: 0, keep: false, now: NOW.toISOString(), demo: demoProjectLook(id, demoTabs), designSlugs: file.pages.map((p) => p.slug) });
     // 120 Every page of the demo, its tabs' pages too, each where its tab opens it.
@@ -437,7 +437,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       const app = { ...demoApp(id), appName: "Nour" };
       const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(studioAr[`w_${word}`]).replaceAll("{app}", "Nour") };
       const page = demoStudioPage(id, ctx);
-      // 128 The app's name (Sofra Eats's home writes it over its photo) is the same in every language.
+      // 128 The app's own name (Sofra Eats's over its photo, a wordmark, a name on a pill) is the same in every language.
       const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour");
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {

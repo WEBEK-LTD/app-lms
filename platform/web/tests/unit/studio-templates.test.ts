@@ -29,7 +29,8 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
     expect(ownTemplates(kindOf("academy")).map((t) => t.id).slice(0, 2)).toEqual(["academy_premium", "courses"]);
     expect(ownTemplates(kindOf("bookings"))[0]!.id).toBe("services");
     expect(ownTemplates(kindOf("clinic"))[0]!.id).toBe("services");
-    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "brand", "contact", "blank"]);
+    // 128 And the premium demo's home as a template of its own (lib/studio/demo-designs).
+    expect(ownTemplates(kindOf("delivery")).map((t) => t.id)).toEqual(["delivery", "delivery_city", "brand", "contact", "blank"]);
     expect(templatesFor(null).map((t) => t.id)).toEqual(["brand", "contact", "blank"]);
     // 105.1.6 Three ready-made designs for a food delivery company, and its welcome section first.
     // 128 And Sofra Eats's photo-first home.
@@ -85,7 +86,7 @@ describe("103R.7 Studio's templates and sections for each project type", () => {
   });
 
   it("105.2 gives a ride company three designs that ask for a ride, its welcome section first", () => {
-    expect(ownTemplates(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "brand", "contact", "blank"]);
+    expect(ownTemplates(kindOf("rides")).map((t) => t.id)).toEqual(["ride", "ride_offers", "ride_brand", "ride_night", "taxi_map", "brand", "contact", "blank"]);
     expect(sectionsFor(kindOf("rides"))[0]!.id).toBe("ride");
     expect(sectionsFor(kindOf("food")).map((s) => s.id)).not.toContain("ride");
     for (const template of ownTemplates(kindOf("rides")).filter((t) => t.id.startsWith("ride"))) {

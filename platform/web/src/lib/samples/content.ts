@@ -1207,8 +1207,8 @@ function demoDelivery(name: string, ar: [string, string, string], tr: [string, s
 export const SAMPLE_DELIVERY_SERVICES: { currency: CatalogCurrency; services: SampleDeliveryService[] } = {
   currency: "EGP",
   services: [
-    demoDelivery("Same day", ["في اليوم نفسه", "يُستلم خلال ساعة، ويُسلَّم قبل العاشرة مساءً.", "خلال 6 ساعات"], ["Aynı gün", "Bir saat içinde alınır, saat 22.00'den önce teslim edilir.", "6 saat içinde"]),
-    demoDelivery("Express", ["سريع", "من نقطة الاستلام إلى التسليم مباشرة، دون توقف.", "خلال ساعتين"], ["Ekspres", "Alındığı yerden teslim adresine doğrudan, başka durak olmadan.", "2 saat içinde"]),
+    demoDelivery("Same day", ["في اليوم نفسه", "يُستلم خلال ساعة، ويُسلَّم قبل العاشرة مساءً.", "من ساعتين إلى 4 ساعات"], ["Aynı gün", "Bir saat içinde alınır, saat 22.00'den önce teslim edilir.", "2 ila 4 saat"]),
+    demoDelivery("Express", ["سريع", "من نقطة الاستلام إلى التسليم مباشرة، دون توقف.", "خلال ساعة"], ["Ekspres", "Alındığı yerden teslim adresine doğrudan, başka durak olmadan.", "Bir saat içinde"]),
     demoDelivery("Documents", ["مستندات", "أوراق وأظرف، تُسلَّم بتوقيع عند الباب.", "خلال 4 ساعات"], ["Evrak", "Evrak ve zarflar, kapıda imzayla teslim edilir.", "4 saat içinde"]),
   ],
 };

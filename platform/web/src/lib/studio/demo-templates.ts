@@ -7,10 +7,11 @@ import type { SectionContext, SectionWord } from "./sections";
 /**
  * Templates = demos, for Yallapp Studio. Each Studio demo is made from its
  * kind's own designed page (lib/studio/sections.ts `demoStudioPage`), never
- * from a page generated for it: 128 Sofra Eats's and Zad's homes are the
- * photo-first templates approved on 13 November 2026 (lib/studio/photo-food.ts,
- * photo-market.ts), the others their kind's first template (the delivery
- * company's, the ride company's, the school's, the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
+ * from a page generated for it: 128 Sofra Eats's, Zad's, Sahm Express's,
+ * Masar Rides's and Lamha Taxi's homes are the premium templates approved on
+ * 13 November 2026 (lib/studio/demo-designs, with lib/studio/photo-food.ts
+ * and photo-market.ts), the others their kind's first template (the
+ * school's, the teachers'). The demo app (lib/demo/setup.ts), the demo's template a
  * project starts from and the "Like our demo" whole design
  * (lib/studio/designs.ts) are that one page, so a client gets what the demo
  * shows. tests/unit/studio-demo-templates.test.ts fails when they drift
@@ -23,14 +24,14 @@ function idOf(ctx: SectionContext): string {
   return (ctx.newId ?? newNodeId)();
 }
 
-/** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES); Zad's is the approved marketplace home. */
+/** The kind's own template each Studio demo's home is (lib/studio/sections.ts TEMPLATES). */
 export const DEMO_HOME_TEMPLATES: Record<StudioDemoId, string> = {
-  delivery: "delivery",
-  // 128 The approved photo-first homes.
+  // 128 The premium homes approved on 13 November 2026 (lib/studio/demo-designs): Sofra Eats's and Zad's photo-first, Sahm's courier in the city, Masar's ride at night, Lamha's taxi map.
+  delivery: "delivery_city",
   food: "food_photo",
   marketplace: "market_photo",
-  rides: "ride",
-  taxi: "ride",
+  rides: "ride_night",
+  taxi: "taxi_map",
   school: "school",
   instructors: "teachers",
   // 123 The premium academy's home is its template's.
@@ -189,6 +190,8 @@ export const DEMO_FACTS: Partial<Record<StudioDemoId, Partial<Record<SectionWord
       ar: "وسط القاهرة، بجوار ميدان التحرير · يوميًا من 09:00 إلى 22:00",
       tr: "Kahire şehir merkezi, Tahrir Meydanı'nın yanında · Her gün 09.00–22.00",
     },
+    // 128 Where the approved home's route card picks up: the demo's own street, where its parcels leave from.
+    deliveryFrom: { en: "Abbas El Akkad St.", ar: "شارع عباس العقاد", tr: "Abbas El Akkad Caddesi" },
   },
 };
 

@@ -9817,4 +9817,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String marketMinutes(String min) {
     return '$min min';
   }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return '$reference is waiting for a courier';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return '$reference has its courier';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return '$reference is picked up';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return '$reference is on the way';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier is bringing it to $place';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return 'To $place';
+  }
+
+  @override
+  String get studioTrackButton => 'Track';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return 'Arriving in $minutes min';
+  }
+
+  @override
+  String get studioRideComing => 'Your driver is coming';
+
+  @override
+  String get studioRideHere => 'Your driver is here';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return 'On the way to $place';
+  }
+
+  @override
+  String get studioRideSearching => 'Finding your driver';
+
+  @override
+  String studioRideCall(String name) {
+    return 'Call $name';
+  }
 }

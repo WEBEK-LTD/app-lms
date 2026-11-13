@@ -16021,6 +16021,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{min} min'**
   String marketMinutes(String min);
+
+  /// 128 The live card of the person's shipment on a Studio page, before a courier has it.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is waiting for a courier'**
+  String studioTrackWaiting(String reference);
+
+  /// 128 The live shipment card once a courier has the shipment, before the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} has its courier'**
+  String studioTrackAssigned(String reference);
+
+  /// 128 The live shipment card once the courier has the parcel.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is picked up'**
+  String studioTrackPickedUp(String reference);
+
+  /// 128 The live shipment card while the parcel is on its way to the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'{reference} is on the way'**
+  String studioTrackOnTheWay(String reference);
+
+  /// 128 Under the live shipment card's title: the courier's first name and the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'{courier} is bringing it to {place}'**
+  String studioTrackBringing(String courier, String place);
+
+  /// 128 Under the live shipment card's title before a courier has it: the drop-off.
+  ///
+  /// In en, this message translates to:
+  /// **'To {place}'**
+  String studioTrackTo(String place);
+
+  /// 128 The live shipment card's button, opening the shipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Track'**
+  String get studioTrackButton;
+
+  /// 128 The live ride card while the driver comes to the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving in {minutes} min'**
+  String studioRideArriving(int minutes);
+
+  /// 128 The live ride card while the driver comes, without the minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your driver is coming'**
+  String get studioRideComing;
+
+  /// 128 The live ride card once the driver is at the pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Your driver is here'**
+  String get studioRideHere;
+
+  /// 128 The live ride card during the ride.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way to {place}'**
+  String studioRideOnBoard(String place);
+
+  /// 128 The live ride card while the ride looks for a driver.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding your driver'**
+  String get studioRideSearching;
+
+  /// 128 The call button on the live ride card, read out.
+  ///
+  /// In en, this message translates to:
+  /// **'Call {name}'**
+  String studioRideCall(String name);
 }
 
 class _AppLocalizationsDelegate

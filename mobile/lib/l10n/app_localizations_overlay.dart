@@ -10458,4 +10458,68 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String marketMinutes(String min) =>
       overlay.format('marketMinutes', {'min': min}) ?? base.marketMinutes(min);
+
+  @override
+  String studioTrackWaiting(String reference) =>
+      overlay.format('studioTrackWaiting', {'reference': reference}) ??
+      base.studioTrackWaiting(reference);
+
+  @override
+  String studioTrackAssigned(String reference) =>
+      overlay.format('studioTrackAssigned', {'reference': reference}) ??
+      base.studioTrackAssigned(reference);
+
+  @override
+  String studioTrackPickedUp(String reference) =>
+      overlay.format('studioTrackPickedUp', {'reference': reference}) ??
+      base.studioTrackPickedUp(reference);
+
+  @override
+  String studioTrackOnTheWay(String reference) =>
+      overlay.format('studioTrackOnTheWay', {'reference': reference}) ??
+      base.studioTrackOnTheWay(reference);
+
+  @override
+  String studioTrackBringing(String courier, String place) =>
+      overlay.format('studioTrackBringing', {
+        'courier': courier,
+        'place': place,
+      }) ??
+      base.studioTrackBringing(courier, place);
+
+  @override
+  String studioTrackTo(String place) =>
+      overlay.format('studioTrackTo', {'place': place}) ??
+      base.studioTrackTo(place);
+
+  @override
+  String get studioTrackButton =>
+      overlay.text('studioTrackButton') ?? base.studioTrackButton;
+
+  @override
+  String studioRideArriving(int minutes) =>
+      overlay.format('studioRideArriving', {'minutes': minutes}) ??
+      base.studioRideArriving(minutes);
+
+  @override
+  String get studioRideComing =>
+      overlay.text('studioRideComing') ?? base.studioRideComing;
+
+  @override
+  String get studioRideHere =>
+      overlay.text('studioRideHere') ?? base.studioRideHere;
+
+  @override
+  String studioRideOnBoard(String place) =>
+      overlay.format('studioRideOnBoard', {'place': place}) ??
+      base.studioRideOnBoard(place);
+
+  @override
+  String get studioRideSearching =>
+      overlay.text('studioRideSearching') ?? base.studioRideSearching;
+
+  @override
+  String studioRideCall(String name) =>
+      overlay.format('studioRideCall', {'name': name}) ??
+      base.studioRideCall(name);
 }

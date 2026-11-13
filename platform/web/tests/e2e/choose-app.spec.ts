@@ -207,8 +207,9 @@ test("in Arabic and dark, Studio's New project opens the same page with Studio c
   await expect(steps.getByRole("heading", { name: "أول خطواتك" })).toBeVisible();
   await expect(steps).toContainText("دوس على أي حاجة في التطبيق عشان تغيّرها");
   // The demo's own words where its template asked for the owner's: no brackets left.
-  await expect(own.getByText("Downtown Cairo, by Tahrir Square · Every day, 09:00 to 22:00")).toBeVisible();
-  await expect(own.getByText("[Your address and opening hours]")).toHaveCount(0);
+  // 128 The approved home's route card picks up at the demo's own street.
+  await expect(own.getByText("Abbas El Akkad St.", { exact: true })).toBeVisible();
+  await expect(own.getByText("[Street name]")).toHaveCount(0);
   // Its delivery services, the demo's, marked so.
   await own.goto("/studio/project/delivery");
   await expect(own.locator("[data-from-demo]")).toHaveCount(DEMO_DELIVERY_SERVICES.length);

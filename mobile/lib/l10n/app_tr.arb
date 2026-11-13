@@ -2651,5 +2651,18 @@
   "liveMarketReady": "{place} siparişiniz hazır",
   "liveMarketOnTheWay": "{place} siparişiniz yolda",
   "liveOrderMin": "dk",
-  "marketMinutes": "{min} dk"
+  "marketMinutes": "{min} dk",
+  "studioTrackWaiting": "{reference} kurye bekliyor",
+  "studioTrackAssigned": "{reference} kuryesine verildi",
+  "studioTrackPickedUp": "{reference} alındı",
+  "studioTrackOnTheWay": "{reference} yolda",
+  "studioTrackBringing": "{courier}, {place} adresine getiriyor",
+  "studioTrackTo": "{place} adresine",
+  "studioTrackButton": "Takip et",
+  "studioRideArriving": "{minutes} dk içinde geliyor",
+  "studioRideComing": "Sürücünüz geliyor",
+  "studioRideHere": "Sürücünüz geldi",
+  "studioRideOnBoard": "{place} yolunda",
+  "studioRideSearching": "Sürücünüz aranıyor",
+  "studioRideCall": "Ara: {name}"
 }

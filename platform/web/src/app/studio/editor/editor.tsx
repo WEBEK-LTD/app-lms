@@ -1210,6 +1210,7 @@ export function StudioEditor(props: StudioEditorProps) {
           marketplace={props.kind.vertical === "marketplace"}
           academy={props.kind.type === "lms"}
           orders={props.kind.type === "food"}
+          trips={props.kind.type === "delivery" || props.kind.type === "rides"}
           page={studio}
           selectedId={selectedId}
           onSelect={(id) => setSelectedId(id)}

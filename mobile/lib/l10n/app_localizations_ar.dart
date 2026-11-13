@@ -10086,4 +10086,61 @@ class AppLocalizationsAr extends AppLocalizations {
   String marketMinutes(String min) {
     return '$min د';
   }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return 'الشحنة $reference بانتظار مندوب';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return 'للشحنة $reference مندوبها';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return 'استُلمت الشحنة $reference';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return 'الشحنة $reference في الطريق';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier يوصلها إلى $place';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return 'إلى $place';
+  }
+
+  @override
+  String get studioTrackButton => 'تتبّع';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return 'يصل خلال $minutes دقيقة';
+  }
+
+  @override
+  String get studioRideComing => 'سائقك في الطريق إليك';
+
+  @override
+  String get studioRideHere => 'سائقك وصل';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return 'في الطريق إلى $place';
+  }
+
+  @override
+  String get studioRideSearching => 'نبحث عن سائقك';
+
+  @override
+  String studioRideCall(String name) {
+    return 'اتصل بـ$name';
+  }
 }

@@ -436,7 +436,7 @@ export async function demoLayout(deps: Pick<DemoSetupDeps, "assetUrl" | "now">, 
   const studio = ctx && isStudioDemo(id) ? withDemoFacts(id, demoStudioPage(id, ctx, [signIn])) : null;
   // 120 Every tab after the home a Studio page drawn around its screen, so each of the demo's pages can be changed in Studio.
   // 120.4 And every other screen of the app, so each can be changed in Studio too.
-  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set([...designed.pages.map((p) => p.slug), ...designed.tabs.map((t) => t.id)]))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
+  const tabPages = ctx ? [...demoTabPages(designed.tabs, ctx), ...demoScreenPages(app, designed.tabs, ctx, new Set(designed.pages.map((p) => p.slug)))].map((p) => ({ ...p, show_title: false, updated_at: deps.now.toISOString(), blocks: [] })) : [];
   return {
     ...designed,
     appearance: {

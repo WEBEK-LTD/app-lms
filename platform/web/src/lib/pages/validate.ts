@@ -75,6 +75,8 @@ import {
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
+  STUDIO_TRACKING_KINDS,
+  STUDIO_TRACKING_STYLES,
   TAB_LABELS,
   THEME_MODES,
   TRANSLATABLE,
@@ -1159,6 +1161,55 @@ function parseTextStyles(raw: unknown, c: { fail: (where: string, message: strin
   return out;
 }
 
+/**
+ * 128 What a cover layout holds besides its elements: a `photo_hero`'s photo
+ * (its shade is any element's `scrim`), a `map_header`'s markers, and how far
+ * either's last element hangs over its foot.
+ */
+function parseCover(ctx: Context, where: string, v: Record<string, unknown>, type: "photo_hero" | "map_header", bad: (what: string) => void): Partial<StudioNode> {
+  const { c } = ctx;
+  const out: Partial<StudioNode> = {};
+  if (type === "photo_hero") {
+    // The shade over the photo is any picture's (`scrim`, parsed with the element's look).
+    const url = c.mediaUrl(where, v.image_url, "the photo's address", false);
+    if (url) out.image_url = url;
+  } else if (v.map_drawing !== undefined && v.map_drawing !== null) {
+    const m = record(v.map_drawing);
+    if (!m) bad("the map's markers aren't valid.");
+    else {
+      const drawing: NonNullable<StudioNode["map_drawing"]> = {};
+      const raw = Array.isArray(m.markers) ? m.markers : [];
+      if (raw.length > 12) bad("a map has at most 12 markers.");
+      const markers = raw.slice(0, 12).flatMap((p) => {
+        const at = record(p);
+        const x = studioNumber(at?.x, 0, 100);
+        const y = studioNumber(at?.y, 0, 100);
+        if (x === undefined || y === undefined || Number.isNaN(x) || Number.isNaN(y)) {
+          bad("each marker needs a spot across and down, 0 to 100%.");
+          return [];
+        }
+        return [{ x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 }];
+      });
+      if (markers.length) drawing.markers = markers;
+      if (m.icon !== undefined && m.icon !== null && m.icon !== "") {
+        if (!(typeof m.icon === "string" && ICON_NAME.test(m.icon))) bad("choose the markers' icon.");
+        else drawing.icon = m.icon;
+      }
+      const accent = optionalColor(c, where, m.accent, "the markers' colour");
+      if (accent) drawing.accent = accent;
+      const chip = optionalColor(c, where, m.chip, "the markers' tile");
+      if (chip) drawing.chip = chip;
+      if (m.me === true) drawing.me = true;
+      if (m.live === true) drawing.live = true;
+      out.map_drawing = drawing;
+    }
+  }
+  const overlap = studioNumber(v.overlap, 0, STUDIO_LIMITS.maxSide);
+  if (overlap !== undefined && Number.isNaN(overlap)) bad(`how far the last element hangs over must be 0 to ${STUDIO_LIMITS.maxSide}.`);
+  else if (overlap) out.overlap = Math.round(overlap);
+  return out;
+}
+
 function parseNode(ctx: Context, where: string, value: unknown, state: { count: number; ids: Set<string> }, depth: number, card: boolean): StudioNode | null {
   const { c } = ctx;
   const L = STUDIO_LIMITS;
@@ -1535,6 +1586,29 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     case "ratings": {
       const rating = num("rating", 0, 5, "the stars");
       if (rating !== undefined) node.rating = rating;
+      break;
+    }
+    // 128 A photo with a scrim, and a drawn map with markers, behind what they hold; a card hanging over their foot.
+    case "photo_hero":
+    case "map_header": {
+      Object.assign(node, parseCover(ctx, where, v, node.type, bad));
+      break;
+    }
+    // 128 The signed-in person's shipment or ride on its way, or the taxis near them.
+    case "tracking": {
+      const t = record(v.tracking);
+      if (!t || !oneOf(STUDIO_TRACKING_KINDS, t.kind)) {
+        bad("choose what the live card follows.");
+        break;
+      }
+      node.tracking = { kind: t.kind };
+      if (t.style !== undefined && t.style !== null) {
+        if (!oneOf(STUDIO_TRACKING_STYLES, t.style)) bad("choose how the live card looks.");
+        else if (t.style !== "card") node.tracking.style = t.style;
+      }
+      // The photo a driver's card shows while the driver has none of their own.
+      const photo = c.mediaUrl(where, v.image_url, "the photo's address", false);
+      if (photo) node.image_url = photo;
       break;
     }
     default:

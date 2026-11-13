@@ -1,6 +1,7 @@
 import 'catalog_models.dart';
 import 'json.dart';
 import 'learning_models.dart';
+import 'studio_live_models.dart';
 
 /// `GET /pages`: the bottom tabs, the side menu and the pages published in
 /// the dashboard.
@@ -1971,15 +1972,24 @@ enum StudioNodeType {
   learning,
   // 128 The person's order on its way (StudioLiveStatus).
   liveStatus,
+  // 128 A photo with a scrim, and a drawn map with markers, holding what
+  // lies over them (`overlap`: the last one hangs over their foot).
+  photoHero,
+  mapHeader,
+  // 128 The person's shipment or ride on its way, or the taxis near them;
+  // a greeting with their first name.
+  tracking,
+  greeting,
 }
 
 /// 128 Whose order a `live_status` element follows: a food delivery order
 /// or a marketplace order.
 enum StudioLiveSource { foodOrder, marketOrder }
 
-/// 128 A shade over a picture so the words on it read (`StudioScrim`): its
-/// colour at [from] at the start of [angle] (CSS: 180 from the top down, 90
-/// across from the start), [middle] at [at] percent, and [to] at its end.
+/// 128 A shade over a picture so the words on it read (`StudioScrim`: an
+/// element's picture, or a `photo_hero`'s photo): its colour at [from] at
+/// the start of [angle] (CSS: 180 from the top down, 90 across from the
+/// start), [middle] at [at] percent, and [to] at its end.
 class StudioScrim {
   const StudioScrim({
     required this.color,
@@ -2464,6 +2474,9 @@ class StudioNode {
     this.learning,
     this.scrim,
     this.liveStatus,
+    this.tracking,
+    this.mapDrawing,
+    this.overlap = 0,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2580,6 +2593,9 @@ class StudioNode {
                 (json['live_status'] as Map)['source'],
               )
             : null,
+        tracking: StudioTracking.tryParse(json['tracking']),
+        mapDrawing: StudioMapDrawing.tryParse(json['map_drawing']),
+        overlap: n('overlap', 0, 0, 400),
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2726,11 +2742,21 @@ class StudioNode {
   /// 123 For [StudioNodeType.learning]: which of the student's cards it is.
   final StudioLearningSection? learning;
 
-  /// 128 A shade over its picture, darker at its ends.
+  /// 128 A shade over its picture, darker at its ends (a
+  /// [StudioNodeType.photoHero]'s photo too).
   final StudioScrim? scrim;
 
   /// 128 For [StudioNodeType.liveStatus]: whose order it follows.
   final StudioLiveSource? liveStatus;
+
+  /// 128 For [StudioNodeType.tracking]: what it follows.
+  final StudioTracking? tracking;
+
+  /// 128 For [StudioNodeType.mapHeader]: its markers.
+  final StudioMapDrawing? mapDrawing;
+
+  /// 128 For the covers: how far their last element hangs over their foot.
+  final double overlap;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||
@@ -2739,7 +2765,10 @@ class StudioNode {
     StudioNodeType.grid ||
     StudioNodeType.slider ||
     StudioNodeType.accordion ||
-    StudioNodeType.tabs => true,
+    StudioNodeType.tabs ||
+    // 128 The covers hold what lies over them.
+    StudioNodeType.photoHero ||
+    StudioNodeType.mapHeader => true,
     _ => false,
   };
 }

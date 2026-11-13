@@ -136,6 +136,14 @@ const symbolsByName = <String, IconData>{
   'arrow_back': Symbols.arrow_back_rounded,
   // 128 Sofra Eats's photo hero: where it delivers, opening the list.
   'expand_more': Symbols.expand_more_rounded,
+  // 128 What the premium ride demos draw: My rides, the saved places, the
+  // car classes, and the greeting element's icon in Studio.
+  'history': Symbols.history_rounded,
+  'work': Symbols.work_rounded,
+  'flight': Symbols.flight_rounded,
+  'airline_seat_recline_extra': Symbols.airline_seat_recline_extra_rounded,
+  'airport_shuttle': Symbols.airport_shuttle_rounded,
+  'waving_hand': Symbols.waving_hand_rounded,
 };
 
 /// Shown for a name the app doesn't have.

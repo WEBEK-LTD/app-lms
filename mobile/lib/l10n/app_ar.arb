@@ -2651,5 +2651,18 @@
   "liveMarketReady": "طلبك من {place} جاهز",
   "liveMarketOnTheWay": "طلبك من {place} في الطريق إليك",
   "liveOrderMin": "د",
-  "marketMinutes": "{min} د"
+  "marketMinutes": "{min} د",
+  "studioTrackWaiting": "الشحنة {reference} بانتظار مندوب",
+  "studioTrackAssigned": "للشحنة {reference} مندوبها",
+  "studioTrackPickedUp": "استُلمت الشحنة {reference}",
+  "studioTrackOnTheWay": "الشحنة {reference} في الطريق",
+  "studioTrackBringing": "{courier} يوصلها إلى {place}",
+  "studioTrackTo": "إلى {place}",
+  "studioTrackButton": "تتبّع",
+  "studioRideArriving": "يصل خلال {minutes} دقيقة",
+  "studioRideComing": "سائقك في الطريق إليك",
+  "studioRideHere": "سائقك وصل",
+  "studioRideOnBoard": "في الطريق إلى {place}",
+  "studioRideSearching": "نبحث عن سائقك",
+  "studioRideCall": "اتصل بـ{name}"
 }

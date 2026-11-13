@@ -618,7 +618,7 @@ export const DEMO_BRANDS: Record<DemoId, DemoBrand> = {
     splashColor: "#E0F3EF",
     secondaryColor: "#F2B544",
     template: "bold",
-    font: "Plus Jakarta Sans",
+    font: "Manrope",
     corners: "round",
     cards: "elevated",
     languages: ["en", "ar", "tr"],
@@ -1626,8 +1626,8 @@ export const DELIVERY_DEMO_SETTINGS = {
 };
 
 export const DEMO_DELIVERY_SERVICES: { name: string; description: string; eta: string; extraCents: number; picture: PictureName }[] = [
-  { name: "Same day", description: "Picked up within the hour, delivered before 10 pm.", eta: "Within 6 hours", extraCents: 0, picture: "service-sameday" },
-  { name: "Express", description: "Straight from the pickup to the drop-off, no other stops.", eta: "Within 2 hours", extraCents: 45_00, picture: "service-express" },
+  { name: "Same day", description: "Picked up within the hour, delivered before 10 pm.", eta: "2 to 4 hours", extraCents: 0, picture: "service-sameday" },
+  { name: "Express", description: "Straight from the pickup to the drop-off, no other stops.", eta: "Within the hour", extraCents: 45_00, picture: "service-express" },
   { name: "Documents", description: "Papers and envelopes, signed for at the door.", eta: "Within 4 hours", extraCents: 15_00, picture: "service-documents" },
 ];
 

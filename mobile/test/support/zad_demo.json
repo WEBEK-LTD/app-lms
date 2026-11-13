@@ -704,6 +704,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-35",
+      "type": "column",
+      "children": []
+     },
+     "screen": "cart",
      "header": {
       "type": "title",
       "title": "Cart",
@@ -718,13 +724,7 @@
         "title": "Sepet"
        }
       }
-     },
-     "body": {
-      "id": "demo-35",
-      "type": "column",
-      "children": []
-     },
-     "screen": "cart"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -742,27 +742,12 @@
      }
     },
     "studio": {
-     "header": {
-      "type": "title",
-      "title": "Orders",
-      "buttons": [
-       "notifications"
-      ],
-      "translations": {
-       "ar": {
-        "title": "الطلبات"
-       },
-       "tr": {
-        "title": "Siparişler"
-       }
-      }
-     },
      "body": {
-      "id": "demo-37",
+      "id": "demo-39",
       "type": "column",
       "children": [
        {
-        "id": "demo-36",
+        "id": "demo-40",
         "type": "live_status",
         "live_status": {
          "source": "market_order"
@@ -786,7 +771,22 @@
        }
       ]
      },
-     "screen": "food_orders"
+     "screen": "food_orders",
+     "header": {
+      "type": "title",
+      "title": "Orders",
+      "buttons": [
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "الطلبات"
+       },
+       "tr": {
+        "title": "Siparişler"
+       }
+      }
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -805,7 +805,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-38",
+      "id": "demo-41",
       "type": "column",
       "children": []
      },
@@ -827,22 +827,6 @@
      }
     },
     "studio": {
-     "header": {
-      "type": "title",
-      "title": "Shops",
-      "buttons": [
-       "search",
-       "notifications"
-      ],
-      "translations": {
-       "ar": {
-        "title": "المحلات"
-       },
-       "tr": {
-        "title": "Dükkânlar"
-       }
-      }
-     },
      "background": "#F6F3EE",
      "dark_background": "#0D1712",
      "body": {
@@ -919,6 +903,22 @@
         }
        }
       ]
+     },
+     "header": {
+      "type": "title",
+      "title": "Shops",
+      "buttons": [
+       "search",
+       "notifications"
+      ],
+      "translations": {
+       "ar": {
+        "title": "المحلات"
+       },
+       "tr": {
+        "title": "Dükkânlar"
+       }
+      }
      }
     },
     "show_title": false,
@@ -937,6 +937,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-42",
+      "type": "column",
+      "children": []
+     },
+     "screen": "restaurants",
      "header": {
       "type": "title",
       "title": "Restaurants",
@@ -948,13 +954,7 @@
         "title": "Restoranlar"
        }
       }
-     },
-     "body": {
-      "id": "demo-39",
-      "type": "column",
-      "children": []
-     },
-     "screen": "restaurants"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -972,6 +972,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-43",
+      "type": "column",
+      "children": []
+     },
+     "screen": "settings",
      "header": {
       "type": "title",
       "title": "Settings",
@@ -983,13 +989,7 @@
         "title": "Ayarlar"
        }
       }
-     },
-     "body": {
-      "id": "demo-40",
-      "type": "column",
-      "children": []
-     },
-     "screen": "settings"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1007,6 +1007,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-44",
+      "type": "column",
+      "children": []
+     },
+     "screen": "notifications",
      "header": {
       "type": "title",
       "title": "Notifications",
@@ -1018,20 +1024,14 @@
         "title": "Bildirimler"
        }
       }
-     },
-     "body": {
-      "id": "demo-41",
-      "type": "column",
-      "children": []
-     },
-     "screen": "notifications"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
     "blocks": []
    },
    {
-    "slug": "search-screen",
+    "slug": "search",
     "title": "Search",
     "translations": {
      "ar": {
@@ -1042,6 +1042,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-45",
+      "type": "column",
+      "children": []
+     },
+     "screen": "search",
      "header": {
       "type": "title",
       "title": "Search",
@@ -1053,20 +1059,14 @@
         "title": "Ara"
        }
       }
-     },
-     "body": {
-      "id": "demo-42",
-      "type": "column",
-      "children": []
-     },
-     "screen": "search"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
     "blocks": []
    },
    {
-    "slug": "club-screen",
+    "slug": "club",
     "title": "Club",
     "translations": {
      "ar": {
@@ -1077,6 +1077,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-46",
+      "type": "column",
+      "children": []
+     },
+     "screen": "club",
      "header": {
       "type": "title",
       "title": "Club",
@@ -1088,13 +1094,7 @@
         "title": "Kulüp"
        }
       }
-     },
-     "body": {
-      "id": "demo-43",
-      "type": "column",
-      "children": []
-     },
-     "screen": "club"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1112,6 +1112,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-47",
+      "type": "column",
+      "children": []
+     },
+     "screen": "edit_profile",
      "header": {
       "type": "title",
       "title": "Edit profile",
@@ -1123,13 +1129,7 @@
         "title": "Profili düzenle"
        }
       }
-     },
-     "body": {
-      "id": "demo-44",
-      "type": "column",
-      "children": []
-     },
-     "screen": "edit_profile"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1147,6 +1147,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-48",
+      "type": "column",
+      "children": []
+     },
+     "screen": "devices",
      "header": {
       "type": "title",
       "title": "Devices",
@@ -1158,13 +1164,7 @@
         "title": "Cihazlar"
        }
       }
-     },
-     "body": {
-      "id": "demo-45",
-      "type": "column",
-      "children": []
-     },
-     "screen": "devices"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1175,7 +1175,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-46",
+      "id": "demo-49",
       "type": "column",
       "children": []
      },
@@ -1190,7 +1190,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-47",
+      "id": "demo-50",
       "type": "column",
       "children": []
      },
@@ -1205,7 +1205,7 @@
     "title": "A restaurant's menu",
     "studio": {
      "body": {
-      "id": "demo-48",
+      "id": "demo-51",
       "type": "column",
       "children": []
      },
@@ -1220,7 +1220,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-49",
+      "id": "demo-52",
       "type": "column",
       "children": []
      },
@@ -1242,6 +1242,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-53",
+      "type": "column",
+      "children": []
+     },
+     "screen": "food_cart",
      "header": {
       "type": "title",
       "title": "Your cart",
@@ -1253,13 +1259,7 @@
         "title": "Sepetiniz"
        }
       }
-     },
-     "body": {
-      "id": "demo-50",
-      "type": "column",
-      "children": []
-     },
-     "screen": "food_cart"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1270,7 +1270,7 @@
     "title": "A place's page",
     "studio": {
      "body": {
-      "id": "demo-51",
+      "id": "demo-54",
       "type": "column",
       "children": []
      },
@@ -1285,7 +1285,7 @@
     "title": "A list of places",
     "studio": {
      "body": {
-      "id": "demo-52",
+      "id": "demo-55",
       "type": "column",
       "children": []
      },
@@ -1307,6 +1307,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-56",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_checkout",
      "header": {
       "type": "title",
       "title": "Checkout",
@@ -1318,13 +1324,7 @@
         "title": "Ödeme"
        }
       }
-     },
-     "body": {
-      "id": "demo-53",
-      "type": "column",
-      "children": []
-     },
-     "screen": "market_checkout"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1342,6 +1342,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-57",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_orders",
      "header": {
       "type": "title",
       "title": "My orders",
@@ -1353,13 +1359,7 @@
         "title": "Siparişlerim"
        }
       }
-     },
-     "body": {
-      "id": "demo-54",
-      "type": "column",
-      "children": []
-     },
-     "screen": "market_orders"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1370,7 +1370,7 @@
     "title": "An order",
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -1392,6 +1392,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-59",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_wallet",
      "header": {
       "type": "title",
       "title": "Wallet",
@@ -1403,13 +1409,7 @@
         "title": "Cüzdan"
        }
       }
-     },
-     "body": {
-      "id": "demo-56",
-      "type": "column",
-      "children": []
-     },
-     "screen": "market_wallet"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1427,6 +1427,12 @@
      }
     },
     "studio": {
+     "body": {
+      "id": "demo-60",
+      "type": "column",
+      "children": []
+     },
+     "screen": "market_complain",
      "header": {
       "type": "title",
       "title": "Report a problem",
@@ -1438,13 +1444,7 @@
         "title": "Sorun bildir"
        }
       }
-     },
-     "body": {
-      "id": "demo-57",
-      "type": "column",
-      "children": []
-     },
-     "screen": "market_complain"
+     }
     },
     "show_title": false,
     "updated_at": "2026-11-09T10:00:00.000Z",
@@ -1455,7 +1455,7 @@
     "title": "A complaint",
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-61",
       "type": "column",
       "children": []
      },

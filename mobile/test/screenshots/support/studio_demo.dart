@@ -219,15 +219,16 @@ class StudioDemo {
         }
       });
     }
-    // 128 And the photos the demo shows (its home's, its sign-in's, and
-    // those the screens' data name: [extra]).
+    // 128 And the platform's own photos the demo shows (its pages', its
+    // sign-in's, and those the screens' data name: [extra]), at the
+    // screenshots' width, at the addresses the demo serves them from.
     final paths = {..._photoPaths(_demo), ...extra};
     await tester.runAsync(() async {
       for (final path in paths) {
         if (_photos.containsKey(path)) continue;
         final codec = await ui.instantiateImageCodec(
           File('../platform/web/public$path').readAsBytesSync(),
-          targetWidth: 800,
+          targetWidth: 1080,
         );
         _photos[path] = (await codec.getNextFrame()).image;
       }
@@ -295,14 +296,14 @@ DemoApi sahmStudioApi({bool courier = false}) {
           source,
           1,
           'Same day',
-          'Within 6 hours',
+          '2 to 4 hours',
           image: demo.picture('service-sameday'),
         ),
         _item(
           source,
           2,
           'Express',
-          'Within 2 hours',
+          'Within the hour',
           image: demo.picture('service-express'),
           badge: '+E£45.00',
         ),
@@ -566,7 +567,7 @@ DemoApi zadStudioApi() => StudioDemo.zad.apply(
 DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
     StudioDemo.masar.apply(
       ride
-          ? DemoApi.rides(driver: driver)
+          ? _masarRide(DemoApi.rides(driver: driver))
           : (DemoApi.rides(driver: driver)..rides = []),
       appName: 'Masar Rides',
       primaryColor: '#14857A',
@@ -590,6 +591,27 @@ DemoApi masarStudioApi({bool driver = false, bool ride = true}) =>
         ],
       },
     );
+
+/// 128 The ride on its way on Masar's home: Youssef, one of the demo's
+/// drivers (lib/demo/content.ts RIDES_DEMO_DRIVERS), with his car.
+DemoApi _masarRide(DemoApi api) => api
+  ..rides = [
+    for (final r in api.rides)
+      {
+        ...r,
+        'driver': {
+          ...(r['driver'] as Map<String, dynamic>),
+          'name': 'Youssef Kamal',
+          'rating': 4.9,
+          'car': {
+            'model': 'Compact sedan',
+            'color': 'Silver',
+            'plate': 'MS 2147',
+          },
+        },
+        'pickup_minutes': 3,
+      },
+  ];
 
 /// Lamha Taxi (Studio's live taxi demo): its car types on its home, the cars
 /// in their drawings (none of a six-seat car).

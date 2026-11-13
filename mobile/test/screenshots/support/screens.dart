@@ -962,7 +962,13 @@ final websiteShots = <Shot>[
     template: AppTemplate.bold,
     prepare: StudioDemo.masar.prepare,
     shadows: true,
-    after: _whereTo,
+    // 128 Masar opens on its Studio home (its Ride tab); "Search a place"
+    // opens the ride form.
+    after: (tester, router) async {
+      router.go('/ride');
+      await TestApp.settle(tester, 20);
+      await _whereTo(tester, router);
+    },
   ),
   Shot(
     'masar-driver',

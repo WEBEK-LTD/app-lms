@@ -1,8 +1,7 @@
 import type { TabBarStyle } from "../pages/types";
 import type { StudioScreens } from "../studio/screens";
 import { ACADEMY_PROJECT } from "../studio/academy";
-import { FOOD_PHOTO_TAB_BAR } from "../studio/photo-food";
-import { MARKET_PHOTO_TAB_BAR } from "../studio/photo-market";
+import { demoDesignBar } from "../studio/demo-designs";
 import { PREMIUM_ACADEMY_DEMO, type StudioDemoId } from "./constants";
 
 /**
@@ -133,11 +132,11 @@ export function demoStudioScreens(id: StudioDemoId, platformUrl: string): Studio
  * photo, a segmented track.
  */
 export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
-  delivery: { design: "line" },
-  // 128 The approved bars: Sofra Eats's floating pill, Zad's five named tabs.
-  food: FOOD_PHOTO_TAB_BAR,
-  marketplace: MARKET_PHOTO_TAB_BAR,
-  rides: { design: "lift" },
+  // 128 The approved bars (lib/studio/demo-designs): Sahm Express's and Masar Rides's across the bottom with the open tab's icon in a soft pill, Sofra Eats's floating pill, Zad's five named tabs.
+  delivery: demoDesignBar("delivery"),
+  food: demoDesignBar("food"),
+  marketplace: demoDesignBar("marketplace"),
+  rides: demoDesignBar("rides"),
   taxi: { design: "island", dark_active: "#F5B700" },
   school: { design: "classic", avatar: true },
   instructors: { design: "segment" },

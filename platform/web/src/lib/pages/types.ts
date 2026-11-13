@@ -16,9 +16,18 @@ export const CORNERS = ["sharp", "soft", "round"] as const;
 /** 97.3 Which look the app shows: the standard one, or the one made from a Figma file. */
 export const LOOK_MODES = ["standard", "figma"] as const;
 export const CARD_STYLES = ["flat", "outlined", "elevated"] as const;
+/**
+ * 128 Layouts that draw a cover behind what they hold: a photo with a scrim
+ * (`photo_hero`: a hero, a photo tile with its caption, a promo banner) and
+ * a drawn map with markers (`map_header`); the last element can hang over
+ * the cover's foot (`overlap`: a card, a bottom sheet).
+ */
+export const STUDIO_COVER_TYPES = ["photo_hero", "map_header"] as const;
+/** 128 Content drawn from the signed-in person: their shipment or ride on its way, or the taxis near them (`tracking`), and a greeting with their name (`greeting`). */
+export const STUDIO_LIVE_TYPES = ["tracking", "greeting"] as const;
 /** 103R Yallapp Studio: the elements of a page and what they can be (`StudioNode` in the app API). */
-export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs"] as const;
-export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status"] as const;
+export const STUDIO_LAYOUT_TYPES = ["row", "column", "stack", "grid", "slider", "spacer", "accordion", "tabs", ...STUDIO_COVER_TYPES] as const;
+export const STUDIO_CONTENT_TYPES = ["text", "image", "button", "icon", "items", "categories", "video", "form", "map", "ratings", "search", "divider", "countdown", "bullets", "coupon", "market", "learning", "live_status", ...STUDIO_LIVE_TYPES] as const;
 export const STUDIO_NODE_TYPES = [...STUDIO_LAYOUT_TYPES, ...STUDIO_CONTENT_TYPES] as const;
 /** 120 `title`: the page's title and its buttons, for the pages after the first. */
 /** 123 `greeting`: today's date over a greeting with the person's first name, the buttons beside it. */
@@ -646,7 +655,7 @@ export interface StudioLiveStatus {
  * (`StudioScrim`): its colour at `from` (0 to 1) at the start of `angle`
  * (CSS: 180 top to bottom, 90 start to end), `middle` at `at` percent, and
  * `to` at the end. A photo hero with its words on it, a photo tile's
- * caption.
+ * caption; any element's picture, and a `photo_hero`'s photo.
  */
 export interface StudioScrim {
   color: string;
@@ -696,6 +705,31 @@ export interface StudioMarketCard {
   hide?: (typeof STUDIO_MARKET_CARD_FACTS)[number][];
 }
 
+/** 128 For `tracking`: what it follows, and how it is drawn (`StudioTracking`). */
+export const STUDIO_TRACKING_KINDS = ["shipment", "ride", "nearby_taxis"] as const;
+/** `card`: a soft card with the stages; `driver`: the driver's photo, car and a call button; `line`: one line. */
+export const STUDIO_TRACKING_STYLES = ["card", "driver", "line"] as const;
+export interface StudioTracking {
+  kind: (typeof STUDIO_TRACKING_KINDS)[number];
+  /** Missing, `card`. */
+  style?: (typeof STUDIO_TRACKING_STYLES)[number];
+}
+
+/** 128 For `map_header`: the markers on the drawn map (`StudioMapDrawing`). */
+export interface StudioMapDrawing {
+  /** Where each marker is, in percent from the start and the top. */
+  markers?: StudioPlace[];
+  /** A Material Symbols name; missing, a taxi. */
+  icon?: string | null;
+  /** The markers' and the person's dot's colour, and the markers' tile; missing, gold on navy. */
+  accent?: string | null;
+  chip?: string | null;
+  /** The person's own dot in the middle. */
+  me?: boolean;
+  /** In the app, the free taxis near the person instead of the markers (the markers show in Studio). */
+  live?: boolean;
+}
+
 export interface StudioMap {
   lat: number;
   lng: number;
@@ -736,7 +770,7 @@ export interface StudioNode {
   corners?: StudioCorners | null;
   rotation?: number;
   overlay?: StudioOverlay | null;
-  /** 128 A shade over its picture, darker at its ends, so words on it read. */
+  /** 128 A shade over its picture (a `photo_hero`'s photo too), darker at its ends, so words on it read. */
   scrim?: StudioScrim | null;
   border_color?: string | null;
   border_width?: number;
@@ -785,6 +819,12 @@ export interface StudioNode {
   learning?: StudioLearning | null;
   /** 128 For `live_status`: whose order it follows. */
   live_status?: StudioLiveStatus | null;
+  /** 128 For `tracking`: what it follows. */
+  tracking?: StudioTracking | null;
+  /** 128 For `map_header`: its markers. */
+  map_drawing?: StudioMapDrawing | null;
+  /** 128 For `photo_hero` and `map_header`: how far its last element hangs up over the cover's foot. */
+  overlap?: number;
   rating?: number | null;
   action?: Action | null;
   platforms?: (typeof STUDIO_PLATFORMS)[number][];

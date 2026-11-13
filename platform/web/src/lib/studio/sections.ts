@@ -5,8 +5,7 @@ import { ACADEMY_PROJECT, academyHome, type TemplateProject } from "./academy";
 import { DEMO_HOME_TEMPLATES, DEMO_ICONS, demoTemplateId, studioDemoOf, studioTextOf, translating } from "./demo-templates";
 import { newNodeId } from "./elements";
 import { SLIDER_SECTIONS, STORE_SECTIONS } from "./store-sections";
-import { foodPhotoHome } from "./photo-food";
-import { marketPhotoHome } from "./photo-market";
+import { demoDesignTemplate } from "./demo-designs";
 
 /**
  * 103R Ready sections (dropped onto a page whole) and page templates (a
@@ -226,7 +225,41 @@ export type SectionWord =
   | "mpNear"
   | "mpShopsTitle"
   | "tabShops"
-  | "tabCart";
+  | "tabCart"
+  // 128 The premium delivery, ride and taxi demos' words (lib/studio/demo-designs).
+  | "brandName"
+  | "deliveryHeadline"
+  | "deliveryPickup"
+  | "deliveryFrom"
+  | "deliveryWhereTo"
+  | "deliverySend"
+  | "deliverySameDay"
+  | "deliverySameDayText"
+  | "deliveryExpress"
+  | "deliveryExpressText"
+  | "deliverySendBanner"
+  | "deliverySendBannerText"
+  | "deliveryShipmentsBanner"
+  | "deliveryShipmentsBannerText"
+  | "rideHeadline"
+  | "rideSearch"
+  | "rideNow"
+  | "rideHome"
+  | "rideOffice"
+  | "rideAirport"
+  | "rideEconomy"
+  | "rideEconomyText"
+  | "rideComfort"
+  | "rideComfortText"
+  | "rideVan"
+  | "rideVanText"
+  | "rideRidesBanner"
+  | "rideRidesBannerText"
+  | "taxiHeadline"
+  | "taxiWhereTo"
+  | "taxiAirportTitle"
+  | "taxiBook"
+  | "taxiRidesBanner";
 
 export interface SectionContext {
   brand: string;
@@ -246,7 +279,7 @@ export interface SectionContext {
   app?: string;
   /** The language `w` writes in (the dashboard's): a demo's template writes its own texts in it, with the others as translations. */
   lang?: "en" | "ar" | "tr";
-  /** 128 The Studio demo being made (the demo app, a project started from it, its whole design): its own pages after the home. */
+  /** 128 The Studio demo whose pages these are (the demo app, a project its template starts, its whole design): its own pages after the home, in its own look (lib/studio/demo-designs); missing, none. */
   demo?: StudioDemoId;
 }
 
@@ -1016,17 +1049,10 @@ const SCHOOL_STEPS: SectionContext["steps"] = ["schoolStepOne", "schoolStepTwo",
 const STORE: Fits = { types: ["store"] };
 const SHOP_HEADER: StudioPage["header"] = { type: "logo_actions", buttons: ["menu", "notifications", "cart", "account"] };
 
-/** 128 A page made in the dashboard's language, with Studio's other languages as its texts' translations. */
-function translatedPage(ctx: SectionContext, make: (ctx: SectionContext) => StudioPage): StudioPage {
-  const { ctx: words, translate } = translating(ctx);
-  const page = make(words);
-  return { ...page, body: translate(page.body) };
-}
-
 /**
  * Templates = demos: a Studio demo's home, made from its kind's own designed
- * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; Zad's the approved
- * marketplace home), with its texts in Studio's other languages too. The
+ * page (lib/studio/demo-templates.ts DEMO_HOME_TEMPLATES; 128 the premium
+ * ones lib/studio/demo-designs'), with its texts in Studio's other languages too. The
  * demo app adds how to sign in after its first element (`afterFirst`).
  */
 export function demoStudioPage(id: StudioDemoId, ctx: SectionContext, afterFirst: readonly LayoutBlock[] = []): StudioPage {
@@ -1081,7 +1107,7 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("food_offers", "local_offer", FOOD, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, FOOD_BUTTON),
   typed("food_brand", "restaurant", FOOD, ["hero", "stats", "products", "steps", "contact"], { type: "transparent", buttons: ["menu", "account"] }, FOOD_BUTTON, FOOD_STEPS),
   // 128 Food, photo first: Sofra Eats's approved home, for every food delivery project.
-  { id: "food_photo", icon: "restaurant", fits: FOOD, make: (ctx: SectionContext) => translatedPage(ctx, foodPhotoHome) },
+  demoDesignTemplate("food"),
   // 105.2 Three ready-made designs for a ride company.
   typed("ride", "local_taxi", RIDES, ["ride", "products", "steps", "cta"], { type: "logo_actions", buttons: ["menu", "notifications", "account"] }, RIDE_BUTTON, RIDE_STEPS),
   typed("ride_offers", "local_offer", RIDES, ["offer", "products", "review", "cta"], { type: "logo_center", buttons: ["menu", "notifications"] }, RIDE_BUTTON),
@@ -1101,7 +1127,11 @@ export const TEMPLATES: readonly TemplateInfo[] = [
   typed("market_offers", "local_offer", MARKETPLACE, ["m_address", "m_offers", "m_free", "m_club", "m_kinds", "m_rated", "m_reorder"], { type: "logo_center", buttons: ["menu", "notifications"] }),
   typed("market_grocery", "shopping_cart", MARKETPLACE, ["m_address", "m_kinds", "m_grocery", "m_departments", "m_fast", "m_offers", "m_reorder"], { type: "title_search", buttons: ["notifications", "account"] }),
   // 128 A marketplace, photo tiles: Zad's approved home, for every marketplace.
-  { id: "market_photo", icon: "storefront", fits: MARKETPLACE, make: (ctx: SectionContext) => translatedPage(ctx, marketPhotoHome) },
+  demoDesignTemplate("marketplace"),
+  // 128 The premium demos' homes as their kinds' templates: the courier in the city, the ride at night, the taxi map.
+  demoDesignTemplate("delivery"),
+  demoDesignTemplate("rides"),
+  demoDesignTemplate("taxi"),
   // For every project.
   { id: "brand", icon: "auto_awesome", make: (ctx) => pageOf(ctx, ["hero", "stats", "features", "review", "contact"], { type: "transparent", buttons: ["menu", "account"] }) },
   { id: "contact", icon: "call", make: (ctx) => pageOf(ctx, ["contact", "form"], { type: "title_search", buttons: [] }) },

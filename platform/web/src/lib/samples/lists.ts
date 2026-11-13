@@ -82,11 +82,17 @@ export function listsForSources(app: Pick<App, "appType" | "backend" | "connecto
  * alike (`source` anywhere in it). 115.14 A marketplace's `market` element
  * shows its places: the restaurants' list (Zad's places and Zad Market).
  */
+/** 128 The list the app's screens of delivery and rides show, which a page drawn around them needs filled. */
+const SCREEN_LISTS: Partial<Record<string, string>> = { send_parcel: "delivery_services", ride: "vehicle_types" };
+
 export function sourcesIn(value: unknown, found = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
     for (const item of value) sourcesIn(item, found);
   } else if (value && typeof value === "object") {
     if ((value as { type?: unknown }).type === "market") found.add("restaurants");
+    // 128 A Studio page drawn around a screen that lists entries (sending a parcel lists the services, the ride the car types).
+    const screen = (value as { screen?: unknown; body?: unknown }).body ? (value as { screen?: unknown }).screen : null;
+    if (typeof screen === "string" && SCREEN_LISTS[screen]) found.add(SCREEN_LISTS[screen]);
     for (const [key, item] of Object.entries(value)) {
       if (key === "source" && typeof item === "string") found.add(item);
       else sourcesIn(item, found);

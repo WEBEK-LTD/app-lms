@@ -9773,4 +9773,61 @@ class AppLocalizationsTr extends AppLocalizations {
   String marketMinutes(String min) {
     return '$min dk';
   }
+
+  @override
+  String studioTrackWaiting(String reference) {
+    return '$reference kurye bekliyor';
+  }
+
+  @override
+  String studioTrackAssigned(String reference) {
+    return '$reference kuryesine verildi';
+  }
+
+  @override
+  String studioTrackPickedUp(String reference) {
+    return '$reference alındı';
+  }
+
+  @override
+  String studioTrackOnTheWay(String reference) {
+    return '$reference yolda';
+  }
+
+  @override
+  String studioTrackBringing(String courier, String place) {
+    return '$courier, $place adresine getiriyor';
+  }
+
+  @override
+  String studioTrackTo(String place) {
+    return '$place adresine';
+  }
+
+  @override
+  String get studioTrackButton => 'Takip et';
+
+  @override
+  String studioRideArriving(int minutes) {
+    return '$minutes dk içinde geliyor';
+  }
+
+  @override
+  String get studioRideComing => 'Sürücünüz geliyor';
+
+  @override
+  String get studioRideHere => 'Sürücünüz geldi';
+
+  @override
+  String studioRideOnBoard(String place) {
+    return '$place yolunda';
+  }
+
+  @override
+  String get studioRideSearching => 'Sürücünüz aranıyor';
+
+  @override
+  String studioRideCall(String name) {
+    return 'Ara: $name';
+  }
 }

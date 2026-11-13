@@ -11036,5 +11036,105 @@
         "type": "String"
       }
     }
+  },
+  "studioTrackWaiting": "{reference} is waiting for a courier",
+  "@studioTrackWaiting": {
+    "description": "128 The live card of the person's shipment on a Studio page, before a courier has it.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackAssigned": "{reference} has its courier",
+  "@studioTrackAssigned": {
+    "description": "128 The live shipment card once a courier has the shipment, before the pickup.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackPickedUp": "{reference} is picked up",
+  "@studioTrackPickedUp": {
+    "description": "128 The live shipment card once the courier has the parcel.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackOnTheWay": "{reference} is on the way",
+  "@studioTrackOnTheWay": {
+    "description": "128 The live shipment card while the parcel is on its way to the drop-off.",
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackBringing": "{courier} is bringing it to {place}",
+  "@studioTrackBringing": {
+    "description": "128 Under the live shipment card's title: the courier's first name and the drop-off.",
+    "placeholders": {
+      "courier": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackTo": "To {place}",
+  "@studioTrackTo": {
+    "description": "128 Under the live shipment card's title before a courier has it: the drop-off.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioTrackButton": "Track",
+  "@studioTrackButton": {
+    "description": "128 The live shipment card's button, opening the shipment."
+  },
+  "studioRideArriving": "Arriving in {minutes} min",
+  "@studioRideArriving": {
+    "description": "128 The live ride card while the driver comes to the pickup.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "studioRideComing": "Your driver is coming",
+  "@studioRideComing": {
+    "description": "128 The live ride card while the driver comes, without the minutes."
+  },
+  "studioRideHere": "Your driver is here",
+  "@studioRideHere": {
+    "description": "128 The live ride card once the driver is at the pickup."
+  },
+  "studioRideOnBoard": "On the way to {place}",
+  "@studioRideOnBoard": {
+    "description": "128 The live ride card during the ride.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "studioRideSearching": "Finding your driver",
+  "@studioRideSearching": {
+    "description": "128 The live ride card while the ride looks for a driver."
+  },
+  "studioRideCall": "Call {name}",
+  "@studioRideCall": {
+    "description": "128 The call button on the live ride card, read out.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

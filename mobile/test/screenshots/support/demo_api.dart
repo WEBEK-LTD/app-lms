@@ -800,14 +800,14 @@ class DemoApi extends FakeApi {
         1,
         'Same day',
         'Picked up within the hour, delivered before 10 pm.',
-        'Within 6 hours',
+        '2 to 4 hours',
         null,
       ),
       service(
         2,
         'Express',
         'Straight from the pickup to the drop-off, no other stops.',
-        'Within 2 hours',
+        'Within the hour',
         '+E£45.00',
       ),
       service(
