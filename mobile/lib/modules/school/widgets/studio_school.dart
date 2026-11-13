@@ -27,8 +27,11 @@ List<ParentChild> _children(WidgetRef ref) {
 
 /// The child the parent chose (shared with the Parent tab), else the first.
 ParentChild? _chosen(WidgetRef ref) {
+  // 128.10 Only a school's parent's children are asked for (no request in
+  // another app, a WordPress site's among them).
+  if (ref.watch(isSchoolParentProvider) != true) return null;
   final me = ref.watch(parentMeProvider).value;
-  if (me == null || ref.watch(isSchoolParentProvider) != true) return null;
+  if (me == null) return null;
   return childOf(me, ref.watch(chosenStudentProvider));
 }
 
@@ -43,12 +46,47 @@ bool studioSchoolShows(StudioSchoolSection section, WidgetRef ref) {
   if (ref.watch(authControllerProvider) is! SignedIn) return false;
   return switch (section) {
     StudioSchoolSection.children => _children(ref).isNotEmpty,
-    StudioSchoolSection.today => _day(ref) != null,
+    // 128.10 A day with nothing on its card (no gate, lessons or bus):
+    // no empty card.
+    StudioSchoolSection.today => switch (_day(ref)) {
+      final day? => _hasRows(day),
+      null => false,
+    },
     StudioSchoolSection.greeting => true,
   };
 }
 
 String _first(String name) => name.trim().split(RegExp(r'\s+')).first;
+
+/// 128.10 The bus today's card shows: the one on its way, else the bus
+/// home; and its line, when it says when it comes or leaves.
+({StudentBusTrip bus, StudentBusTrip? running, String? leaves})? _busOf(
+  ChildDay day,
+) {
+  final running = day.bus
+      .where((b) => b.run?.status == BusRunStatus.running)
+      .firstOrNull;
+  final home = day.bus.where((b) => b.trip == BusTrip.afternoon).firstOrNull;
+  final bus = running ?? home;
+  if (bus == null) return null;
+  return (
+    bus: bus,
+    running: running,
+    leaves: bus.stops.firstOrNull?.time ?? bus.stop.time,
+  );
+}
+
+/// 128.10 Whether today's card has a row to show: the day off, in at the
+/// gate, a lesson, or the bus with when it comes or leaves.
+bool _hasRows(ChildDay day) {
+  if (day.dayOff != null || day.checkin != null || day.lessons.isNotEmpty) {
+    return true;
+  }
+  final bus = _busOf(day);
+  return bus != null &&
+      ((bus.running != null && bus.running!.run?.etaMinutes != null) ||
+          bus.leaves != null);
+}
 
 /// A class's short name on a chip ("Grade 5 A": "5A"); else its name.
 String _shortClass(String name) {
@@ -172,6 +210,8 @@ class _Children extends ConsumerWidget {
     String initials(String name) => name
         .trim()
         .split(RegExp(r'\s+'))
+        // 128.10 An empty name has no initials (and never throws).
+        .where((w) => w.isNotEmpty)
         .take(2)
         .map((w) => w.characters.first.toUpperCase())
         .join();
@@ -351,15 +391,7 @@ class _Today extends ConsumerWidget {
         );
       }
       // The bus: on its way, else the bus home.
-      final running = day.bus
-          .where((b) => b.run?.status == BusRunStatus.running)
-          .firstOrNull;
-      final home = day.bus
-          .where((b) => b.trip == BusTrip.afternoon)
-          .firstOrNull;
-      final bus = running ?? home;
-      if (bus != null) {
-        final leaves = bus.stops.firstOrNull?.time ?? bus.stop.time;
+      if (_busOf(day) case (:final bus, :final running, :final leaves)) {
         final title = running != null && running.run?.etaMinutes != null
             ? l10n.studioSchoolBusComing('${running.run!.etaMinutes}')
             : leaves != null

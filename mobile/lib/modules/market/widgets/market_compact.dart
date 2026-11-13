@@ -50,7 +50,14 @@ class MarketAddressBar extends ConsumerWidget {
     final l10n = context.l10n;
     final p = context.palette;
     final soonest = soonestMinutes(home.vendors);
-    const white = Colors.white;
+    // 128.10 The words on the bar readable on its colour; by night the
+    // search field in the theme's dark colours, not a white field.
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final onBar = color.computeLuminance() > 0.5
+        ? const Color(0xFF14231B)
+        : Colors.white;
+    final field = dark ? p.surface : Colors.white;
+    final fieldInk = dark ? p.textSecondary : const Color(0xFF5D6B63);
     return DecoratedBox(
       key: ValueKey('market-bar-${node.id}'),
       decoration: BoxDecoration(
@@ -75,14 +82,14 @@ class MarketAddressBar extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: white.withValues(alpha: 0.16),
+                            color: onBar.withValues(alpha: 0.16),
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: const AppIcon(
+                          child: AppIcon(
                             Symbols.location_on_rounded,
                             size: 22,
-                            color: white,
+                            color: onBar,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -94,17 +101,17 @@ class MarketAddressBar extends ConsumerWidget {
                                 l10n.marketDeliverTo,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: white.withValues(alpha: 0.8),
+                                  color: onBar.withValues(alpha: 0.8),
                                 ),
                               ),
                               Text(
                                 home.address ?? l10n.marketChooseAddress,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
-                                  color: white,
+                                  color: onBar,
                                 ),
                               ),
                             ],
@@ -157,26 +164,19 @@ class MarketAddressBar extends ConsumerWidget {
                 height: 50,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: white,
+                  color: field,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
-                    const AppIcon(
-                      Symbols.search_rounded,
-                      size: 22,
-                      color: Color(0xFF5D6B63),
-                    ),
+                    AppIcon(Symbols.search_rounded, size: 22, color: fieldInk),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         node.text ?? l10n.marketSearchHint,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFF5D6B63),
-                        ),
+                        style: TextStyle(fontSize: 15, color: fieldInk),
                       ),
                     ),
                   ],

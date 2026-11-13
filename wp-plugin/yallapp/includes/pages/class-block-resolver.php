@@ -1011,10 +1011,13 @@ class Block_Resolver {
 	const STUDIO_MAX_DEPTH = 12;
 
 	/**
-	 * 103R The element types of a Studio page, and those that hold others.
+	 * 103R The element types of a Studio page, and those that hold others; 128.10 the covers
+	 * (a photo hero, a map header) and the live elements (an order on its way, the school day,
+	 * a shipment or ride, a greeting), which the app draws from the person's own data and
+	 * leaves out when it has none.
 	 */
-	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning' );
-	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs' );
+	const STUDIO_TYPES  = array( 'row', 'column', 'stack', 'grid', 'slider', 'spacer', 'accordion', 'tabs', 'text', 'image', 'button', 'icon', 'items', 'categories', 'video', 'form', 'map', 'ratings', 'search', 'divider', 'countdown', 'bullets', 'coupon', 'learning', 'live_status', 'school', 'photo_hero', 'map_header', 'tracking', 'greeting' );
+	const STUDIO_LAYOUT = array( 'row', 'column', 'stack', 'grid', 'slider', 'accordion', 'tabs', 'photo_hero', 'map_header' );
 
 	/**
 	 * 103R A Studio page (`StudioPage`) for one request: its header and its tree of elements
@@ -1201,6 +1204,11 @@ class Block_Resolver {
 				'opacity' => round( max( 0, min( 1, (float) $raw['overlay']['opacity'] ) ), 2 ),
 			);
 		}
+		// 128.10 A shade over its picture, darker at its ends, so words on it read.
+		$scrim = self::studio_scrim( $raw['scrim'] ?? null );
+		if ( null !== $scrim ) {
+			$node['scrim'] = $scrim;
+		}
 		// 112.4 Where a child of a stack sits, in percent.
 		if ( isset( $raw['place']['x'], $raw['place']['y'] ) && is_numeric( $raw['place']['x'] ) && is_numeric( $raw['place']['y'] ) ) {
 			$node['place'] = array(
@@ -1278,6 +1286,47 @@ class Block_Resolver {
 				// 128.8 On a photo, as the approved academy home draws them.
 				if ( 'photo' === ( $raw['learning']['style'] ?? null ) ) {
 					$node['learning']['style'] = 'photo';
+				}
+				break;
+			case 'live_status':
+				// 128.10 The person's order on its way (food delivery and marketplaces: the app shows nothing without one).
+				$source = $raw['live_status']['source'] ?? null;
+				if ( ! in_array( $source, array( 'food_order', 'market_order' ), true ) ) {
+					return null;
+				}
+				$node['live_status'] = array( 'source' => $source );
+				break;
+			case 'school':
+				// 128.10 A part of the family's school day (a school's own: the app shows the greeting alone without one).
+				$section = $raw['school']['section'] ?? null;
+				if ( ! in_array( $section, array( 'greeting', 'children', 'today' ), true ) ) {
+					return null;
+				}
+				$node['school'] = array( 'section' => $section );
+				break;
+			case 'tracking':
+				// 128.10 The person's shipment or ride on its way, or the taxis near them (nothing without one).
+				$kind = $raw['tracking']['kind'] ?? null;
+				if ( ! in_array( $kind, array( 'shipment', 'ride', 'nearby_taxis' ), true ) ) {
+					return null;
+				}
+				$node['tracking'] = array( 'kind' => $kind );
+				$style            = $raw['tracking']['style'] ?? null;
+				if ( in_array( $style, array( 'driver', 'line' ), true ) ) {
+					$node['tracking']['style'] = $style;
+				}
+				break;
+			case 'photo_hero':
+			case 'map_header':
+				// 128.10 A cover: its last element hangs this far over its foot; a map its markers.
+				if ( isset( $raw['overlap'] ) && is_numeric( $raw['overlap'] ) && (float) $raw['overlap'] > 0 ) {
+					$node['overlap'] = (int) round( min( 400, (float) $raw['overlap'] ) );
+				}
+				if ( 'map_header' === $type ) {
+					$drawing = self::studio_map_drawing( $raw['map_drawing'] ?? null );
+					if ( null !== $drawing ) {
+						$node['map_drawing'] = $drawing;
+					}
 				}
 				break;
 			case 'coupon':
@@ -1434,6 +1483,87 @@ class Block_Resolver {
 			}
 		}
 		return $font ? $font : null;
+	}
+
+	/**
+	 * 128.10 A StudioScrim: its colour at `from` and `to` (0 to 1) at the ends of its direction,
+	 * `middle` at `at` percent of the way, at `angle`; null when it isn't one or shades nothing.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function studio_scrim( $value ) {
+		if ( ! is_array( $value ) || null === self::hex( $value['color'] ?? null ) ) {
+			return null;
+		}
+		$share  = function ( $x ) {
+			return is_int( $x ) || is_float( $x ) ? ( $x >= 0 && $x <= 1 ? round( (float) $x, 2 ) : false ) : null;
+		};
+		$from   = $share( $value['from'] ?? null );
+		$to     = $share( $value['to'] ?? null );
+		$middle = $share( $value['middle'] ?? null );
+		if ( null === $from || null === $to || false === $from || false === $to || false === $middle ) {
+			return null;
+		}
+		if ( 0.0 === $from && 0.0 === $to && ( null === $middle || 0.0 === $middle ) ) {
+			return null;
+		}
+		$scrim = array(
+			'color' => self::hex( $value['color'] ),
+			'from'  => $from,
+			'to'    => $to,
+		);
+		if ( null !== $middle ) {
+			$scrim['middle'] = $middle;
+			if ( isset( $value['at'] ) && is_numeric( $value['at'] ) && (float) $value['at'] >= 1 && (float) $value['at'] <= 99 && 50.0 !== (float) $value['at'] ) {
+				$scrim['at'] = round( (float) $value['at'], 2 );
+			}
+		}
+		if ( isset( $value['angle'] ) && is_numeric( $value['angle'] ) && (float) $value['angle'] >= 0 && (float) $value['angle'] <= 360 && 180.0 !== (float) $value['angle'] ) {
+			$scrim['angle'] = round( (float) $value['angle'], 2 );
+		}
+		return $scrim;
+	}
+
+	/**
+	 * 128.10 A StudioMapDrawing with known parts only: up to 12 markers at their places in
+	 * percent, their icon, colour and tile, the person's dot, and the live taxis.
+	 *
+	 * @param mixed $value Value.
+	 * @return array|null
+	 */
+	private static function studio_map_drawing( $value ) {
+		if ( ! is_array( $value ) ) {
+			return null;
+		}
+		$drawing = array();
+		$markers = array();
+		foreach ( array_slice( isset( $value['markers'] ) && is_array( $value['markers'] ) ? $value['markers'] : array(), 0, 12 ) as $marker ) {
+			if ( isset( $marker['x'], $marker['y'] ) && is_numeric( $marker['x'] ) && is_numeric( $marker['y'] ) ) {
+				$markers[] = array(
+					'x' => round( max( 0, min( 100, (float) $marker['x'] ) ), 1 ),
+					'y' => round( max( 0, min( 100, (float) $marker['y'] ) ), 1 ),
+				);
+			}
+		}
+		if ( $markers ) {
+			$drawing['markers'] = $markers;
+		}
+		if ( isset( $value['icon'] ) && is_string( $value['icon'] ) && preg_match( '/^[a-z0-9_]{1,40}$/', $value['icon'] ) ) {
+			$drawing['icon'] = $value['icon'];
+		}
+		foreach ( array( 'accent', 'chip' ) as $field ) {
+			$color = self::hex( $value[ $field ] ?? null );
+			if ( null !== $color ) {
+				$drawing[ $field ] = $color;
+			}
+		}
+		foreach ( array( 'me', 'live' ) as $field ) {
+			if ( true === ( $value[ $field ] ?? false ) ) {
+				$drawing[ $field ] = true;
+			}
+		}
+		return $drawing ? $drawing : null;
 	}
 
 	/**

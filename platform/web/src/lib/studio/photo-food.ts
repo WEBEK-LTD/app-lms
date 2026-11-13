@@ -303,7 +303,8 @@ export function foodPhotoHome(ctx: SectionContext): StudioPage {
     body: {
       id: (ctx.newId ?? newNodeId)(),
       type: "column",
-      padding: { top: 0, end: 0, bottom: 96, start: 0 },
+      // 128.10 The app ends the page above its floating bar itself.
+      padding: { top: 0, end: 0, bottom: 24, start: 0 },
       children: [
         hero(ctx),
         cuisineChips(ctx),

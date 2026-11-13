@@ -256,7 +256,8 @@ async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery)
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
 const amount = (price: unknown): number => Number((price as { amount?: unknown } | null)?.amount ?? 0) || 0;
 
-function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item | null {
+/** A course as a list's entry (exported for its tests). */
+export function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item | null {
   const id = Number(course.id);
   if (!Number.isSafeInteger(id) || typeof course.title !== "string") return null;
   const price = (course.price ?? {}) as { is_free?: boolean; formatted?: string | null };
@@ -264,7 +265,7 @@ function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item |
     source: "courses",
     id: String(id),
     title: course.title,
-    // 128 The teacher; the rating is `rating`, which a card's rating element draws with its star.
+    // 128.10 The teacher alone, as the WordPress plugin serves it; the rating is a card's `rating` element's.
     subtitle: str((course.instructor as { name?: unknown } | undefined)?.name),
     image_url: str(course.image_url),
     // Display text only: there's never a purchase action in a list.

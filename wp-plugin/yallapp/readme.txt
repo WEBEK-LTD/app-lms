@@ -143,6 +143,7 @@ under the Apache License 2.0, included as inline SVG.
 
 = 0.4.39 =
 * The new academy home you design in Yallapp Studio reaches the app from your site: the student's cards (the course in progress, the live class and the streak) on a photo, a course card's rating from your reviews, and a card's border colour by night.
+* The new Studio elements reach the app from your site too: a photo hero and a map header with what they hold (they were left out with it), a greeting with the person's name, a photo's shade, and the live cards, which show nothing on a site that has no orders, rides or school day for them.
 
 = 0.4.38 =
 * The launch screen you choose in Yallapp Studio reaches the app from your site: one of five looks, its background in light and dark (a colour, a gradient or your photo made darker), the logo, the title and the line under it in each language, the loading sign and the colours. The app shows it the next time it opens.

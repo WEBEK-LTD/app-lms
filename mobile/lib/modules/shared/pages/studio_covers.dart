@@ -38,9 +38,17 @@ class StudioCoverView extends ConsumerWidget {
       for (final child in node.children)
         if (StudioNodeView.shows(child, ref)) child,
     ];
-    final hang = node.overlap > 0 && kids.isNotEmpty ? kids.last : null;
+    // 128.10 Its own last element hangs over its foot, when this person
+    // sees it; else none does (not the one before it).
+    final last = node.children.lastOrNull;
+    final hang =
+        node.overlap > 0 && last != null && StudioNodeView.shows(last, ref)
+        ? last
+        : null;
     final front = hang == null ? kids : kids.sublist(0, kids.length - 1);
     final map = node.type == StudioNodeType.mapHeader;
+    // 128.10 What it holds may be see-through on it (a frosted button).
+    final inside = scope.insideCover();
     final height = (node.height?.fixed ?? (map ? 320 : 180)) + topInset;
     final pad = node.padding ?? const StudioSides();
     final radius = _radius(node);
@@ -62,7 +70,15 @@ class StudioCoverView extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         if (map)
-          _DrawnMap(node: node, dark: scope.dark, land: background)
+          // 128.10 Its land: the element's background by day, its
+          // `dark_background` by night (missing, the dark map's own).
+          _DrawnMap(
+            node: node,
+            dark: scope.dark,
+            land: parseHexColor(
+              scope.dark ? node.darkBackground : node.background,
+            ),
+          )
         else ...[
           ColoredBox(color: background ?? const Color(0xFF1F2A37)),
           if (node.imageUrl case final url?)
@@ -82,7 +98,7 @@ class StudioCoverView extends ConsumerWidget {
               bottom: pad.bottom,
               start: pad.start,
             ),
-            child: StudioNodeView(node: over, scope: scope, parent: node),
+            child: StudioNodeView(node: over, scope: inside, parent: node),
           ),
       ],
     );
@@ -95,9 +111,12 @@ class StudioCoverView extends ConsumerWidget {
     return Stack(
       children: [
         Positioned(top: 0, left: 0, right: 0, height: height, child: cover),
+        // 128.10 The cover whole even under an element shorter than how
+        // far it hangs.
+        SizedBox(height: height),
         Padding(
           padding: EdgeInsets.only(top: math.max(0, height - node.overlap)),
-          child: StudioNodeView(node: hang, scope: scope, parent: node),
+          child: StudioNodeView(node: hang, scope: inside, parent: node),
         ),
       ],
     );
