@@ -108,7 +108,17 @@ export function teachersPhotoHome(ctx: SectionContext): StudioPage {
                 padding: { top: 10, end: 12, bottom: 12, start: 12 },
                 children: [
                   { id: id(), type: "text", bind: "title", max_lines: 2, font: { size: 14, weight: 800 }, color: C.ink, dark_color: C.nightInk },
-                  { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                  // The teacher, then "· ★ 4.8": the rating after the teacher, nothing without one.
+                  {
+                    id: id(),
+                    type: "row",
+                    cross: "center",
+                    gap: 4,
+                    children: [
+                      { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                      { id: id(), type: "text", bind: "rating", text: "·", font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                    ],
+                  },
                   { id: id(), type: "text", bind: "price", margin: { top: 3 }, font: { size: 15, weight: 800 }, color: C.primary, dark_color: C.nightLink },
                 ],
               },

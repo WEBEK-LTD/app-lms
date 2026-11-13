@@ -70,6 +70,10 @@ interface ViewProps {
   editing?: StudioEditing;
   /** Editor audit 3.3: inside a locked element, which the canvas leaves alone with what it holds. */
   lockedAbove?: boolean;
+  /** 128.10 Inside a cover (`photo_hero`, `map_header`): a colour over an element without a picture is its see-through background there. */
+  inCover?: boolean;
+  /** 128.10 In a row: the one text that gives way to what follows it (`textGivingWay`). */
+  rowGivesWay?: string | null;
   /** Editor audit 3.3: shown on a tablet, with each element's tablet changes. */
   tablet?: boolean;
   /** Labels for the placeholders, in the dashboard's language. */
@@ -157,16 +161,38 @@ function sizeStyle(size: StudioSize | undefined, axis: "width" | "height", paren
   return {};
 }
 
+/**
+ * 128.10 Whether a page's first element (of those not pinned) is a cover: a photo hero, a map header, or a picture with a
+ * scrim (the app's `studioStartsWithCover`, mobile studio_page.dart). Under a transparent header only such a page reaches
+ * under the status bar with the app's name over it; older pages, which have none of these, look as before.
+ */
+export function startsWithCover(body: StudioNode): boolean {
+  const first = (body.children ?? []).find((n) => (n.pin ?? "none") === "none" && !n.hidden);
+  return !!first && (first.type === "photo_hero" || first.type === "map_header" || !!first.scrim);
+}
+
+/**
+ * 128.10 The one text in a row that gives way to what follows it: the row's only text cut to its lines without a width
+ * of its own, when nothing in the row fills it (the app's `studioTextGivingWay`). With two such texts, or none, none does.
+ */
+export function textGivingWay(kids: readonly StudioNode[]): string | null {
+  if (kids.some((k) => k.width === "fill")) return null;
+  const texts = kids.filter((k) => k.type === "text" && k.max_lines && typeof k.width !== "number");
+  return texts.length === 1 ? texts[0]!.id : null;
+}
+
 export function StudioView(viewProps: ViewProps) {
   const props = viewProps.tablet ? { ...viewProps, page: { ...viewProps.page, body: mapTree(viewProps.page.body, forTablet) ?? viewProps.page.body } } : viewProps;
   const { page, dark, look } = props;
   const bg = (dark ? (page.dark_background ?? page.background) : page.background) ?? (dark ? "#14121F" : "#FBF8F2");
   const rtl = props.lang === "ar";
   const showTabs = page.show_tabs !== false && look.tabs.length > 0;
+  // 128.10 Under a transparent header a page starting with anything but a cover starts below the status bar, as the app draws it.
+  const belowBar = page.header?.type === "transparent" && !startsWithCover(page.body);
   return (
     <div dir={rtl ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", minHeight: "100%", background: bg, color: dark ? "#F4EFE6" : "#0E0D24", fontFamily: `'${look.font}', 'Cairo', system-ui, sans-serif` }}>
       {page.header ? <Header header={page.header} {...props} /> : null}
-      <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", paddingTop: belowBar ? 30 : undefined }} data-studio-below-bar={belowBar ? "" : undefined}>
         <Node node={page.body} parentDir="column" {...props} />
         {page.screen ? <ScreenPart {...props} /> : null}
       </div>
@@ -183,7 +209,8 @@ function Header(props: ViewProps & { header: StudioHeader }) {
   const buttons = header.buttons ?? [];
   const icons: Record<string, string> = { menu: "menu", search: "search", cart: "shopping_bag", notifications: "notifications", chat: "chat", account: "account_circle" };
   const logo = header.logo_url ?? look.logoUrl;
-  const brandMark = logo ? (
+  // 128.10 A transparent header shows the app's name (or logo) only over a cover; over anything else its buttons alone, as the app draws it.
+  const brandMark = header.type === "transparent" && !startsWithCover(props.page.body) ? null : logo ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={logo} alt="" style={{ height: 28, maxWidth: 120, objectFit: "contain" }} />
   ) : (
@@ -559,8 +586,11 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     alignSelf: node.self_align ? ITEMS[node.self_align] : (parentDir === "column" && node.width === "hug") || (parentDir === "row" && node.height === "hug") ? "flex-start" : undefined,
     overflow: node.radius || node.corners ? "hidden" : undefined,
   };
-  // 128 A colour over an element without a picture is its see-through background (a frosted button over a photo).
-  if (overlay && !node.image_background_url && !node.gradient && !background) style.background = overlay;
+  // 128 A colour over an element without a picture is its see-through background (a frosted button over a photo); 128.10 only
+  // inside a cover, so older pages draw such a colour as before (not at all).
+  if (props.inCover && overlay && !node.image_background_url && !node.gradient && !background) style.background = overlay;
+  // 128.10 In a row, its one text cut to its lines gives way to what follows it; the rest keep their width, as the app's.
+  if (parentDir === "row" && props.rowGivesWay) Object.assign(style, node.id === props.rowGivesWay ? { minWidth: 0, flexShrink: 1 } : { flexShrink: 0 });
   // 128 A cover draws its own height, space inside, colour and corners (lib/pages/types.ts STUDIO_COVER_TYPES).
   if (node.type === "photo_hero" || node.type === "map_header") {
     for (const key of ["height", "paddingTop", "paddingBottom", "paddingInlineStart", "paddingInlineEnd", "background", "backgroundImage", "borderRadius", "overflow", "flexShrink"] as const) delete style[key];
@@ -675,8 +705,10 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       case "map_header": {
         const kids = n.children ?? [];
         const hang = (n.overlap ?? 0) > 0 && kids.length ? kids[kids.length - 1]! : null;
-        const front = Children({ ...p, node: { ...n, type: "column", children: hang ? kids.slice(0, -1) : kids } });
-        return <Cover node={n} dark={dark} rtl={lang === "ar"} front={front} last={hang ? <Node {...p} node={hang} parentDir="column" /> : null} />;
+        // 128.10 What it holds may be see-through on it (a frosted button).
+        const inside = { ...p, inCover: true };
+        const front = Children({ ...inside, node: { ...n, type: "column", children: hang ? kids.slice(0, -1) : kids } });
+        return <Cover node={n} dark={dark} rtl={lang === "ar"} front={front} last={hang ? <Node {...inside} node={hang} parentDir="column" /> : null} />;
       }
       // 128 The person's shipment or ride on its way, or the taxis near them, and a greeting: samples here.
       case "tracking":
@@ -828,6 +860,8 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     const n = p.node;
     const dir: Dir = n.type === "row" && n.scroll ? "scroll" : n.type === "accordion" || n.type === "tabs" ? "column" : n.type === "row" || n.type === "column" || n.type === "stack" || n.type === "grid" || n.type === "slider" ? n.type : null;
     const kids = n.children ?? [];
+    // 128.10 Of the elements the app shows (it never gets the hidden ones).
+    const givesWay = dir === "row" ? textGivingWay(kids.filter((k) => !k.hidden)) : null;
     const drop = editing?.drop?.parentId === n.id ? editing.drop.index : null;
     const out: ReactNode[] = [];
     // 107.3 Tabs show the tab holding what's selected (the first otherwise); every question of an accordion shows open here, to be edited.
@@ -852,7 +886,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
       if (drop === i) out.push(<DropLine key={`drop${i}`} dir={dir} label={editing!.dropLabel} />);
       if (n.type === "tabs" && i !== shownTab) return;
       const width = n.type === "slider" ? { width: `${100 / (n.per_view ?? 1)}%` } : {};
-      const view = <Node {...p} node={child} parentDir={dir} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
+      const view = <Node {...p} node={child} parentDir={dir} rowGivesWay={dir === "row" ? givesWay : null} inStack={dir === "stack" ? { first: i === 0, cross: n.cross } : undefined} />;
       out.push(
         n.type === "accordion" ? (
           <div key={child.id} style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid rgba(127,127,127,0.25)", paddingBottom: 4 }}>

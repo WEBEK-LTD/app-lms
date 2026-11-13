@@ -288,11 +288,15 @@ function Hero({ node, data, color, title, text, c }: { node: StudioNode; data: M
 function AddressBar({ node, data, color, text, c }: { node: StudioNode; data: MarketCanvas; color: string; text: string; c: Ctx }) {
   const { p, w } = c;
   const soonest = data.vendors.filter((v) => v.state !== "closed" && v.etaMin !== null).reduce<number | null>((min, v) => (min === null || v.etaMin! < min ? v.etaMin : min), null);
+  // 128.10 The words on the bar readable on its colour; by night the search field in the theme's dark colours, as the app's.
+  const onBar = luminance(color) > 0.5 ? "#14231B" : "#FFFFFF";
+  const field = p.dark ? p.surface : "#FFFFFF";
+  const fieldInk = p.dark ? p.textSecondary : "#5D6B63";
   return (
-    <div data-market-bar={node.id} style={{ padding: "22px 16px 12px", background: color, color: "#FFFFFF", borderRadius: "0 0 28px 28px" }}>
+    <div data-market-bar={node.id} style={{ padding: "22px 16px 12px", background: color, color: onBar, borderRadius: "0 0 28px 28px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ width: 40, height: 40, borderRadius: 20, background: "rgba(255,255,255,0.16)", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
-          <Icon name="location_on" size={22} color="#FFFFFF" />
+        <span style={{ width: 40, height: 40, borderRadius: 20, background: rgba(onBar, 0.16), display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+          <Icon name="location_on" size={22} color={onBar} />
         </span>
         <div style={{ flex: "1 1 auto", minWidth: 0 }}>
           <div style={{ fontSize: 12, opacity: 0.8 }}>{w.deliverTo}</div>
@@ -305,8 +309,8 @@ function AddressBar({ node, data, color, text, c }: { node: StudioNode; data: Ma
           </span>
         ) : null}
       </div>
-      <div style={{ marginTop: 14, height: 50, borderRadius: 16, background: "#FFFFFF", color: "#5D6B63", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 15 }}>
-        <Icon name="search" size={22} color="#5D6B63" />
+      <div data-market-bar-search="" style={{ marginTop: 14, height: 50, borderRadius: 16, background: field, color: fieldInk, display: "flex", alignItems: "center", gap: 10, padding: "0 14px", fontSize: 15 }}>
+        <Icon name="search" size={22} color={fieldInk} />
         <span style={oneLine}>{text || w.searchHint}</span>
       </div>
     </div>

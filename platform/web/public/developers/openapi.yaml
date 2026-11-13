@@ -14655,7 +14655,11 @@ components:
         103R The bar at the top of a Studio page; null, none. `logo_center`:
         the logo in the middle; `title_search`: the page's title and a
         search field; `logo_actions`: the logo and the `buttons`;
-        `transparent`: over the page's first element, the buttons on it.
+        `transparent`: over the page's first element, the buttons on it
+        (128.10 with the logo or the app's name too when that element is a
+        cover: a `photo_hero`, a `map_header` or a picture with a `scrim`,
+        which then starts under the status bar; any other first element
+        starts below it).
         120 `title`: the page's title and the buttons, for the pages after
         the first (a page drawn around one of the app's screens). 123
         `greeting`: today's date over a greeting for the time of day with
@@ -14703,7 +14707,8 @@ components:
         or the free taxis near them (`tracking`), and `greeting` good morning
         or good evening with their first name, in the element's font and
         colour. An `overlay` on an element without a picture is its
-        see-through background. An element the app doesn't know is left out
+        see-through background inside a cover (128.10; elsewhere, without a
+        picture, it isn't drawn). An element the app doesn't know is left out
         with what it holds. Sides are logical: `start` is the left in a
         left-to-right language and the right in Arabic.
       required: [id, type]
@@ -14982,7 +14987,8 @@ components:
       type: [object, 'null']
       description: |
         128 For `map_header`: a drawn map (water, roads and parks in the
-        app's light or dark colours; its land the element's background)
+        app's light or dark colours; its land the element's `background`,
+        128.10 by night its `dark_background`, missing the dark map's own)
         with `markers` at their places in percent from the start and the
         top, each its `icon` (a taxi when missing) in `accent` on a tile of
         `chip`, and with `me` the person's dot a little under the middle.

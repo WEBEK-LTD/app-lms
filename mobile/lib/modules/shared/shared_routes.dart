@@ -403,16 +403,17 @@ class MainShell extends ConsumerWidget {
             tabs[middle].id == tabBar?.center
         ? middle
         : null;
+    // 123 A frosted bar floats over the page, which goes on under it;
+    // 128 the floating pill too (Sofra Eats's, 128.8 Ufuq Academy's),
+    // which always floats.
+    final overBody =
+        !hideTabs &&
+        ((tabBar?.design == TabBarDesign.glass && (tabBar?.margin ?? 0) > 0) ||
+            tabBar?.design == TabBarDesign.float);
     return Scaffold(
-      body: shell,
-      // 123 A frosted bar floats over the page, which goes on under it;
-      // 128 the floating pill too (Sofra Eats's, 128.8 Ufuq Academy's),
-      // which always floats.
-      extendBody:
-          !hideTabs &&
-          ((tabBar?.design == TabBarDesign.glass &&
-                  (tabBar?.margin ?? 0) > 0) ||
-              tabBar?.design == TabBarDesign.float),
+      // 128.10 The screens under it know, to end above it.
+      body: TabBarOverBody(over: overBody, child: shell),
+      extendBody: overBody,
       // 82.5 The side menu built in the dashboard.
       drawer: hasMenu
           ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))

@@ -226,7 +226,7 @@
         ]
        },
        {
-        "id": "demo-39",
+        "id": "demo-41",
         "type": "column",
         "gap": 6,
         "padding": {
@@ -244,7 +244,7 @@
         "visibility": "signed_out",
         "children": [
          {
-          "id": "demo-38",
+          "id": "demo-40",
           "type": "text",
           "text": "This is a demo app. Sign in with +1 202 555 0123 and the code 246810. Anything you add is deleted after a day.",
           "font": {
@@ -711,17 +711,36 @@
             },
             {
              "id": "demo-36",
-             "type": "text",
-             "bind": "subtitle",
-             "max_lines": 1,
-             "font": {
-              "size": 12
-             },
-             "color": "#5A665F",
-             "dark_color": "#A9B7AF"
+             "type": "row",
+             "cross": "center",
+             "gap": 4,
+             "children": [
+              {
+               "id": "demo-37",
+               "type": "text",
+               "bind": "subtitle",
+               "max_lines": 1,
+               "font": {
+                "size": 12
+               },
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF"
+              },
+              {
+               "id": "demo-38",
+               "type": "text",
+               "bind": "rating",
+               "text": "·",
+               "font": {
+                "size": 12
+               },
+               "color": "#5A665F",
+               "dark_color": "#A9B7AF"
+              }
+             ]
             },
             {
-             "id": "demo-37",
+             "id": "demo-39",
              "type": "text",
              "bind": "price",
              "margin": {
@@ -756,11 +775,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-43",
+      "id": "demo-45",
       "type": "column",
       "children": [
        {
-        "id": "demo-44",
+        "id": "demo-46",
         "type": "stack",
         "name": "Photo",
         "height": 132,
@@ -782,7 +801,7 @@
         },
         "children": [
          {
-          "id": "demo-45",
+          "id": "demo-47",
           "type": "column",
           "height": 132,
           "align": "end",
@@ -794,7 +813,7 @@
           },
           "children": [
            {
-            "id": "demo-46",
+            "id": "demo-48",
             "type": "text",
             "text": "Follow a teacher to hear of their new courses first.",
             "color": "#FFFFFF",
@@ -859,11 +878,11 @@
     },
     "studio": {
      "body": {
-      "id": "demo-50",
+      "id": "demo-52",
       "type": "column",
       "children": [
        {
-        "id": "demo-51",
+        "id": "demo-53",
         "type": "stack",
         "name": "Photo",
         "height": 132,
@@ -885,7 +904,7 @@
         },
         "children": [
          {
-          "id": "demo-52",
+          "id": "demo-54",
           "type": "column",
           "height": 132,
           "align": "end",
@@ -897,7 +916,7 @@
           },
           "children": [
            {
-            "id": "demo-53",
+            "id": "demo-55",
             "type": "text",
             "text": "Pick up where you left off.",
             "color": "#FFFFFF",
@@ -962,7 +981,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-54",
+      "id": "demo-56",
       "type": "column",
       "children": []
      },
@@ -985,7 +1004,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-55",
+      "id": "demo-57",
       "type": "column",
       "children": []
      },
@@ -1026,7 +1045,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-56",
+      "id": "demo-58",
       "type": "column",
       "children": []
      },
@@ -1067,7 +1086,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-57",
+      "id": "demo-59",
       "type": "column",
       "children": []
      },
@@ -1108,7 +1127,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-58",
+      "id": "demo-60",
       "type": "column",
       "children": []
      },
@@ -1149,7 +1168,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-59",
+      "id": "demo-61",
       "type": "column",
       "children": []
      },
@@ -1190,7 +1209,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-60",
+      "id": "demo-62",
       "type": "column",
       "children": []
      },
@@ -1231,7 +1250,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-61",
+      "id": "demo-63",
       "type": "column",
       "children": []
      },
@@ -1272,7 +1291,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-62",
+      "id": "demo-64",
       "type": "column",
       "children": []
      },
@@ -1305,7 +1324,7 @@
     "title": "Change password",
     "studio": {
      "body": {
-      "id": "demo-63",
+      "id": "demo-65",
       "type": "column",
       "children": []
      },
@@ -1320,7 +1339,7 @@
     "title": "A conversation",
     "studio": {
      "body": {
-      "id": "demo-64",
+      "id": "demo-66",
       "type": "column",
       "children": []
      },
@@ -1335,7 +1354,7 @@
     "title": "A course",
     "studio": {
      "body": {
-      "id": "demo-65",
+      "id": "demo-67",
       "type": "column",
       "children": []
      },
@@ -1350,7 +1369,7 @@
     "title": "A bundle",
     "studio": {
      "body": {
-      "id": "demo-66",
+      "id": "demo-68",
       "type": "column",
       "children": []
      },
@@ -1365,7 +1384,7 @@
     "title": "A lesson",
     "studio": {
      "body": {
-      "id": "demo-67",
+      "id": "demo-69",
       "type": "column",
       "children": []
      },
@@ -1380,7 +1399,7 @@
     "title": "A quiz",
     "studio": {
      "body": {
-      "id": "demo-68",
+      "id": "demo-70",
       "type": "column",
       "children": []
      },
@@ -1395,7 +1414,7 @@
     "title": "An assignment",
     "studio": {
      "body": {
-      "id": "demo-69",
+      "id": "demo-71",
       "type": "column",
       "children": []
      },
@@ -1410,7 +1429,7 @@
     "title": "A live session",
     "studio": {
      "body": {
-      "id": "demo-70",
+      "id": "demo-72",
       "type": "column",
       "children": []
      },
@@ -1425,7 +1444,7 @@
     "title": "A question",
     "studio": {
      "body": {
-      "id": "demo-71",
+      "id": "demo-73",
       "type": "column",
       "children": []
      },
@@ -1448,7 +1467,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-72",
+      "id": "demo-74",
       "type": "column",
       "children": []
      },
@@ -1481,7 +1500,7 @@
     "title": "A learning path",
     "studio": {
      "body": {
-      "id": "demo-73",
+      "id": "demo-75",
       "type": "column",
       "children": []
      },
@@ -1504,7 +1523,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-74",
+      "id": "demo-76",
       "type": "column",
       "children": []
      },
@@ -1545,7 +1564,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-75",
+      "id": "demo-77",
       "type": "column",
       "children": []
      },
@@ -1586,7 +1605,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-76",
+      "id": "demo-78",
       "type": "column",
       "children": []
      },
@@ -1619,7 +1638,7 @@
     "title": "A teacher's page",
     "studio": {
      "body": {
-      "id": "demo-77",
+      "id": "demo-79",
       "type": "column",
       "children": []
      },
@@ -1642,7 +1661,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-78",
+      "id": "demo-80",
       "type": "column",
       "children": []
      },
@@ -1683,7 +1702,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-79",
+      "id": "demo-81",
       "type": "column",
       "children": []
      },
@@ -1724,7 +1743,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-80",
+      "id": "demo-82",
       "type": "column",
       "children": []
      },
@@ -1765,7 +1784,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-81",
+      "id": "demo-83",
       "type": "column",
       "children": []
      },
@@ -1806,7 +1825,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-82",
+      "id": "demo-84",
       "type": "column",
       "children": []
      },
@@ -1847,7 +1866,7 @@
     },
     "studio": {
      "body": {
-      "id": "demo-83",
+      "id": "demo-85",
       "type": "column",
       "children": []
      },

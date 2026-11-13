@@ -80,7 +80,8 @@ export function Cover({ node, dark, rtl, front, last }: { node: StudioNode; dark
   const drawing = node.map_drawing ?? {};
   const accent = drawing.accent ?? MAP_MARKER.accent;
   return (
-    <div data-studio-cover={node.type} style={{ display: "flex", flexDirection: "column" }}>
+    // 128.10 The cover whole even under an element shorter than how far it hangs.
+    <div data-studio-cover={node.type} style={{ display: "flex", flexDirection: "column", minHeight: height }}>
       <div style={{ position: "relative", height, overflow: "hidden", background: node.type === "photo_hero" ? (background ?? "#1F2A37") : undefined, boxShadow: undefined, ...radius }}>
         {node.type === "photo_hero" ? (
           <>
@@ -92,7 +93,8 @@ export function Cover({ node, dark, rtl, front, last }: { node: StudioNode; dark
           </>
         ) : (
           <>
-            <MapDrawing dark={dark} land={background} />
+            {/* 128.10 Its land: the element's background by day, its dark_background by night (missing, the dark map's own). */}
+            <MapDrawing dark={dark} land={(dark ? node.dark_background : node.background) ?? null} />
             {(drawing.markers ?? []).map((m, i) => (
               <Marker key={i} x={m.x} y={m.y} icon={drawing.icon ?? "local_taxi"} accent={accent} chip={drawing.chip ?? MAP_MARKER.chip} />
             ))}

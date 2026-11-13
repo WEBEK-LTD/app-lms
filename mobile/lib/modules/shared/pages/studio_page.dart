@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/fonts/remote_fonts.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/symbol_names.dart';
+import '../../../core/widgets/app_nav_bar.dart' show TabBarOverBody;
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/studio_screen_scope.dart';
@@ -67,6 +69,7 @@ class StudioPageView extends ConsumerWidget {
     final p = context.palette;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final top = MediaQuery.paddingOf(context).top;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     final background =
         parseHexColor(
           dark ? (page.darkBackground ?? page.background) : page.background,
@@ -88,6 +91,11 @@ class StudioPageView extends ConsumerWidget {
             first.margin == null
         ? first
         : null;
+    // 128.10 Under a transparent header, a page starting with a cover (a
+    // photo hero, a map, a photo with a scrim) has it under the status bar
+    // and the app's name over it; any other page as before: its elements
+    // below the bar, the buttons alone.
+    final overCover = overlay && studioStartsWithCover(body);
     final scope = StudioScope(
       pageSlug: pageSlug,
       dark: dark,
@@ -112,11 +120,16 @@ class StudioPageView extends ConsumerWidget {
     final list = ListView(
       key: ValueKey('studio-$pageSlug'),
       padding: EdgeInsets.only(
-        // 128 Under a transparent header the first element starts at the
-        // very top (a photo under the status bar), as the canvas draws it;
-        // a cover first on a page without a header reaches under it too.
-        top: bleed == null && header == null ? top : 0,
-        bottom: 16,
+        // 128 A cover first on a page without a header reaches under the
+        // status bar; 128.10 under a transparent header, a cover first does.
+        top: header == null
+            ? (bleed == null ? top : 0)
+            : overlay && !overCover
+            ? top
+            : 0,
+        // 128.10 Over a bar the page goes on under (glass, float), its end
+        // above the bar.
+        bottom: 16 + (TabBarOverBody.of(context) ? bottomInset : 0),
       ),
       children: [
         if (header != null && !overlay)
@@ -147,7 +160,12 @@ class StudioPageView extends ConsumerWidget {
               top: 0,
               start: 0,
               end: 0,
-              child: StudioHeaderView(header: header!, top: top, scope: scope),
+              child: StudioHeaderView(
+                header: header!,
+                top: top,
+                scope: scope,
+                overCover: overCover,
+              ),
             ),
           if (pinnedTop.isNotEmpty)
             PositionedDirectional(
@@ -315,6 +333,7 @@ class StudioScope {
     this.uppercase = false,
     this.bleedId,
     this.topInset = 0,
+    this.inCover = false,
   });
 
   final String pageSlug;
@@ -329,6 +348,10 @@ class StudioScope {
   final String? bleedId;
   final double topInset;
 
+  /// 128.10 Inside a cover (a photo hero, a map header): a colour over an
+  /// element without a picture is its see-through background there.
+  final bool inCover;
+
   StudioScope withEntry(PageItem entry) => StudioScope(
     pageSlug: pageSlug,
     dark: dark,
@@ -336,6 +359,7 @@ class StudioScope {
     uppercase: uppercase,
     bleedId: bleedId,
     topInset: topInset,
+    inCover: inCover,
   );
 
   StudioScope inCapitals() => StudioScope(
@@ -345,7 +369,34 @@ class StudioScope {
     uppercase: true,
     bleedId: bleedId,
     topInset: topInset,
+    inCover: inCover,
   );
+
+  /// 128.10 What a cover holds.
+  StudioScope insideCover() => StudioScope(
+    pageSlug: pageSlug,
+    dark: dark,
+    entry: entry,
+    uppercase: uppercase,
+    bleedId: bleedId,
+    topInset: topInset,
+    inCover: true,
+  );
+}
+
+/// 128.10 Whether a page's first element (of those not pinned) is a cover:
+/// a photo hero, a map header, or a picture with a scrim (Studio's canvas:
+/// components/studio/view.tsx `startsWithCover`). Under a transparent
+/// header only such a page reaches under the status bar with the app's
+/// name over it; older pages, which have none of these, look as before.
+bool studioStartsWithCover(StudioNode body) {
+  final first = body.children
+      .where((n) => n.pin == StudioPin.none && !n.hidden)
+      .firstOrNull;
+  if (first == null) return false;
+  return first.type == StudioNodeType.photoHero ||
+      first.type == StudioNodeType.mapHeader ||
+      first.scrim != null;
 }
 
 // ----------------------------------------------------------------- Header
@@ -360,11 +411,16 @@ class StudioHeaderView extends ConsumerWidget {
     required this.top,
     required this.scope,
     this.back = false,
+    this.overCover = false,
   });
 
   final StudioHeader header;
   final double top;
   final StudioScope scope;
+
+  /// 128.10 A transparent header over a cover shows the app's name (or
+  /// logo) too; over anything else, its buttons alone, as before.
+  final bool overCover;
 
   /// 120.4 Over a screen opened on top of the tabs: a back button first.
   final bool back;
@@ -519,8 +575,11 @@ class StudioHeaderView extends ConsumerWidget {
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                // 128 Over the photo, the app's name too, as the canvas draws it.
-                child: mark,
+                // 128.10 Over a cover, the app's name too, as the canvas
+                // draws it; over anything else nothing, as before.
+                child: transparent && !overCover
+                    ? const SizedBox.shrink()
+                    : mark,
               ),
             ),
             if (buttons.isNotEmpty) end,
@@ -867,9 +926,11 @@ class StudioNodeView extends ConsumerWidget {
     );
     final gradient = node.gradient;
     // 128 A colour over an element without a picture is its see-through
-    // background (a frosted button over a photo).
+    // background (a frosted button over a photo); 128.10 only inside a
+    // cover, so older pages draw such a colour as before (not at all).
     final seeThrough =
-        background == null &&
+        scope.inCover &&
+            background == null &&
             gradient == null &&
             node.imageBackgroundUrl == null
         ? overlay
@@ -1434,6 +1495,7 @@ class StudioNodeView extends ConsumerWidget {
         final stretch =
             node.cross == StudioCross.stretch ||
             kids.any((k) => k.height?.fill == true);
+        final givesWay = studioTextGivingWay(kids);
         final row = Row(
           mainAxisAlignment: _main(node.align),
           crossAxisAlignment: stretch
@@ -1445,20 +1507,21 @@ class StudioNodeView extends ConsumerWidget {
                 Expanded(child: _selfAlign(child, view(child), Axis.vertical))
               // 128.8 In a row where nothing fills, a text cut to its lines
               // gives way to what follows it (a teacher's name before the
-              // rating), never overflowing.
-              else if (!kids.any((k) => k.width?.fill == true) &&
-                  child.type == StudioNodeType.text &&
-                  child.maxLines != null &&
-                  child.width?.fixed == null)
+              // rating), never overflowing; 128.10 only the row's one such
+              // text (studioTextGivingWay).
+              else if (identical(child, givesWay))
                 Flexible(child: _selfAlign(child, view(child), Axis.vertical))
               else
                 _selfAlign(child, view(child), Axis.vertical),
           ], horizontal: true),
         );
         // Stretching to the tallest needs the row's height first.
-        return stretch && node.height?.fixed == null
+        final laid = stretch && node.height?.fixed == null
             ? IntrinsicHeight(child: row)
             : row;
+        // 128.10 In a row of unbounded width (one inside another row) the
+        // text has no room to give way in: the row at its own width there.
+        return givesWay == null ? laid : _BoundedWidth(child: laid);
       default:
         // A column; its height is set when it's fixed, so children can fill it.
         final bounded = node.height?.fixed != null;
@@ -1636,6 +1699,63 @@ AlignmentDirectional _stackAlign(StudioCross cross) => switch (cross) {
   StudioCross.end => AlignmentDirectional.bottomEnd,
   StudioCross.stretch => AlignmentDirectional.topStart,
 };
+
+/// 128.10 The one text in a row that gives way to what follows it: the
+/// row's only text cut to its lines without a width of its own, when
+/// nothing in the row fills it (Studio's canvas: components/studio/
+/// view.tsx `textGivingWay`). With two such texts, or none, none does and
+/// the row is as before.
+StudioNode? studioTextGivingWay(List<StudioNode> kids) {
+  if (kids.any((k) => k.width?.fill == true)) return null;
+  final texts = [
+    for (final k in kids)
+      if (k.type == StudioNodeType.text &&
+          k.maxLines != null &&
+          k.width?.fixed == null)
+        k,
+  ];
+  return texts.length == 1 ? texts.single : null;
+}
+
+/// 128.10 What it holds at its own width when the width around it is
+/// unbounded (a row inside another row), so a [Flexible] in it has a bound;
+/// within a bounded width, as given. Unlike a LayoutBuilder it answers its
+/// intrinsic sizes (a row in a grid's or a card's IntrinsicHeight).
+class _BoundedWidth extends SingleChildRenderObjectWidget {
+  const _BoundedWidth({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBoundedWidth();
+}
+
+class _RenderBoundedWidth extends RenderProxyBox {
+  BoxConstraints _inner(BoxConstraints constraints) {
+    if (constraints.hasBoundedWidth || child == null) return constraints;
+    final natural = child!.getMaxIntrinsicWidth(constraints.maxHeight);
+    return constraints.copyWith(
+      maxWidth: math.max(natural, constraints.minWidth),
+    );
+  }
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return constraints.smallest;
+    return constraints.constrain(child.getDryLayout(_inner(constraints)));
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(_inner(constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size);
+  }
+}
 
 // ------------------------------------------------------------ Lists, stars
 

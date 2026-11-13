@@ -37,9 +37,12 @@ final activeShipmentProvider = FutureProvider.autoDispose<Shipment?>((
 });
 
 /// Where the person is, for the taxis near them; null when the phone can't
-/// say (location off or refused). Only in a taxi app.
+/// say (location off or refused). Only in a taxi app, and 128.10 only
+/// signed in: nothing of the person's is drawn signed out (the contract's
+/// `StudioTracking`), nor is the phone asked where it is.
 final studioHereProvider = FutureProvider.autoDispose<TaxiSpot?>((ref) async {
   if (ref.watch(taxiConfigProvider) == null) return null;
+  if (!ref.watch(authControllerProvider).isSignedIn) return null;
   final found = await ref.read(locatorProvider).current();
   final at = found.position;
   if (at == null) return null;

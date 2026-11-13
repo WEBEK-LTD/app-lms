@@ -256,17 +256,17 @@ async function listItems(pc: PageContext, source: ItemSource, query: ItemsQuery)
 const str = (value: unknown): string | null => (typeof value === "string" && value ? value : null);
 const amount = (price: unknown): number => Number((price as { amount?: unknown } | null)?.amount ?? 0) || 0;
 
-function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item | null {
+/** A course as a list's entry (exported for its tests). */
+export function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item | null {
   const id = Number(course.id);
   if (!Number.isSafeInteger(id) || typeof course.title !== "string") return null;
   const price = (course.price ?? {}) as { is_free?: boolean; formatted?: string | null };
-  // 128 The teacher, and the course's rating once it has one ("Omar Farouk · 4.8/5"; a star isn't in every app font).
-  const rating = typeof course.rating === "number" && course.rating > 0 ? `${course.rating.toFixed(1)}/5` : null;
   return {
     source: "courses",
     id: String(id),
     title: course.title,
-    subtitle: [str((course.instructor as { name?: unknown } | undefined)?.name), rating].filter(Boolean).join(" · ") || null,
+    // 128.10 The teacher alone, as the WordPress plugin serves it; the rating is a card's `rating` element's.
+    subtitle: str((course.instructor as { name?: unknown } | undefined)?.name),
     image_url: str(course.image_url),
     // Display text only: there's never a purchase action in a list.
     // 38 In the app's language, like every word on a card.

@@ -6,6 +6,7 @@ import type { DashKey } from "@/i18n/dashboard";
 import { IconPicker } from "@/app/dashboard/pages/controls";
 import { STUDIO_TRACKING_KINDS, STUDIO_TRACKING_STYLES, type StudioMapDrawing, type StudioNode } from "@/lib/pages/types";
 import { RangeField } from "./controls";
+import { MAP_COLORS } from "@/components/studio/covers";
 
 /**
  * 128 The inspector's part for the cover layouts and the live card: a
@@ -65,6 +66,9 @@ export function CoverControls({ node, onChange }: { node: StudioNode; onChange: 
         <IconPicker id={`map-icon-${node.id}`} label={t("studio.mapIcon")} value={drawing.icon ?? "local_taxi"} onChange={(icon) => set({ icon: icon ?? undefined })} />
         <ColorIn label={t("studio.mapAccent")} value={drawing.accent ?? "#F5B700"} onChange={(accent) => set({ accent })} />
         <ColorIn label={t("studio.mapChip")} value={drawing.chip ?? "#1C2541"} onChange={(chip) => set({ chip })} />
+        {/* 128.10 Its land by day and by night (the element's background and dark background; missing, the map's own). */}
+        <ColorIn label={t("studio.mapLand")} value={node.background ?? MAP_COLORS.light.land} onChange={(background) => onChange({ background })} />
+        <ColorIn label={t("studio.mapLandDark")} value={node.dark_background ?? MAP_COLORS.dark.land} onChange={(dark_background) => onChange({ dark_background })} />
         <Toggle label={t("studio.mapMe")} checked={drawing.me === true} onChange={(me) => set({ me: me || undefined })} />
         <Toggle label={t("studio.mapLive")} checked={drawing.live === true} onChange={(live) => set({ live: live || undefined })} />
         {overlap}

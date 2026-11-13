@@ -81,7 +81,8 @@ export function academyHome(ctx: SectionContext): StudioPage {
     body: {
       id: id(),
       type: "column",
-      padding: { top: 8, end: 16, bottom: 110, start: 16 },
+      // 128.10 The app ends the page above its floating bar itself.
+      padding: { top: 8, end: 16, bottom: 24, start: 16 },
       children: [
         // The course they are taking, on its own photo.
         {

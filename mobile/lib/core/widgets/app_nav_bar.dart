@@ -9,6 +9,24 @@ import '../l10n/l10n.dart';
 import 'common.dart' show AppNetworkImage;
 import 'own_icon.dart';
 
+/// 128.10 Over the tabs' screens while the bar floats over them (the
+/// shell's `extendBody`: a glass bar off the edges, the floating pill):
+/// the screens go on under the bar, and MediaQuery's bottom padding is the
+/// bar's measured height with the safe area, so a screen's end can make
+/// room for it (a Studio page's list).
+class TabBarOverBody extends InheritedWidget {
+  const TabBarOverBody({super.key, required this.over, required super.child});
+
+  final bool over;
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<TabBarOverBody>()?.over ??
+      false;
+
+  @override
+  bool updateShouldNotify(TabBarOverBody old) => old.over != over;
+}
+
 class NavDestination {
   const NavDestination(this.icon, this.label, {this.iconUrl});
   final IconData icon;
