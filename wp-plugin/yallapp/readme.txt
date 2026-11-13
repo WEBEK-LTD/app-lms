@@ -4,7 +4,7 @@ Tags: lms, mobile app, tutor lms, digits, otp
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.37
+Stable tag: 0.4.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,6 +140,9 @@ Symbols Rounded by Google (the material-design-icons project),
 under the Apache License 2.0, included as inline SVG.
 
 == Changelog ==
+
+= 0.4.38 =
+* The launch screen you choose in Yallapp Studio reaches the app from your site: one of five looks, its background in light and dark (a colour, a gradient or your photo made darker), the logo, the title and the line under it in each language, the loading sign and the colours. The app shows it the next time it opens.
 
 = 0.4.37 =
 * A lesson's content (its text, links and embedded frames) reaches the app even when another plugin of your site leaves it empty outside the website's own pages: the app then shows the content as it is saved, formatted as WordPress formats it.

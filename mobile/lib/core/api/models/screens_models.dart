@@ -1,6 +1,7 @@
 import 'dart:ui' show Color;
 
 import 'json.dart';
+import 'launch_models.dart';
 
 /// 118.3 `Config.screens`: a Yallapp Studio app's sign-in screen and
 /// account menu, as its owner designed them in Studio. Texts are per
@@ -231,6 +232,7 @@ class StudioScreens {
     this.courseCard,
     this.coursePage,
     this.looks = const {},
+    this.launch,
   });
 
   static StudioScreens? fromJson(Object? value) {
@@ -259,6 +261,7 @@ class StudioScreens {
                 case final k? when value == k.look)
               k,
       },
+      launch: LaunchLook.fromJson(value['launch']),
     );
   }
 
@@ -275,6 +278,10 @@ class StudioScreens {
   final Set<ScreenLookKey> looks;
 
   bool has(ScreenLookKey key) => looks.contains(key);
+
+  /// 124.15 The launch screen; null, the app's own (kept on the phone for
+  /// the next start, [LaunchStore]).
+  final LaunchLook? launch;
 }
 
 /// 123 A screen with a look of its own (`Config.screens.looks`), and the

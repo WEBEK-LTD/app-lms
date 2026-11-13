@@ -10412,4 +10412,8 @@ class OverlayLocalizations extends AppLocalizations {
   @override
   String get webPageMediaRefused =>
       overlay.text('webPageMediaRefused') ?? base.webPageMediaRefused;
+
+  @override
+  String get launchWelcome =>
+      overlay.text('launchWelcome') ?? base.launchWelcome;
 }

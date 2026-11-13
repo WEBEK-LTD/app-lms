@@ -18,6 +18,7 @@ export 'food_models.dart';
 export 'donation_models.dart';
 export 'delivery_models.dart';
 export 'json.dart' show Json;
+export 'launch_models.dart';
 export 'learning_models.dart';
 export 'lms_more_models.dart';
 export 'listing_models.dart';

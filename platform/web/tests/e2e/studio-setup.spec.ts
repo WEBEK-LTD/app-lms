@@ -447,6 +447,46 @@ test("124.12 Studio's menu leads to how people sign in", async () => {
   await expect(own.getByRole("navigation", { name: "Project dashboard" }).getByRole("link", { name: "How people sign in", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
+test("124.15 the launch screen: a look, its background in light and dark, the words, saved", async () => {
+  await newProject("Academy", "Launch");
+  await own.goto("/studio/project/screens");
+  const launch = own.getByTestId("launch-section");
+  const preview = launch.getByTestId("launch-preview");
+  await expect(launch.getByRole("heading", { name: "Launch screen" })).toBeVisible();
+  // Signature until the owner chooses: its bar.
+  await expect(preview).toHaveAttribute("data-look", "signature");
+  await expect(launch.getByRole("radiogroup", { name: "Loading sign" }).getByRole("radio", { name: "Bar" })).toHaveAttribute("aria-checked", "true");
+  // Editorial brings its steps and its photo (the gradient until there is one).
+  await launch.getByRole("radiogroup", { name: "Look" }).getByRole("radio", { name: "Editorial" }).click();
+  await expect(preview).toHaveAttribute("data-look", "editorial");
+  await expect(launch.getByRole("radiogroup", { name: "Loading sign" }).getByRole("radio", { name: "Steps" })).toHaveAttribute("aria-checked", "true");
+  await expect(launch.getByRole("radiogroup", { name: "Background" }).getByRole("radio", { name: "Photo" })).toHaveAttribute("aria-checked", "true");
+  await expect(launch.getByText("Until there is a photo, the main to second colour gradient shows.")).toBeVisible();
+  // In light a gradient from the centre; in dark a colour of the owner's.
+  await launch.getByRole("radiogroup", { name: "Background" }).getByRole("radio", { name: "Gradient" }).click();
+  await launch.getByRole("radiogroup", { name: "Direction" }).getByRole("radio", { name: "From the centre" }).click();
+  await launch.getByRole("button", { name: "In dark" }).click();
+  await expect(preview).toHaveAttribute("data-dark", "");
+  await launch.getByLabel("In dark, the look's own dark colours").uncheck();
+  await launch.getByRole("radiogroup", { name: "Background" }).getByRole("radio", { name: "Colour" }).click();
+  await launch.getByLabel("Its colour").fill("#331100");
+  // The words, shown as they are typed.
+  await launch.getByLabel("Title in English").fill("Ufuq Academy");
+  await launch.getByLabel("Line under it in English").fill("Learn what changes your path.");
+  await expect(preview.getByText("Ufuq Academy")).toBeVisible();
+  await expect(preview.getByText("Learn what changes your path.")).toBeVisible();
+  await launch.getByRole("radiogroup", { name: "Shape" }).getByRole("radio", { name: "Circle" }).click();
+  await own.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(own.getByText("Saved. The app shows it the next time it opens; no new build is needed.")).toBeVisible();
+  // Kept as saved.
+  await own.reload();
+  await expect(preview).toHaveAttribute("data-look", "editorial");
+  await expect(launch.getByLabel("Title in English")).toHaveValue("Ufuq Academy");
+  await expect(launch.getByRole("radiogroup", { name: "Background" }).getByRole("radio", { name: "Gradient" })).toHaveAttribute("aria-checked", "true");
+  await launch.getByRole("button", { name: "In dark" }).click();
+  await expect(launch.getByLabel("Its colour")).toHaveValue("#331100");
+});
+
 test("in Arabic: the designs' names, the messages in place, and every step on a phone", async () => {
   await newProject("Live taxi on the map", "Lamha");
   await own.context().addCookies([{ name: "yallapp_lang", value: "ar", url: E2E.baseURL }]);

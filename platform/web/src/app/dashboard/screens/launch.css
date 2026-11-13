@@ -1,0 +1,80 @@
+/* 124.15 The launch screen's movements in Studio's preview, as the app draws them. */
+@keyframes yl-halo {
+  0% { transform: scale(0.86); opacity: 0.55; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+@keyframes yl-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+@keyframes yl-line {
+  0% { width: 0; }
+  70% { width: 100%; }
+  100% { width: 100%; }
+}
+@keyframes yl-zoom {
+  0% { transform: scale(1.02); }
+  100% { transform: scale(1.12); }
+}
+@keyframes yl-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -30px) scale(1.12); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes yl-drift2 {
+  0% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-30px, 26px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1.05); }
+}
+@keyframes yl-ring {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes yl-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-4px); }
+}
+@keyframes yl-seg {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+@keyframes yl-rise {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes yl-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes yl-arc {
+  0% { stroke-dashoffset: 540; }
+  50% { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 540; }
+}
+@keyframes yl-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.yl-halo { animation: yl-halo 2.4s ease-out infinite; }
+.yl-halo2 { animation: yl-halo 2.4s ease-out 1.2s infinite; }
+.yl-bar { animation: yl-bar 1.6s cubic-bezier(0.6, 0, 0.3, 1) infinite; }
+.yl-line { animation: yl-line 2.2s cubic-bezier(0.5, 0, 0.2, 1) infinite; }
+.yl-zoom { animation: yl-zoom 6s ease-out infinite alternate; }
+.yl-b1 { animation: yl-drift 7s ease-in-out infinite; }
+.yl-b2 { animation: yl-drift2 8s ease-in-out infinite; }
+.yl-ring { animation: yl-ring 2.6s ease-out infinite; }
+.yl-ring2 { animation: yl-ring 2.6s ease-out 1.3s infinite; }
+.yl-d1 { animation: yl-dot 1.2s ease-in-out infinite; }
+.yl-d2 { animation: yl-dot 1.2s ease-in-out 0.15s infinite; }
+.yl-d3 { animation: yl-dot 1.2s ease-in-out 0.3s infinite; }
+.yl-s1 { animation: yl-seg 1.4s ease-in-out infinite; }
+.yl-s2 { animation: yl-seg 1.4s ease-in-out 0.2s infinite; }
+.yl-s3 { animation: yl-seg 1.4s ease-in-out 0.4s infinite; }
+.yl-s4 { animation: yl-seg 1.4s ease-in-out 0.6s infinite; }
+.yl-rise { animation: yl-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.yl-spin { animation: yl-spin 2.4s linear infinite; transform-origin: 50% 50%; }
+.yl-arc { animation: yl-arc 2.4s ease-in-out infinite; }
+.yl-breathe { animation: yl-breathe 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .yl-launch * { animation: none !important; }
+}

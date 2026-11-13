@@ -26,6 +26,14 @@ class Studio_Screens {
 		'code'       => 'premium',
 		'cart'       => 'premium',
 	);
+	const LAUNCH_LOOKS   = array( 'signature', 'cinema', 'aurora', 'editorial', 'monogram' );
+	const LAUNCH_LOADERS = array(
+		'signature' => 'bar',
+		'cinema'    => 'bar',
+		'aurora'    => 'dots',
+		'editorial' => 'steps',
+		'monogram'  => 'ring',
+	);
 	const ITEMS          = array( 'orders', 'points', 'certificates', 'memberships', 'quiz_results', 'live_classes', 'learning_paths', 'achievements', 'wishlist', 'downloads', 'my_courses', 'restaurant', 'teachers', 'teacher', 'teach', 'shipments', 'food_orders', 'rides', 'chat', 'notifications', 'settings', 'help', 'privacy', 'terms', 'link' );
 
 	/**
@@ -69,7 +77,91 @@ class Studio_Screens {
 		if ( $looks ) {
 			$out['looks'] = $looks;
 		}
+		// 124.15 The launch screen.
+		$launch = is_array( $raw['launch'] ?? null ) ? self::launch( $raw['launch'] ) : null;
+		if ( $launch ) {
+			$out['launch'] = $launch;
+		}
 		return $out ? $out : null;
+	}
+
+	/**
+	 * 124.15 The launch screen: its look, its background in light and dark, the logo, the words,
+	 * the loading sign, light and dark, and the colours; an unknown value becomes the look's own.
+	 *
+	 * @param array $raw The platform's.
+	 * @return array|null
+	 */
+	private static function launch( array $raw ) {
+		if ( ! in_array( $raw['look'] ?? null, self::LAUNCH_LOOKS, true ) ) {
+			return null;
+		}
+		$look   = $raw['look'];
+		$logo   = self::one_of( $raw['logo'] ?? null, array( 'icon', 'logo', 'picture' ), 'logo' );
+		$logo_u = 'picture' === $logo ? self::url( $raw['logo_url'] ?? null ) : null;
+		if ( 'picture' === $logo && null === $logo_u ) {
+			$logo = 'logo';
+		}
+		$light = is_array( $raw['background'] ?? null ) ? $raw['background'] : array();
+		return array(
+			'look'            => $look,
+			'background'      => self::launch_background( $light, $look ),
+			'background_dark' => is_array( $raw['background_dark'] ?? null ) ? self::launch_background( $raw['background_dark'], $look ) : null,
+			'logo'            => $logo,
+			'logo_url'        => $logo_u,
+			'logo_size'       => self::one_of( $raw['logo_size'] ?? null, array( 's', 'm', 'l', 'xl' ), 'l' ),
+			'logo_shape'      => self::one_of( $raw['logo_shape'] ?? null, array( 'rounded', 'circle', 'as_is' ), 'rounded' ),
+			'title'           => self::texts( $raw['title'] ?? null, 40 ),
+			'subtitle'        => self::texts( $raw['subtitle'] ?? null, 80 ),
+			'loader'          => self::one_of( $raw['loader'] ?? null, array( 'bar', 'ring', 'dots', 'steps', 'none' ), self::LAUNCH_LOADERS[ $look ] ),
+			'theme'           => self::one_of( $raw['theme'] ?? null, array( 'system', 'light', 'dark' ), 'system' ),
+			'main_color'      => self::hex( $raw['main_color'] ?? null ),
+			'second_color'    => self::hex( $raw['second_color'] ?? null ),
+		);
+	}
+
+	/**
+	 * 124.15 A launch screen background: a colour, a gradient (two colours and a direction) or a
+	 * photo (https, made 0 to 80% darker), and the words' colour.
+	 *
+	 * @param array  $raw  The platform's.
+	 * @param string $look The launch screen's look.
+	 * @return array
+	 */
+	private static function launch_background( array $raw, $look ) {
+		$overlay = $raw['overlay'] ?? null;
+		return array(
+			'type'       => self::one_of( $raw['type'] ?? null, array( 'color', 'gradient', 'photo' ), in_array( $look, array( 'cinema', 'editorial' ), true ) ? 'photo' : 'color' ),
+			'color'      => self::hex( $raw['color'] ?? null ),
+			'from'       => self::hex( $raw['from'] ?? null ),
+			'to'         => self::hex( $raw['to'] ?? null ),
+			'direction'  => self::one_of( $raw['direction'] ?? null, array( 'vertical', 'diagonal', 'radial' ), 'diagonal' ),
+			'image_url'  => self::url( $raw['image_url'] ?? null ),
+			'overlay'    => ( is_int( $overlay ) || is_float( $overlay ) ) && $overlay >= 0 && $overlay <= 80 ? (int) round( $overlay ) : null,
+			'text_color' => self::hex( $raw['text_color'] ?? null ),
+		);
+	}
+
+	/**
+	 * One of the values given, else the fallback.
+	 *
+	 * @param mixed  $raw      The platform's.
+	 * @param array  $options  The values known.
+	 * @param string $fallback The default.
+	 * @return string
+	 */
+	private static function one_of( $raw, array $options, $fallback ) {
+		return in_array( $raw, $options, true ) ? $raw : $fallback;
+	}
+
+	/**
+	 * A #RRGGBB colour in capitals, or null.
+	 *
+	 * @param mixed $raw The platform's.
+	 * @return string|null
+	 */
+	private static function hex( $raw ) {
+		return is_string( $raw ) && preg_match( '/^#[0-9A-Fa-f]{6}$/', $raw ) ? strtoupper( $raw ) : null;
 	}
 
 	/**

@@ -11724,6 +11724,62 @@ components:
                 lesson: { type: string, enum: [premium] }
                 code: { type: string, enum: [premium] }
                 cart: { type: string, enum: [premium] }
+            launch:
+              type: object
+              description: |
+                124.15 The launch screen: what the app shows while it opens, in one of five
+                looks. `signature`: the logo on a tile with two halo rings and a sliding bar;
+                `cinema`: a large photo with the name over its foot and a line filling;
+                `aurora`: drifting blurred colours round a glass disc with pulse rings and
+                bouncing dots; `editorial`: an arch picture with the logo over its edge, the
+                words rising and step segments; `monogram`: the mark breathing in a turning
+                ring. Every look works in light and dark, right to left, and still for people
+                who turn movement off. The app keeps it on the phone whenever `/config`
+                arrives and shows it from its next start; until it has one, it shows
+                `signature` with the build's name, logo and colours. An app that doesn't know
+                a value uses the look's own. The colours are the app's main and second
+                colours unless `main_color` and `second_color` change them.
+              required: [look, background]
+              properties:
+                look: { type: string, enum: [signature, cinema, aurora, editorial, monogram] }
+                background:
+                  description: "The background in light (and, while `background_dark` is null, a photo in dark too, darker)."
+                  type: object
+                  required: [type]
+                  properties:
+                    type: { type: string, enum: [color, gradient, photo], description: "Unknown: the look's own (`photo` for Cinema and Editorial, `color` for the others)." }
+                    color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`color`: the colour; null, the look's own (the app's page colour; Monogram's main colour in light)." }
+                    from: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`gradient`: its first colour; null, the main colour." }
+                    to: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`gradient`: its second colour; null, the second colour." }
+                    direction: { type: string, enum: [vertical, diagonal, radial], description: "`gradient`: top to bottom, diagonal or from the centre. Missing: `diagonal`." }
+                    image_url: { type: [string, 'null'], format: uri, description: "`photo`: an https address. Without one the main to second colour gradient shows." }
+                    overlay: { type: [integer, 'null'], minimum: 0, maximum: 80, description: "`photo`: how dark the photo is made under the words, in %; null, the look's own." }
+                    text_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The words' colour; null, light words on a dark background and dark on a light one." }
+                background_dark:
+                  description: "The background in dark; null, the look's own dark colours."
+                  oneOf:
+                    - type: 'null'
+                    - type: object
+                      required: [type]
+                      properties:
+                        type: { type: string, enum: [color, gradient, photo], description: "Unknown: the look's own (`photo` for Cinema and Editorial, `color` for the others)." }
+                        color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`color`: the colour; null, the look's own (the app's page colour; Monogram's main colour in light)." }
+                        from: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`gradient`: its first colour; null, the main colour." }
+                        to: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "`gradient`: its second colour; null, the second colour." }
+                        direction: { type: string, enum: [vertical, diagonal, radial], description: "`gradient`: top to bottom, diagonal or from the centre. Missing: `diagonal`." }
+                        image_url: { type: [string, 'null'], format: uri, description: "`photo`: an https address. Without one the main to second colour gradient shows." }
+                        overlay: { type: [integer, 'null'], minimum: 0, maximum: 80, description: "`photo`: how dark the photo is made under the words, in %; null, the look's own." }
+                        text_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "The words' colour; null, light words on a dark background and dark on a light one." }
+                logo: { type: string, enum: [icon, logo, picture], description: "The app's icon, its logo, or `logo_url`; each falls back to the next, then to the initials of the app's name." }
+                logo_url: { type: [string, 'null'], format: uri, description: "`picture`: an https address." }
+                logo_size: { type: string, enum: [s, m, l, xl], description: "Missing: `l`." }
+                logo_shape: { type: string, enum: [rounded, circle, as_is], description: "`as_is`: the picture whole, without a tile. Missing: `rounded`." }
+                title: { type: object, additionalProperties: { type: string, maxLength: 40 }, description: "Per language code; empty, the app's name." }
+                subtitle: { type: object, additionalProperties: { type: string, maxLength: 80 }, description: "The line under it, per language code; empty, none." }
+                loader: { type: string, enum: [bar, ring, dots, steps, none], description: "The loading sign. Missing: the look's own (`bar` for Signature and Cinema, `dots` Aurora, `steps` Editorial, `ring` Monogram)." }
+                theme: { type: string, enum: [system, light, dark], description: "`system`: as the phone, and the app's own setting, are. Missing: `system`." }
+                main_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's main colour." }
+                second_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: "Null: the app's second colour (its accent)." }
         chat: { $ref: '#/components/schemas/ChatConfig' }
         store_billing: { $ref: '#/components/schemas/StoreBillingConfig' }
         purchases:

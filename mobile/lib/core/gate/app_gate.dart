@@ -6,9 +6,12 @@ import '../api/offline_cache.dart';
 import '../api/yallapp_api.dart';
 import 'owner_contact.dart';
 import '../l10n/language.dart';
+import '../launch/launch_store.dart';
 import '../l10n/string_packs.dart';
 import '../providers.dart';
 import '../services/version_check.dart';
+import '../storage/local_settings.dart';
+import '../theme/app_look.dart';
 
 /// Where the app stands after `GET /config`.
 sealed class GateState {
@@ -139,13 +142,33 @@ class AppGate extends Notifier<GateState> {
   }
 
   /// Keeps what the app needs when it can't reach the server later: how to
-  /// reach the owner (13.5), and whether offline mode is on (13.1).
+  /// reach the owner (13.5), and whether offline mode is on (13.1). 124.15
+  /// And the launch screen with the app's colours and logo, for the next
+  /// start.
   Future<void> _remember(AppConfig config) async {
     await OwnerContactStore.save(ref, config.site.contact);
     try {
       await ref.read(offlineCacheProvider).setEnabled(config.features.offline);
     } on Object {
       // No preferences (some tests): offline mode stays off.
+    }
+    try {
+      final build = ref.read(appEnvironmentProvider).build;
+      final look = AppLook.resolve(build, config);
+      await LaunchStore.save(
+        ref.read(sharedPreferencesProvider),
+        KeptLaunch(
+          look: config.screens?.launch,
+          main: look.primary,
+          second: look.secondary,
+          logoUrl:
+              config.appearance?.logoUrl ??
+              config.branding.logoUrl ??
+              build.logoUrl,
+        ),
+      );
+    } on Object {
+      // No preferences (some tests): the build's Signature look next time.
     }
   }
 

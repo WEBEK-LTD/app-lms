@@ -6,6 +6,7 @@ import { dashboardText } from "@/lib/dashboard-lang";
 import { draftLayout } from "@/lib/pages/layout";
 import { studioScreensOn } from "@/lib/studio/screens";
 import { appLanguageName } from "@/lib/i18n/language-names";
+import { assetUrl } from "@/lib/assets";
 import { ScreensEditor } from "./editor";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -38,6 +39,13 @@ export default async function ScreensPage() {
         appName={app.appName ?? ""}
         color={app.primaryColor ?? "#0E1424"}
         courses={app.appType === "lms"}
+        brand={{
+          main: layout.appearance.primary_color ?? app.primaryColor ?? "#0E1424",
+          second: layout.appearance.secondary_color ?? null,
+          appName: app.appName ?? "",
+          logoUrl: app.logoAssetId ? assetUrl(app.logoAssetId) : null,
+          iconUrl: app.iconAssetId ? assetUrl(app.iconAssetId) : null,
+        }}
       />
     </div>
   );

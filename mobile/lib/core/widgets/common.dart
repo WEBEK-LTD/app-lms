@@ -23,6 +23,7 @@ class AppNetworkImage extends StatelessWidget {
     this.semanticLabel,
     this.placeholderIcon,
     this.clearPlaceholder = false,
+    this.placeholder,
   });
 
   final String? url;
@@ -40,14 +41,20 @@ class AppNetworkImage extends StatelessWidget {
   /// picture ([BoxFit.contain]) sits on what is behind it.
   final bool clearPlaceholder;
 
+  /// 124.15 Shown instead of the soft tint until the picture is there, and
+  /// when it can't be (the launch screen's gradient under its photo).
+  final Widget? placeholder;
+
   @override
   Widget build(BuildContext context) {
-    final placeholder = _ImagePlaceholder(
-      width: width,
-      height: height,
-      seed: seed,
-      icon: placeholderIcon ?? AppIcons.image,
-    );
+    final placeholder =
+        this.placeholder ??
+        _ImagePlaceholder(
+          width: width,
+          height: height,
+          seed: seed,
+          icon: placeholderIcon ?? AppIcons.image,
+        );
     final image = (url == null || url!.isEmpty)
         ? placeholder
         : Image.network(

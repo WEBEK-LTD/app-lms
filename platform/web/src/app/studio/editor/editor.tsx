@@ -10,7 +10,7 @@ import { useDashLang, useDashT, useKnownText } from "@/components/dashboard-i18n
 import type { LearningWords } from "@/components/studio/learning";
 import { StudioView, type ScreenPartInfo, type StudioEditing, type StudioLook } from "@/components/studio/view";
 import { screenDrawing, screenLookSection } from "@/lib/studio/screen-drawing";
-import type { StudioScreens } from "@/lib/studio/screens";
+import { launchPictures, withLaunchPictures, type StudioScreens } from "@/lib/studio/screens";
 import { fontsOfPage, useStudioFonts } from "@/components/studio/fonts";
 import type { DashKey } from "@/i18n/dashboard";
 import type { Pickable } from "@/lib/hosted/pages/pickable";
@@ -773,6 +773,8 @@ export function StudioEditor(props: StudioEditorProps) {
       const urls = new Set([...chosen.flatMap((p) => picturesIn(p.studio!)), ...(section ? picturesIn(null, section) : [])]);
       // 124.11 The sign-in screen's photo goes with the project too.
       if (kind === "project" && studioScreens?.sign_in?.image_url) urls.add(studioScreens.sign_in.image_url);
+      // 124.15 And the launch screen's photos and picture.
+      if (kind === "project") for (const url of launchPictures(studioScreens?.launch)) urls.add(url);
       const pictures: Record<string, DesignFilePicture> = {};
       for (const url of urls) {
         const picture = await readPicture(url);
@@ -813,6 +815,7 @@ export function StudioEditor(props: StudioEditorProps) {
     const urls = new Set([...design.pages.flatMap((p) => picturesIn(p.studio)), ...(design.section ? picturesIn(null, design.section) : [])]);
     const signInPhoto = design.look?.screens?.sign_in?.image_url;
     if (signInPhoto && (choice.place === "keep_mine" || choice.place === "whole_project")) urls.add(signInPhoto);
+    if (choice.place === "keep_mine" || choice.place === "whole_project") for (const url of launchPictures(design.look?.screens?.launch)) urls.add(url);
     const moved = new Map<string, string>();
     const saving = [...urls].filter((url) => design.pictures[url]);
     let failed = 0;
@@ -847,11 +850,25 @@ export function StudioEditor(props: StudioEditorProps) {
     // 124.11 Or the whole project taken from it at once.
     if (choice.place === "keep_mine" || choice.place === "whole_project") {
       const photo = file.look?.screens?.sign_in;
+      const launch = file.look?.screens?.launch;
       const kept: DesignFile = {
         ...file,
         pages: file.pages.map((p) => ({ ...p, studio: { ...p.studio, ...(p.studio.header ? { header: { ...p.studio.header, logo_url: p.studio.header.logo_url ? (moved.get(p.studio.header.logo_url) ?? null) : p.studio.header.logo_url } } : {}), body: withPictures(p.studio.body, moved) } })),
         ...(file.look
-          ? { look: { ...file.look, ...(photo?.image_url && file.look.screens ? { screens: { ...file.look.screens, sign_in: { ...photo, image_url: moved.get(photo.image_url) ?? (/^https:\/\//.test(photo.image_url) ? photo.image_url : null) } } } : {}) } }
+          ? {
+              look: {
+                ...file.look,
+                ...(file.look.screens && (photo?.image_url || launch)
+                  ? {
+                      screens: {
+                        ...file.look.screens,
+                        ...(photo?.image_url ? { sign_in: { ...photo, image_url: moved.get(photo.image_url) ?? (/^https:\/\//.test(photo.image_url) ? photo.image_url : null) } } : {}),
+                        ...(launch ? { launch: withLaunchPictures(launch, moved) } : {}),
+                      },
+                    }
+                  : {}),
+              },
+            }
           : {}),
         pictures: {},
         fonts: [],
