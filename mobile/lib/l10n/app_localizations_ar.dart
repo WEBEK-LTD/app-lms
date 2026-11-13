@@ -10040,4 +10040,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get webPageMediaRefused =>
       'اسمح باستخدام الكاميرا والميكروفون من إعدادات هاتفك لتتمكن هذه الصفحة من استخدامهما.';
+
+  @override
+  String get launchWelcome => 'مرحبًا بكم في';
 }

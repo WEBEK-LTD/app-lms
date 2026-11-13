@@ -2641,5 +2641,6 @@
   "cardAtCheckout": "Kartın güvenli ödeme sayfasında girilir",
   "chooseCard": "Bir kart seç",
   "anotherCard": "Ödeme sayfasında başka bir kart",
-  "webPageMediaRefused": "Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin."
+  "webPageMediaRefused": "Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin.",
+  "launchWelcome": "Hoş geldiniz"
 }

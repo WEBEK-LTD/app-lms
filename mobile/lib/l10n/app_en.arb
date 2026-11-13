@@ -10953,5 +10953,9 @@
   "@anotherCard": {
     "description": "123 Pays with a card not saved yet, on the course cart."
   },
-  "webPageMediaRefused": "Allow the camera and microphone in your phone's settings so this page can use them."
+  "webPageMediaRefused": "Allow the camera and microphone in your phone's settings so this page can use them.",
+  "@launchWelcome": {
+    "description": "124.15 Over the app's name on the Editorial launch screen."
+  },
+  "launchWelcome": "Welcome to"
 }

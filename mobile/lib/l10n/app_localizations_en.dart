@@ -9771,4 +9771,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webPageMediaRefused =>
       'Allow the camera and microphone in your phone\'s settings so this page can use them.';
+
+  @override
+  String get launchWelcome => 'Welcome to';
 }

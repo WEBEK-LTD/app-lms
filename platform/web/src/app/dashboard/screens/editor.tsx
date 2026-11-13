@@ -38,6 +38,8 @@ import {
   type SignInStyle,
   type StudioScreens,
 } from "@/lib/studio/screens";
+import type { LaunchBrand } from "./launch-preview";
+import { LaunchSection, newLaunch } from "./launch-section";
 
 /** 118.3 The night look's card colour when the owner keeps the default. */
 const NIGHT_GOLD = "#D9B36C";
@@ -121,6 +123,7 @@ export function ScreensEditor({
   appName,
   color,
   courses = false,
+  brand,
 }: {
   initial: StudioScreens | null;
   languages: { code: string; name: string }[];
@@ -129,6 +132,8 @@ export function ScreensEditor({
   color: string;
   /** 122 An academy: its courses' card is designed here too. */
   courses?: boolean;
+  /** 124.15 The project's colours, name, logo and icon, for the launch screen's preview. */
+  brand?: LaunchBrand;
 }) {
   const t = useDashT();
   const [state, action] = useActionState(saveStudioScreensAction, initialFormState);
@@ -145,6 +150,9 @@ export function ScreensEditor({
   // 123 The screens drawn in a look of their own.
   const [looks, setLooks] = useState<ScreenLooks>(initial?.looks ?? {});
   const [coursePage, setCoursePage] = useState<CoursePageLook>(initial?.course_page ?? { cover: "classic", bar: "classic", hide: [] });
+  // 124.15 The launch screen: saved once the owner has designed it.
+  const [launch, setLaunch] = useState(() => initial?.launch ?? newLaunch());
+  const [launchOwn, setLaunchOwn] = useState(!!initial?.launch);
 
   const screens: StudioScreens = useMemo(
     () => ({
@@ -159,8 +167,9 @@ export function ScreensEditor({
       },
       ...(courses ? { course_card: card, course_page: coursePage } : {}),
       ...(courses && Object.keys(looks).length ? { looks } : {}),
+      ...(launchOwn ? { launch: { ...launch, title: clean(launch.title), subtitle: clean(launch.subtitle) } } : {}),
     }),
-    [look, header, accent, entries, courses, card, coursePage, looks],
+    [look, header, accent, entries, courses, card, coursePage, looks, launch, launchOwn],
   );
 
   const move = (index: number, by: number) =>
@@ -183,6 +192,17 @@ export function ScreensEditor({
       <form action={action} className="flex min-w-0 flex-col gap-6">
         <input type="hidden" name="screens" value={JSON.stringify(screens)} />
         <FormMessage message={state.message} ok={state.ok} />
+
+        <LaunchSection
+          launch={launch}
+          onChange={(next) => {
+            setLaunch(next);
+            setLaunchOwn(true);
+          }}
+          brand={brand ?? { main: color, second: null, appName, logoUrl: null, iconUrl: null }}
+          languages={languages}
+          previewLang={previewLang}
+        />
 
         <section aria-labelledby="h-sign-in-look" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 id="h-sign-in-look" className="m-0 text-lg font-bold">
@@ -518,7 +538,7 @@ export function ScreensEditor({
         ) : null}
 
         <div className="flex flex-wrap justify-end gap-3">
-          <SubmitButton variant="secondary" className="h-11" name="reset" value="1">
+          <SubmitButton variant="secondary" className="h-11" name="back_to_own" value="1">
             {t("studio.backToAppOwn")}
           </SubmitButton>
           <SubmitButton className="h-11" pendingText={t("common.saving")}>

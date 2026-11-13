@@ -15961,6 +15961,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow the camera and microphone in your phone\'s settings so this page can use them.'**
   String get webPageMediaRefused;
+
+  /// 124.15 Over the app's name on the Editorial launch screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to'**
+  String get launchWelcome;
 }
 
 class _AppLocalizationsDelegate

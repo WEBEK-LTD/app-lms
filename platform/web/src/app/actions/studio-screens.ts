@@ -26,7 +26,8 @@ export async function saveStudioScreensAction(_: FormState, formData: FormData):
   const app = context.app;
   if (!app || !studioScreensOn(app)) redirect("/studio/project");
 
-  const reset = formData.get("reset") === "1";
+  // 124.15 Not named "reset": a field of that name hides the form's own reset, which React calls after saving.
+  const reset = formData.get("back_to_own") === "1";
   let screens = null;
   if (!reset) {
     let input: unknown = null;

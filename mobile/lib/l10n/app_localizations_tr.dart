@@ -9727,4 +9727,7 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get webPageMediaRefused =>
       'Bu sayfanın kullanabilmesi için telefonunuzun ayarlarından kameraya ve mikrofona izin verin.';
+
+  @override
+  String get launchWelcome => 'Hoş geldiniz';
 }

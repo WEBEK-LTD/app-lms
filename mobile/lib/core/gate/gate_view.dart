@@ -10,6 +10,8 @@ import '../providers.dart';
 import '../../modules/shared/shared_routes.dart' show rootNavigatorKey;
 import '../services/external_links.dart';
 import '../services/version_check.dart';
+import '../launch/launch_screen.dart';
+import '../launch/launch_store.dart';
 import '../storage/local_settings.dart';
 import '../theme/app_icons.dart';
 import '../theme/palette.dart';
@@ -240,77 +242,42 @@ class _PausedScreenState extends ConsumerState<_PausedScreen> {
   );
 }
 
-/// The start-up screen: the app's name on its splash color.
+/// The start-up screen. 124.15 The launch screen its owner chose in Yallapp
+/// Studio, as the last `/config` brought it (kept on the phone); until there
+/// is one, the Signature look with the build's name, logo and colours on its
+/// splash colour.
 class SplashView extends ConsumerWidget {
   const SplashView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final build = ref.watch(appEnvironmentProvider).build;
-    final background = Color(build.splashColor);
-    final dark = background.computeLuminance() < 0.4;
-    final foreground = dark ? BrandColors.ivory : BrandColors.midnight;
-    return Scaffold(
-      backgroundColor: background,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (build.logoUrl != null)
-              AppNetworkImage(
-                url: build.logoUrl,
-                width: 72,
-                height: 72,
-                radius: 18,
-              )
-            else
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: Color(build.primaryColor),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _initials(build.shortName),
-                  style: const TextStyle(
-                    color: BrandColors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 16),
-            Text(
-              build.appName,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: foreground,
-              ),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                color: foreground,
-                semanticsLabel: context.l10n.loading,
-              ),
-            ),
-          ],
-        ),
-      ),
+    KeptLaunch? kept;
+    try {
+      kept = LaunchStore.read(ref.read(sharedPreferencesProvider));
+    } on Object {
+      kept = null;
+    }
+    final splash = Color(build.splashColor);
+    final look =
+        kept?.look ??
+        LaunchLook(
+          background: LaunchBackground(
+            type: LaunchBackgroundType.color,
+            color:
+                '#${(splash.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
+          ),
+        );
+    return LaunchScreen(
+      look: look,
+      appName: build.appName,
+      shortName: build.shortName,
+      main: kept?.main ?? Color(build.primaryColor),
+      second: kept?.second,
+      logoUrl: kept?.logoUrl ?? build.logoUrl,
+      iconUrl: build.iconUrl,
     );
   }
-}
-
-String _initials(String name) {
-  final words = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-  final letters = words.take(2).map((w) => w.characters.first.toUpperCase());
-  return letters.join();
 }
 
 /// 89.1 Asks once per recommended version to update; "Not now" goes on and
