@@ -31,7 +31,7 @@ iframe { border: 0; display: block; width: 100%; height: 100%; }
 </head>
 <body>
 <iframe id="yallapp-frame" src="$srcAttr"
-  allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
+  allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; microphone; camera"
   allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <script>
 (function () {

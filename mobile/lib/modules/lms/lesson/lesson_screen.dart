@@ -20,6 +20,8 @@ import '../../../core/storage/local_settings.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/web/web_view.dart';
+import '../../../core/web/media_permission.dart';
+import '../../../core/web/web_files.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/file_viewer.dart';
@@ -413,6 +415,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               child: ref.watch(webViewBuilderProvider)(
                 WebViewRequest(
                   url: Uri.parse(lesson.webviewUrl!),
+                  // 124.14 The microphone and camera, asked first, as in a web page.
+                  onMediaRequest: pageMediaRequests(context, ref),
+                  onFileSelect: pageFileChooser(context, ref),
                   debugLabel: 'lesson',
                 ),
               ),

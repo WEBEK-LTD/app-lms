@@ -11,6 +11,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../services/external_links.dart';
 import 'media_permission.dart';
+import 'web_files.dart';
 
 /// What a web view should show and report.
 @immutable
@@ -36,6 +37,7 @@ class WebViewRequest {
     this.injectCss,
     this.pageHost,
     this.onMediaRequest,
+    this.onFileSelect,
   }) : assert(url != null || html != null);
 
   /// Loaded as the top-level page.
@@ -97,6 +99,10 @@ class WebViewRequest {
   /// the person allows them; without it, or for anything else, the page's
   /// request is refused (see [mediaToAsk]).
   final MediaRequestHandler? onMediaRequest;
+
+  /// 124.14 Answers the page's file fields (Android; iOS asks by itself):
+  /// the camera, the photos or the files. Null: the fields do nothing.
+  final WebFileHandler? onFileSelect;
 }
 
 /// 40 Whether a web view may load [uri], in the page itself ([mainFrame]) or
@@ -190,6 +196,20 @@ class _PlatformWebViewState extends State<PlatformWebView>
     if (platform is AndroidWebViewController) {
       // 40 The app's own play button starts the video from the page's code.
       unawaited(platform.setMediaPlaybackRequiresUserGesture(false));
+      // 124.14 A page's "Upload a file" or "Take a photo": Android's web
+      // view shows no chooser of its own.
+      final files = widget.request.onFileSelect;
+      if (files != null) {
+        unawaited(
+          platform.setOnShowFileSelector(
+            (params) => files((
+              accept: params.acceptTypes,
+              multiple: params.mode == FileSelectorMode.openMultiple,
+              capture: params.isCaptureEnabled,
+            )),
+          ),
+        );
+      }
     }
     if (widget.request.transparent) {
       _controller.setBackgroundColor(const Color(0x00000000));

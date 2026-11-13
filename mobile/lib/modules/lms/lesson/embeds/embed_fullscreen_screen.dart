@@ -7,6 +7,8 @@ import '../../../../core/providers.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
+import '../../../../core/web/media_permission.dart';
+import '../../../../core/web/web_files.dart';
 import '../../../../core/widgets/buttons.dart';
 import '../video/hosted_video.dart';
 import 'embed_frame.dart';
@@ -90,11 +92,15 @@ class _EmbedFullscreenScreenState extends ConsumerState<EmbedFullscreenScreen> {
                 ? (uri, mainFrame) =>
                       videoNavigationAllowed(uri, mainFrame, page: page)
                 : null,
+            onMediaRequest: video ? null : pageMediaRequests(context, ref),
+            onFileSelect: video ? null : pageFileChooser(context, ref),
             debugLabel: 'fullscreen',
           )
         : WebViewRequest(
             url: Uri.parse(embed.src),
             headers: {'Referer': '$site/'},
+            onMediaRequest: video ? null : pageMediaRequests(context, ref),
+            onFileSelect: video ? null : pageFileChooser(context, ref),
             debugLabel: 'fullscreen',
           );
     return Scaffold(

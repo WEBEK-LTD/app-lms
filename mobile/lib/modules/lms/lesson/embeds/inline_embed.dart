@@ -11,6 +11,8 @@ import '../../../../core/routing/paths.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/palette.dart';
 import '../../../../core/web/web_view.dart';
+import '../../../../core/web/media_permission.dart';
+import '../../../../core/web/web_files.dart';
 import '../../../../core/widgets/buttons.dart';
 import '../video/embed_player.dart';
 import '../video/hosted_video.dart';
@@ -222,6 +224,14 @@ class _InlineEmbedState extends ConsumerState<InlineEmbed> {
                             videoNavigationAllowed(uri, mainFrame, page: page),
                   transparent: true,
                   scrollable: !size.sizedToContent,
+                  // 124.14 A call or a recording in a lesson: the microphone
+                  // and camera, asked of the student first (not for videos).
+                  onMediaRequest: hosted == null
+                      ? pageMediaRequests(context, ref)
+                      : null,
+                  onFileSelect: hosted == null
+                      ? pageFileChooser(context, ref)
+                      : null,
                   debugLabel: _embed.placeholder,
                 ),
               );
