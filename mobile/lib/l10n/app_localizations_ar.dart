@@ -9853,6 +9853,27 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return 'الدرس $current من $total';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'مباشر الساعة $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'مباشر الآن';
+
+  @override
+  String get learningStreakShort => 'السلسلة';
+
+  @override
+  String itemRating(String rating) {
+    return 'التقييم $rating من 5';
+  }
+
+  @override
   String get exploreSearchHint => 'دورة، مهارة، أو معلم';
 
   @override

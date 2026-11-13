@@ -2491,8 +2491,18 @@ class DemoApi extends FakeApi {
           ),
         ];
 
+  /// 128.8 A picture per course over the academy's drawn ones (Ufuq
+  /// Academy's photos).
+  final courseImages = <int, String>{};
+
+  Map<String, dynamic> _pictured(Map<String, dynamic> course) =>
+      switch (courseImages[course['id']]) {
+        final String url => {...course, 'image_url': url},
+        null => course,
+      };
+
   Map<String, dynamic> _myCourse() => {
-    'course': {..._courses(arabic)[1], 'enrolled': true},
+    'course': _pictured({..._courses(arabic)[1], 'enrolled': true}),
     'progress': {
       'course_id': 2,
       'completed_items': 11,
@@ -2532,7 +2542,7 @@ class DemoApi extends FakeApi {
 
   @override
   Future<List<HomeSection>> getHome() => super.getHome().then((_) {
-    final courses = _courses(arabic);
+    final courses = [for (final c in _courses(arabic)) _pictured(c)];
     return [
       for (final s in [
         {'type': 'continue_learning', 'title': null, 'course': _myCourse()},
@@ -2561,8 +2571,10 @@ class DemoApi extends FakeApi {
   Future<Paged<CourseSummary>> listCourses(CourseQuery query) => super
       .listCourses(query)
       .then(
-        (_) =>
-            Paged.fromJson(pageJson(_courses(arabic)), CourseSummary.fromJson),
+        (_) => Paged.fromJson(
+          pageJson([for (final c in _courses(arabic)) _pictured(c)]),
+          CourseSummary.fromJson,
+        ),
       );
 
   @override

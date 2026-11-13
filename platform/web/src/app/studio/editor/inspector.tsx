@@ -18,6 +18,7 @@ import {
   STUDIO_LEARNING_SECTIONS,
   STUDIO_LIVE_SOURCES,
   STUDIO_SCHOOL_SECTIONS,
+  STUDIO_LEARNING_STYLES,
   STUDIO_MARKET_SORTS,
   STUDIO_MARKET_STYLES,
   STUDIO_MARKET_CARD_FACTS,
@@ -884,6 +885,8 @@ function DesignTab(props: Props & { node: StudioNode }) {
             rows={[
               { label: t("studio.background"), value: node.dark_background, onChange: (dark_background) => onChange({ dark_background: dark_background ?? undefined }) },
               { label: t("studio.textColor"), value: node.dark_color, onChange: (dark_color) => onChange({ dark_color: dark_color ?? undefined }) },
+              // 128.8 The border by night.
+              ...(node.border_width ? [{ label: t("studio.border"), value: node.dark_border_color, onChange: (dark_border_color: string | null) => onChange({ dark_border_color: dark_border_color ?? undefined }) }] : []),
             ]}
           />
         </div>
@@ -1336,6 +1339,7 @@ function DataTab(props: Props & { node: StudioNode }) {
               <option value="subtitle">{t("studio.bindSubtitle")}</option>
               <option value="price">{t("studio.bindPrice")}</option>
               <option value="badge">{t("studio.bindBadge")}</option>
+              <option value="rating">{t("studio.bindRating")}</option>
             </>
           )}
         </select>
@@ -1694,20 +1698,45 @@ function PagePanel(props: Props) {
 /** 123 Which of the student's cards a `learning` element is. */
 function LearningControls({ node, onChange }: { node: StudioNode; onChange: (patch: Partial<StudioNode>) => void }) {
   const t = useDashT();
+  type Learning = NonNullable<StudioNode["learning"]>;
+  const style = node.learning?.style ?? "card";
   return (
-    <label className="flex flex-col gap-1 font-bold">
-      {t("studio.learningSection")}
-      <select value={node.learning?.section ?? "continue"} onChange={(e) => onChange({ learning: { section: e.target.value as NonNullable<StudioNode["learning"]>["section"] } })} className="h-9 rounded-lg px-2 font-normal" style={{ border: "1px solid var(--studio-line)" }}>
-        {STUDIO_LEARNING_SECTIONS.map((s) => (
-          <option key={s} value={s}>
-            {t(`studio.learning_${s}` as DashKey)}
-          </option>
-        ))}
-      </select>
-      <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
-        {t("studio.learningHint")}
-      </span>
-    </label>
+    <div className="flex flex-col gap-3">
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.learningSection")}
+        <select
+          value={node.learning?.section ?? "continue"}
+          onChange={(e) => onChange({ learning: { section: e.target.value as Learning["section"], ...(style === "photo" ? { style } : {}) } })}
+          className="h-9 rounded-lg px-2 font-normal"
+          style={{ border: "1px solid var(--studio-line)" }}
+        >
+          {STUDIO_LEARNING_SECTIONS.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.learning_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs font-normal" style={{ color: "var(--studio-muted)" }}>
+          {t("studio.learningHint")}
+        </span>
+      </label>
+      {/* 128.8 On a photo, as the approved academy home draws them. */}
+      <label className="flex flex-col gap-1 font-bold">
+        {t("studio.learningStyle")}
+        <select
+          value={style}
+          onChange={(e) => onChange({ learning: { section: node.learning?.section ?? "continue", ...(e.target.value === "photo" ? { style: "photo" as const } : {}) } })}
+          className="h-9 rounded-lg px-2 font-normal"
+          style={{ border: "1px solid var(--studio-line)" }}
+        >
+          {STUDIO_LEARNING_STYLES.map((s) => (
+            <option key={s} value={s}>
+              {t(`studio.learningStyle_${s}` as DashKey)}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
   );
 }
 

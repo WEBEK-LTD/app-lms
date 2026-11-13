@@ -1,4 +1,5 @@
 import type { App } from "../data/types";
+import { withLook } from "../fonts/look";
 import { demoDesign } from "../demo/look";
 import { DEMO_TAB_BARS } from "../demo/screens";
 import { designLayout } from "../pages/layout";
@@ -24,7 +25,7 @@ export function startLayout(app: App, template: TemplateInfo, ready: LayoutConte
   const designed = template.demo ? designLayout(app, demoDesign(template.demo), ready, now) : ready;
   // 123 A template for the whole project: its tabs (a Blog tab with the site's blog, when the site is known) and its look.
   const layout = project
-    ? { ...designed, tabs: project.tabs(designed.tabs, site), appearance: { ...designed.appearance, ...project.appearance } }
+    ? { ...designed, tabs: project.tabs(designed.tabs, site), appearance: withLook(designed.appearance, project.appearance) }
     : designed;
   const home = template.make(ctx);
   const pages = layout.pages.some((p) => p.slug === "home")

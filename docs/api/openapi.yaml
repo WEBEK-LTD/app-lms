@@ -14538,8 +14538,9 @@ components:
             a drop of its colour hangs from the bar's edge over the open tab.
             `glow`: the open tab glows in its colour. `colours`: each tab its own
             colour in a soft circle, the open one ringed. 128 `float`: a bar
-            floating over the page in its own colours (22 round unless
-            `radius` says), the open tab a filled pill with its name, the
+            62 high floating over the page in its own colours (22 round and
+            12 in from the edges unless `radius` and `margin` say), the page
+            going on under it, the open tab a filled pill with its name, the
             others icons only. Every design works in
             light and dark mode. An app that doesn't know a value uses its
             template's.
@@ -14741,6 +14742,7 @@ components:
         overlay: { $ref: '#/components/schemas/StudioOverlay' }
         scrim: { $ref: '#/components/schemas/StudioScrim' }
         border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$' }
+        dark_border_color: { type: [string, 'null'], pattern: '^#[0-9A-Fa-f]{6}$', description: '128.8 The border in dark mode; missing, `border_color`.' }
         border_width: { type: number, minimum: 0, maximum: 20, default: 0 }
         shadow: { type: string, enum: [none, light, medium, strong], default: none }
         opacity: { type: number, minimum: 0, maximum: 1, default: 1 }
@@ -14775,7 +14777,7 @@ components:
         source: { $ref: '#/components/schemas/ItemSource' }
         layout: { type: string, enum: [list, grid, carousel], default: grid, description: "For `items`." }
         card: { $ref: '#/components/schemas/StudioNode', description: "For `items`: the card drawn for each entry, its elements' `bind` filled from the entry. Missing, the app's own card." }
-        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry." }
+        bind: { type: [string, 'null'], enum: [title, subtitle, image, price, badge, rating, null], description: "Inside an `items` card: this element's text (or a picture's address) comes from the entry. 128.8 `rating`: the element's own `text`, a star drawn as an icon and the entry's `rating` with one decimal; nothing when the entry has none." }
         items:
           type: array
           maxItems: 30
@@ -14944,6 +14946,18 @@ components:
       required: [section]
       properties:
         section: { type: string, enum: [continue, streak, live, week] }
+        style:
+          type: string
+          enum: [card, photo]
+          description: |
+            128.8 How the card is drawn; missing, `card` (as above). `photo`:
+            `continue` over the element's picture (else the course's) under
+            a dark scrim, the lesson they are on and the minutes left on one
+            chip, the course's name, how far they are in gold and a round
+            play button; `live` over the element's picture with its
+            `overlay`, the time it starts in gold over the class's name;
+            `streak` the days in a row as one figure. Apps that don't know
+            a style draw the card.
     StudioTracking:
       type: [object, 'null']
       description: |
@@ -15131,6 +15145,7 @@ components:
         image_url: { type: [string, 'null'], format: uri }
         price_label: { type: [string, 'null'], description: Display text only. Never a purchase button on iOS., example: 'EGP 4,250,000' }
         badge: { type: [string, 'null'], example: Negotiable }
+        rating: { type: [number, 'null'], minimum: 0, maximum: 5, description: "128.8 A course's average rating, for a card's `rating` element; null or missing without one.", example: 4.9 }
         favorited: { type: boolean }
         action: { $ref: '#/components/schemas/Action' }
 

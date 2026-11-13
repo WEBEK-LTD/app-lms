@@ -211,15 +211,15 @@ function Header(props: ViewProps & { header: StudioHeader }) {
       {icons[name]}
     </span>
   );
-  // 123 Today's date over a greeting with the person's name, the buttons as small squares beside it.
+  // 123 Today's date over a greeting with the person's name; 128.8 the buttons as round buttons on a card beside it.
   if (header.type === "greeting") {
     const ink = (dark ? (header.dark_color ?? header.color) : header.color) ?? (dark ? "#F3F1EC" : "#15131A");
-    const square: CSSProperties = { width: 40, height: 40, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: dark ? "rgba(22,25,36,.72)" : "rgba(255,255,255,.72)", border: `1px solid ${dark ? "rgba(255,255,255,.08)" : "rgba(21,19,26,.08)"}` };
+    const square: CSSProperties = { width: 40, height: 40, borderRadius: 20, display: "flex", alignItems: "center", justifyContent: "center", background: dark ? "#161C33" : "#FFFFFF", border: `1px solid ${dark ? "#262D48" : "#E3DFD6"}` };
     return (
       <div style={{ ...wrap, background: (dark ? (header.dark_background ?? header.background) : header.background) ?? "transparent", color: ink, margin: "30px 6px 0" }} onClick={editing ? (e) => (e.stopPropagation(), editing.onSelect("header")) : undefined} data-studio-header={header.type}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 11, opacity: 0.6 }}>{props.greeting?.date ?? ""}</span>
-          <span style={{ fontWeight: 700, fontSize: 22 }}>{props.greeting?.hello ?? title}</span>
+          <span style={{ fontSize: 12, opacity: 0.7 }}>{props.greeting?.date ?? ""}</span>
+          <span style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em" }}>{props.greeting?.hello ?? title}</span>
         </div>
         {buttons.map((b) => (
           <span key={b} style={square}>
@@ -543,7 +543,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
     color,
     ...cornersStyle(node),
     transform: node.rotation ? `rotate(${node.rotation}deg)` : undefined,
-    border: node.border_width && node.border_color ? `${node.border_width}px solid ${node.border_color}` : undefined,
+    border: node.border_width && node.border_color ? `${node.border_width}px solid ${(dark ? node.dark_border_color : null) ?? node.border_color}` : undefined,
     boxShadow: node.shadow && node.shadow !== "none" ? SHADOWS[node.shadow] : undefined,
     opacity: node.opacity,
     fontFamily: node.font?.family ? `'${node.font.family}', '${look.font}', sans-serif` : undefined,
@@ -929,7 +929,7 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
         {shown.map((entry, i) =>
           n.card ? (
             <span key={entry.id} style={layout === "carousel" ? { flex: "0 0 60%" } : undefined}>
-              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "" }} />
+              <CardOf {...p} node={n.card} entry={{ id: entry.id, title: entry.title, price: entry.price ?? "", subtitle: entry.subtitle ?? "", imageUrl: entry.imageUrl ?? null, badge: entry.badge ?? "", rating: entry.rating ?? null }} />
             </span>
           ) : (
             <span key={entry.id} data-studio-entry={entry.id} style={{ background: dark ? "#22203A" : "#FFFFFF", borderRadius: 14, padding: 8, boxShadow: "0 2px 6px rgba(20,54,31,0.08)", display: layout === "list" ? "flex" : "block", gap: 8, minWidth: 0, ...(layout === "carousel" ? { flex: "0 0 60%" } : {}) }}>
@@ -967,9 +967,12 @@ function Node(props: ViewProps & { node: StudioNode; parentDir: Dir; inStack?: I
 }
 
 /** An items element's card for one entry: its bound elements show the entry. */
-function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string } }) {
+function CardOf(props: ViewProps & { node: StudioNode; entry: { id: string; title: string; price: string; subtitle: string; imageUrl: string | null; badge: string; rating?: number | null } }) {
   const { entry } = props;
-  const bound = (node: StudioNode): string | null => (node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : null);
+  // 128.8 A rating: the element's own text, a star and the rating; nothing without one.
+  const rating = (node: StudioNode): string => (entry.rating ? `${node.text ? `${node.text} ` : ""}★ ${entry.rating.toFixed(1)}` : "");
+  const bound = (node: StudioNode): string | null =>
+    node.bind === "title" ? entry.title : node.bind === "price" ? entry.price : node.bind === "subtitle" ? entry.subtitle : node.bind === "badge" ? entry.badge : node.bind === "rating" ? rating(node) : null;
   const fill = (node: StudioNode): StudioNode => ({
     ...node,
     ...(bound(node) !== null ? { text: bound(node)!, translations: undefined } : {}),

@@ -7,7 +7,6 @@ import { studioDemoOf } from "../studio/demo-templates";
 import { DEMO_FOOD_CUISINES, demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, withCuisines, type BookingDemo, type EntryDeps } from "../demo/entries";
 import { marketCuisines, marketplaceSamples, savingZadPictures } from "../demo/marketplace";
 import { savePicture } from "../demo/picture-assets";
-import { isZadPhoto, saveZadPhoto } from "../demo/zad-photos";
 import { syncSchoolStructure } from "../demo/school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers } from "../demo/teachers";
 import { donationSettingsOf } from "../donations/service";
@@ -41,11 +40,11 @@ type DemoSeeder = (m: Making) => Promise<boolean>;
 const deliveryCurrency = async (m: Making) => deliverySettingsOf(await m.deps.store.getDeliverySettings(m.app.id)).currency;
 
 /** Courses after the app's own, the newest-first lists showing them in the demo's order. */
-async function courses(m: Making, academy: boolean): Promise<boolean> {
+async function courses(m: Making, academy: boolean, premium = false): Promise<boolean> {
   const setup = courseSetup(m.app);
   const teachers = academy ? new Map((await m.deps.store.listTeachers(m.app.id)).filter((t) => t.sample).map((t) => [t.name, t.id])) : null;
   let i = 0;
-  const made = await demoCourseEntries(m.entries, setup, academy, teachers, () => new Date(m.deps.now.getTime() - i++ * 60_000).toISOString());
+  const made = await demoCourseEntries(m.entries, setup, academy, teachers, () => new Date(m.deps.now.getTime() - i++ * 60_000).toISOString(), premium);
   await m.deps.store.updateApp(m.app.id, { courseSetup: { ...setup, categories: made.categories, courses: [...setup.courses, ...made.courses], nextId: made.nextId } }, m.deps.now);
   return made.courses.length > 0;
 }
@@ -101,7 +100,7 @@ const vehicleTypes = (taxi: boolean): DemoSeeder => async (m) => (await demoVehi
 const DEMO_SAMPLES: Record<DemoId, Partial<Record<SampleList, DemoSeeder>>> = {
   lms: { courses: (m) => courses(m, false) },
   // 123 The premium academy: the academy's courses.
-  premium_academy: { courses: (m) => courses(m, false) },
+  premium_academy: { courses: (m) => courses(m, false, true) },
   store: { products: products(false) },
   restaurant: { products: products(true) },
   booking: { services: bookings("salon") },
@@ -165,8 +164,8 @@ export async function seedDemoSamples(deps: SampleDeps, appId: string, demo: Dem
       store: deps.store,
       now: deps.now,
       // The demo's own pictures, saved as the app's (removing its samples never takes another app's).
-      // 128 And its real photos (Sofra Eats's dishes), as the app's own.
-      picture: (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, { clientId: app!.clientId, appId: app!.id }, name, "product_image") : savePicture(deps, { clientId: app!.clientId, appId: app!.id }, name, size, "product_image")),
+      // 128 And its real photos (Sofra Eats's dishes, the academies' courses), as the app's own.
+      picture: (name, size) => savePicture(deps, { clientId: app!.clientId, appId: app!.id }, name, size, "product_image"),
       sample: true,
     };
     if (await seeder({ deps, app, entries })) filled.push(list);

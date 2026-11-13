@@ -152,6 +152,6 @@ export const DEMO_TAB_BARS: Record<StudioDemoId, TabBarStyle> = {
   // 128 Nakhla School's and Rawaq Academy's: the open tab's icon in a soft pill over its name, on the board's surface.
   school: demoDesignBar("school"),
   instructors: demoDesignBar("instructors"),
-  // 123 The premium academy's frosted floating bar, as its template has it.
+  // 123 The premium academy's bar as its template has it (128.8 a floating navy pill, the open tab on gold).
   premium_academy: ACADEMY_PROJECT.tab_bar,
 };

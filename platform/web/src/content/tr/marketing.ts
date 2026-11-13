@@ -1710,9 +1710,9 @@ export const TR_MARKETING: MarketingTranslation = {
       ],
     },
     premium_academy: {
-      summary: "Lacivert ve altın renkli premium akademi: ana sayfada öğrencinin kendi günü, Keşfet, bir kurs ve notlu dersleri ve haftanın öğrenmesi.",
+      summary: "Lacivert ve altın renkli premium akademi: ana sayfada öğrencinin kendi günü, fotoğrafıyla aldığı kurs, Keşfet, bir kurs ve notlu dersleri ve haftanın öğrenmesi.",
       tryThis: [
-        "Ana sayfada kendi kartlarınızı görün: aldığınız kurs, öğrenme seriniz ve bu haftaki öğrenmeniz",
+        "Bir kursa başlayın, sonra ana sayfada gününüzü görün: fotoğrafıyla aldığınız kurs, ne kadar ilerlediğiniz ve öğrenme seriniz",
         "Keşfet'i açın, en yüksek puana göre sıralayın ve bir kurs açın: müfredatı, hakkında ve yorumları",
         "Ücretsiz Excel kursuna kaydolun, bir ders açın ve onunla ilgili bir not alın",
         "Uygulamayı hesaptan Arapçaya ya da koyu moda geçirin",

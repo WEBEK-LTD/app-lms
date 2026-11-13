@@ -858,9 +858,12 @@ final websiteShots = <Shot>[
     ('premium-mine', '/my-courses'),
     ('premium-account', '/account'),
     ('premium-cart', '/course-cart'),
+    // 128.8 The approved home by night too.
+    ('premium-home-dark', null),
   ])
     Shot(
       name,
+      dark: name.endsWith('-dark'),
       // The course's page as a student sees it before joining.
       api: name == 'premium-course'
           ? () => premiumAcademyApi(enrolled: false)

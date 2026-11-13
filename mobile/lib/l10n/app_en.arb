@@ -10734,6 +10734,44 @@
       }
     }
   },
+  "learningLessonShort": "Lesson {current} of {total}",
+  "@learningLessonShort": {
+    "description": "128.8 The course the student is taking on its photo: the lesson they are on.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "learningLiveAt": "LIVE AT {time}",
+  "@learningLiveAt": {
+    "description": "128.8 The student's live class today on its photo, in capitals: when it starts.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "learningLiveNowShort": "LIVE NOW",
+  "@learningLiveNowShort": {
+    "description": "128.8 The student's live class on its photo, once it has started."
+  },
+  "learningStreakShort": "Streak",
+  "@learningStreakShort": {
+    "description": "128.8 The compact streak card's title."
+  },
+  "itemRating": "Rated {rating} out of 5",
+  "@itemRating": {
+    "description": "128.8 A card's rating, read out by screen readers.",
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
   "exploreSearchHint": "Course, skill or teacher",
   "@exploreSearchHint": {
     "description": "123 The search box on the premium academy's Explore."

@@ -9595,6 +9595,27 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return 'Lesson $current of $total';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'LIVE AT $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'LIVE NOW';
+
+  @override
+  String get learningStreakShort => 'Streak';
+
+  @override
+  String itemRating(String rating) {
+    return 'Rated $rating out of 5';
+  }
+
+  @override
   String get exploreSearchHint => 'Course, skill or teacher';
 
   @override

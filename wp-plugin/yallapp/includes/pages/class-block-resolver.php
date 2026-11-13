@@ -549,6 +549,10 @@ class Block_Resolver {
 				'price_label' => ! empty( $price['is_free'] ) ? __( 'Free', 'yallapp' ) : ( $price['formatted'] ?? null ),
 				'badge'       => null,
 			);
+			// 128.8 Its rating, for a card's `rating` element.
+			if ( isset( $course['rating'] ) && is_numeric( $course['rating'] ) && $course['rating'] > 0 ) {
+				$item['rating'] = round( (float) $course['rating'], 1 );
+			}
 			if ( $wishlist ) {
 				$item['favorited'] = ! empty( $course['wishlisted'] );
 			}
@@ -1148,7 +1152,7 @@ class Block_Resolver {
 			'fit'           => array( 'cover', 'contain' ),
 			'icon_position' => array( 'start', 'end' ),
 			'layout'        => array( 'list', 'grid', 'carousel' ),
-			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge' ),
+			'bind'          => array( 'title', 'subtitle', 'image', 'price', 'badge', 'rating' ),
 			'visibility'    => array( 'everyone', 'signed_in', 'signed_out' ),
 			// 112.4 How a slider shows where it is, and how categories look.
 			'indicator'     => array( 'dots', 'progress', 'count' ),
@@ -1159,7 +1163,7 @@ class Block_Resolver {
 				$node[ $field ] = $raw[ $field ];
 			}
 		}
-		foreach ( array( 'background', 'color', 'dark_background', 'dark_color', 'border_color' ) as $field ) {
+		foreach ( array( 'background', 'color', 'dark_background', 'dark_color', 'border_color', 'dark_border_color' ) as $field ) {
 			$color = self::hex( $raw[ $field ] ?? null );
 			if ( null !== $color ) {
 				$node[ $field ] = $color;
@@ -1271,6 +1275,10 @@ class Block_Resolver {
 					return null;
 				}
 				$node['learning'] = array( 'section' => $section );
+				// 128.8 On a photo, as the approved academy home draws them.
+				if ( 'photo' === ( $raw['learning']['style'] ?? null ) ) {
+					$node['learning']['style'] = 'photo';
+				}
 				break;
 			case 'coupon':
 				// 112.4 A code people copy: letters, numbers, - and _.

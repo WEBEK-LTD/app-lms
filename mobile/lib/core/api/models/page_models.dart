@@ -600,6 +600,7 @@ class PageItem {
     this.imageUrl,
     this.priceLabel,
     this.badge,
+    this.rating,
     this.favorited = false,
     this.action,
   });
@@ -612,6 +613,10 @@ class PageItem {
     imageUrl: optString(json, 'image_url'),
     priceLabel: optString(json, 'price_label'),
     badge: optString(json, 'badge'),
+    rating: switch (optDouble(json, 'rating')) {
+      final r? when r > 0 && r <= 5 => r,
+      _ => null,
+    },
     favorited: boolOr(json, 'favorited', false),
     action: PageAction.tryParse(json['action']),
   );
@@ -626,6 +631,9 @@ class PageItem {
   /// Display text only. Never a purchase button.
   final String? priceLabel;
   final String? badge;
+
+  /// 128.8 A course's average rating, 0 to 5; null without one.
+  final double? rating;
   final bool favorited;
   final PageAction? action;
 
@@ -2038,6 +2046,13 @@ enum StudioSchoolSection { greeting, children, today }
 /// learning time.
 enum StudioLearningSection { continueCourse, streak, live, week }
 
+/// 128.8 How a `learning` card is drawn: as 123 drew it, or on a photo
+/// (`StudioLearning.style` `photo`).
+enum StudioLearningStyle { card, photo }
+
+StudioLearningStyle studioLearningStyle(Object? value) =>
+    value == 'photo' ? StudioLearningStyle.photo : StudioLearningStyle.card;
+
 StudioLearningSection? studioLearningSection(Object? value) => switch (value) {
   'continue' => StudioLearningSection.continueCourse,
   'streak' => StudioLearningSection.streak,
@@ -2404,7 +2419,8 @@ enum StudioShadow { none, light, medium, strong }
 
 enum StudioTextAlign { start, center, end }
 
-enum StudioBind { title, subtitle, image, price, badge }
+/// 128.8 `rating`: the element's own text, a star and the entry's rating.
+enum StudioBind { title, subtitle, image, price, badge, rating }
 
 enum StudioVisibility { everyone, signedIn, signedOut }
 
@@ -2439,6 +2455,7 @@ class StudioNode {
     this.rotation = 0,
     this.overlay,
     this.borderColor,
+    this.darkBorderColor,
     this.borderWidth = 0,
     this.shadow = StudioShadow.none,
     this.opacity = 1,
@@ -2486,6 +2503,7 @@ class StudioNode {
     this.mapDrawing,
     this.overlap = 0,
     this.school,
+    this.learningStyle = StudioLearningStyle.card,
   });
 
   /// Null for a type this app doesn't know (left out with what it holds),
@@ -2536,6 +2554,7 @@ class StudioNode {
         rotation: n('rotation', 0, -180, 180),
         overlay: StudioOverlay.tryParse(json['overlay']),
         borderColor: optString(json, 'border_color'),
+        darkBorderColor: optString(json, 'dark_border_color'),
         borderWidth: n('border_width', 0, 0, 20),
         shadow: enumFrom(
           StudioShadow.values,
@@ -2611,6 +2630,9 @@ class StudioNode {
                 (json['school'] as Map)['section'],
               )
             : null,
+        learningStyle: json['learning'] is Map
+            ? studioLearningStyle((json['learning'] as Map)['style'])
+            : StudioLearningStyle.card,
         rating: optDouble(json, 'rating'),
         action: PageAction.tryParse(json['action']),
         platforms: rawPlatforms is List
@@ -2680,6 +2702,9 @@ class StudioNode {
   /// 107.2 A colour over the picture (an image, or the background picture).
   final StudioOverlay? overlay;
   final String? borderColor;
+
+  /// 128.8 The border in dark mode; null, [borderColor].
+  final String? darkBorderColor;
   final double borderWidth;
   final StudioShadow shadow;
   final double opacity;
@@ -2775,6 +2800,9 @@ class StudioNode {
 
   /// 128 For [StudioNodeType.school]: which part of the school day it is.
   final StudioSchoolSection? school;
+
+  /// 128.8 How that card is drawn.
+  final StudioLearningStyle learningStyle;
 
   bool get holdsChildren => switch (type) {
     StudioNodeType.row ||

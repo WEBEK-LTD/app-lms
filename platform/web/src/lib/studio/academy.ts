@@ -1,111 +1,132 @@
 import type { Appearance, LayoutTab, StudioHeader, StudioNode, StudioPage, TabBarStyle } from "../pages/types";
+import type { AppFont } from "../build-config/types";
 import { newNodeId } from "./elements";
 import { ACCOUNT_ITEMS, type StudioScreens } from "./screens";
 import type { SectionContext, SectionWord } from "./sections";
 
 /**
  * 123 The premium academy (a WordPress site with Tutor LMS, Digits and
- * WooCommerce): a whole project, not only its home. Its home (`academyHome`)
- * greets the student, then a banner in navy and gold, what the academy
- * promises, the subjects, the popular courses, the certificate card and the
- * newest courses; light and dark alike. The project (`ACADEMY_PROJECT`):
- * a frosted floating bar with the student's photo, a Blog tab showing the
- * site's blog in the app with its header and footer hidden, the sign-in
- * screen over a photo, the account menu at night in gold, the courses as
- * rich cards and a course's page with a tall cover and a frosted bar, in
- * Alexandria. Every colour is the owner's to change in Studio: the main
- * colour is the brand's, gold the second.
+ * WooCommerce): a whole project, not only its home. The project
+ * (`ACADEMY_PROJECT`): a Blog tab showing the site's blog in the app with
+ * its header and footer hidden, the sign-in screen over a photo, the
+ * account menu at night in gold, the courses as rich cards and a course's
+ * page with a tall cover and a frosted bar. Every colour is the owner's to
+ * change in Studio: the main colour is the brand's, gold the second.
+ *
+ * 128.8 As the owner approved it on 13 November (Ufuq Academy's board):
+ * the home greets the student with today's date, the course they are
+ * taking on its photo with how far they are and a play button, their
+ * streak beside their live class on a photo, and courses picked for them
+ * as photo cards with the teacher and the rating; the bar a floating navy
+ * pill with the open tab in gold (light by night); Manrope; light and dark
+ * as the board's two themes.
  */
 
 const pad = (v: number, h: number) => ({ top: v, end: h, bottom: v, start: h });
 
-/** The academy's colours: ink and paper by day, near-black by night, gold on both. */
+/** The academy's colours, as the approved board has them: paper and ink by day, deep navy by night, gold on both. */
 export const ACADEMY_COLORS = {
   primary: "#1D2B4F",
   gold: "#B8893A",
   goldLight: "#E7C982",
   darkGold: "#E2BE74",
-  paper: "#FAF7F1",
-  ink: "#15131A",
-  muted: "#6B6573",
-  line: "#EFE7D6",
-  night: "#0A0B10",
-  nightCard: "#15161D",
-  nightLine: "#262833",
-  nightInk: "#F4F1EA",
-  nightMuted: "#A9A3B4",
+  // 128.8 The board's gold for fills (the bar's open tab, progress, the live class's time) and its gold for words by day.
+  goldFill: "#E6C26E",
+  goldText: "#7A5C14",
+  paper: "#F5F3EF",
+  surface: "#FFFFFF",
+  ink: "#141A30",
+  muted: "#5A5F73",
+  line: "#E3DFD6",
+  night: "#0B0F1F",
+  nightCard: "#161C33",
+  nightLine: "#262D48",
+  nightInk: "#EEF0F7",
+  nightMuted: "#A8AEC4",
+  barInk: "#AFB6CC",
+  nightBarInk: "#59607A",
 } as const;
 const C = ACADEMY_COLORS;
-export const ACADEMY_FONT = "Alexandria";
+/** 128.8 The board's font, bundled with the app; Arabic in Alexandria. */
+export const ACADEMY_FONT: AppFont = "Manrope";
+export const ACADEMY_ARABIC_FONT = "Alexandria";
+
+/** The academy story's photos (public/stories/academy, credited on the story page) the template shows. */
+type AcademyPhotoName = "academy-evening" | "academy-live" | "academy-desk";
+
+/** One of the photos at the platform's address, from the context's pictures' address (`…/design-pictures/<file>`). */
+export function academyPhoto(ctx: Pick<SectionContext, "picture">, name: AcademyPhotoName): string | null {
+  const any = ctx.picture?.("photo.jpg");
+  return any ? any.replace(/design-pictures\/photo\.jpg$/, `stories/academy/${name}.jpg`) : null;
+}
 
 /**
- * The academy's home page as it was approved (the premium academy's home
- * board): the greeting with the date and the student's name, the course
- * they are taking on a gradient, their streak beside their next live
- * class in gold, and courses picked for them as covers with a gold badge.
- * Signed out, a banner in the brand's colour invites them to the courses
- * instead of the student's own cards.
+ * The academy's home page as it was approved (128.8, the board): the
+ * greeting with the date and the student's name and the notifications,
+ * the course they are taking on its photo, their streak beside their next
+ * live class on a photo, and courses picked for them as photo cards.
+ * Signed out, a photo banner in the brand's colour invites them to the
+ * courses instead of the student's own cards.
  */
 export function academyHome(ctx: SectionContext): StudioPage {
   const id = () => (ctx.newId ?? newNodeId)();
   const w = (word: SectionWord) => ctx.w(word);
   const courses = { type: "screen" as const, screen: "courses" as const };
   const text = (word: SectionWord, extra: Partial<StudioNode>): StudioNode => ({ id: id(), type: "text", text: w(word), ...extra });
-  const card = { background: "#FFFFFF", dark_background: C.nightCard, border_color: C.line, border_width: 1, radius: 24, shadow: "medium" as const };
+  const surface = { background: C.surface, dark_background: C.nightCard, border_color: C.line, dark_border_color: C.nightLine, border_width: 1 };
   return {
-    header: { type: "greeting", title: w("acHeadline"), buttons: ["search", "notifications"], color: C.ink, dark_color: C.nightInk },
+    header: { type: "greeting", title: w("acHeadline"), buttons: ["notifications"], color: C.ink, dark_color: C.nightInk },
     background: C.paper,
     dark_background: C.night,
     body: {
       id: id(),
       type: "column",
-      padding: { top: 10, end: 18, bottom: 110, start: 18 },
+      padding: { top: 8, end: 16, bottom: 110, start: 16 },
       children: [
-        // The course they are taking.
+        // The course they are taking, on its own photo.
         {
           id: id(),
           type: "learning",
           name: w("acContinue"),
-          learning: { section: "continue" },
+          learning: { section: "continue", style: "photo" },
           visibility: "signed_in",
-          radius: 30,
-          background: "#141A3A",
-          image_background_url: ctx.picture?.("academy-mesh-1.jpg") ?? null,
+          height: 236,
+          radius: 26,
+          background: C.primary,
           color: "#FFFFFF",
-          shadow: "medium",
         },
-        // Signed out: the banner, in the brand's colour.
+        // Signed out: the banner on a photo, in the brand's colour.
         {
           id: id(),
           type: "stack",
           name: w("acHeroTitle"),
           visibility: "signed_out",
-          height: 206,
-          radius: 30,
+          height: 236,
+          radius: 26,
           background: ctx.brand,
-          image_background_url: ctx.picture?.("academy-mesh-1.jpg") ?? null,
-          shadow: "medium",
+          image_background_url: academyPhoto(ctx, "academy-desk"),
+          overlay: { color: ctx.brand, opacity: 0.55 },
           children: [
             {
               id: id(),
               type: "column",
               // 124.6 As tall as the banner, so its words and button sit at its foot in the app too (a layer's first element is as tall as what it holds).
-              height: 206,
+              height: 236,
               align: "end",
-              gap: 10,
-              padding: pad(18, 18),
+              gap: 12,
+              padding: pad(16, 16),
               color: "#FFFFFF",
               children: [
-                text("acHeroTitle", { font: { size: 24, weight: 700, line_height: 1.3, family: ACADEMY_FONT }, color: "#FFFFFF" }),
+                text("acHeroTitle", { font: { size: 22, weight: 800, line_height: 1.1 }, color: "#FFFFFF" }),
                 {
                   id: id(),
                   type: "button",
                   text: w("acHeroButton"),
                   width: "hug",
                   height: 44,
-                  radius: 16,
-                  gradient: { from: C.goldLight, to: C.gold, angle: 135 },
-                  color: "#2A1D05",
+                  radius: 22,
+                  background: C.goldFill,
+                  color: C.primary,
                   font: { weight: 800, size: 14 },
                   padding: pad(0, 18),
                   icon: "arrow_forward",
@@ -117,18 +138,28 @@ export function academyHome(ctx: SectionContext): StudioPage {
             },
           ],
         },
-        // The streak beside the next live class.
+        // The streak beside the next live class, on its photo.
         {
           id: id(),
           type: "row",
           name: w("acStreakAndLive"),
           visibility: "signed_in",
-          gap: 12,
+          gap: 10,
           cross: "stretch",
-          margin: { top: 14, bottom: 0 },
+          margin: { top: 12, bottom: 0 },
           children: [
-            { id: id(), type: "learning", learning: { section: "streak" }, width: "fill", ...card },
-            { id: id(), type: "learning", learning: { section: "live" }, width: "fill", radius: 24, gradient: { from: C.goldLight, to: C.gold, angle: 135 }, color: "#2A1D05", shadow: "medium" },
+            { id: id(), type: "learning", learning: { section: "streak", style: "photo" }, width: 145, radius: 20, ...surface },
+            {
+              id: id(),
+              type: "learning",
+              learning: { section: "live", style: "photo" },
+              width: "fill",
+              radius: 20,
+              background: C.primary,
+              image_background_url: academyPhoto(ctx, "academy-live"),
+              overlay: { color: C.primary, opacity: 0.72 },
+              color: "#FFFFFF",
+            },
           ],
         },
         // Picked for them.
@@ -137,10 +168,10 @@ export function academyHome(ctx: SectionContext): StudioPage {
           type: "row",
           name: w("acForYou"),
           cross: "center",
-          margin: { top: 18, bottom: 10 },
+          margin: { top: 16, bottom: 10 },
           children: [
-            text("acForYou", { width: "fill", font: { size: 18, weight: 700, family: ACADEMY_FONT }, color: C.ink, dark_color: C.nightInk }),
-            { id: id(), type: "text", text: w("acSeeAll"), color: C.gold, dark_color: C.darkGold, font: { size: 12.5, weight: 700 }, padding: pad(6, 2), action: courses },
+            text("acForYou", { width: "fill", font: { size: 17, weight: 800 }, color: C.ink, dark_color: C.nightInk }),
+            { id: id(), type: "text", text: w("acSeeAll"), color: C.goldText, dark_color: C.goldFill, font: { size: 13, weight: 700 }, padding: pad(4, 2), action: courses },
           ],
         },
         {
@@ -153,32 +184,29 @@ export function academyHome(ctx: SectionContext): StudioPage {
           card: {
             id: id(),
             type: "column",
-            width: 232,
+            width: 200,
+            radius: 22,
+            ...surface,
             children: [
+              { id: id(), type: "image", bind: "image", width: "fill", height: 100, corners: { top_start: 22, top_end: 22 } },
               {
                 id: id(),
-                type: "stack",
-                height: 112,
-                radius: 20,
+                type: "column",
+                padding: pad(10, 12),
                 children: [
-                  { id: id(), type: "image", bind: "image", width: "fill", height: 112, radius: 20 },
+                  { id: id(), type: "text", bind: "title", max_lines: 1, font: { size: 14, weight: 800 }, color: C.ink, dark_color: C.nightInk },
                   {
                     id: id(),
                     type: "row",
-                    padding: pad(12, 12),
-                    children: [{ id: id(), type: "text", bind: "badge", font: { size: 11, weight: 800 }, padding: pad(4, 9), radius: 9, background: C.gold, dark_background: C.darkGold, color: "#2A1D05" }],
+                    cross: "center",
+                    gap: 4,
+                    margin: { top: 3 },
+                    children: [
+                      { id: id(), type: "text", bind: "subtitle", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                      // "· ★ 4.9": the rating after the teacher, nothing without one.
+                      { id: id(), type: "text", bind: "rating", text: "·", font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
+                    ],
                   },
-                ],
-              },
-              { id: id(), type: "text", bind: "title", max_lines: 1, font: { size: 15, weight: 700 }, margin: { top: 10, end: 2, bottom: 3, start: 2 }, color: C.ink, dark_color: C.nightInk },
-              {
-                id: id(),
-                type: "row",
-                cross: "center",
-                padding: pad(0, 2),
-                children: [
-                  { id: id(), type: "text", bind: "subtitle", width: "fill", max_lines: 1, font: { size: 12 }, color: C.muted, dark_color: C.nightMuted },
-                  { id: id(), type: "text", bind: "price", font: { size: 14, weight: 700 }, color: C.gold, dark_color: C.darkGold },
                 ],
               },
             ],
@@ -198,7 +226,8 @@ export interface TemplateProject {
   bare_tab_pages?: boolean;
   /** The colours of the header of its pages after the home; one left out, the app's own. */
   page_header?: Pick<StudioHeader, "background" | "color" | "dark_background" | "dark_color">;
-  appearance: Partial<Pick<Appearance, "secondary_color" | "font_family" | "arabic_font">>;
+  /** 128.8 A font the app bundles is `font` alone (lib/fonts/look.ts `withLook` drops the project's free font for it). */
+  appearance: Partial<Pick<Appearance, "secondary_color" | "font" | "font_family" | "arabic_font">>;
   /** The kind's tabs as the template has them; `site` the owner's website, when known. */
   tabs: (tabs: readonly LayoutTab[], site: string | null) => LayoutTab[];
   /** The sign-in screen, the account menu and the courses' looks; `platform` Yallapp's address, for its pictures. */
@@ -219,12 +248,23 @@ export function siteAddress(raw: string | null | undefined): string | null {
 
 export const ACADEMY_PROJECT: TemplateProject = {
   primary: C.primary,
-  // The approved bar: frosted, floating, every tab named, the open one in ink.
-  tab_bar: { design: "glass", avatar: true, radius: 26, margin: 16, labels: "always", active: C.ink, dark_active: C.nightInk },
+  // 128.8 The approved bar: a floating navy pill (light by night), the open tab's name beside its icon on gold, the others icons only.
+  tab_bar: {
+    design: "float",
+    radius: 22,
+    margin: 12,
+    labels: "active",
+    background: C.primary,
+    dark_background: C.nightInk,
+    active: C.goldFill,
+    dark_active: C.goldFill,
+    inactive: C.barInk,
+    dark_inactive: C.nightBarInk,
+  },
   // By day the main colour; by night a dark header with light words, the gold in the bar.
   page_header: { dark_background: C.nightCard, dark_color: C.nightInk },
   bare_tab_pages: true,
-  appearance: { secondary_color: C.gold, font_family: ACADEMY_FONT, arabic_font: ACADEMY_FONT },
+  appearance: { secondary_color: C.gold, font: ACADEMY_FONT, arabic_font: ACADEMY_ARABIC_FONT },
   tabs: (tabs, site) => {
     // Explore, the blog, My courses and the account, as the approved bar names them.
     const out = structuredClone([...tabs]).map((t) =>
@@ -244,9 +284,9 @@ export const ACADEMY_PROJECT: TemplateProject = {
   },
   screens: (platform) => ({
     sign_in: {
-      // The approved sign-in: the welcome large over the academy's navy and gold, the form on a card.
+      // The approved sign-in: the welcome large over 128.8 the academy's photo, the form on a card.
       style: "premium",
-      image_url: `${platform.replace(/\/+$/, "")}/design-pictures/academy-mesh-1.jpg`,
+      image_url: `${platform.replace(/\/+$/, "")}/stories/academy/academy-desk.jpg`,
       title: { en: "Learn what changes your path.", ar: "تعلّم ما يغيّر مسارك.", tr: "Yolunu değiştirecek olanı öğren." },
       subtitle: {
         en: "Courses with the best teachers, wherever you are.",

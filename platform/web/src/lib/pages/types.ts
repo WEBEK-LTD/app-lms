@@ -40,7 +40,15 @@ export const STUDIO_PINS = ["none", "top", "bottom"] as const;
 export const STUDIO_SHADOWS = ["none", "light", "medium", "strong"] as const;
 export const STUDIO_FITS = ["cover", "contain"] as const;
 export const STUDIO_FONT_WEIGHTS = [300, 400, 500, 600, 700, 800, 900] as const;
-export const STUDIO_BINDS = ["title", "subtitle", "image", "price", "badge"] as const;
+export const STUDIO_BINDS = [
+  "title",
+  "subtitle",
+  "image",
+  "price",
+  "badge",
+  // 128.8 An entry's rating (a course's): the element's own text, a star and the rating; nothing without one.
+  "rating",
+] as const;
 export const STUDIO_ENTERS = ["none", "fade", "slide_up", "slide_down", "slide_start", "slide_end", "zoom"] as const;
 export const STUDIO_PRESSES = ["none", "shrink", "bounce"] as const;
 export const STUDIO_LOOPS = ["none", "pulse", "float", "shake"] as const;
@@ -635,8 +643,17 @@ export interface StudioForm {
  * their streak, their next live class, or this week's learning time.
  */
 export const STUDIO_LEARNING_SECTIONS = ["continue", "streak", "live", "week"] as const;
+/**
+ * 128.8 How the card is drawn: `card` (missing) as 123 drew it; `photo`
+ * the course they are taking and their live class over the element's
+ * picture (else the course's) with a dark scrim, their place and minutes
+ * on one chip, how far they are in gold and a round play button, the
+ * live class's time in gold over its name; the streak a compact figure.
+ */
+export const STUDIO_LEARNING_STYLES = ["card", "photo"] as const;
 export interface StudioLearning {
   section: (typeof STUDIO_LEARNING_SECTIONS)[number];
+  style?: (typeof STUDIO_LEARNING_STYLES)[number];
 }
 
 /**
@@ -785,6 +802,8 @@ export interface StudioNode {
   /** 128 A shade over its picture (a `photo_hero`'s photo too), darker at its ends, so words on it read. */
   scrim?: StudioScrim | null;
   border_color?: string | null;
+  /** 128.8 The border in dark mode; missing, `border_color`. */
+  dark_border_color?: string | null;
   border_width?: number;
   shadow?: StudioShadow;
   opacity?: number;

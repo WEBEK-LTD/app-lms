@@ -64,8 +64,10 @@ describe("123 the premium academy template", () => {
     const parsed = parseLayoutContent(JSON.parse(JSON.stringify(layout)), { app: academy(), now: NOW });
     expect(parsed.ok ? [] : parsed.errors).toEqual([]);
     expect(layout.tabs.map((t) => t.id)).toEqual(["home", "courses", "blog", "learning", "account"]);
-    expect(layout.tab_bar).toMatchObject({ design: "glass", avatar: true });
-    expect(layout.appearance).toMatchObject({ secondary_color: "#B8893A", font_family: "Alexandria", arabic_font: "Alexandria" });
+    // 128.8 The approved bar (a floating navy pill, the open tab on gold, light by night) and Manrope, Arabic in Alexandria.
+    expect(layout.tab_bar).toMatchObject({ design: "float", margin: 12, radius: 22, background: "#1D2B4F", dark_background: "#EEF0F7", active: "#E6C26E", labels: "active" });
+    expect(layout.tab_bar).toMatchObject({ dark_active: "#E6C26E", inactive: "#AFB6CC", dark_inactive: "#59607A" });
+    expect(layout.appearance).toMatchObject({ secondary_color: "#B8893A", font: "Manrope", arabic_font: "Alexandria" });
     // Every tab after the home opens its page around the screen, the blog the site's blog in the app.
     const blog = layout.tabs.find((t) => t.id === "blog")!;
     expect(blog.target).toEqual({ type: "url", url: "https://nour.academy/blog/", open_in: "in_app", web: { hide_header: true, hide_footer: true, links_inside: true } });
@@ -104,25 +106,33 @@ describe("123 the premium academy template", () => {
 
   it("is the approved home: the greeting, the course they're taking, the streak beside the live class, courses picked for them", () => {
     const home = start(null).pages.find((p) => p.slug === "home")!.studio!;
-    expect(home.header).toMatchObject({ type: "greeting", buttons: ["search", "notifications"] });
+    // 128.8 As the owner approved it (13 November): the notifications alone beside the greeting.
+    expect(home.header).toMatchObject({ type: "greeting", buttons: ["notifications"] });
     const cards = allNodes(home).filter((n) => n.type === "learning");
     expect(cards.map((n) => n.learning!.section)).toEqual(["continue", "streak", "live"]);
+    // On photos: the course they're taking on its own, the live class on the academy's.
+    expect(cards.map((n) => n.learning!.style)).toEqual(["photo", "photo", "photo"]);
+    expect(cards[0]).toMatchObject({ height: 236, radius: 26 });
+    expect(cards[0]!.image_background_url).toBeUndefined();
+    expect(cards[2]).toMatchObject({ image_background_url: "https://webek.org/stories/academy/academy-live.jpg", overlay: { color: "#1D2B4F", opacity: 0.72 } });
     // The student's own cards for students; the banner for everyone else.
     expect(cards[0]!.visibility).toBe("signed_in");
     expect(allNodes(home).find((n) => n.type === "stack" && n.visibility === "signed_out")).toBeTruthy();
     const picked = allNodes(home).find((n) => n.type === "items")!;
     expect(picked).toMatchObject({ layout: "carousel", query: { sort: "popular" } });
-    expect(allNodes({ body: picked.card! }).map((n) => n.bind).filter(Boolean)).toEqual(["image", "badge", "title", "subtitle", "price"]);
+    // Photo cards: the picture, the title, the teacher and the rating.
+    expect(allNodes({ body: picked.card! }).map((n) => n.bind).filter(Boolean)).toEqual(["image", "title", "subtitle", "rating"]);
+    expect(picked.card).toMatchObject({ width: 200, radius: 22, background: "#FFFFFF", dark_background: "#161C33" });
   });
 
   it("is light and dark: every coloured part of the home has its night colour", () => {
     const home = start(null).pages.find((p) => p.slug === "home")!.studio!;
-    expect(home.dark_background).toBe("#0A0B10");
-    expect(home.header).toMatchObject({ color: "#15131A", dark_color: "#F4F1EA" });
+    expect(home).toMatchObject({ background: "#F5F3EF", dark_background: "#0B0F1F" });
+    expect(home.header).toMatchObject({ color: "#141A30", dark_color: "#EEF0F7" });
     for (const n of allNodes(home)) {
       // The parts on a picture or in gold look the same by night.
-      if (n.background && !n.image_background_url && n.background !== ACADEMY_PROJECT.primary) expect(n.dark_background, n.id).toBeTruthy();
-      if (n.color && n.color !== "#FFFFFF" && n.color !== "#2A1D05") expect(n.dark_color, n.id).toBeTruthy();
+      if (n.background && !n.image_background_url && n.background !== ACADEMY_PROJECT.primary && n.type !== "button") expect(n.dark_background, n.id).toBeTruthy();
+      if (n.color && n.color !== "#FFFFFF" && n.color !== ACADEMY_PROJECT.primary) expect(n.dark_color, n.id).toBeTruthy();
     }
   });
 
@@ -137,7 +147,7 @@ describe("123 the premium academy template", () => {
     const parsed = parseStudioScreens(JSON.parse(JSON.stringify(screens)));
     expect(parsed.problems).toEqual([]);
     expect(parsed.screens).toEqual(screens);
-    expect(screens.sign_in).toMatchObject({ style: "premium", image_url: "https://webek.org/design-pictures/academy-mesh-1.jpg" });
+    expect(screens.sign_in).toMatchObject({ style: "premium", image_url: "https://webek.org/stories/academy/academy-desk.jpg" });
     // The academy card, then the orders, certificates, quiz results and downloads, as approved.
     expect(screens.account_menu!.header).toBe("academy");
     expect(screens.account_menu!.items.filter((i) => !i.hidden).map((i) => i.key)).toEqual(["orders", "certificates", "quiz_results", "downloads", "settings", "help", "privacy", "terms"]);

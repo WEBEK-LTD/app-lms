@@ -10244,6 +10244,32 @@ class OverlayLocalizations extends AppLocalizations {
       base.learningMinutesOnly(minutes);
 
   @override
+  String learningLessonShort(int current, int total) =>
+      overlay.format('learningLessonShort', {
+        'current': current,
+        'total': total,
+      }) ??
+      base.learningLessonShort(current, total);
+
+  @override
+  String learningLiveAt(String time) =>
+      overlay.format('learningLiveAt', {'time': time}) ??
+      base.learningLiveAt(time);
+
+  @override
+  String get learningLiveNowShort =>
+      overlay.text('learningLiveNowShort') ?? base.learningLiveNowShort;
+
+  @override
+  String get learningStreakShort =>
+      overlay.text('learningStreakShort') ?? base.learningStreakShort;
+
+  @override
+  String itemRating(String rating) =>
+      overlay.format('itemRating', {'rating': rating}) ??
+      base.itemRating(rating);
+
+  @override
   String get exploreSearchHint =>
       overlay.text('exploreSearchHint') ?? base.exploreSearchHint;
 

@@ -272,6 +272,8 @@ function courseItem(course: Record<string, unknown>, lang: LanguageCode): Item |
     // 38 In the app's language, like every word on a card.
     price_label: price.is_free ? itemWords(lang).free : str(price.formatted),
     badge: null,
+    // 128.8 Its rating, for a card's `rating` element.
+    rating: typeof course.rating === "number" && course.rating > 0 ? Math.round(course.rating * 10) / 10 : null,
     action: { type: "course", course_id: id },
   };
 }

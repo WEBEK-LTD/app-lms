@@ -1291,6 +1291,7 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
     ["dark_background", "the dark background"],
     ["dark_color", "the dark text colour"],
     ["border_color", "the border colour"],
+    ["dark_border_color", "the dark border colour"],
   ] as const) {
     const color = optionalColor(c, where, v[key], what);
     if (color) node[key] = color;
@@ -1339,7 +1340,10 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
   }
   const border = num("border_width", 0, L.maxBorder, "the border");
   if (border && node.border_color) node.border_width = border;
-  else delete node.border_color;
+  else {
+    delete node.border_color;
+    delete node.dark_border_color;
+  }
   const shadow = pick("shadow", STUDIO_SHADOWS, "choose the shadow.");
   if (shadow && shadow !== "none") node.shadow = shadow;
   const opacity = num("opacity", 0, 1, "the opacity");
@@ -1529,6 +1533,9 @@ function parseNode(ctx: Context, where: string, value: unknown, state: { count: 
         break;
       }
       node.learning = { section: l.section };
+      // 128.8 Its photo look; the card's own left out.
+      if (l.style === "photo") node.learning.style = "photo";
+      else if (l.style !== undefined && l.style !== null && l.style !== "card") bad("choose how the student's card is drawn from the list.");
       break;
     }
     case "live_status": {

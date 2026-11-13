@@ -24,6 +24,9 @@ function pictureOf(name: PictureName | null | undefined): string | null {
   return file && DESIGN_ART[file] ? `/design-pictures/${file}` : null;
 }
 
+/** 128.8 The samples' ratings, as courses with reviews show them. */
+const SAMPLE_RATINGS = [4.9, 4.7, 4.8, 4.6];
+
 function entriesIn(lang: (typeof SAMPLE_LANGS)[number], now: Date): Entries {
   return {
     // A restaurant: its cuisines under its name, its picture (as the app shows its cover, else its logo).
@@ -63,6 +66,8 @@ function entriesIn(lang: (typeof SAMPLE_LANGS)[number], now: Date): Entries {
       imageUrl: pictureOf(c.picture),
       price: c.priceCents > 0 ? formatMinor(c.priceCents, SAMPLE_COURSES.currency) : itemWords(lang).free,
       badge: null,
+      // 128.8 A sample rating for a card's `rating` element.
+      rating: SAMPLE_RATINGS[i % SAMPLE_RATINGS.length],
     })),
   };
 }

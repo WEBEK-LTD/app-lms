@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/api/models/models.dart';
 import '../../../core/auth/auth_controller.dart';
@@ -598,7 +599,7 @@ class _Greeting extends ConsumerWidget {
       children: [
         Text(
           dayLabel(now),
-          style: TextStyle(fontSize: 12, color: color.withValues(alpha: 0.6)),
+          style: TextStyle(fontSize: 13, color: color.withValues(alpha: 0.7)),
         ),
         Semantics(
           header: true,
@@ -610,9 +611,9 @@ class _Greeting extends ConsumerWidget {
               hello,
               maxLines: 1,
               style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.3,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.48,
                 color: color,
               ),
             ),
@@ -623,7 +624,48 @@ class _Greeting extends ConsumerWidget {
   }
 }
 
-/// 123 A header button of the greeting: a small frosted square.
+/// 128.8 A card's rating: the element's own text (the "·" after the
+/// teacher), a star drawn as an icon, which every font shows, and the
+/// rating with one decimal, in the text's own style.
+class _StudioRating extends StatelessWidget {
+  const _StudioRating({required this.mark, required this.rating});
+
+  final String? mark;
+  final double rating;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style;
+    final value = rating.toStringAsFixed(1);
+    final own = mark?.trim() ?? '';
+    return Semantics(
+      label: context.l10n.itemRating(value),
+      excludeSemantics: true,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            if (own.isNotEmpty) TextSpan(text: '$own '),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(
+                Symbols.star_rounded,
+                key: const ValueKey('studio-rating-star'),
+                fill: 1,
+                size: (style.fontSize ?? 12) + 1,
+                color: style.color,
+              ),
+            ),
+            TextSpan(text: ' $value'),
+          ],
+        ),
+        maxLines: 1,
+      ),
+    );
+  }
+}
+
+/// 123 A header button of the greeting: a small frosted square; 128.8 a
+/// round button on the page's card colour, as approved.
 class _GreetingButton extends StatelessWidget {
   const _GreetingButton({required this.icon, required this.color});
 
@@ -632,18 +674,18 @@ class _GreetingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final p = context.palette;
     return Container(
-      width: 42,
-      height: 42,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: dark ? const Color(0xB8161924) : const Color(0xB8FFFFFF),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: dark ? const Color(0x14FFFFFF) : const Color(0x1415131A),
-        ),
+        color: p.surface,
+        shape: BoxShape.circle,
+        border: Border.all(color: p.divider),
       ),
-      child: _StudioHeaderButton(icon: icon, color: color),
+      child: Center(
+        child: _StudioHeaderButton(icon: icon, color: color),
+      ),
     );
   }
 }
@@ -820,7 +862,9 @@ class StudioNodeView extends ConsumerWidget {
         : _content(context, ref, color);
     final padding = cover ? null : _insets(node.padding);
     if (padding != null) child = Padding(padding: padding, child: child);
-    final border = parseHexColor(node.borderColor);
+    final border = parseHexColor(
+      dark ? (node.darkBorderColor ?? node.borderColor) : node.borderColor,
+    );
     final gradient = node.gradient;
     // 128 A colour over an element without a picture is its see-through
     // background (a frosted button over a photo).
@@ -875,9 +919,12 @@ class StudioNodeView extends ConsumerWidget {
         child: child,
       );
     }
+    // 128.8 A student's card on a photo draws its photo and scrim to its
+    // edges: rounded with the element.
     if (rounded &&
         (node.imageBackgroundUrl != null ||
-            node.type == StudioNodeType.image)) {
+            node.type == StudioNodeType.image ||
+            node.learningStyle == StudioLearningStyle.photo)) {
       child = ClipRRect(borderRadius: radius, child: child);
     }
     if (!cover) child = _sized(child);
@@ -994,6 +1041,8 @@ class StudioNodeView extends ConsumerWidget {
         StudioBind.price => entry.priceLabel,
         StudioBind.badge => entry.badge,
         StudioBind.image => null,
+        // 128.8 Drawn with its star by [_StudioRating]; none, nothing.
+        StudioBind.rating => entry.rating?.toStringAsFixed(1),
       };
     }
     return node.text;
@@ -1069,6 +1118,10 @@ class StudioNodeView extends ConsumerWidget {
           width: node.width?.fixed,
         );
       case StudioNodeType.text:
+        if (scope.entry?.rating case final rating?
+            when node.bind == StudioBind.rating) {
+          return _StudioRating(mark: node.text, rating: rating);
+        }
         final text = _text();
         if (text == null || text.isEmpty) return const SizedBox.shrink();
         return Text(
@@ -1204,6 +1257,8 @@ class StudioNodeView extends ConsumerWidget {
           color: color,
           title: node.title,
           dark: scope.dark,
+          style: node.learningStyle,
+          ownPicture: node.imageBackgroundUrl != null,
         );
       case StudioNodeType.liveStatus:
         final source = node.liveStatus;
@@ -1388,6 +1443,14 @@ class StudioNodeView extends ConsumerWidget {
             for (final child in kids)
               if (child.width?.fill == true)
                 Expanded(child: _selfAlign(child, view(child), Axis.vertical))
+              // 128.8 In a row where nothing fills, a text cut to its lines
+              // gives way to what follows it (a teacher's name before the
+              // rating), never overflowing.
+              else if (!kids.any((k) => k.width?.fill == true) &&
+                  child.type == StudioNodeType.text &&
+                  child.maxLines != null &&
+                  child.width?.fixed == null)
+                Flexible(child: _selfAlign(child, view(child), Axis.vertical))
               else
                 _selfAlign(child, view(child), Axis.vertical),
           ], horizontal: true),

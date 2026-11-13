@@ -58,8 +58,8 @@ import {
   type DemoService,
   type DemoStaff,
 } from "./content";
-import type { ZadPhoto } from "./zad-photos";
 import type { DemoPicture, PictureSize } from "./picture-assets";
+import { UFUQ_COURSES } from "./ufuq-courses";
 import { ACADEMY_CATEGORIES, ACADEMY_COURSES, TEACHERS_CURRENCY } from "./teachers";
 
 /**
@@ -78,7 +78,7 @@ export interface EntryDeps {
   store: DataStore;
   now: Date;
   /** A drawn picture of the demo's as an asset (128 or one of its real photos): the demo account's, or the app's own for samples. */
-  picture: (name: DemoPicture | ZadPhoto, size: PictureSize) => Promise<string>;
+  picture: (name: DemoPicture, size: PictureSize) => Promise<string>;
   /** Samples for an app started from the demo, rather than the demo app itself. */
   sample: boolean;
 }
@@ -149,15 +149,16 @@ export async function demoProducts(deps: EntryDeps, app: App, menu: boolean): Pr
 
 // ——— Courses ———
 
-/** What the courses are made from: the academy's (105.3 each its teacher's) or the online school's. */
-export function demoCourseSeeds(academy: boolean) {
+/** What the courses are made from: the academy's (105.3 each its teacher's) or the online school's; 128.8 `premium`, Ufuq Academy's with their photos. */
+export function demoCourseSeeds(academy: boolean, premium = false) {
+  if (premium && !academy) return { currency: COURSE_CURRENCY, categories: COURSE_CATEGORIES, courses: UFUQ_COURSES.map((c) => ({ ...c, picture: c.picture as DemoPicture, teacher: null as string | null })) };
   return academy
     ? {
         currency: TEACHERS_CURRENCY,
         categories: ACADEMY_CATEGORIES,
-        courses: ACADEMY_COURSES.map((c) => ({ ...c, instructor: c.teacher })),
+        courses: ACADEMY_COURSES.map((c) => ({ ...c, picture: c.picture as DemoPicture, instructor: c.teacher })),
       }
-    : { currency: COURSE_CURRENCY, categories: COURSE_CATEGORIES, courses: DEMO_COURSES.map((c) => ({ ...c, teacher: null as string | null })) };
+    : { currency: COURSE_CURRENCY, categories: COURSE_CATEGORIES, courses: DEMO_COURSES.map((c) => ({ ...c, picture: c.picture as DemoPicture, teacher: null as string | null })) };
 }
 
 /**
@@ -172,8 +173,9 @@ export async function demoCourseEntries(
   academy: boolean,
   teachers: Map<string, number> | null,
   createdAt: (id: number) => string,
+  premium = false,
 ): Promise<{ categories: CourseSetup["categories"]; courses: Course[]; nextId: number }> {
-  const seeds = demoCourseSeeds(academy);
+  const seeds = demoCourseSeeds(academy, premium);
   let next = setup.nextId;
   const categories = [...setup.categories];
   for (const name of seeds.categories) if (!categories.some((c) => c.name === name)) categories.push({ id: next++, name, ...marked(deps) });

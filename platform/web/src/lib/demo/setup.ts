@@ -44,7 +44,6 @@ import {
 } from "./content";
 import { demoArticles, demoBookingEntries, demoCampaigns, demoCourseEntries, demoDeliveryServices, demoEvents, demoListings, demoProducts, demoRestaurants, demoVehicleTypes, type EntryDeps } from "./entries";
 import { savePicture, type DemoPicture, type PictureSize } from "./picture-assets";
-import { isZadPhoto, saveZadPhoto } from "./zad-photos";
 import { refreshMarketplaceDemo, savingZadPictures } from "./marketplace";
 import { refreshSchoolDay, syncSchoolStructure } from "./school";
 import { ACADEMY_TEACHERS, syncAcademyTeachers, TEACHERS_CURRENCY } from "./teachers";
@@ -185,7 +184,7 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
     patch.courseSetup = await academySetupFor(deps, client.id, app);
   } else if (content === "courses") {
     patch.catalogSettings = { currency: COURSE_CURRENCY, shippingCents: 0, freeShippingOverCents: null, payment: null };
-    patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup);
+    patch.courseSetup = await courseSetupFor(deps, client.id, app.courseSetup, id === PREMIUM_ACADEMY_DEMO);
   } else if (content === "school") {
     // 110.5 Nakhla School's fees, paid on the demo payment page.
     patch.catalogSettings = { currency: "EGP", shippingCents: 0, freeShippingOverCents: null, payment: null };
@@ -249,13 +248,14 @@ async function setupApp(deps: DemoSetupDeps, client: Client, id: DemoId): Promis
 
 /** The demo's entries, made by the generators an app started from the demo gets its samples from (lib/demo/entries.ts). */
 function entryDeps(deps: DemoSetupDeps, clientId: string): EntryDeps {
-  // 128 The demos' real photos too (Sofra Eats's dishes), saved as Zad's are.
-  return { store: deps.store, now: deps.now, picture: (name, size) => (isZadPhoto(name) ? saveZadPhoto(deps, { clientId }, name, "product_image") : picture(deps, clientId, name, size, "product_image")), sample: false };
+  // 128 The demos' real photos too (Sofra Eats's dishes, the academies' courses): savePicture saves them as Zad's are.
+  return { store: deps.store, now: deps.now, picture: (name, size) => picture(deps, clientId, name, size, "product_image"), sample: false };
 }
 
 /** Courses with fixed IDs, so enrolments and progress keep pointing at the same course and lesson. */
-async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: CourseSetup | null): Promise<CourseSetup> {
-  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: COURSE_CURRENCY }, false, null, (id) => previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString());
+async function courseSetupFor(deps: DemoSetupDeps, clientId: string, previous: CourseSetup | null, premium = false): Promise<CourseSetup> {
+  // 128.8 Ufuq Academy's courses with their photos.
+  const made = await demoCourseEntries(entryDeps(deps, clientId), { categories: [], nextId: 1, currency: COURSE_CURRENCY }, false, null, (id) => previous?.courses.find((c) => c.id === id)?.createdAt ?? deps.now.toISOString(), premium);
   return { currency: COURSE_CURRENCY, categories: made.categories, courses: made.courses, nextId: made.nextId };
 }
 

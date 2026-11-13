@@ -15704,6 +15704,36 @@ abstract class AppLocalizations {
   /// **'{minutes} min'**
   String learningMinutesOnly(int minutes);
 
+  /// 128.8 The course the student is taking on its photo: the lesson they are on.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson {current} of {total}'**
+  String learningLessonShort(int current, int total);
+
+  /// 128.8 The student's live class today on its photo, in capitals: when it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE AT {time}'**
+  String learningLiveAt(String time);
+
+  /// 128.8 The student's live class on its photo, once it has started.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE NOW'**
+  String get learningLiveNowShort;
+
+  /// 128.8 The compact streak card's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get learningStreakShort;
+
+  /// 128.8 A card's rating, read out by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated {rating} out of 5'**
+  String itemRating(String rating);
+
   /// 123 The search box on the premium academy's Explore.
   ///
   /// In en, this message translates to:

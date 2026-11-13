@@ -9556,6 +9556,27 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String learningLessonShort(int current, int total) {
+    return '$total dersten $current.';
+  }
+
+  @override
+  String learningLiveAt(String time) {
+    return 'CANLI · $time';
+  }
+
+  @override
+  String get learningLiveNowShort => 'ŞİMDİ CANLI';
+
+  @override
+  String get learningStreakShort => 'Seri';
+
+  @override
+  String itemRating(String rating) {
+    return '5 üzerinden $rating puan';
+  }
+
+  @override
   String get exploreSearchHint => 'Kurs, beceri veya öğretmen';
 
   @override

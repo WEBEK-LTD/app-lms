@@ -405,11 +405,14 @@ class MainShell extends ConsumerWidget {
         : null;
     return Scaffold(
       body: shell,
-      // 123 A frosted bar floats over the page, which goes on under it.
+      // 123 A frosted bar floats over the page, which goes on under it;
+      // 128 the floating pill too (Sofra Eats's, 128.8 Ufuq Academy's),
+      // which always floats.
       extendBody:
           !hideTabs &&
-          tabBar?.design == TabBarDesign.glass &&
-          (tabBar?.margin ?? 0) > 0,
+          ((tabBar?.design == TabBarDesign.glass &&
+                  (tabBar?.margin ?? 0) > 0) ||
+              tabBar?.design == TabBarDesign.float),
       // 82.5 The side menu built in the dashboard.
       drawer: hasMenu
           ? SideMenu(onOpen: (action) => runPageAction(context, ref, action))

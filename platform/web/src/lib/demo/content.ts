@@ -347,9 +347,9 @@ export const DEMO_GUIDES: Record<DemoId, DemoGuide> = {
   },
   // 123 The premium academy (lib/studio/academy.ts), as its template starts a project.
   premium_academy: {
-    summary: "The premium academy in navy and gold: the student's own day on the home, Explore, a course and its lessons with notes, and their week of learning.",
+    summary: "The premium academy in navy and gold: the student's own day on the home, with the course they're taking on its photo, Explore, a course and its lessons with notes, and their week of learning.",
     tryThis: [
-      "On the home, see your own cards: the course you're taking, your streak and this week's learning",
+      "Start a course, then see your own day on the home: the course you're taking on its photo, how far you are and your streak",
       "Open Explore, sort by the best rated and open a course: its curriculum, about it and its reviews",
       "Enroll in the free Excel course, open a lesson and keep a note of it",
       "Switch the app to Arabic or to dark mode in the account",

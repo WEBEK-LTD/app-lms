@@ -183,7 +183,7 @@ export function StudioEditor(props: StudioEditorProps) {
   // 123 The sample learning of the student's cards and the greeting header, in Studio's language.
   // 128 The live order card's sample words.
   const liveWords = { title: t("studio.lv_title"), minutes: t("studio.lv_min") };
-  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
+  const learningWords = Object.fromEntries((["lessonOf", "minutesLeft", "streak", "days", "live", "liveWhen", "week", "weekChange", "sampleCourse", "sampleTeacher", "sampleLive", "weekdays", "photoChip", "liveAt", "photoCourse"] as const).map((k) => [k, t(`studio.lw_${k}` as DashKey)])) as unknown as LearningWords;
   const greeting = { date: t("studio.greetingDate"), hello: t("studio.greetingHello") };
   // 128 The sample family of the school's cards, in Studio's language.
   const schoolWords = Object.fromEntries((["hello", "childOne", "childTwo", "checkedIn", "onTime", "now", "next", "bus", "busRoute"] as const).map((k) => [k, t(`studio.sw_${k}` as DashKey)])) as unknown as Omit<SchoolWords, "date">;

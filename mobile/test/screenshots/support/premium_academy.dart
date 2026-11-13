@@ -21,7 +21,8 @@ import 'demo_api.dart';
 /// platform/web/tests/unit/studio-demo-templates.test.ts): its pages, tabs,
 /// bar, look and screens, with the academy demo's courses, Sara's day (her
 /// streak, her live class, this week's learning), a lesson with her note
-/// and its files, and the cart. In the template's Alexandria.
+/// and its files, and the cart. 128.8 In the template's Manrope (bundled;
+/// Arabic in Alexandria), each course with its photo.
 
 final Map<String, dynamic> _demo = jsonDecode(
   File('test/support/premium_academy_demo.json').readAsStringSync(),
@@ -34,34 +35,50 @@ String get _base => RegExp(r'^https?://[^/]+')
     .firstMatch((_demo['screens'] as Map)['sign_in']['image_url'] as String)!
     .group(0)!;
 
-/// When the pictures were taken: a Wednesday morning in November.
-final premiumAcademyNow = DateTime(2026, 11, 11, 9, 30);
+/// When the pictures were taken: 128.8 a Thursday evening in November,
+/// before Sara's live class at 19:30.
+final premiumAcademyNow = DateTime(2026, 11, 12, 18, 10);
 
-const _art = ['ux', 'python', 'marketing', 'photo', 'business', 'english'];
+/// 128.8 Each course's photo (the academy story's, platform/web/public/
+/// stories/academy), by its ID in the academy's demo API, as Ufuq
+/// Academy's courses have them (platform/web/src/lib/demo/ufuq-courses.ts).
+const _photos = {
+  1: 'academy-phone',
+  2: 'academy-evening',
+  3: 'academy-graduation',
+  4: 'academy-breakfast',
+  5: 'academy-live',
+  6: 'academy-graduation',
+  7: 'academy-desk',
+};
 
-/// The demo's courses on its home, as the hosted API fills its lists.
+String _photo(int id) => '$_base/stories/academy/${_photos[id]}.jpg';
+
+/// The demo's courses on its home, as the hosted API fills its lists: the
+/// teacher under the title and the rating.
 List<Map<String, dynamic>> _items(int limit, String sort) {
   const courses = [
-    ('UX Design Fundamentals', 'Deniz Kaya · 32 lessons', '₺1,450'),
-    ('Python from Zero', 'Khaled Fouad · 28 lessons', '₺1,250'),
-    ('Social Media That Sells', 'Yasmin Adel · 26 lessons', '₺1,100'),
-    ('Product Photos on Your Phone', 'Emre Aydın · 21 lessons', '₺890'),
-    ('Start Your Small Business', 'Laila Haddad · 18 lessons', 'Free'),
-    ('Business English', 'Sara Malik · 24 lessons', '₺980'),
+    (1, 'UX Design Fundamentals', 'Deniz Kaya', '₺1,450', 4.9),
+    (3, 'Excel for Small Business Owners', 'Omar Farouk', 'Free', 4.7),
+    (7, 'Python for Data Analysis', 'Mert Şahin', '₺1,600', 4.9),
+    (5, 'Social Media Marketing That Sells', 'Yasmin Adel', '₺1,100', 4.8),
+    (4, 'Product Photography with Your Phone', 'Emre Aydın', '₺890', 4.6),
+    (6, 'Everyday English Conversation', 'Hannah Clarke', '₺650', 4.7),
   ];
   final order = sort == 'newest' ? [4, 5, 1, 3, 0, 2] : [0, 1, 2, 3, 4, 5];
   return [
     for (final i in order.take(limit))
       {
         'source': 'courses',
-        'id': '${i + 1}',
-        'title': courses[i].$1,
-        'subtitle': courses[i].$2,
-        'image_url': '$_base/design-pictures/art-course-${_art[i]}.png',
-        'price_label': courses[i].$3,
+        'id': '${courses[i].$1}',
+        'title': courses[i].$2,
+        'subtitle': courses[i].$3,
+        'image_url': _photo(courses[i].$1),
+        'price_label': courses[i].$4,
         'badge': null,
+        'rating': courses[i].$5,
         'favorited': false,
-        'action': {'type': 'course', 'course_id': i + 1},
+        'action': {'type': 'course', 'course_id': courses[i].$1},
       },
   ];
 }
@@ -90,7 +107,7 @@ Map<String, dynamic> _served(Map<String, dynamic> node) {
           'id': i + 1,
           'name': n,
           'count': 4 + i * 3,
-          'image_url': '$_base/design-pictures/art-course-${_art[i]}.png',
+          'image_url': _photo(i + 1),
         },
     ];
   }
@@ -141,11 +158,11 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
       ...liveSessionJson(),
       'title': 'Content marketing',
       'starts_at': premiumAcademyNow
-          .add(const Duration(hours: 10))
+          .add(const Duration(hours: 1, minutes: 20))
           .toUtc()
           .toIso8601String(),
       'ends_at': premiumAcademyNow
-          .add(const Duration(hours: 11))
+          .add(const Duration(hours: 2, minutes: 20))
           .toUtc()
           .toIso8601String(),
     },
@@ -243,14 +260,12 @@ DemoApi premiumAcademyApi({bool enrolled = true}) {
     1: 'UX Design Fundamentals',
     3: 'Social Media That Sells',
   });
-  api.cartImages.addAll({
-    1: '$_base/design-pictures/art-course-ux.png',
-    3: '$_base/design-pictures/art-course-marketing.png',
-  });
+  api.cartImages.addAll({1: _photo(1), 3: _photo(5)});
+  api.courseImages.addAll({for (final id in _photos.keys) id: _photo(id)});
   api.course = {
     ...api.course,
     'enrolled': enrolled,
-    'image_url': '$_base/design-pictures/academy-mesh-1.jpg',
+    'image_url': _photo(1),
     // A regular academy on Yallapp: the course's teacher, nobody to follow.
     'instructor': {
       'id': 0,
@@ -338,25 +353,28 @@ class _Cache implements FontCache {
 
 final _pictures = <String, ui.Image>{};
 
-/// Puts the demo's pictures (platform/web/public/design-pictures) in the
-/// image cache at the addresses the demo serves them from, and gives the
-/// lesson a video that is ready at once.
+/// Puts the demo's pictures (platform/web/public/design-pictures and 128.8
+/// the academy story's photos, public/stories/academy) in the image cache
+/// at the addresses the demo serves them from, and gives the lesson a video
+/// that is ready at once.
 Future<void> preparePremiumAcademy(WidgetTester tester) async {
   VideoPlayerPlatform.instance = _ReadyVideo();
   if (_pictures.isEmpty) {
     await tester.runAsync(() async {
-      final folder = Directory('../platform/web/public/design-pictures');
-      for (final file in folder.listSync().whereType<File>()) {
-        final name = file.uri.pathSegments.last;
-        if (!name.startsWith('art-course') && !name.startsWith('academy-')) {
-          continue;
+      for (final folder in ['design-pictures', 'stories/academy']) {
+        final files = Directory('../platform/web/public/$folder').listSync();
+        for (final file in files.whereType<File>()) {
+          final name = file.uri.pathSegments.last;
+          if (!name.startsWith('art-course') && !name.startsWith('academy-')) {
+            continue;
+          }
+          final codec = await ui.instantiateImageCodec(
+            file.readAsBytesSync(),
+            targetWidth: 900,
+          );
+          _pictures['$_base/$folder/$name'] =
+              (await codec.getNextFrame()).image;
         }
-        final codec = await ui.instantiateImageCodec(
-          file.readAsBytesSync(),
-          targetWidth: 900,
-        );
-        _pictures['$_base/design-pictures/$name'] =
-            (await codec.getNextFrame()).image;
       }
     });
   }

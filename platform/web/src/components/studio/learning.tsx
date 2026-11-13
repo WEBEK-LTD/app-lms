@@ -20,6 +20,10 @@ export interface LearningWords {
   sampleTeacher: string;
   sampleLive: string;
   weekdays: string;
+  /** 128.8 The photo look's chip, live class time and sample course. */
+  photoChip?: string;
+  liveAt?: string;
+  photoCourse?: string;
 }
 
 export const LEARNING_WORDS_EN: LearningWords = {
@@ -35,13 +39,89 @@ export const LEARNING_WORDS_EN: LearningWords = {
   sampleTeacher: "Khaled Fouad · Lists and dictionaries",
   sampleLive: "Content marketing",
   weekdays: "S,S,M,T,W,T,F",
+  photoChip: "Lesson 12 of 18 · 14 min left",
+  liveAt: "LIVE AT 19:30",
+  photoCourse: "Arabic calligraphy for beginners",
 };
+
+/** 128.8 The board's gold for fills, and the sample photo of the course they are taking (the app shows the course's own). */
+const GOLD_FILL = "#E6C26E";
+const SAMPLE_PHOTO = "/stories/academy/academy-evening.jpg";
+
+/**
+ * 128.8 The photo look (`StudioLearning.style` `photo`): the course they
+ * are taking over its photo with a dark scrim, the lesson and minutes on
+ * one chip, how far they are in gold and a round play button; the live
+ * class's time in gold over its name, on the element's own picture; the
+ * streak as one figure.
+ */
+function PhotoCard({ node, dark, color, words, title }: { node: StudioNode; dark: boolean; color: string | null; words: LearningWords; title: string | null }) {
+  const section = node.learning?.section ?? "continue";
+  const icon = (name: string, style: CSSProperties) => (
+    <span className="material-symbols-rounded" aria-hidden="true" style={{ fontVariationSettings: "'FILL' 1", ...style }}>
+      {name}
+    </span>
+  );
+  if (section === "continue") {
+    const photo = node.image_background_url ? null : SAMPLE_PHOTO;
+    return (
+      <div data-studio-learning-photo="continue" style={{ position: "relative", height: "100%", minHeight: 236, color: color ?? "#FFFFFF", overflow: "hidden" }}>
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : null}
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(14,18,40,0.15) 0%, rgba(14,18,40,0.92) 100%)" }} />
+        <span style={{ position: "absolute", insetInlineStart: 14, top: 14, height: 26, padding: "0 10px", borderRadius: 13, background: "rgba(255,255,255,0.2)", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center" }}>
+          {words.photoChip ?? LEARNING_WORDS_EN.photoChip}
+        </span>
+        <div style={{ position: "absolute", insetInline: 16, bottom: 16 }}>
+          <div style={{ fontSize: 22, lineHeight: 1.1, fontWeight: 800 }}>{title ?? words.photoCourse ?? LEARNING_WORDS_EN.photoCourse}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+            <span style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.3)" }}>
+              <i style={{ display: "block", width: "61%", height: 5, borderRadius: 3, background: GOLD_FILL }} />
+            </span>
+            <span style={{ width: 44, height: 44, borderRadius: 22, background: "#FFFFFF", color: "#1D2B4F", display: "flex", alignItems: "center", justifyContent: "center" }}>{icon("play_arrow", { fontSize: 22 })}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (section === "live") {
+    return (
+      <div data-studio-learning-photo="live" style={{ padding: 12, color: color ?? "#FFFFFF" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: GOLD_FILL, display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 6, height: 6, borderRadius: 3, background: GOLD_FILL }} />
+          {title ?? words.liveAt ?? LEARNING_WORDS_EN.liveAt}
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 800, marginTop: 4 }}>{words.sampleLive}</div>
+      </div>
+    );
+  }
+  if (section === "streak") {
+    return (
+      <div data-studio-learning-photo="streak" style={{ padding: 12, color: color ?? (dark ? "#EEF0F7" : "#141A30") }}>
+        <div style={{ fontSize: 12, color: dark ? "#A8AEC4" : "#5A5F73", display: "flex", alignItems: "center", gap: 4 }}>
+          {icon("local_fire_department", { fontSize: 16, color: "#E8742F" })}
+          {title ?? words.streak}
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>
+          12 {words.days}
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
 
 const GOLD = "#B8893A";
 const GOLD_LIGHT = "#E7C982";
 
 export function LearningCard({ node, dark, color, words, title }: { node: StudioNode; dark: boolean; color: string | null; words: LearningWords; title: string | null }) {
   const section = node.learning?.section ?? "continue";
+  if (node.learning?.style === "photo") {
+    const photo = PhotoCard({ node, dark, color, words, title });
+    if (photo) return photo;
+  }
   const ink = color ?? (dark ? "#F3F1EC" : "#15131A");
   const mute = dark ? "#9A98A2" : "#6E6A72";
   const line = dark ? "rgba(255,255,255,.08)" : "rgba(21,19,26,.08)";

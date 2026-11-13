@@ -10,7 +10,6 @@ import { demoDesign, demoStudioContext } from "@/lib/demo/look";
 import { designLayout } from "@/lib/pages/layout";
 import { demoLayout, demoSignInBlock } from "@/lib/demo/setup";
 import { demoStudioScreens } from "@/lib/demo/screens";
-import { fontFiles } from "@/lib/fonts/catalog";
 import { servedAppearance } from "@/lib/fonts/look";
 import type { App } from "@/lib/data/types";
 import { appUrl } from "@/lib/env";
@@ -282,8 +281,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const note = demo.pages[0]!.studio!.body.children![1]!;
     expect(note.visibility).toBe("signed_out");
     expect(texts({ body: note }).join(" ")).toMatch(/^This is a demo app\./);
-    // In the template's Alexandria and gold, in the demo's languages.
-    expect(demo.appearance).toMatchObject({ font_family: "Alexandria", secondary_color: "#B8893A", theme_mode: "system", user_can_change_mode: true });
+    // 128.8 In the template's Manrope (Arabic in Alexandria) and gold, in the demo's languages.
+    expect(demo.appearance).toMatchObject({ font: "Manrope", arabic_font: "Alexandria", secondary_color: "#B8893A", theme_mode: "system", user_can_change_mode: true });
     expect(demo.languages?.available).toEqual(["en", "ar", "tr"]);
     const checked = parseLayoutContent(demo, { app: demoApp(PREMIUM_ACADEMY_DEMO), now: NOW });
     expect(checked.ok ? [] : checked.errors).toEqual([]);
@@ -292,9 +291,8 @@ describe("123 The premium academy's demo: the project its template starts", () =
   it("is the project the app's website pictures draw (mobile/test/support/premium_academy_demo.json)", async () => {
     const layout = await demoOf(PREMIUM_ACADEMY_DEMO);
     const file = join(process.cwd(), "..", "..", "mobile", "test", "support", "premium_academy_demo.json");
-    // As the hosted API serves it: the template's font with its files.
-    const fonts = fontFiles(appUrl(), "Alexandria");
-    const served = { ...layout, appearance: { ...layout.appearance, font_files: fonts, arabic_font_files: fonts } };
+    // As the hosted API serves it: the template's fonts with their files (none for Manrope, which the app has).
+    const served = { ...layout, appearance: servedAppearance(layout.appearance, appUrl()) };
     const data = `${JSON.stringify({ screens: demoStudioScreens(PREMIUM_ACADEMY_DEMO, appUrl()), layout: served }, null, 1)}\n`;
     if (process.env.YALLAPP_WRITE_PREMIUM_ACADEMY) writeFileSync(file, data);
     expect(readFileSync(file, "utf8")).toBe(data);
@@ -471,8 +469,8 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
       const app = { ...demoApp(id), appName: "Nour" };
       const ctx: SectionContext = { brand: "#123456", source: itemSourcesFor(app)[0] ?? null, app: "Nour", lang: "ar", w: (word) => String(studioAr[`w_${word}`]).replaceAll("{app}", "Nour") };
       const page = demoStudioPage(id, ctx);
-      // 128 The app's own name (Sofra Eats's over its photo, a wordmark, a name on a pill) is the same in every language.
-      const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour");
+      // 128 The app's own name (Sofra Eats's over its photo, a wordmark, a name on a pill) is the same in every language; 128.8 a card's rating shows its own text only as the mark before the star ("·"), no words.
+      const written = allNodes(page).filter((n) => (n.text || n.title) && n.type !== "items" && n.text !== "Nour" && n.bind !== "rating");
       expect(written.length, id).toBeGreaterThan(0);
       for (const n of written) {
         // Arabic on the Arabic page, with English and Turkish kept.
@@ -488,7 +486,7 @@ describe("templates = demos: the demos' pages in Arabic and Turkish", () => {
   it("gives the demo apps, made in English, their Arabic and Turkish too", () => {
     for (const id of STUDIO_DEMO_TYPES) {
       const page = demoStudioPage(id, demoStudioContext(id, appUrl(), itemSourcesFor(demoApp(id))[0] ?? null));
-      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName) || (n.type === "market" && n.title));
+      const titled = allNodes(page).filter((n) => (n.text && !/^\d+$/.test(n.text) && n.text !== DEMO_BRANDS[id].appName && n.bind !== "rating") || (n.type === "market" && n.title));
       for (const n of titled) {
         expect(n.translations?.ar, `${id}: ${n.text ?? n.title}`).toBeTruthy();
         expect(Object.values(n.translations!.ar!).join(" "), `${id}: ${n.text ?? n.title}`).toMatch(/[؀-ۿ]/);

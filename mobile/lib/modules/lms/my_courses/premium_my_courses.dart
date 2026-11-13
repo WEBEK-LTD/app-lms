@@ -9,6 +9,7 @@ import '../../../core/gate/app_gate.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/paths.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/widgets/app_nav_bar.dart';
 import '../../../core/widgets/common.dart';
 import '../data/lms_providers.dart';
 import '../home/learning_cards.dart';
@@ -91,17 +92,18 @@ class PremiumMyCourses extends ConsumerWidget {
                     ),
                     if (week != null) ...[
                       const SizedBox(height: 14),
-                      // In ink by day, in cream by night, as approved.
+                      // 128.8 In the main colour by day and light by night,
+                      // as the approved home's bar.
                       DecoratedBox(
                         decoration: BoxDecoration(
-                          color: dark
-                              ? const Color(0xFFF3F1EC)
-                              : const Color(0xFF15131A),
+                          color: dark ? const Color(0xFFEEF0F7) : p.primary,
                           borderRadius: BorderRadius.circular(26),
                         ),
                         child: LearningWeek(
                           time: week,
-                          color: dark ? const Color(0xFF15131A) : Colors.white,
+                          color: dark
+                              ? const Color(0xFF141A30)
+                              : AppNavBar.onFill(p.primary),
                           title: null,
                         ),
                       ),
