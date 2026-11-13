@@ -236,6 +236,18 @@ export const ICON_NAMES = [
   "skip_next",
   "trending_up",
   "verified",
+  // 128 Studio's new elements in the editor's list: the photo hero, the greeting and the school day.
+  "panorama",
+  "waving_hand",
+  "family_restroom",
+  // 128 The Studio demos' own icons the canvas draws: Masar's places and car, the ride apps' My rides,
+  // Rawaq's Teachers tab, the school day's check-in.
+  "history",
+  "work",
+  "flight",
+  "airline_seat_recline_extra",
+  "co_present",
+  "how_to_reg",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

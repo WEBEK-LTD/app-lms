@@ -27,6 +27,7 @@ import { applyWholeDesign, demoProjectLook, designsFor, makeDesign } from "@/lib
 import { demoStudioPage, TEMPLATES, templatesFor, type SectionContext, type SectionWord } from "@/lib/studio/sections";
 import { startLayout } from "@/lib/studio/start";
 import { allNodes } from "@/lib/studio/tree";
+import { ICON_NAMES } from "@/components/icon-names";
 
 /**
  * Templates = demos, for Yallapp Studio. A Studio demo is its kind's own
@@ -373,6 +374,14 @@ describe("123 The premium academy's demo: the project its template starts", () =
     const dart = readFileSync(join(process.cwd(), "..", "..", "mobile", "lib", "core", "theme", "symbol_names.dart"), "utf8");
     const icons = new Set([...layout.tabs.map((t) => t.icon), ...layout.pages.flatMap((p) => (p.studio ? allNodes(p.studio).map((n) => n.icon) : []))].filter((i): i is string => Boolean(i)));
     for (const icon of icons) expect(dart, `${id}: ${icon}`).toContain(`'${icon}':`);
+  });
+
+  // 128 And in Studio's canvas, whose icon font is the site's subset: a missing one shows its name ("HISTORY") instead.
+  it.each(STUDIO_DEMO_TYPES)("draws every icon of the %s demo's pages and tabs in Studio's canvas (components/icon-names.ts)", async (id) => {
+    const layout = await demoOf(id);
+    const subset = new Set<string>(ICON_NAMES);
+    const icons = new Set([...layout.tabs.map((t) => t.icon), ...layout.pages.flatMap((p) => (p.studio ? allNodes(p.studio).map((n) => n.icon) : []))].filter((i): i is string => Boolean(i)));
+    for (const icon of icons) expect(subset.has(icon), `${id}: ${icon}`).toBe(true);
   });
 
   it("is told apart from the academy's own demo by its template, and isn't offered as a template twice", () => {
