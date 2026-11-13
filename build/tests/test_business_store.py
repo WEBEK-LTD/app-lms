@@ -232,6 +232,22 @@ class CourierTest(unittest.TestCase):
         self.assertIn("no in-app purchases", notes)
         self.assertIn("No message is sent", notes)
 
+    def test_its_own_icon_not_yallapp_business(self):
+        """124.16 App Review 4.3(a): the store icon and the app icon are Yallapp Courier's own."""
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "play"
+            store.cmd_play(out, Path(tmp) / "shots")
+            icon = (out / "en-US" / "images" / "icon.png").read_bytes()
+        self.assertEqual((ROOT / "brand" / "stores" / "courier" / "google-play-icon-512.png").read_bytes(), icon)
+        self.assertNotEqual((ROOT / "brand" / "stores" / "google-play-icon-512.png").read_bytes(), icon)
+        workflow = (ROOT / ".github" / "workflows" / "courier-release.yml").read_text()
+        self.assertEqual(2, workflow.count("make_icons.py brand/icon/yallapp-courier-icon-square-1024.png mobile"))
+        from PIL import Image
+
+        with Image.open(ROOT / "brand" / "icon" / "yallapp-courier-icon-square-1024.png") as image:
+            self.assertEqual(((1024, 1024), "RGB"), (image.size, image.convert("RGB").mode))
+            self.assertEqual(255, image.convert("RGBA").getpixel((0, 0))[3])  # square, nothing see-through
+
     def test_review_details_from_its_own_secrets_and_the_business_contact(self):
         env = {
             "YB_APP_REVIEW_FIRST_NAME": "Layla",

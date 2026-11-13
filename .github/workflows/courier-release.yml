@@ -299,6 +299,8 @@ jobs:
             echo "- **No notifications in this Android build**: \`YC_FIREBASE_GOOGLE_SERVICES\` is empty." >> "$GITHUB_STEP_SUMMARY"
           fi
           cd mobile && dart run tool/apply_config.dart "$RUNNER_TEMP/yc-config.json"
+          # 124.16 Yallapp Courier's own launcher icon (App Review 4.3a: not Yallapp Business's "y.").
+          cd .. && python3 build/scripts/make_icons.py brand/icon/yallapp-courier-icon-square-1024.png mobile
 
       # The upload key from the four YC_ANDROID_* secrets. The repository is public: the key
       # is only written to $RUNNER_TEMP, never printed nor attached, and deleted below.
@@ -554,6 +556,8 @@ jobs:
           if [ "$push" = false ]; then
             echo "- **No notifications in this iOS build**: \`YC_FIREBASE_SERVICE_INFO\` is empty. Register the iOS app \`tr.com.yallapp.courier\` in the Firebase project and paste its GoogleService-Info.plist into that variable, then run the workflow again." >> "$GITHUB_STEP_SUMMARY"
           fi
+          # 124.16 Yallapp Courier's own app icon (App Review 4.3a: not Yallapp Business's "y.").
+          python3 build/scripts/make_icons.py brand/icon/yallapp-courier-icon-square-1024.png mobile
           cd mobile
           dart run tool/apply_config.dart "$RUNNER_TEMP/yc-config.json"
           flutter build ios --release --config-only --no-codesign --build-name="$VERSION" --build-number="$BUILD"

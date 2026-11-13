@@ -64,6 +64,8 @@
 	<string>The microphone records the voice messages you send in the chat and the sound of the videos you take for it, and lets you speak on the pages you open in the app that ask for it, such as a video call.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The pictures and videos you choose are sent in the chat, or uploaded to the pages you open in the app that ask for them, such as an identity check.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>The app uses your location only while it is open: it sets where a courier picks up your parcel and, for couriers, shows the customer where their parcel is while it is on the way. It never follows you in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location sets where a courier picks up your parcel and, for couriers, shows the customer where their parcel is while it is on the way.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>

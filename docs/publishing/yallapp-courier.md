@@ -22,7 +22,7 @@ never a company's, as Yallapp Business does (LAUNCH-CHECKLIST.md › 7l).
 | Pushes | Yallapp Business's Firebase project, where Yallapp Courier's apps are added: the platform sends with Yallapp Business's key (`OWNER_PUSH_FIREBASE_SERVICE_ACCOUNT`, no new key; `COURIER_PUSH_FIREBASE_SERVICE_ACCOUNT` only for a project of its own). The apps' files are Actions variables the release workflow writes to the runner, never in the repository |
 | Store listing | [`mobile/store/courier`](../../mobile/store/courier) (checked by `build/scripts/business_store.py --app courier check` and build/tests); screenshots drawn by `mobile/test/store` |
 | Release | Actions › **Yallapp Courier release** ([`courier-release.yml`](../../.github/workflows/courier-release.yml)), below |
-| Icon and colours | Yallapp's: the app's own launcher icon (the "y." mark), Midnight and Ivory |
+| Icon and colours | Its own icon (124.16): the "y." mark in Midnight on Ivory, moving, with Ember speed lines (`brand/icon/yallapp-courier-icon-*`, store icons in `brand/stores/courier/`), never Yallapp Business's "y." on Midnight: App Review refuses two apps with one icon (guideline 4.3a). Midnight and Ivory |
 | Languages | English, Arabic (right to left), Turkish |
 | Category | Business (Google Play: Business; App Store: Business) |
 | Price | Free, no in-app purchases, no ads |
