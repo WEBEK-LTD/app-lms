@@ -66,6 +66,7 @@ platform :android do
   #          app (104.8.6 "courier" for Yallapp Courier; Yallapp Business by default)
   lane :business_play do |options|
     package = release_app(options)[:id]
+    once_per_screenshot
     upload = lambda do |status|
       upload_to_play_store(
         package_name: package,
@@ -134,6 +135,27 @@ RELEASE_APPS = {
   "business" => { id: BUSINESS_ID, name: "Yallapp Business", ipa: "YallappBusiness", keychain: "yallapp-business.keychain", entitlements: false },
   "courier" => { id: "tr.com.yallapp.courier", name: "Yallapp Courier", ipa: "YallappCourier", keychain: "yallapp-courier.keychain", entitlements: true },
 }.freeze
+
+# 125 Google Play can list one screenshot twice under the same id. supply's sync then deletes it
+# twice in one edit and the second delete fails ("Image not found"), stopping the release. Each
+# screenshot is deleted once per edit.
+def once_per_screenshot
+  require "supply"
+  return if Supply::Client.method_defined?(:clear_screenshot_before_once)
+
+  Supply::Client.class_eval do
+    alias_method :clear_screenshot_before_once, :clear_screenshot
+
+    def clear_screenshot(image_type: nil, language: nil, image_id: nil)
+      @screenshots_cleared ||= {}
+      key = [current_edit&.id, language, image_type, image_id]
+      return if @screenshots_cleared[key]
+
+      @screenshots_cleared[key] = true
+      clear_screenshot_before_once(image_type: image_type, language: language, image_id: image_id)
+    end
+  end
+end
 
 def release_app(options)
   RELEASE_APPS.fetch((options[:app] || "business").to_s) { |name| UI.user_error!("No app #{name}: business or courier.") }
