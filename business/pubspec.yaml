@@ -2,7 +2,7 @@ name: yallapp_business
 description: "Yallapp Business: the app for the people who run an app on Yallapp."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.2+1
 
 environment:
   sdk: ^3.13.4

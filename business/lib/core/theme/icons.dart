@@ -116,6 +116,32 @@ abstract final class AppIcons {
   static const chatSettings = Symbols.tune_rounded;
   static const group = Symbols.group_rounded;
   static const options = Symbols.more_vert_rounded;
+  // 125 Studio apps, Prime and VIP.
+  static const history = Symbols.history_rounded;
+  static const shipments = Symbols.two_wheeler_rounded;
+  static const couriers = Symbols.badge_rounded;
+  static const rides = Symbols.local_taxi_rounded;
+  static const drivers = Symbols.id_card_rounded;
+  static const origin = Symbols.trip_origin_rounded;
+  static const school = Symbols.school_rounded;
+  static const excuse = Symbols.sick_rounded;
+  static const report = Symbols.description_rounded;
+  static const leave = Symbols.event_busy_rounded;
+  static const bus = Symbols.directions_bus_rounded;
+  static const pickupHand = Symbols.front_hand_rounded;
+  static const slip = Symbols.draw_rounded;
+  static const fees = Symbols.receipt_rounded;
+  static const insights = Symbols.insights_rounded;
+  static const smartAlerts = Symbols.notifications_active_rounded;
+  static const brief = Symbols.wb_twilight_rounded;
+  static const manager = Symbols.support_agent_rounded;
+  static const waiting = Symbols.hourglass_top_rounded;
+  static const lowRating = Symbols.star_half_rounded;
+  static const look = Symbols.palette_rounded;
+  static const prime = Symbols.workspace_premium_rounded;
+  static const vip = Symbols.diamond_rounded;
+  static const priority = Symbols.bolt_rounded;
+  static const complaint = Symbols.report_rounded;
 }
 
 /// Icons that point a way (back, forward, send) turn round in Arabic.

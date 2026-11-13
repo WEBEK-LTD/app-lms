@@ -60,6 +60,55 @@ class MoreScreen extends ConsumerWidget {
     );
 
     final tools = [
+      // 125 Studio apps' tools that aren't tabs.
+      if (f.foodOrders && !inTabs.contains(Paths.foodOrders))
+        tile(
+          AppIcons.orders,
+          l10n.foodOrdersTitle,
+          () => context.go(Paths.foodOrders),
+        ),
+      if (f.restaurants)
+        tile(
+          AppIcons.store,
+          l10n.restaurantsTitle,
+          () => context.push(Paths.restaurants),
+        ),
+      if (f.market && !inTabs.contains(Paths.market))
+        tile(
+          AppIcons.store,
+          l10n.marketplaceTitle,
+          () => context.go(Paths.market),
+        ),
+      if (f.shipments && !inTabs.contains(Paths.shipments))
+        tile(
+          AppIcons.shipments,
+          l10n.shipmentsTitle,
+          () => context.go(Paths.shipments),
+        ),
+      if (f.shipments)
+        tile(
+          AppIcons.couriers,
+          l10n.couriersTitle,
+          () => context.push(Paths.couriers),
+        ),
+      if (f.rides && !inTabs.contains(Paths.rides))
+        tile(AppIcons.rides, l10n.ridesTitle, () => context.go(Paths.rides)),
+      if (f.rides)
+        tile(
+          AppIcons.drivers,
+          l10n.driversTitle,
+          () => context.push(Paths.drivers),
+        ),
+      if (f.school && !inTabs.contains(Paths.school))
+        tile(AppIcons.school, l10n.schoolTitle, () => context.go(Paths.school)),
+      if (f.school)
+        tile(
+          AppIcons.excuse,
+          l10n.excuseTitle,
+          () => context.push(Paths.schoolReview('excuses')),
+        ),
+      if (f.chat && !inTabs.contains(Paths.chat))
+        tile(AppIcons.chat, l10n.chat, () => context.go(Paths.chat)),
       if (f.kitchen)
         tile(
           AppIcons.kitchen,
@@ -103,7 +152,7 @@ class MoreScreen extends ConsumerWidget {
         tile(AppIcons.media, l10n.media, () => context.push(Paths.media)),
       if (f.appUsers)
         tile(AppIcons.users, l10n.appUsers, () => context.push(Paths.users)),
-      if (f.notifications)
+      if (f.notifications && !inTabs.contains(Paths.notifyTab))
         tile(
           AppIcons.notify,
           l10n.sendNotification,
@@ -206,6 +255,50 @@ class MoreScreen extends ConsumerWidget {
               () => context.push(Paths.updates),
             ),
           ]),
+          // 125 Prime: a Studio app's own; the others see what it is.
+          if (f.prime) ...[
+            SectionTitle(l10n.primeTitle),
+            group([
+              tile(
+                AppIcons.insights,
+                l10n.insightsTitle,
+                () => context.push(Paths.insights),
+              ),
+              tile(
+                AppIcons.smartAlerts,
+                l10n.smartAlerts,
+                () => context.push(Paths.smartAlerts),
+              ),
+              tile(
+                AppIcons.look,
+                l10n.lookTitle,
+                () => context.push(Paths.look),
+              ),
+              if (me.accountManager != null)
+                tile(
+                  AppIcons.vip,
+                  l10n.vipTitle,
+                  () => context.push(Paths.vip),
+                ),
+            ]),
+          ] else if (app.access.areas.contains('analytics') ||
+              app.access.role != TeamRole.staff) ...[
+            SectionTitle(l10n.primeTitle),
+            group([
+              tile(
+                AppIcons.prime,
+                l10n.primeTitle,
+                () => context.push(Paths.prime),
+                subtitle: l10n.primeComes,
+              ),
+              if (me.accountManager != null)
+                tile(
+                  AppIcons.vip,
+                  l10n.vipTitle,
+                  () => context.push(Paths.vip),
+                ),
+            ]),
+          ],
           SectionTitle(l10n.settings),
           group([
             tile(

@@ -17,6 +17,7 @@ import 'package:yallapp_business/core/services/media_picker.dart';
 import 'package:yallapp_business/core/services/push.dart';
 import 'package:yallapp_business/core/services/screen_wake.dart';
 import 'package:yallapp_business/features/events/camera_scanner.dart';
+import 'package:yallapp_business/features/launch/opening_screen.dart';
 import 'package:yallapp_business/features/media/uploads.dart';
 import 'package:yallapp_business/features/preview/preview_screen.dart';
 
@@ -32,6 +33,7 @@ class TestApp {
     this.push,
     this.preferences = const {},
     this.brightness,
+    this.opening = false,
   }) : api = api ?? FakeOwnerApi();
 
   final FakeOwnerApi api;
@@ -45,6 +47,9 @@ class TestApp {
 
   /// 61 The phone's light or dark setting (null: the test default, light).
   final Brightness? brightness;
+
+  /// 125 The opening motion plays (off: the app opens straight on Today).
+  final bool opening;
 
   final opened = <String>[];
   final chime = FakeChime();
@@ -97,6 +102,7 @@ class TestApp {
       ),
     ),
     appVersionProvider.overrideWith((ref) async => '1.0.0 (1)'),
+    openingMotionProvider.overrideWithValue(opening),
   ];
 
   /// [size] is in logical pixels. 65 The store screenshots give the
@@ -108,6 +114,7 @@ class TestApp {
     double pixelRatio = 3,
     EdgeInsets padding = EdgeInsets.zero,
     Widget Function(Widget app)? wrap,
+    int frames = 12,
   }) async {
     tester.view.physicalSize = size * pixelRatio;
     tester.view.devicePixelRatio = pixelRatio;
@@ -147,7 +154,8 @@ class TestApp {
       child: const BusinessApp(),
     );
     await tester.pumpWidget(wrap == null ? root : wrap(root));
-    await settle(tester);
+    // 125 frames: 0 looks at the first frame (the opening).
+    if (frames > 0) await settle(tester, frames);
   }
 }
 

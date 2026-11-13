@@ -2,4 +2,8 @@
 <resources>
     <!-- 59 Ivory, Yallapp's light background (docs/BRAND.md). -->
     <color name="yallapp_ivory">#F4EFE6</color>
+    <!-- 125 The opening's first frame: Ivory (Midnight at night, values-night)
+         with the Ember dot in the middle, where the Flutter opening starts. -->
+    <color name="yallapp_ember">#FF5A1F</color>
+    <color name="launch_background">#F4EFE6</color>
 </resources>

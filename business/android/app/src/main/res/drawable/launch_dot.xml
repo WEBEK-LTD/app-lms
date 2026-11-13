@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 125 Android 12's splash icon: the Ember dot, 48dp in its 240dp box. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:fillColor="@color/yallapp_ember"
+        android:pathData="M120,96a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+</vector>

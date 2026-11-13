@@ -1,7 +1,9 @@
 import 'json.dart';
+import 'studio_models.dart';
 
 export 'json.dart' show Json;
 export 'chat_models.dart';
+export 'studio_models.dart';
 
 /// 59 The Owner API's schemas (docs/api/owner.yaml), read from JSON.
 
@@ -182,6 +184,7 @@ class Me {
     this.stateMessage,
     this.business,
     this.businesses = const [],
+    this.accountManager,
   });
 
   factory Me.fromJson(Json json) {
@@ -195,6 +198,7 @@ class Me {
       links: MeLinks.fromJson(optObject(json, 'links') ?? const {}),
       business: business == null ? null : Business.fromJson(business),
       businesses: listOf(json, 'businesses', Business.fromJson),
+      accountManager: AccountManager.opt(json, 'account_manager'),
     );
   }
 
@@ -211,6 +215,10 @@ class Me {
   final Business? business;
   final List<Business> businesses;
 
+  /// 125 VIP: the business's account manager at Yallapp (when it has one
+  /// and an app on a plan with one).
+  final AccountManager? accountManager;
+
   /// 60 The person's role on this business (the owner's when unknown).
   TeamRole get role => business?.role ?? TeamRole.owner;
 
@@ -222,6 +230,7 @@ class Me {
     links: links,
     business: business,
     businesses: businesses,
+    accountManager: accountManager,
   );
 }
 
@@ -440,6 +449,14 @@ class AppFeatures {
     this.analytics = false,
     this.preview = false,
     this.builds = false,
+    this.foodOrders = false,
+    this.restaurants = false,
+    this.shipments = false,
+    this.rides = false,
+    this.market = false,
+    this.school = false,
+    this.prime = false,
+    this.vip = false,
   });
 
   factory AppFeatures.fromJson(Json json) => AppFeatures(
@@ -464,6 +481,14 @@ class AppFeatures {
     analytics: boolean(json, 'analytics'),
     preview: boolean(json, 'preview'),
     builds: boolean(json, 'builds'),
+    foodOrders: boolean(json, 'food_orders'),
+    restaurants: boolean(json, 'restaurants'),
+    shipments: boolean(json, 'shipments'),
+    rides: boolean(json, 'rides'),
+    market: boolean(json, 'market'),
+    school: boolean(json, 'school'),
+    prime: boolean(json, 'prime'),
+    vip: boolean(json, 'vip'),
   );
 
   final bool orders;
@@ -496,6 +521,30 @@ class AppFeatures {
   final bool analytics;
   final bool preview;
   final bool builds;
+
+  /// 125 A Studio food app's orders (its restaurants' own).
+  final bool foodOrders;
+
+  /// 125 Its restaurants: busy, delayed, open again.
+  final bool restaurants;
+
+  /// 125 Courier jobs (a delivery app, and food and marketplace apps).
+  final bool shipments;
+
+  /// 125 A rides or taxi app's rides and drivers.
+  final bool rides;
+
+  /// 125 A marketplace: its orders, complaints and vendors.
+  final bool market;
+
+  /// 125 A school's day: check-in, excuses, reports, leave.
+  final bool school;
+
+  /// 125 Prime: the app is a Studio app (and the person has Analytics).
+  final bool prime;
+
+  /// 125 VIP: the app's plan comes with an account manager.
+  final bool vip;
 
   bool get catalog => products || courses || articles || listings;
 
@@ -602,7 +651,13 @@ enum PushKind {
   paymentReceived('payment_received'),
   buildFinished('build_finished'),
   yallappUpdates('yallapp_updates'),
-  accountNotices('account_notices');
+  accountNotices('account_notices'),
+  // 125 Studio apps and Prime.
+  newFoodOrder('new_food_order'),
+  shipmentWaiting('shipment_waiting'),
+  newComplaint('new_complaint'),
+  primeAlert('prime_alert'),
+  morningBrief('morning_brief');
 
   const PushKind(this.wire);
   final String wire;
@@ -766,7 +821,9 @@ class NeedsYou {
   );
 
   /// orders_in_progress, appointments_to_confirm, unanswered_messages,
-  /// questions_to_answer (63), notice.
+  /// questions_to_answer (63), notice; 125 food_orders_new,
+  /// shipments_waiting, rides_searching, complaints_waiting,
+  /// school_excuses, school_reports, school_leave.
   final String kind;
   final int count;
   final String title;
@@ -782,6 +839,8 @@ class Today {
     required this.counts,
     required this.needsYou,
     this.hasAppOpens = false,
+    this.compare,
+    this.morningBrief,
   });
 
   factory Today.fromJson(Json json) {
@@ -794,6 +853,11 @@ class Today {
       counts: TodayCounts.fromJson(counts),
       hasAppOpens: counts.containsKey('app_opens'),
       needsYou: listOf(json, 'needs_you', NeedsYou.fromJson),
+      compare: TodayCompare.opt(json, 'compare'),
+      morningBrief: optStr(
+        optObject(json, 'morning_brief') ?? const {},
+        'text',
+      ),
     );
   }
 
@@ -806,6 +870,12 @@ class Today {
   /// The app has Analytics (app_opens is listed, maybe still null).
   final bool hasAppOpens;
   final List<NeedsYou> needsYou;
+
+  /// 125 A Prime app's today against the same weekday last week.
+  final TodayCompare? compare;
+
+  /// 125 Yesterday in a line (`morning_brief.text`), when sent.
+  final String? morningBrief;
 }
 
 class Paged<T> {
@@ -815,6 +885,7 @@ class Paged<T> {
     this.perPage = 20,
     this.total = 0,
     this.totalPages = 1,
+    this.counts = const {},
   });
 
   factory Paged.fromJson(Json json, T Function(Json) parse) => Paged(
@@ -823,6 +894,10 @@ class Paged<T> {
     perPage: integer(json, 'per_page', 20),
     total: integer(json, 'total'),
     totalPages: integer(json, 'total_pages', 1),
+    counts: {
+      for (final e in (optObject(json, 'counts') ?? const {}).entries)
+        if (e.value is num) e.key: (e.value as num).toInt(),
+    },
   );
 
   final List<T> items;
@@ -830,6 +905,12 @@ class Paged<T> {
   final int perPage;
   final int total;
   final int totalPages;
+
+  /// 125 The list's counts beside its page (food orders' `new` and
+  /// `active`, shipments' `waiting`…).
+  final Map<String, int> counts;
+
+  int count(String key) => counts[key] ?? 0;
 
   bool get hasMore => page < totalPages;
 }

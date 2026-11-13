@@ -2170,6 +2170,1017 @@ class AppLocalizationsTr extends AppLocalizations {
   String get markPaid => 'Ödendi olarak işaretle';
 
   @override
+  String get foodOrdersTitle => 'Yemek siparişleri';
+
+  @override
+  String get shipmentsTitle => 'Gönderiler';
+
+  @override
+  String get ridesTitle => 'Yolculuklar';
+
+  @override
+  String get marketTab => 'Pazar';
+
+  @override
+  String get marketplaceTitle => 'Pazar yeri';
+
+  @override
+  String get schoolTitle => 'Okul';
+
+  @override
+  String get restaurantsTitle => 'Restoranlar';
+
+  @override
+  String get couriersTitle => 'Kuryeler';
+
+  @override
+  String get driversTitle => 'Sürücüler';
+
+  @override
+  String get searchAction => 'Ara';
+
+  @override
+  String get searchFoodHint => 'Sipariş numarası, müşteri veya restoran';
+
+  @override
+  String get searchShipmentsHint => 'Gönderi numarası veya adres';
+
+  @override
+  String get searchRidesHint => 'Yolculuk numarası veya yolcu';
+
+  @override
+  String get searchMarketHint => 'Sipariş numarası, müşteri veya satıcı';
+
+  @override
+  String get closeSearch => 'Aramayı kapat';
+
+  @override
+  String get filterNew => 'Yeni';
+
+  @override
+  String get filterActive => 'Devam eden';
+
+  @override
+  String get filterDone => 'Tamamlanan';
+
+  @override
+  String get filterProblems => 'Sorunlu';
+
+  @override
+  String get filterWaiting => 'Bekleyen';
+
+  @override
+  String get filterNow => 'Şimdi';
+
+  @override
+  String get filterScheduled => 'Planlı';
+
+  @override
+  String busyUntil(String name, String time) {
+    return '$name $time saatine kadar yoğun';
+  }
+
+  @override
+  String get endDelay => 'Gecikmeyi bitir';
+
+  @override
+  String get openNow => 'Şimdi aç';
+
+  @override
+  String foodRoute(String restaurant, String customer) {
+    return '$restaurant → $customer';
+  }
+
+  @override
+  String kmShort(String km) {
+    return '$km km';
+  }
+
+  @override
+  String kmAway(String km) {
+    return '$km km uzakta';
+  }
+
+  @override
+  String get rejectAction => 'Reddet';
+
+  @override
+  String get rejectMore => 'Reddet…';
+
+  @override
+  String get foodRaceNote =>
+      'Restoran da kendi uygulamasından kabul eder. İlk dokunan kazanır.';
+
+  @override
+  String get noFoodOrders => 'Burada yemek siparişi yok';
+
+  @override
+  String get noFoodOrdersText =>
+      'Yeni siparişler müşteriler verdikçe burada görünür.';
+
+  @override
+  String get readyIn => 'Hazır olma süresi';
+
+  @override
+  String get acceptNote =>
+      'Müşteri bu süreyi görür. Kabul ettiğiniz anda bir kurye işi oluşturulur.';
+
+  @override
+  String acceptWith(String minutes) {
+    return 'Kabul et · $minutes';
+  }
+
+  @override
+  String cashCollect(String amount) {
+    return 'Kapıda nakit: kurye $amount tahsil eder';
+  }
+
+  @override
+  String placedWaiting(String time) {
+    return '$time verildi · sizi veya restoranı bekliyor';
+  }
+
+  @override
+  String placedAt(String time) {
+    return '$time verildi';
+  }
+
+  @override
+  String readyAt(String time) {
+    return '$time hazır';
+  }
+
+  @override
+  String get totalLabel => 'Toplam';
+
+  @override
+  String rejectTitle(String reference) {
+    return '$reference reddedilsin mi?';
+  }
+
+  @override
+  String get rejectWhy => 'Neden?';
+
+  @override
+  String get rejectText =>
+      'Müşteriye bildirilir ve kartla yapılan ödeme iade edilir.';
+
+  @override
+  String get chooseWhy => 'Bir neden seçin.';
+
+  @override
+  String get noteOptional => 'Not (isteğe bağlı)';
+
+  @override
+  String get rejectOrder => 'Siparişi reddet';
+
+  @override
+  String get cancelFoodOrder => 'Siparişi iptal et…';
+
+  @override
+  String cancelTitle(String reference) {
+    return '$reference iptal edilsin mi?';
+  }
+
+  @override
+  String get cancelFoodText =>
+      'Müşteriye bildirilir. Kartla yapılan ödeme iade edilir.';
+
+  @override
+  String get cancelConfirm => 'İptal et';
+
+  @override
+  String get keepIt => 'Kalsın';
+
+  @override
+  String foodAccepted(String reference, String minutes) {
+    return '$reference kabul edildi · $minutes içinde hazır';
+  }
+
+  @override
+  String foodRejected(String reference) {
+    return '$reference reddedildi';
+  }
+
+  @override
+  String foodReadyDone(String reference) {
+    return '$reference hazır';
+  }
+
+  @override
+  String foodCancelled(String reference) {
+    return '$reference iptal edildi';
+  }
+
+  @override
+  String get historyTitle => 'Geçmiş';
+
+  @override
+  String delayEnded(String name) {
+    return '$name: gecikme bitti';
+  }
+
+  @override
+  String restaurantOpened(String name) {
+    return '$name açık';
+  }
+
+  @override
+  String opensAt(String time) {
+    return '$time açılır';
+  }
+
+  @override
+  String get noRestaurants => 'Henüz restoran yok';
+
+  @override
+  String get refundDue => 'Bu sipariş için iade gerekiyor.';
+
+  @override
+  String get callCustomer => 'Müşteriyi ara';
+
+  @override
+  String get courierLabel => 'Kurye';
+
+  @override
+  String get onDuty => 'Görevde';
+
+  @override
+  String get onTheWay => 'Yolda';
+
+  @override
+  String get needsCourier => 'Kurye bekliyor';
+
+  @override
+  String shipFoodOrder(String reference) {
+    return 'Yemek siparişi $reference';
+  }
+
+  @override
+  String shipCollect(String amount) {
+    return '$amount nakit tahsil edilecek';
+  }
+
+  @override
+  String giveTo(String reference) {
+    return '$reference kime verilsin';
+  }
+
+  @override
+  String get closestFirst => 'En yakın önce. Yalnızca görevdeki kuryeler.';
+
+  @override
+  String get courierFree => 'boşta';
+
+  @override
+  String get courierOff => 'görev dışı';
+
+  @override
+  String get courierPaused => 'ara verdi';
+
+  @override
+  String giveItTo(String name) {
+    return '$name kişisine ver';
+  }
+
+  @override
+  String get noCouriersOnDuty => 'Şu anda görevde kurye yok.';
+
+  @override
+  String shipmentGiven(String reference, String name) {
+    return '$reference, $name kişisine verildi';
+  }
+
+  @override
+  String get pickupLabel => 'Alış';
+
+  @override
+  String get dropoffLabel => 'Teslim';
+
+  @override
+  String get priceLabel => 'Ücret';
+
+  @override
+  String get paymentLabel => 'Ödeme';
+
+  @override
+  String get recipientLabel => 'Alıcı';
+
+  @override
+  String get giveCourier => 'Kuryeye ver';
+
+  @override
+  String get giveAnotherCourier => 'Başka kuryeye ver';
+
+  @override
+  String get shipPickedUp => 'Alındı';
+
+  @override
+  String get shipDelivered => 'Teslim edildi';
+
+  @override
+  String get shipFailed => 'Teslim edilemedi';
+
+  @override
+  String get shipCancel => 'Gönderiyi iptal et';
+
+  @override
+  String shipMoved(String reference, String status) {
+    return '$reference: $status';
+  }
+
+  @override
+  String get noShipments => 'Burada gönderi yok';
+
+  @override
+  String get noShipmentsText => 'Kurye işleri geldikçe burada görünür.';
+
+  @override
+  String get noCouriers => 'Henüz kurye yok';
+
+  @override
+  String get noteLabel => 'Not';
+
+  @override
+  String get freeDrivers => 'Boş sürücüler';
+
+  @override
+  String get onARide => 'Yolculukta';
+
+  @override
+  String get searchingLabel => 'Aranıyor';
+
+  @override
+  String get rideQuoted => 'teklif';
+
+  @override
+  String get cancelRide => 'Yolculuğu iptal et';
+
+  @override
+  String get giveToDriver => 'Sürücüye ver';
+
+  @override
+  String get callDriver => 'Sürücüyü ara';
+
+  @override
+  String arrivesAt(String time) {
+    return '$time varış';
+  }
+
+  @override
+  String rideScheduledFor(String time) {
+    return '$time için';
+  }
+
+  @override
+  String get closestSameType => 'En yakın önce. Aynı araç tipi önce.';
+
+  @override
+  String get driverFree => 'boşta';
+
+  @override
+  String get driverOnRide => 'yolculukta';
+
+  @override
+  String get driverOffline => 'çevrimdışı';
+
+  @override
+  String get driverSuspended => 'askıda';
+
+  @override
+  String get cancelRideText => 'Yolcuya bildirilir.';
+
+  @override
+  String rideCancelled(String reference) {
+    return '$reference iptal edildi';
+  }
+
+  @override
+  String rideGiven(String reference, String name) {
+    return '$reference, $name kişisine verildi';
+  }
+
+  @override
+  String get noRides => 'Burada yolculuk yok';
+
+  @override
+  String get noRidesText => 'Yolculuklar yolcular istedikçe burada görünür.';
+
+  @override
+  String get noFreeDrivers => 'Şu anda boş sürücü yok.';
+
+  @override
+  String get noDrivers => 'Henüz sürücü yok';
+
+  @override
+  String get riderLabel => 'Yolcu';
+
+  @override
+  String get finalPrice => 'Ödenen';
+
+  @override
+  String get complaintsTab => 'Şikâyetler';
+
+  @override
+  String get vendorsTab => 'Satıcılar';
+
+  @override
+  String get waitingForYou => 'Sizi bekliyor';
+
+  @override
+  String get withVendor => 'Satıcıda';
+
+  @override
+  String get waitingCustomer => 'Müşteriyi bekliyor';
+
+  @override
+  String get complaintReply => 'Yanıtla';
+
+  @override
+  String refundOf(String amount) {
+    return '$amount iade et';
+  }
+
+  @override
+  String get marketInfo =>
+      'Satıcılar kendi siparişlerini ilerletir. Siz tüm siparişleri görür, şikâyetleri çözersiniz.';
+
+  @override
+  String get noComplaints => 'Şikâyet yok';
+
+  @override
+  String get noComplaintsText =>
+      'Bir müşteri bir siparişten şikâyet ettiğinde burada görünür.';
+
+  @override
+  String get noMarketOrders => 'Burada sipariş yok';
+
+  @override
+  String get noVendors => 'Henüz satıcı yok';
+
+  @override
+  String get vendorOpen => 'Açık';
+
+  @override
+  String get vendorClosed => 'Kapalı';
+
+  @override
+  String get vendorInactive => 'Satışta değil';
+
+  @override
+  String amountIn(String currency) {
+    return 'Tutar ($currency)';
+  }
+
+  @override
+  String upToAmount(String amount) {
+    return 'En fazla $amount';
+  }
+
+  @override
+  String enterAmountUpTo(String amount) {
+    return 'En fazla $amount olan bir tutar girin.';
+  }
+
+  @override
+  String decidedAs(String label) {
+    return 'Tamam: $label';
+  }
+
+  @override
+  String get replyToCustomer => 'Müşteriye yazın';
+
+  @override
+  String refundConfirmTitle(String amount) {
+    return '$amount iade edilsin mi?';
+  }
+
+  @override
+  String get refundConfirmText =>
+      'Müşteri parasını geri alır ve bilgilendirilir. Şikâyet kapanır.';
+
+  @override
+  String get writeWhy => 'Müşteri için nedenini yazın.';
+
+  @override
+  String get noteToCustomer => 'Neden (müşteri okur)';
+
+  @override
+  String get moneyGoesTo => 'Para nereye gidecek';
+
+  @override
+  String get toPayment => 'Ödediği yöntem';
+
+  @override
+  String get toWallet => 'Uygulama cüzdanı';
+
+  @override
+  String get toCoupon => 'Kupon';
+
+  @override
+  String get fromCustomer => 'Müşteri';
+
+  @override
+  String get fromVendor => 'Satıcı';
+
+  @override
+  String get fromSupport => 'Siz';
+
+  @override
+  String deliveryBy(String who) {
+    return 'Teslim eden: $who';
+  }
+
+  @override
+  String get fulfilmentDelivery => 'Teslimat';
+
+  @override
+  String get fulfilmentPickup => 'Gel al';
+
+  @override
+  String schoolDateLine(String date, String time) {
+    return '$date · giriş kaydı $time kapanır';
+  }
+
+  @override
+  String get studentsTitle => 'Öğrenciler';
+
+  @override
+  String inAll(String count) {
+    return 'toplam $count';
+  }
+
+  @override
+  String get studentsIn => 'Gelen';
+
+  @override
+  String get studentsLate => 'Geç kalan';
+
+  @override
+  String get studentsNotYet => 'Henüz gelmeyen';
+
+  @override
+  String get studentsAbsent => 'Gelmeyen';
+
+  @override
+  String get teachersLabel => 'Öğretmenler';
+
+  @override
+  String get staffLabel => 'Personel';
+
+  @override
+  String countOf(String count, String total) {
+    return '$total kişiden $count';
+  }
+
+  @override
+  String busLate(String route, String minutes) {
+    return '$route $minutes gecikmeli';
+  }
+
+  @override
+  String get busesOnTime => 'Hepsi zamanında';
+
+  @override
+  String get pickupsText => 'Bugün başkası alacak';
+
+  @override
+  String slipLine(String yes, String no, String waiting) {
+    return '$yes evet · $no hayır · $waiting bekliyor';
+  }
+
+  @override
+  String feesDue(String amount) {
+    return '$amount ödenecek';
+  }
+
+  @override
+  String get excuseTitle => 'Devamsızlık mazereti';
+
+  @override
+  String get reportTitle => 'Öğretmen raporu';
+
+  @override
+  String get leaveTitle => 'İzin talebi';
+
+  @override
+  String chipExcuses(String count) {
+    return 'Mazeretler · $count';
+  }
+
+  @override
+  String chipReports(String count) {
+    return 'Raporlar · $count';
+  }
+
+  @override
+  String chipLeave(String count) {
+    return 'İzinler · $count';
+  }
+
+  @override
+  String get daysLabel => 'Günler';
+
+  @override
+  String get reasonLabel => 'Neden';
+
+  @override
+  String sentByLine(String name, String relation, String when) {
+    return 'Gönderen: $name ($relation) · $when';
+  }
+
+  @override
+  String sentByOnly(String name, String when) {
+    return 'Gönderen: $name · $when';
+  }
+
+  @override
+  String sentWhen(String when) {
+    return '$when gönderildi';
+  }
+
+  @override
+  String get commentsTitle => 'Yorumlar';
+
+  @override
+  String get noteToParents => 'Veliye not';
+
+  @override
+  String get noteNeededDecline => 'Yalnızca reddederken gerekir';
+
+  @override
+  String get declineNeedsNote => 'Reddetmek için veliye bir not yazın.';
+
+  @override
+  String get excuseAccepted => 'Mazeret kabul edildi. Veliye bildirildi.';
+
+  @override
+  String get excuseDeclined => 'Mazeret reddedildi. Veliye bildirildi.';
+
+  @override
+  String get noExcuses => 'Bekleyen mazeret yok';
+
+  @override
+  String get noReports => 'Okunacak rapor yok';
+
+  @override
+  String get noLeave => 'Bekleyen izin talebi yok';
+
+  @override
+  String get allAnsweredText => 'Buradaki her şey yanıtlandı.';
+
+  @override
+  String openFile(String name) {
+    return '$name aç';
+  }
+
+  @override
+  String get aboutLabel => 'Konu';
+
+  @override
+  String get reportCommentHint => 'Bir yorum veya neyin değişeceği';
+
+  @override
+  String get returnReport => 'Geri gönder';
+
+  @override
+  String get approveReport => 'Onayla';
+
+  @override
+  String get sendComment => 'Yorum yap';
+
+  @override
+  String get reportApproved => 'Rapor onaylandı';
+
+  @override
+  String reportReturned(String name) {
+    return 'Rapor $name kişisine geri gönderildi';
+  }
+
+  @override
+  String get commentSent => 'Yorum gönderildi';
+
+  @override
+  String get writeFirst => 'Önce neyin değişeceğini yazın.';
+
+  @override
+  String get refuseLeave => 'Reddet';
+
+  @override
+  String get approveLeave => 'Onayla';
+
+  @override
+  String get leaveApproved => 'İzin onaylandı';
+
+  @override
+  String get leaveRefused => 'İzin reddedildi';
+
+  @override
+  String get noteToPerson => 'Not (isteğe bağlı)';
+
+  @override
+  String get kindClass => 'Sınıf';
+
+  @override
+  String get kindStudent => 'Öğrenci';
+
+  @override
+  String get primeBadge => 'Prime';
+
+  @override
+  String changeUp(String pct, String label) {
+    return '▲ $pct $label';
+  }
+
+  @override
+  String changeDown(String pct, String label) {
+    return '▼ $pct $label';
+  }
+
+  @override
+  String changeSame(String label) {
+    return 'Aynı $label';
+  }
+
+  @override
+  String get morningBrief => 'Sabah özeti';
+
+  @override
+  String get insightsTitle => 'Analizler';
+
+  @override
+  String get insightsTileText => 'Yoğun saatler, en çok satanlar';
+
+  @override
+  String get smartAlerts => 'Akıllı uyarılar';
+
+  @override
+  String get accountManagerTitle => 'Hesap yöneticiniz';
+
+  @override
+  String get vipRepliesFirst => 'VIP · önce size yanıt verir';
+
+  @override
+  String get messageAction => 'Mesaj';
+
+  @override
+  String get thisWeek => 'Bu hafta';
+
+  @override
+  String get thisMonth => 'Bu ay';
+
+  @override
+  String get vsLastWeek => 'geçen haftaya göre';
+
+  @override
+  String get vsLastMonth => 'geçen aya göre';
+
+  @override
+  String get lastWeek => 'Geçen hafta';
+
+  @override
+  String get lastMonth => 'Geçen ay';
+
+  @override
+  String get peakHours => 'Yoğun saatler';
+
+  @override
+  String busiestLine(String label) {
+    return 'En yoğun: $label';
+  }
+
+  @override
+  String get returningTitle => 'Geri gelen müşteriler';
+
+  @override
+  String get averageOrder => 'Ortalama sipariş';
+
+  @override
+  String get sameAsLastWeek => 'geçen haftayla aynı';
+
+  @override
+  String get sameAsLastMonth => 'geçen ayla aynı';
+
+  @override
+  String get bestSellers => 'En çok satanlar';
+
+  @override
+  String get noInsights => 'Henüz yeterli sipariş yok';
+
+  @override
+  String get noInsightsText => 'Analizler uygulama sipariş aldığında görünür.';
+
+  @override
+  String percentValue(String value) {
+    return '%$value';
+  }
+
+  @override
+  String get alertsIntro =>
+      'Bir şey sizi beklediğinde bu telefona bildirim gelir. Ne zaman olacağını siz seçersiniz.';
+
+  @override
+  String get alertOrderWaiting => 'Bir sipariş kabul bekliyor';
+
+  @override
+  String get alertShipment => 'Bir gönderinin kuryesi yok';
+
+  @override
+  String get alertSalesLow => 'Bugün satışlar düşük';
+
+  @override
+  String get alertMessage => 'Bir mesaj yanıtsız';
+
+  @override
+  String get alertLowRating => 'Düşük bir puan';
+
+  @override
+  String get alertNoDriver => 'Bir yolculuğa sürücü bulunamıyor';
+
+  @override
+  String belowBy(String amount, String time) {
+    return '$time saatine kadar $amount altında';
+  }
+
+  @override
+  String briefWhen(String time) {
+    return 'Dün tek bir bildirimde, her gün $time';
+  }
+
+  @override
+  String get alertsFooter =>
+      'Sayısını veya saatini değiştirmek için bir uyarıya dokunun. Ekipteki herkes kendi uyarılarını ayarlar.';
+
+  @override
+  String get minutesField => 'Dakika';
+
+  @override
+  String amountField(String currency) {
+    return 'Tutar ($currency)';
+  }
+
+  @override
+  String get byTimeField => 'Saate kadar';
+
+  @override
+  String get starsField => 'Yıldız';
+
+  @override
+  String get chooseTime => 'Saati seçin';
+
+  @override
+  String get lookTitle => 'Görünüm';
+
+  @override
+  String get lookClassic => 'Klasik';
+
+  @override
+  String get lookMidnightGold => 'Gece altını';
+
+  @override
+  String get lookEmber => 'Köz';
+
+  @override
+  String get lookSage => 'Adaçayı';
+
+  @override
+  String get primeHeaderOnToday => 'Bugün\'de Prime başlığı';
+
+  @override
+  String get primeHeaderHelp => 'Satışlar ve karşılaştırma en üstte';
+
+  @override
+  String get lightOrDark => 'Açık veya koyu';
+
+  @override
+  String lightOrDarkHelp(String mode) {
+    return 'Her görünümün ikisi de var · $mode';
+  }
+
+  @override
+  String get lookFooter =>
+      'Görünüm bu telefonda saklanır ve müşterilerinizin uygulamasında hiçbir şeyi değiştirmez.';
+
+  @override
+  String lookChosen(String name) {
+    return '$name, seçili';
+  }
+
+  @override
+  String get vipTitle => 'VIP hizmet';
+
+  @override
+  String get vipManagerAt => 'Yallapp\'teki hesap yöneticiniz';
+
+  @override
+  String get whatsappAction => 'WhatsApp';
+
+  @override
+  String get priorityLine => 'Öncelikli hat';
+
+  @override
+  String get priorityFirst => 'sırada önce siz varsınız';
+
+  @override
+  String get bookCall => 'Görüşme ayarla';
+
+  @override
+  String bookOn(String day, String time) {
+    return '$day $time ayarla';
+  }
+
+  @override
+  String get vipFooter =>
+      'Business paketi ve Studio\'nun Business paketi için. Yöneticiniz görüşmeyi takviminde görür.';
+
+  @override
+  String callRequested(String day, String time) {
+    return '$day $time için görüşme istendi. Yöneticiniz onaylayacak.';
+  }
+
+  @override
+  String get noSlots =>
+      'Önümüzdeki günlerde boş saat yok. WhatsApp\'tan yazın.';
+
+  @override
+  String get vipPlan => 'VIP';
+
+  @override
+  String get primeTitle => 'Prime';
+
+  @override
+  String get primeComes => 'Prime, her Yallapp Studio uygulamasıyla gelir';
+
+  @override
+  String primeRegular(String name) {
+    return '“$name” uygulamanız normal düzenleyicide. Studio\'da yapılan uygulamalar Yallapp Business\'ta Prime alır.';
+  }
+
+  @override
+  String get insightsHelp =>
+      'Bu hafta geçen haftaya göre, yoğun saatler, en çok satanlar';
+
+  @override
+  String get alertsHelp => 'Bir şey çok beklediğinde haber verilir';
+
+  @override
+  String get briefHelp => 'Dün tek bir bildirimde';
+
+  @override
+  String get primeLooks => 'Prime görünümleri';
+
+  @override
+  String get primeLooksHelp => 'Bu uygulama için dört görünüm, açık ve koyu';
+
+  @override
+  String get learnMoreWebsite => 'Web sitesinde daha fazla bilgi';
+
+  @override
+  String get nothingSold => 'Bu uygulamada hiçbir şey satılmaz.';
+
+  @override
+  String get launchTagline => 'Her sipariş, rezervasyon ve mesaj. Tek yerde.';
+
+  @override
+  String launchOpening(String app) {
+    return '$app açılıyor.';
+  }
+
+  @override
+  String get launchLoading => 'Yallapp Business açılıyor';
+
+  @override
+  String get pushFoodOrder => 'Yeni yemek siparişleri';
+
+  @override
+  String get pushFoodOrderHelp => 'Bir müşteri yemek siparişi verdiğinde.';
+
+  @override
+  String get pushShipment => 'Kuryesiz gönderiler';
+
+  @override
+  String get pushShipmentHelp => 'Bir kurye işi alınmayı beklediğinde.';
+
+  @override
+  String get pushComplaint => 'Pazar yeri şikâyetleri';
+
+  @override
+  String get pushComplaintHelp =>
+      'Bir müşteri bir siparişten şikâyet ettiğinde.';
+
+  @override
+  String get pushPrimeAlert => 'Akıllı uyarılar';
+
+  @override
+  String get pushPrimeAlertHelp => 'Prime: bir şey çok beklediğinde.';
+
+  @override
+  String get pushBrief => 'Sabah özeti';
+
+  @override
+  String get pushBriefHelp => 'Prime: dün tek bir bildirimde.';
+
+  @override
   String minutesAgo(int count) {
     return '$count dk önce';
   }
@@ -2301,6 +3312,210 @@ class AppLocalizationsTr extends AppLocalizations {
       locale: localeName,
       other: '$count üye',
       one: '1 üye',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesShort(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dk',
+      one: '1 dk',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String jobsNow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'şu an $count iş',
+      one: 'şu an 1 iş',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ordersTodayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bugün $count sipariş',
+      one: 'Bugün 1 sipariş',
+      zero: 'Bugün sipariş yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsFoodNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yeni yemek siparişi',
+      one: '1 yeni yemek siparişi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsShipments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gönderi kurye bekliyor',
+      one: '1 gönderi kurye bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsRides(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yolculuk sürücü bekliyor',
+      one: '1 yolculuk sürücü bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsComplaints(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count şikâyet sizi bekliyor',
+      one: '1 şikâyet sizi bekliyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsExcuses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count devamsızlık mazereti',
+      one: '1 devamsızlık mazereti',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Okunacak $count öğretmen raporu',
+      one: 'Okunacak 1 öğretmen raporu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String needsLeave(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count izin talebi',
+      one: '1 izin talebi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String busesRunning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count servis yolda',
+      one: '1 servis yolda',
+      zero: 'Çalışan servis yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickupsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count teslim alma',
+      one: '1 teslim alma',
+      zero: 'Teslim alma yok',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String feesNotPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ödenmemiş ücret',
+      one: '1 ödenmemiş ücret',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String excuseExplain(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Kabul etmek $count günü yoklamada mazeretli işaretler ve veliye bildirir.',
+      two: 'Kabul etmek iki günü de yoklamada mazeretli işaretler ve veliye bildirir.',
+      one: 'Kabul etmek günü yoklamada mazeretli işaretler ve veliye bildirir.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertsOnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count açık',
+      one: '1 açık',
+      zero: 'Hepsi kapalı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String afterMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dakika sonra',
+      one: '1 dakika sonra',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String starsOrLess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yıldız veya altı',
+      one: '1 yıldız veya altı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pointsChange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count puan',
+      one: '1 puan',
     );
     return '$_temp0';
   }
